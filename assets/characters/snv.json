@@ -1,0 +1,362 @@
+{
+  "clockmaker": {
+    "id": "clockmaker",
+    "team": "townsfolk",
+    "edition": "snv",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "dreamer": {
+    "id": "dreamer",
+    "team": "townsfolk",
+    "edition": "snv",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "snakecharmer": {
+    "id": "snakecharmer",
+    "team": "townsfolk",
+    "edition": "snv",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "mathematician": {
+    "id": "mathematician",
+    "team": "townsfolk",
+    "edition": "snv",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "flowergirl": {
+    "id": "flowergirl",
+    "team": "townsfolk",
+    "edition": "snv",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "towncrier": {
+    "id": "towncrier",
+    "team": "townsfolk",
+    "edition": "snv",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "oracle": {
+    "id": "oracle",
+    "team": "townsfolk",
+    "edition": "snv",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "savant": {
+    "id": "savant",
+    "team": "townsfolk",
+    "edition": "snv",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "seamstress": {
+    "id": "seamstress",
+    "team": "townsfolk",
+    "edition": "snv",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "philosopher": {
+    "id": "philosopher",
+    "team": "townsfolk",
+    "edition": "snv",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "artist": {
+    "id": "artist",
+    "team": "townsfolk",
+    "edition": "snv",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "juggler": {
+    "id": "juggler",
+    "team": "townsfolk",
+    "edition": "snv",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "sage": {
+    "id": "sage",
+    "team": "townsfolk",
+    "edition": "snv",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "mutant": {
+    "id": "mutant",
+    "team": "outsider",
+    "edition": "snv",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "sweetheart": {
+    "id": "sweetheart",
+    "team": "outsider",
+    "edition": "snv",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "barber": {
+    "id": "barber",
+    "team": "outsider",
+    "edition": "snv",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "klutz": {
+    "id": "klutz",
+    "team": "outsider",
+    "edition": "snv",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "eviltwin": {
+    "id": "eviltwin",
+    "team": "minion",
+    "edition": "snv",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "witch": {
+    "id": "witch",
+    "team": "minion",
+    "edition": "snv",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "cerenovus": {
+    "id": "cerenovus",
+    "team": "minion",
+    "edition": "snv",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "pithag": {
+    "id": "pithag",
+    "team": "minion",
+    "edition": "snv",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "fanggu": {
+    "id": "fanggu",
+    "team": "demon",
+    "edition": "snv",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "vigormortis": {
+    "id": "vigormortis",
+    "team": "demon",
+    "edition": "snv",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "nodashii": {
+    "id": "nodashii",
+    "team": "demon",
+    "edition": "snv",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "vortox": {
+    "id": "vortox",
+    "team": "demon",
+    "edition": "snv",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "barista": {
+    "id": "barista",
+    "team": "traveler",
+    "edition": "snv",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "harlot": {
+    "id": "harlot",
+    "team": "traveler",
+    "edition": "snv",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "butcher": {
+    "id": "butcher",
+    "team": "traveler",
+    "edition": "snv",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "bonecollector": {
+    "id": "bonecollector",
+    "team": "traveler",
+    "edition": "snv",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "deviant": {
+    "id": "deviant",
+    "team": "traveler",
+    "edition": "snv",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  }
+}

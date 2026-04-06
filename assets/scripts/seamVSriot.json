@@ -1,0 +1,17 @@
+[
+  {
+    "id": "_meta",
+    "name": "Seamstress vs Riot",
+    "name_zh": "裁缝vs暴乱",
+    "author": "Sui染钟楼",
+    "logo": "https://i.postimg.cc/mkW8SPQC/copy.png",
+    "description": "一个短平快的玩法",
+    "bootlegger": [
+      "当邪恶人数超过善良,且善良阵营没有或无法提名邪恶阵营,邪恶阵营获胜",
+      "所有善良阵营总票数少于邪恶,邪恶阵营获胜"
+    ]
+  },
+  "seamstress",
+  "riot",
+  "fibbin"
+]

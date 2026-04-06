@@ -1,0 +1,362 @@
+{
+  "bingbi": {
+    "id": "bingbi",
+    "team": "townsfolk",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "chongfei": {
+    "id": "chongfei",
+    "team": "townsfolk",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "daoke": {
+    "id": "daoke",
+    "team": "townsfolk",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "daoshi": {
+    "id": "daoshi",
+    "team": "townsfolk",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "fangshi": {
+    "id": "fangshi",
+    "team": "townsfolk",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "fengshuishi": {
+    "id": "fengshuishi",
+    "team": "townsfolk",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "limao": {
+    "id": "limao",
+    "team": "townsfolk",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "qianke": {
+    "id": "qianke",
+    "team": "townsfolk",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "ranfangfangzhu": {
+    "id": "ranfangfangzhu",
+    "team": "townsfolk",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "shiguan": {
+    "id": "shiguan",
+    "team": "townsfolk",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "tixingguan": {
+    "id": "tixingguan",
+    "team": "townsfolk",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "xuncha": {
+    "id": "xuncha",
+    "team": "townsfolk",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "yanshi": {
+    "id": "yanshi",
+    "team": "townsfolk",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "yishi": {
+    "id": "yishi",
+    "team": "townsfolk",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "yinluren": {
+    "id": "yinluren",
+    "team": "townsfolk",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "yongjiang": {
+    "id": "yongjiang",
+    "team": "townsfolk",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "zhen": {
+    "id": "zhen",
+    "team": "townsfolk",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "zhifu": {
+    "id": "zhifu",
+    "team": "townsfolk",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "jiubao": {
+    "id": "jiubao",
+    "team": "outsider",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "rulianshi": {
+    "id": "rulianshi",
+    "team": "outsider",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "shutong": {
+    "id": "shutong",
+    "team": "outsider",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "gudiao": {
+    "id": "gudiao",
+    "team": "minion",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "huapi": {
+    "id": "huapi",
+    "team": "minion",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "mengpo": {
+    "id": "mengpo",
+    "team": "minion",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "niangjiushi": {
+    "id": "niangjiushi",
+    "team": "minion",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "baojun": {
+    "id": "baojun",
+    "team": "demon",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "dianyuzhang": {
+    "id": "dianyuzhang",
+    "team": "demon",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "guhuoniao": {
+    "id": "guhuoniao",
+    "team": "demon",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "jianning": {
+    "id": "jianning",
+    "team": "demon",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "yanluo": {
+    "id": "yanluo",
+    "team": "demon",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  }
+}

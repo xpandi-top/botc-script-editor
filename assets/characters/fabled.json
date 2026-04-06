@@ -1,0 +1,170 @@
+{
+  "angel": {
+    "id": "angel",
+    "team": "fabled",
+    "edition": "fabled",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "buddhist": {
+    "id": "buddhist",
+    "team": "fabled",
+    "edition": "fabled",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "deusexfiasco": {
+    "id": "deusexfiasco",
+    "team": "fabled",
+    "edition": "fabled",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "djinn": {
+    "id": "djinn",
+    "team": "fabled",
+    "edition": "fabled",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "doomsayer": {
+    "id": "doomsayer",
+    "team": "fabled",
+    "edition": "fabled",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "duchess": {
+    "id": "duchess",
+    "team": "fabled",
+    "edition": "fabled",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "ferryman": {
+    "id": "ferryman",
+    "team": "fabled",
+    "edition": "fabled",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "fibbin": {
+    "id": "fibbin",
+    "team": "fabled",
+    "edition": "fabled",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "fiddler": {
+    "id": "fiddler",
+    "team": "fabled",
+    "edition": "fabled",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "hellslibrarian": {
+    "id": "hellslibrarian",
+    "team": "fabled",
+    "edition": "fabled",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "revolutionary": {
+    "id": "revolutionary",
+    "team": "fabled",
+    "edition": "fabled",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "sentinel": {
+    "id": "sentinel",
+    "team": "fabled",
+    "edition": "fabled",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "spiritofivory": {
+    "id": "spiritofivory",
+    "team": "fabled",
+    "edition": "fabled",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "toymaker": {
+    "id": "toymaker",
+    "team": "fabled",
+    "edition": "fabled",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  }
+}

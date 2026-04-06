@@ -1,0 +1,874 @@
+{
+  "noble": {
+    "id": "noble",
+    "team": "townsfolk",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "bountyhunter": {
+    "id": "bountyhunter",
+    "team": "townsfolk",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "pixie": {
+    "id": "pixie",
+    "team": "townsfolk",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "general": {
+    "id": "general",
+    "team": "townsfolk",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "preacher": {
+    "id": "preacher",
+    "team": "townsfolk",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "king": {
+    "id": "king",
+    "team": "townsfolk",
+    "edition": "experimental",
+    "current_revision": "v2024-11",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "Initial wording"
+      },
+      {
+        "id": "v2024-05",
+        "note": "Adjusted dead-versus-living threshold."
+      },
+      {
+        "id": "v2024-11",
+        "note": "Clarified the Demon knows you are the King."
+      }
+    ]
+  },
+  "balloonist": {
+    "id": "balloonist",
+    "team": "townsfolk",
+    "edition": "experimental",
+    "current_revision": "v2024-06",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "Initial wording"
+      },
+      {
+        "id": "v2024-06",
+        "note": "Changed the learning pattern and Outsider modifier."
+      }
+    ]
+  },
+  "cultleader": {
+    "id": "cultleader",
+    "team": "townsfolk",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "lycanthrope": {
+    "id": "lycanthrope",
+    "team": "townsfolk",
+    "edition": "experimental",
+    "current_revision": "v2024-11",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "Initial wording"
+      },
+      {
+        "id": "v2024-11",
+        "note": "Added demon-kill suppression and evil registration."
+      }
+    ]
+  },
+  "amnesiac": {
+    "id": "amnesiac",
+    "team": "townsfolk",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "nightwatchman": {
+    "id": "nightwatchman",
+    "team": "townsfolk",
+    "edition": "experimental",
+    "current_revision": "v2024-11",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "Initial wording"
+      },
+      {
+        "id": "v2024-11",
+        "note": "Clarified the chosen player learns you are the Nightwatchman."
+      }
+    ]
+  },
+  "engineer": {
+    "id": "engineer",
+    "team": "townsfolk",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "fisherman": {
+    "id": "fisherman",
+    "team": "townsfolk",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "huntsman": {
+    "id": "huntsman",
+    "team": "townsfolk",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "alchemist": {
+    "id": "alchemist",
+    "team": "townsfolk",
+    "edition": "experimental",
+    "current_revision": "v2024-12",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "Initial wording"
+      },
+      {
+        "id": "v2024-12",
+        "note": "Removed the not-in-play restriction and added Storyteller guidance."
+      }
+    ]
+  },
+  "farmer": {
+    "id": "farmer",
+    "team": "townsfolk",
+    "edition": "experimental",
+    "current_revision": "v2024-11",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "Initial wording"
+      },
+      {
+        "id": "v2024-11",
+        "note": "Standardized timing wording."
+      }
+    ]
+  },
+  "magician": {
+    "id": "magician",
+    "team": "townsfolk",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "choirboy": {
+    "id": "choirboy",
+    "team": "townsfolk",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "poppygrower": {
+    "id": "poppygrower",
+    "team": "townsfolk",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "atheist": {
+    "id": "atheist",
+    "team": "townsfolk",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "cannibal": {
+    "id": "cannibal",
+    "team": "townsfolk",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "snitch": {
+    "id": "snitch",
+    "team": "outsider",
+    "edition": "experimental",
+    "current_revision": "v2024-11",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "Initial wording"
+      },
+      {
+        "id": "v2024-11",
+        "note": "Changed bluff presentation."
+      }
+    ]
+  },
+  "acrobat": {
+    "id": "acrobat",
+    "team": "outsider",
+    "edition": "experimental",
+    "current_revision": "v2024-10",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "Initial wording"
+      },
+      {
+        "id": "v2024-10",
+        "note": "Made the Acrobat a Townsfolk and changed the ability to target a player."
+      }
+    ]
+  },
+  "puzzlemaster": {
+    "id": "puzzlemaster",
+    "team": "outsider",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "heretic": {
+    "id": "heretic",
+    "team": "outsider",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "damsel": {
+    "id": "damsel",
+    "team": "outsider",
+    "edition": "experimental",
+    "current_revision": "v2024-11",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "Initial wording"
+      },
+      {
+        "id": "v2024-11",
+        "note": "Changed Minion knowledge from the player to a Damsel being in play."
+      }
+    ]
+  },
+  "golem": {
+    "id": "golem",
+    "team": "outsider",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "politician": {
+    "id": "politician",
+    "team": "outsider",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "widow": {
+    "id": "widow",
+    "team": "minion",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "fearmonger": {
+    "id": "fearmonger",
+    "team": "minion",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "psychopath": {
+    "id": "psychopath",
+    "team": "minion",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "goblin": {
+    "id": "goblin",
+    "team": "minion",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "mephit": {
+    "id": "mephit",
+    "team": "minion",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "mezepheles": {
+    "id": "mezepheles",
+    "team": "minion",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "marionette": {
+    "id": "marionette",
+    "team": "minion",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "boomdandy": {
+    "id": "boomdandy",
+    "team": "minion",
+    "edition": "experimental",
+    "current_revision": "v2024-11",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "Initial wording"
+      },
+      {
+        "id": "v2024-11",
+        "note": "Replaced the one-minute wait with a countdown."
+      }
+    ]
+  },
+  "lilmonsta": {
+    "id": "lilmonsta",
+    "team": "demon",
+    "edition": "experimental",
+    "current_revision": "v2024-06",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "Initial wording"
+      },
+      {
+        "id": "v2024-06",
+        "note": "Adjusted babysitting text and made the death optional."
+      }
+    ]
+  },
+  "lleech": {
+    "id": "lleech",
+    "team": "demon",
+    "edition": "experimental",
+    "current_revision": "v2024-07",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "Initial wording"
+      },
+      {
+        "id": "v2024-07",
+        "note": "Removed the alive requirement for the host choice and clarified death timing."
+      }
+    ]
+  },
+  "alhadikhia": {
+    "id": "alhadikhia",
+    "team": "demon",
+    "edition": "experimental",
+    "current_revision": "v2024-12",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "Initial wording"
+      },
+      {
+        "id": "v2024-12",
+        "note": "Made the nightly choice optional."
+      }
+    ]
+  },
+  "legion": {
+    "id": "legion",
+    "team": "demon",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "leviathan": {
+    "id": "leviathan",
+    "team": "demon",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "riot": {
+    "id": "riot",
+    "team": "demon",
+    "edition": "experimental",
+    "current_revision": "v2024-12",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "Initial wording"
+      },
+      {
+        "id": "v2024-12",
+        "note": "Completely reworked the day 3 behavior."
+      }
+    ]
+  },
+  "gangster": {
+    "id": "gangster",
+    "team": "traveler",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "knight": {
+    "id": "knight",
+    "team": "townsfolk",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "steward": {
+    "id": "steward",
+    "team": "townsfolk",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "high_priestess": {
+    "id": "high_priestess",
+    "team": "townsfolk",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "shugenja": {
+    "id": "shugenja",
+    "team": "townsfolk",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "village_idiot": {
+    "id": "village_idiot",
+    "team": "townsfolk",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "banshee": {
+    "id": "banshee",
+    "team": "townsfolk",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "alsaahir": {
+    "id": "alsaahir",
+    "team": "townsfolk",
+    "edition": "experimental",
+    "current_revision": "v2024-11",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "Initial wording"
+      },
+      {
+        "id": "v2024-11",
+        "note": "Changed the ability from once per day to each day."
+      }
+    ]
+  },
+  "plague_doctor": {
+    "id": "plague_doctor",
+    "team": "outsider",
+    "edition": "experimental",
+    "current_revision": "v2024-11",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "Initial wording"
+      },
+      {
+        "id": "v2024-06",
+        "note": "Removed the not-in-play restriction."
+      },
+      {
+        "id": "v2024-11",
+        "note": "Standardized timing wording."
+      }
+    ]
+  },
+  "hatter": {
+    "id": "hatter",
+    "team": "outsider",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "ogre": {
+    "id": "ogre",
+    "team": "outsider",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "zealot": {
+    "id": "zealot",
+    "team": "outsider",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "organ_grinder": {
+    "id": "organ_grinder",
+    "team": "minion",
+    "edition": "experimental",
+    "current_revision": "v2025-01",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "Initial wording"
+      },
+      {
+        "id": "v2024-10",
+        "note": "Reworked the ability to choose drunkenness each night."
+      },
+      {
+        "id": "v2025-01",
+        "note": "Clarified drunkenness lasts until dusk."
+      }
+    ]
+  },
+  "vizier": {
+    "id": "vizier",
+    "team": "minion",
+    "edition": "experimental",
+    "current_revision": "v2025-01",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "Initial wording"
+      },
+      {
+        "id": "v2024-11",
+        "note": "Clarified that all players know you are the Vizier."
+      },
+      {
+        "id": "v2025-01",
+        "note": "Minor wording cleanup."
+      }
+    ]
+  },
+  "harpy": {
+    "id": "harpy",
+    "team": "minion",
+    "edition": "experimental",
+    "current_revision": "v2024-06",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "Initial wording"
+      },
+      {
+        "id": "v2024-06",
+        "note": "Changed the death consequence to one or both players."
+      }
+    ]
+  },
+  "summoner": {
+    "id": "summoner",
+    "team": "minion",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "boffin": {
+    "id": "boffin",
+    "team": "minion",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "wizard": {
+    "id": "wizard",
+    "team": "minion",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "xaan": {
+    "id": "xaan",
+    "team": "minion",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "ojo": {
+    "id": "ojo",
+    "team": "demon",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "kazali": {
+    "id": "kazali",
+    "team": "demon",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "yaggababble": {
+    "id": "yaggababble",
+    "team": "demon",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "lord_of_typhon": {
+    "id": "lord_of_typhon",
+    "team": "demon",
+    "edition": "experimental",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  }
+}

@@ -1,0 +1,326 @@
+{
+  "washerwoman": {
+    "id": "washerwoman",
+    "team": "townsfolk",
+    "edition": "tb",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "librarian": {
+    "id": "librarian",
+    "team": "townsfolk",
+    "edition": "tb",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "investigator": {
+    "id": "investigator",
+    "team": "townsfolk",
+    "edition": "tb",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "chef": {
+    "id": "chef",
+    "team": "townsfolk",
+    "edition": "tb",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "empath": {
+    "id": "empath",
+    "team": "townsfolk",
+    "edition": "tb",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "fortuneteller": {
+    "id": "fortuneteller",
+    "team": "townsfolk",
+    "edition": "tb",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "undertaker": {
+    "id": "undertaker",
+    "team": "townsfolk",
+    "edition": "tb",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "monk": {
+    "id": "monk",
+    "team": "townsfolk",
+    "edition": "tb",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "ravenkeeper": {
+    "id": "ravenkeeper",
+    "team": "townsfolk",
+    "edition": "tb",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "virgin": {
+    "id": "virgin",
+    "team": "townsfolk",
+    "edition": "tb",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "slayer": {
+    "id": "slayer",
+    "team": "townsfolk",
+    "edition": "tb",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "soldier": {
+    "id": "soldier",
+    "team": "townsfolk",
+    "edition": "tb",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "mayor": {
+    "id": "mayor",
+    "team": "townsfolk",
+    "edition": "tb",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "butler": {
+    "id": "butler",
+    "team": "outsider",
+    "edition": "tb",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "drunk": {
+    "id": "drunk",
+    "team": "outsider",
+    "edition": "tb",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "recluse": {
+    "id": "recluse",
+    "team": "outsider",
+    "edition": "tb",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "saint": {
+    "id": "saint",
+    "team": "outsider",
+    "edition": "tb",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "poisoner": {
+    "id": "poisoner",
+    "team": "minion",
+    "edition": "tb",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "spy": {
+    "id": "spy",
+    "team": "minion",
+    "edition": "tb",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "scarletwoman": {
+    "id": "scarletwoman",
+    "team": "minion",
+    "edition": "tb",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "baron": {
+    "id": "baron",
+    "team": "minion",
+    "edition": "tb",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "imp": {
+    "id": "imp",
+    "team": "demon",
+    "edition": "tb",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "bureaucrat": {
+    "id": "bureaucrat",
+    "team": "traveler",
+    "edition": "tb",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "thief": {
+    "id": "thief",
+    "team": "traveler",
+    "edition": "tb",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "gunslinger": {
+    "id": "gunslinger",
+    "team": "traveler",
+    "edition": "tb",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "scapegoat": {
+    "id": "scapegoat",
+    "team": "traveler",
+    "edition": "tb",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "beggar": {
+    "id": "beggar",
+    "team": "traveler",
+    "edition": "tb",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  }
+}

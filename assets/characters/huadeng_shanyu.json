@@ -1,0 +1,323 @@
+{
+  "jiaohuazi": {
+    "id": "jiaohuazi",
+    "team": "traveler",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "yinyangshi": {
+    "id": "yinyangshi",
+    "team": "townsfolk",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "qintianjian": {
+    "id": "qintianjian",
+    "team": "townsfolk",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "dianxiaoer": {
+    "id": "dianxiaoer",
+    "team": "townsfolk",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "xionghaizi": {
+    "id": "xionghaizi",
+    "team": "townsfolk",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "langzhong": {
+    "id": "langzhong",
+    "team": "townsfolk",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "dagengren": {
+    "id": "dagengren",
+    "team": "townsfolk",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "jinyiwei": {
+    "id": "jinyiwei",
+    "team": "townsfolk",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "heshang": {
+    "id": "heshang",
+    "team": "townsfolk",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "geling": {
+    "id": "geling",
+    "team": "townsfolk",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "bianlianshi": {
+    "id": "bianlianshi",
+    "team": "townsfolk",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "banxian": {
+    "id": "banxian",
+    "team": "townsfolk",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "xizi": {
+    "id": "xizi",
+    "team": "townsfolk",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      },
+      {
+        "id": "v2",
+        "note": "new release in shanyu"
+      }
+    ]
+  },
+  "wudaozhe": {
+    "id": "wudaozhe",
+    "team": "townsfolk",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "shaxing": {
+    "id": "shaxing",
+    "team": "outsider",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "nichen": {
+    "id": "nichen",
+    "team": "outsider",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "shusheng": {
+    "id": "shusheng",
+    "team": "outsider",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "shijie": {
+    "id": "shijie",
+    "team": "outsider",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "humeiniang": {
+    "id": "humeiniang",
+    "team": "minion",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "yangguren": {
+    "id": "yangguren",
+    "team": "minion",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "jinweijun": {
+    "id": "jinweijun",
+    "team": "minion",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      },
+
+      {
+        "id": "v2",
+        "note": "new release in Shanyu"
+      }
+    ]
+  },
+  "ganshiren": {
+    "id": "ganshiren",
+    "team": "minion",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "hundun": {
+    "id": "hundun",
+    "team": "demon",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "qiongqi": {
+    "id": "qiongqi",
+    "team": "demon",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "taowu": {
+    "id": "taowu",
+    "team": "demon",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "taotie": {
+    "id": "taotie",
+    "team": "demon",
+    "edition": "huadeng",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  }
+}

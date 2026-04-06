@@ -1,0 +1,122 @@
+{
+  "big_wig": {
+    "id": "big_wig",
+    "team": "loric",
+    "edition": "loric",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "bootlegger": {
+    "id": "bootlegger",
+    "team": "loric",
+    "edition": "loric",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "gardener": {
+    "id": "gardener",
+    "team": "loric",
+    "edition": "loric",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "hindu": {
+    "id": "hindu",
+    "team": "loric",
+    "edition": "loric",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "pope": {
+    "id": "pope",
+    "team": "loric",
+    "edition": "loric",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "stormcatcher": {
+    "id": "stormcatcher",
+    "team": "loric",
+    "edition": "loric",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "tor": {
+    "id": "tor",
+    "team": "loric",
+    "edition": "loric",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "ventriloquist": {
+    "id": "ventriloquist",
+    "team": "loric",
+    "edition": "loric",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "zenomancer": {
+    "id": "zenomancer",
+    "team": "loric",
+    "edition": "loric",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  },
+  "ug": {
+    "id": "ug",
+    "team": "loric",
+    "edition": "loric",
+    "current_revision": "v1",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": ""
+      }
+    ]
+  }
+}
