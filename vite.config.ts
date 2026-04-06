@@ -3,5 +3,5 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig(({ command }) => ({
   plugins: [react()],
-  base: command === 'build' ? '/botc_webapp/' : '/',
+  base: command === 'build' ? '/botc-script-editor/' : '/',
 }))

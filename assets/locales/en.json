@@ -1426,7 +1426,7 @@
     },
     "xizi": {
       "name": "Actor",
-      "ability": "All other good players (except travellers) know each other, are drunk and can not change alignment. Win/lose condition is reversed, even if you lose your ability.",
+      "ability": "Win/lose condition is reversed, even if you are dead. All Actors know each other. [All good players are Actors]",
       "revision": "v1",
       "revisions": {
         "v1": "Win/lose condition is reversed, even if you are dead. All Actors know each other. [All good players are Actors]",

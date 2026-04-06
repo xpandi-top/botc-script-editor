@@ -4,6 +4,6 @@ export default defineConfig(function (_a) {
     var command = _a.command;
     return ({
         plugins: [react()],
-        base: command === 'build' ? '/botc_webapp/' : '/',
+        base: command === 'build' ? '/botc-script-editor/' : '/',
     });
 });
