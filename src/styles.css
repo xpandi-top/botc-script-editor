@@ -46,7 +46,7 @@ button {
 }
 
 .app-shell {
-  width: min(1240px, calc(100vw - 2rem));
+  width: min(1800px, calc(100vw - 2rem));
   margin: 0 auto;
   padding: 2rem 0 3rem;
 }
@@ -939,6 +939,927 @@ button {
   font-weight: 700;
 }
 
+.storyteller-layout {
+  display: grid;
+}
+
+.storyteller-board {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 380px);
+  gap: 1rem;
+  align-items: start;
+  margin-top: 1.4rem;
+}
+
+.storyteller-board--with-log {
+  grid-template-columns: 280px minmax(0, 1fr) minmax(320px, 380px);
+}
+
+.storyteller-log-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border: 1px solid rgba(23, 32, 42, 0.12);
+  border-radius: 16px;
+  padding: 0.75rem;
+  background: rgba(255, 251, 245, 0.95);
+  align-self: stretch;
+  min-height: 0;
+  max-height: 100%;
+}
+
+.storyteller-log-sidebar__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.storyteller-log-sidebar__header h3 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.storyteller-log-sidebar .storyteller-log-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.storyteller-log-sidebar .storyteller-day-select {
+  min-width: 0;
+  width: 100%;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.82rem;
+}
+
+.storyteller-log-sidebar__entries {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-height: 0;
+}
+
+.storyteller-table-card__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.storyteller-panel {
+  border: 1px solid rgba(23, 32, 42, 0.12);
+  border-radius: 22px;
+  padding: 1.25rem;
+  background:
+    radial-gradient(circle at top, rgba(255, 241, 214, 0.9), rgba(255, 251, 245, 0.92) 50%),
+    linear-gradient(180deg, rgba(255, 251, 245, 0.96), rgba(248, 240, 226, 0.92));
+  box-shadow: 0 18px 60px rgba(57, 43, 24, 0.08);
+}
+
+.storyteller-header-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: end;
+  gap: 0.55rem;
+}
+
+.storyteller-script-select {
+  min-width: 220px;
+}
+
+.storyteller-script-badge {
+  border: 1px solid rgba(133, 63, 34, 0.2);
+  border-radius: 999px;
+  padding: 0.45rem 0.8rem;
+  background: rgba(255, 246, 235, 0.9);
+  font-size: 0.92rem;
+}
+
+.storyteller-panel__lead,
+.storyteller-panel__hint {
+  margin: 0.9rem 0 0;
+  color: rgba(23, 32, 42, 0.76);
+}
+
+.storyteller-toolbar {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.2rem;
+}
+
+.storyteller-toolbar__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: end;
+  gap: 0.65rem;
+}
+
+.storyteller-count {
+  min-width: min(100%, 340px);
+}
+
+.storyteller-count strong {
+  font-size: 1.5rem;
+  color: #853f22;
+}
+
+.storyteller-stage {
+  display: grid;
+  gap: 0.9rem;
+  min-width: 0;
+}
+
+.storyteller-table-card {
+  display: grid;
+  gap: 1rem;
+}
+
+.storyteller-table-card__top {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.storyteller-day-nav,
+.storyteller-main-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+
+.storyteller-day-select {
+  min-width: 140px;
+  border: 1px solid rgba(23, 32, 42, 0.12);
+  border-radius: 999px;
+  padding: 0.75rem 1rem;
+  background: #fff;
+  font: inherit;
+}
+
+.storyteller-main-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.storyteller-context-grid,
+.storyteller-settings-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.storyteller-context-grid div {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.8rem 0.9rem;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(23, 32, 42, 0.08);
+}
+
+.storyteller-stage__top {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.storyteller-table-wrap {
+  margin-top: 0;
+  overflow: visible;
+  padding: 0.25rem 0 0.65rem;
+}
+
+.storyteller-workbench {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(320px, 28vw, 390px);
+  gap: 1.25rem;
+  align-items: start;
+  margin-top: 1.4rem;
+}
+
+.storyteller-control-dock {
+  display: grid;
+  gap: 0;
+  align-self: start;
+  position: sticky;
+  top: 1rem;
+}
+
+.storyteller-workgrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1.2rem;
+}
+
+.storyteller-workcard {
+  border: 1px solid rgba(23, 32, 42, 0.08);
+  border-radius: 20px;
+  padding: 1rem;
+  background: rgba(255, 253, 248, 0.94);
+}
+
+.storyteller-stats-block + .storyteller-stats-block {
+  margin-top: 1rem;
+}
+
+.storyteller-stats-block h3 {
+  margin: 0 0 0.7rem;
+  font-size: 1rem;
+}
+
+.storyteller-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.storyteller-chip-row--center {
+  justify-content: center;
+}
+
+.storyteller-phase-grid,
+.storyteller-vote-grid,
+.storyteller-summary-grid,
+.storyteller-history {
+  display: grid;
+  gap: 0.9rem;
+  margin-top: 0.9rem;
+}
+
+.storyteller-timer {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.storyteller-timer span,
+.storyteller-vote-stats span,
+.storyteller-vote-lists span,
+.storyteller-summary-grid span,
+.storyteller-history__item p,
+.storyteller-speaker-box span {
+  color: rgba(23, 32, 42, 0.68);
+}
+
+.storyteller-timer strong {
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1;
+  color: #853f22;
+  font-variant-numeric: tabular-nums;
+}
+
+.storyteller-phase-extra,
+.storyteller-speaker-box {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.storyteller-speaker-box {
+  border: 1px solid rgba(23, 32, 42, 0.08);
+  border-radius: 16px;
+  padding: 0.85rem 0.95rem;
+  background: #fff;
+}
+
+.storyteller-vote-stats,
+.storyteller-vote-lists,
+.storyteller-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.storyteller-vote-stats div,
+.storyteller-vote-lists div,
+.storyteller-summary-grid div {
+  display: grid;
+  gap: 0.25rem;
+  border: 1px solid rgba(23, 32, 42, 0.08);
+  border-radius: 14px;
+  padding: 0.8rem 0.9rem;
+  background: #fff;
+}
+
+.storyteller-vote-stats strong,
+.storyteller-vote-lists strong,
+.storyteller-summary-grid strong {
+  font-size: 1rem;
+}
+
+.storyteller-pass {
+  color: #1f7a37;
+}
+
+.storyteller-fail {
+  color: #a4392f;
+}
+
+.storyteller-error {
+  margin: 0;
+  color: #a4392f;
+}
+
+.storyteller-table {
+  --table-size: min(100%, 920px);
+  --seat-size: clamp(88px, 9vw, 120px);
+  position: relative;
+  width: var(--table-size);
+  max-width: 920px;
+  aspect-ratio: 1 / 1;
+  margin: 0 auto;
+}
+
+.storyteller-table__ring {
+  position: absolute;
+  inset: 14%;
+  border: 2px solid rgba(92, 57, 33, 0.14);
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 35% 28%, rgba(255, 232, 191, 0.96), rgba(184, 118, 70, 0.96)),
+    linear-gradient(145deg, #b06d43, #7d4728);
+  box-shadow:
+    inset 0 0 0 10px rgba(255, 243, 222, 0.18),
+    0 24px 44px rgba(57, 43, 24, 0.14);
+}
+
+.storyteller-table__hand {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 32%;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(107, 52, 27, 0.2), rgba(107, 52, 27, 0.88));
+  transform-origin: left center;
+  transform: rotate(var(--pointer-angle));
+  z-index: 2;
+  box-shadow: 0 0 18px rgba(107, 52, 27, 0.18);
+}
+
+.storyteller-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  align-content: start;
+  align-items: center;
+  justify-items: center;
+  gap: 0.5rem;
+  width: min(38%, 340px);
+  padding: 0.7rem 0.85rem;
+  border: 2px solid rgba(255, 247, 231, 0.72);
+  border-radius: 32px;
+  background:
+    radial-gradient(circle at top, rgba(255, 249, 238, 0.96), rgba(250, 238, 219, 0.94)),
+    linear-gradient(180deg, rgba(255, 250, 243, 0.96), rgba(246, 233, 209, 0.94));
+  box-shadow:
+    inset 0 0 0 1px rgba(133, 63, 34, 0.08),
+    0 14px 32px rgba(57, 43, 24, 0.2);
+  color: #17202a;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+}
+
+.storyteller-center__phase {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.storyteller-center__phase-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  color: rgba(23, 32, 42, 0.5);
+  text-transform: uppercase;
+}
+
+.storyteller-center__mode-select {
+  font-size: 0.75rem;
+  border: 1px solid rgba(23, 32, 42, 0.18);
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  background: rgba(255, 255, 255, 0.75);
+  color: #17202a;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.storyteller-center__timer-controls {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.storyteller-center__ctrl-btn {
+  width: 2.2rem;
+  height: 2.2rem;
+  border: 1px solid rgba(23, 32, 42, 0.18);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.88);
+  cursor: pointer;
+  font-size: 0.88rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+  transition: background 0.12s, border-color 0.12s;
+}
+
+.storyteller-center__ctrl-btn:hover {
+  background: rgba(133, 63, 34, 0.1);
+  border-color: rgba(133, 63, 34, 0.3);
+}
+
+.storyteller-center__ctrl-btn--active {
+  background: rgba(133, 63, 34, 0.18);
+  border-color: rgba(133, 63, 34, 0.52);
+  color: #853f22;
+}
+
+.storyteller-center__vote-mini {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  font-size: 0.88rem;
+  flex-wrap: wrap;
+}
+
+.storyteller-center__vote-count {
+  font-weight: 700;
+  color: #853f22;
+}
+
+.storyteller-center__vote-count small {
+  font-weight: 400;
+  color: rgba(23, 32, 42, 0.55);
+}
+
+.storyteller-center__speaker-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+.storyteller-center .storyteller-start-vote {
+  width: 100%;
+}
+
+.storyteller-phase-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.55rem;
+}
+
+.storyteller-center__timer {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2.5rem, 5vw, 4.8rem);
+  line-height: 0.95;
+  text-align: center;
+  color: #853f22;
+  font-variant-numeric: tabular-nums;
+}
+
+.storyteller-center__timer-input {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: #853f22;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2.5rem, 5vw, 4.8rem);
+  line-height: 0.95;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  padding: 0;
+}
+
+.storyteller-center__speaker {
+  margin: 0;
+  text-align: center;
+  color: rgba(23, 32, 42, 0.76);
+}
+
+.storyteller-center__controls {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+.storyteller-center__public,
+.storyteller-center__vote {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.storyteller-start-vote {
+  width: 100%;
+}
+
+.storyteller-vote-summary,
+.storyteller-quadrant {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.storyteller-vote-summary div,
+.storyteller-quadrant__cell {
+  display: grid;
+  gap: 0.2rem;
+  border: 1px solid rgba(23, 32, 42, 0.08);
+  border-radius: 14px;
+  padding: 0.8rem 0.9rem;
+  background: #fff;
+}
+
+.storyteller-seat {
+  position: absolute;
+  display: grid;
+  width: var(--seat-size);
+  min-height: calc(var(--seat-size) * 0.75);
+  padding: 0.35rem;
+  border: 2px solid rgba(23, 32, 42, 0.18);
+  border-radius: 16px;
+  background: rgba(255, 252, 246, 0.98);
+  box-shadow: 0 6px 16px rgba(57, 43, 24, 0.1);
+  transform: translate(-50%, -50%);
+  text-align: center;
+  font-size: 0.82rem;
+  z-index: 2;
+}
+
+.storyteller-seat--dead {
+  background: rgba(77, 53, 53, 0.94);
+  color: #fff2ee;
+}
+
+.storyteller-seat--executed {
+  border-color: rgba(133, 63, 34, 0.6);
+}
+
+.storyteller-seat--dead.storyteller-seat--executed {
+  border-color: rgba(196, 136, 98, 0.72);
+}
+
+.storyteller-seat--traveler {
+  border-style: dashed;
+  border-color: rgba(27, 101, 127, 0.72);
+}
+
+.storyteller-seat--dead.storyteller-seat--traveler {
+  border-style: dashed;
+  border-color: rgba(202, 234, 244, 0.95);
+}
+
+.storyteller-seat--speaker {
+  z-index: 12;
+  box-shadow: 0 0 0 4px rgba(27, 101, 127, 0.24), 0 10px 24px rgba(57, 43, 24, 0.12);
+}
+
+.storyteller-seat--spoken {
+  opacity: 0.88;
+}
+
+.storyteller-seat--actor {
+  box-shadow: 0 0 0 3px rgba(31, 122, 55, 0.25), 0 10px 24px rgba(57, 43, 24, 0.12);
+}
+
+.storyteller-seat--target {
+  box-shadow: 0 0 0 3px rgba(164, 57, 47, 0.24), 0 10px 24px rgba(57, 43, 24, 0.12);
+}
+
+.storyteller-seat--voter {
+  box-shadow: 0 0 0 3px rgba(133, 63, 34, 0.22), 0 10px 24px rgba(57, 43, 24, 0.12);
+}
+
+/* Skill overlay: selected target gets a bold overlay */
+.storyteller-seat--skill-target {
+  box-shadow: 0 0 0 3px rgb(133, 63, 34), 0 10px 24px rgba(57, 43, 24, 0.18);
+}
+.storyteller-seat--skill-target::after {
+  content: '🎯';
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  font-size: 1rem;
+  z-index: 2;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
+}
+
+/* Skill overlay: pickable seats get a subtle dashed border */
+.storyteller-seat--skill-pickable {
+  outline: 2px dashed rgba(133, 63, 34, 0.25);
+  outline-offset: 2px;
+}
+
+.storyteller-seat__surface {
+  display: grid;
+  gap: 0.25rem;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-size: inherit;
+}
+
+.storyteller-seat__topline {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 0.4rem;
+}
+
+.storyteller-seat__number {
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.storyteller-seat__vote-mark {
+  display: inline-grid;
+  place-items: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 999px;
+  background: #2f9e44;
+  color: #fff;
+  font-weight: 700;
+}
+
+.storyteller-seat__vote-mark--ghost {
+  background: #17202a;
+}
+
+.storyteller-seat__spoken-badge {
+  justify-self: center;
+  border-radius: 999px;
+  padding: 0.18rem 0.5rem;
+  background: rgba(27, 101, 127, 0.12);
+  color: #1b657f;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.storyteller-seat__tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.18rem;
+  margin-top: 0.18rem;
+  justify-self: center;
+  width: auto;
+  max-width: 100%;
+}
+
+.storyteller-seat__pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  max-width: calc(100% - 0.2rem);
+  border-radius: 10px;
+  padding: 0.08rem 0.4rem;
+  background: rgba(133, 63, 34, 0.1);
+  color: #6b341b;
+  font-size: 0.62rem;
+  font-weight: 700;
+  line-height: 1.2;
+  border: 1px solid rgba(133, 63, 34, 0.12);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.storyteller-seat--dead .storyteller-seat__pill {
+  background: rgba(255, 241, 233, 0.16);
+  color: #fff2ee;
+  border-color: rgba(255, 241, 233, 0.22);
+}
+
+.storyteller-seat-editor {
+  position: absolute;
+  left: calc(100% + 14px);
+  top: 50%;
+  z-index: 30;
+  width: 240px;
+  display: grid;
+  gap: 0.7rem;
+  padding: 0.8rem;
+  border: 1px solid rgba(23, 32, 42, 0.12);
+  border-radius: 18px;
+  background: rgba(255, 252, 246, 0.98);
+  box-shadow: 0 16px 36px rgba(57, 43, 24, 0.18);
+  transform: translateY(-50%);
+  color: #17202a;
+}
+
+.storyteller-seat-editor__section {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.storyteller-seat-editor__add {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.35rem;
+}
+
+.storyteller-seat-editor__add input {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid rgba(23, 32, 42, 0.12);
+  border-radius: 12px;
+  padding: 0.55rem 0.65rem;
+  font: inherit;
+  background: #fff;
+}
+
+.storyteller-seat input {
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid rgba(23, 32, 42, 0.16);
+  background: transparent;
+  color: inherit;
+  text-align: center;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.secondary-button--small {
+  min-width: auto;
+  padding: 0.35rem 0.55rem;
+}
+
+.storyteller-seat__chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+.storyteller-seat__ghost-state {
+  margin-top: 0.2rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: rgba(23, 32, 42, 0.78);
+}
+
+.storyteller-seat input:focus {
+  outline: none;
+  border-bottom-color: #853f22;
+}
+
+.storyteller-seat__status,
+.storyteller-seat__tag {
+  border: 0;
+  border-radius: 999px;
+  padding: 0.28rem 0.58rem;
+  background: rgba(133, 63, 34, 0.11);
+  color: inherit;
+  cursor: pointer;
+  font-size: 0.72rem;
+}
+
+.storyteller-toolbar__actions--stacked {
+  justify-content: start;
+}
+
+.storyteller-console {
+  display: grid;
+  gap: 1rem;
+  padding: 1.1rem;
+}
+
+.storyteller-console__section {
+  display: grid;
+  gap: 0.85rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(23, 32, 42, 0.08);
+}
+
+.storyteller-console__section:first-of-type {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.storyteller-console__label {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: rgba(23, 32, 42, 0.62);
+  letter-spacing: 0.03em;
+}
+
+.storyteller-console__pool-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.storyteller-control-dock .storyteller-chip-row {
+  align-items: center;
+}
+
+.storyteller-control-dock .secondary-button,
+.storyteller-control-dock .print-button {
+  flex: 0 0 auto;
+}
+
+.storyteller-control-dock .editor-field {
+  min-width: 0;
+}
+
+.storyteller-seat__tag--active {
+  background: rgba(27, 101, 127, 0.2);
+  box-shadow: inset 0 0 0 1px rgba(27, 101, 127, 0.2);
+}
+
+.storyteller-seat__tag--ghost {
+  background: rgba(87, 112, 184, 0.14);
+}
+
+.storyteller-seat__tag--ghost.storyteller-seat__tag--active {
+  background: linear-gradient(180deg, rgba(116, 145, 230, 0.45), rgba(87, 112, 184, 0.2));
+  color: #1a315d;
+}
+
+.storyteller-seat__tag--spent {
+  background: rgba(164, 57, 47, 0.16);
+  color: #fff2ee;
+}
+
+.storyteller-seat--dead .storyteller-seat__status,
+.storyteller-seat--dead .storyteller-seat__tag {
+  background: rgba(255, 233, 226, 0.18);
+}
+
+.storyteller-history__item {
+  border: 1px solid rgba(23, 32, 42, 0.08);
+  border-radius: 14px;
+  padding: 0.85rem 0.95rem;
+  background: #fff;
+}
+
+.storyteller-history__group {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.storyteller-history__group h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.storyteller-history__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.storyteller-history__item strong,
+.storyteller-history__item p {
+  margin: 0;
+}
+
+.storyteller-modal {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(23, 32, 42, 0.35);
+  z-index: 20;
+}
+
+.storyteller-modal__card {
+  width: min(100%, 420px);
+  border-radius: 22px;
+  padding: 1.2rem;
+  background: #fffaf2;
+  box-shadow: 0 18px 60px rgba(57, 43, 24, 0.2);
+}
+
+.storyteller-modal__card h3,
+.storyteller-modal__card p {
+  margin: 0 0 0.8rem;
+}
+
 @media (max-width: 900px) {
   .app-hero {
     align-items: start;
@@ -989,6 +1910,60 @@ button {
 
   .browser-search {
     width: 100%;
+  }
+
+  .storyteller-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .storyteller-toolbar__actions,
+  .storyteller-header-meta {
+    justify-content: start;
+  }
+
+  .storyteller-board,
+  .storyteller-workbench,
+  .storyteller-count {
+    min-width: 0;
+  }
+
+  .storyteller-board,
+  .storyteller-board--with-log,
+  .storyteller-workbench {
+    grid-template-columns: 1fr;
+  }
+
+  .storyteller-log-sidebar {
+    max-height: 300px;
+  }
+
+  .storyteller-control-dock {
+    position: static;
+  }
+
+  .storyteller-stage__top {
+    flex-direction: column;
+  }
+
+  .storyteller-context-grid,
+  .storyteller-settings-grid,
+  .storyteller-workgrid,
+  .storyteller-vote-summary,
+  .storyteller-quadrant,
+  .storyteller-center__controls {
+    grid-template-columns: 1fr;
+  }
+
+  .storyteller-table {
+    --table-size: min(100%, 760px);
+    --seat-size: clamp(78px, 18vw, 110px);
+    max-width: 760px;
+  }
+
+  .storyteller-center {
+    width: min(48%, 280px);
+    min-height: auto;
   }
 
   .character-grid {
@@ -1297,4 +2272,438 @@ button {
   .script-list {
     box-shadow: none;
   }
+}
+
+/* ── Storyteller: Status text ── */
+.storyteller-center__status {
+  font-size: 0.85rem;
+  color: rgba(23, 32, 42, 0.55);
+  margin: 0.25rem 0;
+  text-align: center;
+}
+.storyteller-center__status--muted {
+  color: rgba(23, 32, 42, 0.4);
+  font-style: italic;
+}
+
+/* ── Storyteller: Countdown overlay ── */
+.storyteller-center__countdown {
+  font-size: 2rem;
+  font-weight: 700;
+  color: rgb(133, 63, 34);
+  text-align: center;
+  margin: 0.5rem 0;
+}
+
+/* ── Storyteller: Seat vote button ── */
+.storyteller-seat__vote-btn {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.75rem;
+  border: 1px solid rgb(133, 63, 34);
+  border-radius: 20px;
+  background: rgba(133, 63, 34, 0.1);
+  color: rgb(133, 63, 34);
+  cursor: pointer;
+  margin-top: 0.2rem;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+.storyteller-seat__vote-btn:hover {
+  background: rgba(133, 63, 34, 0.25);
+}
+
+/* ── Storyteller: Vote marks on seats ── */
+.storyteller-seat__vote-mark {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: rgb(34, 120, 60);
+}
+.storyteller-seat__vote-mark--no {
+  color: rgb(180, 50, 50);
+}
+
+/* ── Storyteller: Voting-active seat pulse ── */
+.storyteller-seat--voting-active {
+  animation: votePulse 1s ease-in-out infinite;
+  box-shadow: 0 0 8px rgba(133, 63, 34, 0.4);
+}
+@keyframes votePulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(133, 63, 34, 0.25); }
+  50% { box-shadow: 0 0 16px rgba(133, 63, 34, 0.55); }
+}
+
+/* ── Storyteller: Skill panel (inline in console) ── */
+.storyteller-skill-panel {
+  background: rgba(133, 63, 34, 0.06);
+  border: 2px solid rgba(133, 63, 34, 0.35);
+  border-radius: 12px;
+  padding: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  max-height: 420px;
+  overflow-y: auto;
+}
+.storyteller-skill-panel__header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: space-between;
+}
+.storyteller-skill-panel__hint {
+  font-size: 0.75rem;
+  color: rgb(133, 63, 34);
+  font-weight: 500;
+  margin: 0;
+  min-height: 1.1em;
+}
+.storyteller-picker-active {
+  border-color: rgb(133, 63, 34) !important;
+  background: rgba(133, 63, 34, 0.12) !important;
+  color: rgb(133, 63, 34) !important;
+  font-weight: 700;
+  box-shadow: 0 0 0 2px rgba(133, 63, 34, 0.2);
+}
+.storyteller-skill-panel__field-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: rgba(23, 32, 42, 0.7);
+  margin-bottom: 0.25rem;
+}
+/* Role chip list */
+.storyteller-skill-overlay__role-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 0.35rem;
+  border: 1px solid rgba(23, 32, 42, 0.12);
+  border-radius: 10px;
+  background: rgba(255, 253, 248, 0.7);
+}
+.storyteller-skill-overlay__role-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.5rem;
+  border: 1px solid rgba(23, 32, 42, 0.15);
+  border-radius: 20px;
+  background: rgba(255, 253, 248, 0.94);
+  color: rgb(23, 32, 42);
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+.storyteller-skill-overlay__role-chip:hover {
+  background: rgba(133, 63, 34, 0.08);
+  border-color: rgba(133, 63, 34, 0.3);
+}
+.storyteller-skill-overlay__role-chip:focus {
+  outline: none;
+}
+.storyteller-skill-overlay__role-chip:focus-visible {
+  outline: 2px solid rgba(133, 63, 34, 0.5);
+  outline-offset: 1px;
+}
+.storyteller-skill-overlay__role-chip--active {
+  background: rgba(133, 63, 34, 0.15);
+  border-color: rgb(133, 63, 34);
+  color: rgb(133, 63, 34);
+  font-weight: 600;
+  box-shadow: 0 0 0 1px rgba(133, 63, 34, 0.3);
+}
+.storyteller-skill-overlay__role-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  object-fit: contain;
+}
+
+/* ── Storyteller: Audio player ── */
+.storyteller-audio-player {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.storyteller-audio-player label {
+  font-size: 0.75rem;
+  color: rgba(23, 32, 42, 0.62);
+}
+.storyteller-audio-player__controls {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+/* ── Storyteller: Event log ── */
+.storyteller-event-log {
+  max-height: 200px;
+  overflow-y: auto;
+  font-size: 0.7rem;
+  color: rgba(23, 32, 42, 0.6);
+  border: 1px solid rgba(23, 32, 42, 0.1);
+  border-radius: 8px;
+  padding: 0.4rem;
+  background: rgba(255, 253, 248, 0.6);
+}
+.storyteller-event-log__entry {
+  padding: 0.15rem 0;
+  border-bottom: 1px solid rgba(23, 32, 42, 0.06);
+}
+.storyteller-event-log__entry:last-child {
+  border-bottom: none;
+}
+
+/* ── Console Sections ── */
+
+.storyteller-console-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.storyteller-console-section {
+  border-bottom: 1px solid rgba(23, 32, 42, 0.08);
+}
+
+.storyteller-console-section:last-child {
+  border-bottom: none;
+}
+
+.storyteller-console-section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.7rem 0.8rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: rgb(23, 32, 42);
+  letter-spacing: 0.02em;
+  transition: background 120ms ease;
+}
+
+.storyteller-console-section__header:hover {
+  background: rgba(133, 63, 34, 0.04);
+}
+
+.storyteller-console-section__body {
+  padding: 0 0.8rem 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+/* ── New Game Modal ── */
+
+.storyteller-new-game-modal {
+  max-width: 600px;
+  width: 90vw;
+  max-height: 80vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.storyteller-new-game-modal h3 {
+  margin: 0;
+}
+
+/* ── New Game Seat Assignment ── */
+
+.storyteller-new-game-seats {
+  display: grid;
+  gap: 0.35rem;
+  margin-top: 0.4rem;
+}
+
+.storyteller-new-game-seats__row {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.storyteller-new-game-seats__row span {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #853f22;
+}
+
+.storyteller-new-game-seats__row input {
+  border: 1px solid rgba(23, 32, 42, 0.12);
+  border-radius: 8px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.85rem;
+}
+
+/* ── Distribution Grid ── */
+
+.storyteller-distribution-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.storyteller-distribution-grid__row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.storyteller-distribution-grid__row span {
+  font-size: 0.88rem;
+  color: rgba(23, 32, 42, 0.62);
+}
+
+.storyteller-distribution-grid__row strong {
+  color: rgb(133, 63, 34);
+  font-weight: 700;
+}
+
+/* ── End Game Modal ── */
+
+.storyteller-end-game-modal {
+  max-width: 560px;
+  width: 90vw;
+  max-height: 80vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.storyteller-end-game-modal h3 {
+  margin: 0;
+}
+
+.storyteller-end-game-modal__note {
+  width: 100%;
+  margin-top: 0.3rem;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid rgba(23, 32, 42, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 253, 248, 0.94);
+  font: inherit;
+  font-size: 0.88rem;
+}
+
+/* ── Player Pool ── */
+
+.storyteller-player-pool {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  padding: 0.2rem 0;
+}
+
+.storyteller-player-pool__chip {
+  display: inline-block;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid rgba(23, 32, 42, 0.12);
+  background: rgba(255, 253, 248, 0.94);
+  font-size: 0.82rem;
+  color: rgb(23, 32, 42);
+  cursor: pointer;
+  transition: border-color 120ms ease, background 120ms ease;
+}
+
+.storyteller-player-pool__chip:hover {
+  border-color: rgba(133, 63, 34, 0.38);
+  background: #fff6eb;
+}
+
+.storyteller-player-pool__chip--used {
+  opacity: 0.45;
+  text-decoration: line-through;
+  cursor: default;
+}
+
+/* ── Aggregated Log ── */
+
+.storyteller-aggregated-log {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.storyteller-log-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0;
+}
+
+.storyteller-log-entry {
+  padding: 0.45rem 0;
+  border-bottom: 1px solid rgba(23, 32, 42, 0.06);
+}
+
+.storyteller-log-entry:last-child {
+  border-bottom: none;
+}
+
+.storyteller-log-entry--vote {
+  border-left: 3px solid rgba(133, 63, 34, 0.5);
+  padding-left: 0.6rem;
+}
+
+.storyteller-log-entry--skill {
+  border-left: 3px solid rgba(46, 134, 93, 0.5);
+  padding-left: 0.6rem;
+}
+
+.storyteller-log-entry--event {
+  border-left: 3px solid rgba(52, 73, 94, 0.4);
+  padding-left: 0.6rem;
+}
+
+.storyteller-log-badge {
+  display: inline-block;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.storyteller-log-badge[data-type="vote"] {
+  background: rgba(133, 63, 34, 0.12);
+  color: rgb(133, 63, 34);
+}
+
+.storyteller-log-badge[data-type="skill"] {
+  background: rgba(46, 134, 93, 0.12);
+  color: rgb(46, 134, 93);
+}
+
+.storyteller-log-badge[data-type="event"] {
+  background: rgba(52, 73, 94, 0.12);
+  color: rgb(52, 73, 94);
+}
+
+/* ── Review Banner ── */
+
+.storyteller-review-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  background: rgba(133, 63, 34, 0.08);
+  border: 1px solid rgba(133, 63, 34, 0.2);
+  border-radius: 12px;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: rgb(133, 63, 34);
 }

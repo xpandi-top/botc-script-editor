@@ -9,6 +9,7 @@ import { CharacterRevisionPanel } from './components/CharacterRevisionPanel'
 import { FilterCheckbox } from './components/FilterCheckbox'
 import { ScriptList } from './components/ScriptList'
 import { SheetArticle } from './components/SheetArticle'
+import { StorytellerHelper } from './components/StorytellerHelper'
 import {
   allCharacters,
   characterById,
@@ -34,7 +35,7 @@ import type {
   Team,
 } from './types'
 
-type TabKey = 'scripts' | 'settings' | 'characters'
+type TabKey = 'scripts' | 'settings' | 'characters' | 'storyteller'
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabKey>('scripts')
@@ -142,6 +143,8 @@ export default function App() {
 
   const getScriptTitle = (script: EditableScript) =>
     uiLanguage === 'zh' ? script.titleZh || script.title : script.title
+
+  const storytellerTabLabel = uiLanguage === 'zh' ? '主持助手' : 'Storyteller Helper'
 
   function getSheetUiLabel(language: Language, key: string) {
     const value = locales[language].ui?.[key]
@@ -401,7 +404,7 @@ export default function App() {
               <option value="zh">{uiText.chinese}</option>
             </select>
           </label>
-          {activeTab !== 'characters' && activeScript ? (
+          {activeTab !== 'characters' && activeTab !== 'storyteller' && activeScript ? (
             <button className="print-button" type="button" onClick={() => window.print()}>
               {uiText.print}
             </button>
@@ -430,6 +433,13 @@ export default function App() {
           type="button"
         >
           {uiText.allCharacters}
+        </button>
+        <button
+          className={`tab-button${activeTab === 'storyteller' ? ' tab-button--active' : ''}`}
+          onClick={() => setActiveTab('storyteller')}
+          type="button"
+        >
+          {storytellerTabLabel}
         </button>
       </div>
 
@@ -997,7 +1007,7 @@ export default function App() {
             <p className="settings-panel__note">{uiText.wakeOrderNote}</p>
           </section>
         </section>
-      ) : (
+      ) : activeTab === 'characters' ? (
         <section className="browser-layout">
           <section className="browser-panel">
           <div className="browser-panel__header">
@@ -1095,6 +1105,18 @@ export default function App() {
             title={uiText.characterVersions}
           />
         </section>
+      ) : (
+        <StorytellerHelper
+          activeScriptSlug={activeScript?.slug}
+          activeScriptTitle={activeScript ? getScriptTitle(activeScript) : undefined}
+          language={uiLanguage}
+          onSelectScript={setActiveSlug}
+          scriptOptions={scripts.map((script) => ({
+            slug: script.slug,
+            title: getScriptTitle(script),
+            characters: script.characters,
+          }))}
+        />
       )}
     </main>
   )
