@@ -1161,7 +1161,7 @@ export function StorytellerHelper({
     updateCurrentDay((d) =>
       appendEvent(
         { ...d, nominationStep: 'waitingForNomination', nominationWaitSeconds: timerDefaults.nominationWaitSeconds, voteDraft: createDefaultVoteDraft(), votingState: null },
-        'event',
+        'stateChange',
         `提名失败: #${d.voteDraft.actor ?? '?'} → #${d.voteDraft.target ?? '?'}`,
       ),
     )
@@ -1173,7 +1173,7 @@ export function StorytellerHelper({
     updateCurrentDay((d) =>
       appendEvent(
         { ...d, nominationStep: 'waitingForNomination', nominationWaitSeconds: timerDefaults.nominationWaitSeconds, voteDraft: createDefaultVoteDraft(), votingState: null },
-        'event',
+        'stateChange',
         `跳过投票: #${d.voteDraft.actor ?? '?'} → #${d.voteDraft.target ?? '?'}`,
       ),
     )

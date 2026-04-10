@@ -1,0 +1,9 @@
+[
+  {
+    "date": "2026-04-10",
+    "change": "Fix TypeScript errors in StorytellerHelper.tsx by replacing 'event' with 'stateChange' in appendEvent calls.",
+    "files": [
+      "src/components/StorytellerHelper.tsx"
+    ]
+  }
+]
