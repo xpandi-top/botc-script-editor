@@ -23,8 +23,6 @@ type PickerMode =
   | 'skillActor'
   | 'skillTarget'
 
-type LoopMode = 'single' | 'all'
-
 type CharacterAssignment = { seat: number; characterId: string; team: string }
 
 type NewGameConfig = {
@@ -216,7 +214,7 @@ const CHARACTER_DISTRIBUTION: Record<number, { townsfolk: number; outsider: numb
 const FAKE_NAMES = ['Alice', 'Bob', 'Charlie', 'Diana', 'Eve', 'Frank', 'Grace', 'Hank', 'Ivy', 'Jack', 'Kate', 'Leo', 'Mia', 'Nick', 'Olive']
 const FAKE_NAMES_ZH = ['张三', '李四', '王五', '赵六', '孙七', '周八', '吴九', '郑十', '冯十一', '陈十二', '褚十三', '卫十四', '蒋十五']
 
-const AUDIO_TRACKS: AudioTrack[] = [
+const INITIAL_AUDIO_TRACKS: AudioTrack[] = [
   { name: 'Blood on the Clocktower', src: `${BASE_URL}audio/botc.mp3` },
   { name: 'Below the Granite Arch', src: `${BASE_URL}audio/below_the_granite_arch.mp3` },
   { name: 'Measured Pulse of the Tower', src: `${BASE_URL}audio/measured_pulse_of_the_tower.mp3` },
@@ -426,14 +424,14 @@ export function StorytellerHelper({
   const [showSettings, setShowSettings] = useState(false)
   const [showLogPanel, setShowLogPanel] = useState(false)
   const [skillOverlay, setSkillOverlay] = useState<SkillOverlayState | null>(null)
-  const [audioTrackIndex, setAudioTrackIndex] = useState(0)
+  const [audioTracks, setAudioTracks] = useState<AudioTrack[]>(INITIAL_AUDIO_TRACKS)
+  const [selectedAudioSrc, setSelectedAudioSrc] = useState<string>(INITIAL_AUDIO_TRACKS[0].src)
   const [audioPlaying, setAudioPlaying] = useState(false)
-  const [audioLoopMode, setAudioLoopMode] = useState<LoopMode>('all')
   const [newGamePanel, setNewGamePanel] = useState<NewGameConfig | null>(null)
   const [endGameResult, setEndGameResult] = useState<EndGameResult | null>(null)
   const [reviewMode, setReviewMode] = useState(false)
   const [logFilter, setLogFilter] = useState<LogFilterState>({ types: new Set(['vote', 'skill', 'event']), dayFilter: 'all', sortAsc: false })
-  const [activeConsoleSection, setActiveConsoleSection] = useState<ConsoleSection | null>('day')
+  const [activeConsoleSections, setActiveConsoleSections] = useState<Set<ConsoleSection>>(new Set(['day']))
   const lastCountdownRef = useRef<number | null>(null)
   const audioRef = useRef<HTMLAudioElement>(null)
 
@@ -591,6 +589,7 @@ export function StorytellerHelper({
             seatAssignment: '座位分配',
             unassigned: '未分配',
             clickToAssign: '点击名字分配到下一个空位',
+            loadLocalFile: '加载本地文件',
             removeFromSeat: '移除',
           }
         : {
@@ -743,6 +742,7 @@ export function StorytellerHelper({
             seatAssignment: 'Seat Assignment',
             unassigned: 'Unassigned',
             clickToAssign: 'Click a name to assign to the next empty seat',
+            loadLocalFile: 'Load local file',
             removeFromSeat: 'Remove',
           },
     [language],
@@ -1044,16 +1044,16 @@ export function StorytellerHelper({
   useEffect(() => {
     const audio = audioRef.current
     if (!audio) return
-    const track = AUDIO_TRACKS[audioTrackIndex]
-    if (!track) return
-    audio.src = track.src
-    audio.loop = audioLoopMode === 'single'
+    if (!selectedAudioSrc) return
+
+    audio.src = selectedAudioSrc
+    audio.loop = true
     if (audioPlaying) {
       audio.load()
       audio.play().catch(() => {})
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [audioTrackIndex])
+  }, [selectedAudioSrc])
 
   useEffect(() => {
     const audio = audioRef.current
@@ -1062,24 +1062,18 @@ export function StorytellerHelper({
     else audio.pause()
   }, [audioPlaying])
 
-  useEffect(() => {
-    if (audioRef.current) audioRef.current.loop = audioLoopMode === 'single'
-  }, [audioLoopMode])
-
-  useEffect(() => {
-    const audio = audioRef.current
-    if (!audio) return
-    const onEnded = () => {
-      if (audioLoopMode === 'all') {
-        setAudioTrackIndex((i) => (i + 1) % AUDIO_TRACKS.length)
-      }
-      // 'single' is handled by audio.loop = true
-    }
-    audio.addEventListener('ended', onEnded)
-    return () => audio.removeEventListener('ended', onEnded)
-  }, [audioLoopMode])
-
   // ── Functions ──
+
+  function handleLocalFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0]
+    if (file) {
+      const url = URL.createObjectURL(file)
+      const newTrack: AudioTrack = { name: file.name, src: url }
+      setAudioTracks((cur) => [...cur, newTrack])
+      setSelectedAudioSrc(url)
+      setAudioPlaying(true)
+    }
+  }
 
   function updatePlayerCount(nextCount: number) {
     const safe = Math.max(5, Math.min(15, nextCount))
@@ -1561,7 +1555,15 @@ export function StorytellerHelper({
   const hasTimer = currentDay.nominationStep !== 'nominationDecision' && currentDay.nominationStep !== 'readyToVote' && currentDay.nominationStep !== 'votingDone'
 
   function toggleConsoleSection(section: ConsoleSection) {
-    setActiveConsoleSection((cur) => cur === section ? null : section)
+    setActiveConsoleSections((cur) => {
+      const next = new Set(cur)
+      if (next.has(section)) {
+        next.delete(section)
+      } else {
+        next.add(section)
+      }
+      return next
+    })
   }
 
   return (
@@ -1886,9 +1888,9 @@ export function StorytellerHelper({
               <div className="storyteller-console-section">
                 <button className="storyteller-console-section__header" onClick={() => toggleConsoleSection('game')} type="button">
                   <span>{text.gameSection}</span>
-                  <span>{activeConsoleSection === 'game' ? '▼' : '▶'}</span>
+                  <span>{activeConsoleSections.has('game') ? '▼' : '▶'}</span>
                 </button>
-                {activeConsoleSection === 'game' ? (
+                {activeConsoleSections.has('game') ? (
                   <div className="storyteller-console-section__body">
                     {activeScriptTitle ? <span className="storyteller-script-badge">{text.currentScript}: {activeScriptTitle}</span> : null}
 
@@ -1942,9 +1944,9 @@ export function StorytellerHelper({
               <div className="storyteller-console-section">
                 <button className="storyteller-console-section__header" onClick={() => toggleConsoleSection('day')} type="button">
                   <span>{text.daySection}</span>
-                  <span>{activeConsoleSection === 'day' ? '▼' : '▶'}</span>
+                  <span>{activeConsoleSections.has('day') ? '▼' : '▶'}</span>
                 </button>
-                {activeConsoleSection === 'day' ? (
+                {activeConsoleSections.has('day') ? (
                   <div className="storyteller-console-section__body">
                     {/* Day nav */}
                     <div className="storyteller-day-nav">
@@ -2106,12 +2108,13 @@ export function StorytellerHelper({
               </div>
 
               {/* ── Section 3: Player ── */}
+              {/* ── Section 3: Player ── */}
               <div className="storyteller-console-section">
                 <button className="storyteller-console-section__header" onClick={() => toggleConsoleSection('player')} type="button">
                   <span>{text.playerSection}</span>
-                  <span>{activeConsoleSection === 'player' ? '▼' : '▶'}</span>
+                  <span>{activeConsoleSections.has('player') ? '▼' : '▶'}</span>
                 </button>
-                {activeConsoleSection === 'player' ? (
+                {activeConsoleSections.has('player') ? (
                   <div className="storyteller-console-section__body">
                     {/* Player count slider */}
                     <label className="editor-field storyteller-count">
@@ -2208,19 +2211,23 @@ export function StorytellerHelper({
               <div className="storyteller-console-section">
                 <button className="storyteller-console-section__header" onClick={() => toggleConsoleSection('bgm')} type="button">
                   <span>{text.bgmSection}</span>
-                  <span>{activeConsoleSection === 'bgm' ? '▼' : '▶'}</span>
+                  <span>{activeConsoleSections.has('bgm') ? '▼' : '▶'}</span>
                 </button>
-                {activeConsoleSection === 'bgm' ? (
+                {activeConsoleSections.has('bgm') ? (
                   <div className="storyteller-console-section__body">
-                    <div className="storyteller-audio-player">
-                      <select className="storyteller-day-select" onChange={(e) => setAudioTrackIndex(Number(e.target.value))} value={audioTrackIndex}>
-                        {AUDIO_TRACKS.map((t, i) => <option key={t.src} value={i}>{t.name}</option>)}
+                    <audio ref={audioRef} />
+                    <div className="storyteller-chip-row">
+                      <button className="secondary-button" onClick={() => setAudioPlaying((c) => !c)} type="button">{audioPlaying ? text.pause : text.play}</button>
+                      <select className="storyteller-day-select" onChange={(e) => setSelectedAudioSrc(e.target.value)} value={selectedAudioSrc}>
+                        {audioTracks.map((t) => <option key={t.src} value={t.src}>{t.name}</option>)}
                       </select>
-                      <div className="storyteller-chip-row">
-                        <button className={`secondary-button${audioPlaying ? ' tab-button--active' : ''}`} onClick={() => setAudioPlaying((c) => !c)} type="button">{audioPlaying ? text.pause : text.play}</button>
-                        <button className={`secondary-button${audioLoopMode === 'single' ? ' tab-button--active' : ''}`} onClick={() => setAudioLoopMode('single')} type="button">{text.singleLoop}</button>
-                        <button className={`secondary-button${audioLoopMode === 'all' ? ' tab-button--active' : ''}`} onClick={() => setAudioLoopMode('all')} type="button">{text.loopAll}</button>
-                      </div>
+                    </div>
+                    <div className="storyteller-chip-row">
+                      <span className="secondary-button tab-button--active">{text.singleLoop}</span>
+                      <label className="secondary-button">
+                        {text.loadLocalFile}
+                        <input type="file" accept=".mp3" onChange={handleLocalFileChange} style={{ display: 'none' }} />
+                      </label>
                     </div>
                   </div>
                 ) : null}
