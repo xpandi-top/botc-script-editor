@@ -5,5 +5,18 @@
     "files": [
       "src/components/StorytellerHelper.tsx"
     ]
+  },
+  {
+    "date": "2026-04-13",
+    "change": "Refactored StorytellerHelper.tsx to extract UI components into a subfolder (src/components/StorytellerSub) to reduce file size. Extracted LeftLogPanel, CompactToolbar, Arena, RightConsole, and Modals.",
+    "files": [
+      "src/components/StorytellerHelper.tsx",
+      "src/components/StorytellerSub/LeftLogPanel.tsx",
+      "src/components/StorytellerSub/CompactToolbar.tsx",
+      "src/components/StorytellerSub/Arena.tsx",
+      "src/components/StorytellerSub/RightConsole.tsx",
+      "src/components/StorytellerSub/Modals.tsx",
+      "src/components/StorytellerSub/constants.ts"
+    ]
   }
 ]

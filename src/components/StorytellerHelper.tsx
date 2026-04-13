@@ -1,5 +1,11 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
-import { characterById, getDisplayName, getIconForCharacter } from '../catalog'
+
+import { LeftLogPanel } from './StorytellerSub/LeftLogPanel'
+import { CompactToolbar } from './StorytellerSub/CompactToolbar'
+import { Arena } from './StorytellerSub/Arena'
+import { RightConsole } from './StorytellerSub/RightConsole'
+import { Modals } from './StorytellerSub/Modals'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { characterById } from '../catalog'
 import type { Language, Team } from '../types'
 
 // ── Types ──────────────────────────────────────────────────────
@@ -215,8 +221,8 @@ const CHARACTER_DISTRIBUTION: Record<number, { townsfolk: number; outsider: numb
   15: { townsfolk: 9, outsider: 2, minion: 3, demon: 1 },
 }
 
-const FAKE_NAMES = ['Alice', 'Bob', 'Charlie', 'Diana', 'Eve', 'Frank', 'Grace', 'Hank', 'Ivy', 'Jack', 'Kate', 'Leo', 'Mia', 'Nick', 'Olive']
-const FAKE_NAMES_ZH = ['张三', '李四', '王五', '赵六', '孙七', '周八', '吴九', '郑十', '冯十一', '陈十二', '褚十三', '卫十四', '蒋十五']
+// const FAKE_NAMES = ['Alice', 'Bob', 'Charlie', 'Diana', 'Eve', 'Frank', 'Grace', 'Hank', 'Ivy', 'Jack', 'Kate', 'Leo', 'Mia', 'Nick', 'Olive']
+// const FAKE_NAMES_ZH = ['张三', '李四', '王五', '赵六', '孙七', '周八', '吴九', '郑十', '冯十一', '陈十二', '褚十三', '卫十四', '蒋十五']
 
 const INITIAL_AUDIO_TRACKS: AudioTrack[] = [
   { name: 'Blood on the Clocktower', src: `${BASE_URL}audio/botc.mp3` },
@@ -1677,1544 +1683,156 @@ export function StorytellerHelper({
     })
   }
 
+
+  const ctx = {
+    activeScriptSlug,
+    activeScriptTitle,
+    language,
+    onSelectScript,
+    scriptOptions,
+    days,
+    setDays,
+    selectedDayId,
+    setSelectedDayId,
+    timerDefaults,
+    setTimerDefaults,
+    customTagPool,
+    setCustomTagPool,
+    gameRecords,
+    setGameRecords,
+    playerNamePool,
+    setPlayerNamePool,
+    pickerMode,
+    setPickerMode,
+    isTimerRunning,
+    setIsTimerRunning,
+    dialogState,
+    setDialogState,
+    seatTagDrafts,
+    setSeatTagDrafts,
+    selectedSeatNumber,
+    setSelectedSeatNumber,
+    showLogPanel,
+    setShowLogPanel,
+    showRightPanel,
+    setShowRightPanel,
+    skillOverlay,
+    setSkillOverlay,
+    audioTracks,
+    setAudioTracks,
+    selectedAudioSrc,
+    setSelectedAudioSrc,
+    audioPlaying,
+    setAudioPlaying,
+    newGamePanel,
+    setNewGamePanel,
+    endGameResult,
+    setEndGameResult,
+    logFilter,
+    setLogFilter,
+    activeConsoleSections,
+    setActiveConsoleSections,
+    tagPopoutSeat,
+    setTagPopoutSeat,
+    skillPopoutSeat,
+    setSkillPopoutSeat,
+    skillRoleDropdownOpen,
+    setSkillRoleDropdownOpen,
+    showNominationSheet,
+    setShowNominationSheet,
+    showEditPlayersModal,
+    setShowEditPlayersModal,
+    editPlayersPreset,
+    setEditPlayersPreset,
+    loadTagsPreset,
+    setLoadTagsPreset,
+    lastCountdownRef,
+    audioRef,
+    text,
+    selectedDayIndex,
+    currentDay,
+    updateCurrentDay,
+    currentTimerSeconds,
+    currentScriptCharacters,
+    livingNonTravelerSeats,
+    requiredVotes,
+    eligibleVoterSeats,
+    nonVoters,
+    draftPassedBySystem,
+    draftPassed,
+    isVotingComplete,
+    currentVoterSeat,
+    pointerSeat,
+    selectedSeat,
+    selectedSeatTags,
+    dialogTitle,
+    aliveCount,
+    totalCount,
+    highestVoteThisDay,
+    nominatorsThisDay,
+    nomineesThisDay,
+    leadingCandidates,
+    nominationDelaySeconds,
+    secondsUntilNomination,
+    canNominate,
+    aggregatedLog,
+    getPhaseContext,
+    setCurrentTimer,
+    syncDayTimers,
+    appendEvent,
+    handleLocalFileChange,
+    resetSeatNames,
+    updateSeat,
+    updateSeatWithLog,
+    addCustomTag,
+    clearUnusedCustomTags,
+    enterNomination,
+    confirmNomination,
+    rejectNomination,
+    confirmTargetSpeech,
+    startVoting,
+    handleVoteYes,
+    recordVote,
+    openSkillOverlay,
+    openSeatSkill,
+    closeSkillOverlay,
+    moveToNextSpeaker,
+    goToNextDay,
+    goToPreviousDay,
+    saveCurrentGame,
+    resetCurrentGame,
+    confirmDialog,
+    handleSeatClick,
+    removeSeatTag,
+    setPhase,
+    startNight,
+    stopNight,
+    addPlayerSeat,
+    removeLastPlayerSeat,
+    addTravelerSeat,
+    removeLastTraveler,
+    openNewGamePanel,
+    randomAssignCharacters,
+    startNewGame,
+    openEndGamePanel,
+    confirmEndGame,
+    exportGameJson,
+    toggleLogFilterType,
+    votingYesCount,
+    NIGHT_BGM_SRC,
+    hasTimer,
+    toggleConsoleSection
+  };
+
   return (
     <section className={`storyteller-layout${showLogPanel ? ' storyteller-layout--log' : ''}${showRightPanel ? ' storyteller-layout--panel' : ''}`}>
-
-      {/* ── Left side panel: Log ── */}
-      <aside className={`storyteller-side-panel storyteller-side-panel--left${showLogPanel ? ' storyteller-side-panel--open' : ''}`}>
-        <div className="storyteller-side-panel__header">
-          <h3>{text.aggregatedLog}</h3>
-          <button className="secondary-button secondary-button--small" onClick={() => setShowLogPanel(false)} type="button">{text.hideLog}</button>
-        </div>
-        <div className="storyteller-log-filters">
-          <button className={`secondary-button secondary-button--small${logFilter.types.has('vote') ? ' tab-button--active' : ''}`} onClick={() => toggleLogFilterType('vote')} type="button">{text.filterVote}</button>
-          <button className={`secondary-button secondary-button--small${logFilter.types.has('skill') ? ' tab-button--active' : ''}`} onClick={() => toggleLogFilterType('skill')} type="button">{text.filterSkill}</button>
-          <button className={`secondary-button secondary-button--small${logFilter.types.has('event') ? ' tab-button--active' : ''}`} onClick={() => toggleLogFilterType('event')} type="button">{text.filterEvent}</button>
-          <select
-            className="storyteller-day-select"
-            onChange={(e) => setLogFilter((prev) => ({ ...prev, dayFilter: e.target.value === 'all' ? 'all' : Number(e.target.value) }))}
-            value={logFilter.dayFilter}
-          >
-            <option value="all">{text.allDays}</option>
-            {days.map((d) => <option key={d.id} value={d.day}>Day {d.day}</option>)}
-          </select>
-          <button className="secondary-button secondary-button--small" onClick={() => setLogFilter((prev) => ({ ...prev, sortAsc: !prev.sortAsc }))} type="button">
-            {logFilter.sortAsc ? text.sortAsc : text.sortDesc}
-          </button>
-        </div>
-        <div className="storyteller-side-panel__entries">
-          {aggregatedLog.length ? aggregatedLog.map((entry) => (
-            <article className={`storyteller-log-entry storyteller-log-entry--${entry.type}`} key={entry.id}>
-              <div className="storyteller-history__top">
-                <span className="storyteller-log-badge" data-type={entry.type}>
-                  {entry.type === 'vote' ? text.filterVote : entry.type === 'skill' ? text.filterSkill : text.filterEvent}
-                </span>
-                <span>Day {entry.day}</span>
-              </div>
-              <p>{entry.detail}</p>
-            </article>
-          )) : <p className="storyteller-panel__hint">—</p>}
-        </div>
-      </aside>
-
-      {/* ── Main panel ── */}
+      <LeftLogPanel ctx={ctx} />
       <section className="storyteller-panel">
-
-        {/* ── Compact toolbar ── */}
-        <div className="storyteller-compact-toolbar">
-          <div className="storyteller-compact-toolbar__left">
-            <span className="storyteller-compact-count">
-              <strong>{aliveCount}/{totalCount}</strong>
-              {currentDay.seats.filter((s) => s.isTraveler).length > 0 ? (
-                <span>+{currentDay.seats.filter((s) => s.isTraveler).length}{text.travelersCount}</span>
-              ) : null}
-            </span>
-            {activeScriptTitle ? <span className="storyteller-script-badge">{activeScriptTitle}</span> : null}
-            <button className="secondary-button secondary-button--small" onClick={() => setShowEditPlayersModal(true)} type="button">{text.editPlayers}</button>
-          </div>
-          <div className="storyteller-compact-toolbar__right">
-            <audio ref={audioRef} />
-            <div className="storyteller-bgm-mini">
-              <button className="secondary-button secondary-button--small" onClick={() => setAudioPlaying((c) => !c)} type="button">{audioPlaying ? text.pause : text.play}</button>
-              <select className="storyteller-bgm-mini__select" onChange={(e) => setSelectedAudioSrc(e.target.value)} value={selectedAudioSrc}>
-                {audioTracks.map((t) => <option key={t.src} value={t.src}>{t.name}</option>)}
-              </select>
-              <label className="secondary-button secondary-button--small">
-                {text.loadLocalFile}
-                <input type="file" accept=".mp3" onChange={handleLocalFileChange} style={{ display: 'none' }} />
-              </label>
-            </div>
-            <button className="print-button" onClick={openNewGamePanel} type="button">{text.newGame}</button>
-            <button className="secondary-button secondary-button--small" onClick={() => { setShowRightPanel(true); setActiveConsoleSections((c) => { const n = new Set(c); n.add('settings'); return n }) }} type="button">{text.settings}</button>
-            <button className="secondary-button secondary-button--small" onClick={() => setShowLogPanel((c) => !c)} type="button">{showLogPanel ? text.hideLog : text.showLog}</button>
-            <button className="secondary-button secondary-button--small" onClick={() => setShowRightPanel((c) => !c)} type="button">{showRightPanel ? text.hidePanel : text.showPanel}</button>
-          </div>
-        </div>
-
-        {/* ── Arena: round table + quick strip ── */}
-        <div className="storyteller-arena">
-
-          {/* Round table */}
-          <div className="storyteller-table-card">
-            <div className="storyteller-table" onClick={() => { setSelectedSeatNumber(null); if (pickerMode === 'none') setPickerMode('none'); setTagPopoutSeat(null) }} role="presentation">
-              <div className="storyteller-table__ring" />
-              {pointerSeat ? (
-                <div className="storyteller-table__hand" style={{ '--pointer-angle': `${((pointerSeat - 1) / currentDay.seats.length) * 360 - 90}deg` } as CSSProperties} />
-              ) : null}
-
-              {/* ── Center ── */}
-              <section className={`storyteller-center${showNominationSheet && currentDay.phase === 'nomination' ? ' storyteller-center--sheet-open' : ''}`}>
-                {/* Left: Stage / Timer */}
-                <div className="storyteller-center__left">
-                  {/* Phase tabs */}
-                  <div className="storyteller-center__phase-tabs">
-                    {(['night', 'private', 'public', 'nomination'] as Phase[]).map((p) => (
-                      <button
-                        className={`storyteller-center__phase-btn${currentDay.phase === p ? ' storyteller-center__phase-btn--active' : ''}`}
-                        key={p}
-                        onClick={(e) => { e.stopPropagation(); setPhase(p) }}
-                        type="button"
-                      >
-                        {p === 'night' ? text.nightPhase : p === 'private' ? text.privateChat : p === 'public' ? text.publicChat : text.nomination}
-                      </button>
-                    ))}
-                  </div>
-                  {/* Public mode select */}
-                  {currentDay.phase === 'public' ? (
-                    <select
-                      className="storyteller-center__mode-select"
-                      onChange={(e) => updateCurrentDay((d) => ({ ...d, publicMode: e.target.value as PublicMode }))}
-                      value={currentDay.publicMode}
-                    >
-                      <option value="free">{text.freeSpeech}</option>
-                      <option value="roundRobin">{text.roundRobinMode}</option>
-                    </select>
-                  ) : null}
-
-                  {/* Timer */}
-                  {hasTimer ? (
-                    <input
-                      aria-label="Current timer"
-                      className="storyteller-center__timer-input"
-                      onChange={(e) => {
-                        const val = e.target.value
-                        if (val.includes(':')) {
-                          const [mPart, sPart] = val.split(':')
-                          setCurrentTimer((parseInt(mPart, 10) || 0) * 60 + (parseInt(sPart, 10) || 0))
-                        } else {
-                          const n = parseInt(val, 10)
-                          if (!isNaN(n)) setCurrentTimer(n)
-                        }
-                      }}
-                      type="text"
-                      inputMode="numeric"
-                      value={`${String(Math.floor(currentTimerSeconds / 60)).padStart(2, '0')}:${String(currentTimerSeconds % 60).padStart(2, '0')}`}
-                    />
-                  ) : null}
-
-                  {/* Timer controls */}
-                  {hasTimer ? (
-                    <div className="storyteller-center__timer-controls">
-                      <button
-                        className={`storyteller-center__ctrl-btn${isTimerRunning ? ' storyteller-center__ctrl-btn--active' : ''}`}
-                        onClick={() => setIsTimerRunning((c) => !c)}
-                        title={text.start}
-                        type="button"
-                      >
-                        {isTimerRunning ? '⏸' : '▶'}
-                      </button>
-                      <button className="storyteller-center__ctrl-btn" onClick={() => { updateCurrentDay(syncDayTimers); setIsTimerRunning(false) }} title={text.resetTimer} type="button">↺</button>
-                      <button className="storyteller-center__ctrl-btn" onClick={() => setCurrentTimer(0)} title={text.endNow} type="button">■</button>
-                    </div>
-                  ) : null}
-
-                  {/* Night phase BGM controls */}
-                  {currentDay.phase === 'night' ? (
-                    <div className="storyteller-center__timer-controls">
-                      <button
-                        className={`storyteller-center__ctrl-btn${audioPlaying ? ' storyteller-center__ctrl-btn--active' : ''}`}
-                        onClick={(e) => { e.stopPropagation(); audioPlaying ? setAudioPlaying(false) : startNight() }}
-                        title={audioPlaying ? text.pause : text.play}
-                        type="button"
-                      >
-                        {audioPlaying ? '⏸' : '▶'}
-                      </button>
-                      <button className="storyteller-center__ctrl-btn" onClick={(e) => { e.stopPropagation(); stopNight() }} title={text.endNow} type="button">■</button>
-                    </div>
-                  ) : null}
-
-                  {/* RoundRobin speaker */}
-                  {currentDay.phase === 'public' && currentDay.publicMode === 'roundRobin' ? (
-                    <p className="storyteller-center__speaker">#{currentDay.currentSpeakerSeat ?? '—'}</p>
-                  ) : null}
-
-                  {/* RoundRobin speaker nav */}
-                  {currentDay.phase === 'public' && currentDay.publicMode === 'roundRobin' ? (
-                    <div className="storyteller-center__speaker-nav">
-                      <button className="secondary-button secondary-button--small" onClick={() => setPickerMode('speaker')} type="button">{text.chooseSpeaker}</button>
-                      <button className="secondary-button secondary-button--small" onClick={() => {
-                        const all = currentDay.seats.map((s) => s.seat)
-                        const r = all[Math.floor(Math.random() * Math.max(all.length, 1))]
-                        updateCurrentDay((d) => ({ ...d, currentSpeakerSeat: r ?? 1, roundRobinSpokenSeats: [] }))
-                      }} type="button">{text.randomSpeaker}</button>
-                      <button className="secondary-button secondary-button--small" onClick={moveToNextSpeaker} type="button">{text.nextSpeaker}</button>
-                    </div>
-                  ) : null}
-
-                  {/* Public: nomination button */}
-                  {currentDay.phase === 'public' && currentDay.publicMode === 'free' ? (
-                    canNominate ? (
-                      <button className="print-button storyteller-start-vote" onClick={enterNomination} type="button">{text.startNomination}</button>
-                    ) : (
-                      <p className="storyteller-center__status storyteller-center__status--muted">
-                        {text.nominationGate}: {Math.ceil(secondsUntilNomination / 60)}:{String(secondsUntilNomination % 60).padStart(2, '0')}
-                      </p>
-                    )
-                  ) : null}
-
-                  {currentDay.phase === 'nomination' && currentDay.nominationStep === 'nominationDecision' ? (
-                    <div className="storyteller-center__timer-controls">
-                      <button className="print-button" onClick={confirmNomination} type="button">{language === 'zh' ? '提名者计时' : 'Nominator Countdown'}</button>
-                    </div>
-                  ) : null}
-
-                  {currentDay.phase === 'nomination' && currentDay.nominationStep === 'readyForTargetSpeech' ? (
-                    <div className="storyteller-center__timer-controls">
-                      <button className="print-button" onClick={confirmTargetSpeech} type="button">{language === 'zh' ? '被提名者计时' : 'Nominee Countdown'}</button>
-                    </div>
-                  ) : null}
-
-                  {currentDay.phase === 'nomination' && currentDay.nominationStep === 'readyToVote' ? (
-                    <div className="storyteller-center__timer-controls">
-                      <button className="print-button" onClick={startVoting} type="button">{language === 'zh' ? '开始投票计时' : 'Start Vote'}</button>
-                    </div>
-                  ) : null}
-
-                  {/* Nominate button + Next Day (nomination phase) */}
-                  {currentDay.phase === 'nomination' ? (
-                    <div className="storyteller-center__nominate-row">
-                      <button
-                        className={`print-button storyteller-start-vote${showNominationSheet ? ' tab-button--active' : ''}`}
-                        onClick={() => setShowNominationSheet((v) => !v)}
-                        type="button"
-                      >{language === 'zh' ? '提名' : 'Nominate'}</button>
-                      <button
-                        className="secondary-button storyteller-center__next-day-btn"
-                        onClick={(e) => { e.stopPropagation(); goToNextDay() }}
-                        type="button"
-                      >{language === 'zh' ? '下一天' : 'Next Day'}</button>
-                    </div>
-                  ) : null}
-                </div>
-
-                {/* Right: Day info */}
-                <div className="storyteller-center__right">
-                  {/* Day navigation */}
-                  <div className="storyteller-center__day-nav">
-                    <button className="storyteller-center__ctrl-btn" onClick={(e) => { e.stopPropagation(); goToPreviousDay() }} type="button">◀</button>
-                    <select className="storyteller-center__mode-select" onChange={(e) => setSelectedDayId(e.target.value)} value={currentDay.id}>
-                      {days.map((d) => <option key={d.id} value={d.id}>Day {d.day}</option>)}
-                    </select>
-                    <button className="storyteller-center__ctrl-btn" onClick={(e) => { e.stopPropagation(); goToNextDay() }} type="button">▶</button>
-                  </div>
-
-                  <div className="storyteller-center__game-stats">
-                    <span>{text.aliveCount}: <strong>{aliveCount}/{totalCount}</strong></span>
-                    <span>{text.requiredVotes}: <strong>{requiredVotes}</strong></span>
-                  </div>
-
-                  {/* Leading candidate(s) */}
-                  {leadingCandidates.length > 0 ? (
-                    <div className="storyteller-center__leading">
-                      <span className="storyteller-center__leading-label">{text.leadingCandidate}</span>
-                      {leadingCandidates.map((c) => (
-                        <div className="storyteller-center__leading-row" key={c.seat}>
-                          <span className="storyteller-center__leading-name">#{c.seat} {c.name}</span>
-                          <span className="storyteller-center__leading-votes">{c.votes}<small>/{requiredVotes}</small></span>
-                        </div>
-                      ))}
-                    </div>
-                  ) : null}
-
-                  {/* Nomination status */}
-                  {currentDay.phase === 'nomination' && currentDay.nominationStep === 'waitingForNomination' ? (
-                    <p className="storyteller-center__status">
-                      {currentDay.voteDraft.actor ? `${text.actor}: #${currentDay.voteDraft.actor} → ${text.pickNominee}` : text.waitingForNomination}
-                    </p>
-                  ) : null}
-
-                  {currentDay.phase === 'nomination' && currentDay.nominationStep !== 'waitingForNomination' ? (
-                    <div className="storyteller-center__vote-mini">
-                      <span>#{currentDay.voteDraft.actor ?? '?'} → #{currentDay.voteDraft.target ?? '?'}</span>
-                      <span className="storyteller-center__vote-count">
-                        {currentDay.votingState ? Object.values(currentDay.votingState.votes).filter(Boolean).length : currentDay.voteDraft.voters.length}
-                        <small>/{requiredVotes}</small>
-                      </span>
-                      {isVotingComplete ? (
-                        <span className={draftPassed ? 'storyteller-pass' : 'storyteller-fail'}>
-                          {draftPassed ? text.pass : text.fail}
-                        </span>
-                      ) : null}
-                    </div>
-                  ) : null}
-
-                  {/* Today's nominations summary */}
-                  {nominatorsThisDay.length > 0 ? (
-                    <div className="storyteller-center__summary">
-                      <span>{text.todayNominators}: {nominatorsThisDay.map((s) => `#${s}`).join(', ')}</span>
-                      <span>{text.todayNominees}: {nomineesThisDay.map((s) => `#${s}`).join(', ')}</span>
-                    </div>
-                  ) : null}
-                </div>
-
-                {/* ── Nomination sheet ── */}
-                {showNominationSheet && currentDay.phase === 'nomination' ? (
-                  <div className="storyteller-nomination-sheet" onClick={(e) => e.stopPropagation()}>
-                    {/* Header */}
-                    <div className="storyteller-nomination-sheet__header">
-                      <span className="storyteller-nomination-sheet__title">{language === 'zh' ? '提名' : 'Nominate'}</span>
-                      <button className="secondary-button secondary-button--small" onClick={() => { setShowNominationSheet(false); setPickerMode('none') }} type="button">{language === 'zh' ? '隐藏' : 'Hide'}</button>
-                    </div>
-
-                    <div className="storyteller-nomination-sheet__body">
-                      {/* Left: inputs */}
-                      <div className="storyteller-nomination-sheet__inputs">
-                        {/* Nominator */}
-                        <div className="storyteller-nomination-sheet__row">
-                          <span className="storyteller-nomination-sheet__label">{text.actor}</span>
-                          <select
-                            className="storyteller-nomination-sheet__select"
-                            onChange={(e) => { const v = parseInt(e.target.value); if (!isNaN(v)) { updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, actor: v } })); setPickerMode('nominee') } else { updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, actor: null } })) } }}
-                            value={currentDay.voteDraft.actor ?? ''}
-                          >
-                            <option value="">{language === 'zh' ? '— 选择 —' : '— Select —'}</option>
-                            {currentDay.seats.map((s) => <option key={s.seat} value={s.seat}>#{s.seat} {s.name}</option>)}
-                          </select>
-                          <button
-                            className={`storyteller-nomination-sheet__pick-btn${pickerMode === 'nominator' ? ' storyteller-picker-active' : ''}`}
-                            onClick={() => setPickerMode(pickerMode === 'nominator' ? 'none' : 'nominator')}
-                            type="button"
-                          >⊕</button>
-                        </div>
-
-                        {/* Nominee */}
-                        <div className="storyteller-nomination-sheet__row">
-                          <span className="storyteller-nomination-sheet__label">{text.target}</span>
-                          <select
-                            className="storyteller-nomination-sheet__select"
-                            onChange={(e) => { const v = parseInt(e.target.value); if (!isNaN(v)) updateCurrentDay((d) => ({ ...d, nominationStep: 'nominationDecision', voteDraft: { ...d.voteDraft, target: v, voters: [] } })); else updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, target: null } })) }}
-                            value={currentDay.voteDraft.target ?? ''}
-                          >
-                            <option value="">{language === 'zh' ? '— 选择 —' : '— Select —'}</option>
-                            {currentDay.seats.map((s) => <option key={s.seat} value={s.seat}>#{s.seat} {s.name}</option>)}
-                          </select>
-                          <button
-                            className={`storyteller-nomination-sheet__pick-btn${pickerMode === 'nominee' ? ' storyteller-picker-active' : ''}`}
-                            onClick={() => setPickerMode(pickerMode === 'nominee' ? 'none' : 'nominee')}
-                            type="button"
-                          >⊕</button>
-                        </div>
-
-                        {/* Nomination result */}
-                        <div className="storyteller-nomination-sheet__row">
-                          <span className="storyteller-nomination-sheet__label">{language === 'zh' ? '结果' : 'Result'}</span>
-                          <select
-                            className={`storyteller-nomination-sheet__select storyteller-nomination-sheet__select--result${currentDay.voteDraft.nominationResult === 'fail' ? ' storyteller-nomination-sheet__select--fail' : ' storyteller-nomination-sheet__select--succeed'}`}
-                            onChange={(e) => updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, nominationResult: e.target.value as 'succeed' | 'fail' } }))}
-                            value={currentDay.voteDraft.nominationResult}
-                          >
-                            <option value="succeed">{language === 'zh' ? '✓ 提名成功' : '✓ Succeed'}</option>
-                            <option value="fail">{language === 'zh' ? '✗ 提名失败' : '✗ Failed'}</option>
-                          </select>
-                        </div>
-
-                        {pickerMode === 'nominator' || pickerMode === 'nominee' ? (
-                          <p className="storyteller-nomination-sheet__hint">{language === 'zh' ? '← 点击圆桌上的座位进行选择' : '← Click a seat on the table to select'}</p>
-                        ) : null}
-
-                        {/* Vote override: seat checkboxes */}
-                        {currentDay.nominationStep !== 'waitingForNomination' && currentDay.voteDraft.nominationResult === 'succeed' ? (
-                          <div className="storyteller-nomination-sheet__votes">
-                            <span className="storyteller-nomination-sheet__label">{language === 'zh' ? '投票' : 'Votes'} ({language === 'zh' ? '手动覆盖' : 'override'})</span>
-                            <div className="storyteller-nomination-sheet__vote-grid">
-                              {currentDay.seats.map((s) => {
-                                const voted = currentDay.votingState?.votes[s.seat]
-                                const isChecked = voted === true || currentDay.voteDraft.voters.includes(s.seat)
-                                return (
-                                  <label className="storyteller-nomination-sheet__vote-check" key={s.seat}>
-                                    <input
-                                      checked={isChecked}
-                                      onChange={() => {
-                                        if (currentDay.votingState) {
-                                          updateCurrentDay((d) => ({
-                                            ...d,
-                                            votingState: d.votingState ? {
-                                              ...d.votingState,
-                                              votes: { ...d.votingState.votes, [s.seat]: !isChecked },
-                                            } : null,
-                                          }))
-                                        } else {
-                                          updateCurrentDay((d) => ({
-                                            ...d,
-                                            voteDraft: {
-                                              ...d.voteDraft,
-                                              voters: isChecked ? d.voteDraft.voters.filter((v) => v !== s.seat) : [...d.voteDraft.voters, s.seat],
-                                            },
-                                          }))
-                                        }
-                                      }}
-                                      type="checkbox"
-                                    />
-                                    <span>#{s.seat}</span>
-                                  </label>
-                                )
-                              })}
-                            </div>
-                            <span className="storyteller-nomination-sheet__vote-count">
-                              {language === 'zh' ? '同意' : 'Yes'}: <strong>{Object.values(currentDay.votingState?.votes ?? {}).filter(Boolean).length || currentDay.voteDraft.voters.length}</strong> / {requiredVotes}
-                            </span>
-                          </div>
-                        ) : null}
-
-                        {/* Note */}
-                        <label className="storyteller-nomination-sheet__row storyteller-nomination-sheet__row--note">
-                          <span className="storyteller-nomination-sheet__label">{language === 'zh' ? '备注' : 'Note'}</span>
-                          <input
-                            className="storyteller-nomination-sheet__note-input"
-                            onChange={(e) => updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, note: e.target.value } }))}
-                            placeholder={language === 'zh' ? '可选备注…' : 'Optional note…'}
-                            type="text"
-                            value={currentDay.voteDraft.note}
-                          />
-                        </label>
-
-                        {/* Agree / Disagree */}
-                        {isVotingComplete && currentDay.voteDraft.nominationResult === 'succeed' ? (
-                          <div className="storyteller-chip-row">
-                            <button className="print-button" onClick={() => setDialogState({ kind: 'voteResult', nextValue: true, systemValue: draftPassedBySystem })} type="button">✓ {language === 'zh' ? '同意' : 'Agree'}</button>
-                            <button className="secondary-button" onClick={() => setDialogState({ kind: 'voteResult', nextValue: false, systemValue: draftPassedBySystem })} type="button">✗ {language === 'zh' ? '不同意' : 'Disagree'}</button>
-                          </div>
-                        ) : null}
-
-                        {/* Record + Clear */}
-                        <div className="storyteller-chip-row">
-                          <button
-                            className="print-button"
-                            disabled={!currentDay.voteDraft.actor || !currentDay.voteDraft.target}
-                            onClick={() => currentDay.voteDraft.nominationResult === 'fail' ? rejectNomination() : recordVote()}
-                            type="button"
-                          >{language === 'zh' ? '记录' : 'Record'}</button>
-                          <button className="secondary-button secondary-button--small" onClick={() => { updateCurrentDay((d) => ({ ...d, nominationStep: 'waitingForNomination', voteDraft: createDefaultVoteDraft(), votingState: null })); setPickerMode('none') }} type="button">{text.clear}</button>
-                        </div>
-                      </div>
-
-                      {/* Right: today's nomination history */}
-                      <div className="storyteller-nomination-sheet__history">
-                        <span className="storyteller-nomination-sheet__history-title">{language === 'zh' ? '今日提名记录' : "Today's Nominations"}</span>
-                        {currentDay.voteHistory.length === 0 ? (
-                          <p className="storyteller-nomination-sheet__history-empty">{language === 'zh' ? '暂无记录' : 'None yet'}</p>
-                        ) : (
-                          currentDay.voteHistory.map((record) => (
-                            <div className={`storyteller-nomination-sheet__history-item${record.failed ? ' storyteller-nomination-sheet__history-item--failed' : record.passed ? ' storyteller-nomination-sheet__history-item--passed' : ' storyteller-nomination-sheet__history-item--failed'}`} key={record.id}>
-                              <span className="storyteller-nomination-sheet__history-pair">
-                                #{record.actor} → #{record.target}
-                              </span>
-                              {record.failed ? (
-                                <span className="storyteller-nomination-sheet__history-result">{language === 'zh' ? '提名失败' : 'Nom. Failed'}</span>
-                              ) : (
-                                <>
-                                  <span className="storyteller-nomination-sheet__history-votes">
-                                    {language === 'zh' ? '票' : 'vote'}({record.voteCount}/{record.requiredVotes}){record.voters.length > 0 ? `: ${record.voters.map(v => `#${v}`).join(', ')}` : ''}
-                                  </span>
-                                  <span className={`storyteller-nomination-sheet__history-result${record.passed ? ' storyteller-nomination-sheet__history-result--pass' : ''}`}>
-                                    {record.passed ? (language === 'zh' ? '通过' : 'Pass') : (language === 'zh' ? '失败' : 'Fail')}
-                                    {record.note ? ` · ${record.note}` : ''}
-                                  </span>
-                                </>
-                              )}
-                            </div>
-                          ))
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ) : null}
-              </section>
-
-              {/* ── Seat cards ── */}
-              {currentDay.seats.map((seat, index) => {
-                // Rectangular perimeter positioning (3:2 aspect ratio table)
-                const total = currentDay.seats.length
-                const W = 3, H = 2
-                const perimeter = 2 * (W + H) // = 10
-                const offset = (0.5 / total) * perimeter
-                const p = (offset + (index / total) * perimeter) % perimeter
-                const padX = 9, padY = 9
-                let left: number, top: number
-                if (p < W) {
-                  left = padX + (p / W) * (100 - 2 * padX); top = padY
-                } else if (p < W + H) {
-                  left = 100 - padX; top = padY + ((p - W) / H) * (100 - 2 * padY)
-                } else if (p < 2 * W + H) {
-                  left = (100 - padX) - ((p - W - H) / W) * (100 - 2 * padX); top = 100 - padY
-                } else {
-                  left = padX; top = (100 - padY) - ((p - 2 * W - H) / H) * (100 - 2 * padY)
-                }
-                const tags = [!seat.alive ? text.aliveTag : '', seat.isExecuted ? text.executedTag : '', seat.isTraveler ? text.traveler : '', seat.hasNoVote ? text.noVoteTag : '', ...seat.customTags].filter(Boolean)
-                const isSpoken = currentDay.roundRobinSpokenSeats.includes(seat.seat)
-                const isVoteActor = currentDay.voteDraft.actor === seat.seat
-                const isVoteTarget = currentDay.voteDraft.target === seat.seat
-                const isSkillActor = skillOverlay?.draft.actor === seat.seat
-                const isSkillTarget = skillOverlay?.draft.targets.includes(seat.seat) ?? false
-                const isCurrentVoter = currentVoterSeat === seat.seat
-                const hasVoted = currentDay.votingState?.votes[seat.seat] !== undefined
-                const votedYes = currentDay.votingState?.votes[seat.seat] === true
-                const isInNomination = currentDay.phase === 'nomination' && currentDay.nominationStep !== 'waitingForNomination'
-                const cardVotedYes = currentDay.votingState
-                  ? currentDay.votingState.votes[seat.seat] === true
-                  : currentDay.voteDraft.voters.includes(seat.seat)
-                const cardVotedNo = currentDay.votingState
-                  ? currentDay.votingState.votes[seat.seat] === false
-                  : currentDay.voteDraft.noVoters.includes(seat.seat)
-                const isTagPopoutOpen = tagPopoutSeat === seat.seat
-                const isSkillPopoutOpen = skillPopoutSeat === seat.seat
-
-                return (
-                  <article
-                    className={[
-                      'storyteller-seat',
-                      !seat.alive ? 'storyteller-seat--dead' : '',
-                      seat.isExecuted ? 'storyteller-seat--executed' : '',
-                      seat.isTraveler ? 'storyteller-seat--traveler' : '',
-                      selectedSeat?.seat === seat.seat ? 'storyteller-seat--speaker' : '',
-                      isSpoken ? 'storyteller-seat--spoken' : '',
-                      isVoteActor || isSkillActor ? 'storyteller-seat--actor' : '',
-                      isVoteTarget ? 'storyteller-seat--target' : '',
-                      isSkillTarget ? 'storyteller-seat--skill-target' : '',
-                      isCurrentVoter ? 'storyteller-seat--current-voter' : '',
-                      pickerMode !== 'none' ? 'storyteller-seat--picker' : '',
-                      isTagPopoutOpen || isSkillPopoutOpen ? 'storyteller-seat--tag-open' : '',
-                    ].filter(Boolean).join(' ')}
-                    key={seat.seat}
-                    style={{ left: `${left}%`, top: `${top}%` } as CSSProperties}
-                  >
-                    <button className="storyteller-seat__surface" onClick={() => handleSeatClick(seat.seat)} type="button">
-                      <div className="storyteller-seat__header">
-                        <span className="storyteller-seat__nameline">
-                          <span className="storyteller-seat__number">#{seat.seat}</span>
-                          <span className="storyteller-seat__name">{seat.name}</span>
-                        </span>
-                        {hasVoted ? <span className={`storyteller-seat__vote-mark${votedYes ? '' : ' storyteller-seat__vote-mark--no'}`}>{votedYes ? '✓' : '✗'}</span> : null}
-                      </div>
-                    </button>
-
-                    {/* Use Skill button */}
-                    <button
-                      className={`storyteller-seat__skill-btn${isSkillPopoutOpen ? ' storyteller-seat__skill-btn--open' : ''}`}
-                      onClick={(e) => { e.stopPropagation(); if (isSkillPopoutOpen) { closeSkillOverlay(false) } else { openSeatSkill(seat.seat) } }}
-                      type="button"
-                    >{language === 'zh' ? '发动技能' : 'Use Skill'}</button>
-
-                    {/* Tag button */}
-                    <button
-                      className={`storyteller-seat__tag-btn${isTagPopoutOpen ? ' storyteller-seat__tag-btn--open' : ''}`}
-                      onClick={(e) => { e.stopPropagation(); setTagPopoutSeat(isTagPopoutOpen ? null : seat.seat); setSkillPopoutSeat(null); if (skillOverlay && !isTagPopoutOpen) closeSkillOverlay(false) }}
-                      type="button"
-                    >{text.addTagLabel}</button>
-
-                    {/* Agree / Disagree buttons during nomination */}
-                    {isInNomination ? (
-                      cardVotedYes ? (
-                        <button
-                          className="storyteller-seat__vote-indicator storyteller-seat__vote-indicator--yes"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            if (currentDay.votingState) {
-                              updateCurrentDay((d) => ({ ...d, votingState: d.votingState ? { ...d.votingState, votes: { ...d.votingState.votes, [seat.seat]: undefined as unknown as boolean } } : null }))
-                            } else {
-                              updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, voters: d.voteDraft.voters.filter((v) => v !== seat.seat) } }))
-                            }
-                          }}
-                          type="button"
-                        >✓</button>
-                      ) : cardVotedNo ? (
-                        <button
-                          className="storyteller-seat__vote-indicator storyteller-seat__vote-indicator--no"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            if (currentDay.votingState) {
-                              updateCurrentDay((d) => ({ ...d, votingState: d.votingState ? { ...d.votingState, votes: { ...d.votingState.votes, [seat.seat]: undefined as unknown as boolean } } : null }))
-                            } else {
-                              updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, noVoters: d.voteDraft.noVoters.filter((v) => v !== seat.seat) } }))
-                            }
-                          }}
-                          type="button"
-                        >✗</button>
-                      ) : (
-                        <div className="storyteller-seat__vote-btns">
-                          <button
-                            className="storyteller-seat__vote-btn storyteller-seat__vote-btn--yes"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              if (currentDay.votingState) {
-                                updateCurrentDay((d) => ({ ...d, votingState: d.votingState ? { ...d.votingState, votes: { ...d.votingState.votes, [seat.seat]: true } } : null }))
-                              } else {
-                                updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, voters: [...d.voteDraft.voters, seat.seat], noVoters: d.voteDraft.noVoters.filter((v) => v !== seat.seat) } }))
-                              }
-                            }}
-                            type="button"
-                          >✓</button>
-                          <button
-                            className="storyteller-seat__vote-btn storyteller-seat__vote-btn--no"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              if (currentDay.votingState) {
-                                updateCurrentDay((d) => ({ ...d, votingState: d.votingState ? { ...d.votingState, votes: { ...d.votingState.votes, [seat.seat]: false } } : null }))
-                              } else {
-                                updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, noVoters: [...d.voteDraft.noVoters, seat.seat], voters: d.voteDraft.voters.filter((v) => v !== seat.seat) } }))
-                              }
-                            }}
-                            type="button"
-                          >✗</button>
-                        </div>
-                      )
-                    ) : null}
-
-                    {tags.length ? (
-                      <div className="storyteller-seat__tag-list">
-                        {tags.map((tag) => (
-                          <span
-                            className="storyteller-seat__pill"
-                            key={`${seat.seat}-${tag}`}
-                            onContextMenu={(e) => { if (!seat.customTags.includes(tag)) return; e.preventDefault(); removeSeatTag(seat.seat, tag) }}
-                            title={seat.customTags.includes(tag) ? 'Right click to remove' : undefined}
-                          >{tag}</span>
-                        ))}
-                      </div>
-                    ) : null}
-
-                    {/* Tag popout */}
-                    {isTagPopoutOpen ? (
-                      <div className="storyteller-tag-popout" onClick={(e) => e.stopPropagation()}>
-                        {/* Tag grid: status toggles + custom tag pool */}
-                        <div className="storyteller-tag-popout__grid">
-                          <button className={`secondary-button secondary-button--small${!seat.alive ? ' tab-button--active' : ''}`} onClick={() => updateSeatWithLog(seat.seat, (s) => ({ ...s, alive: !s.alive }))} type="button">{text.aliveTag}</button>
-                          <button className={`secondary-button secondary-button--small${seat.isExecuted ? ' tab-button--active' : ''}`} onClick={() => updateSeatWithLog(seat.seat, (s) => ({ ...s, isExecuted: !s.isExecuted }))} type="button">{text.executedTag}</button>
-                          <button className={`secondary-button secondary-button--small${seat.isTraveler ? ' tab-button--active' : ''}`} onClick={() => updateSeatWithLog(seat.seat, (s) => ({ ...s, isTraveler: !s.isTraveler }))} type="button">{text.traveler}</button>
-                          <button className={`secondary-button secondary-button--small${seat.hasNoVote ? ' tab-button--active' : ''}`} onClick={() => updateSeatWithLog(seat.seat, (s) => ({ ...s, hasNoVote: !s.hasNoVote }))} type="button">{text.noVoteTag}</button>
-                          {customTagPool.map((tag) => (
-                            <button
-                              className={`secondary-button secondary-button--small${seat.customTags.includes(tag) ? ' tab-button--active' : ''}`}
-                              key={`pop-${tag}`}
-                              onClick={() => updateSeatWithLog(seat.seat, (s) => ({ ...s, customTags: s.customTags.includes(tag) ? s.customTags.filter((v) => v !== tag) : [...s.customTags, tag] }))}
-                              type="button"
-                            >{tag}</button>
-                          ))}
-                        </div>
-                        {/* Input + add button at bottom */}
-                        <div className="storyteller-tag-popout__add-row">
-                          <input
-                            autoFocus
-                            onChange={(e) => setSeatTagDrafts((c) => ({ ...c, [seat.seat]: e.target.value }))}
-                            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCustomTag(seat.seat); setSeatTagDrafts((c) => ({ ...c, [seat.seat]: '' })) } }}
-                            placeholder={text.addTag}
-                            type="text"
-                            value={seatTagDrafts[seat.seat] ?? ''}
-                          />
-                          <button
-                            className="storyteller-tag-popout__add-btn"
-                            onMouseDown={(e) => { e.preventDefault(); addCustomTag(seat.seat); setSeatTagDrafts((c) => ({ ...c, [seat.seat]: '' })) }}
-                            type="button"
-                          >+</button>
-                        </div>
-                      </div>
-                    ) : null}
-
-                    {/* Skill popout */}
-                    {isSkillPopoutOpen && skillOverlay ? (
-                      <div className="storyteller-skill-popout" onClick={(e) => e.stopPropagation()}>
-                        {/* Actor */}
-                        <div className="storyteller-skill-popout__actor">
-                          <span>{language === 'zh' ? '发动者' : 'Actor'}</span>
-                          <strong>#{seat.seat} {seat.name}</strong>
-                        </div>
-
-                        {/* Targets */}
-                        <div className="storyteller-skill-popout__target-section">
-                          <span className="storyteller-skill-popout__label">{language === 'zh' ? '目标' : 'Target'}</span>
-                          <div className="storyteller-skill-popout__target-grid">
-                            {currentDay.seats.map((s) => {
-                              const isTarget = skillOverlay.draft.targets.includes(s.seat)
-                              return (
-                                <label className="storyteller-skill-popout__target-check" key={s.seat}>
-                                  <input
-                                    checked={isTarget}
-                                    onChange={() => setSkillOverlay((p) => {
-                                      if (!p) return p
-                                      const targets = isTarget ? p.draft.targets.filter((t) => t !== s.seat) : [...p.draft.targets, s.seat]
-                                      return { ...p, draft: { ...p.draft, targets } }
-                                    })}
-                                    type="checkbox"
-                                  />
-                                  <span>#{s.seat}</span>
-                                </label>
-                              )
-                            })}
-                          </div>
-                        </div>
-
-                        {/* Role */}
-                        {/* Claimed role — optional single dropdown with icons */}
-                        <div className="storyteller-skill-popout__field">
-                          <span>{text.skillRole}</span>
-                          <div className="storyteller-skill-popout__role-dropdown">
-                            <button
-                              className="storyteller-skill-popout__role-trigger"
-                              onClick={(e) => { e.stopPropagation(); setSkillRoleDropdownOpen((o) => !o) }}
-                              type="button"
-                            >
-                              {skillOverlay.draft.roleId ? (
-                                <>
-                                  {getIconForCharacter(skillOverlay.draft.roleId) ? <img alt="" className="storyteller-skill-overlay__role-icon" src={getIconForCharacter(skillOverlay.draft.roleId) as string} /> : null}
-                                  <span>{getDisplayName(skillOverlay.draft.roleId, language)}</span>
-                                </>
-                              ) : <span className="storyteller-skill-popout__role-placeholder">{language === 'zh' ? '— 未声明 —' : '— None —'}</span>}
-                              <span className="storyteller-skill-popout__role-caret">▾</span>
-                            </button>
-                            {skillRoleDropdownOpen ? (
-                              <div className="storyteller-skill-popout__role-options">
-                                <button
-                                  className="storyteller-skill-popout__role-option"
-                                  onClick={() => { setSkillOverlay((p) => p ? { ...p, draft: { ...p.draft, roleId: '' } } : p); setSkillRoleDropdownOpen(false) }}
-                                  type="button"
-                                >{language === 'zh' ? '— 未声明 —' : '— None —'}</button>
-                                {currentScriptCharacters.map((c) => {
-                                  const icon = getIconForCharacter(c)
-                                  const name = getDisplayName(c, language)
-                                  return (
-                                    <button
-                                      className={`storyteller-skill-popout__role-option${skillOverlay.draft.roleId === c ? ' storyteller-skill-popout__role-option--active' : ''}`}
-                                      key={c}
-                                      onClick={() => { setSkillOverlay((p) => p ? { ...p, draft: { ...p.draft, roleId: c } } : p); setSkillRoleDropdownOpen(false) }}
-                                      type="button"
-                                    >
-                                      {icon ? <img alt="" className="storyteller-skill-overlay__role-icon" src={icon as string} /> : null}
-                                      <span>{name}</span>
-                                    </button>
-                                  )
-                                })}
-                              </div>
-                            ) : null}
-                          </div>
-                        </div>
-
-                        {/* Statement */}
-                        <label className="storyteller-skill-popout__field">
-                          <span>{text.statement}</span>
-                          <input onChange={(e) => setSkillOverlay((p) => p ? { ...p, draft: { ...p.draft, statement: e.target.value } } : p)} placeholder={text.statement} type="text" value={skillOverlay.draft.statement} />
-                        </label>
-
-                        {/* Note */}
-                        <label className="storyteller-skill-popout__field">
-                          <span>{text.note}</span>
-                          <input onChange={(e) => setSkillOverlay((p) => p ? { ...p, draft: { ...p.draft, note: e.target.value } } : p)} placeholder={text.note} type="text" value={skillOverlay.draft.note} />
-                        </label>
-
-                        {/* Per-target notes */}
-                        {skillOverlay.draft.targets.map((t) => (
-                          <label className="storyteller-skill-popout__field" key={t}>
-                            <span>#{t} {text.targetNote}</span>
-                            <input onChange={(e) => setSkillOverlay((p) => p ? { ...p, draft: { ...p.draft, targetNotes: { ...p.draft.targetNotes, [t]: e.target.value } } } : p)} type="text" value={skillOverlay.draft.targetNotes[t] ?? ''} />
-                          </label>
-                        ))}
-
-                        {/* Result */}
-                        <div className="storyteller-chip-row">
-                          <button className={`secondary-button secondary-button--small${skillOverlay.draft.result === 'success' ? ' tab-button--active' : ''}`} onClick={() => setSkillOverlay((p) => p ? { ...p, draft: { ...p.draft, result: p.draft.result === 'success' ? null : 'success' } } : p)} type="button">{text.success}</button>
-                          <button className={`secondary-button secondary-button--small${skillOverlay.draft.result === 'failure' ? ' tab-button--active' : ''}`} onClick={() => setSkillOverlay((p) => p ? { ...p, draft: { ...p.draft, result: p.draft.result === 'failure' ? null : 'failure' } } : p)} type="button">{text.failure}</button>
-                        </div>
-
-                        {/* Save / Cancel */}
-                        <div className="storyteller-chip-row">
-                          <button className="print-button" onClick={() => closeSkillOverlay(true)} type="button">{text.saveSkill}</button>
-                          <button className="secondary-button" onClick={() => closeSkillOverlay(false)} type="button">{text.cancelSkill}</button>
-                        </div>
-                      </div>
-                    ) : null}
-                  </article>
-                )
-              })}
-            </div>
-            {/* nomination sheet moved into center card above */}
-            {false ? (
-              <div className="storyteller-nomination-sheet" onClick={(e) => e.stopPropagation()}>
-                <div className="storyteller-nomination-sheet__header">
-                  <span className="storyteller-nomination-sheet__title">{language === 'zh' ? '提名' : 'Nominate'}</span>
-                  <button className="secondary-button secondary-button--small" onClick={() => { setShowNominationSheet(false); setPickerMode('none') }} type="button">{language === 'zh' ? '隐藏' : 'Hide'}</button>
-                </div>
-
-                {/* Nominator */}
-                <div className="storyteller-nomination-sheet__row">
-                  <span className="storyteller-nomination-sheet__label">{text.actor}</span>
-                  <select
-                    className="storyteller-nomination-sheet__select"
-                    onChange={(e) => { const v = parseInt(e.target.value); if (!isNaN(v)) { updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, actor: v } })); setPickerMode('nominee') } else { updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, actor: null } })) } }}
-                    value={currentDay.voteDraft.actor ?? ''}
-                  >
-                    <option value="">{language === 'zh' ? '— 选择 —' : '— Select —'}</option>
-                    {currentDay.seats.map((s) => <option key={s.seat} value={s.seat}>#{s.seat} {s.name}</option>)}
-                  </select>
-                  <button
-                    className={`secondary-button secondary-button--small${pickerMode === 'nominator' ? ' storyteller-picker-active' : ''}`}
-                    onClick={() => setPickerMode(pickerMode === 'nominator' ? 'none' : 'nominator')}
-                    type="button"
-                  >{language === 'zh' ? '点击座位' : 'Pick seat'}</button>
-                </div>
-
-                {/* Nominee */}
-                <div className="storyteller-nomination-sheet__row">
-                  <span className="storyteller-nomination-sheet__label">{text.target}</span>
-                  <select
-                    className="storyteller-nomination-sheet__select"
-                    onChange={(e) => { const v = parseInt(e.target.value); if (!isNaN(v)) updateCurrentDay((d) => ({ ...d, nominationStep: 'nominationDecision', voteDraft: { ...d.voteDraft, target: v, voters: [] } })); else updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, target: null } })) }}
-                    value={currentDay.voteDraft.target ?? ''}
-                  >
-                    <option value="">{language === 'zh' ? '— 选择 —' : '— Select —'}</option>
-                    {currentDay.seats.map((s) => <option key={s.seat} value={s.seat}>#{s.seat} {s.name}</option>)}
-                  </select>
-                  <button
-                    className={`secondary-button secondary-button--small${pickerMode === 'nominee' ? ' storyteller-picker-active' : ''}`}
-                    onClick={() => setPickerMode(pickerMode === 'nominee' ? 'none' : 'nominee')}
-                    type="button"
-                  >{language === 'zh' ? '点击座位' : 'Pick seat'}</button>
-                </div>
-
-                {pickerMode === 'nominator' || pickerMode === 'nominee' ? (
-                  <p className="storyteller-nomination-sheet__hint">{language === 'zh' ? '↑ 点击圆桌上的座位进行选择' : '↑ Click a seat on the table to select'}</p>
-                ) : null}
-
-                {/* Vote override: seat checkboxes */}
-                {currentDay.nominationStep !== 'waitingForNomination' ? (
-                  <div className="storyteller-nomination-sheet__votes">
-                    <span className="storyteller-nomination-sheet__label">{language === 'zh' ? '投票' : 'Votes'} ({language === 'zh' ? '手动覆盖' : 'override'})</span>
-                    <div className="storyteller-nomination-sheet__vote-grid">
-                      {currentDay.seats.map((s) => {
-                        const voted = currentDay.votingState?.votes[s.seat]
-                        const isChecked = voted === true || currentDay.voteDraft.voters.includes(s.seat)
-                        return (
-                          <label className="storyteller-nomination-sheet__vote-check" key={s.seat}>
-                            <input
-                              checked={isChecked}
-                              onChange={() => {
-                                if (currentDay.votingState) {
-                                  updateCurrentDay((d) => ({
-                                    ...d,
-                                    votingState: d.votingState ? {
-                                      ...d.votingState,
-                                      votes: { ...d.votingState.votes, [s.seat]: !isChecked },
-                                    } : null,
-                                  }))
-                                } else {
-                                  updateCurrentDay((d) => ({
-                                    ...d,
-                                    voteDraft: {
-                                      ...d.voteDraft,
-                                      voters: isChecked ? d.voteDraft.voters.filter((v) => v !== s.seat) : [...d.voteDraft.voters, s.seat],
-                                    },
-                                  }))
-                                }
-                              }}
-                              type="checkbox"
-                            />
-                            <span>#{s.seat}</span>
-                          </label>
-                        )
-                      })}
-                    </div>
-                    <span className="storyteller-nomination-sheet__vote-count">
-                      {language === 'zh' ? '同意' : 'Yes'}: <strong>{Object.values(currentDay.votingState?.votes ?? {}).filter(Boolean).length || currentDay.voteDraft.voters.length}</strong> / {requiredVotes}
-                    </span>
-                  </div>
-                ) : null}
-
-                {/* Note */}
-                <label className="storyteller-nomination-sheet__row storyteller-nomination-sheet__row--note">
-                  <span className="storyteller-nomination-sheet__label">{language === 'zh' ? '备注' : 'Note'}</span>
-                  <input
-                    className="storyteller-nomination-sheet__note-input"
-                    onChange={(e) => updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, note: e.target.value } }))}
-                    placeholder={language === 'zh' ? '可选备注…' : 'Optional note…'}
-                    type="text"
-                    value={currentDay.voteDraft.note}
-                  />
-                </label>
-
-                {/* Agree / Disagree */}
-                {isVotingComplete ? (
-                  <div className="storyteller-chip-row">
-                    <button className="print-button" onClick={() => setDialogState({ kind: 'voteResult', nextValue: true, systemValue: draftPassedBySystem })} type="button">✓ {language === 'zh' ? '同意' : 'Agree'}</button>
-                    <button className="secondary-button" onClick={() => setDialogState({ kind: 'voteResult', nextValue: false, systemValue: draftPassedBySystem })} type="button">✗ {language === 'zh' ? '不同意' : 'Disagree'}</button>
-                  </div>
-                ) : null}
-
-                {/* Record + Clear */}
-                <div className="storyteller-chip-row">
-                  <button className="print-button" disabled={!currentDay.voteDraft.actor || !currentDay.voteDraft.target} onClick={recordVote} type="button">{language === 'zh' ? '记录' : 'Record'}</button>
-                  <button className="secondary-button secondary-button--small" onClick={() => { updateCurrentDay((d) => ({ ...d, nominationStep: 'waitingForNomination', voteDraft: createDefaultVoteDraft(), votingState: null })); setPickerMode('none') }} type="button">{text.clear}</button>
-                </div>
-              </div>
-            ) : null}
-
-            <p className="storyteller-panel__hint">{text.seatHint}</p>
-          </div>
-
-          {/* ── Quick action strip ── */}
-          <nav className="storyteller-quick-strip">
-            <button
-              className={`storyteller-quick-btn${showLogPanel ? ' storyteller-quick-btn--active' : ''}`}
-              onClick={() => setShowLogPanel((c) => !c)}
-              type="button"
-            >{showLogPanel ? text.hideLog : text.showLog}</button>
-
-            {currentDay.phase === 'nomination' ? (
-              <button
-                className="storyteller-quick-btn"
-                onClick={() => setPickerMode('nominator')}
-                type="button"
-              >{text.quickNomination}</button>
-            ) : null}
-
-            <button
-              className="storyteller-quick-btn"
-              onClick={openSkillOverlay}
-              type="button"
-            >{text.quickSkill}</button>
-
-            <button
-              className="storyteller-quick-btn"
-              onClick={goToNextDay}
-              type="button"
-            >{text.nextDay}</button>
-
-            <button
-              className="storyteller-quick-btn"
-              onClick={openEndGamePanel}
-              type="button"
-            >{text.endGame}</button>
-
-            <button
-              className="storyteller-quick-btn"
-              onClick={exportGameJson}
-              type="button"
-            >{text.exportJson}</button>
-
-            <button
-              className={`storyteller-quick-btn${showRightPanel ? ' storyteller-quick-btn--active' : ''}`}
-              onClick={() => setShowRightPanel((c) => !c)}
-              type="button"
-            >{showRightPanel ? text.hidePanel : text.showPanel}</button>
-          </nav>
-        </div>
+        <CompactToolbar ctx={ctx} />
+        <Arena ctx={ctx} />
       </section>
-
-      {/* ── Right side panel: Console ── */}
-      <aside className={`storyteller-side-panel storyteller-side-panel--right${showRightPanel ? ' storyteller-side-panel--open' : ''}`}>
-        <section className="storyteller-console storyteller-console-sections">
-
-          {/* ── Section 1: Game ── */}
-          <div className="storyteller-console-section">
-            <button className="storyteller-console-section__header" onClick={() => toggleConsoleSection('game')} type="button">
-              <span>{text.gameSection}</span>
-              <span>{activeConsoleSections.has('game') ? '▼' : '▶'}</span>
-            </button>
-            {activeConsoleSections.has('game') ? (
-              <div className="storyteller-console-section__body">
-                <label className="editor-field storyteller-script-select">
-                  <span>{text.script}</span>
-                  <select onChange={(e) => onSelectScript?.(e.target.value)} value={activeScriptSlug ?? scriptOptions[0]?.slug ?? ''}>
-                    {scriptOptions.map((s) => <option key={s.slug} value={s.slug}>{s.title}</option>)}
-                  </select>
-                </label>
-                <div className="storyteller-chip-row">
-                  <button className="secondary-button" onClick={() => setDialogState({ kind: 'restartGame' })} type="button">{text.restartGame}</button>
-                  <button className="secondary-button" onClick={exportGameJson} type="button">{text.exportJson}</button>
-                </div>
-              </div>
-            ) : null}
-          </div>
-
-          {/* ── Section 2: Day / Nomination ── */}
-          <div className="storyteller-console-section">
-            <button className="storyteller-console-section__header" onClick={() => toggleConsoleSection('day')} type="button">
-              <span>{text.daySection}</span>
-              <span>{activeConsoleSections.has('day') ? '▼' : '▶'}</span>
-            </button>
-            {activeConsoleSections.has('day') ? (
-              <div className="storyteller-console-section__body">
-                {/* Add Traveler */}
-                <div className="storyteller-chip-row">
-                  <button className="secondary-button" onClick={addTravelerSeat} type="button">{text.addTraveler}</button>
-                </div>
-
-                {/* Nomination controls */}
-                {currentDay.phase === 'nomination' ? (
-                  <div className="storyteller-console__section">
-                    <span className="storyteller-console__label">{text.nomination}</span>
-                    <div className="storyteller-chip-row">
-                      <button className="secondary-button" onClick={() => setPickerMode('nominator')} type="button">{text.pickNominator}</button>
-                      <button className="secondary-button" onClick={() => setPickerMode('nominee')} type="button">{text.pickNominee}</button>
-                    </div>
-                    <div className="storyteller-vote-summary">
-                      <div><span>{text.actor}</span><strong>{currentDay.voteDraft.actor ? `#${currentDay.voteDraft.actor}` : '—'}</strong></div>
-                      <div><span>{text.target}</span><strong>{currentDay.voteDraft.target ? `#${currentDay.voteDraft.target}` : '—'}</strong></div>
-                      <div><span>{text.requiredVotes}</span><strong>{requiredVotes}</strong></div>
-                      <div><span>{text.voters}</span><strong>{votingYesCount}</strong></div>
-                    </div>
-                    <label className="editor-field">
-                      <span>{text.note}</span>
-                      <input onChange={(e) => updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, note: e.target.value } }))} type="text" value={currentDay.voteDraft.note} />
-                    </label>
-                    {isVotingComplete ? (
-                      <div className="storyteller-chip-row">
-                        <button className="secondary-button" onClick={() => setDialogState({ kind: 'voteResult', nextValue: true, systemValue: draftPassedBySystem })} type="button">{text.systemOverridePass}</button>
-                        <button className="secondary-button" onClick={() => setDialogState({ kind: 'voteResult', nextValue: false, systemValue: draftPassedBySystem })} type="button">{text.systemOverrideFail}</button>
-                        <button className="secondary-button" onClick={() => updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, manualPassed: null } }))} type="button">{text.clearOverride}</button>
-                      </div>
-                    ) : null}
-                    <div className="storyteller-chip-row">
-                      <button className="secondary-button" onClick={() => { updateCurrentDay((d) => ({ ...d, nominationStep: 'waitingForNomination', nominationWaitSeconds: timerDefaults.nominationWaitSeconds, voteDraft: createDefaultVoteDraft(), votingState: null })); setPickerMode('nominator') }} type="button">{text.clear}</button>
-                    </div>
-                  </div>
-                ) : null}
-
-              </div>
-            ) : null}
-          </div>
-
-          {/* ── Section 3: Player ── */}
-          <div className="storyteller-console-section">
-            <button className="storyteller-console-section__header" onClick={() => toggleConsoleSection('player')} type="button">
-              <span>{text.playerSection}</span>
-              <span>{activeConsoleSections.has('player') ? '▼' : '▶'}</span>
-            </button>
-            {activeConsoleSections.has('player') ? (
-              <div className="storyteller-console-section__body">
-                {/* Player count info + edit button */}
-                <div className="storyteller-chip-row" style={{ alignItems: 'center' }}>
-                  <span className="storyteller-compact-count">
-                    <strong>{aliveCount}/{totalCount}</strong>
-                    {currentDay.seats.filter((s) => s.isTraveler).length > 0 ? (
-                      <span>+{currentDay.seats.filter((s) => s.isTraveler).length}{text.travelersCount}</span>
-                    ) : null}
-                  </span>
-                  <button className="secondary-button secondary-button--small" onClick={() => setShowEditPlayersModal(true)} type="button">{text.editPlayers}</button>
-                </div>
-
-                {/* Player name pool */}
-                <div className="storyteller-console__section">
-                  <span className="storyteller-console__label">{text.playerPool}</span>
-                  <div className="storyteller-player-pool">
-                    {playerNamePool.map((name, i) => {
-                      const isUsed = currentDay.seats.some((s) => s.name === name)
-                      return (
-                        <span
-                          className={`storyteller-player-pool__chip${isUsed ? ' storyteller-player-pool__chip--used' : ''}`}
-                          key={`${name}-${i}`}
-                          onClick={() => {
-                            const seat = currentDay.seats.find((s) => s.name.startsWith('Player '))
-                            if (seat) updateSeat(seat.seat, (s) => ({ ...s, name }))
-                          }}
-                          title={text.assignName}
-                        >{name}</span>
-                      )
-                    })}
-                  </div>
-                  <div className="storyteller-chip-row">
-                    <button className="secondary-button secondary-button--small" onClick={() => setPlayerNamePool(language === 'zh' ? [...FAKE_NAMES_ZH] : [...FAKE_NAMES])} type="button">{text.loadFakeNames}</button>
-                    <button className="secondary-button secondary-button--small" onClick={resetSeatNames} type="button">{text.resetNames}</button>
-                    <button className="secondary-button secondary-button--small" onClick={() => setPlayerNamePool([])} type="button">{text.clear}</button>
-                  </div>
-                </div>
-
-                {/* Selected player editor */}
-                {selectedSeat ? (
-                  <div className="storyteller-console__section">
-                    <div className="storyteller-seat-editor">
-                      <div className="storyteller-seat-editor__section">
-                        <strong>{text.selectedPlayer}</strong>
-                        <span>#{selectedSeat.seat} {selectedSeat.name}</span>
-                      </div>
-                      <div className="storyteller-seat-editor__section">
-                        <div className="storyteller-chip-row">
-                          <button className={`secondary-button secondary-button--small${!selectedSeat.alive ? ' tab-button--active' : ''}`} onClick={() => updateSeatWithLog(selectedSeat.seat, (s) => ({ ...s, alive: !s.alive }))} type="button">{text.aliveTag}</button>
-                          <button className={`secondary-button secondary-button--small${selectedSeat.isExecuted ? ' tab-button--active' : ''}`} onClick={() => updateSeatWithLog(selectedSeat.seat, (s) => ({ ...s, isExecuted: !s.isExecuted }))} type="button">{text.executedTag}</button>
-                          <button className={`secondary-button secondary-button--small${selectedSeat.isTraveler ? ' tab-button--active' : ''}`} onClick={() => updateSeatWithLog(selectedSeat.seat, (s) => ({ ...s, isTraveler: !s.isTraveler }))} type="button">{text.traveler}</button>
-                          <button className={`secondary-button secondary-button--small${selectedSeat.hasNoVote ? ' tab-button--active' : ''}`} onClick={() => updateSeatWithLog(selectedSeat.seat, (s) => ({ ...s, hasNoVote: !s.hasNoVote }))} type="button">{text.noVoteTag}</button>
-                        </div>
-                      </div>
-                      {selectedSeatTags.length ? (
-                        <div className="storyteller-chip-row">
-                          {selectedSeatTags.map((tag) => <span className="storyteller-seat__pill" key={`${selectedSeat.seat}-${tag}`}>{tag}</span>)}
-                        </div>
-                      ) : null}
-                      <div className="storyteller-seat-editor__section">
-                        <label className="editor-field">
-                          <span>{text.addTag}</span>
-                          <div className="storyteller-seat-editor__add">
-                            <input onChange={(e) => setSeatTagDrafts((c) => ({ ...c, [selectedSeat.seat]: e.target.value }))} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCustomTag(selectedSeat.seat) } }} placeholder={text.addTag} type="text" value={seatTagDrafts[selectedSeat.seat] ?? ''} />
-                            <button className="secondary-button secondary-button--small" onClick={() => addCustomTag(selectedSeat.seat)} type="button">+</button>
-                          </div>
-                        </label>
-                        {customTagPool.length ? (
-                          <>
-                            <div className="storyteller-console__pool-header">
-                              <span className="storyteller-console__label">{text.tagPool}</span>
-                              <button className="secondary-button secondary-button--small" onClick={clearUnusedCustomTags} type="button">{text.clearUnusedTags}</button>
-                            </div>
-                            <div className="storyteller-chip-row">
-                              {customTagPool.map((tag) => (
-                                <button className={`secondary-button secondary-button--small${selectedSeat.customTags.includes(tag) ? ' tab-button--active' : ''}`} key={`pool-${tag}`} onClick={() => updateSeatWithLog(selectedSeat.seat, (s) => ({ ...s, customTags: s.customTags.includes(tag) ? s.customTags.filter((v) => v !== tag) : [...s.customTags, tag] }))} type="button">{tag}</button>
-                              ))}
-                            </div>
-                          </>
-                        ) : null}
-                      </div>
-                    </div>
-                  </div>
-                ) : null}
-              </div>
-            ) : null}
-          </div>
-
-          {/* ── Section 4: Settings (CountDown) ── */}
-          <div className="storyteller-console-section">
-            <button className="storyteller-console-section__header" onClick={() => toggleConsoleSection('settings')} type="button">
-              <span>{text.settings}</span>
-              <span>{activeConsoleSections.has('settings') ? '▼' : '▶'}</span>
-            </button>
-            {activeConsoleSections.has('settings') ? (
-              <div className="storyteller-console-section__body">
-                <div className="storyteller-settings-grid">
-                  <label className="editor-field"><span>{text.privateDefault}</span><input min="0" onChange={(e) => setTimerDefaults((c) => ({ ...c, privateSeconds: Number(e.target.value) }))} type="number" value={timerDefaults.privateSeconds} /></label>
-                  <label className="editor-field"><span>{text.publicFreeDefault}</span><input min="0" onChange={(e) => setTimerDefaults((c) => ({ ...c, publicFreeSeconds: Number(e.target.value) }))} type="number" value={timerDefaults.publicFreeSeconds} /></label>
-                  <label className="editor-field"><span>{text.publicRoundRobinDefault}</span><input min="0" onChange={(e) => setTimerDefaults((c) => ({ ...c, publicRoundRobinSeconds: Number(e.target.value) }))} type="number" value={timerDefaults.publicRoundRobinSeconds} /></label>
-                  <label className="editor-field"><span>{text.nominationDelayDefault}</span><input min="0" onChange={(e) => setTimerDefaults((c) => ({ ...c, nominationDelayMinutes: Number(e.target.value) }))} type="number" value={timerDefaults.nominationDelayMinutes} /></label>
-                  <label className="editor-field"><span>{text.nominationWaitDefault}</span><input min="0" onChange={(e) => setTimerDefaults((c) => ({ ...c, nominationWaitSeconds: Number(e.target.value) }))} type="number" value={timerDefaults.nominationWaitSeconds} /></label>
-                  <label className="editor-field"><span>{text.actorSpeechDefault}</span><input min="0" onChange={(e) => setTimerDefaults((c) => ({ ...c, nominationActorSeconds: Number(e.target.value) }))} type="number" value={timerDefaults.nominationActorSeconds} /></label>
-                  <label className="editor-field"><span>{text.targetSpeechDefault}</span><input min="0" onChange={(e) => setTimerDefaults((c) => ({ ...c, nominationTargetSeconds: Number(e.target.value) }))} type="number" value={timerDefaults.nominationTargetSeconds} /></label>
-                  <label className="editor-field"><span>{text.voteDefault}</span><input min="0" onChange={(e) => setTimerDefaults((c) => ({ ...c, nominationVoteSeconds: Number(e.target.value) }))} type="number" value={timerDefaults.nominationVoteSeconds} /></label>
-                </div>
-              </div>
-            ) : null}
-          </div>
-
-          {/* ── Section 5: Tags ── */}
-          <div className="storyteller-console-section">
-            <button className="storyteller-console-section__header" onClick={() => toggleConsoleSection('tags')} type="button">
-              <span>{text.tagSettings}</span>
-              <span>{activeConsoleSections.has('tags') ? '▼' : '▶'}</span>
-            </button>
-            {activeConsoleSections.has('tags') ? (
-              <div className="storyteller-console-section__body">
-                {/* Default tags */}
-                <div className="storyteller-console__section">
-                  <span className="storyteller-console__label">{text.defaultTags}</span>
-                  <div className="storyteller-chip-row">
-                    {(language === 'zh'
-                      ? ['死亡', '处决', '中毒', '醉酒', '保护', '被提名']
-                      : ['Dead', 'Executed', 'Poisoned', 'Drunk', 'Protected', 'Nominated']
-                    ).map((tag) => (
-                      <span className="storyteller-seat__pill" key={`default-${tag}`}>{tag}</span>
-                    ))}
-                  </div>
-                </div>
-                {/* Load predefined tags */}
-                <div className="storyteller-console__section">
-                  <span className="storyteller-console__label">{text.loadPredefinedTags}</span>
-                  <div className="storyteller-seat-editor__add">
-                    <textarea
-                      className="storyteller-preset-textarea"
-                      onChange={(e) => setLoadTagsPreset(e.target.value)}
-                      placeholder={language === 'zh' ? '逗号分隔标签...' : 'Comma-separated tags...'}
-                      rows={2}
-                      value={loadTagsPreset}
-                    />
-                    <button
-                      className="secondary-button secondary-button--small"
-                      onClick={() => {
-                        const tags = loadTagsPreset.split(',').map((t) => t.trim()).filter(Boolean)
-                        setCustomTagPool((cur) => uniqueStrings([...cur, ...tags]))
-                        setLoadTagsPreset('')
-                      }}
-                      type="button"
-                    >{text.loadPreset}</button>
-                  </div>
-                </div>
-                {/* Current custom tag pool */}
-                <div className="storyteller-console__section">
-                  <div className="storyteller-console__pool-header">
-                    <span className="storyteller-console__label">{text.tagPool}</span>
-                    <button className="secondary-button secondary-button--small" onClick={clearUnusedCustomTags} type="button">{text.clearUnusedTags}</button>
-                  </div>
-                  <div className="storyteller-chip-row">
-                    {customTagPool.map((tag) => (
-                      <span className="storyteller-tag-pool-item" key={`tagpool-${tag}`}>
-                        <span>{tag}</span>
-                        <button
-                          className="storyteller-tag-pool-item__remove"
-                          onClick={() => setCustomTagPool((cur) => cur.filter((t) => t !== tag))}
-                          type="button"
-                        >×</button>
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            ) : null}
-          </div>
-
-          {/* Completed Games */}
-          <div className="storyteller-console__section" style={{ marginTop: '0.5rem' }}>
-            <span className="storyteller-console__label">{text.completedGames}</span>
-            <div className="storyteller-history" style={{ maxHeight: '200px', overflowY: 'auto' }}>
-              {gameRecords.length ? gameRecords.map((r) => (
-                <article className="storyteller-history__item" key={r.id}>
-                  <div className="storyteller-history__top">
-                    <strong>{r.scriptTitle ?? 'BOTC'}</strong>
-                    <span>{new Date(r.endedAt).toLocaleString()}</span>
-                  </div>
-                  {r.winner ? <p>{text.winner}: {r.winner === 'evil' ? text.evil : text.good}</p> : null}
-                  <p>{r.days.map((d) => `D${d.day}`).join(', ')}</p>
-                </article>
-              )) : <p className="storyteller-panel__hint">{text.noCompletedGames}</p>}
-            </div>
-          </div>
-        </section>
-      </aside>
-      {/* Edit Players Modal */}
-      {showEditPlayersModal ? (
-        <div className="storyteller-modal" role="dialog" aria-modal="true" onClick={() => setShowEditPlayersModal(false)}>
-          <div className="storyteller-modal__card storyteller-edit-players-modal" onClick={(e) => e.stopPropagation()}>
-            <h3>{text.editPlayers}</h3>
-
-            {/* Preset loader */}
-            <div className="editor-field">
-              <span>{language === 'zh' ? '批量加载（逗号分隔）' : 'Batch load (comma-separated)'}</span>
-              <div className="storyteller-seat-editor__add">
-                <textarea
-                  className="storyteller-preset-textarea"
-                  onChange={(e) => setEditPlayersPreset(e.target.value)}
-                  placeholder={language === 'zh' ? '张三, 李四, 王五...' : 'Alice, Bob, Charlie...'}
-                  rows={2}
-                  value={editPlayersPreset}
-                />
-                <button
-                  className="secondary-button secondary-button--small"
-                  onClick={() => {
-                    const names = editPlayersPreset.split(',').map((n) => n.trim()).filter(Boolean)
-                    updateCurrentDay((d) => {
-                      const newSeats = d.seats.map((s, i) => names[i] ? { ...s, name: names[i] } : s)
-                      return { ...d, seats: newSeats }
-                    })
-                    setPlayerNamePool((cur) => uniqueStrings([...cur, ...names.filter((n) => !n.match(/^Player \d+$/) && !n.match(/^Traveler \d+$/))]))
-                    setEditPlayersPreset('')
-                  }}
-                  type="button"
-                >{text.loadPreset}</button>
-              </div>
-            </div>
-
-            {/* Player count control */}
-            <div className="storyteller-edit-players__count-row">
-              <span>{language === 'zh' ? '玩家人数（不含旅人）' : 'Players (excl. travelers)'}</span>
-              <div className="storyteller-center__day-nav">
-                <button className="storyteller-center__ctrl-btn" onClick={removeLastPlayerSeat} type="button" disabled={currentDay.seats.filter((s) => !s.isTraveler).length <= 5}>−</button>
-                <strong style={{ minWidth: '2rem', textAlign: 'center' }}>{currentDay.seats.filter((s) => !s.isTraveler).length}</strong>
-                <button className="storyteller-center__ctrl-btn" onClick={addPlayerSeat} type="button" disabled={currentDay.seats.filter((s) => !s.isTraveler).length >= 15}>+</button>
-              </div>
-            </div>
-
-            {/* Regular seat rows */}
-            <div className="storyteller-new-game-seats">
-              {currentDay.seats.filter((s) => !s.isTraveler).map((seat) => (
-                <div className="storyteller-new-game-seats__row" key={seat.seat}>
-                  <span>#{seat.seat}</span>
-                  <input
-                    list="name-pool-list"
-                    onChange={(e) => updateSeat(seat.seat, (s) => ({ ...s, name: e.target.value }))}
-                    onBlur={(e) => {
-                      const val = e.target.value.trim()
-                      if (val && !val.match(/^Player \d+$/) && !playerNamePool.includes(val)) {
-                        setPlayerNamePool((cur) => [...cur, val])
-                      }
-                    }}
-                    placeholder={`Player ${seat.seat}`}
-                    type="text"
-                    value={seat.name}
-                  />
-                </div>
-              ))}
-            </div>
-
-            {/* Traveler count control */}
-            <div className="storyteller-edit-players__count-row" style={{ marginTop: '0.75rem' }}>
-              <span>{language === 'zh' ? '旅人人数' : 'Travelers'}</span>
-              <div className="storyteller-center__day-nav">
-                <button className="storyteller-center__ctrl-btn" onClick={removeLastTraveler} type="button" disabled={currentDay.seats.filter((s) => s.isTraveler).length === 0}>−</button>
-                <strong style={{ minWidth: '2rem', textAlign: 'center' }}>{currentDay.seats.filter((s) => s.isTraveler).length}</strong>
-                <button className="storyteller-center__ctrl-btn" onClick={addTravelerSeat} type="button">+</button>
-              </div>
-            </div>
-
-            {/* Traveler rows */}
-            {currentDay.seats.filter((s) => s.isTraveler).length > 0 ? (
-              <div className="storyteller-new-game-seats">
-                {currentDay.seats.filter((s) => s.isTraveler).map((seat) => (
-                  <div className="storyteller-new-game-seats__row" key={seat.seat}>
-                    <span>✈ #{seat.seat}</span>
-                    <input
-                      list="name-pool-list"
-                      onChange={(e) => updateSeat(seat.seat, (s) => ({ ...s, name: e.target.value }))}
-                      placeholder={`Traveler ${seat.seat}`}
-                      type="text"
-                      value={seat.name}
-                    />
-                  </div>
-                ))}
-              </div>
-            ) : null}
-
-            <datalist id="name-pool-list">
-              {playerNamePool.map((name) => <option key={name} value={name} />)}
-            </datalist>
-
-            <div className="storyteller-chip-row" style={{ marginTop: '0.75rem' }}>
-              <button className="secondary-button" onClick={resetSeatNames} type="button">{text.resetNames}</button>
-              <button className="print-button" onClick={() => setShowEditPlayersModal(false)} type="button">{language === 'zh' ? '完成' : 'Done'}</button>
-            </div>
-          </div>
-        </div>
-      ) : null}
-
-      {/* New Game Modal */}
-      {newGamePanel ? (
-        <div className="storyteller-modal" role="dialog" aria-modal="true">
-          <div className="storyteller-modal__card storyteller-new-game-modal">
-            <h3>{text.startNewGame}</h3>
-
-            <label className="editor-field">
-              <span>{text.playerCount}</span>
-              <input max="15" min="5" onChange={(e) => {
-                const count = Number(e.target.value)
-                setNewGamePanel((c) => {
-                  if (!c) return c
-                  // Keep existing seat names, remove ones beyond new count
-                  const seatNames: Record<number, string> = {}
-                  for (let i = 1; i <= count; i++) {
-                    if (c.seatNames[i]) seatNames[i] = c.seatNames[i]
-                  }
-                  return { ...c, playerCount: count, assignments: [], seatNames }
-                })
-              }} type="range" value={newGamePanel.playerCount} />
-              <strong>{newGamePanel.playerCount}</strong>
-            </label>
-
-            <label className="editor-field storyteller-script-select">
-              <span>{text.script}</span>
-              <select onChange={(e) => setNewGamePanel((c) => c ? { ...c, scriptSlug: e.target.value, assignments: [] } : c)} value={newGamePanel.scriptSlug}>
-                {scriptOptions.map((s) => <option key={s.slug} value={s.slug}>{s.title}</option>)}
-              </select>
-            </label>
-
-            {/* Seat name assignment */}
-            {playerNamePool.length > 0 ? (
-              <div className="storyteller-console__section">
-                <span className="storyteller-console__label">{text.seatAssignment}</span>
-                <p className="storyteller-panel__hint" style={{ margin: '0 0 0.4rem' }}>{text.clickToAssign}</p>
-                <div className="storyteller-player-pool">
-                  {playerNamePool.map((name, i) => {
-                    const assignedSeat = Object.entries(newGamePanel.seatNames).find(([, n]) => n === name)?.[0]
-                    return (
-                      <span
-                        className={`storyteller-player-pool__chip${assignedSeat ? ' storyteller-player-pool__chip--used' : ''}`}
-                        key={`${name}-${i}`}
-                        onClick={() => {
-                          if (assignedSeat) {
-                            // Remove from seat
-                            setNewGamePanel((c) => {
-                              if (!c) return c
-                              const seatNames = { ...c.seatNames }
-                              delete seatNames[Number(assignedSeat)]
-                              return { ...c, seatNames }
-                            })
-                          } else {
-                            // Assign to first empty seat
-                            setNewGamePanel((c) => {
-                              if (!c) return c
-                              const seatNames = { ...c.seatNames }
-                              for (let s = 1; s <= c.playerCount; s++) {
-                                if (!seatNames[s]) { seatNames[s] = name; break }
-                              }
-                              return { ...c, seatNames }
-                            })
-                          }
-                        }}
-                        title={assignedSeat ? `#${assignedSeat} — ${text.removeFromSeat}` : text.assignName}
-                      >{name}{assignedSeat ? ` (#${assignedSeat})` : ''}</span>
-                    )
-                  })}
-                </div>
-                <div className="storyteller-new-game-seats">
-                  {Array.from({ length: newGamePanel.playerCount }, (_, i) => i + 1).map((seatNum) => (
-                    <div className="storyteller-new-game-seats__row" key={seatNum}>
-                      <span>#{seatNum}</span>
-                      <input
-                        onChange={(e) => setNewGamePanel((c) => c ? { ...c, seatNames: { ...c.seatNames, [seatNum]: e.target.value } } : c)}
-                        onBlur={(e) => {
-                          const val = e.target.value.trim()
-                          if (val && !val.match(/^Player \d+$/) && !playerNamePool.includes(val)) {
-                            setPlayerNamePool((cur) => [...cur, val])
-                          }
-                        }}
-                        placeholder={`Player ${seatNum}`}
-                        type="text"
-                        value={newGamePanel.seatNames[seatNum] ?? ''}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-
-            {/* Distribution table */}
-            {CHARACTER_DISTRIBUTION[newGamePanel.playerCount] ? (
-              <div className="storyteller-distribution-grid">
-                <span className="storyteller-console__label">{text.distribution}</span>
-                <div className="storyteller-distribution-grid__row">
-                  <span>{text.townsfolk}: <strong>{CHARACTER_DISTRIBUTION[newGamePanel.playerCount].townsfolk}</strong></span>
-                  <span>{text.outsider}: <strong>{CHARACTER_DISTRIBUTION[newGamePanel.playerCount].outsider}</strong></span>
-                  <span>{text.minion}: <strong>{CHARACTER_DISTRIBUTION[newGamePanel.playerCount].minion}</strong></span>
-                  <span>{text.demon}: <strong>{CHARACTER_DISTRIBUTION[newGamePanel.playerCount].demon}</strong></span>
-                </div>
-              </div>
-            ) : null}
-
-            {/* Random assign checkbox */}
-            <div className="storyteller-chip-row">
-              <button
-                className={`secondary-button${newGamePanel.randomAssign ? ' tab-button--active' : ''}`}
-                onClick={() => {
-                  setNewGamePanel((c) => {
-                    if (!c) return c
-                    if (!c.randomAssign) {
-                      const assigns = randomAssignCharacters(c)
-                      return { ...c, randomAssign: true, assignments: assigns }
-                    }
-                    return { ...c, randomAssign: false, assignments: [] }
-                  })
-                }}
-                type="button"
-              >{text.randomAssign}</button>
-              {newGamePanel.randomAssign ? (
-                <button
-                  className="secondary-button"
-                  onClick={() => setNewGamePanel((c) => c ? { ...c, showAssignments: !c.showAssignments } : c)}
-                  type="button"
-                >{newGamePanel.showAssignments ? text.hideAssign : text.showAssign}</button>
-              ) : null}
-            </div>
-
-            {/* Assignments display */}
-            {newGamePanel.randomAssign && newGamePanel.showAssignments && newGamePanel.assignments.length ? (
-              <div className="storyteller-history">
-                {newGamePanel.assignments.map((a) => {
-                  const charName = a.characterId ? getDisplayName(a.characterId, language) : '—'
-                  return (
-                    <div className="storyteller-history__item" key={a.seat}>
-                      <div className="storyteller-history__top">
-                        <strong>#{a.seat}</strong>
-                        <span>{charName} ({a.team})</span>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            ) : null}
-
-            <div className="storyteller-chip-row">
-              <button className="secondary-button" onClick={() => setNewGamePanel(null)} type="button">{text.cancelNewGame}</button>
-              <button className="print-button" onClick={startNewGame} type="button">{text.startNewGame}</button>
-            </div>
-          </div>
-        </div>
-      ) : null}
-
-      {/* End Game Modal */}
-      {endGameResult ? (
-        <div className="storyteller-modal" role="dialog" aria-modal="true">
-          <div className="storyteller-modal__card storyteller-end-game-modal">
-            <h3>{text.endGame}</h3>
-
-            <div className="storyteller-chip-row">
-              <span className="storyteller-console__label">{text.winner}:</span>
-              <button
-                className={`secondary-button${endGameResult.winner === 'evil' ? ' tab-button--active' : ''}`}
-                onClick={() => setEndGameResult((c) => c ? { ...c, winner: 'evil' } : c)}
-                type="button"
-              >{text.evil}</button>
-              <button
-                className={`secondary-button${endGameResult.winner === 'good' ? ' tab-button--active' : ''}`}
-                onClick={() => setEndGameResult((c) => c ? { ...c, winner: 'good' } : c)}
-                type="button"
-              >{text.good}</button>
-            </div>
-
-            <div className="storyteller-history">
-              {currentDay.seats.map((s) => (
-                <div className="storyteller-history__item" key={s.seat}>
-                  <div className="storyteller-history__top">
-                    <strong>#{s.seat} {s.name}</strong>
-                    <select
-                      onChange={(e) => setEndGameResult((c) => c ? { ...c, playerTeams: { ...c.playerTeams, [s.seat]: e.target.value } } : c)}
-                      value={endGameResult.playerTeams[s.seat] ?? 'good'}
-                    >
-                      <option value="good">{text.good}</option>
-                      <option value="evil">{text.evil}</option>
-                    </select>
-                  </div>
-                  <input
-                    className="storyteller-end-game-modal__note"
-                    onChange={(e) => setEndGameResult((c) => c ? { ...c, playerNotes: { ...c.playerNotes, [s.seat]: e.target.value } } : c)}
-                    placeholder={text.playerNotes}
-                    type="text"
-                    value={endGameResult.playerNotes[s.seat] ?? ''}
-                  />
-                </div>
-              ))}
-            </div>
-
-            <div className="storyteller-chip-row">
-              <button className="secondary-button" onClick={() => setEndGameResult(null)} type="button">{text.cancel}</button>
-              <button className="print-button" onClick={confirmEndGame} type="button">{text.confirmEnd}</button>
-            </div>
-          </div>
-        </div>
-      ) : null}
-
-      {/* Confirmation dialog */}
-      {dialogState ? (
-        <div className="storyteller-modal" role="dialog" aria-modal="true">
-          <div className="storyteller-modal__card">
-            <h3>{dialogTitle}</h3>
-            <div className="storyteller-chip-row">
-              <button className="secondary-button" onClick={() => setDialogState(null)} type="button">{text.cancel}</button>
-              <button className="print-button" onClick={confirmDialog} type="button">{text.confirm}</button>
-            </div>
-          </div>
-        </div>
-      ) : null}
-
-      {/* Hidden audio element */}
+      <RightConsole ctx={ctx} />
+      <Modals ctx={ctx} />
       <audio ref={audioRef} />
     </section>
   )
