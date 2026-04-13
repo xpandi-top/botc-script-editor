@@ -939,67 +939,383 @@ button {
   font-weight: 700;
 }
 
+/* ── Three-panel layout ── */
+
 .storyteller-layout {
   display: grid;
-}
-
-.storyteller-board {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(320px, 380px);
-  gap: 1rem;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
   align-items: start;
-  margin-top: 1.4rem;
 }
 
-.storyteller-board--with-log {
-  grid-template-columns: 280px minmax(0, 1fr) minmax(320px, 380px);
+.storyteller-layout--log {
+  grid-template-columns: 280px 1fr;
 }
 
-.storyteller-log-sidebar {
-  display: flex;
+.storyteller-layout--panel {
+  grid-template-columns: 1fr clamp(300px, 24vw, 370px);
+}
+
+.storyteller-layout--log.storyteller-layout--panel {
+  grid-template-columns: 280px 1fr clamp(300px, 24vw, 370px);
+}
+
+/* ── Side panels (left & right) ── */
+
+.storyteller-side-panel {
+  display: none;
   flex-direction: column;
   gap: 0.5rem;
   border: 1px solid rgba(23, 32, 42, 0.12);
-  border-radius: 16px;
-  padding: 0.75rem;
-  background: rgba(255, 251, 245, 0.95);
-  align-self: stretch;
-  min-height: 0;
-  max-height: 100%;
+  border-radius: 22px;
+  padding: 0.85rem;
+  background:
+    radial-gradient(circle at top, rgba(255, 241, 214, 0.9), rgba(255, 251, 245, 0.92) 50%),
+    linear-gradient(180deg, rgba(255, 251, 245, 0.96), rgba(248, 240, 226, 0.92));
+  box-shadow: 0 8px 32px rgba(57, 43, 24, 0.06);
+  position: sticky;
+  top: 1rem;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  align-self: start;
 }
 
-.storyteller-log-sidebar__header {
+.storyteller-side-panel--open {
+  display: flex;
+}
+
+.storyteller-side-panel__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
+  flex-shrink: 0;
 }
 
-.storyteller-log-sidebar__header h3 {
+.storyteller-side-panel__header h3 {
   margin: 0;
   font-size: 0.95rem;
 }
 
-.storyteller-log-sidebar .storyteller-log-filters {
+.storyteller-side-panel .storyteller-log-filters {
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem;
+  flex-shrink: 0;
 }
 
-.storyteller-log-sidebar .storyteller-day-select {
+.storyteller-side-panel .storyteller-day-select {
   min-width: 0;
   width: 100%;
   padding: 0.4rem 0.6rem;
   font-size: 0.82rem;
 }
 
-.storyteller-log-sidebar__entries {
+.storyteller-side-panel__entries {
   flex: 1;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
   min-height: 0;
+}
+
+/* ── Compact toolbar ── */
+
+.storyteller-compact-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  padding: 0.6rem 0.8rem;
+  border-bottom: 1px solid rgba(23, 32, 42, 0.08);
+  margin-bottom: 0.6rem;
+}
+
+.storyteller-compact-toolbar__left {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.storyteller-compact-toolbar__right {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.storyteller-compact-count {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+}
+
+.storyteller-compact-count input[type="range"] {
+  width: 80px;
+}
+
+.storyteller-compact-count strong {
+  font-size: 1rem;
+  color: #853f22;
+  min-width: 1.5ch;
+}
+
+.storyteller-compact-count span {
+  color: rgba(23, 32, 42, 0.6);
+  font-size: 0.78rem;
+}
+
+.storyteller-compact-toolbar .storyteller-main-tabs {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.storyteller-compact-toolbar .tab-button {
+  padding: 0.35rem 0.7rem;
+  font-size: 0.82rem;
+}
+
+.storyteller-compact-toolbar .storyteller-day-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.storyteller-compact-toolbar .storyteller-day-select {
+  min-width: 80px;
+  padding: 0.3rem 0.5rem;
+  font-size: 0.82rem;
+}
+
+/* ── BGM mini player in toolbar ── */
+
+.storyteller-bgm-mini {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.storyteller-bgm-mini__select {
+  border: 1px solid rgba(23, 32, 42, 0.12);
+  border-radius: 999px;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.78rem;
+  max-width: 140px;
+  background: #fff;
+}
+
+/* ── Settings panel (inline) ── */
+
+.storyteller-settings-panel {
+  margin: 0 0 0.6rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid rgba(23, 32, 42, 0.08);
+  border-radius: 16px;
+  background: rgba(255, 250, 242, 0.95);
+}
+
+/* ── Arena: table + quick strip ── */
+
+.storyteller-arena {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.5rem;
+  align-items: start;
+}
+
+/* ── Quick action strip ── */
+
+.storyteller-quick-strip {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  align-self: start;
+  padding: 0.5rem 0.25rem;
+  padding-top: 1rem;
+}
+
+.storyteller-quick-btn {
+  width: 68px;
+  min-height: 36px;
+  border: 1px solid rgba(23, 32, 42, 0.12);
+  border-radius: 10px;
+  background: rgba(255, 251, 245, 0.95);
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0.3rem 0.35rem;
+  line-height: 1.25;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.storyteller-quick-btn:hover {
+  background: rgba(133, 63, 34, 0.08);
+  border-color: rgba(133, 63, 34, 0.25);
+}
+
+.storyteller-quick-btn--active {
+  background: rgba(133, 63, 34, 0.12);
+  border-color: rgba(133, 63, 34, 0.35);
+}
+
+/* ── Center: split left/right ── */
+
+.storyteller-center__left,
+.storyteller-center__right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.storyteller-center__left {
+  grid-row: 1;
+  grid-column: 1;
+}
+
+.storyteller-center__right {
+  grid-row: 1;
+  grid-column: 2;
+  border-left: 1px solid rgba(23, 32, 42, 0.08);
+  padding-left: 0.5rem;
+  align-self: start;
+  max-height: 220px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.storyteller-center__phase-tabs {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.storyteller-center__phase-btn {
+  padding: 0.3rem 0.75rem;
+  border: 1.5px solid rgba(23, 32, 42, 0.15);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.7);
+  font-size: 0.92rem;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  color: rgba(23, 32, 42, 0.7);
+  transition: background 0.12s, border-color 0.12s;
+}
+
+.storyteller-center__phase-btn:hover {
+  background: rgba(133, 63, 34, 0.08);
+  border-color: rgba(133, 63, 34, 0.3);
+  color: #853f22;
+}
+
+.storyteller-center__phase-btn--active {
+  background: rgba(133, 63, 34, 0.15);
+  border-color: rgba(133, 63, 34, 0.5);
+  color: #853f22;
+  font-weight: 700;
+}
+
+.storyteller-center__phase-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.storyteller-center__day-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.storyteller-center__day-nav .storyteller-center__mode-select {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #853f22;
+  border: none;
+  background: transparent;
+  padding: 0.1rem 0.3rem;
+  cursor: pointer;
+}
+
+.storyteller-center__day-badge {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #853f22;
+  text-align: center;
+}
+
+.storyteller-center__game-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.storyteller-center__summary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font-size: 0.72rem;
+  color: rgba(23, 32, 42, 0.65);
+  text-align: center;
+}
+
+.storyteller-center__leading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  width: 100%;
+  padding: 0.35rem 0.4rem;
+  border-radius: 10px;
+  background: rgba(133, 63, 34, 0.07);
+  border: 1px solid rgba(133, 63, 34, 0.18);
+}
+
+.storyteller-center__leading-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(133, 63, 34, 0.7);
+}
+
+.storyteller-center__leading-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  width: 100%;
+}
+
+.storyteller-center__leading-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #17202a;
+}
+
+.storyteller-center__leading-votes {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #853f22;
+}
+
+.storyteller-center__leading-votes small {
+  font-weight: 400;
+  font-size: 0.72rem;
+  color: rgba(23, 32, 42, 0.5);
 }
 
 .storyteller-table-card__toolbar {
@@ -1266,22 +1582,28 @@ button {
 }
 
 .storyteller-table {
-  --table-size: min(100%, 920px);
-  --seat-size: clamp(88px, 9vw, 120px);
+  --seat-size: clamp(90px, 9vw, 135px);
   position: relative;
-  width: var(--table-size);
-  max-width: 920px;
-  aspect-ratio: 1 / 1;
+  width: min(100%, calc(75vh * 3 / 2));
+  max-width: 1200px;
+  aspect-ratio: 3 / 2;
   margin: 0 auto;
+}
+
+@media (max-width: 700px) {
+  .storyteller-table {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+  }
 }
 
 .storyteller-table__ring {
   position: absolute;
-  inset: 14%;
+  inset: 11% 7%;
   border: 2px solid rgba(92, 57, 33, 0.14);
-  border-radius: 999px;
+  border-radius: 28px;
   background:
-    radial-gradient(circle at 35% 28%, rgba(255, 232, 191, 0.96), rgba(184, 118, 70, 0.96)),
+    radial-gradient(ellipse at 35% 35%, rgba(255, 232, 191, 0.96), rgba(184, 118, 70, 0.96)),
     linear-gradient(145deg, #b06d43, #7d4728);
   box-shadow:
     inset 0 0 0 10px rgba(255, 243, 222, 0.18),
@@ -1307,14 +1629,18 @@ button {
   top: 50%;
   left: 50%;
   display: grid;
+  grid-template-columns: 3fr 2fr;
+  grid-template-rows: auto auto;
   align-content: start;
-  align-items: center;
-  justify-items: center;
-  gap: 0.5rem;
-  width: min(38%, 340px);
-  padding: 0.7rem 0.85rem;
+  align-items: start;
+  gap: 0.45rem;
+  width: min(48%, 540px);
+  max-height: 58%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0.65rem 0.8rem;
   border: 2px solid rgba(255, 247, 231, 0.72);
-  border-radius: 32px;
+  border-radius: 28px;
   background:
     radial-gradient(circle at top, rgba(255, 249, 238, 0.96), rgba(250, 238, 219, 0.94)),
     linear-gradient(180deg, rgba(255, 250, 243, 0.96), rgba(246, 233, 209, 0.94));
@@ -1413,7 +1739,27 @@ button {
 }
 
 .storyteller-center .storyteller-start-vote {
+  flex: 1;
+  min-width: 0;
+}
+
+.storyteller-center__nominate-row {
+  display: flex;
+  gap: 0.4rem;
+  align-items: stretch;
   width: 100%;
+}
+
+.storyteller-center__nominate-row .storyteller-start-vote {
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.storyteller-center__next-day-btn {
+  white-space: nowrap;
+  font-size: 0.78rem;
+  padding: 0.3rem 0.65rem;
+  flex-shrink: 0;
 }
 
 .storyteller-phase-tabs {
@@ -1501,6 +1847,10 @@ button {
   z-index: 2;
 }
 
+.storyteller-seat--tag-open {
+  z-index: 50;
+}
+
 .storyteller-seat--dead {
   background: rgba(77, 53, 53, 0.94);
   color: #fff2ee;
@@ -1583,10 +1933,12 @@ button {
   gap: 0.4rem;
 }
 
-.storyteller-seat__number {
-  font-size: 0.74rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+.storyteller-seat__header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  width: 100%;
 }
 
 .storyteller-seat__vote-mark {
@@ -1803,6 +2155,706 @@ button {
   color: #fff2ee;
 }
 
+/* ── Seat card redesign ── */
+
+.storyteller-seat__nameline {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.25rem;
+  width: 100%;
+  overflow: hidden;
+}
+
+.storyteller-seat__number {
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 1.2;
+  color: #853f22;
+  flex-shrink: 0;
+}
+
+.storyteller-seat--dead .storyteller-seat__number {
+  color: rgba(255, 242, 238, 0.85);
+}
+
+.storyteller-seat__name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+/* Override old input style since we no longer have it in seat */
+.storyteller-seat input {
+  display: none;
+}
+
+/* But keep inputs inside the tag popout visible */
+.storyteller-tag-popout input {
+  display: block;
+}
+
+/* ── Use Skill button on seat ── */
+
+.storyteller-seat__skill-btn {
+  display: block;
+  width: 100%;
+  margin-top: 0.15rem;
+  padding: 0.15rem 0.3rem;
+  border: 1px dashed rgba(31, 90, 150, 0.3);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.5);
+  color: rgba(31, 90, 150, 0.72);
+  font-size: 0.75rem;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: center;
+  line-height: 1.3;
+  transition: background 0.12s, border-color 0.12s;
+}
+
+.storyteller-seat__skill-btn:hover,
+.storyteller-seat__skill-btn--open {
+  background: rgba(31, 90, 150, 0.1);
+  border-color: rgba(31, 90, 150, 0.5);
+  color: #1f5a96;
+}
+
+.storyteller-seat--dead .storyteller-seat__skill-btn {
+  border-color: rgba(200, 220, 255, 0.3);
+  color: rgba(200, 220, 255, 0.6);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ── Tag button on seat ── */
+
+.storyteller-seat__tag-btn {
+  display: block;
+  width: 100%;
+  margin-top: 0.15rem;
+  padding: 0.15rem 0.3rem;
+  border: 1px dashed rgba(133, 63, 34, 0.28);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.5);
+  color: rgba(133, 63, 34, 0.72);
+  font-size: 0.75rem;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: center;
+  line-height: 1.3;
+  transition: background 0.12s, border-color 0.12s;
+}
+
+.storyteller-seat__tag-btn:hover,
+.storyteller-seat__tag-btn--open {
+  background: rgba(133, 63, 34, 0.1);
+  border-color: rgba(133, 63, 34, 0.48);
+  color: #853f22;
+}
+
+.storyteller-seat--dead .storyteller-seat__tag-btn {
+  border-color: rgba(255, 242, 238, 0.3);
+  color: rgba(255, 242, 238, 0.6);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ── Tag popout (floats beside card) ── */
+
+.storyteller-tag-popout {
+  position: absolute;
+  left: calc(100% + 8px);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 40;
+  width: 240px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.75rem;
+  border: 1px solid rgba(23, 32, 42, 0.14);
+  border-radius: 16px;
+  background: rgba(255, 252, 246, 0.99);
+  box-shadow: 0 12px 32px rgba(57, 43, 24, 0.18);
+  color: #17202a;
+}
+
+.storyteller-tag-popout__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35rem;
+}
+
+.storyteller-tag-popout__grid .secondary-button--small {
+  width: 100%;
+  text-align: center;
+}
+
+.storyteller-tag-popout__add-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.storyteller-tag-popout__add-row input {
+  width: 100%;
+  min-width: 0;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid rgba(23, 32, 42, 0.2);
+  border-radius: 8px;
+  font-size: 0.82rem;
+  background: #fff;
+  color: #17202a;
+}
+
+.storyteller-tag-popout__add-row input:focus {
+  outline: none;
+  border-color: #853f22;
+}
+
+.storyteller-tag-popout__add-btn {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 8px;
+  border: 1px solid rgba(133, 63, 34, 0.4);
+  background: rgba(133, 63, 34, 0.08);
+  color: #853f22;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ── Nomination Sheet (inline below center card) ── */
+
+.storyteller-center--sheet-open {
+  top: 50%;
+  transform: translate(-50%, -50%);
+  max-height: 64%;
+}
+
+.storyteller-nomination-sheet {
+  grid-row: 2;
+  grid-column: 1 / span 2;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0.4rem 0.45rem 0.45rem;
+  border-top: 1px solid rgba(133, 63, 34, 0.15);
+  margin-top: 0;
+  min-width: 0;
+}
+
+.storyteller-nomination-sheet__body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem 0.8rem;
+  margin-top: 0.3rem;
+  max-height: 160px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.storyteller-nomination-sheet__inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+  min-width: 0;
+}
+
+.storyteller-nomination-sheet__history {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  border-left: 1px solid rgba(133, 63, 34, 0.14);
+  padding-left: 0.6rem;
+  min-width: 0;
+  overflow-y: auto;
+}
+
+.storyteller-nomination-sheet__history-title {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #853f22;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.1rem;
+}
+
+.storyteller-nomination-sheet__history-empty {
+  font-size: 0.68rem;
+  color: #aaa;
+  margin: 0;
+}
+
+.storyteller-nomination-sheet__history-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.25rem 0.35rem;
+  border-radius: 6px;
+  background: rgba(133, 63, 34, 0.04);
+  border-left: 3px solid rgba(133, 63, 34, 0.2);
+}
+
+.storyteller-nomination-sheet__history-item--passed {
+  border-left-color: rgba(34, 139, 60, 0.6);
+  background: rgba(34, 139, 60, 0.05);
+}
+
+.storyteller-nomination-sheet__history-item--failed {
+  border-left-color: rgba(180, 50, 50, 0.5);
+  background: rgba(180, 50, 50, 0.04);
+}
+
+.storyteller-nomination-sheet__history-pair {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #17202a;
+}
+
+.storyteller-nomination-sheet__history-votes {
+  font-size: 0.68rem;
+  color: #555;
+}
+
+.storyteller-nomination-sheet__history-result {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: rgb(160, 40, 40);
+}
+
+.storyteller-nomination-sheet__history-result--pass {
+  color: rgb(22, 100, 44);
+}
+
+.storyteller-nomination-sheet__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.1rem;
+}
+
+.storyteller-nomination-sheet__title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #853f22;
+  letter-spacing: 0.02em;
+}
+
+.storyteller-nomination-sheet__row {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.storyteller-nomination-sheet__label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #555;
+  white-space: nowrap;
+  min-width: 2.8rem;
+}
+
+.storyteller-nomination-sheet__select {
+  flex: 1;
+  padding: 0.18rem 0.3rem;
+  border: 1px solid rgba(23, 32, 42, 0.2);
+  border-radius: 7px;
+  font-size: 0.76rem;
+  font-family: inherit;
+  background: #fff;
+  color: #17202a;
+  cursor: pointer;
+}
+
+.storyteller-nomination-sheet__select:focus {
+  outline: none;
+  border-color: #853f22;
+}
+
+.storyteller-nomination-sheet__select--succeed {
+  border-color: rgba(34, 139, 60, 0.5);
+  color: rgb(22, 100, 44);
+  background: rgba(34, 139, 60, 0.07);
+}
+
+.storyteller-nomination-sheet__select--fail {
+  border-color: rgba(180, 50, 50, 0.5);
+  color: rgb(160, 40, 40);
+  background: rgba(180, 50, 50, 0.07);
+}
+
+.storyteller-nomination-sheet__pick-btn {
+  padding: 0.1rem 0.35rem;
+  border: 1px solid rgba(133, 63, 34, 0.35);
+  border-radius: 6px;
+  background: rgba(133, 63, 34, 0.07);
+  color: #853f22;
+  font-size: 0.9rem;
+  cursor: pointer;
+  line-height: 1;
+  transition: background 0.12s;
+}
+
+.storyteller-nomination-sheet__pick-btn:hover,
+.storyteller-nomination-sheet__pick-btn.storyteller-picker-active {
+  background: rgba(133, 63, 34, 0.2);
+}
+
+.storyteller-nomination-sheet__hint {
+  font-size: 0.66rem;
+  color: #853f22;
+  margin: 0;
+}
+
+.storyteller-nomination-sheet__votes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.storyteller-nomination-sheet__vote-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.4rem;
+}
+
+.storyteller-nomination-sheet__vote-check {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  cursor: pointer;
+  min-width: 2rem;
+}
+
+.storyteller-nomination-sheet__vote-check input[type="checkbox"] {
+  display: block;
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  cursor: pointer;
+  accent-color: #853f22;
+}
+
+.storyteller-nomination-sheet__vote-check span {
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: #17202a;
+}
+
+.storyteller-nomination-sheet__vote-count {
+  font-size: 0.78rem;
+  color: #555;
+}
+
+.storyteller-nomination-sheet__row--note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.storyteller-nomination-sheet__note-input {
+  flex: 1;
+  padding: 2px 6px;
+  border: 1px solid #c8b89a;
+  border-radius: 6px;
+  font-size: 0.74rem;
+  background: #fdf8f2;
+  color: #3a2a1a;
+  outline: none;
+}
+
+.storyteller-nomination-sheet__note-input:focus {
+  border-color: #8b6340;
+  box-shadow: 0 0 0 2px rgba(139, 99, 64, 0.1);
+}
+
+.storyteller-tag-popout__add-btn:hover {
+  background: rgba(133, 63, 34, 0.18);
+}
+
+/* ── Skill popout (floats beside card) ── */
+
+.storyteller-skill-popout {
+  position: absolute;
+  left: calc(100% + 8px);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 40;
+  width: 270px;
+  max-height: min(520px, 80vh);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.75rem;
+  border: 1px solid rgba(31, 90, 150, 0.2);
+  border-radius: 16px;
+  background: rgba(248, 252, 255, 0.99);
+  box-shadow: 0 12px 32px rgba(20, 50, 100, 0.15);
+  color: #17202a;
+}
+
+.storyteller-skill-popout__actor {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.78rem;
+  color: #1f5a96;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid rgba(31, 90, 150, 0.15);
+}
+
+.storyteller-skill-popout__actor strong {
+  font-weight: 700;
+}
+
+.storyteller-skill-popout__roles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  max-height: 130px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.storyteller-skill-popout__roles .secondary-button--small {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.storyteller-skill-popout__hint {
+  font-size: 0.72rem;
+  color: #1f5a96;
+  margin: 0;
+}
+
+.storyteller-skill-popout__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.storyteller-skill-popout__field span {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.storyteller-skill-popout__field input {
+  display: block;
+  width: 100%;
+  padding: 0.28rem 0.5rem;
+  border: 1px solid rgba(23, 32, 42, 0.2);
+  border-radius: 8px;
+  font-size: 0.82rem;
+  background: #fff;
+  color: #17202a;
+  font-family: inherit;
+}
+
+.storyteller-skill-popout__field input:focus {
+  outline: none;
+  border-color: #1f5a96;
+}
+
+.storyteller-skill-popout__role-dropdown {
+  position: relative;
+}
+
+.storyteller-skill-popout__role-trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  width: 100%;
+  padding: 0.28rem 0.5rem;
+  border: 1px solid rgba(23, 32, 42, 0.2);
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-family: inherit;
+  background: #fff;
+  color: #17202a;
+  cursor: pointer;
+  text-align: left;
+}
+
+.storyteller-skill-popout__role-trigger:focus {
+  outline: none;
+  border-color: #1f5a96;
+}
+
+.storyteller-skill-popout__role-placeholder {
+  color: #999;
+}
+
+.storyteller-skill-popout__role-caret {
+  margin-left: auto;
+  font-size: 0.7rem;
+  color: #777;
+}
+
+.storyteller-skill-popout__role-options {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 60;
+  max-height: 200px;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid rgba(23, 32, 42, 0.15);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(20, 50, 100, 0.15);
+  display: flex;
+  flex-direction: column;
+  padding: 0.3rem;
+  gap: 0.1rem;
+}
+
+.storyteller-skill-popout__role-option {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.45rem;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  font-size: 0.8rem;
+  font-family: inherit;
+  color: #17202a;
+  cursor: pointer;
+  text-align: left;
+}
+
+.storyteller-skill-popout__role-option:hover {
+  background: rgba(31, 90, 150, 0.08);
+}
+
+.storyteller-skill-popout__role-option--active {
+  background: rgba(31, 90, 150, 0.12);
+  font-weight: 600;
+  color: #1f5a96;
+}
+
+.storyteller-skill-popout__target-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.storyteller-skill-popout__target-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.storyteller-skill-popout__label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #1f5a96;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.storyteller-skill-popout__target-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.3rem;
+}
+
+.storyteller-skill-popout__target-check {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  cursor: pointer;
+}
+
+.storyteller-skill-popout__target-check input[type="checkbox"] {
+  display: block;
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  cursor: pointer;
+  accent-color: #1f5a96;
+}
+
+.storyteller-skill-popout__target-check span {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #17202a;
+}
+
+/* ── Edit Players Modal ── */
+
+.storyteller-edit-players-modal {
+  width: min(100%, 480px);
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.storyteller-edit-players__count-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.35rem 0;
+  font-size: 0.85rem;
+  color: rgba(23, 32, 42, 0.7);
+}
+
+/* ── Preset textarea ── */
+
+.storyteller-preset-textarea {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid rgba(23, 32, 42, 0.12);
+  border-radius: 12px;
+  padding: 0.55rem 0.65rem;
+  font: inherit;
+  background: #fff;
+  resize: vertical;
+}
+
+/* ── Tag pool item with remove ── */
+
+.storyteller-tag-pool-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border: 1px solid rgba(23, 32, 42, 0.12);
+  border-radius: 999px;
+  padding: 0.2rem 0.5rem;
+  background: rgba(255, 251, 245, 0.95);
+  font-size: 0.82rem;
+}
+
+.storyteller-tag-pool-item__remove {
+  border: 0;
+  background: transparent;
+  color: rgba(23, 32, 42, 0.5);
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  font-size: 1rem;
+}
+
+.storyteller-tag-pool-item__remove:hover {
+  color: #a4392f;
+}
+
 .storyteller-seat--dead .storyteller-seat__status,
 .storyteller-seat--dead .storyteller-seat__tag {
   background: rgba(255, 233, 226, 0.18);
@@ -1922,24 +2974,19 @@ button {
     justify-content: start;
   }
 
-  .storyteller-board,
   .storyteller-workbench,
   .storyteller-count {
     min-width: 0;
   }
 
-  .storyteller-board,
-  .storyteller-board--with-log,
-  .storyteller-workbench {
+  .storyteller-layout--log,
+  .storyteller-layout--panel,
+  .storyteller-layout--log.storyteller-layout--panel {
     grid-template-columns: 1fr;
   }
 
-  .storyteller-log-sidebar {
-    max-height: 300px;
-  }
-
-  .storyteller-control-dock {
-    position: static;
+  .storyteller-side-panel {
+    display: none !important;
   }
 
   .storyteller-stage__top {
@@ -1957,13 +3004,38 @@ button {
 
   .storyteller-table {
     --table-size: min(100%, 760px);
-    --seat-size: clamp(78px, 18vw, 110px);
+    --seat-size: clamp(95px, 22vw, 130px);
     max-width: 760px;
   }
 
   .storyteller-center {
-    width: min(48%, 280px);
+    grid-template-columns: 1fr;
+    width: min(56%, 300px);
     min-height: auto;
+  }
+
+  .storyteller-center__right {
+    border-left: none;
+    border-top: 1px solid rgba(23, 32, 42, 0.08);
+    padding-left: 0;
+    padding-top: 0.4rem;
+  }
+
+  .storyteller-arena {
+    grid-template-columns: 1fr;
+  }
+
+  .storyteller-quick-strip {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-self: auto;
+    padding-top: 0.5rem;
+  }
+
+  .storyteller-quick-btn {
+    width: auto;
+    min-width: 60px;
   }
 
   .character-grid {
@@ -2295,22 +3367,67 @@ button {
   margin: 0.5rem 0;
 }
 
-/* ── Storyteller: Seat vote button ── */
-.storyteller-seat__vote-btn {
-  display: inline-block;
-  padding: 0.2rem 0.6rem;
-  font-size: 0.75rem;
-  border: 1px solid rgb(133, 63, 34);
-  border-radius: 20px;
-  background: rgba(133, 63, 34, 0.1);
-  color: rgb(133, 63, 34);
-  cursor: pointer;
+/* ── Storyteller: Seat vote buttons (agree / disagree) ── */
+.storyteller-seat__vote-btns {
+  display: flex;
+  gap: 0.2rem;
   margin-top: 0.2rem;
-  font-weight: 600;
-  transition: background 0.15s;
+  width: 100%;
+}
+
+.storyteller-seat__vote-btn {
+  flex: 1;
+  padding: 0.25rem 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
 }
 .storyteller-seat__vote-btn:hover {
-  background: rgba(133, 63, 34, 0.25);
+  opacity: 0.85;
+  transform: scale(1.06);
+}
+.storyteller-seat__vote-btn--yes {
+  background: rgba(34, 139, 60, 0.18);
+  color: rgb(22, 100, 44);
+  border: 1.5px solid rgba(34, 139, 60, 0.4);
+}
+.storyteller-seat__vote-btn--no {
+  background: rgba(180, 50, 50, 0.13);
+  color: rgb(160, 40, 40);
+  border: 1.5px solid rgba(180, 50, 50, 0.35);
+}
+
+/* Large indicator shown after vote is cast */
+.storyteller-seat__vote-indicator {
+  display: block;
+  width: 100%;
+  margin-top: 0.2rem;
+  padding: 0.3rem 0;
+  font-size: 1.5rem;
+  font-weight: 900;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: center;
+  line-height: 1;
+  transition: opacity 0.15s, transform 0.1s;
+}
+.storyteller-seat__vote-indicator:hover {
+  opacity: 0.75;
+  transform: scale(0.95);
+}
+.storyteller-seat__vote-indicator--yes {
+  background: rgba(30, 160, 70, 0.88);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(30, 140, 60, 0.35);
+}
+.storyteller-seat__vote-indicator--no {
+  background: rgba(200, 50, 50, 0.88);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(180, 40, 40, 0.35);
 }
 
 /* ── Storyteller: Vote marks on seats ── */
