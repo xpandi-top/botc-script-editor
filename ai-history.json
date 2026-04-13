@@ -27,5 +27,41 @@
       "src/components/StorytellerSub/RightConsole*.tsx",
       "src/components/StorytellerSub/useStoryteller.ts"
     ]
+  },
+  {
+    "date": "2026-04-13",
+    "change": "Fix ReferenceError in ArenaSeatTagPopout and ArenaSeatSkillPopout by defining missing isTagPopoutOpen and isSkillPopoutOpen variables.",
+    "files": [
+      "src/components/StorytellerSub/Arena/ArenaSeatTagPopout.tsx",
+      "src/components/StorytellerSub/Arena/ArenaSeatSkillPopout.tsx"
+    ]
+  },
+  {
+    "date": "2026-04-13",
+    "change": "Fix ReferenceError in ModalsEditPlayers by importing missing uniqueStrings from constants.",
+    "files": [
+      "src/components/StorytellerSub/ModalsEditPlayers.tsx"
+    ]
+  },
+  {
+    "date": "2026-04-13",
+    "change": "Cleaned up temporary refactoring scripts and organized StorytellerSub into a cleaner folder structure (Arena/, RightConsole/, Modals/). Updated imports across all subcomponents.",
+    "files": [
+      "src/components/StorytellerSub/Arena/index.tsx",
+      "src/components/StorytellerSub/RightConsole/index.tsx",
+      "src/components/StorytellerSub/Modals/index.tsx",
+      "src/components/StorytellerSub/Arena/*",
+      "src/components/StorytellerSub/RightConsole/*",
+      "src/components/StorytellerSub/Modals/*"
+    ]
+  },
+  {
+    "date": "2026-04-13",
+    "change": "Added favicon.ico and favicon.png (using imp icon) to public directory and updated index.html to resolve 404 error.",
+    "files": [
+      "public/favicon.ico",
+      "public/favicon.png",
+      "index.html"
+    ]
   }
 ]

@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React from 'react'
-import { getDisplayName, getIconForCharacter } from '../../catalog'
-import { CHARACTER_DISTRIBUTION, createDefaultVoteDraft } from './constants'
+import { getDisplayName, getIconForCharacter } from '../../../catalog'
+import { CHARACTER_DISTRIBUTION, createDefaultVoteDraft } from '../constants'
 
 
 export function RightConsoleSeats({ ctx, toggleConsoleSection }: { ctx: any, toggleConsoleSection: any }) {

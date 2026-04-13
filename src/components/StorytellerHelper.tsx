@@ -8,7 +8,9 @@ import type { StorytellerHelperProps } from './StorytellerSub/types'
 import '../styles.css'
 
 export function StorytellerHelper(props: StorytellerHelperProps) {
+  console.log('StorytellerHelper mounted, props:', props);
   const ctx = useStoryteller(props)
+  console.log('StorytellerHelper ctx:', ctx);
   
   return (
     <section className={`storyteller-layout${ctx.showLogPanel ? ' storyteller-layout--log' : ''}${ctx.showRightPanel ? ' storyteller-layout--panel' : ''}`}>

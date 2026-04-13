@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React from 'react'
-import { getDisplayName, getIconForCharacter } from '../../catalog'
-import { CHARACTER_DISTRIBUTION, createDefaultVoteDraft, FAKE_NAMES, FAKE_NAMES_ZH, uniqueStrings } from './constants'
+import { getDisplayName, getIconForCharacter } from '../../../catalog'
+import { CHARACTER_DISTRIBUTION, createDefaultVoteDraft, FAKE_NAMES, FAKE_NAMES_ZH, uniqueStrings } from '../constants'
 
 
 export function RightConsoleSettings({ ctx, toggleConsoleSection }: { ctx: any, toggleConsoleSection: any }) {

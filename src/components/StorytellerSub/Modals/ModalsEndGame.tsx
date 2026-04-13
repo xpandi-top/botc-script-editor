@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React from 'react'
-import { getDisplayName, getIconForCharacter } from '../../catalog'
-import { CHARACTER_DISTRIBUTION } from './constants'
+import { getDisplayName, getIconForCharacter } from '../../../catalog'
+import { CHARACTER_DISTRIBUTION } from '../constants'
 
 
 export function ModalsEndGame({ ctx }: { ctx: any }) {
