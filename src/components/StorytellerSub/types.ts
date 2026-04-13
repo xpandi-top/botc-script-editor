@@ -1,0 +1,195 @@
+import type { Language } from '../../types'
+
+// ── Types ──────────────────────────────────────────────────────
+
+export type Phase = 'night' | 'private' | 'public' | 'nomination'
+export type PublicMode = 'free' | 'roundRobin'
+export type NominationStep =
+  | 'waitingForNomination'
+  | 'nominationDecision'
+  | 'actorSpeech'
+  | 'readyForTargetSpeech'
+  | 'targetSpeech'
+  | 'readyToVote'
+  | 'voting'
+  | 'votingDone'
+
+export type PickerMode =
+  | 'none'
+  | 'speaker'
+  | 'nominator'
+  | 'nominee'
+  | 'skillActor'
+  | 'skillTarget'
+
+export type CharacterAssignment = { seat: number; characterId: string; team: string }
+
+export type NewGameConfig = {
+  playerCount: number
+  scriptSlug: string
+  randomAssign: boolean
+  assignments: CharacterAssignment[]
+  showAssignments: boolean
+  seatNames: Record<number, string>
+}
+
+export type EndGameResult = {
+  winner: 'evil' | 'good' | null
+  playerNotes: Record<number, string>
+  playerTeams: Record<number, string>
+}
+
+export type LogFilterState = {
+  types: Set<string>
+  dayFilter: number | 'all'
+  sortAsc: boolean
+}
+
+export type AggregatedLogEntry = {
+  id: string
+  day: number
+  timestamp: number
+  type: 'vote' | 'skill' | 'event'
+  detail: string
+}
+
+export type ConsoleSection = 'game' | 'day' | 'player' | 'settings' | 'tags'
+
+export type ScriptOption = { slug: string; title: string; characters: string[] }
+
+export type StorytellerSeat = {
+  seat: number
+  name: string
+  alive: boolean
+  isTraveler: boolean
+  isExecuted: boolean
+  hasNoVote: boolean
+  customTags: string[]
+}
+
+export type VoteDraft = {
+  actor: number | null
+  target: number | null
+  voters: number[]
+  noVoters: number[]
+  note: string
+  manualPassed: boolean | null
+  nominationResult: 'succeed' | 'fail'
+}
+
+export type VoteRecord = {
+  id: string
+  actor: number
+  target: number
+  voters: number[]
+  voteCount: number
+  requiredVotes: number
+  passed: boolean
+  note: string
+  overridden: boolean
+  failed?: boolean
+}
+
+export type SkillDraft = {
+  actor: number | null
+  roleId: string
+  targets: number[]
+  targetNotes: Record<number, string>
+  statement: string
+  note: string
+  result: 'success' | 'failure' | null
+}
+
+export type SkillRecord = SkillDraft & { id: string; activatedDuringPhase: string }
+
+export type VotingState = {
+  votingOrder: number[]
+  votingIndex: number
+  perPlayerSeconds: number
+  votes: Record<number, boolean>
+}
+
+export type SkillOverlayState = {
+  pausedPhase: Phase
+  wasTimerRunning: boolean
+  draft: SkillDraft
+  phaseContext: string
+}
+
+export type EventLogEntry = {
+  id: string
+  timestamp: number
+  phase: string
+  kind: 'vote' | 'skill' | 'stateChange' | 'tagChange' | 'phaseTransition'
+  detail: string
+}
+
+export type AudioTrack = { name: string; src: string }
+
+export type TimerDefaults = {
+  privateSeconds: number
+  publicFreeSeconds: number
+  publicRoundRobinSeconds: number
+  nominationDelayMinutes: number
+  nominationWaitSeconds: number
+  nominationActorSeconds: number
+  nominationTargetSeconds: number
+  nominationVoteSeconds: number
+}
+
+export type DayState = {
+  id: string
+  day: number
+  phase: Phase
+  publicMode: PublicMode
+  nominationStep: NominationStep
+  privateSeconds: number
+  publicFreeSeconds: number
+  publicRoundRobinSeconds: number
+  publicElapsedSeconds: number
+  nominationWaitSeconds: number
+  nominationActorSeconds: number
+  nominationTargetSeconds: number
+  currentSpeakerSeat: number | null
+  roundRobinSpokenSeats: number[]
+  seats: StorytellerSeat[]
+  voteDraft: VoteDraft
+  votingState: VotingState | null
+  voteHistory: VoteRecord[]
+  skillHistory: SkillRecord[]
+  eventLog: EventLogEntry[]
+}
+
+export type GameRecord = {
+  id: string
+  endedAt: number
+  scriptTitle?: string
+  scriptSlug?: string
+  winner?: 'evil' | 'good' | null
+  playerSummaries?: Array<{ seat: number; name: string; team: string; notes: string }>
+  days: Array<{ day: number; votes: number; skills: number }>
+}
+
+export type PersistedState = {
+  selectedDayId: string
+  timerDefaults: TimerDefaults
+  days: DayState[]
+  customTagPool: string[]
+  gameRecords: GameRecord[]
+  playerNamePool: string[]
+}
+
+export type DialogState =
+  | { kind: 'voteResult'; nextValue: boolean | null; systemValue: boolean }
+  | { kind: 'restartGame' }
+  | { kind: 'endGame' }
+  | null
+
+export type StorytellerHelperProps = {
+  activeScriptSlug?: string
+  activeScriptTitle?: string
+  language: Language
+  onSelectScript?: (slug: string) => void
+  scriptOptions: ScriptOption[]
+}
+

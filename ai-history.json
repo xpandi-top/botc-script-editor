@@ -18,5 +18,14 @@
       "src/components/StorytellerSub/Modals.tsx",
       "src/components/StorytellerSub/constants.ts"
     ]
+  },
+  {
+    "date": "2026-04-13",
+    "change": "Further split Arena and RightConsole into smaller subcomponents to adhere to file size limits. Split Arena into ArenaCenter, ArenaSeats, and ArenaQuickStrip. Split RightConsole into RightConsoleGame, RightConsoleDay, RightConsolePlayer, RightConsoleSettings, RightConsoleTags, and RightConsoleCompleted. Moved state logic into useStoryteller hook.",
+    "files": [
+      "src/components/StorytellerSub/Arena/",
+      "src/components/StorytellerSub/RightConsole*.tsx",
+      "src/components/StorytellerSub/useStoryteller.ts"
+    ]
   }
 ]
