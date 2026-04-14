@@ -991,8 +991,7 @@ export function useStoryteller(props: StorytellerHelperProps) {
       return
     }
     if (dialogState.kind === 'endGame') {
-      saveCurrentGame()
-      resetCurrentGame()
+      openEndGamePanel()
       setDialogState(null)
       return
     }
@@ -1248,6 +1247,7 @@ export function useStoryteller(props: StorytellerHelperProps) {
       endGameResult.replay,
       endGameResult.otherNote
     )
+    resetCurrentGame()
     setEndGameResult(null)
   }
 
