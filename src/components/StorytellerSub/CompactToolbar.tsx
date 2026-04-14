@@ -77,7 +77,7 @@ export function CompactToolbar({ ctx }: { ctx: any }) {
 
       {/* ── Right: primary actions ── */}
       <div className="storyteller-compact-toolbar__right">
-        <button className="print-button" onClick={openNewGamePanel} type="button">
+        <button className="secondary-button secondary-button--small" onClick={openNewGamePanel} type="button">
           {text.newGame}
         </button>
         <button className="secondary-button secondary-button--small" onClick={() => setShowEditPlayersModal(true)} type="button">
