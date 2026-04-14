@@ -2034,15 +2034,52 @@ button {
 }
 
 .storyteller-table {
-  --seat-size: clamp(90px, 9vw, 135px);
+  --seat-size: clamp(100px, 10vw, 150px);
   position: relative;
-  width: min(100%, calc(75vh * 3 / 2));
-  /* Responsive bounds: table scales with viewport but never too small or too large */
-  min-width: 460px;
-  max-width: 1200px;
-  /* min-height is derived from min-width via aspect-ratio (460 × 2/3 ≈ 307px) */
+  width: min(100%, calc(82vh * 1.5));
+  max-width: min(1500px, 100%);
   aspect-ratio: 3 / 2;
   margin: 0 auto;
+}
+
+@media (orientation: portrait) {
+  .storyteller-table {
+    aspect-ratio: 2 / 3;
+    width: min(100%, calc(82vh * 0.66));
+    max-width: 800px;
+  }
+
+  .storyteller-center {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    width: min(85%, 500px);
+    max-height: 75%;
+    padding: 0.5rem;
+  }
+
+  .storyteller-center__left,
+  .storyteller-center__right {
+    grid-column: 1 !important;
+    border-left: 0 !important;
+    padding-left: 0 !important;
+  }
+
+  .storyteller-center__right {
+    grid-row: 2;
+    padding-top: 0.5rem;
+    border-top: 1px solid rgba(23, 32, 42, 0.08);
+  }
+
+  .storyteller-nomination-sheet__body {
+    grid-template-columns: 1fr !important;
+  }
+
+  .storyteller-nomination-sheet__history {
+    border-left: 0 !important;
+    padding-left: 0 !important;
+    border-top: 1px solid rgba(133, 63, 34, 0.14);
+    padding-top: 0.5rem;
+  }
 }
 
 @media (max-width: 700px) {
@@ -2089,8 +2126,8 @@ button {
   align-content: start;
   align-items: start;
   gap: 0.45rem;
-  width: min(48%, 540px);
-  max-height: 58%;
+  width: min(52%, 640px);
+  max-height: 65%;
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: 0.65rem 0.8rem;
@@ -2635,7 +2672,7 @@ button {
 }
 
 .storyteller-seat__name {
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   font-weight: 600;
   line-height: 1.2;
   overflow: hidden;

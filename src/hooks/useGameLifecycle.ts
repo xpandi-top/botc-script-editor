@@ -28,7 +28,7 @@ interface LifecycleDeps {
 }
 
 export function buildGameLifecycle(deps: LifecycleDeps) {
-  const { days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, endGameResult, scriptOptions, onSelectScript, setDays, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay, setNewGamePanel, setEndGameResult, setGameRecords, setSelectedAudioSrc, setAudioPlaying, nightBgmSrc } = deps
+  const { days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, endGameResult, scriptOptions, onSelectScript, setDays, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay, setNewGamePanel, setEndGameResult, setGameRecords, setAudioPlaying } = deps
 
   function goToNextDay() {
     if (selectedDayIndex < days.length - 1) { setSelectedDayId(days[selectedDayIndex + 1].id); setIsTimerRunning(false); return }
@@ -63,11 +63,10 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     }))
     setPickerMode('none')
     setIsTimerRunning(false)
-    if (phase === 'night') setSelectedAudioSrc(nightBgmSrc)
-    else setAudioPlaying(false)
+    setAudioPlaying(false)
   }
 
-  function startNight() { setSelectedAudioSrc(nightBgmSrc); setAudioPlaying(true) }
+  function startNight() { setAudioPlaying(true) }
 
   function addPlayerSeat() {
     setDays((d) => d.map((day) => {
