@@ -3,7 +3,7 @@ import type { ConsoleSection } from '../components/StorytellerSub/types'
 
 export function useUIState() {
   const [showLogPanel, setShowLogPanel] = useState(false)
-  const [showRightPanel, setShowRightPanel] = useState(true)
+  const [showRightPanel, setShowRightPanel] = useState(false)
   const [activeRightPopup, setActiveRightPopup] = useState<'log' | 'settings' | null>(null)
   const [showScriptPanel, setShowScriptPanel] = useState(false)
   const [tagPopoutSeat, setTagPopoutSeat] = useState<number | null>(null)

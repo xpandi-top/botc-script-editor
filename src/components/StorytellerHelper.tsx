@@ -17,18 +17,8 @@ export function StorytellerHelper(props: StorytellerHelperProps) {
     return () => document.body.classList.remove('storyteller-active')
   }, [])
 
-  const hasRightPopup = ctx.activeRightPopup !== null
-  const hasLeftPanel = ctx.showScriptPanel
-
-  const layoutClass = [
-    'storyteller-layout',
-    hasLeftPanel ? 'storyteller-layout--script' : '',
-    ctx.showRightPanel ? 'storyteller-layout--bar' : '',
-    ctx.showRightPanel && hasRightPopup ? 'storyteller-layout--popup' : '',
-  ].filter(Boolean).join(' ')
-
   return (
-    <section className={layoutClass}>
+    <section className="storyteller-layout">
       <LeftScriptPanel ctx={ctx} />
       <section className="storyteller-panel">
         <CompactToolbar ctx={ctx} />

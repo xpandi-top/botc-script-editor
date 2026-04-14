@@ -14,8 +14,6 @@ export function LeftScriptPanel({ ctx }: { ctx: any }) {
   const [view, setView] = React.useState<ScriptView>(isDay1 ? 'firstNight' : 'otherNight')
   const [selectedCharId, setSelectedCharId] = React.useState<string | null>(null)
 
-  if (!showScriptPanel) return null
-
   const characterIds: string[] = currentScriptCharacters?.map((c) =>
     typeof c === 'string' ? c : c.id
   ) ?? []
@@ -75,7 +73,11 @@ export function LeftScriptPanel({ ctx }: { ctx: any }) {
   }
 
   return (
-    <aside className="storyteller-left-panel">
+    <>
+      {showScriptPanel && (
+        <div className="storyteller-drawer-backdrop" onClick={() => setShowScriptPanel(false)} />
+      )}
+    <aside className={`storyteller-left-panel${showScriptPanel ? ' storyteller-left-panel--open' : ''}`}>
       <div className="storyteller-right-popup__header">
         <h3>{activeScriptTitle || (language === 'zh' ? '剧本' : 'Script')}</h3>
         <button className="secondary-button secondary-button--small" onClick={() => setShowScriptPanel(false)} type="button">✕</button>
@@ -120,5 +122,6 @@ export function LeftScriptPanel({ ctx }: { ctx: any }) {
         {view === 'otherNight' && <ol className="storyteller-night-list">{renderNightList(otherNightOrder)}</ol>}
       </div>
     </aside>
+    </>
   )
 }
