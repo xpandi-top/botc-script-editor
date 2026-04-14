@@ -24,6 +24,8 @@ export function useStoryteller(props: StorytellerHelperProps) {
   const [selectedSeatNumber, setSelectedSeatNumber] = useState<number | null>(null)
   const [showLogPanel, setShowLogPanel] = useState(false)
   const [showRightPanel, setShowRightPanel] = useState(true)
+  const [activeRightPopup, setActiveRightPopup] = useState<'log' | 'settings' | null>(null)
+  const [showScriptPanel, setShowScriptPanel] = useState(false)
   const [skillOverlay, setSkillOverlay] = useState<SkillOverlayState | null>(null)
   const [audioTracks, setAudioTracks] = useState<AudioTrack[]>(INITIAL_AUDIO_TRACKS)
   const [selectedAudioSrc, setSelectedAudioSrc] = useState<string>(INITIAL_AUDIO_TRACKS[0].src)
@@ -941,7 +943,16 @@ export function useStoryteller(props: StorytellerHelperProps) {
     setIsTimerRunning(false)
   }
 
-  function saveCurrentGame(winner?: 'evil' | 'good' | null, playerSummaries?: GameRecord['playerSummaries']) {
+  function saveCurrentGame(
+    winner?: 'evil' | 'good' | 'storyteller' | null,
+    playerSummaries?: GameRecord['playerSummaries'],
+    mvp?: number | null,
+    balanced?: number | null,
+    funEvil?: number | null,
+    funGood?: number | null,
+    replay?: number | null,
+    otherNote?: string
+  ) {
     setGameRecords((cur) => [
       {
         id: `${Date.now()}`,
@@ -950,6 +961,12 @@ export function useStoryteller(props: StorytellerHelperProps) {
         scriptSlug: activeScriptSlug,
         winner: winner ?? null,
         playerSummaries,
+        mvp,
+        balanced,
+        funEvil,
+        funGood,
+        replay,
+        otherNote,
         days: days.map((d) => ({ day: d.day, votes: d.voteHistory.length, skills: d.skillHistory.length })),
       },
       ...cur,
@@ -1198,13 +1215,20 @@ export function useStoryteller(props: StorytellerHelperProps) {
 
   // ── End Game ──
   function openEndGamePanel() {
-    const notes: Record<number, string> = {}
-    const teams: Record<number, string> = {}
+    const teams: Record<number, 'evil' | 'good' | null> = {}
     for (const s of currentDay.seats) {
-      notes[s.seat] = ''
       teams[s.seat] = 'good'
     }
-    setEndGameResult({ winner: null, playerNotes: notes, playerTeams: teams })
+    setEndGameResult({
+      winner: null,
+      playerTeams: teams,
+      mvp: null,
+      balanced: null,
+      funEvil: null,
+      funGood: null,
+      replay: null,
+      otherNote: ''
+    })
   }
 
   function confirmEndGame() {
@@ -1213,9 +1237,17 @@ export function useStoryteller(props: StorytellerHelperProps) {
       seat: s.seat,
       name: s.name,
       team: endGameResult.playerTeams[s.seat] ?? 'good',
-      notes: endGameResult.playerNotes[s.seat] ?? '',
     }))
-    saveCurrentGame(endGameResult.winner, summaries)
+    saveCurrentGame(
+      endGameResult.winner,
+      summaries,
+      endGameResult.mvp,
+      endGameResult.balanced,
+      endGameResult.funEvil,
+      endGameResult.funGood,
+      endGameResult.replay,
+      endGameResult.otherNote
+    )
     setEndGameResult(null)
   }
 
@@ -1288,7 +1320,7 @@ export function useStoryteller(props: StorytellerHelperProps) {
     activeScriptSlug, activeScriptTitle, language, onSelectScript, scriptOptions,
     days, setDays, selectedDayId, setSelectedDayId, timerDefaults, setTimerDefaults, customTagPool, setCustomTagPool, gameRecords, setGameRecords, playerNamePool, setPlayerNamePool,
     pickerMode, setPickerMode, isTimerRunning, setIsTimerRunning, dialogState, setDialogState, seatTagDrafts, setSeatTagDrafts, selectedSeatNumber, setSelectedSeatNumber,
-    showLogPanel, setShowLogPanel, showRightPanel, setShowRightPanel, skillOverlay, setSkillOverlay, audioTracks, setAudioTracks, selectedAudioSrc, setSelectedAudioSrc,
+    showLogPanel, setShowLogPanel, showRightPanel, setShowRightPanel, activeRightPopup, setActiveRightPopup, showScriptPanel, setShowScriptPanel, skillOverlay, setSkillOverlay, audioTracks, setAudioTracks, selectedAudioSrc, setSelectedAudioSrc,
     audioPlaying, setAudioPlaying, newGamePanel, setNewGamePanel, endGameResult, setEndGameResult, logFilter, setLogFilter, activeConsoleSections, setActiveConsoleSections,
     tagPopoutSeat, setTagPopoutSeat, skillPopoutSeat, setSkillPopoutSeat, skillRoleDropdownOpen, setSkillRoleDropdownOpen, showNominationSheet, setShowNominationSheet,
     showEditPlayersModal, setShowEditPlayersModal, editPlayersPreset, setEditPlayersPreset, loadTagsPreset, setLoadTagsPreset, lastCountdownRef, audioRef, text,

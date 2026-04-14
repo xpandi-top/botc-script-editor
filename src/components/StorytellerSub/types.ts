@@ -34,9 +34,14 @@ export type NewGameConfig = {
 }
 
 export type EndGameResult = {
-  winner: 'evil' | 'good' | null
-  playerNotes: Record<number, string>
-  playerTeams: Record<number, string>
+  winner: 'evil' | 'good' | 'storyteller' | null
+  playerTeams: Record<number, 'evil' | 'good' | null>
+  mvp: number | null
+  balanced: number | null
+  funEvil: number | null
+  funGood: number | null
+  replay: number | null
+  otherNote: string
 }
 
 export type LogFilterState = {
@@ -165,8 +170,14 @@ export type GameRecord = {
   endedAt: number
   scriptTitle?: string
   scriptSlug?: string
-  winner?: 'evil' | 'good' | null
-  playerSummaries?: Array<{ seat: number; name: string; team: string; notes: string }>
+  winner?: 'evil' | 'good' | 'storyteller' | null
+  playerSummaries?: Array<{ seat: number; name: string; team: 'evil' | 'good' | null }>
+  mvp?: number | null
+  balanced?: number | null
+  funEvil?: number | null
+  funGood?: number | null
+  replay?: number | null
+  otherNote?: string
   days: Array<{ day: number; votes: number; skills: number }>
 }
 

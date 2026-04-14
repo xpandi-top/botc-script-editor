@@ -1,4 +1,5 @@
-import { LeftLogPanel } from './StorytellerSub/LeftLogPanel'
+import { useEffect } from 'react'
+import { LeftScriptPanel } from './StorytellerSub/LeftScriptPanel'
 import { CompactToolbar } from './StorytellerSub/CompactToolbar'
 import { Arena } from './StorytellerSub/Arena'
 import { RightConsole } from './StorytellerSub/RightConsole'
@@ -8,20 +9,33 @@ import type { StorytellerHelperProps } from './StorytellerSub/types'
 import '../styles.css'
 
 export function StorytellerHelper(props: StorytellerHelperProps) {
-  console.log('StorytellerHelper mounted, props:', props);
   const ctx = useStoryteller(props)
-  console.log('StorytellerHelper ctx:', ctx);
-  
+
+  // Lock page scroll while storyteller is mounted
+  useEffect(() => {
+    document.body.classList.add('storyteller-active')
+    return () => document.body.classList.remove('storyteller-active')
+  }, [])
+
+  const hasRightPopup = ctx.activeRightPopup !== null
+  const hasLeftPanel = ctx.showScriptPanel
+
+  const layoutClass = [
+    'storyteller-layout',
+    hasLeftPanel ? 'storyteller-layout--script' : '',
+    ctx.showRightPanel ? 'storyteller-layout--bar' : '',
+    ctx.showRightPanel && hasRightPopup ? 'storyteller-layout--popup' : '',
+  ].filter(Boolean).join(' ')
+
   return (
-    <section className={`storyteller-layout${ctx.showLogPanel ? ' storyteller-layout--log' : ''}${ctx.showRightPanel ? ' storyteller-layout--panel' : ''}`}>
-      <LeftLogPanel ctx={ctx} />
+    <section className={layoutClass}>
+      <LeftScriptPanel ctx={ctx} />
       <section className="storyteller-panel">
         <CompactToolbar ctx={ctx} />
         <Arena ctx={ctx} />
       </section>
       <RightConsole ctx={ctx} />
       <Modals ctx={ctx} />
-      <audio ref={ctx.audioRef} />
     </section>
   )
 }
