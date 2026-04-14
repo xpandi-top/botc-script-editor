@@ -22,15 +22,26 @@ export type PickerMode =
   | 'skillActor'
   | 'skillTarget'
 
-export type CharacterAssignment = { seat: number; characterId: string; team: string }
+export type CharacterAssignment = { 
+  seat: number; 
+  characterId: string; 
+  userCharacterId?: string | null; 
+  team: 'evil' | 'good' | null;
+  note?: string;
+}
 
 export type NewGameConfig = {
   playerCount: number
+  travelerCount: number
   scriptSlug: string
-  randomAssign: boolean
-  assignments: CharacterAssignment[]
-  showAssignments: boolean
+  allowDuplicateChars: boolean
+  allowEmptyChars: boolean
+  allowSameNames: boolean
   seatNames: Record<number, string>
+  assignments: Record<number, string> // seat -> characterId
+  userAssignments: Record<number, string | null> // seat -> user-perceived char
+  seatNotes: Record<number, string>
+  specialNote: string
 }
 
 export type EndGameResult = {
@@ -70,6 +81,10 @@ export type StorytellerSeat = {
   isExecuted: boolean
   hasNoVote: boolean
   customTags: string[]
+  characterId: string | null
+  userCharacterId: string | null
+  teamTag: 'evil' | 'good' | null
+  note: string
 }
 
 export type VoteDraft = {

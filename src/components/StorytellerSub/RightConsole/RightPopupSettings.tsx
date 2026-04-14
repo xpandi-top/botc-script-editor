@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React from 'react'
-import { FAKE_NAMES, FAKE_NAMES_ZH, uniqueStrings } from '../constants'
+import { uniqueStrings } from '../constants'
 
 export function RightPopupSettings({ ctx }: { ctx: any }) {
   const {
@@ -28,8 +28,8 @@ export function RightPopupSettings({ ctx }: { ctx: any }) {
   }
 
   const defaultTags = language === 'zh'
-    ? ['死亡', '处决', '中毒', '醉酒', '保护', '被提名']
-    : ['Dead', 'Executed', 'Poisoned', 'Drunk', 'Protected', 'Nominated']
+    ? ['死亡', '处决', '旅人', '无投票权']
+    : ['Dead', 'Executed', 'Traveler', 'No vote']
 
   return (
     <div className="storyteller-right-popup__inner">
@@ -39,42 +39,6 @@ export function RightPopupSettings({ ctx }: { ctx: any }) {
       </div>
 
       <div className="storyteller-right-popup__scroll">
-        {/* ── Name Pool ── */}
-        <section className="storyteller-popup-section">
-          <h4 className="storyteller-popup-section__title">{text.playerPool}</h4>
-          <div className="storyteller-player-pool">
-            {playerNamePool.map((name, i) => {
-              const isUsed = currentDay.seats.some((s) => s.name === name)
-              return (
-                <span
-                  className={`storyteller-player-pool__chip${isUsed ? ' storyteller-player-pool__chip--used' : ''}`}
-                  key={`${name}-${i}`}
-                  onClick={() => {
-                    const seat = currentDay.seats.find((s) => s.name.startsWith('Player '))
-                    if (seat) updateSeat(seat.seat, (s) => ({ ...s, name }))
-                  }}
-                  title={text.assignName}
-                >{name}</span>
-              )
-            })}
-          </div>
-          <div className="storyteller-popup-input-row">
-            <input
-              className="storyteller-popup-input"
-              onChange={(e) => setNameInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addName() } }}
-              placeholder={language === 'zh' ? '输入名字...' : 'Add name...'}
-              type="text"
-              value={nameInput}
-            />
-            <button className="secondary-button secondary-button--small" onClick={addName} type="button">+</button>
-          </div>
-          <div className="storyteller-chip-row">
-            <button className="secondary-button secondary-button--small" onClick={() => setPlayerNamePool(language === 'zh' ? [...FAKE_NAMES_ZH] : [...FAKE_NAMES])} type="button">{text.loadFakeNames}</button>
-            <button className="secondary-button secondary-button--small" onClick={resetSeatNames} type="button">{text.resetNames}</button>
-            <button className="secondary-button secondary-button--small" onClick={() => setPlayerNamePool([])} type="button">{text.clear}</button>
-          </div>
-        </section>
 
         {/* ── Countdown Settings ── */}
         <section className="storyteller-popup-section">
@@ -148,17 +112,6 @@ export function RightPopupSettings({ ctx }: { ctx: any }) {
           <div className="storyteller-console__pool-header">
             <span className="storyteller-console__label">{text.tagPool}</span>
             <button className="secondary-button secondary-button--small" onClick={clearUnusedCustomTags} type="button">{text.clearUnusedTags}</button>
-          </div>
-          <div className="storyteller-popup-input-row" style={{ marginBottom: '0.5rem' }}>
-            <input
-              className="storyteller-popup-input"
-              onChange={(e) => setTagInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addTag() } }}
-              placeholder={language === 'zh' ? '新标签...' : 'New tag...'}
-              type="text"
-              value={tagInput}
-            />
-            <button className="secondary-button secondary-button--small" onClick={addTag} type="button">+</button>
           </div>
           <div className="storyteller-chip-row">
             {customTagPool.map((tag) => (

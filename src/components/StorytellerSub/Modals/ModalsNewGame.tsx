@@ -1,165 +1,236 @@
 // @ts-nocheck
-import React from 'react'
-import { getDisplayName, getIconForCharacter } from '../../../catalog'
-import { CHARACTER_DISTRIBUTION } from '../constants'
-
+import React, { useState, useMemo } from 'react'
+import { getDisplayName, getIconForCharacter, characterById } from '../../../catalog'
+import { CHARACTER_DISTRIBUTION, shuffleArray, uniqueStrings } from '../constants'
 
 export function ModalsNewGame({ ctx }: { ctx: any }) {
-  const { activeScriptSlug, activeScriptTitle, language, onSelectScript, scriptOptions, days, setDays, selectedDayId, setSelectedDayId, timerDefaults, setTimerDefaults, customTagPool, setCustomTagPool, gameRecords, setGameRecords, playerNamePool, setPlayerNamePool, pickerMode, setPickerMode, isTimerRunning, setIsTimerRunning, dialogState, setDialogState, seatTagDrafts, setSeatTagDrafts, selectedSeatNumber, setSelectedSeatNumber, showLogPanel, setShowLogPanel, showRightPanel, setShowRightPanel, skillOverlay, setSkillOverlay, audioTracks, setAudioTracks, selectedAudioSrc, setSelectedAudioSrc, audioPlaying, setAudioPlaying, newGamePanel, setNewGamePanel, endGameResult, setEndGameResult, logFilter, setLogFilter, activeConsoleSections, setActiveConsoleSections, tagPopoutSeat, setTagPopoutSeat, skillPopoutSeat, setSkillPopoutSeat, skillRoleDropdownOpen, setSkillRoleDropdownOpen, showNominationSheet, setShowNominationSheet, showEditPlayersModal, setShowEditPlayersModal, editPlayersPreset, setEditPlayersPreset, loadTagsPreset, setLoadTagsPreset, lastCountdownRef, audioRef, text, selectedDayIndex, currentDay, updateCurrentDay, currentTimerSeconds, currentScriptCharacters, livingNonTravelerSeats, requiredVotes, eligibleVoterSeats, nonVoters, draftPassedBySystem, draftPassed, isVotingComplete, currentVoterSeat, pointerSeat, selectedSeat, selectedSeatTags, dialogTitle, aliveCount, totalCount, highestVoteThisDay, nominatorsThisDay, nomineesThisDay, leadingCandidates, nominationDelaySeconds, secondsUntilNomination, canNominate, aggregatedLog, getPhaseContext, setCurrentTimer, syncDayTimers, appendEvent, handleLocalFileChange, resetSeatNames, updateSeat, updateSeatWithLog, addCustomTag, clearUnusedCustomTags, enterNomination, confirmNomination, rejectNomination, confirmTargetSpeech, startVoting, handleVoteYes, recordVote, openSkillOverlay, openSeatSkill, closeSkillOverlay, moveToNextSpeaker, goToNextDay, goToPreviousDay, saveCurrentGame, resetCurrentGame, confirmDialog, handleSeatClick, removeSeatTag, setPhase, startNight, stopNight, addPlayerSeat, removeLastPlayerSeat, addTravelerSeat, removeLastTraveler, openNewGamePanel, randomAssignCharacters, startNewGame, openEndGamePanel, confirmEndGame, exportGameJson, toggleLogFilterType, votingYesCount, NIGHT_BGM_SRC, hasTimer, toggleConsoleSection } = ctx;
+  const { 
+    scriptOptions, playerNamePool, setPlayerNamePool, text, language,
+    newGamePanel, setNewGamePanel, startNewGame, randomAssignCharacters
+  } = ctx
+
+  if (!newGamePanel) return null
+
+  const [activeTab, setActiveTab] = useState<'config' | 'players' | 'characters'>('config')
+  const script = scriptOptions.find(s => s.slug === newGamePanel.scriptSlug)
+  
+  const dist = CHARACTER_DISTRIBUTION[newGamePanel.playerCount] || { townsfolk: 0, outsider: 0, minion: 0, demon: 0 }
+  
+  // Calculate current character counts
+  const currentCounts = useMemo(() => {
+    const counts = { townsfolk: 0, outsider: 0, minion: 0, demon: 0 }
+    Object.values(newGamePanel.assignments).forEach(cid => {
+      const char = characterById[cid]
+      if (char && counts[char.team] !== undefined) counts[char.team]++
+    })
+    return counts
+  }, [newGamePanel.assignments])
+
+  const userCounts = useMemo(() => {
+    const counts = { townsfolk: 0, outsider: 0, minion: 0, demon: 0 }
+    Object.values(newGamePanel.userAssignments).forEach(cid => {
+      if (!cid) return
+      const char = characterById[cid]
+      if (char && counts[char.team] !== undefined) counts[char.team]++
+    })
+    return counts
+  }, [newGamePanel.userAssignments])
+
+  const updateConfig = (patch: Partial<typeof newGamePanel>) => {
+    setNewGamePanel(prev => prev ? { ...prev, ...patch } : prev)
+  }
+
+  const handleRandomPlayers = () => {
+    const shuffled = shuffleArray([...playerNamePool])
+    const newNames = { ...newGamePanel.seatNames }
+    for (let i = 1; i <= newGamePanel.playerCount + newGamePanel.travelerCount; i++) {
+      if (shuffled[i-1]) newNames[i] = shuffled[i-1]
+    }
+    updateConfig({ seatNames: newNames })
+  }
+
   return (
-    <>
-      {/* New Game Modal */}
-      {newGamePanel ? (
-        <div className="storyteller-modal" role="dialog" aria-modal="true">
-          <div className="storyteller-modal__card storyteller-new-game-modal">
-            <h3>{text.startNewGame}</h3>
+    <div className="storyteller-modal" role="dialog" aria-modal="true">
+      <div className="storyteller-modal__card storyteller-new-game-modal storyteller-new-game-modal--large">
+        <h3>{text.startNewGame}</h3>
+        
+        <div className="storyteller-tab-bar" style={{ marginBottom: '1rem' }}>
+          <button className={`tab-btn ${activeTab === 'config' ? 'active' : ''}`} onClick={() => setActiveTab('config')}>{language === 'zh' ? '配置' : 'Config'}</button>
+          <button className={`tab-btn ${activeTab === 'players' ? 'active' : ''}`} onClick={() => setActiveTab('players')}>{language === 'zh' ? '玩家' : 'Players'}</button>
+          <button className={`tab-btn ${activeTab === 'characters' ? 'active' : ''}`} onClick={() => setActiveTab('characters')}>{language === 'zh' ? '角色' : 'Characters'}</button>
+        </div>
 
-            <label className="editor-field">
-              <span>{text.playerCount}</span>
-              <input max="15" min="5" onChange={(e) => {
-                const count = Number(e.target.value)
-                setNewGamePanel((c) => {
-                  if (!c) return c
-                  // Keep existing seat names, remove ones beyond new count
-                  const seatNames: Record<number, string> = {}
-                  for (let i = 1; i <= count; i++) {
-                    if (c.seatNames[i]) seatNames[i] = c.seatNames[i]
-                  }
-                  return { ...c, playerCount: count, assignments: [], seatNames }
-                })
-              }} type="range" value={newGamePanel.playerCount} />
-              <strong>{newGamePanel.playerCount}</strong>
-            </label>
-
-            <label className="editor-field storyteller-script-select">
-              <span>{text.script}</span>
-              <select onChange={(e) => setNewGamePanel((c) => c ? { ...c, scriptSlug: e.target.value, assignments: [] } : c)} value={newGamePanel.scriptSlug}>
-                {scriptOptions.map((s) => <option key={s.slug} value={s.slug}>{s.title}</option>)}
-              </select>
-            </label>
-
-            {/* Seat name assignment */}
-            {playerNamePool.length > 0 ? (
-              <div className="storyteller-console__section">
-                <span className="storyteller-console__label">{text.seatAssignment}</span>
-                <p className="storyteller-panel__hint" style={{ margin: '0 0 0.4rem' }}>{text.clickToAssign}</p>
-                <div className="storyteller-player-pool">
-                  {playerNamePool.map((name, i) => {
-                    const assignedSeat = Object.entries(newGamePanel.seatNames).find(([, n]) => n === name)?.[0]
-                    return (
-                      <span
-                        className={`storyteller-player-pool__chip${assignedSeat ? ' storyteller-player-pool__chip--used' : ''}`}
-                        key={`${name}-${i}`}
-                        onClick={() => {
-                          if (assignedSeat) {
-                            // Remove from seat
-                            setNewGamePanel((c) => {
-                              if (!c) return c
-                              const seatNames = { ...c.seatNames }
-                              delete seatNames[Number(assignedSeat)]
-                              return { ...c, seatNames }
-                            })
-                          } else {
-                            // Assign to first empty seat
-                            setNewGamePanel((c) => {
-                              if (!c) return c
-                              const seatNames = { ...c.seatNames }
-                              for (let s = 1; s <= c.playerCount; s++) {
-                                if (!seatNames[s]) { seatNames[s] = name; break }
-                              }
-                              return { ...c, seatNames }
-                            })
-                          }
-                        }}
-                        title={assignedSeat ? `#${assignedSeat} — ${text.removeFromSeat}` : text.assignName}
-                      >{name}{assignedSeat ? ` (#${assignedSeat})` : ''}</span>
-                    )
-                  })}
-                </div>
-                <div className="storyteller-new-game-seats">
-                  {Array.from({ length: newGamePanel.playerCount }, (_, i) => i + 1).map((seatNum) => (
-                    <div className="storyteller-new-game-seats__row" key={seatNum}>
-                      <span>#{seatNum}</span>
-                      <input
-                        onChange={(e) => setNewGamePanel((c) => c ? { ...c, seatNames: { ...c.seatNames, [seatNum]: e.target.value } } : c)}
-                        onBlur={(e) => {
-                          const val = e.target.value.trim()
-                          if (val && !val.match(/^Player \d+$/) && !playerNamePool.includes(val)) {
-                            setPlayerNamePool((cur) => [...cur, val])
-                          }
-                        }}
-                        placeholder={`Player ${seatNum}`}
-                        type="text"
-                        value={newGamePanel.seatNames[seatNum] ?? ''}
-                      />
-                    </div>
-                  ))}
-                </div>
+        <div className="storyteller-new-game-content">
+          {activeTab === 'config' && (
+            <div className="storyteller-survey">
+              <div className="storyteller-survey__grid">
+                <label className="editor-field">
+                  <span>{language === 'zh' ? '玩家人数' : 'Player Count'}</span>
+                  <input type="number" min="5" max="15" value={newGamePanel.playerCount} onChange={e => updateConfig({ playerCount: Number(e.target.value) })} />
+                </label>
+                <label className="editor-field">
+                  <span>{language === 'zh' ? '旅人人数' : 'Traveler Count'}</span>
+                  <input type="number" min="0" max="5" value={newGamePanel.travelerCount} onChange={e => updateConfig({ travelerCount: Number(e.target.value) })} />
+                </label>
               </div>
-            ) : null}
 
-            {/* Distribution table */}
-            {CHARACTER_DISTRIBUTION[newGamePanel.playerCount] ? (
-              <div className="storyteller-distribution-grid">
-                <span className="storyteller-console__label">{text.distribution}</span>
-                <div className="storyteller-distribution-grid__row">
-                  <span>{text.townsfolk}: <strong>{CHARACTER_DISTRIBUTION[newGamePanel.playerCount].townsfolk}</strong></span>
-                  <span>{text.outsider}: <strong>{CHARACTER_DISTRIBUTION[newGamePanel.playerCount].outsider}</strong></span>
-                  <span>{text.minion}: <strong>{CHARACTER_DISTRIBUTION[newGamePanel.playerCount].minion}</strong></span>
-                  <span>{text.demon}: <strong>{CHARACTER_DISTRIBUTION[newGamePanel.playerCount].demon}</strong></span>
-                </div>
+              <label className="editor-field">
+                <span>{text.script}</span>
+                <select value={newGamePanel.scriptSlug} onChange={e => updateConfig({ scriptSlug: e.target.value, assignments: {}, userAssignments: {} })}>
+                  {scriptOptions.map(s => <option key={s.slug} value={s.slug}>{s.title}</option>)}
+                </select>
+              </label>
+
+              <div className="storyteller-survey__field">
+                <label className="winner-option">
+                  <input type="checkbox" checked={newGamePanel.allowDuplicateChars} onChange={e => updateConfig({ allowDuplicateChars: e.target.checked })} />
+                  <span>{language === 'zh' ? '允许重复角色' : 'Allow duplicate characters'}</span>
+                </label>
+                <label className="winner-option">
+                  <input type="checkbox" checked={newGamePanel.allowEmptyChars} onChange={e => updateConfig({ allowEmptyChars: e.target.checked })} />
+                  <span>{language === 'zh' ? '允许空角色' : 'Allow empty characters'}</span>
+                </label>
+                <label className="winner-option">
+                  <input type="checkbox" checked={newGamePanel.allowSameNames} onChange={e => updateConfig({ allowSameNames: e.target.checked })} />
+                  <span>{language === 'zh' ? '允许重复玩家名' : 'Allow same player names'}</span>
+                </label>
               </div>
-            ) : null}
 
-            {/* Random assign checkbox */}
-            <div className="storyteller-chip-row">
-              <button
-                className={`secondary-button${newGamePanel.randomAssign ? ' tab-button--active' : ''}`}
-                onClick={() => {
-                  setNewGamePanel((c) => {
-                    if (!c) return c
-                    if (!c.randomAssign) {
-                      const assigns = randomAssignCharacters(c)
-                      return { ...c, randomAssign: true, assignments: assigns }
-                    }
-                    return { ...c, randomAssign: false, assignments: [] }
-                  })
-                }}
-                type="button"
-              >{text.randomAssign}</button>
-              {newGamePanel.randomAssign ? (
-                <button
-                  className="secondary-button"
-                  onClick={() => setNewGamePanel((c) => c ? { ...c, showAssignments: !c.showAssignments } : c)}
-                  type="button"
-                >{newGamePanel.showAssignments ? text.hideAssign : text.showAssign}</button>
-              ) : null}
+              <div className="storyteller-survey__field">
+                <label className="survey-label">{language === 'zh' ? '特殊备注' : 'Special Note'}</label>
+                <textarea className="survey-textarea" rows={3} value={newGamePanel.specialNote} onChange={e => updateConfig({ specialNote: e.target.value })} placeholder="..." />
+              </div>
             </div>
+          )}
 
-            {/* Assignments display */}
-            {newGamePanel.randomAssign && newGamePanel.showAssignments && newGamePanel.assignments.length ? (
-              <div className="storyteller-history">
-                {newGamePanel.assignments.map((a) => {
-                  const charName = a.characterId ? getDisplayName(a.characterId, language) : '—'
+          {activeTab === 'players' && (
+            <div className="storyteller-survey">
+              <div className="storyteller-chip-row" style={{ marginBottom: '0.5rem' }}>
+                <button className="secondary-button secondary-button--small" onClick={handleRandomPlayers}>{language === 'zh' ? '随机分配' : 'Random Assign'}</button>
+                <button className="secondary-button secondary-button--small" onClick={() => updateConfig({ seatNames: {} })}>{language === 'zh' ? '重置' : 'Reset'}</button>
+              </div>
+              
+              <div className="storyteller-new-game-seats-grid">
+                {Array.from({ length: newGamePanel.playerCount + newGamePanel.travelerCount }, (_, i) => i + 1).map(sNum => (
+                  <div key={sNum} className="storyteller-new-game-seats__row">
+                    <span style={{ minWidth: '2.5rem' }}>{sNum > newGamePanel.playerCount ? `✈ #${sNum}` : `#${sNum}`}</span>
+                    <input 
+                      list="name-pool-list" 
+                      type="text" 
+                      value={newGamePanel.seatNames[sNum] || ''} 
+                      onChange={e => updateConfig({ seatNames: { ...newGamePanel.seatNames, [sNum]: e.target.value } })}
+                      onBlur={e => {
+                        const val = e.target.value.trim()
+                        if (val && !playerNamePool.includes(val)) setPlayerNamePool(p => uniqueStrings([...p, val]))
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+              <datalist id="name-pool-list">
+                {playerNamePool.map(n => <option key={n} value={n} />)}
+              </datalist>
+            </div>
+          )}
+
+          {activeTab === 'characters' && (
+            <div className="storyteller-survey">
+              <div className="storyteller-distribution-info" style={{ justifyContent: 'center', padding: '0.5rem', background: 'rgba(0,0,0,0.03)', borderRadius: '8px' }}>
+                <div className="dist-group">
+                  <span className="survey-label">{language === 'zh' ? '应有' : 'Calc'}:</span>
+                  <span className="dist-item dist-townsfolk">{dist.townsfolk}</span>
+                  <span className="dist-item dist-outsider">{dist.outsider}</span>
+                  <span className="dist-item dist-minion">{dist.minion}</span>
+                  <span className="dist-item dist-demon">{dist.demon}</span>
+                </div>
+                <div className="dist-group">
+                  <span className="survey-label">{language === 'zh' ? '实际' : 'Act'}:</span>
+                  <span className="dist-item dist-townsfolk">{currentCounts.townsfolk}</span>
+                  <span className="dist-item dist-outsider">{currentCounts.outsider}</span>
+                  <span className="dist-item dist-minion">{currentCounts.minion}</span>
+                  <span className="dist-item dist-demon">{currentCounts.demon}</span>
+                </div>
+              </div>
+
+              <div className="storyteller-chip-row" style={{ margin: '0.5rem 0' }}>
+                <button className="secondary-button secondary-button--small" onClick={() => updateConfig({ assignments: randomAssignCharacters(newGamePanel) })}>{language === 'zh' ? '随机分配' : 'Random Assign'}</button>
+                <button className="secondary-button secondary-button--small" onClick={() => updateConfig({ assignments: {}, userAssignments: {} })}>{language === 'zh' ? '重置' : 'Reset'}</button>
+              </div>
+
+              <div className="storyteller-new-game-chars-list">
+                {Array.from({ length: newGamePanel.playerCount }, (_, i) => i + 1).map(sNum => {
+                  const cid = newGamePanel.assignments[sNum]
+                  const userCid = newGamePanel.userAssignments[sNum]
+                  const char = characterById[cid]
+                  const isUserSelectionActive = userCid !== undefined && userCid !== cid
+
                   return (
-                    <div className="storyteller-history__item" key={a.seat}>
-                      <div className="storyteller-history__top">
-                        <strong>#{a.seat}</strong>
-                        <span>{charName} ({a.team})</span>
+                    <div key={sNum} className="storyteller-new-game-char-row">
+                      <div className="char-row-top">
+                        <span className="seat-label">#{sNum}</span>
+                        <select className="char-select" value={cid || ''} onChange={e => updateConfig({ assignments: { ...newGamePanel.assignments, [sNum]: e.target.value } })}>
+                          <option value="">--</option>
+                          {script?.characters.map(id => <option key={id} value={id}>{getDisplayName(id, language)}</option>)}
+                        </select>
+                        
+                        <button 
+                          className={`mini-toggle ${!isUserSelectionActive ? 'active' : ''}`}
+                          onClick={() => {
+                            const newUsers = { ...newGamePanel.userAssignments }
+                            if (isUserSelectionActive) delete newUsers[sNum]
+                            else newUsers[sNum] = cid || null
+                            updateConfig({ userAssignments: newUsers })
+                          }}
+                          title={language === 'zh' ? '与实际相同' : 'Same as actual'}
+                        >🔗</button>
                       </div>
+
+                      {isUserSelectionActive && (
+                        <select className="char-select char-select--user" value={userCid || ''} onChange={e => updateConfig({ userAssignments: { ...newGamePanel.userAssignments, [sNum]: e.target.value } })}>
+                          <option value="">{language === 'zh' ? '用户认为的角色...' : 'User character...'}</option>
+                          {script?.characters.map(id => <option key={id} value={id}>{getDisplayName(id, language)}</option>)}
+                        </select>
+                      )}
+
+                      <input 
+                        className="char-note-input" 
+                        type="text" 
+                        placeholder={language === 'zh' ? '备注...' : 'Note...'} 
+                        value={newGamePanel.seatNotes[sNum] || ''}
+                        onChange={e => updateConfig({ seatNotes: { ...newGamePanel.seatNotes, [sNum]: e.target.value } })}
+                      />
                     </div>
                   )
                 })}
+                
+                {/* Travelers section */}
+                {newGamePanel.travelerCount > 0 && (
+                  <div className="travelers-section">
+                    <span className="survey-label">{language === 'zh' ? '旅人' : 'Travelers'}</span>
+                    {Array.from({ length: newGamePanel.travelerCount }, (_, i) => newGamePanel.playerCount + i + 1).map(sNum => (
+                      <div key={sNum} className="storyteller-new-game-char-row">
+                        <span className="seat-label">✈ #{sNum}</span>
+                        <input 
+                          className="char-note-input" 
+                          type="text" 
+                          placeholder={language === 'zh' ? '旅人备注...' : 'Traveler note...'} 
+                          value={newGamePanel.seatNotes[sNum] || ''}
+                          onChange={e => updateConfig({ seatNotes: { ...newGamePanel.seatNotes, [sNum]: e.target.value } })}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-            ) : null}
-
-            <div className="storyteller-chip-row">
-              <button className="secondary-button" onClick={() => setNewGamePanel(null)} type="button">{text.cancelNewGame}</button>
-              <button className="print-button" onClick={startNewGame} type="button">{text.startNewGame}</button>
             </div>
-          </div>
+          )}
         </div>
-      ) : null}
-    </>
+
+        <div className="storyteller-chip-row" style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid rgba(23,32,42,0.1)' }}>
+          <button className="secondary-button" onClick={() => setNewGamePanel(null)} type="button">{text.cancelNewGame}</button>
+          <button className="print-button" onClick={startNewGame} type="button">{text.startNewGame}</button>
+        </div>
+      </div>
+    </div>
   )
 }

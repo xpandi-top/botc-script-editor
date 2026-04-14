@@ -3344,7 +3344,151 @@ button {
   margin: 0 0 0.8rem;
 }
 
-/* ── End Game Survey Modal ── */
+.storyteller-new-game-modal--large {
+  width: min(700px, 95vw) !important;
+  max-height: 90vh;
+}
+
+.storyteller-tab-bar {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 1px solid rgba(23, 32, 42, 0.1);
+  padding-bottom: 0.5rem;
+}
+
+.tab-btn {
+  padding: 0.5rem 1.25rem;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  font-weight: 600;
+  color: #5d4730;
+  transition: all 0.15s;
+}
+
+.tab-btn:hover {
+  background: rgba(133, 63, 34, 0.05);
+}
+
+.tab-btn.active {
+  background: #853f22;
+  color: #fff;
+}
+
+.storyteller-new-game-seats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.storyteller-new-game-seats__row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #fff;
+  padding: 0.35rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid rgba(23, 32, 42, 0.1);
+}
+
+.storyteller-new-game-seats__row input {
+  flex: 1;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  font-size: 0.85rem;
+  outline: none;
+}
+
+.storyteller-new-game-seats__row input:focus {
+  border-bottom-color: #853f22;
+}
+
+.storyteller-new-game-chars-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+
+.storyteller-new-game-char-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.6rem;
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid rgba(23, 32, 42, 0.1);
+}
+
+.char-row-top {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.seat-label {
+  font-weight: 700;
+  color: #853f22;
+  min-width: 2.2rem;
+}
+
+.char-select {
+  flex: 1;
+  padding: 0.35rem;
+  border-radius: 6px;
+  border: 1px solid rgba(23, 32, 42, 0.15);
+  font-size: 0.85rem;
+  background: #fff;
+}
+
+.mini-toggle {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid rgba(23, 32, 42, 0.15);
+  background: #fff;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: all 0.15s;
+}
+
+.mini-toggle.active {
+  background: #853f22;
+  border-color: #853f22;
+  filter: grayscale(1) invert(1);
+}
+
+.char-note-input {
+  width: 100%;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid rgba(23, 32, 42, 0.1);
+  font-size: 0.8rem;
+  background: rgba(0,0,0,0.02);
+}
+
+.travelers-section {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 2px dashed rgba(23, 32, 42, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.dist-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 0.75rem;
+}
+
+.dist-group + .dist-group {
+  border-left: 1px solid rgba(23, 32, 42, 0.15);
+}
 
 .storyteller-end-game-modal {
   width: min(540px, 95vw) !important;

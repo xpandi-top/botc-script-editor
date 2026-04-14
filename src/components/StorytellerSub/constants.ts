@@ -20,9 +20,6 @@ export const CHARACTER_DISTRIBUTION: Record<number, { townsfolk: number; outside
   15: { townsfolk: 9, outsider: 2, minion: 3, demon: 1 },
 }
 
-export const FAKE_NAMES = ['Alice', 'Bob', 'Charlie', 'Diana', 'Eve', 'Frank', 'Grace', 'Hank', 'Ivy', 'Jack', 'Kate', 'Leo', 'Mia', 'Nick', 'Olive']
-export const FAKE_NAMES_ZH = ['张三', '李四', '王五', '赵六', '孙七', '周八', '吴九', '郑十', '冯十一', '陈十二', '褚十三', '卫十四', '蒋十五']
-
 export const INITIAL_AUDIO_TRACKS: AudioTrack[] = [
   { name: 'Blood on the Clocktower', src: `${BASE_URL}audio/botc.mp3` },
   { name: 'Below the Granite Arch', src: `${BASE_URL}audio/below_the_granite_arch.mp3` },
@@ -40,6 +37,10 @@ export function createSeats(count: number): StorytellerSeat[] {
     isExecuted: false,
     hasNoVote: false,
     customTags: [],
+    characterId: null,
+    userCharacterId: null,
+    teamTag: null,
+    note: '',
   }))
 }
 

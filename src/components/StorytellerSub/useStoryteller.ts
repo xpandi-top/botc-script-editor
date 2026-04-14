@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { characterById } from '../../catalog'
 import { loadInitialState } from './storage'
 import { createDayState, createSeats, createDefaultVoteDraft, createDefaultSkillDraft, getNextRoundRobinSeat, buildVotingOrder, unique, uniqueStrings, shuffleArray, INITIAL_AUDIO_TRACKS, STORAGE_KEY, CHARACTER_DISTRIBUTION, makeEventId, DEFAULT_PLAYER_COUNT } from './constants'
-import type { Phase, GameRecord, CharacterAssignment, NominationStep, PickerMode, NewGameConfig, EndGameResult, LogFilterState, AggregatedLogEntry, ConsoleSection, StorytellerSeat, VoteRecord, SkillRecord, DialogState, SkillOverlayState, StorytellerHelperProps, DayState, EventLogEntry, PersistedState, AudioTrack } from './types'
+import type { Phase, GameRecord, NominationStep, PickerMode, NewGameConfig, EndGameResult, LogFilterState, AggregatedLogEntry, ConsoleSection, StorytellerSeat, VoteRecord, SkillRecord, DialogState, SkillOverlayState, StorytellerHelperProps, DayState, EventLogEntry, PersistedState, AudioTrack } from './types'
 import type { Team } from '../../types'
 
 export function useStoryteller(props: StorytellerHelperProps) {
@@ -1091,7 +1091,19 @@ export function useStoryteller(props: StorytellerHelperProps) {
       const regularSeats = d.seats.filter((s) => !s.isTraveler)
       const travelers = d.seats.filter((s) => s.isTraveler)
       const nextNum = regularSeats.length + 1
-      const newSeat: StorytellerSeat = { seat: nextNum, name: `Player ${nextNum}`, alive: true, isTraveler: false, isExecuted: false, hasNoVote: false, customTags: [] }
+      const newSeat: StorytellerSeat = { 
+        seat: nextNum, 
+        name: `Player ${nextNum}`, 
+        alive: true, 
+        isTraveler: false, 
+        isExecuted: false, 
+        hasNoVote: false, 
+        customTags: [],
+        characterId: null,
+        userCharacterId: null,
+        teamTag: null,
+        note: '',
+      }
       // Re-number: regular seats first, then travelers
       const reSeated = [...regularSeats, newSeat].map((s, i) => ({ ...s, seat: i + 1 }))
       const travelerReSeated = travelers.map((s, i) => ({ ...s, seat: reSeated.length + i + 1 }))
@@ -1121,6 +1133,10 @@ export function useStoryteller(props: StorytellerHelperProps) {
         isExecuted: false,
         hasNoVote: false,
         customTags: [],
+        characterId: null,
+        userCharacterId: null,
+        teamTag: null,
+        note: '',
       }
       return { ...d, seats: [...d.seats, newSeat] }
     })
@@ -1140,26 +1156,29 @@ export function useStoryteller(props: StorytellerHelperProps) {
   // ── New Game ──
   function openNewGamePanel() {
     const slug = activeScriptSlug ?? scriptOptions[0]?.slug ?? ''
-    // Pre-fill seat names from pool
     const seatNames: Record<number, string> = {}
-    for (let i = 0; i < Math.min(DEFAULT_PLAYER_COUNT, playerNamePool.length); i++) {
-      seatNames[i + 1] = playerNamePool[i]
-    }
+    for (let i = 1; i <= 9; i++) seatNames[i] = `Player ${i}`
+    
     setNewGamePanel({
-      playerCount: DEFAULT_PLAYER_COUNT,
+      playerCount: 9,
+      travelerCount: 0,
       scriptSlug: slug,
-      randomAssign: false,
-      assignments: [],
-      showAssignments: false,
+      allowDuplicateChars: false,
+      allowEmptyChars: false,
+      allowSameNames: false,
       seatNames,
+      assignments: {},
+      userAssignments: {},
+      seatNotes: {},
+      specialNote: '',
     })
   }
 
-  function randomAssignCharacters(config: NewGameConfig): CharacterAssignment[] {
+  function randomAssignCharacters(config: NewGameConfig): Record<number, string> {
     const dist = CHARACTER_DISTRIBUTION[config.playerCount]
-    if (!dist) return []
+    if (!dist) return {}
     const script = scriptOptions.find((s) => s.slug === config.scriptSlug)
-    if (!script) return []
+    if (!script) return {}
 
     const byTeam: Record<string, string[]> = { townsfolk: [], outsider: [], minion: [], demon: [] }
     for (const cid of script.characters) {
@@ -1169,7 +1188,7 @@ export function useStoryteller(props: StorytellerHelperProps) {
       }
     }
 
-    const assignments: CharacterAssignment[] = []
+    const assignments: Record<number, string> = {}
     const teams: Array<{ team: Team; count: number }> = [
       { team: 'townsfolk', count: dist.townsfolk },
       { team: 'outsider', count: dist.outsider },
@@ -1177,17 +1196,34 @@ export function useStoryteller(props: StorytellerHelperProps) {
       { team: 'demon', count: dist.demon },
     ]
 
-    let seatNum = 1
+    const teamPool: Team[] = []
     for (const { team, count } of teams) {
-      const pool = shuffleArray(byTeam[team] ?? [])
-      for (let i = 0; i < count; i++) {
-        const cid = pool[i] ?? ''
-        assignments.push({ seat: seatNum, characterId: cid, team })
-        seatNum++
+      for (let i = 0; i < count; i++) teamPool.push(team)
+    }
+    const shuffledTeams = shuffleArray(teamPool)
+    const usedChars = new Set<string>()
+
+    for (let i = 0; i < config.playerCount; i++) {
+      const seatNum = i + 1
+      const team = shuffledTeams[i]
+      const pool = byTeam[team] || []
+      
+      let eligible = pool
+      if (!config.allowDuplicateChars) {
+        eligible = pool.filter(c => !usedChars.has(c))
+      }
+      
+      if (eligible.length > 0) {
+        const picked = eligible[Math.floor(Math.random() * eligible.length)]
+        assignments[seatNum] = picked
+        usedChars.add(picked)
+      } else if (pool.length > 0) {
+        const picked = pool[Math.floor(Math.random() * pool.length)]
+        assignments[seatNum] = picked
       }
     }
 
-    return shuffleArray(assignments).map((a, i) => ({ ...a, seat: i + 1 }))
+    return assignments
   }
 
   function startNewGame() {
@@ -1195,11 +1231,40 @@ export function useStoryteller(props: StorytellerHelperProps) {
     const slug = newGamePanel.scriptSlug
     if (onSelectScript) onSelectScript(slug)
 
-    const seats = createSeats(newGamePanel.playerCount)
-    // Apply seat names from new game config
+    // Total seats = regular players + travelers
+    const totalCount = newGamePanel.playerCount + newGamePanel.travelerCount
+    const seats = createSeats(totalCount)
+    
+    // Mark travelers
+    for (let i = newGamePanel.playerCount; i < totalCount; i++) {
+      seats[i].isTraveler = true
+    }
+
+    // Apply names, characters, teams, and notes
     for (const seat of seats) {
-      const name = newGamePanel.seatNames[seat.seat]
-      if (name) seat.name = name
+      const sNum = seat.seat
+      seat.name = newGamePanel.seatNames[sNum] || (seat.isTraveler ? `Traveler ${sNum}` : `Player ${sNum}`)
+      
+      if (!seat.isTraveler) {
+        const cid = newGamePanel.assignments[sNum]
+        const userCid = newGamePanel.userAssignments[sNum]
+        seat.characterId = cid || null
+        seat.userCharacterId = userCid || null
+        
+        // Auto-assign team tag based on actual character
+        if (cid) {
+          const char = characterById[cid]
+          if (char) {
+            if (char.team === 'minion' || char.team === 'demon') {
+              seat.teamTag = 'evil'
+            } else {
+              seat.teamTag = 'good'
+            }
+          }
+        }
+      }
+      
+      seat.note = newGamePanel.seatNotes[sNum] || ''
     }
 
     const firstDay = createDayState(1, seats, timerDefaults)
