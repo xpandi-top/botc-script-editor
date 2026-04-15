@@ -42,10 +42,26 @@ export function buildGameActions(deps: ActionDeps) {
         if (oldSeat.isExecuted !== newSeat.isExecuted) updated = appendEvent(updated, 'stateChange', `#${seatNumber} ${newSeat.isExecuted ? '+处决' : '-处决'}`)
         if (oldSeat.isTraveler !== newSeat.isTraveler) updated = appendEvent(updated, 'stateChange', `#${seatNumber} ${newSeat.isTraveler ? '+旅人' : '-旅人'}`)
         if (oldSeat.hasNoVote !== newSeat.hasNoVote) updated = appendEvent(updated, 'stateChange', `#${seatNumber} ${newSeat.hasNoVote ? '+无投票权' : '-无投票权'}`)
+        if (oldSeat.characterId !== newSeat.characterId) {
+          const charName = (id: string | null) => id || '—'
+          if (oldSeat.characterId && newSeat.characterId) {
+            updated = appendEvent(updated, 'tagChange', `#${seatNumber}: ${charName(oldSeat.characterId)} → ${charName(newSeat.characterId)}`)
+          } else if (newSeat.characterId) {
+            updated = appendEvent(updated, 'tagChange', `#${seatNumber}: ${charName(newSeat.characterId)}`)
+          } else if (oldSeat.characterId) {
+            updated = appendEvent(updated, 'tagChange', `#${seatNumber}: ${charName(oldSeat.characterId)} ×`)
+          }
+        }
         const added = newSeat.customTags.filter((t) => !oldSeat.customTags.includes(t))
         const removed = oldSeat.customTags.filter((t) => !newSeat.customTags.includes(t))
         for (const t of added) updated = appendEvent(updated, 'tagChange', `#${seatNumber} +${t}`)
         for (const t of removed) updated = appendEvent(updated, 'tagChange', `#${seatNumber} -${t}`)
+        const oldStTags = oldSeat.stTags || []
+        const newStTags = newSeat.stTags || []
+        const addedStTags = newStTags.filter((t) => !oldStTags.includes(t))
+        const removedStTags = oldStTags.filter((t) => !newStTags.includes(t))
+        for (const t of addedStTags) updated = appendEvent(updated, 'tagChange', `#${seatNumber} 📝${t}`)
+        for (const t of removedStTags) updated = appendEvent(updated, 'tagChange', `#${seatNumber} 📝- ${t}`)
       }
       return updated
     })

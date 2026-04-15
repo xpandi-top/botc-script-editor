@@ -1779,6 +1779,27 @@ button {
   cursor: default;
 }
 
+.storyteller-center__quick-note {
+  display: flex;
+  gap: 0.3rem;
+  margin-top: 0.5rem;
+}
+
+.storyteller-center__quick-note-input {
+  flex: 1;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid rgba(23, 32, 42, 0.2);
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-family: inherit;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.storyteller-center__quick-note-input:focus {
+  outline: none;
+  border-color: rgba(133, 63, 34, 0.5);
+}
+
 .storyteller-center__day-nav {
   display: flex;
   align-items: center;
@@ -4274,6 +4295,94 @@ button {
   font-size: 0.68rem;
   font-weight: 700;
   color: #17202a;
+}
+
+.storyteller-skill-popout__result-select {
+  padding: 0.25rem 0.4rem;
+  border: 1px solid rgba(23, 32, 42, 0.2);
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-family: inherit;
+  background: #fff;
+  color: #17202a;
+  cursor: pointer;
+}
+
+.storyteller-skill-popout__result-select:focus {
+  outline: none;
+  border-color: #1f5a96;
+}
+
+.storyteller-skill-popout__actions {
+  display: flex;
+  gap: 0.4rem;
+  justify-content: flex-end;
+  margin-top: 0.25rem;
+}
+
+.storyteller-skill-popout__action-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: none;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.15s;
+}
+
+.storyteller-skill-popout__action-btn:hover {
+  opacity: 0.8;
+}
+
+.storyteller-skill-popout__action-btn--save {
+  background: #2e7d32;
+  color: #fff;
+}
+
+.storyteller-skill-popout__action-btn--cancel {
+  background: #c62828;
+  color: #fff;
+}
+
+/* Compact mode for skill popout */
+.storyteller-skill-popout--compact {
+  width: 220px;
+  gap: 0.4rem;
+  padding: 0.6rem;
+}
+
+.storyteller-skill-popout--compact .storyteller-skill-popout__field {
+  gap: 0.15rem;
+}
+
+.storyteller-skill-popout--compact .storyteller-skill-popout__field span {
+  font-size: 0.65rem;
+}
+
+.storyteller-skill-popout--compact .storyteller-skill-popout__field input {
+  padding: 0.2rem 0.35rem;
+  font-size: 0.75rem;
+}
+
+.storyteller-skill-popout--compact .storyteller-skill-popout__role-trigger {
+  padding: 0.2rem 0.35rem;
+  font-size: 0.75rem;
+}
+
+.storyteller-skill-popout--compact .storyteller-skill-popout__target-grid {
+  gap: 0.15rem;
+}
+
+.storyteller-skill-popout--compact .storyteller-skill-popout__target-check span {
+  font-size: 0.6rem;
+}
+
+.storyteller-skill-popout--compact .storyteller-chip-row {
+  gap: 0.25rem;
 }
 
 /* ── Edit Players Modal ── */

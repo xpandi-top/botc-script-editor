@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React from 'react'
+import React, { useState } from 'react'
 import type { Phase, NominationStep, PublicMode } from '../types'
 
 const NOM_STEPS: NominationStep[] = [
@@ -22,9 +22,20 @@ export function ArenaCenterLeft({ ctx }: { ctx: any }) {
     nightShowWakeOrder, setNightShowWakeOrder,
     setNewGamePanel,
     activeScriptSlug,
+    appendEvent,
   } = ctx
 
+  const [quickNote, setQuickNote] = useState('')
   const stepIdx = NOM_STEPS.indexOf(currentDay.nominationStep)
+
+  const handleAddQuickNote = () => {
+    const note = quickNote.trim()
+    if (!note) return
+    const kind = currentDay.phase === 'night' ? 'tagChange' : 'stateChange'
+    const updatedDay = appendEvent(currentDay, kind, `📝 ${note}`)
+    updateCurrentDay(() => updatedDay)
+    setQuickNote('')
+  }
 
   const handleOpenCharacterEditor = () => {
     const regularSeats = currentDay.seats.filter(s => !s.isTraveler)
@@ -75,6 +86,25 @@ export function ArenaCenterLeft({ ctx }: { ctx: any }) {
               : text.nomination}
           </button>
         ))}
+      </div>
+
+      {/* Quick note */}
+      <div className="storyteller-center__quick-note">
+        <input
+          className="storyteller-center__quick-note-input"
+          placeholder={language === 'zh' ? '添加备注...' : 'Add note...'}
+          type="text"
+          value={quickNote}
+          onChange={(e) => setQuickNote(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter') handleAddQuickNote() }}
+        />
+        <button
+          className="secondary-button secondary-button--small"
+          onClick={handleAddQuickNote}
+          type="button"
+        >
+          {language === 'zh' ? '添加' : 'Add'}
+        </button>
       </div>
 
       {/* Public mode select */}

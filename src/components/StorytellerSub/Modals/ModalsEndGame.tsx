@@ -38,7 +38,7 @@ export function ModalsEndGame({ ctx }: { ctx: any }) {
 
               {/* 2. Evil seats */}
               <div className="storyteller-survey__field">
-                <label className="survey-label">{language === 'zh' ? '谁是邪恶阵营（输入正义阵营号码）' : 'Who are evil (multiple choices)'}</label>
+                <label className="survey-label">{language === 'zh' ? '邪恶阵营' : 'Who are evil (multiple choices)'}</label>
                 <div className="storyteller-survey__seat-grid">
                   {currentDay.seats.map((s) => (
                     <label key={s.seat} className={`seat-checkbox${endGameResult.playerTeams[s.seat] === 'evil' ? ' checked-evil' : ''}`}>
@@ -51,7 +51,7 @@ export function ModalsEndGame({ ctx }: { ctx: any }) {
 
               {/* 3. Good seats */}
               <div className="storyteller-survey__field">
-                <label className="survey-label">{language === 'zh' ? '谁是正义阵营（输入邪恶阵营号码）' : 'Who are Good (multiple choices)'}</label>
+                <label className="survey-label">{language === 'zh' ? '正义阵营' : 'Who are Good (multiple choices)'}</label>
                 <div className="storyteller-survey__seat-grid">
                   {currentDay.seats.map((s) => (
                     <label key={s.seat} className={`seat-checkbox${endGameResult.playerTeams[s.seat] === 'good' ? ' checked-good' : ''}`}>

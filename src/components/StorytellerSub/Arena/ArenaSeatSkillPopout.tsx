@@ -96,13 +96,11 @@ export function ArenaSeatSkillPopout({ ctx, seat }: { ctx: any, seat: any }) {
 
                         {/* Statement */}
                         <label className="storyteller-skill-popout__field">
-                          <span>{text.statement}</span>
                           <input onChange={(e) => setSkillOverlay((p) => p ? { ...p, draft: { ...p.draft, statement: e.target.value } } : p)} placeholder={text.statement} type="text" value={skillOverlay.draft.statement} />
                         </label>
 
                         {/* Note */}
                         <label className="storyteller-skill-popout__field">
-                          <span>{text.note}</span>
                           <input onChange={(e) => setSkillOverlay((p) => p ? { ...p, draft: { ...p.draft, note: e.target.value } } : p)} placeholder={text.note} type="text" value={skillOverlay.draft.note} />
                         </label>
 
@@ -115,15 +113,22 @@ export function ArenaSeatSkillPopout({ ctx, seat }: { ctx: any, seat: any }) {
                         ))}
 
                         {/* Result */}
-                        <div className="storyteller-chip-row">
-                          <button className={`secondary-button secondary-button--small${skillOverlay.draft.result === 'success' ? ' tab-button--active' : ''}`} onClick={() => setSkillOverlay((p) => p ? { ...p, draft: { ...p.draft, result: p.draft.result === 'success' ? null : 'success' } } : p)} type="button">{text.success}</button>
-                          <button className={`secondary-button secondary-button--small${skillOverlay.draft.result === 'failure' ? ' tab-button--active' : ''}`} onClick={() => setSkillOverlay((p) => p ? { ...p, draft: { ...p.draft, result: p.draft.result === 'failure' ? null : 'failure' } } : p)} type="button">{text.failure}</button>
+                        <div className="storyteller-skill-popout__field">
+                          <select
+                            className="storyteller-skill-popout__result-select"
+                            value={skillOverlay.draft.result ?? ''}
+                            onChange={(e) => setSkillOverlay((p) => p ? { ...p, draft: { ...p.draft, result: e.target.value || null } } : p)}
+                          >
+                            <option value="">{language === 'zh' ? '— 未选择 —' : '— None —'}</option>
+                            <option value="success">{language === 'zh' ? '成功' : 'Success'}</option>
+                            <option value="failure">{language === 'zh' ? '失败' : 'Failure'}</option>
+                          </select>
                         </div>
 
                         {/* Save / Cancel */}
-                        <div className="storyteller-chip-row">
-                          <button className="print-button" onClick={() => closeSkillOverlay(true)} type="button">{text.saveSkill}</button>
-                          <button className="secondary-button" onClick={() => closeSkillOverlay(false)} type="button">{text.cancelSkill}</button>
+                        <div className="storyteller-skill-popout__actions">
+                          <button className="storyteller-skill-popout__action-btn storyteller-skill-popout__action-btn--save" onClick={() => closeSkillOverlay(true)} title={text.saveSkill} type="button">✓</button>
+                          <button className="storyteller-skill-popout__action-btn storyteller-skill-popout__action-btn--cancel" onClick={() => closeSkillOverlay(false)} title={text.cancelSkill} type="button">✕</button>
                         </div>
       </div>
     </>

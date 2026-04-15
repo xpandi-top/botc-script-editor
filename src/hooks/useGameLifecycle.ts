@@ -1,4 +1,5 @@
-import { characterById } from '../catalog'
+import { characterById, getDisplayName } from '../catalog'
+import type { Language } from '../types'
 import { createDayState, createSeats, shuffleArray, CHARACTER_DISTRIBUTION, DEFAULT_PLAYER_COUNT, getNextRoundRobinSeat } from '../components/StorytellerSub/constants'
 import type { DayState, EndGameResult, ExportConfig, GameRecord, NewGameConfig, Phase, NominationStep, StorytellerSeat, TimerDefaults } from '../components/StorytellerSub/types'
 import type { Team } from '../types'
@@ -26,10 +27,12 @@ interface LifecycleDeps {
   setSelectedAudioSrc: (src: string) => void
   setAudioPlaying: (v: boolean) => void
   nightBgmSrc: string
+  language: Language
+  appendEvent: (d: DayState, kind: 'stateChange' | 'phaseTransition' | 'tagChange' | 'skill' | 'vote', detail: string) => DayState
 }
 
 export function buildGameLifecycle(deps: LifecycleDeps) {
-  const { days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, endGameResult, scriptOptions, onSelectScript, setDays, setDaysWithUndo, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay, setNewGamePanel, setEndGameResult, setGameRecords, setAudioPlaying } = deps
+  const { days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, endGameResult, scriptOptions, onSelectScript, setDays, setDaysWithUndo, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay, setNewGamePanel, setEndGameResult, setGameRecords, setAudioPlaying, language, appendEvent } = deps
 
   function goToNextDay() {
     if (selectedDayIndex < days.length - 1) { setSelectedDayId(days[selectedDayIndex + 1].id); setIsTimerRunning(false); return }
@@ -170,11 +173,15 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
   function applyGameChanges(newGamePanel: NewGameConfig) {
     if (!newGamePanel) return
     const totalCount = newGamePanel.playerCount + newGamePanel.travelerCount
+    let updatedDay = currentDay
     const updatedSeats = currentDay.seats.map((seat) => {
       const sNum = seat.seat
       if (sNum > totalCount) return seat
       const newSeat = { ...seat }
-      newSeat.name = newGamePanel.seatNames[sNum] || seat.name
+      const oldCharId = seat.characterId
+      const newName = newGamePanel.seatNames[sNum] || seat.name
+
+      newSeat.name = newName
       if (!seat.isTraveler) {
         const cid = newGamePanel.assignments[sNum]
         newSeat.characterId = cid || null
@@ -185,11 +192,22 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
         } else {
           newSeat.teamTag = null
         }
+
+        if (cid !== oldCharId) {
+          const getCharName = (id: string | null) => id ? getDisplayName(id, language) : '—'
+          if (oldCharId && cid) {
+            updatedDay = appendEvent(updatedDay, 'tagChange', `#${sNum}: ${getCharName(oldCharId)} → ${getCharName(cid)}`)
+          } else if (cid) {
+            updatedDay = appendEvent(updatedDay, 'tagChange', `#${sNum}: ${getCharName(cid)}`)
+          } else if (oldCharId) {
+            updatedDay = appendEvent(updatedDay, 'tagChange', `#${sNum}: ${getCharName(oldCharId)} ×`)
+          }
+        }
       }
       newSeat.note = newGamePanel.seatNotes[sNum] || ''
       return newSeat
     })
-    setDays((d) => d.map((day) => day.id === currentDay.id ? { ...day, seats: updatedSeats } : day))
+    setDays((d) => d.map((day) => day.id === currentDay.id ? { ...updatedDay, seats: updatedSeats } : day))
     setNewGamePanel(null)
   }
 
