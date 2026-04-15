@@ -256,5 +256,5 @@ export function ArenaSeatCharacterPopout({ ctx, seat }: { ctx: any, seat: any })
     </>
   );
 
-  return isMobile ? createPortal(content, document.body) : content;
+  return createPortal(content, document.body);
 }

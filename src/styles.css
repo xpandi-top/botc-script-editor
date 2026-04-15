@@ -3208,11 +3208,13 @@ button {
 
 .storyteller-character-popout {
   position: absolute;
-  left: calc(100% + 8px);
-  top: 50%;
-  transform: translateY(-50%);
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%);
   z-index: 200;
-  width: 260px;
+  width: 280px;
+  max-height: min(480px, 80vh);
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -3222,6 +3224,24 @@ button {
   background: rgba(255, 252, 246, 0.99);
   box-shadow: 0 12px 32px rgba(31, 90, 150, 0.15);
   color: #17202a;
+}
+
+/* Mobile bottom sheet for character popout */
+@media (max-width: 768px) {
+  .storyteller-character-popout {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: auto;
+    transform: none;
+    width: 100%;
+    max-width: 100%;
+    max-height: 70vh;
+    border-radius: 16px 16px 0 0;
+    border-bottom: none;
+    z-index: 601;
+  }
 }
 
 .storyteller-character-popout__header {
@@ -4976,7 +4996,7 @@ button {
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.35);
-    z-index: 599;
+    z-index: 600;
   }
 
   .sheet__body {
