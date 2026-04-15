@@ -223,6 +223,8 @@ export type PersistedState = {
   customTagPool: string[]
   gameRecords: GameRecord[]
   playerNamePool: string[]
+  activeScriptSlug?: string
+  activeScriptTitle?: string
 }
 
 export type DialogState =

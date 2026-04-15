@@ -166,8 +166,8 @@ export function useStoryteller(props: StorytellerHelperProps) {
 
   // ── Effects ──
   useEffect(() => {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ selectedDayId, timerDefaults, days, customTagPool, gameRecords, playerNamePool } satisfies PersistedState))
-  }, [customTagPool, days, gameRecords, playerNamePool, selectedDayId, timerDefaults])
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ selectedDayId, timerDefaults, days, customTagPool, gameRecords, playerNamePool, activeScriptSlug, activeScriptTitle } satisfies PersistedState))
+  }, [customTagPool, days, gameRecords, playerNamePool, selectedDayId, timerDefaults, activeScriptSlug, activeScriptTitle])
 
   useEffect(() => {
     if (currentDay.phase === 'nomination' && currentDay.nominationStep === 'waitingForNomination' && !currentDay.voteDraft.actor) setPickerMode('nominator')

@@ -80,6 +80,8 @@ export function loadInitialState(): PersistedState {
         nightVisitedSeats: d.nightVisitedSeats ?? [],
       })),
       gameRecords: p.gameRecords ?? [],
+      activeScriptSlug: p.activeScriptSlug,
+      activeScriptTitle: p.activeScriptTitle,
     }
   } catch {
     return fallback

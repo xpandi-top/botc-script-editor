@@ -26,6 +26,7 @@ import {
   teamOrder,
   toTitleCase,
 } from './catalog'
+import { STORAGE_KEY } from './components/StorytellerSub/constants'
 import type {
   CharacterGroup,
   EditableScript,
@@ -41,7 +42,21 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<TabKey>('scripts')
   const [uiLanguage, setUiLanguage] = useState<Language>('zh')
   const [scripts, setScripts] = useState<EditableScript[]>(initialScripts)
-  const [activeSlug, setActiveSlug] = useState<string>(initialScripts[0]?.slug ?? '')
+
+  const getInitialScriptSlug = () => {
+    if (typeof window === 'undefined') return initialScripts[0]?.slug ?? ''
+    try {
+      const stored = window.localStorage.getItem(STORAGE_KEY)
+      if (stored) {
+        const p = JSON.parse(stored)
+        if (p.activeScriptSlug && scripts.some(s => s.slug === p.activeScriptSlug)) {
+          return p.activeScriptSlug
+        }
+      }
+    } catch {}
+    return initialScripts[0]?.slug ?? ''
+  }
+  const [activeSlug, setActiveSlug] = useState<string>(getInitialScriptSlug)
   const [characterQuery, setCharacterQuery] = useState('')
   const [selectedTeams, setSelectedTeams] = useState<Team[]>([])
   const [selectedEditions, setSelectedEditions] = useState<string[]>([])
