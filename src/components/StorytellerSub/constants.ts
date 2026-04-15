@@ -37,6 +37,7 @@ export function createSeats(count: number): StorytellerSeat[] {
     isExecuted: false,
     hasNoVote: false,
     customTags: [],
+    stTags: [],
     characterId: null,
     userCharacterId: null,
     teamTag: null,
@@ -91,6 +92,7 @@ export function createDayState(day: number, seats: StorytellerSeat[], defaults: 
     voteHistory: [],
     skillHistory: [],
     eventLog: [],
+    nightVisitedSeats: [],
   }
 }
 

@@ -107,8 +107,10 @@ function CharSelect({ value, options, language, onChange, placeholder }: {
 export function ModalsNewGame({ ctx }: { ctx: any }) {
   const {
     scriptOptions, playerNamePool, setPlayerNamePool, text, language,
-    newGamePanel, setNewGamePanel, startNewGame, randomAssignCharacters,
+    newGamePanel, setNewGamePanel, startNewGame, applyGameChanges, randomAssignCharacters,
   } = ctx
+
+  const editMode = newGamePanel?.editMode ?? false
 
   const [activeTab, setActiveTab] = useState<'players' | 'characters' | 'config'>('players')
   const [showNamePool, setShowNamePool] = useState(false)
@@ -212,7 +214,7 @@ export function ModalsNewGame({ ctx }: { ctx: any }) {
   return (
     <div className="storyteller-modal" role="dialog" aria-modal="true">
       <div className="storyteller-modal__card ng-modal">
-        <h3 className="ng-modal__title">{text.startNewGame}</h3>
+        <h3 className="ng-modal__title">{editMode ? (language === 'zh' ? '修改游戏设置' : 'Edit Game Setup') : text.startNewGame}</h3>
 
         {/* ── Tab bar ── */}
         <div className="ng-tabs">
@@ -506,10 +508,19 @@ export function ModalsNewGame({ ctx }: { ctx: any }) {
 
         {/* ── Footer ── */}
         <div className="ng-modal__footer">
-          <button className="secondary-button" onClick={() => setNewGamePanel(null)} type="button">{text.cancelNewGame}</button>
-          <button className="print-button" onClick={() => startNewGame(newGamePanel)} type="button">
-            ▶ {text.startNewGame}
+          <button className="secondary-button" onClick={() => setNewGamePanel(null)} type="button">
+            {editMode ? (language === 'zh' ? '关闭' : 'Close') : text.cancelNewGame}
           </button>
+          {!editMode && (
+            <button className="print-button" onClick={() => startNewGame(newGamePanel)} type="button">
+              ▶ {text.startNewGame}
+            </button>
+          )}
+          {editMode && (
+            <button className="print-button" onClick={() => applyGameChanges(newGamePanel)} type="button">
+              ▶ {language === 'zh' ? '应用更改' : 'Apply Changes'}
+            </button>
+          )}
         </div>
       </div>
     </div>

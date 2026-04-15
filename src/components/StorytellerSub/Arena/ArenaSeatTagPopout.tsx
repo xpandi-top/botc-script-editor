@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React from 'react'
+import React, { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { getDisplayName, getIconForCharacter } from '../../../catalog'
 import { useIsMobile } from './useIsMobile'
@@ -10,8 +10,12 @@ export function ArenaSeatTagPopout({ ctx, seat }: { ctx: any, seat: any }) {
 
   const isTagPopoutOpen = tagPopoutSeat === seat.seat;
   const isMobile = useIsMobile();
+  const [showCharacters, setShowCharacters] = useState(false);
 
   if (!isTagPopoutOpen) return null;
+
+  const characterTag = (c: string) => `💀${c}`;
+  const isCharacterTag = (tag: string) => tag.startsWith('💀');
 
   const content = (
     <>
@@ -19,22 +23,15 @@ export function ArenaSeatTagPopout({ ctx, seat }: { ctx: any, seat: any }) {
         <div className="storyteller-popout-backdrop" onClick={() => setTagPopoutSeat(null)} />
       )}
       <div className="storyteller-tag-popout" onClick={(e) => e.stopPropagation()}>
-                        {/* Tag grid: status toggles + custom tag pool */}
+                        {/* Status toggles */}
                         <div className="storyteller-tag-popout__grid">
                           <button className={`secondary-button secondary-button--small${!seat.alive ? ' tab-button--active' : ''}`} onClick={() => updateSeatWithLog(seat.seat, (s) => ({ ...s, alive: !s.alive }))} type="button">{text.aliveTag}</button>
                           <button className={`secondary-button secondary-button--small${seat.isExecuted ? ' tab-button--active' : ''}`} onClick={() => updateSeatWithLog(seat.seat, (s) => ({ ...s, isExecuted: !s.isExecuted }))} type="button">{text.executedTag}</button>
                           <button className={`secondary-button secondary-button--small${seat.isTraveler ? ' tab-button--active' : ''}`} onClick={() => updateSeatWithLog(seat.seat, (s) => ({ ...s, isTraveler: !s.isTraveler }))} type="button">{text.traveler}</button>
                           <button className={`secondary-button secondary-button--small${seat.hasNoVote ? ' tab-button--active' : ''}`} onClick={() => updateSeatWithLog(seat.seat, (s) => ({ ...s, hasNoVote: !s.hasNoVote }))} type="button">{text.noVoteTag}</button>
-                          {customTagPool.map((tag) => (
-                            <button
-                              className={`secondary-button secondary-button--small${seat.customTags.includes(tag) ? ' tab-button--active' : ''}`}
-                              key={`pop-${tag}`}
-                              onClick={() => updateSeatWithLog(seat.seat, (s) => ({ ...s, customTags: s.customTags.includes(tag) ? s.customTags.filter((v) => v !== tag) : [...s.customTags, tag] }))}
-                              type="button"
-                            >{tag}</button>
-                          ))}
                         </div>
-                        {/* Input + add button at bottom */}
+
+                        {/* Input + add button */}
                         <div className="storyteller-tag-popout__add-row">
                           <input
                             autoFocus
@@ -50,6 +47,58 @@ export function ArenaSeatTagPopout({ ctx, seat }: { ctx: any, seat: any }) {
                             type="button"
                           >+</button>
                         </div>
+
+                        {/* Custom tag pool (scrollable) */}
+                        {customTagPool.filter(tag => !isCharacterTag(tag)).length > 0 && (
+                          <div className="storyteller-tag-popout__pool">
+                            {customTagPool.filter(tag => !isCharacterTag(tag)).map((tag) => (
+                              <button
+                                className={`secondary-button secondary-button--small${seat.customTags.includes(tag) ? ' tab-button--active' : ''}`}
+                                key={`pop-${tag}`}
+                                onClick={() => updateSeatWithLog(seat.seat, (s) => ({ ...s, customTags: s.customTags.includes(tag) ? s.customTags.filter((v) => v !== tag) : [...s.customTags, tag] }))}
+                                type="button"
+                              >{tag}</button>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Characters section */}
+                        {currentScriptCharacters && currentScriptCharacters.length > 0 && (
+                          <>
+                            <div className="storyteller-tag-popout__divider-row">
+                              <div className="storyteller-tag-popout__divider" />
+                              <button
+                                className="storyteller-tag-popout__toggle"
+                                onClick={() => setShowCharacters((v) => !v)}
+                                type="button"
+                              >
+                                {showCharacters ? '▼' : '▶'} {text.characters || 'Characters'}
+                              </button>
+                              <div className="storyteller-tag-popout__divider" />
+                            </div>
+
+                            {showCharacters && (
+                              <div className="storyteller-tag-popout__pool storyteller-tag-popout__pool--characters">
+                                {currentScriptCharacters.map((c) => {
+                                  const tag = characterTag(c);
+                                  const icon = getIconForCharacter(c);
+                                  const name = getDisplayName(c, language);
+                                  return (
+                                    <button
+                                      className={`secondary-button secondary-button--small storyteller-tag-popout__character-btn${seat.customTags.includes(tag) ? ' tab-button--active' : ''}`}
+                                      key={`char-${c}`}
+                                      onClick={() => updateSeatWithLog(seat.seat, (s) => ({ ...s, customTags: s.customTags.includes(tag) ? s.customTags.filter((v) => v !== tag) : [...s.customTags, tag] }))}
+                                      type="button"
+                                    >
+                                      {icon ? <img alt="" className="storyteller-tag-popout__char-icon" src={icon as string} /> : null}
+                                      <span>{name}</span>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </>
+                        )}
       </div>
     </>
   );

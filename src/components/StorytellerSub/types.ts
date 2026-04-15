@@ -43,6 +43,7 @@ export type NewGameConfig = {
   seatNotes: Record<number, string>
   specialNote: string
   demonBluffs: string[] // up to 3 character IDs shown to the Demon
+  editMode?: boolean // true when editing existing game setup
 }
 
 export type EndGameResult = {
@@ -94,6 +95,7 @@ export type StorytellerSeat = {
   isExecuted: boolean
   hasNoVote: boolean
   customTags: string[]
+  stTags: string[]
   characterId: string | null
   userCharacterId: string | null
   teamTag: 'evil' | 'good' | null
@@ -195,6 +197,7 @@ export type DayState = {
   voteHistory: VoteRecord[]
   skillHistory: SkillRecord[]
   eventLog: EventLogEntry[]
+  nightVisitedSeats: number[]
 }
 
 export type GameRecord = {

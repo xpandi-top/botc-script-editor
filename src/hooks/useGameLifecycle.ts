@@ -59,6 +59,7 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     setDays((d) => d.map((day) => {
       if (day.id !== currentDay.id) return day
       let next = { ...day, phase }
+      if (phase === 'night') next = { ...next, nightVisitedSeats: [] }
       if (phase === 'nomination') next = { ...next, nominationStep: 'waitingForNomination' as NominationStep, nominationWaitSeconds: timerDefaults.nominationWaitSeconds, voteDraft: { actor: null, target: null, voters: [], noVoters: [], note: '', manualPassed: null, nominationResult: 'succeed' as const, isExile: false, voteCountOverride: null }, votingState: null }
       return next
     }))
@@ -75,7 +76,7 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
       const regular = day.seats.filter((s) => !s.isTraveler)
       const travelers = day.seats.filter((s) => s.isTraveler)
       const nextNum = regular.length + 1
-      const newSeat: StorytellerSeat = { seat: nextNum, name: `Player ${nextNum}`, alive: true, isTraveler: false, isExecuted: false, hasNoVote: false, customTags: [], characterId: null, userCharacterId: null, teamTag: null, note: '' }
+      const newSeat: StorytellerSeat = { seat: nextNum, name: `Player ${nextNum}`, alive: true, isTraveler: false, isExecuted: false, hasNoVote: false, customTags: [], stTags: [], characterId: null, userCharacterId: null, teamTag: null, note: '' }
       const reSeated = [...regular, newSeat].map((s, i) => ({ ...s, seat: i + 1 }))
       return { ...day, seats: [...reSeated, ...travelers.map((s, i) => ({ ...s, seat: reSeated.length + i + 1 }))] }
     }))
@@ -96,7 +97,7 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     setDays((d) => d.map((day) => {
       if (day.id !== currentDay.id) return day
       const nextSeatNum = day.seats.length + 1
-      const newSeat: StorytellerSeat = { seat: nextSeatNum, name: `Traveler ${nextSeatNum}`, alive: true, isTraveler: true, isExecuted: false, hasNoVote: false, customTags: [], characterId: null, userCharacterId: null, teamTag: null, note: '' }
+      const newSeat: StorytellerSeat = { seat: nextSeatNum, name: `Traveler ${nextSeatNum}`, alive: true, isTraveler: true, isExecuted: false, hasNoVote: false, customTags: [], stTags: [], characterId: null, userCharacterId: null, teamTag: null, note: '' }
       return { ...day, seats: [...day.seats, newSeat] }
     }))
   }
@@ -163,6 +164,32 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     setIsTimerRunning(false)
     setSeatTagDrafts({})
     setSkillOverlay(null)
+    setNewGamePanel(null)
+  }
+
+  function applyGameChanges(newGamePanel: NewGameConfig) {
+    if (!newGamePanel) return
+    const totalCount = newGamePanel.playerCount + newGamePanel.travelerCount
+    const updatedSeats = currentDay.seats.map((seat) => {
+      const sNum = seat.seat
+      if (sNum > totalCount) return seat
+      const newSeat = { ...seat }
+      newSeat.name = newGamePanel.seatNames[sNum] || seat.name
+      if (!seat.isTraveler) {
+        const cid = newGamePanel.assignments[sNum]
+        newSeat.characterId = cid || null
+        newSeat.userCharacterId = newGamePanel.userAssignments[sNum] || null
+        if (cid) {
+          const char = characterById[cid]
+          if (char) newSeat.teamTag = (char.team === 'minion' || char.team === 'demon') ? 'evil' : 'good'
+        } else {
+          newSeat.teamTag = null
+        }
+      }
+      newSeat.note = newGamePanel.seatNotes[sNum] || ''
+      return newSeat
+    })
+    setDays((d) => d.map((day) => day.id === currentDay.id ? { ...day, seats: updatedSeats } : day))
     setNewGamePanel(null)
   }
 
@@ -240,5 +267,5 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     downloadJson({ exportedAt: new Date().toISOString(), scriptTitle: activeScriptTitle, results: gameRecords }, `botc-results-${Date.now()}.json`)
   }
 
-  return { goToNextDay, goToPreviousDay, moveToNextSpeaker, setPhase, startNight, addPlayerSeat, removeLastPlayerSeat, addTravelerSeat, removeLastTraveler, openNewGamePanel, randomAssignCharacters, startNewGame, resetCurrentGame, openEndGamePanel, confirmEndGame, exportGameJson, exportGameSetup, exportEndGameResults }
+  return { goToNextDay, goToPreviousDay, moveToNextSpeaker, setPhase, startNight, addPlayerSeat, removeLastPlayerSeat, addTravelerSeat, removeLastTraveler, openNewGamePanel, randomAssignCharacters, startNewGame, applyGameChanges, resetCurrentGame, openEndGamePanel, confirmEndGame, exportGameJson, exportGameSetup, exportEndGameResults }
 }

@@ -210,6 +210,15 @@ export function useStoryteller(props: StorytellerHelperProps) {
     if (el) { el.pause(); el.currentTime = 0 }
   }
 
+  function toggleNightVisitedSeat(seatNumber: number) {
+    updateCurrentDay((d) => ({
+      ...d,
+      nightVisitedSeats: d.nightVisitedSeats.includes(seatNumber)
+        ? d.nightVisitedSeats.filter((s) => s !== seatNumber)
+        : [...d.nightVisitedSeats, seatNumber]
+    }))
+  }
+
   // ── Return (identical shape as before) ──
   return {
     activeScriptSlug, activeScriptTitle, language, onSelectScript, scriptOptions,
@@ -237,6 +246,7 @@ export function useStoryteller(props: StorytellerHelperProps) {
     clearUnusedCustomTags, toggleLogFilterType, confirmDialog,
     ...lifecycle,
     stopNight,
+    toggleNightVisitedSeat,
     votingYesCount, NIGHT_BGM_SRC, hasTimer,
   }
 }

@@ -2,13 +2,20 @@
 import React from 'react'
 import { ArenaSeatTagPopout } from './ArenaSeatTagPopout'
 import { ArenaSeatSkillPopout } from './ArenaSeatSkillPopout'
-import { getDisplayName, getIconForCharacter } from '../../../catalog'
+import { ArenaSeatCharacterPopout } from './ArenaSeatCharacterPopout'
+import { getDisplayName, getIconForCharacter, nightOrder } from '../../../catalog'
 import { getSeatPosition } from '../../../utils/seats'
 
 export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: any, index: number, isPortrait: boolean }) {
-  const { language, pickerMode, skillOverlay, currentDay, updateCurrentDay, currentVoterSeat, tagPopoutSeat, setTagPopoutSeat, skillPopoutSeat, setSkillPopoutSeat, selectedSeat, text, handleSeatClick, handleVoteYes, handleVoteNo, removeSeatTag, openSeatSkill, closeSkillOverlay } = ctx;
+  const { language, pickerMode, skillOverlay, currentDay, updateCurrentDay, currentVoterSeat, tagPopoutSeat, setTagPopoutSeat, skillPopoutSeat, setSkillPopoutSeat, selectedSeat, text, handleSeatClick, handleVoteYes, handleVoteNo, removeSeatTag, openSeatSkill, closeSkillOverlay, currentScriptCharacters, nightShowCharacter, nightShowWakeOrder, characterPopoutSeat, setCharacterPopoutSeat, toggleNightVisitedSeat } = ctx;
 
   const { left, top } = getSeatPosition(index, currentDay.seats.length, isPortrait)
+                const isCharacterTag = (tag: string) => tag.startsWith('💀');
+                const getCharacterName = (tag: string) => {
+                  const charId = tag.slice(1);
+                  return getDisplayName(charId, language);
+                };
+                const displayTag = (tag: string) => isCharacterTag(tag) ? getCharacterName(tag) : tag;
                 const tags = [!seat.alive ? text.aliveTag : '', seat.isExecuted ? text.executedTag : '', seat.isTraveler ? text.traveler : '', seat.hasNoVote ? text.noVoteTag : '', ...seat.customTags].filter(Boolean)
                 const isRoundRobinSpeaker = currentDay.phase === 'public' && currentDay.publicMode === 'roundRobin' && currentDay.currentSpeakerSeat === seat.seat
                 const isSpoken = currentDay.roundRobinSpokenSeats.includes(seat.seat)
@@ -28,6 +35,31 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
                   : currentDay.voteDraft.noVoters.includes(seat.seat)
                 const isTagPopoutOpen = tagPopoutSeat === seat.seat
                 const isSkillPopoutOpen = skillPopoutSeat === seat.seat
+                const isCharacterPopoutOpen = characterPopoutSeat === seat.seat
+                const isNightPhase = currentDay.phase === 'night'
+
+                const actualCharId = seat.characterId
+                const perceivedCharId = seat.userCharacterId || seat.characterId
+                const showDifferentPerception = seat.userCharacterId && seat.userCharacterId !== seat.characterId
+                const charIcon = actualCharId ? getIconForCharacter(actualCharId) : null
+                const actualCharName = actualCharId ? getDisplayName(actualCharId, language) : ''
+                const perceivedCharName = perceivedCharId && perceivedCharId !== actualCharId ? getDisplayName(perceivedCharId, language) : ''
+                const perceivedIcon = perceivedCharId && perceivedCharId !== actualCharId ? getIconForCharacter(perceivedCharId) : null
+                const isVisited = currentDay.nightVisitedSeats.includes(seat.seat)
+
+                const isFirstNight = currentDay.day === 1
+                const nightList = isFirstNight
+                  ? (nightOrder?.first_night ?? [])
+                  : (nightOrder?.other_nights ?? [])
+
+                const getNightOrderPosition = (charId: string | null) => {
+                  if (!charId) return null
+                  const idx = nightList.indexOf(charId)
+                  if (idx !== -1) return idx + 1
+                  return null
+                }
+
+                const playerWakeOrder = actualCharId ? getNightOrderPosition(actualCharId) : null
 
   return (
     <>
@@ -140,20 +172,84 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
 
                     {tags.length ? (
                       <div className="storyteller-seat__tag-list">
-                        {tags.map((tag) => (
-                          <span
-                            className="storyteller-seat__pill"
-                            key={`${seat.seat}-${tag}`}
-                            onContextMenu={(e) => { if (!seat.customTags.includes(tag)) return; e.preventDefault(); removeSeatTag(seat.seat, tag) }}
-                            title={seat.customTags.includes(tag) ? 'Right click to remove' : undefined}
-                          >{tag}</span>
-                        ))}
+                        {tags.map((tag) => {
+                          const isCharTag = isCharacterTag(tag);
+                          const charId = isCharTag ? tag.slice(1) : '';
+                          const charIcon = isCharTag ? getIconForCharacter(charId) : null;
+                          const charName = isCharTag ? getCharacterName(tag) : '';
+                          return (
+                            <span
+                              className={`storyteller-seat__pill${isCharTag ? ' storyteller-seat__pill--character' : ''}`}
+                              key={`${seat.seat}-${tag}`}
+                              onContextMenu={(e) => { if (!seat.customTags.includes(tag)) return; e.preventDefault(); removeSeatTag(seat.seat, tag) }}
+                              title={seat.customTags.includes(tag) ? 'Right click to remove' : undefined}
+                            >
+                              {isCharTag ? (
+                                <>
+                                  {charIcon ? <img alt="" className="storyteller-seat__pill-icon" src={charIcon as string} /> : null}
+                                  <span>{charName}</span>
+                                </>
+                              ) : displayTag(tag)}
+                            </span>
+                          );
+                        })}
                       </div>
                     ) : null}
 
-                    
+                    {/* Night phase: Show character + wake order */}
+                    {isNightPhase && nightShowCharacter ? (
+                      <div className="storyteller-seat__night-info">
+                        {actualCharId ? (
+                          <>
+                            <button
+                              className={`storyteller-seat__char-display${isCharacterPopoutOpen ? ' storyteller-seat__char-display--open' : ''}`}
+                              onClick={(e) => { e.stopPropagation(); setCharacterPopoutSeat(isCharacterPopoutOpen ? null : seat.seat) }}
+                              type="button"
+                            >
+                              {charIcon ? <img alt="" className="storyteller-seat__char-icon" src={charIcon as string} /> : null}
+                              <span>{actualCharName}</span>
+                            </button>
+                            {showDifferentPerception && perceivedIcon ? (
+                              <button
+                                className="storyteller-seat__perceived-char"
+                                onClick={(e) => { e.stopPropagation(); setCharacterPopoutSeat(isCharacterPopoutOpen ? null : seat.seat) }}
+                                type="button"
+                              >
+                                <img alt="" className="storyteller-seat__char-icon storyteller-seat__char-icon--perceived" src={perceivedIcon as string} />
+                                <span>{perceivedCharName}</span>
+                              </button>
+                            ) : null}
+                          </>
+                        ) : (
+                          <button
+                            className="storyteller-seat__char-assign"
+                            onClick={(e) => { e.stopPropagation(); setCharacterPopoutSeat(isCharacterPopoutOpen ? null : seat.seat) }}
+                            type="button"
+                          >
+                            {language === 'zh' ? '+ 分配角色' : '+ Assign Character'}
+                          </button>
+                        )}
+                      </div>
+                    ) : null}
+
+                    {/* Night phase: Show wake order */}
+                    {isNightPhase && nightShowWakeOrder && playerWakeOrder !== null ? (
+                      <div className="storyteller-seat__wake-order">
+                        <button
+                          className={`storyteller-seat__wake-checkbox${isVisited ? ' storyteller-seat__wake-checkbox--checked' : ''}`}
+                          onClick={(e) => { e.stopPropagation(); toggleNightVisitedSeat(seat.seat) }}
+                          type="button"
+                          title={language === 'zh' ? '点击标记已访问' : 'Click to mark visited'}
+                        >
+                          {isVisited ? '✓' : ''}
+                        </button>
+                        <span className="storyteller-seat__wake-order-num">#{playerWakeOrder}</span>
+                      </div>
+                    ) : null}
+
         <ArenaSeatTagPopout ctx={ctx} seat={seat} />
         <ArenaSeatSkillPopout ctx={ctx} seat={seat} />
+        <ArenaSeatCharacterPopout ctx={ctx} seat={seat} />
       </article>
     </>
   )

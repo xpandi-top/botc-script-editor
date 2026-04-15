@@ -32,6 +32,9 @@ export function useUIState() {
     includeStNotes: false,
     dayFilter: 'all',
   })
+  const [nightShowCharacter, setNightShowCharacter] = useState(false)
+  const [nightShowWakeOrder, setNightShowWakeOrder] = useState(false)
+  const [characterPopoutSeat, setCharacterPopoutSeat] = useState<number | null>(null)
 
   function toggleConsoleSection(section: ConsoleSection) {
     setActiveConsoleSections((cur) => {
@@ -62,5 +65,8 @@ export function useUIState() {
     bgmVolume, setBgmVolume,
     showExportModal, setShowExportModal,
     exportConfig, setExportConfig,
+    nightShowCharacter, setNightShowCharacter,
+    nightShowWakeOrder, setNightShowWakeOrder,
+    characterPopoutSeat, setCharacterPopoutSeat,
   }
 }

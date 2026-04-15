@@ -18,9 +18,45 @@ export function ArenaCenterLeft({ ctx }: { ctx: any }) {
     enterNomination, confirmNomination, confirmTargetSpeech, startVoting,
     moveToNextSpeaker, goToNextDay, setPhase,
     alarmActive, setAlarmActive,
+    nightShowCharacter, setNightShowCharacter,
+    nightShowWakeOrder, setNightShowWakeOrder,
+    setNewGamePanel,
+    activeScriptSlug,
   } = ctx
 
   const stepIdx = NOM_STEPS.indexOf(currentDay.nominationStep)
+
+  const handleOpenCharacterEditor = () => {
+    const regularSeats = currentDay.seats.filter(s => !s.isTraveler)
+    const travelerSeats = currentDay.seats.filter(s => s.isTraveler)
+    const assignments: Record<number, string> = {}
+    const userAssignments: Record<number, string> = {}
+    const seatNames: Record<number, string> = {}
+    const seatNotes: Record<number, string> = {}
+
+    for (const seat of currentDay.seats) {
+      assignments[seat.seat] = seat.characterId || ''
+      userAssignments[seat.seat] = seat.userCharacterId || ''
+      seatNames[seat.seat] = seat.name
+      seatNotes[seat.seat] = seat.note || ''
+    }
+
+    setNewGamePanel({
+      playerCount: regularSeats.length,
+      travelerCount: travelerSeats.length,
+      scriptSlug: activeScriptSlug || '',
+      allowDuplicateChars: false,
+      allowEmptyChars: false,
+      allowSameNames: false,
+      assignments,
+      userAssignments,
+      seatNames,
+      seatNotes,
+      specialNote: '',
+      demonBluffs: [],
+      editMode: true,
+    })
+  }
 
   return (
     <div className="storyteller-center__left">
@@ -107,6 +143,33 @@ export function ArenaCenterLeft({ ctx }: { ctx: any }) {
             type="button"
           >{audioPlaying ? '⏸' : '▶'}</button>
           <button className="storyteller-center__ctrl-btn" onClick={(e) => { e.stopPropagation(); stopNight() }} title={text.endNow} type="button">■</button>
+        </div>
+      )}
+
+      {/* Night phase show controls */}
+      {currentDay.phase === 'night' && (
+        <div className="storyteller-center__night-controls">
+          <button
+            className={`secondary-button secondary-button--small${nightShowCharacter ? ' tab-button--active' : ''}`}
+            onClick={() => setNightShowCharacter((v: boolean) => !v)}
+            type="button"
+          >
+            {language === 'zh' ? '👁 显示角色' : '👁 Show Character'}
+          </button>
+          <button
+            className={`secondary-button secondary-button--small${nightShowWakeOrder ? ' tab-button--active' : ''}`}
+            onClick={() => setNightShowWakeOrder((v: boolean) => !v)}
+            type="button"
+          >
+            {language === 'zh' ? '🔢 唤醒顺序' : '🔢 Wake Order'}
+          </button>
+          <button
+            className="secondary-button secondary-button--small"
+            onClick={handleOpenCharacterEditor}
+            type="button"
+          >
+            {language === 'zh' ? '🎭 编辑游戏' : '🎭 Edit Game'}
+          </button>
         </div>
       )}
 
