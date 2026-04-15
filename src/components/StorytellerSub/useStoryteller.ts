@@ -3,6 +3,7 @@ import { useI18n } from '../../hooks/useI18n'
 import { useAudioState } from '../../hooks/useAudioState'
 import { useUIState } from '../../hooks/useUIState'
 import { useTimerEffect } from '../../hooks/useTimerEffect'
+import { useHistory } from '../../hooks/useHistory'
 import { buildGameActions } from '../../hooks/useGameActions'
 import { buildGameLifecycle } from '../../hooks/useGameLifecycle'
 import { loadInitialState } from './storage'
@@ -15,7 +16,12 @@ export function useStoryteller(props: StorytellerHelperProps) {
 
   // ── Persisted state ──
   const initial = useMemo(() => loadInitialState(), [])
-  const [days, setDays] = useState(initial.days)
+  const daysHistory = useHistory(initial.days)
+  const days = daysHistory.value
+  const setDays = daysHistory.set
+  const setDaysWithUndo = daysHistory.setWithUndo
+  const undo = daysHistory.undo
+  const canUndo = daysHistory.canUndo
   const [selectedDayId, setSelectedDayId] = useState(initial.selectedDayId)
   const [timerDefaults, setTimerDefaults] = useState(initial.timerDefaults)
   const [customTagPool, setCustomTagPool] = useState(initial.customTagPool)
@@ -31,7 +37,7 @@ export function useStoryteller(props: StorytellerHelperProps) {
   const [skillOverlay, setSkillOverlay] = useState<SkillOverlayState | null>(null)
   const [newGamePanel, setNewGamePanel] = useState<NewGameConfig | null>(null)
   const [endGameResult, setEndGameResult] = useState<EndGameResult | null>(null)
-  const [logFilter, setLogFilter] = useState<LogFilterState>({ types: new Set(['vote', 'skill', 'event']), dayFilter: 'all', sortAsc: false })
+  const [logFilter, setLogFilter] = useState<LogFilterState>({ types: new Set(['vote', 'skill', 'event']), dayFilter: 'all', sortAsc: false, visibility: 'all' })
 
   // ── Sub-hooks ──
   const text = useI18n(language)
@@ -44,6 +50,11 @@ export function useStoryteller(props: StorytellerHelperProps) {
 
   function updateCurrentDay(updater: (day: DayState) => DayState) {
     setDays((cur) => cur.map((d) => (d.id === currentDay.id ? updater(d) : d)))
+  }
+
+  /** Like updateCurrentDay but checkpoints before the change so it can be undone. */
+  function updateCurrentDayWithUndo(updater: (day: DayState) => DayState) {
+    setDaysWithUndo((cur) => cur.map((d) => (d.id === currentDay.id ? updater(d) : d)))
   }
 
   function appendEvent(d: DayState, kind: EventLogEntry['kind'], detail: string): DayState {
@@ -84,10 +95,16 @@ export function useStoryteller(props: StorytellerHelperProps) {
   const currentScriptCharacters = useMemo(() => scriptOptions.find((s) => s.slug === activeScriptSlug)?.characters ?? scriptOptions[0]?.characters ?? [], [activeScriptSlug, scriptOptions])
   const livingNonTravelerSeats = useMemo(() => livingNonTravelers(currentDay.seats), [currentDay.seats])
   const requiredVotes = Math.max(1, Math.ceil(livingNonTravelerSeats.length / 2))
+  /** Exile threshold: ≥50 % of ALL seats (incl. travelers + dead) */
+  const exileRequiredVotes = Math.max(1, Math.ceil(currentDay.seats.length / 2))
+  const effectiveRequiredVotes = currentDay.voteDraft.isExile ? exileRequiredVotes : requiredVotes
   const eligibleVoterSeats = useMemo(() => eligibleVoters(currentDay.seats), [currentDay.seats])
   const nonVoters = useMemo(() => eligibleVoterSeats.filter((s) => !currentDay.voteDraft.voters.includes(s)), [currentDay.voteDraft.voters, eligibleVoterSeats])
   void nonVoters
-  const draftPassedBySystem = currentDay.voteDraft.voters.length >= requiredVotes
+  // votingYesCount must be defined before draftPassedBySystem
+  const baseYesCount = currentDay.votingState ? Object.values(currentDay.votingState.votes).filter(Boolean).length : currentDay.voteDraft.voters.length
+  const votingYesCount = currentDay.voteDraft.voteCountOverride !== null ? currentDay.voteDraft.voteCountOverride : baseYesCount
+  const draftPassedBySystem = votingYesCount >= effectiveRequiredVotes
   const draftPassed = currentDay.voteDraft.manualPassed ?? draftPassedBySystem
   const isVotingComplete = currentDay.nominationStep === 'votingDone' || (currentDay.nominationStep === 'voting' && currentDay.votingState && currentDay.votingState.votingIndex >= currentDay.votingState.votingOrder.length)
   const currentVoterSeat = currentDay.votingState && currentDay.nominationStep === 'voting' && !isVotingComplete ? currentDay.votingState.votingOrder[currentDay.votingState.votingIndex] ?? null : null
@@ -108,21 +125,35 @@ export function useStoryteller(props: StorytellerHelperProps) {
   const nominationDelaySeconds = timerDefaults.nominationDelayMinutes * 60
   const secondsUntilNomination = Math.max(0, nominationDelaySeconds - currentDay.publicElapsedSeconds)
   const canNominate = currentDay.phase === 'public' && currentDay.publicMode === 'free' && currentDay.publicElapsedSeconds >= nominationDelaySeconds
-  const hasTimer = currentDay.phase !== 'night' && currentDay.nominationStep !== 'nominationDecision' && currentDay.nominationStep !== 'readyForTargetSpeech' && currentDay.nominationStep !== 'readyToVote' && currentDay.nominationStep !== 'votingDone'
-  const votingYesCount = currentDay.votingState ? Object.values(currentDay.votingState.votes).filter(Boolean).length : currentDay.voteDraft.voters.length
+  const hasTimer = currentDay.phase !== 'night'
   const NIGHT_BGM_SRC = INITIAL_AUDIO_TRACKS.find((t) => t.name === 'Measured Pulse of the Tower')?.src ?? INITIAL_AUDIO_TRACKS[0].src
 
   // ── Aggregated log ──
+  const PHASE_ORDER: Record<string, number> = { night: 0, private: 1, public: 2, nomination: 3 }
   const aggregatedLog = useMemo((): AggregatedLogEntry[] => {
     const entries: AggregatedLogEntry[] = []
     for (const day of days) {
-      for (const v of day.voteHistory) entries.push({ id: `v-${day.day}-${v.id}`, day: day.day, timestamp: Number(v.id), type: 'vote', detail: `#${v.actor} -> #${v.target}: ${v.passed ? 'PASS' : 'FAIL'} (${v.voteCount}/${v.requiredVotes})${v.note ? ` - ${v.note}` : ''}` })
-      for (const s of day.skillHistory) entries.push({ id: `s-${day.day}-${s.id}`, day: day.day, timestamp: Number(s.id), type: 'skill', detail: `#${s.actor} ${s.roleId || '?'} (${s.activatedDuringPhase})${s.statement ? ` "${s.statement}"` : ''}${s.result ? ` [${s.result}]` : ''}` })
-      for (const e of day.eventLog) { if (e.kind === 'vote' || e.kind === 'skill') continue; entries.push({ id: `e-${day.day}-${e.id}`, day: day.day, timestamp: e.timestamp, type: 'event', detail: `[${e.kind}] ${e.detail}` }) }
+      for (const v of day.voteHistory) {
+        const voterList = v.voters.length > 0 ? ` [${v.voters.map((n: number) => `#${n}`).join(', ')}]` : ''
+        entries.push({ id: `v-${day.day}-${v.id}`, day: day.day, phase: 'nomination', timestamp: Number(v.id), type: 'vote', visibility: 'public', detail: `#${v.actor} → #${v.target}: ${v.passed ? 'PASS' : 'FAIL'} (${v.voteCount}/${v.requiredVotes})${voterList}${v.note ? ` · ${v.note}` : ''}` })
+      }
+      for (const s of day.skillHistory) entries.push({ id: `s-${day.day}-${s.id}`, day: day.day, phase: s.activatedDuringPhase, timestamp: Number(s.id), type: 'skill', visibility: 'st-only', detail: `#${s.actor} ${s.roleId || '?'}${s.statement ? ` "${s.statement}"` : ''}${s.result ? ` [${s.result}]` : ''}` })
+      for (const e of day.eventLog) {
+        if (e.kind === 'vote' || e.kind === 'skill') continue
+        const vis: 'public' | 'st-only' = (e.kind === 'stateChange' || e.kind === 'phaseTransition') ? 'public' : 'st-only'
+        entries.push({ id: `e-${day.day}-${e.id}`, day: day.day, phase: e.phase, timestamp: e.timestamp, type: 'event', visibility: vis, detail: e.detail })
+      }
     }
     let filtered = entries.filter((e) => logFilter.types.has(e.type))
     if (logFilter.dayFilter !== 'all') filtered = filtered.filter((e) => e.day === logFilter.dayFilter)
-    filtered.sort((a, b) => logFilter.sortAsc ? a.timestamp - b.timestamp : b.timestamp - a.timestamp)
+    if (logFilter.visibility !== 'all') filtered = filtered.filter((e) => e.visibility === logFilter.visibility)
+    filtered.sort((a, b) => {
+      if (a.day !== b.day) return logFilter.sortAsc ? a.day - b.day : b.day - a.day
+      const phaseA = PHASE_ORDER[a.phase] ?? 99
+      const phaseB = PHASE_ORDER[b.phase] ?? 99
+      if (phaseA !== phaseB) return logFilter.sortAsc ? phaseA - phaseB : phaseB - phaseA
+      return logFilter.sortAsc ? a.timestamp - b.timestamp : b.timestamp - a.timestamp
+    })
     return filtered
   }, [days, logFilter])
 
@@ -142,12 +173,15 @@ export function useStoryteller(props: StorytellerHelperProps) {
     if (currentDay.phase === 'nomination' && currentDay.nominationStep === 'waitingForNomination' && !currentDay.voteDraft.actor) setPickerMode('nominator')
   }, [currentDay.phase, currentDay.nominationStep, currentDay.voteDraft.actor])
 
-  const { lastCountdownRef } = useTimerEffect({ currentDay, currentTimerSeconds, isTimerRunning, skillOverlay, timerDefaults, updateCurrentDay, setIsTimerRunning })
+  // Apply BGM volume whenever it changes
+  useEffect(() => { audio.applyVolume(ui.bgmVolume) }, [ui.bgmVolume])
+
+  const { lastCountdownRef } = useTimerEffect({ currentDay, currentTimerSeconds, isTimerRunning, skillOverlay, timerDefaults, updateCurrentDay, setIsTimerRunning, setAlarmActive: ui.setAlarmActive, alarmActive: ui.alarmActive })
 
   // ── Domain actions ──
-  const gameActions = buildGameActions({ currentDay, timerDefaults, requiredVotes, draftPassed, isTimerRunning, skillOverlay, seatTagDrafts, updateCurrentDay, appendEvent, setPickerMode, setIsTimerRunning, setSkillOverlay, setSkillPopoutSeat: ui.setSkillPopoutSeat, setTagPopoutSeat: ui.setTagPopoutSeat, setSkillRoleDropdownOpen: ui.setSkillRoleDropdownOpen, setShowNominationSheet: ui.setShowNominationSheet, setCustomTagPool, setSeatTagDrafts, text, getPhaseContext })
+  const gameActions = buildGameActions({ currentDay, timerDefaults, requiredVotes: effectiveRequiredVotes, draftPassed, isTimerRunning, skillOverlay, seatTagDrafts, updateCurrentDay, updateCurrentDayWithUndo, appendEvent, setPickerMode, setIsTimerRunning, setSkillOverlay, setSkillPopoutSeat: ui.setSkillPopoutSeat, setTagPopoutSeat: ui.setTagPopoutSeat, setSkillRoleDropdownOpen: ui.setSkillRoleDropdownOpen, setShowNominationSheet: ui.setShowNominationSheet, setCustomTagPool, setSeatTagDrafts, text })
 
-  const lifecycle = buildGameLifecycle({ days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, endGameResult, scriptOptions, onSelectScript, setDays, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay: (v) => setSkillOverlay(v), setNewGamePanel, setEndGameResult, setGameRecords, setSelectedAudioSrc: audio.setSelectedAudioSrc, setAudioPlaying: audio.setAudioPlaying, nightBgmSrc: NIGHT_BGM_SRC })
+  const lifecycle = buildGameLifecycle({ days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, endGameResult, scriptOptions, onSelectScript, setDays, setDaysWithUndo, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay: (v) => setSkillOverlay(v), setNewGamePanel, setEndGameResult, setGameRecords, setSelectedAudioSrc: audio.setSelectedAudioSrc, setAudioPlaying: audio.setAudioPlaying, nightBgmSrc: NIGHT_BGM_SRC })
 
   function clearUnusedCustomTags() {
     const usedTags = new Set(days.flatMap((d) => d.seats.flatMap((s) => s.customTags)))
@@ -180,6 +214,7 @@ export function useStoryteller(props: StorytellerHelperProps) {
   return {
     activeScriptSlug, activeScriptTitle, language, onSelectScript, scriptOptions,
     days, setDays, selectedDayId, setSelectedDayId, timerDefaults, setTimerDefaults,
+    undo, canUndo,
     customTagPool, setCustomTagPool, gameRecords, setGameRecords, playerNamePool, setPlayerNamePool,
     pickerMode, setPickerMode, isTimerRunning, setIsTimerRunning,
     dialogState, setDialogState, seatTagDrafts, setSeatTagDrafts,
@@ -191,7 +226,7 @@ export function useStoryteller(props: StorytellerHelperProps) {
     logFilter, setLogFilter,
     lastCountdownRef, text,
     selectedDayIndex, currentDay, updateCurrentDay, currentTimerSeconds,
-    currentScriptCharacters, livingNonTravelerSeats, requiredVotes, eligibleVoterSeats, nonVoters,
+    currentScriptCharacters, livingNonTravelerSeats, requiredVotes, exileRequiredVotes, effectiveRequiredVotes, eligibleVoterSeats, nonVoters,
     draftPassedBySystem, draftPassed, isVotingComplete, currentVoterSeat, pointerSeat,
     selectedSeat, selectedSeatTags, dialogTitle, aliveCount, totalCount,
     highestVoteThisDay, nominatorsThisDay, nomineesThisDay, leadingCandidates,

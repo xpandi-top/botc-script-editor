@@ -3,29 +3,14 @@ import React from 'react'
 import { ArenaSeatTagPopout } from './ArenaSeatTagPopout'
 import { ArenaSeatSkillPopout } from './ArenaSeatSkillPopout'
 import { getDisplayName, getIconForCharacter } from '../../../catalog'
-
+import { getSeatPosition } from '../../../utils/seats'
 
 export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: any, index: number, isPortrait: boolean }) {
-  const { activeScriptSlug, activeScriptTitle, language, onSelectScript, scriptOptions, days, setDays, selectedDayId, setSelectedDayId, timerDefaults, setTimerDefaults, customTagPool, setCustomTagPool, gameRecords, setGameRecords, playerNamePool, setPlayerNamePool, pickerMode, setPickerMode, isTimerRunning, setIsTimerRunning, dialogState, setDialogState, seatTagDrafts, setSeatTagDrafts, selectedSeatNumber, setSelectedSeatNumber, showLogPanel, setShowLogPanel, showRightPanel, setShowRightPanel, skillOverlay, setSkillOverlay, audioTracks, setAudioTracks, selectedAudioSrc, setSelectedAudioSrc, audioPlaying, setAudioPlaying, newGamePanel, setNewGamePanel, endGameResult, setEndGameResult, logFilter, setLogFilter, activeConsoleSections, setActiveConsoleSections, tagPopoutSeat, setTagPopoutSeat, skillPopoutSeat, setSkillPopoutSeat, skillRoleDropdownOpen, setSkillRoleDropdownOpen, showNominationSheet, setShowNominationSheet, showEditPlayersModal, setShowEditPlayersModal, editPlayersPreset, setEditPlayersPreset, loadTagsPreset, setLoadTagsPreset, lastCountdownRef, audioRef, text, selectedDayIndex, currentDay, updateCurrentDay, currentTimerSeconds, currentScriptCharacters, livingNonTravelerSeats, requiredVotes, eligibleVoterSeats, nonVoters, draftPassedBySystem, draftPassed, isVotingComplete, currentVoterSeat, pointerSeat, selectedSeat, selectedSeatTags, dialogTitle, aliveCount, totalCount, highestVoteThisDay, nominatorsThisDay, nomineesThisDay, leadingCandidates, nominationDelaySeconds, secondsUntilNomination, canNominate, aggregatedLog, getPhaseContext, setCurrentTimer, syncDayTimers, appendEvent, handleLocalFileChange, resetSeatNames, updateSeat, updateSeatWithLog, addCustomTag, clearUnusedCustomTags, enterNomination, confirmNomination, rejectNomination, confirmTargetSpeech, startVoting, handleVoteYes, recordVote, openSkillOverlay, openSeatSkill, closeSkillOverlay, moveToNextSpeaker, goToNextDay, goToPreviousDay, saveCurrentGame, resetCurrentGame, confirmDialog, handleSeatClick, removeSeatTag, setPhase, startNight, stopNight, addPlayerSeat, removeLastPlayerSeat, addTravelerSeat, removeLastTraveler, openNewGamePanel, randomAssignCharacters, startNewGame, openEndGamePanel, confirmEndGame, exportGameJson, toggleLogFilterType, votingYesCount, NIGHT_BGM_SRC, hasTimer, toggleConsoleSection } = ctx;
-  // Rectangular perimeter positioning (dynamically adjusts to aspect ratio)
-                const total = currentDay.seats.length
-                const W = isPortrait ? 2 : 3
-                const H = isPortrait ? 3 : 2
-                const perimeter = 2 * (W + H) // = 10
-                const offset = (0.5 / total) * perimeter
-                const p = (offset + (index / total) * perimeter) % perimeter
-                const padX = 9, padY = 9
-                let left: number, top: number
-                if (p < W) {
-                  left = padX + (p / W) * (100 - 2 * padX); top = padY
-                } else if (p < W + H) {
-                  left = 100 - padX; top = padY + ((p - W) / H) * (100 - 2 * padY)
-                } else if (p < 2 * W + H) {
-                  left = (100 - padX) - ((p - W - H) / W) * (100 - 2 * padX); top = 100 - padY
-                } else {
-                  left = padX; top = (100 - padY) - ((p - 2 * W - H) / H) * (100 - 2 * padY)
-                }
+  const { language, pickerMode, skillOverlay, currentDay, updateCurrentDay, currentVoterSeat, tagPopoutSeat, setTagPopoutSeat, skillPopoutSeat, setSkillPopoutSeat, selectedSeat, text, handleSeatClick, handleVoteYes, handleVoteNo, removeSeatTag, openSeatSkill, closeSkillOverlay } = ctx;
+
+  const { left, top } = getSeatPosition(index, currentDay.seats.length, isPortrait)
                 const tags = [!seat.alive ? text.aliveTag : '', seat.isExecuted ? text.executedTag : '', seat.isTraveler ? text.traveler : '', seat.hasNoVote ? text.noVoteTag : '', ...seat.customTags].filter(Boolean)
+                const isRoundRobinSpeaker = currentDay.phase === 'public' && currentDay.publicMode === 'roundRobin' && currentDay.currentSpeakerSeat === seat.seat
                 const isSpoken = currentDay.roundRobinSpokenSeats.includes(seat.seat)
                 const isVoteActor = currentDay.voteDraft.actor === seat.seat
                 const isVoteTarget = currentDay.voteDraft.target === seat.seat
@@ -54,6 +39,7 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
                       seat.isTraveler ? 'storyteller-seat--traveler' : '',
                       selectedSeat?.seat === seat.seat ? 'storyteller-seat--speaker' : '',
                       isSpoken ? 'storyteller-seat--spoken' : '',
+                      isRoundRobinSpeaker ? 'storyteller-seat--rr-speaker' : '',
                       isVoteActor || isSkillActor ? 'storyteller-seat--actor' : '',
                       isVoteTarget ? 'storyteller-seat--target' : '',
                       isSkillTarget ? 'storyteller-seat--skill-target' : '',
@@ -122,7 +108,10 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
                             className="storyteller-seat__vote-btn storyteller-seat__vote-btn--yes"
                             onClick={(e) => {
                               e.stopPropagation()
-                              if (currentDay.votingState) {
+                              if (isCurrentVoter) {
+                                // Auto-advance sequential voting
+                                handleVoteYes(seat.seat)
+                              } else if (currentDay.votingState) {
                                 updateCurrentDay((d) => ({ ...d, votingState: d.votingState ? { ...d.votingState, votes: { ...d.votingState.votes, [seat.seat]: true } } : null }))
                               } else {
                                 updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, voters: [...d.voteDraft.voters, seat.seat], noVoters: d.voteDraft.noVoters.filter((v) => v !== seat.seat) } }))
@@ -134,7 +123,10 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
                             className="storyteller-seat__vote-btn storyteller-seat__vote-btn--no"
                             onClick={(e) => {
                               e.stopPropagation()
-                              if (currentDay.votingState) {
+                              if (isCurrentVoter) {
+                                // Auto-advance sequential voting
+                                handleVoteNo(seat.seat)
+                              } else if (currentDay.votingState) {
                                 updateCurrentDay((d) => ({ ...d, votingState: d.votingState ? { ...d.votingState, votes: { ...d.votingState.votes, [seat.seat]: false } } : null }))
                               } else {
                                 updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, noVoters: [...d.voteDraft.noVoters, seat.seat], voters: d.voteDraft.voters.filter((v) => v !== seat.seat) } }))

@@ -40,11 +40,17 @@ export function useAudioState() {
     }
   }
 
+  /** Apply bgmVolume (0–1) to the <audio> element. */
+  function applyVolume(vol: number) {
+    if (audioRef.current) audioRef.current.volume = Math.max(0, Math.min(1, vol))
+  }
+
   return {
     audioTracks, setAudioTracks,
     selectedAudioSrc, setSelectedAudioSrc,
     audioPlaying, setAudioPlaying,
     audioRef,
     handleLocalFileChange,
+    applyVolume,
   }
 }

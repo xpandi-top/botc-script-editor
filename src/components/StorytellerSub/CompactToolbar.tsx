@@ -8,7 +8,8 @@ export function CompactToolbar({ ctx }: { ctx: any }) {
     audioPlaying, setAudioPlaying, audioTracks, selectedAudioSrc, setSelectedAudioSrc,
     handleLocalFileChange, openNewGamePanel, openEndGamePanel, showRightPanel,
     setShowRightPanel, setShowEditPlayersModal, showScriptPanel, setShowScriptPanel,
-    audioRef, text,
+    audioRef, text, undo, canUndo,
+    alarmActive, setAlarmActive, bgmVolume, setBgmVolume,
   } = ctx
 
   const nonTravelerCount = currentDay.seats.filter((s) => !s.isTraveler).length
@@ -68,6 +69,14 @@ export function CompactToolbar({ ctx }: { ctx: any }) {
               <option key={t.src} value={t.src}>{t.name}</option>
             ))}
           </select>
+          <input
+            className="storyteller-bgm-player__volume"
+            max="1" min="0" step="0.05"
+            onChange={(e) => setBgmVolume(Number(e.target.value))}
+            title={language === 'zh' ? `音量 ${Math.round(bgmVolume * 100)}%` : `Volume ${Math.round(bgmVolume * 100)}%`}
+            type="range"
+            value={bgmVolume}
+          />
           <label className="storyteller-bgm-player__add" title={text.loadLocalFile}>
             +
             <input type="file" accept=".mp3" onChange={handleLocalFileChange} style={{ display: 'none' }} />
@@ -85,6 +94,15 @@ export function CompactToolbar({ ctx }: { ctx: any }) {
         </button>
         <button className="secondary-button secondary-button--small" onClick={openEndGamePanel} type="button">
           {text.endGame}
+        </button>
+        <button
+          className="secondary-button secondary-button--small"
+          disabled={!canUndo}
+          onClick={undo}
+          title={language === 'zh' ? '撤销' : 'Undo'}
+          type="button"
+        >
+          ↩
         </button>
         <button
           className={`secondary-button secondary-button--small${showRightPanel ? ' tab-button--active' : ''}`}

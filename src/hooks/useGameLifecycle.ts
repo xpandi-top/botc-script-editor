@@ -1,6 +1,6 @@
 import { characterById } from '../catalog'
 import { createDayState, createSeats, shuffleArray, CHARACTER_DISTRIBUTION, DEFAULT_PLAYER_COUNT, getNextRoundRobinSeat } from '../components/StorytellerSub/constants'
-import type { DayState, EndGameResult, GameRecord, NewGameConfig, Phase, NominationStep, StorytellerSeat, TimerDefaults } from '../components/StorytellerSub/types'
+import type { DayState, EndGameResult, ExportConfig, GameRecord, NewGameConfig, Phase, NominationStep, StorytellerSeat, TimerDefaults } from '../components/StorytellerSub/types'
 import type { Team } from '../types'
 
 interface LifecycleDeps {
@@ -14,6 +14,7 @@ interface LifecycleDeps {
   scriptOptions: Array<{ slug: string; characters: string[] }>
   onSelectScript?: (slug: string) => void
   setDays: React.Dispatch<React.SetStateAction<DayState[]>>
+  setDaysWithUndo: React.Dispatch<React.SetStateAction<DayState[]>>
   setSelectedDayId: (id: string) => void
   setPickerMode: (m: any) => void
   setIsTimerRunning: (v: boolean) => void
@@ -28,12 +29,12 @@ interface LifecycleDeps {
 }
 
 export function buildGameLifecycle(deps: LifecycleDeps) {
-  const { days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, endGameResult, scriptOptions, onSelectScript, setDays, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay, setNewGamePanel, setEndGameResult, setGameRecords, setAudioPlaying } = deps
+  const { days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, endGameResult, scriptOptions, onSelectScript, setDays, setDaysWithUndo, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay, setNewGamePanel, setEndGameResult, setGameRecords, setAudioPlaying } = deps
 
   function goToNextDay() {
     if (selectedDayIndex < days.length - 1) { setSelectedDayId(days[selectedDayIndex + 1].id); setIsTimerRunning(false); return }
     const next = createDayState(days.length + 1, currentDay.seats, timerDefaults)
-    setDays((cur) => [...cur, next])
+    setDaysWithUndo((cur) => [...cur, next])
     setSelectedDayId(next.id)
     setPickerMode('none')
     setIsTimerRunning(false)
@@ -58,7 +59,7 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     setDays((d) => d.map((day) => {
       if (day.id !== currentDay.id) return day
       let next = { ...day, phase }
-      if (phase === 'nomination') next = { ...next, nominationStep: 'waitingForNomination' as NominationStep, nominationWaitSeconds: timerDefaults.nominationWaitSeconds, voteDraft: { actor: null, target: null, voters: [], noVoters: [], note: '', manualPassed: null, nominationResult: 'succeed' as const }, votingState: null }
+      if (phase === 'nomination') next = { ...next, nominationStep: 'waitingForNomination' as NominationStep, nominationWaitSeconds: timerDefaults.nominationWaitSeconds, voteDraft: { actor: null, target: null, voters: [], noVoters: [], note: '', manualPassed: null, nominationResult: 'succeed' as const, isExile: false, voteCountOverride: null }, votingState: null }
       return next
     }))
     setPickerMode('none')
@@ -115,7 +116,7 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     const slug = activeScriptSlug ?? scriptOptions[0]?.slug ?? ''
     const seatNames: Record<number, string> = {}
     for (let i = 1; i <= 9; i++) seatNames[i] = `Player ${i}`
-    setNewGamePanel({ playerCount: 9, travelerCount: 0, scriptSlug: slug, allowDuplicateChars: false, allowEmptyChars: false, allowSameNames: false, seatNames, assignments: {}, userAssignments: {}, seatNotes: {}, specialNote: '' })
+    setNewGamePanel({ playerCount: 9, travelerCount: 0, scriptSlug: slug, allowDuplicateChars: false, allowEmptyChars: false, allowSameNames: false, seatNames, assignments: {}, userAssignments: {}, seatNotes: {}, specialNote: '', demonBluffs: [] })
   }
 
   function randomAssignCharacters(config: NewGameConfig): Record<number, string> {
@@ -156,7 +157,7 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
       seat.note = newGamePanel.seatNotes[sNum] || ''
     }
     const firstDay = createDayState(1, seats, timerDefaults)
-    setDays([firstDay])
+    setDaysWithUndo([firstDay])
     setSelectedDayId(firstDay.id)
     setPickerMode('none')
     setIsTimerRunning(false)
@@ -167,7 +168,7 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
 
   function resetCurrentGame() {
     const firstDay = createDayState(1, createSeats(DEFAULT_PLAYER_COUNT), timerDefaults)
-    setDays([firstDay])
+    setDaysWithUndo([firstDay])
     setSelectedDayId(firstDay.id)
     setPickerMode('none')
     setIsTimerRunning(false)
@@ -189,14 +190,55 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     setEndGameResult(null)
   }
 
-  function exportGameJson() {
-    const blob = new Blob([JSON.stringify({ exportedAt: new Date().toISOString(), scriptTitle: activeScriptTitle, scriptSlug: activeScriptSlug, days: days.map((d) => ({ day: d.day, seats: d.seats, voteHistory: d.voteHistory, skillHistory: d.skillHistory, eventLog: d.eventLog })) }, null, 2)], { type: 'application/json' })
+  function downloadJson(data: unknown, filename: string) {
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
-    a.href = url; a.download = `botc-game-${Date.now()}.json`
+    a.href = url; a.download = filename
     document.body.appendChild(a); a.click(); document.body.removeChild(a)
     URL.revokeObjectURL(url)
   }
 
-  return { goToNextDay, goToPreviousDay, moveToNextSpeaker, setPhase, startNight, addPlayerSeat, removeLastPlayerSeat, addTravelerSeat, removeLastTraveler, openNewGamePanel, randomAssignCharacters, startNewGame, resetCurrentGame, openEndGamePanel, confirmEndGame, exportGameJson }
+  function exportGameJson(config?: ExportConfig) {
+    const cfg: ExportConfig = config ?? { includeSeats: true, includeVotes: true, includeSkills: true, includeEvents: false, includeStNotes: false, dayFilter: 'all' }
+    const filteredDays = cfg.dayFilter === 'all' ? days : days.filter((d) => (cfg.dayFilter as number[]).includes(d.day))
+    const exportDays = filteredDays.map((d) => {
+      const entry: Record<string, unknown> = { day: d.day }
+      if (cfg.includeSeats) {
+        entry.seats = cfg.includeStNotes
+          ? d.seats
+          : d.seats.map(({ note: _n, characterId: _c, userCharacterId: _u, teamTag: _t, ...pub }) => pub)
+      }
+      if (cfg.includeVotes) entry.voteHistory = d.voteHistory
+      if (cfg.includeSkills) entry.skillHistory = d.skillHistory
+      if (cfg.includeEvents) entry.eventLog = cfg.includeStNotes ? d.eventLog : d.eventLog.filter((e) => e.kind === 'stateChange' || e.kind === 'phaseTransition')
+      return entry
+    })
+    downloadJson({ exportedAt: new Date().toISOString(), scriptTitle: activeScriptTitle, scriptSlug: activeScriptSlug, days: exportDays }, `botc-gamelog-${Date.now()}.json`)
+  }
+
+  function exportGameSetup() {
+    const d = days[days.length - 1] ?? currentDay
+    const setup = {
+      exportedAt: new Date().toISOString(),
+      scriptTitle: activeScriptTitle,
+      scriptSlug: activeScriptSlug,
+      seats: d.seats.map((s) => ({
+        seat: s.seat,
+        name: s.name,
+        isTraveler: s.isTraveler,
+        characterId: s.characterId,
+        userCharacterId: s.userCharacterId,
+        team: s.teamTag,
+        note: s.note,
+      })),
+    }
+    downloadJson(setup, `botc-setup-${Date.now()}.json`)
+  }
+
+  function exportEndGameResults(gameRecords: Array<Record<string, unknown>>) {
+    downloadJson({ exportedAt: new Date().toISOString(), scriptTitle: activeScriptTitle, results: gameRecords }, `botc-results-${Date.now()}.json`)
+  }
+
+  return { goToNextDay, goToPreviousDay, moveToNextSpeaker, setPhase, startNight, addPlayerSeat, removeLastPlayerSeat, addTravelerSeat, removeLastTraveler, openNewGamePanel, randomAssignCharacters, startNewGame, resetCurrentGame, openEndGamePanel, confirmEndGame, exportGameJson, exportGameSetup, exportEndGameResults }
 }

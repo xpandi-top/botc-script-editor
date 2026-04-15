@@ -42,6 +42,7 @@ export type NewGameConfig = {
   userAssignments: Record<number, string | null> // seat -> user-perceived char
   seatNotes: Record<number, string>
   specialNote: string
+  demonBluffs: string[] // up to 3 character IDs shown to the Demon
 }
 
 export type EndGameResult = {
@@ -59,17 +60,29 @@ export type LogFilterState = {
   types: Set<string>
   dayFilter: number | 'all'
   sortAsc: boolean
+  visibility: 'all' | 'public' | 'st-only'
 }
 
 export type AggregatedLogEntry = {
   id: string
   day: number
+  phase: string
   timestamp: number
   type: 'vote' | 'skill' | 'event'
+  visibility: 'public' | 'st-only'
   detail: string
 }
 
-export type ConsoleSection = 'game' | 'day' | 'player' | 'settings' | 'tags'
+export type ExportConfig = {
+  includeSeats: boolean
+  includeVotes: boolean
+  includeSkills: boolean
+  includeEvents: boolean
+  includeStNotes: boolean
+  dayFilter: 'all' | number[]
+}
+
+export type ConsoleSection = 'game' | 'day' | 'player' | 'settings' | 'tags' | 'records'
 
 export type ScriptOption = { slug: string; title: string; characters: string[] }
 
@@ -95,6 +108,10 @@ export type VoteDraft = {
   note: string
   manualPassed: boolean | null
   nominationResult: 'succeed' | 'fail'
+  /** Exile mode — threshold is ≥50% of ALL seats (incl. travelers + dead) */
+  isExile: boolean
+  /** Manual vote count override — null means use voters.length */
+  voteCountOverride: number | null
 }
 
 export type VoteRecord = {

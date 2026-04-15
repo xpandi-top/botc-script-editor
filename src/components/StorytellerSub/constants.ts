@@ -45,7 +45,7 @@ export function createSeats(count: number): StorytellerSeat[] {
 }
 
 export function createDefaultVoteDraft(): VoteDraft {
-  return { actor: null, target: null, voters: [], noVoters: [], note: '', manualPassed: null, nominationResult: 'succeed' }
+  return { actor: null, target: null, voters: [], noVoters: [], note: '', manualPassed: null, nominationResult: 'succeed', isExile: false, voteCountOverride: null }
 }
 
 export function createDefaultSkillDraft(): SkillDraft {

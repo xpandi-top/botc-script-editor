@@ -1,11 +1,10 @@
 // @ts-nocheck
 import React from 'react'
-import { getDisplayName, getIconForCharacter } from '../../../catalog'
-import { CHARACTER_DISTRIBUTION, createDefaultVoteDraft } from '../constants'
+import { createDefaultVoteDraft } from '../constants'
 
 
 export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
-  const { activeScriptSlug, activeScriptTitle, language, onSelectScript, scriptOptions, days, setDays, selectedDayId, setSelectedDayId, timerDefaults, setTimerDefaults, customTagPool, setCustomTagPool, gameRecords, setGameRecords, playerNamePool, setPlayerNamePool, pickerMode, setPickerMode, isTimerRunning, setIsTimerRunning, dialogState, setDialogState, seatTagDrafts, setSeatTagDrafts, selectedSeatNumber, setSelectedSeatNumber, showLogPanel, setShowLogPanel, showRightPanel, setShowRightPanel, skillOverlay, setSkillOverlay, audioTracks, setAudioTracks, selectedAudioSrc, setSelectedAudioSrc, audioPlaying, setAudioPlaying, newGamePanel, setNewGamePanel, endGameResult, setEndGameResult, logFilter, setLogFilter, activeConsoleSections, setActiveConsoleSections, tagPopoutSeat, setTagPopoutSeat, skillPopoutSeat, setSkillPopoutSeat, skillRoleDropdownOpen, setSkillRoleDropdownOpen, showNominationSheet, setShowNominationSheet, showEditPlayersModal, setShowEditPlayersModal, editPlayersPreset, setEditPlayersPreset, loadTagsPreset, setLoadTagsPreset, lastCountdownRef, audioRef, text, selectedDayIndex, currentDay, updateCurrentDay, currentTimerSeconds, currentScriptCharacters, livingNonTravelerSeats, requiredVotes, eligibleVoterSeats, nonVoters, draftPassedBySystem, draftPassed, isVotingComplete, currentVoterSeat, pointerSeat, selectedSeat, selectedSeatTags, dialogTitle, aliveCount, totalCount, highestVoteThisDay, nominatorsThisDay, nomineesThisDay, leadingCandidates, nominationDelaySeconds, secondsUntilNomination, canNominate, aggregatedLog, getPhaseContext, setCurrentTimer, syncDayTimers, appendEvent, handleLocalFileChange, resetSeatNames, updateSeat, updateSeatWithLog, addCustomTag, clearUnusedCustomTags, enterNomination, confirmNomination, rejectNomination, confirmTargetSpeech, startVoting, handleVoteYes, recordVote, openSkillOverlay, openSeatSkill, closeSkillOverlay, moveToNextSpeaker, goToNextDay, goToPreviousDay, saveCurrentGame, resetCurrentGame, confirmDialog, handleSeatClick, removeSeatTag, setPhase, startNight, stopNight, addPlayerSeat, removeLastPlayerSeat, addTravelerSeat, removeLastTraveler, openNewGamePanel, randomAssignCharacters, startNewGame, openEndGamePanel, confirmEndGame, exportGameJson, toggleLogFilterType, votingYesCount, NIGHT_BGM_SRC, hasTimer, toggleConsoleSection } = ctx;
+  const { language, text, currentDay, updateCurrentDay, pickerMode, setPickerMode, showNominationSheet, setShowNominationSheet, requiredVotes, exileRequiredVotes, effectiveRequiredVotes, draftPassedBySystem, draftPassed, isVotingComplete, rejectNomination, recordVote, setDialogState, votingYesCount } = ctx;
   return (
     <>
       {/* ── Nomination sheet ── */}
@@ -43,17 +42,45 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
                           <span className="storyteller-nomination-sheet__label">{text.target}</span>
                           <select
                             className="storyteller-nomination-sheet__select"
-                            onChange={(e) => { const v = parseInt(e.target.value); if (!isNaN(v)) updateCurrentDay((d) => ({ ...d, nominationStep: 'nominationDecision', voteDraft: { ...d.voteDraft, target: v, voters: [] } })); else updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, target: null } })) }}
+                            onChange={(e) => {
+                              const v = parseInt(e.target.value)
+                              if (!isNaN(v)) {
+                                const targetSeat = currentDay.seats.find((s: any) => s.seat === v)
+                                const autoExile = targetSeat?.isTraveler ?? false
+                                updateCurrentDay((d: any) => ({ ...d, nominationStep: 'nominationDecision', voteDraft: { ...d.voteDraft, target: v, voters: [], isExile: autoExile } }))
+                              } else {
+                                updateCurrentDay((d: any) => ({ ...d, voteDraft: { ...d.voteDraft, target: null, isExile: false } }))
+                              }
+                            }}
                             value={currentDay.voteDraft.target ?? ''}
                           >
                             <option value="">{language === 'zh' ? '— 选择 —' : '— Select —'}</option>
-                            {currentDay.seats.map((s) => <option key={s.seat} value={s.seat}>#{s.seat} {s.name}</option>)}
+                            {currentDay.seats.map((s: any) => <option key={s.seat} value={s.seat}>#{s.seat} {s.name}{s.isTraveler ? ` (${language === 'zh' ? '旅人' : 'Traveler'})` : ''}</option>)}
                           </select>
                           <button
                             className={`storyteller-nomination-sheet__pick-btn${pickerMode === 'nominee' ? ' storyteller-picker-active' : ''}`}
                             onClick={() => setPickerMode(pickerMode === 'nominee' ? 'none' : 'nominee')}
                             type="button"
                           >⊕</button>
+                        </div>
+
+                        {/* Exile mode toggle */}
+                        <div className="storyteller-nomination-sheet__row">
+                          <label className="storyteller-nomination-sheet__exile-toggle">
+                            <input
+                              checked={currentDay.voteDraft.isExile}
+                              onChange={(e) => updateCurrentDay((d: any) => ({ ...d, voteDraft: { ...d.voteDraft, isExile: e.target.checked } }))}
+                              type="checkbox"
+                            />
+                            <span>
+                              {language === 'zh' ? '放逐模式' : 'Exile'}
+                              <small className="storyteller-nomination-sheet__exile-hint">
+                                {currentDay.voteDraft.isExile
+                                  ? ` (≥${exileRequiredVotes}/${currentDay.seats.length})`
+                                  : ` (≥${requiredVotes})`}
+                              </small>
+                            </span>
+                          </label>
                         </div>
 
                         {/* Nomination result */}
@@ -112,7 +139,8 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
                               })}
                             </div>
                             <span className="storyteller-nomination-sheet__vote-count">
-                              {language === 'zh' ? '同意' : 'Yes'}: <strong>{Object.values(currentDay.votingState?.votes ?? {}).filter(Boolean).length || currentDay.voteDraft.voters.length}</strong> / {requiredVotes}
+                              {language === 'zh' ? '同意' : 'Yes'}: <strong>{Object.values(currentDay.votingState?.votes ?? {}).filter(Boolean).length || currentDay.voteDraft.voters.length}</strong> / {effectiveRequiredVotes}
+                              {currentDay.voteDraft.isExile && <span className="storyteller-nomination-sheet__exile-badge"> {language === 'zh' ? '放逐' : 'Exile'}</span>}
                             </span>
                           </div>
                         ) : null}
@@ -129,23 +157,75 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
                           />
                         </label>
 
-                        {/* Agree / Disagree */}
-                        {isVotingComplete && currentDay.voteDraft.nominationResult === 'succeed' ? (
-                          <div className="storyteller-chip-row">
-                            <button className="print-button" onClick={() => setDialogState({ kind: 'voteResult', nextValue: true, systemValue: draftPassedBySystem })} type="button">✓ {language === 'zh' ? '同意' : 'Agree'}</button>
-                            <button className="secondary-button" onClick={() => setDialogState({ kind: 'voteResult', nextValue: false, systemValue: draftPassedBySystem })} type="button">✗ {language === 'zh' ? '不同意' : 'Disagree'}</button>
+                        {/* Vote count adjuster */}
+                        {currentDay.nominationStep !== 'waitingForNomination' && currentDay.voteDraft.nominationResult === 'succeed' ? (
+                          <div className="storyteller-nomination-sheet__row storyteller-nomination-sheet__row--adjuster">
+                            <span className="storyteller-nomination-sheet__label">{language === 'zh' ? '票数' : 'Count'}</span>
+                            <div className="ns-vote-adjuster">
+                              <button
+                                className="ns-vote-adjuster__btn"
+                                onClick={() => {
+                                  const cur = currentDay.voteDraft.voteCountOverride !== null ? currentDay.voteDraft.voteCountOverride : votingYesCount
+                                  updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, voteCountOverride: Math.max(0, cur - 1) } }))
+                                }}
+                                type="button"
+                              >−</button>
+                              <span className={`ns-vote-adjuster__count${currentDay.voteDraft.voteCountOverride !== null ? ' ns-vote-adjuster__count--overridden' : ''}`}>
+                                {votingYesCount}
+                                <small> / {effectiveRequiredVotes}</small>
+                              </span>
+                              <button
+                                className="ns-vote-adjuster__btn"
+                                onClick={() => {
+                                  const cur = currentDay.voteDraft.voteCountOverride !== null ? currentDay.voteDraft.voteCountOverride : votingYesCount
+                                  updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, voteCountOverride: cur + 1 } }))
+                                }}
+                                type="button"
+                              >+</button>
+                              {currentDay.voteDraft.voteCountOverride !== null && (
+                                <button
+                                  className="ns-vote-adjuster__reset"
+                                  onClick={() => updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, voteCountOverride: null } }))}
+                                  title={language === 'zh' ? '重置为自动' : 'Reset to auto'}
+                                  type="button"
+                                >↺</button>
+                              )}
+                            </div>
                           </div>
                         ) : null}
 
-                        {/* Record + Clear */}
-                        <div className="storyteller-chip-row">
+                        {/* Override dropdown */}
+                        {currentDay.voteDraft.nominationResult === 'succeed' ? (
+                          <div className="storyteller-nomination-sheet__row">
+                            <span className="storyteller-nomination-sheet__label">{language === 'zh' ? '覆盖' : 'Override'}</span>
+                            <select
+                              className={`storyteller-nomination-sheet__select${currentDay.voteDraft.manualPassed === true ? ' storyteller-nomination-sheet__select--succeed' : currentDay.voteDraft.manualPassed === false ? ' storyteller-nomination-sheet__select--fail' : ''}`}
+                              value={currentDay.voteDraft.manualPassed === true ? 'agree' : currentDay.voteDraft.manualPassed === false ? 'disagree' : 'auto'}
+                              onChange={(e) => {
+                                const v = e.target.value
+                                updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, manualPassed: v === 'agree' ? true : v === 'disagree' ? false : null } }))
+                              }}
+                            >
+                              <option value="auto">{language === 'zh' ? '自动判定' : 'Auto'}</option>
+                              <option value="agree">{language === 'zh' ? '✓ 强制通过' : '✓ Override Pass'}</option>
+                              <option value="disagree">{language === 'zh' ? '✗ 强制失败' : '✗ Override Fail'}</option>
+                            </select>
+                          </div>
+                        ) : null}
+
+                        {/* Record + Clear — compact */}
+                        <div className="ns-action-row">
                           <button
-                            className="print-button"
+                            className="ns-btn ns-btn--primary"
                             disabled={!currentDay.voteDraft.actor || !currentDay.voteDraft.target}
                             onClick={() => currentDay.voteDraft.nominationResult === 'fail' ? rejectNomination() : recordVote()}
                             type="button"
-                          >{language === 'zh' ? '记录' : 'Record'}</button>
-                          <button className="secondary-button secondary-button--small" onClick={() => { updateCurrentDay((d) => ({ ...d, nominationStep: 'waitingForNomination', voteDraft: createDefaultVoteDraft(), votingState: null })); setPickerMode('none') }} type="button">{text.clear}</button>
+                          >{language === 'zh' ? '📝 记录' : '📝 Record'}</button>
+                          <button
+                            className="ns-btn ns-btn--secondary"
+                            onClick={() => { updateCurrentDay((d) => ({ ...d, nominationStep: 'waitingForNomination', voteDraft: createDefaultVoteDraft(), votingState: null })); setPickerMode('none') }}
+                            type="button"
+                          >{language === 'zh' ? '↺ 清空' : '↺ Clear'}</button>
                         </div>
                       </div>
 

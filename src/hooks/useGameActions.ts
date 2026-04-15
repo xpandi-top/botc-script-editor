@@ -10,6 +10,7 @@ interface ActionDeps {
   skillOverlay: SkillOverlayState | null
   seatTagDrafts: Record<number, string>
   updateCurrentDay: (u: (d: DayState) => DayState) => void
+  updateCurrentDayWithUndo: (u: (d: DayState) => DayState) => void
   appendEvent: (d: DayState, kind: EventLogEntry['kind'], detail: string) => DayState
   setPickerMode: (m: PickerMode) => void
   setIsTimerRunning: (v: boolean) => void
@@ -21,18 +22,17 @@ interface ActionDeps {
   setCustomTagPool: React.Dispatch<React.SetStateAction<string[]>>
   setSeatTagDrafts: React.Dispatch<React.SetStateAction<Record<number, string>>>
   text: { aliveTag: string; executedTag: string; traveler: string; noVoteTag: string }
-  getPhaseContext: () => string
 }
 
 export function buildGameActions(deps: ActionDeps) {
-  const { currentDay, timerDefaults, requiredVotes, draftPassed, isTimerRunning, skillOverlay, seatTagDrafts, updateCurrentDay, appendEvent, setPickerMode, setIsTimerRunning, setSkillOverlay, setSkillPopoutSeat, setTagPopoutSeat, setSkillRoleDropdownOpen, setShowNominationSheet, setCustomTagPool, setSeatTagDrafts, text, getPhaseContext } = deps
+  const { currentDay, timerDefaults, requiredVotes, draftPassed, isTimerRunning, skillOverlay, seatTagDrafts, updateCurrentDay, updateCurrentDayWithUndo, appendEvent, setPickerMode, setIsTimerRunning, setSkillOverlay, setSkillPopoutSeat, setTagPopoutSeat, setSkillRoleDropdownOpen, setShowNominationSheet, setCustomTagPool, setSeatTagDrafts, text } = deps
 
   function updateSeat(seatNumber: number, updater: (s: StorytellerSeat) => StorytellerSeat) {
     updateCurrentDay((d) => ({ ...d, seats: d.seats.map((s) => (s.seat === seatNumber ? updater(s) : s)) }))
   }
 
   function updateSeatWithLog(seatNumber: number, updater: (s: StorytellerSeat) => StorytellerSeat) {
-    updateCurrentDay((d) => {
+    updateCurrentDayWithUndo((d) => {
       const oldSeat = d.seats.find((s) => s.seat === seatNumber)
       const newSeats = d.seats.map((s) => (s.seat === seatNumber ? updater(s) : s))
       const newSeat = newSeats.find((s) => s.seat === seatNumber)
@@ -87,7 +87,7 @@ export function buildGameActions(deps: ActionDeps) {
       return appendEvent({ ...d, nominationStep: 'waitingForNomination', nominationWaitSeconds: timerDefaults.nominationWaitSeconds, voteHistory: failRecord ? [failRecord, ...d.voteHistory] : d.voteHistory, voteDraft: createDefaultVoteDraft(), votingState: null }, 'stateChange', `提名失败: #${d.voteDraft.actor ?? '?'} → #${d.voteDraft.target ?? '?'}`)
     })
     setPickerMode('nominator')
-    setIsTimerRunning(true)
+    // Timer does NOT auto-start — ST decides when to begin nomination wait countdown
   }
 
   function confirmTargetSpeech() {
@@ -103,12 +103,12 @@ export function buildGameActions(deps: ActionDeps) {
     setIsTimerRunning(true)
   }
 
-  function handleVoteYes(seatNumber: number) {
+  function _advanceVote(seatNumber: number, voteValue: boolean) {
     updateCurrentDay((d) => {
       if (!d.votingState || d.nominationStep !== 'voting') return d
       const vs = d.votingState
       if (seatNumber !== vs.votingOrder[vs.votingIndex]) return d
-      const newVotes = { ...vs.votes, [seatNumber]: true }
+      const newVotes = { ...vs.votes, [seatNumber]: voteValue }
       const nextIdx = vs.votingIndex + 1
       if (nextIdx >= vs.votingOrder.length) {
         window.setTimeout(() => setIsTimerRunning(false), 0)
@@ -119,22 +119,28 @@ export function buildGameActions(deps: ActionDeps) {
     })
   }
 
+  function handleVoteYes(seatNumber: number) { _advanceVote(seatNumber, true) }
+  function handleVoteNo(seatNumber: number) { _advanceVote(seatNumber, false) }
+
   function recordVote() {
     if (!currentDay.voteDraft.actor || !currentDay.voteDraft.target) return
-    const record: VoteRecord = { id: `${Date.now()}`, actor: currentDay.voteDraft.actor, target: currentDay.voteDraft.target, voters: [...new Set(currentDay.voteDraft.voters)], voteCount: currentDay.voteDraft.voters.length, requiredVotes, passed: draftPassed, note: currentDay.voteDraft.note.trim(), overridden: currentDay.voteDraft.manualPassed !== null }
-    updateCurrentDay((d) => appendEvent({ ...d, nominationStep: 'waitingForNomination', nominationWaitSeconds: timerDefaults.nominationWaitSeconds, voteHistory: [record, ...d.voteHistory], voteDraft: createDefaultVoteDraft(), votingState: null }, 'vote', `#${record.actor} → #${record.target}: ${record.passed ? 'PASS' : 'FAIL'} (${record.voteCount}/${record.requiredVotes})`))
+    const vd = currentDay.voteDraft
+    const finalCount = vd.voteCountOverride !== null ? vd.voteCountOverride : vd.voters.length
+    const record: VoteRecord = { id: `${Date.now()}`, actor: vd.actor!, target: vd.target!, voters: [...new Set(vd.voters)], voteCount: finalCount, requiredVotes, passed: draftPassed, note: vd.note.trim(), overridden: vd.manualPassed !== null || vd.voteCountOverride !== null }
+    updateCurrentDayWithUndo((d) => appendEvent({ ...d, nominationStep: 'waitingForNomination', nominationWaitSeconds: timerDefaults.nominationWaitSeconds, voteHistory: [record, ...d.voteHistory], voteDraft: createDefaultVoteDraft(), votingState: null }, 'vote', `#${record.actor} → #${record.target}: ${record.passed ? 'PASS' : 'FAIL'} (${record.voteCount}/${record.requiredVotes})`))
     setPickerMode('nominator')
-    setIsTimerRunning(true)
+    setIsTimerRunning(false)
+    // Timer does NOT auto-start — ST manually restarts nomination wait if needed
   }
 
   function openSkillOverlay() {
-    setSkillOverlay({ pausedPhase: currentDay.phase, wasTimerRunning: isTimerRunning, draft: createDefaultSkillDraft(), phaseContext: getPhaseContext() })
+    setSkillOverlay({ pausedPhase: currentDay.phase, wasTimerRunning: isTimerRunning, draft: createDefaultSkillDraft(), phaseContext: currentDay.phase })
     setIsTimerRunning(false)
     setPickerMode('skillActor')
   }
 
   function openSeatSkill(seatNumber: number) {
-    setSkillOverlay({ pausedPhase: currentDay.phase, wasTimerRunning: isTimerRunning, draft: { ...createDefaultSkillDraft(), actor: seatNumber }, phaseContext: getPhaseContext() })
+    setSkillOverlay({ pausedPhase: currentDay.phase, wasTimerRunning: isTimerRunning, draft: { ...createDefaultSkillDraft(), actor: seatNumber }, phaseContext: currentDay.phase })
     setIsTimerRunning(false)
     setPickerMode('none')
     setSkillPopoutSeat(seatNumber)
@@ -185,7 +191,7 @@ export function buildGameActions(deps: ActionDeps) {
   return {
     updateSeat, updateSeatWithLog, addCustomTag, removeSeatTag,
     enterNomination, confirmNomination, rejectNomination, confirmTargetSpeech,
-    startVoting, handleVoteYes, recordVote,
+    startVoting, handleVoteYes, handleVoteNo, recordVote,
     openSkillOverlay, openSeatSkill, closeSkillOverlay,
     handleSeatClick,
   }

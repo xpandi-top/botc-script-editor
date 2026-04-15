@@ -21,6 +21,42 @@
   line-height: 1.5;
   font-weight: 400;
   color-scheme: light;
+
+  /* ── Design tokens ── */
+  --color-primary:        #853f22;
+  --color-primary-mid:    rgba(133, 63, 34, 0.18);
+  --color-primary-light:  rgba(133, 63, 34, 0.08);
+  --color-ink:            #17202a;
+  --color-ink-soft:       rgba(23, 32, 42, 0.55);
+  --color-border:         rgba(23, 32, 42, 0.10);
+  --color-surface:        rgba(255, 251, 245, 0.96);
+  --color-surface-raised: rgba(255, 255, 255, 0.82);
+
+  --sp-xs:  0.25rem;
+  --sp-sm:  0.5rem;
+  --sp-md:  0.75rem;
+  --sp-lg:  1rem;
+  --sp-xl:  1.5rem;
+  --sp-2xl: 2rem;
+
+  --fs-xs:  0.68rem;
+  --fs-sm:  0.8rem;
+  --fs-md:  0.95rem;
+  --fs-lg:  1.1rem;
+  --fs-xl:  1.25rem;
+  --fs-2xl: 1.5rem;
+
+  --radius-sm:  10px;
+  --radius-md:  18px;
+  --radius-lg:  22px;
+  --radius-pill: 999px;
+
+  --transition-fast: 0.18s ease;
+  --transition-med:  0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.4s  cubic-bezier(0.4, 0, 0.2, 1);
+
+  --shadow-card: 0 2px 12px rgba(57, 43, 24, 0.10);
+  --shadow-float: 0 8px 32px rgba(57, 43, 24, 0.16);
 }
 
 * {
@@ -180,8 +216,10 @@ button {
 }
 
 .tab-button--active {
-  border-color: #853f22;
-  background: #fff6eb;
+  border-color: #c4733a;
+  background: #fde8d4;
+  color: #6b2e0f;
+  font-weight: 600;
 }
 
 .script-list,
@@ -269,6 +307,13 @@ button {
   background: #fffdf8;
   color: inherit;
   cursor: pointer;
+}
+
+.secondary-button.tab-button--active {
+  border-color: #c4733a;
+  background: #fde8d4;
+  color: #6b2e0f;
+  font-weight: 600;
 }
 
 .script-toolbar {
@@ -1615,7 +1660,51 @@ button {
   border-color: rgba(133, 63, 34, 0.35);
 }
 
-/* ── Center: split left/right ── */
+/* ── Center: layout ── */
+
+/* Day nav row — full width, always top */
+.storyteller-center__day-row {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid rgba(23, 32, 42, 0.08);
+}
+
+.storyteller-center__day-select {
+  font-size: 1rem !important;
+  font-weight: 700 !important;
+  min-width: 80px;
+}
+
+/* Small icon buttons in day row (info toggle, orientation toggle) */
+.storyteller-center__icon-btn {
+  width: 1.8rem;
+  height: 1.8rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: var(--transition-fast);
+  color: var(--color-ink-soft);
+}
+.storyteller-center__icon-btn:hover {
+  background: var(--color-primary-light);
+  border-color: var(--color-primary-mid);
+  color: var(--color-primary);
+}
+.storyteller-center__icon-btn--active {
+  background: var(--color-primary-light);
+  border-color: var(--color-primary-mid);
+  color: var(--color-primary);
+}
 
 .storyteller-center__left,
 .storyteller-center__right {
@@ -1626,12 +1715,12 @@ button {
 }
 
 .storyteller-center__left {
-  grid-row: 1;
+  grid-row: 2;
   grid-column: 1;
 }
 
 .storyteller-center__right {
-  grid-row: 1;
+  grid-row: 2;
   grid-column: 2;
   border-left: 1px solid rgba(23, 32, 42, 0.08);
   padding-left: 0.5rem;
@@ -1639,6 +1728,17 @@ button {
   max-height: 220px;
   overflow-y: auto;
   overscroll-behavior: contain;
+  animation: infoPanelIn var(--transition-fast);
+}
+
+@keyframes infoPanelIn {
+  from { opacity: 0; transform: translateX(6px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* When info panel is hidden, left column takes full width */
+.storyteller-center--info-hidden .storyteller-center__left {
+  grid-column: 1 / -1;
 }
 
 .storyteller-center__phase-tabs {
@@ -2065,9 +2165,14 @@ button {
   }
 
   .storyteller-center__right {
-    grid-row: 2;
+    grid-row: 3;
     padding-top: 0.5rem;
     border-top: 1px solid rgba(23, 32, 42, 0.08);
+  }
+
+  /* Portrait: nomination sheet after both columns */
+  .storyteller-nomination-sheet {
+    grid-row: 4 !important;
   }
 
   .storyteller-nomination-sheet__body {
@@ -2122,7 +2227,7 @@ button {
   left: 50%;
   display: grid;
   grid-template-columns: 3fr 2fr;
-  grid-template-rows: auto auto;
+  grid-template-rows: auto auto auto;
   align-content: start;
   align-items: start;
   gap: 0.45rem;
@@ -2328,6 +2433,7 @@ button {
   display: grid;
   width: var(--seat-size);
   min-height: calc(var(--seat-size) * 0.75);
+  max-width: var(--seat-size);
   padding: 0.35rem;
   border: 2px solid rgba(23, 32, 42, 0.18);
   border-radius: 16px;
@@ -2337,6 +2443,12 @@ button {
   text-align: center;
   font-size: 0.82rem;
   z-index: 2;
+  box-sizing: border-box;
+}
+
+.storyteller-seat > *:not(.storyteller-seat-popout-anchor) {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .storyteller-seat--tag-open {
@@ -2369,6 +2481,12 @@ button {
 .storyteller-seat--speaker {
   z-index: 12;
   box-shadow: 0 0 0 4px rgba(27, 101, 127, 0.24), 0 10px 24px rgba(57, 43, 24, 0.12);
+  animation: seatHeartbeat 1.8s ease-in-out infinite;
+}
+@keyframes seatHeartbeat {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(27, 101, 127, 0.20), 0 6px 18px rgba(57, 43, 24, 0.10); }
+  40%       { box-shadow: 0 0 0 8px rgba(27, 101, 127, 0.32), 0 10px 28px rgba(57, 43, 24, 0.16); }
+  60%       { box-shadow: 0 0 0 5px rgba(27, 101, 127, 0.22), 0 8px 22px rgba(57, 43, 24, 0.12); }
 }
 
 .storyteller-seat--spoken {
@@ -2385,6 +2503,16 @@ button {
 
 .storyteller-seat--voter {
   box-shadow: 0 0 0 3px rgba(133, 63, 34, 0.22), 0 10px 24px rgba(57, 43, 24, 0.12);
+}
+
+/* Current voter during vote phase — heartbeat identical to speaker but faster/warmer */
+.storyteller-seat--current-voter {
+  animation: voterHeartbeat 1.2s ease-in-out infinite;
+}
+@keyframes voterHeartbeat {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(133, 63, 34, 0.20), 0 6px 18px rgba(57, 43, 24, 0.10); }
+  40%       { box-shadow: 0 0 0 9px rgba(133, 63, 34, 0.36), 0 10px 28px rgba(57, 43, 24, 0.18); }
+  60%       { box-shadow: 0 0 0 5px rgba(133, 63, 34, 0.24), 0 8px 22px rgba(57, 43, 24, 0.13); }
 }
 
 /* Skill overlay: selected target gets a bold overlay */
@@ -2834,7 +2962,7 @@ button {
 }
 
 .storyteller-nomination-sheet {
-  grid-row: 2;
+  grid-row: 3;
   grid-column: 1 / span 2;
   display: flex;
   flex-direction: column;
@@ -3046,6 +3174,130 @@ button {
 .storyteller-nomination-sheet__vote-count {
   font-size: 0.78rem;
   color: #555;
+}
+
+/* ── Vote count adjuster ── */
+.ns-vote-adjuster {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.ns-vote-adjuster__btn {
+  width: 1.6rem;
+  height: 1.6rem;
+  border: 1px solid rgba(133, 63, 34, 0.3);
+  border-radius: 6px;
+  background: rgba(255, 253, 248, 0.9);
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.ns-vote-adjuster__btn:hover { background: rgba(133, 63, 34, 0.1); }
+
+.ns-vote-adjuster__count {
+  font-size: 0.88rem;
+  font-weight: 700;
+  min-width: 3rem;
+  text-align: center;
+}
+
+.ns-vote-adjuster__count small {
+  font-weight: 400;
+  color: rgba(23, 32, 42, 0.5);
+}
+
+.ns-vote-adjuster__count--overridden {
+  color: #853f22;
+  text-decoration: underline dotted;
+}
+
+.ns-vote-adjuster__reset {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 0.82rem;
+  color: rgba(23, 32, 42, 0.4);
+  padding: 0 0.1rem;
+}
+
+.ns-vote-adjuster__reset:hover { color: #853f22; }
+
+/* ── Compact action row (Record / Clear) ── */
+.ns-action-row {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.ns-btn {
+  padding: 0.28rem 0.65rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  border: 1px solid transparent;
+  font-family: inherit;
+}
+
+.ns-btn--primary {
+  background: #853f22;
+  color: #fffaf2;
+  border-color: #853f22;
+}
+
+.ns-btn--primary:hover:not(:disabled) { background: #6b2e0f; }
+.ns-btn--primary:disabled { opacity: 0.4; cursor: default; }
+
+.ns-btn--secondary {
+  background: rgba(255, 253, 248, 0.9);
+  color: inherit;
+  border-color: rgba(23, 32, 42, 0.15);
+}
+
+.ns-btn--secondary:hover { background: rgba(133, 63, 34, 0.07); border-color: rgba(133, 63, 34, 0.3); }
+
+/* Exile toggle */
+.storyteller-nomination-sheet__exile-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #6b3a22;
+  cursor: pointer;
+  user-select: none;
+}
+
+.storyteller-nomination-sheet__exile-toggle input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+  accent-color: #853f22;
+}
+
+.storyteller-nomination-sheet__exile-hint {
+  font-weight: 400;
+  color: #9e6644;
+  font-size: 0.72rem;
+}
+
+.storyteller-nomination-sheet__exile-badge {
+  display: inline-block;
+  margin-left: 0.3rem;
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  background: rgba(133, 63, 34, 0.14);
+  color: #853f22;
+  font-size: 0.68rem;
+  font-weight: 700;
 }
 
 .storyteller-nomination-sheet__row--note {
@@ -4666,4 +4918,795 @@ button {
   font-weight: 600;
   font-size: 0.9rem;
   color: rgb(133, 63, 34);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   Phase 4 & 5 — Log structured, Audio alarm, Export modal, New Game
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── Structured log ── */
+.storyteller-log-day-group {
+  margin-bottom: 0.5rem;
+}
+
+.storyteller-log-day-header {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #6b3a22;
+  padding: 0.2rem 0.4rem;
+  background: rgba(133, 63, 34, 0.08);
+  border-radius: 4px;
+  margin-bottom: 0.25rem;
+}
+
+.storyteller-log-st-badge {
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 0.05rem 0.3rem;
+  border-radius: 999px;
+  background: rgba(46, 134, 93, 0.15);
+  color: #2a8060;
+  margin-left: 0.2rem;
+}
+
+.storyteller-log-phase {
+  font-size: 0.62rem;
+  color: #999;
+  margin-left: auto;
+}
+
+.storyteller-log-entry--st {
+  border-left-color: rgba(46, 134, 93, 0.4) !important;
+  background: rgba(46, 134, 93, 0.03) !important;
+}
+
+/* ── BGM volume slider ── */
+.storyteller-bgm-player__volume {
+  width: 64px;
+  height: 4px;
+  accent-color: #853f22;
+  cursor: pointer;
+  margin: 0 0.2rem;
+}
+
+/* ── Alarm — inline near timer ── */
+@keyframes alarmPulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(180, 50, 50, 0.18); }
+  50%       { box-shadow: 0 0 0 7px rgba(180, 50, 50, 0.38); }
+}
+
+.storyteller-center__timer-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  justify-content: center;
+}
+
+.storyteller-center__timer-input--alarm {
+  border-color: rgba(180, 50, 50, 0.7) !important;
+  color: #a01a1a !important;
+  animation: alarmPulse 1.2s ease-in-out infinite;
+}
+
+.storyteller-center__alarm-dismiss {
+  border: none;
+  background: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0.1rem 0.2rem;
+  border-radius: 6px;
+  animation: alarmPulse 1.2s ease-in-out infinite;
+  line-height: 1;
+}
+
+/* ── Nomination step buttons ── */
+.storyteller-center__nom-steps {
+  display: flex;
+  gap: 0.35rem;
+  justify-content: center;
+  width: 100%;
+}
+
+.storyteller-center__nom-step-btn {
+  flex: 1;
+  padding: 0.3rem 0.2rem;
+  font-size: 1rem;
+  border: 1px solid rgba(23, 32, 42, 0.15);
+  border-radius: 10px;
+  background: rgba(255, 253, 248, 0.9);
+  cursor: pointer;
+  opacity: 0.45;
+  transition: opacity 0.15s, background 0.15s, border-color 0.15s;
+}
+
+.storyteller-center__nom-step-btn:not(:disabled) {
+  opacity: 1;
+}
+
+.storyteller-center__nom-step-btn--active {
+  border-color: #853f22;
+  background: #fff0e0;
+  opacity: 1;
+  font-weight: 700;
+}
+
+.storyteller-center__nom-step-btn--done {
+  border-color: rgba(37, 130, 80, 0.4);
+  background: rgba(37, 130, 80, 0.08);
+  color: #258250;
+  opacity: 0.75;
+}
+
+.storyteller-center__nom-step-btn:disabled {
+  cursor: default;
+}
+
+/* ── Nominate + Next Day row ── */
+.storyteller-center__nominate-row {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+  width: 100%;
+}
+
+.storyteller-center__nom-nominate-btn {
+  flex: 1;
+  padding: 0.3rem 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1px solid #853f22;
+  border-radius: 10px;
+  background: #853f22;
+  color: #fffaf2;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.storyteller-center__nom-nominate-btn--active {
+  background: #fff0e0;
+  color: #853f22;
+}
+
+.storyteller-center__nom-nextday-btn {
+  flex-shrink: 0;
+  padding: 0.3rem 0.5rem;
+  font-size: 0.8rem;
+  border: 1px solid rgba(23, 32, 42, 0.18);
+  border-radius: 10px;
+  background: rgba(255, 253, 248, 0.9);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* ── Round-robin current speaker heartbeat ── */
+.storyteller-seat--rr-speaker {
+  z-index: 12;
+  animation: rrSpeakerBeat 1.6s ease-in-out infinite;
+}
+
+@keyframes rrSpeakerBeat {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(133, 63, 34, 0.22), 0 6px 18px rgba(57, 43, 24, 0.10); }
+  40%       { box-shadow: 0 0 0 10px rgba(133, 63, 34, 0.40), 0 10px 30px rgba(57, 43, 24, 0.18); }
+  60%       { box-shadow: 0 0 0 6px rgba(133, 63, 34, 0.28), 0 8px 22px rgba(57, 43, 24, 0.13); }
+}
+
+/* ── Export modal ── */
+.storyteller-export-modal {
+  max-width: 420px;
+  width: 92vw;
+}
+
+.storyteller-export-modal__section {
+  margin-bottom: 1rem;
+}
+
+.storyteller-export-modal__label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #6b3a22;
+  margin-bottom: 0.4rem;
+}
+
+.storyteller-export-modal__checks,
+.storyteller-export-modal__days {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.storyteller-export-modal__days {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+/* ── Export quick actions ── */
+.storyteller-export-quick {
+  display: flex;
+  gap: 0.6rem;
+  margin-bottom: 0.5rem;
+}
+
+.storyteller-export-quick__btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.7rem 0.5rem;
+  border: 1px solid rgba(23, 32, 42, 0.14);
+  border-radius: 12px;
+  background: rgba(255, 253, 248, 0.95);
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+  text-align: center;
+}
+
+.storyteller-export-quick__btn:hover:not(:disabled) {
+  background: #fff0e0;
+  border-color: #c4733a;
+}
+
+.storyteller-export-quick__btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.storyteller-export-quick__icon { font-size: 1.5rem; line-height: 1; }
+.storyteller-export-quick__label { font-size: 0.82rem; font-weight: 700; }
+.storyteller-export-quick__hint { font-size: 0.68rem; color: rgba(23, 32, 42, 0.5); }
+
+/* ══════════════════════
+   New Game Modal (ng-*)
+   ══════════════════════ */
+
+.ng-modal {
+  max-width: 680px;
+  width: 95vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 1.2rem 1.4rem 1rem;
+}
+
+.ng-modal__title {
+  margin: 0 0 0.6rem;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #2a1a0e;
+}
+
+/* Tab bar */
+.ng-tabs {
+  display: flex;
+  gap: 0.25rem;
+  border-bottom: 2px solid rgba(133, 63, 34, 0.14);
+  margin-bottom: 0.8rem;
+}
+
+.ng-tab-btn {
+  padding: 0.35rem 0.9rem;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  background: none;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: rgba(23, 32, 42, 0.5);
+  cursor: pointer;
+  border-radius: 6px 6px 0 0;
+  transition: color 0.12s, border-color 0.12s;
+}
+
+.ng-tab-btn:hover { color: #853f22; }
+
+.ng-tab-btn--active {
+  color: #853f22;
+  border-bottom-color: #853f22;
+  background: rgba(133, 63, 34, 0.05);
+}
+
+/* Modal body scroll area */
+.ng-modal__body {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  min-height: 0;
+}
+
+/* Modal footer */
+.ng-modal__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  padding-top: 0.8rem;
+  margin-top: 0.6rem;
+  border-top: 1px solid rgba(23, 32, 42, 0.08);
+}
+
+/* Shared helpers */
+.ng-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.ng-row--actions {
+  margin-bottom: 0.6rem;
+}
+
+.ng-count-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.7rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.ng-stepper {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.ng-section-label {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #6b3a22;
+  margin: 0.6rem 0 0.3rem;
+}
+
+/* ── Players tab ── */
+.ng-players-tab {
+  display: flex;
+  flex-direction: column;
+}
+
+.ng-name-pool {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  padding: 0.5rem 0.6rem;
+  background: rgba(133, 63, 34, 0.04);
+  border: 1px solid rgba(133, 63, 34, 0.12);
+  border-radius: 8px;
+  margin-bottom: 0.6rem;
+}
+
+.ng-name-pool__empty {
+  font-size: 0.75rem;
+  color: #aaa;
+}
+
+.ng-name-chip {
+  padding: 0.18rem 0.55rem;
+  border: 1px solid rgba(133, 63, 34, 0.22);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  font-size: 0.74rem;
+  color: #3a2210;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.ng-name-chip:hover {
+  background: rgba(133, 63, 34, 0.1);
+}
+
+.ng-seats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.35rem;
+}
+
+.ng-seat-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.ng-seat-row--traveler .ng-seat-num { color: #7b5c8e; }
+
+.ng-seat-num {
+  min-width: 2.2rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #6b3a22;
+}
+
+.ng-seat-input {
+  flex: 1;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid rgba(133, 63, 34, 0.22);
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-family: inherit;
+  background: rgba(255, 255, 255, 0.8);
+  color: #17202a;
+  outline: none;
+}
+
+.ng-seat-input:focus {
+  border-color: #853f22;
+  box-shadow: 0 0 0 2px rgba(133, 63, 34, 0.1);
+}
+
+/* ── Characters tab ── */
+.ng-characters-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ng-script-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.ng-script-row select {
+  flex: 1;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid rgba(133, 63, 34, 0.2);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.8);
+  font-family: inherit;
+  font-size: 0.8rem;
+}
+
+/* Distribution block */
+.ng-dist-block {
+  background: rgba(133, 63, 34, 0.04);
+  border: 1px solid rgba(133, 63, 34, 0.12);
+  border-radius: 8px;
+  padding: 0.45rem 0.6rem;
+}
+
+.ng-dist-header,
+.ng-dist-row {
+  display: grid;
+  grid-template-columns: 3.5rem 1fr 1fr 1fr 1fr;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.ng-dist-header { margin-bottom: 0.15rem; }
+
+.ng-dist-col-label {
+  text-align: center;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.ng-dist-col-label--town { color: #2563ab; }
+.ng-dist-col-label--out  { color: #7c3aed; }
+.ng-dist-col-label--min  { color: #b45309; }
+.ng-dist-col-label--dem  { color: #b91c1c; }
+
+.ng-dist-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #6b3a22;
+}
+
+.ng-dist-val {
+  text-align: center;
+  font-size: 0.82rem;
+  font-weight: 700;
+  border-radius: 4px;
+  padding: 0.08rem 0;
+}
+
+.ng-dist-val--town { color: #2563ab; }
+.ng-dist-val--out  { color: #7c3aed; }
+.ng-dist-val--min  { color: #b45309; }
+.ng-dist-val--dem  { color: #b91c1c; }
+
+.ng-dist-val--mismatch {
+  background: rgba(180, 50, 50, 0.1);
+  color: #b91c1c !important;
+  border-radius: 4px;
+}
+
+/* Character list */
+.ng-char-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  max-height: 320px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 0.2rem;
+}
+
+.ng-char-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.4rem;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(133, 63, 34, 0.08);
+  min-height: 38px;
+}
+
+.ng-char-seat {
+  min-width: 3.5rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #6b3a22;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ng-char-actual {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.ng-char-icon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.ng-char-icon--empty {
+  display: inline-block;
+  background: rgba(133, 63, 34, 0.08);
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+/* kept for any legacy native select fallback */
+.ng-char-select {
+  flex: 1;
+  min-width: 0;
+  padding: 0.2rem 0.35rem;
+  border: 1px solid rgba(133, 63, 34, 0.18);
+  border-radius: 5px;
+  font-size: 0.74rem;
+  font-family: inherit;
+  background: rgba(255, 255, 255, 0.85);
+  color: #17202a;
+}
+
+/* ── Custom CharSelect ── */
+.ng-char-select-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.ng-char-select-trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  width: 100%;
+  padding: 0.22rem 0.4rem;
+  border: 1px solid rgba(133, 63, 34, 0.22);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 0.74rem;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+  overflow: hidden;
+}
+
+.ng-char-select-trigger--open {
+  border-color: #853f22;
+  box-shadow: 0 0 0 2px rgba(133, 63, 34, 0.15);
+}
+
+.ng-char-select-trigger__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ng-char-select-trigger__caret {
+  font-size: 0.6rem;
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+
+.ng-char-select-dropdown {
+  position: absolute;
+  top: calc(100% + 3px);
+  left: 0;
+  right: 0;
+  z-index: 200;
+  max-height: 200px;
+  overflow-y: auto;
+  background: #fffdf8;
+  border: 1px solid rgba(133, 63, 34, 0.25);
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgba(57, 43, 24, 0.14);
+}
+
+.ng-char-select-option {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.28rem 0.5rem;
+  font-size: 0.74rem;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.ng-char-select-option:hover {
+  background: rgba(133, 63, 34, 0.08);
+}
+
+.ng-char-select-option--selected {
+  background: rgba(133, 63, 34, 0.12);
+  font-weight: 600;
+}
+
+/* ── Quick fill bar ── */
+.ng-quick-fill {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.ng-quick-fill__input {
+  flex: 1;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid rgba(23, 32, 42, 0.15);
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-family: inherit;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.ng-quick-fill__input:focus {
+  outline: none;
+  border-color: #853f22;
+  box-shadow: 0 0 0 2px rgba(133, 63, 34, 0.12);
+}
+
+.ng-team-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ng-team-dot--townsfolk { background: #2563ab; }
+.ng-team-dot--outsider  { background: #7c3aed; }
+.ng-team-dot--evil      { background: #b91c1c; }
+.ng-team-dot--good      { background: #2563ab; }
+
+.ng-char-user {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.ng-user-toggle {
+  width: 24px;
+  height: 24px;
+  border: 1px solid rgba(133, 63, 34, 0.22);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.7);
+  font-size: 0.7rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(23, 32, 42, 0.5);
+  transition: background 0.1s;
+}
+
+.ng-user-toggle:hover { background: rgba(133, 63, 34, 0.08); }
+
+.ng-user-toggle--active {
+  background: rgba(37, 99, 171, 0.1);
+  border-color: rgba(37, 99, 171, 0.4);
+  color: #2563ab;
+}
+
+.ng-char-note {
+  width: 80px;
+  flex-shrink: 0;
+  padding: 0.2rem 0.35rem;
+  border: 1px dashed rgba(133, 63, 34, 0.2);
+  border-radius: 5px;
+  font-size: 0.7rem;
+  font-family: inherit;
+  background: transparent;
+  color: #3a2210;
+}
+
+/* ── Demon Bluffs ── */
+.ng-bluffs {
+  background: rgba(180, 50, 50, 0.04);
+  border: 1px solid rgba(180, 50, 50, 0.18);
+  border-radius: 8px;
+  padding: 0.5rem 0.65rem;
+}
+
+.ng-bluffs__header {
+  margin-bottom: 0.4rem;
+}
+
+.ng-bluffs__title {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #a01a1a;
+}
+
+.ng-bluffs__slots {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.ng-bluff-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  flex: 1;
+  min-width: 120px;
+}
+
+.ng-bluff-select {
+  width: 100%;
+  padding: 0.22rem 0.4rem;
+  border: 1px solid rgba(180, 50, 50, 0.3);
+  border-radius: 6px;
+  font-size: 0.74rem;
+  font-family: inherit;
+  background: rgba(255, 255, 255, 0.85);
+  color: #17202a;
+}
+
+.ng-bluff-name {
+  font-size: 0.68rem;
+  color: #a01a1a;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* ── Config tab ── */
+.ng-config-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* ── Travelers notes section ── */
+.ng-travelers-notes {
+  border-top: 1px solid rgba(133, 63, 34, 0.12);
+  padding-top: 0.5rem;
 }
