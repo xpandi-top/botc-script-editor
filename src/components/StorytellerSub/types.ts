@@ -198,11 +198,13 @@ export type DayState = {
   skillHistory: SkillRecord[]
   eventLog: EventLogEntry[]
   nightVisitedSeats: number[]
+  gameEnded: boolean
 }
 
 export type GameRecord = {
   id: string
   endedAt: number
+  recordName?: string
   scriptTitle?: string
   scriptSlug?: string
   winner?: 'evil' | 'good' | 'storyteller' | null
@@ -214,6 +216,7 @@ export type GameRecord = {
   replay?: number | null
   otherNote?: string
   days: Array<{ day: number; votes: number; skills: number }>
+  savedDays?: DayState[]
 }
 
 export type PersistedState = {

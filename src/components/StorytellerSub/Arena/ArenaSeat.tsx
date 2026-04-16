@@ -77,7 +77,7 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
                       isSkillTarget ? 'storyteller-seat--skill-target' : '',
                       isCurrentVoter ? 'storyteller-seat--current-voter' : '',
                       pickerMode !== 'none' ? 'storyteller-seat--picker' : '',
-                      isTagPopoutOpen || isSkillPopoutOpen ? 'storyteller-seat--tag-open' : '',
+                      isTagPopoutOpen || isSkillPopoutOpen || isCharacterPopoutOpen ? 'storyteller-seat--tag-open' : '',
                     ].filter(Boolean).join(' ')}
                     key={seat.seat}
                     style={{ left: `${left}%`, top: `${top}%` } as CSSProperties}

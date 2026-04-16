@@ -78,6 +78,7 @@ export function loadInitialState(): PersistedState {
         })),
         eventLog: d.eventLog ?? [],
         nightVisitedSeats: d.nightVisitedSeats ?? [],
+        gameEnded: d.gameEnded ?? false,
       })),
       gameRecords: p.gameRecords ?? [],
       activeScriptSlug: p.activeScriptSlug,

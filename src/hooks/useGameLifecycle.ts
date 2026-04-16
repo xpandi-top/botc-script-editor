@@ -35,6 +35,7 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
   const { days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, endGameResult, scriptOptions, onSelectScript, setDays, setDaysWithUndo, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay, setNewGamePanel, setEndGameResult, setGameRecords, setAudioPlaying, language, appendEvent } = deps
 
   function goToNextDay() {
+    if (currentDay.gameEnded) return
     if (selectedDayIndex < days.length - 1) { setSelectedDayId(days[selectedDayIndex + 1].id); setIsTimerRunning(false); return }
     const next = createDayState(days.length + 1, currentDay.seats, timerDefaults)
     setDaysWithUndo((cur) => [...cur, next])
@@ -227,12 +228,19 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     setEndGameResult({ winner: null, playerTeams: teams, mvp: null, balanced: null, funEvil: null, funGood: null, replay: null, otherNote: '' })
   }
 
-  function confirmEndGame() {
+  function confirmEndGame(recordName?: string) {
     if (!endGameResult) return
     const summaries = currentDay.seats.map((s) => ({ seat: s.seat, name: s.name, team: endGameResult.playerTeams[s.seat] ?? 'good' }))
-    setGameRecords((cur) => [{ id: `${Date.now()}`, endedAt: Date.now(), scriptTitle: activeScriptTitle, scriptSlug: activeScriptSlug, winner: endGameResult.winner, playerSummaries: summaries, mvp: endGameResult.mvp, balanced: endGameResult.balanced, funEvil: endGameResult.funEvil, funGood: endGameResult.funGood, replay: endGameResult.replay, otherNote: endGameResult.otherNote, days: days.map((d) => ({ day: d.day, votes: d.voteHistory.length, skills: d.skillHistory.length })) }, ...cur])
-    resetCurrentGame()
+    const updatedDays = days.map((d) => d.id === currentDay.id ? { ...d, gameEnded: true } : d)
+    const newRecord = { id: `${Date.now()}`, endedAt: Date.now(), scriptTitle: activeScriptTitle, scriptSlug: activeScriptSlug, winner: endGameResult.winner, playerSummaries: summaries, mvp: endGameResult.mvp, balanced: endGameResult.balanced, funEvil: endGameResult.funEvil, funGood: endGameResult.funGood, replay: endGameResult.replay, otherNote: endGameResult.otherNote, days: days.map((d) => ({ day: d.day, votes: d.voteHistory.length, skills: d.skillHistory.length })), savedDays: updatedDays }
+    if (recordName) (newRecord as any).recordName = recordName
+    setGameRecords((cur) => [newRecord, ...cur])
+    setDays(updatedDays)
     setEndGameResult(null)
+  }
+
+  function unmarkGameEnded() {
+    setDays((d) => d.map((day) => day.id === currentDay.id ? { ...day, gameEnded: false } : day))
   }
 
   function downloadJson(data: unknown, filename: string) {
@@ -285,5 +293,15 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     downloadJson({ exportedAt: new Date().toISOString(), scriptTitle: activeScriptTitle, results: gameRecords }, `botc-results-${Date.now()}.json`)
   }
 
-  return { goToNextDay, goToPreviousDay, moveToNextSpeaker, setPhase, startNight, addPlayerSeat, removeLastPlayerSeat, addTravelerSeat, removeLastTraveler, openNewGamePanel, randomAssignCharacters, startNewGame, applyGameChanges, resetCurrentGame, openEndGamePanel, confirmEndGame, exportGameJson, exportGameSetup, exportEndGameResults }
+  function markGameEnded() {
+    setDays((d) => d.map((day) => day.id === currentDay.id ? { ...day, gameEnded: true } : day))
+  }
+
+  function loadGameRecord(record: GameRecord) {
+    if (!record.savedDays || record.savedDays.length === 0) return
+    setDaysWithUndo(record.savedDays)
+    setSelectedDayId(record.savedDays[0].id)
+  }
+
+  return { goToNextDay, goToPreviousDay, moveToNextSpeaker, setPhase, startNight, addPlayerSeat, removeLastPlayerSeat, addTravelerSeat, removeLastTraveler, openNewGamePanel, randomAssignCharacters, startNewGame, applyGameChanges, resetCurrentGame, openEndGamePanel, confirmEndGame, markGameEnded, unmarkGameEnded, exportGameJson, exportGameSetup, exportEndGameResults, loadGameRecord }
 }

@@ -10,11 +10,6 @@ const DEFAULT_ST_TAGS: Record<string, string> = {
   drunk: '🍺',
   poisoned: '☠️',
   mad: '🤪',
-  blessed: '✨',
-  cursed: '💀',
-  lost: '❓',
-  swapped: '🔄',
-  hidden: '👁',
 }
 
 export function ArenaSeatCharacterPopout({ ctx, seat }: { ctx: any, seat: any }) {
@@ -256,5 +251,5 @@ export function ArenaSeatCharacterPopout({ ctx, seat }: { ctx: any, seat: any })
     </>
   );
 
-  return createPortal(content, document.body);
+  return isMobile ? createPortal(content, document.body) : content;
 }

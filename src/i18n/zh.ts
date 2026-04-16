@@ -48,7 +48,7 @@ export const zh = {
   selectedPlayer: '当前玩家',
   resetNames: '重置姓名',
   restartGame: '重开一局',
-  endGame: '结束本局',
+  endGame: '保存游戏',
   privateDefault: '私聊默认时间',
   publicFreeDefault: '公聊-自由时间',
   publicRoundRobinDefault: '公聊-轮流/人',

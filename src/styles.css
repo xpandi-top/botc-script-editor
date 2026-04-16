@@ -2472,6 +2472,15 @@ button {
   max-width: 100%;
 }
 
+/* Allow popouts to exceed seat width */
+.storyteller-seat .storyteller-tag-popout,
+.storyteller-seat .storyteller-skill-popout,
+.storyteller-seat .storyteller-character-popout {
+  max-width: 500px !important;
+  width: 400px !important;
+  min-width: 400px !important;
+}
+
 .storyteller-seat--tag-open {
   z-index: 50;
 }
@@ -3208,12 +3217,12 @@ button {
 
 .storyteller-character-popout {
   position: absolute;
-  left: 50%;
-  bottom: calc(100% + 8px);
-  transform: translateX(-50%);
-  z-index: 200;
-  width: 280px;
-  max-height: min(480px, 80vh);
+  left: calc(100% + 8px);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 600;
+  width: 320px;
+  max-height: min(540px, 80vh);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -3226,24 +3235,6 @@ button {
   color: #17202a;
 }
 
-/* Mobile bottom sheet for character popout */
-@media (max-width: 768px) {
-  .storyteller-character-popout {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    top: auto;
-    transform: none;
-    width: 100%;
-    max-width: 100%;
-    max-height: 70vh;
-    border-radius: 16px 16px 0 0;
-    border-bottom: none;
-    z-index: 601;
-  }
-}
-
 .storyteller-character-popout__header {
   display: flex;
   align-items: flex-start;
@@ -3251,8 +3242,8 @@ button {
 }
 
 .storyteller-character-popout__icon {
-  width: 32px;
-  height: 32px;
+  width: 18px;
+  height: 18px;
   border-radius: 6px;
   object-fit: contain;
   flex-shrink: 0;
@@ -3312,7 +3303,7 @@ button {
 }
 
 .storyteller-character-popout__st-tags-label {
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   font-weight: 600;
   color: #853f22;
   text-transform: uppercase;
@@ -3329,11 +3320,11 @@ button {
   display: inline-flex;
   align-items: center;
   gap: 0.15rem;
-  padding: 0.15rem 0.35rem;
+  padding: 0.2rem 0.4rem;
   background: rgba(133, 63, 34, 0.1);
   border: 1px solid rgba(133, 63, 34, 0.2);
   border-radius: 999px;
-  font-size: 0.68rem;
+  font-size: 0.82rem;
   color: #853f22;
   cursor: pointer;
 }
@@ -3434,12 +3425,12 @@ button {
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  padding: 0.2rem 0.35rem;
+  padding: 0.15rem 0.3rem;
   border: 1px solid rgba(31, 90, 150, 0.3);
   border-radius: 6px;
   background: rgba(31, 90, 150, 0.05);
   color: #1f5a96;
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 600;
   cursor: pointer;
   font-family: inherit;
@@ -3465,7 +3456,12 @@ button {
 .storyteller-character-popout__char-label {
   flex: 1;
   text-align: left;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
+}
+
+.storyteller-character-popout__char-btn .storyteller-character-popout__icon {
+  width: 18px;
+  height: 18px;
 }
 
 .storyteller-character-popout__actions {
@@ -3539,7 +3535,7 @@ button {
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
-  max-height: 60px;
+  max-height: 50px;
   overflow-y: auto;
 }
 
@@ -3550,12 +3546,12 @@ button {
 }
 
 .storyteller-character-popout__default-tag {
-  padding: 0.15rem 0.3rem;
+  padding: 0.2rem 0.4rem;
   border: 1px solid rgba(133, 63, 34, 0.25);
   border-radius: 4px;
   background: rgba(133, 63, 34, 0.08);
   color: #853f22;
-  font-size: 0.6rem;
+  font-size: 0.8rem;
   cursor: pointer;
   font-family: inherit;
   white-space: nowrap;
@@ -3593,7 +3589,7 @@ button {
   top: 50%;
   transform: translateY(-50%);
   z-index: 200;
-  width: 240px;
+  width: 320px;
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
@@ -4110,7 +4106,7 @@ button {
   top: 50%;
   transform: translateY(-50%);
   z-index: 200;
-  width: 270px;
+  width: 320px;
   max-height: min(520px, 80vh);
   overflow-y: auto;
   display: flex;
@@ -4473,6 +4469,50 @@ button {
   border-radius: 14px;
   padding: 0.85rem 0.95rem;
   background: #fff;
+}
+
+.storyteller-history__item--clickable {
+  cursor: pointer;
+  transition: border-color 150ms, box-shadow 150ms;
+}
+
+.storyteller-history__item--clickable:hover {
+  border-color: rgba(133, 63, 34, 0.4);
+  box-shadow: 0 2px 8px rgba(133, 63, 34, 0.15);
+}
+
+.storyteller-history__load-hint {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.7rem;
+  color: #853f22;
+  opacity: 0.7;
+}
+
+.storyteller-history__ended-badge {
+  font-size: 0.65rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  background: rgba(133, 63, 34, 0.15);
+  color: #853f22;
+  font-weight: 600;
+}
+
+.storyteller-history__saved-badge {
+  font-size: 0.65rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  background: rgba(31, 90, 150, 0.15);
+  color: #1f5a96;
+  font-weight: 600;
+}
+
+.storyteller-history__meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  color: rgba(23, 32, 42, 0.6);
+  margin-top: 0.15rem;
 }
 
 .storyteller-history__group {
@@ -4976,7 +5016,8 @@ button {
 
   /* On small screens popouts are portaled to body — bottom sheet anchored to viewport */
   .storyteller-skill-popout,
-  .storyteller-tag-popout {
+  .storyteller-tag-popout,
+  .storyteller-character-popout {
     position: fixed;
     left: 0.75rem;
     right: 0.75rem;
@@ -5669,6 +5710,29 @@ button {
   background: rgba(255, 253, 248, 0.94);
   font: inherit;
   font-size: 0.88rem;
+}
+
+.storyteller-end-game-dropdown__select {
+  padding: 0.4rem 0.8rem;
+  border: 1px solid rgba(133, 63, 34, 0.3);
+  border-radius: 8px;
+  background: rgba(133, 63, 34, 0.1);
+  color: #853f22;
+  font-size: 0.85rem;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.storyteller-end-game-dropdown__select:focus {
+  outline: none;
+  border-color: #853f22;
+}
+
+.storyteller-end-game-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
 }
 
 /* ── Player Pool ── */

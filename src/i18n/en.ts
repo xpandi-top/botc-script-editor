@@ -48,7 +48,7 @@ export const en = {
   selectedPlayer: 'Selected player',
   resetNames: 'Reset names',
   restartGame: 'Restart game',
-  endGame: 'End game',
+  endGame: 'Save Game',
   privateDefault: 'Private default',
   publicFreeDefault: 'Public free time',
   publicRoundRobinDefault: 'Round robin / player',

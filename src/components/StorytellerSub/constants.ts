@@ -93,6 +93,7 @@ export function createDayState(day: number, seats: StorytellerSeat[], defaults: 
     skillHistory: [],
     eventLog: [],
     nightVisitedSeats: [],
+    gameEnded: false,
   }
 }
 
