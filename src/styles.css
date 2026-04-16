@@ -80,9 +80,9 @@ body.storyteller-active .app-shell {
   flex-direction: column;
   height: 100vh;
   padding: 0.5rem 0.75rem 0.5rem;
-  /* Vertical scroll when layout hits min-height; clip horizontal to hide off-screen drawers */
+  /* Vertical scroll when layout hits min-height; horizontal scroll when content overflows */
   overflow-y: auto;
-  overflow-x: hidden;
+  overflow-x: auto;
 }
 
 body.storyteller-active .app-hero,
