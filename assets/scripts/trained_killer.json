@@ -1,0 +1,42 @@
+[
+  {
+    "id": "_meta",
+    "name": "Trained Killer",
+    "bootlegger_zh": [
+      "每个夜晚当恶魔击杀玩家时,会按照纸上从上到下的顺序. 镇长的能力也会按照顺序来触发.",
+      "如果有角色幸存,说书人可以决定他们是否再次成为目标."
+    ],
+    "bootlegger": [
+      "Each night, demon will kill following top to bottom order on the script, so does mayor's ability.",
+      "If a character survives one night's kill, storyteller may make them the target again."
+    ],
+    "name_zh": "杀手往事",
+    "author": "Ekin",
+    "logo": ""
+  },
+  "mayor",
+  "village_idiot",
+  "artist",
+  "lycanthrope",
+  "ravenkeeper",
+  "monk",
+  "fortuneteller",
+  "seamstress",
+  "pixie",
+  "steward",
+  "king",
+  "choirboy",
+  "amnesiac",
+  "snitch",
+  "recluse",
+  "ogre",
+  "drunk",
+  "poisoner",
+  "spy",
+  "harpy",
+  "xaan",
+  "wizard",
+  "boffin",
+  "yaggababble",
+  "lilmonsta"
+]
