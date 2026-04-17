@@ -71,7 +71,7 @@ body {
 
 /* Prevent page scroll while Storyteller Helper is active */
 body.storyteller-active {
-  overflow-x: hidden;
+  overflow-x: visible;
   height: 100vh;
 }
 
