@@ -92,6 +92,7 @@ export function CompactToolbar({ ctx }: { ctx: any }) {
         <button className="secondary-button secondary-button--small" onClick={() => setShowEditPlayersModal(true)} type="button">
           {text.editPlayers}
         </button>
+        
         <button className="secondary-button secondary-button--small" onClick={openEndGamePanel} type="button">
           {text.endGame}
         </button>

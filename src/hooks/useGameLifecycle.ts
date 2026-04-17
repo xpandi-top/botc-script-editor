@@ -29,10 +29,12 @@ interface LifecycleDeps {
   nightBgmSrc: string
   language: Language
   appendEvent: (d: DayState, kind: 'stateChange' | 'phaseTransition' | 'tagChange' | 'skill' | 'vote', detail: string) => DayState
+  customTagPool?: string[]
+  playerNamePool?: string[]
 }
 
 export function buildGameLifecycle(deps: LifecycleDeps) {
-  const { days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, endGameResult, scriptOptions, onSelectScript, setDays, setDaysWithUndo, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay, setNewGamePanel, setEndGameResult, setGameRecords, setAudioPlaying, language, appendEvent } = deps
+  const { days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, endGameResult, scriptOptions, onSelectScript, setDays, setDaysWithUndo, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay, setNewGamePanel, setEndGameResult, setGameRecords, setAudioPlaying, language, appendEvent, customTagPool = [], playerNamePool = [] } = deps
 
   function goToNextDay() {
     if (currentDay.gameEnded) return
@@ -303,5 +305,48 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     setSelectedDayId(record.savedDays[0].id)
   }
 
-  return { goToNextDay, goToPreviousDay, moveToNextSpeaker, setPhase, startNight, addPlayerSeat, removeLastPlayerSeat, addTravelerSeat, removeLastTraveler, openNewGamePanel, randomAssignCharacters, startNewGame, applyGameChanges, resetCurrentGame, openEndGamePanel, confirmEndGame, markGameEnded, unmarkGameEnded, exportGameJson, exportGameSetup, exportEndGameResults, loadGameRecord }
+  function saveGame(name?: string, existingId?: string) {
+    const savedAt = Date.now()
+    const recordId = existingId || `save-${savedAt}`
+    const newRecord: GameRecord = {
+      id: recordId,
+      endedAt: savedAt,
+      recordName: name || `Game ${new Date(savedAt).toLocaleDateString()}`,
+      scriptTitle: activeScriptTitle,
+      scriptSlug: activeScriptSlug,
+      winner: null,
+      playerSummaries: currentDay.seats.map((s) => ({ seat: s.seat, name: s.name, team: null })),
+      mvp: null,
+      balanced: null,
+      funEvil: null,
+      funGood: null,
+      replay: null,
+      otherNote: '',
+      days: days.map((d) => ({ day: d.day, votes: d.voteHistory.length, skills: d.skillHistory.length })),
+      savedDays: days,
+      timerDefaults,
+      customTagPool,
+      playerNamePool,
+    }
+    if (existingId) {
+      setGameRecords((cur) => cur.map((r) => r.id === existingId ? newRecord : r))
+    } else {
+      setGameRecords((cur) => [newRecord, ...cur])
+    }
+  }
+
+  function exportRecordJson(record: GameRecord) {
+    downloadJson({
+      exportedAt: new Date().toISOString(),
+      recordName: record.recordName,
+      scriptTitle: record.scriptTitle,
+      scriptSlug: record.scriptSlug,
+      days: record.savedDays,
+      timerDefaults: (record as any).timerDefaults,
+      customTagPool: (record as any).customTagPool,
+      playerNamePool: (record as any).playerNamePool,
+    }, `botc-save-${record.recordName?.replace(/\s+/g, '-') || 'game'}-${record.id}.json`)
+  }
+
+  return { goToNextDay, goToPreviousDay, moveToNextSpeaker, setPhase, startNight, addPlayerSeat, removeLastPlayerSeat, addTravelerSeat, removeLastTraveler, openNewGamePanel, randomAssignCharacters, startNewGame, applyGameChanges, resetCurrentGame, openEndGamePanel, confirmEndGame, markGameEnded, unmarkGameEnded, exportGameJson, exportGameSetup, exportEndGameResults, loadGameRecord, saveGame, exportRecordJson }
 }

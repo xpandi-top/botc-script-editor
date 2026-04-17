@@ -218,6 +218,9 @@ export type GameRecord = {
   otherNote?: string
   days: Array<{ day: number; votes: number; skills: number }>
   savedDays?: DayState[]
+  timerDefaults?: TimerDefaults
+  customTagPool?: string[]
+  playerNamePool?: string[]
 }
 
 export type PersistedState = {

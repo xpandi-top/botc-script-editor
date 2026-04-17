@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 const TEAM_COLORS: Record<string, string> = { evil: '#b91c1c', good: '#2563ab', storyteller: '#7c3aed' }
 
 export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: any, toggleConsoleSection: any }) {
-  const { language, text, gameRecords, setGameRecords, activeConsoleSections } = ctx
+  const { language, text, gameRecords, setGameRecords, activeConsoleSections, loadGameRecord, exportRecordJson, saveGame } = ctx
   const [expandedId, setExpandedId] = useState<string | null>(null)
 
   if (!activeConsoleSections.has('records')) {
@@ -100,15 +100,43 @@ export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: any, t
                         <p className="record-note">{rec.otherNote}</p>
                       )}
 
-                      {/* Delete */}
-                      <button
-                        className="secondary-button secondary-button--small"
-                        onClick={() => setGameRecords((cur: any[]) => cur.filter((r) => r.id !== rec.id))}
-                        type="button"
-                        style={{ marginTop: '0.4rem', color: '#b91c1c', borderColor: 'rgba(180,50,50,0.3)' }}
-                      >
-                        🗑 {language === 'zh' ? '删除' : 'Delete'}
-                      </button>
+                      {/* Action buttons */}
+                      <div className="record-actions" style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
+                        {rec.savedDays && (
+                          <button
+                            className="secondary-button secondary-button--small"
+                            onClick={() => loadGameRecord(rec)}
+                            type="button"
+                          >
+                            {language === 'zh' ? '📂 加载' : '📂 Load'}
+                          </button>
+                        )}
+                        <button
+                          className="secondary-button secondary-button--small"
+                          onClick={() => {
+                            const name = window.prompt(language === 'zh' ? '输入游戏名称：' : 'Enter game name:', rec.recordName)
+                            if (name) saveGame(name)
+                          }}
+                          type="button"
+                        >
+                          {language === 'zh' ? '💾 另存' : '💾 Save As'}
+                        </button>
+                        <button
+                          className="secondary-button secondary-button--small"
+                          onClick={() => exportRecordJson(rec)}
+                          type="button"
+                        >
+                          {language === 'zh' ? '📥 导出JSON' : '📥 Export JSON'}
+                        </button>
+                        <button
+                          className="secondary-button secondary-button--small"
+                          onClick={() => setGameRecords((cur: any[]) => cur.filter((r) => r.id !== rec.id))}
+                          type="button"
+                          style={{ color: '#b91c1c', borderColor: 'rgba(180,50,50,0.3)' }}
+                        >
+                          🗑 {language === 'zh' ? '删除' : 'Delete'}
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
