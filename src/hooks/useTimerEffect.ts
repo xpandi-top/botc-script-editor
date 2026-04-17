@@ -42,9 +42,39 @@ function playChime() {
 }
 
 /** Alarm pulse — one "bip-bip" */
-export function playAlarmPulse() {
+function playAlarmPulse() {
   playTone(880, 0.15, 0.4)
   setTimeout(() => playTone(660, 0.15, 0.3), 200)
+}
+
+let currentAlarmAudio: HTMLAudioElement | null = null
+let alarmSrc: string | null = null
+
+function playCustomAlarm(src: string) {
+  if (currentAlarmAudio && alarmSrc === src && !currentAlarmAudio.paused) {
+    return
+  }
+  if (currentAlarmAudio) {
+    currentAlarmAudio.pause()
+    currentAlarmAudio = null
+  }
+  alarmSrc = src
+  try {
+    const audio = new Audio(src)
+    currentAlarmAudio = audio
+    audio.loop = true
+    audio.play().catch(() => {})
+  } catch (_) { /* fallback to tone */ }
+}
+
+function stopCustomAlarm() {
+  if (currentAlarmAudio) {
+    currentAlarmAudio.pause()
+    currentAlarmAudio.loop = false
+    currentAlarmAudio.currentTime = 0
+    currentAlarmAudio = null
+    alarmSrc = null
+  }
 }
 
 export function useTimerEffect(deps: TimerEffectDeps) {
@@ -56,13 +86,18 @@ export function useTimerEffect(deps: TimerEffectDeps) {
   // ── Persistent alarm interval ──────────────────────────────────────────
   useEffect(() => {
     if (alarmActive) {
-      playAlarmPulse()
-      alarmIntervalRef.current = window.setInterval(playAlarmPulse, 1400)
+      if (timerDefaults.alarmSound) {
+        playCustomAlarm(timerDefaults.alarmSound)
+      } else {
+        playAlarmPulse()
+        alarmIntervalRef.current = window.setInterval(playAlarmPulse, 1400)
+      }
     } else {
       if (alarmIntervalRef.current) { window.clearInterval(alarmIntervalRef.current); alarmIntervalRef.current = null }
+      stopCustomAlarm()
     }
     return () => { if (alarmIntervalRef.current) { window.clearInterval(alarmIntervalRef.current); alarmIntervalRef.current = null } }
-  }, [alarmActive])
+  }, [alarmActive, timerDefaults.alarmSound])
 
   // ── Timer tick ────────────────────────────────────────────────────────
   useEffect(() => {

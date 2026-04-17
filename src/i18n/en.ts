@@ -19,6 +19,7 @@ export const en = {
   start: 'Start/Pause',
   resetTimer: 'Reset',
   endNow: 'End',
+  alarmSound: 'Alarm Sound',
   addTag: 'Add tag',
   startNomination: 'Start nomination',
   continuePublic: 'Resume public',
@@ -168,4 +169,5 @@ export const en = {
   loadPredefinedTags: 'Load predefined tags',
   addTagLabel: '+Tag',
   travelersCount: 'Travelers',
+  loadCustomAlarm: 'Load Custom',
 } as const

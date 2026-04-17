@@ -174,6 +174,7 @@ export type TimerDefaults = {
   nominationActorSeconds: number
   nominationTargetSeconds: number
   nominationVoteSeconds: number
+  alarmSound: string
 }
 
 export type DayState = {

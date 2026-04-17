@@ -159,7 +159,7 @@ export function ArenaCenterLeft({ ctx }: { ctx: any }) {
             type="button"
           >{isTimerRunning ? '⏸' : '▶'}</button>
           <button className="storyteller-center__ctrl-btn" onClick={() => { updateCurrentDay(syncDayTimers); setIsTimerRunning(false) }} title={text.resetTimer} type="button">↺</button>
-          <button className="storyteller-center__ctrl-btn" onClick={() => setCurrentTimer(0)} title={text.endNow} type="button">■</button>
+          <button className="storyteller-center__ctrl-btn" onClick={() => { setIsTimerRunning(false); setAlarmActive(false); setCurrentTimer(0) }} title={text.endNow} type="button">■</button>
         </div>
       )}
 

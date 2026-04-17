@@ -1,6 +1,7 @@
 // @ts-nocheck
 import React from 'react'
 import { uniqueStrings } from '../constants'
+import { BASE_URL } from '../constants'
 
 export function RightPopupSettings({ ctx }: { ctx: any }) {
   const {
@@ -75,6 +76,31 @@ export function RightPopupSettings({ ctx }: { ctx: any }) {
             <label className="editor-field">
               <span>{text.voteDefault}</span>
               <input min="0" onChange={(e) => setTimerDefaults((c) => ({ ...c, nominationVoteSeconds: Number(e.target.value) }))} type="number" value={timerDefaults.nominationVoteSeconds} />
+            </label>
+          </div>
+        </section>
+
+        {/* ── Alarm Sound ── */}
+        <section className="storyteller-popup-section">
+          <h4 className="storyteller-popup-section__title">{text.alarmSound}</h4>
+          <div className="storyteller-settings-grid">
+            <label className="editor-field" style={{ gridColumn: '1 / -1' }}>
+              <select value={timerDefaults.alarmSound} onChange={(e) => setTimerDefaults((c) => ({ ...c, alarmSound: e.target.value }))}>
+                <option value="">Default Beep</option>
+                <option value={`${BASE_URL}audio/alarm/Alarm Clock Sound 6402.mp3`}>Alarm Clock</option>
+                <option value={`${BASE_URL}audio/alarm/Clock Tower Alarm Sound.mp3`}>Clock Tower</option>
+                <option value={`${BASE_URL}audio/alarm/Vintage Clock Sound Effect.mp3`}>Vintage Clock</option>
+                <option value={`${BASE_URL}audio/alarm/Old Spring Alarm Clock Sound Effect.mp3`}>Spring Clock</option>
+              </select>
+            </label>
+            <label className="editor-field" style={{ gridColumn: '1 / -1' }}>
+              <input type="file" accept=".mp3,.wav,.ogg" onChange={(e) => {
+                const file = e.target.files?.[0]
+                if (file) {
+                  const url = URL.createObjectURL(file)
+                  setTimerDefaults((c) => ({ ...c, alarmSound: url }))
+                }
+              }} />
             </label>
           </div>
         </section>

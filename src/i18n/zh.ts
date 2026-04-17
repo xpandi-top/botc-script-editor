@@ -19,6 +19,7 @@ export const zh = {
   start: '开始/暂停',
   resetTimer: '恢复默认',
   endNow: '结束',
+  alarmSound: '提示音',
   addTag: '加标签',
   startNomination: '进入提名',
   continuePublic: '继续公聊',
@@ -168,4 +169,5 @@ export const zh = {
   loadPredefinedTags: '加载预设标签',
   addTagLabel: '+标签',
   travelersCount: '旅人',
+  loadCustomAlarm: '加载自定义',
 } as const

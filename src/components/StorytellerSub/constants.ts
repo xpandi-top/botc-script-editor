@@ -28,6 +28,13 @@ export const INITIAL_AUDIO_TRACKS: AudioTrack[] = [
   { name: 'The Unwound Spring', src: `${BASE_URL}audio/the_unwound_spring.mp3` },
 ]
 
+export const DEFAULT_ALARM_SOUNDS: AudioTrack[] = [
+  { name: 'Alarm Clock', src: `${BASE_URL}audio/alarm/Alarm Clock Sound 6402.mp3` },
+  { name: 'Clock Tower', src: `${BASE_URL}audio/alarm/Clock Tower Alarm Sound.mp3` },
+  { name: 'Vintage Clock', src: `${BASE_URL}audio/alarm/Vintage Clock Sound Effect.mp3` },
+  { name: 'Old Spring', src: `${BASE_URL}audio/alarm/Old Spring Alarm Clock Sound Effect.mp3` },
+]
+
 export function createSeats(count: number): StorytellerSeat[] {
   return Array.from({ length: count }, (_, i) => ({
     seat: i + 1,
@@ -63,6 +70,7 @@ export function createTimerDefaults(): TimerDefaults {
     nominationActorSeconds: 30,
     nominationTargetSeconds: 30,
     nominationVoteSeconds: 5,
+    alarmSound: `${BASE_URL}audio/alarm/Vintage Clock Sound Effect.mp3`,
   }
 }
 

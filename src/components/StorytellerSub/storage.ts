@@ -1,5 +1,5 @@
 import type { PersistedState } from './types'
-import { STORAGE_KEY, DEFAULT_PLAYER_COUNT, createTimerDefaults, createDayState, createSeats, createDefaultVoteDraft, createDefaultSkillDraft } from './constants'
+import { STORAGE_KEY, DEFAULT_PLAYER_COUNT, createTimerDefaults, createDayState, createSeats, createDefaultVoteDraft, createDefaultSkillDraft, BASE_URL } from './constants'
 
 // ── Load / Migrate ─────────────────────────────────────────────
 
@@ -32,6 +32,7 @@ export function loadInitialState(): PersistedState {
         nominationDelayMinutes: p.timerDefaults?.nominationDelayMinutes ?? 2,
         nominationWaitSeconds: p.timerDefaults?.nominationWaitSeconds ?? 10,
         nominationVoteSeconds: p.timerDefaults?.nominationVoteSeconds ?? 5,
+        alarmSound: p.timerDefaults?.alarmSound ?? `${BASE_URL}audio/alarm/Vintage Clock Sound Effect.mp3`,
       },
       customTagPool: p.customTagPool ?? [],
       playerNamePool: p.playerNamePool ?? [],
