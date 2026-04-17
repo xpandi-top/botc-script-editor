@@ -71,7 +71,7 @@ body {
 
 /* Prevent page scroll while Storyteller Helper is active */
 body.storyteller-active {
-  overflow: hidden;
+  overflow-x: hidden;
   height: 100vh;
 }
 
@@ -83,6 +83,7 @@ body.storyteller-active .app-shell {
   /* Vertical scroll when layout hits min-height; horizontal scroll when content overflows */
   overflow-y: auto;
   overflow-x: auto;
+  min-width: 0;
 }
 
 body.storyteller-active .app-hero,
@@ -1119,6 +1120,7 @@ button {
   z-index: 500;
   transform: translateX(100%);
   transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-x: auto;
 }
 
 .storyteller-right-drawer--open {
