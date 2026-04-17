@@ -93,6 +93,8 @@ export function buildGameActions(deps: ActionDeps) {
   }
 
   function confirmNomination() {
+    const canStart = currentDay.nominationStep === 'nominationDecision' || currentDay.nominationStep === 'actorSpeech' || currentDay.nominationStep === 'readyForTargetSpeech' || currentDay.nominationStep === 'targetSpeech' || currentDay.nominationStep === 'readyToVote' || currentDay.nominationStep === 'voting' || currentDay.nominationStep === 'votingDone'
+    if (!canStart) return
     updateCurrentDay((d) => ({ ...d, nominationStep: 'actorSpeech', nominationActorSeconds: timerDefaults.nominationActorSeconds }))
     setIsTimerRunning(true)
   }
@@ -103,16 +105,20 @@ export function buildGameActions(deps: ActionDeps) {
       return appendEvent({ ...d, nominationStep: 'waitingForNomination', nominationWaitSeconds: timerDefaults.nominationWaitSeconds, voteHistory: failRecord ? [failRecord, ...d.voteHistory] : d.voteHistory, voteDraft: createDefaultVoteDraft(), votingState: null }, 'stateChange', `提名失败: #${d.voteDraft.actor ?? '?'} → #${d.voteDraft.target ?? '?'}`)
     })
     setPickerMode('nominator')
-    // Timer does NOT auto-start — ST decides when to begin nomination wait countdown
+    setIsTimerRunning(false)
   }
 
   function confirmTargetSpeech() {
+    const canStart = currentDay.nominationStep === 'actorSpeech' || currentDay.nominationStep === 'readyForTargetSpeech' || currentDay.nominationStep === 'targetSpeech' || currentDay.nominationStep === 'readyToVote' || currentDay.nominationStep === 'voting' || currentDay.nominationStep === 'votingDone'
+    if (!canStart) return
     updateCurrentDay((d) => ({ ...d, nominationStep: 'targetSpeech', nominationTargetSeconds: timerDefaults.nominationTargetSeconds }))
     setIsTimerRunning(true)
   }
 
   function startVoting() {
     if (!currentDay.voteDraft.target) return
+    const canStart = currentDay.nominationStep === 'targetSpeech' || currentDay.nominationStep === 'readyToVote' || currentDay.nominationStep === 'voting' || currentDay.nominationStep === 'votingDone'
+    if (!canStart && currentDay.nominationStep !== 'nominationDecision') return
     const order = buildVotingOrder(currentDay.seats, currentDay.voteDraft.target)
     updateCurrentDay((d) => ({ ...d, nominationStep: 'voting', votingState: { votingOrder: order, votingIndex: 0, perPlayerSeconds: timerDefaults.nominationVoteSeconds, votes: {} } }))
     setPickerMode('none')

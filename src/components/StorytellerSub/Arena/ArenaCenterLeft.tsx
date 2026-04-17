@@ -234,21 +234,18 @@ export function ArenaCenterLeft({ ctx }: { ctx: any }) {
           <div className="storyteller-center__nom-steps">
             <button
               className={`storyteller-center__nom-step-btn${stepIdx === 1 ? ' storyteller-center__nom-step-btn--active' : stepIdx > 2 ? ' storyteller-center__nom-step-btn--done' : ''}`}
-              disabled={currentDay.nominationStep !== 'nominationDecision'}
               onClick={confirmNomination}
               title={language === 'zh' ? '提名者计时' : 'Nominator countdown'}
               type="button"
             >🎙{stepIdx > 2 ? ' ✓' : ''}</button>
             <button
               className={`storyteller-center__nom-step-btn${stepIdx === 3 ? ' storyteller-center__nom-step-btn--active' : stepIdx > 4 ? ' storyteller-center__nom-step-btn--done' : ''}`}
-              disabled={currentDay.nominationStep !== 'readyForTargetSpeech'}
               onClick={confirmTargetSpeech}
               title={language === 'zh' ? '被提名者计时' : 'Nominee countdown'}
               type="button"
             >🎯{stepIdx > 4 ? ' ✓' : ''}</button>
             <button
               className={`storyteller-center__nom-step-btn${stepIdx === 5 ? ' storyteller-center__nom-step-btn--active' : stepIdx > 5 ? ' storyteller-center__nom-step-btn--done' : ''}`}
-              disabled={currentDay.nominationStep !== 'readyToVote'}
               onClick={startVoting}
               title={language === 'zh' ? '开始投票' : 'Start vote'}
               type="button"
