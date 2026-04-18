@@ -52,7 +52,7 @@ export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: any, t
                   {isExpanded && (
                     <div className="record-card__body">
                       {/* Action buttons */}
-                      <div className="record-actions" style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
+                      <div className="record-actions">
                         {rec.savedDays && (
                           <button
                             className="secondary-button secondary-button--small"
@@ -80,17 +80,16 @@ export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: any, t
                           {language === 'zh' ? '📥 导出JSON' : '📥 Export JSON'}
                         </button>
                         <button
-                          className="secondary-button secondary-button--small"
+                          className="secondary-button secondary-button--small secondary-button--danger"
                           onClick={() => setGameRecords((cur: any[]) => cur.filter((r) => r.id !== rec.id))}
                           type="button"
-                          style={{ color: '#b91c1c', borderColor: 'rgba(180,50,50,0.3)' }}
                         >
                           🗑 {language === 'zh' ? '删除' : 'Delete'}
                         </button>
                       </div>
 
                       {/* Stats row */}
-                      <div className="record-stats" style={{ marginTop: '0.75rem' }}>
+                      <div className="record-stats">
                         <span>📅 {rec.days?.length ?? 1} {language === 'zh' ? '天' : 'd'}</span>
                         <span>🗳 {totalVotes} {language === 'zh' ? '票' : 'votes'}</span>
                         <span>✨ {totalSkills} {language === 'zh' ? '技' : 'skills'}</span>
