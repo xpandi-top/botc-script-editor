@@ -1,84 +1,56 @@
 [
-    {
-        "id": "_meta",
-        "logo": "https://i.ibb.co/x81hFPQ/rochambeau43.png",
-        "name": "Rochambeau",
-        "name_zh": "心理博弈",
-        "author": "Habby"
-    },
-    {
-        "id": "noble"
-    },
-    {
-        "id": "bountyhunter"
-    },
-    {
-        "id": "highpriestess"
-    },
-    {
-        "id": "towncrier"
-    },
-    {
-        "id": "innkeeper"
-    },
-    {
-        "id": "gambler"
-    },
-    {
-        "id": "acrobat"
-    },
-    {
-        "id": "lycanthrope"
-    },
-    {
-        "id": "gossip"
-    },
-    {
-        "id": "nightwatchman"
-    },
-    {
-        "id": "seamstress"
-    },
-    {
-        "id": "cannibal"
-    },
-    {
-        "id": "mayor"
-    },
-    {
-        "id": "tinker"
-    },
-    {
-        "id": "recluse"
-    },
-    {
-        "id": "moonchild"
-    },
-    {
-        "id": "hatter"
-    },
-    {
-        "id": "godfather"
-    },
-    {
-        "id": "poisoner"
-    },
-    {
-        "id": "pithag"
-    },
-    {
-        "id": "assassin"
-    },
-    {
-        "id": "widow"
-    },
-    {
-        "id": "po"
-    },
-    {
-        "id": "vigormortis"
-    },
-    {
-        "id": "leviathan"
-    }
+  {
+    "id": "_meta",
+    "logo": "https://i.ibb.co/x81hFPQ/rochambeau43.png",
+    "name": "Rochambeau",
+    "name_zh": "心理博弈",
+    "author": "Habby",
+    "jinxes": [
+      {
+        "id": "hatter::leviathan",
+        "characters": [
+          "hatter",
+          "leviathan"
+        ],
+        "status": "inactive",
+        "reason": "",
+        "reason_zh": ""
+      },
+      {
+        "id": "leviathan::pithag",
+        "characters": [
+          "leviathan",
+          "pithag"
+        ],
+        "status": "inactive",
+        "reason": "",
+        "reason_zh": ""
+      }
+    ]
+  },
+  "bountyhunter",
+  "cannibal",
+  "gambler",
+  "gossip",
+  "highpriestess",
+  "innkeeper",
+  "lycanthrope",
+  "mayor",
+  "nightwatchman",
+  "noble",
+  "seamstress",
+  "towncrier",
+  "acrobat",
+  "hatter",
+  "moonchild",
+  "recluse",
+  "tinker",
+  "assassin",
+  "godfather",
+  "pithag",
+  "poisoner",
+  "widow",
+  "leviathan",
+  "po",
+  "vigormortis"
 ]
