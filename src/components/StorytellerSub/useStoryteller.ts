@@ -36,8 +36,10 @@ export function useStoryteller(props: StorytellerHelperProps) {
   const [selectedSeatNumber, setSelectedSeatNumber] = useState<number | null>(null)
   const [skillOverlay, setSkillOverlay] = useState<SkillOverlayState | null>(null)
   const [newGamePanel, setNewGamePanel] = useState<NewGameConfig | null>(null)
-  const [endGameResult, setEndGameResult] = useState<EndGameResult | null>(null)
+  const [endGameResult, setEndGameResult] = useState<EndGameResult | null>(initial.endGameResult ?? null)
+  const [showEndGameModal, setShowEndGameModal] = useState(false)
   const [logFilter, setLogFilter] = useState<LogFilterState>({ types: new Set(['vote', 'skill', 'event']), dayFilter: 'all', sortAsc: false, visibility: 'all' })
+  const [currentRecordName, setCurrentRecordName] = useState<string | null>(null)
 
   // ── Sub-hooks ──
   const text = useI18n(language)
@@ -166,8 +168,21 @@ export function useStoryteller(props: StorytellerHelperProps) {
 
   // ── Effects ──
   useEffect(() => {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ selectedDayId, timerDefaults, days, customTagPool, gameRecords, playerNamePool, activeScriptSlug, activeScriptTitle } satisfies PersistedState))
+    const toSave = { selectedDayId, timerDefaults, days, customTagPool, gameRecords, playerNamePool, activeScriptSlug, activeScriptTitle }
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave satisfies PersistedState))
   }, [customTagPool, days, gameRecords, playerNamePool, selectedDayId, timerDefaults, activeScriptSlug, activeScriptTitle])
+
+  // Separate effect to save endGameResult - avoids overwriting saved data when closing modal
+  useEffect(() => {
+    if (endGameResult !== null) {
+      const stored = window.localStorage.getItem(STORAGE_KEY)
+      if (stored) {
+        const parsed = JSON.parse(stored)
+        parsed.endGameResult = endGameResult
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed))
+      }
+    }
+  }, [endGameResult])
 
   useEffect(() => {
     if (currentDay.phase === 'nomination' && currentDay.nominationStep === 'waitingForNomination' && !currentDay.voteDraft.actor) setPickerMode('nominator')
@@ -181,7 +196,7 @@ export function useStoryteller(props: StorytellerHelperProps) {
   // ── Domain actions ──
   const gameActions = buildGameActions({ currentDay, timerDefaults, requiredVotes: effectiveRequiredVotes, draftPassed, isTimerRunning, skillOverlay, seatTagDrafts, updateCurrentDay, updateCurrentDayWithUndo, appendEvent, setPickerMode, setIsTimerRunning, setSkillOverlay, setSkillPopoutSeat: ui.setSkillPopoutSeat, setTagPopoutSeat: ui.setTagPopoutSeat, setSkillRoleDropdownOpen: ui.setSkillRoleDropdownOpen, setShowNominationSheet: ui.setShowNominationSheet, setCustomTagPool, setSeatTagDrafts, text })
 
-  const lifecycle = buildGameLifecycle({ days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, endGameResult, scriptOptions, onSelectScript, setDays, setDaysWithUndo, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay: (v) => setSkillOverlay(v), setNewGamePanel, setEndGameResult, setGameRecords, setSelectedAudioSrc: audio.setSelectedAudioSrc, setAudioPlaying: audio.setAudioPlaying, nightBgmSrc: NIGHT_BGM_SRC, language, appendEvent, customTagPool, playerNamePool })
+  const lifecycle = buildGameLifecycle({ days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, endGameResult, scriptOptions, onSelectScript, setDays, setDaysWithUndo, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay: (v) => setSkillOverlay(v), setNewGamePanel, setEndGameResult, setGameRecords, setSelectedAudioSrc: audio.setSelectedAudioSrc, setAudioPlaying: audio.setAudioPlaying, nightBgmSrc: NIGHT_BGM_SRC, language, appendEvent, customTagPool, playerNamePool, setCurrentRecordName, setTimerDefaults, setCustomTagPool, setPlayerNamePool, setShowEndGameModal })
 
   function clearUnusedCustomTags() {
     const usedTags = new Set(days.flatMap((d) => d.seats.flatMap((s) => s.customTags)))
@@ -225,13 +240,14 @@ export function useStoryteller(props: StorytellerHelperProps) {
     days, setDays, selectedDayId, setSelectedDayId, timerDefaults, setTimerDefaults,
     undo, canUndo,
     customTagPool, setCustomTagPool, gameRecords, setGameRecords, playerNamePool, setPlayerNamePool,
+    currentRecordName,
     pickerMode, setPickerMode, isTimerRunning, setIsTimerRunning,
     dialogState, setDialogState, seatTagDrafts, setSeatTagDrafts,
     selectedSeatNumber, setSelectedSeatNumber,
     ...ui,
     skillOverlay, setSkillOverlay,
     ...audio,
-    newGamePanel, setNewGamePanel, endGameResult, setEndGameResult,
+    newGamePanel, setNewGamePanel, endGameResult, setEndGameResult, showEndGameModal, setShowEndGameModal,
     logFilter, setLogFilter,
     lastCountdownRef, text,
     selectedDayIndex, currentDay, updateCurrentDay, currentTimerSeconds,

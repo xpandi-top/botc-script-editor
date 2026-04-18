@@ -31,14 +31,19 @@ interface LifecycleDeps {
   appendEvent: (d: DayState, kind: 'stateChange' | 'phaseTransition' | 'tagChange' | 'skill' | 'vote', detail: string) => DayState
   customTagPool?: string[]
   playerNamePool?: string[]
+  setCurrentRecordName?: (name: string | null) => void
+  setTimerDefaults?: (t: TimerDefaults) => void
+  setCustomTagPool?: (c: string[]) => void
+  setPlayerNamePool?: (p: string[]) => void
+  setShowEndGameModal?: (v: boolean) => void
 }
 
 export function buildGameLifecycle(deps: LifecycleDeps) {
-  const { days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, endGameResult, scriptOptions, onSelectScript, setDays, setDaysWithUndo, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay, setNewGamePanel, setEndGameResult, setGameRecords, setAudioPlaying, language, appendEvent, customTagPool = [], playerNamePool = [] } = deps
+  const { days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, endGameResult, scriptOptions, onSelectScript, setDays, setDaysWithUndo, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay, setNewGamePanel, setEndGameResult, setGameRecords, setAudioPlaying, language, appendEvent, customTagPool = [], playerNamePool = [], setCurrentRecordName, setTimerDefaults, setCustomTagPool, setPlayerNamePool, setShowEndGameModal } = deps
 
   function goToNextDay() {
-    if (currentDay.gameEnded) return
     if (selectedDayIndex < days.length - 1) { setSelectedDayId(days[selectedDayIndex + 1].id); setIsTimerRunning(false); return }
+    if (currentDay.gameEnded) return // Don't create new day if game is marked as ended
     const next = createDayState(days.length + 1, currentDay.seats, timerDefaults)
     setDaysWithUndo((cur) => [...cur, next])
     setSelectedDayId(next.id)
@@ -164,6 +169,7 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
       seat.note = newGamePanel.seatNotes[sNum] || ''
     }
     const firstDay = createDayState(1, seats, timerDefaults)
+    firstDay.demonBluffs = newGamePanel.demonBluffs || []
     setDaysWithUndo([firstDay])
     setSelectedDayId(firstDay.id)
     setPickerMode('none')
@@ -171,6 +177,7 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     setSeatTagDrafts({})
     setSkillOverlay(null)
     setNewGamePanel(null)
+    if (setCurrentRecordName) setCurrentRecordName(null)
   }
 
   function applyGameChanges(newGamePanel: NewGameConfig) {
@@ -222,23 +229,32 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     setIsTimerRunning(false)
     setSeatTagDrafts({})
     setSkillOverlay(null)
+    if (setCurrentRecordName) setCurrentRecordName(null)
   }
 
   function openEndGamePanel() {
-    const teams: Record<number, 'evil' | 'good' | null> = {}
-    for (const s of currentDay.seats) teams[s.seat] = 'good'
-    setEndGameResult({ winner: null, playerTeams: teams, mvp: null, balanced: null, funEvil: null, funGood: null, replay: null, otherNote: '' })
+    // Just set endGameResult if not already set - modal will show if showEndGameModal is true
+    if (!endGameResult) {
+      const teams: Record<number, 'evil' | 'good' | null> = {}
+      for (const s of currentDay.seats) teams[s.seat] = 'good'
+      setEndGameResult({ winner: null, playerTeams: teams, mvp: null, balanced: null, funEvil: null, funGood: null, replay: null, otherNote: '' })
+    }
+    // Show the modal
+    if (setShowEndGameModal) setShowEndGameModal(true)
+    // Force update to trigger re-render
+    setEndGameResult((c) => c ? { ...c } : c)
   }
 
-  function confirmEndGame(recordName?: string) {
-    if (!endGameResult) return
-    const summaries = currentDay.seats.map((s) => ({ seat: s.seat, name: s.name, team: endGameResult.playerTeams[s.seat] ?? 'good' }))
+  function confirmEndGame(recordName?: string, surveyData?: { winner?: string | null, mvp?: number | null, balanced?: number | null, funEvil?: number | null, funGood?: number | null, replay?: number | null, otherNote?: string, playerTeams?: Record<number, string | null> }) {
+    const survey = surveyData || endGameResult
+    if (!survey) return
+    const summaries = currentDay.seats.map((s) => ({ seat: s.seat, name: s.name, team: survey.playerTeams?.[s.seat] as any ?? 'good' }))
     const updatedDays = days.map((d) => d.id === currentDay.id ? { ...d, gameEnded: true } : d)
-    const newRecord = { id: `${Date.now()}`, endedAt: Date.now(), scriptTitle: activeScriptTitle, scriptSlug: activeScriptSlug, winner: endGameResult.winner, playerSummaries: summaries, mvp: endGameResult.mvp, balanced: endGameResult.balanced, funEvil: endGameResult.funEvil, funGood: endGameResult.funGood, replay: endGameResult.replay, otherNote: endGameResult.otherNote, days: days.map((d) => ({ day: d.day, votes: d.voteHistory.length, skills: d.skillHistory.length })), savedDays: updatedDays }
-    if (recordName) (newRecord as any).recordName = recordName
+    const newRecord: any = { id: `${Date.now()}`, endedAt: Date.now(), scriptTitle: activeScriptTitle, scriptSlug: activeScriptSlug, winner: survey.winner ?? null, playerSummaries: summaries, mvp: survey.mvp ?? null, balanced: survey.balanced ?? null, funEvil: survey.funEvil ?? null, funGood: survey.funGood ?? null, replay: survey.replay ?? null, otherNote: survey.otherNote ?? '', days: days.map((d) => ({ day: d.day, votes: d.voteHistory.length, skills: d.skillHistory.length })), savedDays: updatedDays }
+    if (recordName) newRecord.recordName = recordName
     setGameRecords((cur) => [newRecord, ...cur])
     setDays(updatedDays)
-    setEndGameResult(null)
+    // Don't clear endGameResult - keep it for further editing
   }
 
   function unmarkGameEnded() {
@@ -303,25 +319,58 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     if (!record.savedDays || record.savedDays.length === 0) return
     setDaysWithUndo(record.savedDays)
     setSelectedDayId(record.savedDays[0].id)
+    if (record.scriptSlug && record.scriptSlug !== activeScriptSlug && onSelectScript) {
+      onSelectScript(record.scriptSlug)
+    }
+    if (setCurrentRecordName) {
+      setCurrentRecordName(record.recordName || null)
+    }
+    if (record.timerDefaults && setTimerDefaults) {
+      setTimerDefaults(record.timerDefaults)
+    }
+    if (record.customTagPool && setCustomTagPool) {
+      setCustomTagPool(record.customTagPool)
+    }
+    if (record.playerNamePool && setPlayerNamePool) {
+      setPlayerNamePool(record.playerNamePool)
+    }
+    // Restore survey data to endGameResult so user can see/edit it
+    const teams: Record<number, 'evil' | 'good' | null> = {}
+    for (const s of record.savedDays[0].seats) {
+      const team = record.playerSummaries?.find((p) => p.seat === s.seat)?.team
+      teams[s.seat] = team ?? 'good'
+    }
+    setEndGameResult({
+      winner: record.winner ?? null,
+      playerTeams: teams,
+      mvp: record.mvp ?? null,
+      balanced: record.balanced ?? null,
+      funEvil: record.funEvil ?? null,
+      funGood: record.funGood ?? null,
+      replay: record.replay ?? null,
+      otherNote: record.otherNote ?? '',
+    })
   }
 
-  function saveGame(name?: string, existingId?: string) {
+  function saveGame(name?: string, existingId?: string, surveyData?: { winner?: string | null, mvp?: number | null, balanced?: number | null, funEvil?: number | null, funGood?: number | null, replay?: number | null, otherNote?: string, playerTeams?: Record<number, string | null> }) {
     const savedAt = Date.now()
     const recordId = existingId || `save-${savedAt}`
-    const newRecord: GameRecord = {
+    const finalName = name || `Game ${new Date(savedAt).toLocaleDateString()}`
+    const survey = surveyData || endGameResult
+    const newRecord: any = {
       id: recordId,
       endedAt: savedAt,
-      recordName: name || `Game ${new Date(savedAt).toLocaleDateString()}`,
+      recordName: finalName,
       scriptTitle: activeScriptTitle,
       scriptSlug: activeScriptSlug,
-      winner: null,
-      playerSummaries: currentDay.seats.map((s) => ({ seat: s.seat, name: s.name, team: null })),
-      mvp: null,
-      balanced: null,
-      funEvil: null,
-      funGood: null,
-      replay: null,
-      otherNote: '',
+      winner: survey?.winner ?? null,
+      playerSummaries: currentDay.seats.map((s) => ({ seat: s.seat, name: s.name, team: survey?.playerTeams?.[s.seat] as any ?? null })),
+      mvp: survey?.mvp ?? null,
+      balanced: survey?.balanced ?? null,
+      funEvil: survey?.funEvil ?? null,
+      funGood: survey?.funGood ?? null,
+      replay: survey?.replay ?? null,
+      otherNote: survey?.otherNote ?? '',
       days: days.map((d) => ({ day: d.day, votes: d.voteHistory.length, skills: d.skillHistory.length })),
       savedDays: days,
       timerDefaults,
@@ -332,6 +381,9 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
       setGameRecords((cur) => cur.map((r) => r.id === existingId ? newRecord : r))
     } else {
       setGameRecords((cur) => [newRecord, ...cur])
+    }
+    if (setCurrentRecordName) {
+      setCurrentRecordName(finalName)
     }
   }
 

@@ -102,6 +102,7 @@ export function createDayState(day: number, seats: StorytellerSeat[], defaults: 
     eventLog: [],
     nightVisitedSeats: [],
     gameEnded: false,
+    demonBluffs: [],
   }
 }
 

@@ -44,62 +44,13 @@ export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: any, t
                     onClick={() => setExpandedId(isExpanded ? null : rec.id)}
                     type="button"
                   >
-                    <span className="record-card__date">{date}</span>
-                    <span className="record-card__script">{rec.scriptTitle ?? '—'}</span>
-                    {rec.winner && (
-                      <span className="record-card__winner" style={{ color: TEAM_COLORS[rec.winner] ?? '#555' }}>
-                        {rec.winner === 'evil' ? (language === 'zh' ? '邪恶胜' : '🔴 Evil')
-                          : rec.winner === 'good' ? (language === 'zh' ? '善良胜' : '🔵 Good')
-                          : (language === 'zh' ? '讲故事人胜' : '👁 ST')}
-                      </span>
-                    )}
+                    <span className="record-card__filename">{rec.recordName ?? (rec.scriptTitle ? `${rec.scriptTitle} - ${date}` : date)}</span>
                     <span className="record-card__chevron">{isExpanded ? '▲' : '▼'}</span>
                   </button>
 
                   {/* ── Expanded body ── */}
                   {isExpanded && (
                     <div className="record-card__body">
-                      {/* Stats row */}
-                      <div className="record-stats">
-                        <span>📅 {rec.days?.length ?? 1} {language === 'zh' ? '天' : 'd'}</span>
-                        <span>🗳 {totalVotes} {language === 'zh' ? '票' : 'votes'}</span>
-                        <span>✨ {totalSkills} {language === 'zh' ? '技' : 'skills'}</span>
-                        {typeof rec.balanced === 'number' && <span>⚖️ {rec.balanced}★</span>}
-                      </div>
-
-                      {/* Per-day breakdown */}
-                      {rec.days && rec.days.length > 0 && (
-                        <div className="record-days">
-                          {rec.days.map((d: any) => (
-                            <span key={d.day} className="record-day-chip">
-                              D{d.day}: {d.votes}🗳 {d.skills}✨
-                            </span>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* Player summaries */}
-                      {rec.playerSummaries && rec.playerSummaries.length > 0 && (
-                        <div className="record-players">
-                          {rec.playerSummaries.map((p: any) => (
-                            <span
-                              key={p.seat}
-                              className="record-player-chip"
-                              style={{ borderColor: p.team === 'evil' ? 'rgba(180,50,50,0.4)' : 'rgba(37,99,171,0.3)' }}
-                            >
-                              <span className="record-player-num">#{p.seat}</span>
-                              <span className="record-player-name">{p.name}</span>
-                              {p.seat === rec.mvp && <span className="record-player-mvp">MVP</span>}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* Notes */}
-                      {rec.otherNote && (
-                        <p className="record-note">{rec.otherNote}</p>
-                      )}
-
                       {/* Action buttons */}
                       <div className="record-actions" style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
                         {rec.savedDays && (
@@ -114,7 +65,7 @@ export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: any, t
                         <button
                           className="secondary-button secondary-button--small"
                           onClick={() => {
-                            const name = window.prompt(language === 'zh' ? '输入游戏名称：' : 'Enter game name:', rec.recordName)
+                            const name = window.prompt(language === 'zh' ? '输入新文件名：' : 'Enter new file name:', rec.recordName)
                             if (name) saveGame(name)
                           }}
                           type="button"
@@ -136,6 +87,14 @@ export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: any, t
                         >
                           🗑 {language === 'zh' ? '删除' : 'Delete'}
                         </button>
+                      </div>
+
+                      {/* Stats row */}
+                      <div className="record-stats" style={{ marginTop: '0.75rem' }}>
+                        <span>📅 {rec.days?.length ?? 1} {language === 'zh' ? '天' : 'd'}</span>
+                        <span>🗳 {totalVotes} {language === 'zh' ? '票' : 'votes'}</span>
+                        <span>✨ {totalSkills} {language === 'zh' ? '技' : 'skills'}</span>
+                        {rec.scriptTitle && <span>📖 {rec.scriptTitle}</span>}
                       </div>
                     </div>
                   )}

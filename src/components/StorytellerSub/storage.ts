@@ -84,6 +84,7 @@ export function loadInitialState(): PersistedState {
       gameRecords: p.gameRecords ?? [],
       activeScriptSlug: p.activeScriptSlug,
       activeScriptTitle: p.activeScriptTitle,
+      endGameResult: p.endGameResult ?? null,
     }
   } catch {
     return fallback

@@ -200,6 +200,7 @@ export type DayState = {
   eventLog: EventLogEntry[]
   nightVisitedSeats: number[]
   gameEnded: boolean
+  demonBluffs: string[]
 }
 
 export type GameRecord = {
@@ -232,6 +233,7 @@ export type PersistedState = {
   playerNamePool: string[]
   activeScriptSlug?: string
   activeScriptTitle?: string
+  endGameResult?: EndGameResult | null
 }
 
 export type DialogState =
