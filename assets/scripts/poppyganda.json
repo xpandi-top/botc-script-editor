@@ -1,0 +1,81 @@
+[
+    {
+        "id": "_meta",
+        "logo": "https://i.imgur.com/zHqn8x0.png",
+        "name": "Poppyganda",
+        "name_zh": "罂粟花开",
+        "author": "Dan"
+    },
+    {
+        "id": "chef"
+    },
+    {
+        "id": "librarian"
+    },
+    {
+        "id": "bountyhunter"
+    },
+    {
+        "id": "pixie"
+    },
+    {
+        "id": "fortuneteller"
+    },
+    {
+        "id": "towncrier"
+    },
+    {
+        "id": "oracle"
+    },
+    {
+        "id": "monk"
+    },
+    {
+        "id": "savant"
+    },
+    {
+        "id": "juggler"
+    },
+    {
+        "id": "farmer"
+    },
+    {
+        "id": "mayor"
+    },
+    {
+        "id": "poppygrower"
+    },
+    {
+        "id": "lunatic"
+    },
+    {
+        "id": "drunk"
+    },
+    {
+        "id": "mutant"
+    },
+    {
+        "id": "snitch"
+    },
+    {
+        "id": "cerenovus"
+    },
+    {
+        "id": "marionette"
+    },
+    {
+        "id": "eviltwin"
+    },
+    {
+        "id": "baron"
+    },
+    {
+        "id": "imp"
+    },
+    {
+        "id": "vortox"
+    },
+    {
+        "id": "legion"
+    }
+]
