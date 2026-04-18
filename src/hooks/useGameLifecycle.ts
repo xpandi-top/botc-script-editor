@@ -217,7 +217,7 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
       newSeat.note = newGamePanel.seatNotes[sNum] || ''
       return newSeat
     })
-    setDays((d) => d.map((day) => day.id === currentDay.id ? { ...updatedDay, seats: updatedSeats } : day))
+    setDays((d) => d.map((day) => day.id === currentDay.id ? { ...updatedDay, seats: updatedSeats, demonBluffs: newGamePanel.demonBluffs || [] } : day))
     setNewGamePanel(null)
   }
 
@@ -250,7 +250,47 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     if (!survey) return
     const summaries = currentDay.seats.map((s) => ({ seat: s.seat, name: s.name, team: survey.playerTeams?.[s.seat] as any ?? 'good' }))
     const updatedDays = days.map((d) => d.id === currentDay.id ? { ...d, gameEnded: true } : d)
-    const newRecord: any = { id: `${Date.now()}`, endedAt: Date.now(), scriptTitle: activeScriptTitle, scriptSlug: activeScriptSlug, winner: survey.winner ?? null, playerSummaries: summaries, mvp: survey.mvp ?? null, balanced: survey.balanced ?? null, funEvil: survey.funEvil ?? null, funGood: survey.funGood ?? null, replay: survey.replay ?? null, otherNote: survey.otherNote ?? '', days: days.map((d) => ({ day: d.day, votes: d.voteHistory.length, skills: d.skillHistory.length })), savedDays: updatedDays }
+
+    // Extract setup data from current day
+    const nonTravelers = currentDay.seats.filter((s) => !s.isTraveler)
+    const travelers = currentDay.seats.filter((s) => s.isTraveler)
+    const seatNames: Record<number, string> = {}
+    const assignments: Record<number, string> = {}
+    const userAssignments: Record<number, string | null> = {}
+    const seatNotes: Record<number, string> = {}
+    for (const s of currentDay.seats) {
+      seatNames[s.seat] = s.name
+      if (s.characterId) assignments[s.seat] = s.characterId
+      if (s.userCharacterId) userAssignments[s.seat] = s.userCharacterId
+      if (s.note) seatNotes[s.seat] = s.note
+    }
+
+    const newRecord: any = {
+      id: `${Date.now()}`,
+      endedAt: Date.now(),
+      scriptTitle: activeScriptTitle,
+      scriptSlug: activeScriptSlug,
+      winner: survey.winner ?? null,
+      playerSummaries: summaries,
+      mvp: survey.mvp ?? null,
+      balanced: survey.balanced ?? null,
+      funEvil: survey.funEvil ?? null,
+      funGood: survey.funGood ?? null,
+      replay: survey.replay ?? null,
+      otherNote: survey.otherNote ?? '',
+      days: days.map((d) => ({ day: d.day, votes: d.voteHistory.length, skills: d.skillHistory.length })),
+      savedDays: updatedDays,
+      setup: {
+        playerCount: nonTravelers.length,
+        travelerCount: travelers.length,
+        seatNames,
+        assignments,
+        userAssignments,
+        seatNotes,
+        specialNote: '',
+        demonBluffs: currentDay.demonBluffs || [],
+      },
+    }
     if (recordName) newRecord.recordName = recordName
     setGameRecords((cur) => [newRecord, ...cur])
     setDays(updatedDays)
@@ -334,6 +374,24 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     if (record.playerNamePool && setPlayerNamePool) {
       setPlayerNamePool(record.playerNamePool)
     }
+    // Restore setup data to newGamePanel if available
+    if (record.setup) {
+      setNewGamePanel({
+        playerCount: record.setup.playerCount,
+        travelerCount: record.setup.travelerCount,
+        scriptSlug: record.scriptSlug || '',
+        allowDuplicateChars: false,
+        allowEmptyChars: false,
+        allowSameNames: false,
+        seatNames: record.setup.seatNames || {},
+        assignments: record.setup.assignments || {},
+        userAssignments: record.setup.userAssignments || {},
+        seatNotes: record.setup.seatNotes || {},
+        specialNote: record.setup.specialNote || '',
+        demonBluffs: record.setup.demonBluffs ?? [],
+        editMode: true,
+      })
+    }
     // Restore survey data to endGameResult so user can see/edit it
     const teams: Record<number, 'evil' | 'good' | null> = {}
     for (const s of record.savedDays[0].seats) {
@@ -357,6 +415,21 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     const recordId = existingId || `save-${savedAt}`
     const finalName = name || `Game ${new Date(savedAt).toLocaleDateString()}`
     const survey = surveyData || endGameResult
+
+    // Extract setup data from current day
+    const nonTravelers = currentDay.seats.filter((s) => !s.isTraveler)
+    const travelers = currentDay.seats.filter((s) => s.isTraveler)
+    const seatNames: Record<number, string> = {}
+    const assignments: Record<number, string> = {}
+    const userAssignments: Record<number, string | null> = {}
+    const seatNotes: Record<number, string> = {}
+    for (const s of currentDay.seats) {
+      seatNames[s.seat] = s.name
+      if (s.characterId) assignments[s.seat] = s.characterId
+      if (s.userCharacterId) userAssignments[s.seat] = s.userCharacterId
+      if (s.note) seatNotes[s.seat] = s.note
+    }
+
     const newRecord: any = {
       id: recordId,
       endedAt: savedAt,
@@ -376,6 +449,16 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
       timerDefaults,
       customTagPool,
       playerNamePool,
+      setup: {
+        playerCount: nonTravelers.length,
+        travelerCount: travelers.length,
+        seatNames,
+        assignments,
+        userAssignments,
+        seatNotes,
+        specialNote: '',
+        demonBluffs: currentDay.demonBluffs || [],
+      },
     }
     if (existingId) {
       setGameRecords((cur) => cur.map((r) => r.id === existingId ? newRecord : r))

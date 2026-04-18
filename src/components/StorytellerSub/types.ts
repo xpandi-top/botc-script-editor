@@ -222,6 +222,17 @@ export type GameRecord = {
   timerDefaults?: TimerDefaults
   customTagPool?: string[]
   playerNamePool?: string[]
+  // Game setup data
+  setup?: {
+    playerCount: number
+    travelerCount: number
+    seatNames: Record<number, string>
+    assignments: Record<number, string>
+    userAssignments: Record<number, string | null>
+    seatNotes: Record<number, string>
+    specialNote: string
+    demonBluffs: string[]
+  }
 }
 
 export type PersistedState = {
