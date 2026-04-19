@@ -34,7 +34,6 @@ export function ArenaSeatTagPopout({ ctx, seat }: { ctx: any, seat: any }) {
                         {/* Input + add button */}
                         <div className="storyteller-tag-popout__add-row">
                           <input
-                            autoFocus
                             onChange={(e) => setSeatTagDrafts((c) => ({ ...c, [seat.seat]: e.target.value }))}
                             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCustomTag(seat.seat); setSeatTagDrafts((c) => ({ ...c, [seat.seat]: '' })) } }}
                             placeholder={text.addTag}

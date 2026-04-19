@@ -86,7 +86,7 @@ export function RightConsolePlayer({ ctx, toggleConsoleSection }: { ctx: any, to
                         <label className="editor-field">
                           <span>{text.addTag}</span>
                           <div className="storyteller-seat-editor__add">
-                            <input onChange={(e) => setSeatTagDrafts((c) => ({ ...c, [selectedSeat.seat]: e.target.value }))} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCustomTag(selectedSeat.seat) } }} placeholder={text.addTag} type="text" value={seatTagDrafts[selectedSeat.seat] ?? ''} />
+                            <input onChange={(e) => setSeatTagDrafts((c) => ({ ...c, [selectedSeat.seat]: e.target.value }))} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCustomTag(selectedSeat.seat); document.activeElement && 'blur' in document.activeElement && (document.activeElement as HTMLInputElement).blur() } }} placeholder={text.addTag} type="text" value={seatTagDrafts[selectedSeat.seat] ?? ''} />
                             <button className="secondary-button secondary-button--small" onClick={() => addCustomTag(selectedSeat.seat)} type="button">+</button>
                           </div>
                         </label>
