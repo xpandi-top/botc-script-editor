@@ -1,5 +1,9 @@
-// @ts-nocheck
-import React from 'react'
+import { Box, Button, Select, MenuItem, IconButton, Typography, Slider, Chip } from '@mui/material'
+import PlayArrowIcon from '@mui/icons-material/PlayArrow'
+import PauseIcon from '@mui/icons-material/Pause'
+import AddIcon from '@mui/icons-material/Add'
+import UndoIcon from '@mui/icons-material/Undo'
+import MenuOpenIcon from '@mui/icons-material/MenuOpen'
 import { CHARACTER_DISTRIBUTION } from './constants'
 
 export function CompactToolbar({ ctx }: { ctx: any }) {
@@ -8,112 +12,95 @@ export function CompactToolbar({ ctx }: { ctx: any }) {
     audioPlaying, setAudioPlaying, audioTracks, selectedAudioSrc, setSelectedAudioSrc,
     handleLocalFileChange, openNewGamePanel, openEndGamePanel, showRightPanel,
     setShowRightPanel, setShowEditPlayersModal, showScriptPanel, setShowScriptPanel,
-    audioRef, text, undo, canUndo,
-    alarmActive, setAlarmActive, bgmVolume, setBgmVolume,
+    audioRef, text, undo, canUndo, bgmVolume, setBgmVolume,
   } = ctx
 
-  const nonTravelerCount = currentDay.seats.filter((s) => !s.isTraveler).length
+  const nonTravelerCount = currentDay.seats.filter((s: any) => !s.isTraveler).length
   const dist = CHARACTER_DISTRIBUTION[nonTravelerCount]
-  const travelerCount = currentDay.seats.filter((s) => s.isTraveler).length
-  const currentTrack = audioTracks.find((t) => t.src === selectedAudioSrc)
+  const travelerCount = currentDay.seats.filter((s: any) => s.isTraveler).length
+  const currentTrack = audioTracks.find((t: any) => t.src === selectedAudioSrc)
+
+  const distColors: Record<string, string> = { townsfolk: '#2e6ec4', outsider: '#7c4dbf', minion: '#c45c2e', demon: '#b91c1c' }
 
   return (
-    <div className="storyteller-compact-toolbar">
+    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1.5, pb: 1.5, borderBottom: '1px solid rgba(23,32,42,0.08)', mb: 1 }}>
       <audio ref={audioRef} />
 
-      {/* ── Left: counts + script + music ── */}
-      <div className="storyteller-compact-toolbar__left">
-        <div className="storyteller-player-counts">
-          <span className="storyteller-player-counts__total">
-            <strong>{aliveCount}/{totalCount}</strong>
-            {travelerCount > 0 && <span className="storyteller-player-counts__travelers">+{travelerCount}{text.travelersCount}</span>}
-          </span>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap', flex: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Typography variant="h6" sx={{ fontWeight: 700, color: 'primary.main', fontSize: '1rem' }}>{aliveCount}/{totalCount}</Typography>
+          {travelerCount > 0 && <Typography variant="caption" color="text.secondary">+{travelerCount}{text.travelersCount}</Typography>}
           {dist && (
-            <span className="storyteller-player-counts__dist">
-              <span className="dist-townsfolk">{dist.townsfolk}T</span>
-              <span className="dist-outsider">{dist.outsider}O</span>
-              <span className="dist-minion">{dist.minion}M</span>
-              <span className="dist-demon">1D</span>
-            </span>
+            <Box sx={{ display: 'flex', gap: 0.5 }}>
+              <Typography variant="caption" sx={{ fontWeight: 600, color: distColors.townsfolk }}>{dist.townsfolk}T</Typography>
+              <Typography variant="caption" sx={{ fontWeight: 600, color: distColors.outsider }}>{dist.outsider}O</Typography>
+              <Typography variant="caption" sx={{ fontWeight: 600, color: distColors.minion }}>{dist.minion}M</Typography>
+              <Typography variant="caption" sx={{ fontWeight: 600, color: distColors.demon }}>1D</Typography>
+            </Box>
           )}
-        </div>
+        </Box>
 
         {activeScriptTitle && (
-          <button
-            className={`storyteller-script-trigger${showScriptPanel ? ' storyteller-script-trigger--active' : ''}`}
-            onClick={() => setShowScriptPanel((p) => !p)}
-            type="button"
-            title={language === 'zh' ? '查看剧本信息' : 'View script info'}
-          >
-            {activeScriptTitle}
-          </button>
+          <Chip
+            label={activeScriptTitle}
+            onClick={() => setShowScriptPanel((p: boolean) => !p)}
+            color={showScriptPanel ? 'primary' : 'default'}
+            variant={showScriptPanel ? 'filled' : 'outlined'}
+            size="small"
+            sx={{ borderRadius: 999, fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer' }}
+          />
         )}
 
-        {/* ── Minimalist music player ── */}
-        <div className="storyteller-bgm-player">
-          <button
-            className="storyteller-bgm-player__play"
-            onClick={() => setAudioPlaying((c) => !c)}
-            title={audioPlaying ? text.pause : text.play}
-            type="button"
-          >
-            {audioPlaying ? '⏸' : '▶'}
-          </button>
-          <select
-            className="storyteller-bgm-player__select"
-            onChange={(e) => setSelectedAudioSrc(e.target.value)}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, border: '1px solid rgba(23,32,42,0.12)', borderRadius: 999, px: 1, py: 0.25, bgcolor: 'rgba(255,255,255,0.7)' }}>
+          <IconButton size="small" onClick={() => setAudioPlaying((c: boolean) => !c)} sx={{ p: 0.5 }}>
+            {audioPlaying ? <PauseIcon sx={{ fontSize: '0.9rem' }} /> : <PlayArrowIcon sx={{ fontSize: '0.9rem' }} />}
+          </IconButton>
+          <Select
             value={selectedAudioSrc}
+            onChange={(e) => setSelectedAudioSrc(e.target.value)}
+            size="small"
+            sx={{ minWidth: 100, fontSize: '0.75rem', '& .MuiSelect-select': { py: 0.25, pr: 2 } }}
             title={currentTrack?.name}
           >
-            {audioTracks.map((t) => (
-              <option key={t.src} value={t.src}>{t.name}</option>
-            ))}
-          </select>
-          <input
-            className="storyteller-bgm-player__volume"
-            max="1" min="0" step="0.05"
-            onChange={(e) => setBgmVolume(Number(e.target.value))}
-            title={language === 'zh' ? `音量 ${Math.round(bgmVolume * 100)}%` : `Volume ${Math.round(bgmVolume * 100)}%`}
-            type="range"
+            {audioTracks.map((t: any) => <MenuItem key={t.src} value={t.src} sx={{ fontSize: '0.75rem' }}>{t.name}</MenuItem>)}
+          </Select>
+          <Slider
             value={bgmVolume}
+            onChange={(_, v) => setBgmVolume(v as number)}
+            min={0}
+            max={1}
+            step={0.05}
+            size="small"
+            sx={{ width: 60, '& .MuiSlider-thumb': { width: 12, height: 12 } }}
           />
-          <label className="storyteller-bgm-player__add" title={text.loadLocalFile}>
-            +
+          <label>
+            <IconButton size="small" component="span" sx={{ p: 0.25, border: '1px dashed rgba(133,63,34,0.4)', borderRadius: 999 }}>
+              <AddIcon sx={{ fontSize: '0.9rem' }} />
+            </IconButton>
             <input type="file" accept=".mp3" onChange={handleLocalFileChange} style={{ display: 'none' }} />
           </label>
-        </div>
-      </div>
+        </Box>
+      </Box>
 
-      {/* ── Right: primary actions ── */}
-      <div className="storyteller-compact-toolbar__right">
-        <button className="secondary-button secondary-button--small" onClick={openNewGamePanel} type="button">
-          {text.newGame}
-        </button>
-        <button className="secondary-button secondary-button--small" onClick={() => setShowEditPlayersModal(true)} type="button">
-          {text.editPlayers}
-        </button>
-        
-        <button className="secondary-button secondary-button--small" onClick={openEndGamePanel} type="button">
-          {text.endGame}
-        </button>
-        <button
-          className="secondary-button secondary-button--small"
-          disabled={!canUndo}
-          onClick={undo}
-          title={language === 'zh' ? '撤销' : 'Undo'}
-          type="button"
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+        {[
+          { label: text.newGame, onClick: openNewGamePanel },
+          { label: text.editPlayers, onClick: () => setShowEditPlayersModal(true) },
+          { label: text.endGame, onClick: openEndGamePanel },
+        ].map(({ label, onClick }) => (
+          <Button key={label} size="small" variant="outlined" onClick={onClick} sx={{ fontSize: '0.75rem', px: 1, py: 0.25, borderRadius: 999 }}>{label}</Button>
+        ))}
+        <IconButton size="small" onClick={undo} disabled={!canUndo} title={language === 'zh' ? '撤销' : 'Undo'}>
+          <UndoIcon sx={{ fontSize: '1rem' }} />
+        </IconButton>
+        <IconButton
+          size="small"
+          onClick={() => setShowRightPanel((c: boolean) => !c)}
+          sx={{ border: showRightPanel ? '1px solid' : '1px solid', borderColor: showRightPanel ? 'primary.main' : 'transparent', bgcolor: showRightPanel ? 'rgba(133,63,34,0.1)' : 'transparent' }}
         >
-          ↩
-        </button>
-        <button
-          className={`secondary-button secondary-button--small${showRightPanel ? ' tab-button--active' : ''}`}
-          onClick={() => setShowRightPanel((c) => !c)}
-          title={showRightPanel ? text.hidePanel : text.showPanel}
-          type="button"
-        >
-          ☰
-        </button>
-      </div>
-    </div>
+          <MenuOpenIcon sx={{ fontSize: '1rem' }} />
+        </IconButton>
+      </Box>
+    </Box>
   )
 }

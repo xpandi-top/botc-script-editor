@@ -1,82 +1,98 @@
-// @ts-nocheck
-import React from 'react'
+import { Drawer, Box, IconButton, Typography } from '@mui/material'
+import MenuIcon from '@mui/icons-material/Menu'
+import SettingsIcon from '@mui/icons-material/Settings'
+import HistoryIcon from '@mui/icons-material/History'
+import DownloadIcon from '@mui/icons-material/Download'
 import { RightPopupLog } from './RightPopupLog'
 import { RightPopupSettings } from './RightPopupSettings'
 import { RightConsoleRecords } from './RightConsoleRecords'
 
 export function RightConsole({ ctx }: { ctx: any }) {
-  const { showRightPanel, setShowRightPanel, activeRightPopup, setActiveRightPopup, exportGameJson, setShowExportModal, text, toggleConsoleSection, language } = ctx
+  const { showRightPanel, setShowRightPanel, activeRightPopup, setActiveRightPopup, language, setShowExportModal } = ctx
 
-  function togglePopup(name: 'log' | 'settings' | 'records') {
-    setActiveRightPopup((p) => (p === name ? null : name))
+  const togglePopup = (name: 'log' | 'settings' | 'records') => {
+    setActiveRightPopup((p: string) => (p === name ? null : name))
   }
 
-  function closeDrawer() {
+  const closeDrawer = () => {
     setActiveRightPopup(null)
     setShowRightPanel(false)
   }
 
+  const drawerWidth = { xs: 280, sm: 360 }
+  const barWidth = 56
+
   return (
     <>
       {showRightPanel && (
-        <div className="storyteller-drawer-backdrop" onClick={closeDrawer} />
+        <Box
+          onClick={closeDrawer}
+          sx={{ position: 'fixed', inset: 0, bgcolor: 'rgba(0,0,0,0.28)', zIndex: 490 }}
+        />
       )}
-
-      <aside className={`storyteller-right-drawer${showRightPanel ? ' storyteller-right-drawer--open' : ''}`}>
-        {/* Popup panel — left part of drawer */}
-        <div className={`storyteller-right-popup${activeRightPopup ? ' storyteller-right-popup--visible' : ''}`}>
+      <Drawer
+        anchor="right"
+        open={showRightPanel}
+        onClose={closeDrawer}
+        sx={{
+          '& .MuiDrawer-paper': {
+            width: activeRightPopup ? drawerWidth : barWidth,
+            borderRadius: '22px 0 0 22px',
+            bgcolor: 'rgba(255,251,245,0.96)',
+            borderLeft: '1px solid rgba(23,32,42,0.10)',
+            transition: 'width 0.22s ease',
+            display: 'flex',
+            flexDirection: 'row',
+          },
+        }}
+      >
+        <Box
+          sx={{
+            width: activeRightPopup ? drawerWidth : 0,
+            overflow: 'hidden',
+            transition: 'width 0.22s ease',
+            bgcolor: 'rgba(255,251,245,0.96)',
+          }}
+        >
           {activeRightPopup === 'log' && <RightPopupLog ctx={ctx} />}
           {activeRightPopup === 'settings' && <RightPopupSettings ctx={ctx} />}
-          {activeRightPopup === 'records' && (
-            <div className="storyteller-right-popup__inner">
-              <RightConsoleRecords ctx={ctx} toggleConsoleSection={toggleConsoleSection} />
-            </div>
-          )}
-        </div>
+          {activeRightPopup === 'records' && <RightConsoleRecords ctx={ctx} toggleConsoleSection={ctx.toggleConsoleSection} />}
+        </Box>
 
-        {/* Icon bar — right edge of drawer */}
-        <div className="storyteller-right-bar storyteller-right-bar--open">
-          <button
-            className={`storyteller-right-bar__btn${activeRightPopup === 'log' ? ' storyteller-right-bar__btn--active' : ''}`}
-            onClick={() => togglePopup('log')}
-            title={text.aggregatedLog}
-            type="button"
-          >
-            <span className="storyteller-right-bar__icon">📋</span>
-            <span className="storyteller-right-bar__label">{language === 'zh' ? '日志' : 'Log'}</span>
-          </button>
-
-          <button
-            className={`storyteller-right-bar__btn${activeRightPopup === 'settings' ? ' storyteller-right-bar__btn--active' : ''}`}
-            onClick={() => togglePopup('settings')}
-            title={text.settings}
-            type="button"
-          >
-            <span className="storyteller-right-bar__icon">⚙️</span>
-            <span className="storyteller-right-bar__label">{language === 'zh' ? '设置' : 'Settings'}</span>
-          </button>
-
-          <button
-            className={`storyteller-right-bar__btn${activeRightPopup === 'records' ? ' storyteller-right-bar__btn--active' : ''}`}
-            onClick={() => togglePopup('records')}
-            title={language === 'zh' ? '历史记录' : 'Game Records'}
-            type="button"
-          >
-            <span className="storyteller-right-bar__icon">🏆</span>
-            <span className="storyteller-right-bar__label">{language === 'zh' ? '记录' : 'Records'}</span>
-          </button>
-
-          <button
-            className="storyteller-right-bar__btn"
+        <Box sx={{ width: barWidth, display: 'flex', flexDirection: 'column', alignItems: 'center', py: 1, gap: 0.5, borderLeft: '1px solid rgba(23,32,42,0.10)', bgcolor: 'rgba(255,251,245,0.92)' }}>
+          {[
+            { key: 'log', icon: <MenuIcon />, label: language === 'zh' ? '日志' : 'Log' },
+            { key: 'settings', icon: <SettingsIcon />, label: language === 'zh' ? '设置' : 'Settings' },
+            { key: 'records', icon: <HistoryIcon />, label: language === 'zh' ? '记录' : 'Records' },
+          ].map(({ key, icon, label }) => (
+            <IconButton
+              key={key}
+              onClick={() => togglePopup(key as 'log' | 'settings' | 'records')}
+              sx={{
+                flexDirection: 'column',
+                width: 44,
+                p: 0.5,
+                borderRadius: 1.5,
+                bgcolor: activeRightPopup === key ? 'rgba(133,63,34,0.12)' : 'transparent',
+                border: activeRightPopup === key ? '1px solid rgba(133,63,34,0.3)' : '1px solid transparent',
+                color: activeRightPopup === key ? 'primary.main' : 'text.primary',
+                '&:hover': { bgcolor: 'rgba(133,63,34,0.08)', borderColor: 'rgba(133,63,34,0.18)' },
+              }}
+            >
+              <Box sx={{ fontSize: '1.1rem', lineHeight: 1 }}>{icon}</Box>
+              <Typography variant="caption" sx={{ fontSize: '0.6rem', fontWeight: 600, letterSpacing: '0.02em', lineHeight: 1 }}>{label}</Typography>
+            </IconButton>
+          ))}
+          <Box sx={{ flex: 1 }} />
+          <IconButton
             onClick={() => setShowExportModal(true)}
-            title={text.exportJson}
-            type="button"
+            sx={{ flexDirection: 'column', width: 44, p: 0.5, borderRadius: 1.5 }}
           >
-            <span className="storyteller-right-bar__icon">⬇️</span>
-            <span className="storyteller-right-bar__label">{language === 'zh' ? '导出' : 'Export'}</span>
-          </button>
-        </div>
-      </aside>
+            <Box sx={{ fontSize: '1.1rem', lineHeight: 1 }}><DownloadIcon sx={{ fontSize: '1.1rem' }} /></Box>
+            <Typography variant="caption" sx={{ fontSize: '0.6rem', fontWeight: 600, letterSpacing: '0.02em', lineHeight: 1 }}>{language === 'zh' ? '导出' : 'Export'}</Typography>
+          </IconButton>
+        </Box>
+      </Drawer>
     </>
   )
 }
