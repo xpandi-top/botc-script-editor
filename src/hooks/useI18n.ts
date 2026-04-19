@@ -1,10 +1,18 @@
 import { useMemo } from 'react'
-import { en } from '../i18n/en'
-import { zh } from '../i18n/zh'
+import { translations, type TranslationKey } from '../i18n'
 import type { Language } from '../types'
+import { t as translate } from '../i18n'
 
-export type TextDict = typeof en
+export type TextDict = Record<TranslationKey, string>
 
 export function useI18n(language: Language): TextDict {
-  return useMemo(() => (language === 'zh' ? zh as unknown as TextDict : en), [language])
+  return useMemo(() => {
+    const dict: TextDict = {} as TextDict
+    for (const key of Object.keys(translations) as TranslationKey[]) {
+      dict[key] = translate(key, language)
+    }
+    return dict
+  }, [language])
 }
+
+export { translations, type TranslationKey }

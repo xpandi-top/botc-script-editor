@@ -3,8 +3,26 @@ import {
   useEffect,
   useMemo,
   useState,
-  type CSSProperties,
 } from 'react'
+import {
+  Container,
+  Box,
+  Typography,
+  Tabs,
+  Tab,
+  Paper,
+  Button,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  TextField,
+  FormControlLabel,
+  Checkbox,
+  IconButton,
+} from '@mui/material'
+import PrintIcon from '@mui/icons-material/Print'
+import AddIcon from '@mui/icons-material/Add'
 import { CharacterRevisionPanel } from './components/CharacterRevisionPanel'
 import { FilterCheckbox } from './components/FilterCheckbox'
 import { ScriptList } from './components/ScriptList'
@@ -397,77 +415,84 @@ export default function App() {
     setSaveStatus(`Downloaded ${link.download}`)
   }
 
+  const handleTabChange = (_: React.SyntheticEvent, newValue: TabKey) => {
+    setActiveTab(newValue)
+  }
+
   return (
-    <main
-      className="app-shell"
-      style={{ '--pdf-font-size': `${pdfFontSize}pt` } as CSSProperties}
-    >
-      <section className="app-hero">
-        <div>
-          <p className="app-hero__kicker">Blood on the Clocktower</p>
-          <h1>{uiText.appTitle}</h1>
-          <p className="app-hero__lede">{uiText.appLead}</p>
-        </div>
-        <div className="script-toolbar">
-          <label className="editor-field">
-            <span>{uiText.language}</span>
-            <select
-              onChange={(event) => setUiLanguage(event.target.value as Language)}
-              value={uiLanguage}
-            >
-              <option value="en">{uiText.english}</option>
-              <option value="zh">{uiText.chinese}</option>
-            </select>
-          </label>
-          {activeTab !== 'characters' && activeTab !== 'storyteller' && activeScript ? (
-            <button className="print-button" type="button" onClick={() => window.print()}>
-              {uiText.print}
-            </button>
-          ) : null}
-        </div>
-      </section>
+    <Container maxWidth="xl" sx={{ py: 3, minHeight: '100vh' }}>
+      <Paper elevation={0} sx={{ p: 3, mb: 2, borderRadius: 3, background: 'rgba(255,251,245,0.9)' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mb: 2, flexWrap: 'wrap', gap: 2 }}>
+          <Box>
+            <Typography variant="caption" sx={{ textTransform: 'uppercase', letterSpacing: '0.12em', color: 'text.secondary' }}>
+              Blood on the Clocktower
+            </Typography>
+            <Typography variant="h4" component="h1" sx={{ fontFamily: 'Georgia, "Times New Roman", serif', mt: 0.5 }}>
+              {uiText.appTitle}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, maxWidth: 400 }}>
+              {uiText.appLead}
+            </Typography>
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <FormControl size="small" sx={{ minWidth: 100 }}>
+              <InputLabel>{uiText.language}</InputLabel>
+              <Select
+                value={uiLanguage}
+                label={uiText.language}
+                onChange={(e) => setUiLanguage(e.target.value as Language)}
+              >
+                <MenuItem value="en">{uiText.english}</MenuItem>
+                <MenuItem value="zh">{uiText.chinese}</MenuItem>
+              </Select>
+            </FormControl>
+            {activeTab !== 'characters' && activeTab !== 'storyteller' && activeScript && (
+              <Button
+                variant="contained"
+                startIcon={<PrintIcon />}
+                onClick={() => window.print()}
+                sx={{ borderRadius: 999 }}
+              >
+                {uiText.print}
+              </Button>
+            )}
+          </Box>
+        </Box>
 
-      <div className="tab-bar">
-        <button
-          className={`tab-button${activeTab === 'scripts' ? ' tab-button--active' : ''}`}
-          onClick={() => setActiveTab('scripts')}
-          type="button"
+        <Tabs
+          value={activeTab}
+          onChange={handleTabChange}
+          sx={{
+            '& .MuiTab-root': {
+              textTransform: 'none',
+              borderRadius: 999,
+              border: '1px solid',
+              borderColor: 'divider',
+              mr: 1,
+            },
+            '& .Mui-selected': {
+              backgroundColor: 'rgba(133, 63, 34, 0.1)',
+              borderColor: 'primary.main',
+            },
+          }}
         >
-          {uiText.scriptSheet}
-        </button>
-        <button
-          className={`tab-button${activeTab === 'settings' ? ' tab-button--active' : ''}`}
-          onClick={() => setActiveTab('settings')}
-          type="button"
-        >
-          {uiText.settings}
-        </button>
-        <button
-          className={`tab-button${activeTab === 'characters' ? ' tab-button--active' : ''}`}
-          onClick={() => setActiveTab('characters')}
-          type="button"
-        >
-          {uiText.allCharacters}
-        </button>
-        <button
-          className={`tab-button${activeTab === 'storyteller' ? ' tab-button--active' : ''}`}
-          onClick={() => setActiveTab('storyteller')}
-          type="button"
-        >
-          {storytellerTabLabel}
-        </button>
-      </div>
+          <Tab label={uiText.scriptSheet} value="scripts" />
+          <Tab label={uiText.settings} value="settings" />
+          <Tab label={uiText.allCharacters} value="characters" />
+          <Tab label={storytellerTabLabel} value="storyteller" />
+        </Tabs>
+      </Paper>
 
-      {activeTab === 'scripts' ? (
-        <section className="app-grid">
-          <aside className="script-list">
-            <div className="section-heading">
-              <h2>{uiText.scriptSheet}</h2>
-              <button className="secondary-button" onClick={createNewScript} type="button">
+      {activeTab === 'scripts' && (
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '320px 1fr' }, gap: 2 }}>
+          <Paper elevation={0} sx={{ p: 2, borderRadius: 3, background: 'rgba(255,251,245,0.9)', border: '1px solid', borderColor: 'divider' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+              <Typography variant="h6">{uiText.scriptSheet}</Typography>
+              <Button size="small" variant="outlined" startIcon={<AddIcon />} onClick={createNewScript}>
                 {uiText.newScript}
-              </button>
-            </div>
-            <div className="script-list__items">
+              </Button>
+            </Box>
+            <Box sx={{ display: 'grid', gap: 1 }}>
               {scripts.map((script) => (
                 <ScriptList
                   key={script.slug}
@@ -476,25 +501,21 @@ export default function App() {
                   onSelect={() => setActiveSlug(script.slug)}
                 />
               ))}
-            </div>
-          </aside>
+            </Box>
+          </Paper>
 
-          <section className="viewer-panel">
+          <Paper elevation={0} sx={{ p: 2, borderRadius: 3, background: 'rgba(255,251,245,0.9)', border: '1px solid', borderColor: 'divider' }}>
             {activeScript ? (
               <>
-                <div className="script-toolbar">
-                  <button
-                    className="secondary-button"
-                    onClick={() => setIsEditMode((current) => !current)}
-                    type="button"
-                  >
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2, flexWrap: 'wrap' }}>
+                  <Button variant="outlined" size="small" onClick={() => setIsEditMode((current) => !current)}>
                     {isEditMode ? uiText.doneEditing : uiText.editScript}
-                  </button>
-                  <button className="secondary-button" onClick={downloadScriptFile} type="button">
+                  </Button>
+                  <Button variant="outlined" size="small" onClick={downloadScriptFile}>
                     {uiText.downloadJson}
-                  </button>
-                  {saveStatus ? <span className="save-status">{saveStatus}</span> : null}
-                </div>
+                  </Button>
+                  {saveStatus && <Typography variant="body2" color="text.secondary">{saveStatus}</Typography>}
+                </Box>
 
                 {!isEditMode ? (
                   <SheetArticle
@@ -511,7 +532,7 @@ export default function App() {
                   />
                 ) : null}
 
-                <div className="print-sheets" aria-hidden="true">
+                <Box sx={{ display: 'none' }} aria-hidden="true">
                   {(['en', 'zh'] as Language[]).map((language, index) => (
                     <Fragment key={language}>
                       <SheetArticle
@@ -533,579 +554,219 @@ export default function App() {
                       {index === 0 ? <div className="print-page-break" /> : null}
                     </Fragment>
                   ))}
-                </div>
+                </Box>
 
                 {isEditMode ? (
-                  <section className="script-editor">
-                    <div className="section-heading">
-                      <h2>{uiText.editScript}</h2>
-                      <span>{activeScript.sourceFile}</span>
-                    </div>
+                  <Box sx={{ mt: 3 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                      <Typography variant="h6">{uiText.editScript}</Typography>
+                      <Typography variant="body2" color="text.secondary">{activeScript.sourceFile}</Typography>
+                    </Box>
 
-                    <div className="script-editor__fields">
-                      <label className="editor-field">
-                        <span>{uiText.title}</span>
-                        <input
-                          onChange={(event) =>
-                            updateActiveScript((script) => ({
-                              ...script,
-                              title: event.target.value,
-                            }))
-                          }
-                          type="text"
-                          value={activeScript.title}
-                        />
-                      </label>
-
-                      <label className="editor-field">
-                        <span>{uiText.chineseTitle}</span>
-                        <input
-                          onChange={(event) =>
-                            updateActiveScript((script) => ({
-                              ...script,
-                              titleZh: event.target.value,
-                            }))
-                          }
-                          type="text"
-                          value={activeScript.titleZh}
-                        />
-                      </label>
-
-                      <label className="editor-field">
-                        <span>{uiText.author}</span>
-                        <input
-                          onChange={(event) =>
-                            updateActiveScript((script) => ({
-                              ...script,
-                              author: event.target.value,
-                            }))
-                          }
-                          type="text"
-                          value={activeScript.author}
-                        />
-                      </label>
-
-                      <label className="editor-field">
-                        <span>{uiText.editionLabel}</span>
-                        <select
-                          onChange={(event) =>
-                            updateActiveScript((script) => ({
-                              ...script,
-                              edition: event.target.value,
-                            }))
-                          }
+                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, gap: 2, mb: 3 }}>
+                      <TextField
+                        label={uiText.title}
+                        value={activeScript.title}
+                        onChange={(e) => updateActiveScript((script) => ({ ...script, title: e.target.value }))}
+                        size="small"
+                      />
+                      <TextField
+                        label={uiText.chineseTitle}
+                        value={activeScript.titleZh}
+                        onChange={(e) => updateActiveScript((script) => ({ ...script, titleZh: e.target.value }))}
+                        size="small"
+                      />
+                      <TextField
+                        label={uiText.author}
+                        value={activeScript.author}
+                        onChange={(e) => updateActiveScript((script) => ({ ...script, author: e.target.value }))}
+                        size="small"
+                      />
+                      <FormControl size="small">
+                        <InputLabel>{uiText.editionLabel}</InputLabel>
+                        <Select
                           value={activeScript.edition}
+                          label={uiText.editionLabel}
+                          onChange={(e) => updateActiveScript((script) => ({ ...script, edition: e.target.value }))}
                         >
                           {availableEditions.map((edition) => (
-                            <option key={edition} value={edition}>
+                            <MenuItem key={edition} value={edition}>
                               {editionLabels[uiLanguage][edition] ?? toTitleCase(edition)}
-                            </option>
+                            </MenuItem>
                           ))}
-                          <option value="custom">{uiText.custom}</option>
-                        </select>
-                      </label>
-                    </div>
+                          <MenuItem value="custom">{uiText.custom}</MenuItem>
+                        </Select>
+                      </FormControl>
+                    </Box>
 
-                    <div className="editor-field">
-                      <div className="section-heading">
-                        <span>{uiText.bootleggerRules}</span>
-                        <button
-                          className="secondary-button"
-                          onClick={() =>
-                            updateActiveScript((script) => ({
-                              ...script,
-                              meta: {
-                                ...script.meta,
-                                bootlegger: [...(script.meta.bootlegger ?? []), ''],
-                              },
-                            }))
-                          }
-                          type="button"
-                        >
-                          {uiText.addRule}
-                        </button>
-                      </div>
-                      <span>{uiText.bootleggerRulesHelp}</span>
-                      <div className="bootlegger-rules">
-                        {(activeScript.meta.bootlegger ?? []).map((rule, index) => (
-                          <div className="bootlegger-rule" key={index}>
-                            <input
-                              onChange={(event) =>
-                                updateActiveScript((script) => ({
-                                  ...script,
-                                  meta: {
-                                    ...script.meta,
-                                    bootlegger: (script.meta.bootlegger ?? []).map((entry, entryIndex) =>
-                                      entryIndex === index ? event.target.value : entry,
-                                    ),
-                                  },
-                                }))
-                              }
-                              placeholder={uiText.bootleggerRulePlaceholder}
-                              type="text"
-                              value={rule}
-                            />
-                            <button
-                              className="secondary-button"
-                              onClick={() =>
-                                updateActiveScript((script) => ({
-                                  ...script,
-                                  meta: {
-                                    ...script.meta,
-                                    bootlegger: (script.meta.bootlegger ?? []).filter(
-                                      (_, entryIndex) => entryIndex !== index,
-                                    ),
-                                  },
-                                }))
-                              }
-                              type="button"
-                            >
-                              {uiText.remove}
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="editor-field">
-                      <div className="section-heading">
-                        <span>{uiText.bootleggerRulesZh}</span>
-                        <button
-                          className="secondary-button"
-                          onClick={() =>
-                            updateActiveScript((script) => ({
-                              ...script,
-                              meta: {
-                                ...script.meta,
-                                bootlegger_zh: [...(script.meta.bootlegger_zh ?? []), ''],
-                              },
-                            }))
-                          }
-                          type="button"
-                        >
-                          {uiText.addRule}
-                        </button>
-                      </div>
-                      <span>{uiText.bootleggerRulesZhHelp}</span>
-                      <div className="bootlegger-rules">
-                        {(activeScript.meta.bootlegger_zh ?? []).map((rule, index) => (
-                          <div className="bootlegger-rule" key={index}>
-                            <input
-                              onChange={(event) =>
-                                updateActiveScript((script) => ({
-                                  ...script,
-                                  meta: {
-                                    ...script.meta,
-                                    bootlegger_zh: (script.meta.bootlegger_zh ?? []).map(
-                                      (entry, entryIndex) =>
-                                        entryIndex === index ? event.target.value : entry,
-                                    ),
-                                  },
-                                }))
-                              }
-                              placeholder={uiText.bootleggerRuleZhPlaceholder}
-                              type="text"
-                              value={rule}
-                            />
-                            <button
-                              className="secondary-button"
-                              onClick={() =>
-                                updateActiveScript((script) => ({
-                                  ...script,
-                                  meta: {
-                                    ...script.meta,
-                                    bootlegger_zh: (script.meta.bootlegger_zh ?? []).filter(
-                                      (_, entryIndex) => entryIndex !== index,
-                                    ),
-                                  },
-                                }))
-                              }
-                              type="button"
-                            >
-                              {uiText.remove}
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="editor-field">
-                      <div className="section-heading">
-                        <span>{uiText.scriptJinxes}</span>
-                        <button
-                          className="secondary-button"
-                          onClick={() =>
-                            updateActiveScript((script) => ({
-                              ...script,
-                              meta: {
-                                ...script.meta,
-                                jinxes: [
-                                  ...(script.meta.jinxes ?? []),
-                                  {
-                                    id: '',
-                                    status: 'active',
-                                    reason: '',
-                                    reason_zh: '',
-                                  },
-                                ],
-                              },
-                            }))
-                          }
-                          type="button"
-                        >
-                          {uiText.addJinx}
-                        </button>
-                      </div>
-                      <span>{uiText.scriptJinxesHelp}</span>
-                      <div className="script-jinxes">
-                        {(activeScript.meta.jinxes ?? []).map((jinx, index) => (
-                          <div className="script-jinx" key={index}>
-                            <input
-                              onChange={(event) =>
-                                updateActiveScript((script) => ({
-                                  ...script,
-                                  meta: {
-                                    ...script.meta,
-                                    jinxes: (script.meta.jinxes ?? []).map((entry, entryIndex) =>
-                                      entryIndex === index ? { ...entry, id: event.target.value } : entry,
-                                    ),
-                                  },
-                                }))
-                              }
-                              placeholder={uiText.jinxPairPlaceholder}
-                              type="text"
-                              value={jinx.id ?? ''}
-                            />
-                            <select
-                              aria-label={uiText.jinxStatus}
-                              onChange={(event) =>
-                                updateActiveScript((script) => ({
-                                  ...script,
-                                  meta: {
-                                    ...script.meta,
-                                    jinxes: (script.meta.jinxes ?? []).map((entry, entryIndex) =>
-                                      entryIndex === index
-                                        ? {
-                                            ...entry,
-                                            status:
-                                              event.target.value === 'inactive' ? 'inactive' : 'active',
-                                          }
-                                        : entry,
-                                    ),
-                                  },
-                                }))
-                              }
-                              value={jinx.status ?? 'active'}
-                            >
-                              <option value="active">{uiText.jinxStatusActive}</option>
-                              <option value="inactive">{uiText.jinxStatusInactive}</option>
-                            </select>
-                            <input
-                              onChange={(event) =>
-                                updateActiveScript((script) => ({
-                                  ...script,
-                                  meta: {
-                                    ...script.meta,
-                                    jinxes: (script.meta.jinxes ?? []).map((entry, entryIndex) =>
-                                      entryIndex === index
-                                        ? { ...entry, reason: event.target.value }
-                                        : entry,
-                                    ),
-                                  },
-                                }))
-                              }
-                              placeholder={uiText.jinxReasonEnPlaceholder}
-                              type="text"
-                              value={jinx.reason ?? ''}
-                            />
-                            <input
-                              onChange={(event) =>
-                                updateActiveScript((script) => ({
-                                  ...script,
-                                  meta: {
-                                    ...script.meta,
-                                    jinxes: (script.meta.jinxes ?? []).map((entry, entryIndex) =>
-                                      entryIndex === index
-                                        ? { ...entry, reason_zh: event.target.value }
-                                        : entry,
-                                    ),
-                                  },
-                                }))
-                              }
-                              placeholder={uiText.jinxReasonZhPlaceholder}
-                              type="text"
-                              value={jinx.reason_zh ?? ''}
-                            />
-                            <button
-                              className="secondary-button"
-                              onClick={() =>
-                                updateActiveScript((script) => ({
-                                  ...script,
-                                  meta: {
-                                    ...script.meta,
-                                    jinxes: (script.meta.jinxes ?? []).filter(
-                                      (_, entryIndex) => entryIndex !== index,
-                                    ),
-                                  },
-                                }))
-                              }
-                              type="button"
-                            >
-                              {uiText.remove}
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="script-editor__layout">
-                      <div className="script-editor__picker">
-                        <div className="section-heading">
-                          <h2>{uiText.availableCharacters}</h2>
-                        </div>
-                        <label className="editor-field">
-                          <span>{uiText.characterSearch}</span>
-                          <input
-                            onChange={(event) => setEditorQuery(event.target.value)}
-                            placeholder={uiText.filterCharacters}
-                            type="search"
-                            value={editorQuery}
-                          />
-                        </label>
-
-                        <div className="editor-groups">
-                          {groupedEditorCharacters.map((group) => (
-                            <section className="editor-group" key={group.team}>
-                              <div className={`team-group__heading team-group__heading--${group.team}`}>
-                                <h3>{teamLabels[uiLanguage][group.team]}</h3>
-                                <span>{group.characters.length}</span>
-                              </div>
-                              <div className="editor-character-list">
-                                {group.characters.map((character) => (
-                                  <label className="editor-character" key={character.id}>
-                                    <input
-                                      checked={activeScript.characters.includes(character.id)}
-                                      onChange={() => toggleCharacterInScript(character.id)}
-                                      type="checkbox"
-                                    />
-                                    <div>
-                                      <strong>{getDisplayName(character.id, uiLanguage)}</strong>
-                                      <p>{character.id}</p>
-                                    </div>
-                                  </label>
-                                ))}
-                              </div>
-                            </section>
-                          ))}
-                        </div>
-                      </div>
-
-                      <aside className="script-editor__selected">
-                        <div className="section-heading">
-                          <h2>{uiText.selectedCharacters}</h2>
-                          <span>
-                            {activeScriptCharacters.length} {uiText.selectedCount}
-                          </span>
-                        </div>
-
-                        <div className="editor-selected-groups">
-                          {groupedScriptCharacters.length > 0 ? (
-                            groupedScriptCharacters.map((group) => (
-                              <section className="editor-group" key={group.team}>
-                                <div className={`team-group__heading team-group__heading--${group.team}`}>
-                                  <h3>{teamLabels[uiLanguage][group.team]}</h3>
-                                  <span>{group.characters.length}</span>
-                                </div>
-                                <div className="editor-selected-list">
-                                  {group.characters.map((character) => (
-                                    <div className="editor-selected-item" key={character.id}>
-                                      <div className="editor-selected-item__top">
-                                        <strong>
-                                          {character.name ?? getDisplayName(character.id, uiLanguage)}
-                                        </strong>
-                                        <button
-                                          aria-label={`Remove ${character.name ?? character.id}`}
-                                          className="editor-selected-remove"
-                                          onClick={() => toggleCharacterInScript(character.id)}
-                                          type="button"
-                                        >
-                                          x
-                                        </button>
-                                      </div>
-                                      <p>{character.id}</p>
-                                    </div>
-                                  ))}
-                                </div>
-                              </section>
-                            ))
-                          ) : (
-                            <p className="editor-selected-empty">{uiText.noCharacters}</p>
-                          )}
-                        </div>
-                      </aside>
-                    </div>
-                  </section>
+                    <EditorSection
+                      activeScript={activeScript}
+                      updateActiveScript={updateActiveScript}
+                      uiText={uiText}
+                      uiLanguage={uiLanguage}
+                      editorQuery={editorQuery}
+                      setEditorQuery={setEditorQuery}
+                      groupedEditorCharacters={groupedEditorCharacters}
+                      activeScriptCharacters={activeScriptCharacters}
+                      groupedScriptCharacters={groupedScriptCharacters}
+                      toggleCharacterInScript={toggleCharacterInScript}
+                      teamLabels={teamLabels}
+                      getDisplayName={getDisplayName}
+                    />
+                  </Box>
                 ) : null}
               </>
             ) : (
-              <p>{uiText.noScripts}</p>
+              <Typography>{uiText.noScripts}</Typography>
             )}
-          </section>
-        </section>
-      ) : activeTab === 'settings' ? (
-        <section className="viewer-panel settings-panel">
-          <div className="viewer-panel__header">
-            <div>
-              <p className="viewer-panel__eyebrow">{uiText.export}</p>
-              <h2>{uiText.pdfSettings}</h2>
-            </div>
-            <span>{pdfFontSize.toFixed(1)}pt</span>
-          </div>
-          <p className="settings-panel__copy">
+          </Paper>
+        </Box>
+      )}
+
+      {activeTab === 'settings' && (
+        <Paper elevation={0} sx={{ p: 3, borderRadius: 3, background: 'rgba(255,251,245,0.9)' }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Box>
+              <Typography variant="caption" sx={{ textTransform: 'uppercase' }}>{uiText.export}</Typography>
+              <Typography variant="h6">{uiText.pdfSettings}</Typography>
+            </Box>
+            <Typography>{pdfFontSize.toFixed(1)}pt</Typography>
+          </Box>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
             {uiText.appLead}
             {activeScript ? ` ${uiText.currentScript}: ${getScriptTitle(activeScript)}.` : ''}
-          </p>
+          </Typography>
 
-          <section className="pdf-settings">
-            <div className="pdf-settings__controls">
-              <label className="editor-field">
-                <span>{uiText.fontSize}</span>
-                <input
-                  max="30"
-                  min="5.5"
-                  onChange={(event) => setPdfFontSize(Number(event.target.value))}
-                  step="0.1"
+          <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
+            <Typography variant="subtitle2" sx={{ mb: 1 }}>{uiText.fontSize}</Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <input
                   type="range"
+                  min={5.5}
+                  max={30}
+                  step={0.1}
                   value={pdfFontSize}
+                  onChange={(e) => setPdfFontSize(Number(e.target.value))}
+                  style={{ flex: 1 }}
                 />
-              </label>
-              <label className="editor-field">
-                <span>{uiText.fontSizePt}</span>
-                <input
-                  max="30"
-                  min="5.5"
-                  onChange={(event) => {
-                    const nextValue = Number(event.target.value)
-                    if (Number.isNaN(nextValue)) {
-                      return
-                    }
-
-                    setPdfFontSize(Math.min(30, Math.max(5.5, nextValue)))
-                  }}
-                  step="0.1"
-                  type="number"
-                  value={pdfFontSize}
-                />
-              </label>
-              <button
-                className="secondary-button"
-                onClick={() => setPdfFontSize(11)}
-                type="button"
-              >
+              <TextField
+                type="number"
+                value={pdfFontSize}
+                onChange={(e) => {
+                  const v = Number(e.target.value)
+                  if (!Number.isNaN(v)) setPdfFontSize(Math.min(30, Math.max(5.5, v)))
+                }}
+                size="small"
+                sx={{ width: 80 }}
+              />
+              <Button variant="outlined" size="small" onClick={() => setPdfFontSize(11)}>
                 {uiText.reset}
-              </button>
-            </div>
-          </section>
+              </Button>
+            </Box>
+          </Paper>
 
-          <section className="pdf-settings">
-            <div className="section-heading">
-              <h2>{uiText.preview}</h2>
-            </div>
-            <label className="toggle-field">
-              <input
-                checked={showWakeOrderPreview}
-                onChange={() => setShowWakeOrderPreview((current) => !current)}
-                type="checkbox"
-              />
-              <span>{uiText.wakeOrderToggle}</span>
-            </label>
-            <p className="settings-panel__note">{uiText.wakeOrderNote}</p>
-          </section>
-        </section>
-      ) : activeTab === 'characters' ? (
-        <section className="browser-layout">
-          <section className="browser-panel">
-          <div className="browser-panel__header">
-            <div>
-              <h2>{uiText.allCharacters}</h2>
-              <p>
-                {filteredCharacters.length} {uiText.resultsSuffix}
-              </p>
-            </div>
-            <div className="browser-controls">
-              <input
-                aria-label="Search characters"
-                className="browser-search"
-                onChange={(event) => setCharacterQuery(event.target.value)}
-                placeholder={uiText.searchCharacters}
-                type="search"
-                value={characterQuery}
-              />
-              <div className="filter-row">
-                {teamOrder.map((team) => (
-                  <FilterCheckbox
-                    checked={selectedTeams.includes(team)}
-                    key={team}
-                    label={teamLabels[uiLanguage][team]}
-                    onChange={() => toggleTeam(team)}
-                  />
-                ))}
-              </div>
-              <div className="filter-row">
-                {availableEditions.map((edition) => (
-                  <FilterCheckbox
-                    checked={selectedEditions.includes(edition)}
-                    key={edition}
-                    label={editionLabels[uiLanguage][edition] ?? toTitleCase(edition)}
-                    onChange={() => toggleEdition(edition)}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
+          <Paper variant="outlined" sx={{ p: 2 }}>
+            <Typography variant="h6" sx={{ mb: 1 }}>{uiText.preview}</Typography>
+            <FormControlLabel
+              control={<Checkbox checked={showWakeOrderPreview} onChange={() => setShowWakeOrderPreview((c) => !c)} />}
+              label={uiText.wakeOrderToggle}
+            />
+            <Typography variant="body2" component="span" sx={{ display: 'block', color: 'text.secondary' }}>{uiText.wakeOrderNote}</Typography>
+          </Paper>
+        </Paper>
+      )}
 
-          <div className="browser-list">
-            {filteredCharacters.map((character) => {
-              const icon = getIconForCharacter(character.id)
-              const team = teamLabels[uiLanguage][character.team]
-              const edition =
-                editionLabels[uiLanguage][character.edition] ?? toTitleCase(character.edition)
-              const currentRevision = getCurrentRevision(character.id)
-              const isSelected = character.id === selectedCharacter?.id
+      {activeTab === 'characters' && (
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '1fr 380px' }, gap: 2 }}>
+          <Paper elevation={0} sx={{ p: 2, borderRadius: 3, background: 'rgba(255,251,245,0.9)', border: '1px solid', borderColor: 'divider' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2, flexWrap: 'wrap', gap: 2 }}>
+              <Box>
+                <Typography variant="h6">{uiText.allCharacters}</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {filteredCharacters.length} {uiText.resultsSuffix}
+                </Typography>
+              </Box>
+            </Box>
 
-              return (
-                <button
-                  className={`browser-card${isSelected ? ' browser-card--selected' : ''}`}
-                  key={character.id}
-                  onClick={() => setSelectedCharacterId(character.id)}
-                  type="button"
-                >
-                  {icon ? (
-                    <img alt="" className="browser-card__icon" src={icon} />
-                  ) : (
-                    <div className="browser-card__icon browser-card__icon--placeholder">
-                      {character.id.slice(0, 2).toUpperCase()}
-                    </div>
-                  )}
-                  <div className="browser-card__body">
-                    <div className="browser-card__topline">
-                      <h3>{getDisplayName(character.id, uiLanguage)}</h3>
-                      <span>{team}</span>
-                    </div>
-                    <p className="browser-card__id">
-                      {character.id} · {edition} · {currentRevision}
-                    </p>
-                    <p
-                      dangerouslySetInnerHTML={{
-                        __html: getAbilityText(character.id, uiLanguage),
-                      }}
-                    />
-                  </div>
-                </button>
-              )
-            })}
-          </div>
-          </section>
+            <TextField
+              fullWidth
+              size="small"
+              placeholder={uiText.searchCharacters}
+              value={characterQuery}
+              onChange={(e) => setCharacterQuery(e.target.value)}
+              sx={{ mb: 2 }}
+            />
+
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
+              {teamOrder.map((team) => (
+                <FilterCheckbox
+                  key={team}
+                  checked={selectedTeams.includes(team)}
+                  label={teamLabels[uiLanguage][team]}
+                  onChange={() => toggleTeam(team)}
+                />
+              ))}
+            </Box>
+
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
+              {availableEditions.map((edition) => (
+                <FilterCheckbox
+                  key={edition}
+                  checked={selectedEditions.includes(edition)}
+                  label={editionLabels[uiLanguage][edition] ?? toTitleCase(edition)}
+                  onChange={() => toggleEdition(edition)}
+                />
+              ))}
+            </Box>
+
+            <Box sx={{ display: 'grid', gap: 1.5 }}>
+              {filteredCharacters.map((character) => {
+                const icon = getIconForCharacter(character.id)
+                const team = teamLabels[uiLanguage][character.team]
+                const edition = editionLabels[uiLanguage][character.edition] ?? toTitleCase(character.edition)
+                const currentRevision = getCurrentRevision(character.id)
+                const isSelected = character.id === selectedCharacter?.id
+
+                return (
+                  <Button
+                    key={character.id}
+                    onClick={() => setSelectedCharacterId(character.id)}
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: 1.5,
+                      p: 1.5,
+                      justifyContent: 'flex-start',
+                      border: isSelected ? '1px solid' : '1px solid',
+                      borderColor: isSelected ? 'primary.main' : 'divider',
+                      borderRadius: 2,
+                      background: isSelected ? 'rgba(133, 63, 34, 0.05)' : '#fffdf8',
+                      textTransform: 'none',
+                      '&:hover': { background: 'rgba(133, 63, 34, 0.08)' },
+                    }}
+                  >
+                    {icon ? (
+                      <Box component="img" src={icon} alt="" sx={{ width: 56, height: 56, borderRadius: 999, objectFit: 'contain', background: '#f2ebdf' }} />
+                    ) : (
+                      <Box sx={{ width: 56, height: 56, borderRadius: 999, background: '#f2ebdf', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Typography sx={{ fontWeight: 700, color: '#5d4730' }}>{character.id.slice(0, 2).toUpperCase()}</Typography>
+                      </Box>
+                    )}
+                    <Box sx={{ textAlign: 'left' }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Typography sx={{ fontWeight: 600 }}>{getDisplayName(character.id, uiLanguage)}</Typography>
+                        <Typography variant="caption" component="span" color="text.secondary">{team}</Typography>
+                      </Box>
+                      <Typography variant="caption" component="span" sx={{ display: 'block', color: 'text.secondary' }}>
+                        {character.id} · {edition} · {currentRevision}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }} dangerouslySetInnerHTML={{ __html: getAbilityText(character.id, uiLanguage) }} />
+                    </Box>
+                  </Button>
+                )
+              })}
+            </Box>
+          </Paper>
 
           <CharacterRevisionPanel
             character={selectedCharacter}
@@ -1119,8 +780,10 @@ export default function App() {
             revisionHistoryLabel={uiText.revisionHistory}
             title={uiText.characterVersions}
           />
-        </section>
-      ) : (
+        </Box>
+      )}
+
+      {activeTab === 'storyteller' && (
         <StorytellerHelper
           activeScriptSlug={activeScript?.slug}
           activeScriptTitle={activeScript ? getScriptTitle(activeScript) : undefined}
@@ -1133,6 +796,210 @@ export default function App() {
           }))}
         />
       )}
-    </main>
+    </Container>
   )
+}
+
+function EditorSection({
+  activeScript,
+  updateActiveScript,
+  uiText,
+  uiLanguage,
+  editorQuery,
+  setEditorQuery,
+  groupedEditorCharacters,
+  activeScriptCharacters,
+  groupedScriptCharacters,
+  toggleCharacterInScript,
+  teamLabels,
+  getDisplayName,
+}: {
+  activeScript: EditableScript
+  updateActiveScript: (updater: (script: EditableScript) => EditableScript, nextSlug?: string) => void
+  uiText: Record<string, string>
+  uiLanguage: Language
+  editorQuery: string
+  setEditorQuery: (v: string) => void
+  groupedEditorCharacters: CharacterGroup[]
+  activeScriptCharacters: ResolvedScriptCharacter[]
+  groupedScriptCharacters: ResolvedScriptCharacterGroup[]
+  toggleCharacterInScript: (id: string) => void
+  teamLabels: Record<Language, Record<string, string>>
+  getDisplayName: (id: string, lang: Language) => string
+}) {
+  return (
+    <Box>
+      <Typography variant="subtitle1" sx={{ mb: 1 }}>{uiText.bootleggerRules}</Typography>
+      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>{uiText.bootleggerRulesHelp}</Typography>
+      <Box sx={{ display: 'grid', gap: 1, mb: 3 }}>
+        {(activeScript.meta.bootlegger ?? []).map((rule, index) => (
+          <Box key={index} sx={{ display: 'flex', gap: 1 }}>
+            <TextField
+              fullWidth
+              size="small"
+              placeholder={uiText.bootleggerRulePlaceholder}
+              value={rule}
+              onChange={(e) => updateActiveScript((script) => ({
+                ...script,
+                meta: { ...script.meta, bootlegger: (script.meta.bootlegger ?? []).map((r, i) => i === index ? e.target.value : r) },
+              }))}
+            />
+            <Button size="small" variant="outlined" onClick={() => updateActiveScript((script) => ({
+              ...script,
+              meta: { ...script.meta, bootlegger: (script.meta.bootlegger ?? []).filter((_, i) => i !== index) },
+            }))}>{uiText.remove}</Button>
+          </Box>
+        ))}
+        <Button size="small" variant="outlined" onClick={() => updateActiveScript((script) => ({
+          ...script,
+          meta: { ...script.meta, bootlegger: [...(script.meta.bootlegger ?? []), ''] },
+        }))}>{uiText.addRule}</Button>
+      </Box>
+
+      <Typography variant="subtitle1" sx={{ mb: 1 }}>{uiText.bootleggerRulesZh}</Typography>
+      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>{uiText.bootleggerRulesZhHelp}</Typography>
+      <Box sx={{ display: 'grid', gap: 1, mb: 3 }}>
+        {(activeScript.meta.bootlegger_zh ?? []).map((rule, index) => (
+          <Box key={index} sx={{ display: 'flex', gap: 1 }}>
+            <TextField
+              fullWidth
+              size="small"
+              placeholder={uiText.bootleggerRuleZhPlaceholder}
+              value={rule}
+              onChange={(e) => updateActiveScript((script) => ({
+                ...script,
+                meta: { ...script.meta, bootlegger_zh: (script.meta.bootlegger_zh ?? []).map((r, i) => i === index ? e.target.value : r) },
+              }))}
+            />
+            <Button size="small" variant="outlined" onClick={() => updateActiveScript((script) => ({
+              ...script,
+              meta: { ...script.meta, bootlegger_zh: (script.meta.bootlegger_zh ?? []).filter((_, i) => i !== index) },
+            }))}>{uiText.remove}</Button>
+          </Box>
+        ))}
+        <Button size="small" variant="outlined" onClick={() => updateActiveScript((script) => ({
+          ...script,
+          meta: { ...script.meta, bootlegger_zh: [...(script.meta.bootlegger_zh ?? []), ''] },
+        }))}>{uiText.addRule}</Button>
+      </Box>
+
+      <Typography variant="subtitle1" sx={{ mb: 1 }}>{uiText.scriptJinxes}</Typography>
+      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>{uiText.scriptJinxesHelp}</Typography>
+      <Box sx={{ display: 'grid', gap: 1, mb: 3 }}>
+        {(activeScript.meta.jinxes ?? []).map((jinx, index) => (
+          <Box key={index} sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+            <TextField size="small" placeholder={uiText.jinxPairPlaceholder} value={jinx.id ?? ''} onChange={(e) => updateActiveScript((script) => ({
+              ...script,
+              meta: { ...script.meta, jinxes: (script.meta.jinxes ?? []).map((j, i) => i === index ? { ...j, id: e.target.value } : j) },
+            }))} sx={{ flex: '1 1 150px' }} />
+            <FormControl size="small" sx={{ minWidth: 100 }}>
+              <Select value={jinx.status ?? 'active'} onChange={(e) => updateActiveScript((script) => ({
+                ...script,
+                meta: { ...script.meta, jinxes: (script.meta.jinxes ?? []).map((j, i) => i === index ? { ...j, status: e.target.value === 'inactive' ? 'inactive' : 'active' } : j) },
+              }))}>
+                <MenuItem value="active">{uiText.jinxStatusActive}</MenuItem>
+                <MenuItem value="inactive">{uiText.jinxStatusInactive}</MenuItem>
+              </Select>
+            </FormControl>
+            <TextField size="small" placeholder={uiText.jinxReasonEnPlaceholder} value={jinx.reason ?? ''} onChange={(e) => updateActiveScript((script) => ({
+              ...script,
+              meta: { ...script.meta, jinxes: (script.meta.jinxes ?? []).map((j, i) => i === index ? { ...j, reason: e.target.value } : j) },
+            }))} sx={{ flex: '1 1 150px' }} />
+            <TextField size="small" placeholder={uiText.jinxReasonZhPlaceholder} value={jinx.reason_zh ?? ''} onChange={(e) => updateActiveScript((script) => ({
+              ...script,
+              meta: { ...script.meta, jinxes: (script.meta.jinxes ?? []).map((j, i) => i === index ? { ...j, reason_zh: e.target.value } : j) },
+            }))} sx={{ flex: '1 1 150px' }} />
+            <Button size="small" variant="outlined" onClick={() => updateActiveScript((script) => ({
+              ...script,
+              meta: { ...script.meta, jinxes: (script.meta.jinxes ?? []).filter((_, i) => i !== index) },
+            }))}>{uiText.remove}</Button>
+          </Box>
+        ))}
+        <Button size="small" variant="outlined" onClick={() => updateActiveScript((script) => ({
+          ...script,
+          meta: { ...script.meta, jinxes: [...(script.meta.jinxes ?? []), { id: '', status: 'active', reason: '', reason_zh: '' }] },
+        }))}>{uiText.addJinx}</Button>
+      </Box>
+
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 300px' }, gap: 2 }}>
+        <Paper variant="outlined" sx={{ p: 2 }}>
+          <Typography variant="h6" sx={{ mb: 2 }}>{uiText.availableCharacters}</Typography>
+          <TextField
+            fullWidth
+            size="small"
+            placeholder={uiText.filterCharacters}
+            value={editorQuery}
+            onChange={(e) => setEditorQuery(e.target.value)}
+            sx={{ mb: 2 }}
+          />
+          {groupedEditorCharacters.map((group) => (
+            <Box key={group.team} sx={{ mb: 2 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 1, borderRadius: 1, mb: 1, background: getTeamColor(group.team) }}>
+                <Typography variant="subtitle2" sx={{ flex: 1, fontStyle: 'italic', color: 'white' }}>{teamLabels[uiLanguage][group.team]}</Typography>
+                <Typography variant="caption" sx={{ color: 'white' }}>{group.characters.length}</Typography>
+              </Box>
+              <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1 }}>
+                {group.characters.map((character) => (
+                  <Box key={character.id} sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 1, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
+                    <Checkbox
+                      checked={activeScript.characters.includes(character.id)}
+                      onChange={() => toggleCharacterInScript(character.id)}
+                      size="small"
+                    />
+                    <Box>
+                      <Typography variant="body2" sx={{ fontWeight: 500 }}>{getDisplayName(character.id, uiLanguage)}</Typography>
+                      <Typography variant="caption" color="text.secondary">{character.id}</Typography>
+                    </Box>
+                  </Box>
+                ))}
+              </Box>
+            </Box>
+          ))}
+        </Paper>
+
+        <Paper variant="outlined" sx={{ p: 2 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Typography variant="h6">{uiText.selectedCharacters}</Typography>
+            <Typography variant="body2" color="text.secondary">{activeScriptCharacters.length} {uiText.selectedCount}</Typography>
+          </Box>
+          {groupedScriptCharacters.length > 0 ? (
+            groupedScriptCharacters.map((group) => (
+              <Box key={group.team} sx={{ mb: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 1, borderRadius: 1, mb: 1, background: getTeamColor(group.team) }}>
+                  <Typography variant="subtitle2" sx={{ flex: 1, fontStyle: 'italic', color: 'white' }}>{teamLabels[uiLanguage][group.team]}</Typography>
+                  <Typography variant="caption" sx={{ color: 'white' }}>{group.characters.length}</Typography>
+                </Box>
+                {group.characters.map((character) => (
+                  <Box key={character.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, border: '1px solid', borderColor: 'divider', borderRadius: 1, mb: 1 }}>
+                    <Box>
+                      <Typography variant="body2" sx={{ fontWeight: 500 }}>{character.name ?? getDisplayName(character.id, uiLanguage)}</Typography>
+                      <Typography variant="caption" color="text.secondary">{character.id}</Typography>
+                    </Box>
+                    <IconButton size="small" onClick={() => toggleCharacterInScript(character.id)}>
+                      ×
+                    </IconButton>
+                  </Box>
+                ))}
+              </Box>
+            ))
+          ) : (
+            <Typography variant="body2" color="text.secondary">{uiText.noCharacters}</Typography>
+          )}
+        </Paper>
+      </Box>
+    </Box>
+  )
+}
+
+function getTeamColor(team: string) {
+  const colors: Record<string, string> = {
+    townsfolk: '#2f6b6a',
+    outsider: '#7f6a3a',
+    minion: '#8d4031',
+    demon: '#482121',
+    traveler: '#4f5870',
+    fabled: '#5c4a3d',
+    loric: '#3c5268',
+  }
+  return colors[team] || '#666'
 }
