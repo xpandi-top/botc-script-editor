@@ -1,5 +1,5 @@
-// @ts-nocheck
 import React from 'react'
+import { Box, Typography, Paper } from '@mui/material'
 import { ArenaCenter } from './ArenaCenter'
 import { ArenaSeats } from './ArenaSeats'
 import { getSeatAngle } from '../../../utils/seats'
@@ -15,7 +15,6 @@ export function Arena({ ctx }: { ctx: any }) {
   }, [])
 
   const { pointerSeat, currentDay, setSelectedSeatNumber, setTagPopoutSeat, text, portraitOverride } = ctx
-  // Manual override takes priority over window detection
   const isPortrait = portraitOverride !== null ? portraitOverride : windowPortrait
   const seats = currentDay.seats
   const pointerAngle = React.useMemo(() => {
@@ -26,31 +25,59 @@ export function Arena({ ctx }: { ctx: any }) {
   }, [pointerSeat, seats, isPortrait])
 
   return (
-    <div className="storyteller-arena">
-      <div className="storyteller-table-card">
-        <div
-          className="storyteller-table"
+    <Box sx={{ display: 'grid', gap: 1, flex: 1, minHeight: 0, overflow: 'visible' }}>
+      <Paper
+        elevation={0}
+        sx={{
+          p: 2,
+          background: 'radial-gradient(circle at top, rgba(255,241,214,0.9), rgba(255,251,245,0.92) 50%), linear-gradient(180deg, rgba(255,251,245,0.96), rgba(248,240,226,0.92))',
+          boxShadow: '0 18px 60px rgba(57,43,24,0.08)',
+          overflow: 'visible',
+          position: 'relative',
+        }}
+      >
+        <Box
           onClick={(e) => {
-            // Only clear selection when clicking the table background itself,
-            // not when a click bubbles up from a seat card or its children.
             if (!(e.target as Element).closest('.storyteller-seat')) {
               setSelectedSeatNumber(null)
               setTagPopoutSeat(null)
             }
           }}
+          sx={{
+            position: 'relative',
+            width: '100%',
+            height: '100%',
+            minHeight: 300,
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, transparent 35%, rgba(133,63,34,0.08) 36%, rgba(133,63,34,0.08) 45%, transparent 46%)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
         >
-          <div className="storyteller-table__ring" />
-          {pointerSeat ? (
-            <div
-              className="storyteller-table__hand"
-              style={{ '--pointer-angle': `${pointerAngle}deg` } as React.CSSProperties}
+          {pointerSeat && (
+            <Box
+              sx={{
+                position: 'absolute',
+                width: 4,
+                height: '35%',
+                bgcolor: 'primary.main',
+                transformOrigin: 'bottom center',
+                transform: `rotate(${pointerAngle}deg)`,
+                bottom: '50%',
+                left: 'calc(50% - 2px)',
+                borderRadius: 1,
+                opacity: 0.6,
+              }}
             />
-          ) : null}
+          )}
           <ArenaCenter ctx={ctx} />
           <ArenaSeats ctx={ctx} isPortrait={isPortrait} />
-        </div>
-        <p className="storyteller-panel__hint">{text.seatHint}</p>
-      </div>
-    </div>
+        </Box>
+        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center', mt: 1 }}>
+          {text.seatHint}
+        </Typography>
+      </Paper>
+    </Box>
   )
 }
