@@ -249,7 +249,7 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     const survey = surveyData || endGameResult
     if (!survey) return
     const summaries = currentDay.seats.map((s) => ({ seat: s.seat, name: s.name, team: survey.playerTeams?.[s.seat] as any ?? 'good' }))
-    const updatedDays = days.map((d) => d.id === currentDay.id ? { ...d, gameEnded: true } : d)
+    const updatedDays = days.map((d) => d.id === currentDay.id ? { ...d, gameEnded: currentDay.gameEnded } : d)
 
     // Extract setup data from current day
     const nonTravelers = currentDay.seats.filter((s) => !s.isTraveler)
