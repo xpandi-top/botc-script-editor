@@ -17,6 +17,24 @@ export function Arena({ ctx }: { ctx: any }) {
   const { pointerSeat, currentDay, setSelectedSeatNumber, setTagPopoutSeat, text, portraitOverride } = ctx
   const isPortrait = portraitOverride !== null ? portraitOverride : windowPortrait
   const seats = currentDay.seats
+  const seatCount = seats.length || 1
+  
+  React.useEffect(() => {
+    const minSize = 60
+    const maxSize = 130
+    const baseSize = isPortrait ? 85 : 110
+    const scaleFactor = Math.max(1, (seatCount - 4) / 3)
+    const seatSize = Math.min(maxSize, Math.max(minSize, baseSize / scaleFactor))
+    document.documentElement.style.setProperty('--seat-size', `${seatSize}px`)
+    
+    const padBase = 8
+    const padExtra = seatCount > 10 ? Math.min(6, (seatCount - 10) * 0.5) : 0
+    const seatPadding = padBase + padExtra
+    
+    const centerZone = Math.max(25, Math.min(38, seatPadding + 18))
+    document.documentElement.style.setProperty('--center-zone', `${centerZone}%`)
+  }, [seatCount, isPortrait])
+  
   const pointerAngle = React.useMemo(() => {
     if (!pointerSeat) return 0
     const idx = seats.findIndex((s: any) => s.seat === pointerSeat)
@@ -25,11 +43,12 @@ export function Arena({ ctx }: { ctx: any }) {
   }, [pointerSeat, seats, isPortrait])
 
   return (
-    <Box sx={{ display: 'grid', gap: 1, flex: 1, minHeight: 0, overflow: 'visible' }}>
+    <Box sx={{ display: 'grid', gap: 1, flex: 1, minHeight: 400, overflow: 'visible', width: '100%' }}>
       <Paper
         elevation={0}
         sx={{
           p: 2,
+          minHeight: 380,
           background: 'radial-gradient(circle at top, rgba(255,241,214,0.9), rgba(255,251,245,0.92) 50%), linear-gradient(180deg, rgba(255,251,245,0.96), rgba(248,240,226,0.92))',
           boxShadow: '0 18px 60px rgba(57,43,24,0.08)',
           overflow: 'visible',
@@ -46,10 +65,9 @@ export function Arena({ ctx }: { ctx: any }) {
           sx={{
             position: 'relative',
             width: '100%',
-            height: '100%',
-            minHeight: 300,
+            minHeight: 350,
             borderRadius: '50%',
-            background: 'radial-gradient(circle, transparent 35%, rgba(133,63,34,0.08) 36%, rgba(133,63,34,0.08) 45%, transparent 46%)',
+            background: 'radial-gradient(circle, transparent var(--center-zone, 32%), rgba(133,63,34,0.06) calc(var(--center-zone, 32%) + 1%), rgba(133,63,34,0.06) calc(var(--center-zone, 32%) + 12%), transparent calc(var(--center-zone, 32%) + 13%))',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -60,7 +78,7 @@ export function Arena({ ctx }: { ctx: any }) {
               sx={{
                 position: 'absolute',
                 width: 4,
-                height: '35%',
+                height: '32%',
                 bgcolor: 'primary.main',
                 transformOrigin: 'bottom center',
                 transform: `rotate(${pointerAngle}deg)`,
@@ -68,11 +86,25 @@ export function Arena({ ctx }: { ctx: any }) {
                 left: 'calc(50% - 2px)',
                 borderRadius: 1,
                 opacity: 0.6,
+                zIndex: 10,
               }}
             />
           )}
-          <ArenaCenter ctx={ctx} />
-          <ArenaSeats ctx={ctx} isPortrait={isPortrait} />
+          <Box 
+            sx={{ 
+              position: 'relative', 
+              zIndex: 5, 
+              p: 2,
+              // width: 'min(300px, 45%)',
+              // height: 'min(250px, 40%)',
+              // m: 'auto',
+            }}
+          >
+            <ArenaCenter ctx={ctx} />
+          </Box>
+          <Box sx={{ position: 'absolute', inset: 0, zIndex: 1 }}>
+            <ArenaSeats ctx={ctx} isPortrait={isPortrait} />
+          </Box>
         </Box>
         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center', mt: 1 }}>
           {text.seatHint}

@@ -39,7 +39,10 @@ export function getSeatPosition(
   const perimeter = 2 * (W + H)
   const offset = (0.5 / total) * perimeter
   const p = (offset + (index / total) * perimeter) % perimeter
-  const padX = 9, padY = 9
+  const padBase = 8
+  const padExtra = total > 10 ? Math.min(6, (total - 10) * 0.5) : 0
+  const padX = padBase + padExtra
+  const padY = padBase + padExtra
   let left: number, top: number
   if (p < W) {
     left = padX + (p / W) * (100 - 2 * padX); top = padY

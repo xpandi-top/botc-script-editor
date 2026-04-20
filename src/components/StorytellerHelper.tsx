@@ -12,11 +12,9 @@ export function StorytellerHelper(props: StorytellerHelperProps) {
   const ctx = useStoryteller(props)
 
   useEffect(() => {
-    document.body.style.overflow = 'visible'
-    document.body.style.height = '100vh'
+    document.body.style.overflow = 'auto'
     return () => {
       document.body.style.overflow = ''
-      document.body.style.height = ''
     }
   }, [])
 
@@ -30,6 +28,7 @@ export function StorytellerHelper(props: StorytellerHelperProps) {
         minHeight: 480,
         minWidth: 520,
         alignItems: 'stretch',
+        overflow: 'auto',
       }}
     >
       <LeftScriptPanel ctx={ctx} />

@@ -34,7 +34,7 @@ export function ArenaCenterLeft({ ctx }: { ctx: any }) {
     const note = quickNote.trim()
     if (!note) return
     const kind = currentDay.phase === 'night' ? 'tagChange' : 'stateChange'
-    const updatedDay = appendEvent(currentDay, kind, `📝 ${note}`)
+    const updatedDay = appendEvent(currentDay, kind, `${note}`)
     updateCurrentDay(() => updatedDay)
     setQuickNote('')
   }
@@ -67,13 +67,12 @@ export function ArenaCenterLeft({ ctx }: { ctx: any }) {
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5, p: 1 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5, p: 1, flex: 1, minWidth: 0, flexGrow: 1 }}>
       <ToggleButtonGroup
         value={currentDay.phase}
         exclusive
         onChange={(_, v) => v && setPhase(v)}
-        size="small"
-        sx={{ '& .MuiToggleButton-root': { borderRadius: 999, px: 1.5, py: 0.25, fontSize: '0.82rem', textTransform: 'none' } }}
+        size="large"
       >
         {(['night', 'private', 'public', 'nomination'] as Phase[]).map((p) => (
           <ToggleButton key={p} value={p}>
@@ -85,21 +84,21 @@ export function ArenaCenterLeft({ ctx }: { ctx: any }) {
         ))}
       </ToggleButtonGroup>
 
-      <Box sx={{ display: 'flex', gap: 0.5, width: '100%' }}>
-        <TextField
-          size="small"
-          placeholder={language === 'zh' ? '添加备注...' : 'Add note...'}
-          value={quickNote}
-          onChange={(e) => setQuickNote(e.target.value)}
-          onKeyDown={(e) => { if (e.key === 'Enter') handleAddQuickNote() }}
-          sx={{ flex: 1 }}
-        />
-        <Button size="small" variant="outlined" onClick={handleAddQuickNote} sx={{ px: 1 }}>{language === 'zh' ? '添加' : 'Add'}</Button>
-      </Box>
+      <Box sx={{ display: 'flex', gap: 0.5, width: '60%' }}>
+          <TextField
+            size="medium"
+            placeholder={language === 'zh' ? '添加备注...' : 'Add note...'}
+            value={quickNote}
+            onChange={(e) => setQuickNote(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') handleAddQuickNote() }}
+            sx={{ flex: 1 }}
+          />
+          <Button size="medium" variant="outlined" onClick={handleAddQuickNote} sx={{ px: 1 }}>{language === 'zh' ? '添加' : 'Add'}</Button>
+        </Box>
 
-      {currentDay.phase === 'public' && (
+        {currentDay.phase === 'public' && (
         <Select
-          size="small"
+          size="large"
           value={currentDay.publicMode}
           onChange={(e) => updateCurrentDay((d: any) => ({ ...d, publicMode: e.target.value as PublicMode }))}
           sx={{ fontSize: '0.85rem', minWidth: 100 }}
@@ -112,7 +111,7 @@ export function ArenaCenterLeft({ ctx }: { ctx: any }) {
       {hasTimer && (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
           <TextField
-            size="small"
+            size="medium"
             value={`${String(Math.floor(currentTimerSeconds / 60)).padStart(2, '0')}:${String(currentTimerSeconds % 60).padStart(2, '0')}`}
             onChange={(e) => {
               const val = e.target.value
@@ -127,23 +126,23 @@ export function ArenaCenterLeft({ ctx }: { ctx: any }) {
             inputMode="numeric"
             sx={{ width: 70, bgcolor: alarmActive ? 'warning.light' : 'transparent' }}
           />
-          {alarmActive && <IconButton size="small" onClick={() => setAlarmActive(false)}>🔔</IconButton>}
+          {alarmActive && <IconButton size="large" onClick={() => setAlarmActive(false)}>🔔</IconButton>}
         </Box>
       )}
 
       {hasTimer && (
         <Box sx={{ display: 'flex', gap: 0.5 }}>
           <IconButton
-            size="small"
+            size="large"
             onClick={() => { setIsTimerRunning((c: boolean) => !c); if (alarmActive) setAlarmActive(false) }}
             sx={{ bgcolor: isTimerRunning ? 'rgba(133,63,34,0.15)' : 'transparent', border: '1px solid', borderColor: isTimerRunning ? 'primary.main' : 'divider' }}
           >
             {isTimerRunning ? <PauseIcon sx={{ fontSize: '0.9rem' }} /> : <PlayArrowIcon sx={{ fontSize: '0.9rem' }} />}
           </IconButton>
-          <IconButton size="small" onClick={() => { updateCurrentDay(syncDayTimers); setIsTimerRunning(false) }}>
+          <IconButton size="large" onClick={() => { updateCurrentDay(syncDayTimers); setIsTimerRunning(false) }}>
             <RefreshIcon sx={{ fontSize: '0.9rem' }} />
           </IconButton>
-          <IconButton size="small" onClick={() => { setIsTimerRunning(false); setAlarmActive(false); setCurrentTimer(0) }}>
+          <IconButton size="large" onClick={() => { setIsTimerRunning(false); setAlarmActive(false); setCurrentTimer(0) }}>
             <StopIcon sx={{ fontSize: '0.9rem' }} />
           </IconButton>
         </Box>
@@ -152,27 +151,27 @@ export function ArenaCenterLeft({ ctx }: { ctx: any }) {
       {currentDay.phase === 'night' && (
         <Box sx={{ display: 'flex', gap: 0.5 }}>
           <IconButton
-            size="small"
+            size="large"
             onClick={(e) => { e.stopPropagation(); audioPlaying ? setAudioPlaying(false) : startNight() }}
             sx={{ bgcolor: audioPlaying ? 'rgba(133,63,34,0.15)' : 'transparent', border: '1px solid', borderColor: audioPlaying ? 'primary.main' : 'divider' }}
           >
-            {audioPlaying ? <PauseIcon sx={{ fontSize: '0.9rem' }} /> : <PlayArrowIcon sx={{ fontSize: '0.9rem' }} />}
+            {audioPlaying ? <PauseIcon /> : <PlayArrowIcon/>}
           </IconButton>
-          <IconButton size="small" onClick={(e) => { e.stopPropagation(); stopNight() }}>
-            <StopIcon sx={{ fontSize: '0.9rem' }} />
+          <IconButton size="large" onClick={(e) => { e.stopPropagation(); stopNight() }}>
+            <StopIcon />
           </IconButton>
         </Box>
       )}
 
       {currentDay.phase === 'night' && (
         <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', justifyContent: 'center' }}>
-          <Button size="small" variant={nightShowCharacter ? 'contained' : 'outlined'} onClick={() => setNightShowCharacter((v: boolean) => !v)} sx={{ fontSize: '0.75rem', px: 1 }}>
+          <Button size="large" variant={nightShowCharacter ? 'contained' : 'outlined'} onClick={() => setNightShowCharacter((v: boolean) => !v)} sx={{ fontSize: '0.75rem', px: 1 }}>
             👁 {language === 'zh' ? '显示角色' : 'Character'}
           </Button>
-          <Button size="small" variant={nightShowWakeOrder ? 'contained' : 'outlined'} onClick={() => setNightShowWakeOrder((v: boolean) => !v)} sx={{ fontSize: '0.75rem', px: 1 }}>
+          <Button size="large" variant={nightShowWakeOrder ? 'contained' : 'outlined'} onClick={() => setNightShowWakeOrder((v: boolean) => !v)} sx={{ fontSize: '0.75rem', px: 1 }}>
             🔢 {language === 'zh' ? '唤醒顺序' : 'Wake Order'}
           </Button>
-          <Button size="small" variant="outlined" onClick={handleOpenCharacterEditor} sx={{ fontSize: '0.75rem', px: 1 }}>
+          <Button size="large" variant="outlined" onClick={handleOpenCharacterEditor} sx={{ fontSize: '0.75rem', px: 1 }}>
             🎭 {language === 'zh' ? '编辑' : 'Edit'}
           </Button>
         </Box>
@@ -182,13 +181,13 @@ export function ArenaCenterLeft({ ctx }: { ctx: any }) {
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5 }}>
           <Typography variant="h6" sx={{ fontSize: '1.25rem', fontWeight: 700, color: 'primary.main' }}>#{currentDay.currentSpeakerSeat ?? '—'}</Typography>
           <Box sx={{ display: 'flex', gap: 0.5 }}>
-            <Button size="small" variant="outlined" onClick={() => setPickerMode('speaker')} sx={{ fontSize: '0.7rem', px: 0.5 }}>{text.chooseSpeaker}</Button>
-            <Button size="small" variant="outlined" onClick={() => {
+            <Button size="large" variant="outlined" onClick={() => setPickerMode('speaker')} sx={{ fontSize: '0.7rem', px: 0.5 }}>{text.chooseSpeaker}</Button>
+            <Button size="large" variant="outlined" onClick={() => {
               const all = currentDay.seats.map((s: any) => s.seat)
               const r = all[Math.floor(Math.random() * Math.max(all.length, 1))]
               updateCurrentDay((d: any) => ({ ...d, currentSpeakerSeat: r ?? 1, roundRobinSpokenSeats: [] }))
             }} sx={{ fontSize: '0.7rem', px: 0.5 }}>{text.randomSpeaker}</Button>
-            <Button size="small" variant="outlined" onClick={moveToNextSpeaker} sx={{ fontSize: '0.7rem', px: 0.5 }}>{text.nextSpeaker}</Button>
+            <Button size="large" variant="outlined" onClick={moveToNextSpeaker} sx={{ fontSize: '0.7rem', px: 0.5 }}>{text.nextSpeaker}</Button>
           </Box>
         </Box>
       )}
@@ -212,7 +211,7 @@ export function ArenaCenterLeft({ ctx }: { ctx: any }) {
               <IconButton
                 key={idx}
                 onClick={action}
-                size="small"
+                size="large"
                 sx={{ bgcolor: stepIdx === idx ? 'primary.main' : done ? 'rgba(133,63,34,0.2)' : 'transparent', color: stepIdx === idx ? 'white' : 'inherit' }}
               >
                 {label}{done && ' ✓'}
@@ -221,14 +220,13 @@ export function ArenaCenterLeft({ ctx }: { ctx: any }) {
           </Box>
           <Box sx={{ display: 'flex', gap: 0.5 }}>
             <Button
-              size="small"
+              size="large"
               variant={showNominationSheet ? 'contained' : 'outlined'}
               onClick={() => setShowNominationSheet((v: boolean) => !v)}
-              sx={{ fontSize: '0.75rem' }}
             >
               📋 {language === 'zh' ? '提名' : 'Nominate'}
             </Button>
-            <Button size="small" variant="outlined" onClick={(e) => { e.stopPropagation(); goToNextDay() }} sx={{ fontSize: '0.75rem' }}>
+            <Button size="large" variant="outlined" onClick={(e) => { e.stopPropagation(); goToNextDay() }}>
               ▶ {language === 'zh' ? '下一天' : 'Next Day'}
             </Button>
           </Box>

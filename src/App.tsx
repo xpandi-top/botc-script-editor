@@ -1,32 +1,25 @@
 import {
-  Fragment,
   useEffect,
   useMemo,
   useState,
 } from 'react'
 import {
-  Container,
   Box,
-  Typography,
-  Tabs,
-  Tab,
-  Paper,
-  Button,
-  Select,
-  MenuItem,
+  Container,
   FormControl,
   InputLabel,
-  TextField,
-  FormControlLabel,
-  Checkbox,
-  IconButton,
+  MenuItem,
+  Paper,
+  Select,
+  Tab,
+  Tabs,
+  Typography,
+  Button,
 } from '@mui/material'
 import PrintIcon from '@mui/icons-material/Print'
-import AddIcon from '@mui/icons-material/Add'
-import { CharacterRevisionPanel } from './components/CharacterRevisionPanel'
-import { FilterCheckbox } from './components/FilterCheckbox'
-import { ScriptList } from './components/ScriptList'
-import { SheetArticle } from './components/SheetArticle'
+import { ScriptsTab } from './components/tabs/ScriptsTab'
+import { SettingsTab } from './components/tabs/SettingsTab'
+import { CharactersTab } from './components/tabs/CharactersTab'
 import { StorytellerHelper } from './components/StorytellerHelper'
 import {
   allCharacters,
@@ -34,13 +27,10 @@ import {
   createScriptPayload,
   editionLabels,
   getAbilityText,
-  getCurrentRevision,
   getDisplayName,
-  getIconForCharacter,
   initialScripts,
   locales,
   sortCharacterIds,
-  teamLabels,
   teamOrder,
   toTitleCase,
 } from './catalog'
@@ -60,21 +50,18 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<TabKey>('scripts')
   const [uiLanguage, setUiLanguage] = useState<Language>('zh')
   const [scripts, setScripts] = useState<EditableScript[]>(initialScripts)
-
-  const getInitialScriptSlug = () => {
-    if (typeof window === 'undefined') return initialScripts[0]?.slug ?? ''
+  const [activeSlug, setActiveSlug] = useState<string>(() => {
     try {
       const stored = window.localStorage.getItem(STORAGE_KEY)
       if (stored) {
         const p = JSON.parse(stored)
-        if (p.activeScriptSlug && scripts.some(s => s.slug === p.activeScriptSlug)) {
+        if (p.activeScriptSlug && initialScripts.some(s => s.slug === p.activeScriptSlug)) {
           return p.activeScriptSlug
         }
       }
     } catch {}
     return initialScripts[0]?.slug ?? ''
-  }
-  const [activeSlug, setActiveSlug] = useState<string>(getInitialScriptSlug)
+  })
   const [characterQuery, setCharacterQuery] = useState('')
   const [selectedTeams, setSelectedTeams] = useState<Team[]>([])
   const [selectedEditions, setSelectedEditions] = useState<string[]>([])
@@ -83,327 +70,163 @@ export default function App() {
   const [pdfFontSize, setPdfFontSize] = useState(11)
   const [showWakeOrderPreview, setShowWakeOrderPreview] = useState(true)
   const [saveStatus, setSaveStatus] = useState('')
-  const [selectedCharacterId, setSelectedCharacterId] = useState<string>(
-    allCharacters[0]?.id ?? '',
-  )
+  const [selectedCharacterId, setSelectedCharacterId] = useState<string>(allCharacters[0]?.id ?? '')
 
   const activeScript = useMemo(
-    () => scripts.find((script) => script.slug === activeSlug) ?? scripts[0],
+    () => scripts.find((s) => s.slug === activeSlug) ?? scripts[0],
     [activeSlug, scripts],
   )
 
   const uiText = useMemo(() => {
-    const localeUi = locales[uiLanguage].ui
-    if (!localeUi) {
-      throw new Error(`Missing ui locale section: ${uiLanguage}.ui`)
+    const ui = locales[uiLanguage].ui
+    if (!ui) throw new Error(`Missing ui locale: ${uiLanguage}`)
+    const req = (key: string) => {
+      const v = ui[key]
+      if (!v) throw new Error(`Missing ui locale string: ${uiLanguage}.${key}`)
+      return v
     }
-    const ui = localeUi
-
-    function required(key: string) {
-      const value = ui[key]
-      if (!value) {
-        throw new Error(`Missing ui locale string: ${uiLanguage}.${key}`)
-      }
-
-      return value
-    }
-
     return {
-      appTitle: required('app_title'),
-      appLead: required('app_lead'),
-      print: required('print'),
-      scriptSheet: required('script_sheet'),
-      settings: required('settings'),
-      allCharacters: required('all_characters'),
-      newScript: required('new_script'),
-      editScript: required('edit_script'),
-      doneEditing: required('done_editing'),
-      downloadJson: required('download_json'),
-      noScripts: required('no_scripts'),
-      pdfSettings: required('pdf_settings'),
-      currentScript: required('current_script'),
-      fontSize: required('font_size'),
-      fontSizePt: required('font_size_pt'),
-      reset: required('reset'),
-      preview: required('preview'),
-      wakeOrderToggle: required('wake_order_toggle'),
-      wakeOrderNote: required('wake_order_note'),
-      resultsSuffix: required('results_suffix'),
-      searchCharacters: required('search_characters'),
-      title: required('title'),
-      chineseTitle: required('chinese_title'),
-      author: required('author'),
-      bootleggerRules: required('bootlegger_rules'),
-      bootleggerRulesHelp: required('bootlegger_rules_help'),
-      bootleggerRulesZh: required('bootlegger_rules_zh'),
-      bootleggerRulesZhHelp: required('bootlegger_rules_zh_help'),
-      bootleggerRulePlaceholder: required('bootlegger_rule_placeholder'),
-      bootleggerRuleZhPlaceholder: required('bootlegger_rule_zh_placeholder'),
-      scriptJinxes: required('script_jinxes'),
-      scriptJinxesHelp: required('script_jinxes_help'),
-      jinxPairId: required('jinx_pair_id'),
-      jinxPairPlaceholder: required('jinx_pair_placeholder'),
-      jinxStatus: required('jinx_status'),
-      jinxStatusActive: required('jinx_status_active'),
-      jinxStatusInactive: required('jinx_status_inactive'),
-      jinxReasonEnPlaceholder: required('jinx_reason_en_placeholder'),
-      jinxReasonZhPlaceholder: required('jinx_reason_zh_placeholder'),
-      addJinx: required('add_jinx'),
-      addRule: required('add_rule'),
-      remove: required('remove'),
-      custom: required('custom'),
-      editionLabel: required('edition_label'),
-      characterSearch: required('character_search'),
-      filterCharacters: required('filter_characters'),
-      export: required('export'),
-      language: required('language'),
-      english: required('english'),
-      chinese: required('chinese'),
-      characterVersions: required('character_versions'),
-      currentRevision: required('current_revision'),
-      revisionHistory: required('revision_history'),
-      revisionNote: required('revision_note'),
-      englishText: required('english_text'),
-      chineseText: required('chinese_text'),
-      current: required('current'),
-      noCharacterSelected: required('no_character_selected'),
-      availableCharacters: required('available_characters'),
-      selectedCharacters: required('selected_characters'),
-      selectedCount: required('selected_count'),
-      noCharacters: required('no_characters'),
+      appTitle: req('app_title'), appLead: req('app_lead'), print: req('print'),
+      scriptSheet: req('script_sheet'), settings: req('settings'), allCharacters: req('all_characters'),
+      newScript: req('new_script'), editScript: req('edit_script'), doneEditing: req('done_editing'),
+      downloadJson: req('download_json'), noScripts: req('no_scripts'), pdfSettings: req('pdf_settings'),
+      currentScript: req('current_script'), fontSize: req('font_size'), fontSizePt: req('font_size_pt'),
+      reset: req('reset'), preview: req('preview'), wakeOrderToggle: req('wake_order_toggle'),
+      wakeOrderNote: req('wake_order_note'), resultsSuffix: req('results_suffix'),
+      searchCharacters: req('search_characters'), title: req('title'), chineseTitle: req('chinese_title'),
+      author: req('author'), bootleggerRules: req('bootlegger_rules'), bootleggerRulesHelp: req('bootlegger_rules_help'),
+      bootleggerRulesZh: req('bootlegger_rules_zh'), bootleggerRulesZhHelp: req('bootlegger_rules_zh_help'),
+      bootleggerRulePlaceholder: req('bootlegger_rule_placeholder'), bootleggerRuleZhPlaceholder: req('bootlegger_rule_zh_placeholder'),
+      scriptJinxes: req('script_jinxes'), scriptJinxesHelp: req('script_jinxes_help'),
+      jinxPairId: req('jinx_pair_id'), jinxPairPlaceholder: req('jinx_pair_placeholder'),
+      jinxStatus: req('jinx_status'), jinxStatusActive: req('jinx_status_active'), jinxStatusInactive: req('jinx_status_inactive'),
+      jinxReasonEnPlaceholder: req('jinx_reason_en_placeholder'), jinxReasonZhPlaceholder: req('jinx_reason_zh_placeholder'),
+      addJinx: req('add_jinx'), addRule: req('add_rule'), remove: req('remove'), custom: req('custom'),
+      editionLabel: req('edition_label'), characterSearch: req('character_search'), filterCharacters: req('filter_characters'),
+      export: req('export'), language: req('language'), english: req('english'), chinese: req('chinese'),
+      characterVersions: req('character_versions'), currentRevision: req('current_revision'),
+      revisionHistory: req('revision_history'), revisionNote: req('revision_note'),
+      englishText: req('english_text'), chineseText: req('chinese_text'), current: req('current'),
+      noCharacterSelected: req('no_character_selected'), availableCharacters: req('available_characters'),
+      selectedCharacters: req('selected_characters'), selectedCount: req('selected_count'), noCharacters: req('no_characters'),
     }
   }, [uiLanguage])
 
   const getScriptTitle = (script: EditableScript) =>
     uiLanguage === 'zh' ? script.titleZh || script.title : script.title
 
-  const storytellerTabLabel = uiLanguage === 'zh' ? '主持助手' : 'Storyteller Helper'
-
-  function getSheetUiLabel(language: Language, key: string) {
+  const getSheetUiLabel = (language: Language, key: string) => {
     const value = locales[language].ui?.[key]
-    if (!value) {
-      throw new Error(`Missing ui locale string: ${language}.${key}`)
-    }
-
+    if (!value) throw new Error(`Missing ui locale string: ${language}.${key}`)
     return value
   }
 
   const activeScriptCharacters = useMemo<ResolvedScriptCharacter[]>(() => {
-    if (!activeScript) {
-      return []
-    }
-
-    const customCharactersById = new Map(
-      activeScript.customCharacters.map((character) => [character.id, character]),
-    )
-
-    const resolvedCharacters = sortCharacterIds(activeScript.characters).map<
-      ResolvedScriptCharacter | null
-    >((id) => {
-        const catalogCharacter = characterById[id]
-        const customCharacter = customCharactersById.get(id)
-
-        if (!catalogCharacter && !customCharacter) {
-          return null
-        }
-
+    if (!activeScript) return []
+    const customById = new Map(activeScript.customCharacters.map((c) => [c.id, c]))
+    return sortCharacterIds(activeScript.characters)
+      .map<ResolvedScriptCharacter | null>((id) => {
+        const cat = characterById[id]
+        const custom = customById.get(id)
+        if (!cat && !custom) return null
         return {
           id,
-          team: customCharacter?.team ?? catalogCharacter?.team ?? 'townsfolk',
-          edition: customCharacter?.edition ?? catalogCharacter?.edition ?? activeScript.edition,
-          current_revision: catalogCharacter?.current_revision,
-          revisions: catalogCharacter?.revisions,
-          jinxes: customCharacter?.jinxes ?? catalogCharacter?.jinxes,
-          name: customCharacter?.name,
-          ability: customCharacter?.ability,
-          image: customCharacter?.image,
+          team: custom?.team ?? cat?.team ?? 'townsfolk',
+          edition: custom?.edition ?? cat?.edition ?? activeScript.edition,
+          current_revision: cat?.current_revision,
+          revisions: cat?.revisions,
+          jinxes: custom?.jinxes ?? cat?.jinxes,
+          name: custom?.name,
+          ability: custom?.ability,
+          image: custom?.image,
         }
       })
-
-    return resolvedCharacters.filter(
-      (character): character is ResolvedScriptCharacter => character !== null,
-    )
+      .filter((c): c is ResolvedScriptCharacter => c !== null)
   }, [activeScript])
 
   const groupedScriptCharacters = useMemo<ResolvedScriptCharacterGroup[]>(
-    () =>
-      teamOrder
-        .map((team) => ({
-          team,
-          characters: activeScriptCharacters.filter((character) => character.team === team),
-        }))
-        .filter((group) => group.characters.length > 0),
+    () => teamOrder
+      .map((team) => ({ team, characters: activeScriptCharacters.filter((c) => c.team === team) }))
+      .filter((g) => g.characters.length > 0),
     [activeScriptCharacters],
   )
 
   const sheetDensityClass = useMemo(() => {
     const count = activeScriptCharacters.length
-
-    if (count >= 25) {
-      return 'sheet--dense'
-    }
-
-    if (count >= 18) {
-      return 'sheet--compact'
-    }
-
+    if (count >= 25) return 'sheet--dense'
+    if (count >= 18) return 'sheet--compact'
     return ''
   }, [activeScriptCharacters.length])
 
   const availableEditions = useMemo(
-    () =>
-      Array.from(new Set(allCharacters.map((character) => character.edition))).sort(
-        (left, right) =>
-          (editionLabels[uiLanguage][left] ?? toTitleCase(left)).localeCompare(
-            editionLabels[uiLanguage][right] ?? toTitleCase(right),
-          ),
-      ),
+    () => Array.from(new Set(allCharacters.map((c) => c.edition))).sort(
+      (a, b) => (editionLabels[uiLanguage][a] ?? toTitleCase(a)).localeCompare(editionLabels[uiLanguage][b] ?? toTitleCase(b)),
+    ),
     [uiLanguage],
   )
 
   const filteredCharacters = useMemo(() => {
     const query = characterQuery.trim().toLowerCase()
-
-    return allCharacters.filter((character) => {
-      const nameEn = getDisplayName(character.id, 'en').toLowerCase()
-      const nameZh = getDisplayName(character.id, 'zh').toLowerCase()
-      const abilityEn = getAbilityText(character.id, 'en').toLowerCase()
-      const abilityZh = getAbilityText(character.id, 'zh').toLowerCase()
-      const id = character.id.toLowerCase()
-      const matchesQuery =
-        !query ||
-        nameEn.includes(query) ||
-        nameZh.includes(query) ||
-        abilityEn.includes(query) ||
-        abilityZh.includes(query) ||
-        id.includes(query)
-      const matchesTeam =
-        selectedTeams.length === 0 || selectedTeams.includes(character.team)
-      const matchesEdition =
-        selectedEditions.length === 0 || selectedEditions.includes(character.edition)
-
+    return allCharacters.filter((c) => {
+      const nameEn = getDisplayName(c.id, 'en').toLowerCase()
+      const nameZh = getDisplayName(c.id, 'zh').toLowerCase()
+      const abilityEn = getAbilityText(c.id, 'en').toLowerCase()
+      const abilityZh = getAbilityText(c.id, 'zh').toLowerCase()
+      const matchesQuery = !query || nameEn.includes(query) || nameZh.includes(query) || abilityEn.includes(query) || abilityZh.includes(query) || c.id.toLowerCase().includes(query)
+      const matchesTeam = selectedTeams.length === 0 || selectedTeams.includes(c.team)
+      const matchesEdition = selectedEditions.length === 0 || selectedEditions.includes(c.edition)
       return matchesQuery && matchesTeam && matchesEdition
     })
   }, [characterQuery, selectedEditions, selectedTeams])
 
   const filteredEditorCharacters = useMemo(() => {
     const query = editorQuery.trim().toLowerCase()
-
-    return allCharacters.filter((character) => {
-      if (!query) {
-        return true
-      }
-
-      return (
-        getDisplayName(character.id, 'en').toLowerCase().includes(query) ||
-        getDisplayName(character.id, 'zh').toLowerCase().includes(query) ||
-        character.id.toLowerCase().includes(query) ||
-        getAbilityText(character.id, 'en').toLowerCase().includes(query) ||
-        getAbilityText(character.id, 'zh').toLowerCase().includes(query)
-      )
-    })
+    return allCharacters.filter((c) =>
+      !query ||
+      getDisplayName(c.id, 'en').toLowerCase().includes(query) ||
+      getDisplayName(c.id, 'zh').toLowerCase().includes(query) ||
+      c.id.toLowerCase().includes(query) ||
+      getAbilityText(c.id, 'en').toLowerCase().includes(query) ||
+      getAbilityText(c.id, 'zh').toLowerCase().includes(query),
+    )
   }, [editorQuery])
 
   const groupedEditorCharacters = useMemo<CharacterGroup[]>(
-    () =>
-      teamOrder
-        .map((team) => ({
-          team,
-          characters: filteredEditorCharacters.filter((character) => character.team === team),
-        }))
-        .filter((group) => group.characters.length > 0),
+    () => teamOrder
+      .map((team) => ({ team, characters: filteredEditorCharacters.filter((c) => c.team === team) }))
+      .filter((g) => g.characters.length > 0),
     [filteredEditorCharacters],
   )
 
-  const selectedCharacter =
-    characterById[selectedCharacterId] ??
-    filteredCharacters[0] ??
-    allCharacters[0]
+  const selectedCharacter = characterById[selectedCharacterId] ?? filteredCharacters[0] ?? allCharacters[0]
 
   useEffect(() => {
-    if (selectedCharacter) {
-      setSelectedCharacterId(selectedCharacter.id)
-    }
+    if (selectedCharacter) setSelectedCharacterId(selectedCharacter.id)
   }, [selectedCharacter?.id])
 
-  function updateActiveScript(
-    updater: (script: EditableScript) => EditableScript,
-    nextSlug?: string,
-  ) {
-    if (!activeScript) {
-      return
-    }
-
-    const updated = updater(activeScript)
-    setScripts((current) =>
-      current.map((script) => (script.slug === activeScript.slug ? updated : script)),
-    )
-
-    if (nextSlug && nextSlug !== activeScript.slug) {
-      setActiveSlug(nextSlug)
-    }
-  }
-
-  function toggleTeam(team: Team) {
-    setSelectedTeams((current) =>
-      current.includes(team)
-        ? current.filter((entry) => entry !== team)
-        : [...current, team],
-    )
-  }
-
-  function toggleEdition(edition: string) {
-    setSelectedEditions((current) =>
-      current.includes(edition)
-        ? current.filter((entry) => entry !== edition)
-        : [...current, edition],
-    )
+  function updateActiveScript(updater: (s: EditableScript) => EditableScript, nextSlug?: string) {
+    if (!activeScript) return
+    setScripts((cur) => cur.map((s) => s.slug === activeScript.slug ? updater(s) : s))
+    if (nextSlug && nextSlug !== activeScript.slug) setActiveSlug(nextSlug)
   }
 
   function createNewScript() {
     const baseSlug = 'new-script'
     let nextSlug = baseSlug
     let index = 2
-
-    while (scripts.some((script) => script.slug === nextSlug)) {
-      nextSlug = `${baseSlug}-${index}`
-      index += 1
+    while (scripts.some((s) => s.slug === nextSlug)) { nextSlug = `${baseSlug}-${index}`; index++ }
+    const next: EditableScript = {
+      slug: nextSlug, title: 'New Script', titleZh: 'New Script', author: '',
+      meta: { id: '_meta', name: 'New Script' }, customCharacters: [],
+      edition: 'custom', characters: [], sourceFile: `${nextSlug}.json`,
     }
-
-    const nextScript: EditableScript = {
-      slug: nextSlug,
-      title: 'New Script',
-      titleZh: 'New Script',
-      author: '',
-      meta: { id: '_meta', name: 'New Script' },
-      customCharacters: [],
-      edition: 'custom',
-      characters: [],
-      sourceFile: `${nextSlug}.json`,
-    }
-
-    setScripts((current) => [...current, nextScript])
+    setScripts((cur) => [...cur, next])
     setActiveSlug(nextSlug)
     setSaveStatus('')
   }
 
-  function toggleCharacterInScript(characterId: string) {
-    updateActiveScript((script) => {
-      const hasCharacter = script.characters.includes(characterId)
-      return {
-        ...script,
-        characters: hasCharacter
-          ? script.characters.filter((id) => id !== characterId)
-          : sortCharacterIds([...script.characters, characterId]),
-      }
-    })
-  }
-
   function downloadScriptFile() {
-    if (!activeScript) {
-      return
-    }
-
+    if (!activeScript) return
     const payload = JSON.stringify(createScriptPayload(activeScript), null, 2)
     const blob = new Blob([payload], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
@@ -415,65 +238,45 @@ export default function App() {
     setSaveStatus(`Downloaded ${link.download}`)
   }
 
-  const handleTabChange = (_: React.SyntheticEvent, newValue: TabKey) => {
-    setActiveTab(newValue)
+  function toggleCharacterInScript(characterId: string) {
+    updateActiveScript((s) => ({
+      ...s,
+      characters: s.characters.includes(characterId)
+        ? s.characters.filter((id) => id !== characterId)
+        : sortCharacterIds([...s.characters, characterId]),
+    }))
   }
+
+  const storytellerTabLabel = uiLanguage === 'zh' ? '主持助手' : 'Storyteller Helper'
 
   return (
     <Container maxWidth="xl" sx={{ py: 3, minHeight: '100vh' }}>
       <Paper elevation={0} sx={{ p: 3, mb: 2, borderRadius: 3, background: 'rgba(255,251,245,0.9)' }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mb: 2, flexWrap: 'wrap', gap: 2 }}>
-          <Box>
-            <Typography variant="caption" sx={{ textTransform: 'uppercase', letterSpacing: '0.12em', color: 'text.secondary' }}>
-              Blood on the Clocktower
-            </Typography>
-            <Typography variant="h4" component="h1" sx={{ fontFamily: 'Georgia, "Times New Roman", serif', mt: 0.5 }}>
-              {uiText.appTitle}
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, maxWidth: 400 }}>
-              {uiText.appLead}
-            </Typography>
-          </Box>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
+          <Typography variant="h6" component="h1" sx={{ fontFamily: 'Georgia, "Times New Roman", serif', m: 0 }}>
+            {uiText.appTitle}
+          </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <FormControl size="small" sx={{ minWidth: 100 }}>
               <InputLabel>{uiText.language}</InputLabel>
-              <Select
-                value={uiLanguage}
-                label={uiText.language}
-                onChange={(e) => setUiLanguage(e.target.value as Language)}
-              >
+              <Select value={uiLanguage} label={uiText.language} onChange={(e) => setUiLanguage(e.target.value as Language)}>
                 <MenuItem value="en">{uiText.english}</MenuItem>
                 <MenuItem value="zh">{uiText.chinese}</MenuItem>
               </Select>
             </FormControl>
             {activeTab !== 'characters' && activeTab !== 'storyteller' && activeScript && (
-              <Button
-                variant="contained"
-                startIcon={<PrintIcon />}
-                onClick={() => window.print()}
-                sx={{ borderRadius: 999 }}
-              >
+              <Button variant="contained" startIcon={<PrintIcon />} onClick={() => window.print()} sx={{ borderRadius: 999 }}>
                 {uiText.print}
               </Button>
             )}
           </Box>
         </Box>
-
         <Tabs
           value={activeTab}
-          onChange={handleTabChange}
+          onChange={(_, v) => setActiveTab(v)}
           sx={{
-            '& .MuiTab-root': {
-              textTransform: 'none',
-              borderRadius: 999,
-              border: '1px solid',
-              borderColor: 'divider',
-              mr: 1,
-            },
-            '& .Mui-selected': {
-              backgroundColor: 'rgba(133, 63, 34, 0.1)',
-              borderColor: 'primary.main',
-            },
+            '& .MuiTab-root': { textTransform: 'none', borderRadius: 999, border: '1px solid', borderColor: 'divider', mr: 1 },
+            '& .Mui-selected': { backgroundColor: 'rgba(133, 63, 34, 0.1)', borderColor: 'primary.main' },
           }}
         >
           <Tab label={uiText.scriptSheet} value="scripts" />
@@ -484,522 +287,72 @@ export default function App() {
       </Paper>
 
       {activeTab === 'scripts' && (
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '320px 1fr' }, gap: 2 }}>
-          <Paper elevation={0} sx={{ p: 2, borderRadius: 3, background: 'rgba(255,251,245,0.9)', border: '1px solid', borderColor: 'divider' }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-              <Typography variant="h6">{uiText.scriptSheet}</Typography>
-              <Button size="small" variant="outlined" startIcon={<AddIcon />} onClick={createNewScript}>
-                {uiText.newScript}
-              </Button>
-            </Box>
-            <Box sx={{ display: 'grid', gap: 1 }}>
-              {scripts.map((script) => (
-                <ScriptList
-                  key={script.slug}
-                  title={getScriptTitle(script)}
-                  isActive={script.slug === activeScript?.slug}
-                  onSelect={() => setActiveSlug(script.slug)}
-                />
-              ))}
-            </Box>
-          </Paper>
-
-          <Paper elevation={0} sx={{ p: 2, borderRadius: 3, background: 'rgba(255,251,245,0.9)', border: '1px solid', borderColor: 'divider' }}>
-            {activeScript ? (
-              <>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2, flexWrap: 'wrap' }}>
-                  <Button variant="outlined" size="small" onClick={() => setIsEditMode((current) => !current)}>
-                    {isEditMode ? uiText.doneEditing : uiText.editScript}
-                  </Button>
-                  <Button variant="outlined" size="small" onClick={downloadScriptFile}>
-                    {uiText.downloadJson}
-                  </Button>
-                  {saveStatus && <Typography variant="body2" color="text.secondary">{saveStatus}</Typography>}
-                </Box>
-
-                {!isEditMode ? (
-                  <SheetArticle
-                    activeScript={activeScript}
-                    activeScriptCharacters={activeScriptCharacters}
-                    groupedScriptCharacters={groupedScriptCharacters}
-                    bootleggerRulesLabel={getSheetUiLabel(uiLanguage, 'bootlegger_rules')}
-                    jinxesLabel={getSheetUiLabel(uiLanguage, 'jinxes')}
-                    isEditMode={false}
-                    language={uiLanguage}
-                    onRemoveCharacter={toggleCharacterInScript}
-                    sheetDensityClass={sheetDensityClass}
-                    showWakeOrder={showWakeOrderPreview}
-                  />
-                ) : null}
-
-                <Box sx={{ display: 'none' }} aria-hidden="true">
-                  {(['en', 'zh'] as Language[]).map((language, index) => (
-                    <Fragment key={language}>
-                      <SheetArticle
-                        activeScript={activeScript}
-                        activeScriptCharacters={activeScriptCharacters}
-                        groupedScriptCharacters={groupedScriptCharacters}
-                        bootleggerRulesLabel={getSheetUiLabel(language, 'bootlegger_rules')}
-                        jinxesLabel={getSheetUiLabel(language, 'jinxes')}
-                        isEditMode={false}
-                        language={language}
-                        onRemoveCharacter={toggleCharacterInScript}
-                        sheetDensityClass={sheetDensityClass}
-                        className="print-sheet"
-                        showWakeOrder
-                        showEdition={false}
-                        showCharacterCount={false}
-                        supplementalPlacement="end"
-                      />
-                      {index === 0 ? <div className="print-page-break" /> : null}
-                    </Fragment>
-                  ))}
-                </Box>
-
-                {isEditMode ? (
-                  <Box sx={{ mt: 3 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                      <Typography variant="h6">{uiText.editScript}</Typography>
-                      <Typography variant="body2" color="text.secondary">{activeScript.sourceFile}</Typography>
-                    </Box>
-
-                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, gap: 2, mb: 3 }}>
-                      <TextField
-                        label={uiText.title}
-                        value={activeScript.title}
-                        onChange={(e) => updateActiveScript((script) => ({ ...script, title: e.target.value }))}
-                        size="small"
-                      />
-                      <TextField
-                        label={uiText.chineseTitle}
-                        value={activeScript.titleZh}
-                        onChange={(e) => updateActiveScript((script) => ({ ...script, titleZh: e.target.value }))}
-                        size="small"
-                      />
-                      <TextField
-                        label={uiText.author}
-                        value={activeScript.author}
-                        onChange={(e) => updateActiveScript((script) => ({ ...script, author: e.target.value }))}
-                        size="small"
-                      />
-                      <FormControl size="small">
-                        <InputLabel>{uiText.editionLabel}</InputLabel>
-                        <Select
-                          value={activeScript.edition}
-                          label={uiText.editionLabel}
-                          onChange={(e) => updateActiveScript((script) => ({ ...script, edition: e.target.value }))}
-                        >
-                          {availableEditions.map((edition) => (
-                            <MenuItem key={edition} value={edition}>
-                              {editionLabels[uiLanguage][edition] ?? toTitleCase(edition)}
-                            </MenuItem>
-                          ))}
-                          <MenuItem value="custom">{uiText.custom}</MenuItem>
-                        </Select>
-                      </FormControl>
-                    </Box>
-
-                    <EditorSection
-                      activeScript={activeScript}
-                      updateActiveScript={updateActiveScript}
-                      uiText={uiText}
-                      uiLanguage={uiLanguage}
-                      editorQuery={editorQuery}
-                      setEditorQuery={setEditorQuery}
-                      groupedEditorCharacters={groupedEditorCharacters}
-                      activeScriptCharacters={activeScriptCharacters}
-                      groupedScriptCharacters={groupedScriptCharacters}
-                      toggleCharacterInScript={toggleCharacterInScript}
-                      teamLabels={teamLabels}
-                      getDisplayName={getDisplayName}
-                    />
-                  </Box>
-                ) : null}
-              </>
-            ) : (
-              <Typography>{uiText.noScripts}</Typography>
-            )}
-          </Paper>
-        </Box>
+        <ScriptsTab
+          scripts={scripts}
+          activeScript={activeScript}
+          uiText={uiText}
+          uiLanguage={uiLanguage}
+          isEditMode={isEditMode}
+          showWakeOrderPreview={showWakeOrderPreview}
+          saveStatus={saveStatus}
+          activeScriptCharacters={activeScriptCharacters}
+          groupedScriptCharacters={groupedScriptCharacters}
+          groupedEditorCharacters={groupedEditorCharacters}
+          editorQuery={editorQuery}
+          availableEditions={availableEditions}
+          sheetDensityClass={sheetDensityClass}
+          setIsEditMode={setIsEditMode}
+          setEditorQuery={setEditorQuery}
+          setActiveSlug={setActiveSlug}
+          createNewScript={createNewScript}
+          downloadScriptFile={downloadScriptFile}
+          updateActiveScript={updateActiveScript}
+          toggleCharacterInScript={toggleCharacterInScript}
+          getScriptTitle={getScriptTitle}
+          getSheetUiLabel={getSheetUiLabel}
+        />
       )}
 
       {activeTab === 'settings' && (
-        <Paper elevation={0} sx={{ p: 3, borderRadius: 3, background: 'rgba(255,251,245,0.9)' }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-            <Box>
-              <Typography variant="caption" sx={{ textTransform: 'uppercase' }}>{uiText.export}</Typography>
-              <Typography variant="h6">{uiText.pdfSettings}</Typography>
-            </Box>
-            <Typography>{pdfFontSize.toFixed(1)}pt</Typography>
-          </Box>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-            {uiText.appLead}
-            {activeScript ? ` ${uiText.currentScript}: ${getScriptTitle(activeScript)}.` : ''}
-          </Typography>
-
-          <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
-            <Typography variant="subtitle2" sx={{ mb: 1 }}>{uiText.fontSize}</Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <input
-                  type="range"
-                  min={5.5}
-                  max={30}
-                  step={0.1}
-                  value={pdfFontSize}
-                  onChange={(e) => setPdfFontSize(Number(e.target.value))}
-                  style={{ flex: 1 }}
-                />
-              <TextField
-                type="number"
-                value={pdfFontSize}
-                onChange={(e) => {
-                  const v = Number(e.target.value)
-                  if (!Number.isNaN(v)) setPdfFontSize(Math.min(30, Math.max(5.5, v)))
-                }}
-                size="small"
-                sx={{ width: 80 }}
-              />
-              <Button variant="outlined" size="small" onClick={() => setPdfFontSize(11)}>
-                {uiText.reset}
-              </Button>
-            </Box>
-          </Paper>
-
-          <Paper variant="outlined" sx={{ p: 2 }}>
-            <Typography variant="h6" sx={{ mb: 1 }}>{uiText.preview}</Typography>
-            <FormControlLabel
-              control={<Checkbox checked={showWakeOrderPreview} onChange={() => setShowWakeOrderPreview((c) => !c)} />}
-              label={uiText.wakeOrderToggle}
-            />
-            <Typography variant="body2" component="span" sx={{ display: 'block', color: 'text.secondary' }}>{uiText.wakeOrderNote}</Typography>
-          </Paper>
-        </Paper>
+        <SettingsTab
+          uiText={uiText}
+          uiLanguage={uiLanguage}
+          activeScript={activeScript}
+          pdfFontSize={pdfFontSize}
+          showWakeOrderPreview={showWakeOrderPreview}
+          setPdfFontSize={setPdfFontSize}
+          setShowWakeOrderPreview={setShowWakeOrderPreview}
+          getScriptTitle={getScriptTitle}
+        />
       )}
 
       {activeTab === 'characters' && (
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '1fr 380px' }, gap: 2 }}>
-          <Paper elevation={0} sx={{ p: 2, borderRadius: 3, background: 'rgba(255,251,245,0.9)', border: '1px solid', borderColor: 'divider' }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2, flexWrap: 'wrap', gap: 2 }}>
-              <Box>
-                <Typography variant="h6">{uiText.allCharacters}</Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {filteredCharacters.length} {uiText.resultsSuffix}
-                </Typography>
-              </Box>
-            </Box>
-
-            <TextField
-              fullWidth
-              size="small"
-              placeholder={uiText.searchCharacters}
-              value={characterQuery}
-              onChange={(e) => setCharacterQuery(e.target.value)}
-              sx={{ mb: 2 }}
-            />
-
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
-              {teamOrder.map((team) => (
-                <FilterCheckbox
-                  key={team}
-                  checked={selectedTeams.includes(team)}
-                  label={teamLabels[uiLanguage][team]}
-                  onChange={() => toggleTeam(team)}
-                />
-              ))}
-            </Box>
-
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
-              {availableEditions.map((edition) => (
-                <FilterCheckbox
-                  key={edition}
-                  checked={selectedEditions.includes(edition)}
-                  label={editionLabels[uiLanguage][edition] ?? toTitleCase(edition)}
-                  onChange={() => toggleEdition(edition)}
-                />
-              ))}
-            </Box>
-
-            <Box sx={{ display: 'grid', gap: 1.5 }}>
-              {filteredCharacters.map((character) => {
-                const icon = getIconForCharacter(character.id)
-                const team = teamLabels[uiLanguage][character.team]
-                const edition = editionLabels[uiLanguage][character.edition] ?? toTitleCase(character.edition)
-                const currentRevision = getCurrentRevision(character.id)
-                const isSelected = character.id === selectedCharacter?.id
-
-                return (
-                  <Button
-                    key={character.id}
-                    onClick={() => setSelectedCharacterId(character.id)}
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'flex-start',
-                      gap: 1.5,
-                      p: 1.5,
-                      justifyContent: 'flex-start',
-                      border: isSelected ? '1px solid' : '1px solid',
-                      borderColor: isSelected ? 'primary.main' : 'divider',
-                      borderRadius: 2,
-                      background: isSelected ? 'rgba(133, 63, 34, 0.05)' : '#fffdf8',
-                      textTransform: 'none',
-                      '&:hover': { background: 'rgba(133, 63, 34, 0.08)' },
-                    }}
-                  >
-                    {icon ? (
-                      <Box component="img" src={icon} alt="" sx={{ width: 56, height: 56, borderRadius: 999, objectFit: 'contain', background: '#f2ebdf' }} />
-                    ) : (
-                      <Box sx={{ width: 56, height: 56, borderRadius: 999, background: '#f2ebdf', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Typography sx={{ fontWeight: 700, color: '#5d4730' }}>{character.id.slice(0, 2).toUpperCase()}</Typography>
-                      </Box>
-                    )}
-                    <Box sx={{ textAlign: 'left' }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Typography sx={{ fontWeight: 600 }}>{getDisplayName(character.id, uiLanguage)}</Typography>
-                        <Typography variant="caption" component="span" color="text.secondary">{team}</Typography>
-                      </Box>
-                      <Typography variant="caption" component="span" sx={{ display: 'block', color: 'text.secondary' }}>
-                        {character.id} · {edition} · {currentRevision}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }} dangerouslySetInnerHTML={{ __html: getAbilityText(character.id, uiLanguage) }} />
-                    </Box>
-                  </Button>
-                )
-              })}
-            </Box>
-          </Paper>
-
-          <CharacterRevisionPanel
-            character={selectedCharacter}
-            chineseTextLabel={uiText.chineseText}
-            currentLabel={uiText.current}
-            currentRevisionLabel={uiText.currentRevision}
-            englishTextLabel={uiText.englishText}
-            language={uiLanguage}
-            noCharacterSelectedLabel={uiText.noCharacterSelected}
-            revisionNoteLabel={uiText.revisionNote}
-            revisionHistoryLabel={uiText.revisionHistory}
-            title={uiText.characterVersions}
-          />
-        </Box>
+        <CharactersTab
+          uiText={uiText}
+          uiLanguage={uiLanguage}
+          filteredCharacters={filteredCharacters}
+          availableEditions={availableEditions}
+          selectedTeams={selectedTeams}
+          selectedEditions={selectedEditions}
+          selectedCharacter={selectedCharacter}
+          characterQuery={characterQuery}
+          setCharacterQuery={setCharacterQuery}
+          setSelectedCharacterId={setSelectedCharacterId}
+          toggleTeam={(team) => setSelectedTeams((cur) => cur.includes(team) ? cur.filter((t) => t !== team) : [...cur, team])}
+          toggleEdition={(edition) => setSelectedEditions((cur) => cur.includes(edition) ? cur.filter((e) => e !== edition) : [...cur, edition])}
+        />
       )}
 
       {activeTab === 'storyteller' && (
         <StorytellerHelper
+          key={uiLanguage}
           activeScriptSlug={activeScript?.slug}
           activeScriptTitle={activeScript ? getScriptTitle(activeScript) : undefined}
           language={uiLanguage}
           onSelectScript={setActiveSlug}
-          scriptOptions={scripts.map((script) => ({
-            slug: script.slug,
-            title: getScriptTitle(script),
-            characters: script.characters,
-          }))}
+          scriptOptions={scripts.map((s) => ({ slug: s.slug, title: getScriptTitle(s), characters: s.characters }))}
         />
       )}
     </Container>
   )
-}
-
-function EditorSection({
-  activeScript,
-  updateActiveScript,
-  uiText,
-  uiLanguage,
-  editorQuery,
-  setEditorQuery,
-  groupedEditorCharacters,
-  activeScriptCharacters,
-  groupedScriptCharacters,
-  toggleCharacterInScript,
-  teamLabels,
-  getDisplayName,
-}: {
-  activeScript: EditableScript
-  updateActiveScript: (updater: (script: EditableScript) => EditableScript, nextSlug?: string) => void
-  uiText: Record<string, string>
-  uiLanguage: Language
-  editorQuery: string
-  setEditorQuery: (v: string) => void
-  groupedEditorCharacters: CharacterGroup[]
-  activeScriptCharacters: ResolvedScriptCharacter[]
-  groupedScriptCharacters: ResolvedScriptCharacterGroup[]
-  toggleCharacterInScript: (id: string) => void
-  teamLabels: Record<Language, Record<string, string>>
-  getDisplayName: (id: string, lang: Language) => string
-}) {
-  return (
-    <Box>
-      <Typography variant="subtitle1" sx={{ mb: 1 }}>{uiText.bootleggerRules}</Typography>
-      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>{uiText.bootleggerRulesHelp}</Typography>
-      <Box sx={{ display: 'grid', gap: 1, mb: 3 }}>
-        {(activeScript.meta.bootlegger ?? []).map((rule, index) => (
-          <Box key={index} sx={{ display: 'flex', gap: 1 }}>
-            <TextField
-              fullWidth
-              size="small"
-              placeholder={uiText.bootleggerRulePlaceholder}
-              value={rule}
-              onChange={(e) => updateActiveScript((script) => ({
-                ...script,
-                meta: { ...script.meta, bootlegger: (script.meta.bootlegger ?? []).map((r, i) => i === index ? e.target.value : r) },
-              }))}
-            />
-            <Button size="small" variant="outlined" onClick={() => updateActiveScript((script) => ({
-              ...script,
-              meta: { ...script.meta, bootlegger: (script.meta.bootlegger ?? []).filter((_, i) => i !== index) },
-            }))}>{uiText.remove}</Button>
-          </Box>
-        ))}
-        <Button size="small" variant="outlined" onClick={() => updateActiveScript((script) => ({
-          ...script,
-          meta: { ...script.meta, bootlegger: [...(script.meta.bootlegger ?? []), ''] },
-        }))}>{uiText.addRule}</Button>
-      </Box>
-
-      <Typography variant="subtitle1" sx={{ mb: 1 }}>{uiText.bootleggerRulesZh}</Typography>
-      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>{uiText.bootleggerRulesZhHelp}</Typography>
-      <Box sx={{ display: 'grid', gap: 1, mb: 3 }}>
-        {(activeScript.meta.bootlegger_zh ?? []).map((rule, index) => (
-          <Box key={index} sx={{ display: 'flex', gap: 1 }}>
-            <TextField
-              fullWidth
-              size="small"
-              placeholder={uiText.bootleggerRuleZhPlaceholder}
-              value={rule}
-              onChange={(e) => updateActiveScript((script) => ({
-                ...script,
-                meta: { ...script.meta, bootlegger_zh: (script.meta.bootlegger_zh ?? []).map((r, i) => i === index ? e.target.value : r) },
-              }))}
-            />
-            <Button size="small" variant="outlined" onClick={() => updateActiveScript((script) => ({
-              ...script,
-              meta: { ...script.meta, bootlegger_zh: (script.meta.bootlegger_zh ?? []).filter((_, i) => i !== index) },
-            }))}>{uiText.remove}</Button>
-          </Box>
-        ))}
-        <Button size="small" variant="outlined" onClick={() => updateActiveScript((script) => ({
-          ...script,
-          meta: { ...script.meta, bootlegger_zh: [...(script.meta.bootlegger_zh ?? []), ''] },
-        }))}>{uiText.addRule}</Button>
-      </Box>
-
-      <Typography variant="subtitle1" sx={{ mb: 1 }}>{uiText.scriptJinxes}</Typography>
-      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>{uiText.scriptJinxesHelp}</Typography>
-      <Box sx={{ display: 'grid', gap: 1, mb: 3 }}>
-        {(activeScript.meta.jinxes ?? []).map((jinx, index) => (
-          <Box key={index} sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-            <TextField size="small" placeholder={uiText.jinxPairPlaceholder} value={jinx.id ?? ''} onChange={(e) => updateActiveScript((script) => ({
-              ...script,
-              meta: { ...script.meta, jinxes: (script.meta.jinxes ?? []).map((j, i) => i === index ? { ...j, id: e.target.value } : j) },
-            }))} sx={{ flex: '1 1 150px' }} />
-            <FormControl size="small" sx={{ minWidth: 100 }}>
-              <Select value={jinx.status ?? 'active'} onChange={(e) => updateActiveScript((script) => ({
-                ...script,
-                meta: { ...script.meta, jinxes: (script.meta.jinxes ?? []).map((j, i) => i === index ? { ...j, status: e.target.value === 'inactive' ? 'inactive' : 'active' } : j) },
-              }))}>
-                <MenuItem value="active">{uiText.jinxStatusActive}</MenuItem>
-                <MenuItem value="inactive">{uiText.jinxStatusInactive}</MenuItem>
-              </Select>
-            </FormControl>
-            <TextField size="small" placeholder={uiText.jinxReasonEnPlaceholder} value={jinx.reason ?? ''} onChange={(e) => updateActiveScript((script) => ({
-              ...script,
-              meta: { ...script.meta, jinxes: (script.meta.jinxes ?? []).map((j, i) => i === index ? { ...j, reason: e.target.value } : j) },
-            }))} sx={{ flex: '1 1 150px' }} />
-            <TextField size="small" placeholder={uiText.jinxReasonZhPlaceholder} value={jinx.reason_zh ?? ''} onChange={(e) => updateActiveScript((script) => ({
-              ...script,
-              meta: { ...script.meta, jinxes: (script.meta.jinxes ?? []).map((j, i) => i === index ? { ...j, reason_zh: e.target.value } : j) },
-            }))} sx={{ flex: '1 1 150px' }} />
-            <Button size="small" variant="outlined" onClick={() => updateActiveScript((script) => ({
-              ...script,
-              meta: { ...script.meta, jinxes: (script.meta.jinxes ?? []).filter((_, i) => i !== index) },
-            }))}>{uiText.remove}</Button>
-          </Box>
-        ))}
-        <Button size="small" variant="outlined" onClick={() => updateActiveScript((script) => ({
-          ...script,
-          meta: { ...script.meta, jinxes: [...(script.meta.jinxes ?? []), { id: '', status: 'active', reason: '', reason_zh: '' }] },
-        }))}>{uiText.addJinx}</Button>
-      </Box>
-
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 300px' }, gap: 2 }}>
-        <Paper variant="outlined" sx={{ p: 2 }}>
-          <Typography variant="h6" sx={{ mb: 2 }}>{uiText.availableCharacters}</Typography>
-          <TextField
-            fullWidth
-            size="small"
-            placeholder={uiText.filterCharacters}
-            value={editorQuery}
-            onChange={(e) => setEditorQuery(e.target.value)}
-            sx={{ mb: 2 }}
-          />
-          {groupedEditorCharacters.map((group) => (
-            <Box key={group.team} sx={{ mb: 2 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 1, borderRadius: 1, mb: 1, background: getTeamColor(group.team) }}>
-                <Typography variant="subtitle2" sx={{ flex: 1, fontStyle: 'italic', color: 'white' }}>{teamLabels[uiLanguage][group.team]}</Typography>
-                <Typography variant="caption" sx={{ color: 'white' }}>{group.characters.length}</Typography>
-              </Box>
-              <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1 }}>
-                {group.characters.map((character) => (
-                  <Box key={character.id} sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 1, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
-                    <Checkbox
-                      checked={activeScript.characters.includes(character.id)}
-                      onChange={() => toggleCharacterInScript(character.id)}
-                      size="small"
-                    />
-                    <Box>
-                      <Typography variant="body2" sx={{ fontWeight: 500 }}>{getDisplayName(character.id, uiLanguage)}</Typography>
-                      <Typography variant="caption" color="text.secondary">{character.id}</Typography>
-                    </Box>
-                  </Box>
-                ))}
-              </Box>
-            </Box>
-          ))}
-        </Paper>
-
-        <Paper variant="outlined" sx={{ p: 2 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-            <Typography variant="h6">{uiText.selectedCharacters}</Typography>
-            <Typography variant="body2" color="text.secondary">{activeScriptCharacters.length} {uiText.selectedCount}</Typography>
-          </Box>
-          {groupedScriptCharacters.length > 0 ? (
-            groupedScriptCharacters.map((group) => (
-              <Box key={group.team} sx={{ mb: 2 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 1, borderRadius: 1, mb: 1, background: getTeamColor(group.team) }}>
-                  <Typography variant="subtitle2" sx={{ flex: 1, fontStyle: 'italic', color: 'white' }}>{teamLabels[uiLanguage][group.team]}</Typography>
-                  <Typography variant="caption" sx={{ color: 'white' }}>{group.characters.length}</Typography>
-                </Box>
-                {group.characters.map((character) => (
-                  <Box key={character.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, border: '1px solid', borderColor: 'divider', borderRadius: 1, mb: 1 }}>
-                    <Box>
-                      <Typography variant="body2" sx={{ fontWeight: 500 }}>{character.name ?? getDisplayName(character.id, uiLanguage)}</Typography>
-                      <Typography variant="caption" color="text.secondary">{character.id}</Typography>
-                    </Box>
-                    <IconButton size="small" onClick={() => toggleCharacterInScript(character.id)}>
-                      ×
-                    </IconButton>
-                  </Box>
-                ))}
-              </Box>
-            ))
-          ) : (
-            <Typography variant="body2" color="text.secondary">{uiText.noCharacters}</Typography>
-          )}
-        </Paper>
-      </Box>
-    </Box>
-  )
-}
-
-function getTeamColor(team: string) {
-  const colors: Record<string, string> = {
-    townsfolk: '#2f6b6a',
-    outsider: '#7f6a3a',
-    minion: '#8d4031',
-    demon: '#482121',
-    traveler: '#4f5870',
-    fabled: '#5c4a3d',
-    loric: '#3c5268',
-  }
-  return colors[team] || '#666'
 }
