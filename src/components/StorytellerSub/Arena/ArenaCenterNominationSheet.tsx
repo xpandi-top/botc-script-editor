@@ -362,23 +362,32 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
           <Typography variant="body2" color="text.secondary">{language === 'zh' ? '暂无记录' : 'None yet'}</Typography>
         ) : (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mt: 0.5, maxHeight: 150, overflow: 'auto' }}>
-            {filteredHistory.map((record: any) => (
-              <Box key={record.id} sx={{ 
-                p: 0.5, 
-                borderRadius: 1, 
-                bgcolor: record.isExile ? 'warning.light' : record.failed ? 'error.light' : 'success.light',
-              }}>
-                <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                  #{record.actor} → #{record.target}
-                </Typography>
-                <Typography variant="caption">
-                  {record.failed 
-                    ? (language === 'zh' ? '失败' : 'Failed')
-                    : `${record.voteCount}/${record.requiredVotes}${record.isExile ? ` ${language === 'zh' ? '放逐' : 'EXILE'}` : ''}`
-                  }
-                </Typography>
-              </Box>
-            ))}
+            {filteredHistory.map((record: any) => {
+              const passed = !record.failed && record.passed
+              const actionTag = record.isExile ? (language === 'zh' ? '放逐' : 'exile') : (language === 'zh' ? '提名' : 'nominate')
+              return (
+                <Box key={record.id} sx={{ 
+                  p: 0.5, 
+                  borderRadius: 1, 
+                  bgcolor: passed ? 'success.light' : 'error.light',
+                }}>
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    #{record.actor} {actionTag} #{record.target}
+                  </Typography>
+                  <Typography variant="caption">
+                    {record.failed 
+                      ? (language === 'zh' ? '失败' : 'Failed')
+                      : `${record.voteCount}/${record.requiredVotes}`
+                    }
+                  </Typography>
+                  {record.voters && record.voters.length > 0 && (
+                    <Typography variant="caption" sx={{ ml: 0.5 }}>
+                      voters:{record.voters.map((v: number) => `#${v}`).join(', ')}
+                    </Typography>
+                  )}
+                </Box>
+              )
+            })}
           </Box>
         )}
       </Box>
