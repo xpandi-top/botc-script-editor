@@ -1,6 +1,7 @@
 // @ts-nocheck
 import React from 'react'
-import { Box, Button, Typography, TextField, Paper, Select, MenuItem, FormControl, InputLabel, FormControlLabel, Checkbox, Grid, IconButton, Chip } from '@mui/material'
+import { createPortal } from 'react-dom'
+import { Box, Button, Typography, TextField, Paper, Select, MenuItem, FormControl, InputLabel, FormControlLabel, Checkbox, Grid, IconButton, Chip, Dialog } from '@mui/material'
 import { createDefaultVoteDraft } from '../constants'
 
 export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
@@ -90,8 +91,8 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
 
   const yesCount = Object.values(currentDay?.votingState?.votes ?? {}).filter(Boolean).length || voteDraft?.voters?.length || 0
 
-  return (
-    <Paper elevation={8} sx={{ p: 2, width: 360, borderRadius: 2 }} onClick={(e) => e.stopPropagation()}>
+  const content = (
+    <Dialog open={showNominationSheet} onClose={() => {}} disableEscapeKeyDown maxWidth="sm" fullWidth slotProps={{ backdrop: { onClick: () => {} }, paper: { 'data-nomination-popup': true, sx: { p: 2, width: 400, borderRadius: 2 } } }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
         <Typography variant="h6" sx={{ fontWeight: 700 }}>{language === 'zh' ? '提名' : 'Nominate'}</Typography>
         <Button size="small" onClick={() => { setShowNominationSheet(false); setPickerMode('none') }}>
@@ -285,6 +286,8 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
           </Box>
         )}
       </Box>
-    </Paper>
+    </Dialog>
   )
+
+  return createPortal(content, document.body)
 }
