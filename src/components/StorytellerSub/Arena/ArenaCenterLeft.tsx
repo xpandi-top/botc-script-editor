@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { Box, Button, TextField, Select, MenuItem, IconButton, Typography, ToggleButton, ToggleButtonGroup } from '@mui/material'
+import { Box, Button, TextField, Select, MenuItem, IconButton, Typography, ToggleButton, ToggleButtonGroup, Dialog, FormControlLabel, Switch } from '@mui/material'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import PauseIcon from '@mui/icons-material/Pause'
 import StopIcon from '@mui/icons-material/Stop'
 import RefreshIcon from '@mui/icons-material/Refresh'
+import CloseIcon from '@mui/icons-material/Close'
 import type { Phase, PublicMode, NominationStep } from '../types'
 
 const NOM_STEPS: NominationStep[] = [
@@ -24,20 +25,50 @@ export function ArenaCenterLeft({ ctx }: { ctx: any }) {
     alarmActive, setAlarmActive,
     nightShowCharacter, setNightShowCharacter,
     nightShowWakeOrder, setNightShowWakeOrder,
-    setNewGamePanel, activeScriptSlug, appendEvent,
+    setNewGamePanel, activeScriptSlug,
   } = ctx
 
-  const [quickNote, setQuickNote] = useState('')
+  const [noteModalOpen, setNoteModalOpen] = useState(false)
+  const [publicNote, setPublicNote] = useState('')
+  const [stNote, setStNote] = useState('')
+  const [showStNote, setShowStNote] = useState(true)
   const stepIdx = NOM_STEPS.indexOf(currentDay.nominationStep)
 
-  const handleAddQuickNote = () => {
-    const note = quickNote.trim()
-    if (!note) return
-    const kind = currentDay.phase === 'night' ? 'tagChange' : 'stateChange'
-    const updatedDay = appendEvent(currentDay, kind, `${note}`)
-    updateCurrentDay(() => updatedDay)
-    setQuickNote('')
-  }
+  const noteModal = noteModalOpen ? (
+    <Dialog open={noteModalOpen} onClose={() => setNoteModalOpen(false)} maxWidth="sm" fullWidth slotProps={{ paper: { sx: { p: 2, borderRadius: 2 } } }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <Typography variant="h6" sx={{ fontWeight: 700 }}>{language === 'zh' ? '全局备注' : 'Global Notes'}</Typography>
+        <IconButton size="small" onClick={() => setNoteModalOpen(false)}><CloseIcon /></IconButton>
+      </Box>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <TextField
+          multiline
+          rows={3}
+          fullWidth
+          label={language === 'zh' ? '公开备注 (全员可见)' : 'Public Note (visible to all)'}
+          value={publicNote}
+          onChange={(e) => setPublicNote(e.target.value)}
+          placeholder={language === 'zh' ? '输入公开备注...' : 'Enter public note...'}
+        />
+        <FormControlLabel
+          control={<Switch checked={showStNote} onChange={(e) => setShowStNote(e.target.checked)} />}
+          label={language === 'zh' ? '显示ST备注' : 'Show ST Note'}
+        />
+        {showStNote && (
+          <TextField
+            multiline
+            rows={3}
+            fullWidth
+            label={language === 'zh' ? 'ST备注 (仅ST可见)' : 'ST Note (ST only)'}
+            value={stNote}
+            onChange={(e) => setStNote(e.target.value)}
+            placeholder={language === 'zh' ? '输入ST备注...' : 'Enter ST note...'}
+            sx={{ '& .MuiOutlinedInput-root': { bgcolor: 'action.hover' } }}
+          />
+        )}
+      </Box>
+    </Dialog>
+  ) : null
 
   const handleOpenCharacterEditor = () => {
     const regularSeats = currentDay.seats.filter((s: any) => !s.isTraveler)
@@ -84,16 +115,15 @@ export function ArenaCenterLeft({ ctx }: { ctx: any }) {
         ))}
       </ToggleButtonGroup>
 
-      <Box sx={{ display: 'flex', gap: 0.5, width: '60%' }}>
-          <TextField
-            size="medium"
-            placeholder={language === 'zh' ? '添加备注...' : 'Add note...'}
-            value={quickNote}
-            onChange={(e) => setQuickNote(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter') handleAddQuickNote() }}
-            sx={{ flex: 1 }}
-          />
-          <Button size="medium" variant="outlined" onClick={handleAddQuickNote} sx={{ px: 1 }}>{language === 'zh' ? '添加' : 'Add'}</Button>
+      <Box sx={{ display: 'flex', gap: 0.5, width: '60%', justifyContent: 'center' }}>
+          <Button 
+            size="medium" 
+            variant="outlined" 
+            onClick={() => setNoteModalOpen(true)}
+            startIcon={<span>📝</span>}
+          >
+            {language === 'zh' ? '备注' : 'Notes'}
+          </Button>
         </Box>
 
         {currentDay.phase === 'public' && (
@@ -229,6 +259,7 @@ export function ArenaCenterLeft({ ctx }: { ctx: any }) {
           </Box>
         </Box>
       )}
+      {noteModal}
     </Box>
   )
 }
