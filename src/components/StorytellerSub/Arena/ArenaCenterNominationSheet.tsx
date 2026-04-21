@@ -20,10 +20,27 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
   const [showNominationTimer, setShowNominationTimer] = useState(true)
   const [selectedTimer, setSelectedTimer] = useState<'nominator' | 'nominee'>('nominator')
   const [isTimerRunning, setIsTimerRunning] = useState(false)
+  const [historyFilter, setHistoryFilter] = useState<'all' | 'exile' | 'nomination'>('all')
   const seats = currentDay?.seats ?? []
   const voteDraft = currentDay?.voteDraft ?? {}
   const nominationActorSeconds = currentDay?.nominationActorSeconds ?? timerDefaults?.nominationActorSeconds ?? 60
   const nominationTargetSeconds = currentDay?.nominationTargetSeconds ?? timerDefaults?.nominationTargetSeconds ?? 60
+
+  const voteHistory = currentDay?.voteHistory ?? []
+  const nominatorsToday = [...new Set(voteHistory.map((r: any) => r.actor))]
+  const nomineesToday = [...new Set(voteHistory.map((r: any) => r.target))]
+
+  const filteredHistory = voteHistory
+    .filter((r: any) => {
+      if (historyFilter === 'all') return true
+      if (historyFilter === 'exile') return r.isExile
+      return !r.isExile
+    })
+    .sort((a: any, b: any) => {
+      const voteDiff = (b.voteCount ?? 0) - (a.voteCount ?? 0)
+      if (voteDiff !== 0) return voteDiff
+      return (b.createdAt ?? 0) - (a.createdAt ?? 0)
+    })
 
   if (!showNominationSheet || currentDay?.phase !== 'nomination') return null
 
@@ -303,26 +320,61 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
       </Box>
 
       <Box sx={{ mt: 2, pt: 1, borderTop: '1px solid', borderColor: 'divider' }}>
-        <Typography variant="caption" color="text.secondary">
-          {language === 'zh' ? '今日提名记录' : "Today's Nominations"}
-        </Typography>
-        {(currentDay?.voteHistory ?? []).length === 0 ? (
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mb: 1 }}>
+          <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center', flexWrap: 'wrap' }}>
+            <Typography variant="caption" color="text.secondary">
+              {language === 'zh' ? '今日提名者' : 'Today Nominators'}:
+            </Typography>
+            {nominatorsToday.length === 0 ? (
+              <Typography variant="caption">—</Typography>
+            ) : (
+              nominatorsToday.map((seatNum: number) => (
+                <Chip key={seatNum} label={`#${seatNum}`} size="small" color="primary" variant="outlined" sx={{ height: 20, fontSize: '0.7rem' }} />
+              ))
+            )}
+          </Box>
+          <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center', flexWrap: 'wrap' }}>
+            <Typography variant="caption" color="text.secondary">
+              {language === 'zh' ? '今日被提名者' : 'Today Nominees'}:
+            </Typography>
+            {nomineesToday.length === 0 ? (
+              <Typography variant="caption">—</Typography>
+            ) : (
+              nomineesToday.map((seatNum: number) => (
+                <Chip key={seatNum} label={`#${seatNum}`} size="small" color="secondary" variant="outlined" sx={{ height: 20, fontSize: '0.7rem' }} />
+              ))
+            )}
+          </Box>
+        </Box>
+
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
+          <Typography variant="caption" color="text.secondary">
+            {language === 'zh' ? '提名记录' : 'Nominations'}
+          </Typography>
+          <Select size="small" value={historyFilter} onChange={(e) => setHistoryFilter(e.target.value as 'all' | 'exile' | 'nomination')} sx={{ minWidth: 90, fontSize: '0.75rem' }}>
+            <MenuItem value="all">{language === 'zh' ? '全部' : 'All'}</MenuItem>
+            <MenuItem value="exile">{language === 'zh' ? '放逐' : 'Exile'}</MenuItem>
+            <MenuItem value="nomination">{language === 'zh' ? '提名' : 'Nomination'}</MenuItem>
+          </Select>
+        </Box>
+
+        {filteredHistory.length === 0 ? (
           <Typography variant="body2" color="text.secondary">{language === 'zh' ? '暂无记录' : 'None yet'}</Typography>
         ) : (
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mt: 0.5 }}>
-            {(currentDay?.voteHistory ?? []).map((record: any) => (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mt: 0.5, maxHeight: 150, overflow: 'auto' }}>
+            {filteredHistory.map((record: any) => (
               <Box key={record.id} sx={{ 
                 p: 0.5, 
                 borderRadius: 1, 
-                bgcolor: record.failed ? 'error.light' : 'success.light',
+                bgcolor: record.isExile ? 'warning.light' : record.failed ? 'error.light' : 'success.light',
               }}>
-                <Typography variant="body2">
+                <Typography variant="body2" sx={{ fontWeight: 600 }}>
                   #{record.actor} → #{record.target}
                 </Typography>
                 <Typography variant="caption">
                   {record.failed 
-                    ? (language === 'zh' ? '提名失败' : 'Nom. Failed')
-                    : `${language === 'zh' ? '票' : 'vote'}(${record.voteCount}/${record.requiredVotes})${record.note ? ` · ${record.note}` : ''}`
+                    ? (language === 'zh' ? '失败' : 'Failed')
+                    : `${record.voteCount}/${record.requiredVotes}${record.isExile ? ` ${language === 'zh' ? '放逐' : 'EXILE'}` : ''}`
                   }
                 </Typography>
               </Box>
