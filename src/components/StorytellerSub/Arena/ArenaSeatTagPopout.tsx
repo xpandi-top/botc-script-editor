@@ -38,10 +38,10 @@ export function ArenaSeatTagPopout({ ctx, seat }: { ctx: any, seat: any }) {
   const content = (
     <Dialog 
       open={isTagPopoutOpen} 
-      onClose={() => setTagPopoutSeat(null)}
-      maxWidth="sm"
-      fullWidth
+      onClose={() => {}}
+      disableEscapeKeyDown
       slotProps={{
+        backdrop: { onClick: () => {} },
         paper: {
           sx: { position: 'fixed', top: isMobile ? 0 : '50%', left: isMobile ? 0 : '50%', transform: isMobile ? 'none' : 'translate(-50%, -50%)', m: isMobile ? 0 : undefined, borderRadius: isMobile ? 0 : 2, maxHeight: '90vh' }
         }
