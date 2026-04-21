@@ -100,9 +100,9 @@ export function ArenaCenterContent({ ctx }: { ctx: any }) {
         <IconButton size="large" onClick={(e) => { e.stopPropagation(); stopNight() }}><StopIcon /></IconButton>
       </Box>
       <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', justifyContent: 'center' }}>
-        <Button size="large" variant={nightShowCharacter ? 'contained' : 'outlined'} onClick={() => setNightShowCharacter((v: boolean) => !v)} sx={{ fontSize: '0.75rem', px: 1 }}>👁 {language === 'zh' ? '显示角色' : 'Character'}</Button>
-        <Button size="large" variant={nightShowWakeOrder ? 'contained' : 'outlined'} onClick={() => setNightShowWakeOrder((v: boolean) => !v)} sx={{ fontSize: '0.75rem', px: 1 }}>🔢 {language === 'zh' ? '唤醒顺序' : 'Wake Order'}</Button>
-        <Button size="large" variant="outlined" onClick={handleOpenCharacterEditor} sx={{ fontSize: '0.75rem', px: 1 }}>🎭 {language === 'zh' ? '编辑' : 'Edit'}</Button>
+        <Button size="large" variant={nightShowCharacter ? 'contained' : 'outlined'} onClick={() => setNightShowCharacter((v: boolean) => !v)} >{language === 'zh' ? '显示角色' : 'Character'}</Button>
+        <Button size="large" variant={nightShowWakeOrder ? 'contained' : 'outlined'} onClick={() => setNightShowWakeOrder((v: boolean) => !v)} >{language === 'zh' ? '唤醒顺序' : 'Wake Order'}</Button>
+        <Button size="large" variant="outlined" onClick={handleOpenCharacterEditor} >{language === 'zh' ? '编辑' : 'Edit'}</Button>
       </Box>
     </>
   )
@@ -125,7 +125,7 @@ export function ArenaCenterContent({ ctx }: { ctx: any }) {
   const publicFreeControls = phase === 'public' && publicMode === 'free' && (
     canNominate
       ? <Button variant="contained" onClick={enterNomination} sx={{ borderRadius: 999 }}>{text.startNomination}</Button>
-      : <Typography variant="caption" color="text.secondary">{text.nominationGate}: {Math.ceil(secondsUntilNomination / 60)}:{String(secondsUntilNomination % 60).padStart(2, '0')}</Typography>
+      : <Typography variant="caption" color="text.secondary">{text.nominationGate}: {Math.floor(secondsUntilNomination / 60)}:{String(secondsUntilNomination % 60).padStart(2, '0')}</Typography>
   )
 
   const nominationControls = phase === 'nomination' && (
@@ -137,17 +137,18 @@ export function ArenaCenterContent({ ctx }: { ctx: any }) {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5, p: 1, flex: 1, minWidth: 0, flexGrow: 1 }}>
+      
+      
       <ToggleButtonGroup value={phase} exclusive onChange={(_, v) => v && setPhase(v)} size="large">
         {PHASES.map(p => <ToggleButton key={p} value={p}>{getPhaseLabel(p, text)}</ToggleButton>)}
       </ToggleButtonGroup>
-
-      <Button size="medium" variant="outlined" onClick={() => setNoteModalOpen(true)} startIcon="📝">{language === 'zh' ? '备注' : 'Notes'}</Button>
-
-      {phase === 'public' && <Select size="medium" value={publicMode} onChange={(e) => updateCurrentDay((d: any) => ({ ...d, publicMode: e.target.value as PublicMode }))} sx={{ fontSize: '0.85rem', minWidth: 100 }}>
+      <Box>
+      {phase === 'public' && <Select size="small" value={publicMode} onChange={(e) => updateCurrentDay((d: any) => ({ ...d, publicMode: e.target.value as PublicMode }))} sx={{ fontSize: '0.85rem', minWidth: 100 }}>
         <MenuItem value="free">{text.freeSpeech}</MenuItem>
         <MenuItem value="roundRobin">{text.roundRobinMode}</MenuItem>
       </Select>}
-
+      <Button size="small" onClick={() => setNoteModalOpen(true)} startIcon="📝">{language === 'zh' ? '备注' : 'Notes'}</Button>
+     </Box>
       {hasTimer && (
         <>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
@@ -166,10 +167,10 @@ export function ArenaCenterContent({ ctx }: { ctx: any }) {
           </Box>
           <Box sx={{ display: 'flex', gap: 0.5 }}>
             <IconButton size="large" onClick={() => { setIsTimerRunning((c: boolean) => !c); if (alarmActive) setAlarmActive(false) }} sx={isTimerRunning ? TIMER_CONTROL_SX : TIMER_IDLE_SX}>
-              {isTimerRunning ? <PauseIcon sx={{ fontSize: '0.9rem' }} /> : <PlayArrowIcon sx={{ fontSize: '0.9rem' }} />}
+              {isTimerRunning ? <PauseIcon/> : <PlayArrowIcon />}
             </IconButton>
-            <IconButton size="large" onClick={handleResetTimer}><RefreshIcon sx={{ fontSize: '0.9rem' }} /></IconButton>
-            <IconButton size="large" onClick={handleStopTimer}><StopIcon sx={{ fontSize: '0.9rem' }} /></IconButton>
+            <IconButton size="large" onClick={handleResetTimer}><RefreshIcon/></IconButton>
+            <IconButton size="large" onClick={handleStopTimer}><StopIcon/></IconButton>
           </Box>
         </>
       )}
