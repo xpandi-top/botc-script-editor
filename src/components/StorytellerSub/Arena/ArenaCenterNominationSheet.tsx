@@ -364,27 +364,29 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mt: 0.5, maxHeight: 150, overflow: 'auto' }}>
             {filteredHistory.map((record: any) => {
               const passed = !record.failed && record.passed
-              const actionTag = record.isExile ? (language === 'zh' ? '放逐' : 'exile') : (language === 'zh' ? '提名' : 'nominate')
+              const actionTag = record.isExile ? (language === 'zh' ? '放逐' : '提名') : (language === 'zh' ? '提名' : '提名')
+              const voterList = record.voters && record.voters.length > 0 
+                ? `(${record.voters.map((v: number) => `#${v}`).join(',')})` 
+                : ''
               return (
                 <Box key={record.id} sx={{ 
                   p: 0.5, 
                   borderRadius: 1, 
                   bgcolor: passed ? 'success.light' : 'error.light',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 0.5,
+                  flexWrap: 'wrap'
                 }}>
-                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 600, whiteSpace: 'nowrap' }}>
                     #{record.actor} {actionTag} #{record.target}
                   </Typography>
-                  <Typography variant="caption">
+                  <Typography variant="caption" sx={{ whiteSpace: 'nowrap' }}>
                     {record.failed 
                       ? (language === 'zh' ? '失败' : 'Failed')
                       : `${record.voteCount}/${record.requiredVotes}`
-                    }
+                    }{voterList}
                   </Typography>
-                  {record.voters && record.voters.length > 0 && (
-                    <Typography variant="caption" sx={{ ml: 0.5 }}>
-                      voters:{record.voters.map((v: number) => `#${v}`).join(', ')}
-                    </Typography>
-                  )}
                 </Box>
               )
             })}
