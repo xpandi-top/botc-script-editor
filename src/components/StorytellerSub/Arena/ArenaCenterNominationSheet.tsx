@@ -1,13 +1,12 @@
 // @ts-nocheck
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
-import { Box, Button, Typography, TextField, Paper, Select, MenuItem, FormControl, InputLabel, FormControlLabel, Checkbox, Grid, IconButton, Chip, Dialog } from '@mui/material'
+import { Box, Button, Typography, TextField, Select, MenuItem, FormControl, InputLabel, FormControlLabel, Checkbox, IconButton, Chip, Dialog } from '@mui/material'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import PauseIcon from '@mui/icons-material/Pause'
 import StopIcon from '@mui/icons-material/Stop'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import { createDefaultVoteDraft } from '../constants'
-import { TimerDisplay } from './TimerDisplay'
 
 export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
   const { 
@@ -17,14 +16,40 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
     rejectNomination, recordVote, setDialogState, votingYesCount, timerDefaults,
   } = ctx
 
+  const [historyFilter, setHistoryFilter] = useState<'all' | 'exile' | 'nomination'>('all')
   const [showNominationTimer, setShowNominationTimer] = useState(true)
   const [selectedTimer, setSelectedTimer] = useState<'nominator' | 'nominee'>('nominator')
   const [isTimerRunning, setIsTimerRunning] = useState(false)
-  const [historyFilter, setHistoryFilter] = useState<'all' | 'exile' | 'nomination'>('all')
+  const [timerEditing, setTimerEditing] = useState(false)
+  const [timerInput, setTimerInput] = useState('')
   const seats = currentDay?.seats ?? []
   const voteDraft = currentDay?.voteDraft ?? {}
   const nominationActorSeconds = currentDay?.nominationActorSeconds ?? timerDefaults?.nominationActorSeconds ?? 60
   const nominationTargetSeconds = currentDay?.nominationTargetSeconds ?? timerDefaults?.nominationTargetSeconds ?? 60
+
+  const currentSeconds = selectedTimer === 'nominator' ? nominationActorSeconds : nominationTargetSeconds
+
+  const updateTimer = (newValue: number) => {
+    if (selectedTimer === 'nominator') {
+      updateCurrentDay((d: any) => ({ ...d, nominationActorSeconds: newValue }))
+    } else if (selectedTimer === 'nominee') {
+      updateCurrentDay((d: any) => ({ ...d, nominationTargetSeconds: newValue }))
+    }
+  }
+
+  useEffect(() => {
+    if (!isTimerRunning || currentSeconds <= 0) return
+    const interval = setInterval(() => {
+      updateTimer(Math.max(0, currentSeconds - 1))
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [isTimerRunning, currentSeconds])
+
+  const formatTimer = (secs: number) => {
+    const m = Math.floor(secs / 60)
+    const s = secs % 60
+    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+  }
 
   const voteHistory = currentDay?.voteHistory ?? []
   const nominatorsToday = [...new Set(voteHistory.map((r: any) => r.actor))]
@@ -123,42 +148,66 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
         <Typography variant="h6" sx={{ fontWeight: 700 }}>{language === 'zh' ? '提名' : 'Nominate'}</Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-          {showNominationTimer && (
-            <>
-              <Select
-                size="small"
-                value={selectedTimer}
-                onChange={(e) => setSelectedTimer(e.target.value as 'nominator' | 'nominee')}
-                sx={{ minWidth: 100, fontSize: '0.85rem' }}
-              >
-                <MenuItem value="nominator">{language === 'zh' ? '提名者' : 'Nominator'}</MenuItem>
-                <MenuItem value="nominee">{language === 'zh' ? '被提名者' : 'Nominee'}</MenuItem>
-              </Select>
-              <TimerDisplay
-                seconds={selectedTimer === 'nominator' ? nominationActorSeconds : nominationTargetSeconds}
-                onChange={(v) => updateCurrentDay((d: any) => ({ 
-                  ...d, 
-                  [selectedTimer === 'nominator' ? 'nominationActorSeconds' : 'nominationTargetSeconds']: v 
-                }))}
-                color={selectedTimer === 'nominator' ? 'warning' : 'info'}
-                showControls
-                isRunning={isTimerRunning}
-                onToggleRunning={() => setIsTimerRunning(v => !v)}
-                onReset={() => updateCurrentDay((d: any) => ({ 
-                  ...d, 
-                  [selectedTimer === 'nominator' ? 'nominationActorSeconds' : 'nominationTargetSeconds']: selectedTimer === 'nominator' ? (timerDefaults?.nominationActorSeconds ?? 60) : (timerDefaults?.nominationTargetSeconds ?? 60)
-                }))}
-              />
-            </>
-          )}
-          <Button size="small" onClick={() => setShowNominationTimer(v => !v)} sx={{ fontSize: '0.7rem', minWidth: 0, px: 0.5 }}>
-            {showNominationTimer ? '⏱' : '⏱'}
-          </Button>
           <Button size="small" onClick={() => { setShowNominationSheet(false); setPickerMode('none') }}>
             {language === 'zh' ? '隐藏' : 'Hide'}
           </Button>
         </Box>
       </Box>
+
+      {showNominationTimer && (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5, p: 1, bgcolor: 'action.hover', borderRadius: 1 }}>
+          <Select
+            size="small"
+            value={selectedTimer}
+            onChange={(e) => setSelectedTimer(e.target.value as 'nominator' | 'nominee')}
+            sx={{ minWidth: 100, fontSize: '0.85rem' }}
+          >
+            <MenuItem value="nominator">{language === 'zh' ? '提名者' : 'Nominator'}</MenuItem>
+            <MenuItem value="nominee">{language === 'zh' ? '被提名者' : 'Nominee'}</MenuItem>
+          </Select>
+          {timerEditing ? (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
+              <TextField
+                size="small"
+                value={timerInput}
+                onChange={(e) => setTimerInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') { const m = parseInt(timerInput.split(':')[0], 10) || 0; const s = parseInt(timerInput.split(':')[1], 10) || 0; updateTimer(m * 60 + s); setTimerEditing(false) } }}
+                autoFocus
+                placeholder="MM:SS"
+                slotProps={{ input: { style: { fontSize: '1rem', fontWeight: 700, textAlign: 'center' } } }}
+                sx={{ width: 75 }}
+              />
+              <IconButton size="small" onClick={() => { const m = parseInt(timerInput.split(':')[0], 10) || 0; const s = parseInt(timerInput.split(':')[1], 10) || 0; updateTimer(m * 60 + s); setTimerEditing(false) }}>
+                ✓
+              </IconButton>
+              <IconButton size="small" onClick={() => setTimerEditing(false)}>
+                ✕
+              </IconButton>
+            </Box>
+          ) : (
+            <Box 
+              onClick={() => { const m = Math.floor(currentSeconds / 60); const s = currentSeconds % 60; setTimerInput(`${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`); setTimerEditing(true) }}
+              sx={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '1.5rem', px: 1, bgcolor: 'background.paper', borderRadius: 1, border: '1px solid', borderColor: 'divider', cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' } }}
+            >
+              {formatTimer(currentSeconds)}
+            </Box>
+          )}
+          <Box sx={{ display: 'flex', gap: 0.25 }}>
+            <IconButton size="small" onClick={() => setIsTimerRunning(!isTimerRunning)} sx={{ bgcolor: isTimerRunning ? 'primary.main' : 'transparent', color: isTimerRunning ? 'white' : 'inherit' }}>
+              {isTimerRunning ? <PauseIcon sx={{ fontSize: '1rem' }} /> : <PlayArrowIcon sx={{ fontSize: '1rem' }} />}
+            </IconButton>
+            <IconButton size="small" onClick={() => {
+              updateTimer(selectedTimer === 'nominator' ? (timerDefaults?.nominationActorSeconds ?? 60) : (timerDefaults?.nominationTargetSeconds ?? 60))
+              setIsTimerRunning(false)
+            }}>
+              <RefreshIcon sx={{ fontSize: '1rem' }} />
+            </IconButton>
+            <IconButton size="small" onClick={() => { updateTimer(0); setIsTimerRunning(false) }}>
+              <StopIcon sx={{ fontSize: '1rem' }} />
+            </IconButton>
+          </Box>
+        </Box>
+      )}
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
         <FormControl size="small" fullWidth>

@@ -5,12 +5,7 @@ import PauseIcon from '@mui/icons-material/Pause'
 import StopIcon from '@mui/icons-material/Stop'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import CloseIcon from '@mui/icons-material/Close'
-import type { Phase, PublicMode, NominationStep } from '../types'
-
-const NOM_STEPS: NominationStep[] = [
-  'waitingForNomination', 'nominationDecision', 'actorSpeech',
-  'readyForTargetSpeech', 'targetSpeech', 'readyToVote', 'voting', 'votingDone',
-]
+import type { Phase, PublicMode } from '../types'
 
 export function ArenaCenterLeft({ ctx }: { ctx: any }) {
   const {
@@ -20,7 +15,7 @@ export function ArenaCenterLeft({ ctx }: { ctx: any }) {
     audioPlaying, setAudioPlaying, startNight, stopNight,
     canNominate, secondsUntilNomination,
     showNominationSheet, setShowNominationSheet,
-    enterNomination, confirmNomination, confirmTargetSpeech, startVoting,
+    enterNomination,
     moveToNextSpeaker, goToNextDay, setPhase,
     alarmActive, setAlarmActive,
     nightShowCharacter, setNightShowCharacter,
@@ -34,7 +29,6 @@ export function ArenaCenterLeft({ ctx }: { ctx: any }) {
   const [showStNote, setShowStNote] = useState(false)
   const [timerEditing, setTimerEditing] = useState(false)
   const [timerInput, setTimerInput] = useState('')
-  const stepIdx = NOM_STEPS.indexOf(currentDay.nominationStep)
 
   const handleCloseNoteModal = () => {
     setShowStNote(false)
@@ -288,35 +282,17 @@ export function ArenaCenterLeft({ ctx }: { ctx: any }) {
       )}
 
       {currentDay.phase === 'nomination' && (
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, alignItems: 'center' }}>
-          <Box sx={{ display: 'flex', gap: 0.5 }}>
-            {[
-              { idx: 1, label: '🎙', done: stepIdx > 2, action: confirmNomination },
-              { idx: 3, label: '🎯', done: stepIdx > 4, action: confirmTargetSpeech },
-              { idx: 5, label: '🗳', done: stepIdx > 5, action: startVoting },
-            ].map(({ idx, label, done, action }) => (
-              <IconButton
-                key={idx}
-                onClick={action}
-                size="large"
-                sx={{ bgcolor: stepIdx === idx ? 'primary.main' : done ? 'rgba(133,63,34,0.2)' : 'transparent', color: stepIdx === idx ? 'white' : 'inherit' }}
-              >
-                {label}{done && ' ✓'}
-              </IconButton>
-            ))}
-          </Box>
-          <Box sx={{ display: 'flex', gap: 0.5 }}>
-            <Button
-              size="large"
-              variant={showNominationSheet ? 'contained' : 'outlined'}
-              onClick={() => setShowNominationSheet((v: boolean) => !v)}
-            >
-              📋 {language === 'zh' ? '提名' : 'Nominate'}
-            </Button>
-            <Button size="large" variant="outlined" onClick={(e) => { e.stopPropagation(); goToNextDay() }}>
-              ▶ {language === 'zh' ? '下一天' : 'Next Day'}
-            </Button>
-          </Box>
+        <Box sx={{ display: 'flex', gap: 0.5 }}>
+          <Button
+            size="large"
+            variant={showNominationSheet ? 'contained' : 'outlined'}
+            onClick={() => setShowNominationSheet((v: boolean) => !v)}
+          >
+            📋 {language === 'zh' ? '提名' : 'Nominate'}
+          </Button>
+          <Button size="large" variant="outlined" onClick={(e) => { e.stopPropagation(); goToNextDay() }}>
+            ▶ {language === 'zh' ? '下一天' : 'Next Day'}
+          </Button>
         </Box>
       )}
       {noteModal}
