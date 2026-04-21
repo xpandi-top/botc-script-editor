@@ -48,15 +48,17 @@ export function ArenaCenterLeft({ ctx }: { ctx: any }) {
   }
 
   const handleTimerEdit = () => {
-    setTimerInput(String(Math.floor(currentTimerSeconds / 60)))
+    const m = Math.floor(currentTimerSeconds / 60)
+    const s = currentTimerSeconds % 60
+    setTimerInput(`${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`)
     setTimerEditing(true)
   }
 
   const handleTimerSave = () => {
-    const n = parseInt(timerInput, 10)
-    if (!isNaN(n) && n >= 0) {
-      setCurrentTimer(n * 60)
-    }
+    const parts = timerInput.split(':')
+    const m = parseInt(parts[0], 10) || 0
+    const s = parseInt(parts[1], 10) || 0
+    setCurrentTimer(m * 60 + s)
     setTimerEditing(false)
   }
 
@@ -167,18 +169,18 @@ export function ArenaCenterLeft({ ctx }: { ctx: any }) {
       {hasTimer && (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
           {timerEditing ? (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
               <TextField
-                size="medium"
+                size="small"
                 value={timerInput}
                 onChange={(e) => setTimerInput(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') handleTimerSave() }}
                 autoFocus
-                inputMode="numeric"
-                slotProps={{ input: { style: { fontSize: '1.5rem', fontWeight: 700, textAlign: 'center', width: 60 } } }}
-                sx={{ width: 70 }}
+                placeholder="MM:SS"
+                slotProps={{ input: { style: { fontSize: '1.2rem', fontWeight: 700, textAlign: 'center', width: 70, padding: '4px 6px' } } }}
+                sx={{ width: 80 }}
               />
-              <Button size="small" variant="contained" onClick={handleTimerSave} sx={{ minWidth: 40, px: 1 }}>
+              <Button size="small" variant="contained" onClick={handleTimerSave} sx={{ minWidth: 32, px: 0.5 }}>
                 ✓
               </Button>
             </Box>
