@@ -62,6 +62,10 @@ export function ArenaCenterLeft({ ctx }: { ctx: any }) {
     setTimerEditing(false)
   }
 
+  const handleTimerCancel = () => {
+    setTimerEditing(false)
+  }
+
   const noteModal = noteModalOpen ? (
     <Dialog open={noteModalOpen} onClose={handleCloseNoteModal} maxWidth="sm" fullWidth slotProps={{ paper: { sx: { p: 2, borderRadius: 2 } } }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
@@ -177,11 +181,14 @@ export function ArenaCenterLeft({ ctx }: { ctx: any }) {
                 onKeyDown={(e) => { if (e.key === 'Enter') handleTimerSave() }}
                 autoFocus
                 placeholder="MM:SS"
-                slotProps={{ input: { style: { fontSize: '1.2rem', fontWeight: 700, textAlign: 'center', width: 70, padding: '4px 6px' } } }}
-                sx={{ width: 80 }}
+                slotProps={{ input: { style: { fontSize: '1rem', fontWeight: 700, textAlign: 'center' } } }}
+                sx={{ width: 65 }}
               />
-              <Button size="small" variant="contained" onClick={handleTimerSave} sx={{ minWidth: 32, px: 0.5 }}>
+              <Button size="small" variant="contained" onClick={handleTimerSave} sx={{ minWidth: 28, px: 0.5, fontSize: '0.75rem' }}>
                 ✓
+              </Button>
+              <Button size="small" variant="outlined" color="error" onClick={handleTimerCancel} sx={{ minWidth: 28, px: 0.5, fontSize: '0.75rem' }}>
+                ✕
               </Button>
             </Box>
           ) : (
