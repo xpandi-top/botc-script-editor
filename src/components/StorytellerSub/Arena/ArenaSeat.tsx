@@ -187,7 +187,7 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
 
   return (
     <>
-      <Paper elevation={selectedSeat?.seat === seat.seat ? 4 : 1} sx={getStateSx()} onClick={handlePaperClick}>
+      <Paper elevation={selectedSeat?.seat === seat.seat ? 4 : 1} sx={getStateSx()} onClick={handlePaperClick} data-seat>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', minWidth: 0 }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: 'nowrap' }}>
