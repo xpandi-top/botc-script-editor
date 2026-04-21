@@ -2,6 +2,10 @@
 import React, { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Box, Button, Typography, TextField, Paper, Select, MenuItem, FormControl, InputLabel, FormControlLabel, Checkbox, Grid, IconButton, Chip, Dialog } from '@mui/material'
+import PlayArrowIcon from '@mui/icons-material/PlayArrow'
+import PauseIcon from '@mui/icons-material/Pause'
+import StopIcon from '@mui/icons-material/Stop'
+import RefreshIcon from '@mui/icons-material/Refresh'
 import { createDefaultVoteDraft } from '../constants'
 import { TimerDisplay } from './TimerDisplay'
 
@@ -14,6 +18,8 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
   } = ctx
 
   const [showNominationTimer, setShowNominationTimer] = useState(true)
+  const [isActorTimerRunning, setIsActorTimerRunning] = useState(false)
+  const [isTargetTimerRunning, setIsTargetTimerRunning] = useState(false)
   const seats = currentDay?.seats ?? []
   const voteDraft = currentDay?.voteDraft ?? {}
   const nominationActorSeconds = currentDay?.nominationActorSeconds ?? 0
@@ -106,6 +112,10 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
               onChange={(v) => updateCurrentDay((d: any) => ({ ...d, nominationActorSeconds: v }))}
               label={language === 'zh' ? '提名者' : 'Nominator'}
               color="warning"
+              showControls
+              isRunning={isActorTimerRunning}
+              onToggleRunning={() => setIsActorTimerRunning(v => !v)}
+              onReset={() => updateCurrentDay((d: any) => ({ ...d, nominationActorSeconds: d.nominationActorSeconds || 0 }))}
             />
           )}
           {showNominationTimer && nominationTargetSeconds > 0 && (
@@ -114,6 +124,10 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
               onChange={(v) => updateCurrentDay((d: any) => ({ ...d, nominationTargetSeconds: v }))}
               label={language === 'zh' ? '被提名者' : 'Nominee'}
               color="info"
+              showControls
+              isRunning={isTargetTimerRunning}
+              onToggleRunning={() => setIsTargetTimerRunning(v => !v)}
+              onReset={() => updateCurrentDay((d: any) => ({ ...d, nominationTargetSeconds: d.nominationTargetSeconds || 0 }))}
             />
           )}
           <Button size="small" onClick={() => setShowNominationTimer(v => !v)} sx={{ fontSize: '0.7rem', minWidth: 0, px: 0.5 }}>

@@ -1,14 +1,22 @@
-import { Box, TextField, Button } from '@mui/material'
+import { Box, TextField, Button, IconButton } from '@mui/material'
 import { useState } from 'react'
+import PlayArrowIcon from '@mui/icons-material/PlayArrow'
+import PauseIcon from '@mui/icons-material/Pause'
+import StopIcon from '@mui/icons-material/Stop'
+import RefreshIcon from '@mui/icons-material/Refresh'
 
 interface TimerDisplayProps {
   seconds: number
   onChange: (newSeconds: number) => void
   label?: string
   color?: 'warning' | 'info' | 'default'
+  showControls?: boolean
+  isRunning?: boolean
+  onToggleRunning?: () => void
+  onReset?: () => void
 }
 
-export function TimerDisplay({ seconds, onChange, label, color = 'default' }: TimerDisplayProps) {
+export function TimerDisplay({ seconds, onChange, label, color = 'default', showControls, isRunning, onToggleRunning, onReset }: TimerDisplayProps) {
   const [editing, setEditing] = useState(false)
   const [input, setInput] = useState('')
 
@@ -37,6 +45,10 @@ export function TimerDisplay({ seconds, onChange, label, color = 'default' }: Ti
     setEditing(false)
   }
 
+  const handleStop = () => {
+    onChange(0)
+  }
+
   if (editing) {
     return (
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
@@ -61,29 +73,44 @@ export function TimerDisplay({ seconds, onChange, label, color = 'default' }: Ti
   }
 
   return (
-    <Box 
-      onClick={handleEdit}
-      sx={{ 
-        fontFamily: 'monospace',
-        fontWeight: 700,
-        fontSize: '1.2rem',
-        px: 1,
-        py: 0.25,
-        bgcolor: color === 'warning' ? 'warning.light' : color === 'info' ? 'info.light' : 'background.paper',
-        borderRadius: 1,
-        border: '1px solid',
-        borderColor: 'divider',
-        cursor: 'pointer',
-        letterSpacing: '0.05em',
-        userSelect: 'none',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 0.5,
-        '&:hover': { bgcolor: 'action.hover' }
-      }}
-    >
-      {label && <Box component="span" sx={{ fontSize: '0.8rem', fontWeight: 600 }}>{label}:</Box>}
-      {formatTime(seconds)}
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+      <Box 
+        onClick={handleEdit}
+        sx={{ 
+          fontFamily: 'monospace',
+          fontWeight: 700,
+          fontSize: '1.2rem',
+          px: 1,
+          py: 0.25,
+          bgcolor: color === 'warning' ? 'warning.light' : color === 'info' ? 'info.light' : 'background.paper',
+          borderRadius: 1,
+          border: '1px solid',
+          borderColor: 'divider',
+          cursor: 'pointer',
+          letterSpacing: '0.05em',
+          userSelect: 'none',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 0.5,
+          '&:hover': { bgcolor: 'action.hover' }
+        }}
+      >
+        {label && <Box component="span" sx={{ fontSize: '0.8rem', fontWeight: 600 }}>{label}:</Box>}
+        {formatTime(seconds)}
+      </Box>
+      {showControls && (
+        <Box sx={{ display: 'flex', gap: 0.25 }}>
+          <IconButton size="small" onClick={onToggleRunning}>
+            {isRunning ? <PauseIcon sx={{ fontSize: '1rem' }} /> : <PlayArrowIcon sx={{ fontSize: '1rem' }} />}
+          </IconButton>
+          <IconButton size="small" onClick={onReset}>
+            <RefreshIcon sx={{ fontSize: '1rem' }} />
+          </IconButton>
+          <IconButton size="small" onClick={handleStop}>
+            <StopIcon sx={{ fontSize: '1rem' }} />
+          </IconButton>
+        </Box>
+      )}
     </Box>
   )
 }
