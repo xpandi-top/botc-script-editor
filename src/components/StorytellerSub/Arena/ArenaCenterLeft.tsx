@@ -112,25 +112,17 @@ export function ArenaCenterLeft({ ctx }: { ctx: any }) {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
           <TextField
             size="medium"
-            value={`${String(Math.floor(currentTimerSeconds / 60)).padStart(2, '0')}:${String(currentTimerSeconds % 60).padStart(2, '0')}`}
+            value={Math.floor(currentTimerSeconds / 60)}
             onChange={(e) => {
-              const val = e.target.value.replace(/[^0-9:]/g, '')
-              if (val.includes(':')) {
-                const parts = val.split(':')
-                const mPart = parts[0] || '0'
-                const sPart = parts[1] || '0'
-                setCurrentTimer((parseInt(mPart, 10) || 0) * 60 + (parseInt(sPart, 10) || 0))
-              } else if (val.length > 0) {
-                const n = parseInt(val, 10)
-                if (!isNaN(n)) setCurrentTimer(n)
-              } else {
-                setCurrentTimer(0)
-              }
+              const n = parseInt(e.target.value, 10)
+              if (!isNaN(n) && n >= 0) setCurrentTimer(n * 60)
             }}
             inputMode="numeric"
-            slotProps={{ input: { sx: { fontSize: '1.2rem', fontWeight: 700, textAlign: 'center', width: 90, padding: '6px 8px' } } }}
-            sx={{ width: 100, bgcolor: alarmActive ? 'warning.light' : 'transparent' }}
+            slotProps={{ input: { style: { fontSize: '1.5rem', fontWeight: 700, textAlign: 'center', width: 80 } } }}
+            sx={{ width: 90, bgcolor: alarmActive ? 'warning.light' : 'transparent' }}
+            placeholder="分"
           />
+          <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '1rem' }}>分</Typography>
           {alarmActive && <IconButton size="large" onClick={() => setAlarmActive(false)}>🔔</IconButton>}
         </Box>
       )}
