@@ -299,21 +299,22 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
         )}
 
         {isNightPhase && nightShowWakeOrder && playerWakeOrder !== null && (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25, mt: 0.25 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.25 }}>
             <IconButton 
               size="small" 
               onClick={handleWakeCheckboxClick}
               sx={{ 
                 p: 0.5, 
-                fontSize: '0.7rem',
-                border: '1px solid',
+                fontSize: '0.85rem',
+                fontWeight: 700,
+                border: '2px solid',
                 borderColor: isVisited ? 'success.main' : 'divider',
                 bgcolor: isVisited ? 'success.light' : 'transparent',
               }}
             >
               {isVisited ? '✓' : ''}
             </IconButton>
-            <Box component="span" sx={{ fontSize: '0.7rem', color: 'text.secondary' }}>
+            <Box component="span" sx={{ fontSize: '0.85rem', fontWeight: 600, color: 'text.primary' }}>
               #{playerWakeOrder}
             </Box>
           </Box>

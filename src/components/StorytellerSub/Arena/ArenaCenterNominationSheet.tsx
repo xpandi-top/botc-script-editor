@@ -91,9 +91,9 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
   const yesCount = Object.values(currentDay?.votingState?.votes ?? {}).filter(Boolean).length || voteDraft?.voters?.length || 0
 
   return (
-    <Paper sx={{ p: 1, maxWidth: 320 }} onClick={(e) => e.stopPropagation()}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-        <Typography variant="subtitle2">{language === 'zh' ? '提名' : 'Nominate'}</Typography>
+    <Paper elevation={8} sx={{ p: 2, width: 360, borderRadius: 2 }} onClick={(e) => e.stopPropagation()}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
+        <Typography variant="h6" sx={{ fontWeight: 700 }}>{language === 'zh' ? '提名' : 'Nominate'}</Typography>
         <Button size="small" onClick={() => { setShowNominationSheet(false); setPickerMode('none') }}>
           {language === 'zh' ? '隐藏' : 'Hide'}
         </Button>

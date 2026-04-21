@@ -51,7 +51,7 @@ export function Arena({ ctx }: { ctx: any }) {
         <Box
           onClick={(e) => {
             const target = e.target as Element
-            if (!target.closest('.storyteller-seat') && !target.closest('[data-tag-popup]') && !target.closest('[data-skill-popup]')) {
+            if (!target.closest('.storyteller-seat') && !target.closest('[data-tag-popup]') && !target.closest('[data-skill-popup]') && !target.closest('[data-character-popup]')) {
               setSelectedSeatNumber(null)
               setTagPopoutSeat(null)
             }

@@ -85,12 +85,12 @@ export function ArenaSeatCharacterPopout({ ctx, seat }: { ctx: any, seat: any })
   const perceivedIcon = perceivedCharId ? getIconForCharacter(perceivedCharId) : null
   const perceivedName = perceivedCharId ? getDisplayName(perceivedCharId, language) : ''
 
-  if (!isCharacterPopoutOpen) return null
+  if (!isCharacterPopoutOpen || !seat) return null
 
   const content = (
-    <Paper sx={{ p: 1.5, width: 280, maxHeight: '80vh', overflow: 'auto' }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-        <Typography variant="subtitle2">{language === 'zh' ? '角色分配' : 'Assign Character'}</Typography>
+    <Dialog open={isCharacterPopoutOpen} onClose={() => {}} disableEscapeKeyDown maxWidth="sm" fullWidth slotProps={{ backdrop: { onClick: () => {} }, paper: { 'data-character-popup': true, sx: { p: 2, width: 360, borderRadius: 2, maxHeight: '80vh' } } }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
+        <Typography variant="h6" fontWeight={700}>{language === 'zh' ? '角色分配' : 'Assign Character'}</Typography>
         <IconButton size="small" onClick={() => setCharacterPopoutSeat(null)}>✕</IconButton>
       </Box>
 
@@ -192,8 +192,8 @@ export function ArenaSeatCharacterPopout({ ctx, seat }: { ctx: any, seat: any })
         />
         <Button size="small" onClick={addStTag} sx={{ mt: 0.5 }}>+</Button>
       </Box>
-    </Paper>
+    </Dialog>
   )
 
-  return isMobile ? createPortal(content, document.body) : content
+  return createPortal(content, document.body)
 }
