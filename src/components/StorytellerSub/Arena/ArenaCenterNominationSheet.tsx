@@ -379,9 +379,7 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
                   flexWrap: 'wrap'
                 }}>
                   <Typography variant="body2" sx={{ fontWeight: 600, whiteSpace: 'nowrap' }}>
-                    #{record.actor} {actionTag} #{record.target}
-                  </Typography>
-                  <Typography variant="caption" sx={{ whiteSpace: 'nowrap' }}>
+                    #{record.actor} {actionTag} #{record.target}{' '}
                     {record.failed 
                       ? (language === 'zh' ? '失败' : 'Failed')
                       : `${record.voteCount}/${record.requiredVotes}`
