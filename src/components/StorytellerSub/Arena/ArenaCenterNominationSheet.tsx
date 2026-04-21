@@ -14,7 +14,7 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
     language, text, currentDay, updateCurrentDay, pickerMode, setPickerMode, 
     showNominationSheet, setShowNominationSheet, requiredVotes, exileRequiredVotes, 
     effectiveRequiredVotes, draftPassedBySystem, draftPassed, isVotingComplete, 
-    rejectNomination, recordVote, setDialogState, votingYesCount,
+    rejectNomination, recordVote, setDialogState, votingYesCount, timerDefaults,
   } = ctx
 
   const [showNominationTimer, setShowNominationTimer] = useState(true)
@@ -22,8 +22,8 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
   const [isTimerRunning, setIsTimerRunning] = useState(false)
   const seats = currentDay?.seats ?? []
   const voteDraft = currentDay?.voteDraft ?? {}
-  const nominationActorSeconds = currentDay?.nominationActorSeconds ?? 0
-  const nominationTargetSeconds = currentDay?.nominationTargetSeconds ?? 0
+  const nominationActorSeconds = currentDay?.nominationActorSeconds ?? timerDefaults?.nominationActorSeconds ?? 60
+  const nominationTargetSeconds = currentDay?.nominationTargetSeconds ?? timerDefaults?.nominationTargetSeconds ?? 60
 
   if (!showNominationSheet || currentDay?.phase !== 'nomination') return null
 
@@ -123,14 +123,13 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
                   ...d, 
                   [selectedTimer === 'nominator' ? 'nominationActorSeconds' : 'nominationTargetSeconds']: v 
                 }))}
-                label={selectedTimer === 'nominator' ? (language === 'zh' ? '提名者' : 'Nominator') : (language === 'zh' ? '被提名者' : 'Nominee')}
                 color={selectedTimer === 'nominator' ? 'warning' : 'info'}
                 showControls
                 isRunning={isTimerRunning}
                 onToggleRunning={() => setIsTimerRunning(v => !v)}
                 onReset={() => updateCurrentDay((d: any) => ({ 
                   ...d, 
-                  [selectedTimer === 'nominator' ? 'nominationActorSeconds' : 'nominationTargetSeconds']: d[selectedTimer === 'nominator' ? 'nominationActorSeconds' : 'nominationTargetSeconds'] || 0 
+                  [selectedTimer === 'nominator' ? 'nominationActorSeconds' : 'nominationTargetSeconds']: selectedTimer === 'nominator' ? (timerDefaults?.nominationActorSeconds ?? 60) : (timerDefaults?.nominationTargetSeconds ?? 60)
                 }))}
               />
             </>
