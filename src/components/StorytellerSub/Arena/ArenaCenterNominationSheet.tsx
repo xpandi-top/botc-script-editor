@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Box, Button, Typography, TextField, Paper, Select, MenuItem, FormControl, InputLabel, FormControlLabel, Checkbox, Grid, IconButton, Chip, Dialog } from '@mui/material'
 import { createDefaultVoteDraft } from '../constants'
+import { TimerDisplay } from './TimerDisplay'
 
 export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
   const { 
@@ -17,12 +18,6 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
   const voteDraft = currentDay?.voteDraft ?? {}
   const nominationActorSeconds = currentDay?.nominationActorSeconds ?? 0
   const nominationTargetSeconds = currentDay?.nominationTargetSeconds ?? 0
-
-  const formatTimer = (secs: number) => {
-    const m = Math.floor(secs / 60)
-    const s = secs % 60
-    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
-  }
 
   if (!showNominationSheet || currentDay?.phase !== 'nomination') return null
 
@@ -105,19 +100,21 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
         <Typography variant="h6" sx={{ fontWeight: 700 }}>{language === 'zh' ? '提名' : 'Nominate'}</Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-          {showNominationTimer && (
-            <>
-              {nominationActorSeconds > 0 && (
-                <Box sx={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '1rem', px: 0.5, py: 0.25, bgcolor: 'warning.light', borderRadius: 0.5 }}>
-                  {language === 'zh' ? '演员' : 'Actor'}: {formatTimer(nominationActorSeconds)}
-                </Box>
-              )}
-              {nominationTargetSeconds > 0 && (
-                <Box sx={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '1rem', px: 0.5, py: 0.25, bgcolor: 'info.light', borderRadius: 0.5 }}>
-                  {language === 'zh' ? '目标' : 'Target'}: {formatTimer(nominationTargetSeconds)}
-                </Box>
-              )}
-            </>
+          {showNominationTimer && nominationActorSeconds > 0 && (
+            <TimerDisplay
+              seconds={nominationActorSeconds}
+              onChange={(v) => updateCurrentDay((d: any) => ({ ...d, nominationActorSeconds: v }))}
+              label={language === 'zh' ? '提名者' : 'Nominator'}
+              color="warning"
+            />
+          )}
+          {showNominationTimer && nominationTargetSeconds > 0 && (
+            <TimerDisplay
+              seconds={nominationTargetSeconds}
+              onChange={(v) => updateCurrentDay((d: any) => ({ ...d, nominationTargetSeconds: v }))}
+              label={language === 'zh' ? '被提名者' : 'Nominee'}
+              color="info"
+            />
           )}
           <Button size="small" onClick={() => setShowNominationTimer(v => !v)} sx={{ fontSize: '0.7rem', minWidth: 0, px: 0.5 }}>
             {showNominationTimer ? '⏱' : '⏱'}
