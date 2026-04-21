@@ -31,14 +31,19 @@ export function ArenaCenterLeft({ ctx }: { ctx: any }) {
   const [noteModalOpen, setNoteModalOpen] = useState(false)
   const [publicNote, setPublicNote] = useState('')
   const [stNote, setStNote] = useState('')
-  const [showStNote, setShowStNote] = useState(true)
+  const [showStNote, setShowStNote] = useState(false)
   const stepIdx = NOM_STEPS.indexOf(currentDay.nominationStep)
 
+  const handleCloseNoteModal = () => {
+    setShowStNote(false)
+    setNoteModalOpen(false)
+  }
+
   const noteModal = noteModalOpen ? (
-    <Dialog open={noteModalOpen} onClose={() => setNoteModalOpen(false)} maxWidth="sm" fullWidth slotProps={{ paper: { sx: { p: 2, borderRadius: 2 } } }}>
+    <Dialog open={noteModalOpen} onClose={handleCloseNoteModal} maxWidth="sm" fullWidth slotProps={{ paper: { sx: { p: 2, borderRadius: 2 } } }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
         <Typography variant="h6" sx={{ fontWeight: 700 }}>{language === 'zh' ? '全局备注' : 'Global Notes'}</Typography>
-        <IconButton size="small" onClick={() => setNoteModalOpen(false)}><CloseIcon /></IconButton>
+        <IconButton size="small" onClick={handleCloseNoteModal}><CloseIcon /></IconButton>
       </Box>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         <TextField
