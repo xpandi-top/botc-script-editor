@@ -84,8 +84,8 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
     left: `${left}%`,
     top: `${top}%`,
     transform: 'translate(-50%, -50%)',
-    width: 'var(--seat-size, 100px)',
-    minWidth: 80,
+    width: 120,
+    minWidth: 100,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -189,12 +189,12 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
     <>
       <Paper elevation={selectedSeat?.seat === seat.seat ? 4 : 1} sx={getStateSx()} onClick={handlePaperClick}>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', minWidth: 0 }}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', minWidth: 0, overflow: 'hidden' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-              <Box component="span" sx={{ fontWeight: fontWeight => seat.alive ? 700 : 500, color: seat.alive ? 'text.primary' : 'text.disabled', fontSize: '0.85rem' }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: 'nowrap' }}>
+              <Box component="span" sx={{ fontWeight: fontWeight => seat.alive ? 700 : 500, color: seat.alive ? 'text.primary' : 'text.disabled', fontSize: '0.85rem', whiteSpace: 'nowrap' }}>
                 #{seat.seat}
               </Box>
-              <Box component="span" sx={{ fontSize: '0.9rem', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <Box component="span" sx={{ fontSize: '0.9rem', fontWeight: 600, whiteSpace: 'nowrap' }}>
                 {seat.name}
               </Box>
             </Box>
