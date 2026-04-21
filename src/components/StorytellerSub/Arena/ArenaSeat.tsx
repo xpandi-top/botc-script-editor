@@ -96,6 +96,7 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
     bgcolor: 'background.paper',
     opacity: seat.alive ? 1 : 0.7,
     transition: 'all 0.2s ease',
+    pointerEvents: 'auto',
     '&:hover': { boxShadow: 3 },
   }
 
@@ -231,9 +232,6 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
         )}
 
         <Box sx={{ display: 'flex', gap: 0.25, mt: 0.25, flexWrap: 'wrap', justifyContent: 'center' }}>
-          <Button size="small" variant="outlined" onClick={handleSeatClick} sx={{ minWidth: 0, px: 0.5, fontSize: '0.65rem' }}>
-            {text.addTagLabel}
-          </Button>
           <Button 
             size="small" 
             variant={isSkillPopoutOpen ? 'contained' : 'outlined'}

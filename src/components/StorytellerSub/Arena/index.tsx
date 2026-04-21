@@ -68,7 +68,7 @@ export function Arena({ ctx }: { ctx: any }) {
         >
           
             <ArenaCenter ctx={ctx} />
-          <Box sx={{ position: 'absolute', inset: 0, zIndex: 10 }}>
+          <Box sx={{ position: 'absolute', inset: 0, zIndex: 10, pointerEvents: 'none' }}>
             <ArenaSeats ctx={ctx} isPortrait={isPortrait} />
           </Box>
         </Box>
