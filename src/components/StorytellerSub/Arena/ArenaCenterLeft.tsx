@@ -114,17 +114,22 @@ export function ArenaCenterLeft({ ctx }: { ctx: any }) {
             size="medium"
             value={`${String(Math.floor(currentTimerSeconds / 60)).padStart(2, '0')}:${String(currentTimerSeconds % 60).padStart(2, '0')}`}
             onChange={(e) => {
-              const val = e.target.value
+              const val = e.target.value.replace(/[^0-9:]/g, '')
               if (val.includes(':')) {
-                const [mPart, sPart] = val.split(':')
+                const parts = val.split(':')
+                const mPart = parts[0] || '0'
+                const sPart = parts[1] || '0'
                 setCurrentTimer((parseInt(mPart, 10) || 0) * 60 + (parseInt(sPart, 10) || 0))
-              } else {
+              } else if (val.length > 0) {
                 const n = parseInt(val, 10)
                 if (!isNaN(n)) setCurrentTimer(n)
+              } else {
+                setCurrentTimer(0)
               }
             }}
             inputMode="numeric"
-            sx={{ width: 70, bgcolor: alarmActive ? 'warning.light' : 'transparent' }}
+            slotProps={{ input: { sx: { fontSize: '1.2rem', fontWeight: 700, textAlign: 'center', width: 90, padding: '6px 8px' } } }}
+            sx={{ width: 100, bgcolor: alarmActive ? 'warning.light' : 'transparent' }}
           />
           {alarmActive && <IconButton size="large" onClick={() => setAlarmActive(false)}>🔔</IconButton>}
         </Box>
