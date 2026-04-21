@@ -191,15 +191,15 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', minWidth: 0 }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', minWidth: 0, overflow: 'hidden' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-              <Box component="span" sx={{ fontWeight: fontWeight => seat.alive ? 700 : 400, color: seat.alive ? 'text.primary' : 'text.disabled', fontSize: '0.75rem' }}>
+              <Box component="span" sx={{ fontWeight: fontWeight => seat.alive ? 700 : 500, color: seat.alive ? 'text.primary' : 'text.disabled', fontSize: '0.85rem' }}>
                 #{seat.seat}
               </Box>
-              <Box component="span" sx={{ fontSize: '0.75rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <Box component="span" sx={{ fontSize: '0.9rem', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {seat.name}
               </Box>
             </Box>
             {hasVoted && (
-              <Box component="span" sx={{ fontSize: '0.7rem', color: votedYes ? 'success.main' : 'error.main', fontWeight: 700 }}>
+              <Box component="span" sx={{ fontSize: '0.8rem', color: votedYes ? 'success.main' : 'error.main', fontWeight: 700 }}>
                 {votedYes ? '✓' : '✗'}
               </Box>
             )}
@@ -218,13 +218,13 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
                   key={`${seat.seat}-${tag}`}
                   label={isCharTag ? (
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
-                      {charImg && <Box component="img" src={charImg as string} sx={{ width: 14, height: 14 }} />}
+                      {charImg && <Box component="img" src={charImg as string} sx={{ width: 16, height: 16 }} />}
                       <span>{charName}</span>
                     </Box>
                   ) : displayTag(tag)}
                   size="small"
                   onContextMenu={(e) => handleTagPillRightClick(e, tag)}
-                  sx={{ height: 24, fontSize: '0.75rem', bgcolor: isCharTag ? 'primary.light' : 'action.selected' }}
+                  sx={{ height: 28, fontSize: '0.8rem', fontWeight: 500, bgcolor: isCharTag ? 'primary.light' : 'action.selected' }}
                 />
               )
             })}
@@ -237,11 +237,11 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
             variant={isSkillPopoutOpen ? 'contained' : 'outlined'}
             onClick={handleSkillClick}
             color={isSkillPopoutOpen ? 'primary' : 'inherit'}
-            sx={{ minWidth: 0, px: 0.5, fontSize: '0.65rem' }}
+            sx={{ minWidth: 0, px: 0.75, py: 0.25, fontSize: '0.75rem', fontWeight: 600 }}
           >
             {language === 'zh' ? '技能' : 'Skill'}
           </Button>
-          <Button size="small" variant="outlined" onClick={handleTagClick} color={isTagPopoutOpen ? 'secondary' : 'inherit'} sx={{ minWidth: 0, px: 0.5, fontSize: '0.65rem' }}>
+          <Button size="small" variant="outlined" onClick={handleTagClick} color={isTagPopoutOpen ? 'secondary' : 'inherit'} sx={{ minWidth: 0, px: 0.75, py: 0.25, fontSize: '0.75rem', fontWeight: 600 }}>
             +Tag
           </Button>
         </Box>
@@ -254,16 +254,16 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
                 variant="contained" 
                 color={cardVotedYes ? 'success' : 'error'}
                 onClick={handleRemoveVote}
-                sx={{ minWidth: 0, px: 0.5, fontSize: '0.65rem' }}
+                sx={{ minWidth: 0, px: 0.75, py: 0.25, fontSize: '0.8rem', fontWeight: 700 }}
               >
                 {cardVotedYes ? '✓' : '✗'}
               </Button>
             ) : (
               <>
-                <IconButton size="small" color="success" onClick={handleVoteYesClick} sx={{ border: '1px solid', borderColor: 'divider', p: 0.25, fontSize: '0.7rem' }}>
+                <IconButton size="small" color="success" onClick={handleVoteYesClick} sx={{ border: '1px solid', borderColor: 'divider', p: 0.5, fontSize: '0.85rem' }}>
                   ✓
                 </IconButton>
-                <IconButton size="small" color="error" onClick={handleVoteNoClick} sx={{ border: '1px solid', borderColor: 'divider', p: 0.25, fontSize: '0.7rem' }}>
+                <IconButton size="small" color="error" onClick={handleVoteNoClick} sx={{ border: '1px solid', borderColor: 'divider', p: 0.5, fontSize: '0.85rem' }}>
                   ✗
                 </IconButton>
               </>
@@ -279,7 +279,7 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
                   size="small" 
                   variant={isCharacterPopoutOpen ? 'contained' : 'outlined'}
                   onClick={handleCharacterClick}
-                  sx={{ minWidth: 0, px: 0.5, fontSize: '0.65rem', display: 'flex', gap: 0.25 }}
+                  sx={{ minWidth: 0, px: 0.75, py: 0.25, fontSize: '0.75rem', fontWeight: 600, display: 'flex', gap: 0.25 }}
                 >
                   {charIcon && <Box component="img" src={charIcon as string} sx={{ width: 16, height: 16 }} />}
                   {actualCharName}
