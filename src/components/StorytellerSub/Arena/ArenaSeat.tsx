@@ -84,8 +84,8 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
     left: `${left}%`,
     top: `${top}%`,
     transform: 'translate(-50%, -50%)',
-    width: 'var(--seat-size, 80px)',
-    minWidth: 60,
+    width: 'var(--seat-size, 100px)',
+    minWidth: 80,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -224,7 +224,7 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
                   ) : displayTag(tag)}
                   size="small"
                   onContextMenu={(e) => handleTagPillRightClick(e, tag)}
-                  sx={{ height: 18, fontSize: '0.6rem', bgcolor: isCharTag ? 'primary.light' : 'action.selected' }}
+                  sx={{ height: 24, fontSize: '0.75rem', bgcolor: isCharTag ? 'primary.light' : 'action.selected' }}
                 />
               )
             })}
@@ -304,8 +304,8 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
               size="small" 
               onClick={handleWakeCheckboxClick}
               sx={{ 
-                p: 0.25, 
-                fontSize: '0.65rem',
+                p: 0.5, 
+                fontSize: '0.7rem',
                 border: '1px solid',
                 borderColor: isVisited ? 'success.main' : 'divider',
                 bgcolor: isVisited ? 'success.light' : 'transparent',
@@ -313,7 +313,7 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
             >
               {isVisited ? '✓' : ''}
             </IconButton>
-            <Box component="span" sx={{ fontSize: '0.65rem', color: 'text.secondary' }}>
+            <Box component="span" sx={{ fontSize: '0.7rem', color: 'text.secondary' }}>
               #{playerWakeOrder}
             </Box>
           </Box>

@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React from 'react'
 import { createPortal } from 'react-dom'
-import { Box, Button, Typography, TextField, Paper, FormControl, Select, MenuItem, InputLabel, IconButton, Checkbox, FormControlLabel, Dialog, DialogTitle, DialogContent, Grid } from '@mui/material'
+import { Box, Button, Typography, TextField, FormControl, Select, MenuItem, InputLabel, IconButton, Checkbox, FormControlLabel, Dialog, DialogTitle, DialogContent, Grid } from '@mui/material'
 import { getDisplayName, getIconForCharacter } from '../../../catalog'
 import { useIsMobile } from './useIsMobile'
 
@@ -38,23 +38,31 @@ export function ArenaSeatSkillPopout({ ctx, seat }: { ctx: any, seat: any }) {
   const roleName = draft.roleId ? getDisplayName(draft.roleId, language) : null
 
   return isMobile ? createPortal(
-    <Dialog open={isSkillPopoutOpen} onClose={() => closeSkillOverlay(false)} maxWidth="sm" fullWidth>
-      <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <Dialog open={isSkillPopoutOpen} onClose={() => closeSkillOverlay(false)} maxWidth="sm" fullWidth slotProps={{ paper: { sx: { position: 'fixed', top: isMobile ? 0 : '50%', left: isMobile ? 0 : '50%', transform: isMobile ? 'none' : 'translate(-50%, -50%)', m: isMobile ? 0 : undefined, borderRadius: isMobile ? 0 : 2, maxHeight: '90vh' } } }}>
+      <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 1 }}>
         {language === 'zh' ? '发动技能' : 'Use Skill'}
         <IconButton size="small" onClick={() => closeSkillOverlay(false)}>✕</IconButton>
       </DialogTitle>
-      <DialogContent>
+      <DialogContent sx={{ pt: 1 }}>
         <SkillPopoutContent />
       </DialogContent>
     </Dialog>,
     document.body
   ) : (
-    <SkillPopoutContent />
+    <Dialog open={isSkillPopoutOpen} onClose={() => closeSkillOverlay(false)} maxWidth="sm" fullWidth slotProps={{ paper: { sx: { position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: 2, maxHeight: '90vh' } } }}>
+      <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 1 }}>
+        {language === 'zh' ? '发动技能' : 'Use Skill'}
+        <IconButton size="small" onClick={() => closeSkillOverlay(false)}>✕</IconButton>
+      </DialogTitle>
+      <DialogContent sx={{ pt: 1 }}>
+        <SkillPopoutContent />
+      </DialogContent>
+    </Dialog>
   )
 
   function SkillPopoutContent() {
     return (
-      <Paper sx={{ p: 1.5, maxWidth: 300 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
           <Box>
             <Typography variant="caption" color="text.secondary">{language === 'zh' ? '发动者' : 'Actor'}</Typography>
@@ -158,7 +166,7 @@ export function ArenaSeatSkillPopout({ ctx, seat }: { ctx: any, seat: any }) {
             ✓ {text.saveSkill}
           </Button>
         </Box>
-      </Paper>
+      </Box>
     )
   }
 }
