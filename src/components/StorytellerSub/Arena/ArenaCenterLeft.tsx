@@ -182,7 +182,7 @@ export function ArenaCenterLeft({ ctx }: { ctx: any }) {
                 autoFocus
                 placeholder="MM:SS"
                 slotProps={{ input: { style: { fontSize: '1rem', fontWeight: 700, textAlign: 'center' } } }}
-                sx={{ width: 65 }}
+                sx={{ width: 75 }}
               />
               <Button size="small" variant="contained" onClick={handleTimerSave} sx={{ minWidth: 28, px: 0.5, fontSize: '0.75rem' }}>
                 ✓
