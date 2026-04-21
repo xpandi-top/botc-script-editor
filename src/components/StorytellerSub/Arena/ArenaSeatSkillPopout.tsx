@@ -38,7 +38,7 @@ export function ArenaSeatSkillPopout({ ctx, seat }: { ctx: any, seat: any }) {
   const roleName = draft.roleId ? getDisplayName(draft.roleId, language) : null
 
   return isMobile ? createPortal(
-    <Dialog open={isSkillPopoutOpen} onClose={() => closeSkillOverlay(false)} maxWidth="sm" fullWidth slotProps={{ paper: { sx: { position: 'fixed', top: isMobile ? 0 : '50%', left: isMobile ? 0 : '50%', transform: isMobile ? 'none' : 'translate(-50%, -50%)', m: isMobile ? 0 : undefined, borderRadius: isMobile ? 0 : 2, maxHeight: '90vh' } } }}>
+    <Dialog open={isSkillPopoutOpen} onClose={() => {}} disableEscapeKeyDown maxWidth="sm" fullWidth slotProps={{ backdrop: { onClick: () => {} }, paper: { 'data-skill-popup': true, sx: { position: 'fixed', top: isMobile ? 0 : '50%', left: isMobile ? 0 : '50%', transform: isMobile ? 'none' : 'translate(-50%, -50%)', m: isMobile ? 0 : undefined, borderRadius: isMobile ? 0 : 2, maxHeight: '90vh' } } }}>
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 1 }}>
         {language === 'zh' ? '发动技能' : 'Use Skill'}
         <IconButton size="small" onClick={() => closeSkillOverlay(false)}>✕</IconButton>
@@ -49,7 +49,7 @@ export function ArenaSeatSkillPopout({ ctx, seat }: { ctx: any, seat: any }) {
     </Dialog>,
     document.body
   ) : (
-    <Dialog open={isSkillPopoutOpen} onClose={() => closeSkillOverlay(false)} maxWidth="sm" fullWidth slotProps={{ paper: { sx: { position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: 2, maxHeight: '90vh' } } }}>
+    <Dialog open={isSkillPopoutOpen} onClose={() => {}} disableEscapeKeyDown maxWidth="sm" fullWidth slotProps={{ backdrop: { onClick: () => {} }, paper: { 'data-skill-popup': true, sx: { position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: 2, maxHeight: '90vh' } } }}>
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 1 }}>
         {language === 'zh' ? '发动技能' : 'Use Skill'}
         <IconButton size="small" onClick={() => closeSkillOverlay(false)}>✕</IconButton>

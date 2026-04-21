@@ -36,6 +36,7 @@ export function ArenaSeatTagPopout({ ctx, seat }: { ctx: any, seat: any }) {
   const content = (
     <Paper 
       elevation={8}
+      data-tag-popup
       sx={{
         position: 'fixed',
         top: '50%',
