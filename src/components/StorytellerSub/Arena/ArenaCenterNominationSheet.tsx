@@ -18,8 +18,8 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
   } = ctx
 
   const [showNominationTimer, setShowNominationTimer] = useState(true)
-  const [isActorTimerRunning, setIsActorTimerRunning] = useState(false)
-  const [isTargetTimerRunning, setIsTargetTimerRunning] = useState(false)
+  const [selectedTimer, setSelectedTimer] = useState<'nominator' | 'nominee'>('nominator')
+  const [isTimerRunning, setIsTimerRunning] = useState(false)
   const seats = currentDay?.seats ?? []
   const voteDraft = currentDay?.voteDraft ?? {}
   const nominationActorSeconds = currentDay?.nominationActorSeconds ?? 0
@@ -106,29 +106,34 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
         <Typography variant="h6" sx={{ fontWeight: 700 }}>{language === 'zh' ? '提名' : 'Nominate'}</Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-          {showNominationTimer && nominationActorSeconds > 0 && (
-            <TimerDisplay
-              seconds={nominationActorSeconds}
-              onChange={(v) => updateCurrentDay((d: any) => ({ ...d, nominationActorSeconds: v }))}
-              label={language === 'zh' ? '提名者' : 'Nominator'}
-              color="warning"
-              showControls
-              isRunning={isActorTimerRunning}
-              onToggleRunning={() => setIsActorTimerRunning(v => !v)}
-              onReset={() => updateCurrentDay((d: any) => ({ ...d, nominationActorSeconds: d.nominationActorSeconds || 0 }))}
-            />
-          )}
-          {showNominationTimer && nominationTargetSeconds > 0 && (
-            <TimerDisplay
-              seconds={nominationTargetSeconds}
-              onChange={(v) => updateCurrentDay((d: any) => ({ ...d, nominationTargetSeconds: v }))}
-              label={language === 'zh' ? '被提名者' : 'Nominee'}
-              color="info"
-              showControls
-              isRunning={isTargetTimerRunning}
-              onToggleRunning={() => setIsTargetTimerRunning(v => !v)}
-              onReset={() => updateCurrentDay((d: any) => ({ ...d, nominationTargetSeconds: d.nominationTargetSeconds || 0 }))}
-            />
+          {showNominationTimer && (
+            <>
+              <Select
+                size="small"
+                value={selectedTimer}
+                onChange={(e) => setSelectedTimer(e.target.value as 'nominator' | 'nominee')}
+                sx={{ minWidth: 100, fontSize: '0.85rem' }}
+              >
+                <MenuItem value="nominator">{language === 'zh' ? '提名者' : 'Nominator'}</MenuItem>
+                <MenuItem value="nominee">{language === 'zh' ? '被提名者' : 'Nominee'}</MenuItem>
+              </Select>
+              <TimerDisplay
+                seconds={selectedTimer === 'nominator' ? nominationActorSeconds : nominationTargetSeconds}
+                onChange={(v) => updateCurrentDay((d: any) => ({ 
+                  ...d, 
+                  [selectedTimer === 'nominator' ? 'nominationActorSeconds' : 'nominationTargetSeconds']: v 
+                }))}
+                label={selectedTimer === 'nominator' ? (language === 'zh' ? '提名者' : 'Nominator') : (language === 'zh' ? '被提名者' : 'Nominee')}
+                color={selectedTimer === 'nominator' ? 'warning' : 'info'}
+                showControls
+                isRunning={isTimerRunning}
+                onToggleRunning={() => setIsTimerRunning(v => !v)}
+                onReset={() => updateCurrentDay((d: any) => ({ 
+                  ...d, 
+                  [selectedTimer === 'nominator' ? 'nominationActorSeconds' : 'nominationTargetSeconds']: d[selectedTimer === 'nominator' ? 'nominationActorSeconds' : 'nominationTargetSeconds'] || 0 
+                }))}
+              />
+            </>
           )}
           <Button size="small" onClick={() => setShowNominationTimer(v => !v)} sx={{ fontSize: '0.7rem', minWidth: 0, px: 0.5 }}>
             {showNominationTimer ? '⏱' : '⏱'}
