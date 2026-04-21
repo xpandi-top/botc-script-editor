@@ -32,11 +32,32 @@ export function ArenaCenterLeft({ ctx }: { ctx: any }) {
   const [publicNote, setPublicNote] = useState('')
   const [stNote, setStNote] = useState('')
   const [showStNote, setShowStNote] = useState(false)
+  const [timerEditing, setTimerEditing] = useState(false)
+  const [timerInput, setTimerInput] = useState('')
   const stepIdx = NOM_STEPS.indexOf(currentDay.nominationStep)
 
   const handleCloseNoteModal = () => {
     setShowStNote(false)
     setNoteModalOpen(false)
+  }
+
+  const formatTimer = (secs: number) => {
+    const m = Math.floor(secs / 60)
+    const s = secs % 60
+    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+  }
+
+  const handleTimerEdit = () => {
+    setTimerInput(String(Math.floor(currentTimerSeconds / 60)))
+    setTimerEditing(true)
+  }
+
+  const handleTimerSave = () => {
+    const n = parseInt(timerInput, 10)
+    if (!isNaN(n) && n >= 0) {
+      setCurrentTimer(n * 60)
+    }
+    setTimerEditing(false)
   }
 
   const noteModal = noteModalOpen ? (
@@ -145,19 +166,44 @@ export function ArenaCenterLeft({ ctx }: { ctx: any }) {
 
       {hasTimer && (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-          <TextField
-            size="medium"
-            value={Math.floor(currentTimerSeconds / 60)}
-            onChange={(e) => {
-              const n = parseInt(e.target.value, 10)
-              if (!isNaN(n) && n >= 0) setCurrentTimer(n * 60)
-            }}
-            inputMode="numeric"
-            slotProps={{ input: { style: { fontSize: '1.5rem', fontWeight: 700, textAlign: 'center', width: 80 } } }}
-            sx={{ width: 90, bgcolor: alarmActive ? 'warning.light' : 'transparent' }}
-            placeholder="分"
-          />
-          <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '1rem' }}>分</Typography>
+          {timerEditing ? (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <TextField
+                size="medium"
+                value={timerInput}
+                onChange={(e) => setTimerInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') handleTimerSave() }}
+                autoFocus
+                inputMode="numeric"
+                slotProps={{ input: { style: { fontSize: '1.5rem', fontWeight: 700, textAlign: 'center', width: 60 } } }}
+                sx={{ width: 70 }}
+              />
+              <Button size="small" variant="contained" onClick={handleTimerSave} sx={{ minWidth: 40, px: 1 }}>
+                ✓
+              </Button>
+            </Box>
+          ) : (
+            <Box 
+              onClick={handleTimerEdit}
+              sx={{ 
+                fontFamily: 'monospace',
+                fontSize: '2rem', 
+                fontWeight: 700, 
+                bgcolor: alarmActive ? 'warning.light' : 'background.paper',
+                px: 1.5, 
+                py: 0.25,
+                borderRadius: 1,
+                border: '1px solid',
+                borderColor: 'divider',
+                cursor: 'pointer',
+                letterSpacing: '0.1em',
+                userSelect: 'none',
+                '&:hover': { bgcolor: 'action.hover' }
+              }}
+            >
+              {formatTimer(currentTimerSeconds)}
+            </Box>
+          )}
           {alarmActive && <IconButton size="large" onClick={() => setAlarmActive(false)}>🔔</IconButton>}
         </Box>
       )}
