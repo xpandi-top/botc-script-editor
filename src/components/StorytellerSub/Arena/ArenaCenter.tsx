@@ -23,6 +23,7 @@ export function ArenaCenter({ ctx }: { ctx: any }) {
         maxWidth: '80%',
         zIndex: 5, 
         padding: 20,
+        alignItems: 'center',
       }}
     >
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5, pb: 0.5, borderBottom: '1px solid rgba(23,32,42,0.08)', flexShrink: 0 }}>
