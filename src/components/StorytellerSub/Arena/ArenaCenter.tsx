@@ -1,7 +1,7 @@
 import { Box, IconButton, Select, MenuItem, FormControl } from '@mui/material'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
-import { ArenaCenterLeft } from './ArenaCenterLeft'
+import { ArenaCenterContent } from './ArenaCenterContent'
 import { ArenaCenterNominationSheet } from './ArenaCenterNominationSheet'
 
 export function ArenaCenter({ ctx }: { ctx: any }) {
@@ -17,7 +17,7 @@ export function ArenaCenter({ ctx }: { ctx: any }) {
         flexDirection: 'column',
         width: '80%',
         height: '80%',
-        minWidth: 400,
+        minWidth: 700,
         minHeight: 600,
         maxHeight: '80%',
         maxWidth: '80%',
@@ -47,7 +47,7 @@ export function ArenaCenter({ ctx }: { ctx: any }) {
         maxHeight: '80%',
         maxWidth: '80%',
         display: 'flex', flex: 1, gap: 1, overflow: 'auto',flexDirection: 'column'}}>
-        <ArenaCenterLeft ctx={ctx} />
+        <ArenaCenterContent ctx={ctx} />
         <ArenaCenterNominationSheet ctx={ctx} />
       </Box>
      </Box>
