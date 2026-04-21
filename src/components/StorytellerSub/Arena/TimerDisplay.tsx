@@ -1,5 +1,5 @@
 import { Box, TextField, Button, IconButton } from '@mui/material'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import PauseIcon from '@mui/icons-material/Pause'
 import StopIcon from '@mui/icons-material/Stop'
@@ -19,6 +19,14 @@ interface TimerDisplayProps {
 export function TimerDisplay({ seconds, onChange, label, color = 'default', showControls, isRunning, onToggleRunning, onReset }: TimerDisplayProps) {
   const [editing, setEditing] = useState(false)
   const [input, setInput] = useState('')
+
+  useEffect(() => {
+    if (!isRunning || seconds <= 0) return
+    const interval = setInterval(() => {
+      onChange(Math.max(0, seconds - 1))
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [isRunning, seconds, onChange])
 
   const formatTime = (secs: number) => {
     const m = Math.floor(secs / 60)
