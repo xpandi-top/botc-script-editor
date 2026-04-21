@@ -1,10 +1,9 @@
 // @ts-nocheck
 import React, { useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Box, Button, TextField, Chip, Dialog, DialogTitle, DialogContent, IconButton, Divider, ToggleButton } from '@mui/material'
+import { Box, Button, TextField, Chip, Paper, IconButton, Divider } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import { getDisplayName, getIconForCharacter } from '../../../catalog'
-import { useIsMobile } from './useIsMobile'
 
 export function ArenaSeatTagPopout({ ctx, seat }: { ctx: any, seat: any }) {
   const { 
@@ -13,17 +12,16 @@ export function ArenaSeatTagPopout({ ctx, seat }: { ctx: any, seat: any }) {
   } = ctx
 
   const isTagPopoutOpen = tagPopoutSeat === seat?.seat
-  const isMobile = useIsMobile() ?? false
   const [showCharacters, setShowCharacters] = useState(false)
 
-  if (!isTagPopoutOpen) return null
+  if (!isTagPopoutOpen || !seat) return null
 
   const characterTag = (c: string) => `💀${c}`
   const isCharacterTag = (tag: string) => tag.startsWith('💀')
 
   const handleAddTag = () => {
-    addCustomTag(seat?.seat)
-    setSeatTagDrafts((c: any) => ({ ...c, [seat?.seat]: '' }))
+    addCustomTag(seat.seat)
+    setSeatTagDrafts((c: any) => ({ ...c, [seat.seat]: '' }))
   }
 
   const handleToggleTag = (tag: string) => {
@@ -36,24 +34,29 @@ export function ArenaSeatTagPopout({ ctx, seat }: { ctx: any, seat: any }) {
   }
 
   const content = (
-    <Dialog 
-      open={isTagPopoutOpen} 
-      onClose={() => {}}
-      disableEscapeKeyDown
-      slotProps={{
-        backdrop: { onClick: () => {} },
-        paper: {
-          sx: { position: 'fixed', top: isMobile ? 0 : '50%', left: isMobile ? 0 : '50%', transform: isMobile ? 'none' : 'translate(-50%, -50%)', m: isMobile ? 0 : undefined, borderRadius: isMobile ? 0 : 2, maxHeight: '90vh' }
-        }
+    <Paper 
+      elevation={8}
+      sx={{
+        position: 'fixed',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        zIndex: 2000,
+        width: 320,
+        maxHeight: '80vh',
+        overflow: 'auto',
+        p: 2,
+        borderRadius: 2,
       }}
     >
-      <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pb: 1 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pb: 1 }}>
         <Box sx={{ fontSize: '1rem', fontWeight: 600 }}>#{seat.seat} {seat.name}</Box>
         <IconButton size="small" onClick={() => setTagPopoutSeat(null)}>
           <CloseIcon fontSize="small" />
         </IconButton>
-      </DialogTitle>
-      <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, pt: 1 }}>
+      </Box>
+
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, pt: 1 }}>
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
           <Button 
             size="small" 
@@ -147,9 +150,9 @@ export function ArenaSeatTagPopout({ ctx, seat }: { ctx: any, seat: any }) {
             )}
           </>
         )}
-      </DialogContent>
-    </Dialog>
+      </Box>
+    </Paper>
   )
 
-  return isMobile ? createPortal(content, document.body) : content
+  return createPortal(content, document.body)
 }
