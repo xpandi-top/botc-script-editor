@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React from 'react'
+import React, { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Box, Button, Typography, TextField, Paper, Select, MenuItem, FormControl, InputLabel, FormControlLabel, Checkbox, Grid, IconButton, Chip, Dialog } from '@mui/material'
 import { createDefaultVoteDraft } from '../constants'
@@ -12,8 +12,17 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
     rejectNomination, recordVote, setDialogState, votingYesCount,
   } = ctx
 
+  const [showNominationTimer, setShowNominationTimer] = useState(true)
   const seats = currentDay?.seats ?? []
   const voteDraft = currentDay?.voteDraft ?? {}
+  const nominationActorSeconds = currentDay?.nominationActorSeconds ?? 0
+  const nominationTargetSeconds = currentDay?.nominationTargetSeconds ?? 0
+
+  const formatTimer = (secs: number) => {
+    const m = Math.floor(secs / 60)
+    const s = secs % 60
+    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+  }
 
   if (!showNominationSheet || currentDay?.phase !== 'nomination') return null
 
@@ -92,12 +101,31 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
   const yesCount = Object.values(currentDay?.votingState?.votes ?? {}).filter(Boolean).length || voteDraft?.voters?.length || 0
 
   const content = (
-    <Dialog open={showNominationSheet} onClose={() => {}} disableEscapeKeyDown maxWidth="sm" fullWidth slotProps={{ backdrop: { onClick: () => {} }, paper: { 'data-nomination-popup': true, sx: { p: 2, width: 400, borderRadius: 2 } } }}>
+    <Dialog open={showNominationSheet} onClose={() => {}} disableEscapeKeyDown maxWidth="sm" fullWidth slotProps={{ backdrop: { onClick: () => {} }, paper: { 'data-nomination-popup': true, sx: { p: 2, width: 420, borderRadius: 2 } } }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
         <Typography variant="h6" sx={{ fontWeight: 700 }}>{language === 'zh' ? '提名' : 'Nominate'}</Typography>
-        <Button size="small" onClick={() => { setShowNominationSheet(false); setPickerMode('none') }}>
-          {language === 'zh' ? '隐藏' : 'Hide'}
-        </Button>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+          {showNominationTimer && (
+            <>
+              {nominationActorSeconds > 0 && (
+                <Box sx={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '1rem', px: 0.5, py: 0.25, bgcolor: 'warning.light', borderRadius: 0.5 }}>
+                  {language === 'zh' ? '演员' : 'Actor'}: {formatTimer(nominationActorSeconds)}
+                </Box>
+              )}
+              {nominationTargetSeconds > 0 && (
+                <Box sx={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '1rem', px: 0.5, py: 0.25, bgcolor: 'info.light', borderRadius: 0.5 }}>
+                  {language === 'zh' ? '目标' : 'Target'}: {formatTimer(nominationTargetSeconds)}
+                </Box>
+              )}
+            </>
+          )}
+          <Button size="small" onClick={() => setShowNominationTimer(v => !v)} sx={{ fontSize: '0.7rem', minWidth: 0, px: 0.5 }}>
+            {showNominationTimer ? '⏱' : '⏱'}
+          </Button>
+          <Button size="small" onClick={() => { setShowNominationSheet(false); setPickerMode('none') }}>
+            {language === 'zh' ? '隐藏' : 'Hide'}
+          </Button>
+        </Box>
       </Box>
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
@@ -162,10 +190,10 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
 
         {currentDay?.nominationStep !== 'waitingForNomination' && voteDraft?.nominationResult === 'succeed' && (
           <Box>
-            <Typography variant="caption" color="text.secondary">
-              {language === 'zh' ? '投票' : 'Votes'} ({language === 'zh' ? '手动覆盖' : 'override'})
+            <Typography variant="body1" fontWeight={600} color="text.secondary">
+              {language === 'zh' ? '投票' : 'Votes'} ({language === 'zh' ? '点击切换' : 'click to toggle'})
             </Typography>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 0.5 }}>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, mt: 0.5 }}>
               {seats.map((s: any) => {
                 const voted = currentDay?.votingState?.votes?.[s.seat]
                 const isChecked = voted === true || voteDraft?.voters?.includes(s.seat)
@@ -173,10 +201,11 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
                   <Chip
                     key={s.seat}
                     label={`#${s.seat}`}
-                    size="small"
+                    size="medium"
                     variant={isChecked ? 'filled' : 'outlined'}
                     color={isChecked ? 'success' : 'default'}
                     onClick={() => handleVoteToggle(s.seat)}
+                    sx={{ fontSize: '1rem', fontWeight: 700, height: 36 }}
                   />
                 )
               })}
