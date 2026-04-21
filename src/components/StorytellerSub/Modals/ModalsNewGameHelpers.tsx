@@ -1,21 +1,13 @@
 // @ts-nocheck
 import React, { useState, useEffect, useRef } from 'react'
+import { Box, Button, TextField, FormControl, Select, MenuItem, Typography, Chip, IconButton, Paper, InputLabel } from '@mui/material'
 import { getDisplayName, getIconForCharacter, characterById } from '../../../catalog'
+import { CHARACTER_DISTRIBUTION } from '../constants'
 
 export function TeamDot({ team }: { team: string | null | undefined }) {
   if (!team) return null
-  return (
-    <span
-      className={`ng-team-dot ng-team-dot--${team === 'minion' || team === 'demon' ? 'evil' : team}`}
-      title={team}
-    />
-  )
-}
-
-export function CharIcon({ cid, size = 28 }: { cid: string; size?: number }) {
-  const src = cid ? getIconForCharacter(cid) : undefined
-  if (!src) return <span className="ng-char-icon ng-char-icon--empty" style={{ width: size, height: size }} />
-  return <img className="ng-char-icon" src={src} alt={cid} width={size} height={size} />
+  const color = team === 'minion' || team === 'demon' ? 'error' : team === 'townsfolk' || team === 'outsider' ? 'primary' : 'default'
+  return <Chip size="small" label={team} color={color as any} sx={{ height: 20, fontSize: '0.65rem' }} />
 }
 
 export function DistRow({ label, counts, calc }: {
@@ -24,15 +16,22 @@ export function DistRow({ label, counts, calc }: {
   calc?: typeof counts
 }) {
   const match = (k: keyof typeof counts) => calc && counts[k] === calc[k]
+  const keys = ['townsfolk', 'outsider', 'minion', 'demon'] as const
+  const colors = ['primary', 'info', 'error', 'error'] as const
   return (
-    <div className="ng-dist-row">
-      <span className="ng-dist-label">{label}</span>
-      {(['townsfolk', 'outsider', 'minion', 'demon'] as const).map((k) => (
-        <span key={k} className={`ng-dist-val ng-dist-val--${k === 'townsfolk' ? 'town' : k === 'outsider' ? 'out' : k === 'minion' ? 'min' : 'dem'}${calc && !match(k) ? ' ng-dist-val--mismatch' : ''}`}>
-          {counts[k]}
-        </span>
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+      <Typography variant="caption" sx={{ width: 40 }}>{label}</Typography>
+      {keys.map((k, i) => (
+        <Chip 
+          key={k} 
+          size="small" 
+          label={counts[k]} 
+          color={colors[i]} 
+          variant={calc && !match(k) ? 'outlined' : 'filled'}
+          sx={{ width: 28, height: 22, fontSize: '0.7rem' }}
+        />
       ))}
-    </div>
+    </Box>
   )
 }
 
@@ -54,46 +53,78 @@ export function CharSelect({ value, options, language, onChange, placeholder }: 
   }, [open])
 
   const selectedIcon = value ? getIconForCharacter(value) : null
+  const displayName = value ? getDisplayName(value, language) : (placeholder ?? '—')
 
   return (
-    <div className="ng-char-select-wrap" ref={ref}>
-      <button
-        className={`ng-char-select-trigger${open ? ' ng-char-select-trigger--open' : ''}`}
+    <Box ref={ref} sx={{ position: 'relative' }}>
+      <Button 
+        size="small" 
+        variant="outlined"
         onClick={() => setOpen((v) => !v)}
-        type="button"
+        sx={{ display: 'flex', gap: 0.5, minWidth: 100, justifyContent: 'flex-start' }}
       >
-        {selectedIcon
-          ? <img className="ng-char-icon" src={selectedIcon} alt={value} width={20} height={20} />
-          : <span className="ng-char-icon ng-char-icon--empty" style={{ width: 20, height: 20 }} />}
-        <span className="ng-char-select-trigger__name">
-          {value ? getDisplayName(value, language) : (placeholder ?? '—')}
-        </span>
-        <span className="ng-char-select-trigger__caret">▾</span>
-      </button>
+        {selectedIcon ? (
+          <Box component="img" src={selectedIcon} alt={value} sx={{ width: 18, height: 18 }} />
+        ) : (
+          <Box sx={{ width: 18, height: 18, border: '1px dashed', borderRadius: '50%', opacity: 0.3 }} />
+        )}
+        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{displayName}</span>
+        <span style={{ marginLeft: 'auto' }}>▾</span>
+      </Button>
 
       {open && (
-        <div className="ng-char-select-dropdown">
-          <div className="ng-char-select-option" onClick={() => { onChange(''); setOpen(false) }}>
-            <span className="ng-char-icon ng-char-icon--empty" style={{ width: 20, height: 20 }} />
-            <span>{placeholder ?? '—'}</span>
-          </div>
-          {options.map((id) => {
-            const icon = getIconForCharacter(id)
-            return (
-              <div
-                key={id}
-                className={`ng-char-select-option${value === id ? ' ng-char-select-option--selected' : ''}`}
-                onClick={() => { onChange(id); setOpen(false) }}
-              >
-                {icon
-                  ? <img className="ng-char-icon" src={icon} alt={id} width={20} height={20} />
-                  : <span className="ng-char-icon ng-char-icon--empty" style={{ width: 20, height: 20 }} />}
-                <span>{getDisplayName(id, language)}</span>
-              </div>
-            )
-          })}
-        </div>
+        <Paper 
+          elevation={8} 
+          sx={{ 
+            position: 'absolute', 
+            top: '100%', 
+            left: 0, 
+            zIndex: 100, 
+            maxHeight: 250, 
+            overflow: 'auto',
+            minWidth: 150,
+            mt: 0.5,
+          }}
+        >
+          <Box sx={{ p: 0.5 }}>
+            <Box 
+              sx={{ display: 'flex', alignItems: 'center', gap: 0.5, p: 0.5, cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' } }}
+              onClick={() => { onChange(''); setOpen(false) }}
+            >
+              <Box sx={{ width: 18, height: 18, border: '1px dashed', borderRadius: '50%', opacity: 0.3 }} />
+              <span>{placeholder ?? '—'}</span>
+            </Box>
+            {options.map((id) => {
+              const icon = getIconForCharacter(id)
+              const name = getDisplayName(id, language)
+              const ch = characterById[id]
+              return (
+                <Box 
+                  key={id}
+                  sx={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: 0.5, 
+                    p: 0.5, 
+                    cursor: 'pointer', 
+                    bgcolor: value === id ? 'primary.light' : 'transparent',
+                    '&:hover': { bgcolor: 'action.hover' }
+                  }}
+                  onClick={() => { onChange(id); setOpen(false) }}
+                >
+                  {icon ? (
+                    <Box component="img" src={icon} alt={id} sx={{ width: 18, height: 18 }} />
+                  ) : (
+                    <Box sx={{ width: 18, height: 18, border: '1px dashed', borderRadius: '50%', opacity: 0.3 }} />
+                  )}
+                  <span>{name}</span>
+                  {ch?.team && <Chip size="small" label={ch.team} color={ch.team === 'townsfolk' || ch.team === 'outsider' ? 'primary' : 'error'} sx={{ height: 16, fontSize: '0.6rem', ml: 'auto' }} />}
+                </Box>
+              )
+            })}
+          </Box>
+        </Paper>
       )}
-    </div>
+    </Box>
   )
 }

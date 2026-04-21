@@ -1,4 +1,4 @@
-import type { DayState, EndGameResult, ExportConfig, GameRecord, NewGameConfig } from '../components/StorytellerSub/types'
+import type { DayState, EndGameResult, ExportConfig, GameRecord } from '../components/StorytellerSub/types'
 
 export interface ExportDeps {
   days: DayState[]
@@ -60,7 +60,7 @@ export function buildGameExport(deps: ExportDeps) {
     }, `botc-save-${record.recordName?.replace(/\s+/g, '-') || 'game'}-${record.id}.json`)
   }
 
-  function buildRecordBase(savedAt: number) {
+  function buildRecordBase(_savedAt: number) {
     const nonTravelers = currentDay.seats.filter((s) => !s.isTraveler)
     const travelers = currentDay.seats.filter((s) => s.isTraveler)
     const seatNames: Record<number, string> = {}

@@ -1,5 +1,6 @@
 // @ts-nocheck
 import React from 'react'
+import { Box, Typography, Chip, Paper, Grid } from '@mui/material'
 
 export function ArenaCenterRight({ ctx }: { ctx: any }) {
   const {
@@ -9,58 +10,72 @@ export function ArenaCenterRight({ ctx }: { ctx: any }) {
     draftPassed, isVotingComplete, votingYesCount,
   } = ctx
 
+  const voteDraft = currentDay?.voteDraft ?? {}
+
   return (
-    <div className="storyteller-center__right">
-      {/* Game stats */}
-      <div className="storyteller-center__game-stats">
-        <span>{text.aliveCount}: <strong>{aliveCount}/{totalCount}</strong></span>
-        <span>{text.requiredVotes}: <strong>{requiredVotes}</strong></span>
-      </div>
+    <Paper sx={{ p: 1, bgcolor: 'rgba(255,255,255,0.9)' }}>
+      <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
+        <Typography variant="body2">
+          {text.aliveCount}: <strong>{aliveCount ?? 0}/{totalCount ?? 0}</strong>
+        </Typography>
+        <Typography variant="body2">
+          {text.requiredVotes}: <strong>{requiredVotes ?? 0}</strong>
+        </Typography>
+      </Box>
 
-      {/* Leading candidate(s) */}
-      {leadingCandidates.length > 0 && (
-        <div className="storyteller-center__leading">
-          <span className="storyteller-center__leading-label">{text.leadingCandidate}</span>
-          {leadingCandidates.map((c: any) => (
-            <div className="storyteller-center__leading-row" key={c.seat}>
-              <span className="storyteller-center__leading-name">#{c.seat} {c.name}</span>
-              <span className="storyteller-center__leading-votes">{c.votes}<small>/{effectiveRequiredVotes}</small></span>
-            </div>
+      {(leadingCandidates ?? []).length > 0 && (
+        <Box sx={{ mb: 1 }}>
+          <Typography variant="caption" color="text.secondary">{text.leadingCandidate}</Typography>
+          {(leadingCandidates ?? []).map((c: any) => (
+            <Box key={c.seat} sx={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Typography variant="body2">#{c.seat} {c.name}</Typography>
+              <Typography variant="body2">
+                {c.votes}<small>/{effectiveRequiredVotes}</small>
+              </Typography>
+            </Box>
           ))}
-        </div>
+        </Box>
       )}
 
-      {/* Nomination status */}
-      {currentDay.phase === 'nomination' && currentDay.nominationStep === 'waitingForNomination' && (
-        <p className="storyteller-center__status">
-          {currentDay.voteDraft.actor
-            ? `${text.actor}: #${currentDay.voteDraft.actor} → ${text.pickNominee}`
+      {currentDay?.phase === 'nomination' && currentDay?.nominationStep === 'waitingForNomination' && (
+        <Typography variant="body2" color="text.secondary">
+          {voteDraft?.actor
+            ? `${text.actor}: #${voteDraft.actor} → ${text.pickNominee}`
             : text.waitingForNomination}
-        </p>
+        </Typography>
       )}
 
-      {currentDay.phase === 'nomination' && currentDay.nominationStep !== 'waitingForNomination' && (
-        <div className="storyteller-center__vote-mini">
-          <span>#{currentDay.voteDraft.actor ?? '?'} → #{currentDay.voteDraft.target ?? '?'}</span>
-          <span className="storyteller-center__vote-count">
-            {votingYesCount}<small>/{effectiveRequiredVotes}</small>
-            {currentDay.voteDraft.isExile && <small> ⚑</small>}
-          </span>
-          {isVotingComplete && (
-            <span className={draftPassed ? 'storyteller-pass' : 'storyteller-fail'}>
-              {draftPassed ? text.pass : text.fail}
-            </span>
-          )}
-        </div>
+      {currentDay?.phase === 'nomination' && currentDay?.nominationStep !== 'waitingForNomination' && (
+        <Box sx={{ mb: 1 }}>
+          <Typography variant="body2">
+            #{voteDraft?.actor ?? '?'} → #{voteDraft?.target ?? '?'}
+          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <Typography variant="h6">
+              {votingYesCount ?? 0}<small>/{effectiveRequiredVotes}</small>
+            </Typography>
+            {voteDraft?.isExile && <Chip label="⚑" size="small" />}
+            {isVotingComplete && (
+              <Chip 
+                label={draftPassed ? text.pass : text.fail} 
+                size="small" 
+                color={draftPassed ? 'success' : 'error'} 
+              />
+            )}
+          </Box>
+        </Box>
       )}
 
-      {/* Today's nominations summary */}
-      {nominatorsThisDay.length > 0 && (
-        <div className="storyteller-center__summary">
-          <span>{text.todayNominators}: {nominatorsThisDay.map((s: number) => `#${s}`).join(', ')}</span>
-          <span>{text.todayNominees}: {nomineesThisDay.map((s: number) => `#${s}`).join(', ')}</span>
-        </div>
+      {(nominatorsThisDay ?? []).length > 0 && (
+        <Box sx={{ mt: 1 }}>
+          <Typography variant="caption" color="text.secondary">
+            {text.todayNominators}: {(nominatorsThisDay ?? []).map((s: number) => `#${s}`).join(', ')}
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            {text.todayNominees}: {(nomineesThisDay ?? []).map((s: number) => `#${s}`).join(', ')}
+          </Typography>
+        </Box>
       )}
-    </div>
+    </Paper>
   )
 }

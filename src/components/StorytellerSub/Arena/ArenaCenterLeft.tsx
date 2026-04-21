@@ -98,7 +98,7 @@ export function ArenaCenterLeft({ ctx }: { ctx: any }) {
 
         {currentDay.phase === 'public' && (
         <Select
-          size="large"
+          size="medium"
           value={currentDay.publicMode}
           onChange={(e) => updateCurrentDay((d: any) => ({ ...d, publicMode: e.target.value as PublicMode }))}
           sx={{ fontSize: '0.85rem', minWidth: 100 }}

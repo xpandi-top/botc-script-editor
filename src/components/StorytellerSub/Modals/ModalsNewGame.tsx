@@ -1,5 +1,6 @@
 // @ts-nocheck
 import React, { useState } from 'react'
+import { Box, Button, Tabs, Tab, TextField, FormControlLabel, Checkbox, Typography, Paper } from '@mui/material'
 import { PlayersTab } from './ModalsNewGamePlayersTab'
 import { CharactersTab } from './ModalsNewGameCharactersTab'
 
@@ -18,94 +19,93 @@ export function ModalsNewGame({ ctx }: { ctx: any }) {
   const seats = Array.from({ length: totalSeats }, (_, i) => i + 1)
   const updateConfig = (patch: any) => setNewGamePanel((prev: any) => prev ? { ...prev, ...patch } : prev)
 
-  const tabs = [
-    { id: 'players', label: language === 'zh' ? '玩家' : 'Players' },
-    { id: 'characters', label: language === 'zh' ? '角色' : 'Characters' },
-    { id: 'config', label: language === 'zh' ? '配置' : 'Config' },
-  ] as const
-
   return (
-    <div className="storyteller-modal" role="dialog" aria-modal="true">
-      <div className="storyteller-modal__card ng-modal">
-        <h3 className="ng-modal__title">
-          {editMode ? (language === 'zh' ? '修改游戏设置' : 'Edit Game Setup') : text.startNewGame}
-        </h3>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <Tabs value={activeTab} onChange={(_, v) => setActiveTab(v)} variant="fullWidth">
+        <Tab label={language === 'zh' ? '玩家' : 'Players'} value="players" />
+        <Tab label={language === 'zh' ? '角色' : 'Characters'} value="characters" />
+        <Tab label={language === 'zh' ? '配置' : 'Config'} value="config" />
+      </Tabs>
 
-        <div className="ng-tabs">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              className={`ng-tab-btn${activeTab === tab.id ? ' ng-tab-btn--active' : ''}`}
-              onClick={() => setActiveTab(tab.id)}
-              type="button"
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+      <Box sx={{ minHeight: 300 }}>
+        {activeTab === 'players' && (
+          <PlayersTab
+            newGamePanel={newGamePanel}
+            playerNamePool={playerNamePool}
+            language={language}
+            seats={seats}
+            updateConfig={updateConfig}
+            setPlayerNamePool={setPlayerNamePool}
+          />
+        )}
 
-        <div className="ng-modal__body">
-          {activeTab === 'players' && (
-            <PlayersTab
-              newGamePanel={newGamePanel}
-              playerNamePool={playerNamePool}
-              language={language}
-              seats={seats}
-              updateConfig={updateConfig}
-              setPlayerNamePool={setPlayerNamePool}
+        {activeTab === 'characters' && (
+          <CharactersTab
+            newGamePanel={newGamePanel}
+            scriptOptions={scriptOptions}
+            language={language}
+            updateConfig={updateConfig}
+            randomAssignCharacters={randomAssignCharacters}
+          />
+        )}
+
+        {activeTab === 'config' && (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={newGamePanel.allowDuplicateChars}
+                  onChange={(e) => updateConfig({ allowDuplicateChars: e.target.checked })}
+                />
+              }
+              label={language === 'zh' ? '允许重复角色' : 'Allow duplicate characters'}
             />
-          )}
-
-          {activeTab === 'characters' && (
-            <CharactersTab
-              newGamePanel={newGamePanel}
-              scriptOptions={scriptOptions}
-              language={language}
-              updateConfig={updateConfig}
-              randomAssignCharacters={randomAssignCharacters}
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={newGamePanel.allowEmptyChars}
+                  onChange={(e) => updateConfig({ allowEmptyChars: e.target.checked })}
+                />
+              }
+              label={language === 'zh' ? '允许空角色' : 'Allow empty characters'}
             />
-          )}
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={newGamePanel.allowSameNames}
+                  onChange={(e) => updateConfig({ allowSameNames: e.target.checked })}
+                />
+              }
+              label={language === 'zh' ? '允许重复名字' : 'Allow same player names'}
+            />
+            <TextField
+              size="small"
+              multiline
+              rows={3}
+              fullWidth
+              label={language === 'zh' ? '特殊备注' : 'Special Note'}
+              value={newGamePanel.specialNote || ''}
+              onChange={(e) => updateConfig({ specialNote: e.target.value })}
+            />
+          </Box>
+        )}
+      </Box>
 
-          {activeTab === 'config' && (
-            <div className="ng-config-tab storyteller-survey">
-              <div className="storyteller-survey__field">
-                <label className="winner-option">
-                  <input type="checkbox" checked={newGamePanel.allowDuplicateChars} onChange={(e) => updateConfig({ allowDuplicateChars: e.target.checked })} />
-                  <span>{language === 'zh' ? '允许重复角色' : 'Allow duplicate characters'}</span>
-                </label>
-                <label className="winner-option">
-                  <input type="checkbox" checked={newGamePanel.allowEmptyChars} onChange={(e) => updateConfig({ allowEmptyChars: e.target.checked })} />
-                  <span>{language === 'zh' ? '允许空角色' : 'Allow empty characters'}</span>
-                </label>
-                <label className="winner-option">
-                  <input type="checkbox" checked={newGamePanel.allowSameNames} onChange={(e) => updateConfig({ allowSameNames: e.target.checked })} />
-                  <span>{language === 'zh' ? '允许重复名字' : 'Allow same player names'}</span>
-                </label>
-              </div>
-              <div className="storyteller-survey__field">
-                <label className="survey-label">{language === 'zh' ? '特殊备注' : 'Special Note'}</label>
-                <textarea className="survey-textarea" rows={3} value={newGamePanel.specialNote} onChange={(e) => updateConfig({ specialNote: e.target.value })} placeholder="..." />
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="ng-modal__footer">
-          <button className="secondary-button" onClick={() => setNewGamePanel(null)} type="button">
-            {editMode ? (language === 'zh' ? '关闭' : 'Close') : text.cancelNewGame}
-          </button>
-          {!editMode && (
-            <button className="print-button" onClick={() => startNewGame(newGamePanel)} type="button">
-              ▶ {text.startNewGame}
-            </button>
-          )}
-          {editMode && (
-            <button className="print-button" onClick={() => applyGameChanges(newGamePanel)} type="button">
-              ▶ {language === 'zh' ? '应用更改' : 'Apply Changes'}
-            </button>
-          )}
-        </div>
-      </div>
-    </div>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1 }}>
+        <Button variant="outlined" onClick={() => setNewGamePanel(null)}>
+          {editMode ? (language === 'zh' ? '关闭' : 'Close') : text.cancelNewGame}
+        </Button>
+        {!editMode && (
+          <Button variant="contained" onClick={() => startNewGame(newGamePanel)}>
+            ▶ {text.startNewGame}
+          </Button>
+        )}
+        {editMode && (
+          <Button variant="contained" onClick={() => applyGameChanges(newGamePanel)}>
+            ▶ {language === 'zh' ? '应用更改' : 'Apply Changes'}
+          </Button>
+        )}
+      </Box>
+    </Box>
   )
 }

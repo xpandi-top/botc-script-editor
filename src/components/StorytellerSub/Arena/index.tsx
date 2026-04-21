@@ -2,7 +2,7 @@ import React from 'react'
 import { Box, Typography, Paper } from '@mui/material'
 import { ArenaCenter } from './ArenaCenter'
 import { ArenaSeats } from './ArenaSeats'
-import { getSeatAngle } from '../../../utils/seats'
+import { getSeatAngle as _getSeatAngle } from '../../../utils/seats'
 
 export function Arena({ ctx }: { ctx: any }) {
   const [windowPortrait, setWindowPortrait] = React.useState(
@@ -14,7 +14,7 @@ export function Arena({ ctx }: { ctx: any }) {
     return () => window.removeEventListener('resize', handler)
   }, [])
 
-  const { pointerSeat, currentDay, setSelectedSeatNumber, setTagPopoutSeat, text, portraitOverride } = ctx
+  const { pointerSeat: _pointerSeat, currentDay, setSelectedSeatNumber, setTagPopoutSeat, text, portraitOverride } = ctx
   const isPortrait = portraitOverride !== null ? portraitOverride : windowPortrait
   const seats = currentDay.seats
   const seatCount = seats.length || 1
@@ -35,13 +35,6 @@ export function Arena({ ctx }: { ctx: any }) {
     document.documentElement.style.setProperty('--center-zone', `${centerZone}%`)
   }, [seatCount, isPortrait])
   
-  const pointerAngle = React.useMemo(() => {
-    if (!pointerSeat) return 0
-    const idx = seats.findIndex((s: any) => s.seat === pointerSeat)
-    if (idx === -1) return 0
-    return getSeatAngle(idx, seats.length, isPortrait)
-  }, [pointerSeat, seats, isPortrait])
-
   return (
     <Box sx={{ display: 'grid', gap: 1, flex: 1, minHeight: 400, overflow: 'visible', width: '100%' }}>
       <Paper
@@ -73,36 +66,9 @@ export function Arena({ ctx }: { ctx: any }) {
             justifyContent: 'center',
           }}
         >
-          {pointerSeat && (
-            <Box
-              sx={{
-                position: 'absolute',
-                width: 4,
-                height: '32%',
-                bgcolor: 'primary.main',
-                transformOrigin: 'bottom center',
-                transform: `rotate(${pointerAngle}deg)`,
-                bottom: '50%',
-                left: 'calc(50% - 2px)',
-                borderRadius: 1,
-                opacity: 0.6,
-                zIndex: 10,
-              }}
-            />
-          )}
-          <Box 
-            sx={{ 
-              position: 'relative', 
-              zIndex: 5, 
-              p: 2,
-              // width: 'min(300px, 45%)',
-              // height: 'min(250px, 40%)',
-              // m: 'auto',
-            }}
-          >
+          
             <ArenaCenter ctx={ctx} />
-          </Box>
-          <Box sx={{ position: 'absolute', inset: 0, zIndex: 1 }}>
+          <Box sx={{ position: 'absolute', inset: 0, zIndex: 10 }}>
             <ArenaSeats ctx={ctx} isPortrait={isPortrait} />
           </Box>
         </Box>

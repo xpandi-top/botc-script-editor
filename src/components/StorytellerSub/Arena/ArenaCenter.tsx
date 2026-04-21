@@ -2,18 +2,13 @@ import { Box, IconButton, Select, MenuItem, FormControl } from '@mui/material'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import { ArenaCenterLeft } from './ArenaCenterLeft'
-import { ArenaCenterRight } from './ArenaCenterRight'
 import { ArenaCenterNominationSheet } from './ArenaCenterNominationSheet'
 
 export function ArenaCenter({ ctx }: { ctx: any }) {
   const {
     days, currentDay, goToNextDay, goToPreviousDay, setSelectedDayId,
-    showInfoPanel, setShowInfoPanel,
-    portraitOverride, setPortraitOverride,
     language,
   } = ctx
-
-  const effectivePortrait = portraitOverride !== null ? portraitOverride : (typeof window !== 'undefined' ? window.innerHeight > window.innerWidth : false)
 
   return (
     <Box
@@ -24,10 +19,12 @@ export function ArenaCenter({ ctx }: { ctx: any }) {
         height: '80%',
         minWidth: 400,
         minHeight: 600,
-        padding: [10],
+        maxHeight: '80%',
+        maxWidth: '80%',
+        zIndex: 5, 
+        padding: 20,
       }}
     >
-      <Box>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5, pb: 0.5, borderBottom: '1px solid rgba(23,32,42,0.08)', flexShrink: 0 }}>
         <IconButton size="large" onClick={(e) => { e.stopPropagation(); goToPreviousDay() }} title={language === 'zh' ? '上一天' : 'Previous day'}>
           <ArrowBackIcon />
@@ -45,12 +42,13 @@ export function ArenaCenter({ ctx }: { ctx: any }) {
           <ArrowForwardIcon />
         </IconButton>
       </Box>
-      <Box sx={{ display: 'flex', flex: 1, gap: 1, overflow: 'hidden',flexDirection: 'column'}}>
+      <Box sx={{ 
+        maxHeight: '80%',
+        maxWidth: '80%',
+        display: 'flex', flex: 1, gap: 1, overflow: 'auto',flexDirection: 'column'}}>
         <ArenaCenterLeft ctx={ctx} />
-        {/* <ArenaCenterRight ctx={ctx} /> */}
         <ArenaCenterNominationSheet ctx={ctx} />
       </Box>
      </Box>
-    </Box>
   )
 }

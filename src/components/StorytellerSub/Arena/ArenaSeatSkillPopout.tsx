@@ -1,138 +1,164 @@
 // @ts-nocheck
 import React from 'react'
 import { createPortal } from 'react-dom'
+import { Box, Button, Typography, TextField, Paper, FormControl, Select, MenuItem, InputLabel, IconButton, Checkbox, FormControlLabel, Dialog, DialogTitle, DialogContent, Grid } from '@mui/material'
 import { getDisplayName, getIconForCharacter } from '../../../catalog'
 import { useIsMobile } from './useIsMobile'
 
-
 export function ArenaSeatSkillPopout({ ctx, seat }: { ctx: any, seat: any }) {
-  const { activeScriptSlug, activeScriptTitle, language, onSelectScript, scriptOptions, days, setDays, selectedDayId, setSelectedDayId, timerDefaults, setTimerDefaults, customTagPool, setCustomTagPool, gameRecords, setGameRecords, playerNamePool, setPlayerNamePool, pickerMode, setPickerMode, isTimerRunning, setIsTimerRunning, dialogState, setDialogState, seatTagDrafts, setSeatTagDrafts, selectedSeatNumber, setSelectedSeatNumber, showLogPanel, setShowLogPanel, showRightPanel, setShowRightPanel, skillOverlay, setSkillOverlay, audioTracks, setAudioTracks, selectedAudioSrc, setSelectedAudioSrc, audioPlaying, setAudioPlaying, newGamePanel, setNewGamePanel, endGameResult, setEndGameResult, logFilter, setLogFilter, activeConsoleSections, setActiveConsoleSections, tagPopoutSeat, setTagPopoutSeat, skillPopoutSeat, setSkillPopoutSeat, skillRoleDropdownOpen, setSkillRoleDropdownOpen, showNominationSheet, setShowNominationSheet, showEditPlayersModal, setShowEditPlayersModal, editPlayersPreset, setEditPlayersPreset, loadTagsPreset, setLoadTagsPreset, lastCountdownRef, audioRef, text, selectedDayIndex, currentDay, updateCurrentDay, currentTimerSeconds, currentScriptCharacters, livingNonTravelerSeats, requiredVotes, eligibleVoterSeats, nonVoters, draftPassedBySystem, draftPassed, isVotingComplete, currentVoterSeat, pointerSeat, selectedSeat, selectedSeatTags, dialogTitle, aliveCount, totalCount, highestVoteThisDay, nominatorsThisDay, nomineesThisDay, leadingCandidates, nominationDelaySeconds, secondsUntilNomination, canNominate, aggregatedLog, getPhaseContext, setCurrentTimer, syncDayTimers, appendEvent, handleLocalFileChange, resetSeatNames, updateSeat, updateSeatWithLog, addCustomTag, clearUnusedCustomTags, enterNomination, confirmNomination, rejectNomination, confirmTargetSpeech, startVoting, handleVoteYes, recordVote, openSkillOverlay, openSeatSkill, closeSkillOverlay, moveToNextSpeaker, goToNextDay, goToPreviousDay, saveCurrentGame, resetCurrentGame, confirmDialog, handleSeatClick, removeSeatTag, setPhase, startNight, stopNight, addPlayerSeat, removeLastPlayerSeat, addTravelerSeat, removeLastTraveler, openNewGamePanel, randomAssignCharacters, startNewGame, openEndGamePanel, confirmEndGame, exportGameJson, toggleLogFilterType, votingYesCount, NIGHT_BGM_SRC, hasTimer, toggleConsoleSection } = ctx;
+  const {
+    language, text, currentDay, skillOverlay, setSkillOverlay,
+    skillPopoutSeat, skillRoleDropdownOpen, setSkillRoleDropdownOpen,
+    currentScriptCharacters, closeSkillOverlay,
+  } = ctx
 
-  const isSkillPopoutOpen = skillPopoutSeat === seat.seat;
-  const isMobile = useIsMobile();
+  const isSkillPopoutOpen = skillPopoutSeat === seat?.seat
+  const isMobile = useIsMobile()
 
-  if (!isSkillPopoutOpen || !skillOverlay) return null;
+  if (!isSkillPopoutOpen || !skillOverlay) return null
 
-  const content = (
-    <>
-      {isMobile && (
-        <div className="storyteller-popout-backdrop" onClick={() => closeSkillOverlay(false)} />
-      )}
-      <div className="storyteller-skill-popout" onClick={(e) => e.stopPropagation()}>
-                        {/* Actor */}
-                        <div className="storyteller-skill-popout__actor">
-                          <span>{language === 'zh' ? '发动者' : 'Actor'}</span>
-                          <strong>#{seat.seat} {seat.name}</strong>
-                        </div>
+  const handleTargetToggle = (seatNum: number) => {
+    setSkillOverlay((p: any) => {
+      if (!p) return p
+      const targets = p.draft.targets.includes(seatNum) 
+        ? p.draft.targets.filter((t: number) => t !== seatNum) 
+        : [...p.draft.targets, seatNum]
+      return { ...p, draft: { ...p.draft, targets } }
+    })
+  }
 
-                        {/* Targets */}
-                        <div className="storyteller-skill-popout__target-section">
-                          <span className="storyteller-skill-popout__label">{language === 'zh' ? '目标' : 'Target'}</span>
-                          <div className="storyteller-skill-popout__target-grid">
-                            {currentDay.seats.map((s) => {
-                              const isTarget = skillOverlay.draft.targets.includes(s.seat)
-                              return (
-                                <label className="storyteller-skill-popout__target-check" key={s.seat}>
-                                  <input
-                                    checked={isTarget}
-                                    onChange={() => setSkillOverlay((p) => {
-                                      if (!p) return p
-                                      const targets = isTarget ? p.draft.targets.filter((t) => t !== s.seat) : [...p.draft.targets, s.seat]
-                                      return { ...p, draft: { ...p.draft, targets } }
-                                    })}
-                                    type="checkbox"
-                                  />
-                                  <span>#{s.seat}</span>
-                                </label>
-                              )
-                            })}
-                          </div>
-                        </div>
+  const handleRoleSelect = (roleId: string) => {
+    setSkillOverlay((p: any) => p ? { ...p, draft: { ...p.draft, roleId } } : p)
+    setSkillRoleDropdownOpen(false)
+  }
 
-                        {/* Role */}
-                        {/* Claimed role — optional single dropdown with icons */}
-                        <div className="storyteller-skill-popout__field">
-                          <span>{text.skillRole}</span>
-                          <div className="storyteller-skill-popout__role-dropdown">
-                            <button
-                              className="storyteller-skill-popout__role-trigger"
-                              onClick={(e) => { e.stopPropagation(); setSkillRoleDropdownOpen((o) => !o) }}
-                              type="button"
-                            >
-                              {skillOverlay.draft.roleId ? (
-                                <>
-                                  {getIconForCharacter(skillOverlay.draft.roleId) ? <img alt="" className="storyteller-skill-overlay__role-icon" src={getIconForCharacter(skillOverlay.draft.roleId) as string} /> : null}
-                                  <span>{getDisplayName(skillOverlay.draft.roleId, language)}</span>
-                                </>
-                              ) : <span className="storyteller-skill-popout__role-placeholder">{language === 'zh' ? '— 未声明 —' : '— None —'}</span>}
-                              <span className="storyteller-skill-popout__role-caret">▾</span>
-                            </button>
-                            {skillRoleDropdownOpen ? (
-                              <div className="storyteller-skill-popout__role-options">
-                                <button
-                                  className="storyteller-skill-popout__role-option"
-                                  onClick={() => { setSkillOverlay((p) => p ? { ...p, draft: { ...p.draft, roleId: '' } } : p); setSkillRoleDropdownOpen(false) }}
-                                  type="button"
-                                >{language === 'zh' ? '— 未声明 —' : '— None —'}</button>
-                                {currentScriptCharacters.map((c) => {
-                                  const icon = getIconForCharacter(c)
-                                  const name = getDisplayName(c, language)
-                                  return (
-                                    <button
-                                      className={`storyteller-skill-popout__role-option${skillOverlay.draft.roleId === c ? ' storyteller-skill-popout__role-option--active' : ''}`}
-                                      key={c}
-                                      onClick={() => { setSkillOverlay((p) => p ? { ...p, draft: { ...p.draft, roleId: c } } : p); setSkillRoleDropdownOpen(false) }}
-                                      type="button"
-                                    >
-                                      {icon ? <img alt="" className="storyteller-skill-overlay__role-icon" src={icon as string} /> : null}
-                                      <span>{name}</span>
-                                    </button>
-                                  )
-                                })}
-                              </div>
-                            ) : null}
-                          </div>
-                        </div>
+  const draft = skillOverlay?.draft ?? {}
 
-                        {/* Statement */}
-                        <label className="storyteller-skill-popout__field">
-                          <input onChange={(e) => setSkillOverlay((p) => p ? { ...p, draft: { ...p.draft, statement: e.target.value } } : p)} placeholder={text.statement} type="text" value={skillOverlay.draft.statement} />
-                        </label>
+  const roleIcon = draft.roleId ? getIconForCharacter(draft.roleId) : null
+  const roleName = draft.roleId ? getDisplayName(draft.roleId, language) : null
 
-                        {/* Note */}
-                        <label className="storyteller-skill-popout__field">
-                          <input onChange={(e) => setSkillOverlay((p) => p ? { ...p, draft: { ...p.draft, note: e.target.value } } : p)} placeholder={text.note} type="text" value={skillOverlay.draft.note} />
-                        </label>
+  return isMobile ? createPortal(
+    <Dialog open={isSkillPopoutOpen} onClose={() => closeSkillOverlay(false)} maxWidth="sm" fullWidth>
+      <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        {language === 'zh' ? '发动技能' : 'Use Skill'}
+        <IconButton size="small" onClick={() => closeSkillOverlay(false)}>✕</IconButton>
+      </DialogTitle>
+      <DialogContent>
+        <SkillPopoutContent />
+      </DialogContent>
+    </Dialog>,
+    document.body
+  ) : (
+    <SkillPopoutContent />
+  )
 
-                        {/* Per-target notes */}
-                        {skillOverlay.draft.targets.map((t) => (
-                          <label className="storyteller-skill-popout__field" key={t}>
-                            <span>#{t} {text.targetNote}</span>
-                            <input onChange={(e) => setSkillOverlay((p) => p ? { ...p, draft: { ...p.draft, targetNotes: { ...p.draft.targetNotes, [t]: e.target.value } } } : p)} type="text" value={skillOverlay.draft.targetNotes[t] ?? ''} />
-                          </label>
-                        ))}
+  function SkillPopoutContent() {
+    return (
+      <Paper sx={{ p: 1.5, maxWidth: 300 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
+          <Box>
+            <Typography variant="caption" color="text.secondary">{language === 'zh' ? '发动者' : 'Actor'}</Typography>
+            <Typography variant="body2">
+              <strong>#{seat?.seat} {seat?.name}</strong>
+            </Typography>
+          </Box>
+        </Box>
 
-                        {/* Result */}
-                        <div className="storyteller-skill-popout__field">
-                          <select
-                            className="storyteller-skill-popout__result-select"
-                            value={skillOverlay.draft.result ?? ''}
-                            onChange={(e) => setSkillOverlay((p) => p ? { ...p, draft: { ...p.draft, result: e.target.value || null } } : p)}
-                          >
-                            <option value="">{language === 'zh' ? '— 未选择 —' : '— None —'}</option>
-                            <option value="success">{language === 'zh' ? '成功' : 'Success'}</option>
-                            <option value="failure">{language === 'zh' ? '失败' : 'Failure'}</option>
-                          </select>
-                        </div>
+        <Box sx={{ mb: 1.5 }}>
+          <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
+            {language === 'zh' ? '目标' : 'Target'}
+          </Typography>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+            {(currentDay?.seats ?? []).map((s: any) => (
+              <Button
+                key={s.seat}
+                size="small"
+                variant={draft.targets?.includes(s.seat) ? 'contained' : 'outlined'}
+                onClick={() => handleTargetToggle(s.seat)}
+              >
+                #{s.seat}
+              </Button>
+            ))}
+          </Box>
+        </Box>
 
-                        {/* Save / Cancel */}
-                        <div className="storyteller-skill-popout__actions">
-                          <button className="storyteller-skill-popout__action-btn storyteller-skill-popout__action-btn--save" onClick={() => closeSkillOverlay(true)} title={text.saveSkill} type="button">✓</button>
-                          <button className="storyteller-skill-popout__action-btn storyteller-skill-popout__action-btn--cancel" onClick={() => closeSkillOverlay(false)} title={text.cancelSkill} type="button">✕</button>
-                        </div>
-      </div>
-    </>
-  );
+        <Box sx={{ mb: 1.5 }}>
+          <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
+            {text.skillRole}
+          </Typography>
+          <FormControl size="small" fullWidth>
+            <Select
+              value={draft.roleId ?? ''}
+              displayEmpty
+              onChange={(e) => handleRoleSelect(e.target.value)}
+            >
+              <MenuItem value="">{language === 'zh' ? '— 未声明 —' : '— None —'}</MenuItem>
+              {(currentScriptCharacters ?? []).map((c: string) => (
+                <MenuItem key={c} value={c}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    {getIconForCharacter(c) && (
+                      <Box component="img" src={getIconForCharacter(c) as string} sx={{ width: 18, height: 18 }} />
+                    )}
+                    {getDisplayName(c, language)}
+                  </Box>
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
 
-  return isMobile ? createPortal(content, document.body) : content;
+        <TextField
+          size="small"
+          fullWidth
+          label={text.statement}
+          value={draft.statement ?? ''}
+          onChange={(e) => setSkillOverlay((p: any) => p ? { ...p, draft: { ...p.draft, statement: e.target.value } } : p)}
+          sx={{ mb: 1 }}
+        />
+
+        <TextField
+          size="small"
+          fullWidth
+          label={text.note}
+          value={draft.note ?? ''}
+          onChange={(e) => setSkillOverlay((p: any) => p ? { ...p, draft: { ...p.draft, note: e.target.value } } : p)}
+          sx={{ mb: 1 }}
+        />
+
+        {draft.targets?.map((t: number) => (
+          <TextField
+            key={t}
+            size="small"
+            fullWidth
+            label={`#${t} ${text.targetNote}`}
+            value={draft.targetNotes?.[t] ?? ''}
+            onChange={(e) => setSkillOverlay((p: any) => p ? { ...p, draft: { ...p.draft, targetNotes: { ...p.draft.targetNotes, [t]: e.target.value } } } : p)}
+            sx={{ mb: 1 }}
+          />
+        ))}
+
+        <FormControl size="small" fullWidth sx={{ mb: 1.5 }}>
+          <InputLabel>{language === 'zh' ? '结果' : 'Result'}</InputLabel>
+          <Select
+            value={draft.result ?? ''}
+            label={language === 'zh' ? '结果' : 'Result'}
+            onChange={(e) => setSkillOverlay((p: any) => p ? { ...p, draft: { ...p.draft, result: e.target.value || null } } : p)}
+          >
+            <MenuItem value="">{language === 'zh' ? '— 未选择 —' : '— None —'}</MenuItem>
+            <MenuItem value="success">{language === 'zh' ? '成功' : 'Success'}</MenuItem>
+            <MenuItem value="failure">{language === 'zh' ? '失败' : 'Failure'}</MenuItem>
+          </Select>
+        </FormControl>
+
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.5 }}>
+          <Button size="small" color="error" onClick={() => closeSkillOverlay(false)}>
+            ✕ {language === 'zh' ? '取消' : 'Cancel'}
+          </Button>
+          <Button size="small" variant="contained" onClick={() => closeSkillOverlay(true)}>
+            ✓ {text.saveSkill}
+          </Button>
+        </Box>
+      </Paper>
+    )
+  }
 }

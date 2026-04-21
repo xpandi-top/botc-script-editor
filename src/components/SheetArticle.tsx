@@ -1,3 +1,4 @@
+import { Box, Typography, Paper, Grid, IconButton, Chip } from '@mui/material'
 import {
   editionLabels,
   getAbilityText,
@@ -23,7 +24,7 @@ type SheetArticleProps = {
   jinxesLabel: string
   isEditMode: boolean
   onRemoveCharacter: (characterId: string) => void
-  sheetDensityClass: string
+  sheetDensityClass?: string
   language: Language
   className?: string
   showWakeOrder?: boolean
@@ -36,11 +37,9 @@ function getNightOrderPlaceholderLabel(id: string) {
   if (id === 'MINION_INFO') {
     return 'M'
   }
-
   if (id === 'DEMON_INFO') {
     return 'D'
   }
-
   return id.slice(0, 2).toUpperCase()
 }
 
@@ -48,11 +47,9 @@ function normalizeNightOrderToken(id: string) {
   if (id === 'minioninfo') {
     return 'MINION_INFO'
   }
-
   if (id === 'demoninfo') {
     return 'DEMON_INFO'
   }
-
   return id
 }
 
@@ -60,11 +57,9 @@ function getCharacterImage(character: ResolvedScriptCharacter) {
   if (typeof character.image === 'string') {
     return character.image
   }
-
   if (Array.isArray(character.image)) {
     return character.image[0]
   }
-
   return getIconForCharacter(character.id)
 }
 
@@ -73,7 +68,7 @@ export function SheetArticle({
   activeScriptCharacters,
   groupedScriptCharacters,
   bootleggerRulesLabel,
-  jinxesLabel,
+jinxesLabel,
   isEditMode,
   onRemoveCharacter,
   sheetDensityClass,
@@ -112,150 +107,160 @@ export function SheetArticle({
     activeScript.meta.jinxes,
   )
 
-  function renderSupplementalSection() {
+  const renderSupplementalSection = () => {
     if (bootleggerRules.length === 0 && scriptJinxes.length === 0) {
       return null
     }
 
     return (
-      <section className="sheet__supplemental">
+      <Box sx={{ mb: 2 }}>
         {bootleggerRules.length > 0 ? (
-          <section className="sheet__bootlegger">
-            <h3>{bootleggerRulesLabel}</h3>
-            <ul>
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="subtitle2" sx={{ mb: 0.5 }}>{bootleggerRulesLabel}</Typography>
+            <Box component="ul" sx={{ pl: 2, m: 0 }}>
               {bootleggerRules.map((rule, index) => (
-                <li key={`${index}-${rule}`}>{rule}</li>
+                <Typography component="li" variant="body2" key={`${index}-${rule}`}>{rule}</Typography>
               ))}
-            </ul>
-          </section>
+            </Box>
+          </Box>
         ) : null}
 
         {scriptJinxes.length > 0 ? (
-          <section className="sheet__jinxes">
-            <h3>{jinxesLabel}</h3>
-            <ul>
+          <Box>
+            <Typography variant="subtitle2" sx={{ mb: 0.5 }}>{jinxesLabel}</Typography>
+            <Box component="ul" sx={{ pl: 2, m: 0 }}>
               {scriptJinxes.map((jinx) => (
-                <li key={jinx.id}>
+                <Typography component="li" variant="body2" key={jinx.id}>
                   <strong>{jinx.names}:</strong> {jinx.reason}
-                </li>
+                </Typography>
               ))}
-            </ul>
-          </section>
+            </Box>
+          </Box>
         ) : null}
-      </section>
+      </Box>
     )
   }
 
   return (
-    <article
-      className={['sheet', sheetDensityClass, className, `sheet--${language}`]
-        .filter(Boolean)
-        .join(' ')}
-    >
-      <header className="sheet__header">
-        {showEdition ? <p className="sheet__eyebrow">{editionLabel}</p> : null}
-        <h2>{sheetTitle}</h2>
-        {showCharacterCount ? (
-          <p className="sheet__meta">
+    <Paper className={`${className ?? ''} ${sheetDensityClass ?? ''}`} sx={{ p: 2 }}>
+      <Box sx={{ mb: 2 }}>
+        {showEdition && (
+          <Typography variant="overline" color="text.secondary">{editionLabel}</Typography>
+        )}
+        <Typography variant="h5">{sheetTitle}</Typography>
+        {showCharacterCount && (
+          <Typography variant="body2" color="text.secondary">
             {activeScriptCharacters.length} {language === 'zh' ? '个角色' : 'characters'}
-          </p>
-        ) : null}
-      </header>
+          </Typography>
+        )}
+      </Box>
 
       {supplementalPlacement === 'top' ? renderSupplementalSection() : null}
 
-      <div className={`sheet__body${showWakeOrder ? '' : ' sheet__body--no-night-order'}`}>
-        {showWakeOrder ? (
-          <aside className="night-order night-order--side night-order--left">
-            <div className="night-order__row">
-              <strong>{language === 'zh' ? '首夜' : 'First Night'}</strong>
-              <div className="night-order__icons">
-                {firstNightOrder.map((id) => {
-                  const icon = getIconForCharacter(id)
+      <Box sx={{ display: 'flex', gap: 2 }}>
+        {showWakeOrder && (
+          <Box sx={{ width: 80, flexShrink: 0 }}>
+            <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
+              {language === 'zh' ? '首夜' : 'First Night'}
+            </Typography>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+              {firstNightOrder.map((id) => {
+                const icon = getIconForCharacter(id)
+                return icon ? (
+                  <Box component="img" key={id} src={icon} sx={{ width: 24, height: 24 }} />
+                ) : (
+                  <Box key={id} sx={{ width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'grey.300', borderRadius: 0.5 }}>
+                    <Typography variant="caption">{getNightOrderPlaceholderLabel(id)}</Typography>
+                  </Box>
+                )
+              })}
+            </Box>
+          </Box>
+        )}
 
-                  return icon ? (
-                    <img alt="" className="night-order__icon" key={id} src={icon} />
-                  ) : (
-                    <div className="night-order__icon night-order__icon--placeholder" key={id}>
-                      {getNightOrderPlaceholderLabel(id)}
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-          </aside>
-        ) : null}
-
-        <div className="sheet__groups">
+        <Box sx={{ flex: 1 }}>
           {groupedScriptCharacters.map((group) => (
-            <section className="team-group" key={group.team}>
-              <div className={`team-group__heading team-group__heading--${group.team}`}>
-                <h3>{teamLabels[language][group.team]}</h3>
-              </div>
-              <div className="character-grid">
+            <Box key={group.team} sx={{ mb: 2 }}>
+              <Chip 
+                label={teamLabels[language][group.team]} 
+                size="small" 
+                color={(group.team === 'townsfolk' || group.team === 'outsider') ? 'primary' : 'error'} 
+                sx={{ mb: 1 }}
+              />
+              <Grid container spacing={1}>
                 {group.characters.map((character) => {
                   const icon = getCharacterImage(character)
                   const displayName = character.name ?? getDisplayName(character.id, language)
                   const ability = character.ability ?? getAbilityText(character.id, language)
 
                   return (
-                    <article className="character-card" key={character.id}>
-                      {icon ? (
-                        <img alt="" className="character-card__icon" src={icon} />
-                      ) : (
-                        <div className="character-card__icon character-card__icon--placeholder">
-                          {character.id.slice(0, 2).toUpperCase()}
-                        </div>
-                      )}
-                      <div className="character-card__content">
-                        <h4>{displayName}</h4>
-                        <p
-                          dangerouslySetInnerHTML={{
-                            __html: ability,
-                          }}
-                        />
-                        {isEditMode ? (
-                          <button
+                    <Grid key={character.id} size={{ xs: 12, sm: 6, md: 4 }}>
+                      <Paper variant="outlined" sx={{ p: 1, position: 'relative' }}>
+                        <Box sx={{ display: 'flex', gap: 1 }}>
+                          {icon ? (
+                            <Box component="img" src={icon} alt="" sx={{ width: 32, height: 32, objectFit: 'contain' }} />
+                          ) : (
+                            <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'grey.200', borderRadius: 0.5 }}>
+                              <Typography variant="caption">{character.id.slice(0, 2).toUpperCase()}</Typography>
+                            </Box>
+                          )}
+                          <Box sx={{ flex: 1, minWidth: 0 }}>
+                            <Typography variant="subtitle2" noWrap>{displayName}</Typography>
+                            <Typography 
+                              variant="body2" 
+                              color="text.secondary"
+                              sx={{ 
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                display: '-webkit-box',
+                                WebkitLineClamp: 2,
+                                WebkitBoxOrient: 'vertical',
+                              }}
+                              dangerouslySetInnerHTML={{ __html: ability }}
+                            />
+                          </Box>
+                        </Box>
+                        {isEditMode && (
+                          <IconButton
+                            size="small"
                             aria-label={`Remove ${displayName}`}
-                            className="remove-button"
                             onClick={() => onRemoveCharacter(character.id)}
-                            type="button"
+                            sx={{ position: 'absolute', top: 2, right: 2 }}
                           >
-                            x
-                          </button>
-                        ) : null}
-                      </div>
-                    </article>
+                            ×
+                          </IconButton>
+                        )}
+                      </Paper>
+                    </Grid>
                   )
                 })}
-              </div>
-            </section>
+              </Grid>
+            </Box>
           ))}
-        </div>
+        </Box>
 
-        {showWakeOrder ? (
-          <aside className="night-order night-order--side night-order--right">
-            <div className="night-order__row">
-              <strong>{language === 'zh' ? '非首夜' : 'Other Night'}</strong>
-              <div className="night-order__icons">
-                {otherNightOrder.map((id) => {
-                  const icon = getIconForCharacter(id)
-
-                  return icon ? (
-                    <img alt="" className="night-order__icon" key={id} src={icon} />
-                  ) : (
-                    <div className="night-order__icon night-order__icon--placeholder" key={id}>
-                      {id.slice(0, 2).toUpperCase()}
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-          </aside>
-        ) : null}
-      </div>
+        {showWakeOrder && (
+          <Box sx={{ width: 80, flexShrink: 0 }}>
+            <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
+              {language === 'zh' ? '非首夜' : 'Other Night'}
+            </Typography>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+              {otherNightOrder.map((id) => {
+                const icon = getIconForCharacter(id)
+                return icon ? (
+                  <Box component="img" key={id} src={icon} sx={{ width: 24, height: 24 }} />
+                ) : (
+                  <Box key={id} sx={{ width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'grey.300', borderRadius: 0.5 }}>
+                    <Typography variant="caption">{id.slice(0, 2).toUpperCase()}</Typography>
+                  </Box>
+                )
+              })}
+            </Box>
+          </Box>
+        )}
+      </Box>
 
       {supplementalPlacement === 'end' ? renderSupplementalSection() : null}
-    </article>
+    </Paper>
   )
 }

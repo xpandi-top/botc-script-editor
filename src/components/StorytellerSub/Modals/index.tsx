@@ -1,4 +1,4 @@
-import { Dialog, DialogTitle, DialogContent, IconButton, Typography } from '@mui/material'
+import { Dialog, DialogTitle, DialogContent, IconButton } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import { ModalsEditPlayers } from './ModalsEditPlayers'
 import { ModalsNewGame } from './ModalsNewGame'
@@ -15,7 +15,7 @@ export function Modals({ ctx }: { ctx: any }) {
     <>
       <Dialog open={showEditPlayersModal} onClose={() => setShowEditPlayersModal(false)} maxWidth="sm" fullWidth slotProps={{ paper: { sx: paperSx } }}>
         <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="h6">{text.editPlayers}</Typography>
+          {text.editPlayers}
           <IconButton onClick={() => setShowEditPlayersModal(false)} size="small"><CloseIcon /></IconButton>
         </DialogTitle>
         <DialogContent>
@@ -25,7 +25,7 @@ export function Modals({ ctx }: { ctx: any }) {
 
       <Dialog open={!!newGamePanel} onClose={() => setNewGamePanel(null)} maxWidth="sm" fullWidth slotProps={{ paper: { sx: paperSx } }}>
         <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="h6">{text.newGame}</Typography>
+          {text.newGame}
           <IconButton onClick={() => setNewGamePanel(null)} size="small"><CloseIcon /></IconButton>
         </DialogTitle>
         <DialogContent>
@@ -35,7 +35,7 @@ export function Modals({ ctx }: { ctx: any }) {
 
       <Dialog open={!!endGameResult} onClose={() => setEndGameResult(null)} maxWidth="sm" fullWidth slotProps={{ paper: { sx: paperSx } }}>
         <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="h6">{text.endGame}</Typography>
+          {text.endGame}
           <IconButton onClick={() => setEndGameResult(null)} size="small"><CloseIcon /></IconButton>
         </DialogTitle>
         <DialogContent>
@@ -45,7 +45,7 @@ export function Modals({ ctx }: { ctx: any }) {
 
       <Dialog open={showExportModal} onClose={() => setShowExportModal(false)} maxWidth="sm" fullWidth slotProps={{ paper: { sx: paperSx } }}>
         <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="h6">{text.exportJson}</Typography>
+          {text.exportJson}
           <IconButton onClick={() => setShowExportModal(false)} size="small"><CloseIcon /></IconButton>
         </DialogTitle>
         <DialogContent>
@@ -55,7 +55,7 @@ export function Modals({ ctx }: { ctx: any }) {
 
       <Dialog open={!!dialogState} onClose={() => setDialogState(null)} maxWidth="xs" fullWidth slotProps={{ paper: { sx: paperSx } }}>
         <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="h6">{dialogState?.title || (language === 'zh' ? '确认' : 'Confirm')}</Typography>
+          {dialogState?.title || (language === 'zh' ? '确认' : 'Confirm')}
           <IconButton onClick={() => setDialogState(null)} size="small"><CloseIcon /></IconButton>
         </DialogTitle>
         <DialogContent>

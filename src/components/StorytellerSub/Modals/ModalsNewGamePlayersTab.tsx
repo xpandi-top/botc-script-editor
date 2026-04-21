@@ -1,5 +1,8 @@
 // @ts-nocheck
 import React, { useState } from 'react'
+import { Box, Button, TextField, IconButton, Chip, Typography, Grid } from '@mui/material'
+import AddIcon from '@mui/icons-material/Add'
+import RemoveIcon from '@mui/icons-material/Remove'
 import { shuffleArray, uniqueStrings } from '../constants'
 
 type Props = {
@@ -15,20 +18,20 @@ export function PlayersTab({ newGamePanel, playerNamePool, language, seats, upda
   const [showNamePool, setShowNamePool] = useState(false)
   const [quickFill, setQuickFill] = useState('')
 
-  function handleRandomPlayers() {
+  const handleRandomPlayers = () => {
     const shuffled = shuffleArray([...playerNamePool])
     const newNames = { ...newGamePanel.seatNames }
     seats.forEach((sNum, i) => { if (shuffled[i]) newNames[sNum] = shuffled[i] })
     updateConfig({ seatNames: newNames })
   }
 
-  function handleResetNames() {
+  const handleResetNames = () => {
     const names: Record<number, string> = {}
     seats.forEach((sNum) => { names[sNum] = sNum > newGamePanel.playerCount ? `Traveler ${sNum}` : `Player ${sNum}` })
     updateConfig({ seatNames: names })
   }
 
-  function handleQuickFill() {
+  const handleQuickFill = () => {
     const names = quickFill.split(/[,，\n]/).map((n) => n.trim()).filter(Boolean)
     if (!names.length) return
     const newNames = { ...newGamePanel.seatNames }
@@ -39,7 +42,7 @@ export function PlayersTab({ newGamePanel, playerNamePool, language, seats, upda
     if (fresh.length) setPlayerNamePool((p: string[]) => uniqueStrings([...p, ...fresh]))
   }
 
-  function handlePoolNameClick(name: string) {
+  const handlePoolNameClick = (name: string) => {
     const next = seats.find((n) => {
       const cur = newGamePanel.seatNames[n] ?? ''
       return !cur || /^Player \d+$|^Traveler \d+$/.test(cur)
@@ -47,92 +50,86 @@ export function PlayersTab({ newGamePanel, playerNamePool, language, seats, upda
     if (next) updateConfig({ seatNames: { ...newGamePanel.seatNames, [next]: name } })
   }
 
-  return (
-    <div className="ng-players-tab">
-      <div className="ng-quick-fill">
-        <input
-          className="ng-quick-fill__input"
-          placeholder={language === 'zh' ? '用逗号分隔快速填入名字，如：Alice, Bob, Carol' : 'Paste names separated by commas: Alice, Bob, Carol…'}
-          type="text"
-          value={quickFill}
-          onChange={(e) => setQuickFill(e.target.value)}
-          onKeyDown={(e) => { if (e.key === 'Enter') handleQuickFill() }}
-        />
-        <button className="secondary-button secondary-button--small" onClick={handleQuickFill} type="button">
-          {language === 'zh' ? '填入' : 'Fill'}
-        </button>
-      </div>
+  const handleNameBlur = (sNum: number, val: string) => {
+    const trimmed = val.trim()
+    if (trimmed && !/^Player \d+$|^Traveler \d+$/.test(trimmed) && !playerNamePool.includes(trimmed))
+      setPlayerNamePool((p: string[]) => uniqueStrings([...p, trimmed]))
+  }
 
-      <div className="ng-row ng-row--actions">
-        <button className="secondary-button secondary-button--small" onClick={handleRandomPlayers} type="button">
-          {language === 'zh' ? '🎲 随机' : '🎲 Random'}
-        </button>
-        <button className="secondary-button secondary-button--small" onClick={handleResetNames} type="button">
-          {language === 'zh' ? '↺ 重置' : '↺ Reset'}
-        </button>
-        <button
-          className={`secondary-button secondary-button--small${showNamePool ? ' tab-button--active' : ''}`}
-          onClick={() => setShowNamePool((v) => !v)}
-          type="button"
-        >
+  return (
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+      <TextField
+        size="small"
+        fullWidth
+        placeholder={language === 'zh' ? '用逗号分隔快速填入名字，如：Alice, Bob, Carol' : 'Paste names separated by commas'}
+        value={quickFill}
+        onChange={(e) => setQuickFill(e.target.value)}
+        onKeyDown={(e) => { if (e.key === 'Enter') handleQuickFill() }}
+      />
+
+      <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+        <Button size="small" variant="outlined" onClick={handleRandomPlayers}>
+          🎲 {language === 'zh' ? '随机' : 'Random'}
+        </Button>
+        <Button size="small" variant="outlined" onClick={handleResetNames}>
+          ↺ {language === 'zh' ? '重置' : 'Reset'}
+        </Button>
+        <Button size="small" variant={showNamePool ? 'contained' : 'outlined'} onClick={() => setShowNamePool((v) => !v)}>
           {language === 'zh' ? '名字池' : 'Name Pool'} {showNamePool ? '▲' : '▼'}
-        </button>
-      </div>
+        </Button>
+      </Box>
 
       {showNamePool && (
-        <div className="ng-name-pool">
-          {playerNamePool.length === 0
-            ? <span className="ng-name-pool__empty">{language === 'zh' ? '（空）' : '(empty)'}</span>
-            : playerNamePool.map((name: string) => (
-                <button key={name} className="ng-name-chip" onClick={() => handlePoolNameClick(name)} type="button">
-                  {name}
-                </button>
-              ))
-          }
-        </div>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+          {playerNamePool.length === 0 ? (
+            <Typography variant="caption" color="text.secondary">
+              {language === 'zh' ? '（空）' : '(empty)'}
+            </Typography>
+          ) : playerNamePool.map((name: string) => (
+            <Chip key={name} label={name} size="small" clickable onClick={() => handlePoolNameClick(name)} />
+          ))}
+        </Box>
       )}
 
-      <div className="ng-count-row">
-        <span>{language === 'zh' ? '玩家' : 'Players'}</span>
-        <div className="ng-stepper">
-          <button className="storyteller-center__ctrl-btn" onClick={() => updateConfig({ playerCount: Math.max(5, newGamePanel.playerCount - 1) })} type="button">−</button>
-          <strong>{newGamePanel.playerCount}</strong>
-          <button className="storyteller-center__ctrl-btn" onClick={() => updateConfig({ playerCount: Math.min(15, newGamePanel.playerCount + 1) })} type="button">+</button>
-        </div>
-        <span style={{ marginLeft: '1rem' }}>{language === 'zh' ? '旅人' : 'Travelers'}</span>
-        <div className="ng-stepper">
-          <button className="storyteller-center__ctrl-btn" onClick={() => updateConfig({ travelerCount: Math.max(0, newGamePanel.travelerCount - 1) })} type="button">−</button>
-          <strong>{newGamePanel.travelerCount}</strong>
-          <button className="storyteller-center__ctrl-btn" onClick={() => updateConfig({ travelerCount: Math.min(5, newGamePanel.travelerCount + 1) })} type="button">+</button>
-        </div>
-      </div>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Typography variant="body2">{language === 'zh' ? '玩家' : 'Players'}: {newGamePanel.playerCount}</Typography>
+        <IconButton size="small" onClick={() => updateConfig({ playerCount: Math.max(5, newGamePanel.playerCount - 1) })}>
+          <RemoveIcon />
+        </IconButton>
+        <IconButton size="small" onClick={() => updateConfig({ playerCount: Math.min(15, newGamePanel.playerCount + 1) })}>
+          <AddIcon />
+        </IconButton>
+        <Typography variant="body2" sx={{ ml: 1 }}>{language === 'zh' ? '旅人' : 'Travelers'}: {newGamePanel.travelerCount}</Typography>
+        <IconButton size="small" onClick={() => updateConfig({ travelerCount: Math.max(0, newGamePanel.travelerCount - 1) })}>
+          <RemoveIcon />
+        </IconButton>
+        <IconButton size="small" onClick={() => updateConfig({ travelerCount: Math.min(5, newGamePanel.travelerCount + 1) })}>
+          <AddIcon />
+        </IconButton>
+      </Box>
 
-      <div className="ng-seats-grid">
+      <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 1 }}>
         {seats.map((sNum) => {
           const isTraveler = sNum > newGamePanel.playerCount
           return (
-            <div key={sNum} className={`ng-seat-row${isTraveler ? ' ng-seat-row--traveler' : ''}`}>
-              <span className="ng-seat-num">{isTraveler ? '✈' : '#'}{sNum}</span>
-              <input
-                className="ng-seat-input"
+            <Box key={sNum} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <Chip label={isTraveler ? `✈${sNum}` : `#${sNum}`} size="small" sx={{ minWidth: 32 }} />
+              <TextField
+                size="small"
+                fullWidth
                 list="ng-name-pool-list"
-                onChange={(e) => updateConfig({ seatNames: { ...newGamePanel.seatNames, [sNum]: e.target.value } })}
-                onBlur={(e) => {
-                  const val = e.target.value.trim()
-                  if (val && !/^Player \d+$|^Traveler \d+$/.test(val) && !playerNamePool.includes(val))
-                    setPlayerNamePool((p: string[]) => uniqueStrings([...p, val]))
-                }}
                 placeholder={isTraveler ? `Traveler ${sNum}` : `Player ${sNum}`}
-                type="text"
                 value={newGamePanel.seatNames[sNum] ?? ''}
+                onChange={(e) => updateConfig({ seatNames: { ...newGamePanel.seatNames, [sNum]: e.target.value } })}
+                onBlur={(e) => handleNameBlur(sNum, e.target.value)}
               />
-            </div>
+            </Box>
           )
         })}
-      </div>
+      </Box>
       <datalist id="ng-name-pool-list">
         {playerNamePool.map((n: string) => <option key={n} value={n} />)}
       </datalist>
-    </div>
+    </Box>
   )
 }
