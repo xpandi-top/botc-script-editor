@@ -15,8 +15,8 @@ export function RightConsolePlayer({ ctx, toggleConsoleSection }: { ctx: any, to
   } = ctx
   const isOpen = activeConsoleSections?.has('player')
 
-  const isCharacterTag = (tag: string) => tag.startsWith('💀')
-  const getCharacterName = (tag: string) => getDisplayName(tag.slice(1), language)
+  const isCharacterTag = (tag: string) => tag.charAt(0) === '💀'
+  const getCharacterName = (tag: string) => getDisplayName([...tag].slice(1).join(''), language)
   const displayTag = (tag: string) => isCharacterTag(tag) ? getCharacterName(tag) : tag
 
   const travelerCount = currentDay?.seats?.filter((s: any) => s.isTraveler).length ?? 0

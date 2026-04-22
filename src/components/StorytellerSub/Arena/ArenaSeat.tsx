@@ -17,10 +17,10 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
   } = ctx
 
   const { left, top } = getSeatPosition(index, currentDay.seats.length, isPortrait)
-  
-  const isCharacterTag = (tag: string) => tag.startsWith('💀')
+
+  const isCharacterTag = (tag: string) => tag.charAt(0) === '💀'
   const getCharacterName = (tag: string) => {
-    const charId = tag.slice(1)
+    const charId = [...tag].slice(1).join('')
     return getDisplayName(charId, language)
   }
   const displayTag = (tag: string) => isCharacterTag(tag) ? getCharacterName(tag) : tag
@@ -208,14 +208,19 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
 
         {tags.length > 0 && (
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.25, justifyContent: 'center', mt: 0.25 }}>
-            {tags.map((tag) => (
-              <Chip
-                key={`${seat.seat}-${tag}`}
-                label={displayTag(tag)}
-                size="small"
-                onContextMenu={(e) => handleTagPillRightClick(e, tag)}
-              />
-            ))}
+            {tags.map((tag) => {
+              const isChar = tag.charAt(0) === '💀'
+              const charId = isChar ? [...tag].slice(1).join('') : ''
+              const label = isChar ? getDisplayName(charId, language) : tag
+              return (
+                <Chip
+                  key={`${seat.seat}-${tag}`}
+                  label={label}
+                  size="small"
+                  onContextMenu={(e) => handleTagPillRightClick(e, tag)}
+                />
+              )
+            })}
           </Box>
         )}
 
