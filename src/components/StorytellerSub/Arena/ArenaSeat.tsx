@@ -216,13 +216,9 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
               return (
                 <Chip
                   key={`${seat.seat}-${tag}`}
-                  label={isCharTag ? (
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
-                      {charImg && <Box component="img" src={charImg as string} sx={{ width: 16, height: 16 }} />}
-                      <span>{charName}</span>
-                    </Box>
-                  ) : displayTag(tag)}
+                  label={isCharTag ? charName : displayTag(tag)}
                   size="small"
+                  icon={charImg ? <Box component="img" src={charImg as string} sx={{ width: 18, height: 18 }} /> : undefined}
                   onContextMenu={(e) => handleTagPillRightClick(e, tag)}
                 />
               )

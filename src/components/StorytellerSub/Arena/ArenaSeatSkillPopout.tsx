@@ -49,7 +49,7 @@ export function ArenaSeatSkillPopout({ ctx, seat }: { ctx: any, seat: any }) {
     </Dialog>,
     document.body
   ) : (
-    <Dialog open={isSkillPopoutOpen} onClose={() => {}} disableEscapeKeyDown maxWidth="sm" fullWidth slotProps={{ backdrop: { onClick: () => {} }, paper: { 'data-skill-popup': true, sx: { position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: 2, maxHeight: '90vh' } } }}>
+    <Dialog open={isSkillPopoutOpen} onClose={() => {}} maxWidth="sm" fullWidth slotProps={{ backdrop: { onClick: () => {} }, paper: { 'data-skill-popup': true, sx: { position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: 2, maxHeight: '90vh' } } }}>
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 1 }}>
         {language === 'zh' ? '发动技能' : 'Use Skill'}
         <IconButton size="small" onClick={() => closeSkillOverlay(false)}>✕</IconButton>
