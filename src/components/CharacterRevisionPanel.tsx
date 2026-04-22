@@ -1,3 +1,4 @@
+import { Box, Typography, Paper, Chip, Grid } from '@mui/material'
 import {
   getAbilityText,
   getCharacterRevisionIds,
@@ -36,10 +37,10 @@ export function CharacterRevisionPanel({
 }: CharacterRevisionPanelProps) {
   if (!character) {
     return (
-      <aside className="revision-panel">
-        <h2>{title}</h2>
-        <p className="revision-panel__empty">{noCharacterSelectedLabel}</p>
-      </aside>
+      <Paper sx={{ p: 2 }}>
+        <Typography variant="h6">{title}</Typography>
+        <Typography color="text.secondary">{noCharacterSelectedLabel}</Typography>
+      </Paper>
     )
   }
 
@@ -49,59 +50,59 @@ export function CharacterRevisionPanel({
   const currentAbility = getAbilityText(character.id, language)
 
   return (
-    <aside className="revision-panel">
-      <div className="revision-panel__header">
+    <Paper sx={{ p: 2 }}>
+      <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
         {icon ? (
-          <img alt="" className="revision-panel__icon" src={icon} />
+          <Box component="img" src={icon} alt="" sx={{ width: 48, height: 48 }} />
         ) : (
-          <div className="revision-panel__icon revision-panel__icon--placeholder">
-            {character.id.slice(0, 2).toUpperCase()}
-          </div>
+          <Box sx={{ width: 48, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'grey.200', borderRadius: 1 }}>
+            <Typography variant="caption">{character.id.slice(0, 2).toUpperCase()}</Typography>
+          </Box>
         )}
-        <div>
-          <p className="revision-panel__eyebrow">{title}</p>
-          <h2>{getDisplayName(character.id, language)}</h2>
-          <p className="revision-panel__id">{character.id}</p>
-        </div>
-      </div>
+        <Box>
+          <Typography variant="overline" color="text.secondary">{title}</Typography>
+          <Typography variant="h6">{getDisplayName(character.id, language)}</Typography>
+          <Typography variant="caption" color="text.secondary">{character.id}</Typography>
+        </Box>
+      </Box>
 
-      <section className="revision-panel__section">
-        <div className="revision-panel__meta">
-          <strong>{currentRevisionLabel}</strong>
-          <span>{currentRevision}</span>
-        </div>
-        <p className="revision-panel__ability">{currentAbility}</p>
-      </section>
+      <Box sx={{ mb: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+          <Typography variant="subtitle2">{currentRevisionLabel}</Typography>
+          <Chip label={currentRevision} size="small" color="primary" />
+        </Box>
+        <Typography variant="body2">{currentAbility}</Typography>
+      </Box>
 
-      <section className="revision-panel__section">
-        <h3>{revisionHistoryLabel}</h3>
-        <div className="revision-history">
+      <Box>
+        <Typography variant="subtitle2" sx={{ mb: 1 }}>{revisionHistoryLabel}</Typography>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
           {revisionIds.map((revision) => (
-            <article className="revision-card" key={revision}>
-              <div className="revision-card__header">
-                <strong>{revision}</strong>
-                {revision === currentRevision ? (
-                  <span className="revision-card__badge">{currentLabel}</span>
-                ) : null}
-              </div>
-              <div className="revision-card__copy">
-                <p>
-                  <strong>{revisionNoteLabel}</strong>
-                </p>
-                <p>{getRevisionNote(character.id, revision) || '-'}</p>
-                <p>
-                  <strong>{englishTextLabel}</strong>
-                </p>
-                <p>{getRevisionText(character.id, 'en', revision)}</p>
-                <p>
-                  <strong>{chineseTextLabel}</strong>
-                </p>
-                <p>{getRevisionText(character.id, 'zh', revision)}</p>
-              </div>
-            </article>
+            <Paper key={revision} variant="outlined" sx={{ p: 1.5 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+                <Typography variant="subtitle2">{revision}</Typography>
+                {revision === currentRevision && (
+                  <Chip label={currentLabel} size="small" color="primary" />
+                )}
+              </Box>
+              <Grid container spacing={1}>
+                <Grid size={{ xs: 12 }}>
+                  <Typography variant="caption" color="text.secondary">{revisionNoteLabel}</Typography>
+                  <Typography variant="body2">{getRevisionNote(character.id, revision) || '-'}</Typography>
+                </Grid>
+                <Grid size={{ xs: 12 }}>
+                  <Typography variant="caption" color="text.secondary">{englishTextLabel}</Typography>
+                  <Typography variant="body2">{getRevisionText(character.id, 'en', revision)}</Typography>
+                </Grid>
+                <Grid size={{ xs: 12 }}>
+                  <Typography variant="caption" color="text.secondary">{chineseTextLabel}</Typography>
+                  <Typography variant="body2">{getRevisionText(character.id, 'zh', revision)}</Typography>
+                </Grid>
+              </Grid>
+            </Paper>
           ))}
-        </div>
-      </section>
-    </aside>
+        </Box>
+      </Box>
+    </Paper>
   )
 }

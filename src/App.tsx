@@ -1,14 +1,25 @@
 import {
-  Fragment,
   useEffect,
   useMemo,
   useState,
-  type CSSProperties,
 } from 'react'
-import { CharacterRevisionPanel } from './components/CharacterRevisionPanel'
-import { FilterCheckbox } from './components/FilterCheckbox'
-import { ScriptList } from './components/ScriptList'
-import { SheetArticle } from './components/SheetArticle'
+import {
+  Box,
+  Container,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Paper,
+  Select,
+  Tab,
+  Tabs,
+  Typography,
+  Button,
+} from '@mui/material'
+import PrintIcon from '@mui/icons-material/Print'
+import { ScriptsTab } from './components/tabs/ScriptsTab'
+import { SettingsTab } from './components/tabs/SettingsTab'
+import { CharactersTab } from './components/tabs/CharactersTab'
 import { StorytellerHelper } from './components/StorytellerHelper'
 import {
   allCharacters,
@@ -16,13 +27,10 @@ import {
   createScriptPayload,
   editionLabels,
   getAbilityText,
-  getCurrentRevision,
   getDisplayName,
-  getIconForCharacter,
   initialScripts,
   locales,
   sortCharacterIds,
-  teamLabels,
   teamOrder,
   toTitleCase,
 } from './catalog'
@@ -42,21 +50,18 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<TabKey>('scripts')
   const [uiLanguage, setUiLanguage] = useState<Language>('zh')
   const [scripts, setScripts] = useState<EditableScript[]>(initialScripts)
-
-  const getInitialScriptSlug = () => {
-    if (typeof window === 'undefined') return initialScripts[0]?.slug ?? ''
+  const [activeSlug, setActiveSlug] = useState<string>(() => {
     try {
       const stored = window.localStorage.getItem(STORAGE_KEY)
       if (stored) {
         const p = JSON.parse(stored)
-        if (p.activeScriptSlug && scripts.some(s => s.slug === p.activeScriptSlug)) {
+        if (p.activeScriptSlug && initialScripts.some(s => s.slug === p.activeScriptSlug)) {
           return p.activeScriptSlug
         }
       }
     } catch {}
     return initialScripts[0]?.slug ?? ''
-  }
-  const [activeSlug, setActiveSlug] = useState<string>(getInitialScriptSlug)
+  })
   const [characterQuery, setCharacterQuery] = useState('')
   const [selectedTeams, setSelectedTeams] = useState<Team[]>([])
   const [selectedEditions, setSelectedEditions] = useState<string[]>([])
@@ -65,327 +70,163 @@ export default function App() {
   const [pdfFontSize, setPdfFontSize] = useState(11)
   const [showWakeOrderPreview, setShowWakeOrderPreview] = useState(true)
   const [saveStatus, setSaveStatus] = useState('')
-  const [selectedCharacterId, setSelectedCharacterId] = useState<string>(
-    allCharacters[0]?.id ?? '',
-  )
+  const [selectedCharacterId, setSelectedCharacterId] = useState<string>(allCharacters[0]?.id ?? '')
 
   const activeScript = useMemo(
-    () => scripts.find((script) => script.slug === activeSlug) ?? scripts[0],
+    () => scripts.find((s) => s.slug === activeSlug) ?? scripts[0],
     [activeSlug, scripts],
   )
 
   const uiText = useMemo(() => {
-    const localeUi = locales[uiLanguage].ui
-    if (!localeUi) {
-      throw new Error(`Missing ui locale section: ${uiLanguage}.ui`)
+    const ui = locales[uiLanguage].ui
+    if (!ui) throw new Error(`Missing ui locale: ${uiLanguage}`)
+    const req = (key: string) => {
+      const v = ui[key]
+      if (!v) throw new Error(`Missing ui locale string: ${uiLanguage}.${key}`)
+      return v
     }
-    const ui = localeUi
-
-    function required(key: string) {
-      const value = ui[key]
-      if (!value) {
-        throw new Error(`Missing ui locale string: ${uiLanguage}.${key}`)
-      }
-
-      return value
-    }
-
     return {
-      appTitle: required('app_title'),
-      appLead: required('app_lead'),
-      print: required('print'),
-      scriptSheet: required('script_sheet'),
-      settings: required('settings'),
-      allCharacters: required('all_characters'),
-      newScript: required('new_script'),
-      editScript: required('edit_script'),
-      doneEditing: required('done_editing'),
-      downloadJson: required('download_json'),
-      noScripts: required('no_scripts'),
-      pdfSettings: required('pdf_settings'),
-      currentScript: required('current_script'),
-      fontSize: required('font_size'),
-      fontSizePt: required('font_size_pt'),
-      reset: required('reset'),
-      preview: required('preview'),
-      wakeOrderToggle: required('wake_order_toggle'),
-      wakeOrderNote: required('wake_order_note'),
-      resultsSuffix: required('results_suffix'),
-      searchCharacters: required('search_characters'),
-      title: required('title'),
-      chineseTitle: required('chinese_title'),
-      author: required('author'),
-      bootleggerRules: required('bootlegger_rules'),
-      bootleggerRulesHelp: required('bootlegger_rules_help'),
-      bootleggerRulesZh: required('bootlegger_rules_zh'),
-      bootleggerRulesZhHelp: required('bootlegger_rules_zh_help'),
-      bootleggerRulePlaceholder: required('bootlegger_rule_placeholder'),
-      bootleggerRuleZhPlaceholder: required('bootlegger_rule_zh_placeholder'),
-      scriptJinxes: required('script_jinxes'),
-      scriptJinxesHelp: required('script_jinxes_help'),
-      jinxPairId: required('jinx_pair_id'),
-      jinxPairPlaceholder: required('jinx_pair_placeholder'),
-      jinxStatus: required('jinx_status'),
-      jinxStatusActive: required('jinx_status_active'),
-      jinxStatusInactive: required('jinx_status_inactive'),
-      jinxReasonEnPlaceholder: required('jinx_reason_en_placeholder'),
-      jinxReasonZhPlaceholder: required('jinx_reason_zh_placeholder'),
-      addJinx: required('add_jinx'),
-      addRule: required('add_rule'),
-      remove: required('remove'),
-      custom: required('custom'),
-      editionLabel: required('edition_label'),
-      characterSearch: required('character_search'),
-      filterCharacters: required('filter_characters'),
-      export: required('export'),
-      language: required('language'),
-      english: required('english'),
-      chinese: required('chinese'),
-      characterVersions: required('character_versions'),
-      currentRevision: required('current_revision'),
-      revisionHistory: required('revision_history'),
-      revisionNote: required('revision_note'),
-      englishText: required('english_text'),
-      chineseText: required('chinese_text'),
-      current: required('current'),
-      noCharacterSelected: required('no_character_selected'),
-      availableCharacters: required('available_characters'),
-      selectedCharacters: required('selected_characters'),
-      selectedCount: required('selected_count'),
-      noCharacters: required('no_characters'),
+      appTitle: req('app_title'), appLead: req('app_lead'), print: req('print'),
+      scriptSheet: req('script_sheet'), settings: req('settings'), allCharacters: req('all_characters'),
+      newScript: req('new_script'), editScript: req('edit_script'), doneEditing: req('done_editing'),
+      downloadJson: req('download_json'), noScripts: req('no_scripts'), pdfSettings: req('pdf_settings'),
+      currentScript: req('current_script'), fontSize: req('font_size'), fontSizePt: req('font_size_pt'),
+      reset: req('reset'), preview: req('preview'), wakeOrderToggle: req('wake_order_toggle'),
+      wakeOrderNote: req('wake_order_note'), resultsSuffix: req('results_suffix'),
+      searchCharacters: req('search_characters'), title: req('title'), chineseTitle: req('chinese_title'),
+      author: req('author'), bootleggerRules: req('bootlegger_rules'), bootleggerRulesHelp: req('bootlegger_rules_help'),
+      bootleggerRulesZh: req('bootlegger_rules_zh'), bootleggerRulesZhHelp: req('bootlegger_rules_zh_help'),
+      bootleggerRulePlaceholder: req('bootlegger_rule_placeholder'), bootleggerRuleZhPlaceholder: req('bootlegger_rule_zh_placeholder'),
+      scriptJinxes: req('script_jinxes'), scriptJinxesHelp: req('script_jinxes_help'),
+      jinxPairId: req('jinx_pair_id'), jinxPairPlaceholder: req('jinx_pair_placeholder'),
+      jinxStatus: req('jinx_status'), jinxStatusActive: req('jinx_status_active'), jinxStatusInactive: req('jinx_status_inactive'),
+      jinxReasonEnPlaceholder: req('jinx_reason_en_placeholder'), jinxReasonZhPlaceholder: req('jinx_reason_zh_placeholder'),
+      addJinx: req('add_jinx'), addRule: req('add_rule'), remove: req('remove'), custom: req('custom'),
+      editionLabel: req('edition_label'), characterSearch: req('character_search'), filterCharacters: req('filter_characters'),
+      export: req('export'), language: req('language'), english: req('english'), chinese: req('chinese'),
+      characterVersions: req('character_versions'), currentRevision: req('current_revision'),
+      revisionHistory: req('revision_history'), revisionNote: req('revision_note'),
+      englishText: req('english_text'), chineseText: req('chinese_text'), current: req('current'),
+      noCharacterSelected: req('no_character_selected'), availableCharacters: req('available_characters'),
+      selectedCharacters: req('selected_characters'), selectedCount: req('selected_count'), noCharacters: req('no_characters'),
     }
   }, [uiLanguage])
 
   const getScriptTitle = (script: EditableScript) =>
     uiLanguage === 'zh' ? script.titleZh || script.title : script.title
 
-  const storytellerTabLabel = uiLanguage === 'zh' ? '主持助手' : 'Storyteller Helper'
-
-  function getSheetUiLabel(language: Language, key: string) {
+  const getSheetUiLabel = (language: Language, key: string) => {
     const value = locales[language].ui?.[key]
-    if (!value) {
-      throw new Error(`Missing ui locale string: ${language}.${key}`)
-    }
-
+    if (!value) throw new Error(`Missing ui locale string: ${language}.${key}`)
     return value
   }
 
   const activeScriptCharacters = useMemo<ResolvedScriptCharacter[]>(() => {
-    if (!activeScript) {
-      return []
-    }
-
-    const customCharactersById = new Map(
-      activeScript.customCharacters.map((character) => [character.id, character]),
-    )
-
-    const resolvedCharacters = sortCharacterIds(activeScript.characters).map<
-      ResolvedScriptCharacter | null
-    >((id) => {
-        const catalogCharacter = characterById[id]
-        const customCharacter = customCharactersById.get(id)
-
-        if (!catalogCharacter && !customCharacter) {
-          return null
-        }
-
+    if (!activeScript) return []
+    const customById = new Map(activeScript.customCharacters.map((c) => [c.id, c]))
+    return sortCharacterIds(activeScript.characters)
+      .map<ResolvedScriptCharacter | null>((id) => {
+        const cat = characterById[id]
+        const custom = customById.get(id)
+        if (!cat && !custom) return null
         return {
           id,
-          team: customCharacter?.team ?? catalogCharacter?.team ?? 'townsfolk',
-          edition: customCharacter?.edition ?? catalogCharacter?.edition ?? activeScript.edition,
-          current_revision: catalogCharacter?.current_revision,
-          revisions: catalogCharacter?.revisions,
-          jinxes: customCharacter?.jinxes ?? catalogCharacter?.jinxes,
-          name: customCharacter?.name,
-          ability: customCharacter?.ability,
-          image: customCharacter?.image,
+          team: custom?.team ?? cat?.team ?? 'townsfolk',
+          edition: custom?.edition ?? cat?.edition ?? activeScript.edition,
+          current_revision: cat?.current_revision,
+          revisions: cat?.revisions,
+          jinxes: custom?.jinxes ?? cat?.jinxes,
+          name: custom?.name,
+          ability: custom?.ability,
+          image: custom?.image,
         }
       })
-
-    return resolvedCharacters.filter(
-      (character): character is ResolvedScriptCharacter => character !== null,
-    )
+      .filter((c): c is ResolvedScriptCharacter => c !== null)
   }, [activeScript])
 
   const groupedScriptCharacters = useMemo<ResolvedScriptCharacterGroup[]>(
-    () =>
-      teamOrder
-        .map((team) => ({
-          team,
-          characters: activeScriptCharacters.filter((character) => character.team === team),
-        }))
-        .filter((group) => group.characters.length > 0),
+    () => teamOrder
+      .map((team) => ({ team, characters: activeScriptCharacters.filter((c) => c.team === team) }))
+      .filter((g) => g.characters.length > 0),
     [activeScriptCharacters],
   )
 
   const sheetDensityClass = useMemo(() => {
     const count = activeScriptCharacters.length
-
-    if (count >= 25) {
-      return 'sheet--dense'
-    }
-
-    if (count >= 18) {
-      return 'sheet--compact'
-    }
-
+    if (count >= 25) return 'sheet--dense'
+    if (count >= 18) return 'sheet--compact'
     return ''
   }, [activeScriptCharacters.length])
 
   const availableEditions = useMemo(
-    () =>
-      Array.from(new Set(allCharacters.map((character) => character.edition))).sort(
-        (left, right) =>
-          (editionLabels[uiLanguage][left] ?? toTitleCase(left)).localeCompare(
-            editionLabels[uiLanguage][right] ?? toTitleCase(right),
-          ),
-      ),
+    () => Array.from(new Set(allCharacters.map((c) => c.edition))).sort(
+      (a, b) => (editionLabels[uiLanguage][a] ?? toTitleCase(a)).localeCompare(editionLabels[uiLanguage][b] ?? toTitleCase(b)),
+    ),
     [uiLanguage],
   )
 
   const filteredCharacters = useMemo(() => {
     const query = characterQuery.trim().toLowerCase()
-
-    return allCharacters.filter((character) => {
-      const nameEn = getDisplayName(character.id, 'en').toLowerCase()
-      const nameZh = getDisplayName(character.id, 'zh').toLowerCase()
-      const abilityEn = getAbilityText(character.id, 'en').toLowerCase()
-      const abilityZh = getAbilityText(character.id, 'zh').toLowerCase()
-      const id = character.id.toLowerCase()
-      const matchesQuery =
-        !query ||
-        nameEn.includes(query) ||
-        nameZh.includes(query) ||
-        abilityEn.includes(query) ||
-        abilityZh.includes(query) ||
-        id.includes(query)
-      const matchesTeam =
-        selectedTeams.length === 0 || selectedTeams.includes(character.team)
-      const matchesEdition =
-        selectedEditions.length === 0 || selectedEditions.includes(character.edition)
-
+    return allCharacters.filter((c) => {
+      const nameEn = getDisplayName(c.id, 'en').toLowerCase()
+      const nameZh = getDisplayName(c.id, 'zh').toLowerCase()
+      const abilityEn = getAbilityText(c.id, 'en').toLowerCase()
+      const abilityZh = getAbilityText(c.id, 'zh').toLowerCase()
+      const matchesQuery = !query || nameEn.includes(query) || nameZh.includes(query) || abilityEn.includes(query) || abilityZh.includes(query) || c.id.toLowerCase().includes(query)
+      const matchesTeam = selectedTeams.length === 0 || selectedTeams.includes(c.team)
+      const matchesEdition = selectedEditions.length === 0 || selectedEditions.includes(c.edition)
       return matchesQuery && matchesTeam && matchesEdition
     })
   }, [characterQuery, selectedEditions, selectedTeams])
 
   const filteredEditorCharacters = useMemo(() => {
     const query = editorQuery.trim().toLowerCase()
-
-    return allCharacters.filter((character) => {
-      if (!query) {
-        return true
-      }
-
-      return (
-        getDisplayName(character.id, 'en').toLowerCase().includes(query) ||
-        getDisplayName(character.id, 'zh').toLowerCase().includes(query) ||
-        character.id.toLowerCase().includes(query) ||
-        getAbilityText(character.id, 'en').toLowerCase().includes(query) ||
-        getAbilityText(character.id, 'zh').toLowerCase().includes(query)
-      )
-    })
+    return allCharacters.filter((c) =>
+      !query ||
+      getDisplayName(c.id, 'en').toLowerCase().includes(query) ||
+      getDisplayName(c.id, 'zh').toLowerCase().includes(query) ||
+      c.id.toLowerCase().includes(query) ||
+      getAbilityText(c.id, 'en').toLowerCase().includes(query) ||
+      getAbilityText(c.id, 'zh').toLowerCase().includes(query),
+    )
   }, [editorQuery])
 
   const groupedEditorCharacters = useMemo<CharacterGroup[]>(
-    () =>
-      teamOrder
-        .map((team) => ({
-          team,
-          characters: filteredEditorCharacters.filter((character) => character.team === team),
-        }))
-        .filter((group) => group.characters.length > 0),
+    () => teamOrder
+      .map((team) => ({ team, characters: filteredEditorCharacters.filter((c) => c.team === team) }))
+      .filter((g) => g.characters.length > 0),
     [filteredEditorCharacters],
   )
 
-  const selectedCharacter =
-    characterById[selectedCharacterId] ??
-    filteredCharacters[0] ??
-    allCharacters[0]
+  const selectedCharacter = characterById[selectedCharacterId] ?? filteredCharacters[0] ?? allCharacters[0]
 
   useEffect(() => {
-    if (selectedCharacter) {
-      setSelectedCharacterId(selectedCharacter.id)
-    }
+    if (selectedCharacter) setSelectedCharacterId(selectedCharacter.id)
   }, [selectedCharacter?.id])
 
-  function updateActiveScript(
-    updater: (script: EditableScript) => EditableScript,
-    nextSlug?: string,
-  ) {
-    if (!activeScript) {
-      return
-    }
-
-    const updated = updater(activeScript)
-    setScripts((current) =>
-      current.map((script) => (script.slug === activeScript.slug ? updated : script)),
-    )
-
-    if (nextSlug && nextSlug !== activeScript.slug) {
-      setActiveSlug(nextSlug)
-    }
-  }
-
-  function toggleTeam(team: Team) {
-    setSelectedTeams((current) =>
-      current.includes(team)
-        ? current.filter((entry) => entry !== team)
-        : [...current, team],
-    )
-  }
-
-  function toggleEdition(edition: string) {
-    setSelectedEditions((current) =>
-      current.includes(edition)
-        ? current.filter((entry) => entry !== edition)
-        : [...current, edition],
-    )
+  function updateActiveScript(updater: (s: EditableScript) => EditableScript, nextSlug?: string) {
+    if (!activeScript) return
+    setScripts((cur) => cur.map((s) => s.slug === activeScript.slug ? updater(s) : s))
+    if (nextSlug && nextSlug !== activeScript.slug) setActiveSlug(nextSlug)
   }
 
   function createNewScript() {
     const baseSlug = 'new-script'
     let nextSlug = baseSlug
     let index = 2
-
-    while (scripts.some((script) => script.slug === nextSlug)) {
-      nextSlug = `${baseSlug}-${index}`
-      index += 1
+    while (scripts.some((s) => s.slug === nextSlug)) { nextSlug = `${baseSlug}-${index}`; index++ }
+    const next: EditableScript = {
+      slug: nextSlug, title: 'New Script', titleZh: 'New Script', author: '',
+      meta: { id: '_meta', name: 'New Script' }, customCharacters: [],
+      edition: 'custom', characters: [], sourceFile: `${nextSlug}.json`,
     }
-
-    const nextScript: EditableScript = {
-      slug: nextSlug,
-      title: 'New Script',
-      titleZh: 'New Script',
-      author: '',
-      meta: { id: '_meta', name: 'New Script' },
-      customCharacters: [],
-      edition: 'custom',
-      characters: [],
-      sourceFile: `${nextSlug}.json`,
-    }
-
-    setScripts((current) => [...current, nextScript])
+    setScripts((cur) => [...cur, next])
     setActiveSlug(nextSlug)
     setSaveStatus('')
   }
 
-  function toggleCharacterInScript(characterId: string) {
-    updateActiveScript((script) => {
-      const hasCharacter = script.characters.includes(characterId)
-      return {
-        ...script,
-        characters: hasCharacter
-          ? script.characters.filter((id) => id !== characterId)
-          : sortCharacterIds([...script.characters, characterId]),
-      }
-    })
-  }
-
   function downloadScriptFile() {
-    if (!activeScript) {
-      return
-    }
-
+    if (!activeScript) return
     const payload = JSON.stringify(createScriptPayload(activeScript), null, 2)
     const blob = new Blob([payload], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
@@ -397,742 +238,123 @@ export default function App() {
     setSaveStatus(`Downloaded ${link.download}`)
   }
 
+  function toggleCharacterInScript(characterId: string) {
+    updateActiveScript((s) => ({
+      ...s,
+      characters: s.characters.includes(characterId)
+        ? s.characters.filter((id) => id !== characterId)
+        : sortCharacterIds([...s.characters, characterId]),
+    }))
+  }
+
+  const storytellerTabLabel = uiLanguage === 'zh' ? '主持助手' : 'Storyteller Helper'
+
   return (
-    <main
-      className="app-shell"
-      style={{ '--pdf-font-size': `${pdfFontSize}pt` } as CSSProperties}
-    >
-      <section className="app-hero">
-        <div>
-          <p className="app-hero__kicker">Blood on the Clocktower</p>
-          <h1>{uiText.appTitle}</h1>
-          <p className="app-hero__lede">{uiText.appLead}</p>
-        </div>
-        <div className="script-toolbar">
-          <label className="editor-field">
-            <span>{uiText.language}</span>
-            <select
-              onChange={(event) => setUiLanguage(event.target.value as Language)}
-              value={uiLanguage}
-            >
-              <option value="en">{uiText.english}</option>
-              <option value="zh">{uiText.chinese}</option>
-            </select>
-          </label>
-          {activeTab !== 'characters' && activeTab !== 'storyteller' && activeScript ? (
-            <button className="print-button" type="button" onClick={() => window.print()}>
-              {uiText.print}
-            </button>
-          ) : null}
-        </div>
-      </section>
-
-      <div className="tab-bar">
-        <button
-          className={`tab-button${activeTab === 'scripts' ? ' tab-button--active' : ''}`}
-          onClick={() => setActiveTab('scripts')}
-          type="button"
-        >
-          {uiText.scriptSheet}
-        </button>
-        <button
-          className={`tab-button${activeTab === 'settings' ? ' tab-button--active' : ''}`}
-          onClick={() => setActiveTab('settings')}
-          type="button"
-        >
-          {uiText.settings}
-        </button>
-        <button
-          className={`tab-button${activeTab === 'characters' ? ' tab-button--active' : ''}`}
-          onClick={() => setActiveTab('characters')}
-          type="button"
-        >
-          {uiText.allCharacters}
-        </button>
-        <button
-          className={`tab-button${activeTab === 'storyteller' ? ' tab-button--active' : ''}`}
-          onClick={() => setActiveTab('storyteller')}
-          type="button"
-        >
-          {storytellerTabLabel}
-        </button>
-      </div>
-
-      {activeTab === 'scripts' ? (
-        <section className="app-grid">
-          <aside className="script-list">
-            <div className="section-heading">
-              <h2>{uiText.scriptSheet}</h2>
-              <button className="secondary-button" onClick={createNewScript} type="button">
-                {uiText.newScript}
-              </button>
-            </div>
-            <div className="script-list__items">
-              {scripts.map((script) => (
-                <ScriptList
-                  key={script.slug}
-                  title={getScriptTitle(script)}
-                  isActive={script.slug === activeScript?.slug}
-                  onSelect={() => setActiveSlug(script.slug)}
-                />
-              ))}
-            </div>
-          </aside>
-
-          <section className="viewer-panel">
-            {activeScript ? (
-              <>
-                <div className="script-toolbar">
-                  <button
-                    className="secondary-button"
-                    onClick={() => setIsEditMode((current) => !current)}
-                    type="button"
-                  >
-                    {isEditMode ? uiText.doneEditing : uiText.editScript}
-                  </button>
-                  <button className="secondary-button" onClick={downloadScriptFile} type="button">
-                    {uiText.downloadJson}
-                  </button>
-                  {saveStatus ? <span className="save-status">{saveStatus}</span> : null}
-                </div>
-
-                {!isEditMode ? (
-                  <SheetArticle
-                    activeScript={activeScript}
-                    activeScriptCharacters={activeScriptCharacters}
-                    groupedScriptCharacters={groupedScriptCharacters}
-                    bootleggerRulesLabel={getSheetUiLabel(uiLanguage, 'bootlegger_rules')}
-                    jinxesLabel={getSheetUiLabel(uiLanguage, 'jinxes')}
-                    isEditMode={false}
-                    language={uiLanguage}
-                    onRemoveCharacter={toggleCharacterInScript}
-                    sheetDensityClass={sheetDensityClass}
-                    showWakeOrder={showWakeOrderPreview}
-                  />
-                ) : null}
-
-                <div className="print-sheets" aria-hidden="true">
-                  {(['en', 'zh'] as Language[]).map((language, index) => (
-                    <Fragment key={language}>
-                      <SheetArticle
-                        activeScript={activeScript}
-                        activeScriptCharacters={activeScriptCharacters}
-                        groupedScriptCharacters={groupedScriptCharacters}
-                        bootleggerRulesLabel={getSheetUiLabel(language, 'bootlegger_rules')}
-                        jinxesLabel={getSheetUiLabel(language, 'jinxes')}
-                        isEditMode={false}
-                        language={language}
-                        onRemoveCharacter={toggleCharacterInScript}
-                        sheetDensityClass={sheetDensityClass}
-                        className="print-sheet"
-                        showWakeOrder
-                        showEdition={false}
-                        showCharacterCount={false}
-                        supplementalPlacement="end"
-                      />
-                      {index === 0 ? <div className="print-page-break" /> : null}
-                    </Fragment>
-                  ))}
-                </div>
-
-                {isEditMode ? (
-                  <section className="script-editor">
-                    <div className="section-heading">
-                      <h2>{uiText.editScript}</h2>
-                      <span>{activeScript.sourceFile}</span>
-                    </div>
-
-                    <div className="script-editor__fields">
-                      <label className="editor-field">
-                        <span>{uiText.title}</span>
-                        <input
-                          onChange={(event) =>
-                            updateActiveScript((script) => ({
-                              ...script,
-                              title: event.target.value,
-                            }))
-                          }
-                          type="text"
-                          value={activeScript.title}
-                        />
-                      </label>
-
-                      <label className="editor-field">
-                        <span>{uiText.chineseTitle}</span>
-                        <input
-                          onChange={(event) =>
-                            updateActiveScript((script) => ({
-                              ...script,
-                              titleZh: event.target.value,
-                            }))
-                          }
-                          type="text"
-                          value={activeScript.titleZh}
-                        />
-                      </label>
-
-                      <label className="editor-field">
-                        <span>{uiText.author}</span>
-                        <input
-                          onChange={(event) =>
-                            updateActiveScript((script) => ({
-                              ...script,
-                              author: event.target.value,
-                            }))
-                          }
-                          type="text"
-                          value={activeScript.author}
-                        />
-                      </label>
-
-                      <label className="editor-field">
-                        <span>{uiText.editionLabel}</span>
-                        <select
-                          onChange={(event) =>
-                            updateActiveScript((script) => ({
-                              ...script,
-                              edition: event.target.value,
-                            }))
-                          }
-                          value={activeScript.edition}
-                        >
-                          {availableEditions.map((edition) => (
-                            <option key={edition} value={edition}>
-                              {editionLabels[uiLanguage][edition] ?? toTitleCase(edition)}
-                            </option>
-                          ))}
-                          <option value="custom">{uiText.custom}</option>
-                        </select>
-                      </label>
-                    </div>
-
-                    <div className="editor-field">
-                      <div className="section-heading">
-                        <span>{uiText.bootleggerRules}</span>
-                        <button
-                          className="secondary-button"
-                          onClick={() =>
-                            updateActiveScript((script) => ({
-                              ...script,
-                              meta: {
-                                ...script.meta,
-                                bootlegger: [...(script.meta.bootlegger ?? []), ''],
-                              },
-                            }))
-                          }
-                          type="button"
-                        >
-                          {uiText.addRule}
-                        </button>
-                      </div>
-                      <span>{uiText.bootleggerRulesHelp}</span>
-                      <div className="bootlegger-rules">
-                        {(activeScript.meta.bootlegger ?? []).map((rule, index) => (
-                          <div className="bootlegger-rule" key={index}>
-                            <input
-                              onChange={(event) =>
-                                updateActiveScript((script) => ({
-                                  ...script,
-                                  meta: {
-                                    ...script.meta,
-                                    bootlegger: (script.meta.bootlegger ?? []).map((entry, entryIndex) =>
-                                      entryIndex === index ? event.target.value : entry,
-                                    ),
-                                  },
-                                }))
-                              }
-                              placeholder={uiText.bootleggerRulePlaceholder}
-                              type="text"
-                              value={rule}
-                            />
-                            <button
-                              className="secondary-button"
-                              onClick={() =>
-                                updateActiveScript((script) => ({
-                                  ...script,
-                                  meta: {
-                                    ...script.meta,
-                                    bootlegger: (script.meta.bootlegger ?? []).filter(
-                                      (_, entryIndex) => entryIndex !== index,
-                                    ),
-                                  },
-                                }))
-                              }
-                              type="button"
-                            >
-                              {uiText.remove}
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="editor-field">
-                      <div className="section-heading">
-                        <span>{uiText.bootleggerRulesZh}</span>
-                        <button
-                          className="secondary-button"
-                          onClick={() =>
-                            updateActiveScript((script) => ({
-                              ...script,
-                              meta: {
-                                ...script.meta,
-                                bootlegger_zh: [...(script.meta.bootlegger_zh ?? []), ''],
-                              },
-                            }))
-                          }
-                          type="button"
-                        >
-                          {uiText.addRule}
-                        </button>
-                      </div>
-                      <span>{uiText.bootleggerRulesZhHelp}</span>
-                      <div className="bootlegger-rules">
-                        {(activeScript.meta.bootlegger_zh ?? []).map((rule, index) => (
-                          <div className="bootlegger-rule" key={index}>
-                            <input
-                              onChange={(event) =>
-                                updateActiveScript((script) => ({
-                                  ...script,
-                                  meta: {
-                                    ...script.meta,
-                                    bootlegger_zh: (script.meta.bootlegger_zh ?? []).map(
-                                      (entry, entryIndex) =>
-                                        entryIndex === index ? event.target.value : entry,
-                                    ),
-                                  },
-                                }))
-                              }
-                              placeholder={uiText.bootleggerRuleZhPlaceholder}
-                              type="text"
-                              value={rule}
-                            />
-                            <button
-                              className="secondary-button"
-                              onClick={() =>
-                                updateActiveScript((script) => ({
-                                  ...script,
-                                  meta: {
-                                    ...script.meta,
-                                    bootlegger_zh: (script.meta.bootlegger_zh ?? []).filter(
-                                      (_, entryIndex) => entryIndex !== index,
-                                    ),
-                                  },
-                                }))
-                              }
-                              type="button"
-                            >
-                              {uiText.remove}
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="editor-field">
-                      <div className="section-heading">
-                        <span>{uiText.scriptJinxes}</span>
-                        <button
-                          className="secondary-button"
-                          onClick={() =>
-                            updateActiveScript((script) => ({
-                              ...script,
-                              meta: {
-                                ...script.meta,
-                                jinxes: [
-                                  ...(script.meta.jinxes ?? []),
-                                  {
-                                    id: '',
-                                    status: 'active',
-                                    reason: '',
-                                    reason_zh: '',
-                                  },
-                                ],
-                              },
-                            }))
-                          }
-                          type="button"
-                        >
-                          {uiText.addJinx}
-                        </button>
-                      </div>
-                      <span>{uiText.scriptJinxesHelp}</span>
-                      <div className="script-jinxes">
-                        {(activeScript.meta.jinxes ?? []).map((jinx, index) => (
-                          <div className="script-jinx" key={index}>
-                            <input
-                              onChange={(event) =>
-                                updateActiveScript((script) => ({
-                                  ...script,
-                                  meta: {
-                                    ...script.meta,
-                                    jinxes: (script.meta.jinxes ?? []).map((entry, entryIndex) =>
-                                      entryIndex === index ? { ...entry, id: event.target.value } : entry,
-                                    ),
-                                  },
-                                }))
-                              }
-                              placeholder={uiText.jinxPairPlaceholder}
-                              type="text"
-                              value={jinx.id ?? ''}
-                            />
-                            <select
-                              aria-label={uiText.jinxStatus}
-                              onChange={(event) =>
-                                updateActiveScript((script) => ({
-                                  ...script,
-                                  meta: {
-                                    ...script.meta,
-                                    jinxes: (script.meta.jinxes ?? []).map((entry, entryIndex) =>
-                                      entryIndex === index
-                                        ? {
-                                            ...entry,
-                                            status:
-                                              event.target.value === 'inactive' ? 'inactive' : 'active',
-                                          }
-                                        : entry,
-                                    ),
-                                  },
-                                }))
-                              }
-                              value={jinx.status ?? 'active'}
-                            >
-                              <option value="active">{uiText.jinxStatusActive}</option>
-                              <option value="inactive">{uiText.jinxStatusInactive}</option>
-                            </select>
-                            <input
-                              onChange={(event) =>
-                                updateActiveScript((script) => ({
-                                  ...script,
-                                  meta: {
-                                    ...script.meta,
-                                    jinxes: (script.meta.jinxes ?? []).map((entry, entryIndex) =>
-                                      entryIndex === index
-                                        ? { ...entry, reason: event.target.value }
-                                        : entry,
-                                    ),
-                                  },
-                                }))
-                              }
-                              placeholder={uiText.jinxReasonEnPlaceholder}
-                              type="text"
-                              value={jinx.reason ?? ''}
-                            />
-                            <input
-                              onChange={(event) =>
-                                updateActiveScript((script) => ({
-                                  ...script,
-                                  meta: {
-                                    ...script.meta,
-                                    jinxes: (script.meta.jinxes ?? []).map((entry, entryIndex) =>
-                                      entryIndex === index
-                                        ? { ...entry, reason_zh: event.target.value }
-                                        : entry,
-                                    ),
-                                  },
-                                }))
-                              }
-                              placeholder={uiText.jinxReasonZhPlaceholder}
-                              type="text"
-                              value={jinx.reason_zh ?? ''}
-                            />
-                            <button
-                              className="secondary-button"
-                              onClick={() =>
-                                updateActiveScript((script) => ({
-                                  ...script,
-                                  meta: {
-                                    ...script.meta,
-                                    jinxes: (script.meta.jinxes ?? []).filter(
-                                      (_, entryIndex) => entryIndex !== index,
-                                    ),
-                                  },
-                                }))
-                              }
-                              type="button"
-                            >
-                              {uiText.remove}
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="script-editor__layout">
-                      <div className="script-editor__picker">
-                        <div className="section-heading">
-                          <h2>{uiText.availableCharacters}</h2>
-                        </div>
-                        <label className="editor-field">
-                          <span>{uiText.characterSearch}</span>
-                          <input
-                            onChange={(event) => setEditorQuery(event.target.value)}
-                            placeholder={uiText.filterCharacters}
-                            type="search"
-                            value={editorQuery}
-                          />
-                        </label>
-
-                        <div className="editor-groups">
-                          {groupedEditorCharacters.map((group) => (
-                            <section className="editor-group" key={group.team}>
-                              <div className={`team-group__heading team-group__heading--${group.team}`}>
-                                <h3>{teamLabels[uiLanguage][group.team]}</h3>
-                                <span>{group.characters.length}</span>
-                              </div>
-                              <div className="editor-character-list">
-                                {group.characters.map((character) => (
-                                  <label className="editor-character" key={character.id}>
-                                    <input
-                                      checked={activeScript.characters.includes(character.id)}
-                                      onChange={() => toggleCharacterInScript(character.id)}
-                                      type="checkbox"
-                                    />
-                                    <div>
-                                      <strong>{getDisplayName(character.id, uiLanguage)}</strong>
-                                      <p>{character.id}</p>
-                                    </div>
-                                  </label>
-                                ))}
-                              </div>
-                            </section>
-                          ))}
-                        </div>
-                      </div>
-
-                      <aside className="script-editor__selected">
-                        <div className="section-heading">
-                          <h2>{uiText.selectedCharacters}</h2>
-                          <span>
-                            {activeScriptCharacters.length} {uiText.selectedCount}
-                          </span>
-                        </div>
-
-                        <div className="editor-selected-groups">
-                          {groupedScriptCharacters.length > 0 ? (
-                            groupedScriptCharacters.map((group) => (
-                              <section className="editor-group" key={group.team}>
-                                <div className={`team-group__heading team-group__heading--${group.team}`}>
-                                  <h3>{teamLabels[uiLanguage][group.team]}</h3>
-                                  <span>{group.characters.length}</span>
-                                </div>
-                                <div className="editor-selected-list">
-                                  {group.characters.map((character) => (
-                                    <div className="editor-selected-item" key={character.id}>
-                                      <div className="editor-selected-item__top">
-                                        <strong>
-                                          {character.name ?? getDisplayName(character.id, uiLanguage)}
-                                        </strong>
-                                        <button
-                                          aria-label={`Remove ${character.name ?? character.id}`}
-                                          className="editor-selected-remove"
-                                          onClick={() => toggleCharacterInScript(character.id)}
-                                          type="button"
-                                        >
-                                          x
-                                        </button>
-                                      </div>
-                                      <p>{character.id}</p>
-                                    </div>
-                                  ))}
-                                </div>
-                              </section>
-                            ))
-                          ) : (
-                            <p className="editor-selected-empty">{uiText.noCharacters}</p>
-                          )}
-                        </div>
-                      </aside>
-                    </div>
-                  </section>
-                ) : null}
-              </>
-            ) : (
-              <p>{uiText.noScripts}</p>
+    <Container maxWidth="xl" sx={{ py: { xs: 0, sm: 3 }, px: { xs: 0, sm: 3 }, minHeight: '100vh' }}>
+      <Paper elevation={0} sx={{ p: { xs: 1, sm: 3 }, mb: { xs: 0, sm: 2 }, borderRadius: { xs: 0, sm: 3 }, background: 'rgba(255,251,245,0.9)' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
+          <Typography variant="body1" component="h1" sx={{ fontFamily: 'Georgia, "Times New Roman", serif', m: 0, fontWeight: 700, display: { xs: 'none', sm: 'block' } }}>
+            {uiText.appTitle}
+          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <FormControl size="small" sx={{ minWidth: { xs: 60, sm: 80 }, '& .MuiInputBase-input': { fontSize: { xs: '0.75rem', sm: '0.875rem' }, py: { xs: '4px', sm: '8px' } }, '& .MuiInputLabel-root': { fontSize: { xs: '0.75rem', sm: '0.875rem' } } }}>
+              <InputLabel>{uiText.language}</InputLabel>
+              <Select value={uiLanguage} label={uiText.language} onChange={(e) => setUiLanguage(e.target.value as Language)}>
+                <MenuItem value="en">{uiText.english}</MenuItem>
+                <MenuItem value="zh">{uiText.chinese}</MenuItem>
+              </Select>
+            </FormControl>
+            {activeTab !== 'characters' && activeTab !== 'storyteller' && activeScript && (
+              <Button variant="contained" startIcon={<PrintIcon />} onClick={() => window.print()} sx={{ borderRadius: 999, display: { xs: 'none', sm: 'flex' } }}>
+                {uiText.print}
+              </Button>
             )}
-          </section>
-        </section>
-      ) : activeTab === 'settings' ? (
-        <section className="viewer-panel settings-panel">
-          <div className="viewer-panel__header">
-            <div>
-              <p className="viewer-panel__eyebrow">{uiText.export}</p>
-              <h2>{uiText.pdfSettings}</h2>
-            </div>
-            <span>{pdfFontSize.toFixed(1)}pt</span>
-          </div>
-          <p className="settings-panel__copy">
-            {uiText.appLead}
-            {activeScript ? ` ${uiText.currentScript}: ${getScriptTitle(activeScript)}.` : ''}
-          </p>
+          </Box>
+        </Box>
+        <Tabs
+          value={activeTab}
+          onChange={(_, v) => setActiveTab(v)}
+          variant="scrollable"
+          scrollButtons="auto"
+          sx={{
+            minHeight: { xs: 36, sm: 48 },
+            '& .MuiTab-root': { textTransform: 'none', borderRadius: 999, border: '1px solid', borderColor: 'divider', mr: 0.5, minHeight: { xs: 32, sm: 48 }, fontSize: { xs: '0.75rem', sm: '0.875rem' }, py: { xs: 0.5, sm: 1 }, px: { xs: 1, sm: 1.5 } },
+            '& .Mui-selected': { backgroundColor: 'rgba(133, 63, 34, 0.1)', borderColor: 'primary.main' },
+          }}
+        >
+          <Tab label={uiText.scriptSheet} value="scripts" />
+          <Tab label={uiText.settings} value="settings" />
+          <Tab label={uiText.allCharacters} value="characters" />
+          <Tab label={storytellerTabLabel} value="storyteller" />
+        </Tabs>
+      </Paper>
 
-          <section className="pdf-settings">
-            <div className="pdf-settings__controls">
-              <label className="editor-field">
-                <span>{uiText.fontSize}</span>
-                <input
-                  max="30"
-                  min="5.5"
-                  onChange={(event) => setPdfFontSize(Number(event.target.value))}
-                  step="0.1"
-                  type="range"
-                  value={pdfFontSize}
-                />
-              </label>
-              <label className="editor-field">
-                <span>{uiText.fontSizePt}</span>
-                <input
-                  max="30"
-                  min="5.5"
-                  onChange={(event) => {
-                    const nextValue = Number(event.target.value)
-                    if (Number.isNaN(nextValue)) {
-                      return
-                    }
+      {activeTab === 'scripts' && (
+        <ScriptsTab
+          scripts={scripts}
+          activeScript={activeScript}
+          uiText={uiText}
+          uiLanguage={uiLanguage}
+          isEditMode={isEditMode}
+          showWakeOrderPreview={showWakeOrderPreview}
+          saveStatus={saveStatus}
+          activeScriptCharacters={activeScriptCharacters}
+          groupedScriptCharacters={groupedScriptCharacters}
+          groupedEditorCharacters={groupedEditorCharacters}
+          editorQuery={editorQuery}
+          availableEditions={availableEditions}
+          sheetDensityClass={sheetDensityClass}
+          setIsEditMode={setIsEditMode}
+          setEditorQuery={setEditorQuery}
+          setActiveSlug={setActiveSlug}
+          createNewScript={createNewScript}
+          downloadScriptFile={downloadScriptFile}
+          updateActiveScript={updateActiveScript}
+          toggleCharacterInScript={toggleCharacterInScript}
+          getScriptTitle={getScriptTitle}
+          getSheetUiLabel={getSheetUiLabel}
+        />
+      )}
 
-                    setPdfFontSize(Math.min(30, Math.max(5.5, nextValue)))
-                  }}
-                  step="0.1"
-                  type="number"
-                  value={pdfFontSize}
-                />
-              </label>
-              <button
-                className="secondary-button"
-                onClick={() => setPdfFontSize(11)}
-                type="button"
-              >
-                {uiText.reset}
-              </button>
-            </div>
-          </section>
+      {activeTab === 'settings' && (
+        <SettingsTab
+          uiText={uiText}
+          uiLanguage={uiLanguage}
+          activeScript={activeScript}
+          pdfFontSize={pdfFontSize}
+          showWakeOrderPreview={showWakeOrderPreview}
+          setPdfFontSize={setPdfFontSize}
+          setShowWakeOrderPreview={setShowWakeOrderPreview}
+          getScriptTitle={getScriptTitle}
+        />
+      )}
 
-          <section className="pdf-settings">
-            <div className="section-heading">
-              <h2>{uiText.preview}</h2>
-            </div>
-            <label className="toggle-field">
-              <input
-                checked={showWakeOrderPreview}
-                onChange={() => setShowWakeOrderPreview((current) => !current)}
-                type="checkbox"
-              />
-              <span>{uiText.wakeOrderToggle}</span>
-            </label>
-            <p className="settings-panel__note">{uiText.wakeOrderNote}</p>
-          </section>
-        </section>
-      ) : activeTab === 'characters' ? (
-        <section className="browser-layout">
-          <section className="browser-panel">
-          <div className="browser-panel__header">
-            <div>
-              <h2>{uiText.allCharacters}</h2>
-              <p>
-                {filteredCharacters.length} {uiText.resultsSuffix}
-              </p>
-            </div>
-            <div className="browser-controls">
-              <input
-                aria-label="Search characters"
-                className="browser-search"
-                onChange={(event) => setCharacterQuery(event.target.value)}
-                placeholder={uiText.searchCharacters}
-                type="search"
-                value={characterQuery}
-              />
-              <div className="filter-row">
-                {teamOrder.map((team) => (
-                  <FilterCheckbox
-                    checked={selectedTeams.includes(team)}
-                    key={team}
-                    label={teamLabels[uiLanguage][team]}
-                    onChange={() => toggleTeam(team)}
-                  />
-                ))}
-              </div>
-              <div className="filter-row">
-                {availableEditions.map((edition) => (
-                  <FilterCheckbox
-                    checked={selectedEditions.includes(edition)}
-                    key={edition}
-                    label={editionLabels[uiLanguage][edition] ?? toTitleCase(edition)}
-                    onChange={() => toggleEdition(edition)}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
+      {activeTab === 'characters' && (
+        <CharactersTab
+          uiText={uiText}
+          uiLanguage={uiLanguage}
+          filteredCharacters={filteredCharacters}
+          availableEditions={availableEditions}
+          selectedTeams={selectedTeams}
+          selectedEditions={selectedEditions}
+          selectedCharacter={selectedCharacter}
+          characterQuery={characterQuery}
+          setCharacterQuery={setCharacterQuery}
+          setSelectedCharacterId={setSelectedCharacterId}
+          toggleTeam={(team) => setSelectedTeams((cur) => cur.includes(team) ? cur.filter((t) => t !== team) : [...cur, team])}
+          toggleEdition={(edition) => setSelectedEditions((cur) => cur.includes(edition) ? cur.filter((e) => e !== edition) : [...cur, edition])}
+        />
+      )}
 
-          <div className="browser-list">
-            {filteredCharacters.map((character) => {
-              const icon = getIconForCharacter(character.id)
-              const team = teamLabels[uiLanguage][character.team]
-              const edition =
-                editionLabels[uiLanguage][character.edition] ?? toTitleCase(character.edition)
-              const currentRevision = getCurrentRevision(character.id)
-              const isSelected = character.id === selectedCharacter?.id
-
-              return (
-                <button
-                  className={`browser-card${isSelected ? ' browser-card--selected' : ''}`}
-                  key={character.id}
-                  onClick={() => setSelectedCharacterId(character.id)}
-                  type="button"
-                >
-                  {icon ? (
-                    <img alt="" className="browser-card__icon" src={icon} />
-                  ) : (
-                    <div className="browser-card__icon browser-card__icon--placeholder">
-                      {character.id.slice(0, 2).toUpperCase()}
-                    </div>
-                  )}
-                  <div className="browser-card__body">
-                    <div className="browser-card__topline">
-                      <h3>{getDisplayName(character.id, uiLanguage)}</h3>
-                      <span>{team}</span>
-                    </div>
-                    <p className="browser-card__id">
-                      {character.id} · {edition} · {currentRevision}
-                    </p>
-                    <p
-                      dangerouslySetInnerHTML={{
-                        __html: getAbilityText(character.id, uiLanguage),
-                      }}
-                    />
-                  </div>
-                </button>
-              )
-            })}
-          </div>
-          </section>
-
-          <CharacterRevisionPanel
-            character={selectedCharacter}
-            chineseTextLabel={uiText.chineseText}
-            currentLabel={uiText.current}
-            currentRevisionLabel={uiText.currentRevision}
-            englishTextLabel={uiText.englishText}
-            language={uiLanguage}
-            noCharacterSelectedLabel={uiText.noCharacterSelected}
-            revisionNoteLabel={uiText.revisionNote}
-            revisionHistoryLabel={uiText.revisionHistory}
-            title={uiText.characterVersions}
-          />
-        </section>
-      ) : (
+      {activeTab === 'storyteller' && (
         <StorytellerHelper
           activeScriptSlug={activeScript?.slug}
           activeScriptTitle={activeScript ? getScriptTitle(activeScript) : undefined}
           language={uiLanguage}
           onSelectScript={setActiveSlug}
-          scriptOptions={scripts.map((script) => ({
-            slug: script.slug,
-            title: getScriptTitle(script),
-            characters: script.characters,
-          }))}
+          scriptOptions={scripts.map((s) => ({ slug: s.slug, title: getScriptTitle(s), characters: s.characters }))}
         />
       )}
-    </main>
+    </Container>
   )
 }

@@ -1,5 +1,6 @@
 // @ts-nocheck
 import React from 'react'
+import { Box, Button, IconButton, Chip, Tooltip, Paper } from '@mui/material'
 import { ArenaSeatTagPopout } from './ArenaSeatTagPopout'
 import { ArenaSeatSkillPopout } from './ArenaSeatSkillPopout'
 import { ArenaSeatCharacterPopout } from './ArenaSeatCharacterPopout'
@@ -7,250 +8,329 @@ import { getDisplayName, getIconForCharacter, nightOrder } from '../../../catalo
 import { getSeatPosition } from '../../../utils/seats'
 
 export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: any, index: number, isPortrait: boolean }) {
-  const { language, pickerMode, skillOverlay, currentDay, updateCurrentDay, currentVoterSeat, tagPopoutSeat, setTagPopoutSeat, skillPopoutSeat, setSkillPopoutSeat, selectedSeat, text, handleSeatClick, handleVoteYes, handleVoteNo, removeSeatTag, openSeatSkill, closeSkillOverlay, currentScriptCharacters, nightShowCharacter, nightShowWakeOrder, characterPopoutSeat, setCharacterPopoutSeat, toggleNightVisitedSeat } = ctx;
+  const { 
+    language, pickerMode, skillOverlay, currentDay, updateCurrentDay, currentVoterSeat, 
+    tagPopoutSeat, setTagPopoutSeat, skillPopoutSeat, setSkillPopoutSeat, 
+    selectedSeat, text, handleSeatClick, handleVoteYes, handleVoteNo, removeSeatTag, 
+    openSeatSkill, closeSkillOverlay, currentScriptCharacters, nightShowCharacter, 
+    nightShowWakeOrder, characterPopoutSeat, setCharacterPopoutSeat, toggleNightVisitedSeat 
+  } = ctx
 
   const { left, top } = getSeatPosition(index, currentDay.seats.length, isPortrait)
-                const isCharacterTag = (tag: string) => tag.startsWith('💀');
-                const getCharacterName = (tag: string) => {
-                  const charId = tag.slice(1);
-                  return getDisplayName(charId, language);
-                };
-                const displayTag = (tag: string) => isCharacterTag(tag) ? getCharacterName(tag) : tag;
-                const tags = [!seat.alive ? text.aliveTag : '', seat.isExecuted ? text.executedTag : '', seat.isTraveler ? text.traveler : '', seat.hasNoVote ? text.noVoteTag : '', ...seat.customTags].filter(Boolean)
-                const isRoundRobinSpeaker = currentDay.phase === 'public' && currentDay.publicMode === 'roundRobin' && currentDay.currentSpeakerSeat === seat.seat
-                const isSpoken = currentDay.roundRobinSpokenSeats.includes(seat.seat)
-                const isVoteActor = currentDay.voteDraft.actor === seat.seat
-                const isVoteTarget = currentDay.voteDraft.target === seat.seat
-                const isSkillActor = skillOverlay?.draft.actor === seat.seat
-                const isSkillTarget = skillOverlay?.draft.targets.includes(seat.seat) ?? false
-                const isCurrentVoter = currentVoterSeat === seat.seat
-                const hasVoted = currentDay.votingState?.votes[seat.seat] !== undefined
-                const votedYes = currentDay.votingState?.votes[seat.seat] === true
-                const isInNomination = currentDay.phase === 'nomination' && currentDay.nominationStep !== 'waitingForNomination'
-                const cardVotedYes = currentDay.votingState
-                  ? currentDay.votingState.votes[seat.seat] === true
-                  : currentDay.voteDraft.voters.includes(seat.seat)
-                const cardVotedNo = currentDay.votingState
-                  ? currentDay.votingState.votes[seat.seat] === false
-                  : currentDay.voteDraft.noVoters.includes(seat.seat)
-                const isTagPopoutOpen = tagPopoutSeat === seat.seat
-                const isSkillPopoutOpen = skillPopoutSeat === seat.seat
-                const isCharacterPopoutOpen = characterPopoutSeat === seat.seat
-                const isNightPhase = currentDay.phase === 'night'
 
-                const actualCharId = seat.characterId
-                const perceivedCharId = seat.userCharacterId || seat.characterId
-                const showDifferentPerception = seat.userCharacterId && seat.userCharacterId !== seat.characterId
-                const charIcon = actualCharId ? getIconForCharacter(actualCharId) : null
-                const actualCharName = actualCharId ? getDisplayName(actualCharId, language) : ''
-                const perceivedCharName = perceivedCharId && perceivedCharId !== actualCharId ? getDisplayName(perceivedCharId, language) : ''
-                const perceivedIcon = perceivedCharId && perceivedCharId !== actualCharId ? getIconForCharacter(perceivedCharId) : null
-                const isVisited = currentDay.nightVisitedSeats.includes(seat.seat)
+  const isCharacterTag = (tag: string) => tag.charAt(0) === '💀'
+  const getCharacterName = (tag: string) => {
+    const charId = [...tag].slice(1).join('')
+    return getDisplayName(charId, language)
+  }
+  const displayTag = (tag: string) => isCharacterTag(tag) ? getCharacterName(tag) : tag
+  
+  const tags = [
+    !seat.alive ? text.aliveTag : '', 
+    seat.isExecuted ? text.executedTag : '', 
+    seat.isTraveler ? text.traveler : '', 
+    seat.hasNoVote ? text.noVoteTag : '', 
+    ...seat.customTags
+  ].filter(Boolean)
+  
+  const isRoundRobinSpeaker = currentDay.phase === 'public' && currentDay.publicMode === 'roundRobin' && currentDay.currentSpeakerSeat === seat.seat
+  const isSpoken = currentDay.roundRobinSpokenSeats.includes(seat.seat)
+  const isVoteActor = currentDay.voteDraft.actor === seat.seat
+  const isVoteTarget = currentDay.voteDraft.target === seat.seat
+  const isSkillActor = skillOverlay?.draft.actor === seat.seat
+  const isSkillTarget = skillOverlay?.draft.targets.includes(seat.seat) ?? false
+  const isCurrentVoter = currentVoterSeat === seat.seat
+  const hasVoted = currentDay.votingState?.votes[seat.seat] !== undefined
+  const votedYes = currentDay.votingState?.votes[seat.seat] === true
+  const isInNomination = currentDay.phase === 'nomination' && currentDay.nominationStep !== 'waitingForNomination'
+  
+  const cardVotedYes = currentDay.votingState
+    ? currentDay.votingState.votes[seat.seat] === true
+    : currentDay.voteDraft.voters.includes(seat.seat)
+  const cardVotedNo = currentDay.votingState
+    ? currentDay.votingState.votes[seat.seat] === false
+    : currentDay.voteDraft.noVoters.includes(seat.seat)
+  
+  const isTagPopoutOpen = tagPopoutSeat === seat.seat
+  const isSkillPopoutOpen = skillPopoutSeat === seat.seat
+  const isCharacterPopoutOpen = characterPopoutSeat === seat.seat
+  const isNightPhase = currentDay.phase === 'night'
 
-                const isFirstNight = currentDay.day === 1
-                const nightList = isFirstNight
-                  ? (nightOrder?.first_night ?? [])
-                  : (nightOrder?.other_nights ?? [])
+  const actualCharId = seat.characterId
+  const perceivedCharId = seat.userCharacterId || seat.characterId
+  const showDifferentPerception = seat.userCharacterId && seat.userCharacterId !== seat.characterId
+  const charIcon = actualCharId ? getIconForCharacter(actualCharId) : null
+  const actualCharName = actualCharId ? getDisplayName(actualCharId, language) : ''
+  const perceivedCharName = perceivedCharId && perceivedCharId !== actualCharId ? getDisplayName(perceivedCharId, language) : ''
+  const perceivedIcon = perceivedCharId && perceivedCharId !== actualCharId ? getIconForCharacter(perceivedCharId) : null
+  const isVisited = currentDay.nightVisitedSeats.includes(seat.seat)
 
-                const getNightOrderPosition = (charId: string | null) => {
-                  if (!charId) return null
-                  const idx = nightList.indexOf(charId)
-                  if (idx !== -1) return idx + 1
-                  return null
-                }
+  const isFirstNight = currentDay.day === 1
+  const nightList = isFirstNight
+    ? (nightOrder?.first_night ?? [])
+    : (nightOrder?.other_nights ?? [])
 
-                const playerWakeOrder = actualCharId ? getNightOrderPosition(actualCharId) : null
+  const getNightOrderPosition = (charId: string | null) => {
+    if (!charId) return null
+    const idx = nightList.indexOf(charId)
+    if (idx !== -1) return idx + 1
+    return null
+  }
+
+  const playerWakeOrder = actualCharId ? getNightOrderPosition(actualCharId) : null
+
+  const seatSx = {
+    position: 'absolute',
+    left: `${left}%`,
+    top: `${top}%`,
+    transform: 'translate(-50%, -50%)',
+    width: 120,
+    minWidth: 100,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    p: 0.5,
+    borderRadius: 1,
+    border: '1px solid',
+    borderColor: selectedSeat?.seat === seat.seat ? 'primary.main' : 'divider',
+    bgcolor: 'background.paper',
+    opacity: seat.alive ? 1 : 0.7,
+    transition: 'all 0.2s ease',
+    pointerEvents: 'auto',
+    '&:hover': { boxShadow: 3 },
+  }
+
+  const getStateSx = () => {
+    let sx: any = { ...seatSx }
+    if (!seat.alive) sx.bgcolor = 'action.hover'
+    if (seat.isExecuted) sx.borderColor = 'error.main'
+    if (seat.isTraveler) sx.borderColor = 'info.main'
+    if (isVoteActor || isSkillActor) sx.borderColor = 'warning.main'
+    if (isVoteTarget) sx.borderColor = 'secondary.main'
+    if (isSkillTarget) sx.borderColor = 'error.light'
+    if (isCurrentVoter) sx.boxShadow = `0 0 0 2px ${'primary.main'}`
+    if (pickerMode !== 'none') sx.cursor = 'pointer'
+    return sx
+  }
+
+  const handleVoteYesClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (isCurrentVoter) {
+      handleVoteYes(seat.seat)
+    } else if (currentDay.votingState) {
+      updateCurrentDay((d) => ({ ...d, votingState: d.votingState ? { ...d.votingState, votes: { ...d.votingState.votes, [seat.seat]: true } } : null }))
+    } else {
+      updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, voters: [...d.voteDraft.voters, seat.seat], noVoters: d.voteDraft.noVoters.filter((v) => v !== seat.seat) } }))
+    }
+  }
+
+  const handleVoteNoClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (isCurrentVoter) {
+      handleVoteNo(seat.seat)
+    } else if (currentDay.votingState) {
+      updateCurrentDay((d) => ({ ...d, votingState: d.votingState ? { ...d.votingState, votes: { ...d.votingState.votes, [seat.seat]: false } } : null }))
+    } else {
+      updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, noVoters: [...d.voteDraft.noVoters, seat.seat], voters: d.voteDraft.voters.filter((v) => v !== seat.seat) } }))
+    }
+  }
+
+  const handleRemoveVote = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (currentDay.votingState) {
+      updateCurrentDay((d) => ({ ...d, votingState: d.votingState ? { ...d.votingState, votes: { ...d.votingState.votes, [seat.seat]: undefined as unknown as boolean } } : null }))
+    } else {
+      if (cardVotedYes) {
+        updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, voters: d.voteDraft.voters.filter((v) => v !== seat.seat) } }))
+      } else if (cardVotedNo) {
+        updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, noVoters: d.voteDraft.noVoters.filter((v) => v !== seat.seat) } }))
+      }
+    }
+  }
+
+  const handleTagClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setTagPopoutSeat(isTagPopoutOpen ? null : seat.seat)
+    setSkillPopoutSeat(null)
+    if (skillOverlay && !isTagPopoutOpen) closeSkillOverlay(false)
+  }
+
+  const handleSkillClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (isSkillPopoutOpen) {
+      closeSkillOverlay(false)
+    } else {
+      openSeatSkill(seat.seat)
+    }
+  }
+
+  const handleCharacterClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setCharacterPopoutSeat(isCharacterPopoutOpen ? null : seat.seat)
+  }
+
+  const handleWakeCheckboxClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    toggleNightVisitedSeat(seat.seat)
+  }
+
+  const handleTagPillRightClick = (e: React.MouseEvent, tag: string) => {
+    if (!seat.customTags.includes(tag)) return
+    e.preventDefault()
+    removeSeatTag(seat.seat, tag)
+  }
+
+  const handlePaperClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    handleSeatClick(seat.seat)
+  }
 
   return (
     <>
-      <article
-                    className={[
-                      'storyteller-seat',
-                      !seat.alive ? 'storyteller-seat--dead' : '',
-                      seat.isExecuted ? 'storyteller-seat--executed' : '',
-                      seat.isTraveler ? 'storyteller-seat--traveler' : '',
-                      selectedSeat?.seat === seat.seat ? 'storyteller-seat--speaker' : '',
-                      isSpoken ? 'storyteller-seat--spoken' : '',
-                      isRoundRobinSpeaker ? 'storyteller-seat--rr-speaker' : '',
-                      isVoteActor || isSkillActor ? 'storyteller-seat--actor' : '',
-                      isVoteTarget ? 'storyteller-seat--target' : '',
-                      isSkillTarget ? 'storyteller-seat--skill-target' : '',
-                      isCurrentVoter ? 'storyteller-seat--current-voter' : '',
-                      pickerMode !== 'none' ? 'storyteller-seat--picker' : '',
-                      isTagPopoutOpen || isSkillPopoutOpen || isCharacterPopoutOpen ? 'storyteller-seat--tag-open' : '',
-                    ].filter(Boolean).join(' ')}
-                    key={seat.seat}
-                    style={{ left: `${left}%`, top: `${top}%` } as CSSProperties}
-                  >
-                    <button className="storyteller-seat__surface" onClick={() => handleSeatClick(seat.seat)} type="button">
-                      <div className="storyteller-seat__header">
-                        <span className="storyteller-seat__nameline">
-                          <span className="storyteller-seat__number">#{seat.seat}</span>
-                          <span className="storyteller-seat__name">{seat.name}</span>
-                        </span>
-                        {hasVoted ? <span className={`storyteller-seat__vote-mark${votedYes ? '' : ' storyteller-seat__vote-mark--no'}`}>{votedYes ? '✓' : '✗'}</span> : null}
-                      </div>
-                    </button>
+      <Paper elevation={selectedSeat?.seat === seat.seat ? 4 : 1} sx={getStateSx()} onClick={handlePaperClick} data-seat>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', minWidth: 0 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: 'nowrap' }}>
+              <Box component="span" sx={{ fontWeight: fontWeight => seat.alive ? 700 : 500, color: seat.alive ? 'text.primary' : 'text.disabled',  whiteSpace: 'nowrap' }}>
+                #{seat.seat}
+              </Box>
+              <Box component="span" sx={{ fontWeight: 600, whiteSpace: 'nowrap' }}>
+                {seat.name}
+              </Box>
+            </Box>
+            {hasVoted && (
+              <Box component="span" sx={{  color: votedYes ? 'success.main' : 'error.main', fontWeight: 700 }}>
+                {votedYes ? '✓' : '✗'}
+              </Box>
+            )}
+          </Box>
+        </Box>
 
-                    {/* Use Skill button */}
-                    <button
-                      className={`storyteller-seat__skill-btn${isSkillPopoutOpen ? ' storyteller-seat__skill-btn--open' : ''}`}
-                      onClick={(e) => { e.stopPropagation(); if (isSkillPopoutOpen) { closeSkillOverlay(false) } else { openSeatSkill(seat.seat) } }}
-                      type="button"
-                    >{language === 'zh' ? '发动技能' : 'Use Skill'}</button>
+        {tags.length > 0 && (
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.25, justifyContent: 'center', mt: 0.25 }}>
+            {tags.map((tag) => {
+              const isChar = tag.startsWith('💀')
+              const charId = isChar ? [...tag].slice(1).join('') : ''
+              const icon = isChar ? getIconForCharacter(charId) : null
+              const label = isChar ? getDisplayName(charId, language) : tag
+              return (
+                <Chip
+                  key={`${seat.seat}-${tag}`}
+                  label={label}
+                  size="small"
+                  icon={icon ? <img src={icon as string} style={{ width: 18, height: 18 }} /> : undefined}
+                  onContextMenu={(e) => handleTagPillRightClick(e, tag)}
+                />
+              )
+            })}
+          </Box>
+        )}
 
-                    {/* Tag button */}
-                    <button
-                      className={`storyteller-seat__tag-btn${isTagPopoutOpen ? ' storyteller-seat__tag-btn--open' : ''}`}
-                      onClick={(e) => { e.stopPropagation(); setTagPopoutSeat(isTagPopoutOpen ? null : seat.seat); setSkillPopoutSeat(null); if (skillOverlay && !isTagPopoutOpen) closeSkillOverlay(false) }}
-                      type="button"
-                    >{text.addTagLabel}</button>
+        <Box sx={{ display: 'flex', gap: 0.25, mt: 0.25, flexWrap: 'wrap', justifyContent: 'center' }}>
+          <Button 
+            size="medium" 
+            variant={isSkillPopoutOpen ? 'contained' : 'outlined'}
+            onClick={handleSkillClick}
+            color={isSkillPopoutOpen ? 'primary' : 'inherit'}
+            sx={{ minWidth: 0, px: 0.75, py: 0.25, fontWeight: 600 }}
+          >
+            {language === 'zh' ? '技能' : 'Ability'}
+          </Button>
+          <Button size="medium" variant="outlined" onClick={handleTagClick} color={isTagPopoutOpen ? 'secondary' : 'inherit'} sx={{ minWidth: 0, px: 0.75, py: 0.25, fontWeight: 600 }}>
+            {language === 'zh' ? '状态' : 'Status'}
+          </Button>
+        </Box>
 
-                    {/* Agree / Disagree buttons during nomination */}
-                    {isInNomination ? (
-                      cardVotedYes ? (
-                        <button
-                          className="storyteller-seat__vote-indicator storyteller-seat__vote-indicator--yes"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            if (currentDay.votingState) {
-                              updateCurrentDay((d) => ({ ...d, votingState: d.votingState ? { ...d.votingState, votes: { ...d.votingState.votes, [seat.seat]: undefined as unknown as boolean } } : null }))
-                            } else {
-                              updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, voters: d.voteDraft.voters.filter((v) => v !== seat.seat) } }))
-                            }
-                          }}
-                          type="button"
-                        >✓</button>
-                      ) : cardVotedNo ? (
-                        <button
-                          className="storyteller-seat__vote-indicator storyteller-seat__vote-indicator--no"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            if (currentDay.votingState) {
-                              updateCurrentDay((d) => ({ ...d, votingState: d.votingState ? { ...d.votingState, votes: { ...d.votingState.votes, [seat.seat]: undefined as unknown as boolean } } : null }))
-                            } else {
-                              updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, noVoters: d.voteDraft.noVoters.filter((v) => v !== seat.seat) } }))
-                            }
-                          }}
-                          type="button"
-                        >✗</button>
-                      ) : (
-                        <div className="storyteller-seat__vote-btns">
-                          <button
-                            className="storyteller-seat__vote-btn storyteller-seat__vote-btn--yes"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              if (isCurrentVoter) {
-                                // Auto-advance sequential voting
-                                handleVoteYes(seat.seat)
-                              } else if (currentDay.votingState) {
-                                updateCurrentDay((d) => ({ ...d, votingState: d.votingState ? { ...d.votingState, votes: { ...d.votingState.votes, [seat.seat]: true } } : null }))
-                              } else {
-                                updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, voters: [...d.voteDraft.voters, seat.seat], noVoters: d.voteDraft.noVoters.filter((v) => v !== seat.seat) } }))
-                              }
-                            }}
-                            type="button"
-                          >✓</button>
-                          <button
-                            className="storyteller-seat__vote-btn storyteller-seat__vote-btn--no"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              if (isCurrentVoter) {
-                                // Auto-advance sequential voting
-                                handleVoteNo(seat.seat)
-                              } else if (currentDay.votingState) {
-                                updateCurrentDay((d) => ({ ...d, votingState: d.votingState ? { ...d.votingState, votes: { ...d.votingState.votes, [seat.seat]: false } } : null }))
-                              } else {
-                                updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, noVoters: [...d.voteDraft.noVoters, seat.seat], voters: d.voteDraft.voters.filter((v) => v !== seat.seat) } }))
-                              }
-                            }}
-                            type="button"
-                          >✗</button>
-                        </div>
-                      )
-                    ) : null}
+        {isInNomination && (
+          <Box sx={{ display: 'flex', gap: 0.25, mt: 0.25, justifyContent: 'center' }}>
+            {cardVotedYes || cardVotedNo ? (
+              <Button 
+                size="medium" 
+                variant="contained" 
+                color={cardVotedYes ? 'success' : 'error'}
+                onClick={handleRemoveVote}
+                sx={{ minWidth: 0, px: 0.75, py: 0.25, fontWeight: 700 }}
+              >
+                {cardVotedYes ? '✓' : '✗'}
+              </Button>
+            ) : (
+              <>
+                <IconButton size="medium" color="success" onClick={handleVoteYesClick} sx={{ border: '1px solid', borderColor: 'divider', p: 0.5,  }}>
+                  ✓
+                </IconButton>
+                <IconButton size="medium" color="error" onClick={handleVoteNoClick} sx={{ border: '1px solid', borderColor: 'divider', p: 0.5,  }}>
+                  ✗
+                </IconButton>
+              </>
+            )}
+          </Box>
+        )}
 
-                    {tags.length ? (
-                      <div className="storyteller-seat__tag-list">
-                        {tags.map((tag) => {
-                          const isCharTag = isCharacterTag(tag);
-                          const charId = isCharTag ? tag.slice(1) : '';
-                          const charIcon = isCharTag ? getIconForCharacter(charId) : null;
-                          const charName = isCharTag ? getCharacterName(tag) : '';
-                          return (
-                            <span
-                              className={`storyteller-seat__pill${isCharTag ? ' storyteller-seat__pill--character' : ''}`}
-                              key={`${seat.seat}-${tag}`}
-                              onContextMenu={(e) => { if (!seat.customTags.includes(tag)) return; e.preventDefault(); removeSeatTag(seat.seat, tag) }}
-                              title={seat.customTags.includes(tag) ? 'Right click to remove' : undefined}
-                            >
-                              {isCharTag ? (
-                                <>
-                                  {charIcon ? <img alt="" className="storyteller-seat__pill-icon" src={charIcon as string} /> : null}
-                                  <span>{charName}</span>
-                                </>
-                              ) : displayTag(tag)}
-                            </span>
-                          );
-                        })}
-                      </div>
-                    ) : null}
+        {isNightPhase && nightShowCharacter && (
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 0.25, gap: 0.25 }}>
+            {actualCharId ? (
+              <>
+                <Button 
+                  size="medium" 
+                  variant={isCharacterPopoutOpen ? 'contained' : 'outlined'}
+                  onClick={handleCharacterClick}
+                  sx={{ minWidth: 0, px: 0.75, py: 0.25,  fontWeight: 600, display: 'flex', gap: 0.25 }}
+                >
+                  {charIcon && <Box component="img" src={charIcon as string} sx={{ width: 16, height: 16 }} />}
+                  {actualCharName}
+                </Button>
+                {showDifferentPerception && perceivedIcon && (
+                  <Tooltip title={perceivedCharName}>
+                    <Box component="img" src={perceivedIcon as string} sx={{ width: 16, height: 16, opacity: 0.7 }} />
+                  </Tooltip>
+                )}
+              </>
+            ) : (
+              <Button size="medium" variant="outlined" onClick={handleCharacterClick} sx={{ minWidth: 0, px: 0.5,  }}>
+                {language === 'zh' ? '+角色' : '+Assign'}
+              </Button>
+            )}
+          </Box>
+        )}
 
-                    {/* Night phase: Show character + wake order */}
-                    {isNightPhase && nightShowCharacter ? (
-                      <div className="storyteller-seat__night-info">
-                        {actualCharId ? (
-                          <>
-                            <button
-                              className={`storyteller-seat__char-display${isCharacterPopoutOpen ? ' storyteller-seat__char-display--open' : ''}`}
-                              onClick={(e) => { e.stopPropagation(); setCharacterPopoutSeat(isCharacterPopoutOpen ? null : seat.seat) }}
-                              type="button"
-                            >
-                              {charIcon ? <img alt="" className="storyteller-seat__char-icon" src={charIcon as string} /> : null}
-                              <span>{actualCharName}</span>
-                            </button>
-                            {showDifferentPerception && perceivedIcon ? (
-                              <button
-                                className="storyteller-seat__perceived-char"
-                                onClick={(e) => { e.stopPropagation(); setCharacterPopoutSeat(isCharacterPopoutOpen ? null : seat.seat) }}
-                                type="button"
-                              >
-                                <img alt="" className="storyteller-seat__char-icon storyteller-seat__char-icon--perceived" src={perceivedIcon as string} />
-                                <span>{perceivedCharName}</span>
-                              </button>
-                            ) : null}
-                          </>
-                        ) : (
-                          <button
-                            className="storyteller-seat__char-assign"
-                            onClick={(e) => { e.stopPropagation(); setCharacterPopoutSeat(isCharacterPopoutOpen ? null : seat.seat) }}
-                            type="button"
-                          >
-                            {language === 'zh' ? '+ 分配角色' : '+ Assign Character'}
-                          </button>
-                        )}
-                      </div>
-                    ) : null}
+        {isNightPhase && nightShowWakeOrder && playerWakeOrder !== null && (
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.25 }}>
+            <IconButton 
+              size="medium" 
+              onClick={handleWakeCheckboxClick}
+              sx={{ 
+                p: 0.5, 
+                fontWeight: 700,
+                border: '2px solid',
+                borderColor: isVisited ? 'success.main' : 'divider',
+                bgcolor: isVisited ? 'success.light' : 'transparent',
+              }}
+            >
+              {isVisited ? '✓' : ''}
+            </IconButton>
+            <Box component="span" sx={{  fontWeight: 600, color: 'text.primary' }}>
+              #{playerWakeOrder}
+            </Box>
+          </Box>
+        )}
 
-                    {/* Night phase: Show wake order */}
-                    {isNightPhase && nightShowWakeOrder && playerWakeOrder !== null ? (
-                      <div className="storyteller-seat__wake-order">
-                        <button
-                          className={`storyteller-seat__wake-checkbox${isVisited ? ' storyteller-seat__wake-checkbox--checked' : ''}`}
-                          onClick={(e) => { e.stopPropagation(); toggleNightVisitedSeat(seat.seat) }}
-                          type="button"
-                          title={language === 'zh' ? '点击标记已访问' : 'Click to mark visited'}
-                        >
-                          {isVisited ? '✓' : ''}
-                        </button>
-                        <span className="storyteller-seat__wake-order-num">#{playerWakeOrder}</span>
-                      </div>
-                    ) : null}
+        {(isRoundRobinSpeaker || isSpoken) && (
+          <Box sx={{ 
+            mt: 0.25, 
+            px: 0.5, 
+            py: 0.125, 
+            borderRadius: 0.5, 
+            bgcolor: isRoundRobinSpeaker ? 'warning.light' : 'action.selected',
+            fontWeight: 700,
+          }}>
+            {isRoundRobinSpeaker ? 'SPK' : '✓'}
+          </Box>
+        )}
+      </Paper>
 
-        <ArenaSeatTagPopout ctx={ctx} seat={seat} />
-        <ArenaSeatSkillPopout ctx={ctx} seat={seat} />
-        <ArenaSeatCharacterPopout ctx={ctx} seat={seat} />
-      </article>
+      <ArenaSeatTagPopout ctx={ctx} seat={seat} />
+      <ArenaSeatSkillPopout ctx={ctx} seat={seat} />
+      <ArenaSeatCharacterPopout ctx={ctx} seat={seat} />
     </>
   )
 }

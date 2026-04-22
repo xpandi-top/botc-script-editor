@@ -1,59 +1,74 @@
 // @ts-nocheck
 import React from 'react'
-import { getDisplayName, getIconForCharacter } from '../../../catalog'
-import { CHARACTER_DISTRIBUTION } from '../constants'
-
+import { Box, Button, ToggleButton, ToggleButtonGroup } from '@mui/material'
 
 export function ArenaQuickStrip({ ctx }: { ctx: any }) {
-  const { activeRightPopup, setActiveRightPopup, showRightPanel, setShowRightPanel, currentDay, pickerMode, setPickerMode, openSkillOverlay, goToNextDay, openEndGamePanel, exportGameJson, text } = ctx;
+  const { 
+    activeRightPopup, setActiveRightPopup, 
+    showRightPanel, setShowRightPanel, 
+    currentDay, pickerMode, setPickerMode, 
+    openSkillOverlay, goToNextDay, openEndGamePanel, exportGameJson, text 
+  } = ctx
+
   return (
-    <>
-      {/* ── Quick action strip ── */}
-          <nav className="storyteller-quick-strip">
-            <button
-              className={`storyteller-quick-btn${activeRightPopup === 'log' ? ' storyteller-quick-btn--active' : ''}`}
-              onClick={() => setActiveRightPopup((p) => p === 'log' ? null : 'log')}
-              type="button"
-            >{text.filterVote === '投票' ? '日志' : 'Log'}</button>
+    <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', justifyContent: 'center' }}>
+      <Button
+        size="small"
+        variant={activeRightPopup === 'log' ? 'contained' : 'outlined'}
+        onClick={() => setActiveRightPopup((p) => p === 'log' ? null : 'log')}
+      >
+        {language === 'zh' ? '日志' : 'Log'}
+      </Button>
 
-            {currentDay.phase === 'nomination' ? (
-              <button
-                className="storyteller-quick-btn"
-                onClick={() => setPickerMode('nominator')}
-                type="button"
-              >{text.quickNomination}</button>
-            ) : null}
+      {currentDay?.phase === 'nomination' && (
+        <Button
+          size="small"
+          variant="outlined"
+          onClick={() => setPickerMode('nominator')}
+        >
+          {text.quickNomination}
+        </Button>
+      )}
 
-            <button
-              className="storyteller-quick-btn"
-              onClick={openSkillOverlay}
-              type="button"
-            >{text.quickSkill}</button>
+      <Button
+        size="small"
+        variant="outlined"
+        onClick={openSkillOverlay}
+      >
+        {text.quickSkill}
+      </Button>
 
-            <button
-              className="storyteller-quick-btn"
-              onClick={goToNextDay}
-              type="button"
-            >{text.nextDay}</button>
+      <Button
+        size="small"
+        variant="outlined"
+        onClick={goToNextDay}
+      >
+        {text.nextDay}
+      </Button>
 
-            <button
-              className="storyteller-quick-btn"
-              onClick={openEndGamePanel}
-              type="button"
-            >{text.endGame}</button>
+      <Button
+        size="small"
+        variant="outlined"
+        onClick={openEndGamePanel}
+      >
+        {text.endGame}
+      </Button>
 
-            <button
-              className="storyteller-quick-btn"
-              onClick={exportGameJson}
-              type="button"
-            >{text.exportJson}</button>
+      <Button
+        size="small"
+        variant="outlined"
+        onClick={exportGameJson}
+      >
+        {text.exportJson}
+      </Button>
 
-            <button
-              className={`storyteller-quick-btn${showRightPanel ? ' storyteller-quick-btn--active' : ''}`}
-              onClick={() => setShowRightPanel((c) => !c)}
-              type="button"
-            >{showRightPanel ? text.hidePanel : text.showPanel}</button>
-          </nav>
-    </>
+      <Button
+        size="small"
+        variant={showRightPanel ? 'contained' : 'outlined'}
+        onClick={() => setShowRightPanel((c) => !c)}
+      >
+        {showRightPanel ? text.hidePanel : text.showPanel}
+      </Button>
+    </Box>
   )
 }

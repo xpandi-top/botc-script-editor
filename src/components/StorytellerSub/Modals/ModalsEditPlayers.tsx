@@ -1,117 +1,131 @@
 // @ts-nocheck
 import React from 'react'
-import { getDisplayName, getIconForCharacter } from '../../../catalog'
-import { CHARACTER_DISTRIBUTION, uniqueStrings } from '../constants'
-
+import { Box, Button, TextField, IconButton, Typography, Paper, Grid, List, ListItem, ListItemText, ListItemButton, Chip } from '@mui/material'
+import AddIcon from '@mui/icons-material/Add'
+import RemoveIcon from '@mui/icons-material/Remove'
+import { uniqueStrings } from '../constants'
 
 export function ModalsEditPlayers({ ctx }: { ctx: any }) {
-  const { activeScriptSlug, activeScriptTitle, language, onSelectScript, scriptOptions, days, setDays, selectedDayId, setSelectedDayId, timerDefaults, setTimerDefaults, customTagPool, setCustomTagPool, gameRecords, setGameRecords, playerNamePool, setPlayerNamePool, pickerMode, setPickerMode, isTimerRunning, setIsTimerRunning, dialogState, setDialogState, seatTagDrafts, setSeatTagDrafts, selectedSeatNumber, setSelectedSeatNumber, showLogPanel, setShowLogPanel, showRightPanel, setShowRightPanel, skillOverlay, setSkillOverlay, audioTracks, setAudioTracks, selectedAudioSrc, setSelectedAudioSrc, audioPlaying, setAudioPlaying, newGamePanel, setNewGamePanel, endGameResult, setEndGameResult, logFilter, setLogFilter, activeConsoleSections, setActiveConsoleSections, tagPopoutSeat, setTagPopoutSeat, skillPopoutSeat, setSkillPopoutSeat, skillRoleDropdownOpen, setSkillRoleDropdownOpen, showNominationSheet, setShowNominationSheet, showEditPlayersModal, setShowEditPlayersModal, editPlayersPreset, setEditPlayersPreset, loadTagsPreset, setLoadTagsPreset, lastCountdownRef, audioRef, text, selectedDayIndex, currentDay, updateCurrentDay, currentTimerSeconds, currentScriptCharacters, livingNonTravelerSeats, requiredVotes, eligibleVoterSeats, nonVoters, draftPassedBySystem, draftPassed, isVotingComplete, currentVoterSeat, pointerSeat, selectedSeat, selectedSeatTags, dialogTitle, aliveCount, totalCount, highestVoteThisDay, nominatorsThisDay, nomineesThisDay, leadingCandidates, nominationDelaySeconds, secondsUntilNomination, canNominate, aggregatedLog, getPhaseContext, setCurrentTimer, syncDayTimers, appendEvent, handleLocalFileChange, resetSeatNames, updateSeat, updateSeatWithLog, addCustomTag, clearUnusedCustomTags, enterNomination, confirmNomination, rejectNomination, confirmTargetSpeech, startVoting, handleVoteYes, recordVote, openSkillOverlay, openSeatSkill, closeSkillOverlay, moveToNextSpeaker, goToNextDay, goToPreviousDay, saveCurrentGame, resetCurrentGame, confirmDialog, handleSeatClick, removeSeatTag, setPhase, startNight, stopNight, addPlayerSeat, removeLastPlayerSeat, addTravelerSeat, removeLastTraveler, openNewGamePanel, randomAssignCharacters, startNewGame, openEndGamePanel, confirmEndGame, exportGameJson, toggleLogFilterType, votingYesCount, NIGHT_BGM_SRC, hasTimer, toggleConsoleSection } = ctx;
+  const { 
+    language, text, currentDay, updateCurrentDay, updateSeat,
+    playerNamePool, setPlayerNamePool, editPlayersPreset, setEditPlayersPreset,
+    removeLastPlayerSeat, addPlayerSeat, removeLastTraveler, addTravelerSeat,
+    resetSeatNames, setShowEditPlayersModal,
+  } = ctx
+
+  const regularSeats = currentDay.seats.filter((s: any) => !s.isTraveler)
+  const travelerSeats = currentDay.seats.filter((s: any) => s.isTraveler)
+
+  const handleLoadPreset = () => {
+    const names = editPlayersPreset.split(',').map((n: string) => n.trim()).filter(Boolean)
+    updateCurrentDay((d: any) => {
+      const newSeats = d.seats.map((s: any, i: number) => names[i] ? { ...s, name: names[i] } : s)
+      return { ...d, seats: newSeats }
+    })
+    setPlayerNamePool((cur: string[]) => uniqueStrings([...cur, ...names.filter((n: string) => !n.match(/^Player \d+$/) && !n.match(/^Traveler \d+$/))]))
+    setEditPlayersPreset('')
+  }
+
+  const handleNameBlur = (seatSeat: number, value: string) => {
+    const val = value.trim()
+    if (val && !val.match(/^Player \d+$/) && !playerNamePool.includes(val)) {
+      setPlayerNamePool((cur: string[]) => [...cur, val])
+    }
+  }
+
   return (
-    <>
-      {/* Edit Players Modal */}
-      {showEditPlayersModal ? (
-        <div className="storyteller-modal" role="dialog" aria-modal="true" onClick={() => setShowEditPlayersModal(false)}>
-          <div className="storyteller-modal__card storyteller-edit-players-modal" onClick={(e) => e.stopPropagation()}>
-            <h3>{text.editPlayers}</h3>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <Paper variant="outlined" sx={{ p: 1.5 }}>
+        <Typography variant="subtitle2" sx={{ mb: 1 }}>{language === 'zh' ? '批量加载' : 'Batch Load'}</Typography>
+        <TextField
+          size="small"
+          fullWidth
+          multiline
+          rows={2}
+          placeholder={language === 'zh' ? '张三, 李四, 王五...' : 'Alice, Bob, Charlie...'}
+          value={editPlayersPreset}
+          onChange={(e) => setEditPlayersPreset(e.target.value)}
+        />
+        <Button size="small" onClick={handleLoadPreset} sx={{ mt: 1 }}>{text.loadPreset}</Button>
+      </Paper>
 
-            {/* Preset loader */}
-            <div className="editor-field">
-              <span>{language === 'zh' ? '批量加载（逗号分隔）' : 'Batch load (comma-separated)'}</span>
-              <div className="storyteller-seat-editor__add">
-                <textarea
-                  className="storyteller-preset-textarea"
-                  onChange={(e) => setEditPlayersPreset(e.target.value)}
-                  placeholder={language === 'zh' ? '张三, 李四, 王五...' : 'Alice, Bob, Charlie...'}
-                  rows={2}
-                  value={editPlayersPreset}
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Typography variant="subtitle2">
+          {language === 'zh' ? '玩家人数' : 'Players'}: {regularSeats.length}
+        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+          <IconButton size="small" onClick={removeLastPlayerSeat} disabled={regularSeats.length <= 5}>
+            <RemoveIcon />
+          </IconButton>
+          <IconButton size="small" onClick={addPlayerSeat} disabled={regularSeats.length >= 15}>
+            <AddIcon />
+          </IconButton>
+        </Box>
+      </Box>
+
+      <List dense sx={{ maxHeight: 200, overflow: 'auto' }}>
+        {regularSeats.map((seat: any) => (
+          <ListItem key={seat.seat}disablePadding>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
+              <Chip label={`#${seat.seat}`} size="small" sx={{ minWidth: 36 }} />
+              <TextField
+                size="small"
+                fullWidth
+                list="name-pool-list"
+                placeholder={`Player ${seat.seat}`}
+                value={seat.name}
+                onChange={(e) => updateSeat(seat.seat, (s: any) => ({ ...s, name: e.target.value }))}
+                onBlur={(e) => handleNameBlur(seat.seat, e.target.value)}
+              />
+            </Box>
+          </ListItem>
+        ))}
+      </List>
+
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 1 }}>
+        <Typography variant="subtitle2">
+          {language === 'zh' ? '旅人' : 'Travelers'}: {travelerSeats.length}
+        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+          <IconButton size="small" onClick={removeLastTraveler} disabled={travelerSeats.length === 0}>
+            <RemoveIcon />
+          </IconButton>
+          <IconButton size="small" onClick={addTravelerSeat}>
+            <AddIcon />
+          </IconButton>
+        </Box>
+      </Box>
+
+      {travelerSeats.length > 0 && (
+        <List dense sx={{ maxHeight: 120, overflow: 'auto' }}>
+          {travelerSeats.map((seat: any) => (
+            <ListItem key={seat.seat} disablePadding>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
+                <Chip label={`✈ #${seat.seat}`} size="small" color="info" sx={{ minWidth: 48 }} />
+                <TextField
+                  size="small"
+                  fullWidth
+                  list="name-pool-list"
+                  placeholder={`Traveler ${seat.seat}`}
+                  value={seat.name}
+                  onChange={(e) => updateSeat(seat.seat, (s: any) => ({ ...s, name: e.target.value }))}
                 />
-                <button
-                  className="secondary-button secondary-button--small"
-                  onClick={() => {
-                    const names = editPlayersPreset.split(',').map((n) => n.trim()).filter(Boolean)
-                    updateCurrentDay((d) => {
-                      const newSeats = d.seats.map((s, i) => names[i] ? { ...s, name: names[i] } : s)
-                      return { ...d, seats: newSeats }
-                    })
-                    setPlayerNamePool((cur) => uniqueStrings([...cur, ...names.filter((n) => !n.match(/^Player \d+$/) && !n.match(/^Traveler \d+$/))]))
-                    setEditPlayersPreset('')
-                  }}
-                  type="button"
-                >{text.loadPreset}</button>
-              </div>
-            </div>
+              </Box>
+            </ListItem>
+          ))}
+        </List>
+      )}
 
-            {/* Player count control */}
-            <div className="storyteller-edit-players__count-row">
-              <span>{language === 'zh' ? '玩家人数（不含旅人）' : 'Players (excl. travelers)'}</span>
-              <div className="storyteller-center__day-nav">
-                <button className="storyteller-center__ctrl-btn" onClick={removeLastPlayerSeat} type="button" disabled={currentDay.seats.filter((s) => !s.isTraveler).length <= 5}>−</button>
-                <strong style={{ minWidth: '2rem', textAlign: 'center' }}>{currentDay.seats.filter((s) => !s.isTraveler).length}</strong>
-                <button className="storyteller-center__ctrl-btn" onClick={addPlayerSeat} type="button" disabled={currentDay.seats.filter((s) => !s.isTraveler).length >= 15}>+</button>
-              </div>
-            </div>
+      <datalist id="name-pool-list">
+        {playerNamePool.map((name: string) => <option key={name} value={name} />)}
+      </datalist>
 
-            {/* Regular seat rows */}
-            <div className="storyteller-new-game-seats">
-              {currentDay.seats.filter((s) => !s.isTraveler).map((seat) => (
-                <div className="storyteller-new-game-seats__row" key={seat.seat}>
-                  <span>#{seat.seat}</span>
-                  <input
-                    list="name-pool-list"
-                    onChange={(e) => updateSeat(seat.seat, (s) => ({ ...s, name: e.target.value }))}
-                    onBlur={(e) => {
-                      const val = e.target.value.trim()
-                      if (val && !val.match(/^Player \d+$/) && !playerNamePool.includes(val)) {
-                        setPlayerNamePool((cur) => [...cur, val])
-                      }
-                    }}
-                    placeholder={`Player ${seat.seat}`}
-                    type="text"
-                    value={seat.name}
-                  />
-                </div>
-              ))}
-            </div>
-
-            {/* Traveler count control */}
-            <div className="storyteller-edit-players__count-row" style={{ marginTop: '0.75rem' }}>
-              <span>{language === 'zh' ? '旅人人数' : 'Travelers'}</span>
-              <div className="storyteller-center__day-nav">
-                <button className="storyteller-center__ctrl-btn" onClick={removeLastTraveler} type="button" disabled={currentDay.seats.filter((s) => s.isTraveler).length === 0}>−</button>
-                <strong style={{ minWidth: '2rem', textAlign: 'center' }}>{currentDay.seats.filter((s) => s.isTraveler).length}</strong>
-                <button className="storyteller-center__ctrl-btn" onClick={addTravelerSeat} type="button">+</button>
-              </div>
-            </div>
-
-            {/* Traveler rows */}
-            {currentDay.seats.filter((s) => s.isTraveler).length > 0 ? (
-              <div className="storyteller-new-game-seats">
-                {currentDay.seats.filter((s) => s.isTraveler).map((seat) => (
-                  <div className="storyteller-new-game-seats__row" key={seat.seat}>
-                    <span>✈ #{seat.seat}</span>
-                    <input
-                      list="name-pool-list"
-                      onChange={(e) => updateSeat(seat.seat, (s) => ({ ...s, name: e.target.value }))}
-                      placeholder={`Traveler ${seat.seat}`}
-                      type="text"
-                      value={seat.name}
-                    />
-                  </div>
-                ))}
-              </div>
-            ) : null}
-
-            <datalist id="name-pool-list">
-              {playerNamePool.map((name) => <option key={name} value={name} />)}
-            </datalist>
-
-            <div className="storyteller-chip-row" style={{ marginTop: '0.75rem' }}>
-              <button className="secondary-button" onClick={resetSeatNames} type="button">{text.resetNames}</button>
-              <button className="print-button" onClick={() => setShowEditPlayersModal(false)} type="button">{language === 'zh' ? '完成' : 'Done'}</button>
-            </div>
-          </div>
-        </div>
-      ) : null}
-    </>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, mt: 1 }}>
+        <Button variant="outlined" onClick={resetSeatNames}>{text.resetNames}</Button>
+        <Button variant="contained" onClick={() => setShowEditPlayersModal(false)}>
+          {language === 'zh' ? '完成' : 'Done'}
+        </Button>
+      </Box>
+    </Box>
   )
 }

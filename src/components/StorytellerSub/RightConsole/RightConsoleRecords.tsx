@@ -1,108 +1,69 @@
 // @ts-nocheck
 import React, { useState } from 'react'
-
-const TEAM_COLORS: Record<string, string> = { evil: '#b91c1c', good: '#2563ab', storyteller: '#7c3aed' }
+import { Box, Button, Typography, Paper, Chip, Accordion, AccordionSummary, AccordionDetails, Grid } from '@mui/material'
 
 export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: any, toggleConsoleSection: any }) {
-  const { language, text, gameRecords, setGameRecords, activeConsoleSections, loadGameRecord, exportRecordJson, saveGame } = ctx
-  const [expandedId, setExpandedId] = useState<string | null>(null)
-
-  if (!activeConsoleSections.has('records')) {
-    return (
-      <div className="storyteller-console-section">
-        <button className="storyteller-console-section__header" onClick={() => toggleConsoleSection('records')} type="button">
-          <span>{language === 'zh' ? '历史记录' : 'Game Records'}</span>
-          <span>▶</span>
-        </button>
-      </div>
-    )
-  }
+  const { language, text, gameRecords = [], setGameRecords, activeConsoleSections, loadGameRecord, exportRecordJson, saveGame } = ctx
+  const isOpen = activeConsoleSections?.has('records')
 
   return (
-    <div className="storyteller-console-section">
-      <button className="storyteller-console-section__header" onClick={() => toggleConsoleSection('records')} type="button">
-        <span>{language === 'zh' ? '历史记录' : 'Game Records'} <small>({gameRecords.length})</small></span>
-        <span>▼</span>
-      </button>
+    <Paper variant="outlined" sx={{ p: 1 }}>
+      <Button fullWidth onClick={() => toggleConsoleSection('records')} sx={{ justifyContent: 'space-between', textTransform: 'none' }}>
+        <Typography variant="body2">
+          {language === 'zh' ? '历史记录' : 'Game Records'} ({gameRecords.length})
+        </Typography>
+        <span>{isOpen ? '▼' : '▶'}</span>
+      </Button>
+      {isOpen && (
+        <Box sx={{ mt: 1 }}>
+          {gameRecords.length === 0 ? (
+            <Typography variant="body2" color="text.secondary">{text.noCompletedGames}</Typography>
+          ) : (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+              {gameRecords.map((rec: any) => {
+                const date = new Date(rec.endedAt).toLocaleDateString()
+                const totalVotes = rec.days?.reduce((s: number, d: any) => s + (d.votes ?? 0), 0) ?? 0
+                const totalSkills = rec.days?.reduce((s: number, d: any) => s + (d.skills ?? 0), 0) ?? 0
 
-      <div className="storyteller-console-section__body">
-        {gameRecords.length === 0 ? (
-          <p className="storyteller-panel__hint">{text.noCompletedGames}</p>
-        ) : (
-          <div className="records-list">
-            {gameRecords.map((rec: any) => {
-              const isExpanded = expandedId === rec.id
-              const date = new Date(rec.endedAt).toLocaleDateString()
-              const totalVotes = rec.days?.reduce((s: number, d: any) => s + (d.votes ?? 0), 0) ?? 0
-              const totalSkills = rec.days?.reduce((s: number, d: any) => s + (d.skills ?? 0), 0) ?? 0
-
-              return (
-                <div key={rec.id} className={`record-card${isExpanded ? ' record-card--open' : ''}`}>
-                  {/* ── Header row ── */}
-                  <button
-                    className="record-card__header"
-                    onClick={() => setExpandedId(isExpanded ? null : rec.id)}
-                    type="button"
-                  >
-                    <span className="record-card__filename">{rec.recordName ?? (rec.scriptTitle ? `${rec.scriptTitle} - ${date}` : date)}</span>
-                    <span className="record-card__chevron">{isExpanded ? '▲' : '▼'}</span>
-                  </button>
-
-                  {/* ── Expanded body ── */}
-                  {isExpanded && (
-                    <div className="record-card__body">
-                      {/* Action buttons */}
-                      <div className="record-actions">
+                return (
+                  <Paper key={rec.id} variant="outlined" sx={{ p: 1 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Typography variant="body2">
+                        {rec.recordName ?? (rec.scriptTitle ? `${rec.scriptTitle} - ${date}` : date)}
+                      </Typography>
+                      <Box sx={{ display: 'flex', gap: 0.5 }}>
                         {rec.savedDays && (
-                          <button
-                            className="secondary-button secondary-button--small"
-                            onClick={() => loadGameRecord(rec)}
-                            type="button"
-                          >
+                          <Button size="small" onClick={() => loadGameRecord(rec)}>
                             {language === 'zh' ? '📂 加载' : '📂 Load'}
-                          </button>
+                          </Button>
                         )}
-                        <button
-                          className="secondary-button secondary-button--small"
-                          onClick={() => {
-                            const name = window.prompt(language === 'zh' ? '输入新文件名：' : 'Enter new file name:', rec.recordName)
-                            if (name) saveGame(name)
-                          }}
-                          type="button"
-                        >
+                        <Button size="small" onClick={() => {
+                          const name = window.prompt(language === 'zh' ? '输入新文件名：' : 'Enter new file name:', rec.recordName)
+                          if (name) saveGame(name)
+                        }}>
                           {language === 'zh' ? '💾 另存' : '💾 Save As'}
-                        </button>
-                        <button
-                          className="secondary-button secondary-button--small"
-                          onClick={() => exportRecordJson(rec)}
-                          type="button"
-                        >
-                          {language === 'zh' ? '📥 导出JSON' : '📥 Export JSON'}
-                        </button>
-                        <button
-                          className="secondary-button secondary-button--small secondary-button--danger"
-                          onClick={() => setGameRecords((cur: any[]) => cur.filter((r) => r.id !== rec.id))}
-                          type="button"
-                        >
-                          🗑 {language === 'zh' ? '删除' : 'Delete'}
-                        </button>
-                      </div>
-
-                      {/* Stats row */}
-                      <div className="record-stats">
-                        <span>📅 {rec.days?.length ?? 1} {language === 'zh' ? '天' : 'd'}</span>
-                        <span>🗳 {totalVotes} {language === 'zh' ? '票' : 'votes'}</span>
-                        <span>✨ {totalSkills} {language === 'zh' ? '技' : 'skills'}</span>
-                        {rec.scriptTitle && <span>📖 {rec.scriptTitle}</span>}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )
-            })}
-          </div>
-        )}
-      </div>
-    </div>
+                        </Button>
+                        <Button size="small" onClick={() => exportRecordJson(rec)}>
+                          {language === 'zh' ? '📥 导出' : '📥 Export'}
+                        </Button>
+                        <Button size="small" color="error" onClick={() => setGameRecords((cur: any[]) => cur.filter((r) => r.id !== rec.id))}>
+                          🗑
+                        </Button>
+                      </Box>
+                    </Box>
+                    <Box sx={{ display: 'flex', gap: 1, mt: 0.5, flexWrap: 'wrap' }}>
+                      <Chip size="small" label={`📅 ${rec.days?.length ?? 1} ${language === 'zh' ? '天' : 'd'}`} />
+                      <Chip size="small" label={`🗳 ${totalVotes} ${language === 'zh' ? '票' : 'votes'}`} />
+                      <Chip size="small" label={`✨ ${totalSkills} ${language === 'zh' ? '技' : 'skills'}`} />
+                      {rec.scriptTitle && <Chip size="small" label={`📖 ${rec.scriptTitle}`} />}
+                    </Box>
+                  </Paper>
+                )
+              })}
+            </Box>
+          )}
+        </Box>
+      )}
+    </Paper>
   )
 }

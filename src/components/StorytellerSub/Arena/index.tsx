@@ -1,8 +1,11 @@
-// @ts-nocheck
 import React from 'react'
+import { Box, Typography, Paper } from '@mui/material'
 import { ArenaCenter } from './ArenaCenter'
 import { ArenaSeats } from './ArenaSeats'
-import { getSeatAngle } from '../../../utils/seats'
+import { PlayerSeatGrid } from './PlayerSeatGrid'
+import { PhaseControlPanel } from './PhaseControlPanel'
+import { getSeatAngle as _getSeatAngle } from '../../../utils/seats'
+import { useBreakpoint } from '../../../hooks/useBreakpoint'
 
 export function Arena({ ctx }: { ctx: any }) {
   const [windowPortrait, setWindowPortrait] = React.useState(
@@ -14,43 +17,84 @@ export function Arena({ ctx }: { ctx: any }) {
     return () => window.removeEventListener('resize', handler)
   }, [])
 
-  const { pointerSeat, currentDay, setSelectedSeatNumber, setTagPopoutSeat, text, portraitOverride } = ctx
-  // Manual override takes priority over window detection
+  const { currentDay, setSelectedSeatNumber, setTagPopoutSeat, text, portraitOverride } = ctx
   const isPortrait = portraitOverride !== null ? portraitOverride : windowPortrait
   const seats = currentDay.seats
-  const pointerAngle = React.useMemo(() => {
-    if (!pointerSeat) return 0
-    const idx = seats.findIndex((s: any) => s.seat === pointerSeat)
-    if (idx === -1) return 0
-    return getSeatAngle(idx, seats.length, isPortrait)
-  }, [pointerSeat, seats, isPortrait])
+  const seatCount = seats.length || 1
+  const { isMobile } = useBreakpoint()
 
+  React.useEffect(() => {
+    const minSize = 60
+    const maxSize = 130
+    const baseSize = isPortrait ? 85 : 110
+    const scaleFactor = Math.max(1, (seatCount - 4) / 3)
+    const seatSize = Math.min(maxSize, Math.max(minSize, baseSize / scaleFactor))
+    document.documentElement.style.setProperty('--seat-size', `${seatSize}px`)
+
+    const padBase = 8
+    const padExtra = seatCount > 10 ? Math.min(6, (seatCount - 10) * 0.5) : 0
+    const seatPadding = padBase + padExtra
+    const centerZone = Math.max(25, Math.min(38, seatPadding + 18))
+    document.documentElement.style.setProperty('--center-zone', `${centerZone}%`)
+  }, [seatCount, isPortrait])
+
+  // Mobile: scrollable seat grid + fixed phase panel at bottom
+  if (isMobile) {
+    return (
+      <>
+        <PlayerSeatGrid ctx={ctx} />
+        <PhaseControlPanel ctx={ctx} />
+      </>
+    )
+  }
+
+  // Desktop/tablet: circular arena layout
   return (
-    <div className="storyteller-arena">
-      <div className="storyteller-table-card">
-        <div
-          className="storyteller-table"
+    <Box sx={{ display: 'grid', gap: 1, flex: 1, minHeight: 400, overflow: 'visible', width: '100%' }}>
+      <Paper
+        elevation={0}
+        sx={{
+          p: 2,
+          minHeight: 380,
+          background: 'radial-gradient(circle at top, rgba(255,241,214,0.9), rgba(255,251,245,0.92) 50%), linear-gradient(180deg, rgba(255,251,245,0.96), rgba(248,240,226,0.92))',
+          boxShadow: '0 18px 60px rgba(57,43,24,0.08)',
+          overflow: 'visible',
+          position: 'relative',
+        }}
+      >
+        <Box
           onClick={(e) => {
-            // Only clear selection when clicking the table background itself,
-            // not when a click bubbles up from a seat card or its children.
-            if (!(e.target as Element).closest('.storyteller-seat')) {
+            const target = e.target as Element
+            if (
+              !target.closest('[data-seat]') &&
+              !target.closest('[data-tag-popup]') &&
+              !target.closest('[data-skill-popup]') &&
+              !target.closest('[data-character-popup]') &&
+              !target.closest('[data-nomination-popup]')
+            ) {
               setSelectedSeatNumber(null)
               setTagPopoutSeat(null)
             }
           }}
+          sx={{
+            position: 'relative',
+            width: '100%',
+            minHeight: 350,
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
         >
-          <div className="storyteller-table__ring" />
-          {pointerSeat ? (
-            <div
-              className="storyteller-table__hand"
-              style={{ '--pointer-angle': `${pointerAngle}deg` } as React.CSSProperties}
-            />
-          ) : null}
           <ArenaCenter ctx={ctx} />
-          <ArenaSeats ctx={ctx} isPortrait={isPortrait} />
-        </div>
-        <p className="storyteller-panel__hint">{text.seatHint}</p>
-      </div>
-    </div>
+          <Box sx={{ position: 'absolute', inset: 0, zIndex: 10, pointerEvents: 'none' }}>
+            <ArenaSeats ctx={ctx} isPortrait={isPortrait} />
+          </Box>
+        </Box>
+        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center' }}>
+          {text.seatHint}
+        </Typography>
+      </Paper>
+    </Box>
   )
 }

@@ -1,3 +1,4 @@
+import { Box, Typography, ToggleButton, ToggleButtonGroup } from '@mui/material'
 
 interface StarRatingProps {
   label: string
@@ -7,20 +8,20 @@ interface StarRatingProps {
 
 export function StarRating({ label, value, onChange }: StarRatingProps) {
   return (
-    <div className="storyteller-survey__field">
-      <label className="survey-label">{label}</label>
-      <div className="storyteller-survey__rating">
+    <Box sx={{ mb: 2 }}>
+      <Typography variant="subtitle2" sx={{ mb: 1 }}>{label}</Typography>
+      <ToggleButtonGroup
+        value={value ?? ''}
+        exclusive
+        onChange={(_, v) => v && onChange(v)}
+        size="small"
+      >
         {[1, 2, 3, 4, 5].map((num) => (
-          <button
-            key={num}
-            type="button"
-            className={`rating-btn${value === num ? ' active' : ''}`}
-            onClick={() => onChange(num)}
-          >
+          <ToggleButton key={num} value={num} sx={{ borderRadius: 999, px: 2 }}>
             {num}
-          </button>
+          </ToggleButton>
         ))}
-      </div>
-    </div>
+      </ToggleButtonGroup>
+    </Box>
   )
 }

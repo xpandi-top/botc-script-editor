@@ -1,107 +1,159 @@
 // @ts-nocheck
 import React, { useState } from 'react'
 import { createPortal } from 'react-dom'
+import { Box, Button, TextField, Chip, Paper, IconButton, Divider } from '@mui/material'
+import CloseIcon from '@mui/icons-material/Close'
 import { getDisplayName, getIconForCharacter } from '../../../catalog'
-import { useIsMobile } from './useIsMobile'
-
 
 export function ArenaSeatTagPopout({ ctx, seat }: { ctx: any, seat: any }) {
-  const { activeScriptSlug, activeScriptTitle, language, onSelectScript, scriptOptions, days, setDays, selectedDayId, setSelectedDayId, timerDefaults, setTimerDefaults, customTagPool, setCustomTagPool, gameRecords, setGameRecords, playerNamePool, setPlayerNamePool, pickerMode, setPickerMode, isTimerRunning, setIsTimerRunning, dialogState, setDialogState, seatTagDrafts, setSeatTagDrafts, selectedSeatNumber, setSelectedSeatNumber, showLogPanel, setShowLogPanel, showRightPanel, setShowRightPanel, skillOverlay, setSkillOverlay, audioTracks, setAudioTracks, selectedAudioSrc, setSelectedAudioSrc, audioPlaying, setAudioPlaying, newGamePanel, setNewGamePanel, endGameResult, setEndGameResult, logFilter, setLogFilter, activeConsoleSections, setActiveConsoleSections, tagPopoutSeat, setTagPopoutSeat, skillPopoutSeat, setSkillPopoutSeat, skillRoleDropdownOpen, setSkillRoleDropdownOpen, showNominationSheet, setShowNominationSheet, showEditPlayersModal, setShowEditPlayersModal, editPlayersPreset, setEditPlayersPreset, loadTagsPreset, setLoadTagsPreset, lastCountdownRef, audioRef, text, selectedDayIndex, currentDay, updateCurrentDay, currentTimerSeconds, currentScriptCharacters, livingNonTravelerSeats, requiredVotes, eligibleVoterSeats, nonVoters, draftPassedBySystem, draftPassed, isVotingComplete, currentVoterSeat, pointerSeat, selectedSeat, selectedSeatTags, dialogTitle, aliveCount, totalCount, highestVoteThisDay, nominatorsThisDay, nomineesThisDay, leadingCandidates, nominationDelaySeconds, secondsUntilNomination, canNominate, aggregatedLog, getPhaseContext, setCurrentTimer, syncDayTimers, appendEvent, handleLocalFileChange, resetSeatNames, updateSeat, updateSeatWithLog, addCustomTag, clearUnusedCustomTags, enterNomination, confirmNomination, rejectNomination, confirmTargetSpeech, startVoting, handleVoteYes, recordVote, openSkillOverlay, openSeatSkill, closeSkillOverlay, moveToNextSpeaker, goToNextDay, goToPreviousDay, saveCurrentGame, resetCurrentGame, confirmDialog, handleSeatClick, removeSeatTag, setPhase, startNight, stopNight, addPlayerSeat, removeLastPlayerSeat, addTravelerSeat, removeLastTraveler, openNewGamePanel, randomAssignCharacters, startNewGame, openEndGamePanel, confirmEndGame, exportGameJson, toggleLogFilterType, votingYesCount, NIGHT_BGM_SRC, hasTimer, toggleConsoleSection } = ctx;
+  const { 
+    language, text, seatTagDrafts, setSeatTagDrafts, customTagPool, currentScriptCharacters,
+    tagPopoutSeat, setTagPopoutSeat, updateSeatWithLog, addCustomTag,
+  } = ctx
 
-  const isTagPopoutOpen = tagPopoutSeat === seat.seat;
-  const isMobile = useIsMobile();
-  const [showCharacters, setShowCharacters] = useState(false);
+  const isTagPopoutOpen = tagPopoutSeat === seat?.seat
+  const [showCharacters, setShowCharacters] = useState(false)
 
-  if (!isTagPopoutOpen) return null;
+  if (!isTagPopoutOpen || !seat) return null
 
-  const characterTag = (c: string) => `💀${c}`;
-  const isCharacterTag = (tag: string) => tag.startsWith('💀');
+  const characterTag = (c: string) => `💀${c}`
+  const isCharacterTag = (tag: string) => tag.startsWith('💀')
+
+  const handleAddTag = () => {
+    addCustomTag(seat.seat)
+    setSeatTagDrafts((c: any) => ({ ...c, [seat.seat]: '' }))
+  }
+
+  const handleToggleTag = (tag: string) => {
+    updateSeatWithLog(seat.seat, (s: any) => ({ 
+      ...s, 
+      customTags: s.customTags.includes(tag) 
+        ? s.customTags.filter((v: any) => v !== tag) 
+        : [...s.customTags, tag] 
+    }))
+  }
 
   const content = (
-    <>
-      {isMobile && (
-        <div className="storyteller-popout-backdrop" onClick={() => setTagPopoutSeat(null)} />
-      )}
-      <div className="storyteller-tag-popout" onClick={(e) => e.stopPropagation()}>
-                        {/* Status toggles */}
-                        <div className="storyteller-tag-popout__grid">
-                          <button className={`secondary-button secondary-button--small${!seat.alive ? ' tab-button--active' : ''}`} onClick={() => updateSeatWithLog(seat.seat, (s) => ({ ...s, alive: !s.alive }))} type="button">{text.aliveTag}</button>
-                          <button className={`secondary-button secondary-button--small${seat.isExecuted ? ' tab-button--active' : ''}`} onClick={() => updateSeatWithLog(seat.seat, (s) => ({ ...s, isExecuted: !s.isExecuted }))} type="button">{text.executedTag}</button>
-                          <button className={`secondary-button secondary-button--small${seat.isTraveler ? ' tab-button--active' : ''}`} onClick={() => updateSeatWithLog(seat.seat, (s) => ({ ...s, isTraveler: !s.isTraveler }))} type="button">{text.traveler}</button>
-                          <button className={`secondary-button secondary-button--small${seat.hasNoVote ? ' tab-button--active' : ''}`} onClick={() => updateSeatWithLog(seat.seat, (s) => ({ ...s, hasNoVote: !s.hasNoVote }))} type="button">{text.noVoteTag}</button>
-                        </div>
+    <Paper 
+      elevation={8}
+      data-tag-popup
+      sx={{
+        position: 'fixed',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        zIndex: 2000,
+        width: 320,
+        maxHeight: '80vh',
+        overflow: 'auto',
+        p: 2,
+        borderRadius: 2,
+      }}
+    >
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pb: 1 }}>
+        <Box sx={{ fontSize: '1rem', fontWeight: 600 }}>#{seat.seat} {seat.name}</Box>
+        <IconButton size="small" onClick={() => setTagPopoutSeat(null)}>
+          <CloseIcon fontSize="small" />
+        </IconButton>
+      </Box>
 
-                        {/* Input + add button */}
-                        <div className="storyteller-tag-popout__add-row">
-                          <input
-                            autoFocus
-                            onChange={(e) => setSeatTagDrafts((c) => ({ ...c, [seat.seat]: e.target.value }))}
-                            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCustomTag(seat.seat); setSeatTagDrafts((c) => ({ ...c, [seat.seat]: '' })) } }}
-                            placeholder={text.addTag}
-                            type="text"
-                            value={seatTagDrafts[seat.seat] ?? ''}
-                          />
-                          <button
-                            className="storyteller-tag-popout__add-btn"
-                            onMouseDown={(e) => { e.preventDefault(); addCustomTag(seat.seat); setSeatTagDrafts((c) => ({ ...c, [seat.seat]: '' })) }}
-                            type="button"
-                          >+</button>
-                        </div>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, pt: 1 }}>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+          <Button 
+            size="small" 
+            variant={!seat.alive ? 'contained' : 'outlined'} 
+            onClick={() => updateSeatWithLog(seat.seat, (s: any) => ({ ...s, alive: !s.alive }))}
+            color={!seat.alive ? 'error' : 'primary'}
+          >
+            {text.aliveTag}
+          </Button>
+          <Button 
+            size="small" 
+            variant={seat.isExecuted ? 'contained' : 'outlined'} 
+            onClick={() => updateSeatWithLog(seat.seat, (s: any) => ({ ...s, isExecuted: !s.isExecuted }))}
+            color={seat.isExecuted ? 'error' : 'primary'}
+          >
+            {text.executedTag}
+          </Button>
+          <Button 
+            size="small" 
+            variant={seat.isTraveler ? 'contained' : 'outlined'} 
+            onClick={() => updateSeatWithLog(seat.seat, (s: any) => ({ ...s, isTraveler: !s.isTraveler }))}
+            color={seat.isTraveler ? 'info' : 'primary'}
+          >
+            {text.traveler}
+          </Button>
+          <Button 
+            size="small" 
+            variant={seat.hasNoVote ? 'contained' : 'outlined'} 
+            onClick={() => updateSeatWithLog(seat.seat, (s: any) => ({ ...s, hasNoVote: !s.hasNoVote }))}
+            color={seat.hasNoVote ? 'warning' : 'primary'}
+          >
+            {text.noVoteTag}
+          </Button>
+        </Box>
 
-                        {/* Custom tag pool (scrollable) */}
-                        {customTagPool.filter(tag => !isCharacterTag(tag)).length > 0 && (
-                          <div className="storyteller-tag-popout__pool">
-                            {customTagPool.filter(tag => !isCharacterTag(tag)).map((tag) => (
-                              <button
-                                className={`secondary-button secondary-button--small${seat.customTags.includes(tag) ? ' tab-button--active' : ''}`}
-                                key={`pop-${tag}`}
-                                onClick={() => updateSeatWithLog(seat.seat, (s) => ({ ...s, customTags: s.customTags.includes(tag) ? s.customTags.filter((v) => v !== tag) : [...s.customTags, tag] }))}
-                                type="button"
-                              >{tag}</button>
-                            ))}
-                          </div>
-                        )}
+        <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
+          <TextField
+            size="small"
+            fullWidth
+            placeholder={text.addTag || 'Add tag'}
+            value={seatTagDrafts[seat.seat] ?? ''}
+            onChange={(e) => setSeatTagDrafts((c: any) => ({ ...c, [seat.seat]: e.target.value }))}
+            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddTag() } }}
+          />
+          <Button variant="contained" onClick={handleAddTag} sx={{ minWidth: 40, px: 1 }}>+</Button>
+        </Box>
 
-                        {/* Characters section */}
-                        {currentScriptCharacters && currentScriptCharacters.length > 0 && (
-                          <>
-                            <div className="storyteller-tag-popout__divider-row">
-                              <div className="storyteller-tag-popout__divider" />
-                              <button
-                                className="storyteller-tag-popout__toggle"
-                                onClick={() => setShowCharacters((v) => !v)}
-                                type="button"
-                              >
-                                {showCharacters ? '▼' : '▶'} {text.characters || 'Characters'}
-                              </button>
-                              <div className="storyteller-tag-popout__divider" />
-                            </div>
+        {customTagPool.filter((tag: string) => !isCharacterTag(tag)).length > 0 && (
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+            {customTagPool.filter((tag: string) => !isCharacterTag(tag)).map((tag: string) => (
+              <Chip
+                key={`pool-${tag}`}
+                label={tag}
+                size="small"
+                clickable
+                color={seat.customTags.includes(tag) ? 'primary' : 'default'}
+                variant={seat.customTags.includes(tag) ? 'filled' : 'outlined'}
+                onClick={() => handleToggleTag(tag)}
+              />
+            ))}
+          </Box>
+        )}
 
-                            {showCharacters && (
-                              <div className="storyteller-tag-popout__pool storyteller-tag-popout__pool--characters">
-                                {currentScriptCharacters.map((c) => {
-                                  const tag = characterTag(c);
-                                  const icon = getIconForCharacter(c);
-                                  const name = getDisplayName(c, language);
-                                  return (
-                                    <button
-                                      className={`secondary-button secondary-button--small storyteller-tag-popout__character-btn${seat.customTags.includes(tag) ? ' tab-button--active' : ''}`}
-                                      key={`char-${c}`}
-                                      onClick={() => updateSeatWithLog(seat.seat, (s) => ({ ...s, customTags: s.customTags.includes(tag) ? s.customTags.filter((v) => v !== tag) : [...s.customTags, tag] }))}
-                                      type="button"
-                                    >
-                                      {icon ? <img alt="" className="storyteller-tag-popout__char-icon" src={icon as string} /> : null}
-                                      <span>{name}</span>
-                                    </button>
-                                  );
-                                })}
-                              </div>
-                            )}
-                          </>
-                        )}
-      </div>
-    </>
-  );
+        {currentScriptCharacters && currentScriptCharacters.length > 0 && (
+          <>
+            <Divider sx={{ my: 0.5 }}>
+              <Button size="small" onClick={() => setShowCharacters((v) => !v)} sx={{ textTransform: 'none' }}>
+                {showCharacters ? '▼' : '▶'} {text.characters || 'Characters'}
+              </Button>
+            </Divider>
+            {showCharacters && (
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, maxHeight: 200, overflow: 'auto' }}>
+                {currentScriptCharacters.map((c: string) => {
+                  const tag = characterTag(c)
+                  const icon = getIconForCharacter(c)
+                  const name = getDisplayName(c, language)
+                  return (
+                    <Chip
+                      key={`char-${c}`}
+                      size="small"
+                      clickable
+                      color={seat.customTags.includes(tag) ? 'primary' : 'default'}
+                      variant={seat.customTags.includes(tag) ? 'filled' : 'outlined'}
+                      onClick={() => handleToggleTag(tag)}
+                      icon={icon ? <Box component="img" src={icon as string} sx={{ width: 18, height: 18, ml: 0.5 }} /> : undefined}
+                      label={name}
+                    />
+                  )
+                })}
+              </Box>
+            )}
+          </>
+        )}
+      </Box>
+    </Paper>
+  )
 
-  return isMobile ? createPortal(content, document.body) : content;
+  return createPortal(content, document.body)
 }

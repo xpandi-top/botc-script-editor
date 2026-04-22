@@ -148,7 +148,7 @@ export function buildGameActions(deps: ActionDeps) {
     if (!currentDay.voteDraft.actor || !currentDay.voteDraft.target) return
     const vd = currentDay.voteDraft
     const finalCount = vd.voteCountOverride !== null ? vd.voteCountOverride : vd.voters.length
-    const record: VoteRecord = { id: `${Date.now()}`, actor: vd.actor!, target: vd.target!, voters: [...new Set(vd.voters)], voteCount: finalCount, requiredVotes, passed: draftPassed, note: vd.note.trim(), overridden: vd.manualPassed !== null || vd.voteCountOverride !== null }
+    const record: VoteRecord = { id: `${Date.now()}`, actor: vd.actor!, target: vd.target!, voters: [...new Set(vd.voters)], voteCount: finalCount, requiredVotes, passed: draftPassed, note: vd.note.trim(), overridden: vd.manualPassed !== null || vd.voteCountOverride !== null, isExile: vd.isExile }
     updateCurrentDayWithUndo((d) => appendEvent({ ...d, nominationStep: 'waitingForNomination', nominationWaitSeconds: timerDefaults.nominationWaitSeconds, voteHistory: [record, ...d.voteHistory], voteDraft: createDefaultVoteDraft(), votingState: null }, 'vote', `#${record.actor} → #${record.target}: ${record.passed ? 'PASS' : 'FAIL'} (${record.voteCount}/${record.requiredVotes})`))
     setPickerMode('nominator')
     setIsTimerRunning(false)

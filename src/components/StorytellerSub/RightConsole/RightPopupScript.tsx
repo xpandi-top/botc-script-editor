@@ -1,6 +1,8 @@
 // @ts-nocheck
 import React from 'react'
 import { nightOrder, getDisplayName, getIconForCharacter } from '../../../catalog'
+import { Box, Typography, Button, Tabs, Tab, Paper, List, ListItem, ListItemIcon, ListItemText, IconButton } from '@mui/material'
+import CloseIcon from '@mui/icons-material/Close'
 
 type ScriptView = 'characters' | 'firstNight' | 'otherNight'
 
@@ -27,79 +29,92 @@ export function RightPopupScript({ ctx }: { ctx: any }) {
   function renderNightList(ids: string[]) {
     return ids.length ? ids.map((id, i) => {
       if (id === 'MINION_INFO') return (
-        <li className="storyteller-night-divider" key="minion-info">
-          {language === 'zh' ? '——爪牙信息——' : '— Minion Info —'}
-        </li>
+        <ListItem key="minion-info" sx={{ py: 0.5 }}>
+          <ListItemText
+            primary={language === 'zh' ? '——爪牙信息——' : '— Minion Info —'}
+            primaryTypographyProps={{ variant: 'caption', color: 'primary', fontWeight: 600, textAlign: 'center' }}
+          />
+        </ListItem>
       )
       if (id === 'DEMON_INFO') return (
-        <li className="storyteller-night-divider" key="demon-info">
-          {language === 'zh' ? '——恶魔信息——' : '— Demon Info —'}
-        </li>
+        <ListItem key="demon-info" sx={{ py: 0.5 }}>
+          <ListItemText
+            primary={language === 'zh' ? '——恶魔信息——' : '— Demon Info —'}
+            primaryTypographyProps={{ variant: 'caption', color: 'error', fontWeight: 600, textAlign: 'center' }}
+          />
+        </ListItem>
       )
       const icon = getIconForCharacter(id)
       const name = getDisplayName(id, language)
       return (
-        <li className="storyteller-night-entry" key={`${id}-${i}`}>
-          {icon && <img alt="" className="storyteller-night-entry__icon" src={icon} />}
-          <span>{name || id}</span>
-        </li>
+        <ListItem key={`${id}-${i}`} sx={{ py: 0.5 }}>
+          {icon ? (
+            <ListItemIcon sx={{ minWidth: 32 }}>
+              <Box component="img" src={icon} alt="" sx={{ width: 24, height: 24, borderRadius: 1 }} />
+            </ListItemIcon>
+          ) : null}
+          <ListItemText primary={name || id} />
+        </ListItem>
       )
-    }) : <li className="storyteller-panel__hint" style={{ listStyle: 'none' }}>—</li>
+    }) : (
+      <ListItem>
+        <ListItemText primary="—" sx={{ textAlign: 'center' }} />
+      </ListItem>
+    )
   }
 
   return (
-    <div className="storyteller-right-popup__inner">
-      <div className="storyteller-right-popup__header">
-        <h3>{activeScriptTitle}</h3>
-        <button className="secondary-button secondary-button--small" onClick={() => setActiveRightPopup(null)} type="button">✕</button>
-      </div>
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, borderBottom: '1px solid', borderColor: 'divider' }}>
+        <Typography variant="h6" sx={{ fontWeight: 600 }}>{activeScriptTitle}</Typography>
+        <IconButton size="small" onClick={() => setActiveRightPopup(null)}>
+          <CloseIcon />
+        </IconButton>
+      </Box>
 
-      <div className="storyteller-popup-tabs">
-        <button
-          className={`tab-button${view === 'characters' ? ' tab-button--active' : ''}`}
-          onClick={() => setView('characters')}
-          type="button"
-        >{language === 'zh' ? '角色列表' : 'Characters'}</button>
-        <button
-          className={`tab-button${view === 'firstNight' ? ' tab-button--active' : ''}`}
-          onClick={() => setView('firstNight')}
-          type="button"
-        >{language === 'zh' ? '第一夜顺序' : 'First Night'}</button>
-        <button
-          className={`tab-button${view === 'otherNight' ? ' tab-button--active' : ''}`}
-          onClick={() => setView('otherNight')}
-          type="button"
-        >{language === 'zh' ? '其他夜晚顺序' : 'Other Nights'}</button>
-      </div>
+      <Tabs
+        value={view}
+        onChange={(_, v) => setView(v)}
+        variant="fullWidth"
+        sx={{ minHeight: 36, '& .MuiTab-root': { minHeight: 36, fontSize: '0.75rem' } }}
+      >
+        <Tab label={language === 'zh' ? '角色列表' : 'Characters'} value="characters" />
+        <Tab label={language === 'zh' ? '第一夜顺序' : 'First Night'} value="firstNight" />
+        <Tab label={language === 'zh' ? '其他夜晚顺序' : 'Other Nights'} value="otherNight" />
+      </Tabs>
 
-      <div className="storyteller-right-popup__scroll">
+      <Box sx={{ flex: 1, overflow: 'auto', p: 1 }}>
         {view === 'characters' && (
-          <ul className="storyteller-script-char-list">
+          <List dense>
             {characterIds.length ? characterIds.map((id) => {
               const icon = getIconForCharacter(id)
               const name = getDisplayName(id, language)
               return (
-                <li className="storyteller-script-char-entry" key={id}>
-                  {icon && <img alt="" className="storyteller-night-entry__icon" src={icon} />}
-                  <span>{name || id}</span>
-                </li>
+                <ListItem key={id} sx={{ py: 0.5 }}>
+                  {icon ? (
+                    <ListItemIcon sx={{ minWidth: 32 }}>
+                      <Box component="img" src={icon} alt="" sx={{ width: 24, height: 24, borderRadius: 1 }} />
+                    </ListItemIcon>
+                  ) : null}
+                  <ListItemText primary={name || id} />
+                </ListItem>
               )
-            }) : <li className="storyteller-panel__hint" style={{ listStyle: 'none' }}>—</li>}
-          </ul>
+            }) : (
+              <ListItem>
+                <ListItemText primary="—" />
+              </ListItem>
+            )}
+          </List>
         )}
 
         {view === 'firstNight' && (
-          <ol className="storyteller-night-list">
-            {renderNightList(firstNightOrder)}
-          </ol>
+          <List dense>{renderNightList(firstNightOrder)}</List>
         )}
 
         {view === 'otherNight' && (
-          <ol className="storyteller-night-list">
-            {renderNightList(otherNightOrder)}
-          </ol>
+          <List dense>{renderNightList(otherNightOrder)}</List>
         )}
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }

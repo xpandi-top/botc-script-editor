@@ -127,6 +127,7 @@ export type VoteRecord = {
   note: string
   overridden: boolean
   failed?: boolean
+  isExile?: boolean
 }
 
 export type SkillDraft = {
