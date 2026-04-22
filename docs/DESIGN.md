@@ -6,6 +6,8 @@
 
 **Platform**: Cross-platform (iOS, Android, Web)
 
+**Tech Stack**: React 19 + TypeScript 5.8 + Vite 6 + MUI 9
+
 ---
 
 ## Core Concepts
@@ -35,6 +37,22 @@
 - Dead players get one final vote
 - Alive players vote each nomination
 - Special rules can override
+
+---
+
+## Architecture
+
+### State Management
+- **Script viewer**: local `useState` in `App.tsx`
+- **Game state**: `src/hooks/useStoryteller.ts` - persisted to localStorage key `BOTC_ST_STORAGE`
+- **Sub-hooks**: `useGameLifecycle`, `useGameActions`, `useUIState`, `useAudioState`
+
+### Data Loading
+`src/catalog.ts` uses Vite `import.meta.glob()` to eagerly load:
+- `/assets/characters/*.json` - character definitions
+- `/assets/scripts/*.json` - script definitions
+- `/assets/icons/*` - character icon images
+- `/assets/locales/{en,zh}.json` - UI strings + character abilities
 
 ---
 
@@ -71,21 +89,20 @@
 
 ## Component Specifications
 
-### 1. Header Bar (Upper Zone ~1/6 height)
+### 1. CompactToolbar (Upper Zone ~1/6 height)
 
 #### Left Section: Status Display
 | Element | Action | Popup |
 |--------|--------|-------|
 | PlayerCount | Click | Shows breakdown: Townsfolk/Outsider/Minion/Demon |
 | Script Name | Click | Script selector dropdown |
-| Script Characters | Click | Character list sidebar |
 | Night Order | Click | Night order sidebar |
 
 #### Center Section: Media Player
 - Current track name
 - Play/Pause toggle
 - [+] icon for adding local files
-- Loop mode indicator
+- Volume slider
 
 #### Right Section: Actions
 | Button | Function |
@@ -93,58 +110,61 @@
 | New Game | Opens modal |
 | Edit Players | Opens modal |
 | End Game | Opens modal |
-| Show/Hide Log | Toggle sidebar |
+| Undo | Undo last action |
+| Menu | Toggle right panel |
 
 ### 2. Arena (Main Zone ~5/6 height)
 
 #### Layout
 - Circular table with player seats around perimeter
 - Center displays: Day number, Current phase, Countdown timer
-- Rectangle layout: Height = 3/4 of visible screen
-- Pointer from table center to selected player card
+- Grid layout option via toggle (landscape: seats left, portrait: seats above)
 
 #### Player Card
 - Seat number + Name (same row)
-- Status tags as chips
+- Status tags as chips (with character icons)
 - Click to edit tags
 - Selected state shows full tag editor
 
-### 3. Phase Controls
+### 3. Phase Controls (ArenaCenterContent)
 
 | Phase | Countdown | Alarm | Actions |
 |-------|-----------|------|---------|
-| Night | None | None | Play/Pause music, ST controls only |
+| Night | None | None | Play/Pause music, Show Character, Wake Order, Edit |
 | Private | Yes | End alarm | Start conversation |
-| Public-Free | Yes | End alarm | Enable nomination |
-| Public-Turn | Per player | Announce | Next speaker |
-| Nomination | Yes | Result | Nominate button |
+| Public | Yes | End alarm | Free/RoundRobin mode, Enable nomination |
+| Nomination | Yes | Result | Nominate button, Next Day |
 
-### 4. Nomination Sheet (Compact)
+### 4. Nomination Sheet (ArenaCenterNominationSheet)
 
 #### Elements
-- Toggle: Nomination / Exile (auto-change for travelers)
+- Toggle: Nominator / Nominee / Vote timer
 - Nominator selector (dropdown or click card)
 - Nominee selector (dropdown or click card)
 - Vote threshold display
 - Vote buttons (Yes/No)
 - Vote override dropdown
 - Note text field
-- Compact Record / Clear buttons
+- Record / Clear buttons
+- History with filters (All/Exile/Nomination)
 
-### 5. Right Sidebar (Single visible at a time)
+### 5. Right Console (Single visible at a time)
 
 | Sidebar | Purpose |
 |--------|---------|
-| Log | Event history |
-| Export | Data export |
+| Player | Selected player details, tags |
+| Day | Day history |
+| Game | Script, restart, export |
+| Records | Saved games |
+| Tags | Tag management |
 | Settings | All settings consolidated |
 
 ### 6. Log Viewer
 
 #### Filters
-- Phase: Multi-select dropdown
+- Type: Vote / Skill / Event
+- Visibility: Public / ST-only / All
 - Day: Current day default
-- Visibility: ST-only toggle
 
 #### Structure
 ```
@@ -157,14 +177,6 @@ Day 1 (expandable)
 │   └── Events
 └── Nomination
     └── Events
-```
-
-#### Event Types
-```
-[Tag] Player X add/remove tag
-[Ability] Player X claims character → targets
-[Nominate] #X nominates #Y → pass/fail → votes/threshold → voters
-[Exile] #X exiles #Y → votes/threshold → voters
 ```
 
 ---
@@ -205,7 +217,7 @@ Day 1 (expandable)
 | Include Seats | Yes |
 | Include Votes | Yes |
 | Include Skills | Yes |
-| Include Events | Yes |
+| Include Events | No |
 | Include ST Notes | No |
 | Day Filter | All or selected |
 
@@ -219,7 +231,8 @@ Day 1 (expandable)
 | Private | 5 min |
 | Public-Free | 5 min |
 | Public-Turn | 30 sec/person |
-| Nomination Accept | 2 min |
+| Nomination Actor | 60 sec |
+| Nomination Target | 60 sec |
 
 ### 2. Alarm Settings
 | Field | Type |
@@ -227,24 +240,18 @@ Day 1 (expandable)
 | Sound | Select dropdown + local file |
 | Enable | Toggle |
 
-### 3. Announcement Settings
-| Field | Type |
-|------|------|
-| Phase Change | Toggle |
-| Last 10 Seconds | Toggle + voice |
-
-### 4. Tag Settings
+### 3. Tag Settings
 | Section | Tags |
 |---------|------|
 | Default | Dead, Executed, Traveler, No vote |
-| ST-only | Drunk, Poisoned, Protected |
+| Character Tags | 💀characterId format |
 
 ---
 
 ## Data Structures
 
 ### Game State
-typescript
+```typescript
 interface GameState {
   id: string
   script: EditableScript
@@ -265,14 +272,14 @@ interface Player {
   isTraveler: boolean
   hasNoVote: boolean
   isExecuted: boolean
-  customTags: string[]
+  customTags: string[]  // Character tags: "💀charId"
   stTags: STTag[]
   note: string
 }
 ```
 
 ### Log Event
-typescript
+```typescript
 interface LogEvent {
   id: string
   day: number
@@ -288,43 +295,84 @@ interface LogEvent {
 
 ---
 
-## File Structure Target
+## File Structure
 
-| File | Target Lines | Current |
-|------|------------|---------|
-| useStoryteller.ts | ~2000 | ~1500 |
-| Arena/index.ts | ~300 | ~200 |
-| Arena/ArenaSeat.ts | ~150 | ~100 |
-| Arena/ArenaCenter*.ts | ~200 | ~150 |
-| Modals/*.ts | ~50 each | ~80 each |
-| RightConsole/*.ts | ~80 each | ~50 each |
-| Total | ~4000 | ~3500 |
+```
+src/
+├── main.tsx                    # React root, MUI theme injection
+├── App.tsx                     # Tab router (scripts | characters | settings | storyteller)
+├── catalog.ts                  # All data loading + character utility functions
+├── types.ts                    # Core types
+├── theme/index.ts              # MUI theme config
+├── hooks/
+│   ├── useStoryteller.ts       # Main game state hook
+│   ├── useGameLifecycle.ts     # Phase transitions
+│   ├── useGameActions.ts       # Votes/skills/events
+│   ├── useUIState.ts           # UI state management
+│   ├── useAudioState.ts        # Audio player state
+│   ├── useHistory.ts           # Undo/redo
+│   └── useI18n.ts             # Localization
+├── components/
+│   ├── StorytellerHelper.tsx   # Main storyteller entry
+│   └── StorytellerSub/
+│       ├── Arena/
+│       │   ├── index.tsx      # Arena wrapper
+│       │   ├── ArenaSeats.tsx # Seats container
+│       │   ├── ArenaSeat.tsx  # Individual seat card
+│       │   ├── ArenaCenter.tsx    # Center area
+│       │   ├── ArenaCenterContent.tsx  # Phase controls
+│       │   ├── ArenaCenterNominationSheet.tsx # Nomination UI
+│       │   ├── ArenaSeatTagPopout.tsx
+│       │   ├── ArenaSeatSkillPopout.tsx
+│       │   └── ArenaSeatCharacterPopout.tsx
+│       ├── RightConsole/
+│       │   ├── index.tsx
+│       │   ├── RightConsolePlayer.tsx
+│       │   ├── RightConsoleDay.tsx
+│       │   ├── RightConsoleGame.tsx
+│       │   ├── RightConsoleRecords.tsx
+│       │   ├── RightConsoleTags.tsx
+│       │   ├── RightConsoleSettings.tsx
+│       │   ├── RightPopupLog.tsx
+│       │   ├── RightPopupScript.tsx
+│       │   └── ...
+│       ├── Modals/
+│       │   ├── index.tsx
+│       │   ├── ModalsNewGame.tsx
+│       │   ├── ModalsEndGame.tsx
+│       │   ├── ModalsExport.tsx
+│       │   └── ...
+│       ├── CompactToolbar.tsx
+│       ├── LeftLogPanel.tsx
+│       ├── LeftScriptPanel.tsx
+│       └── ...
+└── utils/
+    └── seats.ts                # Game logic (eligible voters, etc.)
+```
 
 ---
 
-## Priority Implementation Order
+## Implementation Status
 
-### Phase 1: Critical Fixes
-1. Default tags correction (Dead, Executed, Traveler, No vote)
-2. "Skill" → "Ability" text change
-3. Compact nominate buttons
+### Completed Features
+- ✅ MUI 9 migration (replaced legacy CSS)
+- ✅ Phase controls with timer
+- ✅ Nomination sheet with countdown timers
+- ✅ Vote recording and history
+- ✅ Character tag display with icons
+- ✅ Night phase with character/wake order display
+- ✅ Round robin mode
+- ✅ Global notes (public + ST-only)
+- ✅ Audio player with local files
+- ✅ Saved games / export
+- ✅ Undo/redo history
+- ✅ Localization (en/zh)
 
-### Phase 2: Layout Improvements
-1. Header zone (1/6 height)
-2. Arena height = 3/4 screen
-3. Single sidebar visibility
-
-### Phase 3: Feature Improvements
-1. Media player redesign
-2. New Game modal enhancements
-3. End Game survey improvements
-4. Log viewer improvements
-
-### Phase 4: Polish
-1. Add ST-only tag section
-2. Night phase card enhancements
-3. Animation polish
-4. Performance optimization
+### Known Issues (Fixed)
+- Unicode emoji handling in character tags (surrogate pair parsing)
+- Modal auto-close on backdrop click
+- Timer countdown functionality
+- Exile flag in nomination history
 
 ---
 
