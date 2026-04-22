@@ -2,7 +2,7 @@
 import React, { useState, useMemo } from 'react'
 import {
   Box, Button, IconButton, Typography, ToggleButton, ToggleButtonGroup,
-  Select, MenuItem, TextField, Dialog, DialogTitle, DialogContent, FormControlLabel, Switch,
+  Select, MenuItem, TextField, Dialog, FormControlLabel, Switch,
 } from '@mui/material'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import PauseIcon from '@mui/icons-material/Pause'
@@ -11,7 +11,7 @@ import RefreshIcon from '@mui/icons-material/Refresh'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import CloseIcon from '@mui/icons-material/Close'
-import { MobileNominationPanel } from './MobileNominationPanel'
+import { ArenaCenterNominationSheet } from './ArenaCenterNominationSheet'
 import type { Phase, PublicMode } from '../types'
 
 const PHASES: Phase[] = ['night', 'private', 'public', 'nomination']
@@ -268,20 +268,7 @@ export function PhaseControlPanel({ ctx }: { ctx: any }) {
             </Box>
           )}
 
-          {/* Nomination Dialog (fullscreen popup) */}
-          <Dialog open={phase === 'nomination' && showNominationSheet} onClose={() => setShowNominationSheet(false)} fullScreen>
-            <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', bgcolor: PANEL_COLORS['nomination'], color: 'rgba(255,255,255,0.92)', pb: 1 }}>
-              <Typography fontWeight={700} fontSize="1rem">
-                {language === 'zh' ? '⚖️ 提名' : '⚖️ Nomination'}
-              </Typography>
-              <IconButton size="small" onClick={() => setShowNominationSheet(false)} sx={{ color: 'rgba(255,255,255,0.8)' }}>
-                <CloseIcon />
-              </IconButton>
-            </DialogTitle>
-            <DialogContent sx={{ pt: 2 }}>
-              <MobileNominationPanel ctx={ctx} />
-            </DialogContent>
-          </Dialog>
+      <ArenaCenterNominationSheet ctx={ctx} />
 
           {/* Game actions row */}
           <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap', pt: 0.5, borderTop: '1px solid rgba(255,255,255,0.10)' }}>
