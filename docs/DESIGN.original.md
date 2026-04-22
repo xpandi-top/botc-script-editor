@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-**Purpose**: Companion tool for offline Blood on the Clocktower storytelling.
+**Purpose**: A companion tool for offline Blood on the Clocktower storytelling.
 
 **Platform**: Cross-platform (iOS, Android, Web)
 
@@ -19,7 +19,7 @@
 
 ### 2. Player Types
 - **Normal Player**: Standard game role
-- **Traveler**: Special roles, no team total count
+- **Traveler**: Special roles that don't count toward team totals
 
 ### 3. Player Status
 | Status Type | Visibility | Examples |
@@ -114,9 +114,9 @@
 ### 2. Arena (Main Zone ~5/6 height)
 
 #### Layout
-- Circular table, player seats around perimeter
-- Center: Day number, Current phase, Countdown timer
-- Grid layout toggle (landscape: seats left, portrait: seats above)
+- Circular table with player seats around perimeter
+- Center displays: Day number, Current phase, Countdown timer
+- Grid layout option via toggle (landscape: seats left, portrait: seats above)
 
 #### Player Card
 - Seat number + Name (same row)

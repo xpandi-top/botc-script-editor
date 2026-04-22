@@ -39,6 +39,10 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           '--transition-slow': '0.4s cubic-bezier(0.4, 0, 0.2, 1)',
           '--shadow-card':  '0 2px 12px rgba(57, 43, 24, 0.10)',
           '--shadow-float': '0 8px 32px rgba(57, 43, 24, 0.16)',
+          '--safe-top':    'env(safe-area-inset-top, 0px)',
+          '--safe-bottom': 'env(safe-area-inset-bottom, 0px)',
+          '--safe-left':   'env(safe-area-inset-left, 0px)',
+          '--safe-right':  'env(safe-area-inset-right, 0px)',
         },
         '*, *::before, *::after': { boxSizing: 'border-box' },
         body: {

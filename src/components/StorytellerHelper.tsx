@@ -26,7 +26,7 @@ export function StorytellerHelper(props: StorytellerHelperProps) {
         gap: 1,
         flex: 1,
         minHeight: 480,
-        minWidth: 520,
+        minWidth: 0,
         alignItems: 'stretch',
         overflow: 'auto',
       }}
