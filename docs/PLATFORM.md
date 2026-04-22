@@ -160,6 +160,9 @@ Landscape: current layout preserved (Arena + RightConsole side by side).
 | I-17 | Nomination panel inline in PhaseControlPanel — cramped; should be a fullscreen Dialog popup on mobile | Mobile UI | Medium | ✅ Fixed — `MobileNominationPanel` wrapped in fullScreen `Dialog` with nomination-colored header |
 | I-18 | Phase toggle button text too small (`0.65rem`) in PhaseControlPanel — hard to read | Mobile UI | Medium | ✅ Fixed — increased to `0.78rem`, px `1`, py `0.375` |
 | I-19 | BGM play/stop not visible in mobile night phase — audio controls unlabeled and appear missing | Mobile UI | High | ✅ Fixed — replaced icon-only buttons with labeled "BGM" + "停止/Stop" buttons with icons |
+| I-20 | Print CSS broken — hidden print sheets use `display: none`, blocking `visibility: visible` override | Print | High | ✅ Fixed — container changed to `position: absolute; visibility: hidden; height: 0; overflow: hidden` |
+| I-21 | Left script list panel has no hide/collapse toggle — always visible, wastes space | Scripts UI | Medium | ✅ Fixed — hamburger toggle in content panel header; `MenuIcon`/`MenuOpenIcon` with close button in list panel |
+| I-22 | Mobile ScriptsTab: left panel occupies full width first, content panel hidden below fold | Mobile UI | High | ✅ Fixed — mobile defaults `listOpenMobile=false`; selecting script auto-closes list on mobile |
 
 ---
 

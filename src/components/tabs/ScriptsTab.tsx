@@ -1,6 +1,9 @@
-import { Fragment } from 'react'
-import { Box, Button, Paper, Typography } from '@mui/material'
+import { Fragment, useState } from 'react'
+import { Box, Button, IconButton, Paper, Typography } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
+import MenuIcon from '@mui/icons-material/Menu'
+import MenuOpenIcon from '@mui/icons-material/MenuOpen'
+import { useBreakpoint } from '../../hooks/useBreakpoint'
 import { ScriptList } from '../ScriptList'
 import { SheetArticle } from '../SheetArticle'
 import { ScriptEditor } from './ScriptEditor'
@@ -61,31 +64,49 @@ export function ScriptsTab({
   getScriptTitle,
   getSheetUiLabel,
 }: Props) {
+  const { isMobile } = useBreakpoint()
+  const [listOpenDesktop, setListOpenDesktop] = useState(true)
+  const [listOpenMobile, setListOpenMobile] = useState(false)
+  const showList = isMobile ? listOpenMobile : listOpenDesktop
+  const setListOpen = isMobile ? setListOpenMobile : setListOpenDesktop
+
+  const gridCols = isMobile ? '1fr' : showList ? '280px 1fr' : '1fr'
+
   return (
-    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '320px 1fr' }, gap: 2 }}>
-      <Paper elevation={0} sx={{ p: 2, borderRadius: 3, background: 'rgba(255,251,245,0.9)', border: '1px solid', borderColor: 'divider' }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h6">{uiText.scriptSheet}</Typography>
-          <Button size="small" variant="outlined" startIcon={<AddIcon />} onClick={createNewScript}>
-            {uiText.newScript}
-          </Button>
-        </Box>
-        <Box sx={{ display: 'grid', gap: 1 }}>
-          {scripts.map((script) => (
-            <ScriptList
-              key={script.slug}
-              title={getScriptTitle(script)}
-              isActive={script.slug === activeScript?.slug}
-              onSelect={() => setActiveSlug(script.slug)}
-            />
-          ))}
-        </Box>
-      </Paper>
+    <Box sx={{ display: 'grid', gridTemplateColumns: gridCols, gap: 2 }}>
+      {showList && (
+        <Paper elevation={0} sx={{ p: 2, borderRadius: 3, background: 'rgba(255,251,245,0.9)', border: '1px solid', borderColor: 'divider' }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Typography variant="h6">{uiText.scriptSheet}</Typography>
+            <Box sx={{ display: 'flex', gap: 0.5 }}>
+              <Button size="small" variant="outlined" startIcon={<AddIcon />} onClick={createNewScript}>
+                {uiText.newScript}
+              </Button>
+              <IconButton size="small" onClick={() => setListOpen(false)} title="Hide list">
+                <MenuOpenIcon fontSize="small" />
+              </IconButton>
+            </Box>
+          </Box>
+          <Box sx={{ display: 'grid', gap: 1 }}>
+            {scripts.map((script) => (
+              <ScriptList
+                key={script.slug}
+                title={getScriptTitle(script)}
+                isActive={script.slug === activeScript?.slug}
+                onSelect={() => { setActiveSlug(script.slug); if (isMobile) setListOpen(false) }}
+              />
+            ))}
+          </Box>
+        </Paper>
+      )}
 
       <Paper elevation={0} sx={{ p: 2, borderRadius: 3, background: 'rgba(255,251,245,0.9)', border: '1px solid', borderColor: 'divider' }}>
         {activeScript ? (
           <>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2, flexWrap: 'wrap' }}>
+              <IconButton size="small" onClick={() => setListOpen(v => !v)} title={showList ? 'Hide list' : 'Show list'}>
+                {showList ? <MenuOpenIcon fontSize="small" /> : <MenuIcon fontSize="small" />}
+              </IconButton>
               <Button variant="outlined" size="small" onClick={() => setIsEditMode((c) => !c)}>
                 {isEditMode ? uiText.doneEditing : uiText.editScript}
               </Button>
@@ -110,7 +131,7 @@ export function ScriptsTab({
               />
             )}
 
-            <Box sx={{ display: 'none' }} aria-hidden="true">
+            <Box sx={{ position: 'absolute', visibility: 'hidden', height: 0, overflow: 'hidden', pointerEvents: 'none' }} aria-hidden="true">
               {(['en', 'zh'] as Language[]).map((language, index) => (
                 <Fragment key={language}>
                   <SheetArticle
