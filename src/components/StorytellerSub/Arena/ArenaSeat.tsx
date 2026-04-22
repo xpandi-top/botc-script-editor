@@ -208,21 +208,14 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
 
         {tags.length > 0 && (
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.25, justifyContent: 'center', mt: 0.25 }}>
-            {tags.map((tag) => {
-              const isCharTag = isCharacterTag(tag)
-              const charId = isCharTag ? tag.slice(1) : ''
-              const charImg = isCharTag ? getIconForCharacter(charId) : null
-              const charName = isCharTag ? getCharacterName(tag) : ''
-              return (
-                <Chip
-                  key={`${seat.seat}-${tag}`}
-                  label={isCharTag ? charName : displayTag(tag)}
-                  size="small"
-                  icon={charImg ? <img src={charImg as string} style={{ width: 18, height: 18 }} /> : undefined}
-                  onContextMenu={(e) => handleTagPillRightClick(e, tag)}
-                />
-              )
-            })}
+            {tags.map((tag) => (
+              <Chip
+                key={`${seat.seat}-${tag}`}
+                label={displayTag(tag)}
+                size="small"
+                onContextMenu={(e) => handleTagPillRightClick(e, tag)}
+              />
+            ))}
           </Box>
         )}
 
