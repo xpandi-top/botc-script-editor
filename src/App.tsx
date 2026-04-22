@@ -250,14 +250,14 @@ export default function App() {
   const storytellerTabLabel = uiLanguage === 'zh' ? '主持助手' : 'Storyteller Helper'
 
   return (
-    <Container maxWidth="xl" sx={{ py: 3, minHeight: '100vh' }}>
-      <Paper elevation={0} sx={{ p: 3, mb: 2, borderRadius: 3, background: 'rgba(255,251,245,0.9)' }}>
+    <Container maxWidth="xl" sx={{ py: { xs: 0, sm: 3 }, px: { xs: 0, sm: 3 }, minHeight: '100vh' }}>
+      <Paper elevation={0} sx={{ p: { xs: 1, sm: 3 }, mb: { xs: 0, sm: 2 }, borderRadius: { xs: 0, sm: 3 }, background: 'rgba(255,251,245,0.9)' }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
-          <Typography variant="h6" component="h1" sx={{ fontFamily: 'Georgia, "Times New Roman", serif', m: 0 }}>
+          <Typography variant="body1" component="h1" sx={{ fontFamily: 'Georgia, "Times New Roman", serif', m: 0, fontWeight: 700, display: { xs: 'none', sm: 'block' } }}>
             {uiText.appTitle}
           </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <FormControl size="small" sx={{ minWidth: 100 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <FormControl size="small" sx={{ minWidth: 80 }}>
               <InputLabel>{uiText.language}</InputLabel>
               <Select value={uiLanguage} label={uiText.language} onChange={(e) => setUiLanguage(e.target.value as Language)}>
                 <MenuItem value="en">{uiText.english}</MenuItem>
@@ -265,7 +265,7 @@ export default function App() {
               </Select>
             </FormControl>
             {activeTab !== 'characters' && activeTab !== 'storyteller' && activeScript && (
-              <Button variant="contained" startIcon={<PrintIcon />} onClick={() => window.print()} sx={{ borderRadius: 999 }}>
+              <Button variant="contained" startIcon={<PrintIcon />} onClick={() => window.print()} sx={{ borderRadius: 999, display: { xs: 'none', sm: 'flex' } }}>
                 {uiText.print}
               </Button>
             )}
@@ -274,8 +274,11 @@ export default function App() {
         <Tabs
           value={activeTab}
           onChange={(_, v) => setActiveTab(v)}
+          variant="scrollable"
+          scrollButtons="auto"
           sx={{
-            '& .MuiTab-root': { textTransform: 'none', borderRadius: 999, border: '1px solid', borderColor: 'divider', mr: 1 },
+            minHeight: { xs: 36, sm: 48 },
+            '& .MuiTab-root': { textTransform: 'none', borderRadius: 999, border: '1px solid', borderColor: 'divider', mr: 0.5, minHeight: { xs: 32, sm: 48 }, fontSize: { xs: '0.75rem', sm: '0.875rem' }, py: { xs: 0.5, sm: 1 }, px: { xs: 1, sm: 1.5 } },
             '& .Mui-selected': { backgroundColor: 'rgba(133, 63, 34, 0.1)', borderColor: 'primary.main' },
           }}
         >

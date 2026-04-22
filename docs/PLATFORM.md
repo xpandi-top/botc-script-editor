@@ -149,6 +149,10 @@ Landscape: current layout preserved (Arena + RightConsole side by side).
 | I-6 | localStorage cap risk: large game histories may exceed 5MB quota | State | Medium | Open — Phase 2 (P2-5) |
 | I-7 | No offline asset caching (icons/audio fail without network on PWA) | PWA | Medium | ✅ Fixed (P0) — vite-plugin-pwa caches icons + locales via workbox |
 | I-8 | useStoryteller.ts is ~41KB monolith — slow HMR, hard to maintain | Code quality | Low | Open — Phase 4 (P4-1) |
+| I-9 | App header + tab bar padding/font too large on mobile, wastes vertical space | Mobile UI | High | ✅ Fixed — responsive `py/px` on Container/Paper; title hidden xs; tabs scrollable with smaller font/height |
+| I-10 | Dialogs (New Game, End Game, Export, Edit Players) not full-screen on mobile — overflow/clipped | Mobile UI | High | ✅ Fixed — `fullScreen={isMobile}` on all large dialogs; `borderRadius: 0` on mobile |
+| I-11 | Wake order number (`#N`) not rendered in MobileSeatCard — only checkbox icon visible | Mobile UI | Medium | ✅ Fixed — `playerWakeOrder` computed from `nightOrder`; number span rendered beside checkbox |
+| I-12 | Character button in MobileSeatCard absent when char assigned — cannot open character popout | Mobile UI | Medium | ✅ Fixed — button renders whenever `isNightPhase && nightShowCharacter`; shows icon+name or "+Assign" |
 
 ---
 

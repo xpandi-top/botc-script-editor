@@ -4,7 +4,7 @@ import { Box, Button, IconButton, Chip, Paper } from '@mui/material'
 import { ArenaSeatTagPopout } from './ArenaSeatTagPopout'
 import { ArenaSeatSkillPopout } from './ArenaSeatSkillPopout'
 import { ArenaSeatCharacterPopout } from './ArenaSeatCharacterPopout'
-import { getDisplayName, getIconForCharacter } from '../../../catalog'
+import { getDisplayName, getIconForCharacter, nightOrder } from '../../../catalog'
 
 export function MobileSeatCard({ ctx, seat }: { ctx: any; seat: any }) {
   const {
@@ -39,6 +39,10 @@ export function MobileSeatCard({ ctx, seat }: { ctx: any; seat: any }) {
   const charIcon = actualCharId ? getIconForCharacter(actualCharId) : null
   const actualCharName = actualCharId ? getDisplayName(actualCharId, language) : ''
   const isVisited = currentDay.nightVisitedSeats?.includes(seat.seat)
+
+  const isFirstNight = currentDay.day === 1
+  const nightList = isFirstNight ? (nightOrder?.first_night ?? []) : (nightOrder?.other_nights ?? [])
+  const playerWakeOrder = actualCharId ? (() => { const idx = nightList.indexOf(actualCharId); return idx !== -1 ? idx + 1 : null })() : null
 
   const tags = [
     !seat.alive ? text.aliveTag : '',
@@ -179,34 +183,40 @@ export function MobileSeatCard({ ctx, seat }: { ctx: any; seat: any }) {
             {language === 'zh' ? '状态' : 'Status'}
           </Button>
 
-          {/* Night: character assign */}
-          {isNightPhase && nightShowCharacter && !actualCharId && (
+          {/* Night: character button — assign if empty, toggle popout if set */}
+          {isNightPhase && nightShowCharacter && (
             <Button
               size="small"
-              variant="outlined"
+              variant={isCharacterPopoutOpen ? 'contained' : 'outlined'}
               onClick={(e) => { e.stopPropagation(); setCharacterPopoutSeat(isCharacterPopoutOpen ? null : seat.seat) }}
-              sx={{ minWidth: 0, px: 0.75, py: 0.125, fontSize: '0.7rem' }}
+              sx={{ minWidth: 0, px: 0.75, py: 0.125, fontSize: '0.7rem', display: 'flex', alignItems: 'center', gap: 0.25 }}
             >
-              {language === 'zh' ? '+角色' : '+Assign'}
+              {charIcon && <Box component="img" src={charIcon as string} sx={{ width: 14, height: 14 }} />}
+              {actualCharName || (language === 'zh' ? '+角色' : '+Assign')}
             </Button>
           )}
 
-          {/* Night: wake order checkbox */}
-          {isNightPhase && nightShowWakeOrder && (
-            <IconButton
-              size="small"
-              onClick={(e) => { e.stopPropagation(); toggleNightVisitedSeat(seat.seat) }}
-              sx={{
-                p: 0.25,
-                border: '2px solid',
-                borderColor: isVisited ? 'success.main' : 'divider',
-                bgcolor: isVisited ? 'success.light' : 'transparent',
-                borderRadius: 0.5,
-                fontSize: '0.7rem',
-              }}
-            >
-              {isVisited ? '✓' : '○'}
-            </IconButton>
+          {/* Night: wake order checkbox + order number */}
+          {isNightPhase && nightShowWakeOrder && playerWakeOrder !== null && (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
+              <IconButton
+                size="small"
+                onClick={(e) => { e.stopPropagation(); toggleNightVisitedSeat(seat.seat) }}
+                sx={{
+                  p: 0.25,
+                  border: '2px solid',
+                  borderColor: isVisited ? 'success.main' : 'divider',
+                  bgcolor: isVisited ? 'success.light' : 'transparent',
+                  borderRadius: 0.5,
+                  fontSize: '0.7rem',
+                }}
+              >
+                {isVisited ? '✓' : '○'}
+              </IconButton>
+              <Box component="span" sx={{ fontSize: '0.7rem', fontWeight: 700, color: 'text.secondary' }}>
+                #{playerWakeOrder}
+              </Box>
+            </Box>
           )}
         </Box>
 
