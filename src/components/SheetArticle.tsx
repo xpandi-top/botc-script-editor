@@ -163,7 +163,7 @@ jinxesLabel,
             <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
               {language === 'zh' ? '首夜' : 'First Night'}
             </Typography>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, flexDirection: 'column', }}>
               {firstNightOrder.map((id) => {
                 const icon = getIconForCharacter(id)
                 return icon ? (
@@ -194,7 +194,7 @@ jinxesLabel,
                   const ability = character.ability ?? getAbilityText(character.id, language)
 
                   return (
-                    <Grid key={character.id} size={{ xs: 12, sm: 6, md: 4 }}>
+                    <Grid key={character.id} size={{ xs: 12, sm: 12, md: 6 }}>
                       <Paper variant="outlined" sx={{ p: 1, position: 'relative' }}>
                         <Box sx={{ display: 'flex', gap: 1 }}>
                           {icon ? (
@@ -244,7 +244,7 @@ jinxesLabel,
             <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
               {language === 'zh' ? '非首夜' : 'Other Night'}
             </Typography>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, flexDirection: 'column', }}>
               {otherNightOrder.map((id) => {
                 const icon = getIconForCharacter(id)
                 return icon ? (
