@@ -257,7 +257,7 @@ export default function App() {
             {uiText.appTitle}
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <FormControl size="small" sx={{ minWidth: 80 }}>
+            <FormControl size="small" sx={{ minWidth: { xs: 60, sm: 80 }, '& .MuiInputBase-input': { fontSize: { xs: '0.75rem', sm: '0.875rem' }, py: { xs: '4px', sm: '8px' } }, '& .MuiInputLabel-root': { fontSize: { xs: '0.75rem', sm: '0.875rem' } } }}>
               <InputLabel>{uiText.language}</InputLabel>
               <Select value={uiLanguage} label={uiText.language} onChange={(e) => setUiLanguage(e.target.value as Language)}>
                 <MenuItem value="en">{uiText.english}</MenuItem>

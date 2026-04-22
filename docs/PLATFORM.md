@@ -153,6 +153,8 @@ Landscape: current layout preserved (Arena + RightConsole side by side).
 | I-10 | Dialogs (New Game, End Game, Export, Edit Players) not full-screen on mobile — overflow/clipped | Mobile UI | High | ✅ Fixed — `fullScreen={isMobile}` on all large dialogs; `borderRadius: 0` on mobile |
 | I-11 | Wake order number (`#N`) not rendered in MobileSeatCard — only checkbox icon visible | Mobile UI | Medium | ✅ Fixed — `playerWakeOrder` computed from `nightOrder`; number span rendered beside checkbox |
 | I-12 | Character button in MobileSeatCard absent when char assigned — cannot open character popout | Mobile UI | Medium | ✅ Fixed — button renders whenever `isNightPhase && nightShowCharacter`; shows icon+name or "+Assign" |
+| I-13 | Mobile seat grid content clipped on left — `mx: -3` negates desktop padding but mobile container already has `px: 0` | Mobile UI | High | ✅ Fixed — `mx/mt` changed to `{ xs: 0, sm: -3 }` in StorytellerHelper |
+| I-14 | Language selector font/size too large on mobile — `FormControl` lacks responsive sizing | Mobile UI | Medium | ✅ Fixed — responsive `minWidth`, `fontSize`, `py` on input and label |
 
 ---
 

@@ -21,7 +21,7 @@ export function StorytellerHelper(props: StorytellerHelperProps) {
 
   if (isMobile) {
     return (
-      <Box sx={{ display: 'flex', flexDirection: 'column', height: '100dvh', overflow: 'hidden', mx: -3, mt: -3 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', height: '100dvh', overflow: 'hidden', mx: { xs: 0, sm: -3 }, mt: { xs: 0, sm: -3 } }}>
         <audio ref={ctx.audioRef} />
         <MobileTopBar ctx={ctx} />
         <LeftScriptPanel ctx={ctx} />
