@@ -159,7 +159,7 @@ jinxesLabel,
 
       <Box sx={{ display: 'flex', gap: 2 }}>
         {showWakeOrder && (
-          <Box sx={{ width: 80, flexShrink: 0 }}>
+          <Box sx={{ width: 40, flexShrink: 0, justifyContent: 'center' }}>
             <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
               {language === 'zh' ? '首夜' : 'First Night'}
             </Typography>
@@ -240,7 +240,7 @@ jinxesLabel,
         </Box>
 
         {showWakeOrder && (
-          <Box sx={{ width: 80, flexShrink: 0 }}>
+          <Box sx={{ width: 40, flexShrink: 0, justifyContent: 'center' }}>
             <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
               {language === 'zh' ? '非首夜' : 'Other Night'}
             </Typography>

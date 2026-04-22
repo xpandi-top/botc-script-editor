@@ -163,6 +163,8 @@ Landscape: current layout preserved (Arena + RightConsole side by side).
 | I-20 | Print CSS broken — hidden print sheets use `display: none`, blocking `visibility: visible` override | Print | High | ✅ Fixed — container changed to `position: absolute; visibility: hidden; height: 0; overflow: hidden` |
 | I-21 | Left script list panel has no hide/collapse toggle — always visible, wastes space | Scripts UI | Medium | ✅ Fixed — hamburger toggle in content panel header; `MenuIcon`/`MenuOpenIcon` with close button in list panel |
 | I-22 | Mobile ScriptsTab: left panel occupies full width first, content panel hidden below fold | Mobile UI | High | ✅ Fixed — mobile defaults `listOpenMobile=false`; selecting script auto-closes list on mobile |
+| I-23 | Print outputs two pages (EN + ZH) when only one language needed | Print | High | ✅ Fixed — print container renders only active `uiLanguage` instead of both languages |
+| I-24 | Jinx rules hidden under other content — `position: absolute; height: 0` print container interferes with layout | Print | High | ✅ Fixed — container changed to `position: fixed; top: -9999px` so it's completely off-screen without layout impact |
 
 ---
 

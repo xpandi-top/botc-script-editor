@@ -1,4 +1,5 @@
-import { Fragment, useState } from 'react'
+import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Box, Button, IconButton, Paper, Typography } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import MenuIcon from '@mui/icons-material/Menu'
@@ -131,29 +132,26 @@ export function ScriptsTab({
               />
             )}
 
-            <Box sx={{ position: 'absolute', visibility: 'hidden', height: 0, overflow: 'hidden', pointerEvents: 'none' }} aria-hidden="true">
-              {(['en', 'zh'] as Language[]).map((language, index) => (
-                <Fragment key={language}>
-                  <SheetArticle
-                    activeScript={activeScript}
-                    activeScriptCharacters={activeScriptCharacters}
-                    groupedScriptCharacters={groupedScriptCharacters}
-                    bootleggerRulesLabel={getSheetUiLabel(language, 'bootlegger_rules')}
-                    jinxesLabel={getSheetUiLabel(language, 'jinxes')}
-                    isEditMode={false}
-                    language={language}
-                    onRemoveCharacter={toggleCharacterInScript}
-                    sheetDensityClass={sheetDensityClass}
-                    className="print-sheet"
-                    showWakeOrder
-                    showEdition={false}
-                    showCharacterCount={false}
-                    supplementalPlacement="end"
-                  />
-                  {index === 0 ? <div className="print-page-break" /> : null}
-                </Fragment>
-              ))}
-            </Box>
+            {createPortal(
+              <div className="print-portal" aria-hidden="true">
+                <SheetArticle
+                  activeScript={activeScript}
+                  activeScriptCharacters={activeScriptCharacters}
+                  groupedScriptCharacters={groupedScriptCharacters}
+                  bootleggerRulesLabel={getSheetUiLabel(uiLanguage, 'bootlegger_rules')}
+                  jinxesLabel={getSheetUiLabel(uiLanguage, 'jinxes')}
+                  isEditMode={false}
+                  language={uiLanguage}
+                  onRemoveCharacter={toggleCharacterInScript}
+                  sheetDensityClass={sheetDensityClass}
+                  showWakeOrder
+                  showEdition={false}
+                  showCharacterCount={false}
+                  supplementalPlacement="end"
+                />
+              </div>,
+              document.body
+            )}
 
             {isEditMode && (
               <Box sx={{ mt: 3 }}>
