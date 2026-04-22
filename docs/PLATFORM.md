@@ -155,6 +155,11 @@ Landscape: current layout preserved (Arena + RightConsole side by side).
 | I-12 | Character button in MobileSeatCard absent when char assigned — cannot open character popout | Mobile UI | Medium | ✅ Fixed — button renders whenever `isNightPhase && nightShowCharacter`; shows icon+name or "+Assign" |
 | I-13 | Mobile seat grid content clipped on left — `mx: -3` negates desktop padding but mobile container already has `px: 0` | Mobile UI | High | ✅ Fixed — `mx/mt` changed to `{ xs: 0, sm: -3 }` in StorytellerHelper |
 | I-14 | Language selector font/size too large on mobile — `FormControl` lacks responsive sizing | Mobile UI | Medium | ✅ Fixed — responsive `minWidth`, `fontSize`, `py` on input and label |
+| I-15 | App title hidden + print button absent on mobile — no way to access print on phone | Mobile UI | High | ✅ Fixed — title now responsive (visible xs); icon-only print button on xs, full button on sm+ |
+| I-16 | Print outputs entire page (all tabs/lists) instead of only the active script sheet | Print | High | ✅ Fixed — `@media print` in GlobalStyles: `body * { visibility: hidden }`, `.print-sheet * { visibility: visible }` |
+| I-17 | Nomination panel inline in PhaseControlPanel — cramped; should be a fullscreen Dialog popup on mobile | Mobile UI | Medium | ✅ Fixed — `MobileNominationPanel` wrapped in fullScreen `Dialog` with nomination-colored header |
+| I-18 | Phase toggle button text too small (`0.65rem`) in PhaseControlPanel — hard to read | Mobile UI | Medium | ✅ Fixed — increased to `0.78rem`, px `1`, py `0.375` |
+| I-19 | BGM play/stop not visible in mobile night phase — audio controls unlabeled and appear missing | Mobile UI | High | ✅ Fixed — replaced icon-only buttons with labeled "BGM" + "停止/Stop" buttons with icons |
 
 ---
 

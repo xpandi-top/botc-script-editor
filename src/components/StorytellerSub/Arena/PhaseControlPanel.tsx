@@ -2,7 +2,7 @@
 import React, { useState, useMemo } from 'react'
 import {
   Box, Button, IconButton, Typography, ToggleButton, ToggleButtonGroup,
-  Select, MenuItem, TextField, Dialog, FormControlLabel, Switch,
+  Select, MenuItem, TextField, Dialog, DialogTitle, DialogContent, FormControlLabel, Switch,
 } from '@mui/material'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import PauseIcon from '@mui/icons-material/Pause'
@@ -150,7 +150,7 @@ export function PhaseControlPanel({ ctx }: { ctx: any }) {
               value={phase} exclusive
               onChange={(_, v) => v && setPhase(v)}
               size="small"
-              sx={{ '& .MuiToggleButton-root': { color: mutedColor, borderColor: 'rgba(255,255,255,0.15)', fontSize: '0.65rem', px: 0.75, py: 0.25, '&.Mui-selected': { color: textColor, bgcolor: 'rgba(255,255,255,0.2)' } } }}
+              sx={{ '& .MuiToggleButton-root': { color: mutedColor, borderColor: 'rgba(255,255,255,0.15)', fontSize: '0.78rem', px: 1, py: 0.375, '&.Mui-selected': { color: textColor, bgcolor: 'rgba(255,255,255,0.2)' } } }}
             >
               {PHASES.map(p => <ToggleButton key={p} value={p}>{getPhaseLabel(p)}</ToggleButton>)}
             </ToggleButtonGroup>
@@ -208,10 +208,18 @@ export function PhaseControlPanel({ ctx }: { ctx: any }) {
           {/* Night controls */}
           {phase === 'night' && (
             <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap', mb: 0.5 }}>
-              <IconButton size="small" sx={audioPlaying ? { ...iconBtnSx, ...TIMER_ACTIVE_SX } : { ...iconBtnSx, ...TIMER_IDLE_SX }} onClick={() => audioPlaying ? setAudioPlaying(false) : startNight()}>
-                {audioPlaying ? <PauseIcon fontSize="small" /> : <PlayArrowIcon fontSize="small" />}
-              </IconButton>
-              <IconButton size="small" sx={iconBtnSx} onClick={stopNight}><StopIcon fontSize="small" /></IconButton>
+              <Button
+                size="small"
+                variant={audioPlaying ? 'contained' : 'outlined'}
+                sx={{ ...btnSx, ...(audioPlaying ? TIMER_ACTIVE_SX : {}) }}
+                startIcon={audioPlaying ? <PauseIcon fontSize="small" /> : <PlayArrowIcon fontSize="small" />}
+                onClick={() => audioPlaying ? setAudioPlaying(false) : startNight()}
+              >
+                BGM
+              </Button>
+              <Button size="small" variant="outlined" sx={btnSx} startIcon={<StopIcon fontSize="small" />} onClick={stopNight}>
+                {language === 'zh' ? '停止' : 'Stop'}
+              </Button>
               <Button size="small" variant={nightShowCharacter ? 'contained' : 'outlined'} sx={btnSx} onClick={() => setNightShowCharacter((v: boolean) => !v)}>
                 {language === 'zh' ? '显示角色' : 'Character'}
               </Button>
@@ -248,20 +256,32 @@ export function PhaseControlPanel({ ctx }: { ctx: any }) {
             </Box>
           )}
 
-          {/* Nomination controls + sheet */}
+          {/* Nomination controls */}
           {phase === 'nomination' && (
-            <Box sx={{ mb: 0.5 }}>
-              <Box sx={{ display: 'flex', gap: 0.75, mb: 0.75, flexWrap: 'wrap' }}>
-                <Button size="small" variant={showNominationSheet ? 'contained' : 'outlined'} sx={btnSx} onClick={() => setShowNominationSheet((v: boolean) => !v)}>
-                  📋 {language === 'zh' ? '提名' : 'Nominate'}
-                </Button>
-                <Button size="small" variant="outlined" sx={btnSx} onClick={goToNextDay}>
-                  ▶ {language === 'zh' ? '下一天' : 'Next Day'}
-                </Button>
-              </Box>
-              {showNominationSheet && <MobileNominationPanel ctx={ctx} />}
+            <Box sx={{ display: 'flex', gap: 0.75, mb: 0.5, flexWrap: 'wrap' }}>
+              <Button size="small" variant="contained" sx={{ ...btnSx, bgcolor: 'rgba(255,255,255,0.2)' }} onClick={() => setShowNominationSheet(true)}>
+                📋 {language === 'zh' ? '提名' : 'Nominate'}
+              </Button>
+              <Button size="small" variant="outlined" sx={btnSx} onClick={goToNextDay}>
+                ▶ {language === 'zh' ? '下一天' : 'Next Day'}
+              </Button>
             </Box>
           )}
+
+          {/* Nomination Dialog (fullscreen popup) */}
+          <Dialog open={phase === 'nomination' && showNominationSheet} onClose={() => setShowNominationSheet(false)} fullScreen>
+            <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', bgcolor: PANEL_COLORS['nomination'], color: 'rgba(255,255,255,0.92)', pb: 1 }}>
+              <Typography fontWeight={700} fontSize="1rem">
+                {language === 'zh' ? '⚖️ 提名' : '⚖️ Nomination'}
+              </Typography>
+              <IconButton size="small" onClick={() => setShowNominationSheet(false)} sx={{ color: 'rgba(255,255,255,0.8)' }}>
+                <CloseIcon />
+              </IconButton>
+            </DialogTitle>
+            <DialogContent sx={{ pt: 2 }}>
+              <MobileNominationPanel ctx={ctx} />
+            </DialogContent>
+          </Dialog>
 
           {/* Game actions row */}
           <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap', pt: 0.5, borderTop: '1px solid rgba(255,255,255,0.10)' }}>

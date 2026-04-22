@@ -55,6 +55,12 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         a: { color: 'inherit' },
         button: { font: 'inherit' },
         '#root': { minHeight: '100vh' },
+        '@media print': {
+          'body *': { visibility: 'hidden' },
+          '.print-sheet, .print-sheet *': { visibility: 'visible' },
+          '.print-sheet': { position: 'fixed', top: 0, left: 0, width: '100%' },
+          '.print-page-break': { pageBreakBefore: 'always', breakBefore: 'page' },
+        },
       }} />
       <App />
     </ThemeProvider>

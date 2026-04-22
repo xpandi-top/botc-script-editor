@@ -7,6 +7,7 @@ import {
   Box,
   Container,
   FormControl,
+  IconButton,
   InputLabel,
   MenuItem,
   Paper,
@@ -253,10 +254,10 @@ export default function App() {
     <Container maxWidth="xl" sx={{ py: { xs: 0, sm: 3 }, px: { xs: 0, sm: 3 }, minHeight: '100vh' }}>
       <Paper elevation={0} sx={{ p: { xs: 1, sm: 3 }, mb: { xs: 0, sm: 2 }, borderRadius: { xs: 0, sm: 3 }, background: 'rgba(255,251,245,0.9)' }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
-          <Typography variant="body1" component="h1" sx={{ fontFamily: 'Georgia, "Times New Roman", serif', m: 0, fontWeight: 700, display: { xs: 'none', sm: 'block' } }}>
+          <Typography variant="body1" component="h1" sx={{ fontFamily: 'Georgia, "Times New Roman", serif', m: 0, fontWeight: 700, fontSize: { xs: '0.85rem', sm: '1rem' } }}>
             {uiText.appTitle}
           </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <FormControl size="small" sx={{ minWidth: { xs: 60, sm: 80 }, '& .MuiInputBase-input': { fontSize: { xs: '0.75rem', sm: '0.875rem' }, py: { xs: '4px', sm: '8px' } }, '& .MuiInputLabel-root': { fontSize: { xs: '0.75rem', sm: '0.875rem' } } }}>
               <InputLabel>{uiText.language}</InputLabel>
               <Select value={uiLanguage} label={uiText.language} onChange={(e) => setUiLanguage(e.target.value as Language)}>
@@ -265,9 +266,14 @@ export default function App() {
               </Select>
             </FormControl>
             {activeTab !== 'characters' && activeTab !== 'storyteller' && activeScript && (
-              <Button variant="contained" startIcon={<PrintIcon />} onClick={() => window.print()} sx={{ borderRadius: 999, display: { xs: 'none', sm: 'flex' } }}>
-                {uiText.print}
-              </Button>
+              <>
+                <IconButton onClick={() => window.print()} size="small" color="primary" sx={{ display: { xs: 'flex', sm: 'none' } }} title={uiText.print}>
+                  <PrintIcon fontSize="small" />
+                </IconButton>
+                <Button variant="contained" startIcon={<PrintIcon />} onClick={() => window.print()} sx={{ borderRadius: 999, display: { xs: 'none', sm: 'flex' } }}>
+                  {uiText.print}
+                </Button>
+              </>
             )}
           </Box>
         </Box>
