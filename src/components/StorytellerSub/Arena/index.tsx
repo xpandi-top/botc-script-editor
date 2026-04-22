@@ -61,7 +61,6 @@ export function Arena({ ctx }: { ctx: any }) {
             width: '100%',
             minHeight: 350,
             borderRadius: '50%',
-            background: 'radial-gradient(circle, transparent var(--center-zone, 32%), rgba(133,63,34,0.06) calc(var(--center-zone, 32%) + 1%), rgba(133,63,34,0.06) calc(var(--center-zone, 32%) + 12%), transparent calc(var(--center-zone, 32%) + 13%))',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -73,7 +72,7 @@ export function Arena({ ctx }: { ctx: any }) {
             <ArenaSeats ctx={ctx} isPortrait={isPortrait} />
           </Box>
         </Box>
-        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center', mt: 1 }}>
+        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center'}}>
           {text.seatHint}
         </Typography>
       </Paper>

@@ -10,7 +10,7 @@ export function CompactToolbar({ ctx }: { ctx: any }) {
   const {
     activeScriptTitle, language, currentDay, aliveCount, totalCount,
     audioPlaying, setAudioPlaying, audioTracks, selectedAudioSrc, setSelectedAudioSrc,
-    handleLocalFileChange, openNewGamePanel, openEndGamePanel, showRightPanel,
+    handleLocalFileChange, openNewGamePanel, openEndGamePanel,
     setShowRightPanel, setShowEditPlayersModal, showScriptPanel, setShowScriptPanel,
     audioRef, text, undo, canUndo, bgmVolume, setBgmVolume,
   } = ctx
@@ -28,14 +28,14 @@ export function CompactToolbar({ ctx }: { ctx: any }) {
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap', flex: 1 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Typography variant="h6" sx={{ fontWeight: 700, color: 'primary.main', fontSize: '1rem' }}>{aliveCount}/{totalCount}</Typography>
+          <Typography variant="h6" sx={{fontSize: '1rem'}} >{aliveCount}/{totalCount}</Typography>
           {travelerCount > 0 && <Typography variant="caption" color="text.secondary">+{travelerCount}{text.travelersCount}</Typography>}
           {dist && (
-            <Box sx={{ display: 'flex', gap: 0.5 }}>
-              <Typography variant="caption" sx={{ fontWeight: 600, color: distColors.townsfolk }}>{dist.townsfolk}T</Typography>
-              <Typography variant="caption" sx={{ fontWeight: 600, color: distColors.outsider }}>{dist.outsider}O</Typography>
-              <Typography variant="caption" sx={{ fontWeight: 600, color: distColors.minion }}>{dist.minion}M</Typography>
-              <Typography variant="caption" sx={{ fontWeight: 600, color: distColors.demon }}>1D</Typography>
+            <Box >
+              <Typography variant="caption" sx={{ fontSize: '1rem',fontWeight: 600, color: distColors.townsfolk }}>{dist.townsfolk}T</Typography>
+              <Typography variant="caption" sx={{ fontSize: '1rem', fontWeight: 600, color: distColors.outsider }}>{dist.outsider}O</Typography>
+              <Typography variant="caption" sx={{ fontSize: '1rem',fontWeight: 600, color: distColors.minion }}>{dist.minion}M</Typography>
+              <Typography variant="caption" sx={{ fontSize: '1rem',fontWeight: 600, color: distColors.demon }}>1D</Typography>
             </Box>
           )}
         </Box>
@@ -46,8 +46,7 @@ export function CompactToolbar({ ctx }: { ctx: any }) {
             onClick={() => setShowScriptPanel((p: boolean) => !p)}
             color={showScriptPanel ? 'primary' : 'default'}
             variant={showScriptPanel ? 'filled' : 'outlined'}
-            size="small"
-            sx={{ borderRadius: 999, fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer' }}
+            size="medium"
           />
         )}
 
@@ -59,7 +58,6 @@ export function CompactToolbar({ ctx }: { ctx: any }) {
             value={selectedAudioSrc}
             onChange={(e) => setSelectedAudioSrc(e.target.value)}
             size="small"
-            sx={{ minWidth: 100, fontSize: '0.75rem', '& .MuiSelect-select': { py: 0.25, pr: 2 } }}
             title={currentTrack?.name}
           >
             {audioTracks.map((t: any) => <MenuItem key={t.src} value={t.src} sx={{ fontSize: '0.75rem' }}>{t.name}</MenuItem>)}
@@ -74,8 +72,8 @@ export function CompactToolbar({ ctx }: { ctx: any }) {
             sx={{ width: 60, '& .MuiSlider-thumb': { width: 12, height: 12 } }}
           />
           <label>
-            <IconButton size="small" component="span" sx={{ p: 0.25, border: '1px dashed rgba(133,63,34,0.4)', borderRadius: 999 }}>
-              <AddIcon sx={{ fontSize: '0.9rem' }} />
+            <IconButton size="medium" component="span" sx={{ p: 0.25, border: '1px dashed rgba(133,63,34,0.4)', borderRadius: 999 }}>
+              <AddIcon />
             </IconButton>
             <input type="file" accept=".mp3" onChange={handleLocalFileChange} style={{ display: 'none' }} />
           </label>
@@ -88,17 +86,16 @@ export function CompactToolbar({ ctx }: { ctx: any }) {
           { label: text.editPlayers, onClick: () => setShowEditPlayersModal(true) },
           { label: text.endGame, onClick: openEndGamePanel },
         ].map(({ label, onClick }) => (
-          <Button key={label} size="small" variant="outlined" onClick={onClick} sx={{ fontSize: '0.75rem', px: 1, py: 0.25, borderRadius: 999 }}>{label}</Button>
+          <Button key={label} size="medium" variant="outlined" onClick={onClick} >{label}</Button>
         ))}
-        <IconButton size="small" onClick={undo} disabled={!canUndo} title={language === 'zh' ? '撤销' : 'Undo'}>
-          <UndoIcon sx={{ fontSize: '1rem' }} />
+        <IconButton size="medium" onClick={undo} disabled={!canUndo} title={language === 'zh' ? '撤销' : 'Undo'}>
+          <UndoIcon />
         </IconButton>
         <IconButton
-          size="small"
+          size="medium"
           onClick={() => setShowRightPanel((c: boolean) => !c)}
-          sx={{ border: showRightPanel ? '1px solid' : '1px solid', borderColor: showRightPanel ? 'primary.main' : 'transparent', bgcolor: showRightPanel ? 'rgba(133,63,34,0.1)' : 'transparent' }}
         >
-          <MenuOpenIcon sx={{ fontSize: '1rem' }} />
+          <MenuOpenIcon/>
         </IconButton>
       </Box>
     </Box>
