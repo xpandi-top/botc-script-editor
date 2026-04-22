@@ -2,6 +2,8 @@ import React from 'react'
 import { Box, Typography, Paper } from '@mui/material'
 import { ArenaCenter } from './ArenaCenter'
 import { ArenaSeats } from './ArenaSeats'
+import { PlayerSeatGrid } from './PlayerSeatGrid'
+import { PhaseControlPanel } from './PhaseControlPanel'
 import { getSeatAngle as _getSeatAngle } from '../../../utils/seats'
 import { useBreakpoint } from '../../../hooks/useBreakpoint'
 
@@ -15,7 +17,7 @@ export function Arena({ ctx }: { ctx: any }) {
     return () => window.removeEventListener('resize', handler)
   }, [])
 
-  const { pointerSeat: _pointerSeat, currentDay, setSelectedSeatNumber, setTagPopoutSeat, text, portraitOverride } = ctx
+  const { currentDay, setSelectedSeatNumber, setTagPopoutSeat, text, portraitOverride } = ctx
   const isPortrait = portraitOverride !== null ? portraitOverride : windowPortrait
   const seats = currentDay.seats
   const seatCount = seats.length || 1
@@ -32,35 +34,21 @@ export function Arena({ ctx }: { ctx: any }) {
     const padBase = 8
     const padExtra = seatCount > 10 ? Math.min(6, (seatCount - 10) * 0.5) : 0
     const seatPadding = padBase + padExtra
-
     const centerZone = Math.max(25, Math.min(38, seatPadding + 18))
     document.documentElement.style.setProperty('--center-zone', `${centerZone}%`)
   }, [seatCount, isPortrait])
 
-  // Mobile: show phase controls only — full seat grid comes in Phase 1
+  // Mobile: scrollable seat grid + fixed phase panel at bottom
   if (isMobile) {
     return (
-      <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column', minHeight: 280, overflow: 'visible' }}>
-        <Paper
-          elevation={0}
-          sx={{
-            flex: 1,
-            p: 2,
-            background: 'radial-gradient(circle at top, rgba(255,241,214,0.9), rgba(255,251,245,0.92) 50%), linear-gradient(180deg, rgba(255,251,245,0.96), rgba(248,240,226,0.92))',
-            boxShadow: '0 18px 60px rgba(57,43,24,0.08)',
-            overflow: 'visible',
-            position: 'relative',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <ArenaCenter ctx={ctx} />
-        </Paper>
-      </Box>
+      <>
+        <PlayerSeatGrid ctx={ctx} />
+        <PhaseControlPanel ctx={ctx} />
+      </>
     )
   }
 
+  // Desktop/tablet: circular arena layout
   return (
     <Box sx={{ display: 'grid', gap: 1, flex: 1, minHeight: 400, overflow: 'visible', width: '100%' }}>
       <Paper
@@ -77,7 +65,13 @@ export function Arena({ ctx }: { ctx: any }) {
         <Box
           onClick={(e) => {
             const target = e.target as Element
-            if (!target.closest('[data-seat]') && !target.closest('[data-tag-popup]') && !target.closest('[data-skill-popup]') && !target.closest('[data-character-popup]') && !target.closest('[data-nomination-popup]')) {
+            if (
+              !target.closest('[data-seat]') &&
+              !target.closest('[data-tag-popup]') &&
+              !target.closest('[data-skill-popup]') &&
+              !target.closest('[data-character-popup]') &&
+              !target.closest('[data-nomination-popup]')
+            ) {
               setSelectedSeatNumber(null)
               setTagPopoutSeat(null)
             }
@@ -97,7 +91,7 @@ export function Arena({ ctx }: { ctx: any }) {
             <ArenaSeats ctx={ctx} isPortrait={isPortrait} />
           </Box>
         </Box>
-        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center'}}>
+        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center' }}>
           {text.seatHint}
         </Typography>
       </Paper>

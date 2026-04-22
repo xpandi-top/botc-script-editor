@@ -345,7 +345,6 @@ export default function App() {
 
       {activeTab === 'storyteller' && (
         <StorytellerHelper
-          key={uiLanguage}
           activeScriptSlug={activeScript?.slug}
           activeScriptTitle={activeScript ? getScriptTitle(activeScript) : undefined}
           language={uiLanguage}

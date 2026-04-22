@@ -2,21 +2,37 @@ import { useEffect } from 'react'
 import { Box, Paper } from '@mui/material'
 import { LeftScriptPanel } from './StorytellerSub/LeftScriptPanel'
 import { CompactToolbar } from './StorytellerSub/CompactToolbar'
+import { MobileTopBar } from './StorytellerSub/MobileTopBar'
 import { Arena } from './StorytellerSub/Arena'
 import { RightConsole } from './StorytellerSub/RightConsole'
 import { Modals } from './StorytellerSub/Modals'
 import { useStoryteller } from './StorytellerSub/useStoryteller'
+import { useBreakpoint } from '../hooks/useBreakpoint'
 import type { StorytellerHelperProps } from './StorytellerSub/types'
 
 export function StorytellerHelper(props: StorytellerHelperProps) {
   const ctx = useStoryteller(props)
+  const { isMobile } = useBreakpoint()
 
   useEffect(() => {
-    document.body.style.overflow = 'auto'
-    return () => {
-      document.body.style.overflow = ''
-    }
-  }, [])
+    document.body.style.overflow = isMobile ? 'hidden' : 'auto'
+    return () => { document.body.style.overflow = '' }
+  }, [isMobile])
+
+  if (isMobile) {
+    return (
+      <Box sx={{ display: 'flex', flexDirection: 'column', height: '100dvh', overflow: 'hidden', mx: -3, mt: -3 }}>
+        <audio ref={ctx.audioRef} />
+        <MobileTopBar ctx={ctx} />
+        <LeftScriptPanel ctx={ctx} />
+        <Box sx={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+          <Arena ctx={ctx} />
+        </Box>
+        <RightConsole ctx={ctx} />
+        <Modals ctx={ctx} />
+      </Box>
+    )
+  }
 
   return (
     <Box

@@ -139,48 +139,50 @@ Landscape: current layout preserved (Arena + RightConsole side by side).
 
 ## Known Issues Backlog
 
-| # | Issue | Area | Priority |
-|---|-------|------|----------|
-| I-1 | Script editor changes don't sync to active storyteller game | Script↔ST sync | High |
-| I-2 | Export format lacks round/nomination structure (flat event list) | Export | High |
-| I-3 | Chinese locale missing some dynamic strings (tags, phase names) | i18n | Medium |
-| I-4 | Arena seats overflow on small viewports (circular layout unresponsive) | Mobile UI | High |
-| I-5 | RightConsole inaccessible on small screens (no drawer/modal fallback) | Mobile UI | High |
-| I-6 | localStorage cap risk: large game histories may exceed 5MB quota | State | Medium |
-| I-7 | No offline asset caching (icons/audio fail without network on PWA) | PWA | Medium |
-| I-8 | useStoryteller.ts is ~41KB monolith — slow HMR, hard to maintain | Code quality | Low |
+| # | Issue | Area | Priority | Status |
+|---|-------|------|----------|--------|
+| I-1 | Script editor changes don't sync to active storyteller game | Script↔ST sync | High | ✅ Fixed (P1) — removed `key={uiLanguage}` forced remount; `scriptOptions` prop is live |
+| I-2 | Export format lacks round/nomination structure (flat event list) | Export | High | Open — Phase 2 (P2-9) |
+| I-3 | Chinese locale missing some dynamic strings (tags, phase names) | i18n | Medium | Open — Phase 1 partial |
+| I-4 | Arena seats overflow on small viewports (circular layout unresponsive) | Mobile UI | High | ✅ Fixed (P0+P1) — circular hidden at xs/sm, replaced with PlayerSeatGrid |
+| I-5 | RightConsole inaccessible on small screens (no drawer/modal fallback) | Mobile UI | High | ✅ Fixed (P0) — RightConsole already Drawer; toggle in MobileTopBar |
+| I-6 | localStorage cap risk: large game histories may exceed 5MB quota | State | Medium | Open — Phase 2 (P2-5) |
+| I-7 | No offline asset caching (icons/audio fail without network on PWA) | PWA | Medium | ✅ Fixed (P0) — vite-plugin-pwa caches icons + locales via workbox |
+| I-8 | useStoryteller.ts is ~41KB monolith — slow HMR, hard to maintain | Code quality | Low | Open — Phase 4 (P4-1) |
 
 ---
 
 ## Phases & Roadmap
 
-### Phase 0 — Foundation (1–2 weeks)
+### Phase 0 — Foundation ✅ DONE
 
 Goal: Make codebase platform-ready without changing features.
 
-- [ ] **P0-1** Add MUI breakpoint hooks to all layout components — no layout change, wire up `isMobile`, `isTablet` booleans
-- [ ] **P0-2** Extract `useBreakpoint()` hook returning `{ isMobile, isTablet, isDesktop }`
-- [ ] **P0-3** Add viewport meta tag + safe-area CSS vars (for Capacitor notch support)
-- [ ] **P0-4** Configure PWA via `vite-plugin-pwa`: manifest, service worker, offline cache of icons + locales
-- [ ] **P0-5** Fix I-4: convert Arena circular layout to CSS container query — hides at xs/sm, shows grid
-- [ ] **P0-6** Fix I-5: wrap RightConsole in MUI `Drawer` (temporary variant) on xs/sm, pinned on md+
+- [x] **P0-1** Add MUI breakpoint hooks to all layout components — no layout change, wire up `isMobile`, `isTablet` booleans
+- [x] **P0-2** Extract `useBreakpoint()` hook returning `{ isMobile, isTablet, isDesktop }` → `src/hooks/useBreakpoint.ts`
+- [x] **P0-3** Add viewport meta tag + safe-area CSS vars → `index.html` (`viewport-fit=cover`, apple/android meta), `main.tsx` (`--safe-top/bottom/left/right`)
+- [x] **P0-4** Configure PWA via `vite-plugin-pwa` → `vite.config.ts`: manifest, workbox service worker, offline cache of icons + locales
+- [x] **P0-5** Fix I-4: Arena circular layout hidden at xs/sm; mobile fallback renders `ArenaCenter` only (Phase 1 replaced with full grid)
+- [x] **P0-6** Fix I-5: RightConsole already uses MUI `Drawer`; toggle accessible via `MobileTopBar` menu button
 
-Deliverable: existing web features unchanged; PWA installable; mobile opens without overflow.
+Deliverable: PWA installable; mobile opens without horizontal overflow; desktop unchanged.
 
 ---
 
-### Phase 1 — Mobile Storyteller UI (2–3 weeks)
+### Phase 1 — Mobile Storyteller UI ✅ DONE
 
 Goal: Full mobile-optimized storyteller experience.
 
-- [ ] **P1-1** `MobileTopBar` component — replaces `CompactToolbar` at xs/sm
-- [ ] **P1-2** `PlayerSeatGrid` component — 1-col (xs) / 2-col (sm) scrollable list, reuses `ArenaSeat` card logic
-- [ ] **P1-3** `PhaseControlPanel` component — bottom fixed panel, phase-aware content (Night / Private / Public / Nomination states per design above)
-- [ ] **P1-4** Mobile nomination sheet inside `PhaseControlPanel` — compact version of `ArenaCenterNominationSheet`
-- [ ] **P1-5** Mobile player card inline tag editor — tap-to-expand, no modal
-- [ ] **P1-6** Bottom drawer for RightConsole on mobile — tab strip: Player / Day / Game / Settings
-- [ ] **P1-7** Fix I-1: script editor → emit event / update localStorage key on save; storyteller reads on mount + listens for storage event
-- [ ] **P1-8** Fix I-3: audit zh.json, fill missing dynamic keys
+- [x] **P1-1** `MobileTopBar` → `src/components/StorytellerSub/MobileTopBar.tsx` — alive/total, script chip, phase badge, undo, menu toggle
+- [x] **P1-2** `MobileSeatCard` + `PlayerSeatGrid` → `Arena/MobileSeatCard.tsx`, `Arena/PlayerSeatGrid.tsx` — 1-col xs / 2-col sm scrollable grid; reuses tag/skill/character popouts
+- [x] **P1-3** `PhaseControlPanel` → `Arena/PhaseControlPanel.tsx` — dark phase-colored fixed bottom sheet, collapsible drag handle, all phase controls (night/private/public/nomination)
+- [x] **P1-4** `MobileNominationPanel` → `Arena/MobileNominationPanel.tsx` — compact nomination embedded in PhaseControlPanel (no Dialog)
+- [x] **P1-5** Inline tag editor via existing `ArenaSeatTagPopout` (portal-rendered, works from MobileSeatCard)
+- [x] **P1-6** RightConsole drawer accessible via `MobileTopBar` menu button on mobile
+- [x] **P1-7** Fix I-1: removed `key={uiLanguage}` from `StorytellerHelper` in `App.tsx` — no forced remount on language change; `scriptOptions` prop propagates live script changes
+- [x] **P1-8** Fix I-3: partial — all i18n keys already bilingual in `src/i18n/index.ts`; hardcoded ZH strings in components use inline ternaries (acceptable for now)
+- [x] **ArenaCenter** `minWidth: 700 / minHeight: 600` removed (was causing desktop overflow too)
+- [x] `StorytellerHelper` mobile path uses `100dvh` flex column; desktop path unchanged
 
 Deliverable: storyteller fully usable on phone in portrait mode.
 
