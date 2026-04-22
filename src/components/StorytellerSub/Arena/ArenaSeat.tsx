@@ -209,14 +209,16 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
         {tags.length > 0 && (
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.25, justifyContent: 'center', mt: 0.25 }}>
             {tags.map((tag) => {
-              const isChar = tag.charAt(0) === '💀'
+              const isChar = tag.startsWith('💀')
               const charId = isChar ? [...tag].slice(1).join('') : ''
+              const icon = isChar ? getIconForCharacter(charId) : null
               const label = isChar ? getDisplayName(charId, language) : tag
               return (
                 <Chip
                   key={`${seat.seat}-${tag}`}
                   label={label}
                   size="small"
+                  icon={icon ? <img src={icon as string} style={{ width: 18, height: 18 }} /> : undefined}
                   onContextMenu={(e) => handleTagPillRightClick(e, tag)}
                 />
               )
