@@ -178,17 +178,17 @@ export function PhaseControlPanel({ ctx }: { ctx: any }) {
           {hasTimer && (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.75, flexWrap: 'wrap' }}>
               {timerEditing ? (
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
                   <TextField
-                    size="small" value={timerInput}
+                    value={timerInput}
                     onChange={(e) => setTimerInput(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleTimerSave()}
                     autoFocus placeholder="MM:SS"
-                    slotProps={{ input: { style: { color: 'white', fontSize: '1rem', fontWeight: 700 } } }}
-                    sx={{ width: 72, '& fieldset': { borderColor: 'rgba(255,255,255,0.4)' } }}
+                    slotProps={{ input: { style: { color: 'white', fontSize: '1.4rem', fontWeight: 700, fontFamily: 'monospace', letterSpacing: '0.08em' } } }}
+                    sx={{ width: 105, '& fieldset': { borderColor: 'rgba(255,255,255,0.4)' }, '& .MuiInputBase-root': { py: 0.75 } }}
                   />
-                  <Button size="small" variant="contained" onClick={handleTimerSave} sx={{ minWidth: 28, px: 0.5 }}>✓</Button>
-                  <Button size="small" variant="outlined" onClick={() => setTimerEditing(false)} sx={{ ...btnSx, minWidth: 28, px: 0.5 }}>✕</Button>
+                  <Button variant="contained" onClick={handleTimerSave} sx={{ minWidth: 44, px: 1, py: 1, fontSize: '1.1rem', lineHeight: 1 }}>✓</Button>
+                  <Button variant="outlined" onClick={() => setTimerEditing(false)} sx={{ ...btnSx, minWidth: 44, px: 1, py: 1, fontSize: '1.1rem', lineHeight: 1 }}>✕</Button>
                 </Box>
               ) : (
                 <Box
@@ -198,12 +198,12 @@ export function PhaseControlPanel({ ctx }: { ctx: any }) {
                   {fmt(currentTimerSeconds)}
                 </Box>
               )}
-              {alarmActive && <IconButton size="small" sx={iconBtnSx} onClick={() => setAlarmActive(false)}>🔔</IconButton>}
-              <IconButton size="small" sx={isTimerRunning ? { ...iconBtnSx, ...TIMER_ACTIVE_SX } : { ...iconBtnSx, ...TIMER_IDLE_SX }} onClick={() => { setIsTimerRunning((c: boolean) => !c); if (alarmActive) setAlarmActive(false) }}>
-                {isTimerRunning ? <PauseIcon fontSize="small" /> : <PlayArrowIcon fontSize="small" />}
+              {alarmActive && <IconButton sx={{ ...iconBtnSx, fontSize: '1.2rem', p: 0.75 }} onClick={() => setAlarmActive(false)}>🔔</IconButton>}
+              <IconButton sx={isTimerRunning ? { ...iconBtnSx, ...TIMER_ACTIVE_SX, p: 0.75 } : { ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={() => { setIsTimerRunning((c: boolean) => !c); if (alarmActive) setAlarmActive(false) }}>
+                {isTimerRunning ? <PauseIcon /> : <PlayArrowIcon />}
               </IconButton>
-              <IconButton size="small" sx={iconBtnSx} onClick={() => { updateCurrentDay(syncDayTimers); setIsTimerRunning(false) }}><RefreshIcon fontSize="small" /></IconButton>
-              <IconButton size="small" sx={iconBtnSx} onClick={() => { setIsTimerRunning(false); setAlarmActive(false); setCurrentTimer(0) }}><StopIcon fontSize="small" /></IconButton>
+              <IconButton sx={{ ...iconBtnSx, p: 0.75 }} onClick={() => { updateCurrentDay(syncDayTimers); setIsTimerRunning(false) }}><RefreshIcon /></IconButton>
+              <IconButton sx={{ ...iconBtnSx, p: 0.75 }} onClick={() => { setIsTimerRunning(false); setAlarmActive(false); setCurrentTimer(0) }}><StopIcon /></IconButton>
             </Box>
           )}
 

@@ -12,7 +12,7 @@ export function CompactToolbar({ ctx }: { ctx: any }) {
     audioPlaying, setAudioPlaying, audioTracks, selectedAudioSrc, setSelectedAudioSrc,
     handleLocalFileChange, openNewGamePanel, openEndGamePanel,
     setShowRightPanel, setShowEditPlayersModal, showScriptPanel, setShowScriptPanel,
-    audioRef, text, undo, canUndo, bgmVolume, setBgmVolume,
+    text, undo, canUndo, bgmVolume, setBgmVolume,
   } = ctx
 
   const nonTravelerCount = currentDay.seats.filter((s: any) => !s.isTraveler).length
