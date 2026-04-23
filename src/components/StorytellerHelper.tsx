@@ -21,51 +21,57 @@ export function StorytellerHelper(props: StorytellerHelperProps) {
 
   if (isMobile) {
     return (
-      <Box sx={{ display: 'flex', flexDirection: 'column', height: '100dvh', overflow: 'hidden', mx: { xs: 0, sm: -3 }, mt: { xs: 0, sm: -3 } }}>
+      <>
+        {/* audio at Fragment position 0 — React preserves the DOM node across mobile/desktop switches */}
         <audio ref={ctx.audioRef} />
-        <MobileTopBar ctx={ctx} />
-        <LeftScriptPanel ctx={ctx} />
-        <Box sx={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-          <Arena ctx={ctx} />
+        <Box sx={{ display: 'flex', flexDirection: 'column', height: '100dvh', overflow: 'hidden', mx: { xs: 0, sm: -3 }, mt: { xs: 0, sm: -3 } }}>
+          <MobileTopBar ctx={ctx} />
+          <LeftScriptPanel ctx={ctx} />
+          <Box sx={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+            <Arena ctx={ctx} />
+          </Box>
+          <RightConsole ctx={ctx} />
+          <Modals ctx={ctx} />
         </Box>
-        <RightConsole ctx={ctx} />
-        <Modals ctx={ctx} />
-      </Box>
+      </>
     )
   }
 
   return (
-    <Box
-      sx={{
-        display: 'grid',
-        gridTemplateColumns: '1fr',
-        gap: 1,
-        flex: 1,
-        minHeight: 480,
-        minWidth: 0,
-        alignItems: 'stretch',
-        overflow: 'auto',
-      }}
-    >
-      <LeftScriptPanel ctx={ctx} />
-      <Paper
-        elevation={0}
+    <>
+      <audio ref={ctx.audioRef} />
+      <Box
         sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          p: 2,
-          borderRadius: 3,
-          background: 'rgba(255,251,245,0.92)',
-          border: '1px solid',
-          borderColor: 'rgba(23,32,42,0.12)',
-          overflow: 'visible',
+          display: 'grid',
+          gridTemplateColumns: '1fr',
+          gap: 1,
+          flex: 1,
+          minHeight: 480,
+          minWidth: 0,
+          alignItems: 'stretch',
+          overflow: 'auto',
         }}
       >
-        <CompactToolbar ctx={ctx} />
-        <Arena ctx={ctx} />
-      </Paper>
-      <RightConsole ctx={ctx} />
-      <Modals ctx={ctx} />
-    </Box>
+        <LeftScriptPanel ctx={ctx} />
+        <Paper
+          elevation={0}
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            p: 2,
+            borderRadius: 3,
+            background: 'rgba(255,251,245,0.92)',
+            border: '1px solid',
+            borderColor: 'rgba(23,32,42,0.12)',
+            overflow: 'visible',
+          }}
+        >
+          <CompactToolbar ctx={ctx} />
+          <Arena ctx={ctx} />
+        </Paper>
+        <RightConsole ctx={ctx} />
+        <Modals ctx={ctx} />
+      </Box>
+    </>
   )
 }

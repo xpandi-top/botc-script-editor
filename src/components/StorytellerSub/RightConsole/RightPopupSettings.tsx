@@ -10,7 +10,7 @@ export function RightPopupSettings({ ctx }: { ctx: any }) {
     playerNamePool, setPlayerNamePool, currentDay, updateSeat, resetSeatNames,
     seatTagDrafts, setSeatTagDrafts, addCustomTag, clearUnusedCustomTags,
     loadTagsPreset, setLoadTagsPreset, setActiveRightPopup, text,
-    audioTracks, selectedAudioSrc, setSelectedAudioSrc,
+    audioTracks, setAudioTracks, selectedAudioSrc, setSelectedAudioSrc, setAudioPlaying,
   } = ctx
 
   const defaultTags = language === 'zh'
@@ -109,8 +109,13 @@ export function RightPopupSettings({ ctx }: { ctx: any }) {
               const file = e.target.files?.[0]
               if (file) {
                 const url = URL.createObjectURL(file)
+                setAudioTracks((cur: any[]) => {
+                  if (cur.some((t) => t.src === url)) return cur
+                  return [...cur, { name: file.name, src: url }]
+                })
                 handleChange('defaultBgmSrc', url)
                 setSelectedAudioSrc(url)
+                setAudioPlaying(true)
               }
             }} />
           </Button>
