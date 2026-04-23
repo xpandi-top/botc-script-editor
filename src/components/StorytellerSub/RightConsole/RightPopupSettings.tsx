@@ -103,11 +103,22 @@ export function RightPopupSettings({ ctx }: { ctx: any }) {
               ))}
             </Select>
           </FormControl>
+          <Button variant="outlined" component="label" size="small" fullWidth sx={{ mb: 1 }}>
+            {language === 'zh' ? '上传本地BGM' : 'Upload Local BGM'}
+            <input type="file" accept=".mp3,.wav,.ogg" hidden onChange={(e) => {
+              const file = e.target.files?.[0]
+              if (file) {
+                const url = URL.createObjectURL(file)
+                handleChange('defaultBgmSrc', url)
+                setSelectedAudioSrc(url)
+              }
+            }} />
+          </Button>
           <FormControlLabel
             control={
               <Switch
                 size="small"
-                checked={!!timerDefaults?.phaseSwitchSoundEnabled}
+                checked={timerDefaults?.phaseSwitchSoundEnabled !== false}
                 onChange={(e) => handleChange('phaseSwitchSoundEnabled', e.target.checked)}
               />
             }

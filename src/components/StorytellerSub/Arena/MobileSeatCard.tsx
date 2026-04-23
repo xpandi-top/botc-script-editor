@@ -163,6 +163,31 @@ export function MobileSeatCard({ ctx, seat }: { ctx: any; seat: any }) {
           </Box>
         )}
 
+        {/* Wake order — always visible in night mode when toggled */}
+        {isNightPhase && nightShowWakeOrder && playerWakeOrder !== null && (
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
+            <IconButton
+              size="small"
+              onClick={(e) => { e.stopPropagation(); toggleNightVisitedSeat(seat.seat) }}
+              sx={{
+                p: 0.5,
+                border: '2px solid',
+                borderColor: isVisited ? 'success.main' : 'divider',
+                bgcolor: isVisited ? 'success.light' : 'transparent',
+                borderRadius: 0.75,
+                fontSize: '1rem',
+                width: 32,
+                height: 32,
+              }}
+            >
+              {isVisited ? '✓' : '○'}
+            </IconButton>
+            <Box component="span" sx={{ fontSize: '0.9rem', fontWeight: 700, color: 'text.secondary' }}>
+              #{playerWakeOrder}
+            </Box>
+          </Box>
+        )}
+
         {/* Action buttons — shown only when card is selected (tapped) */}
         {isSelected && (
           <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mt: 0.5 }}>
@@ -197,28 +222,6 @@ export function MobileSeatCard({ ctx, seat }: { ctx: any; seat: any }) {
               </Button>
             )}
 
-            {/* Night: wake order checkbox + order number */}
-            {isNightPhase && nightShowWakeOrder && playerWakeOrder !== null && (
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
-                <IconButton
-                  size="small"
-                  onClick={(e) => { e.stopPropagation(); toggleNightVisitedSeat(seat.seat) }}
-                  sx={{
-                    p: 0.25,
-                    border: '2px solid',
-                    borderColor: isVisited ? 'success.main' : 'divider',
-                    bgcolor: isVisited ? 'success.light' : 'transparent',
-                    borderRadius: 0.5,
-                    fontSize: '0.8rem',
-                  }}
-                >
-                  {isVisited ? '✓' : '○'}
-                </IconButton>
-                <Box component="span" sx={{ fontSize: '0.8rem', fontWeight: 700, color: 'text.secondary' }}>
-                  #{playerWakeOrder}
-                </Box>
-              </Box>
-            )}
           </Box>
         )}
 

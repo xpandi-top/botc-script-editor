@@ -178,6 +178,11 @@ Landscape: current layout preserved (Arena + RightConsole side by side).
 | I-35 | Player card has no event history view — no way to see skill uses / nominations for a player | Feature | Low | Open |
 | I-36 | Ability/skill modal not centered on screen — appears off-position | Mobile UI | High | ✅ Fixed — removed manual `position: fixed; top/left` overrides; mobile uses `fullScreen` prop |
 | I-37 | Skill/ability modal input loses focus when typing — field blurs on each keystroke | Bug | Critical | ✅ Fixed — `SkillPopoutContent` was a nested function component (remounts on each render); replaced with JSX variable |
+| I-38 | Phase switch sound plays even when disabled in settings — toggle UI inconsistent with behavior | Bug | High | ✅ Fixed — Switch `checked` used `!!undefined = false` so appeared OFF while sound played; changed to `!== false` so default is visually ON |
+| I-39 | Mobile PhaseControlPanel and seat card buttons/fonts too small — hard to tap and read | Mobile UI | Medium | ✅ Fixed — increased `btnSx` font/padding, phase toggle font size, MobileSeatCard action button sizes |
+| I-40 | Wake order only shows on selected card; visited checkbox too small | Mobile UI | Medium | ✅ Fixed — wake order number + visited checkbox moved outside `{isSelected &&}` block, always visible in night mode; checkbox padding enlarged |
+| I-41 | No local file upload option for default BGM — only preset tracks available | Feature | Low | ✅ Fixed — added file upload button in Settings BGM section; saves blob URL to `timerDefaults.defaultBgmSrc` |
+| I-42 | New Game / Edit Players / End Game buttons in mobile bottom sheet — duplicate of hamburger menu actions | Mobile UI | Medium | ✅ Fixed — removed "Game actions row" from PhaseControlPanel; accessible via hamburger menu (RightConsole) |
 
 ---
 

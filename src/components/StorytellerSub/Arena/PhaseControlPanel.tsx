@@ -104,7 +104,7 @@ export function PhaseControlPanel({ ctx }: { ctx: any }) {
     })
   }
 
-  const btnSx = { color: textColor, borderColor: 'rgba(255,255,255,0.3)', fontSize: '0.75rem', px: 1, py: 0.25, minWidth: 0, '&:hover': { borderColor: 'rgba(255,255,255,0.6)', bgcolor: 'rgba(255,255,255,0.1)' } }
+  const btnSx = { color: textColor, borderColor: 'rgba(255,255,255,0.3)', fontSize: '0.85rem', px: 1.25, py: 0.5, minWidth: 0, '&:hover': { borderColor: 'rgba(255,255,255,0.6)', bgcolor: 'rgba(255,255,255,0.1)' } }
   const iconBtnSx = { color: textColor, p: 0.5 }
 
   if (collapsed) {
@@ -173,7 +173,7 @@ export function PhaseControlPanel({ ctx }: { ctx: any }) {
               value={phase} exclusive
               onChange={(_, v) => v && setPhase(v)}
               size="small"
-              sx={{ '& .MuiToggleButton-root': { color: mutedColor, borderColor: 'rgba(255,255,255,0.15)', fontSize: '0.78rem', px: 1, py: 0.375, '&.Mui-selected': { color: textColor, bgcolor: 'rgba(255,255,255,0.2)' } } }}
+              sx={{ '& .MuiToggleButton-root': { color: mutedColor, borderColor: 'rgba(255,255,255,0.15)', fontSize: '0.88rem', px: 1.25, py: 0.5, '&.Mui-selected': { color: textColor, bgcolor: 'rgba(255,255,255,0.2)' } } }}
             >
               {PHASES.map(p => <ToggleButton key={p} value={p}>{getPhaseLabel(p)}</ToggleButton>)}
             </ToggleButtonGroup>
@@ -293,12 +293,6 @@ export function PhaseControlPanel({ ctx }: { ctx: any }) {
 
       <ArenaCenterNominationSheet ctx={ctx} />
 
-          {/* Game actions row */}
-          <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap', pt: 0.5, borderTop: '1px solid rgba(255,255,255,0.10)' }}>
-            <Button size="small" variant="outlined" sx={btnSx} onClick={openNewGamePanel}>{text.newGame}</Button>
-            <Button size="small" variant="outlined" sx={btnSx} onClick={() => setShowEditPlayersModal(true)}>{text.editPlayers}</Button>
-            <Button size="small" variant="outlined" sx={btnSx} onClick={openEndGamePanel}>{text.endGame}</Button>
-          </Box>
         </Box>
       </Box>
 
