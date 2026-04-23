@@ -1,9 +1,10 @@
 // @ts-nocheck
-import React from 'react'
+import React, { useState } from 'react'
 import { Box, Button, IconButton, Chip, Paper } from '@mui/material'
 import { ArenaSeatTagPopout } from './ArenaSeatTagPopout'
 import { ArenaSeatSkillPopout } from './ArenaSeatSkillPopout'
 import { ArenaSeatCharacterPopout } from './ArenaSeatCharacterPopout'
+import { PlayerNightLog } from './PlayerNightLog'
 import { getDisplayName, getIconForCharacter, nightOrder } from '../../../catalog'
 import { VoteButtonGroup } from './ArenaSeatComponents'
 
@@ -14,7 +15,10 @@ export function MobileSeatCard({ ctx, seat }: { ctx: any; seat: any }) {
     selectedSeat, text, handleSeatClick, handleVoteYes, handleVoteNo,
     openSeatSkill, closeSkillOverlay, nightShowCharacter, nightShowWakeOrder,
     characterPopoutSeat, setCharacterPopoutSeat, toggleNightVisitedSeat,
+    days,
   } = ctx
+
+  const [logOpen, setLogOpen] = useState(false)
 
   const isTagPopoutOpen = tagPopoutSeat === seat.seat
   const isSkillPopoutOpen = skillPopoutSeat === seat.seat
@@ -134,6 +138,19 @@ export function MobileSeatCard({ ctx, seat }: { ctx: any; seat: any }) {
           </Box>
         )}
 
+        {isNightPhase && nightShowCharacter && (seat.stTags || []).length > 0 && (
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.25, mb: 0.25 }}>
+            {(seat.stTags as string[]).map((tag: string) => (
+              <Chip
+                key={`st-${tag}`}
+                label={tag.replace('📝', '')}
+                size="small"
+                sx={{ fontSize: '0.7rem', height: 18, bgcolor: 'warning.light', color: 'warning.contrastText', '& .MuiChip-label': { px: 0.5 } }}
+              />
+            ))}
+          </Box>
+        )}
+
         {tags.length > 0 && (
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.25, mb: 0.5 }}>
             {tags.map((tag: string) => {
@@ -208,8 +225,26 @@ export function MobileSeatCard({ ctx, seat }: { ctx: any; seat: any }) {
                 {actualCharName || (language === 'zh' ? '+角色' : '+Assign')}
               </Button>
             )}
+            {isNightPhase && (
+              <Button
+                size="small"
+                variant="outlined"
+                onClick={(e) => { e.stopPropagation(); setLogOpen(true) }}
+                sx={{ minWidth: 0, px: 1, py: 0.25, fontSize: '0.8rem' }}
+              >
+                {language === 'zh' ? '📋 记录' : '📋 Log'}
+              </Button>
+            )}
           </Box>
         )}
+
+        <PlayerNightLog
+          open={logOpen}
+          onClose={() => setLogOpen(false)}
+          seat={seat}
+          days={days || [currentDay]}
+          language={language}
+        />
 
         {isInNomination && (
           <VoteButtonGroup

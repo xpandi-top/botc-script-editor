@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React from 'react'
-import { Box, IconButton, Button } from '@mui/material'
+import { Box, IconButton, Button, Chip } from '@mui/material'
 
 interface VoteButtonGroupProps {
   seat: any
@@ -61,6 +61,8 @@ interface NightActionGroupProps {
   nightShowWakeOrder: boolean
   playerWakeOrder: number | null
   isVisited: boolean
+  stTags?: string[]
+  nightShowCharacter?: boolean
 }
 
 export function NightActionGroup({
@@ -78,6 +80,8 @@ export function NightActionGroup({
   nightShowWakeOrder,
   playerWakeOrder,
   isVisited,
+  stTags = [],
+  nightShowCharacter = false,
 }: NightActionGroupProps) {
   return (
     <>
@@ -122,6 +126,19 @@ export function NightActionGroup({
           <Box component="span" sx={{ fontWeight: 600, color: 'text.primary' }}>
             #{playerWakeOrder}
           </Box>
+        </Box>
+      )}
+
+      {nightShowCharacter && stTags.length > 0 && (
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.25, mt: 0.25, maxWidth: 90 }}>
+          {stTags.map((tag: string) => (
+            <Chip
+              key={tag}
+              label={tag.replace('📝', '')}
+              size="small"
+              sx={{ fontSize: '0.6rem', height: 16, bgcolor: 'warning.light', color: 'warning.contrastText', '& .MuiChip-label': { px: 0.5 } }}
+            />
+          ))}
         </Box>
       )}
     </>

@@ -1,9 +1,10 @@
 // @ts-nocheck
-import React from 'react'
+import React, { useState } from 'react'
 import { Box, Button, Chip, Paper } from '@mui/material'
 import { ArenaSeatTagPopout } from './ArenaSeatTagPopout'
 import { ArenaSeatSkillPopout } from './ArenaSeatSkillPopout'
 import { ArenaSeatCharacterPopout } from './ArenaSeatCharacterPopout'
+import { PlayerNightLog } from './PlayerNightLog'
 import { getDisplayName, getIconForCharacter, nightOrder } from '../../../catalog'
 import { getSeatPosition } from '../../../utils/seats'
 import { VoteButtonGroup, NightActionGroup, RoundRobinIndicator } from './ArenaSeatComponents'
@@ -14,8 +15,11 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
     tagPopoutSeat, setTagPopoutSeat, skillPopoutSeat, setSkillPopoutSeat,
     selectedSeat, text, handleSeatClick, handleVoteYes, handleVoteNo, removeSeatTag,
     openSeatSkill, closeSkillOverlay, currentScriptCharacters, nightShowCharacter,
-    nightShowWakeOrder, characterPopoutSeat, setCharacterPopoutSeat, toggleNightVisitedSeat
+    nightShowWakeOrder, characterPopoutSeat, setCharacterPopoutSeat, toggleNightVisitedSeat,
+    days,
   } = ctx
+
+  const [logOpen, setLogOpen] = useState(false)
 
   const { left, top } = getSeatPosition(index, currentDay.seats.length, isPortrait)
 
@@ -252,7 +256,19 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
             nightShowWakeOrder={nightShowWakeOrder}
             playerWakeOrder={playerWakeOrder}
             isVisited={isVisited}
+            stTags={seat.stTags || []}
+            nightShowCharacter={nightShowCharacter}
           />
+        )}
+
+        {isNightPhase && (
+          <Button
+            size="small"
+            onClick={(e) => { e.stopPropagation(); setLogOpen(true) }}
+            sx={{ minWidth: 0, px: 0.5, py: 0.1, fontSize: '0.65rem', mt: 0.25 }}
+          >
+            📋
+          </Button>
         )}
 
         <RoundRobinIndicator isRoundRobinSpeaker={isRoundRobinSpeaker} isSpoken={isSpoken} />
@@ -261,6 +277,13 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
       <ArenaSeatTagPopout ctx={ctx} seat={seat} />
       <ArenaSeatSkillPopout ctx={ctx} seat={seat} />
       <ArenaSeatCharacterPopout ctx={ctx} seat={seat} />
+      <PlayerNightLog
+        open={logOpen}
+        onClose={() => setLogOpen(false)}
+        seat={seat}
+        days={days || [currentDay]}
+        language={language}
+      />
     </>
   )
 }

@@ -229,7 +229,7 @@ export function PhaseControlPanel({ ctx }: { ctx: any }) {
                 {language === 'zh' ? '唤醒顺序' : 'Wake Order'}
               </Button>
               <Button size="small" variant="outlined" sx={btnSx} onClick={handleOpenCharEditor}>
-                {language === 'zh' ? '编辑' : 'Edit'}
+                {language === 'zh' ? '编辑角色' : 'Edit Characters'}
               </Button>
             </Box>
           )}

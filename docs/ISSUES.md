@@ -53,6 +53,49 @@ Status: `open` | `fixed` | `wontfix`
 
 ---
 
+## I-49 — Character Popout: Multi-target skill panel
+
+**Status:** fixed  
+**Area:** ArenaSeatCharacterPopout  
+**Detail:** Add a skill action section below character assignment. Workflow:
+1. Skill type dropdown: Know / Guess / Add Tag / Remove Tag / Change Character
+2. Target player checkboxes — all seats, showing seat#, name, actual char, perceived char, current tags
+3. Skill config per type:
+   - Know / Guess → select Good / Evil / Character (dropdown) / Other (text field)
+   - Add Tag → text input or tag pool chips
+   - Remove Tag → show existing tags of selected players
+   - Change Character → character dropdown from current script
+4. "Mark as successful" toggle + Save button
+5. On save with success:
+   - Add Tag → append stTag to each target seat (logged)
+   - Remove Tag → remove selected tag from each target seat (logged)
+   - Change Character → set both `characterId` AND `userCharacterId` on target seats (logged)
+   - Know / Guess → log entry only, no state change
+
+---
+
+## I-50 — ST Tags: Move display to player card (night + show-char only)
+
+**Status:** fixed  
+**Area:** ArenaSeatComponents, MobileSeatCard, ArenaSeatCharacterPopout  
+**Detail:** Currently stTags shown only inside character popout. Move display to player card. Show stTag chips on the card only when `isNightPhase && nightShowCharacter`. Remove stTag display block from the character popout (keep the ability to add/remove via skill panel in I-49). Tags render as small chips with ST-only styling.
+
+---
+
+## I-51 — Night phase per-player event log button
+
+**Status:** fixed  
+**Area:** ArenaSeatComponents, MobileSeatCard  
+**Detail:** Add a log button on player cards (night phase only, near character button). Opens a modal showing event history **for that player only**:
+- Filter eventLog entries where `detail` contains `#${seat.seat}` (as actor or target)
+- Also include voteHistory records where `actor === seat.seat || target === seat.seat`
+- Also include skillHistory records where `actor === seat.seat || targets.includes(seat.seat)`
+- Grouped by day (descending: current day first, day 1 last)
+- Within each day, events sorted descending by timestamp
+- Display format: day header → event lines like "poisoned by #3", "executed", "nominated #5"
+
+---
+
 ## Previous Issues (I-38 to I-42) — Fixed
 
 | ID | Issue | Status |
