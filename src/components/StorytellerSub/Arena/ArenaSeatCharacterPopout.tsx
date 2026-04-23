@@ -23,7 +23,8 @@ const SKILL_LABELS: Record<SkillType, { en: string; zh: string }> = {
 export function ArenaSeatCharacterPopout({ ctx, seat }: { ctx: any, seat: any }) {
   const {
     language, characterPopoutSeat, setCharacterPopoutSeat, text,
-    updateSeatWithLog, currentDay, currentScriptCharacters, customTagPool = [],
+    updateSeatWithLog, updateCurrentDay, appendEvent,
+    currentDay, currentScriptCharacters, customTagPool = [],
   } = ctx
 
   const isCharacterPopoutOpen = characterPopoutSeat === seat?.seat
@@ -47,6 +48,7 @@ export function ArenaSeatCharacterPopout({ ctx, seat }: { ctx: any, seat: any })
   const [removeTagVal,  setRemoveTagVal]  = useState('')
   const [newCharId,     setNewCharId]     = useState('')
   const [isSuccess,     setIsSuccess]     = useState(true)
+  const [note,          setNote]          = useState('')
 
   const stTags = seat?.stTags || []
 
@@ -57,6 +59,7 @@ export function ArenaSeatCharacterPopout({ ctx, seat }: { ctx: any, seat: any })
       setSkillType('')
       setTargets(new Set())
       setIsSuccess(true)
+      setNote('')
     }
   }, [isCharacterPopoutOpen, actualCharId])
 
@@ -91,46 +94,76 @@ export function ArenaSeatCharacterPopout({ ctx, seat }: { ctx: any, seat: any })
     return false
   }, [skillType, targets, tagInput, removeTagVal, newCharId, knowKind, knowCharId, knowOtherText])
 
+  const buildSkillDetail = (targetArr: number[], success: boolean): string => {
+    const actorLabel = `#${seat.seat}${seat.characterId ? ` (${getDisplayName(seat.characterId, language)})` : ''}`
+    const targetLabels = targetArr.map((n) => {
+      const s = allSeats.find((x: any) => x.seat === n)
+      const charPart = s?.characterId ? ` (${getDisplayName(s.characterId, language)})` : ''
+      return `#${n}${charPart}`
+    }).join(', ')
+    const successTag = success ? (language === 'zh' ? '[成功]' : '[success]') : (language === 'zh' ? '[失败]' : '[fail]')
+
+    let action = ''
+    if (skillType === 'know' || skillType === 'guess') {
+      const typeLabel = skillType === 'know' ? (language === 'zh' ? '已知' : 'know') : (language === 'zh' ? '猜测' : 'guess')
+      let result = ''
+      if (knowKind === 'good')      result = language === 'zh' ? '善良' : 'Good'
+      else if (knowKind === 'evil') result = language === 'zh' ? '邪恶' : 'Evil'
+      else if (knowKind === 'character') result = knowCharId ? getDisplayName(knowCharId, language) : '?'
+      else result = knowOtherText
+      action = `${typeLabel}: ${targetLabels} → ${result}`
+    } else if (skillType === 'addTag') {
+      action = `${language === 'zh' ? '添加标签' : 'add tag'} [${tagInput.trim()}] → ${targetLabels}`
+    } else if (skillType === 'removeTag') {
+      action = `${language === 'zh' ? '移除标签' : 'remove tag'} [${removeTagVal.replace(ST_TAG_PREFIX, '')}] ← ${targetLabels}`
+    } else if (skillType === 'changeChar') {
+      const newName = newCharId ? getDisplayName(newCharId, language) : '?'
+      action = `${language === 'zh' ? '变更角色' : 'change char'} → ${newName}: ${targetLabels}`
+    }
+
+    const notePart = note.trim() ? ` | ${note.trim()}` : ''
+    return `${actorLabel} ${successTag} ${action}${notePart}`
+  }
+
   const handleSaveSkill = () => {
     if (!canSave) return
-    if (!isSuccess) {
-      // No state change on failure — just close skill panel
-      setSkillType('')
-      setTargets(new Set())
-      return
-    }
-
     const targetArr = Array.from(targets)
+    const detail = buildSkillDetail(targetArr, isSuccess)
 
-    if (skillType === 'addTag') {
-      const tag = `${ST_TAG_PREFIX}${tagInput.trim()}`
-      for (const seatNum of targetArr) {
-        updateSeatWithLog(seatNum, (s: any) => ({
-          ...s, stTags: [...new Set([...(s.stTags || []), tag])],
-        }))
-      }
-    } else if (skillType === 'removeTag') {
-      for (const seatNum of targetArr) {
-        updateSeatWithLog(seatNum, (s: any) => ({
-          ...s,
-          customTags: (s.customTags || []).filter((t: string) => t !== removeTagVal),
-          stTags: (s.stTags || []).filter((t: string) => t !== removeTagVal),
-        }))
-      }
-    } else if (skillType === 'changeChar') {
-      for (const seatNum of targetArr) {
-        updateSeatWithLog(seatNum, (s: any) => ({
-          ...s, characterId: newCharId, userCharacterId: newCharId,
-        }))
+    if (isSuccess) {
+      if (skillType === 'addTag') {
+        const tag = `${ST_TAG_PREFIX}${tagInput.trim()}`
+        for (const seatNum of targetArr) {
+          updateSeatWithLog(seatNum, (s: any) => ({
+            ...s, stTags: [...new Set([...(s.stTags || []), tag])],
+          }))
+        }
+      } else if (skillType === 'removeTag') {
+        for (const seatNum of targetArr) {
+          updateSeatWithLog(seatNum, (s: any) => ({
+            ...s,
+            customTags: (s.customTags || []).filter((t: string) => t !== removeTagVal),
+            stTags: (s.stTags || []).filter((t: string) => t !== removeTagVal),
+          }))
+        }
+      } else if (skillType === 'changeChar') {
+        for (const seatNum of targetArr) {
+          updateSeatWithLog(seatNum, (s: any) => ({
+            ...s, characterId: newCharId, userCharacterId: newCharId,
+          }))
+        }
       }
     }
-    // know/guess → log only (updateSeatWithLog with no change still writes event via appendEvent in the hook? no — just close)
+
+    // Always log a rich skill event regardless of success/fail or type
+    updateCurrentDay((d: any) => appendEvent(d, 'skill', detail))
 
     setSkillType('')
     setTargets(new Set())
     setTagInput('')
     setRemoveTagVal('')
     setNewCharId('')
+    setNote('')
   }
 
   // ── Helpers ──
@@ -407,6 +440,19 @@ export function ArenaSeatCharacterPopout({ ctx, seat }: { ctx: any, seat: any })
               </Select>
             </FormControl>
           )}
+
+          {/* Note field */}
+          <TextField
+            size="small"
+            fullWidth
+            label={zh ? '备注（可选）' : 'Note (optional)'}
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            multiline
+            minRows={1}
+            maxRows={3}
+            sx={{ mb: 1 }}
+          />
 
           {/* Success toggle + Save */}
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 0.5 }}>
