@@ -82,6 +82,8 @@ export function useTimerEffect(deps: TimerEffectDeps) {
   const lastCountdownRef = useRef<number | null>(null)
   const prevPhaseRef = useRef<string>('')
   const alarmIntervalRef = useRef<number | null>(null)
+  const soundEnabledRef = useRef(timerDefaults.phaseSwitchSoundEnabled !== false)
+  soundEnabledRef.current = timerDefaults.phaseSwitchSoundEnabled !== false
 
   // ── Persistent alarm interval ──────────────────────────────────────────
   useEffect(() => {
@@ -186,7 +188,7 @@ export function useTimerEffect(deps: TimerEffectDeps) {
   // ── Phase-change chime ────────────────────────────────────────────────
   useEffect(() => {
     const key = `${currentDay.phase}-${currentDay.nominationStep}`
-    if (prevPhaseRef.current && prevPhaseRef.current !== key) {
+    if (prevPhaseRef.current && prevPhaseRef.current !== key && soundEnabledRef.current) {
       playChime()
     }
     prevPhaseRef.current = key

@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useState, useMemo, useEffect, useRef } from 'react'
+import React, { useState, useMemo } from 'react'
 import {
   Box, Button, IconButton, Typography, ToggleButton, ToggleButtonGroup,
   Select, MenuItem, TextField, Dialog, FormControlLabel, Switch,
@@ -53,31 +53,6 @@ export function PhaseControlPanel({ ctx }: { ctx: any }) {
 
   const phase = currentDay.phase
 
-  // Ref updated every render so the effect always reads the latest setting, not a stale closure value
-  const soundEnabledRef = useRef(ctx.timerDefaults?.phaseSwitchSoundEnabled !== false)
-  soundEnabledRef.current = ctx.timerDefaults?.phaseSwitchSoundEnabled !== false
-
-  const prevPhaseRef = useRef(phase)
-  useEffect(() => {
-    if (prevPhaseRef.current !== phase && soundEnabledRef.current) {
-      try {
-        const ac = new (window.AudioContext || window.webkitAudioContext)()
-        const osc = ac.createOscillator()
-        const gain = ac.createGain()
-        osc.connect(gain)
-        gain.connect(ac.destination)
-        osc.type = 'sine'
-        osc.frequency.setValueAtTime(660, ac.currentTime)
-        osc.frequency.exponentialRampToValueAtTime(880, ac.currentTime + 0.12)
-        osc.frequency.exponentialRampToValueAtTime(550, ac.currentTime + 0.35)
-        gain.gain.setValueAtTime(0.25, ac.currentTime)
-        gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.45)
-        osc.start(ac.currentTime)
-        osc.stop(ac.currentTime + 0.45)
-      } catch (_) {}
-    }
-    prevPhaseRef.current = phase
-  }, [phase])
 
   const publicMode = currentDay.publicMode
   const seats = useMemo(() => currentDay.seats, [currentDay.seats])
