@@ -244,6 +244,7 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
 
   function loadGameRecord(record: GameRecord) {
     if (!record.savedDays || record.savedDays.length === 0) return
+    if (setShowEndGameModal) setShowEndGameModal(false)
     setDaysWithUndo(record.savedDays)
     setSelectedDayId(record.savedDays[0].id)
     if (record.scriptSlug && record.scriptSlug !== activeScriptSlug && onSelectScript) onSelectScript(record.scriptSlug)

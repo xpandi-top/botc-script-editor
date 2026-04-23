@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Box, Button, IconButton, Paper, Typography } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
+import FileUploadIcon from '@mui/icons-material/FileUpload'
 import MenuIcon from '@mui/icons-material/Menu'
 import MenuOpenIcon from '@mui/icons-material/MenuOpen'
 import { useBreakpoint } from '../../hooks/useBreakpoint'
@@ -34,6 +35,7 @@ type Props = {
   setEditorQuery: (v: string) => void
   setActiveSlug: (slug: string) => void
   createNewScript: () => void
+  importScriptFile: (file: File) => void
   downloadScriptFile: () => void
   updateActiveScript: (updater: (script: EditableScript) => EditableScript, nextSlug?: string) => void
   toggleCharacterInScript: (id: string) => void
@@ -59,6 +61,7 @@ export function ScriptsTab({
   setEditorQuery,
   setActiveSlug,
   createNewScript,
+  importScriptFile,
   downloadScriptFile,
   updateActiveScript,
   toggleCharacterInScript,
@@ -82,6 +85,13 @@ export function ScriptsTab({
             <Box sx={{ display: 'flex', gap: 0.5 }}>
               <Button size="small" variant="outlined" startIcon={<AddIcon />} onClick={createNewScript}>
                 {uiText.newScript}
+              </Button>
+              <Button size="small" variant="outlined" component="label" startIcon={<FileUploadIcon />}>
+                {uiLanguage === 'zh' ? '导入' : 'Import'}
+                <input type="file" accept=".json" hidden onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  if (file) { importScriptFile(file); e.target.value = '' }
+                }} />
               </Button>
               <IconButton size="small" onClick={() => setListOpen(false)} title="Hide list">
                 <MenuOpenIcon fontSize="small" />

@@ -21,7 +21,8 @@ export function ModalsEndGame({ ctx }: { ctx: any }) {
   useEffect(() => { setRecordName(currentRecordName || defaultName) }, [currentRecordName, defaultName])
   useEffect(() => { if (showEndGameModal) setIsVisible(true) }, [showEndGameModal])
 
-  if (!isVisible) return null
+  const egr = endGameResult
+  if (!isVisible || !egr) return null
 
   const togglePlayerTeam = (seat: number, team: 'evil' | 'good') => {
     setEndGameResult((c: any) => {
@@ -68,7 +69,6 @@ export function ModalsEndGame({ ctx }: { ctx: any }) {
   }
 
   const regularSeats = currentDay?.seats?.filter((s: any) => !s.isTraveler) ?? []
-  const egr = endGameResult
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>

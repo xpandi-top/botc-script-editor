@@ -498,6 +498,68 @@ export const { allCharacters, characterById } = loadCharacterCatalog()
 
 export const initialScripts = loadScripts()
 
+export function parseScriptFromData(data: unknown, filename: string): import('./types').EditableScript {
+  const sourceFile = filename
+  const fallbackSlug = filename.replace(/\.json$/i, '').replace(/\s+/g, '-').toLowerCase()
+
+  const isScriptMetaEntry = (entry: ScriptFileEntry): entry is ScriptMetaEntry =>
+    typeof entry === 'object' && entry !== null && (entry as any).id === '_meta'
+  const isScriptCharacterItem = (entry: ScriptFileEntry): entry is ScriptCharacterItem =>
+    typeof entry === 'object' && entry !== null && (entry as any).id !== '_meta'
+
+  if (Array.isArray(data)) {
+    const meta = data.find(isScriptMetaEntry)
+    const normalizedMeta = meta
+      ? {
+          ...meta,
+          jinxes: Array.isArray(meta.jinxes)
+            ? meta.jinxes
+                .map(normalizeScriptJinxOverride)
+                .filter((e): e is NonNullable<ReturnType<typeof normalizeScriptJinxOverride>> => e !== null)
+            : undefined,
+        }
+      : undefined
+    const scriptCharacterItems = data.filter(isScriptCharacterItem)
+    const characters = data
+      .filter((e): e is string | ScriptCharacterItem => typeof e === 'string' || isScriptCharacterItem(e))
+      .map((e) => (typeof e === 'string' ? e : e.id))
+
+    let slug = fallbackSlug
+    let counter = 2
+    while (initialScripts.some((s) => s.slug === slug)) { slug = `${fallbackSlug}-${counter}`; counter++ }
+
+    return {
+      slug,
+      title: normalizedMeta?.name ?? toTitleCase(fallbackSlug),
+      titleZh: normalizedMeta?.name_zh ?? normalizedMeta?.name ?? toTitleCase(fallbackSlug),
+      author: normalizedMeta?.author ?? '',
+      meta: normalizedMeta ?? { id: '_meta', name: toTitleCase(fallbackSlug) },
+      customCharacters: scriptCharacterItems.filter(
+        (e) => typeof e.name === 'string' || typeof e.ability === 'string',
+      ),
+      edition: inferEditionFromSlug(fallbackSlug),
+      characters,
+      sourceFile,
+    }
+  }
+
+  const d = data as any
+  let slug = fallbackSlug
+  let counter = 2
+  while (initialScripts.some((s) => s.slug === slug)) { slug = `${fallbackSlug}-${counter}`; counter++ }
+  return {
+    slug,
+    title: d.title ?? toTitleCase(fallbackSlug),
+    titleZh: d.title ?? toTitleCase(fallbackSlug),
+    author: '',
+    meta: { id: '_meta', name: d.title ?? toTitleCase(fallbackSlug) },
+    customCharacters: [],
+    edition: d.edition ?? 'custom',
+    characters: Array.isArray(d.characters) ? d.characters : [],
+    sourceFile,
+  }
+}
+
 export function sortCharacterIds(ids: string[]) {
   return [...ids].sort((left, right) => {
     const leftCharacter = characterById[left]

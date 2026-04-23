@@ -27,29 +27,27 @@ export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: any, t
 
                 return (
                   <Paper key={rec.id} variant="outlined" sx={{ p: 1 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <Typography variant="body2">
-                        {rec.recordName ?? (rec.scriptTitle ? `${rec.scriptTitle} - ${date}` : date)}
-                      </Typography>
-                      <Box sx={{ display: 'flex', gap: 0.5 }}>
-                        {rec.savedDays && (
-                          <Button size="small" onClick={() => loadGameRecord(rec)}>
-                            {language === 'zh' ? '📂 加载' : '📂 Load'}
-                          </Button>
-                        )}
-                        <Button size="small" onClick={() => {
-                          const name = window.prompt(language === 'zh' ? '输入新文件名：' : 'Enter new file name:', rec.recordName)
-                          if (name) saveGame(name)
-                        }}>
-                          {language === 'zh' ? '💾 另存' : '💾 Save As'}
+                    <Typography variant="body2" sx={{ fontWeight: 500, wordBreak: 'break-word', mb: 0.5 }}>
+                      {rec.recordName ?? (rec.scriptTitle ? `${rec.scriptTitle} - ${date}` : date)}
+                    </Typography>
+                    <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                      {rec.savedDays && (
+                        <Button size="small" onClick={() => loadGameRecord(rec)}>
+                          {language === 'zh' ? '📂 加载' : '📂 Load'}
                         </Button>
-                        <Button size="small" onClick={() => exportRecordJson(rec)}>
-                          {language === 'zh' ? '📥 导出' : '📥 Export'}
-                        </Button>
-                        <Button size="small" color="error" onClick={() => setGameRecords((cur: any[]) => cur.filter((r) => r.id !== rec.id))}>
-                          🗑
-                        </Button>
-                      </Box>
+                      )}
+                      <Button size="small" onClick={() => {
+                        const name = window.prompt(language === 'zh' ? '输入新文件名：' : 'Enter new file name:', rec.recordName)
+                        if (name) saveGame(name)
+                      }}>
+                        {language === 'zh' ? '💾 另存' : '💾 Save As'}
+                      </Button>
+                      <Button size="small" onClick={() => exportRecordJson(rec)}>
+                        {language === 'zh' ? '📥 导出' : '📥 Export'}
+                      </Button>
+                      <Button size="small" color="error" onClick={() => setGameRecords((cur: any[]) => cur.filter((r) => r.id !== rec.id))}>
+                        🗑
+                      </Button>
                     </Box>
                     <Box sx={{ display: 'flex', gap: 1, mt: 0.5, flexWrap: 'wrap' }}>
                       <Chip size="small" label={`📅 ${rec.days?.length ?? 1} ${language === 'zh' ? '天' : 'd'}`} />

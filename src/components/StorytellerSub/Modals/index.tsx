@@ -7,7 +7,7 @@ import { ModalsDialog } from './ModalsDialog'
 import { ModalsExport } from './ModalsExport'
 
 export function Modals({ ctx }: { ctx: any }) {
-  const { showEditPlayersModal, setShowEditPlayersModal, newGamePanel, setNewGamePanel, endGameResult, setEndGameResult, showExportModal, setShowExportModal, dialogState, setDialogState, text, language } = ctx
+  const { showEditPlayersModal, setShowEditPlayersModal, newGamePanel, setNewGamePanel, showEndGameModal, setShowEndGameModal, showExportModal, setShowExportModal, dialogState, setDialogState, text, language } = ctx
 
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
@@ -36,10 +36,10 @@ export function Modals({ ctx }: { ctx: any }) {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={!!endGameResult} onClose={() => setEndGameResult(null)} maxWidth="sm" fullWidth fullScreen={isMobile} slotProps={{ paper: { sx: paperSx } }}>
+      <Dialog open={!!showEndGameModal} onClose={() => setShowEndGameModal(false)} maxWidth="sm" fullWidth fullScreen={isMobile} slotProps={{ paper: { sx: paperSx } }}>
         <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
           {text.endGame}
-          <IconButton onClick={() => setEndGameResult(null)} size="small"><CloseIcon /></IconButton>
+          <IconButton onClick={() => setShowEndGameModal(false)} size="small"><CloseIcon /></IconButton>
         </DialogTitle>
         <DialogContent>
           <ModalsEndGame ctx={ctx} />

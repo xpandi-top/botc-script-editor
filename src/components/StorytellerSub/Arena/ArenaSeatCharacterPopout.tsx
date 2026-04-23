@@ -88,7 +88,7 @@ export function ArenaSeatCharacterPopout({ ctx, seat }: { ctx: any, seat: any })
   if (!isCharacterPopoutOpen || !seat) return null
 
   const content = (
-    <Dialog open={isCharacterPopoutOpen} onClose={() => {}} disableEscapeKeyDown maxWidth="sm" fullWidth slotProps={{ backdrop: { onClick: () => {} }, paper: { 'data-character-popup': true, sx: { p: 2, width: 360, borderRadius: 2, maxHeight: '80vh' } } }}>
+    <Dialog open={isCharacterPopoutOpen} onClose={() => {}} maxWidth="sm" fullWidth slotProps={{ backdrop: { onClick: () => {} }, paper: { 'data-character-popup': true, sx: { p: 2, width: 360, borderRadius: 2, maxHeight: '80vh' } } }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
         <Typography variant="h6" fontWeight={700}>{language === 'zh' ? '角色分配' : 'Assign Character'}</Typography>
         <IconButton size="small" onClick={() => setCharacterPopoutSeat(null)}>✕</IconButton>

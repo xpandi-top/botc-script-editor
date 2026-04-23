@@ -31,6 +31,7 @@ import {
   getDisplayName,
   initialScripts,
   locales,
+  parseScriptFromData,
   sortCharacterIds,
   teamOrder,
   toTitleCase,
@@ -211,6 +212,26 @@ export default function App() {
     if (nextSlug && nextSlug !== activeScript.slug) setActiveSlug(nextSlug)
   }
 
+  function importScriptFile(file: File) {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      try {
+        const data = JSON.parse(e.target?.result as string)
+        const imported = parseScriptFromData(data, file.name)
+        let slug = imported.slug
+        let counter = 2
+        while (scripts.some((s) => s.slug === slug)) { slug = `${imported.slug}-${counter}`; counter++ }
+        const unique = { ...imported, slug }
+        setScripts((cur) => [...cur, unique])
+        setActiveSlug(unique.slug)
+        setSaveStatus(`Imported: ${unique.title}`)
+      } catch {
+        setSaveStatus('Import failed: invalid JSON')
+      }
+    }
+    reader.readAsText(file)
+  }
+
   function createNewScript() {
     const baseSlug = 'new-script'
     let nextSlug = baseSlug
@@ -314,6 +335,7 @@ export default function App() {
           setEditorQuery={setEditorQuery}
           setActiveSlug={setActiveSlug}
           createNewScript={createNewScript}
+          importScriptFile={importScriptFile}
           downloadScriptFile={downloadScriptFile}
           updateActiveScript={updateActiveScript}
           toggleCharacterInScript={toggleCharacterInScript}

@@ -34,15 +34,26 @@ export function NominationVoteList({
         {seats.map((s: any) => {
           const voted = votingState?.votes?.[s.seat]
           const isChecked = voted === true || voteDraft?.voters?.includes(s.seat)
+          const isDead = !s.alive
+          const hasNoVote = !!s.hasNoVote
+          const nameLabel = s.name ? `${s.seat}. ${s.name}` : `#${s.seat}`
+          const deadLabel = isDead ? (language === 'zh' ? ' †' : ' †') : ''
+          const noVoteLabel = hasNoVote ? (language === 'zh' ? ' 无票' : ' NoVote') : ''
           return (
             <Chip
               key={s.seat}
-              label={`#${s.seat}`}
+              label={`${nameLabel}${deadLabel}${noVoteLabel}`}
               size="medium"
               variant={isChecked ? 'filled' : 'outlined'}
-              color={isChecked ? 'success' : 'default'}
+              color={isChecked ? 'success' : isDead ? 'default' : 'default'}
               onClick={() => handleVoteToggle(s.seat)}
-              sx={{ fontSize: '1rem', fontWeight: 700, height: 36 }}
+              sx={{
+                fontSize: '0.85rem',
+                fontWeight: 700,
+                height: 36,
+                opacity: isDead ? 0.65 : 1,
+                textDecoration: isDead ? 'line-through' : 'none',
+              }}
             />
           )
         })}

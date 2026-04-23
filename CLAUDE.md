@@ -68,3 +68,7 @@ Two-language (en/zh). Locale files contain UI strings, character abilities, jinx
 - **React 19** + **TypeScript 5.8** + **Vite 6**
 - **Material UI (MUI) 9** + Emotion for all UI components
 - Puppeteer installed but no test scripts configured
+
+## Issue Tracking
+
+See [`docs/ISSUES.md`](docs/ISSUES.md) for open/fixed bugs and features.
