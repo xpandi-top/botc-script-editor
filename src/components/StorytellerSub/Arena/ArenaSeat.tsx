@@ -1,38 +1,32 @@
 // @ts-nocheck
 import React from 'react'
-import { Box, Button, IconButton, Chip, Tooltip, Paper } from '@mui/material'
+import { Box, Button, Chip, Paper } from '@mui/material'
 import { ArenaSeatTagPopout } from './ArenaSeatTagPopout'
 import { ArenaSeatSkillPopout } from './ArenaSeatSkillPopout'
 import { ArenaSeatCharacterPopout } from './ArenaSeatCharacterPopout'
 import { getDisplayName, getIconForCharacter, nightOrder } from '../../../catalog'
 import { getSeatPosition } from '../../../utils/seats'
+import { VoteButtonGroup, NightActionGroup, RoundRobinIndicator } from './ArenaSeatComponents'
 
 export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: any, index: number, isPortrait: boolean }) {
-  const { 
-    language, pickerMode, skillOverlay, currentDay, updateCurrentDay, currentVoterSeat, 
-    tagPopoutSeat, setTagPopoutSeat, skillPopoutSeat, setSkillPopoutSeat, 
-    selectedSeat, text, handleSeatClick, handleVoteYes, handleVoteNo, removeSeatTag, 
-    openSeatSkill, closeSkillOverlay, currentScriptCharacters, nightShowCharacter, 
-    nightShowWakeOrder, characterPopoutSeat, setCharacterPopoutSeat, toggleNightVisitedSeat 
+  const {
+    language, pickerMode, skillOverlay, currentDay, updateCurrentDay, currentVoterSeat,
+    tagPopoutSeat, setTagPopoutSeat, skillPopoutSeat, setSkillPopoutSeat,
+    selectedSeat, text, handleSeatClick, handleVoteYes, handleVoteNo, removeSeatTag,
+    openSeatSkill, closeSkillOverlay, currentScriptCharacters, nightShowCharacter,
+    nightShowWakeOrder, characterPopoutSeat, setCharacterPopoutSeat, toggleNightVisitedSeat
   } = ctx
 
   const { left, top } = getSeatPosition(index, currentDay.seats.length, isPortrait)
 
-  const isCharacterTag = (tag: string) => tag.charAt(0) === '💀'
-  const getCharacterName = (tag: string) => {
-    const charId = [...tag].slice(1).join('')
-    return getDisplayName(charId, language)
-  }
-  const displayTag = (tag: string) => isCharacterTag(tag) ? getCharacterName(tag) : tag
-  
   const tags = [
-    !seat.alive ? text.aliveTag : '', 
-    seat.isExecuted ? text.executedTag : '', 
-    seat.isTraveler ? text.traveler : '', 
-    seat.hasNoVote ? text.noVoteTag : '', 
+    !seat.alive ? text.aliveTag : '',
+    seat.isExecuted ? text.executedTag : '',
+    seat.isTraveler ? text.traveler : '',
+    seat.hasNoVote ? text.noVoteTag : '',
     ...seat.customTags
   ].filter(Boolean)
-  
+
   const isRoundRobinSpeaker = currentDay.phase === 'public' && currentDay.publicMode === 'roundRobin' && currentDay.currentSpeakerSeat === seat.seat
   const isSpoken = currentDay.roundRobinSpokenSeats.includes(seat.seat)
   const isVoteActor = currentDay.voteDraft.actor === seat.seat
@@ -43,14 +37,14 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
   const hasVoted = currentDay.votingState?.votes[seat.seat] !== undefined
   const votedYes = currentDay.votingState?.votes[seat.seat] === true
   const isInNomination = currentDay.phase === 'nomination' && currentDay.nominationStep !== 'waitingForNomination'
-  
+
   const cardVotedYes = currentDay.votingState
     ? currentDay.votingState.votes[seat.seat] === true
     : currentDay.voteDraft.voters.includes(seat.seat)
   const cardVotedNo = currentDay.votingState
     ? currentDay.votingState.votes[seat.seat] === false
     : currentDay.voteDraft.noVoters.includes(seat.seat)
-  
+
   const isTagPopoutOpen = tagPopoutSeat === seat.seat
   const isSkillPopoutOpen = skillPopoutSeat === seat.seat
   const isCharacterPopoutOpen = characterPopoutSeat === seat.seat
@@ -63,6 +57,7 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
   const actualCharName = actualCharId ? getDisplayName(actualCharId, language) : ''
   const perceivedCharName = perceivedCharId && perceivedCharId !== actualCharId ? getDisplayName(perceivedCharId, language) : ''
   const perceivedIcon = perceivedCharId && perceivedCharId !== actualCharId ? getIconForCharacter(perceivedCharId) : null
+
   const isVisited = currentDay.nightVisitedSeats.includes(seat.seat)
 
   const isFirstNight = currentDay.day === 1
@@ -169,17 +164,6 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
     setCharacterPopoutSeat(isCharacterPopoutOpen ? null : seat.seat)
   }
 
-  const handleWakeCheckboxClick = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    toggleNightVisitedSeat(seat.seat)
-  }
-
-  const handleTagPillRightClick = (e: React.MouseEvent, tag: string) => {
-    if (!seat.customTags.includes(tag)) return
-    e.preventDefault()
-    removeSeatTag(seat.seat, tag)
-  }
-
   const handlePaperClick = (e: React.MouseEvent) => {
     e.stopPropagation()
     handleSeatClick(seat.seat)
@@ -191,7 +175,7 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', minWidth: 0 }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: 'nowrap' }}>
-              <Box component="span" sx={{ fontWeight: fontWeight => seat.alive ? 700 : 500, color: seat.alive ? 'text.primary' : 'text.disabled',  whiteSpace: 'nowrap' }}>
+              <Box component="span" sx={{ fontWeight: seat.alive ? 700 : 500, color: seat.alive ? 'text.primary' : 'text.disabled', whiteSpace: 'nowrap' }}>
                 #{seat.seat}
               </Box>
               <Box component="span" sx={{ fontWeight: 600, whiteSpace: 'nowrap' }}>
@@ -199,7 +183,7 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
               </Box>
             </Box>
             {hasVoted && (
-              <Box component="span" sx={{  color: votedYes ? 'success.main' : 'error.main', fontWeight: 700 }}>
+              <Box component="span" sx={{ color: votedYes ? 'success.main' : 'error.main', fontWeight: 700 }}>
                 {votedYes ? '✓' : '✗'}
               </Box>
             )}
@@ -219,7 +203,6 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
                   label={label}
                   size="small"
                   icon={icon ? <img src={icon as string} style={{ width: 18, height: 18 }} /> : undefined}
-                  onContextMenu={(e) => handleTagPillRightClick(e, tag)}
                 />
               )
             })}
@@ -227,8 +210,8 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
         )}
 
         <Box sx={{ display: 'flex', gap: 0.25, mt: 0.25, flexWrap: 'wrap', justifyContent: 'center' }}>
-          <Button 
-            size="medium" 
+          <Button
+            size="medium"
             variant={isSkillPopoutOpen ? 'contained' : 'outlined'}
             onClick={handleSkillClick}
             color={isSkillPopoutOpen ? 'primary' : 'inherit'}
@@ -242,90 +225,37 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
         </Box>
 
         {isInNomination && (
-          <Box sx={{ display: 'flex', gap: 0.25, mt: 0.25, justifyContent: 'center' }}>
-            {cardVotedYes || cardVotedNo ? (
-              <Button 
-                size="medium" 
-                variant="contained" 
-                color={cardVotedYes ? 'success' : 'error'}
-                onClick={handleRemoveVote}
-                sx={{ minWidth: 0, px: 0.75, py: 0.25, fontWeight: 700 }}
-              >
-                {cardVotedYes ? '✓' : '✗'}
-              </Button>
-            ) : (
-              <>
-                <IconButton size="medium" color="success" onClick={handleVoteYesClick} sx={{ border: '1px solid', borderColor: 'divider', p: 0.5,  }}>
-                  ✓
-                </IconButton>
-                <IconButton size="medium" color="error" onClick={handleVoteNoClick} sx={{ border: '1px solid', borderColor: 'divider', p: 0.5,  }}>
-                  ✗
-                </IconButton>
-              </>
-            )}
-          </Box>
+          <VoteButtonGroup
+            seat={seat}
+            cardVotedYes={cardVotedYes}
+            cardVotedNo={cardVotedNo}
+            handleVoteYesClick={handleVoteYesClick}
+            handleVoteNoClick={handleVoteNoClick}
+            handleRemoveVote={handleRemoveVote}
+          />
         )}
 
         {isNightPhase && nightShowCharacter && (
-          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 0.25, gap: 0.25 }}>
-            {actualCharId ? (
-              <>
-                <Button 
-                  size="medium" 
-                  variant={isCharacterPopoutOpen ? 'contained' : 'outlined'}
-                  onClick={handleCharacterClick}
-                  sx={{ minWidth: 0, px: 0.75, py: 0.25,  fontWeight: 600, display: 'flex', gap: 0.25 }}
-                >
-                  {charIcon && <Box component="img" src={charIcon as string} sx={{ width: 16, height: 16 }} />}
-                  {actualCharName}
-                </Button>
-                {showDifferentPerception && perceivedIcon && (
-                  <Tooltip title={perceivedCharName}>
-                    <Box component="img" src={perceivedIcon as string} sx={{ width: 16, height: 16, opacity: 0.7 }} />
-                  </Tooltip>
-                )}
-              </>
-            ) : (
-              <Button size="medium" variant="outlined" onClick={handleCharacterClick} sx={{ minWidth: 0, px: 0.5,  }}>
-                {language === 'zh' ? '+角色' : '+Assign'}
-              </Button>
-            )}
-          </Box>
+          <NightActionGroup
+            language={language}
+            seat={seat}
+            actualCharId={actualCharId}
+            isCharacterPopoutOpen={isCharacterPopoutOpen}
+            charIcon={charIcon}
+            actualCharName={actualCharName}
+            perceivedCharId={perceivedCharId}
+            showDifferentPerception={showDifferentPerception}
+            perceivedIcon={perceivedIcon}
+            perceivedCharName={perceivedCharName}
+            handleCharacterClick={handleCharacterClick}
+            toggleNightVisitedSeat={toggleNightVisitedSeat}
+            nightShowWakeOrder={nightShowWakeOrder}
+            playerWakeOrder={playerWakeOrder}
+            isVisited={isVisited}
+          />
         )}
 
-        {isNightPhase && nightShowWakeOrder && playerWakeOrder !== null && (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.25 }}>
-            <IconButton 
-              size="medium" 
-              onClick={handleWakeCheckboxClick}
-              sx={{ 
-                p: 0.5, 
-                fontWeight: 700,
-                border: '2px solid',
-                borderColor: isVisited ? 'success.main' : 'divider',
-                bgcolor: isVisited ? 'success.light' : 'transparent',
-              }}
-            >
-              {isVisited ? '✓' : ''}
-            </IconButton>
-            <Box component="span" sx={{  fontWeight: 600, color: 'text.primary' }}>
-              #{playerWakeOrder}
-            </Box>
-          </Box>
-        )}
-
-        {(isRoundRobinSpeaker || isSpoken) && (
-          <Box sx={{ 
-            mt: 0.25, 
-            px: 0.5, 
-            py: 0.125, 
-            borderRadius: 0.5, 
-            bgcolor: isRoundRobinSpeaker ? 'warning.light' : 'action.selected',
-            fontWeight: 700,
-          }}>
-            {isRoundRobinSpeaker ? 'SPK' : '✓'}
-          </Box>
-        )}
+        <RoundRobinIndicator isRoundRobinSpeaker={isRoundRobinSpeaker} isSpoken={isSpoken} />
       </Paper>
 
       <ArenaSeatTagPopout ctx={ctx} seat={seat} />

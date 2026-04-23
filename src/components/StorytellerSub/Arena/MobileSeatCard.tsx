@@ -5,12 +5,13 @@ import { ArenaSeatTagPopout } from './ArenaSeatTagPopout'
 import { ArenaSeatSkillPopout } from './ArenaSeatSkillPopout'
 import { ArenaSeatCharacterPopout } from './ArenaSeatCharacterPopout'
 import { getDisplayName, getIconForCharacter, nightOrder } from '../../../catalog'
+import { VoteButtonGroup } from './ArenaSeatComponents'
 
 export function MobileSeatCard({ ctx, seat }: { ctx: any; seat: any }) {
   const {
-    language, pickerMode, skillOverlay, currentDay, updateCurrentDay, currentVoterSeat,
+    language, pickerMode, currentDay, updateCurrentDay, currentVoterSeat,
     tagPopoutSeat, setTagPopoutSeat, skillPopoutSeat, setSkillPopoutSeat,
-    selectedSeat, text, handleSeatClick, handleVoteYes, handleVoteNo, removeSeatTag,
+    selectedSeat, text, handleSeatClick, handleVoteYes, handleVoteNo,
     openSeatSkill, closeSkillOverlay, nightShowCharacter, nightShowWakeOrder,
     characterPopoutSeat, setCharacterPopoutSeat, toggleNightVisitedSeat,
   } = ctx
@@ -35,7 +36,6 @@ export function MobileSeatCard({ ctx, seat }: { ctx: any; seat: any }) {
     : currentDay.voteDraft.noVoters.includes(seat.seat)
 
   const actualCharId = seat.characterId
-  const perceivedCharId = seat.userCharacterId || seat.characterId
   const charIcon = actualCharId ? getIconForCharacter(actualCharId) : null
   const actualCharName = actualCharId ? getDisplayName(actualCharId, language) : ''
   const isVisited = currentDay.nightVisitedSeats?.includes(seat.seat)
@@ -110,7 +110,6 @@ export function MobileSeatCard({ ctx, seat }: { ctx: any; seat: any }) {
           '&:hover': { boxShadow: 3 },
         }}
       >
-        {/* Header row: seat# name alive-dot */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
           {isNightPhase && nightShowCharacter && charIcon && (
             <Box component="img" src={charIcon as string} sx={{ width: 20, height: 20, borderRadius: '50%', flexShrink: 0 }} />
@@ -129,14 +128,12 @@ export function MobileSeatCard({ ctx, seat }: { ctx: any; seat: any }) {
           )}
         </Box>
 
-        {/* Character name (night mode) */}
         {isNightPhase && nightShowCharacter && actualCharName && (
           <Box sx={{ fontSize: '0.8rem', color: 'primary.main', fontWeight: 600, mb: 0.25 }}>
             {actualCharName}
           </Box>
         )}
 
-        {/* Tags */}
         {tags.length > 0 && (
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.25, mb: 0.5 }}>
             {tags.map((tag: string) => {
@@ -150,12 +147,6 @@ export function MobileSeatCard({ ctx, seat }: { ctx: any; seat: any }) {
                   label={label}
                   size="small"
                   icon={icon ? <img src={icon as string} style={{ width: 14, height: 14 }} /> : undefined}
-                  onContextMenu={(e) => {
-                    if (seat.customTags.includes(tag)) {
-                      e.preventDefault()
-                      removeSeatTag(seat.seat, tag)
-                    }
-                  }}
                   sx={{ fontSize: '0.75rem', height: 22 }}
                 />
               )
@@ -163,7 +154,6 @@ export function MobileSeatCard({ ctx, seat }: { ctx: any; seat: any }) {
           </Box>
         )}
 
-        {/* Wake order — always visible in night mode when toggled */}
         {isNightPhase && nightShowWakeOrder && playerWakeOrder !== null && (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
             <IconButton
@@ -188,7 +178,6 @@ export function MobileSeatCard({ ctx, seat }: { ctx: any; seat: any }) {
           </Box>
         )}
 
-        {/* Action buttons — shown only when card is selected (tapped) */}
         {isSelected && (
           <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mt: 0.5 }}>
             <Button
@@ -208,8 +197,6 @@ export function MobileSeatCard({ ctx, seat }: { ctx: any; seat: any }) {
             >
               {language === 'zh' ? '状态' : 'Status'}
             </Button>
-
-            {/* Night: character button — assign if empty, toggle popout if set */}
             {isNightPhase && nightShowCharacter && (
               <Button
                 size="small"
@@ -221,34 +208,18 @@ export function MobileSeatCard({ ctx, seat }: { ctx: any; seat: any }) {
                 {actualCharName || (language === 'zh' ? '+角色' : '+Assign')}
               </Button>
             )}
-
           </Box>
         )}
 
-        {/* Vote buttons (nomination phase) */}
         {isInNomination && (
-          <Box sx={{ display: 'flex', gap: 0.5, mt: 0.5 }}>
-            {cardVotedYes || cardVotedNo ? (
-              <Button
-                size="small"
-                variant="contained"
-                color={cardVotedYes ? 'success' : 'error'}
-                onClick={handleRemoveVote}
-                sx={{ minWidth: 0, px: 0.75, py: 0.125, fontWeight: 700, fontSize: '0.75rem' }}
-              >
-                {cardVotedYes ? '✓' : '✗'}
-              </Button>
-            ) : (
-              <>
-                <IconButton size="small" color="success" onClick={handleVoteYesClick} sx={{ border: '1px solid', borderColor: 'divider', p: 0.375, borderRadius: 1 }}>
-                  <Box sx={{ fontSize: '0.8rem', lineHeight: 1 }}>✓</Box>
-                </IconButton>
-                <IconButton size="small" color="error" onClick={handleVoteNoClick} sx={{ border: '1px solid', borderColor: 'divider', p: 0.375, borderRadius: 1 }}>
-                  <Box sx={{ fontSize: '0.8rem', lineHeight: 1 }}>✗</Box>
-                </IconButton>
-              </>
-            )}
-          </Box>
+          <VoteButtonGroup
+            seat={seat}
+            cardVotedYes={cardVotedYes}
+            cardVotedNo={cardVotedNo}
+            handleVoteYesClick={handleVoteYesClick}
+            handleVoteNoClick={handleVoteNoClick}
+            handleRemoveVote={handleRemoveVote}
+          />
         )}
       </Paper>
 

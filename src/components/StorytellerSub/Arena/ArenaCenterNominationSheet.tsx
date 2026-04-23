@@ -1,19 +1,18 @@
 // @ts-nocheck
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Box, Button, Typography, TextField, Select, MenuItem, FormControl, InputLabel, FormControlLabel, Checkbox, IconButton, Chip, Dialog } from '@mui/material'
-import PlayArrowIcon from '@mui/icons-material/PlayArrow'
-import PauseIcon from '@mui/icons-material/Pause'
-import StopIcon from '@mui/icons-material/Stop'
-import RefreshIcon from '@mui/icons-material/Refresh'
+import { Box, Button, Typography, TextField, Select, MenuItem, FormControl, InputLabel, FormControlLabel, Checkbox, Dialog } from '@mui/material'
 import { createDefaultVoteDraft } from '../constants'
 import { useBreakpoint } from '../../../hooks/useBreakpoint'
+import { NominationTimer } from './NominationTimer'
+import { NominationHistory } from './NominationHistory'
+import { NominationVoteList } from './NominationVoteList'
 
 export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
-  const { 
-    language, text, currentDay, updateCurrentDay, pickerMode, setPickerMode, 
-    showNominationSheet, setShowNominationSheet, requiredVotes, exileRequiredVotes, 
-    effectiveRequiredVotes, draftPassedBySystem, draftPassed, isVotingComplete, 
+  const {
+    language, text, currentDay, updateCurrentDay, pickerMode, setPickerMode,
+    showNominationSheet, setShowNominationSheet, requiredVotes, exileRequiredVotes,
+    effectiveRequiredVotes, draftPassedBySystem, draftPassed, isVotingComplete,
     rejectNomination, recordVote, setDialogState, votingYesCount, timerDefaults,
   } = ctx
 
@@ -21,8 +20,7 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
   const [showNominationTimer, setShowNominationTimer] = useState(true)
   const [selectedTimer, setSelectedTimer] = useState<'nominator' | 'nominee'>('nominator')
   const [isTimerRunning, setIsTimerRunning] = useState(false)
-  const [timerEditing, setTimerEditing] = useState(false)
-  const [timerInput, setTimerInput] = useState('')
+
   const seats = currentDay?.seats ?? []
   const voteDraft = currentDay?.voteDraft ?? {}
   const nominationActorSeconds = currentDay?.nominationActorSeconds ?? timerDefaults?.nominationActorSeconds ?? 60
@@ -37,36 +35,6 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
       updateCurrentDay((d: any) => ({ ...d, nominationTargetSeconds: newValue }))
     }
   }
-
-  useEffect(() => {
-    if (!isTimerRunning || currentSeconds <= 0) return
-    const interval = setInterval(() => {
-      updateTimer(Math.max(0, currentSeconds - 1))
-    }, 1000)
-    return () => clearInterval(interval)
-  }, [isTimerRunning, currentSeconds])
-
-  const formatTimer = (secs: number) => {
-    const m = Math.floor(secs / 60)
-    const s = secs % 60
-    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
-  }
-
-  const voteHistory = currentDay?.voteHistory ?? []
-  const nominatorsToday = [...new Set(voteHistory.map((r: any) => r.actor))]
-  const nomineesToday = [...new Set(voteHistory.map((r: any) => r.target))]
-
-  const filteredHistory = voteHistory
-    .filter((r: any) => {
-      if (historyFilter === 'all') return true
-      if (historyFilter === 'exile') return r.isExile
-      return !r.isExile
-    })
-    .sort((a: any, b: any) => {
-      const voteDiff = (b.voteCount ?? 0) - (a.voteCount ?? 0)
-      if (voteDiff !== 0) return voteDiff
-      return (b.createdAt ?? 0) - (a.createdAt ?? 0)
-    })
 
   const { isMobile } = useBreakpoint()
 
@@ -87,24 +55,24 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
     if (!isNaN(v)) {
       const targetSeat = seats.find((s: any) => s.seat === v)
       const autoExile = targetSeat?.isTraveler ?? false
-      updateCurrentDay((d: any) => ({ 
-        ...d, 
-        nominationStep: 'nominationDecision', 
-        voteDraft: { 
-          ...d.voteDraft, 
-          target: v, 
-          voters: [], 
-          isExile: autoExile 
-        } 
+      updateCurrentDay((d: any) => ({
+        ...d,
+        nominationStep: 'nominationDecision',
+        voteDraft: {
+          ...d.voteDraft,
+          target: v,
+          voters: [],
+          isExile: autoExile
+        }
       }))
     } else {
-      updateCurrentDay((d: any) => ({ 
-        ...d, 
-        voteDraft: { 
-          ...d.voteDraft, 
-          target: null, 
-          isExile: false 
-        } 
+      updateCurrentDay((d: any) => ({
+        ...d,
+        voteDraft: {
+          ...d.voteDraft,
+          target: null,
+          isExile: false
+        }
       }))
     }
   }
@@ -112,7 +80,7 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
   const handleVoteToggle = (seatNum: number) => {
     const voted = currentDay?.votingState?.votes?.[seatNum]
     const isChecked = voted === true || voteDraft?.voters?.includes(seatNum)
-    
+
     if (currentDay?.votingState) {
       updateCurrentDay((d: any) => ({
         ...d,
@@ -126,8 +94,8 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
         ...d,
         voteDraft: {
           ...d.voteDraft,
-          voters: isChecked 
-            ? d.voteDraft.voters.filter((v: number) => v !== seatNum) 
+          voters: isChecked
+            ? d.voteDraft.voters.filter((v: number) => v !== seatNum)
             : [...d.voteDraft.voters, seatNum],
         },
       }))
@@ -135,13 +103,23 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
   }
 
   const handleClear = () => {
-    updateCurrentDay((d: any) => ({ 
-      ...d, 
-      nominationStep: 'waitingForNomination', 
-      voteDraft: createDefaultVoteDraft(), 
-      votingState: null 
+    updateCurrentDay((d: any) => ({
+      ...d,
+      nominationStep: 'waitingForNomination',
+      voteDraft: createDefaultVoteDraft(),
+      votingState: null
     }))
     setPickerMode('none')
+  }
+
+  const handleManualOverride = (value: string) => {
+    updateCurrentDay((d: any) => ({
+      ...d,
+      voteDraft: {
+        ...d.voteDraft,
+        manualPassed: value === 'agree' ? true : value === 'disagree' ? false : null
+      }
+    }))
   }
 
   const yesCount = Object.values(currentDay?.votingState?.votes ?? {}).filter(Boolean).length || voteDraft?.voters?.length || 0
@@ -158,58 +136,16 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
       </Box>
 
       {showNominationTimer && (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5, p: 1, bgcolor: 'action.hover', borderRadius: 1 }}>
-          <Select
-            size="small"
-            value={selectedTimer}
-            onChange={(e) => setSelectedTimer(e.target.value as 'nominator' | 'nominee')}
-            sx={{ minWidth: 100, fontSize: '0.85rem' }}
-          >
-            <MenuItem value="nominator">{language === 'zh' ? '提名者' : 'Nominator'}</MenuItem>
-            <MenuItem value="nominee">{language === 'zh' ? '被提名者' : 'Nominee'}</MenuItem>
-          </Select>
-          {timerEditing ? (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
-              <TextField
-                size="small"
-                value={timerInput}
-                onChange={(e) => setTimerInput(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter') { const m = parseInt(timerInput.split(':')[0], 10) || 0; const s = parseInt(timerInput.split(':')[1], 10) || 0; updateTimer(m * 60 + s); setTimerEditing(false) } }}
-                autoFocus
-                placeholder="MM:SS"
-                slotProps={{ input: { style: { fontSize: '1rem', fontWeight: 700, textAlign: 'center' } } }}
-                sx={{ width: 75 }}
-              />
-              <IconButton size="small" onClick={() => { const m = parseInt(timerInput.split(':')[0], 10) || 0; const s = parseInt(timerInput.split(':')[1], 10) || 0; updateTimer(m * 60 + s); setTimerEditing(false) }}>
-                ✓
-              </IconButton>
-              <IconButton size="small" onClick={() => setTimerEditing(false)}>
-                ✕
-              </IconButton>
-            </Box>
-          ) : (
-            <Box 
-              onClick={() => { const m = Math.floor(currentSeconds / 60); const s = currentSeconds % 60; setTimerInput(`${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`); setTimerEditing(true) }}
-              sx={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '1.5rem', px: 1, bgcolor: 'background.paper', borderRadius: 1, border: '1px solid', borderColor: 'divider', cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' } }}
-            >
-              {formatTimer(currentSeconds)}
-            </Box>
-          )}
-          <Box sx={{ display: 'flex', gap: 0.25 }}>
-            <IconButton size="small" onClick={() => setIsTimerRunning(!isTimerRunning)} sx={{ bgcolor: isTimerRunning ? 'primary.main' : 'transparent', color: isTimerRunning ? 'white' : 'inherit' }}>
-              {isTimerRunning ? <PauseIcon sx={{ fontSize: '1rem' }} /> : <PlayArrowIcon sx={{ fontSize: '1rem' }} />}
-            </IconButton>
-            <IconButton size="small" onClick={() => {
-              updateTimer(selectedTimer === 'nominator' ? (timerDefaults?.nominationActorSeconds ?? 60) : (timerDefaults?.nominationTargetSeconds ?? 60))
-              setIsTimerRunning(false)
-            }}>
-              <RefreshIcon sx={{ fontSize: '1rem' }} />
-            </IconButton>
-            <IconButton size="small" onClick={() => { updateTimer(0); setIsTimerRunning(false) }}>
-              <StopIcon sx={{ fontSize: '1rem' }} />
-            </IconButton>
-          </Box>
-        </Box>
+        <NominationTimer
+          selectedTimer={selectedTimer}
+          setSelectedTimer={setSelectedTimer}
+          currentSeconds={currentSeconds}
+          updateTimer={updateTimer}
+          isTimerRunning={isTimerRunning}
+          setIsTimerRunning={setIsTimerRunning}
+          timerDefaults={timerDefaults}
+          language={language}
+        />
       )}
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
@@ -262,8 +198,8 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
 
         <FormControl size="small" fullWidth>
           <InputLabel>{language === 'zh' ? '结果' : 'Result'}</InputLabel>
-          <Select 
-            value={voteDraft?.nominationResult ?? ''} 
+          <Select
+            value={voteDraft?.nominationResult ?? ''}
             label={language === 'zh' ? '结果' : 'Result'}
             onChange={(e) => updateCurrentDay((d: any) => ({ ...d, voteDraft: { ...d.voteDraft, nominationResult: e.target.value } }))}
           >
@@ -273,32 +209,17 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
         </FormControl>
 
         {currentDay?.nominationStep !== 'waitingForNomination' && voteDraft?.nominationResult === 'succeed' && (
-          <Box>
-            <Typography variant="body1" fontWeight={600} color="text.secondary">
-              {language === 'zh' ? '投票' : 'Votes'} ({language === 'zh' ? '点击切换' : 'click to toggle'})
-            </Typography>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, mt: 0.5 }}>
-              {seats.map((s: any) => {
-                const voted = currentDay?.votingState?.votes?.[s.seat]
-                const isChecked = voted === true || voteDraft?.voters?.includes(s.seat)
-                return (
-                  <Chip
-                    key={s.seat}
-                    label={`#${s.seat}`}
-                    size="medium"
-                    variant={isChecked ? 'filled' : 'outlined'}
-                    color={isChecked ? 'success' : 'default'}
-                    onClick={() => handleVoteToggle(s.seat)}
-                    sx={{ fontSize: '1rem', fontWeight: 700, height: 36 }}
-                  />
-                )
-              })}
-            </Box>
-            <Typography variant="body2" sx={{ mt: 0.5 }}>
-              {language === 'zh' ? '同意' : 'Yes'}: <strong>{yesCount}</strong> / {effectiveRequiredVotes}
-              {voteDraft?.isExile && <Chip size="small" label={language === 'zh' ? '放逐' : 'Exile'} sx={{ ml: 0.5 }} />}
-            </Typography>
-          </Box>
+          <NominationVoteList
+            seats={seats}
+            voteDraft={voteDraft}
+            votingState={currentDay?.votingState}
+            effectiveRequiredVotes={effectiveRequiredVotes}
+            yesCount={yesCount}
+            votingYesCount={votingYesCount}
+            handleVoteToggle={handleVoteToggle}
+            updateCurrentDay={updateCurrentDay}
+            language={language}
+          />
         )}
 
         <TextField
@@ -310,44 +231,13 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
           onChange={(e) => updateCurrentDay((d: any) => ({ ...d, voteDraft: { ...d.voteDraft, note: e.target.value } }))}
         />
 
-        {currentDay?.nominationStep !== 'waitingForNomination' && voteDraft?.nominationResult === 'succeed' && (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Typography variant="caption">{language === 'zh' ? '票数' : 'Count'}</Typography>
-            <IconButton size="small" onClick={() => {
-              const cur = voteDraft?.voteCountOverride ?? votingYesCount
-              updateCurrentDay((d: any) => ({ ...d, voteDraft: { ...d.voteDraft, voteCountOverride: Math.max(0, cur - 1) } }))
-            }}>−</IconButton>
-            <Typography variant="body2">
-              {votingYesCount}<small> / {effectiveRequiredVotes}</small>
-            </Typography>
-            <IconButton size="small" onClick={() => {
-              const cur = voteDraft?.voteCountOverride ?? votingYesCount
-              updateCurrentDay((d: any) => ({ ...d, voteDraft: { ...d.voteDraft, voteCountOverride: cur + 1 } }))
-            }}>+</IconButton>
-            {voteDraft?.voteCountOverride !== null && (
-              <Button size="small" onClick={() => updateCurrentDay((d: any) => ({ ...d, voteDraft: { ...d.voteDraft, voteCountOverride: null } }))}>
-                ↺
-              </Button>
-            )}
-          </Box>
-        )}
-
         {voteDraft?.nominationResult === 'succeed' && (
           <FormControl size="small" fullWidth>
             <InputLabel>{language === 'zh' ? '覆盖' : 'Override'}</InputLabel>
             <Select
               value={voteDraft?.manualPassed === true ? 'agree' : voteDraft?.manualPassed === false ? 'disagree' : 'auto'}
               label={language === 'zh' ? '覆盖' : 'Override'}
-              onChange={(e) => {
-                const v = e.target.value
-                updateCurrentDay((d: any) => ({ 
-                  ...d, 
-                  voteDraft: { 
-                    ...d.voteDraft, 
-                    manualPassed: v === 'agree' ? true : v === 'disagree' ? false : null 
-                  } 
-                }))
-              }}
+              onChange={(e) => handleManualOverride(e.target.value)}
             >
               <MenuItem value="auto">{language === 'zh' ? '自动判定' : 'Auto'}</MenuItem>
               <MenuItem value="agree">{language === 'zh' ? '✓ 强制通过' : '✓ Override Pass'}</MenuItem>
@@ -357,8 +247,8 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
         )}
 
         <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
-          <Button 
-            size="small" 
+          <Button
+            size="small"
             variant="contained"
             disabled={!voteDraft?.actor || !voteDraft?.target}
             onClick={() => voteDraft?.nominationResult === 'fail' ? rejectNomination() : recordVote()}
@@ -371,78 +261,12 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
         </Box>
       </Box>
 
-      <Box sx={{ mt: 2, pt: 1, borderTop: '1px solid', borderColor: 'divider' }}>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mb: 1 }}>
-          <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center', flexWrap: 'wrap' }}>
-            <Typography variant="caption" color="text.secondary">
-              {language === 'zh' ? '今日提名者' : 'Today Nominators'}:
-            </Typography>
-            {nominatorsToday.length === 0 ? (
-              <Typography variant="caption">—</Typography>
-            ) : (
-              nominatorsToday.map((seatNum: number) => (
-                <Chip key={seatNum} label={`#${seatNum}`} size="small" color="primary" variant="outlined" sx={{ height: 20, fontSize: '0.7rem' }} />
-              ))
-            )}
-          </Box>
-          <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center', flexWrap: 'wrap' }}>
-            <Typography variant="caption" color="text.secondary">
-              {language === 'zh' ? '今日被提名者' : 'Today Nominees'}:
-            </Typography>
-            {nomineesToday.length === 0 ? (
-              <Typography variant="caption">—</Typography>
-            ) : (
-              nomineesToday.map((seatNum: number) => (
-                <Chip key={seatNum} label={`#${seatNum}`} size="small" color="secondary" variant="outlined" sx={{ height: 20, fontSize: '0.7rem' }} />
-              ))
-            )}
-          </Box>
-        </Box>
-
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
-          <Typography variant="caption" color="text.secondary">
-            {language === 'zh' ? '提名记录' : 'Nominations'}
-          </Typography>
-          <Select size="small" value={historyFilter} onChange={(e) => setHistoryFilter(e.target.value as 'all' | 'exile' | 'nomination')} sx={{ minWidth: 90, fontSize: '0.75rem' }}>
-            <MenuItem value="all">{language === 'zh' ? '全部' : 'All'}</MenuItem>
-            <MenuItem value="exile">{language === 'zh' ? '放逐' : 'Exile'}</MenuItem>
-            <MenuItem value="nomination">{language === 'zh' ? '提名' : 'Nomination'}</MenuItem>
-          </Select>
-        </Box>
-
-        {filteredHistory.length === 0 ? (
-          <Typography variant="body2" color="text.secondary">{language === 'zh' ? '暂无记录' : 'None yet'}</Typography>
-        ) : (
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mt: 0.5, maxHeight: 150, overflow: 'auto' }}>
-            {filteredHistory.map((record: any) => {
-              const passed = !record.failed && record.passed
-              const actionTag = record.isExile ? (language === 'zh' ? '放逐' : '提名') : (language === 'zh' ? '提名' : '提名')
-              const voterList = record.voters && record.voters.length > 0 
-                ? `(${record.voters.map((v: number) => `#${v}`).join(',')})` 
-                : ''
-              return (
-                <Box key={record.id} sx={{ 
-                  p: 0.5, 
-                  borderRadius: 1, 
-                  bgcolor: passed ? 'success.light' : 'error.light',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 0.5,
-                  flexWrap: 'wrap'
-                }}>
-                  <Typography variant="body2" sx={{ fontWeight: 600, whiteSpace: 'nowrap' }}>
-                    #{record.actor} {actionTag} #{record.target}{' '}
-                    {record.failed 
-                      ? (language === 'zh' ? '失败' : 'Failed')
-                      : `${record.voteCount}/${record.requiredVotes}`
-                    }{voterList}
-                  </Typography>
-                </Box>
-              )
-            })}
-          </Box>
-        )}
-      </Box>
+      <NominationHistory
+        voteHistory={currentDay?.voteHistory ?? []}
+        historyFilter={historyFilter}
+        setHistoryFilter={setHistoryFilter}
+        language={language}
+      />
     </Dialog>
   )
 
