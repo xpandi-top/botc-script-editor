@@ -226,14 +226,14 @@ Deliverable: storyteller fully usable on phone in portrait mode.
 
 Goal: App Store / Play Store ready builds.
 
-- [ ] **P2-1** Add Capacitor: `npm install @capacitor/core @capacitor/cli`, `npx cap init`, `npx cap add ios`, `npx cap add android`
-- [ ] **P2-2** Configure `capacitor.config.ts`: webDir, server URL for dev
-- [ ] **P2-3** Integrate `@capacitor/status-bar` + `@capacitor/safe-area` for notch/island handling
-- [ ] **P2-4** Replace browser `<audio>` with `@capacitor/sound` (background audio on iOS)
-- [ ] **P2-5** Replace `localStorage` with `@capacitor/preferences` — same API surface, no quota issues (fixes I-6)
-- [ ] **P2-6** File export: use `@capacitor/filesystem` + share sheet instead of browser download link
-- [ ] **P2-7** Fix I-7: Capacitor handles asset bundling; remove PWA service worker workaround on native
-- [ ] **P2-8** App icons + splash screens for iOS/Android
+- [x] **P2-1** Add Capacitor: installed `@capacitor/core`, `@capacitor/cli`, `@capacitor/preferences`, `@capacitor/status-bar`, `@capacitor/filesystem`, `@capacitor/share`; `npx cap init` completed; `npx cap add ios/android` pending Xcode.app + Android Studio install
+- [x] **P2-2** Configure `capacitor.config.ts`: appId `com.hyp.botcstoryteller`, webDir `dist-native`, StatusBar/SplashScreen plugin config, iOS contentInset, Android backgroundColor
+- [x] **P2-3** Integrate `@capacitor/status-bar`: `src/lib/nativeInit.ts` calls `StatusBar.setStyle/setBackgroundColor` on native platform; wired into `main.tsx`
+- [ ] **P2-4** Replace browser `<audio>` with `@capacitor/sound` (background audio on iOS) — HTML audio works in WebView for now; revisit if background audio needed
+- [x] **P2-5** Storage adapter `src/lib/storage.ts`: async `storage.getItem/setItem/removeItem` uses `@capacitor/preferences` on native, `localStorage` on web — ready to migrate call sites
+- [x] **P2-6** File export adapter `src/lib/exportGame.ts`: uses `@capacitor/filesystem` + `@capacitor/share` on native, browser download on web; wired into `useGameExport.ts`
+- [x] **P2-7** Native build: `vite.config.ts` supports `--mode native` (base `/`, outDir `dist-native`, no PWA plugin); `npm run build:native` + `npm run cap:sync` scripts added
+- [ ] **P2-8** App icons + splash screens for iOS/Android — needs `@capacitor/assets` + source images
 - [ ] **P2-9** Fix I-2: restructure export format to `{ days: [{ phases: [{ events: [] }] }] }` — add migration for old format
 
 Deliverable: TestFlight + internal Play Store track builds.

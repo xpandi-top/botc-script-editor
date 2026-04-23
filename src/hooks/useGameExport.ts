@@ -1,4 +1,5 @@
 import type { DayState, EndGameResult, ExportConfig, GameRecord } from '../components/StorytellerSub/types'
+import { exportGameFile } from '../lib/exportGame'
 
 export interface ExportDeps {
   days: DayState[]
@@ -14,12 +15,15 @@ export interface ExportDeps {
 }
 
 function downloadJson(data: unknown, filename: string) {
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url; a.download = filename
-  document.body.appendChild(a); a.click(); document.body.removeChild(a)
-  URL.revokeObjectURL(url)
+  exportGameFile(JSON.stringify(data, null, 2), filename).catch(() => {
+    // fallback: direct browser download
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url; a.download = filename
+    document.body.appendChild(a); a.click(); document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  })
 }
 
 export function buildGameExport(deps: ExportDeps) {

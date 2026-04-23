@@ -1,12 +1,22 @@
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 export default defineConfig(function (_a) {
-    var command = _a.command;
-    return ({
-        plugins: [
-            react(),
-            VitePWA({
+    var command = _a.command, mode = _a.mode;
+    var isNative = mode === 'native';
+    return {
+        plugins: __spreadArray([
+            react()
+        ], (!isNative ? [VitePWA({
                 registerType: 'autoUpdate',
                 includeAssets: ['favicon.png', 'assets/icons/*.png'],
                 manifest: {
@@ -20,16 +30,8 @@ export default defineConfig(function (_a) {
                     scope: command === 'build' ? '/botc-script-editor/' : '/',
                     start_url: command === 'build' ? '/botc-script-editor/' : '/',
                     icons: [
-                        {
-                            src: 'favicon.png',
-                            sizes: '192x192',
-                            type: 'image/png',
-                        },
-                        {
-                            src: 'favicon.png',
-                            sizes: '512x512',
-                            type: 'image/png',
-                        },
+                        { src: 'favicon.png', sizes: '192x192', type: 'image/png' },
+                        { src: 'favicon.png', sizes: '512x512', type: 'image/png' },
                     ],
                 },
                 workbox: {
@@ -53,8 +55,11 @@ export default defineConfig(function (_a) {
                         },
                     ],
                 },
-            }),
-        ],
-        base: command === 'build' ? '/botc-script-editor/' : '/',
-    });
+            })] : []), true),
+        // Web build: scoped base path; native build: root path (file:// protocol)
+        base: isNative ? '/' : (command === 'build' ? '/botc-script-editor/' : '/'),
+        build: isNative ? {
+            outDir: 'dist-native',
+        } : {},
+    };
 });
