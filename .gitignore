@@ -5,3 +5,5 @@ ios
 android
 .DS_Store
 *.tsbuildinfo
+coverage
+vite.config.js

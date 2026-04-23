@@ -13,7 +13,13 @@ npm run preview      # Preview production build
 npm run add-revision -- <char_id> --en "text" --zh "text"
 ```
 
-No lint or test scripts configured.
+```bash
+npm test                # run all automated tests (Vitest)
+npm run test:watch      # watch mode
+npm run test:coverage   # coverage report
+```
+
+See [`docs/TESTING-AUTO.md`](docs/TESTING-AUTO.md) for test architecture and status.
 
 ## Architecture
 

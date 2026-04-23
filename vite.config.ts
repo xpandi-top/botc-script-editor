@@ -6,6 +6,17 @@ export default defineConfig(({ command, mode }) => {
   const isNative = mode === 'native'
 
   return {
+    test: {
+      environment: 'jsdom',
+      setupFiles: ['src/test/setup.ts'],
+      globals: true,
+      coverage: {
+        provider: 'v8',
+        reporter: ['text', 'html'],
+        include: ['src/utils/**', 'src/hooks/**', 'src/lib/**', 'src/components/**'],
+        exclude: ['src/components/StorytellerSub/useStoryteller.ts'],
+      },
+    },
     plugins: [
       react(),
       // Skip PWA plugin for native builds — Capacitor handles bundling
