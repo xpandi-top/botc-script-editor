@@ -1,4 +1,7 @@
 node_modules
 dist
+dist-native
+ios
+android
 .DS_Store
 *.tsbuildinfo
