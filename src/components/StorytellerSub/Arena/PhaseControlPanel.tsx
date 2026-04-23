@@ -53,9 +53,13 @@ export function PhaseControlPanel({ ctx }: { ctx: any }) {
 
   const phase = currentDay.phase
 
+  // Ref updated every render so the effect always reads the latest setting, not a stale closure value
+  const soundEnabledRef = useRef(ctx.timerDefaults?.phaseSwitchSoundEnabled !== false)
+  soundEnabledRef.current = ctx.timerDefaults?.phaseSwitchSoundEnabled !== false
+
   const prevPhaseRef = useRef(phase)
   useEffect(() => {
-    if (prevPhaseRef.current !== phase && ctx.timerDefaults?.phaseSwitchSoundEnabled !== false) {
+    if (prevPhaseRef.current !== phase && soundEnabledRef.current) {
       try {
         const ac = new (window.AudioContext || window.webkitAudioContext)()
         const osc = ac.createOscillator()
