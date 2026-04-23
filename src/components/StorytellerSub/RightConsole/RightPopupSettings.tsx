@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React from 'react'
-import { Box, Button, TextField, Typography, Paper, Select, MenuItem, FormControl, InputLabel, Chip, Grid, IconButton } from '@mui/material'
-import { uniqueStrings } from '../constants'
+import { Box, Button, TextField, Typography, Paper, Select, MenuItem, FormControl, InputLabel, Chip, Grid, IconButton, Switch, FormControlLabel } from '@mui/material'
+import { uniqueStrings, INITIAL_AUDIO_TRACKS } from '../constants'
 import { BASE_URL } from '../constants'
 
 export function RightPopupSettings({ ctx }: { ctx: any }) {
@@ -10,6 +10,7 @@ export function RightPopupSettings({ ctx }: { ctx: any }) {
     playerNamePool, setPlayerNamePool, currentDay, updateSeat, resetSeatNames,
     seatTagDrafts, setSeatTagDrafts, addCustomTag, clearUnusedCustomTags,
     loadTagsPreset, setLoadTagsPreset, setActiveRightPopup, text,
+    audioTracks, selectedAudioSrc, setSelectedAudioSrc,
   } = ctx
 
   const defaultTags = language === 'zh'
@@ -83,6 +84,35 @@ export function RightPopupSettings({ ctx }: { ctx: any }) {
               }
             }} />
           </Button>
+        </Paper>
+
+        <Paper variant="outlined" sx={{ p: 1.5 }}>
+          <Typography variant="subtitle2" sx={{ mb: 1 }}>{language === 'zh' ? '背景音乐默认' : 'Default BGM'}</Typography>
+          <FormControl size="small" fullWidth sx={{ mb: 1 }}>
+            <InputLabel>{language === 'zh' ? '默认曲目' : 'Default Track'}</InputLabel>
+            <Select
+              value={timerDefaults?.defaultBgmSrc ?? ''}
+              label={language === 'zh' ? '默认曲目' : 'Default Track'}
+              onChange={(e) => {
+                handleChange('defaultBgmSrc', e.target.value)
+                setSelectedAudioSrc(e.target.value)
+              }}
+            >
+              {(audioTracks ?? INITIAL_AUDIO_TRACKS).map((t: any) => (
+                <MenuItem key={t.src} value={t.src}>{t.name}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControlLabel
+            control={
+              <Switch
+                size="small"
+                checked={!!timerDefaults?.phaseSwitchSoundEnabled}
+                onChange={(e) => handleChange('phaseSwitchSoundEnabled', e.target.checked)}
+              />
+            }
+            label={<Typography variant="body2">{language === 'zh' ? '切换阶段时提示音' : 'Phase switch sound'}</Typography>}
+          />
         </Paper>
 
         <Paper variant="outlined" sx={{ p: 1.5 }}>

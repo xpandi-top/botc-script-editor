@@ -1,13 +1,11 @@
 import { Box } from '@mui/material'
 import { MobileSeatCard } from './MobileSeatCard'
-import { useBreakpoint } from '../../../hooks/useBreakpoint'
 
 // Bottom padding accounts for fixed PhaseControlPanel height (~42vh) + any system bars
 const PANEL_CLEARANCE = 'calc(44vh + var(--safe-bottom, 0px))'
 
 export function PlayerSeatGrid({ ctx }: { ctx: any }) {
   const { currentDay, setSelectedSeatNumber, setTagPopoutSeat } = ctx
-  const { isMobile } = useBreakpoint()
 
   return (
     <Box
@@ -25,7 +23,7 @@ export function PlayerSeatGrid({ ctx }: { ctx: any }) {
       }}
       sx={{
         display: 'grid',
-        gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)',
+        gridTemplateColumns: 'repeat(2, 1fr)',
         gap: 1,
         p: 1,
         pb: PANEL_CLEARANCE,

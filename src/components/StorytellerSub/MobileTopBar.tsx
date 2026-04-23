@@ -38,10 +38,6 @@ export function MobileTopBar({ ctx }: { ctx: any }) {
       top: 0,
       zIndex: 50,
     }}>
-      <IconButton size="small" onClick={() => setShowRightPanel((c: boolean) => !c)}>
-        <MenuIcon fontSize="small" />
-      </IconButton>
-
       <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', gap: 0.75, minWidth: 0, overflow: 'hidden' }}>
         <Typography variant="body2" sx={{ fontWeight: 700, whiteSpace: 'nowrap', color: 'text.secondary', fontSize: '0.8rem' }}>
           {aliveCount}/{totalCount}
@@ -74,6 +70,9 @@ export function MobileTopBar({ ctx }: { ctx: any }) {
 
       <IconButton size="small" onClick={undo} disabled={!canUndo} title="Undo">
         <UndoIcon fontSize="small" />
+      </IconButton>
+      <IconButton size="small" onClick={() => setShowRightPanel((c: boolean) => !c)}>
+        <MenuIcon fontSize="small" />
       </IconButton>
     </Box>
   )

@@ -71,6 +71,8 @@ export function createTimerDefaults(): TimerDefaults {
     nominationTargetSeconds: 30,
     nominationVoteSeconds: 5,
     alarmSound: `${BASE_URL}audio/alarm/Vintage Clock Sound Effect.mp3`,
+    defaultBgmSrc: `${BASE_URL}audio/botc.mp3`,
+    phaseSwitchSoundEnabled: true,
   }
 }
 

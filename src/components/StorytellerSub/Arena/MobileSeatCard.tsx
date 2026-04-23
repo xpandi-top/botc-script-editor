@@ -112,18 +112,18 @@ export function MobileSeatCard({ ctx, seat }: { ctx: any; seat: any }) {
       >
         {/* Header row: seat# name alive-dot */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
-          {charIcon && (
-            <Box component="img" src={charIcon as string} sx={{ width: 18, height: 18, borderRadius: '50%', flexShrink: 0 }} />
+          {isNightPhase && nightShowCharacter && charIcon && (
+            <Box component="img" src={charIcon as string} sx={{ width: 20, height: 20, borderRadius: '50%', flexShrink: 0 }} />
           )}
-          <Box component="span" sx={{ fontWeight: 700, fontSize: '0.75rem', color: 'text.secondary', whiteSpace: 'nowrap' }}>
+          <Box component="span" sx={{ fontWeight: 700, fontSize: '0.85rem', color: 'text.secondary', whiteSpace: 'nowrap' }}>
             #{seat.seat}
           </Box>
-          <Box component="span" sx={{ fontWeight: 600, fontSize: '0.85rem', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <Box component="span" sx={{ fontWeight: 600, fontSize: '0.95rem', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {seat.name}
           </Box>
           <Box component="span" sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: seat.alive ? 'success.main' : 'text.disabled', flexShrink: 0 }} />
           {hasVoted && (
-            <Box component="span" sx={{ fontWeight: 700, fontSize: '0.8rem', color: votedYes ? 'success.main' : 'error.main' }}>
+            <Box component="span" sx={{ fontWeight: 700, fontSize: '0.9rem', color: votedYes ? 'success.main' : 'error.main' }}>
               {votedYes ? '✓' : '✗'}
             </Box>
           )}
@@ -131,7 +131,7 @@ export function MobileSeatCard({ ctx, seat }: { ctx: any; seat: any }) {
 
         {/* Character name (night mode) */}
         {isNightPhase && nightShowCharacter && actualCharName && (
-          <Box sx={{ fontSize: '0.7rem', color: 'primary.main', fontWeight: 600, mb: 0.25 }}>
+          <Box sx={{ fontSize: '0.8rem', color: 'primary.main', fontWeight: 600, mb: 0.25 }}>
             {actualCharName}
           </Box>
         )}
@@ -156,69 +156,71 @@ export function MobileSeatCard({ ctx, seat }: { ctx: any; seat: any }) {
                       removeSeatTag(seat.seat, tag)
                     }
                   }}
-                  sx={{ fontSize: '0.65rem', height: 20 }}
+                  sx={{ fontSize: '0.75rem', height: 22 }}
                 />
               )
             })}
           </Box>
         )}
 
-        {/* Action buttons */}
-        <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
-          <Button
-            size="small"
-            variant={isSkillPopoutOpen ? 'contained' : 'outlined'}
-            onClick={(e) => { e.stopPropagation(); isSkillPopoutOpen ? closeSkillOverlay(false) : openSeatSkill(seat.seat) }}
-            sx={{ minWidth: 0, px: 0.75, py: 0.125, fontSize: '0.7rem', fontWeight: 600 }}
-          >
-            {language === 'zh' ? '技能' : 'Ability'}
-          </Button>
-          <Button
-            size="small"
-            variant={isTagPopoutOpen ? 'contained' : 'outlined'}
-            color={isTagPopoutOpen ? 'secondary' : 'inherit'}
-            onClick={(e) => { e.stopPropagation(); setTagPopoutSeat(isTagPopoutOpen ? null : seat.seat); setSkillPopoutSeat(null) }}
-            sx={{ minWidth: 0, px: 0.75, py: 0.125, fontSize: '0.7rem', fontWeight: 600 }}
-          >
-            {language === 'zh' ? '状态' : 'Status'}
-          </Button>
-
-          {/* Night: character button — assign if empty, toggle popout if set */}
-          {isNightPhase && nightShowCharacter && (
+        {/* Action buttons — shown only when card is selected (tapped) */}
+        {isSelected && (
+          <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mt: 0.5 }}>
             <Button
               size="small"
-              variant={isCharacterPopoutOpen ? 'contained' : 'outlined'}
-              onClick={(e) => { e.stopPropagation(); setCharacterPopoutSeat(isCharacterPopoutOpen ? null : seat.seat) }}
-              sx={{ minWidth: 0, px: 0.75, py: 0.125, fontSize: '0.7rem', display: 'flex', alignItems: 'center', gap: 0.25 }}
+              variant={isSkillPopoutOpen ? 'contained' : 'outlined'}
+              onClick={(e) => { e.stopPropagation(); isSkillPopoutOpen ? closeSkillOverlay(false) : openSeatSkill(seat.seat) }}
+              sx={{ minWidth: 0, px: 1, py: 0.25, fontSize: '0.8rem', fontWeight: 600 }}
             >
-              {charIcon && <Box component="img" src={charIcon as string} sx={{ width: 14, height: 14 }} />}
-              {actualCharName || (language === 'zh' ? '+角色' : '+Assign')}
+              {language === 'zh' ? '技能' : 'Ability'}
             </Button>
-          )}
+            <Button
+              size="small"
+              variant={isTagPopoutOpen ? 'contained' : 'outlined'}
+              color={isTagPopoutOpen ? 'secondary' : 'inherit'}
+              onClick={(e) => { e.stopPropagation(); setTagPopoutSeat(isTagPopoutOpen ? null : seat.seat); setSkillPopoutSeat(null) }}
+              sx={{ minWidth: 0, px: 1, py: 0.25, fontSize: '0.8rem', fontWeight: 600 }}
+            >
+              {language === 'zh' ? '状态' : 'Status'}
+            </Button>
 
-          {/* Night: wake order checkbox + order number */}
-          {isNightPhase && nightShowWakeOrder && playerWakeOrder !== null && (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
-              <IconButton
+            {/* Night: character button — assign if empty, toggle popout if set */}
+            {isNightPhase && nightShowCharacter && (
+              <Button
                 size="small"
-                onClick={(e) => { e.stopPropagation(); toggleNightVisitedSeat(seat.seat) }}
-                sx={{
-                  p: 0.25,
-                  border: '2px solid',
-                  borderColor: isVisited ? 'success.main' : 'divider',
-                  bgcolor: isVisited ? 'success.light' : 'transparent',
-                  borderRadius: 0.5,
-                  fontSize: '0.7rem',
-                }}
+                variant={isCharacterPopoutOpen ? 'contained' : 'outlined'}
+                onClick={(e) => { e.stopPropagation(); setCharacterPopoutSeat(isCharacterPopoutOpen ? null : seat.seat) }}
+                sx={{ minWidth: 0, px: 1, py: 0.25, fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: 0.25 }}
               >
-                {isVisited ? '✓' : '○'}
-              </IconButton>
-              <Box component="span" sx={{ fontSize: '0.7rem', fontWeight: 700, color: 'text.secondary' }}>
-                #{playerWakeOrder}
+                {charIcon && <Box component="img" src={charIcon as string} sx={{ width: 16, height: 16 }} />}
+                {actualCharName || (language === 'zh' ? '+角色' : '+Assign')}
+              </Button>
+            )}
+
+            {/* Night: wake order checkbox + order number */}
+            {isNightPhase && nightShowWakeOrder && playerWakeOrder !== null && (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
+                <IconButton
+                  size="small"
+                  onClick={(e) => { e.stopPropagation(); toggleNightVisitedSeat(seat.seat) }}
+                  sx={{
+                    p: 0.25,
+                    border: '2px solid',
+                    borderColor: isVisited ? 'success.main' : 'divider',
+                    bgcolor: isVisited ? 'success.light' : 'transparent',
+                    borderRadius: 0.5,
+                    fontSize: '0.8rem',
+                  }}
+                >
+                  {isVisited ? '✓' : '○'}
+                </IconButton>
+                <Box component="span" sx={{ fontSize: '0.8rem', fontWeight: 700, color: 'text.secondary' }}>
+                  #{playerWakeOrder}
+                </Box>
               </Box>
-            </Box>
-          )}
-        </Box>
+            )}
+          </Box>
+        )}
 
         {/* Vote buttons (nomination phase) */}
         {isInNomination && (

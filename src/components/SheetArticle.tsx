@@ -206,16 +206,9 @@ jinxesLabel,
                           )}
                           <Box sx={{ flex: 1, minWidth: 0 }}>
                             <Typography variant="subtitle2" noWrap>{displayName}</Typography>
-                            <Typography 
-                              variant="body2" 
+                            <Typography
+                              variant="body2"
                               color="text.secondary"
-                              sx={{ 
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                display: '-webkit-box',
-                                WebkitLineClamp: 2,
-                                WebkitBoxOrient: 'vertical',
-                              }}
                               dangerouslySetInnerHTML={{ __html: ability }}
                             />
                           </Box>

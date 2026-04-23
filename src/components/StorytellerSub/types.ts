@@ -176,6 +176,8 @@ export type TimerDefaults = {
   nominationTargetSeconds: number
   nominationVoteSeconds: number
   alarmSound: string
+  defaultBgmSrc?: string
+  phaseSwitchSoundEnabled?: boolean
 }
 
 export type DayState = {

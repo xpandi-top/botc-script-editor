@@ -3,12 +3,19 @@ import MenuIcon from '@mui/icons-material/Menu'
 import SettingsIcon from '@mui/icons-material/Settings'
 import HistoryIcon from '@mui/icons-material/History'
 import DownloadIcon from '@mui/icons-material/Download'
+import AddCircleIcon from '@mui/icons-material/AddCircle'
+import PeopleIcon from '@mui/icons-material/People'
+import FlagIcon from '@mui/icons-material/Flag'
 import { RightPopupLog } from './RightPopupLog'
 import { RightPopupSettings } from './RightPopupSettings'
 import { RightConsoleRecords } from './RightConsoleRecords'
 
 export function RightConsole({ ctx }: { ctx: any }) {
-  const { showRightPanel, setShowRightPanel, activeRightPopup, setActiveRightPopup, language, setShowExportModal } = ctx
+  const {
+    showRightPanel, setShowRightPanel, activeRightPopup, setActiveRightPopup,
+    language, setShowExportModal,
+    openNewGamePanel, setShowEditPlayersModal, openEndGamePanel,
+  } = ctx
 
   const togglePopup = (name: 'log' | 'settings' | 'records') => {
     setActiveRightPopup((p: string) => (p === name ? null : name))
@@ -84,13 +91,21 @@ export function RightConsole({ ctx }: { ctx: any }) {
             </IconButton>
           ))}
           <Box sx={{ flex: 1 }} />
-          <IconButton
-            onClick={() => setShowExportModal(true)}
-            sx={{ flexDirection: 'column', width: 44, p: 0.5, borderRadius: 1.5 }}
-          >
-            <Box sx={{ fontSize: '1.1rem', lineHeight: 1 }}><DownloadIcon sx={{ fontSize: '1.1rem' }} /></Box>
-            <Typography variant="caption" sx={{ fontSize: '0.6rem', fontWeight: 600, letterSpacing: '0.02em', lineHeight: 1 }}>{language === 'zh' ? '导出' : 'Export'}</Typography>
-          </IconButton>
+          {[
+            { icon: <AddCircleIcon sx={{ fontSize: '1.1rem' }} />, label: language === 'zh' ? '新游戏' : 'New', onClick: () => { openNewGamePanel(); closeDrawer() } },
+            { icon: <PeopleIcon sx={{ fontSize: '1.1rem' }} />, label: language === 'zh' ? '玩家' : 'Players', onClick: () => { setShowEditPlayersModal(true); closeDrawer() } },
+            { icon: <FlagIcon sx={{ fontSize: '1.1rem' }} />, label: language === 'zh' ? '结束' : 'End', onClick: () => { openEndGamePanel(); closeDrawer() } },
+            { icon: <DownloadIcon sx={{ fontSize: '1.1rem' }} />, label: language === 'zh' ? '导出' : 'Export', onClick: () => setShowExportModal(true) },
+          ].map(({ icon, label, onClick }) => (
+            <IconButton
+              key={label}
+              onClick={onClick}
+              sx={{ flexDirection: 'column', width: 44, p: 0.5, borderRadius: 1.5 }}
+            >
+              <Box sx={{ fontSize: '1.1rem', lineHeight: 1 }}>{icon}</Box>
+              <Typography variant="caption" sx={{ fontSize: '0.6rem', fontWeight: 600, letterSpacing: '0.02em', lineHeight: 1 }}>{label}</Typography>
+            </IconButton>
+          ))}
         </Box>
       </Drawer>
     </>

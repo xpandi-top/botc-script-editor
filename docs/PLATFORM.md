@@ -164,7 +164,20 @@ Landscape: current layout preserved (Arena + RightConsole side by side).
 | I-21 | Left script list panel has no hide/collapse toggle — always visible, wastes space | Scripts UI | Medium | ✅ Fixed — hamburger toggle in content panel header; `MenuIcon`/`MenuOpenIcon` with close button in list panel |
 | I-22 | Mobile ScriptsTab: left panel occupies full width first, content panel hidden below fold | Mobile UI | High | ✅ Fixed — mobile defaults `listOpenMobile=false`; selecting script auto-closes list on mobile |
 | I-23 | Print outputs two pages (EN + ZH) when only one language needed | Print | High | ✅ Fixed — print container renders only active `uiLanguage` instead of both languages |
-| I-24 | Jinx rules hidden under other content — `position: absolute; height: 0` print container interferes with layout | Print | High | ✅ Fixed — container changed to `position: fixed; top: -9999px` so it's completely off-screen without layout impact |
+| I-24 | Jinx rules hidden under other content — `position: absolute; height: 0` print container interferes with layout | Print | High | ✅ Fixed — changed to `createPortal` into `document.body`; `#root` hidden in print, portal shown |
+| I-25 | Script tab character descriptions truncated — ability text clipped mid-sentence | Scripts UI | High | ✅ Fixed — removed `WebkitLineClamp: 2` from SheetArticle character ability text |
+| I-26 | Mobile — New Game / Edit Players / Save Game buttons not accessible; should be in hamburger menu | Mobile UI | High | ✅ Fixed — New/Players/End/Export action buttons added to RightConsole icon bar; close drawer on tap |
+| I-27 | No default BGM selection in settings — user must pick BGM every session | Settings | Medium | ✅ Fixed — "Default BGM" dropdown in Settings panel; persisted in `timerDefaults.defaultBgmSrc`; updates `selectedAudioSrc` immediately |
+| I-28 | Mobile seat card always shows character icon — should only show when "Show Character" is active | Mobile UI | Medium | ✅ Fixed — `charIcon` render gated on `isNightPhase && nightShowCharacter` |
+| I-29 | Player seat grid is single column on mobile — 2-column layout would fit more info | Mobile UI | Medium | ✅ Fixed — `gridTemplateColumns: 'repeat(2, 1fr)'` for all breakpoints |
+| I-30 | Mobile seat card always shows ability/status buttons — should be hidden and revealed on card tap | Mobile UI | High | ✅ Fixed — action buttons wrapped in `{isSelected && ...}` block; tap card to reveal |
+| I-31 | Storyteller helper font size too small — all text in mobile game view hard to read | Mobile UI | High | ✅ Fixed — increased seat#/name/tag/button font sizes across MobileSeatCard |
+| I-32 | Mobile hamburger/menu button on left side — should be on right side, right of undo button | Mobile UI | Medium | ✅ Fixed — MenuIcon moved to after UndoIcon in MobileTopBar |
+| I-33 | No phase-switch sound effect or settings toggle to enable/disable it | Feature | Low | ✅ Fixed — Web Audio API ding plays on phase change; toggle in Settings (`phaseSwitchSoundEnabled`, default on) |
+| I-34 | Mobile seat card missing quick "Add Note" button — requires opening full player sheet | Mobile UI | Medium | Open |
+| I-35 | Player card has no event history view — no way to see skill uses / nominations for a player | Feature | Low | Open |
+| I-36 | Ability/skill modal not centered on screen — appears off-position | Mobile UI | High | ✅ Fixed — removed manual `position: fixed; top/left` overrides; mobile uses `fullScreen` prop |
+| I-37 | Skill/ability modal input loses focus when typing — field blurs on each keystroke | Bug | Critical | ✅ Fixed — `SkillPopoutContent` was a nested function component (remounts on each render); replaced with JSX variable |
 
 ---
 
