@@ -18,6 +18,9 @@ import {
   Button,
 } from '@mui/material'
 import PrintIcon from '@mui/icons-material/Print'
+import { PrintPreviewPage } from './components/PrintPreviewPage'
+import { DEFAULT_PRINT_OPTIONS } from './components/PrintOptionsDialog'
+import type { PrintOptions } from './components/PrintOptionsDialog'
 import { ScriptsTab } from './components/tabs/ScriptsTab'
 import { SettingsTab } from './components/tabs/SettingsTab'
 import { CharactersTab } from './components/tabs/CharactersTab'
@@ -71,6 +74,8 @@ export default function App() {
   const [isEditMode, setIsEditMode] = useState(false)
   const [pdfFontSize, setPdfFontSize] = useState(11)
   const [showWakeOrderPreview, setShowWakeOrderPreview] = useState(true)
+  const [printPreviewOpen, setPrintPreviewOpen] = useState(false)
+  const [printOptions, setPrintOptions] = useState<PrintOptions>(DEFAULT_PRINT_OPTIONS)
   const [saveStatus, setSaveStatus] = useState('')
   const [selectedCharacterId, setSelectedCharacterId] = useState<string>(allCharacters[0]?.id ?? '')
 
@@ -288,10 +293,10 @@ export default function App() {
             </FormControl>
             {activeTab !== 'characters' && activeTab !== 'storyteller' && activeScript && (
               <>
-                <IconButton onClick={() => window.print()} size="small" color="primary" sx={{ display: { xs: 'flex', sm: 'none' } }} title={uiText.print}>
+                <IconButton onClick={() => setPrintPreviewOpen(true)} size="small" color="primary" sx={{ display: { xs: 'flex', sm: 'none' } }} title={uiText.print}>
                   <PrintIcon fontSize="small" />
                 </IconButton>
-                <Button variant="contained" startIcon={<PrintIcon />} onClick={() => window.print()} sx={{ borderRadius: 999, display: { xs: 'none', sm: 'flex' } }}>
+                <Button variant="contained" startIcon={<PrintIcon />} onClick={() => setPrintPreviewOpen(true)} sx={{ borderRadius: 999, display: { xs: 'none', sm: 'flex' } }}>
                   {uiText.print}
                 </Button>
               </>
@@ -341,6 +346,21 @@ export default function App() {
           toggleCharacterInScript={toggleCharacterInScript}
           getScriptTitle={getScriptTitle}
           getSheetUiLabel={getSheetUiLabel}
+          printOptions={printOptions}
+        />
+      )}
+
+      {printPreviewOpen && activeScript && (
+        <PrintPreviewPage
+          activeScript={activeScript}
+          activeScriptCharacters={activeScriptCharacters}
+          groupedScriptCharacters={groupedScriptCharacters}
+          sheetDensityClass={sheetDensityClass}
+          language={uiLanguage}
+          getSheetUiLabel={getSheetUiLabel}
+          printOptions={printOptions}
+          onOptionsChange={setPrintOptions}
+          onClose={() => setPrintPreviewOpen(false)}
         />
       )}
 

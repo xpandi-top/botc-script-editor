@@ -4,6 +4,7 @@ import { ThemeProvider, CssBaseline, GlobalStyles } from '@mui/material'
 import App from './App'
 import { theme } from './theme'
 import { initNative } from './lib/nativeInit'
+import './fonts.css'
 
 initNative()
 

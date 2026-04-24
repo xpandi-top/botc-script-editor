@@ -1,0 +1,29 @@
+@font-face {
+  font-family: 'Edo';
+  src: url('/assets/font/edo.ttf') format('truetype');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Kaushan Script';
+  src: url('/assets/font/KaushanScript-Regular.otf') format('opentype');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Times New Roman Local';
+  src: url('/assets/font/timesnewroman.ttf') format('truetype');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Xingkai';
+  src: url('/assets/font/xingkai.ttf') format('truetype');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Xinwei';
+  src: url('/assets/font/xinwei.ttf') format('truetype');
+  font-display: swap;
+}

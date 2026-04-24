@@ -96,6 +96,22 @@ Status: `open` | `fixed` | `wontfix`
 
 ---
 
+## I-52 — Print optimization dialog
+
+**Status:** fixed  
+**Area:** ScriptsTab, SheetArticle, App  
+**Detail:** Print button triggers `window.print()` directly with no customization. Need a pre-print dialog with:
+1. Icon size slider (currently 32px — too small for B&W print)
+2. 1-column vs 2-column layout toggle
+3. Font family selector (sans / serif / mono)
+4. Font size slider (currently `pdfFontSize` state exists but unconnected)
+5. Padding/density selector (compact / normal / spacious)
+6. Black & white mode (grayscale filter + remove color tints)
+7. Bilingual export (show both EN and ZH ability text per character)
+On confirm: apply options to print portal then call `window.print()`.
+
+---
+
 ## Previous Issues (I-38 to I-42) — Fixed
 
 | ID | Issue | Status |

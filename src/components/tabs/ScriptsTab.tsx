@@ -16,6 +16,7 @@ import type {
   ResolvedScriptCharacter,
   ResolvedScriptCharacterGroup,
 } from '../../types'
+import type { PrintOptions } from '../PrintOptionsDialog'
 
 type Props = {
   scripts: EditableScript[]
@@ -41,6 +42,7 @@ type Props = {
   toggleCharacterInScript: (id: string) => void
   getScriptTitle: (script: EditableScript) => string
   getSheetUiLabel: (language: Language, key: string) => string
+  printOptions: PrintOptions
 }
 
 export function ScriptsTab({
@@ -67,6 +69,7 @@ export function ScriptsTab({
   toggleCharacterInScript,
   getScriptTitle,
   getSheetUiLabel,
+  printOptions,
 }: Props) {
   const { isMobile } = useBreakpoint()
   const [listOpenDesktop, setListOpenDesktop] = useState(true)
@@ -158,6 +161,7 @@ export function ScriptsTab({
                   showEdition={false}
                   showCharacterCount={false}
                   supplementalPlacement="end"
+                  printOptions={printOptions}
                 />
               </div>,
               document.body
