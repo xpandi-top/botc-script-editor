@@ -10,7 +10,7 @@ import {
   FONT_DEFINITIONS, PAGE_SIZE_DEFS, PAGE_PREVIEW_WIDTH_PX, PAGE_PREVIEW_HEIGHT_PX,
   applyPrintOptionsToPortal,
 } from './PrintOptionsDialog'
-import type { PrintOptions, PageSize } from './PrintOptionsDialog'
+import type { PrintOptions, PageSize, LanguageLayout } from './PrintOptionsDialog'
 import type { EditableScript, Language, ResolvedScriptCharacter, ResolvedScriptCharacterGroup } from '../types'
 
 type Props = {
@@ -48,51 +48,77 @@ export function PrintPreviewPage({
     </Typography>
   )
 
+  const fontSelect = (labelStr: string, key: 'fontKeyEn' | 'fontKeyZh') => (
+    <FormControl size="small" fullWidth sx={{ mb: 1 }}>
+      <InputLabel>{labelStr}</InputLabel>
+      <Select
+        value={opts[key]}
+        label={labelStr}
+        onChange={(e) => set(key, e.target.value as PrintOptions['fontKeyEn'])}
+        renderValue={(v) => {
+          const f = FONT_DEFINITIONS.find((d) => d.key === v)
+          return f ? (zh ? f.labelZh : f.label) : String(v)
+        }}
+      >
+        <MenuItem disabled sx={{ fontSize: '0.7rem', opacity: 0.6, py: 0 }}>— {zh ? '系统' : 'System'} —</MenuItem>
+        {FONT_DEFINITIONS.filter((f) => f.lang === 'both').map((f) => (
+          <MenuItem key={f.key} value={f.key} sx={{ fontFamily: f.css }}>{zh ? f.labelZh : f.label}</MenuItem>
+        ))}
+        <MenuItem disabled sx={{ fontSize: '0.7rem', opacity: 0.6, py: 0 }}>— {zh ? '英文' : 'English'} —</MenuItem>
+        {FONT_DEFINITIONS.filter((f) => f.lang === 'en').map((f) => (
+          <MenuItem key={f.key} value={f.key} sx={{ fontFamily: f.css }}>{zh ? f.labelZh : f.label}</MenuItem>
+        ))}
+        <MenuItem disabled sx={{ fontSize: '0.7rem', opacity: 0.6, py: 0 }}>— {zh ? '中文' : 'Chinese'} —</MenuItem>
+        {FONT_DEFINITIONS.filter((f) => f.lang === 'zh').map((f) => (
+          <MenuItem key={f.key} value={f.key} sx={{ fontFamily: f.css }}>{zh ? f.labelZh : f.label}</MenuItem>
+        ))}
+      </Select>
+    </FormControl>
+  )
+
+  const ptSlider = (labelStr: string, field: 'fontSize' | 'titleFontSize' | 'sectionFontSize', min: number, max: number) => (
+    <Box sx={{ mb: 1 }}>
+      <Typography variant="caption" color="text.secondary">
+        {labelStr}: {opts[field]}pt
+      </Typography>
+      <Slider value={opts[field]} min={min} max={max} step={0.5}
+        onChange={(_, v) => set(field, v as number)}
+        marks={[{ value: min, label: `${min}` }, { value: max, label: `${max}` }]}
+        sx={{ mt: 0.5, mb: 0 }}
+      />
+    </Box>
+  )
+
   return (
     <Box sx={{ position: 'fixed', inset: 0, zIndex: 1300, display: 'flex', flexDirection: 'column', bgcolor: 'background.default' }}>
       {/* Top bar */}
       <Paper elevation={2} sx={{ px: 2, py: 1, display: 'flex', alignItems: 'center', gap: 1, borderRadius: 0, zIndex: 1 }}>
-        <Button startIcon={<ArrowBackIcon />} onClick={onClose} size="small">
-          {zh ? '返回' : 'Back'}
-        </Button>
+        <Button startIcon={<ArrowBackIcon />} onClick={onClose} size="small">{zh ? '返回' : 'Back'}</Button>
         <Typography variant="subtitle1" sx={{ flex: 1, ml: 1, fontWeight: 700 }}>
           {zh ? '打印预览 / 排版设置' : 'Print Preview & Layout'}
         </Typography>
-        <Button variant="contained" startIcon={<PrintIcon />} onClick={handlePrint}>
-          {zh ? '打印' : 'Print'}
-        </Button>
+        <Button variant="contained" startIcon={<PrintIcon />} onClick={handlePrint}>{zh ? '打印' : 'Print'}</Button>
       </Paper>
 
       <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
         {/* ── Settings panel ── */}
-        <Box sx={{
-          width: { xs: '100%', sm: 280 },
-          flexShrink: 0,
-          overflowY: 'auto',
-          borderRight: '1px solid',
-          borderColor: 'divider',
-          p: 2,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 2,
-        }}>
-          {/* Page size */}
+        <Box sx={{ width: { xs: '100%', sm: 300 }, flexShrink: 0, overflowY: 'auto', borderRight: '1px solid', borderColor: 'divider', p: 2, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+
+          {/* Page */}
           <Box>
             {sectionLabel(zh ? '纸张' : 'Page')}
-            <FormControl size="small" fullWidth>
+            <FormControl size="small" fullWidth sx={{ mb: 0.5 }}>
               <InputLabel>{zh ? '纸张尺寸' : 'Page Size'}</InputLabel>
-              <Select
-                value={opts.pageSize}
-                label={zh ? '纸张尺寸' : 'Page Size'}
+              <Select value={opts.pageSize} label={zh ? '纸张尺寸' : 'Page Size'}
                 onChange={(e) => set('pageSize', e.target.value as PageSize)}
               >
-                {(Object.entries(PAGE_SIZE_DEFS) as [PageSize, { label: string; w: number; h: number }][]).map(([key, def]) => (
-                  <MenuItem key={key} value={key}>{def.label}</MenuItem>
+                {(Object.entries(PAGE_SIZE_DEFS) as [PageSize, { label: string }][]).map(([k, d]) => (
+                  <MenuItem key={k} value={k}>{d.label}</MenuItem>
                 ))}
               </Select>
             </FormControl>
-            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
-              {zh ? `预览宽度: ${previewW}px ≈ ${PAGE_SIZE_DEFS[opts.pageSize].w}mm` : `Preview: ${previewW}px ≈ ${PAGE_SIZE_DEFS[opts.pageSize].w}mm wide`}
+            <Typography variant="caption" color="text.secondary">
+              {zh ? `预览: ${previewW}px ≈ ${PAGE_SIZE_DEFS[opts.pageSize].w}mm` : `Preview: ${previewW}px ≈ ${PAGE_SIZE_DEFS[opts.pageSize].w}mm`}
             </Typography>
           </Box>
 
@@ -101,12 +127,8 @@ export function PrintPreviewPage({
           {/* Layout */}
           <Box>
             {sectionLabel(zh ? '布局' : 'Layout')}
-            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-              {zh ? '列数' : 'Columns'}
-            </Typography>
-            <ToggleButtonGroup value={opts.columns} exclusive size="small"
-              onChange={(_, v) => { if (v) set('columns', v) }}
-            >
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>{zh ? '列数' : 'Columns'}</Typography>
+            <ToggleButtonGroup value={opts.columns} exclusive size="small" onChange={(_, v) => { if (v) set('columns', v) }}>
               <ToggleButton value={1}>{zh ? '单列' : '1 Col'}</ToggleButton>
               <ToggleButton value={2}>{zh ? '双列' : '2 Col'}</ToggleButton>
             </ToggleButtonGroup>
@@ -114,57 +136,27 @@ export function PrintPreviewPage({
 
           <Divider />
 
-          {/* Icon */}
+          {/* Icons */}
           <Box>
-            {sectionLabel(zh ? '角色图标' : 'Character Icons')}
-            <Typography variant="caption" color="text.secondary">
-              {zh ? `大小: ${opts.iconSize}px` : `Size: ${opts.iconSize}px`}
-            </Typography>
+            {sectionLabel(zh ? '角色图标' : 'Icons')}
+            <Typography variant="caption" color="text.secondary">{zh ? `大小: ${opts.iconSize}px` : `Size: ${opts.iconSize}px`}</Typography>
             <Slider value={opts.iconSize} min={24} max={80} step={4}
               onChange={(_, v) => set('iconSize', v as number)}
               marks={[{ value: 24, label: '24' }, { value: 48, label: '48' }, { value: 80, label: '80' }]}
-              sx={{ mt: 1 }}
+              sx={{ mt: 0.5 }}
             />
           </Box>
 
           <Divider />
 
-          {/* Font */}
+          {/* Typography */}
           <Box>
             {sectionLabel(zh ? '字体' : 'Typography')}
-            <FormControl size="small" fullWidth sx={{ mb: 1.5 }}>
-              <InputLabel>{zh ? '字体' : 'Font Family'}</InputLabel>
-              <Select
-                value={opts.fontKey}
-                label={zh ? '字体' : 'Font Family'}
-                onChange={(e) => set('fontKey', e.target.value as PrintOptions['fontKey'])}
-                renderValue={(v) => {
-                  const f = FONT_DEFINITIONS.find((d) => d.key === v)
-                  return f ? (zh ? f.labelZh : f.label) : v
-                }}
-              >
-                <MenuItem disabled sx={{ fontSize: '0.7rem', opacity: 0.6, py: 0 }}>— {zh ? '系统字体' : 'System'} —</MenuItem>
-                {FONT_DEFINITIONS.filter((f) => f.lang === 'both').map((f) => (
-                  <MenuItem key={f.key} value={f.key} sx={{ fontFamily: f.css }}>{zh ? f.labelZh : f.label}</MenuItem>
-                ))}
-                <MenuItem disabled sx={{ fontSize: '0.7rem', opacity: 0.6, py: 0 }}>— {zh ? '英文字体' : 'English'} —</MenuItem>
-                {FONT_DEFINITIONS.filter((f) => f.lang === 'en').map((f) => (
-                  <MenuItem key={f.key} value={f.key} sx={{ fontFamily: f.css }}>{zh ? f.labelZh : f.label}</MenuItem>
-                ))}
-                <MenuItem disabled sx={{ fontSize: '0.7rem', opacity: 0.6, py: 0 }}>— {zh ? '中文字体' : 'Chinese'} —</MenuItem>
-                {FONT_DEFINITIONS.filter((f) => f.lang === 'zh').map((f) => (
-                  <MenuItem key={f.key} value={f.key} sx={{ fontFamily: f.css }}>{zh ? f.labelZh : f.label}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <Typography variant="caption" color="text.secondary">
-              {zh ? `字号: ${opts.fontSize}pt` : `Size: ${opts.fontSize}pt`}
-            </Typography>
-            <Slider value={opts.fontSize} min={7} max={16} step={0.5}
-              onChange={(_, v) => set('fontSize', v as number)}
-              marks={[{ value: 7, label: '7' }, { value: 10, label: '10' }, { value: 16, label: '16' }]}
-              sx={{ mt: 1 }}
-            />
+            {fontSelect(zh ? '英文字体' : 'English Font', 'fontKeyEn')}
+            {fontSelect(zh ? '中文字体' : 'Chinese Font', 'fontKeyZh')}
+            {ptSlider(zh ? '正文字号' : 'Body', 'fontSize', 7, 14)}
+            {ptSlider(zh ? '标题字号' : 'Title', 'titleFontSize', 12, 36)}
+            {ptSlider(zh ? '区域标题字号' : 'Section', 'sectionFontSize', 7, 16)}
           </Box>
 
           <Divider />
@@ -172,13 +164,22 @@ export function PrintPreviewPage({
           {/* Spacing */}
           <Box>
             {sectionLabel(zh ? '间距' : 'Spacing')}
-            <ToggleButtonGroup value={opts.padding} exclusive size="small"
-              onChange={(_, v) => { if (v) set('padding', v) }}
-            >
+            <ToggleButtonGroup value={opts.padding} exclusive size="small" onChange={(_, v) => { if (v) set('padding', v) }}>
               <ToggleButton value="compact">{zh ? '紧凑' : 'Compact'}</ToggleButton>
               <ToggleButton value="normal">{zh ? '正常' : 'Normal'}</ToggleButton>
               <ToggleButton value="spacious">{zh ? '宽松' : 'Spacious'}</ToggleButton>
             </ToggleButtonGroup>
+          </Box>
+
+          <Divider />
+
+          {/* Section style */}
+          <Box>
+            {sectionLabel(zh ? '区域样式' : 'Section Style')}
+            <FormControlLabel
+              control={<Switch checked={opts.showSectionBg} onChange={(e) => set('showSectionBg', e.target.checked)} size="small" />}
+              label={<Typography variant="body2">{zh ? '显示区域背景色' : 'Section color background'}</Typography>}
+            />
           </Box>
 
           <Divider />
@@ -189,80 +190,51 @@ export function PrintPreviewPage({
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
               <FormControlLabel
                 control={<Switch checked={opts.blackAndWhite} onChange={(e) => set('blackAndWhite', e.target.checked)} size="small" />}
-                label={<Typography variant="body2">{zh ? '黑白打印（去色）' : 'Black & White'}</Typography>}
+                label={<Typography variant="body2">{zh ? '黑白打印' : 'Black & White'}</Typography>}
               />
-              <FormControlLabel
-                control={<Switch checked={opts.bilingual} onChange={(e) => set('bilingual', e.target.checked)} size="small" />}
-                label={<Typography variant="body2">{zh ? '中英双语' : 'Bilingual (EN + ZH)'}</Typography>}
-              />
+              <Typography variant="caption" color="text.secondary" sx={{ mb: 0.25 }}>{zh ? '语言' : 'Language'}</Typography>
+              <ToggleButtonGroup value={opts.languageLayout} exclusive size="small"
+                onChange={(_, v) => { if (v) set('languageLayout', v as LanguageLayout) }}
+                sx={{ flexWrap: 'wrap' }}
+              >
+                <ToggleButton value="current" sx={{ fontSize: '0.72rem' }}>{zh ? '当前语言' : 'Current'}</ToggleButton>
+                <ToggleButton value="bilingual-mixed" sx={{ fontSize: '0.72rem' }}>{zh ? '中英混合' : 'Mixed'}</ToggleButton>
+                <ToggleButton value="bilingual-separate" sx={{ fontSize: '0.72rem' }}>{zh ? '中英分页' : 'Separate'}</ToggleButton>
+              </ToggleButtonGroup>
             </Box>
           </Box>
         </Box>
 
         {/* ── Live preview ── */}
-        <Box sx={{
-          flex: 1,
-          overflowY: 'auto',
-          bgcolor: 'grey.200',
-          p: { xs: 1, sm: 3 },
-          display: { xs: 'none', sm: 'flex' },
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: 2,
-        }}>
-          {/* Page label */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, alignSelf: 'flex-start', width: previewW, maxWidth: '100%' }}>
-            <Typography variant="caption" color="text.secondary">
-              {PAGE_SIZE_DEFS[opts.pageSize].label} — {zh ? '以下为预览（实际打印可能有细微差异）' : 'Preview — actual print may differ slightly'}
-            </Typography>
-          </Box>
+        <Box sx={{ flex: 1, overflowY: 'auto', bgcolor: 'grey.200', p: { xs: 1, sm: 3 }, display: { xs: 'none', sm: 'flex' }, flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+          <Typography variant="caption" color="text.secondary" sx={{ alignSelf: 'flex-start', maxWidth: previewW }}>
+            {PAGE_SIZE_DEFS[opts.pageSize].label} — {zh ? '以下为预览（实际打印可能有细微差异）' : 'Preview — actual print may differ slightly'}
+          </Typography>
 
-          {/* Paper simulation — first page preview */}
-          <Box sx={{
-            width: previewW,
-            maxWidth: '100%',
-            minHeight: previewH,
-            bgcolor: 'white',
-            boxShadow: '0 4px 24px rgba(0,0,0,0.18)',
-            borderRadius: 1,
-            overflow: 'hidden',
-            position: 'relative',
-          }}>
-            {/* Page break indicator line */}
-            <Box sx={{
-              position: 'absolute',
-              top: previewH,
-              left: 0,
-              right: 0,
-              height: 2,
-              bgcolor: 'error.light',
-              opacity: 0.5,
-              zIndex: 10,
-              '&::after': {
-                content: `"${zh ? '↑ 第1页结束' : '↑ page 1 end'}"`,
-                position: 'absolute',
-                right: 8,
-                top: 2,
-                fontSize: '0.65rem',
-                color: 'error.main',
-              },
+          {/* Paper simulation */}
+          <Box sx={{ width: previewW, maxWidth: '100%', position: 'relative' }}>
+            {/* Page break indicator */}
+            <Box sx={{ position: 'absolute', top: previewH, left: 0, right: 0, height: '2px', bgcolor: 'error.light', opacity: 0.6, zIndex: 10,
+              '&::after': { content: `"${zh ? '↑ 第1页结束' : '↑ page 1 end'}"`, position: 'absolute', right: 8, top: 2, fontSize: '0.65rem', color: 'error.main' },
             }} />
-            <SheetArticle
-              activeScript={activeScript}
-              activeScriptCharacters={activeScriptCharacters}
-              groupedScriptCharacters={groupedScriptCharacters}
-              bootleggerRulesLabel={getSheetUiLabel(language, 'bootlegger_rules')}
-              jinxesLabel={getSheetUiLabel(language, 'jinxes')}
-              isEditMode={false}
-              language={language}
-              onRemoveCharacter={() => {}}
-              sheetDensityClass={sheetDensityClass}
-              showWakeOrder
-              showEdition={false}
-              showCharacterCount={false}
-              supplementalPlacement="end"
-              printOptions={opts}
-            />
+            <Box sx={{ bgcolor: 'white', boxShadow: '0 4px 24px rgba(0,0,0,0.18)', borderRadius: 1, overflow: 'visible' }}>
+              <SheetArticle
+                activeScript={activeScript}
+                activeScriptCharacters={activeScriptCharacters}
+                groupedScriptCharacters={groupedScriptCharacters}
+                bootleggerRulesLabel={getSheetUiLabel(language, 'bootlegger_rules')}
+                jinxesLabel={getSheetUiLabel(language, 'jinxes')}
+                isEditMode={false}
+                language={language}
+                onRemoveCharacter={() => {}}
+                sheetDensityClass={sheetDensityClass}
+                showWakeOrder
+                showEdition={false}
+                showCharacterCount={false}
+                supplementalPlacement="end"
+                printOptions={opts}
+              />
+            </Box>
           </Box>
         </Box>
       </Box>

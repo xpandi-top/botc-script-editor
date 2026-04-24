@@ -64,7 +64,8 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         },
         '@media print': {
           '#root': { display: 'none' },
-          '.print-portal': { display: 'block', position: 'fixed', top: 0, left: 0, width: '100%' },
+          '.print-portal': { display: 'block' },
+          '.print-portal .MuiPaper-root': { boxShadow: 'none', border: 'none' },
         },
       }} />
       <App />
