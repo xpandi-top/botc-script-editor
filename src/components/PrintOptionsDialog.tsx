@@ -49,10 +49,14 @@ export type PrintOptions = {
   fontKeyEn: FontKey        // body/EN font
   fontKeyZh: FontKey        // ZH-specific font
   fontSize: number          // body font size (pt)
+  nameFontSize: number      // character name font size (pt)
   titleFontSize: number     // script title (pt)
   sectionFontSize: number   // section header e.g. Townsfolk (pt)
   lineHeight: number        // text line height multiplier
   showSectionBg: boolean    // colored chip bg on section labels
+  showSectionDivider: boolean // show divider lines between groups
+  showIconCircle: boolean   // show circle background behind icon
+  showCardOutline: boolean   // show border/outline around character cards
   padding: 'compact' | 'normal' | 'spacious'
   blackAndWhite: boolean
   languageLayout: LanguageLayout
@@ -65,10 +69,14 @@ export const DEFAULT_PRINT_OPTIONS: PrintOptions = {
   fontKeyEn: 'sans',
   fontKeyZh: 'sans',
   fontSize: 10,
+  nameFontSize: 11,
   titleFontSize: 20,
   sectionFontSize: 11,
   lineHeight: 1.2,
   showSectionBg: false,
+  showSectionDivider: false,
+  showIconCircle: true,
+  showCardOutline: false,
   padding: 'compact',
   blackAndWhite: false,
   languageLayout: 'current',

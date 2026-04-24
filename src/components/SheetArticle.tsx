@@ -1,4 +1,4 @@
-import { Box, Typography, Paper, Grid, IconButton, Chip } from '@mui/material'
+import { Box, Typography, Paper, Grid, IconButton, Chip, Divider } from '@mui/material'
 import {
   editionLabels,
   getAbilityText,
@@ -77,9 +77,13 @@ export function SheetArticle({
   const fontFamilyEn   = po ? FONT_CSS[po.fontKeyEn] : undefined
   const fontFamilyZh   = po ? FONT_CSS[po.fontKeyZh] : undefined
   const fontSize        = po ? `${po.fontSize}pt` : undefined
+  const nameFontSize     = po ? `${po.nameFontSize}pt` : undefined
   const titleFontSize   = po ? `${po.titleFontSize}pt` : undefined
   const sectionFontSize = po ? `${po.sectionFontSize}pt` : undefined
   const showSectionBg   = po ? po.showSectionBg : true
+  const showSectionDivider = po ? po.showSectionDivider : false
+  const showIconCircle  = po ? po.showIconCircle : true
+  const showCardOutline = po ? po.showCardOutline : false
   const padDef          = po ? PADDING_MAP[po.padding] : null
   const cardPadding     = padDef ? `${padDef.card}px` : '8px'
   const gridSpacing     = padDef ? padDef.gridSpacing : 1
@@ -217,18 +221,23 @@ export function SheetArticle({
     const enFont = fontFamilyEn
 
     return (
-      <Grid key={character.id} size={{ xs: 12, sm: columns === 1 ? 12 : 6 }} item>
-        <Paper variant="outlined" sx={{ p: cardPadding, position: 'relative', pageBreakInside: 'avoid', breakInside: 'avoid' }}>
+      <Grid key={character.id} size={{ xs: 12, sm: columns === 1 ? 12 : 6 }}>
+        <Paper variant="outlined" sx={{ p: cardPadding, position: 'relative', pageBreakInside: 'avoid', breakInside: 'avoid',
+          ...(showCardOutline ? { borderWidth: 1, borderColor: 'divider' } : { borderWidth: 0 }) }}>
           <Box sx={{ display: 'flex', gap: padDef ? `${padDef.card / 2}px` : '6px', alignItems: 'flex-start' }}>
             {icon ? (
-              <Box component="img" src={icon} alt="" sx={{ width: iconSize, height: iconSize, objectFit: 'contain', flexShrink: 0 }} />
+              <Box sx={{ width: iconSize, height: iconSize, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                ...(showIconCircle && { borderRadius: '50%', bgcolor: 'grey.200' }) }}>
+                <Box component="img" src={icon} alt="" sx={{ width: iconSize, height: iconSize, objectFit: 'contain' }} />
+              </Box>
             ) : (
-              <Box sx={{ width: iconSize, height: iconSize, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'grey.200', borderRadius: 0.5 }}>
+              <Box sx={{ width: iconSize, height: iconSize, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                bgcolor: 'grey.200', borderRadius: showIconCircle ? '50%' : 0.5 }}>
                 <Typography variant="caption">{character.id.slice(0, 2).toUpperCase()}</Typography>
               </Box>
             )}
             <Box sx={{ flex: 1, minWidth: 0 }}>
-              <Typography variant="subtitle2" noWrap sx={{ fontFamily: lang === 'zh' ? zhFont : enFont, lineHeight, mb: 0 }}>
+              <Typography variant="subtitle2" noWrap sx={{ fontFamily: lang === 'zh' ? zhFont : enFont, lineHeight, mb: 0, fontSize: nameFontSize }}>
                 {displayName}{nameAlt && nameAlt !== displayName ? ` / ${nameAlt}` : ''}
               </Typography>
               <Typography variant="body2" color="text.secondary"
@@ -253,8 +262,11 @@ export function SheetArticle({
 
   const renderCharacterList = (lang: Language, withBoth: boolean) => (
     <Box sx={{ flex: 1 }}>
-      {groupedScriptCharacters.map((group) => (
+      {groupedScriptCharacters.map((group, idx) => (
         <Box key={group.team} sx={{ mb: sectionMb, pageBreakInside: 'avoid', breakInside: 'avoid' }}>
+          {showSectionDivider && idx > 0 && (
+            <Divider sx={{ mb: sectionMb, borderBottomWidth: 2 }} />
+          )}
           {showSectionBg ? (
             <Chip
               label={teamLabels[lang][group.team]}

@@ -76,7 +76,7 @@ export function PrintPreviewPage({
     </FormControl>
   )
 
-  const ptSlider = (labelStr: string, field: 'fontSize' | 'titleFontSize' | 'sectionFontSize', min: number, max: number) => (
+  const ptSlider = (labelStr: string, field: 'fontSize' | 'nameFontSize' | 'titleFontSize' | 'sectionFontSize', min: number, max: number) => (
     <Box sx={{ mb: 1 }}>
       <Typography variant="caption" color="text.secondary">
         {labelStr}: {opts[field]}pt
@@ -155,6 +155,7 @@ export function PrintPreviewPage({
             {fontSelect(zh ? '英文字体' : 'English Font', 'fontKeyEn')}
             {fontSelect(zh ? '中文字体' : 'Chinese Font', 'fontKeyZh')}
             {ptSlider(zh ? '正文字号' : 'Body', 'fontSize', 7, 14)}
+            {ptSlider(zh ? '角色名字号' : 'Name', 'nameFontSize', 8, 18)}
             {ptSlider(zh ? '标题字号' : 'Title', 'titleFontSize', 12, 36)}
             {ptSlider(zh ? '区域标题字号' : 'Section', 'sectionFontSize', 7, 16)}
             <Box sx={{ mb: 1 }}>
@@ -189,6 +190,25 @@ export function PrintPreviewPage({
             <FormControlLabel
               control={<Switch checked={opts.showSectionBg} onChange={(e) => set('showSectionBg', e.target.checked)} size="small" />}
               label={<Typography variant="body2">{zh ? '显示区域背景色' : 'Section color background'}</Typography>}
+            />
+            <FormControlLabel
+              control={<Switch checked={opts.showSectionDivider} onChange={(e) => set('showSectionDivider', e.target.checked)} size="small" />}
+              label={<Typography variant="body2">{zh ? '显示区域分割线' : 'Section divider lines'}</Typography>}
+            />
+          </Box>
+
+          <Divider />
+
+          {/* Icon style */}
+          <Box>
+            {sectionLabel(zh ? '图标样式' : 'Icon Style')}
+            <FormControlLabel
+              control={<Switch checked={opts.showIconCircle} onChange={(e) => set('showIconCircle', e.target.checked)} size="small" />}
+              label={<Typography variant="body2">{zh ? '显示图标外圈' : 'Icon outer circle'}</Typography>}
+            />
+            <FormControlLabel
+              control={<Switch checked={opts.showCardOutline} onChange={(e) => set('showCardOutline', e.target.checked)} size="small" />}
+              label={<Typography variant="body2">{zh ? '显示卡片边框' : 'Card outline'}</Typography>}
             />
           </Box>
 
