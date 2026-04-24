@@ -51,6 +51,7 @@ export type PrintOptions = {
   fontSize: number          // body font size (pt)
   titleFontSize: number     // script title (pt)
   sectionFontSize: number   // section header e.g. Townsfolk (pt)
+  lineHeight: number        // text line height multiplier
   showSectionBg: boolean    // colored chip bg on section labels
   padding: 'compact' | 'normal' | 'spacious'
   blackAndWhite: boolean
@@ -66,16 +67,17 @@ export const DEFAULT_PRINT_OPTIONS: PrintOptions = {
   fontSize: 10,
   titleFontSize: 20,
   sectionFontSize: 11,
+  lineHeight: 1.2,
   showSectionBg: false,
   padding: 'compact',
   blackAndWhite: false,
   languageLayout: 'current',
 }
 
-export const PADDING_MAP: Record<PrintOptions['padding'], { card: number; gridSpacing: number; sectionMb: number }> = {
-  compact:  { card: 4,  gridSpacing: 0.5, sectionMb: 1   },
-  normal:   { card: 8,  gridSpacing: 1,   sectionMb: 1.5 },
-  spacious: { card: 12, gridSpacing: 1.5, sectionMb: 2   },
+export const PADDING_MAP: Record<PrintOptions['padding'], { card: number; gridSpacing: number; sectionMb: number; outerPadding: number }> = {
+  compact:  { card: 2,  gridSpacing: 0.25, sectionMb: 0.5, outerPadding: 8  },
+  normal:   { card: 6,  gridSpacing: 0.75, sectionMb: 1,   outerPadding: 12 },
+  spacious: { card: 12, gridSpacing: 1.5,  sectionMb: 2,   outerPadding: 16 },
 }
 
 export function applyPrintOptionsToPortal(opts: PrintOptions) {
@@ -86,5 +88,6 @@ export function applyPrintOptionsToPortal(opts: PrintOptions) {
     document.head.appendChild(styleEl)
   }
   const { w, h } = PAGE_SIZE_DEFS[opts.pageSize]
-  styleEl.textContent = `@media print { @page { size: ${w}mm ${h}mm; margin: 15mm; } }`
+  const margin = 15
+  styleEl.textContent = `@media print { @page { size: ${w}mm ${h}mm; margin: ${margin}mm; } }`
 }

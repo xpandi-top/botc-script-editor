@@ -157,6 +157,16 @@ export function PrintPreviewPage({
             {ptSlider(zh ? '正文字号' : 'Body', 'fontSize', 7, 14)}
             {ptSlider(zh ? '标题字号' : 'Title', 'titleFontSize', 12, 36)}
             {ptSlider(zh ? '区域标题字号' : 'Section', 'sectionFontSize', 7, 16)}
+            <Box sx={{ mb: 1 }}>
+              <Typography variant="caption" color="text.secondary">
+                {zh ? `行高: ${opts.lineHeight}` : `Line height: ${opts.lineHeight}`}
+              </Typography>
+              <Slider value={opts.lineHeight} min={0.9} max={1.8} step={0.05}
+                onChange={(_, v) => set('lineHeight', v as number)}
+                marks={[{ value: 0.9, label: '0.9' }, { value: 1.8, label: '1.8' }]}
+                sx={{ mt: 0.5, mb: 0 }}
+              />
+            </Box>
           </Box>
 
           <Divider />

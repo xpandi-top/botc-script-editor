@@ -84,6 +84,8 @@ export function SheetArticle({
   const cardPadding     = padDef ? `${padDef.card}px` : '8px'
   const gridSpacing     = padDef ? padDef.gridSpacing : 1
   const sectionMb       = padDef ? padDef.sectionMb : 2
+  const outerPadding    = padDef ? `${padDef.outerPadding}px` : '16px'
+  const lineHeight      = po?.lineHeight ?? 1.3
   const bw              = po?.blackAndWhite ?? false
   const langLayout      = po?.languageLayout ?? 'current'
   const isMixed         = langLayout === 'bilingual-mixed'
@@ -123,7 +125,7 @@ export function SheetArticle({
     )
 
   const rootSx = {
-    p: 2,
+    p: outerPadding,
     ...(fontSize       && { fontSize }),
     ...(baseFontFamily && { fontFamily: baseFontFamily }),
     ...(bw             && { filter: 'grayscale(100%)' }),
@@ -215,9 +217,9 @@ export function SheetArticle({
     const enFont = fontFamilyEn
 
     return (
-      <Grid key={character.id} size={{ xs: 12, sm: columns === 1 ? 12 : 6 }}>
+      <Grid key={character.id} size={{ xs: 12, sm: columns === 1 ? 12 : 6 }} item>
         <Paper variant="outlined" sx={{ p: cardPadding, position: 'relative', pageBreakInside: 'avoid', breakInside: 'avoid' }}>
-          <Box sx={{ display: 'flex', gap: 0.75, alignItems: 'flex-start' }}>
+          <Box sx={{ display: 'flex', gap: padDef ? `${padDef.card / 2}px` : '6px', alignItems: 'flex-start' }}>
             {icon ? (
               <Box component="img" src={icon} alt="" sx={{ width: iconSize, height: iconSize, objectFit: 'contain', flexShrink: 0 }} />
             ) : (
@@ -226,16 +228,16 @@ export function SheetArticle({
               </Box>
             )}
             <Box sx={{ flex: 1, minWidth: 0 }}>
-              <Typography variant="subtitle2" noWrap sx={{ fontFamily: lang === 'zh' ? zhFont : enFont, lineHeight: 1.2 }}>
+              <Typography variant="subtitle2" noWrap sx={{ fontFamily: lang === 'zh' ? zhFont : enFont, lineHeight, mb: 0 }}>
                 {displayName}{nameAlt && nameAlt !== displayName ? ` / ${nameAlt}` : ''}
               </Typography>
               <Typography variant="body2" color="text.secondary"
-                sx={{ fontFamily: lang === 'zh' ? zhFont : enFont, lineHeight: 1.3 }}
+                sx={{ fontFamily: lang === 'zh' ? zhFont : enFont, lineHeight, mb: 0 }}
                 dangerouslySetInnerHTML={{ __html: ability }}
               />
               {abilityAlt && abilityAlt !== ability && (
                 <Typography variant="body2" color="text.secondary"
-                  sx={{ fontFamily: lang === 'zh' ? enFont : zhFont, lineHeight: 1.3, opacity: 0.8, mt: 0.1 }}
+                  sx={{ fontFamily: lang === 'zh' ? enFont : zhFont, lineHeight, opacity: 0.8, mt: 0, mb: 0 }}
                   dangerouslySetInnerHTML={{ __html: abilityAlt }}
                 />
               )}
@@ -287,7 +289,7 @@ export function SheetArticle({
   )
 
   return (
-    <Paper className={`${className ?? ''} ${sheetDensityClass ?? ''}`} sx={rootSx}>
+    <Paper className={`sheet-root ${className ?? ''} ${sheetDensityClass ?? ''}`} sx={rootSx}>
       {isSeparate ? (
         <>
           {renderPage(language, false)}
