@@ -376,11 +376,6 @@ export function TokenOptionsPanel({ opts, onChange, scriptCharacters, language }
           </Select>
         </FormControl>
         <FormControlLabel
-          control={<Switch checked={opts.showCropMarks} size="small"
-            onChange={(e) => set('showCropMarks', e.target.checked)} />}
-          label={<Typography variant="body2">{zh ? '显示裁切线' : 'Crop marks'}</Typography>}
-        />
-        <FormControlLabel
           control={<Switch checked={opts.blackAndWhite} size="small"
             onChange={(e) => set('blackAndWhite', e.target.checked)} />}
           label={<Typography variant="body2">{zh ? '黑白打印' : 'Black & white'}</Typography>}

@@ -79,28 +79,6 @@ function borderShape(shape: TokenShape, cx: number, cy: number, r: number, sw: n
   return <circle cx={cx} cy={cy} r={rr} {...commonProps} />
 }
 
-function CropMarks({ S, color = '#aaa' }: { S: number; color?: string }) {
-  const GAP = 4
-  const LEN = 8
-  const lines = [
-    // top-left
-    [GAP, 0, GAP, LEN], [0, GAP, LEN, GAP],
-    // top-right
-    [S - GAP, 0, S - GAP, LEN], [S - LEN, GAP, S, GAP],
-    // bottom-left
-    [GAP, S - LEN, GAP, S], [0, S - GAP, LEN, S - GAP],
-    // bottom-right
-    [S - GAP, S - LEN, S - GAP, S], [S - LEN, S - GAP, S, S - GAP],
-  ] as const
-  return (
-    <>
-      {lines.map(([x1, y1, x2, y2], i) => (
-        <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={color} strokeWidth={0.5} />
-      ))}
-    </>
-  )
-}
-
 export function SingleToken({
   nameEn, nameZh, abilityEn, abilityZh, iconSrc,
   opts, diamPx,
@@ -175,10 +153,8 @@ export function SingleToken({
       ? wrapArcText(displayAbility, arcR, abilityFontPx, arcLineH)
       : { lines: [], radii: [] }
 
-  // Outer SVG size includes crop mark space
-  const CROP_SPACE = opts.showCropMarks ? 16 : 0
-  const outerS = S + CROP_SPACE * 2
-  const offset = CROP_SPACE
+  // Outer SVG size
+  const outerS = S
 
   return (
     <svg
@@ -189,29 +165,22 @@ export function SingleToken({
       xmlns="http://www.w3.org/2000/svg"
     >
       <defs>
-        {clipShape(opts.shape, cx + offset, cy + offset, r, `clip-${uid}`)}
+        {clipShape(opts.shape, cx, cy, r, `clip-${uid}`)}
         {/* Ability arc paths (concentric, top) */}
         {arcLines.map((_, i) => (
           <path key={i} id={`arc-${uid}-${i}`} fill="none"
-            d={`M ${cx + offset - arcRadii[i]} ${cy + offset} A ${arcRadii[i]} ${arcRadii[i]} 0 0 1 ${cx + offset + arcRadii[i]} ${cy + offset}`}
+            d={`M ${cx - arcRadii[i]} ${cy} A ${arcRadii[i]} ${arcRadii[i]} 0 0 1 ${cx + arcRadii[i]} ${cy}`}
           />
         ))}
         {/* Bottom name arc (counter-clockwise = through bottom) */}
         {isCircle && (
           <path id={`name-arc-${uid}`} fill="none"
-            d={`M ${cx + offset - nameArcR} ${cy + offset} A ${nameArcR} ${nameArcR} 0 0 0 ${cx + offset + nameArcR} ${cy + offset}`}
+            d={`M ${cx - nameArcR} ${cy} A ${nameArcR} ${nameArcR} 0 0 0 ${cx + nameArcR} ${cy}`}
           />
         )}
       </defs>
 
-      {/* Crop marks */}
-      {opts.showCropMarks && (
-        <g transform={`translate(${offset}, ${offset})`}>
-          <CropMarks S={S} />
-        </g>
-      )}
-
-      <g transform={`translate(${offset}, ${offset})`}>
+      <g>
         {/* Background (clipped) */}
         <g clipPath={`url(#clip-${uid})`}>
           <rect x={0} y={0} width={S} height={S} fill={bgFill} />

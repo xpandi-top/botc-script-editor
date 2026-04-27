@@ -35,7 +35,6 @@ export type TokenPrintOptions = {
   borderWidth: number
   borderColor: string
   blackAndWhite: boolean
-  showCropMarks: boolean
   // background
   bgType: 'none' | 'color' | 'image'
   bgColor: string
@@ -83,7 +82,6 @@ export const DEFAULT_TOKEN_OPTIONS: TokenPrintOptions = {
   borderWidth: 2,
   borderColor: '#333333',
   blackAndWhite: false,
-  showCropMarks: true,
   bgType: 'none',
   bgColor: '#ffffff',
   bgImage: null,
