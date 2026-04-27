@@ -1,16 +1,47 @@
 import { useId } from 'react'
 import { FONT_CSS } from '../PrintOptionsDialog'
 import type { TokenPrintOptions, TokenShape } from './types'
+import { nightOrder } from '../../catalog'
+
+function isChineseText(text: string): boolean {
+  return /[\u4e00-\u9fff]/.test(text)
+}
+
+function avgCharWidth(text: string, fontPx: number): number {
+  return isChineseText(text) ? fontPx * 1.0 : fontPx * 0.52
+}
+
+function splitIntoTokens(text: string): string[] {
+  if (isChineseText(text)) {
+    const chars: string[] = []
+    let i = 0
+    while (i < text.length) {
+      if (/[\u4e00-\u9fff]/.test(text[i])) {
+        chars.push(text[i])
+        i++
+      } else {
+        let eng = ''
+        while (i < text.length && !/[\u4e00-\u9fff]/.test(text[i])) {
+          eng += text[i]
+          i++
+        }
+        if (eng) chars.push(eng)
+      }
+    }
+    return chars
+  }
+  return text.split(' ')
+}
 
 /** Word-wrap ability text onto concentric arcs. Returns lines + their radii. */
 function wrapArcText(text: string, outerR: number, fontPx: number, lineH: number) {
-  const AVG_CHAR_W = fontPx * 0.52
+  const AVG_CHAR_W = avgCharWidth(text, fontPx)
   const lines: string[] = []
   const radii: number[] = []
   let currentR = outerR
   let currentLine = ''
   for (const word of text.split(' ')) {
-    const maxChars = Math.max(4, Math.floor(Math.PI * currentR / AVG_CHAR_W))
+    const maxChars = Math.max(2, Math.floor(Math.PI * currentR / AVG_CHAR_W))
     const candidate = currentLine ? `${currentLine} ${word}` : word
     if (candidate.length <= maxChars) {
       currentLine = candidate
@@ -23,6 +54,39 @@ function wrapArcText(text: string, outerR: number, fontPx: number, lineH: number
   return { lines, radii }
 }
 
+interface StraightLine { text: string; y: number }
+
+function wrapStraightCircleText(text: string, cy: number, cR: number, fontPx: number, lineH: number): StraightLine[] {
+  const AVG_CHAR_W = avgCharWidth(text, fontPx)
+  const lines: StraightLine[] = []
+  let currentY = cy - cR + fontPx * 0.5
+  let currentLine = ''
+  const bottomY = cy+ fontPx * 0.3
+
+  for (const token of splitIntoTokens(text)) {
+    const distFromCenter = Math.abs(currentY - cy)
+    const halfWidth = Math.max(0, Math.sqrt(Math.max(0, cR * cR - distFromCenter * distFromCenter)))
+    const maxChars = Math.max(2, Math.floor(2 * halfWidth / AVG_CHAR_W))
+    const separator = currentLine ? (isChineseText(token) ? '' : ' ') : ''
+    const candidate = currentLine ? currentLine + separator + token : token
+
+    if (candidate.length <= maxChars) {
+      currentLine = candidate
+    } else {
+      if (currentLine) {
+        lines.push({ text: currentLine, y: currentY })
+        currentY += lineH
+      }
+      currentLine = token
+      if (currentY + lineH > bottomY) break
+    }
+  }
+  if (currentLine && currentY + lineH <= bottomY) {
+    lines.push({ text: currentLine, y: currentY })
+  }
+  return lines
+}
+
 interface SingleTokenProps {
   nameEn: string
   nameZh: string
@@ -31,6 +95,8 @@ interface SingleTokenProps {
   iconSrc?: string
   opts: TokenPrintOptions
   diamPx: number
+  /** Character ID for wake indicators */
+  characterId?: string
   /** Custom tags: override name display */
   overrideLabel?: string
   /** Custom tags: override icon (emoji or img url) */
@@ -62,6 +128,16 @@ function clipShape(shape: TokenShape, cx: number, cy: number, r: number, id: str
   )
 }
 
+function getWakeIndicators(charId: string): { firstNight: boolean; otherNight: boolean; hasSetup: boolean } {
+  const firstNightList = nightOrder?.first_night ?? []
+  const otherNightList = nightOrder?.other_nights ?? []
+  return {
+    firstNight: firstNightList.includes(charId),
+    otherNight: otherNightList.includes(charId),
+    hasSetup: false,
+  }
+}
+
 function borderShape(shape: TokenShape, cx: number, cy: number, r: number, sw: number, color: string) {
   const half = sw / 2
   const rr = r - half
@@ -81,7 +157,7 @@ function borderShape(shape: TokenShape, cx: number, cy: number, r: number, sw: n
 
 export function SingleToken({
   nameEn, nameZh, abilityEn, abilityZh, iconSrc,
-  opts, diamPx,
+  opts, diamPx, characterId,
   overrideLabel, overrideIcon, overrideBgColor,
   centerText, centerFontPx,
 }: SingleTokenProps) {
@@ -91,11 +167,10 @@ export function SingleToken({
   const S = diamPx
   const cx = S / 2
   const cy = S / 2
-  const r  = S * 0.46
-  const bw = Math.max(0.5, opts.borderWidth * (S / 189) * 1.5)
-  const innerPad = S * 0.07    // breathing room from shape edge
+  const r  = (S - 2) / 2  // 1px gap from edge
+  const bw = Math.max(0, opts.borderWidth * (S / 189) * 1.5)
+  const innerPad = S * 0.01  // minimal breathing room
   const cR = r - innerPad - bw // usable content radius (excludes border stroke)
-  const arcR = cR * 0.95       // arc text radius (inside content area)
 
   const enFont = FONT_CSS[opts.fontKeyEn]
   const zhFont = FONT_CSS[opts.fontKeyZh]
@@ -120,8 +195,8 @@ export function SingleToken({
   const nameFontPx     = opts.nameFontSize * PT_TO_PX
   const abilityFontPx  = opts.abilityFontSize * PT_TO_PX
 
-  // Icon geometry — lower half, leaving upper area for ability text
-  const iconSize  = S * 0.36 * opts.iconSizeRatio
+  // Icon geometry — lower half of circle
+  const iconSize  = S * 0.42 * opts.iconSizeRatio  // larger for lower half
   const iconX     = cx - iconSize / 2
   const iconY     = cy - iconSize / 2 + S * 0.13
 
@@ -129,29 +204,47 @@ export function SingleToken({
   // For circle: single bottom arc ("EN · ZH")
   // For hex/square: flat centered text at bottom
   const isCircle = opts.shape === 'circle'
-  const nameArcR = cR * 1.1          // radius for bottom name arc (larger = arc closer to edge = lower)
+  const nameArcR = cR * .98          // radius for bottom name arc (larger = arc closer to edge = lower)
   const nameCombined =
     opts.nameDisplay === 'both' && nameEn && nameZh && nameEn !== nameZh
       ? `${nameEn} · ${nameZh}`
       : opts.nameDisplay === 'zh' ? nameZh : nameEn
   const nameDisplayStr = overrideLabel !== undefined ? overrideLabel : nameCombined
-  // Flat name fallback (hex/square)
-  const nameY = cy + cR * 0.88
+  // Flat name fallback (hex/square) - in lower half
+  const nameY = cy + cR * .98  
 
-  // Straight ability area — top portion, more height for long texts
+  // Straight ability area — top half of circle
   const abilityTop    = cy - cR
-  const abilityWidth  = cR * 1.55
-  const abilityHeight = cR * 0.90
+  const abilityWidth  = cR 
+  const abilityHeight = cR
 
   const textColor = opts.blackAndWhite ? '#000000' : '#1a1a1a'
   const grayFilter = opts.blackAndWhite ? 'grayscale(1)' : undefined
 
-  // Pre-compute multi-line arc text
-  const arcLineH = abilityFontPx * 1.5
+  // Pre-compute multi-line arc text (top half only)
+  const arcLineH = abilityFontPx * 1.01
   const { lines: arcLines, radii: arcRadii } =
     (displayAbility && opts.abilityStyle === 'arc')
       ? wrapArcText(displayAbility, arcR, abilityFontPx, arcLineH)
       : { lines: [], radii: [] }
+
+  // Pre-compute tapered straight text for circles (top half only)
+  const straightLines = (isCircle && displayAbility && opts.abilityStyle === 'straight')
+    ? wrapStraightCircleText(displayAbility, cy, cR*0.95, abilityFontPx, arcLineH)
+    : []
+
+  // Check if text was truncated
+  const arcTextTruncated = opts.abilityStyle === 'arc' && displayAbility && arcLines.length > 0 &&
+    arcLines.join(' ').length < displayAbility.replace(/\s+/g, ' ').trim().length
+  const straightTextTruncated = opts.abilityStyle === 'straight' && displayAbility && straightLines.length > 0 &&
+    straightLines.map(l => l.text).join('').length < displayAbility.replace(/\s+/g, '').length
+  const isTextTruncated = arcTextTruncated || straightTextTruncated
+
+  // Wake order and setup indicators
+  const indicators = characterId ? getWakeIndicators(characterId) : { firstNight: false, otherNight: false, hasSetup: false }
+  const hasSetupMarker = opts.showSetupIndicators && /\[.*?\]/.test(displayAbility)
+  const indicatorRadius = S * 0.04
+  const indicatorY = cy + S * 0.08  // below icon
 
   // Outer SVG size
   const outerS = S
@@ -218,6 +311,28 @@ export function SingleToken({
             </text>
           )}
 
+          {/* Truncated text indicator - subtle background pulse */}
+          {isTextTruncated && opts.abilityDisplay !== 'hidden' && (
+            <circle cx={cx} cy={cy} r={cR * 0.7} fill="#ffeb3b" opacity="0.15">
+              <animate attributeName="opacity" values="0.15;0.3;0.15" dur="1.5s" repeatCount="indefinite" />
+            </circle>
+          )}
+
+          {/* Wake order and setup indicators */}
+          {opts.showWakeIndicators && characterId && (
+            <>
+              {indicators.firstNight && (
+                <circle cx={cx - iconSize * 0.65} cy={indicatorY} r={indicatorRadius} fill="#22c55e" />
+              )}
+              {indicators.otherNight && (
+                <circle cx={cx + iconSize * 0.65} cy={indicatorY} r={indicatorRadius} fill="#22c55e" />
+              )}
+              {hasSetupMarker && (
+                <circle cx={cx + iconSize * 0.85} cy={indicatorY} r={indicatorRadius} fill="#f97316" />
+              )}
+            </>
+          )}
+
           {/* Large center text (seat numbers) */}
           {centerText && (
             <text
@@ -233,18 +348,39 @@ export function SingleToken({
           )}
 
           {/* Ability text — multi-line concentric arcs */}
-          {opts.abilityStyle === 'arc' && arcLines.map((line, i) => (
-            <text key={i} fill={textColor} fontSize={abilityFontPx}
-              fontFamily={opts.abilityDisplay === 'zh' ? zhFont : enFont}>
-              <textPath href={`#arc-${uid}-${i}`} startOffset="50%"
-                textAnchor="middle" dy={abilityFontPx * 1.05}>
-                {line}
-              </textPath>
-            </text>
-          ))}
+          {opts.abilityStyle === 'arc' && arcLines.map((line, i) => {
+            const font = opts.abilityDisplay === 'both'
+              ? (isChineseText(line) ? zhFont : enFont)
+              : (opts.abilityDisplay === 'zh' ? zhFont : enFont)
+            return (
+              <text key={i} fill={textColor} fontSize={abilityFontPx} fontFamily={font}>
+                <textPath href={`#arc-${uid}-${i}`} startOffset="50%"
+                  textAnchor="middle" dy={abilityFontPx * 1.05}>
+                  {line}
+                </textPath>
+              </text>
+            )
+          })}
 
-          {/* Ability text — straight (foreignObject for wrapping) */}
-          {displayAbility && opts.abilityStyle === 'straight' && (
+          {/* Ability text — straight with tapered layout for circles */}
+          {isCircle && straightLines.length > 0 && (
+            straightLines.map((line, i) => {
+              const font = opts.abilityDisplay === 'both'
+                ? (isChineseText(line.text) ? zhFont : enFont)
+                : (opts.abilityDisplay === 'zh' ? zhFont : enFont)
+              return (
+                <text key={i} fill={textColor} fontSize={abilityFontPx}
+                  fontFamily={font}
+                  textAnchor="middle" dominantBaseline="middle"
+                  x={cx} y={line.y}>
+                  {line.text}
+                </text>
+              )
+            })
+          )}
+
+          {/* Ability text — straight for non-circle (hex/square) */}
+          {!isCircle && displayAbility && opts.abilityStyle === 'straight' && (
             <foreignObject
               x={cx - abilityWidth / 2}
               y={abilityTop}
@@ -256,7 +392,9 @@ export function SingleToken({
                 xmlns="http://www.w3.org/1999/xhtml"
                 style={{
                   fontSize: `${abilityFontPx}px`,
-                  fontFamily: opts.abilityDisplay === 'zh' ? zhFont : enFont,
+                  fontFamily: opts.abilityDisplay === 'both'
+                    ? `${enFont}, ${zhFont}`
+                    : (opts.abilityDisplay === 'zh' ? zhFont : enFont),
                   textAlign: 'center',
                   lineHeight: 1.25,
                   color: textColor,

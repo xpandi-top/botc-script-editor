@@ -3,10 +3,9 @@ import { Box, Button, FormControl, MenuItem, Paper, Select, Typography } from '@
 import PrintIcon from '@mui/icons-material/Print'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { TokenOptionsPanel } from './TokenOptionsPanel'
-import { TokenGrid, TokenPrintPortal } from './TokenGrid'
-import { PAGE_SIZE_DEFS, PAGE_PREVIEW_WIDTH_PX } from '../PrintOptionsDialog'
+import { TokenPageGrid, TokenPrintPortal } from './TokenPageGrid'
+import { PAGE_SIZE_DEFS } from '../PrintOptionsDialog'
 import type { TokenPrintOptions } from './types'
-import { MM_TO_PX } from './types'
 import type { EditableScript, Language, ResolvedScriptCharacter } from '../../types'
 
 interface Props {
@@ -33,12 +32,9 @@ export function PrintStudioPage({ opts, onOptionsChange, onClose, scriptCharacte
       document.head.appendChild(styleEl)
     }
     const { w, h } = PAGE_SIZE_DEFS[opts.pageSize]
-    styleEl.textContent = `@media print { @page { size: ${w}mm ${h}mm; margin: 15mm; } }`
+    styleEl.textContent = `@media print { @page { size: ${w}mm ${h}mm; margin: ${opts.marginMm}mm; } }`
     setTimeout(() => window.print(), 80)
   }
-
-  const previewW = PAGE_PREVIEW_WIDTH_PX[opts.pageSize]
-  const previewH = Math.round((PAGE_SIZE_DEFS[opts.pageSize].h - 30) * MM_TO_PX)
 
   const selectedCount = opts.mode === 'characters'
     ? opts.selectedCharacterIds.length
@@ -103,46 +99,24 @@ export function PrintStudioPage({ opts, onOptionsChange, onClose, scriptCharacte
           alignItems: 'center',
           gap: 2,
         }}>
-          <Typography variant="caption" color="text.secondary" sx={{ alignSelf: 'flex-start', maxWidth: previewW }}>
-            {PAGE_SIZE_DEFS[opts.pageSize].label} — {zh ? '以下为预览' : 'Preview'}
-          </Typography>
-
-          {/* Paper simulation */}
-          <Box sx={{ width: previewW, maxWidth: '100%', position: 'relative' }}>
-            {/* Page break indicator */}
-            <Box sx={{
-              position: 'absolute', top: previewH, left: 0, right: 0,
-              height: '2px', bgcolor: 'error.light', opacity: 0.6, zIndex: 10,
-              '&::after': {
-                content: `"${zh ? '↑ 第1页结束' : '↑ page 1 end'}"`,
-                position: 'absolute', right: 8, top: 2,
-                fontSize: '0.65rem', color: 'error.main',
-              },
-            }} />
-
-            <Box sx={{ bgcolor: 'white', boxShadow: '0 4px 24px rgba(0,0,0,0.18)', borderRadius: 1, p: '15mm', minHeight: 200 }}>
-              {selectedCount === 0 ? (
-                <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
-                  {opts.mode === 'characters'
-                    ? (zh ? '请在左侧选择角色' : 'Select characters on the left')
-                    : (zh ? '配置标签后预览将显示' : 'Configure tags to see preview')}
-                </Typography>
-              ) : (
-                <TokenGrid
-                  opts={opts}
-                  characters={[]}
-                  containerWidth={previewW}
-                />
-              )}
+          {selectedCount === 0 ? (
+            <Box sx={{ bgcolor: 'white', boxShadow: '0 4px 24px rgba(0,0,0,0.18)', borderRadius: 1, p: `${Math.max(0, opts.marginMm)}mm`, minHeight: 200 }}>
+              <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
+                {opts.mode === 'characters'
+                  ? (zh ? '请在左侧选择角色' : 'Select characters on the left')
+                  : (zh ? '配置标签后预览将显示' : 'Configure tags to see preview')}
+              </Typography>
             </Box>
-          </Box>
+          ) : (
+            <TokenPageGrid opts={opts} />
+          )}
         </Box>
       </Box>
 
       {/* Print portal */}
       {createPortal(
         <div className="token-print-portal" aria-hidden="true">
-          <TokenPrintPortal opts={opts} language={language} />
+          <TokenPrintPortal opts={opts} />
         </div>,
         document.body,
       )}

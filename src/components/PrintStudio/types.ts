@@ -26,12 +26,14 @@ export type MarkerDef = {
 export type TokenPrintOptions = {
   mode: 'characters' | 'custom-tags'
   pageSize: PageSize
+  pageLang: 'en' | 'zh' | 'auto'
   fontKeyEn: FontKey
   fontKeyZh: FontKey
   // token appearance
   shape: TokenShape
   diameterMm: number
   gapMm: number
+  marginMm: number        // page margin in mm (default 10)
   borderWidth: number
   borderColor: string
   blackAndWhite: boolean
@@ -46,7 +48,7 @@ export type TokenPrintOptions = {
   abilityStyle: 'arc' | 'straight'
   nameFontSize: number     // pt
   abilityFontSize: number  // pt
-  iconSizeRatio: number    // 0.5–1.5, scales icon relative to default
+  iconSizeRatio: number    // 0.5–2.0, scales icon relative to default
   // characters mode
   selectedCharacterIds: string[]
   // watermark
@@ -60,6 +62,9 @@ export type TokenPrintOptions = {
   numberFontSize: number
   numberBgColor: string
   markers: MarkerDef[]
+  // indicators
+  showWakeIndicators: boolean
+  showSetupIndicators: boolean
 }
 
 export const DEFAULT_MARKERS: MarkerDef[] = [
@@ -74,11 +79,13 @@ export const DEFAULT_MARKERS: MarkerDef[] = [
 export const DEFAULT_TOKEN_OPTIONS: TokenPrintOptions = {
   mode: 'characters',
   pageSize: 'letter',
+  pageLang: 'auto',
   fontKeyEn: 'sans',
   fontKeyZh: 'sans',
   shape: 'circle',
   diameterMm: 50,
   gapMm: 4,
+  marginMm: 10,
   borderWidth: 2,
   borderColor: '#333333',
   blackAndWhite: false,
@@ -110,6 +117,8 @@ export const DEFAULT_TOKEN_OPTIONS: TokenPrintOptions = {
   numberFontSize: 24,
   numberBgColor: '#dddddd',
   markers: DEFAULT_MARKERS,
+  showWakeIndicators: false,
+  showSetupIndicators: false,
 }
 
 export const MM_TO_PX = 3.7795

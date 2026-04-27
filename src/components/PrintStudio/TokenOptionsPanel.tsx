@@ -242,6 +242,15 @@ export function TokenOptionsPanel({ opts, onChange, scriptCharacters, language }
             marks={[{ value: 0, label: '0' }, { value: 5, label: '5' }, { value: 10, label: '10' }]}
             size="small" sx={{ mt: 0.5, mb: 0 }} />
         </Box>
+        <Box>
+          <Typography variant="caption" color="text.secondary">
+            {zh ? `页边距: ${opts.marginMm}mm` : `Margin: ${opts.marginMm}mm`}
+          </Typography>
+          <Slider value={opts.marginMm} min={0} max={30} step={1}
+            onChange={(_, v) => set('marginMm', v as number)}
+            marks={[{ value: 0, label: '0' }, { value: 15, label: '15' }, { value: 30, label: '30' }]}
+            size="small" sx={{ mt: 0.5, mb: 0 }} />
+        </Box>
       </Box>
 
       <Divider />
@@ -286,9 +295,9 @@ export function TokenOptionsPanel({ opts, onChange, scriptCharacters, language }
             {opts.abilityDisplay !== 'hidden' && ptSlider(zh ? '能力文字字号' : 'Ability size', 'abilityFontSize', 3, 10)}
             <Box sx={{ mb: 1 }}>
               <Typography variant="caption" color="text.secondary">{zh ? '图标大小' : 'Icon size'}: {Math.round(opts.iconSizeRatio * 100)}%</Typography>
-              <Slider value={opts.iconSizeRatio} min={0.4} max={1.6} step={0.05}
+              <Slider value={opts.iconSizeRatio} min={0.4} max={2.0} step={0.05}
                 onChange={(_, v) => set('iconSizeRatio', v as number)}
-                marks={[{ value: 0.4, label: '40%' }, { value: 1.0, label: '100%' }, { value: 1.6, label: '160%' }]}
+                marks={[{ value: 0.5, label: '50%' }, { value: 1.0, label: '100%' }, { value: 1.5, label: '150%' }, { value: 2.0, label: '200%' }]}
                 size="small" sx={{ mt: 0.5, mb: 0 }} />
             </Box>
           </Box>
@@ -376,6 +385,25 @@ export function TokenOptionsPanel({ opts, onChange, scriptCharacters, language }
             ))}
           </Select>
         </FormControl>
+        <FormControl size="small" fullWidth sx={{ mb: 1 }}>
+          <InputLabel>{zh ? '页面语言' : 'Page language'}</InputLabel>
+          <Select value={opts.pageLang} label={zh ? '页面语言' : 'Page language'}
+            onChange={(e) => set('pageLang', e.target.value as TokenPrintOptions['pageLang'])}>
+            <MenuItem value="auto">{zh ? '自动' : 'Auto'}</MenuItem>
+            <MenuItem value="en">English</MenuItem>
+            <MenuItem value="zh">中文</MenuItem>
+          </Select>
+        </FormControl>
+        <FormControlLabel
+          control={<Switch checked={opts.showWakeIndicators} size="small"
+            onChange={(e) => set('showWakeIndicators', e.target.checked)} />}
+          label={<Typography variant="body2">{zh ? '显示唤醒顺序标记' : 'Wake order indicators'}</Typography>}
+        />
+        <FormControlLabel
+          control={<Switch checked={opts.showSetupIndicators} size="small"
+            onChange={(e) => set('showSetupIndicators', e.target.checked)} />}
+          label={<Typography variant="body2">{zh ? '显示设置标记' : 'Setup indicators'}</Typography>}
+        />
         <FormControlLabel
           control={<Switch checked={opts.blackAndWhite} size="small"
             onChange={(e) => set('blackAndWhite', e.target.checked)} />}
