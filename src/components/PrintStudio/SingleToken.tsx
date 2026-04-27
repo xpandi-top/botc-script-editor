@@ -225,7 +225,7 @@ export function SingleToken({
   const arcLineH = abilityFontPx * 1.01
   const { lines: arcLines, radii: arcRadii } =
     (displayAbility && opts.abilityStyle === 'arc')
-      ? wrapArcText(displayAbility, arcR, abilityFontPx, arcLineH)
+      ? wrapArcText(displayAbility, cR * 0.85, abilityFontPx, arcLineH)
       : { lines: [], radii: [] }
 
   // Pre-compute tapered straight text for circles (top half only)
