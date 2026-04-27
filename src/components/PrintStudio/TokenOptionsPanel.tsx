@@ -237,8 +237,9 @@ export function TokenOptionsPanel({ opts, onChange, scriptCharacters, language }
           <Typography variant="caption" color="text.secondary">
             {zh ? `间距: ${opts.gapMm}mm` : `Gap: ${opts.gapMm}mm`}
           </Typography>
-          <Slider value={opts.gapMm} min={1} max={10} step={0.5}
+          <Slider value={opts.gapMm} min={0} max={10} step={0.5}
             onChange={(_, v) => set('gapMm', v as number)}
+            marks={[{ value: 0, label: '0' }, { value: 5, label: '5' }, { value: 10, label: '10' }]}
             size="small" sx={{ mt: 0.5, mb: 0 }} />
         </Box>
       </Box>
