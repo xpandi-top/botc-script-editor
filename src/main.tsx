@@ -61,12 +61,14 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         '#root': { minHeight: '100vh' },
         '@media screen': {
           '.print-portal': { display: 'none' },
+          '.token-print-portal': { display: 'none' },
         },
         '@media print': {
           '#root': { display: 'none' },
           '.print-portal': { display: 'block' },
           '.print-portal .MuiPaper-root': { boxShadow: 'none' },
           '.print-portal .sheet-root': { boxShadow: 'none', border: 'none' },
+          '.token-print-portal': { display: 'block' },
         },
       }} />
       <App />

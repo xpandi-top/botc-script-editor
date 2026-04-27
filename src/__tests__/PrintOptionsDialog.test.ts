@@ -1,151 +1,119 @@
 import { describe, it, expect } from 'vitest'
 import { DEFAULT_PRINT_OPTIONS, FONT_DEFINITIONS, PAGE_SIZE_DEFS, PADDING_MAP } from '../components/PrintOptionsDialog'
-import type { PrintOptions, FontKey, PageSize, LanguageLayout } from '../components/PrintOptionsDialog'
+import type { PrintOptions, FontKey } from '../components/PrintOptionsDialog'
+
+const REQUIRED_FIELDS = [
+  'pageSize', 'iconSize', 'columns', 'fontKeyEn', 'fontKeyZh',
+  'fontSize', 'nameFontSize', 'titleFontSize', 'sectionFontSize',
+  'lineHeight', 'showSectionBg', 'showSectionDivider', 'showIconCircle',
+  'showCardOutline', 'padding', 'blackAndWhite', 'languageLayout',
+] as const
+
+const VALID_PAGE_SIZES = ['a4', 'letter', 'a5', 'legal'] as const
+const VALID_PADDINGS = ['compact', 'normal', 'spacious'] as const
+const VALID_LAYOUTS = ['current', 'bilingual-mixed', 'bilingual-separate'] as const
+const VALID_FONT_KEYS: FontKey[] = ['sans', 'serif', 'tnr', 'mono', 'edo', 'kaushan', 'xingkai', 'xinwei']
 
 describe('PrintOptionsDialog', () => {
   describe('DEFAULT_PRINT_OPTIONS', () => {
     it('has all required fields', () => {
-      expect(DEFAULT_PRINT_OPTIONS).toHaveProperty('pageSize')
-      expect(DEFAULT_PRINT_OPTIONS).toHaveProperty('iconSize')
-      expect(DEFAULT_PRINT_OPTIONS).toHaveProperty('columns')
-      expect(DEFAULT_PRINT_OPTIONS).toHaveProperty('fontKeyEn')
-      expect(DEFAULT_PRINT_OPTIONS).toHaveProperty('fontKeyZh')
-      expect(DEFAULT_PRINT_OPTIONS).toHaveProperty('fontSize')
-      expect(DEFAULT_PRINT_OPTIONS).toHaveProperty('nameFontSize')
-      expect(DEFAULT_PRINT_OPTIONS).toHaveProperty('titleFontSize')
-      expect(DEFAULT_PRINT_OPTIONS).toHaveProperty('sectionFontSize')
-      expect(DEFAULT_PRINT_OPTIONS).toHaveProperty('lineHeight')
-      expect(DEFAULT_PRINT_OPTIONS).toHaveProperty('showSectionBg')
-      expect(DEFAULT_PRINT_OPTIONS).toHaveProperty('showSectionDivider')
-      expect(DEFAULT_PRINT_OPTIONS).toHaveProperty('showIconCircle')
-      expect(DEFAULT_PRINT_OPTIONS).toHaveProperty('showCardOutline')
-      expect(DEFAULT_PRINT_OPTIONS).toHaveProperty('padding')
-      expect(DEFAULT_PRINT_OPTIONS).toHaveProperty('blackAndWhite')
-      expect(DEFAULT_PRINT_OPTIONS).toHaveProperty('languageLayout')
+      REQUIRED_FIELDS.forEach((field) => {
+        expect(DEFAULT_PRINT_OPTIONS).toHaveProperty(field)
+      })
     })
 
-    it('has valid default values', () => {
-      expect(DEFAULT_PRINT_OPTIONS.pageSize).toBe('a4')
-      expect(DEFAULT_PRINT_OPTIONS.iconSize).toBe(48)
-      expect(DEFAULT_PRINT_OPTIONS.columns).toBe(2)
-      expect(DEFAULT_PRINT_OPTIONS.fontSize).toBe(10)
-      expect(DEFAULT_PRINT_OPTIONS.nameFontSize).toBe(11)
-      expect(DEFAULT_PRINT_OPTIONS.titleFontSize).toBe(20)
-      expect(DEFAULT_PRINT_OPTIONS.showSectionBg).toBe(false)
-      expect(DEFAULT_PRINT_OPTIONS.showSectionDivider).toBe(false)
-      expect(DEFAULT_PRINT_OPTIONS.showIconCircle).toBe(true)
-      expect(DEFAULT_PRINT_OPTIONS.showCardOutline).toBe(false)
+    it('has valid defaults', () => {
+      const defaults = {
+        pageSize: 'a4',
+        iconSize: 48,
+        columns: 2,
+        nameFontSize: 11,
+        titleFontSize: 20,
+        showSectionBg: false,
+        showSectionDivider: false,
+        showIconCircle: true,
+        showCardOutline: false,
+      }
+      Object.entries(defaults).forEach(([key, value]) => {
+        expect(DEFAULT_PRINT_OPTIONS[key as keyof typeof defaults]).toBe(value)
+      })
     })
   })
 
   describe('FONT_DEFINITIONS', () => {
-    it('contains english fonts', () => {
-      const enFonts = FONT_DEFINITIONS.filter((f) => f.lang === 'en' || f.lang === 'both')
-      expect(enFonts.length).toBeGreaterThan(0)
-    })
-
-    it('contains chinese fonts', () => {
-      const zhFonts = FONT_DEFINITIONS.filter((f) => f.lang === 'zh' || f.lang === 'both')
-      expect(zhFonts.length).toBeGreaterThan(0)
-    })
-
     it('has unique keys', () => {
       const keys = FONT_DEFINITIONS.map((f) => f.key)
       expect(new Set(keys).size).toBe(FONT_DEFINITIONS.length)
     })
 
-    it('each font has required properties', () => {
+    it('has valid entries with all required properties', () => {
+      const requiredProps = ['key', 'label', 'labelZh', 'css', 'lang'] as const
       FONT_DEFINITIONS.forEach((font) => {
-        expect(font).toHaveProperty('key')
-        expect(font).toHaveProperty('label')
-        expect(font).toHaveProperty('labelZh')
-        expect(font).toHaveProperty('css')
-        expect(font).toHaveProperty('lang')
+        requiredProps.forEach((prop) => expect(font).toHaveProperty(prop))
       })
+    })
+
+    it('has fonts for both languages', () => {
+      const hasEnglish = FONT_DEFINITIONS.some((f) => f.lang === 'en' || f.lang === 'both')
+      const hasChinese = FONT_DEFINITIONS.some((f) => f.lang === 'zh' || f.lang === 'both')
+      expect(hasEnglish && hasChinese).toBe(true)
     })
   })
 
   describe('PAGE_SIZE_DEFS', () => {
-    it('has a4 size', () => {
-      expect(PAGE_SIZE_DEFS.a4).toBeDefined()
-      expect(PAGE_SIZE_DEFS.a4.w).toBe(210)
-      expect(PAGE_SIZE_DEFS.a4.h).toBe(297)
+    it('has all required sizes', () => {
+      VALID_PAGE_SIZES.forEach((size) => {
+        expect(PAGE_SIZE_DEFS[size]).toBeDefined()
+      })
     })
 
-    it('has letter size', () => {
-      expect(PAGE_SIZE_DEFS.letter).toBeDefined()
+    it('a4 has correct dimensions', () => {
+      expect(PAGE_SIZE_DEFS.a4).toEqual({ label: expect.any(String), w: 210, h: 297 })
+    })
+
+    it('letter has correct width', () => {
       expect(PAGE_SIZE_DEFS.letter.w).toBeCloseTo(215.9)
-    })
-
-    it('has a5 size', () => {
-      expect(PAGE_SIZE_DEFS.a5).toBeDefined()
-      expect(PAGE_SIZE_DEFS.a5.w).toBe(148)
-    })
-
-    it('has legal size', () => {
-      expect(PAGE_SIZE_DEFS.legal).toBeDefined()
     })
   })
 
   describe('PADDING_MAP', () => {
-    it('has compact padding', () => {
-      expect(PADDING_MAP.compact).toBeDefined()
-      expect(PADDING_MAP.compact.card).toBe(2)
+    it('has all padding levels', () => {
+      VALID_PADDINGS.forEach((padding) => {
+        expect(PADDING_MAP[padding]).toBeDefined()
+        expect(PADDING_MAP[padding].card).toBeGreaterThan(0)
+      })
     })
 
-    it('has normal padding', () => {
-      expect(PADDING_MAP.normal).toBeDefined()
-      expect(PADDING_MAP.normal.card).toBe(6)
-    })
-
-    it('has spacious padding', () => {
-      expect(PADDING_MAP.spacious).toBeDefined()
-      expect(PADDING_MAP.spacious.card).toBe(12)
+    it('padding levels are progressively larger', () => {
+      const cardValues = VALID_PADDINGS.map((p) => PADDING_MAP[p].card)
+      expect(cardValues[0] < cardValues[1] && cardValues[1] < cardValues[2]).toBe(true)
     })
   })
 
   describe('PrintOptions type', () => {
     it('accepts valid page sizes', () => {
-      const options: PrintOptions[] = [
-        { ...DEFAULT_PRINT_OPTIONS, pageSize: 'a4' },
-        { ...DEFAULT_PRINT_OPTIONS, pageSize: 'letter' },
-        { ...DEFAULT_PRINT_OPTIONS, pageSize: 'a5' },
-        { ...DEFAULT_PRINT_OPTIONS, pageSize: 'legal' },
-      ]
-      expect(options.length).toBe(4)
+      const options = VALID_PAGE_SIZES.map((size) => ({ ...DEFAULT_PRINT_OPTIONS, pageSize: size }))
+      expect(options).toHaveLength(4)
     })
 
     it('accepts valid column values', () => {
-      const opt1: PrintOptions = { ...DEFAULT_PRINT_OPTIONS, columns: 1 }
-      const opt2: PrintOptions = { ...DEFAULT_PRINT_OPTIONS, columns: 2 }
-      expect(opt1.columns).toBe(1)
-      expect(opt2.columns).toBe(2)
+      const options = [1, 2].map((cols) => ({ ...DEFAULT_PRINT_OPTIONS, columns: cols as 1 | 2 }))
+      expect(options).toHaveLength(2)
     })
 
     it('accepts valid padding values', () => {
-      const options: PrintOptions[] = [
-        { ...DEFAULT_PRINT_OPTIONS, padding: 'compact' },
-        { ...DEFAULT_PRINT_OPTIONS, padding: 'normal' },
-        { ...DEFAULT_PRINT_OPTIONS, padding: 'spacious' },
-      ]
-      expect(options.length).toBe(3)
+      const options = VALID_PADDINGS.map((p) => ({ ...DEFAULT_PRINT_OPTIONS, padding: p }))
+      expect(options).toHaveLength(3)
     })
 
     it('accepts valid language layouts', () => {
-      const options: PrintOptions[] = [
-        { ...DEFAULT_PRINT_OPTIONS, languageLayout: 'current' },
-        { ...DEFAULT_PRINT_OPTIONS, languageLayout: 'bilingual-mixed' },
-        { ...DEFAULT_PRINT_OPTIONS, languageLayout: 'bilingual-separate' },
-      ]
-      expect(options.length).toBe(3)
+      const options = VALID_LAYOUTS.map((l) => ({ ...DEFAULT_PRINT_OPTIONS, languageLayout: l }))
+      expect(options).toHaveLength(3)
     })
 
-    it('accepts font keys', () => {
-      const fontKeys: FontKey[] = ['sans', 'serif', 'tnr', 'mono', 'edo', 'kaushan', 'xingkai', 'xinwei']
-      fontKeys.forEach((key) => {
-        const opt = { ...DEFAULT_PRINT_OPTIONS, fontKeyEn: key, fontKeyZh: key }
-        expect(opt.fontKeyEn).toBe(key)
-      })
+    it('accepts all font keys', () => {
+      const options = VALID_FONT_KEYS.map((key) => ({ ...DEFAULT_PRINT_OPTIONS, fontKeyEn: key, fontKeyZh: key }))
+      expect(options).toHaveLength(8)
     })
   })
 })

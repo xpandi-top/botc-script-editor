@@ -21,6 +21,9 @@ import PrintIcon from '@mui/icons-material/Print'
 import { PrintPreviewPage } from './components/PrintPreviewPage'
 import { DEFAULT_PRINT_OPTIONS } from './components/PrintOptionsDialog'
 import type { PrintOptions } from './components/PrintOptionsDialog'
+import { PrintStudioPage } from './components/PrintStudio/PrintStudioPage'
+import { DEFAULT_TOKEN_OPTIONS } from './components/PrintStudio/types'
+import type { TokenPrintOptions } from './components/PrintStudio/types'
 import { ScriptsTab } from './components/tabs/ScriptsTab'
 import { SettingsTab } from './components/tabs/SettingsTab'
 import { CharactersTab } from './components/tabs/CharactersTab'
@@ -49,7 +52,7 @@ import type {
   Team,
 } from './types'
 
-type TabKey = 'scripts' | 'settings' | 'characters' | 'storyteller'
+type TabKey = 'scripts' | 'settings' | 'characters' | 'storyteller' | 'printstudio'
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabKey>('scripts')
@@ -76,6 +79,7 @@ export default function App() {
   const [showWakeOrderPreview, setShowWakeOrderPreview] = useState(true)
   const [printPreviewOpen, setPrintPreviewOpen] = useState(false)
   const [printOptions, setPrintOptions] = useState<PrintOptions>(DEFAULT_PRINT_OPTIONS)
+  const [tokenPrintOptions, setTokenPrintOptions] = useState<TokenPrintOptions>(DEFAULT_TOKEN_OPTIONS)
   const [saveStatus, setSaveStatus] = useState('')
   const [selectedCharacterId, setSelectedCharacterId] = useState<string>(allCharacters[0]?.id ?? '')
 
@@ -275,6 +279,7 @@ export default function App() {
   }
 
   const storytellerTabLabel = uiLanguage === 'zh' ? '主持助手' : 'Storyteller Helper'
+  const printStudioTabLabel = uiLanguage === 'zh' ? '打印工坊' : 'Print Studio'
 
   return (
     <Container maxWidth="xl" sx={{ py: { xs: 0, sm: 3 }, px: { xs: 0, sm: 3 }, minHeight: '100vh' }}>
@@ -318,6 +323,7 @@ export default function App() {
           <Tab label={uiText.settings} value="settings" />
           <Tab label={uiText.allCharacters} value="characters" />
           <Tab label={storytellerTabLabel} value="storyteller" />
+          <Tab label={printStudioTabLabel} value="printstudio" />
         </Tabs>
       </Paper>
 
@@ -391,6 +397,20 @@ export default function App() {
           setSelectedCharacterId={setSelectedCharacterId}
           toggleTeam={(team) => setSelectedTeams((cur) => cur.includes(team) ? cur.filter((t) => t !== team) : [...cur, team])}
           toggleEdition={(edition) => setSelectedEditions((cur) => cur.includes(edition) ? cur.filter((e) => e !== edition) : [...cur, edition])}
+        />
+      )}
+
+      {activeTab === 'printstudio' && (
+        <PrintStudioPage
+          opts={tokenPrintOptions}
+          onOptionsChange={setTokenPrintOptions}
+          onClose={() => setActiveTab('scripts')}
+          scriptCharacters={activeScriptCharacters}
+          language={uiLanguage}
+          scripts={scripts}
+          activeSlug={activeSlug}
+          onScriptChange={setActiveSlug}
+          getScriptTitle={getScriptTitle}
         />
       )}
 
