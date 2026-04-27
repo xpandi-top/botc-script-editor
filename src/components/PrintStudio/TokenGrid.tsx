@@ -2,6 +2,7 @@ import { Box } from '@mui/material'
 import { SingleToken } from './SingleToken'
 import { MM_TO_PX } from './types'
 import type { TokenPrintOptions, MarkerDef } from './types'
+import { PAGE_SIZE_DEFS } from '../PrintOptionsDialog'
 import {
   getDisplayName,
   getAbilityText,
@@ -122,7 +123,7 @@ export function TokenGrid({ opts, containerWidth: _containerWidth, forPrint: _fo
 
 // Standalone export for print portal (no dependency on preview width)
 export function TokenPrintPortal({ opts, language: _language }: { opts: TokenPrintOptions; language: Language }) {
-  const { w } = { a4: { w: 210, h: 297 }, letter: { w: 215.9, h: 279.4 }, a5: { w: 148, h: 210 }, legal: { w: 215.9, h: 355.6 } }[opts.pageSize]
+  const { w } = PAGE_SIZE_DEFS[opts.pageSize]
   const printableWidth = (w - 30) * MM_TO_PX
   const characters = buildCharacterTokens(opts.selectedCharacterIds)
   return (

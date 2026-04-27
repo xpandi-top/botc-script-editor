@@ -131,7 +131,7 @@ export function PrintStudioPage({ opts, onOptionsChange, onClose, scriptCharacte
                 <TokenGrid
                   opts={opts}
                   characters={[]}
-                  containerWidth={previewW - 30 * MM_TO_PX}
+                  containerWidth={previewW}
                 />
               )}
             </Box>

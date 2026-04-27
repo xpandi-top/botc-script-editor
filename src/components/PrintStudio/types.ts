@@ -73,7 +73,7 @@ export const DEFAULT_MARKERS: MarkerDef[] = [
 
 export const DEFAULT_TOKEN_OPTIONS: TokenPrintOptions = {
   mode: 'characters',
-  pageSize: 'a4',
+  pageSize: 'letter',
   fontKeyEn: 'sans',
   fontKeyZh: 'sans',
   shape: 'circle',
