@@ -89,6 +89,7 @@ export default function App() {
   const [selectedEditions, setSelectedEditions] = useState<string[]>([])
   const [editorQuery, setEditorQuery] = useState('')
   const [isEditMode, setIsEditMode] = useState(false)
+  useEffect(() => { setIsEditMode(false) }, [activeSlug])
   const [showWakeOrderPreview, setShowWakeOrderPreview] = useState(true)
   const [printPreviewOpen, setPrintPreviewOpen] = useState(false)
   const [printOptions, setPrintOptions] = useState<PrintOptions>(DEFAULT_PRINT_OPTIONS)
@@ -269,6 +270,23 @@ export default function App() {
     setSaveStatus('')
   }
 
+  function duplicateScript(slug: string) {
+    const source = scripts.find((s) => s.slug === slug)
+    if (!source) return
+    const baseSlug = `${slug}-copy`
+    let nextSlug = baseSlug
+    let index = 2
+    while (scripts.some((s) => s.slug === nextSlug)) { nextSlug = `${baseSlug}-${index}`; index++ }
+    const copy: EditableScript = {
+      ...JSON.parse(JSON.stringify(source)),
+      slug: nextSlug,
+      sourceFile: `${nextSlug}.json`,
+    }
+    setScripts((cur) => [...cur, copy])
+    setActiveSlug(nextSlug)
+    setSaveStatus('')
+  }
+
   function deleteScript(slug: string) {
     if (initialSlugs.has(slug)) return
     setScripts((cur) => cur.filter((s) => s.slug !== slug))
@@ -369,6 +387,7 @@ export default function App() {
           createNewScript={createNewScript}
           importScriptFile={importScriptFile}
           deleteScript={deleteScript}
+          duplicateScript={duplicateScript}
           isBuiltIn={(slug) => initialSlugs.has(slug)}
           downloadScriptFile={downloadScriptFile}
           updateActiveScript={updateActiveScript}

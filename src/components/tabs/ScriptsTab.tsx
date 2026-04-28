@@ -1,8 +1,11 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Box, Button, IconButton, Paper, Tooltip, Typography } from '@mui/material'
+import { Box, Button, Collapse, Divider, IconButton, Paper, Tooltip, Typography } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
+import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import DeleteIcon from '@mui/icons-material/Delete'
+import ExpandLessIcon from '@mui/icons-material/ExpandLess'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import FileOpenIcon from '@mui/icons-material/FileOpen'
 import MenuIcon from '@mui/icons-material/Menu'
 import MenuOpenIcon from '@mui/icons-material/MenuOpen'
@@ -41,6 +44,7 @@ type Props = {
   createNewScript: () => void
   importScriptFile: (file: File) => void
   deleteScript: (slug: string) => void
+  duplicateScript: (slug: string) => void
   isBuiltIn: (slug: string) => boolean
   downloadScriptFile: () => void
   updateActiveScript: (updater: (script: EditableScript) => EditableScript, nextSlug?: string) => void
@@ -71,6 +75,7 @@ export function ScriptsTab({
   createNewScript,
   importScriptFile,
   deleteScript,
+  duplicateScript,
   isBuiltIn,
   downloadScriptFile,
   updateActiveScript,
@@ -84,6 +89,9 @@ export function ScriptsTab({
   const [listOpenMobile, setListOpenMobile] = useState(false)
   const showList = isMobile ? listOpenMobile : listOpenDesktop
   const setListOpen = isMobile ? setListOpenMobile : setListOpenDesktop
+  const [officialOpen, setOfficialOpen] = useState(true)
+  const [communityOpen, setCommunityOpen] = useState(true)
+  const [diyOpen, setDiyOpen] = useState(true)
 
   const gridCols = isMobile ? '1fr' : showList ? '280px 1fr' : '1fr'
 
@@ -111,28 +119,82 @@ export function ScriptsTab({
               </IconButton>
             </Box>
           </Box>
-          <Box sx={{ display: 'grid', gap: 1 }}>
-            {scripts.map((script) => (
-              <Box key={script.slug} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                <Box sx={{ flex: 1 }}>
-                  <ScriptList
-                    title={getScriptTitle(script)}
-                    isActive={script.slug === activeScript?.slug}
-                    onSelect={() => { setActiveSlug(script.slug); if (isMobile) setListOpen(false) }}
-                  />
-                </Box>
-                {!isBuiltIn(script.slug) && (
-                  <Tooltip title={uiLanguage === 'zh' ? '删除' : 'Delete'}>
-                    <IconButton size="small" color="error"
-                      onClick={() => deleteScript(script.slug)}
-                      sx={{ flexShrink: 0, opacity: 0.5, '&:hover': { opacity: 1 } }}>
-                      <DeleteIcon sx={{ fontSize: 16 }} />
-                    </IconButton>
-                  </Tooltip>
-                )}
+          {(() => {
+            const OFFICIAL = new Set(['tb', 'bmr', 'snv'])
+            const official = scripts.filter((s) => OFFICIAL.has(s.slug))
+            const community = scripts.filter((s) => isBuiltIn(s.slug) && !OFFICIAL.has(s.slug))
+            const diy = scripts.filter((s) => !isBuiltIn(s.slug))
+            const zh = uiLanguage === 'zh'
+
+            const SectionHeader = ({ label, open, onToggle }: { label: string; open: boolean; onToggle: () => void }) => (
+              <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', userSelect: 'none' }} onClick={onToggle}>
+                <Typography variant="overline" color="text.secondary" sx={{ fontSize: '0.6rem', lineHeight: 1, flex: 1 }}>
+                  {label}
+                </Typography>
+                {open ? <ExpandLessIcon sx={{ fontSize: 14, color: 'text.secondary' }} /> : <ExpandMoreIcon sx={{ fontSize: 14, color: 'text.secondary' }} />}
               </Box>
-            ))}
-          </Box>
+            )
+
+            const renderGroup = (group: typeof scripts, deletable: boolean) =>
+              group.map((script) => (
+                <Box key={script.slug} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <Box sx={{ flex: 1 }}>
+                    <ScriptList
+                      title={getScriptTitle(script)}
+                      isActive={script.slug === activeScript?.slug}
+                      onSelect={() => { setActiveSlug(script.slug); if (isMobile) setListOpen(false) }}
+                    />
+                  </Box>
+                  {!deletable && (
+                    <Tooltip title={zh ? '复制到自制' : 'Copy to DIY'}>
+                      <IconButton size="small"
+                        onClick={() => duplicateScript(script.slug)}
+                        sx={{ flexShrink: 0, opacity: 0.4, '&:hover': { opacity: 1 } }}>
+                        <ContentCopyIcon sx={{ fontSize: 14 }} />
+                      </IconButton>
+                    </Tooltip>
+                  )}
+                  {deletable && (
+                    <Tooltip title={zh ? '删除' : 'Delete'}>
+                      <IconButton size="small" color="error"
+                        onClick={() => deleteScript(script.slug)}
+                        sx={{ flexShrink: 0, opacity: 0.5, '&:hover': { opacity: 1 } }}>
+                        <DeleteIcon sx={{ fontSize: 16 }} />
+                      </IconButton>
+                    </Tooltip>
+                  )}
+                </Box>
+              ))
+
+            return (
+              <Box sx={{ display: 'grid', gap: 0.5 }}>
+                <SectionHeader label={zh ? '官方剧本' : 'Official'} open={officialOpen} onToggle={() => setOfficialOpen((v) => !v)} />
+                <Collapse in={officialOpen}>
+                  <Box sx={{ display: 'grid', gap: 1, pt: 0.5 }}>{renderGroup(official, false)}</Box>
+                </Collapse>
+                {community.length > 0 && (
+                  <>
+                    <Divider sx={{ my: 0.5 }} />
+                    <SectionHeader label={zh ? '社区剧本' : 'Community'} open={communityOpen} onToggle={() => setCommunityOpen((v) => !v)} />
+                    <Collapse in={communityOpen}>
+                      <Box sx={{ display: 'grid', gap: 1, pt: 0.5 }}>{renderGroup(community, false)}</Box>
+                    </Collapse>
+                  </>
+                )}
+                <Divider sx={{ my: 0.5 }} />
+                <SectionHeader label={zh ? '自制剧本' : 'DIY'} open={diyOpen} onToggle={() => setDiyOpen((v) => !v)} />
+                <Collapse in={diyOpen}>
+                  <Box sx={{ display: 'grid', gap: 1, pt: 0.5 }}>
+                    {diy.length > 0 ? renderGroup(diy, true) : (
+                      <Typography variant="caption" color="text.secondary" sx={{ pl: 0.5, fontStyle: 'italic' }}>
+                        {zh ? '点击复制图标添加剧本' : 'Copy a script above to start'}
+                      </Typography>
+                    )}
+                  </Box>
+                </Collapse>
+              </Box>
+            )
+          })()}
         </Paper>
       )}
 
@@ -143,9 +205,11 @@ export function ScriptsTab({
               <IconButton size="small" onClick={() => setListOpen(v => !v)} title={showList ? 'Hide list' : 'Show list'}>
                 {showList ? <MenuOpenIcon fontSize="small" /> : <MenuIcon fontSize="small" />}
               </IconButton>
-              <Button variant="outlined" size="small" onClick={() => setIsEditMode((c) => !c)}>
-                {isEditMode ? uiText.doneEditing : uiText.editScript}
-              </Button>
+              {!isBuiltIn(activeScript.slug) && (
+                <Button variant="outlined" size="small" onClick={() => setIsEditMode((c) => !c)}>
+                  {isEditMode ? uiText.doneEditing : uiText.editScript}
+                </Button>
+              )}
               <Button variant="outlined" size="small" onClick={downloadScriptFile}>
                 {uiText.downloadJson}
               </Button>

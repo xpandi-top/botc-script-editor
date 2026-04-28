@@ -55,6 +55,22 @@ export function ScriptEditor({
 }: Props) {
   return (
     <Box>
+      {/* Title / author / edition — top */}
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, gap: 2, mb: 3 }}>
+        <TextField label={uiText.title} value={activeScript.title} onChange={(e) => updateActiveScript((s) => ({ ...s, title: e.target.value }))} size="small" />
+        <TextField label={uiText.chineseTitle} value={activeScript.titleZh} onChange={(e) => updateActiveScript((s) => ({ ...s, titleZh: e.target.value }))} size="small" />
+        <TextField label={uiText.author} value={activeScript.author} onChange={(e) => updateActiveScript((s) => ({ ...s, author: e.target.value }))} size="small" />
+        <FormControl size="small">
+          <Select value={activeScript.edition} onChange={(e) => updateActiveScript((s) => ({ ...s, edition: e.target.value }))}>
+            {availableEditions.map((edition) => (
+              <MenuItem key={edition} value={edition}>{editionLabels[uiLanguage][edition] ?? toTitleCase(edition)}</MenuItem>
+            ))}
+            <MenuItem value="custom">{uiText.custom}</MenuItem>
+          </Select>
+        </FormControl>
+      </Box>
+
+      {/* Bootlegger rules EN */}
       <Typography variant="subtitle1" sx={{ mb: 1 }}>{uiText.bootleggerRules}</Typography>
       <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>{uiText.bootleggerRulesHelp}</Typography>
       <Box sx={{ display: 'grid', gap: 1, mb: 3 }}>
@@ -76,6 +92,7 @@ export function ScriptEditor({
         </Button>
       </Box>
 
+      {/* Bootlegger rules ZH */}
       <Typography variant="subtitle1" sx={{ mb: 1 }}>{uiText.bootleggerRulesZh}</Typography>
       <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>{uiText.bootleggerRulesZhHelp}</Typography>
       <Box sx={{ display: 'grid', gap: 1, mb: 3 }}>
@@ -97,6 +114,7 @@ export function ScriptEditor({
         </Button>
       </Box>
 
+      {/* Jinxes */}
       <Typography variant="subtitle1" sx={{ mb: 1 }}>{uiText.scriptJinxes}</Typography>
       <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>{uiText.scriptJinxesHelp}</Typography>
       <Box sx={{ display: 'grid', gap: 1, mb: 3 }}>
@@ -119,7 +137,8 @@ export function ScriptEditor({
         </Button>
       </Box>
 
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 300px' }, gap: 2 }}>
+      {/* Character picker */}
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 300px' }, gap: 2, mb: 3 }}>
         <Paper variant="outlined" sx={{ p: 2 }}>
           <Typography variant="h6" sx={{ mb: 2 }}>{uiText.availableCharacters}</Typography>
           <TextField fullWidth size="small" placeholder={uiText.filterCharacters} value={editorQuery} onChange={(e) => setEditorQuery(e.target.value)} sx={{ mb: 2 }} />
@@ -129,7 +148,7 @@ export function ScriptEditor({
                 <Typography variant="subtitle2" sx={{ flex: 1, fontStyle: 'italic', color: 'white' }}>{teamLabels[uiLanguage][group.team]}</Typography>
                 <Typography variant="caption" sx={{ color: 'white' }}>{group.characters.length}</Typography>
               </Box>
-              <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1 }}>
+              <Box sx={{ maxHeight: 400, overflowY: 'auto', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1 }}>
                 {group.characters.map((character) => (
                   <Box key={character.id} sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 1, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
                     <Checkbox checked={activeScript.characters.includes(character.id)} onChange={() => toggleCharacterInScript(character.id)} size="small" />
@@ -173,19 +192,6 @@ export function ScriptEditor({
         </Paper>
       </Box>
 
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, gap: 2, mb: 3, mt: 2 }}>
-        <TextField label={uiText.title} value={activeScript.title} onChange={(e) => updateActiveScript((s) => ({ ...s, title: e.target.value }))} size="small" />
-        <TextField label={uiText.chineseTitle} value={activeScript.titleZh} onChange={(e) => updateActiveScript((s) => ({ ...s, titleZh: e.target.value }))} size="small" />
-        <TextField label={uiText.author} value={activeScript.author} onChange={(e) => updateActiveScript((s) => ({ ...s, author: e.target.value }))} size="small" />
-        <FormControl size="small">
-          <Select value={activeScript.edition} onChange={(e) => updateActiveScript((s) => ({ ...s, edition: e.target.value }))}>
-            {availableEditions.map((edition) => (
-              <MenuItem key={edition} value={edition}>{editionLabels[uiLanguage][edition] ?? toTitleCase(edition)}</MenuItem>
-            ))}
-            <MenuItem value="custom">{uiText.custom}</MenuItem>
-          </Select>
-        </FormControl>
-      </Box>
     </Box>
   )
 }
