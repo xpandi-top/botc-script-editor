@@ -6,6 +6,7 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import FileOpenIcon from '@mui/icons-material/FileOpen'
 import MenuIcon from '@mui/icons-material/Menu'
 import MenuOpenIcon from '@mui/icons-material/MenuOpen'
+import NightsStayIcon from '@mui/icons-material/NightsStay'
 import { useBreakpoint } from '../../hooks/useBreakpoint'
 import { ScriptList } from '../ScriptList'
 import { SheetArticle } from '../SheetArticle'
@@ -26,6 +27,7 @@ type Props = {
   uiLanguage: Language
   isEditMode: boolean
   showWakeOrderPreview: boolean
+  setShowWakeOrderPreview: (v: boolean | ((c: boolean) => boolean)) => void
   saveStatus: string
   activeScriptCharacters: ResolvedScriptCharacter[]
   groupedScriptCharacters: ResolvedScriptCharacterGroup[]
@@ -55,6 +57,7 @@ export function ScriptsTab({
   uiLanguage,
   isEditMode,
   showWakeOrderPreview,
+  setShowWakeOrderPreview,
   saveStatus,
   activeScriptCharacters,
   groupedScriptCharacters,
@@ -146,6 +149,15 @@ export function ScriptsTab({
               <Button variant="outlined" size="small" onClick={downloadScriptFile}>
                 {uiText.downloadJson}
               </Button>
+              <Tooltip title={showWakeOrderPreview
+                ? (uiLanguage === 'zh' ? '隐藏夜间顺序' : 'Hide night order')
+                : (uiLanguage === 'zh' ? '显示夜间顺序' : 'Show night order')}>
+                <IconButton size="small"
+                  onClick={() => setShowWakeOrderPreview((c) => !c)}
+                  color={showWakeOrderPreview ? 'primary' : 'default'}>
+                  <NightsStayIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
               {saveStatus && <Typography variant="body2" color="text.secondary">{saveStatus}</Typography>}
             </Box>
 

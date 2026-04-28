@@ -25,7 +25,6 @@ import { PrintStudioPage } from './components/PrintStudio/PrintStudioPage'
 import { DEFAULT_TOKEN_OPTIONS } from './components/PrintStudio/types'
 import type { TokenPrintOptions } from './components/PrintStudio/types'
 import { ScriptsTab } from './components/tabs/ScriptsTab'
-import { SettingsTab } from './components/tabs/SettingsTab'
 import { CharactersTab } from './components/tabs/CharactersTab'
 import { StorytellerHelper } from './components/StorytellerHelper'
 import {
@@ -51,7 +50,7 @@ import type {
   Team,
 } from './types'
 
-type TabKey = 'scripts' | 'settings' | 'characters' | 'storyteller' | 'printstudio'
+type TabKey = 'scripts' | 'characters' | 'storyteller' | 'printstudio'
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabKey>('scripts')
@@ -90,7 +89,6 @@ export default function App() {
   const [selectedEditions, setSelectedEditions] = useState<string[]>([])
   const [editorQuery, setEditorQuery] = useState('')
   const [isEditMode, setIsEditMode] = useState(false)
-  const [pdfFontSize, setPdfFontSize] = useState(11)
   const [showWakeOrderPreview, setShowWakeOrderPreview] = useState(true)
   const [printPreviewOpen, setPrintPreviewOpen] = useState(false)
   const [printOptions, setPrintOptions] = useState<PrintOptions>(DEFAULT_PRINT_OPTIONS)
@@ -343,7 +341,6 @@ export default function App() {
           }}
         >
           <Tab label={uiText.scriptSheet} value="scripts" />
-          <Tab label={uiText.settings} value="settings" />
           <Tab label={uiText.allCharacters} value="characters" />
           <Tab label={storytellerTabLabel} value="storyteller" />
           <Tab label={printStudioTabLabel} value="printstudio" />
@@ -358,6 +355,7 @@ export default function App() {
           uiLanguage={uiLanguage}
           isEditMode={isEditMode}
           showWakeOrderPreview={showWakeOrderPreview}
+          setShowWakeOrderPreview={setShowWakeOrderPreview}
           saveStatus={saveStatus}
           activeScriptCharacters={activeScriptCharacters}
           groupedScriptCharacters={groupedScriptCharacters}
@@ -396,18 +394,6 @@ export default function App() {
         />
       )}
 
-      {activeTab === 'settings' && (
-        <SettingsTab
-          uiText={uiText}
-          uiLanguage={uiLanguage}
-          activeScript={activeScript}
-          pdfFontSize={pdfFontSize}
-          showWakeOrderPreview={showWakeOrderPreview}
-          setPdfFontSize={setPdfFontSize}
-          setShowWakeOrderPreview={setShowWakeOrderPreview}
-          getScriptTitle={getScriptTitle}
-        />
-      )}
 
       {activeTab === 'characters' && (
         <CharactersTab
