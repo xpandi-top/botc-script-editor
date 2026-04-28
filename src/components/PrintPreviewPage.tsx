@@ -4,6 +4,7 @@ import {
   FormControlLabel, Switch, Select, MenuItem, FormControl, InputLabel,
   Divider, Paper, Tooltip,
 } from '@mui/material'
+
 import PrintIcon from '@mui/icons-material/Print'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import MenuIcon from '@mui/icons-material/Menu'
@@ -27,12 +28,17 @@ type Props = {
   printOptions: PrintOptions
   onOptionsChange: (opts: PrintOptions) => void
   onClose: () => void
+  scripts: EditableScript[]
+  activeSlug: string
+  onScriptChange: (slug: string) => void
+  getScriptTitle: (s: EditableScript) => string
 }
 
 export function PrintPreviewPage({
   activeScript, activeScriptCharacters, groupedScriptCharacters,
   sheetDensityClass, language, onLanguageChange, getSheetUiLabel,
   printOptions: opts, onOptionsChange, onClose,
+  scripts, activeSlug, onScriptChange, getScriptTitle,
 }: Props) {
   const zh = language === 'zh'
   const [panelOpen, setPanelOpen] = useState(true)
@@ -99,9 +105,16 @@ export function PrintPreviewPage({
       {/* Top bar */}
       <Paper elevation={2} sx={{ px: 2, py: 1, display: 'flex', alignItems: 'center', gap: 1, borderRadius: 0, zIndex: 1, flexShrink: 0 }}>
         <Button startIcon={<ArrowBackIcon />} onClick={onClose} size="small">{zh ? '返回' : 'Back'}</Button>
-        <Typography variant="subtitle1" sx={{ flex: 1, ml: 1, fontWeight: 700 }}>
+        <Typography variant="subtitle1" sx={{ ml: 1, fontWeight: 700, flexShrink: 0 }}>
           {zh ? '打印预览' : 'Print Preview'}
         </Typography>
+        <FormControl size="small" sx={{ flex: 1, mx: 1, maxWidth: 260 }}>
+          <Select value={activeSlug} onChange={(e) => onScriptChange(e.target.value)}>
+            {scripts.map((s) => (
+              <MenuItem key={s.slug} value={s.slug}>{getScriptTitle(s)}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
         <Tooltip title={zh ? '切换语言' : 'Toggle language'}>
           <IconButton size="small" onClick={() => onLanguageChange(zh ? 'en' : 'zh')}>
             <Typography variant="caption" sx={{ fontWeight: 700, fontSize: '0.7rem' }}>{zh ? 'EN' : '中'}</Typography>
@@ -153,11 +166,17 @@ export function PrintPreviewPage({
 
           {/* Icons */}
           <Box>
-            {sectionLabel(zh ? '角色图标' : 'Icons')}
-            <Typography variant="caption" color="text.secondary">{zh ? `大小: ${opts.iconSize}px` : `Size: ${opts.iconSize}px`}</Typography>
-            <Slider value={opts.iconSize} min={24} max={80} step={4}
+            {sectionLabel(zh ? '图标' : 'Icons')}
+            <Typography variant="caption" color="text.secondary">{zh ? `角色卡图标: ${opts.iconSize}px` : `Card icon: ${opts.iconSize}px`}</Typography>
+            <Slider value={opts.iconSize} min={16} max={80} step={4}
               onChange={(_, v) => set('iconSize', v as number)}
-              marks={[{ value: 24, label: '24' }, { value: 48, label: '48' }, { value: 80, label: '80' }]}
+              marks={[{ value: 16, label: '16' }, { value: 48, label: '48' }, { value: 80, label: '80' }]}
+              sx={{ mt: 0.5, mb: 1 }}
+            />
+            <Typography variant="caption" color="text.secondary">{zh ? `夜序图标: ${opts.wakeIconSize}px` : `Wake icon: ${opts.wakeIconSize}px`}</Typography>
+            <Slider value={opts.wakeIconSize} min={12} max={48} step={2}
+              onChange={(_, v) => set('wakeIconSize', v as number)}
+              marks={[{ value: 12, label: '12' }, { value: 28, label: '28' }, { value: 48, label: '48' }]}
               sx={{ mt: 0.5 }}
             />
           </Box>
@@ -257,30 +276,64 @@ export function PrintPreviewPage({
           </Typography>
 
           {/* Paper simulation */}
-          <Box sx={{ width: previewW, maxWidth: '100%', position: 'relative' }}>
-            {/* Page break indicator */}
-            <Box sx={{ position: 'absolute', top: previewH, left: 0, right: 0, height: '2px', bgcolor: 'error.light', opacity: 0.6, zIndex: 10,
-              '&::after': { content: `"${zh ? '↑ 第1页结束' : '↑ page 1 end'}"`, position: 'absolute', right: 8, top: 2, fontSize: '0.65rem', color: 'error.main' },
-            }} />
-            <Box sx={{ bgcolor: 'white', boxShadow: '0 4px 24px rgba(0,0,0,0.18)', borderRadius: 1, overflow: 'visible' }}>
-              <SheetArticle
-                activeScript={activeScript}
-                activeScriptCharacters={activeScriptCharacters}
-                groupedScriptCharacters={groupedScriptCharacters}
-                bootleggerRulesLabel={getSheetUiLabel(language, 'bootlegger_rules')}
-                jinxesLabel={getSheetUiLabel(language, 'jinxes')}
-                isEditMode={false}
-                language={language}
-                onRemoveCharacter={() => {}}
-                sheetDensityClass={sheetDensityClass}
-                showWakeOrder
-                showEdition={false}
-                showCharacterCount={false}
-                supplementalPlacement="end"
-                printOptions={opts}
-              />
+          {opts.languageLayout === 'bilingual-separate' ? (
+            ([language, language === 'zh' ? 'en' : 'zh'] as Language[]).map((lang, i) => (
+              <Box key={lang} sx={{ width: previewW, maxWidth: '100%', mb: 4 }}>
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5, opacity: 0.7 }}>
+                  {zh ? `第${i + 1}部分` : `Section ${i + 1}`} — {lang === 'zh' ? '中文' : 'English'}
+                </Typography>
+                <Box sx={{ position: 'relative' }}>
+                  <Box sx={{ position: 'absolute', top: previewH, left: 0, right: 0, height: '2px', bgcolor: 'error.light', opacity: 0.6, zIndex: 10,
+                    '&::after': { content: `"${zh ? '↑ 第1页结束' : '↑ page 1 end'}"`, position: 'absolute', right: 8, top: 2, fontSize: '0.65rem', color: 'error.main' },
+                  }} />
+                  <Box sx={{ bgcolor: 'white', boxShadow: '0 4px 24px rgba(0,0,0,0.18)', borderRadius: 1, overflow: 'visible' }}>
+                    <SheetArticle
+                      activeScript={activeScript}
+                      activeScriptCharacters={activeScriptCharacters}
+                      groupedScriptCharacters={groupedScriptCharacters}
+                      bootleggerRulesLabel={getSheetUiLabel(lang, 'bootlegger_rules')}
+                      jinxesLabel={getSheetUiLabel(lang, 'jinxes')}
+                      isEditMode={false}
+                      language={lang}
+                      onRemoveCharacter={() => {}}
+                      sheetDensityClass={sheetDensityClass}
+                      showWakeOrder
+                      showEdition={false}
+                      showCharacterCount={false}
+                      supplementalPlacement="end"
+                      printOptions={{ ...opts, languageLayout: 'current' }}
+                    />
+                  </Box>
+                </Box>
+              </Box>
+            ))
+          ) : (
+            <Box sx={{ width: previewW, maxWidth: '100%' }}>
+              <Box sx={{ position: 'relative' }}>
+                {<Box sx={{ position: 'absolute', top: previewH, left: 0, right: 0, height: '2px', bgcolor: 'error.light', opacity: 0.6, zIndex: 10,
+                  '&::after': { content: `"${zh ? '↑ 第1页结束' : '↑ page 1 end'}"`, position: 'absolute', right: 8, top: 2, fontSize: '0.65rem', color: 'error.main' },
+                }} />}
+                <Box sx={{ bgcolor: 'white', boxShadow: '0 4px 24px rgba(0,0,0,0.18)', borderRadius: 1, overflow: 'visible' }}>
+                  <SheetArticle
+                    activeScript={activeScript}
+                    activeScriptCharacters={activeScriptCharacters}
+                    groupedScriptCharacters={groupedScriptCharacters}
+                    bootleggerRulesLabel={getSheetUiLabel(language, 'bootlegger_rules')}
+                    jinxesLabel={getSheetUiLabel(language, 'jinxes')}
+                    isEditMode={false}
+                    language={language}
+                    onRemoveCharacter={() => {}}
+                    sheetDensityClass={sheetDensityClass}
+                    showWakeOrder
+                    showEdition={false}
+                    showCharacterCount={false}
+                    supplementalPlacement="end"
+                    printOptions={opts}
+                  />
+                </Box>
+              </Box>
             </Box>
-          </Box>
+          )}
         </Box>
       </Box>
     </Box>

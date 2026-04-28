@@ -1,4 +1,5 @@
-import { Box, Typography, Paper, Grid, IconButton, Chip, Divider } from '@mui/material'
+import { useState } from 'react'
+import { Box, Typography, Paper, Grid, IconButton, Chip, Divider, Dialog, DialogTitle, DialogContent, Tooltip } from '@mui/material'
 import {
   editionLabels,
   getAbilityText,
@@ -71,8 +72,10 @@ export function SheetArticle({
   supplementalPlacement = 'top',
   printOptions,
 }: SheetArticleProps) {
+  const [popupId, setPopupId] = useState<string | null>(null)
   const po = printOptions
   const iconSize        = po?.iconSize ?? 32
+  const wakeIconSize    = po?.wakeIconSize ?? 20
   const columns         = po?.columns ?? 2
   const fontFamilyEn   = po ? FONT_CSS[po.fontKeyEn] : undefined
   const fontFamilyZh   = po ? FONT_CSS[po.fontKeyZh] : undefined
@@ -186,20 +189,26 @@ export function SheetArticle({
     )
   }
 
-  const renderWakeOrder = (ids: string[], label: string) => (
-    <Box sx={{ width: iconSize + 8, flexShrink: 0 }}>
-      <Typography variant="caption" color="text.secondary" sx={{ mb: 0.25, display: 'block', fontSize: '0.65rem' }}>
-        {label}
-      </Typography>
+  const renderWakeOrder = (ids: string[]) => (
+    <Box sx={{ width: wakeIconSize + 8, flexShrink: 0 }}>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
         {ids.map((id) => {
           const icon = getIconForCharacter(id)
+          const name = getDisplayName(id, language)
           return icon ? (
-            <Box component="img" key={id} src={icon} sx={{ width: iconSize, height: iconSize }} />
+            <Tooltip key={id} title={name} placement="right" arrow>
+              <Box component="img" src={icon}
+                sx={{ width: wakeIconSize, height: wakeIconSize, cursor: 'pointer', borderRadius: 0.5, '&:hover': { opacity: 0.75, outline: '2px solid', outlineColor: 'primary.main' } }}
+                onClick={() => setPopupId(id)}
+              />
+            </Tooltip>
           ) : (
-            <Box key={id} sx={{ width: iconSize, height: iconSize, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: bw ? 'grey.400' : 'grey.300', borderRadius: 0.5 }}>
-              <Typography variant="caption">{getNightOrderPlaceholderLabel(id)}</Typography>
-            </Box>
+            <Tooltip key={id} title={name} placement="right" arrow>
+              <Box sx={{ width: wakeIconSize, height: wakeIconSize, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: bw ? 'grey.400' : 'grey.300', borderRadius: 0.5, cursor: 'pointer', '&:hover': { opacity: 0.75 } }}
+                onClick={() => setPopupId(id)}>
+                <Typography variant="caption" sx={{ fontSize: '0.5rem' }}>{getNightOrderPlaceholderLabel(id)}</Typography>
+              </Box>
+            </Tooltip>
           )
         })}
       </Box>
@@ -292,25 +301,58 @@ export function SheetArticle({
       {renderHeader(lang)}
       {supplementalPlacement === 'top' ? renderSupplemental(lang) : null}
       <Box sx={{ display: 'flex', gap: 1.5 }}>
-        {showWakeOrder && renderWakeOrder(firstNightOrder, lang === 'zh' ? '首夜' : 'First Night')}
+        {showWakeOrder && renderWakeOrder(firstNightOrder)}
         {renderCharacterList(lang, withBoth)}
-        {showWakeOrder && renderWakeOrder(otherNightOrder, lang === 'zh' ? '非首夜' : 'Other Night')}
+        {showWakeOrder && renderWakeOrder(otherNightOrder)}
       </Box>
       {supplementalPlacement === 'end' ? renderSupplemental(lang) : null}
     </Box>
   )
 
+  const popupChar = popupId ? activeScriptCharacters.find((c) => c.id === popupId) : null
+  const popupName = popupId ? getDisplayName(popupId, language) : ''
+  const popupNameAlt = popupId ? getDisplayName(popupId, language === 'zh' ? 'en' : 'zh') : ''
+  const popupAbility = popupId ? getAbilityText(popupId, language) : ''
+  const popupAbilityAlt = popupId ? getAbilityText(popupId, language === 'zh' ? 'en' : 'zh') : ''
+  const popupIcon = popupId ? getIconForCharacter(popupId) : null
+
   return (
-    <Paper className={`sheet-root ${className ?? ''} ${sheetDensityClass ?? ''}`} sx={rootSx}>
-      {isSeparate ? (
-        <>
-          {renderPage(language, false)}
-          <Box sx={{ pageBreakBefore: 'always', breakBefore: 'page', mt: 4 }} />
-          {renderPage(language === 'zh' ? 'en' : 'zh', false)}
-        </>
-      ) : (
-        renderPage(language, isMixed)
-      )}
-    </Paper>
+    <>
+      <Paper className={`sheet-root ${className ?? ''} ${sheetDensityClass ?? ''}`} sx={rootSx}>
+        {isSeparate ? (
+          <>
+            {renderPage(language, false)}
+            <Box sx={{ pageBreakBefore: 'always', breakBefore: 'page' }} />
+            {renderPage(language === 'zh' ? 'en' : 'zh', false)}
+          </>
+        ) : (
+          renderPage(language, isMixed)
+        )}
+      </Paper>
+
+      <Dialog open={!!popupId} onClose={() => setPopupId(null)} maxWidth="xs" fullWidth>
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1.5, pb: 1 }}>
+          {popupIcon && <Box component="img" src={popupIcon} sx={{ width: 40, height: 40 }} />}
+          <Box>
+            <Typography variant="subtitle1" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
+              {popupName}{popupNameAlt && popupNameAlt !== popupName ? ` · ${popupNameAlt}` : ''}
+            </Typography>
+            {popupChar && (
+              <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'capitalize' }}>
+                {popupChar.team}
+              </Typography>
+            )}
+          </Box>
+        </DialogTitle>
+        <DialogContent sx={{ pt: 0 }}>
+          <Typography variant="body2" sx={{ mb: popupAbilityAlt && popupAbilityAlt !== popupAbility ? 1 : 0 }}>
+            {popupAbility}
+          </Typography>
+          {popupAbilityAlt && popupAbilityAlt !== popupAbility && (
+            <Typography variant="body2" color="text.secondary">{popupAbilityAlt}</Typography>
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }

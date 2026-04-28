@@ -27,24 +27,25 @@ export const PAGE_SIZE_DEFS: Record<PageSize, { label: string; w: number; h: num
   legal:  { label: 'Legal (8.5 × 14 in)', w: 215.9, h: 355.6 },
 }
 
-// px at 96 dpi (1 mm ≈ 3.7795px), minus ~30mm total margin
+// px at 96 dpi (1 mm ≈ 3.7795px) — full page size, margins applied via CSS padding
 export const PAGE_PREVIEW_WIDTH_PX: Record<PageSize, number> = {
-  a4:     Math.round((210   - 30) * 3.7795),
-  letter: Math.round((215.9 - 30) * 3.7795),
-  a5:     Math.round((148   - 20) * 3.7795),
-  legal:  Math.round((215.9 - 30) * 3.7795),
+  a4:     Math.round(210   * 3.7795),
+  letter: Math.round(215.9 * 3.7795),
+  a5:     Math.round(148   * 3.7795),
+  legal:  Math.round(215.9 * 3.7795),
 }
 
 export const PAGE_PREVIEW_HEIGHT_PX: Record<PageSize, number> = {
-  a4:     Math.round((297   - 30) * 3.7795),
-  letter: Math.round((279.4 - 30) * 3.7795),
-  a5:     Math.round((210   - 20) * 3.7795),
-  legal:  Math.round((355.6 - 30) * 3.7795),
+  a4:     Math.round(297   * 3.7795),
+  letter: Math.round(279.4 * 3.7795),
+  a5:     Math.round(210   * 3.7795),
+  legal:  Math.round(355.6 * 3.7795),
 }
 
 export type PrintOptions = {
   pageSize: PageSize
   iconSize: number
+  wakeIconSize: number
   columns: 1 | 2
   fontKeyEn: FontKey        // body/EN font
   fontKeyZh: FontKey        // ZH-specific font
@@ -63,23 +64,24 @@ export type PrintOptions = {
 }
 
 export const DEFAULT_PRINT_OPTIONS: PrintOptions = {
-  pageSize: 'a4',
-  iconSize: 48,
-  columns: 2,
+  pageSize: 'letter',
+  iconSize: 28,
+  wakeIconSize: 28,
+  columns: 1,
   fontKeyEn: 'sans',
   fontKeyZh: 'sans',
-  fontSize: 10,
-  nameFontSize: 11,
-  titleFontSize: 20,
-  sectionFontSize: 11,
-  lineHeight: 1.2,
+  fontSize: 9,
+  nameFontSize: 10,
+  titleFontSize: 14,
+  sectionFontSize: 7,
+  lineHeight: 1,
   showSectionBg: false,
-  showSectionDivider: false,
-  showIconCircle: true,
+  showSectionDivider: true,
+  showIconCircle: false,
   showCardOutline: false,
   padding: 'compact',
   blackAndWhite: false,
-  languageLayout: 'current',
+  languageLayout: 'bilingual-separate',
 }
 
 export const PADDING_MAP: Record<PrintOptions['padding'], { card: number; gridSpacing: number; sectionMb: number; outerPadding: number }> = {

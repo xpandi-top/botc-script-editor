@@ -391,6 +391,10 @@ export default function App() {
           printOptions={printOptions}
           onOptionsChange={setPrintOptions}
           onClose={() => setPrintPreviewOpen(false)}
+          scripts={scripts}
+          activeSlug={activeSlug}
+          onScriptChange={setActiveSlug}
+          getScriptTitle={getScriptTitle}
         />
       )}
 
