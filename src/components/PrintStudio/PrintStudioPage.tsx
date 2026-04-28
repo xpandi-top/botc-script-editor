@@ -7,6 +7,7 @@ import { TokenPageGrid, TokenPrintPortal } from './TokenPageGrid'
 import { PAGE_SIZE_DEFS } from '../PrintOptionsDialog'
 import type { TokenPrintOptions } from './types'
 import type { EditableScript, Language, ResolvedScriptCharacter } from '../../types'
+import { allCharacters } from '../../catalog'
 
 interface Props {
   opts: TokenPrintOptions
@@ -20,8 +21,13 @@ interface Props {
   getScriptTitle: (s: EditableScript) => string
 }
 
-export function PrintStudioPage({ opts, onOptionsChange, onClose, scriptCharacters, language, scripts, activeSlug, onScriptChange, getScriptTitle }: Props) {
+export function PrintStudioPage({ opts, onOptionsChange, onClose, scriptCharacters: givenCharacters, language, scripts, activeSlug, onScriptChange, getScriptTitle }: Props) {
   const zh = language === 'zh'
+
+  // When "__all__" is selected, use allCharacters
+  const scriptCharacters = activeSlug === '__all__' 
+    ? allCharacters.map(c => ({ id: c.id, team: c.team, edition: c.edition }))
+    : givenCharacters
 
   const handlePrint = () => {
     // inject @page css
@@ -55,16 +61,23 @@ export function PrintStudioPage({ opts, onOptionsChange, onClose, scriptCharacte
         <FormControl size="small" sx={{ flex: 1, mx: 1, maxWidth: 260 }}>
           <Select
             value={activeSlug}
-            onChange={(e) => onScriptChange(e.target.value)}
+            onChange={(e) => {
+              const newSlug = e.target.value as string
+              onScriptChange(newSlug)
+              if (newSlug === '__all__') {
+                onOptionsChange({ ...opts, selectedCharacterIds: allCharacters.map(c => c.id) })
+              }
+            }}
             displayEmpty
           >
+            <MenuItem value="__all__">{zh ? '所有角色' : 'All Characters'}</MenuItem>
             {scripts.map((s) => (
               <MenuItem key={s.slug} value={s.slug}>{getScriptTitle(s)}</MenuItem>
             ))}
           </Select>
         </FormControl>
         <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
-          {selectedCount} {zh ? '个代币' : 'tokens'}
+          {selectedCount} {zh ? '个标记' : 'tokens'}
         </Typography>
         <Button variant="contained" startIcon={<PrintIcon />} onClick={handlePrint} disabled={selectedCount === 0}>
           {zh ? '打印' : 'Print'}

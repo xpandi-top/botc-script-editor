@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import {
   Box, Typography, Divider, Slider, ToggleButton, ToggleButtonGroup,
   FormControl, InputLabel, Select, MenuItem, Switch, FormControlLabel,
@@ -6,12 +6,15 @@ import {
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/Delete'
+import SearchIcon from '@mui/icons-material/Search'
 import { FONT_DEFINITIONS, PAGE_SIZE_DEFS } from '../PrintOptionsDialog'
 import type { PageSize } from '../PrintOptionsDialog'
 import type { TokenPrintOptions, TokenShape, NameDisplay, AbilityDisplay, MarkerDef } from './types'
-import type { ResolvedScriptCharacter } from '../../types'
-import { getDisplayName } from '../../catalog'
+import type { ResolvedScriptCharacter, Team } from '../../types'
+import { getDisplayName, getAbilityText } from '../../catalog'
 import type { Language } from '../../types'
+
+type TeamFilter = 'all' | Team | 'traveler' | 'fabled' | 'experimental' | 'loric'
 
 interface Props {
   opts: TokenPrintOptions
@@ -20,13 +23,74 @@ interface Props {
   language: Language
 }
 
+const TEAM_FILTERS: { value: TeamFilter; en: string; zh: string }[] = [
+  { value: 'all', en: 'All', zh: '全部' },
+  { value: 'townsfolk', en: 'Townsfolk', zh: '镇民' },
+  { value: 'outsider', en: 'Outsider', zh: '外来者' },
+  { value: 'minion', en: 'Minion', zh: '爪牙' },
+  { value: 'demon', en: 'Demon', zh: '恶魔' },
+  { value: 'traveler', en: 'Traveler', zh: '旅行者' },
+  { value: 'fabled', en: 'Fabled', zh: '传说' },
+  { value: 'experimental', en: 'Experimental', zh: '实验' },
+  { value: 'loric', en: 'Loric', zh: '奇遇' },
+]
+
 export function TokenOptionsPanel({ opts, onChange, scriptCharacters, language }: Props) {
   const zh = language === 'zh'
   const set = <K extends keyof TokenPrintOptions>(key: K, val: TokenPrintOptions[K]) =>
     onChange({ ...opts, [key]: val })
 
-  const bgImgRef  = useRef<HTMLInputElement>(null)
-  const wmImgRef  = useRef<HTMLInputElement>(null)
+  const [search, setSearch] = useState('')
+  const [teamFilters, setTeamFilters] = useState<Set<TeamFilter>>(new Set(['all']))
+
+  const toggleTeamFilter = (f: TeamFilter) => {
+    const next = new Set(teamFilters)
+    if (f === 'all') {
+      next.clear()
+      next.add('all')
+    } else {
+      next.delete('all')
+      if (next.has(f)) {
+        next.delete(f)
+        if (next.size === 0) next.add('all')
+      } else {
+        next.add(f)
+      }
+    }
+    setTeamFilters(next)
+  }
+
+  const bgImgRef = useRef<HTMLInputElement>(null)
+  const wmImgRef = useRef<HTMLInputElement>(null)
+
+  // Filter characters by team, edition, and search
+  const filteredCharacters = scriptCharacters.filter(c => {
+    // Team filter - use AND logic (must match all selected filters)
+    if (!teamFilters.has('all')) {
+      const matches = Array.from(teamFilters).every(f => {
+        if (f === 'experimental') return c.edition === 'experimental'
+        if (f === 'loric') return c.edition === 'loric'
+        if (f === 'fabled') return c.team === 'fabled'
+        if (f === 'traveler') return c.team === 'traveler'
+        return c.team === f
+      })
+      if (!matches) return false
+    }
+    // Search filter
+    if (search) {
+      const q = search.toLowerCase()
+      const nameEn = getDisplayName(c.id, 'en').toLowerCase()
+      const nameZh = getDisplayName(c.id, 'zh').toLowerCase()
+      const abilityEn = getAbilityText(c.id, 'en').toLowerCase()
+      const abilityZh = getAbilityText(c.id, 'zh').toLowerCase()
+      if (!c.id.toLowerCase().includes(q) &&
+          !nameEn.includes(q) && !nameZh.includes(q) &&
+          !abilityEn.includes(q) && !abilityZh.includes(q)) {
+        return false
+      }
+    }
+    return true
+  })
 
   const label = (text: string) => (
     <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5, textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: 600 }}>
@@ -87,7 +151,7 @@ export function TokenOptionsPanel({ opts, onChange, scriptCharacters, language }
     onChange({ ...opts, markers: [...opts.markers, newM] })
   }
 
-  const allIds = scriptCharacters.map((c) => c.id)
+  const filteredIds = filteredCharacters.map((c) => c.id)
   const selSet = new Set(opts.selectedCharacterIds)
 
   return (
@@ -105,22 +169,49 @@ export function TokenOptionsPanel({ opts, onChange, scriptCharacters, language }
 
       <Divider />
 
-      {/* ── Character selection ── */}
+{/* ── Character selection ── */}
       {opts.mode === 'characters' && (
         <Box>
           {label(zh ? '选择角色' : 'Characters')}
+          
+          {/* Search */}
+          <TextField
+            fullWidth size="small" placeholder={zh ? '搜索ID/名字/描述' : 'Search ID/Name/Description'}
+            value={search} onChange={(e) => setSearch(e.target.value)}
+            slotProps={{ input: { startAdornment: <SearchIcon sx={{ fontSize: 18, mr: 0.5, color: 'text.secondary' }} /> } }}
+            sx={{ mb: 1 }}
+          />
+          
+          {/* Team filter */}
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 1 }}>
+            {TEAM_FILTERS.map(f => (
+              <Button
+                key={f.value}
+                size="small" variant={teamFilters.has(f.value) ? 'contained' : 'outlined'}
+                onClick={() => toggleTeamFilter(f.value)}
+                sx={{ fontSize: '0.65rem', py: 0.25, px: 0.5, minWidth: 0 }}
+              >
+                {zh ? f.zh : f.en}
+              </Button>
+            ))}
+          </Box>
+          
           <Box sx={{ display: 'flex', gap: 0.5, mb: 0.5 }}>
             <Button size="small" variant="text" sx={{ fontSize: '0.7rem', py: 0 }}
-              onClick={() => set('selectedCharacterIds', allIds)}>
+              onClick={() => set('selectedCharacterIds', filteredIds)}>
               {zh ? '全选' : 'All'}
             </Button>
             <Button size="small" variant="text" sx={{ fontSize: '0.7rem', py: 0 }}
               onClick={() => set('selectedCharacterIds', [])}>
               {zh ? '清空' : 'None'}
             </Button>
+            <Typography variant="caption" color="text.secondary" sx={{ ml: 'auto', alignSelf: 'center' }}>
+              {filteredCharacters.length} {zh ? '个角色' : 'chars'}
+            </Typography>
           </Box>
+          
           <FormGroup sx={{ maxHeight: 200, overflowY: 'auto', pl: 0.5 }}>
-            {scriptCharacters.map((c) => (
+            {filteredCharacters.map((c) => (
               <FCL
                 key={c.id}
                 control={
