@@ -79,6 +79,9 @@ function TokenPage({
         gap: `${gapPx}px`,
         p: `${marginMm}mm`,
         ...(showBorder && { border: '1px dashed #ccc' }),
+        width: PAGE_SIZE_DEFS[opts.pageSize].w*MM_TO_PX,
+        height: PAGE_SIZE_DEFS[opts.pageSize].h*MM_TO_PX,
+        backgroundColor: '#fff',
       }}
     >
       {tokens.map((t) => (
