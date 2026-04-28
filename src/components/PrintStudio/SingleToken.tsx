@@ -230,7 +230,7 @@ export function SingleToken({
 
   // Pre-compute tapered straight text for circles (top half only)
   const straightLines = (isCircle && displayAbility && opts.abilityStyle === 'straight')
-    ? wrapStraightCircleText(displayAbility, cy, cR*0.95, abilityFontPx, arcLineH)
+    ? wrapStraightCircleText(displayAbility, cy, cR * 0.95, abilityFontPx, arcLineH)
     : []
 
   // Check if text was truncated
@@ -240,11 +240,9 @@ export function SingleToken({
     straightLines.map(l => l.text).join('').length < displayAbility.replace(/\s+/g, '').length
   const isTextTruncated = arcTextTruncated || straightTextTruncated
 
-  // Wake order and setup indicators
+// Wake order and setup indicators
   const indicators = characterId ? getWakeIndicators(characterId) : { firstNight: false, otherNight: false, hasSetup: false }
   const hasSetupMarker = opts.showSetupIndicators && /\[.*?\]/.test(displayAbility)
-  const indicatorRadius = S * 0.04
-  const indicatorY = cy + S * 0.08  // below icon
 
   // Outer SVG size
   const outerS = S
@@ -322,13 +320,13 @@ export function SingleToken({
           {opts.showWakeIndicators && characterId && (
             <>
               {indicators.firstNight && (
-                <circle cx={cx - iconSize * 0.65} cy={indicatorY} r={indicatorRadius} fill="#22c55e" />
+                <circle cx={cx - cR} cy={cy} r={cR * 0.1} fill="#22c55e" />
               )}
               {indicators.otherNight && (
-                <circle cx={cx + iconSize * 0.65} cy={indicatorY} r={indicatorRadius} fill="#22c55e" />
+                <circle cx={cx + cR} cy={cy} r={cR * 0.1} fill="#22c55e" />
               )}
               {hasSetupMarker && (
-                <circle cx={cx + iconSize * 0.85} cy={indicatorY} r={indicatorRadius} fill="#f97316" />
+                <circle cx={cx + cR * 0.85} cy={cy- cR * 0.5} r={cR * 0.1} fill="#f97316" />
               )}
             </>
           )}

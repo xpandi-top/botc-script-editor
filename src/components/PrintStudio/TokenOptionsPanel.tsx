@@ -228,7 +228,7 @@ export function TokenOptionsPanel({ opts, onChange, scriptCharacters, language }
           <Typography variant="caption" color="text.secondary">
             {zh ? `直径: ${opts.diameterMm}mm` : `Diameter: ${opts.diameterMm}mm`}
           </Typography>
-          <Slider value={opts.diameterMm} min={25} max={80} step={1}
+          <Slider value={opts.diameterMm} min={10} max={80} step={1}
             onChange={(_, v) => set('diameterMm', v as number)}
             marks={[{ value: 25, label: '25' }, { value: 50, label: '50' }, { value: 80, label: '80' }]}
             size="small" sx={{ mt: 0.5, mb: 0 }} />

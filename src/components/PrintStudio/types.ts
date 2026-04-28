@@ -83,9 +83,9 @@ export const DEFAULT_TOKEN_OPTIONS: TokenPrintOptions = {
   fontKeyEn: 'sans',
   fontKeyZh: 'sans',
   shape: 'circle',
-  diameterMm: 50,
-  gapMm: 4,
-  marginMm: 10,
+  diameterMm: 45,
+  gapMm: 0,
+  marginMm: 0,
   borderWidth: 2,
   borderColor: '#333333',
   blackAndWhite: false,
@@ -95,10 +95,10 @@ export const DEFAULT_TOKEN_OPTIONS: TokenPrintOptions = {
   bgFit: 'cover',
   nameDisplay: 'both',
   abilityDisplay: 'en',
-  abilityStyle: 'arc',
-  nameFontSize: 8,
-  abilityFontSize: 5.5,
-  iconSizeRatio: 1.0,
+  abilityStyle: 'straight',
+  nameFontSize: 14,
+  abilityFontSize: 7,
+  iconSizeRatio: 2.0,
   selectedCharacterIds: [],
   watermarkEnabled: false,
   watermark: {
@@ -117,8 +117,8 @@ export const DEFAULT_TOKEN_OPTIONS: TokenPrintOptions = {
   numberFontSize: 24,
   numberBgColor: '#dddddd',
   markers: DEFAULT_MARKERS,
-  showWakeIndicators: false,
-  showSetupIndicators: false,
+  showWakeIndicators: true,
+  showSetupIndicators: true,
 }
 
 export const MM_TO_PX = 3.7795
