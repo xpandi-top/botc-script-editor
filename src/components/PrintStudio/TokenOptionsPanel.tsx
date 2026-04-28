@@ -385,15 +385,6 @@ export function TokenOptionsPanel({ opts, onChange, scriptCharacters, language }
             ))}
           </Select>
         </FormControl>
-        <FormControl size="small" fullWidth sx={{ mb: 1 }}>
-          <InputLabel>{zh ? '页面语言' : 'Page language'}</InputLabel>
-          <Select value={opts.pageLang} label={zh ? '页面语言' : 'Page language'}
-            onChange={(e) => set('pageLang', e.target.value as TokenPrintOptions['pageLang'])}>
-            <MenuItem value="auto">{zh ? '自动' : 'Auto'}</MenuItem>
-            <MenuItem value="en">English</MenuItem>
-            <MenuItem value="zh">中文</MenuItem>
-          </Select>
-        </FormControl>
         <FormControlLabel
           control={<Switch checked={opts.showWakeIndicators} size="small"
             onChange={(e) => set('showWakeIndicators', e.target.checked)} />}
