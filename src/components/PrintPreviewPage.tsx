@@ -1,10 +1,13 @@
+import { useState } from 'react'
 import {
-  Box, Button, Typography, Slider, ToggleButton, ToggleButtonGroup,
+  Box, Button, IconButton, Typography, Slider, ToggleButton, ToggleButtonGroup,
   FormControlLabel, Switch, Select, MenuItem, FormControl, InputLabel,
-  Divider, Paper,
+  Divider, Paper, Tooltip,
 } from '@mui/material'
 import PrintIcon from '@mui/icons-material/Print'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import MenuIcon from '@mui/icons-material/Menu'
+import MenuOpenIcon from '@mui/icons-material/MenuOpen'
 import { SheetArticle } from './SheetArticle'
 import {
   FONT_DEFINITIONS, PAGE_SIZE_DEFS, PAGE_PREVIEW_WIDTH_PX, PAGE_PREVIEW_HEIGHT_PX,
@@ -19,6 +22,7 @@ type Props = {
   groupedScriptCharacters: ResolvedScriptCharacterGroup[]
   sheetDensityClass: string
   language: Language
+  onLanguageChange: (lang: Language) => void
   getSheetUiLabel: (lang: Language, key: string) => string
   printOptions: PrintOptions
   onOptionsChange: (opts: PrintOptions) => void
@@ -27,10 +31,11 @@ type Props = {
 
 export function PrintPreviewPage({
   activeScript, activeScriptCharacters, groupedScriptCharacters,
-  sheetDensityClass, language, getSheetUiLabel,
+  sheetDensityClass, language, onLanguageChange, getSheetUiLabel,
   printOptions: opts, onOptionsChange, onClose,
 }: Props) {
   const zh = language === 'zh'
+  const [panelOpen, setPanelOpen] = useState(true)
   const set = <K extends keyof PrintOptions>(key: K, val: PrintOptions[K]) =>
     onOptionsChange({ ...opts, [key]: val })
 
@@ -92,17 +97,27 @@ export function PrintPreviewPage({
   return (
     <Box sx={{ position: 'fixed', inset: 0, zIndex: 1300, display: 'flex', flexDirection: 'column', bgcolor: 'background.default' }}>
       {/* Top bar */}
-      <Paper elevation={2} sx={{ px: 2, py: 1, display: 'flex', alignItems: 'center', gap: 1, borderRadius: 0, zIndex: 1 }}>
+      <Paper elevation={2} sx={{ px: 2, py: 1, display: 'flex', alignItems: 'center', gap: 1, borderRadius: 0, zIndex: 1, flexShrink: 0 }}>
         <Button startIcon={<ArrowBackIcon />} onClick={onClose} size="small">{zh ? '返回' : 'Back'}</Button>
         <Typography variant="subtitle1" sx={{ flex: 1, ml: 1, fontWeight: 700 }}>
-          {zh ? '打印预览 / 排版设置' : 'Print Preview & Layout'}
+          {zh ? '打印预览' : 'Print Preview'}
         </Typography>
+        <Tooltip title={zh ? '切换语言' : 'Toggle language'}>
+          <IconButton size="small" onClick={() => onLanguageChange(zh ? 'en' : 'zh')}>
+            <Typography variant="caption" sx={{ fontWeight: 700, fontSize: '0.7rem' }}>{zh ? 'EN' : '中'}</Typography>
+          </IconButton>
+        </Tooltip>
+        <Tooltip title={panelOpen ? (zh ? '隐藏菜单' : 'Hide menu') : (zh ? '显示菜单' : 'Show menu')}>
+          <IconButton size="small" onClick={() => setPanelOpen(v => !v)}>
+            {panelOpen ? <MenuOpenIcon fontSize="small" /> : <MenuIcon fontSize="small" />}
+          </IconButton>
+        </Tooltip>
         <Button variant="contained" startIcon={<PrintIcon />} onClick={handlePrint}>{zh ? '打印' : 'Print'}</Button>
       </Paper>
 
       <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
         {/* ── Settings panel ── */}
-        <Box sx={{ width: { xs: '100%', sm: 300 }, flexShrink: 0, overflowY: 'auto', borderRight: '1px solid', borderColor: 'divider', p: 2, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+        {panelOpen && <Box sx={{ width: { xs: '100%', sm: 300 }, flexShrink: 0, overflowY: 'auto', borderRight: '1px solid', borderColor: 'divider', p: 2, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
 
           {/* Page */}
           <Box>
@@ -233,7 +248,7 @@ export function PrintPreviewPage({
               </ToggleButtonGroup>
             </Box>
           </Box>
-        </Box>
+        </Box>}
 
         {/* ── Live preview ── */}
         <Box sx={{ flex: 1, overflowY: 'auto', bgcolor: 'grey.200', p: { xs: 1, sm: 3 }, display: { xs: 'none', sm: 'flex' }, flexDirection: 'column', alignItems: 'center', gap: 2 }}>

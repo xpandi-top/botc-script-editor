@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Box, Button, IconButton, Paper, Typography } from '@mui/material'
+import { Box, Button, IconButton, Paper, Tooltip, Typography } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
-import FileUploadIcon from '@mui/icons-material/FileUpload'
+import DeleteIcon from '@mui/icons-material/Delete'
+import FileOpenIcon from '@mui/icons-material/FileOpen'
 import MenuIcon from '@mui/icons-material/Menu'
 import MenuOpenIcon from '@mui/icons-material/MenuOpen'
 import { useBreakpoint } from '../../hooks/useBreakpoint'
@@ -37,6 +38,8 @@ type Props = {
   setActiveSlug: (slug: string) => void
   createNewScript: () => void
   importScriptFile: (file: File) => void
+  deleteScript: (slug: string) => void
+  isBuiltIn: (slug: string) => boolean
   downloadScriptFile: () => void
   updateActiveScript: (updater: (script: EditableScript) => EditableScript, nextSlug?: string) => void
   toggleCharacterInScript: (id: string) => void
@@ -64,6 +67,8 @@ export function ScriptsTab({
   setActiveSlug,
   createNewScript,
   importScriptFile,
+  deleteScript,
+  isBuiltIn,
   downloadScriptFile,
   updateActiveScript,
   toggleCharacterInScript,
@@ -86,16 +91,18 @@ export function ScriptsTab({
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
             <Typography variant="h6">{uiText.scriptSheet}</Typography>
             <Box sx={{ display: 'flex', gap: 0.5 }}>
-              <Button size="small" variant="outlined" startIcon={<AddIcon />} onClick={createNewScript}>
-                {uiText.newScript}
-              </Button>
-              <Button size="small" variant="outlined" component="label" startIcon={<FileUploadIcon />}>
-                {uiLanguage === 'zh' ? '导入' : 'Import'}
-                <input type="file" accept=".json" hidden onChange={(e) => {
-                  const file = e.target.files?.[0]
-                  if (file) { importScriptFile(file); e.target.value = '' }
-                }} />
-              </Button>
+              <Tooltip title={uiLanguage === 'zh' ? '新建剧本' : 'New Script'}>
+                <IconButton size="small" onClick={createNewScript}><AddIcon fontSize="small" /></IconButton>
+              </Tooltip>
+              <Tooltip title={uiLanguage === 'zh' ? '导入 JSON' : 'Import JSON'}>
+                <IconButton size="small" component="label">
+                  <FileOpenIcon fontSize="small" />
+                  <input type="file" accept=".json" hidden onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    if (file) { importScriptFile(file); e.target.value = '' }
+                  }} />
+                </IconButton>
+              </Tooltip>
               <IconButton size="small" onClick={() => setListOpen(false)} title="Hide list">
                 <MenuOpenIcon fontSize="small" />
               </IconButton>
@@ -103,12 +110,24 @@ export function ScriptsTab({
           </Box>
           <Box sx={{ display: 'grid', gap: 1 }}>
             {scripts.map((script) => (
-              <ScriptList
-                key={script.slug}
-                title={getScriptTitle(script)}
-                isActive={script.slug === activeScript?.slug}
-                onSelect={() => { setActiveSlug(script.slug); if (isMobile) setListOpen(false) }}
-              />
+              <Box key={script.slug} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                <Box sx={{ flex: 1 }}>
+                  <ScriptList
+                    title={getScriptTitle(script)}
+                    isActive={script.slug === activeScript?.slug}
+                    onSelect={() => { setActiveSlug(script.slug); if (isMobile) setListOpen(false) }}
+                  />
+                </Box>
+                {!isBuiltIn(script.slug) && (
+                  <Tooltip title={uiLanguage === 'zh' ? '删除' : 'Delete'}>
+                    <IconButton size="small" color="error"
+                      onClick={() => deleteScript(script.slug)}
+                      sx={{ flexShrink: 0, opacity: 0.5, '&:hover': { opacity: 1 } }}>
+                      <DeleteIcon sx={{ fontSize: 16 }} />
+                    </IconButton>
+                  </Tooltip>
+                )}
+              </Box>
             ))}
           </Box>
         </Paper>

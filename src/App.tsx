@@ -38,7 +38,6 @@ import {
   initialScripts,
   locales,
   parseScriptFromData,
-  sortCharacterIds,
   teamOrder,
   toTitleCase,
 } from './catalog'
@@ -57,7 +56,18 @@ type TabKey = 'scripts' | 'settings' | 'characters' | 'storyteller' | 'printstud
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabKey>('scripts')
   const [uiLanguage, setUiLanguage] = useState<Language>('zh')
-  const [scripts, setScripts] = useState<EditableScript[]>(initialScripts)
+  const USER_SCRIPTS_KEY = 'BOTC_USER_SCRIPTS'
+  const initialSlugs = useMemo(() => new Set(initialScripts.map((s) => s.slug)), [])
+  const [scripts, setScripts] = useState<EditableScript[]>(() => {
+    try {
+      const stored = localStorage.getItem('BOTC_USER_SCRIPTS')
+      if (stored) {
+        const user = JSON.parse(stored) as EditableScript[]
+        return [...initialScripts, ...user]
+      }
+    } catch {}
+    return initialScripts
+  })
   const [activeSlug, setActiveSlug] = useState<string>(() => {
     try {
       const stored = window.localStorage.getItem(STORAGE_KEY)
@@ -70,6 +80,11 @@ export default function App() {
     } catch {}
     return initialScripts[0]?.slug ?? ''
   })
+  useEffect(() => {
+    const user = scripts.filter((s) => !initialSlugs.has(s.slug))
+    localStorage.setItem(USER_SCRIPTS_KEY, JSON.stringify(user))
+  }, [scripts, initialSlugs])
+
   const [characterQuery, setCharacterQuery] = useState('')
   const [selectedTeams, setSelectedTeams] = useState<Team[]>([])
   const [selectedEditions, setSelectedEditions] = useState<string[]>([])
@@ -135,7 +150,7 @@ export default function App() {
   const activeScriptCharacters = useMemo<ResolvedScriptCharacter[]>(() => {
     if (!activeScript) return []
     const customById = new Map(activeScript.customCharacters.map((c) => [c.id, c]))
-    return sortCharacterIds(activeScript.characters)
+    return activeScript.characters
       .map<ResolvedScriptCharacter | null>((id) => {
         const cat = characterById[id]
         const custom = customById.get(id)
@@ -256,6 +271,14 @@ export default function App() {
     setSaveStatus('')
   }
 
+  function deleteScript(slug: string) {
+    if (initialSlugs.has(slug)) return
+    setScripts((cur) => cur.filter((s) => s.slug !== slug))
+    if (activeSlug === slug) {
+      setActiveSlug(scripts.find((s) => s.slug !== slug)?.slug ?? initialScripts[0]?.slug ?? '')
+    }
+  }
+
   function downloadScriptFile() {
     if (!activeScript) return
     const payload = JSON.stringify(createScriptPayload(activeScript), null, 2)
@@ -274,7 +297,7 @@ export default function App() {
       ...s,
       characters: s.characters.includes(characterId)
         ? s.characters.filter((id) => id !== characterId)
-        : sortCharacterIds([...s.characters, characterId]),
+        : [...s.characters, characterId],
     }))
   }
 
@@ -347,6 +370,8 @@ export default function App() {
           setActiveSlug={setActiveSlug}
           createNewScript={createNewScript}
           importScriptFile={importScriptFile}
+          deleteScript={deleteScript}
+          isBuiltIn={(slug) => initialSlugs.has(slug)}
           downloadScriptFile={downloadScriptFile}
           updateActiveScript={updateActiveScript}
           toggleCharacterInScript={toggleCharacterInScript}
@@ -363,6 +388,7 @@ export default function App() {
           groupedScriptCharacters={groupedScriptCharacters}
           sheetDensityClass={sheetDensityClass}
           language={uiLanguage}
+          onLanguageChange={setUiLanguage}
           getSheetUiLabel={getSheetUiLabel}
           printOptions={printOptions}
           onOptionsChange={setPrintOptions}
@@ -407,6 +433,7 @@ export default function App() {
           onClose={() => setActiveTab('scripts')}
           scriptCharacters={activeScriptCharacters}
           language={uiLanguage}
+          onLanguageChange={setUiLanguage}
           scripts={scripts}
           activeSlug={activeSlug}
           onScriptChange={setActiveSlug}

@@ -1,7 +1,10 @@
+import { useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Box, Button, FormControl, MenuItem, Paper, Select, Typography } from '@mui/material'
+import { Box, Button, FormControl, IconButton, MenuItem, Paper, Select, Tooltip, Typography } from '@mui/material'
 import PrintIcon from '@mui/icons-material/Print'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import MenuIcon from '@mui/icons-material/Menu'
+import MenuOpenIcon from '@mui/icons-material/MenuOpen'
 import { TokenOptionsPanel } from './TokenOptionsPanel'
 import { TokenPageGrid, TokenPrintPortal } from './TokenPageGrid'
 import { PAGE_SIZE_DEFS } from '../PrintOptionsDialog'
@@ -15,14 +18,16 @@ interface Props {
   onClose: () => void
   scriptCharacters: ResolvedScriptCharacter[]
   language: Language
+  onLanguageChange: (lang: Language) => void
   scripts: EditableScript[]
   activeSlug: string
   onScriptChange: (slug: string) => void
   getScriptTitle: (s: EditableScript) => string
 }
 
-export function PrintStudioPage({ opts, onOptionsChange, onClose, scriptCharacters: givenCharacters, language, scripts, activeSlug, onScriptChange, getScriptTitle }: Props) {
+export function PrintStudioPage({ opts, onOptionsChange, onClose, scriptCharacters: givenCharacters, language, onLanguageChange, scripts, activeSlug, onScriptChange, getScriptTitle }: Props) {
   const zh = language === 'zh'
+  const [panelOpen, setPanelOpen] = useState(true)
 
   // When "__all__" is selected, use allCharacters
   const scriptCharacters = activeSlug === '__all__' 
@@ -76,9 +81,19 @@ export function PrintStudioPage({ opts, onOptionsChange, onClose, scriptCharacte
             ))}
           </Select>
         </FormControl>
-        <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
+        <Typography variant="body2" color="text.secondary" sx={{ flexShrink: 0 }}>
           {selectedCount} {zh ? '个标记' : 'tokens'}
         </Typography>
+        <Tooltip title={zh ? '切换语言' : 'Toggle language'}>
+          <IconButton size="small" onClick={() => onLanguageChange(zh ? 'en' : 'zh')}>
+            <Typography variant="caption" sx={{ fontWeight: 700, fontSize: '0.7rem' }}>{zh ? 'EN' : '中'}</Typography>
+          </IconButton>
+        </Tooltip>
+        <Tooltip title={panelOpen ? (zh ? '隐藏菜单' : 'Hide menu') : (zh ? '显示菜单' : 'Show menu')}>
+          <IconButton size="small" onClick={() => setPanelOpen(v => !v)}>
+            {panelOpen ? <MenuOpenIcon fontSize="small" /> : <MenuIcon fontSize="small" />}
+          </IconButton>
+        </Tooltip>
         <Button variant="contained" startIcon={<PrintIcon />} onClick={handlePrint} disabled={selectedCount === 0}>
           {zh ? '打印' : 'Print'}
         </Button>
@@ -86,7 +101,7 @@ export function PrintStudioPage({ opts, onOptionsChange, onClose, scriptCharacte
 
       <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
         {/* Settings panel */}
-        <Box sx={{
+        {panelOpen && <Box sx={{
           width: { xs: '100%', sm: 320 },
           flexShrink: 0,
           overflowY: 'auto',
@@ -99,7 +114,7 @@ export function PrintStudioPage({ opts, onOptionsChange, onClose, scriptCharacte
             scriptCharacters={scriptCharacters}
             language={language}
           />
-        </Box>
+        </Box>}
 
         {/* Live preview */}
         <Box sx={{
