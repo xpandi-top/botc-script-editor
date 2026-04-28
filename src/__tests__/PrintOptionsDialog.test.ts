@@ -24,14 +24,14 @@ describe('PrintOptionsDialog', () => {
 
     it('has valid defaults', () => {
       const defaults = {
-        pageSize: 'a4',
-        iconSize: 48,
-        columns: 2,
-        nameFontSize: 11,
-        titleFontSize: 20,
+        pageSize: 'letter',
+        iconSize: 28,
+        columns: 1,
+        nameFontSize: 10,
+        titleFontSize: 14,
         showSectionBg: false,
-        showSectionDivider: false,
-        showIconCircle: true,
+        showSectionDivider: true,
+        showIconCircle: false,
         showCardOutline: false,
       }
       Object.entries(defaults).forEach(([key, value]) => {
