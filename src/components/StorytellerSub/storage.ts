@@ -85,6 +85,8 @@ export function loadInitialState(): PersistedState {
       activeScriptSlug: p.activeScriptSlug,
       activeScriptTitle: p.activeScriptTitle,
       endGameResult: p.endGameResult ?? null,
+      stFabledIds: p.stFabledIds ?? [],
+      stCustomRules: p.stCustomRules ?? '',
     }
   } catch {
     return fallback

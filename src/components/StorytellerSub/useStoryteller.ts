@@ -27,6 +27,8 @@ export function useStoryteller(props: StorytellerHelperProps) {
   const [customTagPool, setCustomTagPool] = useState(initial.customTagPool)
   const [gameRecords, setGameRecords] = useState(initial.gameRecords)
   const [playerNamePool, setPlayerNamePool] = useState<string[]>(initial.playerNamePool)
+  const [stFabledIds, setStFabledIds] = useState<string[]>(initial.stFabledIds ?? [])
+  const [stCustomRules, setStCustomRules] = useState<string>(initial.stCustomRules ?? '')
 
   // ── Runtime state ──
   const [pickerMode, setPickerMode] = useState<PickerMode>('none')
@@ -168,9 +170,9 @@ export function useStoryteller(props: StorytellerHelperProps) {
 
   // ── Effects ──
   useEffect(() => {
-    const toSave = { selectedDayId, timerDefaults, days, customTagPool, gameRecords, playerNamePool, activeScriptSlug, activeScriptTitle }
+    const toSave = { selectedDayId, timerDefaults, days, customTagPool, gameRecords, playerNamePool, activeScriptSlug, activeScriptTitle, stFabledIds, stCustomRules }
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave satisfies PersistedState))
-  }, [customTagPool, days, gameRecords, playerNamePool, selectedDayId, timerDefaults, activeScriptSlug, activeScriptTitle])
+  }, [customTagPool, days, gameRecords, playerNamePool, selectedDayId, timerDefaults, activeScriptSlug, activeScriptTitle, stFabledIds, stCustomRules])
 
   // Separate effect to save endGameResult - avoids overwriting saved data when closing modal
   useEffect(() => {
@@ -312,6 +314,7 @@ export function useStoryteller(props: StorytellerHelperProps) {
     handleSeatClick,
     clearUnusedCustomTags, toggleLogFilterType, confirmDialog,
     editLogEntry, removeLogEntry, addQuickEvent, swapLogEntries,
+    stFabledIds, setStFabledIds, stCustomRules, setStCustomRules,
     ...lifecycle,
     stopNight,
     toggleNightVisitedSeat,

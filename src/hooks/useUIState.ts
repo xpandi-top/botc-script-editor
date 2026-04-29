@@ -38,6 +38,7 @@ export function useUIState() {
   const [playerModalSeat, setPlayerModalSeat] = useState<number | null>(null)
   const [playerModalTab, setPlayerModalTab] = useState(0)
   const [showAggLogModal, setShowAggLogModal] = useState(false)
+  const [showStSetupModal, setShowStSetupModal] = useState(false)
 
   function toggleConsoleSection(section: ConsoleSection) {
     setActiveConsoleSections((cur) => {
@@ -74,5 +75,6 @@ export function useUIState() {
     playerModalSeat, setPlayerModalSeat,
     playerModalTab, setPlayerModalTab,
     showAggLogModal, setShowAggLogModal,
+    showStSetupModal, setShowStSetupModal,
   }
 }

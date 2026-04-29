@@ -13,6 +13,7 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import CloseIcon from '@mui/icons-material/Close'
 import { ArenaCenterNominationSheet } from './ArenaCenterNominationSheet'
 import { AggregatedLogModal } from './AggregatedLogModal'
+import { StorytellerSetupModal } from './StorytellerSetupModal'
 import type { Phase, PublicMode } from '../types'
 
 const PHASES: Phase[] = ['night', 'private', 'public', 'nomination']
@@ -42,7 +43,7 @@ export function PhaseControlPanel({ ctx }: { ctx: any }) {
     alarmActive, setAlarmActive, nightShowCharacter, setNightShowCharacter,
     nightShowWakeOrder, setNightShowWakeOrder, setNewGamePanel, activeScriptSlug,
     openNewGamePanel, openEndGamePanel, setShowEditPlayersModal,
-    showAggLogModal, setShowAggLogModal,
+    showAggLogModal, setShowAggLogModal, setShowStSetupModal, stFabledIds,
   } = ctx
 
   const [noteOpen, setNoteOpen] = useState(false)
@@ -173,6 +174,9 @@ export function PhaseControlPanel({ ctx }: { ctx: any }) {
                 <MenuItem value="roundRobin" sx={{ fontSize: '0.8rem' }}>{text.roundRobinMode}</MenuItem>
               </Select>
             )}
+            <Button size="small" variant="outlined" sx={btnSx} onClick={() => setShowStSetupModal(true)}>
+              📖{stFabledIds?.length > 0 ? ` ${stFabledIds.length}` : ''}
+            </Button>
             <Button size="small" variant="outlined" sx={btnSx} onClick={() => setNoteOpen(true)}>📝</Button>
             <Button size="small" variant="outlined" sx={btnSx} onClick={() => setShowAggLogModal(true)}>📋</Button>
           </Box>
@@ -279,6 +283,7 @@ export function PhaseControlPanel({ ctx }: { ctx: any }) {
       </Box>
 
       <AggregatedLogModal ctx={ctx} />
+      <StorytellerSetupModal ctx={ctx} />
 
       {/* Notes dialog */}
       <Dialog open={noteOpen} onClose={() => setNoteOpen(false)} maxWidth="sm" fullWidth slotProps={{ paper: { sx: { p: 2, borderRadius: 2 } } }}>

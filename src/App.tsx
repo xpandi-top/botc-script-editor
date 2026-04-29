@@ -67,14 +67,15 @@ export default function App() {
     } catch {}
     return initialScripts
   })
-  const [activeSlug, setActiveSlug] = useState<string>(() => {
+  const [activeSlug, setActiveSlug] = useState<string>(initialScripts[0]?.slug ?? '')
+
+  // ST has its own independent script selection — not shared with Scripts tab
+  const [stActiveSlug, setStActiveSlug] = useState<string>(() => {
     try {
       const stored = window.localStorage.getItem(STORAGE_KEY)
       if (stored) {
         const p = JSON.parse(stored)
-        if (p.activeScriptSlug && initialScripts.some(s => s.slug === p.activeScriptSlug)) {
-          return p.activeScriptSlug
-        }
+        if (p.activeScriptSlug) return p.activeScriptSlug
       }
     } catch {}
     return initialScripts[0]?.slug ?? ''
@@ -452,10 +453,10 @@ export default function App() {
 
       {activeTab === 'storyteller' && (
         <StorytellerHelper
-          activeScriptSlug={activeScript?.slug}
-          activeScriptTitle={activeScript ? getScriptTitle(activeScript) : undefined}
+          activeScriptSlug={stActiveSlug}
+          activeScriptTitle={getScriptTitle(scripts.find((s) => s.slug === stActiveSlug) ?? scripts[0])}
           language={uiLanguage}
-          onSelectScript={setActiveSlug}
+          onSelectScript={setStActiveSlug}
           scriptOptions={scripts.map((s) => ({ slug: s.slug, title: getScriptTitle(s), characters: s.characters }))}
         />
       )}

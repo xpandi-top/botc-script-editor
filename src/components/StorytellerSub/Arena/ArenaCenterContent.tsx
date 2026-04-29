@@ -1,11 +1,11 @@
 import { useState, useMemo } from 'react'
-import { Box, Button, TextField, Select, MenuItem, IconButton, Typography, ToggleButton, ToggleButtonGroup, Dialog, FormControlLabel, Switch } from '@mui/material'
+import { Box, Button, TextField, Select, MenuItem, IconButton, Typography, ToggleButton, ToggleButtonGroup } from '@mui/material'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import PauseIcon from '@mui/icons-material/Pause'
 import StopIcon from '@mui/icons-material/Stop'
 import RefreshIcon from '@mui/icons-material/Refresh'
-import CloseIcon from '@mui/icons-material/Close'
 import { AggregatedLogModal } from './AggregatedLogModal'
+import { StorytellerSetupModal } from './StorytellerSetupModal'
 import type { Phase, PublicMode } from '../types'
 
 const PHASES: Phase[] = ['night', 'private', 'public', 'nomination']
@@ -38,13 +38,8 @@ export function ArenaCenterContent({ ctx }: { ctx: any }) {
     enterNomination, moveToNextSpeaker, goToNextDay, setPhase,
     alarmActive, setAlarmActive, nightShowCharacter, setNightShowCharacter,
     nightShowWakeOrder, setNightShowWakeOrder, setNewGamePanel, activeScriptSlug,
-    setShowAggLogModal,
+    setShowAggLogModal, setShowStSetupModal, stFabledIds,
   } = ctx
-
-  const [noteModalOpen, setNoteModalOpen] = useState(false)
-  const [publicNote, setPublicNote] = useState('')
-  const [stNote, setStNote] = useState('')
-  const [showStNote, setShowStNote] = useState(false)
   const [timerEditing, setTimerEditing] = useState(false)
   const [timerInput, setTimerInput] = useState('')
 
@@ -149,7 +144,11 @@ export function ArenaCenterContent({ ctx }: { ctx: any }) {
         <MenuItem value="free">{text.freeSpeech}</MenuItem>
         <MenuItem value="roundRobin">{text.roundRobinMode}</MenuItem>
       </Select>}
-      <Button size="small" onClick={() => setNoteModalOpen(true)} startIcon="📝">{language === 'zh' ? '备注' : 'Notes'}</Button>
+      <Button size="small" onClick={() => setShowStSetupModal(true)}
+        startIcon={stFabledIds?.length > 0 ? <Box component="span" sx={{ fontSize: '0.85rem', lineHeight: 1 }}>{stFabledIds.length}</Box> : undefined}
+        sx={{ fontWeight: 600 }}>
+        📖 {language === 'zh' ? '说书人' : 'ST Setup'}
+      </Button>
       <Button size="small" onClick={() => setShowAggLogModal(true)} startIcon="📋">{language === 'zh' ? '日志' : 'Log'}</Button>
      </Box>
       {hasTimer && (
@@ -184,18 +183,7 @@ export function ArenaCenterContent({ ctx }: { ctx: any }) {
       {nominationControls}
 
       <AggregatedLogModal ctx={ctx} />
-
-      <Dialog open={noteModalOpen} onClose={() => setNoteModalOpen(false)} maxWidth="sm" fullWidth slotProps={{ paper: { sx: { p: 2, borderRadius: 2 } } }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h6" sx={{ fontWeight: 700 }}>{language === 'zh' ? '全局备注' : 'Global Notes'}</Typography>
-          <IconButton size="small" onClick={() => setNoteModalOpen(false)}><CloseIcon /></IconButton>
-        </Box>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <TextField multiline rows={3} fullWidth label={language === 'zh' ? '公开备注 (全员可见)' : 'Public Note (visible to all)'} value={publicNote} onChange={(e) => setPublicNote(e.target.value)} placeholder={language === 'zh' ? '输入公开备注...' : 'Enter public note...'} />
-          <FormControlLabel control={<Switch checked={showStNote} onChange={(e) => setShowStNote(e.target.checked)} />} label={language === 'zh' ? '显示ST备注' : 'Show ST Note'} />
-          {showStNote && <TextField multiline rows={3} fullWidth label={language === 'zh' ? 'ST备注 (仅ST可见)' : 'ST Note (ST only)'} value={stNote} onChange={(e) => setStNote(e.target.value)} placeholder={language === 'zh' ? '输入ST备注...' : 'Enter ST note...'} sx={{ '& .MuiOutlinedInput-root': { bgcolor: 'action.hover' } }} />}
-        </Box>
-      </Dialog>
+      <StorytellerSetupModal ctx={ctx} />
     </Box>
   )
 }

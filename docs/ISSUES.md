@@ -140,11 +140,11 @@ On confirm: apply options to print portal then call `window.print()`.
 
 ---
 
-## I-55 — ST: Storyteller icon in compact toolbar (fabled/loric + custom rules)
+## I-55 — ST: Storyteller Setup button (fabled/loric + custom rules)
 
-**Status:** open  
-**Area:** CompactToolbar.tsx  
-**Detail:** Add centered round-circle icon button for storyteller. Click opens panel to: assign fabled/loric characters, enter custom rules text. When not editing: click shows current assignment read-only.
+**Status:** fixed  
+**Area:** Arena/ArenaCenterContent.tsx, Arena/PhaseControlPanel.tsx, Arena/StorytellerSetupModal.tsx  
+**Detail:** Replaced Notes button with 📖 ST Setup button in arena center (desktop) and phase panel (mobile). Opens StorytellerSetupModal: fabled/loric character picker with search + active chips, custom rules textarea with view/edit toggle. State (stFabledIds, stCustomRules) persisted to localStorage. Button shows active fabled count badge.
 
 ---
 

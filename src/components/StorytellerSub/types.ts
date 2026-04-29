@@ -248,6 +248,8 @@ export type PersistedState = {
   activeScriptSlug?: string
   activeScriptTitle?: string
   endGameResult?: EndGameResult | null
+  stFabledIds?: string[]
+  stCustomRules?: string
 }
 
 export type DialogState =
