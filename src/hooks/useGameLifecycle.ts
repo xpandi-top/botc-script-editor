@@ -37,14 +37,18 @@ interface LifecycleDeps {
   setCustomTagPool?: (c: string[]) => void
   setPlayerNamePool?: (p: string[]) => void
   setShowEndGameModal?: (v: boolean) => void
+  setNightShowCharacter?: (v: boolean) => void
+  setNightShowWakeOrder?: (v: boolean) => void
 }
 
 export function buildGameLifecycle(deps: LifecycleDeps) {
-  const { days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, endGameResult, scriptOptions, onSelectScript, setDays, setDaysWithUndo, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay, setNewGamePanel, setEndGameResult, setGameRecords, setAudioPlaying, language, appendEvent, customTagPool = [], playerNamePool = [], setCurrentRecordName, setTimerDefaults, setCustomTagPool, setPlayerNamePool, setShowEndGameModal } = deps
+  const { days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, endGameResult, scriptOptions, onSelectScript, setDays, setDaysWithUndo, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay, setNewGamePanel, setEndGameResult, setGameRecords, setAudioPlaying, language, appendEvent, customTagPool = [], playerNamePool = [], setCurrentRecordName, setTimerDefaults, setCustomTagPool, setPlayerNamePool, setShowEndGameModal, setNightShowCharacter, setNightShowWakeOrder } = deps
 
   const exportActions = buildGameExport({ days, currentDay, activeScriptSlug, activeScriptTitle, endGameResult, timerDefaults, customTagPool, playerNamePool, setGameRecords, setCurrentRecordName })
 
   function goToNextDay() {
+    setNightShowCharacter?.(false)
+    setNightShowWakeOrder?.(false)
     if (selectedDayIndex < days.length - 1) { setSelectedDayId(days[selectedDayIndex + 1].id); setIsTimerRunning(false); return }
     if (currentDay.gameEnded) return
     const next = createDayState(days.length + 1, currentDay.seats, timerDefaults)
@@ -77,6 +81,10 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
       if (phase === 'nomination') next = { ...next, nominationStep: 'waitingForNomination' as NominationStep, nominationWaitSeconds: timerDefaults.nominationWaitSeconds, voteDraft: { actor: null, target: null, voters: [], noVoters: [], note: '', manualPassed: null, nominationResult: 'succeed' as const, isExile: false, voteCountOverride: null }, votingState: null }
       return next
     }))
+    if (phase !== 'night') {
+      setNightShowCharacter?.(false)
+      setNightShowWakeOrder?.(false)
+    }
     setPickerMode('none')
     setIsTimerRunning(false)
     setAudioPlaying(false)

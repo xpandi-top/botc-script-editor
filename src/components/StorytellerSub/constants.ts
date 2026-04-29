@@ -84,7 +84,7 @@ export function createDayState(day: number, seats: StorytellerSeat[], defaults: 
   return {
     id: `day-${day}-${Math.random().toString(36).slice(2, 8)}`,
     day,
-    phase: 'private',
+    phase: 'night',
     publicMode: 'free',
     nominationStep: 'waitingForNomination',
     privateSeconds: defaults.privateSeconds,

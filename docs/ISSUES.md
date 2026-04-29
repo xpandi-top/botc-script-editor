@@ -121,3 +121,56 @@ On confirm: apply options to print portal then call `window.print()`.
 | I-40 | Wake order visible only on selected card | fixed |
 | I-41 | BGM local upload missing from settings | fixed |
 | I-42 | Duplicate game action buttons in mobile bottom sheet | fixed |
+
+---
+
+## I-53 — PrintStudio + PrintPreview: mobile/tablet optimization
+
+**Status:** open  
+**Area:** PrintStudio/PrintStudioPage.tsx, PrintPreviewPage.tsx  
+**Detail:** Both pages assume wide desktop layout. On mobile/tablet: settings panel overlaps content, sliders too cramped, preview canvas overflows viewport. Fix: responsive layout (stack panel below on mobile, hide panel behind toggle on tablet), full-width preview on small screens.
+
+---
+
+## I-54 — ST: Next Day should start at Night phase, reset reveal flags
+
+**Status:** fixed  
+**Area:** useGameLifecycle.ts, constants.ts  
+**Detail:** `createDayState` sets `phase: 'private'`. On Next Day: should start at `phase: 'night'`. Also reset `showCharacters` and `showWakeOrder` UI flags to false on day transition.
+
+---
+
+## I-55 — ST: Storyteller icon in compact toolbar (fabled/loric + custom rules)
+
+**Status:** open  
+**Area:** CompactToolbar.tsx  
+**Detail:** Add centered round-circle icon button for storyteller. Click opens panel to: assign fabled/loric characters, enter custom rules text. When not editing: click shows current assignment read-only.
+
+---
+
+## I-56 — ST: Player card character circle redesign
+
+**Status:** fixed  
+**Area:** Arena/ArenaSeat, Arena/MobileSeatCard  
+**Detail:** Per image: replace character icon tab with circle above player card. When showCharacters=true: circle shows character icon + name. When false: circle shows "?". Mobile: circle overlaps left edge of card. Remove old tab-style character icon reveal.
+
+---
+
+## I-57 — ST: Game records / DDB analytics tab
+
+**Status:** open  
+**Area:** New tab — src/components/tabs/AnalyticsTab.tsx  
+**Detail:** New tab showing gaming records analysis:
+1. Win rates (evil/good) — total, per script, per player, per character
+2. Per player: characters played, scripts played, evil/good split, win rate
+3. Per record: script info, character info
+4. Per script: aggregated stats
+Data source: saved game records in localStorage.
+
+---
+
+## I-58 — ST: Consolidate Ability + Status into single button/modal
+
+**Status:** open  
+**Area:** Arena/ArenaSeat.tsx, Arena/MobileSeatCard.tsx  
+**Detail:** Currently two separate buttons (Ability / Status) expand separate popovers. Merge into single "Player" button that opens one modal/drawer containing both: character skill panel (ArenaSeatSkillPopout content) and status/tag panel (ArenaSeatTagPopout content) as tabs or sections.
