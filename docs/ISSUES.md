@@ -171,6 +171,6 @@ Data source: saved game records in localStorage.
 
 ## I-58 — ST: Consolidate Ability + Status into single button/modal
 
-**Status:** open  
-**Area:** Arena/ArenaSeat.tsx, Arena/MobileSeatCard.tsx  
-**Detail:** Currently two separate buttons (Ability / Status) expand separate popovers. Merge into single "Player" button that opens one modal/drawer containing both: character skill panel (ArenaSeatSkillPopout content) and status/tag panel (ArenaSeatTagPopout content) as tabs or sections.
+**Status:** fixed  
+**Area:** Arena/ArenaSeat.tsx, Arena/MobileSeatCard.tsx, Arena/ArenaSeatPlayerModal.tsx  
+**Detail:** Merged Ability + Status into single "Actions" button opening one Dialog (ArenaSeatPlayerModal) with MUI Tabs. Ability tab: full skill form when skillOverlay active, else "Use Ability" button. Status tab: alive/executed/traveler/noVote toggles, custom tag input, tag pool, character-as-tag section. Rendered via createPortal. Old ArenaSeatTagPopout/ArenaSeatSkillPopout removed from both seat components.

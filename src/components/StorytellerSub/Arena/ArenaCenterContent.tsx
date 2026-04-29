@@ -5,6 +5,7 @@ import PauseIcon from '@mui/icons-material/Pause'
 import StopIcon from '@mui/icons-material/Stop'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import CloseIcon from '@mui/icons-material/Close'
+import { AggregatedLogModal } from './AggregatedLogModal'
 import type { Phase, PublicMode } from '../types'
 
 const PHASES: Phase[] = ['night', 'private', 'public', 'nomination']
@@ -37,6 +38,7 @@ export function ArenaCenterContent({ ctx }: { ctx: any }) {
     enterNomination, moveToNextSpeaker, goToNextDay, setPhase,
     alarmActive, setAlarmActive, nightShowCharacter, setNightShowCharacter,
     nightShowWakeOrder, setNightShowWakeOrder, setNewGamePanel, activeScriptSlug,
+    setShowAggLogModal,
   } = ctx
 
   const [noteModalOpen, setNoteModalOpen] = useState(false)
@@ -148,6 +150,7 @@ export function ArenaCenterContent({ ctx }: { ctx: any }) {
         <MenuItem value="roundRobin">{text.roundRobinMode}</MenuItem>
       </Select>}
       <Button size="small" onClick={() => setNoteModalOpen(true)} startIcon="📝">{language === 'zh' ? '备注' : 'Notes'}</Button>
+      <Button size="small" onClick={() => setShowAggLogModal(true)} startIcon="📋">{language === 'zh' ? '日志' : 'Log'}</Button>
      </Box>
       {hasTimer && (
         <>
@@ -179,6 +182,8 @@ export function ArenaCenterContent({ ctx }: { ctx: any }) {
       {publicRobinControls}
       {publicFreeControls}
       {nominationControls}
+
+      <AggregatedLogModal ctx={ctx} />
 
       <Dialog open={noteModalOpen} onClose={() => setNoteModalOpen(false)} maxWidth="sm" fullWidth slotProps={{ paper: { sx: { p: 2, borderRadius: 2 } } }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>

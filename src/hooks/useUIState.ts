@@ -35,6 +35,9 @@ export function useUIState() {
   const [nightShowCharacter, setNightShowCharacter] = useState(false)
   const [nightShowWakeOrder, setNightShowWakeOrder] = useState(false)
   const [characterPopoutSeat, setCharacterPopoutSeat] = useState<number | null>(null)
+  const [playerModalSeat, setPlayerModalSeat] = useState<number | null>(null)
+  const [playerModalTab, setPlayerModalTab] = useState(0)
+  const [showAggLogModal, setShowAggLogModal] = useState(false)
 
   function toggleConsoleSection(section: ConsoleSection) {
     setActiveConsoleSections((cur) => {
@@ -68,5 +71,8 @@ export function useUIState() {
     nightShowCharacter, setNightShowCharacter,
     nightShowWakeOrder, setNightShowWakeOrder,
     characterPopoutSeat, setCharacterPopoutSeat,
+    playerModalSeat, setPlayerModalSeat,
+    playerModalTab, setPlayerModalTab,
+    showAggLogModal, setShowAggLogModal,
   }
 }

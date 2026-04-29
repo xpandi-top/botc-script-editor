@@ -1,13 +1,13 @@
 // @ts-nocheck
 import React, { useState } from 'react'
 import { Box, Button, IconButton, Chip, Paper } from '@mui/material'
-import { ArenaSeatTagPopout } from './ArenaSeatTagPopout'
-import { ArenaSeatSkillPopout } from './ArenaSeatSkillPopout'
+import { ArenaSeatPlayerModal } from './ArenaSeatPlayerModal'
 import { ArenaSeatCharacterPopout } from './ArenaSeatCharacterPopout'
 import { PlayerNightLog } from './PlayerNightLog'
 import { CharacterCircle } from './CharacterCircle'
 import { getDisplayName, getIconForCharacter, nightOrder } from '../../../catalog'
 import { VoteButtonGroup } from './ArenaSeatComponents'
+
 
 const CIRCLE_SIZE = 52
 const CIRCLE_OVERLAP = CIRCLE_SIZE / 2  // how much circle sticks into card
@@ -15,17 +15,16 @@ const CIRCLE_OVERLAP = CIRCLE_SIZE / 2  // how much circle sticks into card
 export function MobileSeatCard({ ctx, seat }: { ctx: any; seat: any }) {
   const {
     language, pickerMode, currentDay, updateCurrentDay, currentVoterSeat,
-    tagPopoutSeat, setTagPopoutSeat, skillPopoutSeat, setSkillPopoutSeat,
     selectedSeat, text, handleSeatClick, handleVoteYes, handleVoteNo,
-    openSeatSkill, closeSkillOverlay, nightShowCharacter, nightShowWakeOrder,
+    nightShowCharacter, nightShowWakeOrder,
     characterPopoutSeat, setCharacterPopoutSeat, toggleNightVisitedSeat,
+    playerModalSeat, setPlayerModalSeat, setPlayerModalTab,
     days,
   } = ctx
 
   const [logOpen, setLogOpen] = useState(false)
 
-  const isTagPopoutOpen = tagPopoutSeat === seat.seat
-  const isSkillPopoutOpen = skillPopoutSeat === seat.seat
+  const isPlayerModalOpen = playerModalSeat === seat.seat
   const isCharacterPopoutOpen = characterPopoutSeat === seat.seat
   const isSelected = selectedSeat?.seat === seat.seat
   const isNightPhase = currentDay.phase === 'night'
@@ -165,15 +164,10 @@ export function MobileSeatCard({ ctx, seat }: { ctx: any; seat: any }) {
 
           {isSelected && (
             <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mt: 0.5 }}>
-              <Button size="small" variant={isSkillPopoutOpen ? 'contained' : 'outlined'}
-                onClick={(e) => { e.stopPropagation(); isSkillPopoutOpen ? closeSkillOverlay(false) : openSeatSkill(seat.seat) }}
+              <Button size="small" variant={isPlayerModalOpen ? 'contained' : 'outlined'}
+                onClick={(e) => { e.stopPropagation(); setPlayerModalSeat(isPlayerModalOpen ? null : seat.seat); setPlayerModalTab(0) }}
                 sx={{ minWidth: 0, px: 1, py: 0.25, fontSize: '0.8rem', fontWeight: 600 }}>
-                {language === 'zh' ? '技能' : 'Ability'}
-              </Button>
-              <Button size="small" variant={isTagPopoutOpen ? 'contained' : 'outlined'} color={isTagPopoutOpen ? 'secondary' : 'inherit'}
-                onClick={(e) => { e.stopPropagation(); setTagPopoutSeat(isTagPopoutOpen ? null : seat.seat); setSkillPopoutSeat(null) }}
-                sx={{ minWidth: 0, px: 1, py: 0.25, fontSize: '0.8rem', fontWeight: 600 }}>
-                {language === 'zh' ? '状态' : 'Status'}
+                {language === 'zh' ? '操作' : 'Actions'}
               </Button>
               {isNightPhase && (
                 <Button size="small" variant="outlined" onClick={(e) => { e.stopPropagation(); setLogOpen(true) }}
@@ -189,8 +183,7 @@ export function MobileSeatCard({ ctx, seat }: { ctx: any; seat: any }) {
       </Box>
 
       <PlayerNightLog open={logOpen} onClose={() => setLogOpen(false)} seat={seat} days={days || [currentDay]} language={language} />
-      <ArenaSeatTagPopout ctx={ctx} seat={seat} />
-      <ArenaSeatSkillPopout ctx={ctx} seat={seat} />
+      <ArenaSeatPlayerModal ctx={ctx} seat={seat} />
       <ArenaSeatCharacterPopout ctx={ctx} seat={seat} />
     </>
   )

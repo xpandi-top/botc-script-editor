@@ -1,12 +1,10 @@
 import { Drawer, Box, IconButton, Typography } from '@mui/material'
-import MenuIcon from '@mui/icons-material/Menu'
 import SettingsIcon from '@mui/icons-material/Settings'
 import HistoryIcon from '@mui/icons-material/History'
 import DownloadIcon from '@mui/icons-material/Download'
 import AddCircleIcon from '@mui/icons-material/AddCircle'
 import PeopleIcon from '@mui/icons-material/People'
 import FlagIcon from '@mui/icons-material/Flag'
-import { RightPopupLog } from './RightPopupLog'
 import { RightPopupSettings } from './RightPopupSettings'
 import { RightConsoleRecords } from './RightConsoleRecords'
 
@@ -17,7 +15,7 @@ export function RightConsole({ ctx }: { ctx: any }) {
     openNewGamePanel, setShowEditPlayersModal, openEndGamePanel,
   } = ctx
 
-  const togglePopup = (name: 'log' | 'settings' | 'records') => {
+  const togglePopup = (name: 'settings' | 'records') => {
     setActiveRightPopup((p: string) => (p === name ? null : name))
   }
 
@@ -61,20 +59,18 @@ export function RightConsole({ ctx }: { ctx: any }) {
             bgcolor: 'rgba(255,251,245,0.96)',
           }}
         >
-          {activeRightPopup === 'log' && <RightPopupLog ctx={ctx} />}
           {activeRightPopup === 'settings' && <RightPopupSettings ctx={ctx} />}
           {activeRightPopup === 'records' && <RightConsoleRecords ctx={ctx} toggleConsoleSection={ctx.toggleConsoleSection} />}
         </Box>
 
         <Box sx={{ width: barWidth, display: 'flex', flexDirection: 'column', alignItems: 'center', py: 1, gap: 0.5, borderLeft: '1px solid rgba(23,32,42,0.10)', bgcolor: 'rgba(255,251,245,0.92)' }}>
           {[
-            { key: 'log', icon: <MenuIcon />, label: language === 'zh' ? '日志' : 'Log' },
             { key: 'settings', icon: <SettingsIcon />, label: language === 'zh' ? '设置' : 'Settings' },
             { key: 'records', icon: <HistoryIcon />, label: language === 'zh' ? '记录' : 'Records' },
           ].map(({ key, icon, label }) => (
             <IconButton
               key={key}
-              onClick={() => togglePopup(key as 'log' | 'settings' | 'records')}
+              onClick={() => togglePopup(key as 'settings' | 'records')}
               sx={{
                 flexDirection: 'column',
                 width: 44,

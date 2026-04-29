@@ -1,8 +1,7 @@
 // @ts-nocheck
 import React, { useState } from 'react'
 import { Box, Button, Chip, IconButton, Paper } from '@mui/material'
-import { ArenaSeatTagPopout } from './ArenaSeatTagPopout'
-import { ArenaSeatSkillPopout } from './ArenaSeatSkillPopout'
+import { ArenaSeatPlayerModal } from './ArenaSeatPlayerModal'
 import { ArenaSeatCharacterPopout } from './ArenaSeatCharacterPopout'
 import { PlayerNightLog } from './PlayerNightLog'
 import { CharacterCircle } from './CharacterCircle'
@@ -12,12 +11,11 @@ import { VoteButtonGroup, RoundRobinIndicator } from './ArenaSeatComponents'
 
 export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: any, index: number, isPortrait: boolean }) {
   const {
-    language, pickerMode, skillOverlay, currentDay, updateCurrentDay, currentVoterSeat,
-    tagPopoutSeat, setTagPopoutSeat, skillPopoutSeat, setSkillPopoutSeat,
-    selectedSeat, text, handleSeatClick, handleVoteYes, handleVoteNo, removeSeatTag,
-    openSeatSkill, closeSkillOverlay, nightShowCharacter,
-    nightShowWakeOrder, characterPopoutSeat, setCharacterPopoutSeat, toggleNightVisitedSeat,
-    days,
+    language, pickerMode, currentDay, updateCurrentDay, currentVoterSeat,
+    selectedSeat, text, handleSeatClick, handleVoteYes, handleVoteNo,
+    nightShowCharacter, nightShowWakeOrder, skillOverlay,
+    characterPopoutSeat, setCharacterPopoutSeat, toggleNightVisitedSeat,
+    playerModalSeat, setPlayerModalSeat, setPlayerModalTab, days,
   } = ctx
 
   const [logOpen, setLogOpen] = useState(false)
@@ -52,8 +50,7 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
     : currentDay.voteDraft.noVoters.includes(seat.seat)
 
   const isSelected = selectedSeat?.seat === seat.seat
-  const isTagPopoutOpen = tagPopoutSeat === seat.seat
-  const isSkillPopoutOpen = skillPopoutSeat === seat.seat
+  const isPlayerModalOpen = playerModalSeat === seat.seat
   const isCharacterPopoutOpen = characterPopoutSeat === seat.seat
 
   const actualCharId = seat.characterId
@@ -166,18 +163,11 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
           )}
 
           {isSelected && (
-            <Box sx={{ display: 'flex', gap: 0.25, mt: 0.25, flexWrap: 'wrap', justifyContent: 'center' }}>
-              <Button size="medium" variant={isSkillPopoutOpen ? 'contained' : 'outlined'}
-                onClick={(e) => { e.stopPropagation(); isSkillPopoutOpen ? closeSkillOverlay(false) : openSeatSkill(seat.seat) }}
-                color={isSkillPopoutOpen ? 'primary' : 'inherit'} sx={{ minWidth: 0, px: 0.75, py: 0.25, fontWeight: 600 }}>
-                {language === 'zh' ? '技能' : 'Ability'}
-              </Button>
-              <Button size="medium" variant="outlined"
-                onClick={(e) => { e.stopPropagation(); setTagPopoutSeat(isTagPopoutOpen ? null : seat.seat); setSkillPopoutSeat(null) }}
-                color={isTagPopoutOpen ? 'secondary' : 'inherit'} sx={{ minWidth: 0, px: 0.75, py: 0.25, fontWeight: 600 }}>
-                {language === 'zh' ? '状态' : 'Status'}
-              </Button>
-            </Box>
+            <Button size="medium" variant={isPlayerModalOpen ? 'contained' : 'outlined'}
+              onClick={(e) => { e.stopPropagation(); setPlayerModalSeat(isPlayerModalOpen ? null : seat.seat); setPlayerModalTab(0) }}
+              sx={{ mt: 0.25, minWidth: 0, px: 0.75, py: 0.25, fontWeight: 600 }}>
+              {language === 'zh' ? '操作' : 'Actions'}
+            </Button>
           )}
 
           {isInNomination && <VoteButtonGroup seat={seat} cardVotedYes={cardVotedYes} cardVotedNo={cardVotedNo} handleVoteYesClick={handleVoteYesClick} handleVoteNoClick={handleVoteNoClick} handleRemoveVote={handleRemoveVote} />}
@@ -210,8 +200,7 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
         </Paper>
       </Box>
 
-      <ArenaSeatTagPopout ctx={ctx} seat={seat} />
-      <ArenaSeatSkillPopout ctx={ctx} seat={seat} />
+      <ArenaSeatPlayerModal ctx={ctx} seat={seat} />
       <ArenaSeatCharacterPopout ctx={ctx} seat={seat} />
       <PlayerNightLog open={logOpen} onClose={() => setLogOpen(false)} seat={seat} days={days || [currentDay]} language={language} />
     </>

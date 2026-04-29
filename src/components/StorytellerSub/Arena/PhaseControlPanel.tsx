@@ -12,6 +12,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import CloseIcon from '@mui/icons-material/Close'
 import { ArenaCenterNominationSheet } from './ArenaCenterNominationSheet'
+import { AggregatedLogModal } from './AggregatedLogModal'
 import type { Phase, PublicMode } from '../types'
 
 const PHASES: Phase[] = ['night', 'private', 'public', 'nomination']
@@ -41,6 +42,7 @@ export function PhaseControlPanel({ ctx }: { ctx: any }) {
     alarmActive, setAlarmActive, nightShowCharacter, setNightShowCharacter,
     nightShowWakeOrder, setNightShowWakeOrder, setNewGamePanel, activeScriptSlug,
     openNewGamePanel, openEndGamePanel, setShowEditPlayersModal,
+    showAggLogModal, setShowAggLogModal,
   } = ctx
 
   const [noteOpen, setNoteOpen] = useState(false)
@@ -172,6 +174,7 @@ export function PhaseControlPanel({ ctx }: { ctx: any }) {
               </Select>
             )}
             <Button size="small" variant="outlined" sx={btnSx} onClick={() => setNoteOpen(true)}>📝</Button>
+            <Button size="small" variant="outlined" sx={btnSx} onClick={() => setShowAggLogModal(true)}>📋</Button>
           </Box>
 
           {/* Timer */}
@@ -274,6 +277,8 @@ export function PhaseControlPanel({ ctx }: { ctx: any }) {
 
         </Box>
       </Box>
+
+      <AggregatedLogModal ctx={ctx} />
 
       {/* Notes dialog */}
       <Dialog open={noteOpen} onClose={() => setNoteOpen(false)} maxWidth="sm" fullWidth slotProps={{ paper: { sx: { p: 2, borderRadius: 2 } } }}>

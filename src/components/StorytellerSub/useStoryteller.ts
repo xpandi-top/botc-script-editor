@@ -225,6 +225,57 @@ export function useStoryteller(props: StorytellerHelperProps) {
     if (el) { el.pause(); el.currentTime = 0 }
   }
 
+  function editLogEntry(entryId: string, newDetail: string) {
+    const [prefix, dayStr, ...rest] = entryId.split('-')
+    const dayNum = Number(dayStr)
+    const rawId = rest.join('-')
+    setDays((cur) => cur.map((d) => {
+      if (d.day !== dayNum) return d
+      if (prefix === 'e') return { ...d, eventLog: d.eventLog.map((e) => e.id === rawId ? { ...e, detail: newDetail } : e) }
+      if (prefix === 'v') return { ...d, voteHistory: d.voteHistory.map((v) => v.id === rawId ? { ...v, note: newDetail } : v) }
+      if (prefix === 's') return { ...d, skillHistory: d.skillHistory.map((s) => s.id === rawId ? { ...s, statement: newDetail } : s) }
+      return d
+    }))
+  }
+
+  function removeLogEntry(entryId: string) {
+    const [prefix, dayStr, ...rest] = entryId.split('-')
+    const dayNum = Number(dayStr)
+    const rawId = rest.join('-')
+    setDays((cur) => cur.map((d) => {
+      if (d.day !== dayNum) return d
+      if (prefix === 'e') return { ...d, eventLog: d.eventLog.filter((e) => e.id !== rawId) }
+      if (prefix === 'v') return { ...d, voteHistory: d.voteHistory.filter((v) => v.id !== rawId) }
+      if (prefix === 's') return { ...d, skillHistory: d.skillHistory.filter((s) => s.id !== rawId) }
+      return d
+    }))
+  }
+
+  function swapLogEntries(idA: string, idB: string) {
+    const parse = (id: string) => { const [prefix, dayStr, ...rest] = id.split('-'); return { prefix, dayNum: Number(dayStr), rawId: rest.join('-') } }
+    const a = parse(idA); const b = parse(idB)
+    if (a.dayNum !== b.dayNum) return
+    setDays((cur) => cur.map((d) => {
+      if (d.day !== a.dayNum) return d
+      const getTs = (prefix: string, rawId: string) => {
+        if (prefix === 'e') return d.eventLog.find((e) => e.id === rawId)?.timestamp ?? 0
+        return Number(prefix === 'v' ? d.voteHistory.find((v) => v.id === rawId)?.id : d.skillHistory.find((s) => s.id === rawId)?.id) || 0
+      }
+      const tsA = getTs(a.prefix, a.rawId); const tsB = getTs(b.prefix, b.rawId)
+      const setTs = (day: any, prefix: string, rawId: string, ts: number) => {
+        if (prefix === 'e') return { ...day, eventLog: day.eventLog.map((e: any) => e.id === rawId ? { ...e, timestamp: ts } : e) }
+        if (prefix === 'v') return { ...day, voteHistory: day.voteHistory.map((v: any) => v.id === rawId ? { ...v, id: `${ts}` } : v) }
+        return { ...day, skillHistory: day.skillHistory.map((s: any) => s.id === rawId ? { ...s, id: `${ts}` } : s) }
+      }
+      return setTs(setTs(d, a.prefix, a.rawId, tsB), b.prefix, b.rawId, tsA)
+    }))
+  }
+
+  function addQuickEvent(detail: string, visibility: 'public' | 'st-only') {
+    const kind = visibility === 'public' ? 'stateChange' : 'tagChange'
+    updateCurrentDay((d) => appendEvent(d, kind as any, detail))
+  }
+
   function toggleNightVisitedSeat(seatNumber: number) {
     updateCurrentDay((d) => ({
       ...d,
@@ -260,6 +311,7 @@ export function useStoryteller(props: StorytellerHelperProps) {
     ...gameActions,
     handleSeatClick,
     clearUnusedCustomTags, toggleLogFilterType, confirmDialog,
+    editLogEntry, removeLogEntry, addQuickEvent, swapLogEntries,
     ...lifecycle,
     stopNight,
     toggleNightVisitedSeat,
