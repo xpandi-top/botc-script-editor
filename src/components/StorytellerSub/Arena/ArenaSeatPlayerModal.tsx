@@ -15,6 +15,17 @@ import { getDisplayName, getIconForCharacter, getAbilityText } from '../../../ca
 const ST_TAG_PREFIX = '📝'
 const DEFAULT_ST_TAGS = ['drunk', 'poisoned', 'protected', 'red herring', 'used']
 
+// stTag format: "📝label" or "📝label::sourceCharId"
+function parseStTag(tag: string): { label: string; sourceCharId: string | null } {
+  const body = tag.startsWith(ST_TAG_PREFIX) ? tag.slice(ST_TAG_PREFIX.length) : tag
+  const sep = body.indexOf('::')
+  if (sep === -1) return { label: body, sourceCharId: null }
+  return { label: body.slice(0, sep), sourceCharId: body.slice(sep + 2) || null }
+}
+function buildStTag(label: string, sourceCharId?: string | null): string {
+  return `${ST_TAG_PREFIX}${label}${sourceCharId ? `::${sourceCharId}` : ''}`
+}
+
 type SkillType = 'know' | 'guess' | 'addTag' | 'removeTag' | 'changeChar'
 const SKILL_LABELS: Record<SkillType, { en: string; zh: string }> = {
   know:       { en: 'Know',             zh: '已知信息' },
@@ -136,15 +147,15 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: any; seat: any }) {
   // ── ST Tag helpers ──
   const stTags: string[] = seat.stTags || []
   const removeStTag = (tag: string) => updateSeatWithLog(seat.seat, (s: any) => ({ ...s, stTags: (s.stTags || []).filter((t: string) => t !== tag) }))
-  const addStTag = (label: string) => {
+  const addStTag = (label: string, sourceCharId?: string | null) => {
     if (!label.trim()) return
-    const tag = `${ST_TAG_PREFIX}${label.trim()}`
+    const tag = buildStTag(label.trim(), sourceCharId)
     updateSeatWithLog(seat.seat, (s: any) => ({ ...s, stTags: [...new Set([...(s.stTags || []), tag])] }))
     setStTagInput('')
   }
   const toggleDefaultStTag = (label: string) => {
-    const tag = `${ST_TAG_PREFIX}${label}`
-    if (stTags.includes(tag)) removeStTag(tag)
+    const existing = stTags.find((t) => parseStTag(t).label === label)
+    if (existing) removeStTag(existing)
     else addStTag(label)
   }
 
@@ -209,7 +220,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: any; seat: any }) {
 
     if (isSuccess) {
       if (skillType === 'addTag') {
-        const tag = `${ST_TAG_PREFIX}${tagInput.trim()}`
+        const tag = buildStTag(tagInput.trim(), actualCharId || null)
         for (const sn of targetArr) updateSeatWithLog(sn, (s: any) => ({ ...s, stTags: [...new Set([...(s.stTags || []), tag])] }))
       } else if (skillType === 'removeTag') {
         for (const sn of targetArr) updateSeatWithLog(sn, (s: any) => ({ ...s, customTags: (s.customTags || []).filter((t: string) => t !== removeTagVal), stTags: (s.stTags || []).filter((t: string) => t !== removeTagVal) }))
@@ -363,16 +374,19 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: any; seat: any }) {
           )
         })}
       </Box>
-      {/* Existing stTags (removable) */}
+      {/* Existing stTags (removable, with optional source char icon) */}
       {stTags.length > 0 && (
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 0.75 }}>
-          {stTags.map((tag: string) => (
-            <Chip key={`st-${tag}`}
-              label={tag.replace(ST_TAG_PREFIX, '')}
-              size="small"
-              onDelete={() => removeStTag(tag)}
-              sx={{ bgcolor: 'warning.light', color: 'warning.contrastText' }} />
-          ))}
+          {stTags.map((tag: string) => {
+            const { label, sourceCharId } = parseStTag(tag)
+            const srcIcon = sourceCharId ? getIconForCharacter(sourceCharId) : null
+            return (
+              <Chip key={`st-${tag}`} label={label} size="small"
+                icon={srcIcon ? <Box component="img" src={srcIcon as string} sx={{ width: 16, height: 16, ml: '4px !important', borderRadius: '50%' }} /> : undefined}
+                onDelete={() => removeStTag(tag)}
+                sx={{ bgcolor: 'warning.light', color: 'warning.contrastText', '& .MuiChip-deleteIcon': { color: 'warning.dark' } }} />
+            )
+          })}
         </Box>
       )}
       {/* Quick-add stTag */}

@@ -179,7 +179,7 @@ Data source: saved game records in localStorage.
 
 ## I-60 — ST: Phase-aware unified player modal (character + actions + log)
 
-**Status:** open  
+**Status:** fixed  
 **Area:** Arena/ArenaSeat.tsx, Arena/MobileSeatCard.tsx, Arena/ArenaSeatPlayerModal.tsx, Arena/CharacterCircle.tsx  
 **Detail:** Consolidate CharacterCircle click + Actions button + per-player Log into one phase-aware modal. CharacterCircle becomes main trigger (enabled in all phases). Actions button removed. Log button removed. Single `ArenaSeatPlayerModal` replaces `ArenaSeatCharacterPopout` + current modal.
 
@@ -200,7 +200,7 @@ Data source: saved game records in localStorage.
 
 ## I-61 — ST: Default ST tag pool + character icon attachment
 
-**Status:** open  
+**Status:** fixed  
 **Area:** Arena/ArenaSeatPlayerModal.tsx, StorytellerSub/constants.ts  
 **Detail:** Two enhancements to ST tags:
 

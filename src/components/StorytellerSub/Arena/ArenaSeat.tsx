@@ -180,10 +180,17 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
 
           {isNightPhase && nightShowCharacter && (seat.stTags || []).length > 0 && (
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.25, mt: 0.25, maxWidth: 90 }}>
-              {(seat.stTags as string[]).map((tag: string) => (
-                <Chip key={tag} label={tag.replace('📝', '')} size="small"
-                  sx={{ fontSize: '0.6rem', height: 16, bgcolor: 'warning.light', color: 'warning.contrastText', '& .MuiChip-label': { px: 0.5 } }} />
-              ))}
+              {(seat.stTags as string[]).map((tag: string) => {
+                const body = tag.startsWith('📝') ? tag.slice(2) : tag
+                const sep = body.indexOf('::'); const label = sep === -1 ? body : body.slice(0, sep)
+                const srcId = sep === -1 ? null : body.slice(sep + 2) || null
+                const srcIcon = srcId ? getIconForCharacter(srcId) : null
+                return (
+                  <Chip key={tag} label={label} size="small"
+                    icon={srcIcon ? <img src={srcIcon as string} style={{ width: 12, height: 12, borderRadius: '50%' }} /> : undefined}
+                    sx={{ fontSize: '0.6rem', height: 16, bgcolor: 'warning.light', color: 'warning.contrastText', '& .MuiChip-label': { px: 0.5 } }} />
+                )
+              })}
             </Box>
           )}
 
