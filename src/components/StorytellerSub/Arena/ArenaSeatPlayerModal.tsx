@@ -9,6 +9,9 @@ import {
 } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import EditIcon from '@mui/icons-material/Edit'
+import DeleteIcon from '@mui/icons-material/Delete'
+import CheckIcon from '@mui/icons-material/Check'
 import { getDisplayName, getIconForCharacter, getAbilityText } from '../../../catalog'
 
 // ── Constants ──────────────────────────────────────────────────
@@ -48,20 +51,21 @@ function buildPlayerEntries(days: any[], seatNum: number, includeNight: boolean)
     for (const e of day.eventLog) {
       if (!includeNight && e.phase === 'night') continue
       if (eventMentionsSeat(e.detail, seatNum)) {
-        entries.push({ id: `e-${day.day}-${e.id}`, timestamp: e.timestamp, text: e.detail, kind: e.kind, editable: e.detail })
+        const vis: 'public' | 'st-only' = (e.kind === 'stateChange' || e.kind === 'phaseTransition') ? 'public' : 'st-only'
+        entries.push({ id: `e-${day.day}-${e.id}`, timestamp: e.timestamp, text: e.detail, kind: e.kind, type: 'event', phase: e.phase, visibility: vis, editable: e.detail })
       }
     }
     for (const v of day.voteHistory) {
       if (v.actor === seatNum || v.target === seatNum) {
         const result = v.passed ? 'PASS' : 'FAIL'
         const line = `#${v.actor} → #${v.target}: ${result} (${v.voteCount}/${v.requiredVotes})${v.isExile ? ' [exile]' : ''}`
-        entries.push({ id: `v-${day.day}-${v.id}`, timestamp: parseInt(v.id, 10) || 0, text: line, kind: 'vote', editable: v.note || '' })
+        entries.push({ id: `v-${day.day}-${v.id}`, timestamp: parseInt(v.id, 10) || 0, text: line, kind: 'vote', type: 'vote', phase: 'nomination', visibility: 'public', editable: v.note || '' })
       }
     }
     for (const s of day.skillHistory) {
       if (s.actor === seatNum || (s.targets || []).includes(seatNum)) {
         const line = `#${s.actor} → [${(s.targets || []).map((t: number) => `#${t}`).join(', ')}] ${s.roleId || '?'}`
-        entries.push({ id: `s-${day.day}-${s.id}`, timestamp: parseInt(s.id, 10) || 0, text: line, kind: 'skill', editable: s.statement || '' })
+        entries.push({ id: `s-${day.day}-${s.id}`, timestamp: parseInt(s.id, 10) || 0, text: line, kind: 'skill', type: 'skill', phase: s.activatedDuringPhase, visibility: 'st-only', editable: s.statement || '' })
       }
     }
     entries.sort((a, b) => b.timestamp - a.timestamp)
@@ -69,8 +73,13 @@ function buildPlayerEntries(days: any[], seatNum: number, includeNight: boolean)
   }).filter((d) => d.entries.length > 0)
 }
 
-const KIND_COLOR: Record<string, any> = { vote: 'primary', skill: 'secondary', tagChange: 'warning', stateChange: 'error', phaseTransition: 'default' }
-const KIND_LABEL_EN: Record<string, string> = { vote: 'vote', skill: 'skill', tagChange: 'tag', stateChange: 'state', phaseTransition: 'phase' }
+const ENTRY_COLORS: Record<string, 'primary' | 'secondary' | 'success' | 'error' | 'warning'> = {
+  vote: 'primary', skill: 'secondary', event: 'success',
+}
+
+function phaseLabel(phase: string, text: any): string {
+  return { night: text.nightPhase, private: text.privateChat, public: text.publicChat, nomination: text.nomination }[phase] ?? phase
+}
 
 // ── Component ────────────────────────────────────────────────────
 export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: any; seat: any }) {
@@ -598,17 +607,32 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: any; seat: any }) {
                   {editingId === e.id ? (
                     <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
                       <TextField size="small" value={editText} onChange={(ev) => setEditText(ev.target.value)} sx={{ flex: 1 }} autoFocus />
-                      <IconButton size="small" onClick={handleEditSave} color="primary">✓</IconButton>
-                      <IconButton size="small" onClick={() => setEditingId(null)}>✕</IconButton>
+                      <IconButton size="small" onClick={handleEditSave} color="primary"><CheckIcon fontSize="small" /></IconButton>
+                      <IconButton size="small" onClick={() => setEditingId(null)}><CloseIcon fontSize="small" /></IconButton>
                     </Box>
                   ) : (
-                    <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.5 }}>
-                      <Chip label={KIND_LABEL_EN[e.kind] ?? e.kind} size="small"
-                        color={(KIND_COLOR[e.kind] ?? 'default') as any}
-                        sx={{ fontSize: '0.6rem', height: 16, flexShrink: 0, mt: 0.2, '& .MuiChip-label': { px: 0.4 } }} />
-                      <Typography variant="body2" sx={{ fontSize: '0.78rem', flex: 1, wordBreak: 'break-word' }}>{e.text}</Typography>
-                      <IconButton size="small" sx={{ p: 0.25 }} onClick={() => handleEdit(e.id, e.editable)}>✏️</IconButton>
-                      <IconButton size="small" sx={{ p: 0.25 }} onClick={() => removeLogEntry(e.id)}>🗑️</IconButton>
+                    <Box sx={{
+                      p: 0.75, borderRadius: 1,
+                      bgcolor: e.visibility === 'st-only' ? 'warning.light' : 'background.paper',
+                      border: '1px solid', borderColor: 'divider',
+                    }}>
+                      <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center', flexWrap: 'wrap', mb: 0.25 }}>
+                        <Chip size="small" sx={{ height: 18, fontSize: '0.62rem' }}
+                          label={e.type === 'vote' ? text.filterVote : e.type === 'skill' ? text.filterSkill : text.filterEvent}
+                          color={(ENTRY_COLORS[e.type] ?? 'default') as any} />
+                        {e.visibility === 'st-only' && (
+                          <Chip label="ST" size="small" color="warning" sx={{ height: 18, fontSize: '0.62rem' }} />
+                        )}
+                        {e.phase && <Chip label={phaseLabel(e.phase, text)} size="small" variant="outlined" sx={{ height: 18, fontSize: '0.62rem' }} />}
+                        <Box sx={{ flex: 1 }} />
+                        <IconButton size="small" sx={{ p: 0.25 }} onClick={() => handleEdit(e.id, e.editable)}>
+                          <EditIcon sx={{ fontSize: 14 }} />
+                        </IconButton>
+                        <IconButton size="small" sx={{ p: 0.25 }} color="error" onClick={() => removeLogEntry(e.id)}>
+                          <DeleteIcon sx={{ fontSize: 14 }} />
+                        </IconButton>
+                      </Box>
+                      <Typography variant="body2" sx={{ wordBreak: 'break-word', fontSize: '0.82rem' }}>{e.text}</Typography>
                     </Box>
                   )}
                 </Box>

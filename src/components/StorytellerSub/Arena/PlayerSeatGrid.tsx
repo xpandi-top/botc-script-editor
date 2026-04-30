@@ -31,9 +31,19 @@ export function PlayerSeatGrid({ ctx }: { ctx: any }) {
         flex: 1,
       }}
     >
-      {currentDay.seats.map((seat: any) => (
-        <MobileSeatCard key={seat.seat} ctx={ctx} seat={seat} />
-      ))}
+      {(() => {
+        const seats: any[] = currentDay.seats
+        const half = Math.ceil(seats.length / 2)
+        const leftCol = seats.slice(0, half)
+        const rightCol = seats.slice(half).reverse()
+        return leftCol.map((s: any, i: number) => {
+          const r = rightCol[i]
+          return [
+            <MobileSeatCard key={s.seat} ctx={ctx} seat={s} />,
+            r ? <MobileSeatCard key={r.seat} ctx={ctx} seat={r} /> : <Box key={`empty-${i}`} />,
+          ]
+        }).flat()
+      })()}
     </Box>
   )
 }
