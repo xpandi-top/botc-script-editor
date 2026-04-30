@@ -1,7 +1,9 @@
 import { useCallback, useMemo, useState } from 'react'
 import {
+  Autocomplete,
   Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle,
-  Divider, IconButton, MenuItem, Paper, Select, TextField, Tooltip, Typography,
+  Divider, IconButton, MenuItem, Paper, Select, TextField, ToggleButton,
+  ToggleButtonGroup, Tooltip, Typography,
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -9,7 +11,8 @@ import EditIcon from '@mui/icons-material/Edit'
 import FileDownloadIcon from '@mui/icons-material/FileDownload'
 import FileUploadIcon from '@mui/icons-material/FileUpload'
 import RefreshIcon from '@mui/icons-material/Refresh'
-import { getDisplayName, getIconForCharacter } from '../../catalog'
+import RemoveIcon from '@mui/icons-material/Remove'
+import { allCharacters, getDisplayName, getIconForCharacter, initialScripts } from '../../catalog'
 import { STORAGE_KEY } from '../StorytellerSub/constants'
 import type { GameRecord } from '../StorytellerSub/types'
 import type { Language } from '../../types'
@@ -35,34 +38,58 @@ function writeRecords(records: GameRecord[]) {
   } catch {}
 }
 
-// ── Edit dialog ───────────────────────────────────────────────────
+// ── Types ─────────────────────────────────────────────────────────
 
-type EditDialogProps = {
-  record: GameRecord
-  zh: boolean
-  onSave: (r: GameRecord) => void
-  onClose: () => void
+type PlayerRow = { name: string; charId: string; team: 'evil' | 'good' | '' }
+
+const makeRows = (n: number): PlayerRow[] =>
+  Array.from({ length: n }, () => ({ name: '', charId: '', team: '' }))
+
+// ── Character helpers ─────────────────────────────────────────────
+
+const EVIL_TEAMS = new Set(['minion', 'demon'])
+const GOOD_TEAMS = new Set(['townsfolk', 'outsider'])
+
+function teamFromChar(charId: string): 'evil' | 'good' | '' {
+  const c = allCharacters.find((x) => x.id === charId)
+  if (!c) return ''
+  if (EVIL_TEAMS.has(c.team)) return 'evil'
+  if (GOOD_TEAMS.has(c.team)) return 'good'
+  return '' // traveler → let user pick
 }
-function EditRecordDialog({ record, zh, onSave, onClose }: EditDialogProps) {
+
+// ── Script title helper ───────────────────────────────────────────
+
+function getScriptLabel(s: { slug: string; title: string; titleZh?: string }, language: Language) {
+  return (language === 'zh' && s.titleZh) ? s.titleZh : (s.title || s.slug)
+}
+
+function loadAllScripts(language: Language): Array<{ slug: string; label: string }> {
+  const base = initialScripts.map((s) => ({ slug: s.slug, label: getScriptLabel(s, language) }))
+  try {
+    const user = JSON.parse(localStorage.getItem('BOTC_USER_SCRIPTS') || '[]') as any[]
+    const userMapped = user.map((s) => ({ slug: s.slug ?? '', label: s.title || s.slug || '?' }))
+    return [...base, ...userMapped]
+  } catch {
+    return base
+  }
+}
+
+// ── Edit Record dialog ────────────────────────────────────────────
+
+function EditRecordDialog({ record, zh, onSave, onClose }: {
+  record: GameRecord; zh: boolean
+  onSave: (r: GameRecord) => void; onClose: () => void
+}) {
   const [name, setName] = useState(record.recordName || record.scriptTitle || '')
   const [winner, setWinner] = useState<string>(record.winner ?? '')
   return (
     <Dialog open onClose={onClose} maxWidth="xs" fullWidth>
       <DialogTitle>{zh ? '编辑记录' : 'Edit Record'}</DialogTitle>
       <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
-        <TextField
-          label={zh ? '记录名称' : 'Record name'}
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          size="small"
-          fullWidth
-        />
-        <Select
-          value={winner}
-          onChange={(e) => setWinner(e.target.value)}
-          size="small"
-          displayEmpty
-        >
+        <TextField label={zh ? '记录名称' : 'Record name'} value={name}
+          onChange={(e) => setName(e.target.value)} size="small" fullWidth />
+        <Select value={winner} onChange={(e) => setWinner(e.target.value)} size="small" displayEmpty>
           <MenuItem value="">{zh ? '未记录' : 'No result'}</MenuItem>
           <MenuItem value="evil">{zh ? '邪恶胜' : 'Evil Win'}</MenuItem>
           <MenuItem value="good">{zh ? '善良胜' : 'Good Win'}</MenuItem>
@@ -80,6 +107,267 @@ function EditRecordDialog({ record, zh, onSave, onClose }: EditDialogProps) {
   )
 }
 
+// ── Create Record dialog ──────────────────────────────────────────
+
+function CreateRecordDialog({ zh, language, onSave, onClose }: {
+  zh: boolean; language: Language
+  onSave: (r: GameRecord) => void; onClose: () => void
+}) {
+  const today = new Date().toISOString().slice(0, 10)
+
+  const [name, setName] = useState('')
+  const [scriptInput, setScriptInput] = useState('')
+  const [scriptSlug, setScriptSlug] = useState('')
+  const [date, setDate] = useState(today)
+  const [winner, setWinner] = useState('')
+  const [dayCount, setDayCount] = useState(1)
+  const [playerCount, setPlayerCount] = useState(5)
+  const [players, setPlayers] = useState<PlayerRow[]>(makeRows(5))
+
+  const scriptOptions = useMemo(() => loadAllScripts(language), [language])
+
+  const charOptions = useMemo(() =>
+    allCharacters
+      .filter((c) => !['fabled', 'loric'].includes(c.team))
+      .map((c) => ({
+        id: c.id,
+        label: getDisplayName(c.id, language),
+        team: c.team,
+        icon: getIconForCharacter(c.id) as string | null,
+      }))
+      .sort((a, b) => {
+        const order = ['townsfolk', 'outsider', 'minion', 'demon', 'traveler']
+        const ai = order.indexOf(a.team), bi = order.indexOf(b.team)
+        return ai !== bi ? ai - bi : a.label.localeCompare(b.label)
+      }),
+  [language])
+
+  const groupLabel = (team: string) => {
+    if (zh) {
+      const m: Record<string, string> = { townsfolk: '镇民', outsider: '外来者', minion: '爪牙', demon: '恶魔', traveler: '旅行者' }
+      return m[team] ?? team
+    }
+    return team.charAt(0).toUpperCase() + team.slice(1)
+  }
+
+  const setPlayerCount_ = (n: number) => {
+    const clamped = Math.max(1, Math.min(20, n))
+    setPlayerCount(clamped)
+    setPlayers((prev) => {
+      if (clamped > prev.length) return [...prev, ...makeRows(clamped - prev.length)]
+      return prev.slice(0, clamped)
+    })
+  }
+
+  const updatePlayer = (i: number, patch: Partial<PlayerRow>) => {
+    setPlayers((prev) => prev.map((p, idx) => idx === i ? { ...p, ...patch } : p))
+  }
+
+  const handleSave = () => {
+    const endedAt = new Date(date + 'T12:00:00').getTime() || Date.now()
+
+    const activePlayers = players.filter((p) => p.name || p.charId)
+    const playerSummaries = activePlayers.map((p, idx) => ({
+      seat: idx + 1,
+      name: p.name || `#${idx + 1}`,
+      team: (p.team || null) as 'evil' | 'good' | null,
+    }))
+
+    const assignments: Record<number, string> = {}
+    players.forEach((p, idx) => { if (p.charId) assignments[idx + 1] = p.charId })
+
+    const hasSetup = Object.keys(assignments).length > 0
+    const record: GameRecord = {
+      id: `manual-${Date.now()}`,
+      endedAt,
+      recordName: name || (scriptInput ? `${scriptInput} ${new Date(date).toLocaleDateString()}` : undefined),
+      scriptTitle: scriptInput || undefined,
+      scriptSlug: scriptSlug || undefined,
+      winner: (winner || null) as GameRecord['winner'],
+      playerSummaries: playerSummaries.length > 0 ? playerSummaries : undefined,
+      days: Array.from({ length: Math.max(1, dayCount) }, (_, i) => ({ day: i + 1, votes: 0, skills: 0 })),
+      setup: hasSetup ? {
+        playerCount: players.length,
+        travelerCount: 0,
+        seatNames: Object.fromEntries(players.map((p, i) => [i + 1, p.name])),
+        assignments,
+        userAssignments: {},
+        seatNotes: {},
+        specialNote: '',
+        demonBluffs: [],
+      } : undefined,
+    }
+    onSave(record)
+    onClose()
+  }
+
+  return (
+    <Dialog open onClose={onClose} maxWidth="md" fullWidth
+      slotProps={{ paper: { sx: { maxHeight: '90vh' } } }}>
+      <DialogTitle sx={{ pb: 1 }}>{zh ? '新建游戏记录' : 'New Game Record'}</DialogTitle>
+      <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+
+        {/* ── Basic info ── */}
+        <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
+          <TextField
+            label={zh ? '记录名称（可选）' : 'Record name (optional)'}
+            value={name} onChange={(e) => setName(e.target.value)}
+            size="small" sx={{ flex: '2 1 180px' }}
+          />
+          <Autocomplete
+            freeSolo
+            options={scriptOptions}
+            getOptionLabel={(o) => typeof o === 'string' ? o : o.label}
+            inputValue={scriptInput}
+            onInputChange={(_, v) => {
+              setScriptInput(v)
+              // clear slug if free-typing
+              const match = scriptOptions.find((s) => s.label === v)
+              setScriptSlug(match?.slug ?? '')
+            }}
+            onChange={(_, v) => {
+              if (v && typeof v !== 'string') {
+                setScriptInput(v.label)
+                setScriptSlug(v.slug)
+              }
+            }}
+            renderInput={(params) => (
+              <TextField {...params} label={zh ? '剧本' : 'Script'} size="small" />
+            )}
+            sx={{ flex: '2 1 180px' }}
+          />
+        </Box>
+
+        <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', alignItems: 'center' }}>
+          <TextField
+            type="date"
+            label={zh ? '日期' : 'Date'}
+            value={date} onChange={(e) => setDate(e.target.value)}
+            size="small" slotProps={{ inputLabel: { shrink: true } }}
+            sx={{ flex: '1 1 130px' }}
+          />
+          <Box sx={{ flex: '1 1 200px' }}>
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+              {zh ? '结果' : 'Result'}
+            </Typography>
+            <ToggleButtonGroup value={winner} exclusive size="small"
+              onChange={(_, v) => { if (v !== null) setWinner(v) }}>
+              <ToggleButton value="evil" sx={{ fontSize: '0.75rem', color: 'error.main' }}>
+                {zh ? '邪恶胜' : 'Evil Win'}
+              </ToggleButton>
+              <ToggleButton value="good" sx={{ fontSize: '0.75rem', color: 'success.main' }}>
+                {zh ? '善良胜' : 'Good Win'}
+              </ToggleButton>
+              <ToggleButton value="" sx={{ fontSize: '0.75rem' }}>
+                {zh ? '未记录' : 'None'}
+              </ToggleButton>
+            </ToggleButtonGroup>
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flex: '0 0 auto' }}>
+            <Typography variant="caption" color="text.secondary">{zh ? '天数' : 'Days'}</Typography>
+            <IconButton size="small" onClick={() => setDayCount((n) => Math.max(1, n - 1))}>
+              <RemoveIcon fontSize="small" />
+            </IconButton>
+            <Typography variant="body2" sx={{ minWidth: 20, textAlign: 'center' }}>{dayCount}</Typography>
+            <IconButton size="small" onClick={() => setDayCount((n) => n + 1)}>
+              <AddIcon fontSize="small" />
+            </IconButton>
+          </Box>
+        </Box>
+
+        <Divider />
+
+        {/* ── Players ── */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Typography variant="subtitle2" sx={{ fontWeight: 700, flex: 1 }}>
+            {zh ? '玩家' : 'Players'}
+          </Typography>
+          <IconButton size="small" onClick={() => setPlayerCount_(playerCount - 1)}>
+            <RemoveIcon fontSize="small" />
+          </IconButton>
+          <Typography variant="body2" sx={{ minWidth: 20, textAlign: 'center' }}>{playerCount}</Typography>
+          <IconButton size="small" onClick={() => setPlayerCount_(playerCount + 1)}>
+            <AddIcon fontSize="small" />
+          </IconButton>
+        </Box>
+
+        <Typography variant="caption" color="text.secondary">
+          {zh ? '角色和阵营用于统计分析。名字为空时自动用座位编号。' : 'Character + team power analytics. Blank names use seat number.'}
+        </Typography>
+
+        {/* Header row */}
+        <Box sx={{ display: 'grid', gridTemplateColumns: '32px 1fr 1fr 80px', gap: 0.5, alignItems: 'center' }}>
+          <Typography variant="caption" color="text.secondary">#</Typography>
+          <Typography variant="caption" color="text.secondary">{zh ? '玩家名' : 'Name'}</Typography>
+          <Typography variant="caption" color="text.secondary">{zh ? '角色' : 'Character'}</Typography>
+          <Typography variant="caption" color="text.secondary">{zh ? '阵营' : 'Team'}</Typography>
+        </Box>
+
+        {/* Player rows */}
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75, maxHeight: 320, overflowY: 'auto', pr: 0.5 }}>
+          {players.map((p, i) => (
+            <Box key={i} sx={{ display: 'grid', gridTemplateColumns: '32px 1fr 1fr 80px', gap: 0.5, alignItems: 'center' }}>
+              <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'center' }}>{i + 1}</Typography>
+              <TextField
+                size="small"
+                placeholder={`${zh ? '玩家' : 'Player'} ${i + 1}`}
+                value={p.name}
+                onChange={(e) => updatePlayer(i, { name: e.target.value })}
+                sx={{ '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' } }}
+              />
+              <Autocomplete
+                options={charOptions}
+                groupBy={(o) => groupLabel(o.team)}
+                getOptionLabel={(o) => o.label}
+                value={charOptions.find((c) => c.id === p.charId) ?? null}
+                onChange={(_, v) => {
+                  const charId = v?.id ?? ''
+                  const autoTeam = charId ? teamFromChar(charId) : ''
+                  updatePlayer(i, { charId, team: autoTeam })
+                }}
+                renderOption={(props, o) => (
+                  <Box component="li" {...props} sx={{ gap: 0.75, py: '2px !important' }}>
+                    {o.icon && <Box component="img" src={o.icon} sx={{ width: 20, height: 20, borderRadius: '50%', flexShrink: 0 }} />}
+                    <Typography variant="caption">{o.label}</Typography>
+                  </Box>
+                )}
+                renderInput={(params) => (
+                  <TextField {...params} size="small" placeholder={zh ? '选择角色' : 'Character'}
+                    sx={{ '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' } }} />
+                )}
+                slotProps={{ popper: { style: { zIndex: 1400 } } }}
+                clearOnEscape
+                sx={{ flex: 1 }}
+              />
+              <ToggleButtonGroup
+                value={p.team}
+                exclusive
+                size="small"
+                onChange={(_, v) => { if (v !== null) updatePlayer(i, { team: v }) }}
+                sx={{ '& .MuiToggleButton-root': { py: '2px', px: '6px', fontSize: '0.7rem' } }}
+              >
+                <ToggleButton value="evil" sx={{ color: 'error.main' }}>
+                  {zh ? '邪' : 'E'}
+                </ToggleButton>
+                <ToggleButton value="good" sx={{ color: 'success.main' }}>
+                  {zh ? '善' : 'G'}
+                </ToggleButton>
+              </ToggleButtonGroup>
+            </Box>
+          ))}
+        </Box>
+
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>{zh ? '取消' : 'Cancel'}</Button>
+        <Button variant="contained" onClick={handleSave}>
+          {zh ? '创建记录' : 'Create Record'}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  )
+}
+
 // ── Main component ────────────────────────────────────────────────
 
 export function AnalyticsTab({ language }: { language: Language }) {
@@ -87,6 +375,7 @@ export function AnalyticsTab({ language }: { language: Language }) {
 
   const [records, setRecords] = useState<GameRecord[]>(() => readStorage().records)
   const [editingRecord, setEditingRecord] = useState<GameRecord | null>(null)
+  const [showCreate, setShowCreate] = useState(false)
   const [importError, setImportError] = useState('')
 
   const refresh = useCallback(() => setRecords(readStorage().records), [])
@@ -98,6 +387,7 @@ export function AnalyticsTab({ language }: { language: Language }) {
 
   const deleteRecord = (id: string) => saveAndSet(records.filter((r) => r.id !== id))
   const updateRecord = (updated: GameRecord) => saveAndSet(records.map((r) => r.id === updated.id ? updated : r))
+  const addRecord = (r: GameRecord) => saveAndSet([r, ...records])
 
   // ── Import ──
   const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -112,18 +402,15 @@ export function AnalyticsTab({ language }: { language: Language }) {
         if (Array.isArray(parsed)) {
           incoming = parsed
         } else if (parsed.gameRecords && Array.isArray(parsed.gameRecords)) {
-          // full ST storage export
           incoming = parsed.gameRecords
         } else if (parsed.id && parsed.days) {
-          // single record
           incoming = [parsed]
         } else {
           throw new Error('unrecognized format')
         }
-        // merge: skip duplicates by id
         const existingIds = new Set(records.map((r) => r.id))
         const newOnes = incoming.filter((r) => r.id && !existingIds.has(r.id))
-        saveAndSet([...records, ...newOnes])
+        saveAndSet([...newOnes, ...records])
         if (newOnes.length === 0) setImportError(zh ? '无新记录（ID重复）' : 'No new records (duplicate IDs)')
       } catch (err: any) {
         setImportError(String(err?.message ?? err))
@@ -138,20 +425,14 @@ export function AnalyticsTab({ language }: { language: Language }) {
     const blob = new Blob([JSON.stringify(records, null, 2)], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
-    a.href = url
-    a.download = `botc-records-${new Date().toISOString().slice(0, 10)}.json`
-    a.click()
-    URL.revokeObjectURL(url)
+    a.href = url; a.download = `botc-records-${new Date().toISOString().slice(0, 10)}.json`
+    a.click(); URL.revokeObjectURL(url)
   }
 
   const exportAnalysis = () => {
     const analysis = {
       exportedAt: new Date().toISOString(),
-      summary: {
-        total: records.length,
-        evilWins: records.filter((r) => r.winner === 'evil').length,
-        goodWins: records.filter((r) => r.winner === 'good').length,
-      },
+      summary: { total: records.length, evilWins: records.filter((r) => r.winner === 'evil').length, goodWins: records.filter((r) => r.winner === 'good').length },
       byScript: scriptStats,
       byPlayer: playerStats.map((p) => ({ ...p, chars: Array.from(p.chars) })),
       byCharacter: charStats,
@@ -159,10 +440,8 @@ export function AnalyticsTab({ language }: { language: Language }) {
     const blob = new Blob([JSON.stringify(analysis, null, 2)], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
-    a.href = url
-    a.download = `botc-analysis-${new Date().toISOString().slice(0, 10)}.json`
-    a.click()
-    URL.revokeObjectURL(url)
+    a.href = url; a.download = `botc-analysis-${new Date().toISOString().slice(0, 10)}.json`
+    a.click(); URL.revokeObjectURL(url)
   }
 
   // ── Stats ──
@@ -232,31 +511,16 @@ export function AnalyticsTab({ language }: { language: Language }) {
         <Typography variant="h6" sx={{ flex: 1, fontWeight: 700 }}>
           {zh ? '数据统计' : 'Analytics'}
         </Typography>
-        <Tooltip title={zh ? '刷新数据' : 'Refresh data'}>
+        <Tooltip title={zh ? '刷新数据' : 'Refresh'}>
           <IconButton size="small" onClick={refresh}><RefreshIcon fontSize="small" /></IconButton>
         </Tooltip>
-        <Button
-          size="small"
-          startIcon={<FileDownloadIcon />}
-          onClick={exportRecords}
-          disabled={total === 0}
-        >
+        <Button size="small" startIcon={<FileDownloadIcon />} onClick={exportRecords} disabled={total === 0}>
           {zh ? '导出记录' : 'Export Records'}
         </Button>
-        <Button
-          size="small"
-          startIcon={<FileDownloadIcon />}
-          onClick={exportAnalysis}
-          disabled={total === 0}
-        >
+        <Button size="small" startIcon={<FileDownloadIcon />} onClick={exportAnalysis} disabled={total === 0}>
           {zh ? '导出分析' : 'Export Analysis'}
         </Button>
-        <Button
-          size="small"
-          variant="outlined"
-          startIcon={<FileUploadIcon />}
-          component="label"
-        >
+        <Button size="small" variant="outlined" startIcon={<FileUploadIcon />} component="label">
           {zh ? '导入JSON' : 'Import JSON'}
           <input type="file" accept=".json" hidden onChange={handleImport} />
         </Button>
@@ -268,7 +532,7 @@ export function AnalyticsTab({ language }: { language: Language }) {
       )}
 
       {total === 0 ? (
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 200 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 150 }}>
           <Typography color="text.secondary">{zh ? '暂无游戏记录' : 'No game records yet'}</Typography>
         </Box>
       ) : (
@@ -320,7 +584,7 @@ export function AnalyticsTab({ language }: { language: Language }) {
             </Box>
           )}
 
-          <Divider sx={{ mb: 3 }} />
+          {playerStats.length > 0 && <Divider sx={{ mb: 3 }} />}
 
           {/* ── By Player ── */}
           {playerStats.length > 0 && (
@@ -370,7 +634,9 @@ export function AnalyticsTab({ language }: { language: Language }) {
                     <Paper key={c.charId} sx={{ p: 1, display: 'flex', alignItems: 'center', gap: 1, flex: '1 1 130px', minWidth: 130 }} elevation={1}>
                       {icon && <Box component="img" src={icon as string} sx={{ width: 28, height: 28, borderRadius: '50%', flexShrink: 0 }} />}
                       <Box sx={{ minWidth: 0 }}>
-                        <Typography variant="caption" sx={{ fontWeight: 700, display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{getDisplayName(c.charId, language)}</Typography>
+                        <Typography variant="caption" sx={{ fontWeight: 700, display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {getDisplayName(c.charId, language)}
+                        </Typography>
                         <Typography variant="caption" color="text.secondary">
                           {c.total}{zh ? '局' : 'g'} · {winPct}%{zh ? '胜' : 'W'}
                         </Typography>
@@ -386,15 +652,18 @@ export function AnalyticsTab({ language }: { language: Language }) {
         </>
       )}
 
-      {/* ── Records list (always shown) ── */}
+      {/* ── Records list ── */}
       <Box>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5, gap: 1 }}>
           <Typography variant="subtitle1" sx={{ fontWeight: 700, flex: 1 }}>
             {zh ? '游戏记录' : 'Game Records'} ({records.length})
           </Typography>
-          <Tooltip title={zh ? '导入新记录 (JSON)' : 'Import records (JSON)'}>
+          <Button size="small" variant="contained" startIcon={<AddIcon />} onClick={() => setShowCreate(true)}>
+            {zh ? '新建记录' : 'New Record'}
+          </Button>
+          <Tooltip title={zh ? '导入 JSON' : 'Import JSON'}>
             <IconButton size="small" component="label">
-              <AddIcon fontSize="small" />
+              <FileUploadIcon fontSize="small" />
               <input type="file" accept=".json" hidden onChange={handleImport} />
             </IconButton>
           </Tooltip>
@@ -402,7 +671,7 @@ export function AnalyticsTab({ language }: { language: Language }) {
 
         {records.length === 0 && (
           <Typography variant="body2" color="text.secondary" sx={{ py: 4, textAlign: 'center' }}>
-            {zh ? '暂无记录。完成游戏后记录将自动保存。' : 'No records yet. Records save automatically when a game ends.'}
+            {zh ? '暂无记录。完成游戏后自动保存，或点击"新建记录"手动添加。' : 'No records. Games save automatically on end, or click "New Record" to add manually.'}
           </Typography>
         )}
 
@@ -431,21 +700,19 @@ export function AnalyticsTab({ language }: { language: Language }) {
               <Typography variant="caption" color="text.secondary" sx={{ minWidth: 70 }}>
                 {new Date(r.endedAt).toLocaleDateString()}
               </Typography>
-              <Box sx={{ display: 'flex', gap: 0.5, ml: 'auto' }}>
+              <Box sx={{ display: 'flex', gap: 0.5 }}>
                 <Tooltip title={zh ? '编辑' : 'Edit'}>
                   <IconButton size="small" onClick={() => setEditingRecord(r)}>
                     <EditIcon sx={{ fontSize: 16 }} />
                   </IconButton>
                 </Tooltip>
-                <Tooltip title={zh ? '下载此记录' : 'Download record'}>
+                <Tooltip title={zh ? '下载此记录' : 'Download'}>
                   <IconButton size="small" onClick={() => {
                     const blob = new Blob([JSON.stringify(r, null, 2)], { type: 'application/json' })
                     const url = URL.createObjectURL(blob)
                     const a = document.createElement('a')
-                    a.href = url
-                    a.download = `record-${r.id.slice(0, 8)}.json`
-                    a.click()
-                    URL.revokeObjectURL(url)
+                    a.href = url; a.download = `record-${r.id.slice(0, 8)}.json`
+                    a.click(); URL.revokeObjectURL(url)
                   }}>
                     <FileDownloadIcon sx={{ fontSize: 16 }} />
                   </IconButton>
@@ -462,14 +729,12 @@ export function AnalyticsTab({ language }: { language: Language }) {
           ))}
       </Box>
 
-      {/* ── Edit dialog ── */}
+      {/* ── Dialogs ── */}
       {editingRecord && (
-        <EditRecordDialog
-          record={editingRecord}
-          zh={zh}
-          onSave={updateRecord}
-          onClose={() => setEditingRecord(null)}
-        />
+        <EditRecordDialog record={editingRecord} zh={zh} onSave={updateRecord} onClose={() => setEditingRecord(null)} />
+      )}
+      {showCreate && (
+        <CreateRecordDialog zh={zh} language={language} onSave={addRecord} onClose={() => setShowCreate(false)} />
       )}
     </Box>
   )
