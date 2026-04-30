@@ -276,7 +276,13 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: any; seat: any }) {
           for (const sn of targetArr) updateSeatWithLog(sn, (s: any) => ({ ...s, stTags: (s.stTags || []).filter((t: string) => t !== removeTagVal) }))
         } else if (csSubtype === 'addPublic') {
           const tag = tagInput.trim()
-          for (const sn of targetArr) updateSeatWithLog(sn, (s: any) => ({ ...s, customTags: [...new Set([...s.customTags, tag])] }))
+          for (const sn of targetArr) updateSeatWithLog(sn, (s: any) => {
+            if (tag === text.aliveTag) return { ...s, alive: false }
+            if (tag === text.executedTag) return { ...s, isExecuted: true }
+            if (tag === text.traveler) return { ...s, isTraveler: true }
+            if (tag === text.noVoteTag) return { ...s, hasNoVote: true }
+            return { ...s, customTags: [...new Set([...s.customTags, tag])] }
+          })
         } else if (csSubtype === 'removePublic') {
           for (const sn of targetArr) updateSeatWithLog(sn, (s: any) => ({ ...s, customTags: s.customTags.filter((t: string) => t !== removeTagVal) }))
         }
