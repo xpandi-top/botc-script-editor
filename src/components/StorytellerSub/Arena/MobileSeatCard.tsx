@@ -137,7 +137,7 @@ export function MobileSeatCard({ ctx, seat }: { ctx: any; seat: any }) {
                 return (
                   <Chip key={`st-${tag}`} label={label} size="small"
                     icon={srcIcon ? <img src={srcIcon as string} style={{ width: 12, height: 12, borderRadius: '50%' }} /> : undefined}
-                    sx={{ fontSize: '0.8rem', height: 22, bgcolor: 'warning.light', color: 'warning.contrastText', '& .MuiChip-label': { px: 0.5 } }} />
+                    sx={{ fontSize: '1rem', height: 26, bgcolor: 'warning.light', color: 'warning.contrastText', '& .MuiChip-label': { px: 0.75 } }} />
                 )
               })}
             </Box>
@@ -150,7 +150,7 @@ export function MobileSeatCard({ ctx, seat }: { ctx: any; seat: any }) {
                 const charId = isChar ? [...tag].slice(1).join('') : ''
                 const icon = isChar ? getIconForCharacter(charId) : null
                 const label = isChar ? getDisplayName(charId, language) : tag
-                return <Chip key={`${seat.seat}-${tag}`} label={label} size="small" icon={icon ? <img src={icon as string} style={{ width: 14, height: 14 }} /> : undefined} sx={{ fontSize: '0.82rem', height: 24 }} />
+                return <Chip key={`${seat.seat}-${tag}`} label={label} size="small" icon={icon ? <img src={icon as string} style={{ width: 14, height: 14 }} /> : undefined} sx={{ fontSize: '1rem', height: 26 }} />
               })}
             </Box>
           )}

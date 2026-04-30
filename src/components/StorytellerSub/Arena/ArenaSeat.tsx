@@ -188,7 +188,7 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
                 return (
                   <Chip key={tag} label={label} size="small"
                     icon={srcIcon ? <img src={srcIcon as string} style={{ width: 12, height: 12, borderRadius: '50%' }} /> : undefined}
-                    sx={{ fontSize: '0.72rem', height: 20, bgcolor: 'warning.light', color: 'warning.contrastText', '& .MuiChip-label': { px: 0.5 } }} />
+                    sx={{ fontSize: '1rem', height: 24, bgcolor: 'warning.light', color: 'warning.contrastText', '& .MuiChip-label': { px: 0.75 } }} />
                 )
               })}
             </Box>
