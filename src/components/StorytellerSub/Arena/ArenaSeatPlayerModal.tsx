@@ -17,6 +17,7 @@ import { getDisplayName, getIconForCharacter, getAbilityText } from '../../../ca
 // ── Constants ──────────────────────────────────────────────────
 const ST_TAG_PREFIX = '📝'
 const DEFAULT_ST_TAGS = ['drunk', 'poisoned', 'protected', 'red herring', 'used']
+const DEFAULT_PUBLIC_TAGS = ['buffer', 'jinxed', 'mad', 'safe', 'used', 'no ability']
 
 // stTag format: "📝label" or "📝label::sourceCharId"
 function parseStTag(tag: string): { label: string; sourceCharId: string | null } {
@@ -692,16 +693,20 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: any; seat: any }) {
                 <Box sx={{ display: 'flex', gap: 0.5, flexDirection: 'column' }}>
                   <TextField size="small" fullWidth placeholder={zh ? '公开标签' : 'Public tag'} value={tagInput}
                     onChange={(e) => setTagInput(e.target.value)} />
-                  {customTagPool?.filter((t: string) => !t.startsWith('💀')).length > 0 && (
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                      {customTagPool.filter((t: string) => !t.startsWith('💀')).map((t: string) => (
-                        <Chip key={t} label={t} size="small" clickable
-                          color={tagInput === t ? 'primary' : 'default'}
-                          variant={tagInput === t ? 'filled' : 'outlined'}
-                          onClick={() => setTagInput(tagInput === t ? '' : t)} />
-                      ))}
-                    </Box>
-                  )}
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                    {DEFAULT_PUBLIC_TAGS.map((t) => (
+                      <Chip key={t} label={t} size="small" clickable
+                        color={tagInput === t ? 'primary' : 'default'}
+                        variant={tagInput === t ? 'filled' : 'outlined'}
+                        onClick={() => setTagInput(tagInput === t ? '' : t)} />
+                    ))}
+                    {customTagPool?.filter((t: string) => !t.startsWith('💀') && !DEFAULT_PUBLIC_TAGS.includes(t)).map((t: string) => (
+                      <Chip key={t} label={t} size="small" clickable
+                        color={tagInput === t ? 'primary' : 'default'}
+                        variant={tagInput === t ? 'filled' : 'outlined'}
+                        onClick={() => setTagInput(tagInput === t ? '' : t)} />
+                    ))}
+                  </Box>
                 </Box>
               )}
               {csSubtype === 'removeST' && (
