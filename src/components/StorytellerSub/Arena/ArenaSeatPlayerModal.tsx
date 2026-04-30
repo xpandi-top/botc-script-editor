@@ -176,8 +176,9 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: any; seat: any }) {
   const stTags: string[] = seat.stTags || []
   const removeStTag = (tag: string) => updateSeatWithLog(seat.seat, (s: any) => ({ ...s, stTags: (s.stTags || []).filter((t: string) => t !== tag) }))
   const addStTag = (label: string, sourceCharId?: string | null) => {
-    if (!label.trim()) return
-    const tag = buildStTag(label.trim(), sourceCharId)
+    const clean = label.trim().replace(/^📝+/, '')
+    if (!clean) return
+    const tag = buildStTag(clean, sourceCharId)
     updateSeatWithLog(seat.seat, (s: any) => ({ ...s, stTags: [...new Set([...(s.stTags || []), tag])] }))
     setStTagInput('')
   }
@@ -226,7 +227,8 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: any; seat: any }) {
 
     if (isSuccess) {
       if (skillType === 'addTag') {
-        const tag = buildStTag(tagInput.trim(), actualCharId || null)
+        const rawLabel = tagInput.trim().replace(/^📝+/, '')
+        const tag = buildStTag(rawLabel, actualCharId || null)
         for (const sn of targetArr) updateSeatWithLog(sn, (s: any) => ({ ...s, stTags: [...new Set([...(s.stTags || []), tag])] }))
       } else if (skillType === 'removeTag') {
         for (const sn of targetArr) updateSeatWithLog(sn, (s: any) => ({ ...s, customTags: (s.customTags || []).filter((t: string) => t !== removeTagVal), stTags: (s.stTags || []).filter((t: string) => t !== removeTagVal) }))
@@ -369,8 +371,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: any; seat: any }) {
       {/* Default tag chips */}
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 0.75 }}>
         {DEFAULT_ST_TAGS.map((label) => {
-          const tag = `${ST_TAG_PREFIX}${label}`
-          const active = stTags.includes(tag)
+          const active = stTags.some((t) => parseStTag(t).label === label)
           return (
             <Chip key={label} label={label} size="small" clickable
               color={active ? 'warning' : 'default'}
@@ -405,11 +406,20 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: any; seat: any }) {
     </Box>
   )
 
+  // Helper: player tag summary string for target list
+  const seatTagSummary = (s: any) => {
+    const tags = [
+      ...s.customTags,
+      ...(s.stTags || []).map((t: string) => parseStTag(t).label),
+    ]
+    return tags.length ? `(${tags.join(', ')})` : ''
+  }
+
   const abilitySection = (
     <Box sx={{ mb: 1.5 }}>
-      <SectionLabel label={isNight ? (zh ? '夜间技能' : 'Night Ability') : (zh ? '日间技能' : 'Day Ability')} />
+      <SectionLabel label={isNight ? (zh ? '夜间技能' : 'Night Ability') : (zh ? '白天技能' : 'Day Ability')} />
       {skillOverlay ? (
-        // Active skill form (from openSeatSkill)
+        // Active skillOverlay form (quick ability, from openSeatSkill)
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
           <Box>
             <Typography variant="caption" color="text.secondary">{zh ? '目标' : 'Target'}</Typography>
@@ -432,8 +442,13 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: any; seat: any }) {
             <Button size="small" variant="contained" onClick={() => { closeSkillOverlay(true); setPlayerModalSeat(null) }}>✓ {text.saveSkill}</Button>
           </Box>
         </Box>
+      ) : !isNight ? (
+        // Day phase: single button only
+        <Button variant="outlined" fullWidth onClick={() => openSeatSkill?.(seat.seat)}>
+          {zh ? '发动白天技能' : 'Use Day Ability'}
+        </Button>
       ) : (
-        // Night/day skill panel
+        // Night phase: full skill panel (no quick-ability fallback)
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
           <FormControl size="small" fullWidth>
             <InputLabel>{zh ? '技能类型' : 'Skill Type'}</InputLabel>
@@ -448,17 +463,25 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: any; seat: any }) {
 
           {skillType && (
             <>
-              <Box sx={{ maxHeight: 140, overflow: 'auto', border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 0.5 }}>
-                {allSeats.map((s: any) => (
-                  <Box key={s.seat} sx={{ display: 'flex', alignItems: 'center', gap: 0.5, py: 0.25, cursor: 'pointer' }}
-                    onClick={() => toggleTarget(s.seat)}>
-                    <Box sx={{ width: 18, height: 18, border: '2px solid', borderColor: targets.has(s.seat) ? 'primary.main' : 'divider', borderRadius: 0.5, bgcolor: targets.has(s.seat) ? 'primary.main' : 'transparent', flexShrink: 0 }} />
-                    <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>
-                      #{s.seat} {s.name}{s.characterId ? ` — ${getDisplayName(s.characterId, language)}` : ''}
-                      {!s.alive && <Box component="span" sx={{ color: 'text.disabled', ml: 0.5 }}>†</Box>}
-                    </Typography>
-                  </Box>
-                ))}
+              {/* Target list: shows name, char, and tags in () */}
+              <Box sx={{ maxHeight: 160, overflow: 'auto', border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 0.5 }}>
+                {allSeats.map((s: any) => {
+                  const charName = s.characterId ? getDisplayName(s.characterId, language) : ''
+                  const tagSummary = seatTagSummary(s)
+                  return (
+                    <Box key={s.seat} sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.5, py: 0.25, cursor: 'pointer' }}
+                      onClick={() => toggleTarget(s.seat)}>
+                      <Box sx={{ width: 18, height: 18, mt: 0.2, border: '2px solid', borderColor: targets.has(s.seat) ? 'primary.main' : 'divider', borderRadius: 0.5, bgcolor: targets.has(s.seat) ? 'primary.main' : 'transparent', flexShrink: 0 }} />
+                      <Box>
+                        <Typography variant="body2" sx={{ fontSize: '0.82rem', lineHeight: 1.3 }}>
+                          #{s.seat} {s.name}{charName ? ` — ${charName}` : ''}
+                          {!s.alive && <Box component="span" sx={{ color: 'text.disabled', ml: 0.5 }}>†</Box>}
+                        </Typography>
+                        {tagSummary && <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.72rem' }}>{tagSummary}</Typography>}
+                      </Box>
+                    </Box>
+                  )
+                })}
               </Box>
 
               {(skillType === 'know' || skillType === 'guess') && (
@@ -485,14 +508,32 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: any; seat: any }) {
               )}
 
               {skillType === 'addTag' && (
-                <TextField size="small" fullWidth label={zh ? '标签内容' : 'Tag'} value={tagInput} onChange={(e) => setTagInput(e.target.value)} />
+                <Box>
+                  <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center', mb: 0.5 }}>
+                    <TextField size="small" fullWidth label={zh ? '标签内容' : 'Tag'}
+                      value={tagInput}
+                      onChange={(e) => setTagInput(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); setTagInput(e.currentTarget.value) } }} />
+                  </Box>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                    {DEFAULT_ST_TAGS.map((t) => (
+                      <Chip key={t} label={t} size="small" clickable
+                        variant={tagInput === t ? 'filled' : 'outlined'}
+                        color={tagInput === t ? 'warning' : 'default'}
+                        onClick={() => setTagInput(tagInput === t ? '' : t)} />
+                    ))}
+                  </Box>
+                </Box>
               )}
               {skillType === 'removeTag' && (
                 <FormControl size="small" fullWidth>
                   <InputLabel>{zh ? '移除标签' : 'Tag to Remove'}</InputLabel>
                   <Select value={removeTagVal} label={zh ? '移除标签' : 'Tag to Remove'} onChange={(e) => setRemoveTagVal(e.target.value)}>
                     <MenuItem value="">—</MenuItem>
-                    {allTagsForTargets.map((t: string) => <MenuItem key={t} value={t}>{t.replace(ST_TAG_PREFIX, '')}</MenuItem>)}
+                    {allTagsForTargets.map((t: string) => {
+                      const clean = t.startsWith('📝') ? parseStTag(t).label : t
+                      return <MenuItem key={t} value={t}>{clean}</MenuItem>
+                    })}
                   </Select>
                 </FormControl>
               )}
@@ -519,12 +560,6 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: any; seat: any }) {
                 <Button size="small" variant="contained" disabled={!canSaveSkill} onClick={handleSaveSkill}>{zh ? '保存' : 'Save'}</Button>
               </Box>
             </>
-          )}
-
-          {!skillType && (
-            <Button size="small" variant="outlined" onClick={() => openSeatSkill?.(seat.seat)}>
-              {zh ? '发动即兴技能' : 'Use Ability (Quick)'}
-            </Button>
           )}
         </Box>
       )}

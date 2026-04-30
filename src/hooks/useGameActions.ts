@@ -60,8 +60,9 @@ export function buildGameActions(deps: ActionDeps) {
         const newStTags = newSeat.stTags || []
         const addedStTags = newStTags.filter((t) => !oldStTags.includes(t))
         const removedStTags = oldStTags.filter((t) => !newStTags.includes(t))
-        for (const t of addedStTags) updated = appendEvent(updated, 'tagChange', `#${seatNumber} 📝${t}`)
-        for (const t of removedStTags) updated = appendEvent(updated, 'tagChange', `#${seatNumber} 📝- ${t}`)
+        const cleanSt = (t: string) => { const body = t.startsWith('📝') ? t.slice(2) : t; return body.split('::')[0] }
+        for (const t of addedStTags) updated = appendEvent(updated, 'tagChange', `#${seatNumber} +ST:${cleanSt(t)}`)
+        for (const t of removedStTags) updated = appendEvent(updated, 'tagChange', `#${seatNumber} -ST:${cleanSt(t)}`)
       }
       return updated
     })
