@@ -57,14 +57,16 @@ function buildPlayerEntries(days: any[], seatNum: number, includeNight: boolean)
     }
     for (const v of day.voteHistory) {
       if (v.actor === seatNum || v.target === seatNum) {
-        const result = v.passed ? 'PASS' : 'FAIL'
-        const line = `#${v.actor} → #${v.target}: ${result} (${v.voteCount}/${v.requiredVotes})${v.isExile ? ' [exile]' : ''}`
+        const voterList = v.voters.length > 0 ? ` [${v.voters.map((n: number) => `#${n}`).join(', ')}]` : ''
+        const base = `#${v.actor} → #${v.target}: ${v.passed ? 'PASS' : 'FAIL'} (${v.voteCount}/${v.requiredVotes})${v.isExile ? ' [exile]' : ''}${voterList}`
+        const line = v.note ? `${base} · ${v.note}` : base
         entries.push({ id: `v-${day.day}-${v.id}`, timestamp: parseInt(v.id, 10) || 0, text: line, kind: 'vote', type: 'vote', phase: 'nomination', visibility: 'public', editable: v.note || '' })
       }
     }
     for (const s of day.skillHistory) {
       if (s.actor === seatNum || (s.targets || []).includes(seatNum)) {
-        const line = `#${s.actor} → [${(s.targets || []).map((t: number) => `#${t}`).join(', ')}] ${s.roleId || '?'}`
+        const targetStr = (s.targets || []).length > 0 ? ` → [${(s.targets as number[]).map((t) => `#${t}`).join(', ')}]` : ''
+        const line = `#${s.actor} ${s.roleId || '?'}${targetStr}${s.statement ? ` "${s.statement}"` : ''}${s.result ? ` [${s.result}]` : ''}`
         entries.push({ id: `s-${day.day}-${s.id}`, timestamp: parseInt(s.id, 10) || 0, text: line, kind: 'skill', type: 'skill', phase: s.activatedDuringPhase, visibility: 'st-only', editable: s.statement || '' })
       }
     }

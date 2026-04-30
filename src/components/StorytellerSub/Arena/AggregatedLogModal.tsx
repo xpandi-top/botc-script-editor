@@ -36,7 +36,8 @@ function buildEntries(days: any[]) {
       all.push({ id: `v-${day.day}-${v.id}`, day: day.day, phase: 'nomination', timestamp: Number(v.id), type: 'vote', visibility: 'public', detail })
     }
     for (const s of day.skillHistory) {
-      const detail = `#${s.actor} ${s.roleId || '?'}${s.statement ? ` "${s.statement}"` : ''}${s.result ? ` [${s.result}]` : ''}`
+      const targetStr = (s.targets || []).length > 0 ? ` → [${(s.targets as number[]).map((t) => `#${t}`).join(', ')}]` : ''
+      const detail = `#${s.actor} ${s.roleId || '?'}${targetStr}${s.statement ? ` "${s.statement}"` : ''}${s.result ? ` [${s.result}]` : ''}`
       all.push({ id: `s-${day.day}-${s.id}`, day: day.day, phase: s.activatedDuringPhase, timestamp: Number(s.id), type: 'skill', visibility: 'st-only', detail })
     }
     for (const e of day.eventLog) {
