@@ -85,8 +85,6 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: any; seat: any }) {
 
   const zh = language === 'zh'
   const isOpen = playerModalSeat === seat?.seat
-  const phase = currentDay?.phase ?? 'private'
-  const isNight = phase === 'night'
 
   // ── Section state ──
   const [showCharPicker, setShowCharPicker] = useState(false)
@@ -127,6 +125,38 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: any; seat: any }) {
     }
   }, [isOpen])
 
+  // ── Character helpers (safe even when seat is null) ──
+  const actualCharId = seat?.characterId ?? null
+  const perceivedCharId = seat?.userCharacterId || seat?.characterId || null
+  const allSeats: any[] = currentDay?.seats ?? []
+  const isNight = (currentDay?.phase ?? 'private') === 'night'
+
+  // ── useMemo hooks — must be before any conditional return ──
+  const allTagsForTargets = useMemo(() => {
+    const tagSet = new Set<string>()
+    for (const seatNum of targets) {
+      const s = allSeats.find((x: any) => x.seat === seatNum)
+      if (s) { (s.customTags || []).forEach((t: string) => tagSet.add(t)); (s.stTags || []).forEach((t: string) => tagSet.add(t)) }
+    }
+    return Array.from(tagSet)
+  }, [targets, allSeats])
+
+  const canSaveSkill = useMemo(() => {
+    if (!skillType || targets.size === 0) return false
+    if (skillType === 'addTag') return tagInput.trim().length > 0
+    if (skillType === 'removeTag') return removeTagVal.length > 0
+    if (skillType === 'changeChar') return newCharId.length > 0
+    if (skillType === 'know' || skillType === 'guess') {
+      if (knowKind === 'character') return knowCharId.length > 0
+      if (knowKind === 'other') return knowOtherText.trim().length > 0
+      return true
+    }
+    return false
+  }, [skillType, targets, tagInput, removeTagVal, newCharId, knowKind, knowCharId, knowOtherText])
+
+  const logDays = useMemo(() => buildPlayerEntries(days || [currentDay], seat?.seat, isNight), [days, currentDay, seat?.seat, isNight])
+
+  // ── Conditional return after all hooks ──
   if (!isOpen || !seat) return null
 
   const handleClose = () => {
@@ -135,8 +165,6 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: any; seat: any }) {
   }
 
   // ── Character helpers ──
-  const actualCharId = seat.characterId
-  const perceivedCharId = seat.userCharacterId || seat.characterId
   const showDifferentPerception = seat.userCharacterId && seat.userCharacterId !== seat.characterId
   const actualIcon = actualCharId ? getIconForCharacter(actualCharId) : null
   const perceivedIcon = perceivedCharId ? getIconForCharacter(perceivedCharId) : null
@@ -174,29 +202,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: any; seat: any }) {
   const isCharacterTag = (tag: string) => tag.startsWith('💀')
 
   // ── Night Ability helpers ──
-  const allSeats: any[] = currentDay?.seats ?? []
   const toggleTarget = (seatNum: number) => setTargets((prev) => { const next = new Set(prev); next.has(seatNum) ? next.delete(seatNum) : next.add(seatNum); return next })
-  const allTagsForTargets = useMemo(() => {
-    const tagSet = new Set<string>()
-    for (const seatNum of targets) {
-      const s = allSeats.find((x: any) => x.seat === seatNum)
-      if (s) { (s.customTags || []).forEach((t: string) => tagSet.add(t)); (s.stTags || []).forEach((t: string) => tagSet.add(t)) }
-    }
-    return Array.from(tagSet)
-  }, [targets, allSeats])
-
-  const canSaveSkill = useMemo(() => {
-    if (!skillType || targets.size === 0) return false
-    if (skillType === 'addTag') return tagInput.trim().length > 0
-    if (skillType === 'removeTag') return removeTagVal.length > 0
-    if (skillType === 'changeChar') return newCharId.length > 0
-    if (skillType === 'know' || skillType === 'guess') {
-      if (knowKind === 'character') return knowCharId.length > 0
-      if (knowKind === 'other') return knowOtherText.trim().length > 0
-      return true
-    }
-    return false
-  }, [skillType, targets, tagInput, removeTagVal, newCharId, knowKind, knowCharId, knowOtherText])
 
   const handleSaveSkill = () => {
     if (!canSaveSkill) return
@@ -233,7 +239,6 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: any; seat: any }) {
   }
 
   // ── Log helpers ──
-  const logDays = useMemo(() => buildPlayerEntries(days || [currentDay], seat.seat, isNight), [days, currentDay, seat.seat, isNight])
   const handleEdit = (id: string, current: string) => { setEditingId(id); setEditText(current) }
   const handleEditSave = () => { if (editingId) { editLogEntry(editingId, editText); setEditingId(null) } }
   const handleQuickAdd = () => {
