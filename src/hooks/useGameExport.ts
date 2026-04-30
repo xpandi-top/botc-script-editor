@@ -10,6 +10,8 @@ export interface ExportDeps {
   timerDefaults: any
   customTagPool?: string[]
   playerNamePool?: string[]
+  stFabledIds?: string[]
+  stCustomRules?: string
   setGameRecords: React.Dispatch<React.SetStateAction<GameRecord[]>>
   setCurrentRecordName?: (name: string | null) => void
 }
@@ -27,7 +29,7 @@ function downloadJson(data: unknown, filename: string) {
 }
 
 export function buildGameExport(deps: ExportDeps) {
-  const { days, currentDay, activeScriptSlug, activeScriptTitle, endGameResult, timerDefaults, customTagPool = [], playerNamePool = [], setGameRecords, setCurrentRecordName } = deps
+  const { days, currentDay, activeScriptSlug, activeScriptTitle, endGameResult, timerDefaults, customTagPool = [], playerNamePool = [], stFabledIds = [], stCustomRules = '', setGameRecords, setCurrentRecordName } = deps
 
   function exportGameJson(config?: ExportConfig) {
     const cfg: ExportConfig = config ?? { includeSeats: true, includeVotes: true, includeSkills: true, includeEvents: false, includeStNotes: false, dayFilter: 'all' }
@@ -61,6 +63,7 @@ export function buildGameExport(deps: ExportDeps) {
       scriptTitle: record.scriptTitle, scriptSlug: record.scriptSlug,
       days: record.savedDays, timerDefaults: (record as any).timerDefaults,
       customTagPool: (record as any).customTagPool, playerNamePool: (record as any).playerNamePool,
+      stFabledIds: record.stFabledIds, stCustomRules: record.stCustomRules,
     }, `botc-save-${record.recordName?.replace(/\s+/g, '-') || 'game'}-${record.id}.json`)
   }
 
@@ -94,6 +97,7 @@ export function buildGameExport(deps: ExportDeps) {
       days: days.map((d) => ({ day: d.day, votes: d.voteHistory.length, skills: d.skillHistory.length })),
       savedDays: updatedDays,
       setup: { playerCount: nonTravelers.length, travelerCount: travelers.length, seatNames, assignments, userAssignments, seatNotes, specialNote: '', demonBluffs: currentDay.demonBluffs || [] },
+      stFabledIds, stCustomRules,
     }
     if (recordName) newRecord.recordName = recordName
     setGameRecords((cur) => [newRecord, ...cur])
@@ -114,6 +118,7 @@ export function buildGameExport(deps: ExportDeps) {
       days: days.map((d) => ({ day: d.day, votes: d.voteHistory.length, skills: d.skillHistory.length })),
       savedDays: days, timerDefaults, customTagPool, playerNamePool,
       setup: { playerCount: nonTravelers.length, travelerCount: travelers.length, seatNames, assignments, userAssignments, seatNotes, specialNote: '', demonBluffs: currentDay.demonBluffs || [] },
+      stFabledIds, stCustomRules,
     }
     if (existingId) setGameRecords((cur) => cur.map((r) => r.id === existingId ? newRecord : r))
     else setGameRecords((cur) => [newRecord, ...cur])

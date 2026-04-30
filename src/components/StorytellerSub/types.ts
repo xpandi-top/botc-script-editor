@@ -236,6 +236,8 @@ export type GameRecord = {
     specialNote: string
     demonBluffs: string[]
   }
+  stFabledIds?: string[]
+  stCustomRules?: string
 }
 
 export type PersistedState = {

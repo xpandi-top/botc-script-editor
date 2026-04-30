@@ -39,12 +39,16 @@ interface LifecycleDeps {
   setShowEndGameModal?: (v: boolean) => void
   setNightShowCharacter?: (v: boolean) => void
   setNightShowWakeOrder?: (v: boolean) => void
+  stFabledIds?: string[]
+  stCustomRules?: string
+  setStFabledIds?: (v: string[]) => void
+  setStCustomRules?: (v: string) => void
 }
 
 export function buildGameLifecycle(deps: LifecycleDeps) {
-  const { days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, endGameResult, scriptOptions, onSelectScript, setDays, setDaysWithUndo, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay, setNewGamePanel, setEndGameResult, setGameRecords, setAudioPlaying, language, appendEvent, customTagPool = [], playerNamePool = [], setCurrentRecordName, setTimerDefaults, setCustomTagPool, setPlayerNamePool, setShowEndGameModal, setNightShowCharacter, setNightShowWakeOrder } = deps
+  const { days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, endGameResult, scriptOptions, onSelectScript, setDays, setDaysWithUndo, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay, setNewGamePanel, setEndGameResult, setGameRecords, setAudioPlaying, language, appendEvent, customTagPool = [], playerNamePool = [], setCurrentRecordName, setTimerDefaults, setCustomTagPool, setPlayerNamePool, setShowEndGameModal, setNightShowCharacter, setNightShowWakeOrder, stFabledIds = [], stCustomRules = '', setStFabledIds, setStCustomRules } = deps
 
-  const exportActions = buildGameExport({ days, currentDay, activeScriptSlug, activeScriptTitle, endGameResult, timerDefaults, customTagPool, playerNamePool, setGameRecords, setCurrentRecordName })
+  const exportActions = buildGameExport({ days, currentDay, activeScriptSlug, activeScriptTitle, endGameResult, timerDefaults, customTagPool, playerNamePool, stFabledIds, stCustomRules, setGameRecords, setCurrentRecordName })
 
   function goToNextDay() {
     setNightShowCharacter?.(false)
@@ -189,6 +193,8 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     setSkillOverlay(null)
     setNewGamePanel(null)
     if (setCurrentRecordName) setCurrentRecordName(null)
+    setStFabledIds?.([])
+    setStCustomRules?.('')
   }
 
   function applyGameChanges(newGamePanel: NewGameConfig) {
@@ -260,6 +266,8 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     if (record.timerDefaults && setTimerDefaults) setTimerDefaults(record.timerDefaults)
     if (record.customTagPool && setCustomTagPool) setCustomTagPool(record.customTagPool)
     if (record.playerNamePool && setPlayerNamePool) setPlayerNamePool(record.playerNamePool)
+    if (setStFabledIds) setStFabledIds(record.stFabledIds ?? [])
+    if (setStCustomRules) setStCustomRules(record.stCustomRules ?? '')
     if (record.setup) {
       setNewGamePanel({ playerCount: record.setup.playerCount, travelerCount: record.setup.travelerCount, scriptSlug: record.scriptSlug || '', allowDuplicateChars: false, allowEmptyChars: false, allowSameNames: false, seatNames: record.setup.seatNames || {}, assignments: record.setup.assignments || {}, userAssignments: record.setup.userAssignments || {}, seatNotes: record.setup.seatNotes || {}, specialNote: record.setup.specialNote || '', demonBluffs: record.setup.demonBluffs ?? [], editMode: true })
     }
