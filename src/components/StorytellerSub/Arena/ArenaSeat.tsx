@@ -5,7 +5,7 @@ import { ArenaSeatPlayerModal } from './ArenaSeatPlayerModal'
 import { CharacterCircle } from './CharacterCircle'
 import { getDisplayName, getIconForCharacter, nightOrder } from '../../../catalog'
 import { getSeatPosition } from '../../../utils/seats'
-import { VoteButtonGroup, RoundRobinIndicator } from './ArenaSeatComponents'
+import { VoteButtonGroup, RoundRobinIndicator, TagChip } from './ArenaSeatComponents'
 
 export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: any, index: number, isPortrait: boolean }) {
   const {
@@ -153,7 +153,7 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
                 const charId = isChar ? [...tag].slice(1).join('') : ''
                 const icon = isChar ? getIconForCharacter(charId) : null
                 const label = isChar ? getDisplayName(charId, language) : tag
-                return <Chip key={`${seat.seat}-${tag}`} label={label} size="small" icon={icon ? <img src={icon as string} style={{ width: 18, height: 18 }} /> : undefined} />
+                return <TagChip key={`${seat.seat}-${tag}`} label={label} icon={icon as string} />
               })}
             </Box>
           )}
@@ -186,9 +186,8 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
                 const srcId = sep === -1 ? null : body.slice(sep + 2) || null
                 const srcIcon = srcId ? getIconForCharacter(srcId) : null
                 return (
-                  <Chip key={tag} label={label} size="small"
-                    icon={srcIcon ? <img src={srcIcon as string} style={{ width: 12, height: 12, borderRadius: '50%' }} /> : undefined}
-                    sx={{ fontSize: '1rem', height: 24, bgcolor: 'warning.light', color: 'warning.contrastText', '& .MuiChip-label': { px: 0.75 } }} />
+                  <TagChip key={tag} label={label} icon={srcIcon as string}
+                    chipSx={{ bgcolor: 'warning.light', color: 'warning.contrastText' }} />
                 )
               })}
             </Box>

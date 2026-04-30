@@ -1,6 +1,34 @@
 // @ts-nocheck
-import React from 'react'
-import { Box, IconButton, Button, Chip } from '@mui/material'
+import React, { useState } from 'react'
+import { Box, IconButton, Button, Chip, Popover, Typography } from '@mui/material'
+
+// ── TagChip: small chip with click-to-popover (larger label + icon) ──
+export function TagChip({ label, icon, chipSx }: { label: string; icon?: string | null; chipSx?: any }) {
+  const [anchor, setAnchor] = useState<HTMLElement | null>(null)
+  return (
+    <>
+      <Chip
+        label={label}
+        size="small"
+        icon={icon ? <img src={icon} style={{ width: 14, height: 14, borderRadius: '50%' }} /> : undefined}
+        onClick={(e) => { e.stopPropagation(); setAnchor(e.currentTarget) }}
+        sx={{ fontSize: '0.8rem', cursor: 'pointer', ...chipSx }}
+      />
+      <Popover
+        open={Boolean(anchor)}
+        anchorEl={anchor}
+        onClose={(e: any) => { e?.stopPropagation?.(); setAnchor(null) }}
+        onClick={(e) => e.stopPropagation()}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        transformOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        slotProps={{ paper: { sx: { p: 1.5, display: 'flex', alignItems: 'center', gap: 1, borderRadius: 2, boxShadow: 4 } } }}
+      >
+        {icon && <Box component="img" src={icon} sx={{ width: 40, height: 40, borderRadius: '50%' }} />}
+        <Typography variant="h6" fontWeight={700}>{label}</Typography>
+      </Popover>
+    </>
+  )
+}
 
 interface VoteButtonGroupProps {
   seat: any
