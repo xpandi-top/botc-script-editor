@@ -278,6 +278,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: any; seat: any }) {
             <Box sx={{ minWidth: 0 }}>
               <Typography variant="caption" color="warning.main">{zh ? '玩家以为' : 'Perceived'}</Typography>
               <Typography variant="body2" fontWeight={600} sx={{ lineHeight: 1.2 }}>{perceivedCharId ? getDisplayName(perceivedCharId, language) : '—'}</Typography>
+              {perceivedCharId && <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem', display: 'block' }}>{getAbilityText(perceivedCharId, language)?.slice(0, 60)}{(getAbilityText(perceivedCharId, language)?.length ?? 0) > 60 ? '…' : ''}</Typography>}
             </Box>
           </Box>
         )}
