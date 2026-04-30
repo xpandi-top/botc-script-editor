@@ -2,7 +2,7 @@ import { useState } from 'react'
 import {
   Box, Button, IconButton, Typography, Slider, ToggleButton, ToggleButtonGroup,
   FormControlLabel, Switch, Select, MenuItem, FormControl, InputLabel,
-  Divider, Paper, Tooltip,
+  Divider, Paper, Tooltip, useMediaQuery, useTheme,
 } from '@mui/material'
 
 import PrintIcon from '@mui/icons-material/Print'
@@ -41,6 +41,8 @@ export function PrintPreviewPage({
   scripts, activeSlug, onScriptChange, getScriptTitle,
 }: Props) {
   const zh = language === 'zh'
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const [panelOpen, setPanelOpen] = useState(true)
   const set = <K extends keyof PrintOptions>(key: K, val: PrintOptions[K]) =>
     onOptionsChange({ ...opts, [key]: val })
@@ -103,12 +105,12 @@ export function PrintPreviewPage({
   return (
     <Box sx={{ position: 'fixed', inset: 0, zIndex: 1300, display: 'flex', flexDirection: 'column', bgcolor: 'background.default' }}>
       {/* Top bar */}
-      <Paper elevation={2} sx={{ px: 2, py: 1, display: 'flex', alignItems: 'center', gap: 1, borderRadius: 0, zIndex: 1, flexShrink: 0 }}>
-        <Button startIcon={<ArrowBackIcon />} onClick={onClose} size="small">{zh ? '返回' : 'Back'}</Button>
-        <Typography variant="subtitle1" sx={{ ml: 1, fontWeight: 700, flexShrink: 0 }}>
+      <Paper elevation={2} sx={{ px: { xs: 1, sm: 2 }, py: 1, display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1 }, borderRadius: 0, zIndex: 1, flexShrink: 0 }}>
+        <IconButton size="small" onClick={onClose}><ArrowBackIcon fontSize="small" /></IconButton>
+        <Typography variant="subtitle1" sx={{ fontWeight: 700, flexShrink: 0, display: { xs: 'none', sm: 'block' } }}>
           {zh ? '打印预览' : 'Print Preview'}
         </Typography>
-        <FormControl size="small" sx={{ flex: 1, mx: 1, maxWidth: 260 }}>
+        <FormControl size="small" sx={{ flex: 1, mx: { xs: 0.5, sm: 1 }, maxWidth: { xs: 140, sm: 260 } }}>
           <Select value={activeSlug} onChange={(e) => onScriptChange(e.target.value)}>
             {scripts.map((s) => (
               <MenuItem key={s.slug} value={s.slug}>{getScriptTitle(s)}</MenuItem>
@@ -125,12 +127,12 @@ export function PrintPreviewPage({
             {panelOpen ? <MenuOpenIcon fontSize="small" /> : <MenuIcon fontSize="small" />}
           </IconButton>
         </Tooltip>
-        <Button variant="contained" startIcon={<PrintIcon />} onClick={handlePrint}>{zh ? '打印' : 'Print'}</Button>
+        <Button variant="contained" size="small" startIcon={<PrintIcon />} onClick={handlePrint}>{zh ? '打印' : 'Print'}</Button>
       </Paper>
 
       <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
         {/* ── Settings panel ── */}
-        {panelOpen && <Box sx={{ width: { xs: '100%', sm: 300 }, flexShrink: 0, overflowY: 'auto', borderRight: '1px solid', borderColor: 'divider', p: 2, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+        {panelOpen && <Box sx={{ width: { xs: '100%', sm: 300 }, flexShrink: 0, overflowY: 'auto', borderRight: { sm: '1px solid' }, borderColor: 'divider', p: { xs: 1.5, sm: 2 }, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
 
           {/* Page */}
           <Box>
@@ -269,7 +271,19 @@ export function PrintPreviewPage({
           </Box>
         </Box>}
 
-        {/* ── Live preview ── */}
+        {/* Mobile: panel closed → show ready-to-print placeholder */}
+        {!panelOpen && isMobile && (
+          <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2, p: 3 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center' }}>
+              {zh ? '设置已隐藏。点击右上角菜单图标可重新打开。' : 'Settings hidden. Tap the menu icon to reopen.'}
+            </Typography>
+            <Button variant="contained" size="large" startIcon={<PrintIcon />} onClick={handlePrint}>
+              {zh ? '打印' : 'Print'}
+            </Button>
+          </Box>
+        )}
+
+        {/* ── Live preview (sm+) ── */}
         <Box sx={{ flex: 1, overflowY: 'auto', bgcolor: 'grey.200', p: { xs: 1, sm: 3 }, display: { xs: 'none', sm: 'flex' }, flexDirection: 'column', alignItems: 'center', gap: 2 }}>
           <Typography variant="caption" color="text.secondary" sx={{ alignSelf: 'flex-start', maxWidth: previewW }}>
             {PAGE_SIZE_DEFS[opts.pageSize].label} — {zh ? '以下为预览（实际打印可能有细微差异）' : 'Preview — actual print may differ slightly'}

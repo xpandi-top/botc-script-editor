@@ -126,7 +126,7 @@ On confirm: apply options to print portal then call `window.print()`.
 
 ## I-53 — PrintStudio + PrintPreview: mobile/tablet optimization
 
-**Status:** open  
+**Status:** fixed  
 **Area:** PrintStudio/PrintStudioPage.tsx, PrintPreviewPage.tsx  
 **Detail:** Both pages assume wide desktop layout. On mobile/tablet: settings panel overlaps content, sliders too cramped, preview canvas overflows viewport. Fix: responsive layout (stack panel below on mobile, hide panel behind toggle on tablet), full-width preview on small screens.
 

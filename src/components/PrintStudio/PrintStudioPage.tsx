@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Box, Button, FormControl, IconButton, MenuItem, Paper, Select, Tooltip, Typography } from '@mui/material'
+import { Box, Button, FormControl, IconButton, MenuItem, Paper, Select, Tooltip, Typography, useMediaQuery, useTheme } from '@mui/material'
 import PrintIcon from '@mui/icons-material/Print'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import MenuIcon from '@mui/icons-material/Menu'
@@ -27,6 +27,8 @@ interface Props {
 
 export function PrintStudioPage({ opts, onOptionsChange, onClose, scriptCharacters: givenCharacters, language, onLanguageChange, scripts, activeSlug, onScriptChange, getScriptTitle }: Props) {
   const zh = language === 'zh'
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const [panelOpen, setPanelOpen] = useState(true)
 
   // When "__all__" is selected, use allCharacters
@@ -56,14 +58,12 @@ export function PrintStudioPage({ opts, onOptionsChange, onClose, scriptCharacte
   return (
     <Box sx={{ position: 'fixed', inset: 0, zIndex: 1300, display: 'flex', flexDirection: 'column', bgcolor: 'background.default' }}>
       {/* Top bar */}
-      <Paper elevation={2} sx={{ px: 2, py: 1, display: 'flex', alignItems: 'center', gap: 1, borderRadius: 0, zIndex: 1, flexShrink: 0 }}>
-        <Button startIcon={<ArrowBackIcon />} onClick={onClose} size="small">
-          {zh ? '返回' : 'Back'}
-        </Button>
-        <Typography variant="subtitle1" sx={{ ml: 1, fontWeight: 700, flexShrink: 0 }}>
+      <Paper elevation={2} sx={{ px: { xs: 1, sm: 2 }, py: 1, display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1 }, borderRadius: 0, zIndex: 1, flexShrink: 0 }}>
+        <IconButton size="small" onClick={onClose}><ArrowBackIcon fontSize="small" /></IconButton>
+        <Typography variant="subtitle1" sx={{ fontWeight: 700, flexShrink: 0, display: { xs: 'none', sm: 'block' } }}>
           {zh ? '打印工坊' : 'Print Studio'}
         </Typography>
-        <FormControl size="small" sx={{ flex: 1, mx: 1, maxWidth: 260 }}>
+        <FormControl size="small" sx={{ flex: 1, mx: { xs: 0.5, sm: 1 }, maxWidth: { xs: 140, sm: 260 } }}>
           <Select
             value={activeSlug}
             onChange={(e) => {
@@ -81,7 +81,7 @@ export function PrintStudioPage({ opts, onOptionsChange, onClose, scriptCharacte
             ))}
           </Select>
         </FormControl>
-        <Typography variant="body2" color="text.secondary" sx={{ flexShrink: 0 }}>
+        <Typography variant="body2" color="text.secondary" sx={{ flexShrink: 0, display: { xs: 'none', sm: 'block' } }}>
           {selectedCount} {zh ? '个标记' : 'tokens'}
         </Typography>
         <Tooltip title={zh ? '切换语言' : 'Toggle language'}>
@@ -94,7 +94,7 @@ export function PrintStudioPage({ opts, onOptionsChange, onClose, scriptCharacte
             {panelOpen ? <MenuOpenIcon fontSize="small" /> : <MenuIcon fontSize="small" />}
           </IconButton>
         </Tooltip>
-        <Button variant="contained" startIcon={<PrintIcon />} onClick={handlePrint} disabled={selectedCount === 0}>
+        <Button variant="contained" size="small" startIcon={<PrintIcon />} onClick={handlePrint} disabled={selectedCount === 0}>
           {zh ? '打印' : 'Print'}
         </Button>
       </Paper>
@@ -105,7 +105,7 @@ export function PrintStudioPage({ opts, onOptionsChange, onClose, scriptCharacte
           width: { xs: '100%', sm: 320 },
           flexShrink: 0,
           overflowY: 'auto',
-          borderRight: '1px solid',
+          borderRight: { sm: '1px solid' },
           borderColor: 'divider',
         }}>
           <TokenOptionsPanel
@@ -116,7 +116,21 @@ export function PrintStudioPage({ opts, onOptionsChange, onClose, scriptCharacte
           />
         </Box>}
 
-        {/* Live preview */}
+        {/* Mobile: panel closed → ready-to-print placeholder */}
+        {!panelOpen && isMobile && (
+          <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2, p: 3 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center' }}>
+              {selectedCount > 0
+                ? `${selectedCount} ${zh ? '个标记已选择' : 'tokens selected'}`
+                : (zh ? '请打开菜单选择标记' : 'Open menu to select tokens')}
+            </Typography>
+            <Button variant="contained" size="large" startIcon={<PrintIcon />} onClick={handlePrint} disabled={selectedCount === 0}>
+              {zh ? '打印' : 'Print'}
+            </Button>
+          </Box>
+        )}
+
+        {/* Live preview (sm+) */}
         <Box sx={{
           flex: 1,
           overflowY: 'auto',
