@@ -50,6 +50,7 @@ function buildPlayerEntries(days: any[], seatNum: number, includeNight: boolean)
 
     for (const e of day.eventLog) {
       if (!includeNight && e.phase === 'night') continue
+      if (e.kind === 'vote' || e.kind === 'skill') continue
       if (eventMentionsSeat(e.detail, seatNum)) {
         const vis: 'public' | 'st-only' = (e.kind === 'stateChange' || e.kind === 'phaseTransition') ? 'public' : 'st-only'
         entries.push({ id: `e-${day.day}-${e.id}`, timestamp: e.timestamp, text: e.detail, kind: e.kind, type: 'event', phase: e.phase, visibility: vis, editable: e.detail })
@@ -247,7 +248,18 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: any; seat: any }) {
         for (const sn of targetArr) updateSeatWithLog(sn, (s: any) => ({ ...s, characterId: newCharId, userCharacterId: newCharId }))
       }
     }
-    updateCurrentDay((d: any) => appendEvent(d, 'skill', detail))
+    const sr = {
+      id: `${Date.now()}`,
+      actor: seat.seat,
+      targets: Array.from(targets),
+      roleId: actualCharId || '',
+      targetNotes: {},
+      statement: detail,
+      note: skillNote.trim(),
+      result: isSuccess ? 'success' : 'failure' as 'success' | 'failure',
+      activatedDuringPhase: currentDay?.phase ?? 'night',
+    }
+    updateCurrentDay((d: any) => appendEvent({ ...d, skillHistory: [sr, ...d.skillHistory] }, 'skill', detail))
     setSkillType(''); setTargets(new Set()); setTagInput(''); setRemoveTagVal(''); setNewCharId(''); setSkillNote('')
   }
 
