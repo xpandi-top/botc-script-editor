@@ -174,3 +174,51 @@ Data source: saved game records in localStorage.
 **Status:** fixed  
 **Area:** Arena/ArenaSeat.tsx, Arena/MobileSeatCard.tsx, Arena/ArenaSeatPlayerModal.tsx  
 **Detail:** Merged Ability + Status into single "Actions" button opening one Dialog (ArenaSeatPlayerModal) with MUI Tabs. Ability tab: full skill form when skillOverlay active, else "Use Ability" button. Status tab: alive/executed/traveler/noVote toggles, custom tag input, tag pool, character-as-tag section. Rendered via createPortal. Old ArenaSeatTagPopout/ArenaSeatSkillPopout removed from both seat components.
+
+---
+
+## I-60 — ST: Phase-aware unified player modal (character + actions + log)
+
+**Status:** open  
+**Area:** Arena/ArenaSeat.tsx, Arena/MobileSeatCard.tsx, Arena/ArenaSeatPlayerModal.tsx, Arena/CharacterCircle.tsx  
+**Detail:** Consolidate CharacterCircle click + Actions button + per-player Log into one phase-aware modal. CharacterCircle becomes main trigger (enabled in all phases). Actions button removed. Log button removed. Single `ArenaSeatPlayerModal` replaces `ArenaSeatCharacterPopout` + current modal.
+
+**Night phase sections (top → bottom):**
+1. Actual Character + Perceived Character (side-by-side, icon + name + ability text)
+2. Change Character (inline picker from script roster)
+3. Public Status — alive/dead/traveler/noVote toggles + custom tags with quick-add + tag pool chips
+4. Night/ST Status — stTags displayed as chips (removable), text field quick-add, default ST tag chips (see I-61)
+5. Night Ability — existing skill form (role picker, targets, statement, result)
+6. Log Accordion — all events related to player (all days, night-inclusive), grouped by day desc; each entry: edit / delete / quick-add (mark as public or st-only)
+
+**Other phases sections (top → bottom):**
+1. Public Status — same toggles + custom tags + tag pool chips
+2. Day Ability — "Use Ability" button or active skill form
+3. Log Accordion — day events only for this player, grouped by day desc; edit / delete / quick-add
+
+---
+
+## I-61 — ST: Default ST tag pool + character icon attachment
+
+**Status:** open  
+**Area:** Arena/ArenaSeatPlayerModal.tsx, StorytellerSub/constants.ts  
+**Detail:** Two enhancements to ST tags:
+
+1. **Default ST tag pool** — pre-populated chips in Night/ST Status section:
+   - drunk, poisoned, protected, red herring (干扰项), used
+   - Click to add/toggle on current player
+
+2. **Character icon attachment** — stTags added via Night Ability section carry the acting character's icon.
+   - Storage format: `"tagLabel::sourceCharId"` (e.g., `"poisoned::poisoner"`)
+   - Display: chip shows label + small character icon (source char) on the right
+   - Backward-compat: tags without `::` render as plain text (existing data unaffected)
+   - Night ability section: after selecting role, any "add ST tag" action auto-attaches that roleId
+   - Night ability section can also add/remove **public** custom tags (event logged as st-only)
+
+---
+
+## I-59 — ST: Include stFabledIds + stCustomRules in game records/JSON export
+
+**Status:** fixed  
+**Area:** hooks/useGameExport.ts, hooks/useGameLifecycle.ts, StorytellerSub/types.ts  
+**Detail:** stFabledIds and stCustomRules added to GameRecord type and included in saveGame, confirmEndGame, exportRecordJson. loadGameRecord restores them. startNewGame clears them.

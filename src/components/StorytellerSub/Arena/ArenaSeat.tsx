@@ -2,8 +2,6 @@
 import React, { useState } from 'react'
 import { Box, Button, Chip, IconButton, Paper } from '@mui/material'
 import { ArenaSeatPlayerModal } from './ArenaSeatPlayerModal'
-import { ArenaSeatCharacterPopout } from './ArenaSeatCharacterPopout'
-import { PlayerNightLog } from './PlayerNightLog'
 import { CharacterCircle } from './CharacterCircle'
 import { getDisplayName, getIconForCharacter, nightOrder } from '../../../catalog'
 import { getSeatPosition } from '../../../utils/seats'
@@ -17,8 +15,6 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
     characterPopoutSeat, setCharacterPopoutSeat, toggleNightVisitedSeat,
     playerModalSeat, setPlayerModalSeat, setPlayerModalTab, days,
   } = ctx
-
-  const [logOpen, setLogOpen] = useState(false)
 
   const { left, top } = getSeatPosition(index, currentDay.seats.length, isPortrait)
 
@@ -116,9 +112,9 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
             charIcon={charIcon}
             charName={actualCharName}
             nightShowCharacter={nightShowCharacter}
-            isOpen={isCharacterPopoutOpen}
-            disabled={!isNightPhase}
-            onClick={(e) => { e.stopPropagation(); setCharacterPopoutSeat(isCharacterPopoutOpen ? null : seat.seat) }}
+            isOpen={isPlayerModalOpen}
+            disabled={false}
+            onClick={(e) => { e.stopPropagation(); setPlayerModalSeat(isPlayerModalOpen ? null : seat.seat) }}
           />
         </Box>
         <Paper
@@ -191,18 +187,11 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: an
             </Box>
           )}
 
-          {isNightPhase && isSelected && (
-            <Button size="small" onClick={(e) => { e.stopPropagation(); setLogOpen(true) }}
-              sx={{ minWidth: 0, px: 0.5, py: 0.1, fontSize: '0.65rem', mt: 0.25 }}>📋</Button>
-          )}
-
           <RoundRobinIndicator isRoundRobinSpeaker={isRoundRobinSpeaker} isSpoken={isSpoken} />
         </Paper>
       </Box>
 
       <ArenaSeatPlayerModal ctx={ctx} seat={seat} />
-      <ArenaSeatCharacterPopout ctx={ctx} seat={seat} />
-      <PlayerNightLog open={logOpen} onClose={() => setLogOpen(false)} seat={seat} days={days || [currentDay]} language={language} />
     </>
   )
 }

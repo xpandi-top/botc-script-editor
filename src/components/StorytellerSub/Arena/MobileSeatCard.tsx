@@ -2,8 +2,6 @@
 import React, { useState } from 'react'
 import { Box, Button, IconButton, Chip, Paper } from '@mui/material'
 import { ArenaSeatPlayerModal } from './ArenaSeatPlayerModal'
-import { ArenaSeatCharacterPopout } from './ArenaSeatCharacterPopout'
-import { PlayerNightLog } from './PlayerNightLog'
 import { CharacterCircle } from './CharacterCircle'
 import { getDisplayName, getIconForCharacter, nightOrder } from '../../../catalog'
 import { VoteButtonGroup } from './ArenaSeatComponents'
@@ -21,8 +19,6 @@ export function MobileSeatCard({ ctx, seat }: { ctx: any; seat: any }) {
     playerModalSeat, setPlayerModalSeat, setPlayerModalTab,
     days,
   } = ctx
-
-  const [logOpen, setLogOpen] = useState(false)
 
   const isPlayerModalOpen = playerModalSeat === seat.seat
   const isCharacterPopoutOpen = characterPopoutSeat === seat.seat
@@ -100,9 +96,9 @@ export function MobileSeatCard({ ctx, seat }: { ctx: any; seat: any }) {
             charIcon={charIcon}
             charName={actualCharName}
             nightShowCharacter={nightShowCharacter}
-            isOpen={isCharacterPopoutOpen}
-            disabled={!isNightPhase}
-            onClick={(e) => { e.stopPropagation(); setCharacterPopoutSeat(isCharacterPopoutOpen ? null : seat.seat) }}
+            isOpen={isPlayerModalOpen}
+            disabled={false}
+            onClick={(e) => { e.stopPropagation(); setPlayerModalSeat(isPlayerModalOpen ? null : seat.seat) }}
           />
         </Box>
         <Paper
@@ -163,28 +159,18 @@ export function MobileSeatCard({ ctx, seat }: { ctx: any; seat: any }) {
           )}
 
           {isSelected && (
-            <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mt: 0.5 }}>
-              <Button size="small" variant={isPlayerModalOpen ? 'contained' : 'outlined'}
-                onClick={(e) => { e.stopPropagation(); setPlayerModalSeat(isPlayerModalOpen ? null : seat.seat); setPlayerModalTab(0) }}
-                sx={{ minWidth: 0, px: 1, py: 0.25, fontSize: '0.8rem', fontWeight: 600 }}>
-                {language === 'zh' ? '操作' : 'Actions'}
-              </Button>
-              {isNightPhase && (
-                <Button size="small" variant="outlined" onClick={(e) => { e.stopPropagation(); setLogOpen(true) }}
-                  sx={{ minWidth: 0, px: 1, py: 0.25, fontSize: '0.8rem' }}>
-                  {language === 'zh' ? '📋 记录' : '📋 Log'}
-                </Button>
-              )}
-            </Box>
+            <Button size="small" variant={isPlayerModalOpen ? 'contained' : 'outlined'}
+              onClick={(e) => { e.stopPropagation(); setPlayerModalSeat(isPlayerModalOpen ? null : seat.seat) }}
+              sx={{ minWidth: 0, px: 1, py: 0.25, fontSize: '0.8rem', fontWeight: 600, mt: 0.5 }}>
+              {language === 'zh' ? '操作' : 'Actions'}
+            </Button>
           )}
 
           {isInNomination && <VoteButtonGroup seat={seat} cardVotedYes={cardVotedYes} cardVotedNo={cardVotedNo} handleVoteYesClick={handleVoteYesClick} handleVoteNoClick={handleVoteNoClick} handleRemoveVote={handleRemoveVote} />}
         </Paper>
       </Box>
 
-      <PlayerNightLog open={logOpen} onClose={() => setLogOpen(false)} seat={seat} days={days || [currentDay]} language={language} />
       <ArenaSeatPlayerModal ctx={ctx} seat={seat} />
-      <ArenaSeatCharacterPopout ctx={ctx} seat={seat} />
     </>
   )
 }
