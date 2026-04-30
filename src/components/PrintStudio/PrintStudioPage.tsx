@@ -116,27 +116,13 @@ export function PrintStudioPage({ opts, onOptionsChange, onClose, scriptCharacte
           />
         </Box>}
 
-        {/* Mobile: panel closed → ready-to-print placeholder */}
-        {!panelOpen && isMobile && (
-          <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2, p: 3 }}>
-            <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center' }}>
-              {selectedCount > 0
-                ? `${selectedCount} ${zh ? '个标记已选择' : 'tokens selected'}`
-                : (zh ? '请打开菜单选择标记' : 'Open menu to select tokens')}
-            </Typography>
-            <Button variant="contained" size="large" startIcon={<PrintIcon />} onClick={handlePrint} disabled={selectedCount === 0}>
-              {zh ? '打印' : 'Print'}
-            </Button>
-          </Box>
-        )}
-
-        {/* Live preview (sm+) */}
+        {/* Live preview (hidden on mobile when panel open) */}
         <Box sx={{
           flex: 1,
           overflowY: 'auto',
           bgcolor: 'grey.200',
           p: { xs: 1, sm: 3 },
-          display: { xs: 'none', sm: 'flex' },
+          display: panelOpen && isMobile ? 'none' : 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           gap: 2,

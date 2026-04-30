@@ -271,20 +271,8 @@ export function PrintPreviewPage({
           </Box>
         </Box>}
 
-        {/* Mobile: panel closed → show ready-to-print placeholder */}
-        {!panelOpen && isMobile && (
-          <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2, p: 3 }}>
-            <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center' }}>
-              {zh ? '设置已隐藏。点击右上角菜单图标可重新打开。' : 'Settings hidden. Tap the menu icon to reopen.'}
-            </Typography>
-            <Button variant="contained" size="large" startIcon={<PrintIcon />} onClick={handlePrint}>
-              {zh ? '打印' : 'Print'}
-            </Button>
-          </Box>
-        )}
-
-        {/* ── Live preview (sm+) ── */}
-        <Box sx={{ flex: 1, overflowY: 'auto', bgcolor: 'grey.200', p: { xs: 1, sm: 3 }, display: { xs: 'none', sm: 'flex' }, flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+        {/* ── Live preview (hidden on mobile when panel open) ── */}
+        <Box sx={{ flex: 1, overflowY: 'auto', bgcolor: 'grey.200', p: { xs: 1, sm: 3 }, display: panelOpen && isMobile ? 'none' : 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
           <Typography variant="caption" color="text.secondary" sx={{ alignSelf: 'flex-start', maxWidth: previewW }}>
             {PAGE_SIZE_DEFS[opts.pageSize].label} — {zh ? '以下为预览（实际打印可能有细微差异）' : 'Preview — actual print may differ slightly'}
           </Typography>
