@@ -158,7 +158,7 @@ On confirm: apply options to print portal then call `window.print()`.
 
 ## I-57 — ST: Game records / DDB analytics tab
 
-**Status:** open  
+**Status:** fixed  
 **Area:** New tab — src/components/tabs/AnalyticsTab.tsx  
 **Detail:** New tab showing gaming records analysis:
 1. Win rates (evil/good) — total, per script, per player, per character

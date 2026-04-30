@@ -26,6 +26,7 @@ import { DEFAULT_TOKEN_OPTIONS } from './components/PrintStudio/types'
 import type { TokenPrintOptions } from './components/PrintStudio/types'
 import { ScriptsTab } from './components/tabs/ScriptsTab'
 import { CharactersTab } from './components/tabs/CharactersTab'
+import { AnalyticsTab } from './components/tabs/AnalyticsTab'
 import { StorytellerHelper } from './components/StorytellerHelper'
 import {
   allCharacters,
@@ -50,7 +51,7 @@ import type {
   Team,
 } from './types'
 
-type TabKey = 'scripts' | 'characters' | 'storyteller' | 'printstudio'
+type TabKey = 'scripts' | 'characters' | 'storyteller' | 'printstudio' | 'analytics'
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabKey>('scripts')
@@ -320,6 +321,7 @@ export default function App() {
 
   const storytellerTabLabel = uiLanguage === 'zh' ? '主持助手' : 'Storyteller Helper'
   const printStudioTabLabel = uiLanguage === 'zh' ? '打印工坊' : 'Print Studio'
+  const analyticsTabLabel = uiLanguage === 'zh' ? '数据统计' : 'Analytics'
 
   return (
     <Container maxWidth="xl" sx={{ py: { xs: 0, sm: 3 }, px: { xs: 0, sm: 3 }, minHeight: '100vh' }}>
@@ -336,7 +338,7 @@ export default function App() {
                 <MenuItem value="zh">{uiText.chinese}</MenuItem>
               </Select>
             </FormControl>
-            {activeTab !== 'characters' && activeTab !== 'storyteller' && activeScript && (
+            {activeTab !== 'characters' && activeTab !== 'storyteller' && activeTab !== 'analytics' && activeScript && (
               <>
                 <IconButton onClick={() => setPrintPreviewOpen(true)} size="small" color="primary" sx={{ display: { xs: 'flex', sm: 'none' } }} title={uiText.print}>
                   <PrintIcon fontSize="small" />
@@ -363,6 +365,7 @@ export default function App() {
           <Tab label={uiText.allCharacters} value="characters" />
           <Tab label={storytellerTabLabel} value="storyteller" />
           <Tab label={printStudioTabLabel} value="printstudio" />
+          <Tab label={analyticsTabLabel} value="analytics" />
         </Tabs>
       </Paper>
 
@@ -449,6 +452,10 @@ export default function App() {
           onScriptChange={setActiveSlug}
           getScriptTitle={getScriptTitle}
         />
+      )}
+
+      {activeTab === 'analytics' && (
+        <AnalyticsTab language={uiLanguage} />
       )}
 
       {activeTab === 'storyteller' && (
