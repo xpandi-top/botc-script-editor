@@ -29,14 +29,7 @@ function buildStTag(label: string, sourceCharId?: string | null): string {
   return `${ST_TAG_PREFIX}${label}${sourceCharId ? `::${sourceCharId}` : ''}`
 }
 
-type SkillType = 'know' | 'guess' | 'addTag' | 'removeTag' | 'changeChar'
-const SKILL_LABELS: Record<SkillType, { en: string; zh: string }> = {
-  know:       { en: 'Know',             zh: '已知信息' },
-  guess:      { en: 'Guess',            zh: '猜测' },
-  addTag:     { en: 'Add ST Tag',       zh: '添加ST标签' },
-  removeTag:  { en: 'Remove Tag',       zh: '移除标签' },
-  changeChar: { en: 'Change Character', zh: '变更角色' },
-}
+type SkillType = 'know' | 'guess' | 'change' | 'changeStatus' | ''
 
 // ── Log helpers ─────────────────────────────────────────────────
 function eventMentionsSeat(detail: string, seatNum: number) {
@@ -104,14 +97,23 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: any; seat: any }) {
   const [publicTagInput, setPublicTagInput] = useState('')
 
   // ── Night Ability state ──
-  const [skillType, setSkillType] = useState<SkillType | ''>('')
+  const [skillType, setSkillType] = useState<SkillType>('')
   const [targets, setTargets] = useState<Set<number>>(new Set())
-  const [knowKind, setKnowKind] = useState<'good'|'evil'|'character'|'other'>('good')
-  const [knowCharId, setKnowCharId] = useState('')
-  const [knowOtherText, setKnowOtherText] = useState('')
+  // know/guess sub-state
+  const [knowResult, setKnowResult] = useState('info') // 'characters'|'team'|'type'|'sameTeam'|'diffTeam'|'sameType'|'diffType'|'info'|'truefalse'
+  const [knowChars, setKnowChars] = useState<string[]>([])
+  const [knowTeam, setKnowTeam] = useState('good')
+  const [knowType, setKnowType] = useState('townsfolk')
+  const [knowInfo, setKnowInfo] = useState('')
+  const [knowTrueFalse, setKnowTrueFalse] = useState(true)
+  // change sub-state
+  const [changeTo, setChangeTo] = useState('character')
+  const [changeToChar, setChangeToChar] = useState('')
+  const [changeToTeam, setChangeToTeam] = useState('good')
+  // changeStatus sub-state
+  const [csSubtype, setCsSubtype] = useState('addST') // addST|removeST|addPublic|removePublic
   const [tagInput, setTagInput] = useState('')
   const [removeTagVal, setRemoveTagVal] = useState('')
-  const [newCharId, setNewCharId] = useState('')
   const [isSuccess, setIsSuccess] = useState(true)
   const [skillNote, setSkillNote] = useState('')
 
@@ -127,6 +129,9 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: any; seat: any }) {
       setShowCharPicker(false)
       setSkillType('')
       setTargets(new Set())
+      setKnowResult('info'); setKnowChars([]); setKnowTeam('good'); setKnowType('townsfolk'); setKnowInfo(''); setKnowTrueFalse(true)
+      setChangeTo('character'); setChangeToChar(''); setChangeToTeam('good')
+      setCsSubtype('addST'); setTagInput(''); setRemoveTagVal('')
       setIsSuccess(true)
       setSkillNote('')
       setStTagInput('')
@@ -144,27 +149,35 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: any; seat: any }) {
   const isNight = (currentDay?.phase ?? 'private') === 'night'
 
   // ── useMemo hooks — must be before any conditional return ──
-  const allTagsForTargets = useMemo(() => {
-    const tagSet = new Set<string>()
-    for (const seatNum of targets) {
-      const s = allSeats.find((x: any) => x.seat === seatNum)
-      if (s) { (s.customTags || []).forEach((t: string) => tagSet.add(t)); (s.stTags || []).forEach((t: string) => tagSet.add(t)) }
-    }
-    return Array.from(tagSet)
+  const stTagsForTargets = useMemo(() => {
+    const s = new Set<string>()
+    for (const n of targets) { const seat = allSeats.find((x: any) => x.seat === n); (seat?.stTags || []).forEach((t: string) => s.add(t)) }
+    return Array.from(s)
+  }, [targets, allSeats])
+
+  const publicTagsForTargets = useMemo(() => {
+    const s = new Set<string>()
+    for (const n of targets) { const seat = allSeats.find((x: any) => x.seat === n); (seat?.customTags || []).forEach((t: string) => s.add(t)) }
+    return Array.from(s)
   }, [targets, allSeats])
 
   const canSaveSkill = useMemo(() => {
     if (!skillType || targets.size === 0) return false
-    if (skillType === 'addTag') return tagInput.trim().length > 0
-    if (skillType === 'removeTag') return removeTagVal.length > 0
-    if (skillType === 'changeChar') return newCharId.length > 0
     if (skillType === 'know' || skillType === 'guess') {
-      if (knowKind === 'character') return knowCharId.length > 0
-      if (knowKind === 'other') return knowOtherText.trim().length > 0
+      if (knowResult === 'characters') return knowChars.length > 0
+      if (knowResult === 'info') return knowInfo.trim().length > 0
       return true
     }
+    if (skillType === 'change') {
+      if (changeTo === 'character') return changeToChar.length > 0
+      return true
+    }
+    if (skillType === 'changeStatus') {
+      if (csSubtype === 'addST' || csSubtype === 'addPublic') return tagInput.trim().length > 0
+      return removeTagVal.length > 0
+    }
     return false
-  }, [skillType, targets, tagInput, removeTagVal, newCharId, knowKind, knowCharId, knowOtherText])
+  }, [skillType, targets, knowResult, knowChars, knowInfo, changeTo, changeToChar, csSubtype, tagInput, removeTagVal])
 
   const logDays = useMemo(() => buildPlayerEntries(days || [currentDay], seat?.seat, isNight), [days, currentDay, seat?.seat, isNight])
 
@@ -220,47 +233,72 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: any; seat: any }) {
   const handleSaveSkill = () => {
     if (!canSaveSkill) return
     const targetArr = Array.from(targets)
+    const tLabels = targetArr.map((n) => `#${n}`).join(', ')
     const actorLabel = `#${seat.seat}${actualCharId ? ` (${getDisplayName(actualCharId, language)})` : ''}`
-    const targetLabels = targetArr.map((n) => { const s = allSeats.find((x: any) => x.seat === n); return `#${n}${s?.characterId ? ` (${getDisplayName(s.characterId, language)})` : ''}` }).join(', ')
-    const successTag = isSuccess ? (zh ? '[成功]' : '[success]') : (zh ? '[失败]' : '[fail]')
+    const successTag = isSuccess ? '[success]' : '[fail]'
+
     let action = ''
     if (skillType === 'know' || skillType === 'guess') {
-      const typeLabel = skillType === 'know' ? (zh ? '已知' : 'know') : (zh ? '猜测' : 'guess')
-      let result = knowKind === 'good' ? (zh ? '善良' : 'Good') : knowKind === 'evil' ? (zh ? '邪恶' : 'Evil') : knowKind === 'character' ? (knowCharId ? getDisplayName(knowCharId, language) : '?') : knowOtherText
-      action = `${typeLabel}: ${targetLabels} → ${result}`
-    } else if (skillType === 'addTag') {
-      action = `${zh ? '添加标签' : 'add tag'} [${tagInput.trim()}] → ${targetLabels}`
-    } else if (skillType === 'removeTag') {
-      action = `${zh ? '移除标签' : 'remove tag'} [${removeTagVal.replace(ST_TAG_PREFIX, '')}] ← ${targetLabels}`
-    } else if (skillType === 'changeChar') {
-      action = `${zh ? '变更角色' : 'change char'} → ${newCharId ? getDisplayName(newCharId, language) : '?'}: ${targetLabels}`
+      const verb = skillType === 'know' ? 'know' : 'guess'
+      const resultStr =
+        knowResult === 'characters' ? knowChars.map((c) => getDisplayName(c, language)).join(', ') :
+        knowResult === 'team' ? (knowTeam === 'good' ? 'Good' : 'Evil') :
+        knowResult === 'type' ? knowType :
+        knowResult === 'sameTeam' ? 'same team' :
+        knowResult === 'diffTeam' ? 'different team' :
+        knowResult === 'sameType' ? 'same type' :
+        knowResult === 'diffType' ? 'different type' :
+        knowResult === 'info' ? knowInfo :
+        knowResult === 'truefalse' ? (knowTrueFalse ? 'True' : 'False') : ''
+      action = `${verb}: ${tLabels} → ${resultStr}`
+    } else if (skillType === 'change') {
+      const toStr = changeTo === 'character'
+        ? `char:${changeToChar ? getDisplayName(changeToChar, language) : '?'}`
+        : `team:${changeToTeam === 'good' ? 'Good' : 'Evil'}`
+      action = `change: ${tLabels} → ${toStr}`
+    } else if (skillType === 'changeStatus') {
+      const tagName = csSubtype === 'removeST' || csSubtype === 'removePublic'
+        ? (removeTagVal.startsWith('📝') ? parseStTag(removeTagVal).label : removeTagVal)
+        : tagInput.trim()
+      const verb = { addST: '+ST', removeST: '-ST', addPublic: '+tag', removePublic: '-tag' }[csSubtype]
+      action = `${verb}:${tagName} → ${tLabels}`
     }
     const detail = `${actorLabel} ${successTag} ${action}${skillNote.trim() ? ` | ${skillNote.trim()}` : ''}`
 
+    // Apply state changes
     if (isSuccess) {
-      if (skillType === 'addTag') {
-        const rawLabel = tagInput.trim().replace(/^📝+/, '')
-        const tag = buildStTag(rawLabel, actualCharId || null)
-        for (const sn of targetArr) updateSeatWithLog(sn, (s: any) => ({ ...s, stTags: [...new Set([...(s.stTags || []), tag])] }))
-      } else if (skillType === 'removeTag') {
-        for (const sn of targetArr) updateSeatWithLog(sn, (s: any) => ({ ...s, customTags: (s.customTags || []).filter((t: string) => t !== removeTagVal), stTags: (s.stTags || []).filter((t: string) => t !== removeTagVal) }))
-      } else if (skillType === 'changeChar') {
-        for (const sn of targetArr) updateSeatWithLog(sn, (s: any) => ({ ...s, characterId: newCharId, userCharacterId: newCharId }))
+      if (skillType === 'changeStatus') {
+        if (csSubtype === 'addST') {
+          const raw = tagInput.trim().replace(/^📝+/, '')
+          const tag = buildStTag(raw, actualCharId || null)
+          for (const sn of targetArr) updateSeatWithLog(sn, (s: any) => ({ ...s, stTags: [...new Set([...(s.stTags || []), tag])] }))
+        } else if (csSubtype === 'removeST') {
+          for (const sn of targetArr) updateSeatWithLog(sn, (s: any) => ({ ...s, stTags: (s.stTags || []).filter((t: string) => t !== removeTagVal) }))
+        } else if (csSubtype === 'addPublic') {
+          const tag = tagInput.trim()
+          for (const sn of targetArr) updateSeatWithLog(sn, (s: any) => ({ ...s, customTags: [...new Set([...s.customTags, tag])] }))
+        } else if (csSubtype === 'removePublic') {
+          for (const sn of targetArr) updateSeatWithLog(sn, (s: any) => ({ ...s, customTags: s.customTags.filter((t: string) => t !== removeTagVal) }))
+        }
+      } else if (skillType === 'change' && changeTo === 'character' && changeToChar) {
+        for (const sn of targetArr) updateSeatWithLog(sn, (s: any) => ({ ...s, characterId: changeToChar, userCharacterId: changeToChar }))
       }
     }
+
     const sr = {
       id: `${Date.now()}`,
       actor: seat.seat,
-      targets: Array.from(targets),
+      targets: targetArr,
       roleId: actualCharId || '',
       targetNotes: {},
       statement: detail,
       note: skillNote.trim(),
-      result: isSuccess ? 'success' : 'failure' as 'success' | 'failure',
+      result: isSuccess ? 'success' as const : 'failure' as const,
       activatedDuringPhase: currentDay?.phase ?? 'night',
     }
     updateCurrentDay((d: any) => appendEvent({ ...d, skillHistory: [sr, ...d.skillHistory] }, 'skill', detail))
-    setSkillType(''); setTargets(new Set()); setTagInput(''); setRemoveTagVal(''); setNewCharId(''); setSkillNote('')
+    setSkillType(''); setTargets(new Set()); setTagInput(''); setRemoveTagVal(''); setSkillNote('')
+    setKnowChars([]); setKnowInfo(''); setChangeToChar('')
   }
 
   // ── Log helpers ──
@@ -439,23 +477,43 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: any; seat: any }) {
     return tags.length ? `(${tags.join(', ')})` : ''
   }
 
+  // ── Player multi-select list (shared across skill types) ──
+  const PlayerList = ({ showTags = true }: { showTags?: boolean }) => (
+    <Box sx={{ maxHeight: 160, overflow: 'auto', border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 0.5 }}>
+      {allSeats.map((s: any) => {
+        const charName = s.characterId ? getDisplayName(s.characterId, language) : ''
+        const tagSummary = seatTagSummary(s)
+        return (
+          <Box key={s.seat} sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.5, py: 0.25, cursor: 'pointer' }}
+            onClick={() => toggleTarget(s.seat)}>
+            <Box sx={{ width: 18, height: 18, mt: 0.2, border: '2px solid', borderColor: targets.has(s.seat) ? 'primary.main' : 'divider', borderRadius: 0.5, bgcolor: targets.has(s.seat) ? 'primary.main' : 'transparent', flexShrink: 0 }} />
+            <Box sx={{ minWidth: 0 }}>
+              <Typography variant="body2" sx={{ fontSize: '0.82rem', lineHeight: 1.3 }}>
+                #{s.seat} {s.name}{charName ? ` — ${charName}` : ''}
+                {!s.alive && <Box component="span" sx={{ color: 'text.disabled', ml: 0.5 }}>†</Box>}
+              </Typography>
+              {showTags && tagSummary && <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.72rem' }}>{tagSummary}</Typography>}
+            </Box>
+          </Box>
+        )
+      })}
+    </Box>
+  )
+
   const abilitySection = (
     <Box sx={{ mb: 1.5 }}>
       <SectionLabel label={isNight ? (zh ? '夜间技能' : 'Night Ability') : (zh ? '白天技能' : 'Day Ability')} />
       {skillOverlay ? (
-        // Active skillOverlay form (quick ability, from openSeatSkill)
+        // Active skillOverlay form (from openSeatSkill)
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-          <Box>
-            <Typography variant="caption" color="text.secondary">{zh ? '目标' : 'Target'}</Typography>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 0.5 }}>
-              {(currentDay?.seats ?? []).map((s: any) => (
-                <Button key={s.seat} size="small"
-                  variant={skillOverlay.draft?.targets?.includes(s.seat) ? 'contained' : 'outlined'}
-                  onClick={() => setSkillOverlay((p: any) => { if (!p) return p; const targets = p.draft.targets.includes(s.seat) ? p.draft.targets.filter((t: number) => t !== s.seat) : [...p.draft.targets, s.seat]; return { ...p, draft: { ...p.draft, targets } } })}>
-                  #{s.seat}
-                </Button>
-              ))}
-            </Box>
+          <Box sx={{ maxHeight: 140, overflow: 'auto', border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 0.5 }}>
+            {(currentDay?.seats ?? []).map((s: any) => (
+              <Box key={s.seat} sx={{ display: 'flex', alignItems: 'center', gap: 0.5, py: 0.25, cursor: 'pointer' }}
+                onClick={() => setSkillOverlay((p: any) => { if (!p) return p; const ts = p.draft.targets.includes(s.seat) ? p.draft.targets.filter((t: number) => t !== s.seat) : [...p.draft.targets, s.seat]; return { ...p, draft: { ...p.draft, targets: ts } } })}>
+                <Box sx={{ width: 18, height: 18, border: '2px solid', borderColor: skillOverlay.draft?.targets?.includes(s.seat) ? 'primary.main' : 'divider', borderRadius: 0.5, bgcolor: skillOverlay.draft?.targets?.includes(s.seat) ? 'primary.main' : 'transparent', flexShrink: 0 }} />
+                <Typography variant="body2" sx={{ fontSize: '0.82rem' }}>#{s.seat} {s.name}</Typography>
+              </Box>
+            ))}
           </Box>
           <TextField size="small" fullWidth label={text.statement} value={skillOverlay.draft?.statement ?? ''}
             onChange={(e) => setSkillOverlay((p: any) => p ? { ...p, draft: { ...p.draft, statement: e.target.value } } : p)} />
@@ -467,115 +525,209 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: any; seat: any }) {
           </Box>
         </Box>
       ) : !isNight ? (
-        // Day phase: single button only
         <Button variant="outlined" fullWidth onClick={() => openSeatSkill?.(seat.seat)}>
           {zh ? '发动白天技能' : 'Use Day Ability'}
         </Button>
       ) : (
-        // Night phase: full skill panel (no quick-ability fallback)
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-          <FormControl size="small" fullWidth>
-            <InputLabel>{zh ? '技能类型' : 'Skill Type'}</InputLabel>
-            <Select value={skillType} label={zh ? '技能类型' : 'Skill Type'}
-              onChange={(e) => { setSkillType(e.target.value as any); setTargets(new Set()) }}>
-              <MenuItem value="">{zh ? '— 选择 —' : '— Select —'}</MenuItem>
-              {(Object.keys(SKILL_LABELS) as SkillType[]).map((k) => (
-                <MenuItem key={k} value={k}>{zh ? SKILL_LABELS[k].zh : SKILL_LABELS[k].en}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          {/* Skill type toggle row */}
+          <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+            {(['know', 'guess', 'change', 'changeStatus'] as const).map((t) => {
+              const labels: Record<string, string> = { know: zh ? '已知' : 'Know', guess: zh ? '猜测' : 'Guess', change: zh ? '变更' : 'Change', changeStatus: zh ? '改变状态' : 'Change Status' }
+              return (
+                <Button key={t} size="small" variant={skillType === t ? 'contained' : 'outlined'}
+                  onClick={() => { setSkillType(skillType === t ? '' : t); setTargets(new Set()); setRemoveTagVal('') }}>
+                  {labels[t]}
+                </Button>
+              )
+            })}
+          </Box>
 
-          {skillType && (
+          {/* ── Know / Guess ── */}
+          {(skillType === 'know' || skillType === 'guess') && (
             <>
-              {/* Target list: shows name, char, and tags in () */}
-              <Box sx={{ maxHeight: 160, overflow: 'auto', border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 0.5 }}>
-                {allSeats.map((s: any) => {
-                  const charName = s.characterId ? getDisplayName(s.characterId, language) : ''
-                  const tagSummary = seatTagSummary(s)
-                  return (
-                    <Box key={s.seat} sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.5, py: 0.25, cursor: 'pointer' }}
-                      onClick={() => toggleTarget(s.seat)}>
-                      <Box sx={{ width: 18, height: 18, mt: 0.2, border: '2px solid', borderColor: targets.has(s.seat) ? 'primary.main' : 'divider', borderRadius: 0.5, bgcolor: targets.has(s.seat) ? 'primary.main' : 'transparent', flexShrink: 0 }} />
-                      <Box>
-                        <Typography variant="body2" sx={{ fontSize: '0.82rem', lineHeight: 1.3 }}>
-                          #{s.seat} {s.name}{charName ? ` — ${charName}` : ''}
-                          {!s.alive && <Box component="span" sx={{ color: 'text.disabled', ml: 0.5 }}>†</Box>}
-                        </Typography>
-                        {tagSummary && <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.72rem' }}>{tagSummary}</Typography>}
-                      </Box>
-                    </Box>
-                  )
-                })}
+              <Typography variant="caption" color="text.secondary">{zh ? '玩家（多选）' : 'Players (multi-select)'}</Typography>
+              <PlayerList />
+              <Typography variant="caption" color="text.secondary">{zh ? '结果' : 'Result'}</Typography>
+              {/* Result type button group */}
+              <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                {[
+                  { key: 'characters', label: zh ? '角色' : 'Characters' },
+                  { key: 'team', label: zh ? '阵营' : 'Team' },
+                  { key: 'type', label: zh ? '类型' : 'Type' },
+                  { key: 'sameTeam', label: zh ? '同阵营' : 'Same team' },
+                  { key: 'diffTeam', label: zh ? '不同阵营' : 'Diff team' },
+                  { key: 'sameType', label: zh ? '同类型' : 'Same type' },
+                  { key: 'diffType', label: zh ? '不同类型' : 'Diff type' },
+                  { key: 'info', label: zh ? '信息' : 'Info' },
+                  { key: 'truefalse', label: zh ? '真假' : 'T/F' },
+                ].map(({ key, label }) => (
+                  <Chip key={key} label={label} size="small" clickable
+                    color={knowResult === key ? 'primary' : 'default'}
+                    variant={knowResult === key ? 'filled' : 'outlined'}
+                    onClick={() => setKnowResult(key)} />
+                ))}
               </Box>
-
-              {(skillType === 'know' || skillType === 'guess') && (
-                <Box>
-                  <FormControl size="small" fullWidth sx={{ mb: 0.5 }}>
-                    <InputLabel>{zh ? '结果类型' : 'Result Type'}</InputLabel>
-                    <Select value={knowKind} label={zh ? '结果类型' : 'Result Type'} onChange={(e) => setKnowKind(e.target.value as any)}>
-                      <MenuItem value="good">{zh ? '善良' : 'Good'}</MenuItem>
-                      <MenuItem value="evil">{zh ? '邪恶' : 'Evil'}</MenuItem>
-                      <MenuItem value="character">{zh ? '角色' : 'Character'}</MenuItem>
-                      <MenuItem value="other">{zh ? '其他' : 'Other'}</MenuItem>
-                    </Select>
-                  </FormControl>
-                  {knowKind === 'character' && (
-                    <FormControl size="small" fullWidth>
-                      <InputLabel>{zh ? '角色' : 'Character'}</InputLabel>
-                      <Select value={knowCharId} label={zh ? '角色' : 'Character'} onChange={(e) => setKnowCharId(e.target.value)}>
-                        {(currentScriptCharacters ?? []).map((c: string) => <MenuItem key={c} value={c}>{getDisplayName(c, language)}</MenuItem>)}
-                      </Select>
-                    </FormControl>
-                  )}
-                  {knowKind === 'other' && <TextField size="small" fullWidth label={zh ? '内容' : 'Detail'} value={knowOtherText} onChange={(e) => setKnowOtherText(e.target.value)} />}
+              {/* Result value input */}
+              {knowResult === 'characters' && (
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, maxHeight: 100, overflow: 'auto', border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 0.5 }}>
+                  {(currentScriptCharacters ?? []).map((c: string) => (
+                    <Chip key={c} size="small" clickable
+                      label={getDisplayName(c, language)}
+                      icon={getIconForCharacter(c) ? <Box component="img" src={getIconForCharacter(c) as string} sx={{ width: 14, height: 14 }} /> : undefined}
+                      color={knowChars.includes(c) ? 'secondary' : 'default'}
+                      variant={knowChars.includes(c) ? 'filled' : 'outlined'}
+                      onClick={() => setKnowChars((prev) => prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c])} />
+                  ))}
                 </Box>
               )}
+              {knowResult === 'team' && (
+                <Box sx={{ display: 'flex', gap: 0.5 }}>
+                  {(['good', 'evil'] as const).map((t) => (
+                    <Button key={t} size="small" variant={knowTeam === t ? 'contained' : 'outlined'} onClick={() => setKnowTeam(t)}>
+                      {t === 'good' ? (zh ? '善良' : 'Good') : (zh ? '邪恶' : 'Evil')}
+                    </Button>
+                  ))}
+                </Box>
+              )}
+              {knowResult === 'type' && (
+                <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                  {(['townsfolk', 'outsider', 'minion', 'demon'] as const).map((t) => (
+                    <Button key={t} size="small" variant={knowType === t ? 'contained' : 'outlined'} onClick={() => setKnowType(t)}>
+                      {zh ? { townsfolk: '镇民', outsider: '外来者', minion: '爪牙', demon: '恶魔' }[t] : t}
+                    </Button>
+                  ))}
+                </Box>
+              )}
+              {knowResult === 'info' && (
+                <TextField size="small" fullWidth placeholder={zh ? '信息内容' : 'Info text'} value={knowInfo} onChange={(e) => setKnowInfo(e.target.value)} />
+              )}
+              {knowResult === 'truefalse' && (
+                <Box sx={{ display: 'flex', gap: 0.5 }}>
+                  <Button size="small" variant={knowTrueFalse ? 'contained' : 'outlined'} color="success" onClick={() => setKnowTrueFalse(true)}>{zh ? '真' : 'True'}</Button>
+                  <Button size="small" variant={!knowTrueFalse ? 'contained' : 'outlined'} color="error" onClick={() => setKnowTrueFalse(false)}>{zh ? '假' : 'False'}</Button>
+                </Box>
+              )}
+            </>
+          )}
 
-              {skillType === 'addTag' && (
+          {/* ── Change ── */}
+          {skillType === 'change' && (
+            <>
+              <Typography variant="caption" color="text.secondary">{zh ? '玩家（多选）' : 'Players (multi-select)'}</Typography>
+              <PlayerList />
+              <Typography variant="caption" color="text.secondary">{zh ? '变更为' : 'Change to'}</Typography>
+              <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', alignItems: 'center' }}>
+                <Button size="small" variant={changeTo === 'character' ? 'contained' : 'outlined'} onClick={() => setChangeTo('character')}>
+                  {zh ? '角色' : 'Character'}
+                </Button>
+                <Button size="small" variant={changeTo === 'team' ? 'contained' : 'outlined'} onClick={() => setChangeTo('team')}>
+                  {zh ? '阵营' : 'Team'}
+                </Button>
+              </Box>
+              {changeTo === 'character' && (
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, maxHeight: 100, overflow: 'auto', border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 0.5 }}>
+                  {(currentScriptCharacters ?? []).map((c: string) => (
+                    <Chip key={c} size="small" clickable
+                      label={getDisplayName(c, language)}
+                      icon={getIconForCharacter(c) ? <Box component="img" src={getIconForCharacter(c) as string} sx={{ width: 14, height: 14 }} /> : undefined}
+                      color={changeToChar === c ? 'primary' : 'default'}
+                      variant={changeToChar === c ? 'filled' : 'outlined'}
+                      onClick={() => setChangeToChar(changeToChar === c ? '' : c)} />
+                  ))}
+                </Box>
+              )}
+              {changeTo === 'team' && (
+                <Box sx={{ display: 'flex', gap: 0.5 }}>
+                  {(['good', 'evil'] as const).map((t) => (
+                    <Button key={t} size="small" variant={changeToTeam === t ? 'contained' : 'outlined'} onClick={() => setChangeToTeam(t)}>
+                      {t === 'good' ? (zh ? '善良' : 'Good') : (zh ? '邪恶' : 'Evil')}
+                    </Button>
+                  ))}
+                </Box>
+              )}
+            </>
+          )}
+
+          {/* ── Change Status ── */}
+          {skillType === 'changeStatus' && (
+            <>
+              {/* Subtype selector */}
+              <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                {[
+                  { key: 'addST', label: zh ? '+ST标签' : '+ST Tag' },
+                  { key: 'removeST', label: zh ? '-ST标签' : '-ST Tag' },
+                  { key: 'addPublic', label: zh ? '+公开标签' : '+Public Tag' },
+                  { key: 'removePublic', label: zh ? '-公开标签' : '-Public Tag' },
+                ].map(({ key, label }) => (
+                  <Button key={key} size="small"
+                    variant={csSubtype === key ? 'contained' : 'outlined'}
+                    color={key.startsWith('add') ? 'success' : 'error'}
+                    onClick={() => { setCsSubtype(key); setRemoveTagVal(''); setTagInput('') }}>
+                    {label}
+                  </Button>
+                ))}
+              </Box>
+              <Typography variant="caption" color="text.secondary">{zh ? '玩家（多选）' : 'Players (multi-select)'}</Typography>
+              <PlayerList showTags />
+              {/* Tag input / selector */}
+              {(csSubtype === 'addST') && (
                 <Box>
-                  <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center', mb: 0.5 }}>
-                    <TextField size="small" fullWidth label={zh ? '标签内容' : 'Tag'}
-                      value={tagInput}
+                  <Box sx={{ display: 'flex', gap: 0.5, mb: 0.5 }}>
+                    <TextField size="small" fullWidth placeholder={zh ? 'ST标签' : 'ST tag'} value={tagInput}
                       onChange={(e) => setTagInput(e.target.value)}
-                      onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); setTagInput(e.currentTarget.value) } }} />
+                      onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault() }} />
                   </Box>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                     {DEFAULT_ST_TAGS.map((t) => (
                       <Chip key={t} label={t} size="small" clickable
-                        variant={tagInput === t ? 'filled' : 'outlined'}
                         color={tagInput === t ? 'warning' : 'default'}
+                        variant={tagInput === t ? 'filled' : 'outlined'}
                         onClick={() => setTagInput(tagInput === t ? '' : t)} />
                     ))}
                   </Box>
                 </Box>
               )}
-              {skillType === 'removeTag' && (
+              {csSubtype === 'addPublic' && (
+                <Box sx={{ display: 'flex', gap: 0.5, flexDirection: 'column' }}>
+                  <TextField size="small" fullWidth placeholder={zh ? '公开标签' : 'Public tag'} value={tagInput}
+                    onChange={(e) => setTagInput(e.target.value)} />
+                  {customTagPool?.filter((t: string) => !t.startsWith('💀')).length > 0 && (
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                      {customTagPool.filter((t: string) => !t.startsWith('💀')).map((t: string) => (
+                        <Chip key={t} label={t} size="small" clickable
+                          color={tagInput === t ? 'primary' : 'default'}
+                          variant={tagInput === t ? 'filled' : 'outlined'}
+                          onClick={() => setTagInput(tagInput === t ? '' : t)} />
+                      ))}
+                    </Box>
+                  )}
+                </Box>
+              )}
+              {csSubtype === 'removeST' && (
                 <FormControl size="small" fullWidth>
-                  <InputLabel>{zh ? '移除标签' : 'Tag to Remove'}</InputLabel>
-                  <Select value={removeTagVal} label={zh ? '移除标签' : 'Tag to Remove'} onChange={(e) => setRemoveTagVal(e.target.value)}>
+                  <InputLabel>{zh ? '移除ST标签' : 'Remove ST tag'}</InputLabel>
+                  <Select value={removeTagVal} label={zh ? '移除ST标签' : 'Remove ST tag'} onChange={(e) => setRemoveTagVal(e.target.value)}>
                     <MenuItem value="">—</MenuItem>
-                    {allTagsForTargets.map((t: string) => {
-                      const clean = t.startsWith('📝') ? parseStTag(t).label : t
-                      return <MenuItem key={t} value={t}>{clean}</MenuItem>
-                    })}
+                    {stTagsForTargets.map((t: string) => <MenuItem key={t} value={t}>{parseStTag(t).label}</MenuItem>)}
                   </Select>
                 </FormControl>
               )}
-              {skillType === 'changeChar' && (
+              {csSubtype === 'removePublic' && (
                 <FormControl size="small" fullWidth>
-                  <InputLabel>{zh ? '变更为角色' : 'Change to Character'}</InputLabel>
-                  <Select value={newCharId} label={zh ? '变更为角色' : 'Change to Character'} onChange={(e) => setNewCharId(e.target.value)}>
+                  <InputLabel>{zh ? '移除公开标签' : 'Remove public tag'}</InputLabel>
+                  <Select value={removeTagVal} label={zh ? '移除公开标签' : 'Remove public tag'} onChange={(e) => setRemoveTagVal(e.target.value)}>
                     <MenuItem value="">—</MenuItem>
-                    {(currentScriptCharacters ?? []).map((c: string) => (
-                      <MenuItem key={c} value={c}>
-                        {getIconForCharacter(c) && <Box component="img" src={getIconForCharacter(c) as string} sx={{ width: 16, height: 16, mr: 0.5, verticalAlign: 'middle' }} />}
-                        {getDisplayName(c, language)}
-                      </MenuItem>
-                    ))}
+                    {publicTagsForTargets.map((t: string) => <MenuItem key={t} value={t}>{t}</MenuItem>)}
                   </Select>
                 </FormControl>
               )}
+            </>
+          )}
 
+          {/* Footer: note + success toggle + save */}
+          {skillType && (
+            <>
               <TextField size="small" fullWidth label={zh ? '备注（可选）' : 'Note (optional)'} value={skillNote} onChange={(e) => setSkillNote(e.target.value)} />
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <FormControlLabel
