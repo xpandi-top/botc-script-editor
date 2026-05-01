@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from 'react'
 import {
   Autocomplete,
   Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle,
-  Divider, IconButton, MenuItem, Paper, Select, TextField, ToggleButton,
+  Divider, IconButton, Paper, TextField, ToggleButton,
   ToggleButtonGroup, Tooltip, Typography,
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
@@ -75,54 +75,35 @@ function loadAllScripts(language: Language): Array<{ slug: string; label: string
   }
 }
 
-// ── Edit Record dialog ────────────────────────────────────────────
+// ── Shared Record Form dialog (create + edit) ─────────────────────
 
-function EditRecordDialog({ record, zh, onSave, onClose }: {
-  record: GameRecord; zh: boolean
-  onSave: (r: GameRecord) => void; onClose: () => void
-}) {
-  const [name, setName] = useState(record.recordName || record.scriptTitle || '')
-  const [winner, setWinner] = useState<string>(record.winner ?? '')
-  return (
-    <Dialog open onClose={onClose} maxWidth="xs" fullWidth>
-      <DialogTitle>{zh ? '编辑记录' : 'Edit Record'}</DialogTitle>
-      <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
-        <TextField label={zh ? '记录名称' : 'Record name'} value={name}
-          onChange={(e) => setName(e.target.value)} size="small" fullWidth />
-        <Select value={winner} onChange={(e) => setWinner(e.target.value)} size="small" displayEmpty>
-          <MenuItem value="">{zh ? '未记录' : 'No result'}</MenuItem>
-          <MenuItem value="evil">{zh ? '邪恶胜' : 'Evil Win'}</MenuItem>
-          <MenuItem value="good">{zh ? '善良胜' : 'Good Win'}</MenuItem>
-          <MenuItem value="storyteller">{zh ? 'ST胜' : 'ST Win'}</MenuItem>
-        </Select>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>{zh ? '取消' : 'Cancel'}</Button>
-        <Button variant="contained" onClick={() => {
-          onSave({ ...record, recordName: name || undefined, winner: (winner || null) as GameRecord['winner'] })
-          onClose()
-        }}>{zh ? '保存' : 'Save'}</Button>
-      </DialogActions>
-    </Dialog>
-  )
-}
-
-// ── Create Record dialog ──────────────────────────────────────────
-
-function CreateRecordDialog({ zh, language, onSave, onClose }: {
+function RecordFormDialog({ existing, zh, language, onSave, onClose }: {
+  existing?: GameRecord   // undefined = create mode
   zh: boolean; language: Language
   onSave: (r: GameRecord) => void; onClose: () => void
 }) {
   const today = new Date().toISOString().slice(0, 10)
 
-  const [name, setName] = useState('')
-  const [scriptInput, setScriptInput] = useState('')
-  const [scriptSlug, setScriptSlug] = useState('')
-  const [date, setDate] = useState(today)
-  const [winner, setWinner] = useState('')
-  const [dayCount, setDayCount] = useState(1)
-  const [playerCount, setPlayerCount] = useState(5)
-  const [players, setPlayers] = useState<PlayerRow[]>(makeRows(5))
+  // Pre-populate from existing record when editing
+  const initPlayers = (): PlayerRow[] => {
+    if (!existing?.playerSummaries) return makeRows(5)
+    return existing.playerSummaries.map((ps) => ({
+      name: ps.name ?? '',
+      charId: existing.setup?.assignments?.[ps.seat] ?? '',
+      team: (ps.team ?? '') as 'evil' | 'good' | '',
+    }))
+  }
+
+  const [name, setName] = useState(existing?.recordName ?? '')
+  const [scriptInput, setScriptInput] = useState(existing?.scriptTitle ?? existing?.scriptSlug ?? '')
+  const [scriptSlug, setScriptSlug] = useState(existing?.scriptSlug ?? '')
+  const [date, setDate] = useState(
+    existing ? new Date(existing.endedAt).toISOString().slice(0, 10) : today
+  )
+  const [winner, setWinner] = useState(existing?.winner ?? '')
+  const [dayCount, setDayCount] = useState(existing?.days?.length ?? 1)
+  const [players, setPlayers] = useState<PlayerRow[]>(initPlayers)
+  const [playerCount, setPlayerCount] = useState(players.length)
 
   const scriptOptions = useMemo(() => loadAllScripts(language), [language])
 
@@ -175,36 +156,45 @@ function CreateRecordDialog({ zh, language, onSave, onClose }: {
 
     const assignments: Record<number, string> = {}
     players.forEach((p, idx) => { if (p.charId) assignments[idx + 1] = p.charId })
-
     const hasSetup = Object.keys(assignments).length > 0
-    const record: GameRecord = {
-      id: `manual-${Date.now()}`,
+
+    const updatedRecord: GameRecord = {
+      // preserve all existing fields (savedDays, eventLog, etc.) when editing
+      ...(existing ?? {}),
+      id: existing?.id ?? `manual-${Date.now()}`,
       endedAt,
       recordName: name || (scriptInput ? `${scriptInput} ${new Date(date).toLocaleDateString()}` : undefined),
       scriptTitle: scriptInput || undefined,
       scriptSlug: scriptSlug || undefined,
       winner: (winner || null) as GameRecord['winner'],
       playerSummaries: playerSummaries.length > 0 ? playerSummaries : undefined,
-      days: Array.from({ length: Math.max(1, dayCount) }, (_, i) => ({ day: i + 1, votes: 0, skills: 0 })),
+      days: Array.from({ length: Math.max(1, dayCount) }, (_, i) => ({
+        day: i + 1,
+        // preserve existing vote/skill counts per day when editing
+        votes: existing?.days?.[i]?.votes ?? 0,
+        skills: existing?.days?.[i]?.skills ?? 0,
+      })),
       setup: hasSetup ? {
         playerCount: players.length,
-        travelerCount: 0,
+        travelerCount: existing?.setup?.travelerCount ?? 0,
         seatNames: Object.fromEntries(players.map((p, i) => [i + 1, p.name])),
         assignments,
-        userAssignments: {},
-        seatNotes: {},
-        specialNote: '',
-        demonBluffs: [],
-      } : undefined,
+        userAssignments: existing?.setup?.userAssignments ?? {},
+        seatNotes: existing?.setup?.seatNotes ?? {},
+        specialNote: existing?.setup?.specialNote ?? '',
+        demonBluffs: existing?.setup?.demonBluffs ?? [],
+      } : existing?.setup,
     }
-    onSave(record)
+    onSave(updatedRecord)
     onClose()
   }
 
   return (
     <Dialog open onClose={onClose} maxWidth="md" fullWidth
       slotProps={{ paper: { sx: { maxHeight: '90vh' } } }}>
-      <DialogTitle sx={{ pb: 1 }}>{zh ? '新建游戏记录' : 'New Game Record'}</DialogTitle>
+      <DialogTitle sx={{ pb: 1 }}>
+        {existing ? (zh ? '编辑游戏记录' : 'Edit Game Record') : (zh ? '新建游戏记录' : 'New Game Record')}
+      </DialogTitle>
       <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
 
         {/* ── Basic info ── */}
@@ -743,10 +733,10 @@ export function AnalyticsTab({ language }: { language: Language }) {
 
       {/* ── Dialogs ── */}
       {editingRecord && (
-        <EditRecordDialog record={editingRecord} zh={zh} onSave={updateRecord} onClose={() => setEditingRecord(null)} />
+        <RecordFormDialog existing={editingRecord} zh={zh} language={language} onSave={updateRecord} onClose={() => setEditingRecord(null)} />
       )}
       {showCreate && (
-        <CreateRecordDialog zh={zh} language={language} onSave={addRecord} onClose={() => setShowCreate(false)} />
+        <RecordFormDialog zh={zh} language={language} onSave={addRecord} onClose={() => setShowCreate(false)} />
       )}
     </Box>
   )
