@@ -21,6 +21,7 @@ export function StorytellerSetupModal({ ctx }: { ctx: any }) {
   const {
     language, showStSetupModal, setShowStSetupModal,
     stFabledIds, setStFabledIds, stCustomRules, setStCustomRules,
+    stName, setStName,
   } = ctx
 
   const [editMode, setEditMode] = useState(false)
@@ -67,6 +68,18 @@ export function StorytellerSetupModal({ ctx }: { ctx: any }) {
       </DialogTitle>
 
       <DialogContent sx={{ pt: 1 }}>
+        {/* ST Name */}
+        <Box sx={{ mb: 2 }}>
+          <TextField
+            size="small"
+            fullWidth
+            label={language === 'zh' ? '主持人名称' : 'Storyteller Name'}
+            placeholder={language === 'zh' ? '输入你的ST名称' : 'Your name as Storyteller'}
+            value={stName ?? ''}
+            onChange={(e) => setStName(e.target.value)}
+          />
+        </Box>
+
         {/* Fabled / Loric section */}
         <Box sx={{ mb: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
