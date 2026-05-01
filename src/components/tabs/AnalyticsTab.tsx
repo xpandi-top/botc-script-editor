@@ -14,6 +14,7 @@ import RefreshIcon from '@mui/icons-material/Refresh'
 import RemoveIcon from '@mui/icons-material/Remove'
 import { allCharacters, getDisplayName, getIconForCharacter, initialScripts } from '../../catalog'
 import { STORAGE_KEY, RECORDS_CHANGED_EVENT } from '../StorytellerSub/constants'
+import { storageSync } from '../../lib/storage'
 import type { GameRecord } from '../StorytellerSub/types'
 import type { Language } from '../../types'
 
@@ -21,7 +22,7 @@ import type { Language } from '../../types'
 
 function readStorage(): { raw: any; records: GameRecord[] } {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY)
+    const stored = storageSync.getItem(STORAGE_KEY)
     if (!stored) return { raw: null, records: [] }
     const raw = JSON.parse(stored)
     return { raw, records: raw.gameRecords ?? [] }
@@ -34,7 +35,7 @@ function writeRecords(records: GameRecord[]) {
   try {
     const { raw } = readStorage()
     const next = { ...(raw ?? {}), gameRecords: records }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+    storageSync.setItem(STORAGE_KEY, JSON.stringify(next))
     // Notify ST helper (different React tree) so its in-memory state stays in sync
     window.dispatchEvent(new CustomEvent(RECORDS_CHANGED_EVENT, { detail: { records } }))
   } catch {}
@@ -69,7 +70,7 @@ function getScriptLabel(s: { slug: string; title: string; titleZh?: string }, la
 function loadAllScripts(language: Language): Array<{ slug: string; label: string }> {
   const base = initialScripts.map((s) => ({ slug: s.slug, label: getScriptLabel(s, language) }))
   try {
-    const user = JSON.parse(localStorage.getItem('BOTC_USER_SCRIPTS') || '[]') as any[]
+    const user = JSON.parse(storageSync.getItem('BOTC_USER_SCRIPTS') || '[]') as any[]
     const userMapped = user.map((s) => ({ slug: s.slug ?? '', label: s.title || s.slug || '?' }))
     return [...base, ...userMapped]
   } catch {

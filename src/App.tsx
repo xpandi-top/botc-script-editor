@@ -42,6 +42,7 @@ import {
   toTitleCase,
 } from './catalog'
 import { STORAGE_KEY } from './components/StorytellerSub/constants'
+import { storageSync } from './lib/storage'
 import type {
   CharacterGroup,
   EditableScript,
@@ -60,7 +61,7 @@ export default function App() {
   const initialSlugs = useMemo(() => new Set(initialScripts.map((s) => s.slug)), [])
   const [scripts, setScripts] = useState<EditableScript[]>(() => {
     try {
-      const stored = localStorage.getItem('BOTC_USER_SCRIPTS')
+      const stored = storageSync.getItem('BOTC_USER_SCRIPTS')
       if (stored) {
         const user = JSON.parse(stored) as EditableScript[]
         return [...initialScripts, ...user]
@@ -73,7 +74,7 @@ export default function App() {
   // ST has its own independent script selection — not shared with Scripts tab
   const [stActiveSlug, setStActiveSlug] = useState<string>(() => {
     try {
-      const stored = window.localStorage.getItem(STORAGE_KEY)
+      const stored = storageSync.getItem(STORAGE_KEY)
       if (stored) {
         const p = JSON.parse(stored)
         if (p.activeScriptSlug) return p.activeScriptSlug
@@ -83,7 +84,7 @@ export default function App() {
   })
   useEffect(() => {
     const user = scripts.filter((s) => !initialSlugs.has(s.slug))
-    localStorage.setItem(USER_SCRIPTS_KEY, JSON.stringify(user))
+    storageSync.setItem(USER_SCRIPTS_KEY, JSON.stringify(user))
   }, [scripts, initialSlugs])
 
   const [characterQuery, setCharacterQuery] = useState('')

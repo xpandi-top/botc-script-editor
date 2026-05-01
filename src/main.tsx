@@ -6,9 +6,11 @@ import { theme } from './theme'
 import { initNative } from './lib/nativeInit'
 import './fonts.css'
 
-initNative()
-
-ReactDOM.createRoot(document.getElementById('root')!).render(
+// On native: await initNative so the Preferences sync-cache is populated
+// before React's synchronous useState initialisers run.
+// On web: initNative returns immediately (no-op), so no delay.
+initNative().then(() => {
+  ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -75,3 +77,4 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     </ThemeProvider>
   </React.StrictMode>,
 )
+})

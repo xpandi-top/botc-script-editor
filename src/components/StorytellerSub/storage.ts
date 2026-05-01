@@ -1,5 +1,6 @@
 import type { PersistedState } from './types'
 import { STORAGE_KEY, DEFAULT_PLAYER_COUNT, createTimerDefaults, createDayState, createSeats, createDefaultVoteDraft, createDefaultSkillDraft, BASE_URL } from './constants'
+import { storageSync } from '../../lib/storage'
 
 // ── Load / Migrate ─────────────────────────────────────────────
 
@@ -16,9 +17,9 @@ export function loadInitialState(): PersistedState {
   }
   if (typeof window === 'undefined') return fallback
   const stored =
-    window.localStorage.getItem(STORAGE_KEY) ??
-    window.localStorage.getItem('botc-storyteller-companion-v4') ??
-    window.localStorage.getItem('botc-storyteller-companion-v3')
+    storageSync.getItem(STORAGE_KEY) ??
+    storageSync.getItem('botc-storyteller-companion-v4') ??
+    storageSync.getItem('botc-storyteller-companion-v3')
   if (!stored) return fallback
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -8,6 +8,7 @@ import { buildGameActions } from '../../hooks/useGameActions'
 import { buildGameLifecycle } from '../../hooks/useGameLifecycle'
 import { loadInitialState } from './storage'
 import { makeEventId, STORAGE_KEY, RECORDS_CHANGED_EVENT, INITIAL_AUDIO_TRACKS } from './constants'
+import { storageSync } from '../../lib/storage'
 import { livingNonTravelers, eligibleVoters } from '../../utils/seats'
 import type { PickerMode, NewGameConfig, EndGameResult, LogFilterState, AggregatedLogEntry, DialogState, SkillOverlayState, StorytellerHelperProps, DayState, EventLogEntry, PersistedState } from './types'
 
@@ -172,7 +173,7 @@ export function useStoryteller(props: StorytellerHelperProps) {
   // ── Effects ──
   useEffect(() => {
     const toSave = { selectedDayId, timerDefaults, days, customTagPool, gameRecords, playerNamePool, activeScriptSlug, activeScriptTitle, stFabledIds, stCustomRules, stName }
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave satisfies PersistedState))
+    storageSync.setItem(STORAGE_KEY, JSON.stringify(toSave satisfies PersistedState))
   }, [customTagPool, days, gameRecords, playerNamePool, selectedDayId, timerDefaults, activeScriptSlug, activeScriptTitle, stFabledIds, stCustomRules, stName])
 
   // Sync records mutated by the Analytics tab (different React tree, same localStorage)
@@ -188,11 +189,11 @@ export function useStoryteller(props: StorytellerHelperProps) {
   // Separate effect to save endGameResult - avoids overwriting saved data when closing modal
   useEffect(() => {
     if (endGameResult !== null) {
-      const stored = window.localStorage.getItem(STORAGE_KEY)
+      const stored = storageSync.getItem(STORAGE_KEY)
       if (stored) {
         const parsed = JSON.parse(stored)
         parsed.endGameResult = endGameResult
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed))
+        storageSync.setItem(STORAGE_KEY, JSON.stringify(parsed))
       }
     }
   }, [endGameResult])
