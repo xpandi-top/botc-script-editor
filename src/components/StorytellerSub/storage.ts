@@ -87,6 +87,7 @@ export function loadInitialState(): PersistedState {
       endGameResult: p.endGameResult ?? null,
       stFabledIds: p.stFabledIds ?? [],
       stCustomRules: p.stCustomRules ?? '',
+      stName: p.stName ?? '',
     }
   } catch {
     return fallback

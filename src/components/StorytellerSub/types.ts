@@ -252,6 +252,7 @@ export type PersistedState = {
   endGameResult?: EndGameResult | null
   stFabledIds?: string[]
   stCustomRules?: string
+  stName?: string
 }
 
 export type DialogState =
