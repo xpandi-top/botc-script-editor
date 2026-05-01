@@ -58,13 +58,12 @@ export function buildGameExport(deps: ExportDeps) {
   }
 
   function exportRecordJson(record: GameRecord) {
+    // Export the full GameRecord so all fields (winner, playerSummaries, setup,
+    // endedAt, etc.) are included, plus the heavy savedDays for reloadable records.
     downloadJson({
-      exportedAt: new Date().toISOString(), recordName: record.recordName,
-      scriptTitle: record.scriptTitle, scriptSlug: record.scriptSlug,
-      days: record.savedDays, timerDefaults: (record as any).timerDefaults,
-      customTagPool: (record as any).customTagPool, playerNamePool: (record as any).playerNamePool,
-      stFabledIds: record.stFabledIds, stCustomRules: record.stCustomRules,
-    }, `botc-save-${record.recordName?.replace(/\s+/g, '-') || 'game'}-${record.id}.json`)
+      ...record,
+      exportedAt: new Date().toISOString(),
+    }, `botc-record-${record.recordName?.replace(/\s+/g, '-') || 'game'}-${record.id}.json`)
   }
 
   function buildRecordBase(_savedAt: number) {

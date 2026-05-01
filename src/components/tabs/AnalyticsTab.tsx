@@ -13,7 +13,7 @@ import FileUploadIcon from '@mui/icons-material/FileUpload'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import RemoveIcon from '@mui/icons-material/Remove'
 import { allCharacters, getDisplayName, getIconForCharacter, initialScripts } from '../../catalog'
-import { STORAGE_KEY } from '../StorytellerSub/constants'
+import { STORAGE_KEY, RECORDS_CHANGED_EVENT } from '../StorytellerSub/constants'
 import type { GameRecord } from '../StorytellerSub/types'
 import type { Language } from '../../types'
 
@@ -35,6 +35,8 @@ function writeRecords(records: GameRecord[]) {
     const { raw } = readStorage()
     const next = { ...(raw ?? {}), gameRecords: records }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+    // Notify ST helper (different React tree) so its in-memory state stays in sync
+    window.dispatchEvent(new CustomEvent(RECORDS_CHANGED_EVENT, { detail: { records } }))
   } catch {}
 }
 

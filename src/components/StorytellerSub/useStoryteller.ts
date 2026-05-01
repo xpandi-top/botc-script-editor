@@ -7,7 +7,7 @@ import { useHistory } from '../../hooks/useHistory'
 import { buildGameActions } from '../../hooks/useGameActions'
 import { buildGameLifecycle } from '../../hooks/useGameLifecycle'
 import { loadInitialState } from './storage'
-import { makeEventId, STORAGE_KEY, INITIAL_AUDIO_TRACKS } from './constants'
+import { makeEventId, STORAGE_KEY, RECORDS_CHANGED_EVENT, INITIAL_AUDIO_TRACKS } from './constants'
 import { livingNonTravelers, eligibleVoters } from '../../utils/seats'
 import type { PickerMode, NewGameConfig, EndGameResult, LogFilterState, AggregatedLogEntry, DialogState, SkillOverlayState, StorytellerHelperProps, DayState, EventLogEntry, PersistedState } from './types'
 
@@ -174,6 +174,16 @@ export function useStoryteller(props: StorytellerHelperProps) {
     const toSave = { selectedDayId, timerDefaults, days, customTagPool, gameRecords, playerNamePool, activeScriptSlug, activeScriptTitle, stFabledIds, stCustomRules, stName }
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave satisfies PersistedState))
   }, [customTagPool, days, gameRecords, playerNamePool, selectedDayId, timerDefaults, activeScriptSlug, activeScriptTitle, stFabledIds, stCustomRules, stName])
+
+  // Sync records mutated by the Analytics tab (different React tree, same localStorage)
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const records = (e as CustomEvent<{ records: any[] }>).detail?.records
+      if (Array.isArray(records)) setGameRecords(records)
+    }
+    window.addEventListener(RECORDS_CHANGED_EVENT, handler)
+    return () => window.removeEventListener(RECORDS_CHANGED_EVENT, handler)
+  }, [])
 
   // Separate effect to save endGameResult - avoids overwriting saved data when closing modal
   useEffect(() => {

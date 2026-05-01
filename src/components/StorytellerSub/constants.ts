@@ -3,6 +3,8 @@ import type { AudioTrack, StorytellerSeat, VoteDraft, SkillDraft, TimerDefaults,
 // ── Constants & Factories ──────────────────────────────────────
 
 export const STORAGE_KEY = 'botc-storyteller-companion-v5'
+/** Dispatched on window when analytics tab mutates gameRecords in localStorage */
+export const RECORDS_CHANGED_EVENT = 'botc-records-changed'
 export const DEFAULT_PLAYER_COUNT = 10
 export const BASE_URL = import.meta.env.BASE_URL ?? '/'
 
