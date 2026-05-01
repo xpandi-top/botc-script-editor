@@ -467,8 +467,11 @@ export function AnalyticsTab({ language }: { language: Language }) {
     const map = new Map<string, { name: string; total: number; evilGames: number; goodGames: number; wins: number; chars: Set<string> }>()
     for (const r of records) {
       if (!r.playerSummaries) continue
+      // Deduplicate player names within a game (same name on two seats = one game count)
+      const seenNames = new Set<string>()
       for (const ps of r.playerSummaries) {
-        if (!ps.name) continue
+        if (!ps.name || seenNames.has(ps.name)) continue
+        seenNames.add(ps.name)
         const entry = map.get(ps.name) ?? { name: ps.name, total: 0, evilGames: 0, goodGames: 0, wins: 0, chars: new Set() }
         entry.total++
         if (ps.team === 'evil') entry.evilGames++
@@ -486,13 +489,22 @@ export function AnalyticsTab({ language }: { language: Language }) {
     const map = new Map<string, { charId: string; total: number; wins: number; evilGames: number }>()
     for (const r of records) {
       if (!r.setup?.assignments || !r.playerSummaries) continue
+      // Deduplicate: count each character once per game regardless of how many
+      // players hold that character (duplicate-char games). If a char appears on
+      // both teams in the same game (shouldn't happen but defensive), evil wins.
+      const perGame = new Map<string, 'evil' | 'good' | null>()
       for (const ps of r.playerSummaries) {
         const charId = r.setup.assignments[ps.seat]
         if (!charId) continue
+        const prev = perGame.get(charId)
+        if (prev === undefined) perGame.set(charId, ps.team)
+        else if (ps.team === 'evil' && prev !== 'evil') perGame.set(charId, 'evil')
+      }
+      for (const [charId, team] of perGame) {
         const entry = map.get(charId) ?? { charId, total: 0, wins: 0, evilGames: 0 }
         entry.total++
-        if (ps.team === 'evil') entry.evilGames++
-        if ((ps.team === 'evil' && r.winner === 'evil') || (ps.team === 'good' && r.winner === 'good')) entry.wins++
+        if (team === 'evil') entry.evilGames++
+        if ((team === 'evil' && r.winner === 'evil') || (team === 'good' && r.winner === 'good')) entry.wins++
         map.set(charId, entry)
       }
     }
