@@ -193,9 +193,11 @@ export function PhaseControlPanel({ ctx }: { ctx: StorytellerContext }) {
             <Button variant="outlined" sx={btnSx} onClick={() => setShowStSetupModal(true)} startIcon={<AutoStoriesIcon />}>
               {stFabledIds?.length > 0 ? stFabledIds.length : ''}
             </Button>
-            <Button variant="outlined" sx={btnSx} onClick={() => setNoteOpen(true)} startIcon={<EditNoteIcon />}>
-              {language === 'zh' ? '备注' : 'Notes'}
-            </Button>
+            {phase !== 'night' && (
+              <Button variant="outlined" sx={btnSx} onClick={() => setNoteOpen(true)} startIcon={<EditNoteIcon />}>
+                {language === 'zh' ? '备注' : 'Notes'}
+              </Button>
+            )}
             <Button variant="outlined" sx={btnSx} onClick={() => setShowAggLogModal(true)} startIcon={<ListIcon />}>
               {language === 'zh' ? '日志' : 'Log'}
             </Button>

@@ -1,5 +1,5 @@
 import type { StorytellerContext } from './useStoryteller'
-import { Box, IconButton, Chip, Typography } from '@mui/material'
+import { Box, IconButton, Chip, Typography, Select, MenuItem } from '@mui/material'
 import MenuIcon from '@mui/icons-material/Menu'
 import UndoIcon from '@mui/icons-material/Undo'
 
@@ -15,6 +15,7 @@ export function MobileTopBar({ ctx }: { ctx: StorytellerContext }) {
     text, currentDay, aliveCount, totalCount,
     activeScriptTitle, showScriptPanel, setShowScriptPanel,
     setShowRightPanel, undo, canUndo,
+    language, onLanguageChange,
   } = ctx
 
   const phaseLabel: Record<string, string> = {
@@ -70,6 +71,22 @@ export function MobileTopBar({ ctx }: { ctx: StorytellerContext }) {
       <IconButton onClick={undo} disabled={!canUndo} title="Undo">
         <UndoIcon />
       </IconButton>
+      {onLanguageChange && (
+        <Select
+          value={language}
+          onChange={(e) => onLanguageChange(e.target.value as 'en' | 'zh')}
+          size="small"
+          sx={{
+            minWidth: 55,
+            height: 32,
+            '& .MuiSelect-select': { py: 0.25, px: 1, fontSize: '0.85rem', fontWeight: 600 },
+            '& fieldset': { border: '1px solid rgba(23,32,42,0.15)' },
+          }}
+        >
+          <MenuItem value="en" sx={{ fontSize: '0.85rem' }}>EN</MenuItem>
+          <MenuItem value="zh" sx={{ fontSize: '0.85rem' }}>中文</MenuItem>
+        </Select>
+      )}
       <IconButton onClick={() => setShowRightPanel((c: boolean) => !c)}>
         <MenuIcon />
       </IconButton>
