@@ -23,6 +23,7 @@ import MenuBookIcon from '@mui/icons-material/MenuBook'
 import GroupIcon from '@mui/icons-material/Group'
 import QueryStatsIcon from '@mui/icons-material/QueryStats'
 import PrintIcon from '@mui/icons-material/Print'
+import BugReportIcon from '@mui/icons-material/BugReport'
 import { PrintPreviewPage } from './components/PrintPreviewPage'
 import { DEFAULT_PRINT_OPTIONS } from './components/PrintOptionsDialog'
 import type { PrintOptions } from './components/PrintOptionsDialog'
@@ -411,6 +412,17 @@ export default function App() {
             <ExpandMoreIcon fontSize="small" sx={{ color: 'primary.dark' }} />
           </Box>
 
+          <Tooltip title={uiLanguage === 'zh' ? '反馈建议' : 'Feedback'}>
+            <IconButton
+              size="small"
+              href="https://forms.gle/3Bk1hkr4pLFhhSPx7"
+              target="_blank"
+              rel="noopener noreferrer"
+              sx={{ flexShrink: 0 }}
+            >
+              <BugReportIcon />
+            </IconButton>
+          </Tooltip>
           <IconButton
             size="small"
             onClick={() => setHeaderVisible(v => !v)}

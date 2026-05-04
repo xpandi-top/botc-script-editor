@@ -3,7 +3,7 @@ import type { StorytellerContext } from '../useStoryteller'
 import React, { useState, useMemo } from 'react'
 import {
   Box, Button, IconButton, Typography, ToggleButton, ToggleButtonGroup,
-  Select, MenuItem, TextField, Dialog, FormControlLabel, Switch,
+  Select, MenuItem, TextField,
 } from '@mui/material'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import PauseIcon from '@mui/icons-material/Pause'
@@ -16,7 +16,6 @@ import CheckIcon from '@mui/icons-material/Check'
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive'
 import ListIcon from '@mui/icons-material/List'
 import AutoStoriesIcon from '@mui/icons-material/AutoStories'
-import EditNoteIcon from '@mui/icons-material/EditNote'
 import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore'
 import { ArenaCenterNominationSheet } from './ArenaCenterNominationSheet'
 import { AggregatedLogModal } from './AggregatedLogModal'
@@ -53,10 +52,6 @@ export function PhaseControlPanel({ ctx }: { ctx: StorytellerContext }) {
     showAggLogModal, setShowAggLogModal, setShowStSetupModal, stFabledIds,
   } = ctx
 
-  const [noteOpen, setNoteOpen] = useState(false)
-  const [publicNote, setPublicNote] = useState('')
-  const [stNote, setStNote] = useState('')
-  const [showStNote, setShowStNote] = useState(false)
   const [timerEditing, setTimerEditing] = useState(false)
   const [timerInput, setTimerInput] = useState('')
   const [collapsed, setCollapsed] = useState(false)
@@ -193,11 +188,6 @@ export function PhaseControlPanel({ ctx }: { ctx: StorytellerContext }) {
             <Button variant="outlined" sx={btnSx} onClick={() => setShowStSetupModal(true)} startIcon={<AutoStoriesIcon />}>
               {stFabledIds?.length > 0 ? stFabledIds.length : ''}
             </Button>
-            {phase !== 'night' && (
-              <Button variant="outlined" sx={btnSx} onClick={() => setNoteOpen(true)} startIcon={<EditNoteIcon />}>
-                {language === 'zh' ? '备注' : 'Notes'}
-              </Button>
-            )}
             <Button variant="outlined" sx={btnSx} onClick={() => setShowAggLogModal(true)} startIcon={<ListIcon />}>
               {language === 'zh' ? '日志' : 'Log'}
             </Button>
@@ -311,19 +301,6 @@ export function PhaseControlPanel({ ctx }: { ctx: StorytellerContext }) {
 
       <AggregatedLogModal ctx={ctx} />
       <StorytellerSetupModal ctx={ctx} />
-
-      {/* Notes dialog */}
-      <Dialog open={noteOpen} onClose={() => setNoteOpen(false)} maxWidth="sm" fullWidth slotProps={{ paper: { sx: { p: 2, borderRadius: 2 } } }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h6" fontWeight={700}>{language === 'zh' ? '全局备注' : 'Global Notes'}</Typography>
-          <IconButton size="small" onClick={() => setNoteOpen(false)}><CloseIcon /></IconButton>
-        </Box>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <TextField multiline rows={3} fullWidth label={language === 'zh' ? '公开备注' : 'Public Note'} value={publicNote} onChange={(e) => setPublicNote(e.target.value)} />
-          <FormControlLabel control={<Switch checked={showStNote} onChange={(e) => setShowStNote(e.target.checked)} />} label={language === 'zh' ? '显示ST备注' : 'Show ST Note'} />
-          {showStNote && <TextField multiline rows={3} fullWidth label={language === 'zh' ? 'ST备注' : 'ST Note'} value={stNote} onChange={(e) => setStNote(e.target.value)} sx={{ '& .MuiOutlinedInput-root': { bgcolor: 'action.hover' } }} />}
-        </Box>
-      </Dialog>
     </>
   )
 }
