@@ -31,13 +31,13 @@ See [`docs/TESTING-AUTO.md`](docs/TESTING-AUTO.md) for test architecture and sta
 ### Entry Points
 
 - `src/main.tsx` — React root, MUI theme injection
-- `src/App.tsx` — tab router (scripts | characters | settings | storyteller)
+- `src/App.tsx` — tab router (scripts | characters | storyteller | analytics | printstudio)
 - `src/components/StorytellerHelper.tsx` — storyteller game launcher
 
 ### State Management
 
 - **Script viewer**: local `useState` in `App.tsx` (script list, active script, language, edit mode)
-- **Game state**: `src/hooks/useStoryteller.ts` — persisted to localStorage key `BOTC_ST_STORAGE`; provides undo/redo via `useHistory`
+- **Game state**: `src/components/StorytellerSub/useStoryteller.ts` — persisted to localStorage key `botc-storyteller-companion-v5`; provides undo/redo via `useHistory`
 - Sub-hooks split concerns: `useGameLifecycle` (phase transitions), `useGameActions` (votes/skills/events), `useUIState`, `useAudioState`
 
 ### Data Loading
@@ -64,7 +64,7 @@ Two-language (en/zh). Locale files contain UI strings, character abilities, jinx
 |------|---------|
 | `src/catalog.ts` | All data loading + character utility functions |
 | `src/types.ts` | Core types: `Team`, `CharacterEntry`, `EditableScript`, etc. |
-| `src/hooks/useStoryteller.ts` | Main game state hook (~41KB) |
+| `src/components/StorytellerSub/useStoryteller.ts` | Main game state hook |
 | `src/utils/seats.ts` | Game logic (eligible voters, living non-travelers) |
 | `src/theme/index.ts` | MUI theme config |
 | `src/components/StorytellerSub/` | 12 components for game UI (Arena, Modals, RightConsole, etc.) |
