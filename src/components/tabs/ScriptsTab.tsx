@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Box, Button, Collapse, Divider, FormControl, IconButton, InputLabel, MenuItem, Paper, Select, ToggleButton, ToggleButtonGroup, Tooltip, Typography } from '@mui/material'
 import PrintIcon from '@mui/icons-material/Print'
+import DownloadIcon from '@mui/icons-material/Download'
 import AddIcon from '@mui/icons-material/Add'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -218,9 +219,11 @@ export function ScriptsTab({
                   {isEditMode ? uiText.doneEditing : uiText.editScript}
                 </Button>
               )}
-              <Button variant="outlined" size="small" onClick={downloadScriptFile}>
-                {uiText.downloadJson}
-              </Button>
+              <Tooltip title={uiText.downloadJson}>
+                <IconButton size="small" onClick={downloadScriptFile}>
+                  <DownloadIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
               <Tooltip title={showWakeOrderPreview
                 ? (uiLanguage === 'zh' ? '隐藏夜间顺序' : 'Hide night order')
                 : (uiLanguage === 'zh' ? '显示夜间顺序' : 'Show night order')}>
@@ -244,9 +247,11 @@ export function ScriptsTab({
                   <MenuItem value="zh">中文</MenuItem>
                 </Select>
               </FormControl>
-              <Button variant="contained" size="small" startIcon={<PrintIcon />} onClick={onPrintClick} sx={{ flexShrink: 0 }}>
-                {uiLanguage === 'zh' ? '导出 PDF' : 'Print PDF'}
-              </Button>
+              <Tooltip title={uiLanguage === 'zh' ? '导出 PDF' : 'Print PDF'}>
+                <IconButton size="small" onClick={onPrintClick}>
+                  <PrintIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
             </Box>
 
             {!isEditMode && (
