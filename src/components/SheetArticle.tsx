@@ -89,8 +89,8 @@ export function SheetArticle({
 }: SheetArticleProps) {
   const [popupId, setPopupId] = useState<string | null>(null)
   const po = printOptions
-  const iconSize        = po?.iconSize ?? 32
-  const wakeIconSize    = po?.wakeIconSize ?? 32
+  const iconSize        = po?.iconSize ?? 28
+  const wakeIconSize    = po?.wakeIconSize ?? 24   // smaller default → more room for description
   const columns         = viewColumns ?? po?.columns ?? 2
   const fontFamilyEn   = po ? FONT_CSS[po.fontKeyEn] : undefined
   const fontFamilyZh   = po ? FONT_CSS[po.fontKeyZh] : undefined
@@ -273,8 +273,8 @@ export function SheetArticle({
                 </Typography>
               )}
             </Box>
-            {/* Right: ability text */}
-            <Box sx={{ flex: 1, minWidth: 0 }}>
+            {/* Right: ability text — minWidth prevents collapse to single-char wrapping */}
+            <Box sx={{ flex: 1, minWidth: 80 }}>
               <Typography variant="body2"
                 sx={{ fontFamily: lang === 'zh' ? zhFont : enFont, lineHeight, mb: 0, color: 'text.primary' }}
                 dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(ability) }}
