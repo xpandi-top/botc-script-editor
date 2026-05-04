@@ -12,13 +12,14 @@ export const PALETTE = {
 } as const
 
 // ── Background layers (deep → raised) ────────────────────────────────────────
+// Page is the darkest layer — surfaces must be clearly lighter
 export const BG = {
-  page:    '#dcd8c4',   // base page — slightly darker than satin linen
-  canvas:  '#e0dcc9',   // satin linen — main content area
-  surface: '#e8e5d5',   // cards sitting on page
-  raised:  '#edeadb',   // drawers, modals, floating panels
-  sunken:  '#d4d0bc',   // input fields, wells, recessed areas
-  overlay: 'rgba(55, 38, 27, 0.36)',  // modal backdrop
+  page:    '#cdc9b5',   // deepest — body/page behind everything
+  canvas:  '#e0dcc9',   // satin linen — mid layer (sidebar panels, content bg)
+  surface: '#f0ece0',   // warm parchment — cards, list items (clear pop from canvas)
+  raised:  '#f7f4ea',   // near-white parchment — drawers, modals, floating panels
+  sunken:  '#d8d4c0',   // recessed — inputs, wells
+  overlay: 'rgba(55, 38, 27, 0.36)',
 } as const
 
 // ── Ink (text) ───────────────────────────────────────────────────────────────

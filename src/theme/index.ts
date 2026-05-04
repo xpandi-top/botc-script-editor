@@ -30,7 +30,7 @@ export const theme = createTheme({
       contrastText: PALETTE.satinLinen,
     },
     background: {
-      default: BG.canvas,
+      default: BG.page,
       paper:   BG.surface,
     },
     text: {
@@ -213,14 +213,16 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           backgroundImage: 'none',
-          background:      BG.surface,
+          background:      BG.surface,  // warm parchment — pops from linen page
         },
         rounded: {
           borderRadius: RADIUS.md,
         },
-        elevation1: { boxShadow: SHADOW.sm },
-        elevation2: { boxShadow: SHADOW.md },
-        elevation3: { boxShadow: SHADOW.lg },
+        elevation0: { boxShadow: 'none',       background: BG.surface },
+        elevation1: { boxShadow: SHADOW.sm,    background: BG.surface },
+        elevation2: { boxShadow: SHADOW.md,    background: BG.raised  },
+        elevation3: { boxShadow: SHADOW.lg,    background: BG.raised  },
+        elevation4: { boxShadow: SHADOW.float, background: BG.raised  },
       },
     },
 
