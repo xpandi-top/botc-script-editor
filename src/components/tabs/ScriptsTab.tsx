@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Box, Button, Collapse, Divider, FormControl, IconButton, InputLabel, MenuItem, Paper, Select, Tooltip, Typography } from '@mui/material'
+import { Box, Button, Collapse, Divider, FormControl, IconButton, InputLabel, MenuItem, Paper, Select, ToggleButton, ToggleButtonGroup, Tooltip, Typography } from '@mui/material'
 import PrintIcon from '@mui/icons-material/Print'
 import AddIcon from '@mui/icons-material/Add'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
@@ -11,6 +11,8 @@ import FileOpenIcon from '@mui/icons-material/FileOpen'
 import MenuIcon from '@mui/icons-material/Menu'
 import MenuOpenIcon from '@mui/icons-material/MenuOpen'
 import NightsStayIcon from '@mui/icons-material/NightsStay'
+import ViewListIcon from '@mui/icons-material/ViewList'
+import ViewModuleIcon from '@mui/icons-material/ViewModule'
 import { useBreakpoint } from '../../hooks/useBreakpoint'
 import { ScriptList } from '../ScriptList'
 import { SheetArticle } from '../SheetArticle'
@@ -97,6 +99,7 @@ export function ScriptsTab({
   const [officialOpen, setOfficialOpen] = useState(true)
   const [communityOpen, setCommunityOpen] = useState(true)
   const [diyOpen, setDiyOpen] = useState(true)
+  const [charColumns, setCharColumns] = useState<'1' | '2'>('1')
 
   const gridCols = isMobile ? '1fr' : showList ? '280px 1fr' : '1fr'
 
@@ -221,12 +224,19 @@ export function ScriptsTab({
               <Tooltip title={showWakeOrderPreview
                 ? (uiLanguage === 'zh' ? '隐藏夜间顺序' : 'Hide night order')
                 : (uiLanguage === 'zh' ? '显示夜间顺序' : 'Show night order')}>
-                <IconButton size="medium"
+                <IconButton
                   onClick={() => setShowWakeOrderPreview((c) => !c)}
-                  color={showWakeOrderPreview ? 'primary' : 'default'}>
-                  <NightsStayIcon />
+                  color={showWakeOrderPreview ? 'primary' : 'default'}
+                  sx={{ p: 0.75 }}>
+                  <NightsStayIcon sx={{ fontSize: '2rem' }} />
                 </IconButton>
               </Tooltip>
+              {isEditMode && (
+                <ToggleButtonGroup size="small" exclusive value={charColumns} onChange={(_, v) => { if (v) setCharColumns(v) }}>
+                  <ToggleButton value="1"><ViewListIcon fontSize="small" /></ToggleButton>
+                  <ToggleButton value="2"><ViewModuleIcon fontSize="small" /></ToggleButton>
+                </ToggleButtonGroup>
+              )}
               {saveStatus && <Typography variant="body2" color="text.secondary">{saveStatus}</Typography>}
               <Box sx={{ flex: 1 }} />
               {/* Language + Print — right side of toolbar */}
@@ -297,6 +307,7 @@ export function ScriptsTab({
                   groupedScriptCharacters={groupedScriptCharacters}
                   toggleCharacterInScript={toggleCharacterInScript}
                   availableEditions={availableEditions}
+                  charColumns={charColumns}
                 />
               </Box>
             )}
