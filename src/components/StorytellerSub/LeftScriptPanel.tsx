@@ -1,10 +1,11 @@
+import type { StorytellerContext } from './useStoryteller'
 import React from 'react'
 import { Drawer, Box, Typography, Button, Tabs, Tab, List, ListItem, ListItemButton } from '@mui/material'
 import { nightOrder, getDisplayName, getIconForCharacter, getAbilityText } from '../../catalog'
 
 type ScriptView = 'characters' | 'firstNight' | 'otherNight'
 
-export function LeftScriptPanel({ ctx }: { ctx: any }) {
+export function LeftScriptPanel({ ctx }: { ctx: StorytellerContext }) {
   const { language, currentScriptCharacters, activeScriptTitle, setShowScriptPanel, showScriptPanel } = ctx
 
   const isDay1 = ctx.days.length === 0 || (ctx.days.length === 1 && ctx.days[0].day === 1)

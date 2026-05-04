@@ -1,10 +1,11 @@
 // @ts-nocheck
+import type { StorytellerContext } from '../useStoryteller'
 import React from 'react'
 import { Box, Button, Typography, TextField, Chip, IconButton, Paper } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { uniqueStrings } from '../constants'
 
-export function RightConsoleTags({ ctx, toggleConsoleSection }: { ctx: any, toggleConsoleSection: any }) {
+export function RightConsoleTags({ ctx, toggleConsoleSection }: { ctx: StorytellerContext, toggleConsoleSection: any }) {
   const { language, text, activeConsoleSections, customTagPool, setCustomTagPool, loadTagsPreset, setLoadTagsPreset, clearUnusedCustomTags } = ctx
   const isOpen = activeConsoleSections?.has('tags')
 

@@ -1,10 +1,11 @@
 // @ts-nocheck
+import type { StorytellerContext } from '../useStoryteller'
 import React from 'react'
 import { Box, Button, TextField, Typography, Paper, Select, MenuItem, FormControl, InputLabel, Chip, Grid, IconButton, Switch, FormControlLabel } from '@mui/material'
 import { uniqueStrings, INITIAL_AUDIO_TRACKS } from '../constants'
 import { BASE_URL } from '../constants'
 
-export function RightPopupSettings({ ctx }: { ctx: any }) {
+export function RightPopupSettings({ ctx }: { ctx: StorytellerContext }) {
   const {
     language, timerDefaults, setTimerDefaults, customTagPool, setCustomTagPool,
     playerNamePool, setPlayerNamePool, currentDay, updateSeat, resetSeatNames,

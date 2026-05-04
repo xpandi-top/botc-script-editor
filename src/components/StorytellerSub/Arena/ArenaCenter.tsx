@@ -1,10 +1,11 @@
+import type { StorytellerContext } from '../useStoryteller'
 import { Box, IconButton, Select, MenuItem, FormControl } from '@mui/material'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import { ArenaCenterContent } from './ArenaCenterContent'
 import { ArenaCenterNominationSheet } from './ArenaCenterNominationSheet'
 
-export function ArenaCenter({ ctx }: { ctx: any }) {
+export function ArenaCenter({ ctx }: { ctx: StorytellerContext }) {
   const {
     days, currentDay, goToNextDay, goToPreviousDay, setSelectedDayId,
     language,

@@ -40,7 +40,7 @@ import {
   teamOrder,
   toTitleCase,
 } from './catalog'
-import { STORAGE_KEY } from './components/StorytellerSub/constants'
+import { STORAGE_KEY, USER_SCRIPTS_KEY } from './components/StorytellerSub/constants'
 import { storageSync } from './lib/storage'
 import { exportGameFile } from './lib/exportGame'
 import type {
@@ -57,11 +57,10 @@ type TabKey = 'scripts' | 'characters' | 'storyteller' | 'printstudio' | 'analyt
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabKey>('scripts')
   const [uiLanguage, setUiLanguage] = useState<Language>('zh')
-  const USER_SCRIPTS_KEY = 'BOTC_USER_SCRIPTS'
   const initialSlugs = useMemo(() => new Set(initialScripts.map((s) => s.slug)), [])
   const [scripts, setScripts] = useState<EditableScript[]>(() => {
     try {
-      const stored = storageSync.getItem('BOTC_USER_SCRIPTS')
+      const stored = storageSync.getItem(USER_SCRIPTS_KEY)
       if (stored) {
         const user = JSON.parse(stored) as EditableScript[]
         return [...initialScripts, ...user]

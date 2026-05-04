@@ -1,9 +1,10 @@
 // @ts-nocheck
+import type { StorytellerContext } from '../useStoryteller'
 import React from 'react'
 import { Box, Button, Typography, Paper, TextField, Chip, Grid } from '@mui/material'
 import { createDefaultVoteDraft } from '../constants'
 
-export function RightConsoleDay({ ctx, toggleConsoleSection }: { ctx: any, toggleConsoleSection: any }) {
+export function RightConsoleDay({ ctx, toggleConsoleSection }: { ctx: StorytellerContext, toggleConsoleSection: any }) {
   const { 
     language, text, activeConsoleSections, 
     currentDay, updateCurrentDay, timerDefaults,

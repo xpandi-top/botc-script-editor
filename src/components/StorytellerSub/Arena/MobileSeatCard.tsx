@@ -1,4 +1,6 @@
 // @ts-nocheck
+import type { StorytellerSeat } from '../types'
+import type { StorytellerContext } from '../useStoryteller'
 import React, { useState } from 'react'
 import { Box, Button, IconButton, Chip, Paper } from '@mui/material'
 import { ArenaSeatPlayerModal } from './ArenaSeatPlayerModal'
@@ -10,7 +12,7 @@ import { VoteButtonGroup, TagChip } from './ArenaSeatComponents'
 const CIRCLE_SIZE = 52
 const CIRCLE_OVERLAP = CIRCLE_SIZE / 2  // how much circle sticks into card
 
-export function MobileSeatCard({ ctx, seat }: { ctx: any; seat: any }) {
+export function MobileSeatCard({ ctx, seat }: { ctx: StorytellerContext; seat: any }) {
   const {
     language, pickerMode, currentDay, updateCurrentDay, currentVoterSeat,
     selectedSeat, text, handleSeatClick, handleVoteYes, handleVoteNo,

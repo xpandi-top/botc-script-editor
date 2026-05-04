@@ -1,10 +1,11 @@
 // @ts-nocheck
+import type { StorytellerContext } from '../useStoryteller'
 import React from 'react'
 import { Box, Button, Typography, Paper, Chip, TextField, Grid, IconButton } from '@mui/material'
 import { getDisplayName } from '../../../catalog'
 import { FAKE_NAMES, FAKE_NAMES_ZH } from '../constants'
 
-export function RightConsolePlayer({ ctx, toggleConsoleSection }: { ctx: any, toggleConsoleSection: any }) {
+export function RightConsolePlayer({ ctx, toggleConsoleSection }: { ctx: StorytellerContext, toggleConsoleSection: any }) {
   const { 
     language, text, activeConsoleSections, 
     currentDay, updateSeatWithLog, addCustomTag,

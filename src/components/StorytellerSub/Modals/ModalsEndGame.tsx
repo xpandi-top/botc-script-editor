@@ -1,9 +1,10 @@
 // @ts-nocheck
+import type { StorytellerContext } from '../useStoryteller'
 import React, { useState, useEffect } from 'react'
 import { Box, Button, TextField, Select, MenuItem, FormControl, InputLabel, Chip, Typography, FormControlLabel, Radio, RadioGroup, IconButton, Paper } from '@mui/material'
 import { StarRating } from '../../ui/StarRating'
 
-export function ModalsEndGame({ ctx }: { ctx: any }) {
+export function ModalsEndGame({ ctx }: { ctx: StorytellerContext }) {
   const { 
     text, endGameResult, setEndGameResult, confirmEndGame, unmarkGameEnded, 
     saveGame, currentDay, language, setDays, currentRecordName, showEndGameModal, setShowEndGameModal,

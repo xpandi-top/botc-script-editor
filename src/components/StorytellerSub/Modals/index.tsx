@@ -1,3 +1,4 @@
+import type { StorytellerContext } from '../useStoryteller'
 import { Dialog, DialogTitle, DialogContent, IconButton, useMediaQuery, useTheme } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import { ModalsEditPlayers } from './ModalsEditPlayers'
@@ -6,7 +7,7 @@ import { ModalsEndGame } from './ModalsEndGame'
 import { ModalsDialog } from './ModalsDialog'
 import { ModalsExport } from './ModalsExport'
 
-export function Modals({ ctx }: { ctx: any }) {
+export function Modals({ ctx }: { ctx: StorytellerContext }) {
   const { showEditPlayersModal, setShowEditPlayersModal, newGamePanel, setNewGamePanel, showEndGameModal, setShowEndGameModal, showExportModal, setShowExportModal, dialogState, setDialogState, text, language } = ctx
 
   const theme = useTheme()
@@ -58,7 +59,7 @@ export function Modals({ ctx }: { ctx: any }) {
 
       <Dialog open={!!dialogState} onClose={() => setDialogState(null)} maxWidth="xs" fullWidth slotProps={{ paper: { sx: paperSx } }}>
         <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
-          {dialogState?.title || (language === 'zh' ? '确认' : 'Confirm')}
+          {language === 'zh' ? '确认' : 'Confirm'}
           <IconButton onClick={() => setDialogState(null)} size="small"><CloseIcon /></IconButton>
         </DialogTitle>
         <DialogContent>

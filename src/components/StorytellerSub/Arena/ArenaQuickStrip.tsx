@@ -1,8 +1,9 @@
 // @ts-nocheck
+import type { StorytellerContext } from '../useStoryteller'
 import React from 'react'
 import { Box, Button, ToggleButton, ToggleButtonGroup } from '@mui/material'
 
-export function ArenaQuickStrip({ ctx }: { ctx: any }) {
+export function ArenaQuickStrip({ ctx }: { ctx: StorytellerContext }) {
   const { 
     activeRightPopup, setActiveRightPopup, 
     showRightPanel, setShowRightPanel, 

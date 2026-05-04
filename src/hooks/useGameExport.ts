@@ -1,4 +1,4 @@
-import type { DayState, EndGameResult, ExportConfig, GameRecord } from '../components/StorytellerSub/types'
+import type { DayState, EndGameResult, ExportConfig, GameRecord, TimerDefaults } from '../components/StorytellerSub/types'
 import { exportGameFile } from '../lib/exportGame'
 
 export interface ExportDeps {
@@ -7,7 +7,7 @@ export interface ExportDeps {
   activeScriptSlug?: string
   activeScriptTitle?: string
   endGameResult: EndGameResult | null
-  timerDefaults: any
+  timerDefaults: TimerDefaults
   customTagPool?: string[]
   playerNamePool?: string[]
   stFabledIds?: string[]

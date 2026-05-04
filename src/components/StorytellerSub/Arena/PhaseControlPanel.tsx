@@ -1,4 +1,5 @@
 // @ts-nocheck
+import type { StorytellerContext } from '../useStoryteller'
 import React, { useState, useMemo } from 'react'
 import {
   Box, Button, IconButton, Typography, ToggleButton, ToggleButtonGroup,
@@ -30,7 +31,7 @@ const fmt = (s: number) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${Str
 const TIMER_ACTIVE_SX = { bgcolor: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.4)' }
 const TIMER_IDLE_SX = { bgcolor: 'transparent', border: '1px solid rgba(255,255,255,0.2)' }
 
-export function PhaseControlPanel({ ctx }: { ctx: any }) {
+export function PhaseControlPanel({ ctx }: { ctx: StorytellerContext }) {
   const {
     language, text, currentDay, updateCurrentDay, days,
     goToNextDay, goToPreviousDay, setSelectedDayId,

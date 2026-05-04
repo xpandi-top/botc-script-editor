@@ -1,3 +1,4 @@
+import type { StorytellerContext } from '../useStoryteller'
 import { Drawer, Box, IconButton, Typography } from '@mui/material'
 import SettingsIcon from '@mui/icons-material/Settings'
 import HistoryIcon from '@mui/icons-material/History'
@@ -8,7 +9,7 @@ import FlagIcon from '@mui/icons-material/Flag'
 import { RightPopupSettings } from './RightPopupSettings'
 import { RightConsoleRecords } from './RightConsoleRecords'
 
-export function RightConsole({ ctx }: { ctx: any }) {
+export function RightConsole({ ctx }: { ctx: StorytellerContext }) {
   const {
     showRightPanel, setShowRightPanel, activeRightPopup, setActiveRightPopup,
     language, setShowExportModal,
@@ -16,7 +17,7 @@ export function RightConsole({ ctx }: { ctx: any }) {
   } = ctx
 
   const togglePopup = (name: 'settings' | 'records') => {
-    setActiveRightPopup((p: string) => (p === name ? null : name))
+    setActiveRightPopup((p) => (p === name ? null : name))
   }
 
   const closeDrawer = () => {

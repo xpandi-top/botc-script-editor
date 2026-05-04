@@ -1,4 +1,5 @@
 // @ts-nocheck
+import type { StorytellerContext } from '../useStoryteller'
 import React, { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Box, Button, Typography, TextField, Select, MenuItem, FormControl, InputLabel, FormControlLabel, Checkbox, Dialog } from '@mui/material'
@@ -8,7 +9,7 @@ import { NominationTimer } from './NominationTimer'
 import { NominationHistory } from './NominationHistory'
 import { NominationVoteList } from './NominationVoteList'
 
-export function ArenaCenterNominationSheet({ ctx }: { ctx: any }) {
+export function ArenaCenterNominationSheet({ ctx }: { ctx: StorytellerContext }) {
   const {
     language, text, currentDay, updateCurrentDay, pickerMode, setPickerMode,
     showNominationSheet, setShowNominationSheet, requiredVotes, exileRequiredVotes,

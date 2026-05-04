@@ -1,4 +1,5 @@
 // @ts-nocheck
+import type { StorytellerContext } from '../useStoryteller'
 import React, { useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import {
@@ -49,7 +50,7 @@ function buildEntries(days: any[]) {
   return all
 }
 
-export function AggregatedLogModal({ ctx }: { ctx: any }) {
+export function AggregatedLogModal({ ctx }: { ctx: StorytellerContext }) {
   const {
     language, text, days, showAggLogModal, setShowAggLogModal,
     editLogEntry, removeLogEntry, addQuickEvent, swapLogEntries, currentDay,

@@ -4,7 +4,7 @@ import type { ConsoleSection, ExportConfig } from '../components/StorytellerSub/
 export function useUIState() {
   const [showLogPanel, setShowLogPanel] = useState(false)
   const [showRightPanel, setShowRightPanel] = useState(false)
-  const [activeRightPopup, setActiveRightPopup] = useState<'log' | 'settings' | null>(null)
+  const [activeRightPopup, setActiveRightPopup] = useState<'log' | 'settings' | 'records' | null>(null)
   const [showScriptPanel, setShowScriptPanel] = useState(false)
   const [showInfoPanel, setShowInfoPanel] = useState(true)
   /** null = auto-detect from window orientation; true/false = manual lock */

@@ -1,4 +1,5 @@
 // @ts-nocheck
+import type { StorytellerContext } from '../useStoryteller'
 import React from 'react'
 import { nightOrder, getDisplayName, getIconForCharacter } from '../../../catalog'
 import { Box, Typography, Button, Tabs, Tab, Paper, List, ListItem, ListItemIcon, ListItemText, IconButton } from '@mui/material'
@@ -6,7 +7,7 @@ import CloseIcon from '@mui/icons-material/Close'
 
 type ScriptView = 'characters' | 'firstNight' | 'otherNight'
 
-export function RightPopupScript({ ctx }: { ctx: any }) {
+export function RightPopupScript({ ctx }: { ctx: StorytellerContext }) {
   const {
     language, currentScriptCharacters, activeScriptTitle, days,
     setActiveRightPopup, text,

@@ -1,10 +1,11 @@
+import type { StorytellerContext } from '../useStoryteller'
 import { Box } from '@mui/material'
 import { MobileSeatCard } from './MobileSeatCard'
 
 // Bottom padding accounts for fixed PhaseControlPanel height (~42vh) + any system bars
 const PANEL_CLEARANCE = 'calc(44vh + var(--safe-bottom, 0px))'
 
-export function PlayerSeatGrid({ ctx }: { ctx: any }) {
+export function PlayerSeatGrid({ ctx }: { ctx: StorytellerContext }) {
   const { currentDay, setSelectedSeatNumber, setTagPopoutSeat } = ctx
 
   return (

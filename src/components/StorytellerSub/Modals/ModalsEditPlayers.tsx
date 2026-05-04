@@ -1,11 +1,13 @@
 // @ts-nocheck
+import type { StorytellerSeat } from '../types'
+import type { StorytellerContext } from '../useStoryteller'
 import React from 'react'
 import { Box, Button, TextField, IconButton, Typography, Paper, Grid, List, ListItem, ListItemText, ListItemButton, Chip } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import RemoveIcon from '@mui/icons-material/Remove'
 import { uniqueStrings } from '../constants'
 
-export function ModalsEditPlayers({ ctx }: { ctx: any }) {
+export function ModalsEditPlayers({ ctx }: { ctx: StorytellerContext }) {
   const { 
     language, text, currentDay, updateCurrentDay, updateSeat,
     playerNamePool, setPlayerNamePool, editPlayersPreset, setEditPlayersPreset,

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import DOMPurify from 'dompurify'
 import { Box, Typography, Paper, Grid, IconButton, Chip, Divider, Dialog, DialogTitle, DialogContent, Tooltip } from '@mui/material'
 import {
   editionLabels,
@@ -267,12 +268,12 @@ export function SheetArticle({
             <Box sx={{ flex: 1, minWidth: 0 }}>
               <Typography variant="body2" color="text.secondary"
                 sx={{ fontFamily: lang === 'zh' ? zhFont : enFont, lineHeight, mb: 0 }}
-                dangerouslySetInnerHTML={{ __html: ability }}
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(ability) }}
               />
               {abilityAlt && abilityAlt !== ability && (
                 <Typography variant="body2" color="text.secondary"
                   sx={{ fontFamily: lang === 'zh' ? enFont : zhFont, lineHeight, opacity: 0.8, mt: 0.25, mb: 0 }}
-                  dangerouslySetInnerHTML={{ __html: abilityAlt }}
+                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(abilityAlt) }}
                 />
               )}
             </Box>

@@ -1,4 +1,5 @@
 // @ts-nocheck
+import type { StorytellerSeat } from '../types'
 import React, { useState } from 'react'
 import { Box, IconButton, Button, Chip, Popover, Typography } from '@mui/material'
 

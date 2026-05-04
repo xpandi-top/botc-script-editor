@@ -333,3 +333,5 @@ export function useStoryteller(props: StorytellerHelperProps) {
     votingYesCount, NIGHT_BGM_SRC, hasTimer,
   }
 }
+
+export type StorytellerContext = ReturnType<typeof useStoryteller>

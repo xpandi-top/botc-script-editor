@@ -1,3 +1,4 @@
+import type { StorytellerContext } from './useStoryteller'
 import { Box, Button, FormControl, InputLabel, Select, MenuItem, IconButton, Typography, Slider, Chip } from '@mui/material'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import PauseIcon from '@mui/icons-material/Pause'
@@ -6,7 +7,7 @@ import UndoIcon from '@mui/icons-material/Undo'
 import MenuOpenIcon from '@mui/icons-material/MenuOpen'
 import { CHARACTER_DISTRIBUTION } from './constants'
 
-export function CompactToolbar({ ctx }: { ctx: any }) {
+export function CompactToolbar({ ctx }: { ctx: StorytellerContext }) {
   const {
     activeScriptTitle, language, onLanguageChange, currentDay, aliveCount, totalCount,
     audioPlaying, setAudioPlaying, audioTracks, selectedAudioSrc, setSelectedAudioSrc,

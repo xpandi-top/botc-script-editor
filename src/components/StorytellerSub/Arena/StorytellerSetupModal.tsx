@@ -1,4 +1,5 @@
 // @ts-nocheck
+import type { StorytellerContext } from '../useStoryteller'
 import React, { useState, useMemo } from 'react'
 import { createPortal } from 'react-dom'
 import {
@@ -17,7 +18,7 @@ import { allCharacters, getDisplayName, getAbilityText, getIconForCharacter } fr
 const FABLED_CHARS = allCharacters.filter((c) => c.team === 'fabled')
 const LORIC_CHARS = allCharacters.filter((c) => c.edition === 'loric')
 
-export function StorytellerSetupModal({ ctx }: { ctx: any }) {
+export function StorytellerSetupModal({ ctx }: { ctx: StorytellerContext }) {
   const {
     language, showStSetupModal, setShowStSetupModal,
     stFabledIds, setStFabledIds, stCustomRules, setStCustomRules,

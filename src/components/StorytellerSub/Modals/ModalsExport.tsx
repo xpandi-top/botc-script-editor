@@ -1,8 +1,9 @@
 // @ts-nocheck
+import type { StorytellerContext } from '../useStoryteller'
 import React from 'react'
 import { Box, Button, Typography, Paper, FormControlLabel, Checkbox, Chip, Divider } from '@mui/material'
 
-export function ModalsExport({ ctx }: { ctx: any }) {
+export function ModalsExport({ ctx }: { ctx: StorytellerContext }) {
   const {
     language, days, gameRecords,
     showExportModal, setShowExportModal,

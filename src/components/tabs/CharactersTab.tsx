@@ -4,6 +4,7 @@ import {
   IconButton, InputLabel, MenuItem, Paper, Select, TextField, Typography,
 } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
+import DOMPurify from 'dompurify'
 import { CharacterRevisionPanel } from '../CharacterRevisionPanel'
 import { FilterCheckbox } from '../FilterCheckbox'
 import {
@@ -149,7 +150,7 @@ export function CharactersTab({
                         {character.id} · {edition} · {currentRevision}
                       </Typography>
                       <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}
-                        dangerouslySetInnerHTML={{ __html: getAbilityText(character.id, uiLanguage) }} />
+                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(getAbilityText(character.id, uiLanguage)) }} />
                     </Box>
                   </Button>
                 )

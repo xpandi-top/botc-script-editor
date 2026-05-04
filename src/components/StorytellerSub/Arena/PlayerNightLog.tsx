@@ -1,4 +1,5 @@
 // @ts-nocheck
+import type { StorytellerSeat } from '../types'
 import React from 'react'
 import { createPortal } from 'react-dom'
 import { Box, Dialog, DialogTitle, DialogContent, IconButton, Typography, Divider, Chip } from '@mui/material'

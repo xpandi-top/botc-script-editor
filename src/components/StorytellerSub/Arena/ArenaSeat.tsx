@@ -1,4 +1,6 @@
 // @ts-nocheck
+import type { StorytellerSeat } from '../types'
+import type { StorytellerContext } from '../useStoryteller'
 import React, { useState } from 'react'
 import { Box, Button, Chip, IconButton, Paper } from '@mui/material'
 import { ArenaSeatPlayerModal } from './ArenaSeatPlayerModal'
@@ -7,7 +9,7 @@ import { getDisplayName, getIconForCharacter, nightOrder } from '../../../catalo
 import { getSeatPosition } from '../../../utils/seats'
 import { VoteButtonGroup, RoundRobinIndicator, TagChip } from './ArenaSeatComponents'
 
-export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: any, seat: any, index: number, isPortrait: boolean }) {
+export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: StorytellerContext, seat: any, index: number, isPortrait: boolean }) {
   const {
     language, pickerMode, currentDay, updateCurrentDay, currentVoterSeat,
     selectedSeat, text, handleSeatClick, handleVoteYes, handleVoteNo,

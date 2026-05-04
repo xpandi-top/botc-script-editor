@@ -1,8 +1,9 @@
 // @ts-nocheck
+import type { StorytellerContext } from '../useStoryteller'
 import React, { useState } from 'react'
 import { Box, Button, Typography, Paper, Chip, Accordion, AccordionSummary, AccordionDetails, Grid } from '@mui/material'
 
-export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: any, toggleConsoleSection: any }) {
+export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: StorytellerContext, toggleConsoleSection: any }) {
   const { language, text, gameRecords = [], setGameRecords, activeConsoleSections, loadGameRecord, exportRecordJson, saveGame } = ctx
   const isOpen = activeConsoleSections?.has('records')
 

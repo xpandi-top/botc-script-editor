@@ -1,3 +1,4 @@
+import type { StorytellerContext } from '../useStoryteller'
 import React from 'react'
 import { Box, Typography, Paper } from '@mui/material'
 import { ArenaCenter } from './ArenaCenter'
@@ -7,7 +8,7 @@ import { PhaseControlPanel } from './PhaseControlPanel'
 import { getSeatAngle as _getSeatAngle } from '../../../utils/seats'
 import { useBreakpoint } from '../../../hooks/useBreakpoint'
 
-export function Arena({ ctx }: { ctx: any }) {
+export function Arena({ ctx }: { ctx: StorytellerContext }) {
   const [windowPortrait, setWindowPortrait] = React.useState(
     typeof window !== 'undefined' ? window.innerHeight > window.innerWidth : false
   )

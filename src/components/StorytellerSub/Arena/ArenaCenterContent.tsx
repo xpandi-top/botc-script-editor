@@ -1,3 +1,4 @@
+import type { StorytellerContext } from '../useStoryteller'
 import { useState, useMemo } from 'react'
 import { Box, Button, TextField, Select, MenuItem, IconButton, Typography, ToggleButton, ToggleButtonGroup } from '@mui/material'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
@@ -27,7 +28,7 @@ const getPhaseLabel = (phase: string, text: any) => {
   }
 }
 
-export function ArenaCenterContent({ ctx }: { ctx: any }) {
+export function ArenaCenterContent({ ctx }: { ctx: StorytellerContext }) {
   const {
     language, text, currentDay, updateCurrentDay,
     hasTimer, currentTimerSeconds, isTimerRunning, setIsTimerRunning,

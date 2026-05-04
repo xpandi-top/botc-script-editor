@@ -1,4 +1,5 @@
 // @ts-nocheck
+import type { StorytellerContext } from './useStoryteller'
 import React from 'react'
 import { Box, Typography, Paper, Button, Chip, Select, MenuItem, Drawer, IconButton } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
@@ -17,7 +18,7 @@ const ENTRY_COLORS: Record<string, 'primary' | 'secondary' | 'success' | 'error'
   event: 'success',
 }
 
-export function LeftLogPanel({ ctx }: { ctx: any }) {
+export function LeftLogPanel({ ctx }: { ctx: StorytellerContext }) {
   const { text, language, days, logFilter, setLogFilter, aggregatedLog, toggleLogFilterType, showLogPanel, setShowLogPanel } = ctx
 
   const grouped = React.useMemo(() => {

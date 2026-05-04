@@ -1,8 +1,9 @@
 // @ts-nocheck
+import type { StorytellerContext } from '../useStoryteller'
 import React from 'react'
 import { Box, Button, TextField, Typography, Paper, Grid } from '@mui/material'
 
-export function RightConsoleSettings({ ctx, toggleConsoleSection }: { ctx: any, toggleConsoleSection: any }) {
+export function RightConsoleSettings({ ctx, toggleConsoleSection }: { ctx: StorytellerContext, toggleConsoleSection: any }) {
   const { language, text, activeConsoleSections, timerDefaults, setTimerDefaults, stName, setStName } = ctx
   const zh = language === 'zh'
   const isOpen = activeConsoleSections?.has('settings')

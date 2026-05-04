@@ -1,10 +1,11 @@
 // @ts-nocheck
+import type { StorytellerContext } from '../useStoryteller'
 import React, { useState } from 'react'
 import { Box, Button, Tabs, Tab, TextField, FormControlLabel, Checkbox, Typography, Paper } from '@mui/material'
 import { PlayersTab } from './ModalsNewGamePlayersTab'
 import { CharactersTab } from './ModalsNewGameCharactersTab'
 
-export function ModalsNewGame({ ctx }: { ctx: any }) {
+export function ModalsNewGame({ ctx }: { ctx: StorytellerContext }) {
   const {
     scriptOptions, playerNamePool, setPlayerNamePool, text, language,
     newGamePanel, setNewGamePanel, startNewGame, applyGameChanges, randomAssignCharacters,

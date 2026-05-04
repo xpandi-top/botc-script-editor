@@ -1,7 +1,7 @@
 import { characterById, getDisplayName } from '../catalog'
 import type { Language } from '../types'
 import { createDayState, createSeats, shuffleArray, CHARACTER_DISTRIBUTION, DEFAULT_PLAYER_COUNT, getNextRoundRobinSeat } from '../components/StorytellerSub/constants'
-import type { DayState, EndGameResult, GameRecord, NewGameConfig, Phase, NominationStep, StorytellerSeat, TimerDefaults } from '../components/StorytellerSub/types'
+import type { DayState, EndGameResult, GameRecord, NewGameConfig, Phase, NominationStep, PickerMode, StorytellerSeat, TimerDefaults } from '../components/StorytellerSub/types'
 import type { Team } from '../types'
 import { buildGameExport } from './useGameExport'
 
@@ -18,7 +18,7 @@ interface LifecycleDeps {
   setDays: React.Dispatch<React.SetStateAction<DayState[]>>
   setDaysWithUndo: React.Dispatch<React.SetStateAction<DayState[]>>
   setSelectedDayId: (id: string) => void
-  setPickerMode: (m: any) => void
+  setPickerMode: (m: PickerMode) => void
   setIsTimerRunning: (v: boolean) => void
   setSeatTagDrafts: React.Dispatch<React.SetStateAction<Record<number, string>>>
   setSkillOverlay: (v: null) => void

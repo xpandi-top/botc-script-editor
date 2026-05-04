@@ -1,9 +1,10 @@
 // @ts-nocheck
+import type { StorytellerContext } from '../useStoryteller'
 import React from 'react'
 import { Box, Typography, Button, Select, MenuItem, FormControl, InputLabel, Accordion, AccordionSummary, AccordionDetails } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 
-export function RightConsoleGame({ ctx, toggleConsoleSection }: { ctx: any, toggleConsoleSection: any }) {
+export function RightConsoleGame({ ctx, toggleConsoleSection }: { ctx: StorytellerContext, toggleConsoleSection: any }) {
   const { language, onSelectScript, scriptOptions, activeScriptSlug, text, activeConsoleSections, setDialogState, openNewGamePanel, exportGameJson, setShowExportModal } = ctx;
 
   return (

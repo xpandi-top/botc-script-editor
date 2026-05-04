@@ -1,4 +1,5 @@
 // @ts-nocheck
+import type { StorytellerContext } from '../useStoryteller'
 import React from 'react'
 import { Box, Typography, Paper, Button, Chip, Select, MenuItem } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
@@ -17,7 +18,7 @@ const ENTRY_COLORS: Record<string, 'primary' | 'secondary' | 'success' | 'error'
   event: 'success',
 }
 
-export function RightPopupLog({ ctx }: { ctx: any }) {
+export function RightPopupLog({ ctx }: { ctx: StorytellerContext }) {
   const { days, logFilter, setLogFilter, aggregatedLog, setActiveRightPopup, toggleLogFilterType, text, language } = ctx
 
   const grouped = React.useMemo(() => {

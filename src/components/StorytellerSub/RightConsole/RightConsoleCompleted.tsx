@@ -1,8 +1,9 @@
 // @ts-nocheck
+import type { StorytellerContext } from '../useStoryteller'
 import React from 'react'
 import { Box, Typography, Paper, Chip } from '@mui/material'
 
-export function RightConsoleCompleted({ ctx, toggleConsoleSection }: { ctx: any, toggleConsoleSection: any }) {
+export function RightConsoleCompleted({ ctx, toggleConsoleSection }: { ctx: StorytellerContext, toggleConsoleSection: any }) {
   const { language, gameRecords, loadGameRecord, text } = ctx
 
   return (

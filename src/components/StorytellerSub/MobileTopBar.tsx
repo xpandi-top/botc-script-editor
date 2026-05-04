@@ -1,3 +1,4 @@
+import type { StorytellerContext } from './useStoryteller'
 import { Box, IconButton, Chip, Typography } from '@mui/material'
 import MenuIcon from '@mui/icons-material/Menu'
 import UndoIcon from '@mui/icons-material/Undo'
@@ -9,7 +10,7 @@ const PHASE_COLORS: Record<string, string> = {
   nomination: '#7a1010',
 }
 
-export function MobileTopBar({ ctx }: { ctx: any }) {
+export function MobileTopBar({ ctx }: { ctx: StorytellerContext }) {
   const {
     text, currentDay, aliveCount, totalCount,
     activeScriptTitle, showScriptPanel, setShowScriptPanel,

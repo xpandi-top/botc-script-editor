@@ -1,4 +1,6 @@
 // @ts-nocheck
+import type { StorytellerSeat } from '../types'
+import type { StorytellerContext } from '../useStoryteller'
 import React, { useState, useEffect, useMemo } from 'react'
 import { createPortal } from 'react-dom'
 import {
@@ -78,7 +80,7 @@ function phaseLabel(phase: string, text: any): string {
 }
 
 // ── Component ────────────────────────────────────────────────────
-export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: any; seat: any }) {
+export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; seat: any }) {
   const {
     language, text, currentDay, days,
     skillOverlay, setSkillOverlay, closeSkillOverlay, openSeatSkill,
