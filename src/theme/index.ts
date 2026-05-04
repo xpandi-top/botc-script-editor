@@ -247,22 +247,24 @@ export const theme = createTheme({
       },
     },
 
-    // ── Tabs — pill nav, clear selected ──────────────────────────────────────
+    // ── Tabs — same radius as buttons for visual consistency ─────────────────
     MuiTab: {
       styleOverrides: {
         root: {
           textTransform: 'none',
           fontWeight:    WEIGHT.medium,
           fontSize:      '0.875rem',
-          borderRadius:  R.pill,
+          borderRadius:  R.btn,              // 10px — matches Button/ToggleButton
           border:        `1px solid ${BORDER.subtle}`,
           minHeight:     38,
-          padding:       '5px 16px',
+          minWidth:      44,                 // icon-only: near-square touch target
+          padding:       '8px 10px',         // compact for icon-only tabs
           color:         INK.secondary,
           transition:    `background ${MOTION.fast}, color ${MOTION.fast}, border-color ${MOTION.fast}`,
+          '& .MuiTab-iconWrapper': { marginBottom: 0 },  // no gap below icon
           '&.Mui-selected': {
             color:       INK.inverse,
-            background:  PALETTE.bistre,       // solid ink fill — unmistakable
+            background:  PALETTE.bistre,
             borderColor: PALETTE.bistre,
           },
           '&:hover:not(.Mui-selected)': {

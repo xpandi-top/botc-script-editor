@@ -47,15 +47,15 @@ export const STATE = {
 } as const
 
 // ── Typography ───────────────────────────────────────────────────────────────
+// EN body: EB Garamond — classical book serif, manuscript/inkpot feel
+// ZH body: ZCOOL XiaoWei — refined literary brushstroke, pairs with Garamond
+// EN display: Cinzel — Roman lapidary caps, gothic-ritual gravitas
+// ZH display: Ma Shan Zheng — brushstroke calligraphic weight for headings
 export const FONT = {
-  // English UI body — humanist sans, even stroke, good legibility
-  sans:    '"Avenir Next", Avenir, "Helvetica Neue", -apple-system, BlinkMacSystemFont, sans-serif',
-  // Headings / display — classical serif for ritual/manuscript feel
-  serif:   'Georgia, "Times New Roman Local", "Times New Roman", serif',
-  // Chinese UI body — matches x-height of Avenir well
-  zhSans:  '"PingFang SC", "Noto Sans SC", "Microsoft YaHei", "Source Han Sans SC", sans-serif',
-  // Chinese display / decorative headings
-  zhSerif: 'Xingkai, "STKaiti", "KaiTi", "AR PL UKai CN", serif',
+  sans:    '"EB Garamond", "ZCOOL XiaoWei", Georgia, "Times New Roman", serif',
+  serif:   '"Cinzel", "Ma Shan Zheng", Georgia, serif',
+  zhSans:  '"ZCOOL XiaoWei", "PingFang SC", "Noto Sans SC", "Microsoft YaHei", serif',
+  zhSerif: '"Ma Shan Zheng", "STKaiti", "KaiTi", serif',
 } as const
 
 // Weight scale — keep intentional, not decorative

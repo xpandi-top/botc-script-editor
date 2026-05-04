@@ -13,10 +13,16 @@ import {
   Paper,
   Tab,
   Tabs,
+  Tooltip,
   Typography,
 } from '@mui/material'
 import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import AutoStoriesIcon from '@mui/icons-material/AutoStories'
+import GroupIcon from '@mui/icons-material/Group'
+import NightsStayIcon from '@mui/icons-material/NightsStay'
+import QueryStatsIcon from '@mui/icons-material/QueryStats'
+import PrintIcon from '@mui/icons-material/Print'
 import { PrintPreviewPage } from './components/PrintPreviewPage'
 import { DEFAULT_PRINT_OPTIONS } from './components/PrintOptionsDialog'
 import type { PrintOptions } from './components/PrintOptionsDialog'
@@ -363,21 +369,25 @@ export default function App() {
               flex: '1 1 auto',
               display: { xs: 'none', sm: 'flex' },
               minHeight: 44,
-              '& .MuiTab-root': {
-                minHeight: 38,
-                fontSize: '0.875rem',
-                fontWeight: 500,
-                px: 1.75,
-                py: 0.5,
-                mr: 0.5,
-              },
+              gap: 0.5,
+              '& .MuiTabs-flexContainer': { gap: 0.5 },
             }}
           >
-            <Tab label={uiText.scriptSheet} value="scripts" />
-            <Tab label={uiText.allCharacters} value="characters" />
-            <Tab label={storytellerTabLabel} value="storyteller" />
-            <Tab label={analyticsTabLabel} value="analytics" />
-            <Tab label={printStudioTabLabel} value="printstudio" />
+            <Tooltip title={uiText.scriptSheet} placement="bottom">
+              <Tab icon={<AutoStoriesIcon fontSize="small" />} value="scripts" aria-label={uiText.scriptSheet} />
+            </Tooltip>
+            <Tooltip title={uiText.allCharacters} placement="bottom">
+              <Tab icon={<GroupIcon fontSize="small" />} value="characters" aria-label={uiText.allCharacters} />
+            </Tooltip>
+            <Tooltip title={storytellerTabLabel} placement="bottom">
+              <Tab icon={<NightsStayIcon fontSize="small" />} value="storyteller" aria-label={storytellerTabLabel} />
+            </Tooltip>
+            <Tooltip title={analyticsTabLabel} placement="bottom">
+              <Tab icon={<QueryStatsIcon fontSize="small" />} value="analytics" aria-label={analyticsTabLabel} />
+            </Tooltip>
+            <Tooltip title={printStudioTabLabel} placement="bottom">
+              <Tab icon={<PrintIcon fontSize="small" />} value="printstudio" aria-label={printStudioTabLabel} />
+            </Tooltip>
           </Tabs>
 
           {/* Mobile: active tab name */}
