@@ -3,6 +3,8 @@ import type { StorytellerContext } from '../useStoryteller'
 import React from 'react'
 import { Box, Button, Typography, TextField, Chip, IconButton, Paper } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { uniqueStrings } from '../constants'
 
 export function RightConsoleTags({ ctx, toggleConsoleSection }: { ctx: StorytellerContext, toggleConsoleSection: any }) {
@@ -20,7 +22,7 @@ export function RightConsoleTags({ ctx, toggleConsoleSection }: { ctx: Storytell
     <Paper variant="outlined" sx={{ p: 1 }}>
       <Button fullWidth onClick={() => toggleConsoleSection('tags')} sx={{ justifyContent: 'space-between', textTransform: 'none' }}>
         <Typography variant="body2">{text.tagSettings}</Typography>
-        <span>{isOpen ? '▼' : '▶'}</span>
+        {isOpen ? <ExpandMoreIcon fontSize="small" /> : <ChevronRightIcon fontSize="small" />}
       </Button>
       {isOpen && (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mt: 1 }}>

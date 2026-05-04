@@ -1,6 +1,7 @@
 import type { StorytellerContext } from './useStoryteller'
 import React from 'react'
 import { Drawer, Box, Typography, Button, Tabs, Tab, List, ListItem, ListItemButton } from '@mui/material'
+import CloseIcon from '@mui/icons-material/Close'
 import { nightOrder, getDisplayName, getIconForCharacter, getAbilityText } from '../../catalog'
 
 type ScriptView = 'characters' | 'firstNight' | 'otherNight'
@@ -82,7 +83,7 @@ export function LeftScriptPanel({ ctx }: { ctx: StorytellerContext }) {
       >
         <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(23,32,42,0.08)' }}>
           <Typography variant="h6" sx={{ fontSize: '0.95rem' }}>{activeScriptTitle || (language === 'zh' ? '剧本' : 'Script')}</Typography>
-          <Button size="small" variant="outlined" onClick={() => setShowScriptPanel(false)}>✕</Button>
+          <Button size="small" variant="outlined" onClick={() => setShowScriptPanel(false)} startIcon={<CloseIcon fontSize="small" />}>{language === 'zh' ? '关闭' : 'Close'}</Button>
         </Box>
 
         <Tabs value={view} onChange={(_, v) => setView(v)} sx={{ px: 2, borderBottom: '1px solid rgba(23,32,42,0.06)' }} variant="fullWidth">

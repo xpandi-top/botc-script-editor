@@ -64,10 +64,31 @@ export function StorytellerHelper(props: StorytellerHelperProps) {
             border: '1px solid',
             borderColor: 'rgba(23,32,42,0.12)',
             overflow: 'visible',
+            position: 'relative',
           }}
         >
-          <CompactToolbar ctx={ctx} />
-          <Arena ctx={ctx} />
+          {/* Watermark background */}
+          <Box
+            sx={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: 280,
+              height: 280,
+              opacity: 0.06,
+              pointerEvents: 'none',
+              zIndex: 0,
+              backgroundImage: 'url(/icons/icon-256.png)',
+              backgroundSize: 'contain',
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: 'center',
+            }}
+          />
+          <Box sx={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', flex: 1 }}>
+            <CompactToolbar ctx={ctx} />
+            <Arena ctx={ctx} />
+          </Box>
         </Paper>
         <RightConsole ctx={ctx} />
         <Modals ctx={ctx} />

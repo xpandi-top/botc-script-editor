@@ -2,6 +2,8 @@
 import type { StorytellerSeat } from '../types'
 import React, { useState } from 'react'
 import { Box, IconButton, Button, Chip, Popover, Typography } from '@mui/material'
+import CheckIcon from '@mui/icons-material/Check'
+import CloseIcon from '@mui/icons-material/Close'
 
 // ── TagChip: readable chip with click-to-popover ──
 export function TagChip({ label, icon, chipSx }: { label: string; icon?: string | null; chipSx?: any }) {
@@ -66,15 +68,15 @@ export function VoteButtonGroup({
           onClick={handleRemoveVote}
           sx={{ minWidth: 0, px: 0.75, py: 0.25, fontWeight: 700 }}
         >
-          {cardVotedYes ? '✓' : '✗'}
+          {cardVotedYes ? <CheckIcon fontSize="small" /> : <CloseIcon fontSize="small" />}
         </Button>
       ) : (
         <>
           <IconButton size="medium" color="success" onClick={handleVoteYesClick} sx={{ border: '1px solid', borderColor: 'divider', p: 0.5 }}>
-            ✓
+            <CheckIcon fontSize="small" />
           </IconButton>
           <IconButton size="medium" color="error" onClick={handleVoteNoClick} sx={{ border: '1px solid', borderColor: 'divider', p: 0.5 }}>
-            ✗
+            <CloseIcon fontSize="small" />
           </IconButton>
         </>
       )}
@@ -158,7 +160,7 @@ export function NightActionGroup({
               bgcolor: isVisited ? 'success.light' : 'transparent',
             }}
           >
-            {isVisited ? '✓' : ''}
+            {isVisited ? <CheckIcon fontSize="small" /> : null}
           </IconButton>
           <Box component="span" sx={{ fontWeight: 600, color: 'text.primary' }}>
             #{playerWakeOrder}
@@ -198,7 +200,7 @@ export function RoundRobinIndicator({ isRoundRobinSpeaker, isSpoken }: RoundRobi
       bgcolor: isRoundRobinSpeaker ? 'warning.light' : 'action.selected',
       fontWeight: 700,
     }}>
-      {isRoundRobinSpeaker ? 'SPK' : '✓'}
+      {isRoundRobinSpeaker ? 'SPK' : <CheckIcon fontSize="small" />}
     </Box>
   )
 }

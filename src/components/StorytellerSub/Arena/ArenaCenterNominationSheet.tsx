@@ -3,6 +3,8 @@ import type { StorytellerContext } from '../useStoryteller'
 import React, { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Box, Button, Typography, TextField, Select, MenuItem, FormControl, InputLabel, FormControlLabel, Checkbox, Dialog } from '@mui/material'
+import CheckIcon from '@mui/icons-material/Check'
+import CloseIcon from '@mui/icons-material/Close'
 import { createDefaultVoteDraft } from '../constants'
 import { useBreakpoint } from '../../../hooks/useBreakpoint'
 import { NominationTimer } from './NominationTimer'
@@ -204,8 +206,8 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: StorytellerContext })
             label={language === 'zh' ? '结果' : 'Result'}
             onChange={(e) => updateCurrentDay((d: any) => ({ ...d, voteDraft: { ...d.voteDraft, nominationResult: e.target.value } }))}
           >
-            <MenuItem value="succeed">{language === 'zh' ? '✓ 提名成功' : '✓ Succeed'}</MenuItem>
-            <MenuItem value="fail">{language === 'zh' ? '✗ 提名失败' : '✗ Failed'}</MenuItem>
+            <MenuItem value="succeed">{language === 'zh' ? <><CheckIcon sx={{ fontSize: '0.9rem', mr: 0.5 }} /> 提名成功</> : <><CheckIcon sx={{ fontSize: '0.9rem', mr: 0.5 }} /> Succeed</>}</MenuItem>
+            <MenuItem value="fail">{language === 'zh' ? <><CloseIcon sx={{ fontSize: '0.9rem', mr: 0.5 }} /> 提名失败</> : <><CloseIcon sx={{ fontSize: '0.9rem', mr: 0.5 }} /> Failed</>}</MenuItem>
           </Select>
         </FormControl>
 
@@ -241,8 +243,8 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: StorytellerContext })
               onChange={(e) => handleManualOverride(e.target.value)}
             >
               <MenuItem value="auto">{language === 'zh' ? '自动判定' : 'Auto'}</MenuItem>
-              <MenuItem value="agree">{language === 'zh' ? '✓ 强制通过' : '✓ Override Pass'}</MenuItem>
-              <MenuItem value="disagree">{language === 'zh' ? '✗ 强制失败' : '✗ Override Fail'}</MenuItem>
+              <MenuItem value="agree">{language === 'zh' ? <><CheckIcon sx={{ fontSize: '0.9rem', mr: 0.5 }} /> 强制通过</> : <><CheckIcon sx={{ fontSize: '0.9rem', mr: 0.5 }} /> Override Pass</>}</MenuItem>
+              <MenuItem value="disagree">{language === 'zh' ? <><CloseIcon sx={{ fontSize: '0.9rem', mr: 0.5 }} /> 强制失败</> : <><CloseIcon sx={{ fontSize: '0.9rem', mr: 0.5 }} /> Override Fail</>}</MenuItem>
             </Select>
           </FormControl>
         )}

@@ -2,6 +2,7 @@
 import type { StorytellerContext } from '../useStoryteller'
 import React, { useState } from 'react'
 import { Box, Button, Tabs, Tab, TextField, FormControlLabel, Checkbox, Typography, Paper } from '@mui/material'
+import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import { PlayersTab } from './ModalsNewGamePlayersTab'
 import { CharactersTab } from './ModalsNewGameCharactersTab'
 
@@ -97,13 +98,13 @@ export function ModalsNewGame({ ctx }: { ctx: StorytellerContext }) {
           {editMode ? (language === 'zh' ? '关闭' : 'Close') : text.cancelNewGame}
         </Button>
         {!editMode && (
-          <Button variant="contained" onClick={() => startNewGame(newGamePanel)}>
-            ▶ {text.startNewGame}
+          <Button variant="contained" onClick={() => startNewGame(newGamePanel)} startIcon={<PlayArrowIcon fontSize="small" />}>
+            {text.startNewGame}
           </Button>
         )}
         {editMode && (
-          <Button variant="contained" onClick={() => applyGameChanges(newGamePanel)}>
-            ▶ {language === 'zh' ? '应用更改' : 'Apply Changes'}
+          <Button variant="contained" onClick={() => applyGameChanges(newGamePanel)} startIcon={<PlayArrowIcon fontSize="small" />}>
+            {language === 'zh' ? '应用更改' : 'Apply Changes'}
           </Button>
         )}
       </Box>

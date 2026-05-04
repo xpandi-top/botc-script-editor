@@ -2,6 +2,7 @@
 import type { StorytellerContext } from '../useStoryteller'
 import React from 'react'
 import { Box, Button, TextField, Typography, Paper, Select, MenuItem, FormControl, InputLabel, Chip, Grid, IconButton, Switch, FormControlLabel } from '@mui/material'
+import CloseIcon from '@mui/icons-material/Close'
 import { uniqueStrings, INITIAL_AUDIO_TRACKS } from '../constants'
 import { BASE_URL } from '../constants'
 
@@ -37,7 +38,7 @@ export function RightPopupSettings({ ctx }: { ctx: StorytellerContext }) {
     <Paper sx={{ p: 2, height: '100%', overflow: 'auto', bgcolor: 'background.paper' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
         <Typography variant="h6">{text.settings}</Typography>
-        <IconButton size="small" onClick={() => setActiveRightPopup(null)}>✕</IconButton>
+        <IconButton size="small" onClick={() => setActiveRightPopup(null)}><CloseIcon fontSize="small" /></IconButton>
       </Box>
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>

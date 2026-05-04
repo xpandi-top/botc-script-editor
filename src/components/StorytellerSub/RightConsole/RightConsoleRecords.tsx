@@ -2,6 +2,8 @@
 import type { StorytellerContext } from '../useStoryteller'
 import React, { useState } from 'react'
 import { Box, Button, Typography, Paper, Chip, Accordion, AccordionSummary, AccordionDetails, Grid } from '@mui/material'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 
 export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: StorytellerContext, toggleConsoleSection: any }) {
   const { language, text, gameRecords = [], setGameRecords, activeConsoleSections, loadGameRecord, exportRecordJson, saveGame } = ctx
@@ -13,7 +15,7 @@ export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: Storyt
         <Typography variant="body2">
           {language === 'zh' ? '历史记录' : 'Game Records'} ({gameRecords.length})
         </Typography>
-        <span>{isOpen ? '▼' : '▶'}</span>
+        {isOpen ? <ExpandMoreIcon fontSize="small" /> : <ChevronRightIcon fontSize="small" />}
       </Button>
       {isOpen && (
         <Box sx={{ mt: 1 }}>

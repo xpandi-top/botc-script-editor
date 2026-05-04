@@ -3,6 +3,9 @@ import type { StorytellerSeat } from '../types'
 import type { StorytellerContext } from '../useStoryteller'
 import React, { useState } from 'react'
 import { Box, Button, IconButton, Chip, Paper } from '@mui/material'
+import CheckIcon from '@mui/icons-material/Check'
+import CloseIcon from '@mui/icons-material/Close'
+import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked'
 import { ArenaSeatPlayerModal } from './ArenaSeatPlayerModal'
 import { CharacterCircle } from './CharacterCircle'
 import { getDisplayName, getIconForCharacter, nightOrder } from '../../../catalog'
@@ -126,7 +129,7 @@ export function MobileSeatCard({ ctx, seat }: { ctx: StorytellerContext; seat: a
             <Box component="span" sx={{ fontWeight: 700, fontSize: '0.85rem', color: 'text.secondary', whiteSpace: 'nowrap' }}>#{seat.seat}</Box>
             <Box component="span" sx={{ fontWeight: 600, fontSize: '0.95rem', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{seat.name}</Box>
             <Box component="span" sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: seat.alive ? 'success.main' : 'text.disabled', flexShrink: 0 }} />
-            {hasVoted && <Box component="span" sx={{ fontWeight: 700, fontSize: '0.9rem', color: votedYes ? 'success.main' : 'error.main' }}>{votedYes ? '✓' : '✗'}</Box>}
+            {hasVoted && <Box component="span" sx={{ fontWeight: 700, fontSize: '0.9rem', color: votedYes ? 'success.main' : 'error.main' }}>{votedYes ? <CheckIcon fontSize="small" /> : <CloseIcon fontSize="small" />}</Box>}
           </Box>
 
           {isNightPhase && nightShowCharacter && (seat.stTags || []).length > 0 && (
@@ -160,7 +163,7 @@ export function MobileSeatCard({ ctx, seat }: { ctx: StorytellerContext; seat: a
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
               <IconButton size="small" onClick={(e) => { e.stopPropagation(); toggleNightVisitedSeat(seat.seat) }}
                 sx={{ p: 0, width: 28, height: 28, borderRadius: '50%', border: '2px solid', borderColor: isVisited ? 'success.main' : 'divider', bgcolor: isVisited ? 'success.light' : 'transparent', flexShrink: 0 }}>
-                {isVisited ? '✓' : '○'}
+                {isVisited ? <CheckIcon fontSize="small" /> : <RadioButtonUncheckedIcon fontSize="small" />}
               </IconButton>
               <Box component="span" sx={{ fontSize: '0.9rem', fontWeight: 700, color: 'text.secondary' }}>#{playerWakeOrder}</Box>
             </Box>

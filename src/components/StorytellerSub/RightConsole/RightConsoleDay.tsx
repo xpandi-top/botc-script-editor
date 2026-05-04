@@ -2,6 +2,8 @@
 import type { StorytellerContext } from '../useStoryteller'
 import React from 'react'
 import { Box, Button, Typography, Paper, TextField, Chip, Grid } from '@mui/material'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { createDefaultVoteDraft } from '../constants'
 
 export function RightConsoleDay({ ctx, toggleConsoleSection }: { ctx: StorytellerContext, toggleConsoleSection: any }) {
@@ -18,7 +20,7 @@ export function RightConsoleDay({ ctx, toggleConsoleSection }: { ctx: Storytelle
     <Paper variant="outlined" sx={{ p: 1 }}>
       <Button fullWidth onClick={() => toggleConsoleSection('day')} sx={{ justifyContent: 'space-between', textTransform: 'none' }}>
         <Typography variant="body2">{text.daySection}</Typography>
-        <span>{isOpen ? '▼' : '▶'}</span>
+        {isOpen ? <ExpandMoreIcon fontSize="small" /> : <ChevronRightIcon fontSize="small" />}
       </Button>
       {isOpen && (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mt: 1 }}>

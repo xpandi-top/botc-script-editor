@@ -5,6 +5,8 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import PauseIcon from '@mui/icons-material/Pause'
 import StopIcon from '@mui/icons-material/Stop'
 import RefreshIcon from '@mui/icons-material/Refresh'
+import CheckIcon from '@mui/icons-material/Check'
+import CloseIcon from '@mui/icons-material/Close'
 
 interface NominationTimerProps {
   selectedTimer: 'nominator' | 'nominee'
@@ -94,8 +96,8 @@ export function NominationTimer({
             slotProps={{ input: { style: { fontSize: '1rem', fontWeight: 700, textAlign: 'center' } } }}
             sx={{ width: 75 }}
           />
-          <IconButton size="small" onClick={handleTimerSave}>✓</IconButton>
-          <IconButton size="small" onClick={() => setTimerEditing(false)}>✕</IconButton>
+          <IconButton size="small" onClick={handleTimerSave}><CheckIcon fontSize="small" /></IconButton>
+          <IconButton size="small" onClick={() => setTimerEditing(false)}><CloseIcon fontSize="small" /></IconButton>
         </Box>
       ) : (
         <Box

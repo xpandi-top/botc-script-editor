@@ -5,6 +5,11 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import PauseIcon from '@mui/icons-material/Pause'
 import StopIcon from '@mui/icons-material/Stop'
 import RefreshIcon from '@mui/icons-material/Refresh'
+import CheckIcon from '@mui/icons-material/Check'
+import CloseIcon from '@mui/icons-material/Close'
+import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive'
+import ListIcon from '@mui/icons-material/List'
+import AutoStoriesIcon from '@mui/icons-material/AutoStories'
 import { AggregatedLogModal } from './AggregatedLogModal'
 import { StorytellerSetupModal } from './StorytellerSetupModal'
 import type { Phase, PublicMode } from '../types'
@@ -129,7 +134,7 @@ export function ArenaCenterContent({ ctx }: { ctx: StorytellerContext }) {
   const nominationControls = phase === 'nomination' && (
     <Box sx={{ display: 'flex', gap: 0.5 }}>
       <Button size="large" variant={showNominationSheet ? 'contained' : 'outlined'} onClick={() => setShowNominationSheet((v: boolean) => !v)}>📋 {language === 'zh' ? '提名' : 'Nominate'}</Button>
-      <Button size="large" variant="outlined" onClick={(e) => { e.stopPropagation(); goToNextDay() }}>▶ {language === 'zh' ? '下一天' : 'Next Day'}</Button>
+      <Button size="large" variant="outlined" onClick={(e) => { e.stopPropagation(); goToNextDay() }} startIcon={<PlayArrowIcon fontSize="small" />}>{language === 'zh' ? '下一天' : 'Next Day'}</Button>
     </Box>
   )
 
@@ -146,11 +151,11 @@ export function ArenaCenterContent({ ctx }: { ctx: StorytellerContext }) {
         <MenuItem value="roundRobin">{text.roundRobinMode}</MenuItem>
       </Select>}
       <Button size="small" onClick={() => setShowStSetupModal(true)}
-        startIcon={stFabledIds?.length > 0 ? <Box component="span" sx={{ fontSize: '0.85rem', lineHeight: 1 }}>{stFabledIds.length}</Box> : undefined}
+        startIcon={stFabledIds?.length > 0 ? <Box component="span" sx={{ fontSize: '0.85rem', lineHeight: 1 }}>{stFabledIds.length}</Box> : <AutoStoriesIcon fontSize="small" />}
         sx={{ fontWeight: 600 }}>
-        📖 {language === 'zh' ? '说书人' : 'ST Setup'}
+        {language === 'zh' ? '说书人' : 'ST Setup'}
       </Button>
-      <Button size="small" onClick={() => setShowAggLogModal(true)} startIcon="📋">{language === 'zh' ? '日志' : 'Log'}</Button>
+      <Button size="small" onClick={() => setShowAggLogModal(true)} startIcon={<ListIcon fontSize="small" />}>{language === 'zh' ? '日志' : 'Log'}</Button>
      </Box>
       {hasTimer && (
         <>
@@ -158,15 +163,15 @@ export function ArenaCenterContent({ ctx }: { ctx: StorytellerContext }) {
             {timerEditing ? (
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
                 <TextField size="small" value={timerInput} onChange={(e) => setTimerInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleTimerSave()} autoFocus placeholder="MM:SS" slotProps={{ input: { style: { fontSize: '1rem', fontWeight: 700, textAlign: 'center' } } }} sx={{ width: 75 }} />
-                <Button size="small" variant="contained" onClick={handleTimerSave} sx={{ minWidth: 28, px: 0.5, fontSize: '0.75rem' }}>✓</Button>
-                <Button size="small" variant="outlined" color="error" onClick={() => setTimerEditing(false)} sx={{ minWidth: 28, px: 0.5, fontSize: '0.75rem' }}>✕</Button>
+                <Button size="small" variant="contained" onClick={handleTimerSave} sx={{ minWidth: 28, px: 0.5 }}><CheckIcon fontSize="small" /></Button>
+                <Button size="small" variant="outlined" color="error" onClick={() => setTimerEditing(false)} sx={{ minWidth: 28, px: 0.5 }}><CloseIcon fontSize="small" /></Button>
               </Box>
             ) : (
               <Box onClick={handleTimerEdit} sx={{ fontFamily: 'monospace', fontSize: '2rem', fontWeight: 700, bgcolor: alarmActive ? 'warning.light' : 'background.paper', px: 1.5, py: 0.25, borderRadius: 1, border: '1px solid', borderColor: 'divider', cursor: 'pointer', letterSpacing: '0.1em', userSelect: 'none', '&:hover': { bgcolor: 'action.hover' } }}>
                 {formatTime(currentTimerSeconds)}
               </Box>
             )}
-            {alarmActive && <IconButton size="large" onClick={() => setAlarmActive(false)}>🔔</IconButton>}
+            {alarmActive && <IconButton size="large" onClick={() => setAlarmActive(false)}><NotificationsActiveIcon /></IconButton>}
           </Box>
           <Box sx={{ display: 'flex', gap: 0.5 }}>
             <IconButton size="large" onClick={() => { setIsTimerRunning((c: boolean) => !c); if (alarmActive) setAlarmActive(false) }} sx={isTimerRunning ? TIMER_CONTROL_SX : TIMER_IDLE_SX}>

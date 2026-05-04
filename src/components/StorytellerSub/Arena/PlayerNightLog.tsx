@@ -3,6 +3,7 @@ import type { StorytellerSeat } from '../types'
 import React from 'react'
 import { createPortal } from 'react-dom'
 import { Box, Dialog, DialogTitle, DialogContent, IconButton, Typography, Divider, Chip } from '@mui/material'
+import CloseIcon from '@mui/icons-material/Close'
 import type { DayState } from '../types'
 
 interface PlayerNightLogProps {
@@ -98,7 +99,7 @@ export function PlayerNightLog({ open, onClose, seat, days, language }: PlayerNi
         <Typography variant="h6" fontWeight={700}>
           {language === 'zh' ? `${seatLabel} 事件记录` : `${seatLabel} — Event Log`}
         </Typography>
-        <IconButton size="small" onClick={onClose}>✕</IconButton>
+        <IconButton size="small" onClick={onClose}><CloseIcon fontSize="small" /></IconButton>
       </DialogTitle>
       <DialogContent sx={{ pt: 0 }}>
         {dayEntries.length === 0 ? (

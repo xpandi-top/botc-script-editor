@@ -2,6 +2,8 @@
 import type { StorytellerContext } from '../useStoryteller'
 import React from 'react'
 import { Box, Button, TextField, Typography, Paper, Grid } from '@mui/material'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 
 export function RightConsoleSettings({ ctx, toggleConsoleSection }: { ctx: StorytellerContext, toggleConsoleSection: any }) {
   const { language, text, activeConsoleSections, timerDefaults, setTimerDefaults, stName, setStName } = ctx
@@ -27,7 +29,7 @@ export function RightConsoleSettings({ ctx, toggleConsoleSection }: { ctx: Story
     <Paper variant="outlined" sx={{ p: 1 }}>
       <Button fullWidth onClick={() => toggleConsoleSection('settings')} sx={{ justifyContent: 'space-between', textTransform: 'none' }}>
         <Typography variant="body2">{text.settings}</Typography>
-        <span>{isOpen ? '▼' : '▶'}</span>
+        {isOpen ? <ExpandMoreIcon fontSize="small" /> : <ChevronRightIcon fontSize="small" />}
       </Button>
       {isOpen && (
         <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 1.5 }}>

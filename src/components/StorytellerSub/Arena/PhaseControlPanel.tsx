@@ -12,6 +12,9 @@ import RefreshIcon from '@mui/icons-material/Refresh'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import CloseIcon from '@mui/icons-material/Close'
+import CheckIcon from '@mui/icons-material/Check'
+import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive'
+import ListIcon from '@mui/icons-material/List'
 import { ArenaCenterNominationSheet } from './ArenaCenterNominationSheet'
 import { AggregatedLogModal } from './AggregatedLogModal'
 import { StorytellerSetupModal } from './StorytellerSetupModal'
@@ -195,8 +198,8 @@ export function PhaseControlPanel({ ctx }: { ctx: StorytellerContext }) {
                     slotProps={{ input: { style: { color: 'white', fontSize: '1.4rem', fontWeight: 700, fontFamily: 'monospace', letterSpacing: '0.08em' } } }}
                     sx={{ width: 105, '& fieldset': { borderColor: 'rgba(255,255,255,0.4)' }, '& .MuiInputBase-root': { py: 0.75 } }}
                   />
-                  <Button variant="contained" onClick={handleTimerSave} sx={{ minWidth: 44, px: 1, py: 1, fontSize: '1.1rem', lineHeight: 1 }}>✓</Button>
-                  <Button variant="outlined" onClick={() => setTimerEditing(false)} sx={{ ...btnSx, minWidth: 44, px: 1, py: 1, fontSize: '1.1rem', lineHeight: 1 }}>✕</Button>
+                  <Button variant="contained" onClick={handleTimerSave} sx={{ minWidth: 44, px: 1, py: 1 }}><CheckIcon /></Button>
+                  <Button variant="outlined" onClick={() => setTimerEditing(false)} sx={{ ...btnSx, minWidth: 44, px: 1, py: 1 }}><CloseIcon /></Button>
                 </Box>
               ) : (
                 <Box
@@ -206,7 +209,7 @@ export function PhaseControlPanel({ ctx }: { ctx: StorytellerContext }) {
                   {fmt(currentTimerSeconds)}
                 </Box>
               )}
-              {alarmActive && <IconButton sx={{ ...iconBtnSx, fontSize: '1.2rem', p: 0.75 }} onClick={() => setAlarmActive(false)}>🔔</IconButton>}
+              {alarmActive && <IconButton sx={{ ...iconBtnSx, p: 0.75 }} onClick={() => setAlarmActive(false)}><NotificationsActiveIcon /></IconButton>}
               <IconButton sx={isTimerRunning ? { ...iconBtnSx, ...TIMER_ACTIVE_SX, p: 0.75 } : { ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={() => { setIsTimerRunning((c: boolean) => !c); if (alarmActive) setAlarmActive(false) }}>
                 {isTimerRunning ? <PauseIcon /> : <PlayArrowIcon />}
               </IconButton>
@@ -269,11 +272,11 @@ export function PhaseControlPanel({ ctx }: { ctx: StorytellerContext }) {
           {/* Nomination controls */}
           {phase === 'nomination' && (
             <Box sx={{ display: 'flex', gap: 0.75, mb: 0.5, flexWrap: 'wrap' }}>
-              <Button size="small" variant="contained" sx={{ ...btnSx, bgcolor: 'rgba(255,255,255,0.2)' }} onClick={() => setShowNominationSheet(true)}>
-                📋 {language === 'zh' ? '提名' : 'Nominate'}
+              <Button size="small" variant="contained" sx={{ ...btnSx, bgcolor: 'rgba(255,255,255,0.2)' }} onClick={() => setShowNominationSheet(true)} startIcon={<ListIcon fontSize="small" />}>
+                {language === 'zh' ? '提名' : 'Nominate'}
               </Button>
-              <Button size="small" variant="outlined" sx={btnSx} onClick={goToNextDay}>
-                ▶ {language === 'zh' ? '下一天' : 'Next Day'}
+              <Button size="small" variant="outlined" sx={btnSx} onClick={goToNextDay} startIcon={<ArrowForwardIcon fontSize="small" />}>
+                {language === 'zh' ? '下一天' : 'Next Day'}
               </Button>
             </Box>
           )}

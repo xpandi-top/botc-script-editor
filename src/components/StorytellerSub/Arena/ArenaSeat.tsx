@@ -3,6 +3,8 @@ import type { StorytellerSeat } from '../types'
 import type { StorytellerContext } from '../useStoryteller'
 import React, { useState } from 'react'
 import { Box, Button, Chip, IconButton, Paper } from '@mui/material'
+import CheckIcon from '@mui/icons-material/Check'
+import CloseIcon from '@mui/icons-material/Close'
 import { ArenaSeatPlayerModal } from './ArenaSeatPlayerModal'
 import { CharacterCircle } from './CharacterCircle'
 import { getDisplayName, getIconForCharacter, nightOrder } from '../../../catalog'
@@ -149,7 +151,7 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: StorytellerCo
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <Box component="span" sx={{ fontWeight: 700, color: seat.alive ? 'text.secondary' : '#7a7570', whiteSpace: 'nowrap', fontSize: '0.75rem' }}>#{seat.seat}</Box>
             <Box component="span" sx={{ fontWeight: 700, whiteSpace: 'nowrap', color: seat.alive ? 'text.primary' : '#5a5550', textDecoration: seat.alive ? 'none' : 'line-through' }}>{seat.name}</Box>
-            {hasVoted && <Box component="span" sx={{ color: votedYes ? 'success.main' : 'error.main', fontWeight: 700 }}>{votedYes ? '✓' : '✗'}</Box>}
+            {hasVoted && <Box component="span" sx={{ color: votedYes ? 'success.main' : 'error.main', fontWeight: 700 }}>{votedYes ? <CheckIcon fontSize="small" /> : <CloseIcon fontSize="small" />}</Box>}
           </Box>
 
           {tagDefs.length > 0 && (
@@ -178,7 +180,7 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: StorytellerCo
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.25 }}>
               <IconButton size="medium" onClick={(e) => { e.stopPropagation(); toggleNightVisitedSeat(seat.seat) }}
                 sx={{ p: 0, width: 28, height: 28, borderRadius: '50%', fontWeight: 700, border: '2px solid', borderColor: isVisited ? 'success.main' : 'divider', bgcolor: isVisited ? 'success.light' : 'transparent', flexShrink: 0 }}>
-                {isVisited ? '✓' : ''}
+                {isVisited ? <CheckIcon fontSize="small" /> : null}
               </IconButton>
               <Box component="span" sx={{ fontWeight: 600 }}>#{playerWakeOrder}</Box>
             </Box>

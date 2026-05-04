@@ -4,6 +4,8 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import PauseIcon from '@mui/icons-material/Pause'
 import StopIcon from '@mui/icons-material/Stop'
 import RefreshIcon from '@mui/icons-material/Refresh'
+import CheckIcon from '@mui/icons-material/Check'
+import CloseIcon from '@mui/icons-material/Close'
 
 interface TimerDisplayProps {
   seconds: number
@@ -70,12 +72,8 @@ export function TimerDisplay({ seconds, onChange, label, color = 'default', show
           slotProps={{ input: { style: { fontSize: '1rem', fontWeight: 700, textAlign: 'center' } } }}
           sx={{ width: 75 }}
         />
-        <Button size="small" variant="contained" onClick={handleSave} sx={{ minWidth: 28, px: 0.5, fontSize: '0.75rem' }}>
-          ✓
-        </Button>
-        <Button size="small" variant="outlined" color="error" onClick={handleCancel} sx={{ minWidth: 28, px: 0.5, fontSize: '0.75rem' }}>
-          ✕
-        </Button>
+        <Button size="small" variant="contained" onClick={handleSave} sx={{ minWidth: 28, px: 0.5 }}><CheckIcon fontSize="small" /></Button>
+        <Button size="small" variant="outlined" color="error" onClick={handleCancel} sx={{ minWidth: 28, px: 0.5 }}><CloseIcon fontSize="small" /></Button>
       </Box>
     )
   }

@@ -71,41 +71,41 @@ export const theme = createTheme({
   // ── Typography ──────────────────────────────────────────────────────────────
   typography: {
     fontFamily:       FONT.sans,
-    fontSize:         15,
+    fontSize:         17,
     htmlFontSize:     16,
     fontWeightRegular: WEIGHT.regular,
     fontWeightMedium:  WEIGHT.medium,
     fontWeightBold:    WEIGHT.semibold,
 
-    h1: { fontFamily: FONT.serif, fontWeight: WEIGHT.bold,     fontSize: '2.4rem',   letterSpacing: '-0.02em',  lineHeight: 1.2  },
-    h2: { fontFamily: FONT.serif, fontWeight: WEIGHT.bold,     fontSize: '1.9rem',   letterSpacing: '-0.015em', lineHeight: 1.25 },
-    h3: { fontFamily: FONT.serif, fontWeight: WEIGHT.semibold, fontSize: '1.5rem',   letterSpacing: '-0.01em',  lineHeight: 1.3  },
-    h4: { fontFamily: FONT.serif, fontWeight: WEIGHT.semibold, fontSize: '1.25rem',  letterSpacing: '-0.005em', lineHeight: 1.35 },
-    h5: { fontFamily: FONT.sans,  fontWeight: WEIGHT.semibold, fontSize: '1.1rem',   letterSpacing: '0em',      lineHeight: 1.4  },
-    h6: { fontFamily: FONT.sans,  fontWeight: WEIGHT.semibold, fontSize: '0.95rem',  letterSpacing: '0.005em',  lineHeight: 1.4  },
+    h1: { fontFamily: FONT.serif, fontWeight: WEIGHT.bold,     fontSize: '2.6rem',   letterSpacing: '-0.02em',  lineHeight: 1.2  },
+    h2: { fontFamily: FONT.serif, fontWeight: WEIGHT.bold,     fontSize: '2.1rem',   letterSpacing: '-0.015em', lineHeight: 1.25 },
+    h3: { fontFamily: FONT.serif, fontWeight: WEIGHT.semibold, fontSize: '1.7rem',   letterSpacing: '-0.01em',  lineHeight: 1.3  },
+    h4: { fontFamily: FONT.serif, fontWeight: WEIGHT.semibold, fontSize: '1.4rem',   letterSpacing: '-0.005em', lineHeight: 1.35 },
+    h5: { fontFamily: FONT.sans,  fontWeight: WEIGHT.semibold, fontSize: '1.2rem',   letterSpacing: '0em',      lineHeight: 1.4  },
+    h6: { fontFamily: FONT.sans,  fontWeight: WEIGHT.semibold, fontSize: '1.05rem',  letterSpacing: '0.005em',  lineHeight: 1.4  },
 
-    subtitle1: { fontWeight: WEIGHT.medium,   fontSize: '1rem',     lineHeight: 1.5,  letterSpacing: '0.005em' },
-    subtitle2: { fontWeight: WEIGHT.semibold, fontSize: '0.875rem', lineHeight: 1.5,  letterSpacing: '0.01em'  },
-    body1:     { fontWeight: WEIGHT.regular,  fontSize: '0.9375rem', lineHeight: 1.6 },
-    body2:     { fontWeight: WEIGHT.regular,  fontSize: '0.875rem',  lineHeight: 1.55 },
+    subtitle1: { fontWeight: WEIGHT.medium,   fontSize: '1.1rem',     lineHeight: 1.5,  letterSpacing: '0.005em' },
+    subtitle2: { fontWeight: WEIGHT.semibold, fontSize: '0.95rem',   lineHeight: 1.5,  letterSpacing: '0.01em'  },
+    body1:     { fontWeight: WEIGHT.regular,  fontSize: '1.0625rem', lineHeight: 1.6 },
+    body2:     { fontWeight: WEIGHT.regular,  fontSize: '1rem',      lineHeight: 1.55 },
 
     caption: {
       fontWeight:    WEIGHT.medium,
-      fontSize:      '0.75rem',
+      fontSize:      '0.82rem',
       letterSpacing: '0.03em',
       lineHeight:    1.4,
       color:         INK.secondary,
     },
     overline: {
       fontWeight:    WEIGHT.semibold,
-      fontSize:      '0.7rem',
+      fontSize:      '0.78rem',
       letterSpacing: '0.1em',
       lineHeight:    1.4,
       color:         INK.secondary,
     },
     button: {
       fontWeight:    WEIGHT.semibold,
-      fontSize:      '0.875rem',
+      fontSize:      '0.95rem',
       letterSpacing: '0.01em',
       textTransform: 'none' as const,
     },
@@ -153,13 +153,13 @@ export const theme = createTheme({
           '&:hover':  { background: STATE.hover },
         },
         sizeSmall: {
-          padding:      '2px 10px',
-          fontSize:     '0.8rem',
-          minHeight:    28,
+          padding:      '4px 12px',
+          fontSize:     '0.88rem',
+          minHeight:    32,
           borderRadius: R.btn - 2,
         },
-        sizeMedium: { padding: '6px 14px' },
-        sizeLarge:  { padding: '10px 22px', minHeight: 44, fontSize: '0.95rem' },
+        sizeMedium: { padding: '8px 16px' },
+        sizeLarge:  { padding: '12px 24px', minHeight: 48, fontSize: '1.05rem' },
       },
     },
 
@@ -212,7 +212,7 @@ export const theme = createTheme({
         tooltip: {
           background:    PALETTE.bistre,
           color:         PALETTE.satinLinen,
-          fontSize:      '0.72rem',
+          fontSize:      '0.8rem',
           fontWeight:    WEIGHT.medium,
           letterSpacing: '0.02em',
           borderRadius:  R.xs,
@@ -229,7 +229,7 @@ export const theme = createTheme({
         root: {
           borderRadius: R.pill,
           fontWeight:   WEIGHT.medium,
-          fontSize:     '0.78rem',
+          fontSize:     '0.85rem',
         },
         colorDefault: {
           background:  `rgba(135,116,91,0.12)`,
@@ -253,7 +253,7 @@ export const theme = createTheme({
         root: {
           textTransform: 'none',
           fontWeight:    WEIGHT.medium,
-          fontSize:      '0.875rem',
+          fontSize:      '0.95rem',
           borderRadius:  R.btn,              // 10px — matches Button/ToggleButton
           border:        `1px solid ${BORDER.subtle}`,
           minHeight:     38,
@@ -327,7 +327,7 @@ export const theme = createTheme({
     MuiMenuItem: {
       styleOverrides: {
         root: {
-          fontSize:     '0.875rem',
+          fontSize:     '0.95rem',
           color:        INK.primary,
           borderRadius: R.btn - 2,
           margin:       '1px 4px',
@@ -367,7 +367,7 @@ export const theme = createTheme({
         root: {
           fontFamily:    FONT.serif,
           fontWeight:    WEIGHT.semibold,
-          fontSize:      '1.1rem',
+          fontSize:      '1.25rem',
           color:         INK.primary,
           paddingBottom: 8,
         },
@@ -390,8 +390,8 @@ export const theme = createTheme({
           color:         INK.secondary,
           border:        `1px solid ${BORDER.mid}`,
           fontWeight:    WEIGHT.medium,
-          fontSize:      '0.875rem',
-          padding:       '5px 14px',
+          fontSize:      '0.95rem',
+          padding:       '7px 14px',
           background:    BG.raised,      // light surface so it pops
           transition:    `background ${MOTION.fast}, color ${MOTION.fast}, border-color ${MOTION.fast}`,
           '&.Mui-selected': {
@@ -453,7 +453,7 @@ export const theme = createTheme({
         root: {
           color:      INK.secondary,
           fontWeight: WEIGHT.medium,
-          fontSize:   '0.82rem',
+          fontSize:   '0.9rem',
           '&.Mui-focused': { color: PALETTE.domino },
         },
       },

@@ -14,6 +14,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import CheckIcon from '@mui/icons-material/Check'
+import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { getDisplayName, getIconForCharacter, getAbilityText } from '../../../catalog'
 
 // ── Constants ──────────────────────────────────────────────────
@@ -353,7 +354,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
         )}
       </Box>
       <Button size="small" variant="outlined" onClick={() => setShowCharPicker((v) => !v)}>
-        {showCharPicker ? '▲' : '▶'} {zh ? '更换角色' : 'Change Character'}
+        {showCharPicker ? <ExpandMoreIcon fontSize="small" /> : <ChevronRightIcon fontSize="small" />} {zh ? '更换角色' : 'Change Character'}
       </Button>
       {showCharPicker && (
         <Box sx={{ mt: 0.75 }}>
@@ -528,8 +529,8 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
           <TextField size="small" fullWidth label={text.note} value={skillOverlay.draft?.note ?? ''}
             onChange={(e) => setSkillOverlay((p: any) => p ? { ...p, draft: { ...p.draft, note: e.target.value } } : p)} />
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.5 }}>
-            <Button size="small" color="error" onClick={() => closeSkillOverlay(false)}>✕ {zh ? '取消' : 'Cancel'}</Button>
-            <Button size="small" variant="contained" onClick={() => { closeSkillOverlay(true); setPlayerModalSeat(null) }}>✓ {text.saveSkill}</Button>
+            <Button size="small" color="error" onClick={() => closeSkillOverlay(false)} startIcon={<CloseIcon fontSize="small" />}>{zh ? '取消' : 'Cancel'}</Button>
+            <Button size="small" variant="contained" onClick={() => { closeSkillOverlay(true); setPlayerModalSeat(null) }} startIcon={<CheckIcon fontSize="small" />}>{text.saveSkill}</Button>
           </Box>
         </Box>
       ) : !isNight ? (

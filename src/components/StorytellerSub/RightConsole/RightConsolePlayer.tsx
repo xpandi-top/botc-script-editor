@@ -2,6 +2,8 @@
 import type { StorytellerContext } from '../useStoryteller'
 import React from 'react'
 import { Box, Button, Typography, Paper, Chip, TextField, Grid, IconButton } from '@mui/material'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { getDisplayName } from '../../../catalog'
 import { FAKE_NAMES, FAKE_NAMES_ZH } from '../constants'
 
@@ -30,7 +32,7 @@ export function RightConsolePlayer({ ctx, toggleConsoleSection }: { ctx: Storyte
     <Paper variant="outlined" sx={{ p: 1 }}>
       <Button fullWidth onClick={() => toggleConsoleSection('player')} sx={{ justifyContent: 'space-between', textTransform: 'none' }}>
         <Typography variant="body2">{text.playerSection}</Typography>
-        <span>{isOpen ? '▼' : '▶'}</span>
+        {isOpen ? <ExpandMoreIcon fontSize="small" /> : <ChevronRightIcon fontSize="small" />}
       </Button>
       {isOpen && (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mt: 1 }}>
