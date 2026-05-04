@@ -99,7 +99,7 @@ export function ScriptsTab({
   const [officialOpen, setOfficialOpen] = useState(true)
   const [communityOpen, setCommunityOpen] = useState(true)
   const [diyOpen, setDiyOpen] = useState(true)
-  const [charColumns, setCharColumns] = useState<'1' | '2'>('1')
+  const [viewColumns, setViewColumns] = useState<1 | 2>(1)
 
   const gridCols = isMobile ? '1fr' : showList ? '280px 1fr' : '1fr'
 
@@ -231,12 +231,10 @@ export function ScriptsTab({
                   <NightsStayIcon sx={{ fontSize: '2rem' }} />
                 </IconButton>
               </Tooltip>
-              {isEditMode && (
-                <ToggleButtonGroup size="small" exclusive value={charColumns} onChange={(_, v) => { if (v) setCharColumns(v) }}>
-                  <ToggleButton value="1"><ViewListIcon fontSize="small" /></ToggleButton>
-                  <ToggleButton value="2"><ViewModuleIcon fontSize="small" /></ToggleButton>
-                </ToggleButtonGroup>
-              )}
+              <ToggleButtonGroup size="small" exclusive value={viewColumns} onChange={(_, v) => { if (v) setViewColumns(v) }}>
+                <ToggleButton value={1}><ViewListIcon fontSize="small" /></ToggleButton>
+                <ToggleButton value={2}><ViewModuleIcon fontSize="small" /></ToggleButton>
+              </ToggleButtonGroup>
               {saveStatus && <Typography variant="body2" color="text.secondary">{saveStatus}</Typography>}
               <Box sx={{ flex: 1 }} />
               {/* Language + Print — right side of toolbar */}
@@ -264,6 +262,7 @@ export function ScriptsTab({
                 onRemoveCharacter={toggleCharacterInScript}
                 sheetDensityClass={sheetDensityClass}
                 showWakeOrder={showWakeOrderPreview}
+                viewColumns={viewColumns}
               />
             )}
 
@@ -307,7 +306,7 @@ export function ScriptsTab({
                   groupedScriptCharacters={groupedScriptCharacters}
                   toggleCharacterInScript={toggleCharacterInScript}
                   availableEditions={availableEditions}
-                  charColumns={charColumns}
+                  charColumns={viewColumns === 2 ? '2' : '1'}
                 />
               </Box>
             )}

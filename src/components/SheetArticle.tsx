@@ -35,6 +35,7 @@ type SheetArticleProps = {
   showCharacterCount?: boolean
   supplementalPlacement?: 'top' | 'end'
   printOptions?: PrintOptions
+  viewColumns?: 1 | 2
 }
 
 function getNightOrderPlaceholderLabel(id: string) {
@@ -71,12 +72,13 @@ export function SheetArticle({
   showCharacterCount = true,
   supplementalPlacement = 'top',
   printOptions,
+  viewColumns,
 }: SheetArticleProps) {
   const [popupId, setPopupId] = useState<string | null>(null)
   const po = printOptions
   const iconSize        = po?.iconSize ?? 32
-  const wakeIconSize    = po?.wakeIconSize ?? 20
-  const columns         = po?.columns ?? 2
+  const wakeIconSize    = po?.wakeIconSize ?? 32
+  const columns         = viewColumns ?? po?.columns ?? 2
   const fontFamilyEn   = po ? FONT_CSS[po.fontKeyEn] : undefined
   const fontFamilyZh   = po ? FONT_CSS[po.fontKeyZh] : undefined
   const fontSize        = po ? `${po.fontSize}pt` : undefined
