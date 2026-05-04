@@ -1,10 +1,13 @@
 import type { StorytellerContext } from './useStoryteller'
-import { Box, Button, FormControl, InputLabel, Select, MenuItem, IconButton, Typography, Slider, Chip } from '@mui/material'
+import { Box, FormControl, InputLabel, Select, MenuItem, IconButton, Typography, Slider, Chip, Tooltip } from '@mui/material'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import PauseIcon from '@mui/icons-material/Pause'
 import AddIcon from '@mui/icons-material/Add'
 import UndoIcon from '@mui/icons-material/Undo'
 import MenuOpenIcon from '@mui/icons-material/MenuOpen'
+import AddCircleIcon from '@mui/icons-material/AddCircle'
+import EditNoteIcon from '@mui/icons-material/EditNote'
+import SaveIcon from '@mui/icons-material/Save'
 import { CHARACTER_DISTRIBUTION } from './constants'
 
 export function CompactToolbar({ ctx }: { ctx: StorytellerContext }) {
@@ -80,13 +83,21 @@ export function CompactToolbar({ ctx }: { ctx: StorytellerContext }) {
       </Box>
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-        {[
-          { label: text.newGame, onClick: openNewGamePanel },
-          { label: text.editPlayers, onClick: () => setShowEditPlayersModal(true) },
-          { label: text.endGame, onClick: openEndGamePanel },
-        ].map(({ label, onClick }) => (
-          <Button key={label} size="medium" variant="outlined" onClick={onClick} >{label}</Button>
-        ))}
+        <Tooltip title={text.newGame}>
+          <IconButton size="medium" onClick={openNewGamePanel}>
+            <AddCircleIcon />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title={text.editPlayers}>
+          <IconButton size="medium" onClick={() => setShowEditPlayersModal(true)}>
+            <EditNoteIcon />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title={text.endGame}>
+          <IconButton size="medium" onClick={openEndGamePanel}>
+            <SaveIcon />
+          </IconButton>
+        </Tooltip>
         <IconButton size="medium" onClick={undo} disabled={!canUndo} title={language === 'zh' ? '撤销' : 'Undo'}>
           <UndoIcon />
         </IconButton>

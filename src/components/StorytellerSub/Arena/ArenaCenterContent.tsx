@@ -1,6 +1,6 @@
 import type { StorytellerContext } from '../useStoryteller'
 import { useState, useMemo } from 'react'
-import { Box, Button, TextField, Select, MenuItem, IconButton, Typography, ToggleButton, ToggleButtonGroup } from '@mui/material'
+import { Box, Button, TextField, Select, MenuItem, IconButton, Typography, ToggleButton, ToggleButtonGroup, Tooltip } from '@mui/material'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import PauseIcon from '@mui/icons-material/Pause'
 import StopIcon from '@mui/icons-material/Stop'
@@ -10,6 +10,12 @@ import CloseIcon from '@mui/icons-material/Close'
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive'
 import ListIcon from '@mui/icons-material/List'
 import AutoStoriesIcon from '@mui/icons-material/AutoStories'
+import VisibilityIcon from '@mui/icons-material/Visibility'
+import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered'
+import EditIcon from '@mui/icons-material/Edit'
+import PersonAddIcon from '@mui/icons-material/PersonAdd'
+import CasinoIcon from '@mui/icons-material/Casino'
+import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 import { AggregatedLogModal } from './AggregatedLogModal'
 import { StorytellerSetupModal } from './StorytellerSetupModal'
 import type { Phase, PublicMode } from '../types'
@@ -102,10 +108,20 @@ export function ArenaCenterContent({ ctx }: { ctx: StorytellerContext }) {
         </IconButton>
         <IconButton size="large" onClick={(e) => { e.stopPropagation(); stopNight() }}><StopIcon /></IconButton>
       </Box>
-      <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', justifyContent: 'center' }}>
-        <Button size="large" variant={nightShowCharacter ? 'contained' : 'outlined'} onClick={() => setNightShowCharacter((v: boolean) => !v)} >{language === 'zh' ? '显示角色' : 'Character'}</Button>
-        <Button size="large" variant={nightShowWakeOrder ? 'contained' : 'outlined'} onClick={() => setNightShowWakeOrder((v: boolean) => !v)} >{language === 'zh' ? '唤醒顺序' : 'Wake Order'}</Button>
-        <Button size="large" variant="outlined" onClick={handleOpenCharacterEditor} >{language === 'zh' ? '编辑' : 'Edit'}</Button>
+      <Box sx={{ display: 'flex', gap: 0.5 }}>
+        <Tooltip title={nightShowCharacter ? (language === 'zh' ? '隐藏角色' : 'Hide Characters') : (language === 'zh' ? '显示角色' : 'Show Characters')}>
+          <IconButton size="large" onClick={() => setNightShowCharacter((v: boolean) => !v)} sx={nightShowCharacter ? TIMER_CONTROL_SX : TIMER_IDLE_SX}>
+            <VisibilityIcon />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title={nightShowWakeOrder ? (language === 'zh' ? '隐藏唤醒顺序' : 'Hide Wake Order') : (language === 'zh' ? '显示唤醒顺序' : 'Show Wake Order')}>
+          <IconButton size="large" onClick={() => setNightShowWakeOrder((v: boolean) => !v)} sx={nightShowWakeOrder ? TIMER_CONTROL_SX : TIMER_IDLE_SX}>
+            <FormatListNumberedIcon />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title={language === 'zh' ? '编辑角色' : 'Edit Characters'}>
+          <IconButton size="large" onClick={handleOpenCharacterEditor}><EditIcon /></IconButton>
+        </Tooltip>
       </Box>
     </>
   )
@@ -114,27 +130,43 @@ export function ArenaCenterContent({ ctx }: { ctx: StorytellerContext }) {
     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5 }}>
       <Typography variant="h6" sx={{ fontSize: '1.25rem', fontWeight: 700, color: 'primary.main' }}>#{currentDay.currentSpeakerSeat ?? '—'}</Typography>
       <Box sx={{ display: 'flex', gap: 0.5 }}>
-        <Button size="large" variant="outlined" onClick={() => setPickerMode('speaker')} sx={{ fontSize: '0.7rem', px: 0.5 }}>{text.chooseSpeaker}</Button>
-        <Button size="large" variant="outlined" onClick={() => {
-          const all = seats.map((s: any) => s.seat)
-          const r = all[Math.floor(Math.random() * Math.max(all.length, 1))]
-          updateCurrentDay((d: any) => ({ ...d, currentSpeakerSeat: r ?? 1, roundRobinSpokenSeats: [] }))
-        }} sx={{ fontSize: '0.7rem', px: 0.5 }}>{text.randomSpeaker}</Button>
-        <Button size="large" variant="outlined" onClick={moveToNextSpeaker} sx={{ fontSize: '0.7rem', px: 0.5 }}>{text.nextSpeaker}</Button>
+        <Tooltip title={text.chooseSpeaker}>
+          <IconButton size="large" onClick={() => setPickerMode('speaker')}><PersonAddIcon /></IconButton>
+        </Tooltip>
+        <Tooltip title={text.randomSpeaker}>
+          <IconButton size="large" onClick={() => {
+            const all = seats.map((s: any) => s.seat)
+            const r = all[Math.floor(Math.random() * Math.max(all.length, 1))]
+            updateCurrentDay((d: any) => ({ ...d, currentSpeakerSeat: r ?? 1, roundRobinSpokenSeats: [] }))
+          }}><CasinoIcon /></IconButton>
+        </Tooltip>
+        <Tooltip title={text.nextSpeaker}>
+          <IconButton size="large" onClick={moveToNextSpeaker}><ArrowRightIcon /></IconButton>
+        </Tooltip>
       </Box>
     </Box>
   )
 
   const publicFreeControls = phase === 'public' && publicMode === 'free' && (
     canNominate
-      ? <Button variant="contained" onClick={enterNomination} sx={{ borderRadius: 999 }}>{text.startNomination}</Button>
+      ? <Tooltip title={text.startNomination}>
+          <IconButton size="large" onClick={enterNomination} color="primary">
+            <ListIcon />
+          </IconButton>
+        </Tooltip>
       : <Typography variant="caption" color="text.secondary">{text.nominationGate}: {Math.floor(secondsUntilNomination / 60)}:{String(secondsUntilNomination % 60).padStart(2, '0')}</Typography>
   )
 
   const nominationControls = phase === 'nomination' && (
     <Box sx={{ display: 'flex', gap: 0.5 }}>
-      <Button size="large" variant={showNominationSheet ? 'contained' : 'outlined'} onClick={() => setShowNominationSheet((v: boolean) => !v)} startIcon={<ListIcon />}>{language === 'zh' ? '提名' : 'Nominate'}</Button>
-      <Button size="large" variant="outlined" onClick={(e) => { e.stopPropagation(); goToNextDay() }} startIcon={<PlayArrowIcon fontSize="small" />}>{language === 'zh' ? '下一天' : 'Next Day'}</Button>
+      <Tooltip title={language === 'zh' ? '提名' : 'Nominate'}>
+        <IconButton size="large" onClick={() => setShowNominationSheet((v: boolean) => !v)} sx={showNominationSheet ? TIMER_CONTROL_SX : TIMER_IDLE_SX}>
+          <ListIcon />
+        </IconButton>
+      </Tooltip>
+      <Tooltip title={language === 'zh' ? '下一天' : 'Next Day'}>
+        <IconButton size="large" onClick={(e) => { e.stopPropagation(); goToNextDay() }}><ArrowRightIcon /></IconButton>
+      </Tooltip>
     </Box>
   )
 
@@ -150,12 +182,19 @@ export function ArenaCenterContent({ ctx }: { ctx: StorytellerContext }) {
         <MenuItem value="free">{text.freeSpeech}</MenuItem>
         <MenuItem value="roundRobin">{text.roundRobinMode}</MenuItem>
       </Select>}
-      <Button size="small" onClick={() => setShowStSetupModal(true)}
-        startIcon={stFabledIds?.length > 0 ? <Box component="span" sx={{ fontSize: '0.85rem', lineHeight: 1 }}>{stFabledIds.length}</Box> : <AutoStoriesIcon fontSize="small" />}
-        sx={{ fontWeight: 600 }}>
-        {language === 'zh' ? '说书人' : 'ST Setup'}
-      </Button>
-      <Button size="small" onClick={() => setShowAggLogModal(true)} startIcon={<ListIcon fontSize="small" />}>{language === 'zh' ? '日志' : 'Log'}</Button>
+      <Tooltip title={language === 'zh' ? '说书人设置' : 'ST Setup'}>
+        <IconButton size="large" onClick={() => setShowStSetupModal(true)} sx={stFabledIds?.length > 0 ? { position: 'relative' } : {}}>
+          <AutoStoriesIcon />
+          {stFabledIds?.length > 0 && (
+            <Box component="span" sx={{ position: 'absolute', top: 4, right: 4, bgcolor: 'primary.main', color: 'white', fontSize: '0.6rem', fontWeight: 700, borderRadius: '50%', width: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {stFabledIds.length}
+            </Box>
+          )}
+        </IconButton>
+      </Tooltip>
+      <Tooltip title={language === 'zh' ? '日志' : 'Log'}>
+        <IconButton size="large" onClick={() => setShowAggLogModal(true)}><ListIcon /></IconButton>
+      </Tooltip>
      </Box>
       {hasTimer && (
         <>
