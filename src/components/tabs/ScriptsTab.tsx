@@ -221,10 +221,10 @@ export function ScriptsTab({
               <Tooltip title={showWakeOrderPreview
                 ? (uiLanguage === 'zh' ? '隐藏夜间顺序' : 'Hide night order')
                 : (uiLanguage === 'zh' ? '显示夜间顺序' : 'Show night order')}>
-                <IconButton size="small"
+                <IconButton size="medium"
                   onClick={() => setShowWakeOrderPreview((c) => !c)}
                   color={showWakeOrderPreview ? 'primary' : 'default'}>
-                  <NightsStayIcon fontSize="small" />
+                  <NightsStayIcon />
                 </IconButton>
               </Tooltip>
               {saveStatus && <Typography variant="body2" color="text.secondary">{saveStatus}</Typography>}

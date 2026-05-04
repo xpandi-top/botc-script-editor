@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import {
   Box,
   Button,
@@ -8,8 +9,12 @@ import {
   Paper,
   Select,
   TextField,
+  ToggleButton,
+  ToggleButtonGroup,
   Typography,
 } from '@mui/material'
+import ViewListIcon from '@mui/icons-material/ViewList'
+import ViewModuleIcon from '@mui/icons-material/ViewModule'
 import { getDisplayName, teamLabels, editionLabels, toTitleCase } from '../../catalog'
 import type { CharacterGroup, EditableScript, Language, ResolvedScriptCharacter, ResolvedScriptCharacterGroup } from '../../types'
 
@@ -53,6 +58,7 @@ export function ScriptEditor({
   toggleCharacterInScript,
   availableEditions,
 }: Props) {
+  const [charColumns, setCharColumns] = useState<'1' | '2'>('1')
   return (
     <Box>
       {/* Title / author / edition — top */}
@@ -140,7 +146,13 @@ export function ScriptEditor({
       {/* Character picker */}
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 300px' }, gap: 2, mb: 3 }}>
         <Paper variant="outlined" sx={{ p: 2 }}>
-          <Typography variant="h6" sx={{ mb: 2 }}>{uiText.availableCharacters}</Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, gap: 1 }}>
+            <Typography variant="h6" sx={{ flex: 1 }}>{uiText.availableCharacters}</Typography>
+            <ToggleButtonGroup size="small" exclusive value={charColumns} onChange={(_, v) => { if (v) setCharColumns(v) }}>
+              <ToggleButton value="1"><ViewListIcon fontSize="small" /></ToggleButton>
+              <ToggleButton value="2"><ViewModuleIcon fontSize="small" /></ToggleButton>
+            </ToggleButtonGroup>
+          </Box>
           <TextField fullWidth size="small" placeholder={uiText.filterCharacters} value={editorQuery} onChange={(e) => setEditorQuery(e.target.value)} sx={{ mb: 2 }} />
           {groupedEditorCharacters.map((group) => (
             <Box key={group.team} sx={{ mb: 2 }}>
@@ -148,7 +160,7 @@ export function ScriptEditor({
                 <Typography variant="subtitle2" sx={{ flex: 1, fontStyle: 'italic', color: 'white' }}>{teamLabels[uiLanguage][group.team]}</Typography>
                 <Typography variant="caption" sx={{ color: 'white' }}>{group.characters.length}</Typography>
               </Box>
-              <Box sx={{ maxHeight: 400, overflowY: 'auto', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1 }}>
+              <Box sx={{ maxHeight: 400, overflowY: 'auto', display: 'grid', gridTemplateColumns: charColumns === '2' ? 'repeat(2, 1fr)' : '1fr', gap: 1 }}>
                 {group.characters.map((character) => (
                   <Box key={character.id} sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 1, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
                     <Checkbox checked={activeScript.characters.includes(character.id)} onChange={() => toggleCharacterInScript(character.id)} size="small" />

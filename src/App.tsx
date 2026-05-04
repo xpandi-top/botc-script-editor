@@ -357,8 +357,8 @@ export default function App() {
             <Tab label={uiText.scriptSheet} value="scripts" />
             <Tab label={uiText.allCharacters} value="characters" />
             <Tab label={storytellerTabLabel} value="storyteller" />
-            <Tab label={printStudioTabLabel} value="printstudio" />
             <Tab label={analyticsTabLabel} value="analytics" />
+            <Tab label={printStudioTabLabel} value="printstudio" />
           </Tabs>
 
           {/* Mobile: active tab name */}
@@ -383,8 +383,8 @@ export default function App() {
             ['scripts', uiText.scriptSheet],
             ['characters', uiText.allCharacters],
             ['storyteller', storytellerTabLabel],
-            ['printstudio', printStudioTabLabel],
             ['analytics', analyticsTabLabel],
+            ['printstudio', printStudioTabLabel],
           ] as [TabKey, string][]).map(([key, label]) => (
             <MenuItem key={key} selected={activeTab === key} onClick={() => { setActiveTab(key); setTabMenuAnchor(null) }}>
               <ListItemText>{label}</ListItemText>
@@ -471,6 +471,7 @@ export default function App() {
           opts={tokenPrintOptions}
           onOptionsChange={setTokenPrintOptions}
           onClose={() => setActiveTab('scripts')}
+          onOpenPrintPreview={() => { setActiveTab('scripts'); setPrintPreviewOpen(true) }}
           scriptCharacters={activeScriptCharacters}
           language={uiLanguage}
           onLanguageChange={setUiLanguage}
@@ -490,6 +491,7 @@ export default function App() {
           activeScriptSlug={stActiveSlug}
           activeScriptTitle={getScriptTitle(scripts.find((s) => s.slug === stActiveSlug) ?? scripts[0])}
           language={uiLanguage}
+          onLanguageChange={setUiLanguage}
           onSelectScript={setStActiveSlug}
           scriptOptions={scripts.map((s) => ({ slug: s.slug, title: getScriptTitle(s), characters: s.characters }))}
         />

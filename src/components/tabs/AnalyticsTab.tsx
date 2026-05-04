@@ -2,15 +2,16 @@ import { useCallback, useMemo, useRef, useState } from 'react'
 import {
   Autocomplete,
   Box, Button, Chip, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle,
-  Divider, FormControl, IconButton, InputLabel, LinearProgress, MenuItem, Paper, Select,
+  Divider, FormControl, IconButton, InputLabel, LinearProgress, Menu, MenuItem, Paper, Select,
   TextField, ToggleButton, ToggleButtonGroup, Tooltip, Typography,
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import CloseIcon from '@mui/icons-material/Close'
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
 import FileDownloadIcon from '@mui/icons-material/FileDownload'
-import FileUploadIcon from '@mui/icons-material/FileUpload'
+import FileOpenIcon from '@mui/icons-material/FileOpen'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import RemoveIcon from '@mui/icons-material/Remove'
 import ShareIcon from '@mui/icons-material/Share'
@@ -377,6 +378,8 @@ export function AnalyticsTab({ language, onLanguageChange }: { language: Languag
   const [sharing, setSharing] = useState(false)
   const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null)
   const [selectedCharId, setSelectedCharId] = useState<string | null>(null)
+  const [exportMenuAnchor, setExportMenuAnchor] = useState<null | HTMLElement>(null)
+  const [shareMenuAnchor, setShareMenuAnchor] = useState<null | HTMLElement>(null)
   const statsRef = useRef<HTMLDivElement>(null)
 
   const refresh = useCallback(() => setRecords(readStorage().records), [])
@@ -581,29 +584,40 @@ export function AnalyticsTab({ language, onLanguageChange }: { language: Languag
             </Select>
           </FormControl>
         )}
-        <Button size="small" startIcon={<FileDownloadIcon />} onClick={exportRecords} disabled={total === 0}>
-          {zh ? '导出记录' : 'Export Records'}
+        {/* Export dropdown */}
+        <Button size="small" startIcon={<FileDownloadIcon />} endIcon={<ArrowDropDownIcon />}
+          disabled={total === 0}
+          onClick={(e) => setExportMenuAnchor(e.currentTarget)}>
+          {zh ? '导出' : 'Export'}
         </Button>
-        <Button size="small" startIcon={<FileDownloadIcon />} onClick={exportAnalysis} disabled={total === 0}>
-          {zh ? '导出分析' : 'Export Analysis'}
+        <Menu anchorEl={exportMenuAnchor} open={Boolean(exportMenuAnchor)} onClose={() => setExportMenuAnchor(null)}>
+          <MenuItem onClick={() => { exportRecords(); setExportMenuAnchor(null) }}>
+            {zh ? '导出记录 (JSON)' : 'Export Records (JSON)'}
+          </MenuItem>
+          <MenuItem onClick={() => { exportAnalysis(); setExportMenuAnchor(null) }}>
+            {zh ? '导出分析 (JSON)' : 'Export Analysis (JSON)'}
+          </MenuItem>
+        </Menu>
+
+        {/* Share dropdown */}
+        <Button size="small"
+          startIcon={sharing ? <CircularProgress size={14} color="inherit" /> : <ShareIcon />}
+          endIcon={<ArrowDropDownIcon />}
+          disabled={total === 0 || sharing}
+          onClick={(e) => setShareMenuAnchor(e.currentTarget)}>
+          {zh ? '分享' : 'Share'}
         </Button>
-        <Tooltip title={zh ? '分享为PNG图片' : 'Share as PNG'}>
-          <span>
-            <Button size="small" startIcon={sharing ? <CircularProgress size={14} color="inherit" /> : <ShareIcon />}
-              onClick={() => shareAnalysisImage('png')} disabled={total === 0 || sharing}>
-              PNG
-            </Button>
-          </span>
-        </Tooltip>
-        <Tooltip title={zh ? '分享为PDF' : 'Share as PDF'}>
-          <span>
-            <Button size="small" startIcon={sharing ? <CircularProgress size={14} color="inherit" /> : <ShareIcon />}
-              onClick={() => shareAnalysisImage('pdf')} disabled={total === 0 || sharing}>
-              PDF
-            </Button>
-          </span>
-        </Tooltip>
-        <Button size="small" variant="outlined" startIcon={<FileUploadIcon />} component="label">
+        <Menu anchorEl={shareMenuAnchor} open={Boolean(shareMenuAnchor)} onClose={() => setShareMenuAnchor(null)}>
+          <MenuItem onClick={() => { shareAnalysisImage('png'); setShareMenuAnchor(null) }}>
+            {zh ? '分享为 PNG 图片' : 'Share as PNG'}
+          </MenuItem>
+          <MenuItem onClick={() => { shareAnalysisImage('pdf'); setShareMenuAnchor(null) }}>
+            {zh ? '分享为 PDF' : 'Share as PDF'}
+          </MenuItem>
+        </Menu>
+
+        {/* Import */}
+        <Button size="small" variant="outlined" startIcon={<FileOpenIcon />} component="label">
           {zh ? '导入JSON' : 'Import JSON'}
           <input type="file" accept=".json" hidden onChange={handleImport} />
         </Button>
@@ -646,7 +660,7 @@ export function AnalyticsTab({ language, onLanguageChange }: { language: Languag
           {scriptStats.length > 0 && (
             <Box sx={{ mb: 3 }}>
               <SectionTitle label={zh ? '剧本统计' : 'By Script'} />
-              <Box sx={{ maxHeight: 280, overflowY: 'auto', pr: 0.5 }}>
+              <Box sx={{ pr: 0.5 }}>
                 {scriptStats.map((s) => {
                   const stWin = s.total - s.evil - s.good
                   return (
@@ -675,7 +689,7 @@ export function AnalyticsTab({ language, onLanguageChange }: { language: Languag
           {playerStats.length > 0 && (
             <Box sx={{ mb: 3 }}>
               <SectionTitle label={zh ? '玩家统计' : 'By Player'} />
-              <Box sx={{ maxHeight: 300, overflowY: 'auto', pr: 0.5 }}>
+              <Box sx={{ pr: 0.5 }}>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                   {playerStats.map((p) => {
                     const winPct = p.total ? Math.round((p.wins / p.total) * 100) : 0
@@ -710,7 +724,7 @@ export function AnalyticsTab({ language, onLanguageChange }: { language: Languag
           {charStats.length > 0 && (
             <Box sx={{ mb: 3 }}>
               <SectionTitle label={zh ? '角色统计' : 'By Character'} />
-              <Box sx={{ maxHeight: 360, overflowY: 'auto', pr: 0.5 }}>
+              <Box sx={{ pr: 0.5 }}>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                   {charStats.map((c) => {
                     const icon = getIconForCharacter(c.charId)
@@ -874,7 +888,7 @@ export function AnalyticsTab({ language, onLanguageChange }: { language: Languag
               {charRecords.length > 0 && (
                 <>
                   <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>{zh ? '出现记录' : 'Game History'}</Typography>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, maxHeight: 200, overflowY: 'auto' }}>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                     {charRecords.map(r => (
                       <Box key={r.id} sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 0.75, borderRadius: 1, bgcolor: 'action.hover' }}>
                         <Typography variant="caption" sx={{ flex: 1 }}>{r.recordName || r.scriptTitle || '?'}</Typography>
@@ -904,7 +918,7 @@ export function AnalyticsTab({ language, onLanguageChange }: { language: Languag
           </Button>
           <Tooltip title={zh ? '导入 JSON' : 'Import JSON'}>
             <IconButton size="small" component="label">
-              <FileUploadIcon fontSize="small" />
+              <FileOpenIcon fontSize="small" />
               <input type="file" accept=".json" hidden onChange={handleImport} />
             </IconButton>
           </Tooltip>

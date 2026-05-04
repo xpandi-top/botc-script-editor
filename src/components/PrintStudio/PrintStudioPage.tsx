@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Box, Button, CircularProgress, FormControl, IconButton, MenuItem, Paper, Select, Tooltip, Typography, useMediaQuery, useTheme } from '@mui/material'
+import { Box, Button, CircularProgress, FormControl, InputLabel, IconButton, MenuItem, Paper, Select, Tooltip, Typography, useMediaQuery, useTheme } from '@mui/material'
 import PrintIcon from '@mui/icons-material/Print'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import MenuIcon from '@mui/icons-material/Menu'
@@ -17,6 +17,7 @@ interface Props {
   opts: TokenPrintOptions
   onOptionsChange: (opts: TokenPrintOptions) => void
   onClose: () => void
+  onOpenPrintPreview?: () => void
   scriptCharacters: ResolvedScriptCharacter[]
   language: Language
   onLanguageChange: (lang: Language) => void
@@ -26,7 +27,7 @@ interface Props {
   getScriptTitle: (s: EditableScript) => string
 }
 
-export function PrintStudioPage({ opts, onOptionsChange, onClose, scriptCharacters: givenCharacters, language, onLanguageChange, scripts, activeSlug, onScriptChange, getScriptTitle }: Props) {
+export function PrintStudioPage({ opts, onOptionsChange, onClose, onOpenPrintPreview, scriptCharacters: givenCharacters, language, onLanguageChange, scripts, activeSlug, onScriptChange, getScriptTitle }: Props) {
   const zh = language === 'zh'
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
@@ -99,11 +100,20 @@ export function PrintStudioPage({ opts, onOptionsChange, onClose, scriptCharacte
         <Typography variant="body2" color="text.secondary" sx={{ flexShrink: 0, display: { xs: 'none', sm: 'block' } }}>
           {selectedCount} {zh ? '个标记' : 'tokens'}
         </Typography>
-        <Tooltip title={zh ? '切换语言' : 'Toggle language'}>
-          <IconButton size="small" onClick={() => onLanguageChange(zh ? 'en' : 'zh')}>
-            <Typography variant="caption" sx={{ fontWeight: 700, fontSize: '0.7rem' }}>{zh ? 'EN' : '中'}</Typography>
-          </IconButton>
-        </Tooltip>
+        <FormControl size="small" sx={{ minWidth: 72, flexShrink: 0, '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' }, '& .MuiInputLabel-root': { fontSize: '0.8rem' } }}>
+          <InputLabel>{zh ? '语言' : 'Lang'}</InputLabel>
+          <Select value={language} label={zh ? '语言' : 'Lang'} onChange={(e) => onLanguageChange(e.target.value as Language)}>
+            <MenuItem value="en">EN</MenuItem>
+            <MenuItem value="zh">中文</MenuItem>
+          </Select>
+        </FormControl>
+        {onOpenPrintPreview && (
+          <Tooltip title={zh ? '切换到剧本预览' : 'Switch to Script Print Preview'}>
+            <Button size="small" variant="outlined" startIcon={<PrintIcon />} onClick={onOpenPrintPreview} sx={{ flexShrink: 0, display: { xs: 'none', sm: 'flex' } }}>
+              {zh ? '剧本预览' : 'Script PDF'}
+            </Button>
+          </Tooltip>
+        )}
         <Tooltip title={panelOpen ? (zh ? '隐藏菜单' : 'Hide menu') : (zh ? '显示菜单' : 'Show menu')}>
           <IconButton size="small" onClick={() => setPanelOpen(v => !v)}>
             {panelOpen ? <MenuOpenIcon fontSize="small" /> : <MenuIcon fontSize="small" />}

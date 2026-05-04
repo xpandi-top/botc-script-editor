@@ -13,7 +13,7 @@ import { livingNonTravelers, eligibleVoters } from '../../utils/seats'
 import type { PickerMode, NewGameConfig, EndGameResult, LogFilterState, AggregatedLogEntry, DialogState, SkillOverlayState, StorytellerHelperProps, DayState, EventLogEntry, PersistedState } from './types'
 
 export function useStoryteller(props: StorytellerHelperProps) {
-  const { activeScriptSlug, activeScriptTitle, language, onSelectScript, scriptOptions } = props
+  const { activeScriptSlug, activeScriptTitle, language, onLanguageChange, onSelectScript, scriptOptions } = props
 
   // ── Persisted state ──
   const initial = useMemo(() => loadInitialState(), [])
@@ -301,7 +301,7 @@ export function useStoryteller(props: StorytellerHelperProps) {
 
   // ── Return (identical shape as before) ──
   return {
-    activeScriptSlug, activeScriptTitle, language, onSelectScript, scriptOptions,
+    activeScriptSlug, activeScriptTitle, language, onLanguageChange, onSelectScript, scriptOptions,
     days, setDays, selectedDayId, setSelectedDayId, timerDefaults, setTimerDefaults,
     undo, canUndo,
     customTagPool, setCustomTagPool, gameRecords, setGameRecords, playerNamePool, setPlayerNamePool,

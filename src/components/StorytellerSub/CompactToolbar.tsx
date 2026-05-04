@@ -1,4 +1,4 @@
-import { Box, Button, Select, MenuItem, IconButton, Typography, Slider, Chip } from '@mui/material'
+import { Box, Button, FormControl, InputLabel, Select, MenuItem, IconButton, Typography, Slider, Chip } from '@mui/material'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import PauseIcon from '@mui/icons-material/Pause'
 import AddIcon from '@mui/icons-material/Add'
@@ -8,7 +8,7 @@ import { CHARACTER_DISTRIBUTION } from './constants'
 
 export function CompactToolbar({ ctx }: { ctx: any }) {
   const {
-    activeScriptTitle, language, currentDay, aliveCount, totalCount,
+    activeScriptTitle, language, onLanguageChange, currentDay, aliveCount, totalCount,
     audioPlaying, setAudioPlaying, audioTracks, selectedAudioSrc, setSelectedAudioSrc,
     handleLocalFileChange, openNewGamePanel, openEndGamePanel,
     setShowRightPanel, setShowEditPlayersModal, showScriptPanel, setShowScriptPanel,
@@ -89,6 +89,15 @@ export function CompactToolbar({ ctx }: { ctx: any }) {
         <IconButton size="medium" onClick={undo} disabled={!canUndo} title={language === 'zh' ? '撤销' : 'Undo'}>
           <UndoIcon />
         </IconButton>
+        {onLanguageChange && (
+          <FormControl size="small" sx={{ minWidth: 72, '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' }, '& .MuiInputLabel-root': { fontSize: '0.8rem' } }}>
+            <InputLabel>{language === 'zh' ? '语言' : 'Lang'}</InputLabel>
+            <Select value={language} label={language === 'zh' ? '语言' : 'Lang'} onChange={(e) => onLanguageChange(e.target.value)}>
+              <MenuItem value="en">EN</MenuItem>
+              <MenuItem value="zh">中文</MenuItem>
+            </Select>
+          </FormControl>
+        )}
         <IconButton
           size="medium"
           onClick={() => setShowRightPanel((c: boolean) => !c)}
