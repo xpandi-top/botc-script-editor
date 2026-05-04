@@ -640,13 +640,13 @@ export function AnalyticsTab({ language, onLanguageChange }: { language: Languag
               <Typography variant="h4" sx={{ fontWeight: 700 }}>{total}</Typography>
               <Typography variant="caption" color="text.secondary">{zh ? '总局数' : 'Total Games'}</Typography>
             </Paper>
-            <Paper sx={{ p: 2, flex: '1 1 120px', textAlign: 'center', bgcolor: 'error.light' }} elevation={2}>
-              <Typography variant="h4" sx={{ fontWeight: 700 }}>{pct(evilWins)}%</Typography>
-              <Typography variant="caption">{zh ? `邪恶胜 (${evilWins})` : `Evil Wins (${evilWins})`}</Typography>
+            <Paper sx={{ p: 2, flex: '1 1 120px', textAlign: 'center', bgcolor: '#7a2e24', color: '#f5ede8' }} elevation={2}>
+              <Typography variant="h4" sx={{ fontWeight: 700, color: '#f5ede8' }}>{pct(evilWins)}%</Typography>
+              <Typography variant="caption" sx={{ color: '#d4b0a8' }}>{zh ? `邪恶胜 (${evilWins})` : `Evil Wins (${evilWins})`}</Typography>
             </Paper>
-            <Paper sx={{ p: 2, flex: '1 1 120px', textAlign: 'center', bgcolor: 'success.light' }} elevation={2}>
-              <Typography variant="h4" sx={{ fontWeight: 700 }}>{pct(goodWins)}%</Typography>
-              <Typography variant="caption">{zh ? `善良胜 (${goodWins})` : `Good Wins (${goodWins})`}</Typography>
+            <Paper sx={{ p: 2, flex: '1 1 120px', textAlign: 'center', bgcolor: '#2e5e3a', color: '#e8f2eb' }} elevation={2}>
+              <Typography variant="h4" sx={{ fontWeight: 700, color: '#e8f2eb' }}>{pct(goodWins)}%</Typography>
+              <Typography variant="caption" sx={{ color: '#a8ccb4' }}>{zh ? `善良胜 (${goodWins})` : `Good Wins (${goodWins})`}</Typography>
             </Paper>
             {total - evilWins - goodWins > 0 && (
               <Paper sx={{ p: 2, flex: '1 1 120px', textAlign: 'center' }} elevation={2}>
@@ -792,13 +792,13 @@ export function AnalyticsTab({ language, onLanguageChange }: { language: Languag
                   <Typography variant="h5" sx={{ fontWeight: 700 }}>{p.wins}</Typography>
                   <Typography variant="caption" color="text.secondary">{zh ? `胜 (${winPct}%)` : `Wins (${winPct}%)`}</Typography>
                 </Paper>
-                <Paper sx={{ p: 2, flex: '1 1 100px', textAlign: 'center', bgcolor: 'success.light' }} elevation={1}>
-                  <Typography variant="h5" sx={{ fontWeight: 700 }}>{p.goodGames}</Typography>
-                  <Typography variant="caption">{zh ? '善良局' : 'Good'}</Typography>
+                <Paper sx={{ p: 2, flex: '1 1 100px', textAlign: 'center', bgcolor: '#2e5e3a', color: '#e8f2eb' }} elevation={1}>
+                  <Typography variant="h5" sx={{ fontWeight: 700, color: '#e8f2eb' }}>{p.goodGames}</Typography>
+                  <Typography variant="caption" sx={{ color: '#a8ccb4' }}>{zh ? '善良局' : 'Good'}</Typography>
                 </Paper>
-                <Paper sx={{ p: 2, flex: '1 1 100px', textAlign: 'center', bgcolor: 'error.light' }} elevation={1}>
-                  <Typography variant="h5" sx={{ fontWeight: 700 }}>{p.evilGames}</Typography>
-                  <Typography variant="caption">{zh ? '邪恶局' : 'Evil'}</Typography>
+                <Paper sx={{ p: 2, flex: '1 1 100px', textAlign: 'center', bgcolor: '#7a2e24', color: '#f5ede8' }} elevation={1}>
+                  <Typography variant="h5" sx={{ fontWeight: 700, color: '#f5ede8' }}>{p.evilGames}</Typography>
+                  <Typography variant="caption" sx={{ color: '#d4b0a8' }}>{zh ? '邪恶局' : 'Evil'}</Typography>
                 </Paper>
               </Box>
               {p.chars.size > 0 && (
@@ -870,15 +870,15 @@ export function AnalyticsTab({ language, onLanguageChange }: { language: Languag
                   <Typography variant="caption" color="text.secondary">{zh ? '胜率' : 'Win Rate'}</Typography>
                 </Paper>
                 {goodGames > 0 && (
-                  <Paper sx={{ p: 2, flex: '1 1 80px', textAlign: 'center', bgcolor: 'success.light' }} elevation={1}>
-                    <Typography variant="h5" sx={{ fontWeight: 700 }}>{goodGames}</Typography>
-                    <Typography variant="caption">{zh ? `善良 ${goodWinPct}%胜` : `Good ${goodWinPct}%W`}</Typography>
+                  <Paper sx={{ p: 2, flex: '1 1 80px', textAlign: 'center', bgcolor: '#2e5e3a', color: '#e8f2eb' }} elevation={1}>
+                    <Typography variant="h5" sx={{ fontWeight: 700, color: '#e8f2eb' }}>{goodGames}</Typography>
+                    <Typography variant="caption" sx={{ color: '#a8ccb4' }}>{zh ? `善良 ${goodWinPct}%胜` : `Good ${goodWinPct}%W`}</Typography>
                   </Paper>
                 )}
                 {c.evilGames > 0 && (
-                  <Paper sx={{ p: 2, flex: '1 1 80px', textAlign: 'center', bgcolor: 'error.light' }} elevation={1}>
-                    <Typography variant="h5" sx={{ fontWeight: 700 }}>{c.evilGames}</Typography>
-                    <Typography variant="caption">{zh ? `邪恶 ${evilWinPct}%胜` : `Evil ${evilWinPct}%W`}</Typography>
+                  <Paper sx={{ p: 2, flex: '1 1 80px', textAlign: 'center', bgcolor: '#7a2e24', color: '#f5ede8' }} elevation={1}>
+                    <Typography variant="h5" sx={{ fontWeight: 700, color: '#f5ede8' }}>{c.evilGames}</Typography>
+                    <Typography variant="caption" sx={{ color: '#d4b0a8' }}>{zh ? `邪恶 ${evilWinPct}%胜` : `Evil ${evilWinPct}%W`}</Typography>
                   </Paper>
                 )}
               </Box>
