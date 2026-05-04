@@ -1,7 +1,7 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import {
   Autocomplete,
-  Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle,
+  Box, Button, Chip, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle,
   Divider, IconButton, Paper, TextField, ToggleButton,
   ToggleButtonGroup, Tooltip, Typography,
 } from '@mui/material'
@@ -12,10 +12,12 @@ import FileDownloadIcon from '@mui/icons-material/FileDownload'
 import FileUploadIcon from '@mui/icons-material/FileUpload'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import RemoveIcon from '@mui/icons-material/Remove'
+import ShareIcon from '@mui/icons-material/Share'
 import { allCharacters, getDisplayName, getIconForCharacter, initialScripts } from '../../catalog'
 import { STORAGE_KEY, RECORDS_CHANGED_EVENT } from '../StorytellerSub/constants'
 import { storageSync } from '../../lib/storage'
 import { exportGameFile } from '../../lib/exportGame'
+import { isNativePlatform } from '../../lib/nativePrint'
 import type { GameRecord } from '../StorytellerSub/types'
 import type { Language } from '../../types'
 
@@ -371,6 +373,8 @@ export function AnalyticsTab({ language }: { language: Language }) {
   const [editingRecord, setEditingRecord] = useState<GameRecord | null>(null)
   const [showCreate, setShowCreate] = useState(false)
   const [importError, setImportError] = useState('')
+  const [sharing, setSharing] = useState(false)
+  const statsRef = useRef<HTMLDivElement>(null)
 
   const refresh = useCallback(() => setRecords(readStorage().records), [])
 
@@ -428,6 +432,59 @@ export function AnalyticsTab({ language }: { language: Language }) {
       byCharacter: charStats,
     }
     exportGameFile(JSON.stringify(analysis, null, 2), `botc-analysis-${new Date().toISOString().slice(0, 10)}.json`)
+  }
+
+  const shareAnalysisImage = async (format: 'pdf' | 'png') => {
+    if (!statsRef.current) return
+    setSharing(true)
+    try {
+      const html2canvas = (await import('html2canvas')).default
+      const canvas = await html2canvas(statsRef.current, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        width: statsRef.current.scrollWidth,
+        height: statsRef.current.scrollHeight,
+      })
+      const date = new Date().toISOString().slice(0, 10)
+
+      if (format === 'png') {
+        const blob: Blob = await new Promise((res) => canvas.toBlob((b) => res(b!), 'image/png'))
+        const filename = `botc-analysis-${date}.png`
+        if (isNativePlatform) {
+          const { Filesystem, Directory } = await import('@capacitor/filesystem')
+          const { Share } = await import('@capacitor/share')
+          const reader = new FileReader()
+          const base64: string = await new Promise((res) => { reader.onload = () => res((reader.result as string).split(',')[1]); reader.readAsDataURL(blob) })
+          const saved = await Filesystem.writeFile({ path: filename, data: base64, directory: Directory.Cache })
+          await Share.share({ title: 'Analytics', url: saved.uri, dialogTitle: 'Share analysis image' })
+        } else {
+          const url = URL.createObjectURL(blob)
+          const a = document.createElement('a'); a.href = url; a.download = filename; a.click(); URL.revokeObjectURL(url)
+        }
+      } else {
+        const { jsPDF } = await import('jspdf')
+        const imgData = canvas.toDataURL('image/jpeg', 0.92)
+        const pdfW = 595.28
+        const pdfH = (canvas.height / canvas.width) * pdfW
+        const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: [pdfW, pdfH] })
+        pdf.addImage(imgData, 'JPEG', 0, 0, pdfW, pdfH)
+        const filename = `botc-analysis-${date}.pdf`
+        const pdfBase64 = pdf.output('datauristring').split(',')[1]
+        if (isNativePlatform) {
+          const { Filesystem, Directory } = await import('@capacitor/filesystem')
+          const { Share } = await import('@capacitor/share')
+          const saved = await Filesystem.writeFile({ path: filename, data: pdfBase64, directory: Directory.Cache })
+          await Share.share({ title: 'Analytics PDF', url: saved.uri, dialogTitle: 'Share analysis PDF' })
+        } else {
+          const blob = new Blob([pdf.output('blob')], { type: 'application/pdf' })
+          const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = filename; a.click(); URL.revokeObjectURL(url)
+        }
+      }
+    } finally {
+      setSharing(false)
+    }
   }
 
   // ── Stats ──
@@ -518,6 +575,22 @@ export function AnalyticsTab({ language }: { language: Language }) {
         <Button size="small" startIcon={<FileDownloadIcon />} onClick={exportAnalysis} disabled={total === 0}>
           {zh ? '导出分析' : 'Export Analysis'}
         </Button>
+        <Tooltip title={zh ? '分享为PNG图片' : 'Share as PNG'}>
+          <span>
+            <Button size="small" startIcon={sharing ? <CircularProgress size={14} color="inherit" /> : <ShareIcon />}
+              onClick={() => shareAnalysisImage('png')} disabled={total === 0 || sharing}>
+              PNG
+            </Button>
+          </span>
+        </Tooltip>
+        <Tooltip title={zh ? '分享为PDF' : 'Share as PDF'}>
+          <span>
+            <Button size="small" startIcon={sharing ? <CircularProgress size={14} color="inherit" /> : <ShareIcon />}
+              onClick={() => shareAnalysisImage('pdf')} disabled={total === 0 || sharing}>
+              PDF
+            </Button>
+          </span>
+        </Tooltip>
         <Button size="small" variant="outlined" startIcon={<FileUploadIcon />} component="label">
           {zh ? '导入JSON' : 'Import JSON'}
           <input type="file" accept=".json" hidden onChange={handleImport} />
@@ -534,7 +607,7 @@ export function AnalyticsTab({ language }: { language: Language }) {
           <Typography color="text.secondary">{zh ? '暂无游戏记录' : 'No game records yet'}</Typography>
         </Box>
       ) : (
-        <>
+        <Box ref={statsRef}>
           {/* ── Summary cards ── */}
           <Box sx={{ display: 'flex', gap: 1.5, mb: 3, flexWrap: 'wrap' }}>
             <Paper sx={{ p: 2, flex: '1 1 120px', textAlign: 'center' }} elevation={2}>
@@ -647,7 +720,7 @@ export function AnalyticsTab({ language }: { language: Language }) {
           )}
 
           <Divider sx={{ mb: 3 }} />
-        </>
+        </Box>
       )}
 
       {/* ── Records list ── */}
