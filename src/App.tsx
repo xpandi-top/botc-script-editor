@@ -6,18 +6,15 @@ import {
 import {
   Box,
   Container,
-  FormControl,
   IconButton,
-  InputLabel,
+  ListItemText,
+  Menu,
   MenuItem,
   Paper,
-  Select,
   Tab,
   Tabs,
   Typography,
-  Button,
 } from '@mui/material'
-import PrintIcon from '@mui/icons-material/Print'
 import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import { PrintPreviewPage } from './components/PrintPreviewPage'
@@ -102,6 +99,7 @@ export default function App() {
   const [tokenPrintOptions, setTokenPrintOptions] = useState<TokenPrintOptions>(DEFAULT_TOKEN_OPTIONS)
   const [saveStatus, setSaveStatus] = useState('')
   const [headerVisible, setHeaderVisible] = useState(true)
+  const [tabMenuAnchor, setTabMenuAnchor] = useState<null | HTMLElement>(null)
   const [selectedCharacterId, setSelectedCharacterId] = useState<string>(allCharacters[0]?.id ?? '')
 
   const activeScript = useMemo(
@@ -326,11 +324,23 @@ export default function App() {
   return (
     <Container maxWidth="xl" sx={{ py: { xs: 0, sm: 3 }, px: { xs: 0, sm: 3 }, minHeight: '100vh' }}>
       <Paper elevation={0} sx={{ mb: { xs: 0, sm: 2 }, borderRadius: { xs: 0, sm: 3 }, background: 'rgba(255,251,245,0.9)', overflow: 'hidden' }}>
-        {/* ── Title row (always visible) ── */}
-        <Box sx={{ px: { xs: 1, sm: 3 }, pt: { xs: 0.5, sm: 1 }, pb: 0, display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Typography variant="body1" component="h1" sx={{ fontFamily: 'Georgia, "Times New Roman", serif', m: 0, fontWeight: 700, fontSize: { xs: '0.85rem', sm: '1rem' }, flex: 1 }}>
+        {/* ── Title + Tabs row ── */}
+        <Box sx={{ px: { xs: 1, sm: 3 }, pt: { xs: 0.5, sm: 1 }, pb: { xs: 0.5, sm: 1 }, display: 'flex', alignItems: 'center', gap: 1 }}>
+          {/* Title — clickable on mobile to open tab menu */}
+          <Typography
+            variant="body1" component="h1"
+            onClick={(e) => setTabMenuAnchor(e.currentTarget as HTMLElement)}
+            sx={{ fontFamily: 'Georgia, "Times New Roman", serif', m: 0, fontWeight: 700,
+              fontSize: { xs: '0.85rem', sm: '1rem' }, flexShrink: 0,
+              cursor: { xs: 'pointer', sm: 'default' },
+              userSelect: 'none',
+              '&:hover': { color: { xs: 'primary.main', sm: 'inherit' } },
+            }}
+          >
             {uiText.appTitle}
           </Typography>
+
+          {/* Tabs — hidden on xs, visible sm+ */}
           <Tabs
             value={activeTab}
             onChange={(_, v) => setActiveTab(v)}
@@ -338,8 +348,9 @@ export default function App() {
             scrollButtons="auto"
             sx={{
               flex: '1 1 auto',
-              minHeight: { xs: 36, sm: 40 },
-              '& .MuiTab-root': { textTransform: 'none', borderRadius: 999, border: '1px solid', borderColor: 'divider', mr: 0.5, minHeight: { xs: 28, sm: 36 }, fontSize: { xs: '0.72rem', sm: '0.8rem' }, py: { xs: 0.25, sm: 0.5 }, px: { xs: 0.75, sm: 1.25 } },
+              display: { xs: 'none', sm: 'flex' },
+              minHeight: 40,
+              '& .MuiTab-root': { textTransform: 'none', borderRadius: 999, border: '1px solid', borderColor: 'divider', mr: 0.5, minHeight: 36, fontSize: '0.8rem', py: 0.5, px: 1.25 },
               '& .Mui-selected': { backgroundColor: 'rgba(133, 63, 34, 0.1)', borderColor: 'primary.main' },
             }}
           >
@@ -349,33 +360,37 @@ export default function App() {
             <Tab label={printStudioTabLabel} value="printstudio" />
             <Tab label={analyticsTabLabel} value="analytics" />
           </Tabs>
-          <IconButton size="small" onClick={() => setHeaderVisible(v => !v)} title={headerVisible ? 'Hide controls' : 'Show controls'}>
+
+          {/* Mobile: active tab name */}
+          <Typography variant="body2" color="primary" sx={{ display: { xs: 'flex', sm: 'none' }, flex: 1, fontWeight: 600, cursor: 'pointer' }}
+            onClick={(e) => setTabMenuAnchor(e.currentTarget as HTMLElement)}>
+            {activeTab === 'scripts' ? uiText.scriptSheet
+              : activeTab === 'characters' ? uiText.allCharacters
+              : activeTab === 'storyteller' ? storytellerTabLabel
+              : activeTab === 'printstudio' ? printStudioTabLabel
+              : analyticsTabLabel}
+            {' ▾'}
+          </Typography>
+
+          <IconButton size="small" onClick={() => setHeaderVisible(v => !v)} title={headerVisible ? 'Hide' : 'Show'}>
             {headerVisible ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
           </IconButton>
         </Box>
 
-        {/* ── Collapsible controls: Language + Print ── */}
-        {headerVisible && (
-          <Box sx={{ px: { xs: 1, sm: 3 }, py: { xs: 0.5, sm: 1 }, display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap', borderTop: '1px solid', borderColor: 'divider' }}>
-            <FormControl size="small" sx={{ minWidth: { xs: 60, sm: 80 }, '& .MuiInputBase-input': { fontSize: { xs: '0.75rem', sm: '0.875rem' }, py: { xs: '4px', sm: '6px' } }, '& .MuiInputLabel-root': { fontSize: { xs: '0.75rem', sm: '0.875rem' } } }}>
-              <InputLabel>{uiText.language}</InputLabel>
-              <Select value={uiLanguage} label={uiText.language} onChange={(e) => setUiLanguage(e.target.value as Language)}>
-                <MenuItem value="en">{uiText.english}</MenuItem>
-                <MenuItem value="zh">{uiText.chinese}</MenuItem>
-              </Select>
-            </FormControl>
-            {activeTab !== 'characters' && activeTab !== 'storyteller' && activeTab !== 'analytics' && activeScript && (
-              <>
-                <IconButton onClick={() => setPrintPreviewOpen(true)} size="small" color="primary" sx={{ display: { xs: 'flex', sm: 'none' } }} title={uiText.print}>
-                  <PrintIcon fontSize="small" />
-                </IconButton>
-                <Button variant="contained" startIcon={<PrintIcon />} onClick={() => setPrintPreviewOpen(true)} sx={{ borderRadius: 999, display: { xs: 'none', sm: 'flex' } }}>
-                  {uiText.print}
-                </Button>
-              </>
-            )}
-          </Box>
-        )}
+        {/* Mobile tab menu */}
+        <Menu anchorEl={tabMenuAnchor} open={Boolean(tabMenuAnchor)} onClose={() => setTabMenuAnchor(null)}>
+          {([
+            ['scripts', uiText.scriptSheet],
+            ['characters', uiText.allCharacters],
+            ['storyteller', storytellerTabLabel],
+            ['printstudio', printStudioTabLabel],
+            ['analytics', analyticsTabLabel],
+          ] as [TabKey, string][]).map(([key, label]) => (
+            <MenuItem key={key} selected={activeTab === key} onClick={() => { setActiveTab(key); setTabMenuAnchor(null) }}>
+              <ListItemText>{label}</ListItemText>
+            </MenuItem>
+          ))}
+        </Menu>
       </Paper>
 
       {activeTab === 'scripts' && (
@@ -408,6 +423,8 @@ export default function App() {
           getScriptTitle={getScriptTitle}
           getSheetUiLabel={getSheetUiLabel}
           printOptions={printOptions}
+          onLanguageChange={setUiLanguage}
+          onPrintClick={() => setPrintPreviewOpen(true)}
         />
       )}
 
@@ -435,6 +452,7 @@ export default function App() {
         <CharactersTab
           uiText={uiText}
           uiLanguage={uiLanguage}
+          onLanguageChange={setUiLanguage}
           filteredCharacters={filteredCharacters}
           availableEditions={availableEditions}
           selectedTeams={selectedTeams}
@@ -464,7 +482,7 @@ export default function App() {
       )}
 
       {activeTab === 'analytics' && (
-        <AnalyticsTab language={uiLanguage} />
+        <AnalyticsTab language={uiLanguage} onLanguageChange={setUiLanguage} />
       )}
 
       {activeTab === 'storyteller' && (

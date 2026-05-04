@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Box, Button, Collapse, Divider, IconButton, Paper, Tooltip, Typography } from '@mui/material'
+import { Box, Button, Collapse, Divider, FormControl, IconButton, InputLabel, MenuItem, Paper, Select, Tooltip, Typography } from '@mui/material'
+import PrintIcon from '@mui/icons-material/Print'
 import AddIcon from '@mui/icons-material/Add'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -52,6 +53,8 @@ type Props = {
   getScriptTitle: (script: EditableScript) => string
   getSheetUiLabel: (language: Language, key: string) => string
   printOptions: PrintOptions
+  onLanguageChange: (lang: Language) => void
+  onPrintClick: () => void
 }
 
 export function ScriptsTab({
@@ -83,6 +86,8 @@ export function ScriptsTab({
   getScriptTitle,
   getSheetUiLabel,
   printOptions,
+  onLanguageChange,
+  onPrintClick,
 }: Props) {
   const { isMobile } = useBreakpoint()
   const [listOpenDesktop, setListOpenDesktop] = useState(true)
@@ -223,6 +228,18 @@ export function ScriptsTab({
                 </IconButton>
               </Tooltip>
               {saveStatus && <Typography variant="body2" color="text.secondary">{saveStatus}</Typography>}
+              <Box sx={{ flex: 1 }} />
+              {/* Language + Print — right side of toolbar */}
+              <FormControl size="small" sx={{ minWidth: 72, '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' }, '& .MuiInputLabel-root': { fontSize: '0.8rem' } }}>
+                <InputLabel>{uiLanguage === 'zh' ? '语言' : 'Lang'}</InputLabel>
+                <Select value={uiLanguage} label={uiLanguage === 'zh' ? '语言' : 'Lang'} onChange={(e) => onLanguageChange(e.target.value as Language)}>
+                  <MenuItem value="en">EN</MenuItem>
+                  <MenuItem value="zh">中文</MenuItem>
+                </Select>
+              </FormControl>
+              <Button variant="contained" size="small" startIcon={<PrintIcon />} onClick={onPrintClick} sx={{ flexShrink: 0 }}>
+                {uiLanguage === 'zh' ? '导出 PDF' : 'Print PDF'}
+              </Button>
             </Box>
 
             {!isEditMode && (

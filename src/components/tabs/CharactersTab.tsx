@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import {
-  Box, Button, Dialog, DialogContent, DialogTitle, IconButton,
-  Paper, TextField, Typography,
+  Box, Button, Dialog, DialogContent, DialogTitle, FormControl,
+  IconButton, InputLabel, MenuItem, Paper, Select, TextField, Typography,
 } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import { CharacterRevisionPanel } from '../CharacterRevisionPanel'
@@ -31,6 +31,7 @@ type Props = {
   setSelectedCharacterId: (id: string) => void
   toggleTeam: (team: Team) => void
   toggleEdition: (edition: string) => void
+  onLanguageChange: (lang: Language) => void
 }
 
 export function CharactersTab({
@@ -46,6 +47,7 @@ export function CharactersTab({
   setSelectedCharacterId,
   toggleTeam,
   toggleEdition,
+  onLanguageChange,
 }: Props) {
   const [mobileDetailOpen, setMobileDetailOpen] = useState(false)
 
@@ -67,13 +69,20 @@ export function CharactersTab({
         }}>
           {/* Sticky filters */}
           <Box sx={{ p: 2, pb: 1, flexShrink: 0 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1.5 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
               <Box>
                 <Typography variant="h6">{uiText.allCharacters}</Typography>
                 <Typography variant="body2" color="text.secondary">
                   {filteredCharacters.length} {uiText.resultsSuffix}
                 </Typography>
               </Box>
+              <FormControl size="small" sx={{ minWidth: 72, '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' }, '& .MuiInputLabel-root': { fontSize: '0.8rem' } }}>
+                <InputLabel>{uiLanguage === 'zh' ? '语言' : 'Lang'}</InputLabel>
+                <Select value={uiLanguage} label={uiLanguage === 'zh' ? '语言' : 'Lang'} onChange={(e) => onLanguageChange(e.target.value as Language)}>
+                  <MenuItem value="en">EN</MenuItem>
+                  <MenuItem value="zh">中文</MenuItem>
+                </Select>
+              </FormControl>
             </Box>
 
             <TextField

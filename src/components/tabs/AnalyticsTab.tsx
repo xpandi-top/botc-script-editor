@@ -2,8 +2,8 @@ import { useCallback, useMemo, useRef, useState } from 'react'
 import {
   Autocomplete,
   Box, Button, Chip, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle,
-  Divider, IconButton, LinearProgress, Paper, TextField, ToggleButton,
-  ToggleButtonGroup, Tooltip, Typography,
+  Divider, FormControl, IconButton, InputLabel, LinearProgress, MenuItem, Paper, Select,
+  TextField, ToggleButton, ToggleButtonGroup, Tooltip, Typography,
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import CloseIcon from '@mui/icons-material/Close'
@@ -255,8 +255,8 @@ function RecordFormDialog({ existing, zh, language, onSave, onClose }: {
               <ToggleButton value="good" sx={{ fontSize: '0.75rem', color: 'success.main' }}>
                 {zh ? '善良胜' : 'Good Win'}
               </ToggleButton>
-              <ToggleButton value="" sx={{ fontSize: '0.75rem' }}>
-                {zh ? '未记录' : 'None'}
+              <ToggleButton value="storyteller" sx={{ fontSize: '0.75rem', color: 'info.main' }}>
+                {zh ? '说书人胜' : 'ST Win'}
               </ToggleButton>
             </ToggleButtonGroup>
           </Box>
@@ -367,7 +367,7 @@ function RecordFormDialog({ existing, zh, language, onSave, onClose }: {
 
 // ── Main component ────────────────────────────────────────────────
 
-export function AnalyticsTab({ language }: { language: Language }) {
+export function AnalyticsTab({ language, onLanguageChange }: { language: Language; onLanguageChange?: (lang: Language) => void }) {
   const zh = language === 'zh'
 
   const [records, setRecords] = useState<GameRecord[]>(() => readStorage().records)
@@ -376,6 +376,7 @@ export function AnalyticsTab({ language }: { language: Language }) {
   const [importError, setImportError] = useState('')
   const [sharing, setSharing] = useState(false)
   const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null)
+  const [selectedCharId, setSelectedCharId] = useState<string | null>(null)
   const statsRef = useRef<HTMLDivElement>(null)
 
   const refresh = useCallback(() => setRecords(readStorage().records), [])
@@ -571,6 +572,15 @@ export function AnalyticsTab({ language }: { language: Language }) {
         <Tooltip title={zh ? '刷新数据' : 'Refresh'}>
           <IconButton size="small" onClick={refresh}><RefreshIcon fontSize="small" /></IconButton>
         </Tooltip>
+        {onLanguageChange && (
+          <FormControl size="small" sx={{ minWidth: 72, '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' }, '& .MuiInputLabel-root': { fontSize: '0.8rem' } }}>
+            <InputLabel>{zh ? '语言' : 'Lang'}</InputLabel>
+            <Select value={language} label={zh ? '语言' : 'Lang'} onChange={(e) => onLanguageChange(e.target.value as Language)}>
+              <MenuItem value="en">EN</MenuItem>
+              <MenuItem value="zh">中文</MenuItem>
+            </Select>
+          </FormControl>
+        )}
         <Button size="small" startIcon={<FileDownloadIcon />} onClick={exportRecords} disabled={total === 0}>
           {zh ? '导出记录' : 'Export Records'}
         </Button>
@@ -627,7 +637,7 @@ export function AnalyticsTab({ language }: { language: Language }) {
             {total - evilWins - goodWins > 0 && (
               <Paper sx={{ p: 2, flex: '1 1 120px', textAlign: 'center' }} elevation={2}>
                 <Typography variant="h4" sx={{ fontWeight: 700 }}>{pct(total - evilWins - goodWins)}%</Typography>
-                <Typography variant="caption" color="text.secondary">{zh ? `主持胜 (${total - evilWins - goodWins})` : `ST Win (${total - evilWins - goodWins})`}</Typography>
+                <Typography variant="caption" color="text.secondary">{zh ? `说书人胜利 (${total - evilWins - goodWins})` : `ST Win (${total - evilWins - goodWins})`}</Typography>
               </Paper>
             )}
           </Box>
@@ -696,60 +706,45 @@ export function AnalyticsTab({ language }: { language: Language }) {
 
           {charStats.length > 0 && <Divider sx={{ mb: 3 }} />}
 
-          {/* ── By Character (scrollable, enhanced stats) ── */}
+          {/* ── By Character (card grid, clickable, scrollable) ── */}
           {charStats.length > 0 && (
             <Box sx={{ mb: 3 }}>
               <SectionTitle label={zh ? '角色统计' : 'By Character'} />
               <Box sx={{ maxHeight: 360, overflowY: 'auto', pr: 0.5 }}>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                   {charStats.map((c) => {
                     const icon = getIconForCharacter(c.charId)
                     const winPct = c.total ? Math.round((c.wins / c.total) * 100) : 0
                     const goodGames = c.total - c.evilGames
-                    const goodWinPct = goodGames > 0 ? Math.round(((c.wins - (c.evilGames > 0 && c.total === c.evilGames ? c.wins : 0)) / goodGames) * 100) : 0
-                    const evilWinPct = c.evilGames > 0 ? Math.round(((c.evilGames > 0 ? (c.wins - Math.max(0, c.wins - c.evilGames)) : 0) / c.evilGames) * 100) : 0
-                    // simpler: evil wins when winner=evil and char is evil
-                    // wins field already counts team-aligned wins; split approximation:
-                    const charEvilWins = c.evilGames > 0 ? Math.round(winPct / 100 * c.total * (c.evilGames / c.total)) : 0
-                    const charGoodWins = c.wins - charEvilWins
-                    const goodWinPctFinal = goodGames > 0 ? Math.round((charGoodWins / goodGames) * 100) : 0
-                    const evilWinPctFinal = c.evilGames > 0 ? Math.round((charEvilWins / c.evilGames) * 100) : 0
-                    void goodWinPct; void evilWinPct
                     return (
-                      <Paper key={c.charId} sx={{ p: 1.25, display: 'flex', alignItems: 'center', gap: 1.5 }} elevation={1}>
-                        {icon ? (
-                          <Box component="img" src={icon as string} sx={{ width: 36, height: 36, borderRadius: '50%', flexShrink: 0 }} />
-                        ) : (
-                          <Box sx={{ width: 36, height: 36, borderRadius: '50%', bgcolor: 'grey.200', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <Typography variant="caption">{c.charId.slice(0, 2).toUpperCase()}</Typography>
-                          </Box>
-                        )}
-                        <Box sx={{ flex: 1, minWidth: 0 }}>
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', mb: 0.25 }}>
-                            <Typography variant="body2" sx={{ fontWeight: 700 }}>
-                              {getDisplayName(c.charId, language)}
-                            </Typography>
-                            <Typography variant="caption" color="text.secondary">
-                              {c.total}{zh ? '局' : 'g'} · {winPct}%{zh ? '胜' : ' win'}
-                            </Typography>
-                          </Box>
-                          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                            {goodGames > 0 && (
-                              <Typography variant="caption" color="success.dark">
-                                {zh ? `善良${goodGames}局 ${goodWinPctFinal}%胜` : `Good:${goodGames}g ${goodWinPctFinal}%W`}
-                              </Typography>
-                            )}
-                            {c.evilGames > 0 && (
-                              <Typography variant="caption" color="error.dark">
-                                {zh ? `邪恶${c.evilGames}局 ${evilWinPctFinal}%胜` : `Evil:${c.evilGames}g ${evilWinPctFinal}%W`}
-                              </Typography>
-                            )}
-                          </Box>
-                          <LinearProgress variant="determinate" value={winPct}
-                            sx={{ height: 4, borderRadius: 2, mt: 0.5,
-                              bgcolor: 'grey.200',
-                              '& .MuiLinearProgress-bar': { bgcolor: c.evilGames > goodGames ? 'error.main' : 'success.main' } }} />
+                      <Paper key={c.charId} onClick={() => setSelectedCharId(c.charId)}
+                        sx={{ p: 1.5, flex: '1 1 140px', minWidth: 140, cursor: 'pointer',
+                          '&:hover': { bgcolor: 'rgba(133,63,34,0.06)' } }} elevation={1}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                          {icon ? (
+                            <Box component="img" src={icon as string} sx={{ width: 32, height: 32, borderRadius: '50%', flexShrink: 0 }} />
+                          ) : (
+                            <Box sx={{ width: 32, height: 32, borderRadius: '50%', bgcolor: 'grey.200', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <Typography variant="caption">{c.charId.slice(0, 2).toUpperCase()}</Typography>
+                            </Box>
+                          )}
+                          <Typography variant="body2" sx={{ fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {getDisplayName(c.charId, language)}
+                          </Typography>
                         </Box>
+                        <Typography variant="caption" sx={{ display: 'block' }} color="text.secondary">
+                          {c.total}{zh ? '局' : 'g'} · {winPct}%{zh ? '胜' : 'W'}
+                        </Typography>
+                        {goodGames > 0 && (
+                          <Typography variant="caption" color="success.dark" sx={{ display: 'block' }}>
+                            {zh ? `善${goodGames}` : `G:${goodGames}`}
+                          </Typography>
+                        )}
+                        {c.evilGames > 0 && (
+                          <Typography variant="caption" color="error.dark" sx={{ display: 'block' }}>
+                            {zh ? `邪${c.evilGames}` : `E:${c.evilGames}`}
+                          </Typography>
+                        )}
                       </Paper>
                     )
                   })}
@@ -821,6 +816,83 @@ export function AnalyticsTab({ language }: { language: Language }) {
         )
       })()}
 
+      {/* ── Character detail popup ── */}
+      {selectedCharId && (() => {
+        const c = charStats.find(c => c.charId === selectedCharId)
+        if (!c) return null
+        const icon = getIconForCharacter(c.charId)
+        const winPct = c.total ? Math.round((c.wins / c.total) * 100) : 0
+        const goodGames = c.total - c.evilGames
+        const charEvilWins = c.evilGames > 0 ? Math.round((c.wins / c.total) * c.evilGames) : 0
+        const charGoodWins = c.wins - charEvilWins
+        const goodWinPct = goodGames > 0 ? Math.round((charGoodWins / goodGames) * 100) : 0
+        const evilWinPct = c.evilGames > 0 ? Math.round((charEvilWins / c.evilGames) * 100) : 0
+        // games where this character appeared
+        const charRecords = records.filter(r => r.setup?.assignments && Object.values(r.setup.assignments).includes(c.charId))
+        return (
+          <Dialog open onClose={() => setSelectedCharId(null)} maxWidth="sm" fullWidth>
+            <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              {icon ? (
+                <Box component="img" src={icon as string} sx={{ width: 56, height: 56, borderRadius: '50%', bgcolor: '#f2ebdf', flexShrink: 0 }} />
+              ) : (
+                <Box sx={{ width: 56, height: 56, borderRadius: '50%', bgcolor: 'grey.200', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Typography>{c.charId.slice(0, 2).toUpperCase()}</Typography>
+                </Box>
+              )}
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="h6" sx={{ fontWeight: 700 }}>{getDisplayName(c.charId, language)}</Typography>
+                <Typography variant="caption" color="text.secondary">{c.charId}</Typography>
+              </Box>
+              <IconButton onClick={() => setSelectedCharId(null)}><CloseIcon /></IconButton>
+            </DialogTitle>
+            <DialogContent>
+              <Box sx={{ display: 'flex', gap: 1.5, mb: 2, flexWrap: 'wrap' }}>
+                <Paper sx={{ p: 2, flex: '1 1 80px', textAlign: 'center' }} elevation={1}>
+                  <Typography variant="h5" sx={{ fontWeight: 700 }}>{c.total}</Typography>
+                  <Typography variant="caption" color="text.secondary">{zh ? '总局' : 'Played'}</Typography>
+                </Paper>
+                <Paper sx={{ p: 2, flex: '1 1 80px', textAlign: 'center' }} elevation={1}>
+                  <Typography variant="h5" sx={{ fontWeight: 700 }}>{winPct}%</Typography>
+                  <Typography variant="caption" color="text.secondary">{zh ? '胜率' : 'Win Rate'}</Typography>
+                </Paper>
+                {goodGames > 0 && (
+                  <Paper sx={{ p: 2, flex: '1 1 80px', textAlign: 'center', bgcolor: 'success.light' }} elevation={1}>
+                    <Typography variant="h5" sx={{ fontWeight: 700 }}>{goodGames}</Typography>
+                    <Typography variant="caption">{zh ? `善良 ${goodWinPct}%胜` : `Good ${goodWinPct}%W`}</Typography>
+                  </Paper>
+                )}
+                {c.evilGames > 0 && (
+                  <Paper sx={{ p: 2, flex: '1 1 80px', textAlign: 'center', bgcolor: 'error.light' }} elevation={1}>
+                    <Typography variant="h5" sx={{ fontWeight: 700 }}>{c.evilGames}</Typography>
+                    <Typography variant="caption">{zh ? `邪恶 ${evilWinPct}%胜` : `Evil ${evilWinPct}%W`}</Typography>
+                  </Paper>
+                )}
+              </Box>
+              <LinearProgress variant="determinate" value={winPct}
+                sx={{ height: 6, borderRadius: 3, mb: 2, bgcolor: 'grey.200',
+                  '& .MuiLinearProgress-bar': { bgcolor: c.evilGames > goodGames ? 'error.main' : 'success.main' } }} />
+              {charRecords.length > 0 && (
+                <>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>{zh ? '出现记录' : 'Game History'}</Typography>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, maxHeight: 200, overflowY: 'auto' }}>
+                    {charRecords.map(r => (
+                      <Box key={r.id} sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 0.75, borderRadius: 1, bgcolor: 'action.hover' }}>
+                        <Typography variant="caption" sx={{ flex: 1 }}>{r.recordName || r.scriptTitle || '?'}</Typography>
+                        <Chip size="small"
+                          label={r.winner === 'evil' ? (zh ? '邪恶胜' : 'Evil') : r.winner === 'good' ? (zh ? '善良胜' : 'Good') : r.winner === 'storyteller' ? (zh ? '说书人' : 'ST') : '?'}
+                          color={r.winner === 'evil' ? 'error' : r.winner === 'good' ? 'success' : r.winner === 'storyteller' ? 'info' : 'default'}
+                          sx={{ fontSize: '0.6rem', height: 18 }} />
+                        <Typography variant="caption" color="text.secondary">{new Date(r.endedAt).toLocaleDateString()}</Typography>
+                      </Box>
+                    ))}
+                  </Box>
+                </>
+              )}
+            </DialogContent>
+          </Dialog>
+        )
+      })()}
+
       {/* ── Records list ── */}
       <Box>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5, gap: 1 }}>
@@ -853,8 +925,8 @@ export function AnalyticsTab({ language }: { language: Language }) {
               </Typography>
               {r.winner ? (
                 <Chip size="small"
-                  label={r.winner === 'evil' ? (zh ? '邪恶胜' : 'Evil Win') : r.winner === 'good' ? (zh ? '善良胜' : 'Good Win') : r.winner}
-                  color={r.winner === 'evil' ? 'error' : r.winner === 'good' ? 'success' : 'default'} />
+                  label={r.winner === 'evil' ? (zh ? '邪恶胜' : 'Evil Win') : r.winner === 'good' ? (zh ? '善良胜' : 'Good Win') : r.winner === 'storyteller' ? (zh ? '说书人胜' : 'ST Win') : r.winner}
+                  color={r.winner === 'evil' ? 'error' : r.winner === 'good' ? 'success' : r.winner === 'storyteller' ? 'info' : 'default'} />
               ) : (
                 <Chip size="small" label={zh ? '未记录' : 'No result'} />
               )}
