@@ -15,7 +15,7 @@ export function ScriptList({ title, isActive, onSelect }: ScriptListProps) {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'flex-start',
-        p: 1.5,
+        p: 1,
         border: isActive ? '1px solid' : '1px solid',
         borderColor: isActive ? 'primary.main' : 'rgba(23, 32, 42, 0.1)',
         borderRadius: 2,
@@ -28,10 +28,7 @@ export function ScriptList({ title, isActive, onSelect }: ScriptListProps) {
         },
       }}
     >
-      <Typography variant="caption" component="span" sx={{ textTransform: 'uppercase', letterSpacing: '0.12em', color: 'text.secondary' }}>
-        Script
-      </Typography>
-      <Typography sx={{ fontWeight: 600, mt: 0.5 }}>{title}</Typography>
+      <Typography sx={{ fontWeight: 600 }}>{title}</Typography>
     </Button>
   )
 }
