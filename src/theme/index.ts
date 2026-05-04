@@ -1,84 +1,542 @@
-import { createTheme } from '@mui/material/styles'
+import { createTheme, alpha } from '@mui/material/styles'
+import { BG, INK, BORDER, STATE, FONT, WEIGHT, RADIUS, SHADOW, MOTION, PALETTE } from './tokens'
 
 declare module '@mui/material/styles' {
   interface Palette {
-    surface: { main: string; raised: string }
+    surface: { main: string; raised: string; sunken: string }
+    ink: { primary: string; secondary: string; muted: string; inverse: string }
   }
   interface PaletteOptions {
-    surface?: { main: string; raised: string }
+    surface?: { main: string; raised: string; sunken: string }
+    ink?: { primary: string; secondary: string; muted: string; inverse: string }
   }
 }
 
 export const theme = createTheme({
+  // ── Palette ────────────────────────────────────────────────────────────────
   palette: {
-    primary: { main: '#853f22' },
-    secondary: { main: '#c4733a' },
+    // Domino as interactive primary (warm, readable on linen bg)
+    primary: {
+      main:          PALETTE.domino,    // #87745b
+      dark:          PALETTE.bistre,    // #37261b — hover / active
+      light:         '#a8917a',
+      contrastText:  PALETTE.satinLinen,
+    },
+    // Bistre as secondary (dark ink for strong actions)
+    secondary: {
+      main:         PALETTE.bistre,
+      light:        '#5a3e2e',
+      dark:         '#1e140e',
+      contrastText: PALETTE.satinLinen,
+    },
     background: {
-      default: '#f6f1e7',
-      paper: '#fffdf8',
+      default: BG.canvas,
+      paper:   BG.surface,
     },
     text: {
-      primary: '#17202a',
-      secondary: 'rgba(23, 32, 42, 0.55)',
+      primary:   INK.primary,
+      secondary: INK.secondary,
+      disabled:  INK.muted,
     },
+    divider: BORDER.subtle,
     surface: {
-      main: 'rgba(255, 251, 245, 0.96)',
-      raised: 'rgba(255, 255, 255, 0.82)',
+      main:   BG.raised,
+      raised: BG.raised,
+      sunken: BG.sunken,
     },
-    divider: 'rgba(23, 32, 42, 0.10)',
+    ink: {
+      primary:   INK.primary,
+      secondary: INK.secondary,
+      muted:     INK.muted,
+      inverse:   INK.inverse,
+    },
+    action: {
+      hover:           STATE.hover,
+      selected:        STATE.selected,
+      disabled:        STATE.disabled,
+      disabledBackground: STATE.disabled,
+    },
   },
+
+  // ── Typography ──────────────────────────────────────────────────────────────
   typography: {
-    fontFamily: '"Avenir Next", Avenir, "Segoe UI", sans-serif',
-    h1: { fontFamily: 'Georgia, "Times New Roman", serif' },
-    h2: { fontFamily: 'Georgia, "Times New Roman", serif' },
-    h3: { fontFamily: 'Georgia, "Times New Roman", serif' },
+    fontFamily: FONT.sans,
+    fontWeightRegular:  WEIGHT.regular,
+    fontWeightMedium:   WEIGHT.medium,
+    fontWeightBold:     WEIGHT.semibold,
+
+    // Display / headings — serif for ritual feel
+    h1: { fontFamily: FONT.serif, fontWeight: WEIGHT.bold,    letterSpacing: '-0.01em' },
+    h2: { fontFamily: FONT.serif, fontWeight: WEIGHT.bold,    letterSpacing: '-0.01em' },
+    h3: { fontFamily: FONT.serif, fontWeight: WEIGHT.semibold, letterSpacing: '-0.005em' },
+    h4: { fontFamily: FONT.serif, fontWeight: WEIGHT.semibold },
+    h5: { fontFamily: FONT.sans,  fontWeight: WEIGHT.semibold },
+    h6: { fontFamily: FONT.sans,  fontWeight: WEIGHT.semibold, fontSize: '1rem' },
+
+    // UI text — sans, measured
+    subtitle1: { fontWeight: WEIGHT.medium,  letterSpacing: '0.005em' },
+    subtitle2: { fontWeight: WEIGHT.semibold, letterSpacing: '0.01em'  },
+    body1:     { fontWeight: WEIGHT.regular,  lineHeight: 1.55 },
+    body2:     { fontWeight: WEIGHT.regular,  lineHeight: 1.5, fontSize: '0.875rem' },
+
+    // Small UI labels
+    caption: {
+      fontWeight: WEIGHT.medium,
+      letterSpacing: '0.04em',
+      fontSize: '0.72rem',
+      color: INK.secondary,
+    },
+    overline: {
+      fontWeight:    WEIGHT.semibold,
+      letterSpacing: '0.12em',
+      fontSize:      '0.68rem',
+      color:         INK.secondary,
+    },
+
+    button: {
+      fontWeight:    WEIGHT.semibold,
+      letterSpacing: '0.02em',
+      textTransform: 'none' as const,
+    },
   },
-  shape: { borderRadius: 12 },
+
+  // ── Shape ──────────────────────────────────────────────────────────────────
+  shape: { borderRadius: 10 },
   spacing: 8,
+
+  // ── Components ─────────────────────────────────────────────────────────────
   components: {
+
+    // Button — ink-on-linen aesthetic, deliberate press feel
     MuiButton: {
       defaultProps: { disableElevation: true },
       styleOverrides: {
         root: {
-          textTransform: 'none' as const,
-          borderRadius: 999,
-          padding: '0.75rem 1rem',
+          textTransform: 'none',
+          borderRadius:  RADIUS.sm,
+          transition:    `background ${MOTION.mid}, border-color ${MOTION.mid}, color ${MOTION.mid}`,
+          minHeight: 36,
+        },
+        // Contained: domino fill → bistre on hover (deepening ink)
+        contained: {
+          background:   PALETTE.domino,
+          color:        PALETTE.satinLinen,
+          '&:hover': {
+            background: PALETTE.bistre,
+          },
+          '&:active': {
+            background: '#1e140e',
+          },
+          '&.Mui-disabled': {
+            background: STATE.disabled,
+            color:      INK.muted,
+          },
+        },
+        // Outlined: domino border → bistre fill on hover
+        outlined: {
+          borderColor: PALETTE.domino,
+          color:       PALETTE.bistre,
+          '&:hover': {
+            background:  STATE.hover,
+            borderColor: PALETTE.bistre,
+          },
+          '&.Mui-disabled': {
+            borderColor: STATE.disabled,
+            color:       INK.muted,
+          },
+        },
+        // Text: ghost → subtle wash
+        text: {
+          color: PALETTE.bistre,
+          '&:hover': {
+            background: STATE.hover,
+          },
+        },
+        // Size variants — compact for dense UI
+        sizeSmall: {
+          padding:    '3px 10px',
+          fontSize:   '0.8rem',
+          minHeight:  30,
+          borderRadius: RADIUS.xs,
+        },
+        sizeMedium: {
+          padding: '6px 14px',
+        },
+        sizeLarge: {
+          padding:   '10px 22px',
+          minHeight: 44,
+          fontSize:  '0.95rem',
         },
       },
     },
+
+    // IconButton — ghost by default, ink on hover
+    MuiIconButton: {
+      styleOverrides: {
+        root: {
+          color:      INK.secondary,
+          transition: `background ${MOTION.fast}, color ${MOTION.fast}`,
+          borderRadius: RADIUS.xs,
+          '&:hover': {
+            background: STATE.hover,
+            color:      INK.primary,
+          },
+          '&:active': {
+            background: STATE.active,
+          },
+          '&.Mui-disabled': {
+            color: INK.muted,
+          },
+        },
+      },
+    },
+
+    // Card / Paper — warm linen surface
     MuiCard: {
       styleOverrides: {
         root: {
-          borderRadius: 16,
-          boxShadow: '0 2px 12px rgba(57,43,24,0.10)',
-          background: '#fffdf8',
+          background:   BG.surface,
+          borderRadius: RADIUS.md,
+          border:       `1px solid ${BORDER.mid}`,
+          boxShadow:    SHADOW.sm,
+          backgroundImage: 'none',
+          '&:hover': {
+            borderColor: BORDER.strong,
+            boxShadow:   SHADOW.md,
+          },
+          transition: `border-color ${MOTION.fast}, box-shadow ${MOTION.fast}`,
         },
       },
     },
+
     MuiPaper: {
       styleOverrides: {
         root: {
           backgroundImage: 'none',
+          background:      BG.surface,
         },
         rounded: {
-          borderRadius: 18,
+          borderRadius: RADIUS.md,
+        },
+        elevation1: { boxShadow: SHADOW.sm },
+        elevation2: { boxShadow: SHADOW.md },
+        elevation3: { boxShadow: SHADOW.lg },
+      },
+    },
+
+    // Tooltip — bistre ink block, linen text
+    MuiTooltip: {
+      defaultProps: { arrow: true, enterDelay: 200, enterNextDelay: 100 },
+      styleOverrides: {
+        tooltip: {
+          background:   PALETTE.bistre,
+          color:        PALETTE.satinLinen,
+          fontSize:     '0.72rem',
+          fontWeight:   WEIGHT.medium,
+          letterSpacing: '0.02em',
+          borderRadius:  RADIUS.xs,
+          padding:       '4px 8px',
+          boxShadow:     SHADOW.md,
+        },
+        arrow: {
+          color: PALETTE.bistre,
         },
       },
     },
-    MuiTextField: {
-      defaultProps: { variant: 'outlined' as const, size: 'small' as const },
-    },
+
+    // Chip — pill labels in domino palette
     MuiChip: {
       styleOverrides: {
-        root: { borderRadius: 999 },
+        root: {
+          borderRadius: RADIUS.pill,
+          fontWeight:   WEIGHT.medium,
+          fontSize:     '0.75rem',
+        },
+        colorDefault: {
+          background:  STATE.selected,
+          color:       INK.primary,
+          borderColor: BORDER.mid,
+        },
+        colorPrimary: {
+          background:  PALETTE.domino,
+          color:       PALETTE.satinLinen,
+        },
       },
     },
+
+    // Tabs — pill style, domino active
     MuiTab: {
       styleOverrides: {
         root: {
-          textTransform: 'none' as const,
-          borderRadius: 999,
-          border: '1px solid rgba(23, 32, 42, 0.12)',
+          textTransform: 'none',
+          fontWeight:    WEIGHT.medium,
+          fontSize:      '0.82rem',
+          borderRadius:  RADIUS.pill,
+          border:        `1px solid ${BORDER.subtle}`,
+          minHeight:     34,
+          padding:       '4px 12px',
+          color:         INK.secondary,
+          transition:    `background ${MOTION.fast}, color ${MOTION.fast}, border-color ${MOTION.fast}`,
+          '&.Mui-selected': {
+            color:       INK.primary,
+            background:  STATE.selected,
+            borderColor: BORDER.mid,
+          },
+          '&:hover:not(.Mui-selected)': {
+            background:  STATE.hover,
+            borderColor: BORDER.mid,
+          },
+        },
+      },
+    },
+
+    MuiTabs: {
+      styleOverrides: {
+        indicator: {
+          display: 'none', // pill border replaces indicator
+        },
+      },
+    },
+
+    // TextField — sunken input surface
+    MuiTextField: {
+      defaultProps: { variant: 'outlined', size: 'small' },
+    },
+
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          background:   BG.sunken,
+          borderRadius: RADIUS.sm,
+          '&:hover .MuiOutlinedInput-notchedOutline': {
+            borderColor: BORDER.strong,
+          },
+          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+            borderColor: PALETTE.domino,
+            borderWidth:  2,
+          },
+        },
+        notchedOutline: {
+          borderColor: BORDER.mid,
+        },
+        input: {
+          color: INK.primary,
+          '&::placeholder': {
+            color:   INK.muted,
+            opacity: 1,
+          },
+        },
+      },
+    },
+
+    // Select — matches input style
+    MuiSelect: {
+      styleOverrides: {
+        icon: {
+          color: INK.secondary,
+        },
+      },
+    },
+
+    // Menu / Dropdown
+    MuiMenu: {
+      styleOverrides: {
+        paper: {
+          background:   BG.raised,
+          borderRadius: RADIUS.md,
+          border:       `1px solid ${BORDER.mid}`,
+          boxShadow:    SHADOW.lg,
+        },
+      },
+    },
+
+    MuiMenuItem: {
+      styleOverrides: {
+        root: {
+          fontSize:     '0.875rem',
+          color:        INK.primary,
+          borderRadius: RADIUS.xs,
+          margin:       '1px 4px',
+          padding:      '6px 10px',
+          '&:hover': {
+            background: STATE.hover,
+          },
+          '&.Mui-selected': {
+            background: STATE.selected,
+            color:      INK.primary,
+            fontWeight: WEIGHT.semibold,
+            '&:hover': {
+              background: STATE.active,
+            },
+          },
+        },
+      },
+    },
+
+    // Drawer / Bottom sheet — raised linen panel
+    MuiDrawer: {
+      styleOverrides: {
+        paper: {
+          background:  BG.raised,
+          backgroundImage: 'none',
+          borderColor: BORDER.mid,
+        },
+      },
+    },
+
+    // Dialog — modal floating panel
+    MuiDialog: {
+      styleOverrides: {
+        paper: {
+          background:   BG.raised,
+          borderRadius: RADIUS.lg,
+          border:       `1px solid ${BORDER.mid}`,
+          boxShadow:    SHADOW.float,
+          backgroundImage: 'none',
+        },
+      },
+    },
+
+    MuiDialogTitle: {
+      styleOverrides: {
+        root: {
+          fontFamily:  FONT.serif,
+          fontWeight:  WEIGHT.semibold,
+          fontSize:    '1.1rem',
+          color:       INK.primary,
+          paddingBottom: 8,
+        },
+      },
+    },
+
+    // Divider — subtle bistre tint
+    MuiDivider: {
+      styleOverrides: {
+        root: {
+          borderColor: BORDER.subtle,
+        },
+      },
+    },
+
+    // Switch — domino active state
+    MuiSwitch: {
+      styleOverrides: {
+        switchBase: {
+          '&.Mui-checked': {
+            color: PALETTE.domino,
+            '& + .MuiSwitch-track': {
+              background:  PALETTE.domino,
+              opacity:     0.7,
+            },
+          },
+        },
+        track: {
+          background: INK.muted,
+          opacity:    0.5,
+        },
+      },
+    },
+
+    // Slider — domino track
+    MuiSlider: {
+      styleOverrides: {
+        thumb: {
+          color: PALETTE.domino,
+          '&:hover, &.Mui-active': {
+            boxShadow: `0 0 0 8px ${alpha(PALETTE.domino, 0.16)}`,
+          },
+        },
+        track: { color: PALETTE.domino },
+        rail:  { color: BORDER.mid },
+      },
+    },
+
+    // Snackbar / Alert
+    MuiAlert: {
+      styleOverrides: {
+        root: {
+          borderRadius: RADIUS.sm,
+        },
+      },
+    },
+
+    // LinearProgress
+    MuiLinearProgress: {
+      styleOverrides: {
+        root:       { background: BORDER.subtle },
+        bar:        { background: PALETTE.domino },
+      },
+    },
+
+    // ToggleButton — same as outlined button logic
+    MuiToggleButton: {
+      styleOverrides: {
+        root: {
+          textTransform: 'none',
+          borderRadius:  RADIUS.xs,
+          color:         INK.secondary,
+          border:        `1px solid ${BORDER.mid}`,
+          fontWeight:    WEIGHT.medium,
+          fontSize:      '0.8rem',
+          padding:       '3px 10px',
+          '&.Mui-selected': {
+            background:  STATE.selected,
+            borderColor: BORDER.strong,
+            color:       INK.primary,
+            fontWeight:  WEIGHT.semibold,
+            '&:hover': {
+              background: STATE.active,
+            },
+          },
+          '&:hover': {
+            background: STATE.hover,
+          },
+        },
+      },
+    },
+
+    // FormLabel / InputLabel
+    MuiInputLabel: {
+      styleOverrides: {
+        root: {
+          color:      INK.secondary,
+          fontWeight: WEIGHT.medium,
+          fontSize:   '0.82rem',
+          '&.Mui-focused': {
+            color: PALETTE.domino,
+          },
+        },
+      },
+    },
+
+    // ListItem
+    MuiListItemButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: RADIUS.sm,
+          '&:hover': { background: STATE.hover },
+          '&.Mui-selected': {
+            background: STATE.selected,
+            '&:hover':  { background: STATE.active },
+          },
+        },
+      },
+    },
+
+    // Backdrop — warm dark
+    MuiBackdrop: {
+      styleOverrides: {
+        root: {
+          background: BG.overlay,
+        },
+      },
+    },
+
+    // CssBaseline — handled in GlobalStyles, but body color here
+    MuiCssBaseline: {
+      styleOverrides: {
+        body: {
+          color: INK.primary,
         },
       },
     },
