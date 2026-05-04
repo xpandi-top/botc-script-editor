@@ -390,19 +390,26 @@ export default function App() {
             </Tooltip>
           </Tabs>
 
-          {/* Mobile: active tab name */}
-          <Typography component="span"
-            sx={{ display: { xs: 'flex', sm: 'none' }, flex: 1,
-              fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer',
-              color: 'primary.dark', userSelect: 'none' }}
-            onClick={(e) => setTabMenuAnchor(e.currentTarget as HTMLElement)}>
-            {activeTab === 'scripts' ? uiText.scriptSheet
-              : activeTab === 'characters' ? uiText.allCharacters
-              : activeTab === 'storyteller' ? storytellerTabLabel
-              : activeTab === 'printstudio' ? printStudioTabLabel
-              : analyticsTabLabel}
-            {' ▾'}
-          </Typography>
+          {/* Mobile: active tab name with icon */}
+          <Box
+            sx={{ display: { xs: 'flex', sm: 'none' }, flex: 1, alignItems: 'center', gap: 0.5, cursor: 'pointer', userSelect: 'none' }}
+            onClick={(e) => setTabMenuAnchor(e.currentTarget as HTMLElement)}
+          >
+            {activeTab === 'scripts' ? <DescriptionIcon fontSize="small" sx={{ color: 'primary.dark' }} />
+              : activeTab === 'characters' ? <GroupIcon fontSize="small" sx={{ color: 'primary.dark' }} />
+              : activeTab === 'storyteller' ? <MenuBookIcon fontSize="small" sx={{ color: 'primary.dark' }} />
+              : activeTab === 'analytics' ? <QueryStatsIcon fontSize="small" sx={{ color: 'primary.dark' }} />
+              : <PrintIcon fontSize="small" sx={{ color: 'primary.dark' }} />}
+            <Typography component="span"
+              sx={{ fontWeight: 600, fontSize: '0.9rem', color: 'primary.dark', flex: 1 }}>
+              {activeTab === 'scripts' ? uiText.scriptSheet
+                : activeTab === 'characters' ? uiText.allCharacters
+                : activeTab === 'storyteller' ? storytellerTabLabel
+                : activeTab === 'printstudio' ? printStudioTabLabel
+                : analyticsTabLabel}
+            </Typography>
+            <ExpandMoreIcon fontSize="small" sx={{ color: 'primary.dark' }} />
+          </Box>
 
           <IconButton
             size="small"
