@@ -326,18 +326,23 @@ export default function App() {
         {/* ── Title + Tabs row ── */}
         <Box sx={{ px: { xs: 1, sm: 3 }, pt: { xs: 0.5, sm: 1 }, pb: { xs: 0.5, sm: 1 }, display: 'flex', alignItems: 'center', gap: 1 }}>
           {/* Title — clickable on mobile to open tab menu */}
-          <Typography
-            variant="body1" component="h1"
+          <Box
+            sx={{ display: 'flex', alignItems: 'center', gap: 0.75, flexShrink: 0, cursor: { xs: 'pointer', sm: 'default' } }}
             onClick={(e) => setTabMenuAnchor(e.currentTarget as HTMLElement)}
-            sx={{ fontFamily: 'Georgia, "Times New Roman", serif', m: 0, fontWeight: 700,
-              fontSize: { xs: '0.85rem', sm: '1rem' }, flexShrink: 0,
-              cursor: { xs: 'pointer', sm: 'default' },
-              userSelect: 'none',
-              '&:hover': { color: { xs: 'primary.main', sm: 'inherit' } },
-            }}
           >
-            {uiText.appTitle}
-          </Typography>
+            <Box component="img" src="appIcon.png" alt="BOTC Companion"
+              sx={{ width: { xs: 24, sm: 28 }, height: { xs: 24, sm: 28 }, flexShrink: 0 }} />
+            <Typography
+              variant="body1" component="h1"
+              sx={{ fontFamily: 'Georgia, "Times New Roman", serif', m: 0, fontWeight: 700,
+                fontSize: { xs: '0.85rem', sm: '1rem' },
+                userSelect: 'none',
+                '&:hover': { color: { xs: 'primary.main', sm: 'inherit' } },
+              }}
+            >
+              {uiText.appTitle}
+            </Typography>
+          </Box>
 
           {/* Tabs — hidden on xs, visible sm+ */}
           <Tabs

@@ -39,7 +39,9 @@ export default defineConfig(({ command, mode }) => {
           ],
         },
         workbox: {
-          globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+          globPatterns: ['**/*.{js,css,html,ico,png,woff2}'],
+          globIgnores: ['botcCompanion.svg'],
+          maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
           runtimeCaching: [
             {
               urlPattern: /\/assets\/locales\/.+\.json$/,
