@@ -16,11 +16,11 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material'
+import DescriptionIcon from '@mui/icons-material/Description'
 import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import AutoStoriesIcon from '@mui/icons-material/AutoStories'
+import MenuBookIcon from '@mui/icons-material/MenuBook'
 import GroupIcon from '@mui/icons-material/Group'
-import ShieldMoonIcon from '@mui/icons-material/ShieldMoon'
 import QueryStatsIcon from '@mui/icons-material/QueryStats'
 import PrintIcon from '@mui/icons-material/Print'
 import { PrintPreviewPage } from './components/PrintPreviewPage'
@@ -374,13 +374,13 @@ export default function App() {
             }}
           >
             <Tooltip title={uiText.scriptSheet} placement="bottom">
-              <Tab icon={<AutoStoriesIcon fontSize="small" />} value="scripts" aria-label={uiText.scriptSheet} />
+              <Tab icon={<DescriptionIcon fontSize="small" />} value="scripts" aria-label={uiText.scriptSheet} />
             </Tooltip>
             <Tooltip title={uiText.allCharacters} placement="bottom">
               <Tab icon={<GroupIcon fontSize="small" />} value="characters" aria-label={uiText.allCharacters} />
             </Tooltip>
             <Tooltip title={storytellerTabLabel} placement="bottom">
-              <Tab icon={<ShieldMoonIcon fontSize="small" />} value="storyteller" aria-label={storytellerTabLabel} />
+              <Tab icon={<MenuBookIcon fontSize="small" />} value="storyteller" aria-label={storytellerTabLabel} />
             </Tooltip>
             <Tooltip title={analyticsTabLabel} placement="bottom">
               <Tab icon={<QueryStatsIcon fontSize="small" />} value="analytics" aria-label={analyticsTabLabel} />
@@ -417,9 +417,9 @@ export default function App() {
         {/* Mobile tab menu */}
         <Menu anchorEl={tabMenuAnchor} open={Boolean(tabMenuAnchor)} onClose={() => setTabMenuAnchor(null)}>
           {([
-            ['scripts', uiText.scriptSheet, <AutoStoriesIcon fontSize="small" />],
+            ['scripts', uiText.scriptSheet, <DescriptionIcon fontSize="small" />],
             ['characters', uiText.allCharacters, <GroupIcon fontSize="small" />],
-            ['storyteller', storytellerTabLabel, <ShieldMoonIcon fontSize="small" />],
+            ['storyteller', storytellerTabLabel, <MenuBookIcon fontSize="small" />],
             ['analytics', analyticsTabLabel, <QueryStatsIcon fontSize="small" />],
             ['printstudio', printStudioTabLabel, <PrintIcon fontSize="small" />],
           ] as [TabKey, string, React.ReactNode][]).map(([key, label, icon]) => (

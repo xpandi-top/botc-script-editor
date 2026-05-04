@@ -160,7 +160,19 @@ export function PhaseControlPanel({ ctx }: { ctx: StorytellerContext }) {
             <ToggleButtonGroup
               value={phase} exclusive
               onChange={(_, v) => v && setPhase(v)}
-              sx={{ '& .MuiToggleButton-root': { color: mutedColor, borderColor: 'rgba(255,255,255,0.25)', fontSize: '0.95rem', px: 1.5, py: 0.75, minHeight: 38, '&.Mui-selected': { color: textColor, bgcolor: 'rgba(255,255,255,0.25)' } } }}
+              sx={{
+                '& .MuiToggleButton-root': {
+                  color: textColor,
+                  borderColor: 'rgba(255,255,255,0.25)',
+                  fontSize: '0.95rem',
+                  px: 1.5,
+                  py: 0.75,
+                  minHeight: 38,
+                  bgcolor: 'rgba(255,255,255,0.08)',
+                  '&:hover': { bgcolor: 'rgba(255,255,255,0.15)' },
+                  '&.Mui-selected': { color: textColor, bgcolor: 'rgba(255,255,255,0.25)' },
+                },
+              }}
             >
               {PHASES.map(p => <ToggleButton key={p} value={p}>{getPhaseLabel(p)}</ToggleButton>)}
             </ToggleButtonGroup>
