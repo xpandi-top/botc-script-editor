@@ -401,7 +401,7 @@ export default function App() {
               : activeTab === 'analytics' ? <QueryStatsIcon fontSize="small" sx={{ color: 'primary.dark' }} />
               : <PrintIcon fontSize="small" sx={{ color: 'primary.dark' }} />}
             <Typography component="span"
-              sx={{ fontWeight: 600, fontSize: '0.9rem', color: 'primary.dark', flex: 1 }}>
+              sx={{ fontWeight: 600, fontSize: '0.9rem', color: 'primary.dark' }}>
               {activeTab === 'scripts' ? uiText.scriptSheet
                 : activeTab === 'characters' ? uiText.allCharacters
                 : activeTab === 'storyteller' ? storytellerTabLabel
