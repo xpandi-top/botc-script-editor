@@ -20,7 +20,7 @@ import DescriptionIcon from '@mui/icons-material/Description'
 import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import MenuBookIcon from '@mui/icons-material/MenuBook'
-import GroupIcon from '@mui/icons-material/Group'
+import MasksIcon from '@mui/icons-material/Masks'
 import QueryStatsIcon from '@mui/icons-material/QueryStats'
 import PrintIcon from '@mui/icons-material/Print'
 import BugReportIcon from '@mui/icons-material/BugReport'
@@ -378,7 +378,7 @@ export default function App() {
               <Tab icon={<DescriptionIcon fontSize="small" />} value="scripts" aria-label={uiText.scriptSheet} />
             </Tooltip>
             <Tooltip title={uiText.allCharacters} placement="bottom">
-              <Tab icon={<GroupIcon fontSize="small" />} value="characters" aria-label={uiText.allCharacters} />
+              <Tab icon={<MasksIcon fontSize="small" />} value="characters" aria-label={uiText.allCharacters} />
             </Tooltip>
             <Tooltip title={storytellerTabLabel} placement="bottom">
               <Tab icon={<MenuBookIcon fontSize="small" />} value="storyteller" aria-label={storytellerTabLabel} />
@@ -397,7 +397,7 @@ export default function App() {
             onClick={(e) => setTabMenuAnchor(e.currentTarget as HTMLElement)}
           >
             {activeTab === 'scripts' ? <DescriptionIcon fontSize="small" sx={{ color: 'primary.dark' }} />
-              : activeTab === 'characters' ? <GroupIcon fontSize="small" sx={{ color: 'primary.dark' }} />
+              : activeTab === 'characters' ? <MasksIcon fontSize="small" sx={{ color: 'primary.dark' }} />
               : activeTab === 'storyteller' ? <MenuBookIcon fontSize="small" sx={{ color: 'primary.dark' }} />
               : activeTab === 'analytics' ? <QueryStatsIcon fontSize="small" sx={{ color: 'primary.dark' }} />
               : <PrintIcon fontSize="small" sx={{ color: 'primary.dark' }} />}
@@ -437,7 +437,7 @@ export default function App() {
         <Menu anchorEl={tabMenuAnchor} open={Boolean(tabMenuAnchor)} onClose={() => setTabMenuAnchor(null)}>
           {([
             ['scripts', uiText.scriptSheet, <DescriptionIcon fontSize="small" />],
-            ['characters', uiText.allCharacters, <GroupIcon fontSize="small" />],
+            ['characters', uiText.allCharacters, <MasksIcon fontSize="small" />],
             ['storyteller', storytellerTabLabel, <MenuBookIcon fontSize="small" />],
             ['analytics', analyticsTabLabel, <QueryStatsIcon fontSize="small" />],
             ['printstudio', printStudioTabLabel, <PrintIcon fontSize="small" />],
