@@ -1,4 +1,16 @@
 import { useState } from 'react'
+
+/** Measure text width in px using an offscreen canvas. Falls back to char-count estimate. */
+function measureTextPx(text: string, fontCss: string): number {
+  try {
+    const ctx = document.createElement('canvas').getContext('2d')
+    if (!ctx) throw new Error()
+    ctx.font = fontCss
+    return ctx.measureText(text).width
+  } catch {
+    return text.length * 10
+  }
+}
 import DOMPurify from 'dompurify'
 import { Box, Typography, Paper, Grid, IconButton, Chip, Divider, Dialog, DialogTitle, DialogContent, Tooltip } from '@mui/material'
 import {
@@ -91,8 +103,8 @@ export function SheetArticle({
   const showIconCircle  = po ? po.showIconCircle : true
   const showCardOutline = po ? po.showCardOutline : false
   const padDef          = po ? PADDING_MAP[po.padding] : null
-  const cardPadding     = padDef ? `${padDef.card}px` : '8px'
-  const gridSpacing     = padDef ? padDef.gridSpacing : 1
+  const cardPadding     = padDef ? `${Math.max(1, Math.floor(padDef.card / 2))}px ${Math.max(2, padDef.card)}px` : '2px 4px'
+  const gridSpacing     = padDef ? padDef.gridSpacing : 0.5
   const sectionMb       = padDef ? padDef.sectionMb : 2
   const outerPadding    = padDef ? `${padDef.outerPadding}px` : '16px'
   const lineHeight      = po?.lineHeight ?? 1.3
@@ -218,7 +230,7 @@ export function SheetArticle({
     </Box>
   )
 
-  const renderCharacterCard = (character: ResolvedScriptCharacter, lang: Language, withBoth: boolean) => {
+  const renderCharacterCard = (character: ResolvedScriptCharacter, lang: Language, withBoth: boolean, leftColW: number) => {
     const icon = getCharacterImage(character)
     const displayName = character.name ?? getDisplayName(character.id, lang)
     const ability = character.ability ?? getAbilityText(character.id, lang)
@@ -232,16 +244,13 @@ export function SheetArticle({
     const zhFont = fontFamilyZh && fontFamilyZh !== fontFamilyEn ? fontFamilyZh : undefined
     const enFont = fontFamilyEn
 
-    // Left column width: icon + name stacked, fixed to icon size + a bit of padding
-    const leftW = iconSize + 8
-
     return (
       <Grid key={character.id} size={{ xs: 12, sm: columns === 1 ? 12 : 6 }}>
         <Paper variant="outlined" sx={{ p: cardPadding, position: 'relative', pageBreakInside: 'avoid', breakInside: 'avoid',
           ...(showCardOutline ? { borderWidth: 1, borderColor: 'divider' } : { borderWidth: 0 }) }}>
-          <Box sx={{ display: 'flex', gap: padDef ? `${padDef.card / 2}px` : '6px', alignItems: 'flex-start' }}>
-            {/* Left: icon + name stacked */}
-            <Box sx={{ width: leftW, flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
+          <Box sx={{ display: 'flex', gap: '2px', alignItems: 'flex-start' }}>
+            {/* Left: icon + name stacked, fixed width = max name width across all cards */}
+            <Box sx={{ width: leftColW, flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0 }}>
               {icon ? (
                 <Box sx={{ width: iconSize, height: iconSize, display: 'flex', alignItems: 'center', justifyContent: 'center',
                   ...(showIconCircle && { borderRadius: '50%', bgcolor: 'grey.200' }) }}>
@@ -253,26 +262,26 @@ export function SheetArticle({
                   <Typography variant="caption">{character.id.slice(0, 2).toUpperCase()}</Typography>
                 </Box>
               )}
-              <Typography sx={{ fontFamily: lang === 'zh' ? zhFont : enFont, lineHeight, fontSize: nameFontSize,
-                fontWeight: 600, textAlign: 'center', wordBreak: 'break-word', width: '100%' }}>
+              <Typography sx={{ fontFamily: lang === 'zh' ? zhFont : enFont, lineHeight: 1.1, fontSize: nameFontSize,
+                fontWeight: 600, textAlign: 'center', whiteSpace: 'nowrap' }}>
                 {displayName}
               </Typography>
               {nameAlt && nameAlt !== displayName && (
-                <Typography sx={{ fontFamily: lang === 'zh' ? enFont : zhFont, lineHeight, fontSize: nameFontSize ?? '8pt',
-                  textAlign: 'center', color: 'text.secondary', wordBreak: 'break-word', width: '100%' }}>
+                <Typography sx={{ fontFamily: lang === 'zh' ? enFont : zhFont, lineHeight: 1.1, fontSize: nameFontSize ?? '8pt',
+                  textAlign: 'center', whiteSpace: 'nowrap' }}>
                   {nameAlt}
                 </Typography>
               )}
             </Box>
-            {/* Right: description only */}
+            {/* Right: ability text */}
             <Box sx={{ flex: 1, minWidth: 0 }}>
-              <Typography variant="body2" color="text.secondary"
-                sx={{ fontFamily: lang === 'zh' ? zhFont : enFont, lineHeight, mb: 0 }}
+              <Typography variant="body2"
+                sx={{ fontFamily: lang === 'zh' ? zhFont : enFont, lineHeight, mb: 0, color: 'text.primary' }}
                 dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(ability) }}
               />
               {abilityAlt && abilityAlt !== ability && (
-                <Typography variant="body2" color="text.secondary"
-                  sx={{ fontFamily: lang === 'zh' ? enFont : zhFont, lineHeight, opacity: 0.8, mt: 0.25, mb: 0 }}
+                <Typography variant="body2"
+                  sx={{ fontFamily: lang === 'zh' ? enFont : zhFont, lineHeight, mt: 0.25, mb: 0, color: 'text.primary' }}
                   dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(abilityAlt) }}
                 />
               )}
@@ -286,32 +295,44 @@ export function SheetArticle({
     )
   }
 
-  const renderCharacterList = (lang: Language, withBoth: boolean) => (
-    <Box sx={{ flex: 1 }}>
-      {groupedScriptCharacters.map((group, idx) => (
-        <Box key={group.team} sx={{ mb: sectionMb, pageBreakInside: 'avoid', breakInside: 'avoid' }}>
-          {showSectionDivider && idx > 0 && (
-            <Divider sx={{ mb: sectionMb, borderBottomWidth: 2 }} />
-          )}
-          {showSectionBg ? (
-            <Chip
-              label={teamLabels[lang][group.team]}
-              size="small"
-              color={bw ? 'default' : ((group.team === 'townsfolk' || group.team === 'outsider') ? 'primary' : 'error')}
-              sx={{ mb: 0.5, ...(bw && { bgcolor: 'grey.300', color: 'text.primary' }) }}
-            />
-          ) : (
-            <Typography sx={{ mb: 0.5, fontSize: sectionFontSize ?? '0.85rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', color: 'text.secondary' }}>
-              {teamLabels[lang][group.team]}
-            </Typography>
-          )}
-          <Grid container spacing={gridSpacing}>
-            {group.characters.map((character) => renderCharacterCard(character, lang, withBoth))}
-          </Grid>
-        </Box>
-      ))}
-    </Box>
-  )
+  const renderCharacterList = (lang: Language, withBoth: boolean) => {
+    // Compute fixed left-column width = iconSize + gap + longest name text width
+    const allCharacters = groupedScriptCharacters.flatMap((g) => g.characters)
+    const nameFont = `600 ${nameFontSize ?? '0.8rem'} ${fontFamilyEn ?? 'sans-serif'}`
+    const maxNamePx = allCharacters.reduce((max, c) => {
+      const primary = c.name ?? getDisplayName(c.id, lang)
+      const alt = withBoth ? getDisplayName(c.id, lang === 'zh' ? 'en' : 'zh') : ''
+      return Math.max(max, measureTextPx(primary, nameFont), alt ? measureTextPx(alt, nameFont) : 0)
+    }, 0)
+    const leftColW = iconSize + 2 + Math.ceil(maxNamePx) // icon + gap + name (tight)
+
+    return (
+      <Box sx={{ flex: 1 }}>
+        {groupedScriptCharacters.map((group, idx) => (
+          <Box key={group.team} sx={{ mb: sectionMb, pageBreakInside: 'avoid', breakInside: 'avoid' }}>
+            {showSectionDivider && idx > 0 && (
+              <Divider sx={{ mb: sectionMb, borderBottomWidth: 2 }} />
+            )}
+            {showSectionBg ? (
+              <Chip
+                label={teamLabels[lang][group.team]}
+                size="small"
+                color={bw ? 'default' : ((group.team === 'townsfolk' || group.team === 'outsider') ? 'primary' : 'error')}
+                sx={{ mb: 0.5, ...(bw && { bgcolor: 'grey.300', color: 'text.primary' }) }}
+              />
+            ) : (
+              <Typography sx={{ mb: 0.5, fontSize: sectionFontSize ?? '0.85rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', color: 'text.secondary' }}>
+                {teamLabels[lang][group.team]}
+              </Typography>
+            )}
+            <Grid container spacing={gridSpacing}>
+              {group.characters.map((character) => renderCharacterCard(character, lang, withBoth, leftColW))}
+            </Grid>
+          </Box>
+        ))}
+      </Box>
+    )
+  }
 
   const renderPage = (lang: Language, withBoth: boolean) => (
     <Box>
