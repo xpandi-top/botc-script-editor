@@ -1,9 +1,14 @@
 // @ts-nocheck
 import type { StorytellerContext } from '../useStoryteller'
 import React, { useState } from 'react'
-import { Box, Button, Typography, Paper, Chip, Accordion, AccordionSummary, AccordionDetails, Grid } from '@mui/material'
+import { Box, Button, Typography, Paper, Chip, Accordion, AccordionSummary, AccordionDetails, Grid, IconButton } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
+import DeleteIcon from '@mui/icons-material/Delete'
+import EventIcon from '@mui/icons-material/Event'
+import HowToVoteIcon from '@mui/icons-material/HowToVote'
+import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh'
+import AutoStoriesIcon from '@mui/icons-material/AutoStories'
 
 export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: StorytellerContext, toggleConsoleSection: any }) {
   const { language, text, gameRecords = [], setGameRecords, activeConsoleSections, loadGameRecord, exportRecordJson, saveGame } = ctx
@@ -48,15 +53,15 @@ export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: Storyt
                       <Button size="small" onClick={() => exportRecordJson(rec)}>
                         {language === 'zh' ? '📥 导出' : '📥 Export'}
                       </Button>
-                      <Button size="small" color="error" onClick={() => setGameRecords((cur: any[]) => cur.filter((r) => r.id !== rec.id))}>
-                        🗑
-                      </Button>
+                      <IconButton size="small" color="error" onClick={() => setGameRecords((cur: any[]) => cur.filter((r) => r.id !== rec.id))}>
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
                     </Box>
                     <Box sx={{ display: 'flex', gap: 1, mt: 0.5, flexWrap: 'wrap' }}>
-                      <Chip size="small" label={`📅 ${rec.days?.length ?? 1} ${language === 'zh' ? '天' : 'd'}`} />
-                      <Chip size="small" label={`🗳 ${totalVotes} ${language === 'zh' ? '票' : 'votes'}`} />
-                      <Chip size="small" label={`✨ ${totalSkills} ${language === 'zh' ? '技' : 'skills'}`} />
-                      {rec.scriptTitle && <Chip size="small" label={`📖 ${rec.scriptTitle}`} />}
+                      <Chip size="small" icon={<EventIcon sx={{ fontSize: '0.85rem' }} />} label={`${rec.days?.length ?? 1} ${language === 'zh' ? '天' : 'd'}`} />
+                      <Chip size="small" icon={<HowToVoteIcon sx={{ fontSize: '0.85rem' }} />} label={`${totalVotes} ${language === 'zh' ? '票' : 'votes'}`} />
+                      <Chip size="small" icon={<AutoFixHighIcon sx={{ fontSize: '0.85rem' }} />} label={`${totalSkills} ${language === 'zh' ? '技' : 'skills'}`} />
+                      {rec.scriptTitle && <Chip size="small" icon={<AutoStoriesIcon sx={{ fontSize: '0.85rem' }} />} label={rec.scriptTitle} />}
                     </Box>
                   </Paper>
                 )

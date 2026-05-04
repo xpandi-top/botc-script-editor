@@ -162,7 +162,7 @@ export function TokenOptionsPanel({ opts, onChange, scriptCharacters, language }
         {label(zh ? '模式' : 'Mode')}
         <ToggleButtonGroup value={opts.mode} exclusive size="small"
           onChange={(_, v) => { if (v) set('mode', v) }}>
-          <ToggleButton value="characters">{zh ? '角色代币' : 'Character Tokens'}</ToggleButton>
+          <ToggleButton value="characters">{zh ? '角色标记' : 'Character Markers'}</ToggleButton>
           <ToggleButton value="custom-tags">{zh ? '自定义标签' : 'Custom Tags'}</ToggleButton>
         </ToggleButtonGroup>
       </Box>

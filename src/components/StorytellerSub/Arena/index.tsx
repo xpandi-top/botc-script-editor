@@ -25,9 +25,9 @@ export function Arena({ ctx }: { ctx: StorytellerContext }) {
   const { isMobile } = useBreakpoint()
 
   React.useEffect(() => {
-    const minSize = 60
-    const maxSize = 130
-    const baseSize = isPortrait ? 85 : 110
+    const minSize = 75
+    const maxSize = 150
+    const baseSize = isPortrait ? 100 : 130
     const scaleFactor = Math.max(1, (seatCount - 4) / 3)
     const seatSize = Math.min(maxSize, Math.max(minSize, baseSize / scaleFactor))
     document.documentElement.style.setProperty('--seat-size', `${seatSize}px`)

@@ -28,52 +28,50 @@ export function MobileTopBar({ ctx }: { ctx: StorytellerContext }) {
     <Box sx={{
       display: 'flex',
       alignItems: 'center',
-      gap: 0.75,
-      px: 1,
-      py: 0.5,
-      borderBottom: '1px solid rgba(23,32,42,0.10)',
+      gap: 1,
+      px: 1.25,
+      py: 0.75,
+      borderBottom: '1px solid rgba(23,32,42,0.12)',
       bgcolor: 'rgba(255,251,245,0.98)',
       flexShrink: 0,
-      minHeight: 52,
+      minHeight: 60,
       position: 'sticky',
       top: 0,
       zIndex: 50,
     }}>
-      <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', gap: 0.75, minWidth: 0, overflow: 'hidden' }}>
-        <Typography variant="body2" sx={{ fontWeight: 700, whiteSpace: 'nowrap', color: 'text.secondary', fontSize: '0.8rem' }}>
+      <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', gap: 1, minWidth: 0, overflow: 'hidden' }}>
+        <Typography variant="body2" sx={{ fontWeight: 700, whiteSpace: 'nowrap', color: 'text.secondary', fontSize: '0.95rem' }}>
           {aliveCount}/{totalCount}
         </Typography>
 
         {activeScriptTitle && (
           <Chip
             label={activeScriptTitle}
-            size="small"
             onClick={() => setShowScriptPanel((p: boolean) => !p)}
             color={showScriptPanel ? 'primary' : 'default'}
             variant={showScriptPanel ? 'filled' : 'outlined'}
-            sx={{ maxWidth: 110, fontSize: '0.65rem', height: 22, flexShrink: 1, minWidth: 0 }}
+            sx={{ maxWidth: 130, fontSize: '0.8rem', height: 28, flexShrink: 1, minWidth: 0 }}
           />
         )}
 
         <Chip
           label={`Day ${currentDay.day} · ${phaseLabel[currentDay.phase] ?? currentDay.phase}`}
-          size="small"
           sx={{
             bgcolor: PHASE_COLORS[currentDay.phase] ?? 'primary.main',
             color: 'white',
             fontWeight: 700,
-            fontSize: '0.65rem',
-            height: 22,
+            fontSize: '0.8rem',
+            height: 28,
             flexShrink: 0,
           }}
         />
       </Box>
 
-      <IconButton size="small" onClick={undo} disabled={!canUndo} title="Undo">
-        <UndoIcon fontSize="small" />
+      <IconButton onClick={undo} disabled={!canUndo} title="Undo">
+        <UndoIcon />
       </IconButton>
-      <IconButton size="small" onClick={() => setShowRightPanel((c: boolean) => !c)}>
-        <MenuIcon fontSize="small" />
+      <IconButton onClick={() => setShowRightPanel((c: boolean) => !c)}>
+        <MenuIcon />
       </IconButton>
     </Box>
   )

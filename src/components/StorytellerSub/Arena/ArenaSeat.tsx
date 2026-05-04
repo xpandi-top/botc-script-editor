@@ -95,8 +95,8 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: StorytellerCo
     else if (cardVotedYes) { updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, voters: d.voteDraft.voters.filter((v) => v !== seat.seat) } })) }
     else if (cardVotedNo) { updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, noVoters: d.voteDraft.noVoters.filter((v) => v !== seat.seat) } })) }
   }
+  const CIRCLE = 90  // circle diameter px
 
-  const CIRCLE = 80  // circle diameter px
   const OVERLAP = CIRCLE / 2  // how much circle pokes above card top
 
   return (
@@ -149,7 +149,7 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: StorytellerCo
           }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            <Box component="span" sx={{ fontWeight: 700, color: seat.alive ? 'text.secondary' : '#7a7570', whiteSpace: 'nowrap', fontSize: '0.75rem' }}>#{seat.seat}</Box>
+            <Box component="span" sx={{ fontWeight: 700, color: seat.alive ? 'text.secondary' : '#7a7570', whiteSpace: 'nowrap', fontSize: '0.85rem' }}>#{seat.seat}</Box>
             <Box component="span" sx={{ fontWeight: 700, whiteSpace: 'nowrap', color: seat.alive ? 'text.primary' : '#5a5550', textDecoration: seat.alive ? 'none' : 'line-through' }}>{seat.name}</Box>
             {hasVoted && <Box component="span" sx={{ color: votedYes ? 'success.main' : 'error.main', fontWeight: 700 }}>{votedYes ? <CheckIcon fontSize="small" /> : <CloseIcon fontSize="small" />}</Box>}
           </Box>

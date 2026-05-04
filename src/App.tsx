@@ -20,7 +20,7 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import AutoStoriesIcon from '@mui/icons-material/AutoStories'
 import GroupIcon from '@mui/icons-material/Group'
-import NightsStayIcon from '@mui/icons-material/NightsStay'
+import ShieldMoonIcon from '@mui/icons-material/ShieldMoon'
 import QueryStatsIcon from '@mui/icons-material/QueryStats'
 import PrintIcon from '@mui/icons-material/Print'
 import { PrintPreviewPage } from './components/PrintPreviewPage'
@@ -339,25 +339,25 @@ export default function App() {
         <Box sx={{ px: { xs: 2, sm: 3 }, py: { xs: 1.25, sm: 1.5 }, display: 'flex', alignItems: 'center', gap: 2 }}>
 
           {/* Brand — icon + title */}
-          <Box
-            sx={{ display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0,
-              cursor: { xs: 'pointer', sm: 'default' } }}
-            onClick={(e) => setTabMenuAnchor(e.currentTarget as HTMLElement)}
-          >
-            <Box component="img" src="appIcon.png" alt="BOTC Companion"
-              sx={{ width: { xs: 28, sm: 34 }, height: { xs: 28, sm: 34 }, flexShrink: 0 }} />
-            <Typography component="h1"
-              sx={{ fontFamily: 'Georgia, "Times New Roman", serif', m: 0,
-                fontWeight: 700, userSelect: 'none',
-                fontSize: { xs: '1rem', sm: '1.2rem' },
-                letterSpacing: '-0.01em',
-                color: 'text.primary',
-                '&:hover': { color: { xs: 'primary.dark', sm: 'text.primary' } },
-              }}
+            <Box
+              sx={{ display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0,
+                cursor: { xs: 'pointer', sm: 'default' } }}
+              onClick={(e) => setTabMenuAnchor(e.currentTarget as HTMLElement)}
             >
-              {uiText.appTitle}
-            </Typography>
-          </Box>
+              <Box component="img" src="appIcon.png" alt="BOTC Companion"
+                sx={{ width: { xs: 28, sm: 34 }, height: { xs: 28, sm: 34 }, flexShrink: 0 }} />
+              <Typography component="h1"
+                sx={{ fontFamily: 'inherit', m: 0,
+                  fontWeight: 700, userSelect: 'none',
+                  fontSize: { xs: '1.05rem', sm: '1.25rem' },
+                  letterSpacing: '-0.01em',
+                  color: 'text.primary',
+                  '&:hover': { color: { xs: 'primary.dark', sm: 'text.primary' } },
+                }}
+              >
+                {uiText.appTitle}
+              </Typography>
+            </Box>
 
           {/* Tabs — desktop */}
           <Tabs
@@ -380,7 +380,7 @@ export default function App() {
               <Tab icon={<GroupIcon fontSize="small" />} value="characters" aria-label={uiText.allCharacters} />
             </Tooltip>
             <Tooltip title={storytellerTabLabel} placement="bottom">
-              <Tab icon={<NightsStayIcon fontSize="small" />} value="storyteller" aria-label={storytellerTabLabel} />
+              <Tab icon={<ShieldMoonIcon fontSize="small" />} value="storyteller" aria-label={storytellerTabLabel} />
             </Tooltip>
             <Tooltip title={analyticsTabLabel} placement="bottom">
               <Tab icon={<QueryStatsIcon fontSize="small" />} value="analytics" aria-label={analyticsTabLabel} />
@@ -417,14 +417,15 @@ export default function App() {
         {/* Mobile tab menu */}
         <Menu anchorEl={tabMenuAnchor} open={Boolean(tabMenuAnchor)} onClose={() => setTabMenuAnchor(null)}>
           {([
-            ['scripts', uiText.scriptSheet],
-            ['characters', uiText.allCharacters],
-            ['storyteller', storytellerTabLabel],
-            ['analytics', analyticsTabLabel],
-            ['printstudio', printStudioTabLabel],
-          ] as [TabKey, string][]).map(([key, label]) => (
+            ['scripts', uiText.scriptSheet, <AutoStoriesIcon fontSize="small" />],
+            ['characters', uiText.allCharacters, <GroupIcon fontSize="small" />],
+            ['storyteller', storytellerTabLabel, <ShieldMoonIcon fontSize="small" />],
+            ['analytics', analyticsTabLabel, <QueryStatsIcon fontSize="small" />],
+            ['printstudio', printStudioTabLabel, <PrintIcon fontSize="small" />],
+          ] as [TabKey, string, React.ReactNode][]).map(([key, label, icon]) => (
             <MenuItem key={key} selected={activeTab === key} onClick={() => { setActiveTab(key); setTabMenuAnchor(null) }}>
-              <ListItemText>{label}</ListItemText>
+              {icon}
+              <ListItemText sx={{ ml: 1 }}>{label}</ListItemText>
             </MenuItem>
           ))}
         </Menu>

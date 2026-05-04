@@ -1,6 +1,7 @@
 // @ts-nocheck
 import React, { useState, useEffect, useRef } from 'react'
 import { Box, Button, TextField, FormControl, Select, MenuItem, Typography, Chip, IconButton, Paper, InputLabel } from '@mui/material'
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import { getDisplayName, getIconForCharacter, characterById } from '../../../catalog'
 import { CHARACTER_DISTRIBUTION } from '../constants'
 
@@ -69,7 +70,7 @@ export function CharSelect({ value, options, language, onChange, placeholder }: 
           <Box sx={{ width: 18, height: 18, border: '1px dashed', borderRadius: '50%', opacity: 0.3 }} />
         )}
         <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{displayName}</span>
-        <span style={{ marginLeft: 'auto' }}>▾</span>
+        <ArrowDropDownIcon sx={{ ml: 'auto', fontSize: '1.2rem' }} />
       </Button>
 
       {open && (

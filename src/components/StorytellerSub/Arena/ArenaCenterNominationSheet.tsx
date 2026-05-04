@@ -5,6 +5,8 @@ import { createPortal } from 'react-dom'
 import { Box, Button, Typography, TextField, Select, MenuItem, FormControl, InputLabel, FormControlLabel, Checkbox, Dialog } from '@mui/material'
 import CheckIcon from '@mui/icons-material/Check'
 import CloseIcon from '@mui/icons-material/Close'
+import EditNoteIcon from '@mui/icons-material/EditNote'
+import ReplayIcon from '@mui/icons-material/Replay'
 import { createDefaultVoteDraft } from '../constants'
 import { useBreakpoint } from '../../../hooks/useBreakpoint'
 import { NominationTimer } from './NominationTimer'
@@ -255,11 +257,12 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: StorytellerContext })
             variant="contained"
             disabled={!voteDraft?.actor || !voteDraft?.target}
             onClick={() => voteDraft?.nominationResult === 'fail' ? rejectNomination() : recordVote()}
+            startIcon={<EditNoteIcon fontSize="small" />}
           >
-            {language === 'zh' ? '📝 记录' : '📝 Record'}
+            {language === 'zh' ? '记录' : 'Record'}
           </Button>
-          <Button size="small" onClick={handleClear}>
-            {language === 'zh' ? '↺ 清空' : '↺ Clear'}
+          <Button size="small" onClick={handleClear} startIcon={<ReplayIcon fontSize="small" />}>
+            {language === 'zh' ? '清空' : 'Clear'}
           </Button>
         </Box>
       </Box>

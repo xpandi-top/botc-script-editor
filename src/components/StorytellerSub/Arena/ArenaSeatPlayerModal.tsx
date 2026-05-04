@@ -15,6 +15,7 @@ import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import CheckIcon from '@mui/icons-material/Check'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
+import ListIcon from '@mui/icons-material/List'
 import { getDisplayName, getIconForCharacter, getAbilityText } from '../../../catalog'
 
 // ── Constants ──────────────────────────────────────────────────
@@ -758,7 +759,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
   const logSection = (
     <Accordion expanded={logExpanded} onChange={(_, v) => setLogExpanded(v)} sx={{ boxShadow: 'none', border: '1px solid', borderColor: 'divider', borderRadius: '4px !important', '&:before': { display: 'none' } }}>
       <AccordionSummary expandIcon={<ExpandMoreIcon fontSize="small" />} sx={{ minHeight: 36, '& .MuiAccordionSummary-content': { my: 0.5 } }}>
-        <Typography variant="caption" fontWeight={700}>{zh ? '📋 事件记录' : '📋 Event Log'}</Typography>
+        <Typography variant="caption" fontWeight={700} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}><ListIcon fontSize="small" />{zh ? '事件记录' : 'Event Log'}</Typography>
       </AccordionSummary>
       <AccordionDetails sx={{ pt: 0, pb: 1, px: 1 }}>
         {/* Quick-add */}

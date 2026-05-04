@@ -133,7 +133,7 @@ export function ArenaCenterContent({ ctx }: { ctx: StorytellerContext }) {
 
   const nominationControls = phase === 'nomination' && (
     <Box sx={{ display: 'flex', gap: 0.5 }}>
-      <Button size="large" variant={showNominationSheet ? 'contained' : 'outlined'} onClick={() => setShowNominationSheet((v: boolean) => !v)}>📋 {language === 'zh' ? '提名' : 'Nominate'}</Button>
+      <Button size="large" variant={showNominationSheet ? 'contained' : 'outlined'} onClick={() => setShowNominationSheet((v: boolean) => !v)} startIcon={<ListIcon />}>{language === 'zh' ? '提名' : 'Nominate'}</Button>
       <Button size="large" variant="outlined" onClick={(e) => { e.stopPropagation(); goToNextDay() }} startIcon={<PlayArrowIcon fontSize="small" />}>{language === 'zh' ? '下一天' : 'Next Day'}</Button>
     </Box>
   )

@@ -12,7 +12,7 @@ import { getDisplayName, getIconForCharacter, nightOrder } from '../../../catalo
 import { VoteButtonGroup, TagChip } from './ArenaSeatComponents'
 
 
-const CIRCLE_SIZE = 52
+const CIRCLE_SIZE = 60
 const CIRCLE_OVERLAP = CIRCLE_SIZE / 2  // how much circle sticks into card
 
 export function MobileSeatCard({ ctx, seat }: { ctx: StorytellerContext; seat: any }) {
@@ -53,13 +53,13 @@ export function MobileSeatCard({ ctx, seat }: { ctx: StorytellerContext; seat: a
   const nightList = isFirstNight ? (nightOrder?.first_night ?? []) : (nightOrder?.other_nights ?? [])
   const playerWakeOrder = perceivedCharId ? (() => { const idx = nightList.indexOf(perceivedCharId); return idx !== -1 ? idx + 1 : null })() : null
 
-  const tags = [
-    !seat.alive ? text.aliveTag : '',
-    seat.isExecuted ? text.executedTag : '',
-    seat.isTraveler ? text.traveler : '',
-    seat.hasNoVote ? text.noVoteTag : '',
-    ...seat.customTags,
-  ].filter(Boolean)
+  const tagDefs = [
+    !seat.alive    ? { label: text.aliveTag,    chipSx: { bgcolor: '#3a3530', color: '#e8e4da', border: 'none' } } : null,
+    seat.isExecuted ? { label: text.executedTag, chipSx: { bgcolor: '#7a1e1e', color: '#fde8e8', border: 'none' } } : null,
+    seat.isTraveler ? { label: text.traveler,    chipSx: { bgcolor: '#1e4a7a', color: '#e0eaf8', border: 'none' } } : null,
+    seat.hasNoVote  ? { label: text.noVoteTag,   chipSx: { bgcolor: '#5a4a20', color: '#fdf0d0', border: 'none' } } : null,
+    ...seat.customTags.map((t: string) => ({ label: t, chipSx: {} })),
+  ].filter(Boolean) as { label: string; chipSx: object }[]
 
   const getBorderColor = () => {
     if (seat.isExecuted) return 'error.main'
@@ -95,7 +95,8 @@ export function MobileSeatCard({ ctx, seat }: { ctx: StorytellerContext; seat: a
       {/* Wrapper: relative so circle can overlap left edge */}
       <Box sx={{ position: 'relative', pl: `${CIRCLE_OVERLAP}px` }}>
         {/* Circle positioned absolutely, overlapping left edge, vertically centered */}
-        <Box sx={{ position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)', zIndex: 3 }}>
+        <Box sx={{ position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)', zIndex: 3,
+          filter: seat.alive ? 'none' : 'grayscale(85%) brightness(0.85)', opacity: seat.alive ? 1 : 0.75 }}>
           <CharacterCircle
             size={CIRCLE_SIZE}
             charIcon={charIcon}
@@ -118,7 +119,7 @@ export function MobileSeatCard({ ctx, seat }: { ctx: StorytellerContext; seat: a
             borderRadius: 1.5,
             border: '1.5px solid',
             borderColor: getBorderColor(),
-            bgcolor: seat.alive ? 'background.paper' : 'action.hover',
+            bgcolor: seat.alive ? 'background.paper' : '#c8c5bc',
             opacity: seat.alive ? 1 : 0.75,
             cursor: pickerMode !== 'none' ? 'pointer' : 'default',
             transition: 'all 0.15s ease',
@@ -126,8 +127,8 @@ export function MobileSeatCard({ ctx, seat }: { ctx: StorytellerContext; seat: a
           }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
-            <Box component="span" sx={{ fontWeight: 700, fontSize: '0.85rem', color: 'text.secondary', whiteSpace: 'nowrap' }}>#{seat.seat}</Box>
-            <Box component="span" sx={{ fontWeight: 600, fontSize: '0.95rem', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{seat.name}</Box>
+            <Box component="span" sx={{ fontWeight: 700, fontSize: '0.95rem', color: seat.alive ? 'text.secondary' : '#7a7570', whiteSpace: 'nowrap' }}>#{seat.seat}</Box>
+            <Box component="span" sx={{ fontWeight: 600, fontSize: '0.95rem', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: seat.alive ? 'text.primary' : '#5a5550', textDecoration: seat.alive ? 'none' : 'line-through' }}>{seat.name}</Box>
             <Box component="span" sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: seat.alive ? 'success.main' : 'text.disabled', flexShrink: 0 }} />
             {hasVoted && <Box component="span" sx={{ fontWeight: 700, fontSize: '0.9rem', color: votedYes ? 'success.main' : 'error.main' }}>{votedYes ? <CheckIcon fontSize="small" /> : <CloseIcon fontSize="small" />}</Box>}
           </Box>
@@ -147,14 +148,14 @@ export function MobileSeatCard({ ctx, seat }: { ctx: StorytellerContext; seat: a
             </Box>
           )}
 
-          {tags.length > 0 && (
+          {tagDefs.length > 0 && (
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.25, mb: 0.5 }}>
-              {tags.map((tag: string) => {
-                const isChar = tag.startsWith('💀')
-                const charId = isChar ? [...tag].slice(1).join('') : ''
+              {tagDefs.map(({ label, chipSx }) => {
+                const isChar = label.startsWith('💀')
+                const charId = isChar ? [...label].slice(1).join('') : ''
                 const icon = isChar ? getIconForCharacter(charId) : null
-                const label = isChar ? getDisplayName(charId, language) : tag
-                return <TagChip key={`${seat.seat}-${tag}`} label={label} icon={icon as string} />
+                const displayLabel = isChar ? getDisplayName(charId, language) : label
+                return <TagChip key={`${seat.seat}-${label}`} label={displayLabel} icon={icon as string} chipSx={chipSx} />
               })}
             </Box>
           )}

@@ -1,6 +1,8 @@
 // @ts-nocheck
 import React, { useMemo } from 'react'
 import { Box, Button, TextField, Select, MenuItem, FormControl, InputLabel, Typography, Paper, Divider, Grid, Chip } from '@mui/material'
+import CasinoIcon from '@mui/icons-material/Casino'
+import ReplayIcon from '@mui/icons-material/Replay'
 import { characterById } from '../../../catalog'
 import { CHARACTER_DISTRIBUTION } from '../constants'
 import { CharSelect, TeamDot, DistRow } from './ModalsNewGameHelpers'
@@ -82,11 +84,11 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
       </Paper>
 
       <Box sx={{ display: 'flex', gap: 0.5 }}>
-        <Button size="small" variant="outlined" onClick={() => updateConfig({ assignments: randomAssignCharacters(newGamePanel) })}>
-          🎲 {language === 'zh' ? '随机' : 'Random'}
+        <Button size="small" variant="outlined" onClick={() => updateConfig({ assignments: randomAssignCharacters(newGamePanel) })} startIcon={<CasinoIcon fontSize="small" />}>
+          {language === 'zh' ? '随机' : 'Random'}
         </Button>
-        <Button size="small" variant="outlined" onClick={() => updateConfig({ assignments: {}, userAssignments: {}, demonBluffs: [] })}>
-          ↺ {language === 'zh' ? '重置' : 'Reset'}
+        <Button size="small" variant="outlined" onClick={() => updateConfig({ assignments: {}, userAssignments: {}, demonBluffs: [] })} startIcon={<ReplayIcon fontSize="small" />}>
+          {language === 'zh' ? '重置' : 'Reset'}
         </Button>
       </Box>
 

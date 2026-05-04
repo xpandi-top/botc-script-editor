@@ -1,6 +1,7 @@
 // @ts-nocheck
 import React from 'react'
 import { Box, Typography, IconButton, Button, Chip } from '@mui/material'
+import ReplayIcon from '@mui/icons-material/Replay'
 
 interface NominationVoteListProps {
   seats: any[]
@@ -77,8 +78,8 @@ export function NominationVoteList({
           updateCurrentDay((d: any) => ({ ...d, voteDraft: { ...d.voteDraft, voteCountOverride: cur + 1 } }))
         }}>+</IconButton>
         {voteDraft?.voteCountOverride !== null && (
-          <Button size="small" onClick={() => updateCurrentDay((d: any) => ({ ...d, voteDraft: { ...d.voteDraft, voteCountOverride: null } }))}>
-            ↺
+          <Button size="small" onClick={() => updateCurrentDay((d: any) => ({ ...d, voteDraft: { ...d.voteDraft, voteCountOverride: null } }))} startIcon={<ReplayIcon fontSize="small" />}>
+            {language === 'zh' ? '重置' : 'Reset'}
           </Button>
         )}
       </Box>

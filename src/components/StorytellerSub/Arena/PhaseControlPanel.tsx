@@ -15,6 +15,9 @@ import CloseIcon from '@mui/icons-material/Close'
 import CheckIcon from '@mui/icons-material/Check'
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive'
 import ListIcon from '@mui/icons-material/List'
+import AutoStoriesIcon from '@mui/icons-material/AutoStories'
+import EditNoteIcon from '@mui/icons-material/EditNote'
+import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore'
 import { ArenaCenterNominationSheet } from './ArenaCenterNominationSheet'
 import { AggregatedLogModal } from './AggregatedLogModal'
 import { StorytellerSetupModal } from './StorytellerSetupModal'
@@ -23,16 +26,16 @@ import type { Phase, PublicMode } from '../types'
 const PHASES: Phase[] = ['night', 'private', 'public', 'nomination']
 
 const PANEL_COLORS: Record<string, string> = {
-  night: 'rgba(23,18,40,0.97)',
-  private: 'rgba(42,36,80,0.97)',
-  public: 'rgba(18,50,25,0.97)',
-  nomination: 'rgba(80,10,10,0.97)',
+  night: 'rgba(25,20,45,0.98)',
+  private: 'rgba(45,38,82,0.98)',
+  public: 'rgba(22,52,28,0.98)',
+  nomination: 'rgba(82,12,12,0.98)',
 }
 
 const fmt = (s: number) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
 
-const TIMER_ACTIVE_SX = { bgcolor: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.4)' }
-const TIMER_IDLE_SX = { bgcolor: 'transparent', border: '1px solid rgba(255,255,255,0.2)' }
+const TIMER_ACTIVE_SX = { bgcolor: 'rgba(255,255,255,0.25)', border: '1px solid rgba(255,255,255,0.5)' }
+const TIMER_IDLE_SX = { bgcolor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.25)' }
 
 export function PhaseControlPanel({ ctx }: { ctx: StorytellerContext }) {
   const {
@@ -90,8 +93,8 @@ export function PhaseControlPanel({ ctx }: { ctx: StorytellerContext }) {
     })
   }
 
-  const btnSx = { color: textColor, borderColor: 'rgba(255,255,255,0.3)', fontSize: '0.85rem', px: 1.25, py: 0.5, minWidth: 0, '&:hover': { borderColor: 'rgba(255,255,255,0.6)', bgcolor: 'rgba(255,255,255,0.1)' } }
-  const iconBtnSx = { color: textColor, p: 0.5 }
+  const btnSx = { color: textColor, borderColor: 'rgba(255,255,255,0.5)', fontSize: '0.95rem', px: 1.5, py: 0.75, minHeight: 40, minWidth: 0, fontWeight: 500, bgcolor: 'rgba(255,255,255,0.08)', '&:hover': { borderColor: 'rgba(255,255,255,0.7)', bgcolor: 'rgba(255,255,255,0.15)' } }
+  const iconBtnSx = { color: textColor, p: 0.75 }
 
   if (collapsed) {
     return (
@@ -109,7 +112,7 @@ export function PhaseControlPanel({ ctx }: { ctx: StorytellerContext }) {
           Day {currentDay.day} · {getPhaseLabel(phase)}
           {hasTimer && ` · ${fmt(currentTimerSeconds)}`}
         </Typography>
-        <Typography sx={{ color: mutedColor, fontSize: '0.75rem' }}>▲ {language === 'zh' ? '展开' : 'Expand'}</Typography>
+        <Typography sx={{ color: mutedColor, fontSize: '0.75rem' }}><UnfoldMoreIcon sx={{ fontSize: '0.9rem', verticalAlign: 'middle' }} /> {language === 'zh' ? '展开' : 'Expand'}</Typography>
       </Box>
     )
   }
@@ -123,12 +126,12 @@ export function PhaseControlPanel({ ctx }: { ctx: StorytellerContext }) {
           left: 0, right: 0,
           zIndex: 100,
           bgcolor: bgColor,
-          borderTop: '1px solid rgba(255,255,255,0.15)',
-          borderRadius: '16px 16px 0 0',
-          boxShadow: '0 -8px 32px rgba(0,0,0,0.4)',
+          borderTop: '1px solid rgba(255,255,255,0.2)',
+          borderRadius: '20px 20px 0 0',
+          boxShadow: '0 -8px 32px rgba(0,0,0,0.5)',
           display: 'flex',
           flexDirection: 'column',
-          maxHeight: '48vh',
+          height: '33dvh',
           overflow: 'hidden',
         }}
       >
@@ -140,54 +143,55 @@ export function PhaseControlPanel({ ctx }: { ctx: StorytellerContext }) {
         <Box sx={{ overflowY: 'auto', flex: 1, px: 1.5, pb: 1.5 }}>
           {/* Day nav + phase selector */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.75, flexWrap: 'wrap' }}>
-            <IconButton size="small" sx={iconBtnSx} onClick={() => goToPreviousDay()}>
-              <ArrowBackIcon fontSize="small" />
+            <IconButton sx={iconBtnSx} onClick={() => goToPreviousDay()}>
+              <ArrowBackIcon />
             </IconButton>
             <Select
               value={currentDay.id}
               onChange={(e) => setSelectedDayId(e.target.value)}
-              size="small"
-              sx={{ color: textColor, fontWeight: 700, fontSize: '0.9rem', '& .MuiSelect-icon': { color: mutedColor }, '& fieldset': { borderColor: 'rgba(255,255,255,0.2)' }, minWidth: 80 }}
+              sx={{ color: textColor, fontWeight: 700, fontSize: '1rem', '& .MuiSelect-icon': { color: mutedColor }, '& fieldset': { borderColor: 'rgba(255,255,255,0.3)' }, minWidth: 90 }}
             >
-              {days.map((d: any) => <MenuItem key={d.id} value={d.id} sx={{ fontSize: '0.85rem' }}>Day {d.day}</MenuItem>)}
+              {days.map((d: any) => <MenuItem key={d.id} value={d.id} sx={{ fontSize: '0.95rem' }}>Day {d.day}</MenuItem>)}
             </Select>
-            <IconButton size="small" sx={iconBtnSx} onClick={() => goToNextDay()}>
-              <ArrowForwardIcon fontSize="small" />
+            <IconButton sx={iconBtnSx} onClick={() => goToNextDay()}>
+              <ArrowForwardIcon />
             </IconButton>
 
             <ToggleButtonGroup
               value={phase} exclusive
               onChange={(_, v) => v && setPhase(v)}
-              size="small"
-              sx={{ '& .MuiToggleButton-root': { color: mutedColor, borderColor: 'rgba(255,255,255,0.15)', fontSize: '0.88rem', px: 1.25, py: 0.5, '&.Mui-selected': { color: textColor, bgcolor: 'rgba(255,255,255,0.2)' } } }}
+              sx={{ '& .MuiToggleButton-root': { color: mutedColor, borderColor: 'rgba(255,255,255,0.25)', fontSize: '0.95rem', px: 1.5, py: 0.75, minHeight: 38, '&.Mui-selected': { color: textColor, bgcolor: 'rgba(255,255,255,0.25)' } } }}
             >
               {PHASES.map(p => <ToggleButton key={p} value={p}>{getPhaseLabel(p)}</ToggleButton>)}
             </ToggleButtonGroup>
           </Box>
 
           {/* Public mode + notes row */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.75 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 1 }}>
             {phase === 'public' && (
               <Select
-                size="small"
                 value={publicMode}
                 onChange={(e) => updateCurrentDay((d: any) => ({ ...d, publicMode: e.target.value as PublicMode }))}
-                sx={{ color: textColor, fontSize: '0.75rem', '& .MuiSelect-icon': { color: mutedColor }, '& fieldset': { borderColor: 'rgba(255,255,255,0.2)' }, minWidth: 100 }}
+                sx={{ color: textColor, fontSize: '0.9rem', '& .MuiSelect-icon': { color: mutedColor }, '& fieldset': { borderColor: 'rgba(255,255,255,0.3)' }, minWidth: 120 }}
               >
-                <MenuItem value="free" sx={{ fontSize: '0.8rem' }}>{text.freeSpeech}</MenuItem>
-                <MenuItem value="roundRobin" sx={{ fontSize: '0.8rem' }}>{text.roundRobinMode}</MenuItem>
+                <MenuItem value="free" sx={{ fontSize: '0.95rem' }}>{text.freeSpeech}</MenuItem>
+                <MenuItem value="roundRobin" sx={{ fontSize: '0.95rem' }}>{text.roundRobinMode}</MenuItem>
               </Select>
             )}
-            <Button size="small" variant="outlined" sx={btnSx} onClick={() => setShowStSetupModal(true)}>
-              📖{stFabledIds?.length > 0 ? ` ${stFabledIds.length}` : ''}
+            <Button variant="outlined" sx={btnSx} onClick={() => setShowStSetupModal(true)} startIcon={<AutoStoriesIcon />}>
+              {stFabledIds?.length > 0 ? stFabledIds.length : ''}
             </Button>
-            <Button size="small" variant="outlined" sx={btnSx} onClick={() => setNoteOpen(true)}>📝</Button>
-            <Button size="small" variant="outlined" sx={btnSx} onClick={() => setShowAggLogModal(true)}>📋</Button>
+            <Button variant="outlined" sx={btnSx} onClick={() => setNoteOpen(true)} startIcon={<EditNoteIcon />}>
+              {language === 'zh' ? '备注' : 'Notes'}
+            </Button>
+            <Button variant="outlined" sx={btnSx} onClick={() => setShowAggLogModal(true)} startIcon={<ListIcon />}>
+              {language === 'zh' ? '日志' : 'Log'}
+            </Button>
           </Box>
 
           {/* Timer */}
           {hasTimer && (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.75, flexWrap: 'wrap' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 1, flexWrap: 'wrap' }}>
               {timerEditing ? (
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
                   <TextField
@@ -209,37 +213,42 @@ export function PhaseControlPanel({ ctx }: { ctx: StorytellerContext }) {
                   {fmt(currentTimerSeconds)}
                 </Box>
               )}
-              {alarmActive && <IconButton sx={{ ...iconBtnSx, p: 0.75 }} onClick={() => setAlarmActive(false)}><NotificationsActiveIcon /></IconButton>}
-              <IconButton sx={isTimerRunning ? { ...iconBtnSx, ...TIMER_ACTIVE_SX, p: 0.75 } : { ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={() => { setIsTimerRunning((c: boolean) => !c); if (alarmActive) setAlarmActive(false) }}>
-                {isTimerRunning ? <PauseIcon /> : <PlayArrowIcon />}
+              <IconButton sx={{ ...iconBtnSx, p: 1 }} onClick={() => setAlarmActive(false)}><NotificationsActiveIcon fontSize="large" /></IconButton>
+              <IconButton sx={isTimerRunning ? { ...iconBtnSx, ...TIMER_ACTIVE_SX, p: 1 } : { ...iconBtnSx, ...TIMER_IDLE_SX, p: 1 }} onClick={() => { setIsTimerRunning((c: boolean) => !c); if (alarmActive) setAlarmActive(false) }}>
+                {isTimerRunning ? <PauseIcon fontSize="large" /> : <PlayArrowIcon fontSize="large" />}
               </IconButton>
-              <IconButton sx={{ ...iconBtnSx, p: 0.75 }} onClick={() => { updateCurrentDay(syncDayTimers); setIsTimerRunning(false) }}><RefreshIcon /></IconButton>
-              <IconButton sx={{ ...iconBtnSx, p: 0.75 }} onClick={() => { setIsTimerRunning(false); setAlarmActive(false); setCurrentTimer(0) }}><StopIcon /></IconButton>
+              <IconButton sx={{ ...iconBtnSx, p: 1 }} onClick={() => { updateCurrentDay(syncDayTimers); setIsTimerRunning(false) }}><RefreshIcon fontSize="large" /></IconButton>
+              <IconButton sx={{ ...iconBtnSx, p: 1 }} onClick={() => { setIsTimerRunning(false); setAlarmActive(false); setCurrentTimer(0) }}><StopIcon fontSize="large" /></IconButton>
             </Box>
           )}
 
-          {/* Night controls */}
+          {/* Night controls — row 1: BGM */}
           {phase === 'night' && (
-            <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap', mb: 0.5 }}>
+            <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap', mb: 1 }}>
               <Button
-                size="small"
                 variant={audioPlaying ? 'contained' : 'outlined'}
                 sx={{ ...btnSx, ...(audioPlaying ? TIMER_ACTIVE_SX : {}) }}
-                startIcon={audioPlaying ? <PauseIcon fontSize="small" /> : <PlayArrowIcon fontSize="small" />}
+                startIcon={audioPlaying ? <PauseIcon /> : <PlayArrowIcon />}
                 onClick={() => audioPlaying ? setAudioPlaying(false) : startNight()}
               >
                 BGM
               </Button>
-              <Button size="small" variant="outlined" sx={btnSx} startIcon={<StopIcon fontSize="small" />} onClick={stopNight}>
+              <Button variant="outlined" sx={btnSx} startIcon={<StopIcon />} onClick={stopNight}>
                 {language === 'zh' ? '停止' : 'Stop'}
               </Button>
-              <Button size="small" variant={nightShowCharacter ? 'contained' : 'outlined'} sx={btnSx} onClick={() => setNightShowCharacter((v: boolean) => !v)}>
+            </Box>
+          )}
+
+          {/* Night controls — row 2: character, wake order, edit */}
+          {phase === 'night' && (
+            <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap', mb: 1 }}>
+              <Button variant={nightShowCharacter ? 'contained' : 'outlined'} sx={btnSx} onClick={() => setNightShowCharacter((v: boolean) => !v)}>
                 {language === 'zh' ? '显示角色' : 'Character'}
               </Button>
-              <Button size="small" variant={nightShowWakeOrder ? 'contained' : 'outlined'} sx={btnSx} onClick={() => setNightShowWakeOrder((v: boolean) => !v)}>
+              <Button variant={nightShowWakeOrder ? 'contained' : 'outlined'} sx={btnSx} onClick={() => setNightShowWakeOrder((v: boolean) => !v)}>
                 {language === 'zh' ? '唤醒顺序' : 'Wake Order'}
               </Button>
-              <Button size="small" variant="outlined" sx={btnSx} onClick={handleOpenCharEditor}>
+              <Button variant="outlined" sx={btnSx} onClick={handleOpenCharEditor}>
                 {language === 'zh' ? '编辑角色' : 'Edit Characters'}
               </Button>
             </Box>
@@ -247,35 +256,35 @@ export function PhaseControlPanel({ ctx }: { ctx: StorytellerContext }) {
 
           {/* Public round robin controls */}
           {phase === 'public' && publicMode === 'roundRobin' && (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.5, flexWrap: 'wrap' }}>
-              <Typography sx={{ color: textColor, fontWeight: 700, fontSize: '1rem' }}>#{currentDay.currentSpeakerSeat ?? '—'}</Typography>
-              <Button size="small" variant="outlined" sx={btnSx} onClick={() => setPickerMode('speaker')}>{text.chooseSpeaker}</Button>
-              <Button size="small" variant="outlined" sx={btnSx} onClick={() => {
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 1, flexWrap: 'wrap' }}>
+              <Typography sx={{ color: textColor, fontWeight: 700, fontSize: '1.15rem' }}>#{currentDay.currentSpeakerSeat ?? '—'}</Typography>
+              <Button variant="outlined" sx={btnSx} onClick={() => setPickerMode('speaker')}>{text.chooseSpeaker}</Button>
+              <Button variant="outlined" sx={btnSx} onClick={() => {
                 const all = seats.map((s: any) => s.seat)
                 const r = all[Math.floor(Math.random() * Math.max(all.length, 1))]
                 updateCurrentDay((d: any) => ({ ...d, currentSpeakerSeat: r ?? 1, roundRobinSpokenSeats: [] }))
               }}>{text.randomSpeaker}</Button>
-              <Button size="small" variant="outlined" sx={btnSx} onClick={moveToNextSpeaker}>{text.nextSpeaker}</Button>
+              <Button variant="outlined" sx={btnSx} onClick={moveToNextSpeaker}>{text.nextSpeaker}</Button>
             </Box>
           )}
 
           {/* Public free — nomination gate */}
           {phase === 'public' && publicMode === 'free' && (
-            <Box sx={{ mb: 0.5 }}>
+            <Box sx={{ mb: 1 }}>
               {canNominate
-                ? <Button variant="contained" onClick={enterNomination} sx={{ borderRadius: 999, fontSize: '0.8rem' }}>{text.startNomination}</Button>
-                : <Typography sx={{ color: mutedColor, fontSize: '0.75rem' }}>{text.nominationGate}: {Math.floor(secondsUntilNomination / 60)}:{String(secondsUntilNomination % 60).padStart(2, '0')}</Typography>
+                ? <Button variant="contained" onClick={enterNomination} sx={{ borderRadius: 999, fontSize: '0.95rem', px: 2, py: 0.75, minHeight: 40 }}>{text.startNomination}</Button>
+                : <Typography sx={{ color: mutedColor, fontSize: '0.85rem' }}>{text.nominationGate}: {Math.floor(secondsUntilNomination / 60)}:{String(secondsUntilNomination % 60).padStart(2, '0')}</Typography>
               }
             </Box>
           )}
 
           {/* Nomination controls */}
           {phase === 'nomination' && (
-            <Box sx={{ display: 'flex', gap: 0.75, mb: 0.5, flexWrap: 'wrap' }}>
-              <Button size="small" variant="contained" sx={{ ...btnSx, bgcolor: 'rgba(255,255,255,0.2)' }} onClick={() => setShowNominationSheet(true)} startIcon={<ListIcon fontSize="small" />}>
+            <Box sx={{ display: 'flex', gap: 0.75, mb: 1, flexWrap: 'wrap' }}>
+              <Button variant="contained" sx={{ ...btnSx, bgcolor: 'rgba(255,255,255,0.25)' }} onClick={() => setShowNominationSheet(true)} startIcon={<ListIcon />}>
                 {language === 'zh' ? '提名' : 'Nominate'}
               </Button>
-              <Button size="small" variant="outlined" sx={btnSx} onClick={goToNextDay} startIcon={<ArrowForwardIcon fontSize="small" />}>
+              <Button variant="outlined" sx={btnSx} onClick={goToNextDay} startIcon={<ArrowForwardIcon />}>
                 {language === 'zh' ? '下一天' : 'Next Day'}
               </Button>
             </Box>

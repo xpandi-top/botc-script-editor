@@ -3,6 +3,10 @@ import React, { useState } from 'react'
 import { Box, Button, TextField, IconButton, Chip, Typography, Grid } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import RemoveIcon from '@mui/icons-material/Remove'
+import ReplayIcon from '@mui/icons-material/Replay'
+import CasinoIcon from '@mui/icons-material/Casino'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { shuffleArray, uniqueStrings } from '../constants'
 
 type Props = {
@@ -68,14 +72,14 @@ export function PlayersTab({ newGamePanel, playerNamePool, language, seats, upda
       />
 
       <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
-        <Button size="small" variant="outlined" onClick={handleRandomPlayers}>
-          🎲 {language === 'zh' ? '随机' : 'Random'}
+        <Button size="small" variant="outlined" onClick={handleRandomPlayers} startIcon={<CasinoIcon fontSize="small" />}>
+          {language === 'zh' ? '随机' : 'Random'}
         </Button>
-        <Button size="small" variant="outlined" onClick={handleResetNames}>
-          ↺ {language === 'zh' ? '重置' : 'Reset'}
+        <Button size="small" variant="outlined" onClick={handleResetNames} startIcon={<ReplayIcon fontSize="small" />}>
+          {language === 'zh' ? '重置' : 'Reset'}
         </Button>
-        <Button size="small" variant={showNamePool ? 'contained' : 'outlined'} onClick={() => setShowNamePool((v) => !v)}>
-          {language === 'zh' ? '名字池' : 'Name Pool'} {showNamePool ? '▲' : '▼'}
+        <Button size="small" variant={showNamePool ? 'contained' : 'outlined'} onClick={() => setShowNamePool((v) => !v)} endIcon={showNamePool ? <ExpandMoreIcon fontSize="small" /> : <ChevronRightIcon fontSize="small" />}>
+          {language === 'zh' ? '名字池' : 'Name Pool'}
         </Button>
       </Box>
 

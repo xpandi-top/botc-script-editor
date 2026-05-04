@@ -13,6 +13,7 @@ import CheckIcon from '@mui/icons-material/Check'
 import AddIcon from '@mui/icons-material/Add'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ExpandLessIcon from '@mui/icons-material/ExpandLess'
+import AutoStoriesIcon from '@mui/icons-material/AutoStories'
 import { allCharacters, getDisplayName, getAbilityText, getIconForCharacter } from '../../../catalog'
 
 const FABLED_CHARS = allCharacters.filter((c) => c.team === 'fabled')
@@ -62,7 +63,7 @@ export function StorytellerSetupModal({ ctx }: { ctx: StorytellerContext }) {
       PaperProps={{ sx: { borderRadius: 2 } }}>
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 0.5 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Typography sx={{ fontSize: '1.2rem' }}>📖</Typography>
+          <AutoStoriesIcon sx={{ fontSize: '1.4rem', color: 'primary.main' }} />
           <Typography fontWeight={700}>{language === 'zh' ? '说书人设置' : 'Storyteller Setup'}</Typography>
         </Box>
         <IconButton size="small" onClick={handleClose}><CloseIcon fontSize="small" /></IconButton>
