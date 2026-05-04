@@ -585,11 +585,17 @@ export function AnalyticsTab({ language, onLanguageChange }: { language: Languag
           </FormControl>
         )}
         {/* Export dropdown */}
-        <Button size="small" startIcon={<FileDownloadIcon />} endIcon={<ArrowDropDownIcon />}
-          disabled={total === 0}
-          onClick={(e) => setExportMenuAnchor(e.currentTarget)}>
-          {zh ? '导出' : 'Export'}
-        </Button>
+        <Tooltip title={zh ? '导出' : 'Export'}>
+          <IconButton size="small" disabled={total === 0}
+            onClick={(e) => setExportMenuAnchor(e.currentTarget)}>
+            <FileDownloadIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+        <IconButton size="small" disabled={total === 0}
+          onClick={(e) => setExportMenuAnchor(e.currentTarget)}
+          sx={{ ml: -0.5 }}>
+          <ArrowDropDownIcon fontSize="small" />
+        </IconButton>
         <Menu anchorEl={exportMenuAnchor} open={Boolean(exportMenuAnchor)} onClose={() => setExportMenuAnchor(null)}>
           <MenuItem onClick={() => { exportRecords(); setExportMenuAnchor(null) }}>
             {zh ? '导出记录 (JSON)' : 'Export Records (JSON)'}
@@ -600,13 +606,17 @@ export function AnalyticsTab({ language, onLanguageChange }: { language: Languag
         </Menu>
 
         {/* Share dropdown */}
-        <Button size="small"
-          startIcon={sharing ? <CircularProgress size={14} color="inherit" /> : <ShareIcon />}
-          endIcon={<ArrowDropDownIcon />}
-          disabled={total === 0 || sharing}
+        <Tooltip title={zh ? '分享' : 'Share'}>
+          <IconButton size="small"
+            disabled={total === 0 || sharing}
+            onClick={(e) => setShareMenuAnchor(e.currentTarget)}>
+            {sharing ? <CircularProgress size={16} color="inherit" /> : <ShareIcon fontSize="small" />}
+          </IconButton>
+        </Tooltip>
+        <IconButton size="small" disabled={total === 0 || sharing}
           onClick={(e) => setShareMenuAnchor(e.currentTarget)}>
-          {zh ? '分享' : 'Share'}
-        </Button>
+          <ArrowDropDownIcon fontSize="small" />
+        </IconButton>
         <Menu anchorEl={shareMenuAnchor} open={Boolean(shareMenuAnchor)} onClose={() => setShareMenuAnchor(null)}>
           <MenuItem onClick={() => { shareAnalysisImage('png'); setShareMenuAnchor(null) }}>
             {zh ? '分享为 PNG 图片' : 'Share as PNG'}
@@ -617,10 +627,12 @@ export function AnalyticsTab({ language, onLanguageChange }: { language: Languag
         </Menu>
 
         {/* Import */}
-        <Button size="small" variant="outlined" startIcon={<FileOpenIcon />} component="label">
-          {zh ? '导入JSON' : 'Import JSON'}
-          <input type="file" accept=".json" hidden onChange={handleImport} />
-        </Button>
+        <Tooltip title={zh ? '导入JSON' : 'Import JSON'}>
+          <IconButton size="small" component="label">
+            <FileOpenIcon fontSize="small" />
+            <input type="file" accept=".json" hidden onChange={handleImport} />
+          </IconButton>
+        </Tooltip>
       </Box>
       {importError && (
         <Typography variant="caption" color="error" sx={{ display: 'block', mb: 1 }}>
@@ -913,9 +925,11 @@ export function AnalyticsTab({ language, onLanguageChange }: { language: Languag
           <Typography variant="subtitle1" sx={{ fontWeight: 700, flex: 1 }}>
             {zh ? '游戏记录' : 'Game Records'} ({records.length})
           </Typography>
-          <Button size="small" variant="contained" startIcon={<AddIcon />} onClick={() => setShowCreate(true)}>
-            {zh ? '新建记录' : 'New Record'}
-          </Button>
+          <Tooltip title={zh ? '新建记录' : 'New Record'}>
+            <IconButton size="small" onClick={() => setShowCreate(true)}>
+              <AddIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
           <Tooltip title={zh ? '导入 JSON' : 'Import JSON'}>
             <IconButton size="small" component="label">
               <FileOpenIcon fontSize="small" />
