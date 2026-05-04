@@ -177,14 +177,14 @@ Key scenarios:
 
 | # | Item | Risk | Effort | Status |
 |---|------|------|--------|--------|
-| P1 | Type `ctx: any` → `StorytellerContext` | High | Low | Not started |
-| P2 | Apply DOMPurify to dangerouslySetInnerHTML | Medium-XSS | Low | Not started |
-| P3 | Delete 4 dead files (890 lines) | Low | Trivial | Not started |
+| P1 | Type `ctx: any` → `StorytellerContext` | High | Low | ✅ Done 644ca52 |
+| P2 | Apply DOMPurify to dangerouslySetInnerHTML | Medium-XSS | Low | ✅ Done 644ca52 |
+| P3 | Delete 4 dead files (890 lines) | Low | Trivial | ✅ Done 644ca52 |
 | P4 | Code-split jsPDF/html2canvas | Medium-perf | Low | Not started |
-| P5 | Centralize USER_SCRIPTS_KEY | Low | Trivial | Not started |
+| P5 | Centralize USER_SCRIPTS_KEY | Low | Trivial | ✅ Done 644ca52 |
 | P6 | Fix exhaustive-deps suppressions | Medium | Medium | Not started |
-| P7 | Fix `any` in hook interfaces | Medium | Low | Not started |
-| P8 | React.memo seat components | Medium-perf | Medium | Blocked by P1 |
+| P7 | Fix `any` in hook interfaces | Medium | Low | ✅ Done 644ca52 |
+| P8 | React.memo seat components | Medium-perf | Medium | Not started (P1 done) |
 | P9 | Test useGameLifecycle (T-04) | High | High | Planned |
 | P10 | Test parseScriptFromData (T-06) | Medium | Medium | Planned |
 
