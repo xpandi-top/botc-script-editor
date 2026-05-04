@@ -61,40 +61,45 @@ export const theme = createTheme({
   // ── Typography ──────────────────────────────────────────────────────────────
   typography: {
     fontFamily: FONT.sans,
+    fontSize: 15,           // base 15px (MUI default 14 is too small for this aesthetic)
+    htmlFontSize: 16,
     fontWeightRegular:  WEIGHT.regular,
     fontWeightMedium:   WEIGHT.medium,
     fontWeightBold:     WEIGHT.semibold,
 
-    // Display / headings — serif for ritual feel
-    h1: { fontFamily: FONT.serif, fontWeight: WEIGHT.bold,    letterSpacing: '-0.01em' },
-    h2: { fontFamily: FONT.serif, fontWeight: WEIGHT.bold,    letterSpacing: '-0.01em' },
-    h3: { fontFamily: FONT.serif, fontWeight: WEIGHT.semibold, letterSpacing: '-0.005em' },
-    h4: { fontFamily: FONT.serif, fontWeight: WEIGHT.semibold },
-    h5: { fontFamily: FONT.sans,  fontWeight: WEIGHT.semibold },
-    h6: { fontFamily: FONT.sans,  fontWeight: WEIGHT.semibold, fontSize: '1rem' },
+    // Headings — serif, deliberate spacing
+    h1: { fontFamily: FONT.serif, fontWeight: WEIGHT.bold,     fontSize: '2.4rem',  letterSpacing: '-0.02em', lineHeight: 1.2 },
+    h2: { fontFamily: FONT.serif, fontWeight: WEIGHT.bold,     fontSize: '1.9rem',  letterSpacing: '-0.015em', lineHeight: 1.25 },
+    h3: { fontFamily: FONT.serif, fontWeight: WEIGHT.semibold, fontSize: '1.5rem',  letterSpacing: '-0.01em',  lineHeight: 1.3 },
+    h4: { fontFamily: FONT.serif, fontWeight: WEIGHT.semibold, fontSize: '1.25rem', letterSpacing: '-0.005em', lineHeight: 1.35 },
+    h5: { fontFamily: FONT.sans,  fontWeight: WEIGHT.semibold, fontSize: '1.1rem',  letterSpacing: '0em',      lineHeight: 1.4 },
+    h6: { fontFamily: FONT.sans,  fontWeight: WEIGHT.semibold, fontSize: '0.95rem', letterSpacing: '0.005em',  lineHeight: 1.4 },
 
-    // UI text — sans, measured
-    subtitle1: { fontWeight: WEIGHT.medium,  letterSpacing: '0.005em' },
-    subtitle2: { fontWeight: WEIGHT.semibold, letterSpacing: '0.01em'  },
-    body1:     { fontWeight: WEIGHT.regular,  lineHeight: 1.55 },
-    body2:     { fontWeight: WEIGHT.regular,  lineHeight: 1.5, fontSize: '0.875rem' },
+    // UI text — readable, measured
+    subtitle1: { fontWeight: WEIGHT.medium,   fontSize: '1rem',    lineHeight: 1.5,  letterSpacing: '0.005em' },
+    subtitle2: { fontWeight: WEIGHT.semibold, fontSize: '0.875rem', lineHeight: 1.5, letterSpacing: '0.01em'  },
+    body1:     { fontWeight: WEIGHT.regular,  fontSize: '0.9375rem', lineHeight: 1.6 },
+    body2:     { fontWeight: WEIGHT.regular,  fontSize: '0.875rem',  lineHeight: 1.55 },
 
-    // Small UI labels
+    // Labels
     caption: {
-      fontWeight: WEIGHT.medium,
-      letterSpacing: '0.04em',
-      fontSize: '0.72rem',
-      color: INK.secondary,
+      fontWeight:    WEIGHT.medium,
+      fontSize:      '0.75rem',
+      letterSpacing: '0.03em',
+      lineHeight:    1.4,
+      color:         INK.secondary,
     },
     overline: {
       fontWeight:    WEIGHT.semibold,
-      letterSpacing: '0.12em',
-      fontSize:      '0.68rem',
+      fontSize:      '0.7rem',
+      letterSpacing: '0.1em',
+      lineHeight:    1.4,
       color:         INK.secondary,
     },
 
     button: {
       fontWeight:    WEIGHT.semibold,
+      fontSize:      '0.875rem',
       letterSpacing: '0.02em',
       textTransform: 'none' as const,
     },

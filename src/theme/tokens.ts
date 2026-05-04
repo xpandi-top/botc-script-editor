@@ -12,12 +12,11 @@ export const PALETTE = {
 } as const
 
 // ── Background layers (deep → raised) ────────────────────────────────────────
-// Page is the darkest layer — surfaces must be clearly lighter
 export const BG = {
-  page:    '#cdc9b5',   // deepest — body/page behind everything
-  canvas:  '#e0dcc9',   // satin linen — mid layer (sidebar panels, content bg)
-  surface: '#f0ece0',   // warm parchment — cards, list items (clear pop from canvas)
-  raised:  '#f7f4ea',   // near-white parchment — drawers, modals, floating panels
+  page:    '#e0dcc9',   // satin linen — body/page (light parchment base)
+  canvas:  '#e8e5d8',   // slightly darker — sidebars, inset panels
+  surface: '#f3f0e6',   // warm parchment — cards, list items, papers
+  raised:  '#f8f6ef',   // near-white — modals, drawers, floating
   sunken:  '#d8d4c0',   // recessed — inputs, wells
   overlay: 'rgba(55, 38, 27, 0.36)',
 } as const

@@ -322,29 +322,38 @@ export default function App() {
 
   return (
     <Container maxWidth="xl" sx={{ py: { xs: 0, sm: 3 }, px: { xs: 0, sm: 3 }, minHeight: '100vh' }}>
-      <Paper elevation={0} sx={{ mb: { xs: 0, sm: 2 }, borderRadius: { xs: 0, sm: 3 }, background: 'rgba(255,251,245,0.9)', overflow: 'hidden' }}>
+      <Paper elevation={1} sx={{
+        mb: { xs: 0, sm: 2 },
+        borderRadius: { xs: 0, sm: 2 },
+        overflow: 'hidden',
+        borderBottom: '1px solid',
+        borderColor: 'divider',
+      }}>
         {/* ── Title + Tabs row ── */}
-        <Box sx={{ px: { xs: 1, sm: 3 }, pt: { xs: 0.5, sm: 1 }, pb: { xs: 0.5, sm: 1 }, display: 'flex', alignItems: 'center', gap: 1 }}>
-          {/* Title — clickable on mobile to open tab menu */}
+        <Box sx={{ px: { xs: 2, sm: 3 }, py: { xs: 1.25, sm: 1.5 }, display: 'flex', alignItems: 'center', gap: 2 }}>
+
+          {/* Brand — icon + title */}
           <Box
-            sx={{ display: 'flex', alignItems: 'center', gap: 0.75, flexShrink: 0, cursor: { xs: 'pointer', sm: 'default' } }}
+            sx={{ display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0,
+              cursor: { xs: 'pointer', sm: 'default' } }}
             onClick={(e) => setTabMenuAnchor(e.currentTarget as HTMLElement)}
           >
             <Box component="img" src="appIcon.png" alt="BOTC Companion"
-              sx={{ width: { xs: 24, sm: 28 }, height: { xs: 24, sm: 28 }, flexShrink: 0 }} />
-            <Typography
-              variant="body1" component="h1"
-              sx={{ fontFamily: 'Georgia, "Times New Roman", serif', m: 0, fontWeight: 700,
-                fontSize: { xs: '0.85rem', sm: '1rem' },
-                userSelect: 'none',
-                '&:hover': { color: { xs: 'primary.main', sm: 'inherit' } },
+              sx={{ width: { xs: 28, sm: 34 }, height: { xs: 28, sm: 34 }, flexShrink: 0 }} />
+            <Typography component="h1"
+              sx={{ fontFamily: 'Georgia, "Times New Roman", serif', m: 0,
+                fontWeight: 700, userSelect: 'none',
+                fontSize: { xs: '1rem', sm: '1.2rem' },
+                letterSpacing: '-0.01em',
+                color: 'text.primary',
+                '&:hover': { color: { xs: 'primary.dark', sm: 'text.primary' } },
               }}
             >
               {uiText.appTitle}
             </Typography>
           </Box>
 
-          {/* Tabs — hidden on xs, visible sm+ */}
+          {/* Tabs — desktop */}
           <Tabs
             value={activeTab}
             onChange={(_, v) => setActiveTab(v)}
@@ -353,9 +362,15 @@ export default function App() {
             sx={{
               flex: '1 1 auto',
               display: { xs: 'none', sm: 'flex' },
-              minHeight: 40,
-              '& .MuiTab-root': { textTransform: 'none', borderRadius: 999, border: '1px solid', borderColor: 'divider', mr: 0.5, minHeight: 36, fontSize: '0.8rem', py: 0.5, px: 1.25 },
-              '& .Mui-selected': { backgroundColor: 'rgba(133, 63, 34, 0.1)', borderColor: 'primary.main' },
+              minHeight: 44,
+              '& .MuiTab-root': {
+                minHeight: 38,
+                fontSize: '0.875rem',
+                fontWeight: 500,
+                px: 1.75,
+                py: 0.5,
+                mr: 0.5,
+              },
             }}
           >
             <Tab label={uiText.scriptSheet} value="scripts" />
@@ -366,7 +381,10 @@ export default function App() {
           </Tabs>
 
           {/* Mobile: active tab name */}
-          <Typography variant="body2" color="primary" sx={{ display: { xs: 'flex', sm: 'none' }, flex: 1, fontWeight: 600, cursor: 'pointer' }}
+          <Typography component="span"
+            sx={{ display: { xs: 'flex', sm: 'none' }, flex: 1,
+              fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer',
+              color: 'primary.dark', userSelect: 'none' }}
             onClick={(e) => setTabMenuAnchor(e.currentTarget as HTMLElement)}>
             {activeTab === 'scripts' ? uiText.scriptSheet
               : activeTab === 'characters' ? uiText.allCharacters
@@ -376,8 +394,13 @@ export default function App() {
             {' ▾'}
           </Typography>
 
-          <IconButton size="small" onClick={() => setHeaderVisible(v => !v)} title={headerVisible ? 'Hide' : 'Show'}>
-            {headerVisible ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
+          <IconButton
+            size="small"
+            onClick={() => setHeaderVisible(v => !v)}
+            title={headerVisible ? 'Hide header' : 'Show header'}
+            sx={{ flexShrink: 0 }}
+          >
+            {headerVisible ? <ExpandLessIcon /> : <ExpandMoreIcon />}
           </IconButton>
         </Box>
 

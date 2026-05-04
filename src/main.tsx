@@ -23,10 +23,10 @@ initNative().then(() => {
           '--c-flint':        '#747469',
 
           // ── Background layers ───────────────────────────────────────────
-          '--bg-page':    '#cdc9b5',
-          '--bg-canvas':  '#e0dcc9',
-          '--bg-surface': '#f0ece0',
-          '--bg-raised':  '#f7f4ea',
+          '--bg-page':    '#e0dcc9',
+          '--bg-canvas':  '#e8e5d8',
+          '--bg-surface': '#f3f0e6',
+          '--bg-raised':  '#f8f6ef',
           '--bg-sunken':  '#d8d4c0',
 
           // ── Ink ─────────────────────────────────────────────────────────
@@ -84,8 +84,8 @@ initNative().then(() => {
           margin: 0,
           minWidth: 320,
           minHeight: '100vh',
-          // Parchment page: dark linen ground, surfaces float above it
-          background: 'radial-gradient(ellipse at 50% 0%, #d8d4c0 0%, #c8c4b0 100%)',
+          // Light parchment — Satin Linen base with very subtle depth
+          background: 'linear-gradient(160deg, #e8e5d8 0%, #dedad0 100%)',
           colorScheme: 'light',
           color: '#37261b',
         },
