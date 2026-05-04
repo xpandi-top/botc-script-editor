@@ -1,6 +1,6 @@
 {
   "ui": {
-    "app_title": "剧本编辑器",
+    "app_title": "BOTC Companion",
     "app_lead": "编辑独立 JSON 剧本文件、预览剧本，并导出 PDF。",
     "print": "导出 PDF",
     "script_sheet": "剧本",

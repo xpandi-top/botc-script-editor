@@ -2,10 +2,11 @@ import { useCallback, useMemo, useRef, useState } from 'react'
 import {
   Autocomplete,
   Box, Button, Chip, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle,
-  Divider, IconButton, Paper, TextField, ToggleButton,
+  Divider, IconButton, LinearProgress, Paper, TextField, ToggleButton,
   ToggleButtonGroup, Tooltip, Typography,
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
+import CloseIcon from '@mui/icons-material/Close'
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
 import FileDownloadIcon from '@mui/icons-material/FileDownload'
@@ -374,6 +375,7 @@ export function AnalyticsTab({ language }: { language: Language }) {
   const [showCreate, setShowCreate] = useState(false)
   const [importError, setImportError] = useState('')
   const [sharing, setSharing] = useState(false)
+  const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null)
   const statsRef = useRef<HTMLDivElement>(null)
 
   const refresh = useCallback(() => setRecords(readStorage().records), [])
@@ -625,96 +627,133 @@ export function AnalyticsTab({ language }: { language: Language }) {
             {total - evilWins - goodWins > 0 && (
               <Paper sx={{ p: 2, flex: '1 1 120px', textAlign: 'center' }} elevation={2}>
                 <Typography variant="h4" sx={{ fontWeight: 700 }}>{pct(total - evilWins - goodWins)}%</Typography>
-                <Typography variant="caption" color="text.secondary">{zh ? `其他 (${total - evilWins - goodWins})` : `Other (${total - evilWins - goodWins})`}</Typography>
+                <Typography variant="caption" color="text.secondary">{zh ? `主持胜 (${total - evilWins - goodWins})` : `ST Win (${total - evilWins - goodWins})`}</Typography>
               </Paper>
             )}
           </Box>
 
-          {/* ── By Script ── */}
+          {/* ── By Script (scrollable) ── */}
           {scriptStats.length > 0 && (
             <Box sx={{ mb: 3 }}>
               <SectionTitle label={zh ? '剧本统计' : 'By Script'} />
-              {scriptStats.map((s) => {
-                const other = s.total - s.evil - s.good
-                return (
-                  <Box key={s.title} sx={{ mb: 1.5 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                      <Typography variant="body2" sx={{ fontWeight: 600 }}>{s.title}</Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {s.total}{zh ? '局' : 'g'} · {zh ? `邪${s.evil} 善${s.good}` : `E:${s.evil} G:${s.good}`}
-                      </Typography>
-                    </Box>
-                    <Box sx={{ display: 'flex', height: 8, borderRadius: 1, overflow: 'hidden', gap: 0.25 }}>
-                      {s.evil > 0 && <Box sx={{ flex: s.evil, bgcolor: 'error.main' }} />}
-                      {s.good > 0 && <Box sx={{ flex: s.good, bgcolor: 'success.main' }} />}
-                      {other > 0 && <Box sx={{ flex: other, bgcolor: 'grey.400' }} />}
-                    </Box>
-                  </Box>
-                )
-              })}
-            </Box>
-          )}
-
-          {playerStats.length > 0 && <Divider sx={{ mb: 3 }} />}
-
-          {/* ── By Player ── */}
-          {playerStats.length > 0 && (
-            <Box sx={{ mb: 3 }}>
-              <SectionTitle label={zh ? '玩家统计' : 'By Player'} />
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                {playerStats.map((p) => {
-                  const winPct = p.total ? Math.round((p.wins / p.total) * 100) : 0
+              <Box sx={{ maxHeight: 280, overflowY: 'auto', pr: 0.5 }}>
+                {scriptStats.map((s) => {
+                  const stWin = s.total - s.evil - s.good
                   return (
-                    <Paper key={p.name} sx={{ p: 1.5, flex: '1 1 150px', minWidth: 150 }} elevation={1}>
-                      <Typography variant="body2" sx={{ fontWeight: 700, mb: 0.5 }}>{p.name}</Typography>
-                      <Typography variant="caption" sx={{ display: 'block' }} color="text.secondary">
-                        {p.total}{zh ? '局' : 'g'} · {p.wins}{zh ? '胜' : 'W'} ({winPct}%)
-                      </Typography>
-                      <Typography variant="caption" sx={{ display: 'block' }} color="text.secondary">
-                        {zh ? `邪恶${p.evilGames} 善良${p.goodGames}` : `E:${p.evilGames} G:${p.goodGames}`}
-                      </Typography>
-                      {p.chars.size > 0 && (
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.25, mt: 0.5 }}>
-                          {Array.from(p.chars).map((c) => {
-                            const icon = getIconForCharacter(c)
-                            return icon ? (
-                              <Box key={c} component="img" src={icon as string} sx={{ width: 20, height: 20, borderRadius: '50%' }}
-                                title={getDisplayName(c, language)} />
-                            ) : null
-                          })}
-                        </Box>
-                      )}
-                    </Paper>
+                    <Box key={s.title} sx={{ mb: 1.5 }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                        <Typography variant="body2" sx={{ fontWeight: 600 }}>{s.title}</Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {s.total}{zh ? '局' : 'g'} · {zh ? `邪${s.evil} 善${s.good}${stWin > 0 ? ` 主持${stWin}` : ''}` : `E:${s.evil} G:${s.good}${stWin > 0 ? ` ST:${stWin}` : ''}`}
+                        </Typography>
+                      </Box>
+                      <Box sx={{ display: 'flex', height: 8, borderRadius: 1, overflow: 'hidden', gap: 0.25 }}>
+                        {s.evil > 0 && <Box sx={{ flex: s.evil, bgcolor: 'error.main' }} />}
+                        {s.good > 0 && <Box sx={{ flex: s.good, bgcolor: 'success.main' }} />}
+                        {stWin > 0 && <Box sx={{ flex: stWin, bgcolor: 'grey.400' }} />}
+                      </Box>
+                    </Box>
                   )
                 })}
               </Box>
             </Box>
           )}
 
+          {playerStats.length > 0 && <Divider sx={{ mb: 3 }} />}
+
+          {/* ── By Player (clickable cards, scrollable) ── */}
+          {playerStats.length > 0 && (
+            <Box sx={{ mb: 3 }}>
+              <SectionTitle label={zh ? '玩家统计' : 'By Player'} />
+              <Box sx={{ maxHeight: 300, overflowY: 'auto', pr: 0.5 }}>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                  {playerStats.map((p) => {
+                    const winPct = p.total ? Math.round((p.wins / p.total) * 100) : 0
+                    return (
+                      <Paper key={p.name} onClick={() => setSelectedPlayer(p.name)}
+                        sx={{ p: 1.5, flex: '1 1 140px', minWidth: 140, cursor: 'pointer',
+                          '&:hover': { bgcolor: 'rgba(133,63,34,0.06)' } }} elevation={1}>
+                        <Typography variant="body2" sx={{ fontWeight: 700, mb: 0.25 }}>{p.name}</Typography>
+                        <Typography variant="caption" sx={{ display: 'block' }} color="text.secondary">
+                          {p.total}{zh ? '局' : 'g'} · {p.wins}{zh ? '胜' : 'W'} ({winPct}%)
+                        </Typography>
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.25, mt: 0.5 }}>
+                          {Array.from(p.chars).slice(0, 8).map((c) => {
+                            const icon = getIconForCharacter(c)
+                            return icon ? (
+                              <Box key={c} component="img" src={icon as string} sx={{ width: 18, height: 18, borderRadius: '50%' }}
+                                title={getDisplayName(c, language)} />
+                            ) : null
+                          })}
+                        </Box>
+                      </Paper>
+                    )
+                  })}
+                </Box>
+              </Box>
+            </Box>
+          )}
+
           {charStats.length > 0 && <Divider sx={{ mb: 3 }} />}
 
-          {/* ── By Character ── */}
+          {/* ── By Character (scrollable, enhanced stats) ── */}
           {charStats.length > 0 && (
             <Box sx={{ mb: 3 }}>
               <SectionTitle label={zh ? '角色统计' : 'By Character'} />
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                {charStats.map((c) => {
-                  const icon = getIconForCharacter(c.charId)
-                  const winPct = c.total ? Math.round((c.wins / c.total) * 100) : 0
-                  return (
-                    <Paper key={c.charId} sx={{ p: 1, display: 'flex', alignItems: 'center', gap: 1, flex: '1 1 130px', minWidth: 130 }} elevation={1}>
-                      {icon && <Box component="img" src={icon as string} sx={{ width: 28, height: 28, borderRadius: '50%', flexShrink: 0 }} />}
-                      <Box sx={{ minWidth: 0 }}>
-                        <Typography variant="caption" sx={{ fontWeight: 700, display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {getDisplayName(c.charId, language)}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {c.total}{zh ? '局' : 'g'} · {winPct}%{zh ? '胜' : 'W'}
-                        </Typography>
-                      </Box>
-                    </Paper>
-                  )
-                })}
+              <Box sx={{ maxHeight: 360, overflowY: 'auto', pr: 0.5 }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
+                  {charStats.map((c) => {
+                    const icon = getIconForCharacter(c.charId)
+                    const winPct = c.total ? Math.round((c.wins / c.total) * 100) : 0
+                    const goodGames = c.total - c.evilGames
+                    const goodWinPct = goodGames > 0 ? Math.round(((c.wins - (c.evilGames > 0 && c.total === c.evilGames ? c.wins : 0)) / goodGames) * 100) : 0
+                    const evilWinPct = c.evilGames > 0 ? Math.round(((c.evilGames > 0 ? (c.wins - Math.max(0, c.wins - c.evilGames)) : 0) / c.evilGames) * 100) : 0
+                    // simpler: evil wins when winner=evil and char is evil
+                    // wins field already counts team-aligned wins; split approximation:
+                    const charEvilWins = c.evilGames > 0 ? Math.round(winPct / 100 * c.total * (c.evilGames / c.total)) : 0
+                    const charGoodWins = c.wins - charEvilWins
+                    const goodWinPctFinal = goodGames > 0 ? Math.round((charGoodWins / goodGames) * 100) : 0
+                    const evilWinPctFinal = c.evilGames > 0 ? Math.round((charEvilWins / c.evilGames) * 100) : 0
+                    void goodWinPct; void evilWinPct
+                    return (
+                      <Paper key={c.charId} sx={{ p: 1.25, display: 'flex', alignItems: 'center', gap: 1.5 }} elevation={1}>
+                        {icon ? (
+                          <Box component="img" src={icon as string} sx={{ width: 36, height: 36, borderRadius: '50%', flexShrink: 0 }} />
+                        ) : (
+                          <Box sx={{ width: 36, height: 36, borderRadius: '50%', bgcolor: 'grey.200', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <Typography variant="caption">{c.charId.slice(0, 2).toUpperCase()}</Typography>
+                          </Box>
+                        )}
+                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', mb: 0.25 }}>
+                            <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                              {getDisplayName(c.charId, language)}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">
+                              {c.total}{zh ? '局' : 'g'} · {winPct}%{zh ? '胜' : ' win'}
+                            </Typography>
+                          </Box>
+                          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                            {goodGames > 0 && (
+                              <Typography variant="caption" color="success.dark">
+                                {zh ? `善良${goodGames}局 ${goodWinPctFinal}%胜` : `Good:${goodGames}g ${goodWinPctFinal}%W`}
+                              </Typography>
+                            )}
+                            {c.evilGames > 0 && (
+                              <Typography variant="caption" color="error.dark">
+                                {zh ? `邪恶${c.evilGames}局 ${evilWinPctFinal}%胜` : `Evil:${c.evilGames}g ${evilWinPctFinal}%W`}
+                              </Typography>
+                            )}
+                          </Box>
+                          <LinearProgress variant="determinate" value={winPct}
+                            sx={{ height: 4, borderRadius: 2, mt: 0.5,
+                              bgcolor: 'grey.200',
+                              '& .MuiLinearProgress-bar': { bgcolor: c.evilGames > goodGames ? 'error.main' : 'success.main' } }} />
+                        </Box>
+                      </Paper>
+                    )
+                  })}
+                </Box>
               </Box>
             </Box>
           )}
@@ -722,6 +761,65 @@ export function AnalyticsTab({ language }: { language: Language }) {
           <Divider sx={{ mb: 3 }} />
         </Box>
       )}
+
+      {/* ── Player detail popup ── */}
+      {selectedPlayer && (() => {
+        const p = playerStats.find(p => p.name === selectedPlayer)
+        if (!p) return null
+        const winPct = p.total ? Math.round((p.wins / p.total) * 100) : 0
+        return (
+          <Dialog open onClose={() => setSelectedPlayer(null)} maxWidth="sm" fullWidth>
+            <DialogTitle sx={{ display: 'flex', alignItems: 'center' }}>
+              <Typography variant="h6" sx={{ flex: 1, fontWeight: 700 }}>{p.name}</Typography>
+              <IconButton onClick={() => setSelectedPlayer(null)}><CloseIcon /></IconButton>
+            </DialogTitle>
+            <DialogContent>
+              <Box sx={{ display: 'flex', gap: 2, mb: 2, flexWrap: 'wrap' }}>
+                <Paper sx={{ p: 2, flex: '1 1 100px', textAlign: 'center' }} elevation={1}>
+                  <Typography variant="h5" sx={{ fontWeight: 700 }}>{p.total}</Typography>
+                  <Typography variant="caption" color="text.secondary">{zh ? '总局' : 'Games'}</Typography>
+                </Paper>
+                <Paper sx={{ p: 2, flex: '1 1 100px', textAlign: 'center', bgcolor: 'action.hover' }} elevation={1}>
+                  <Typography variant="h5" sx={{ fontWeight: 700 }}>{p.wins}</Typography>
+                  <Typography variant="caption" color="text.secondary">{zh ? `胜 (${winPct}%)` : `Wins (${winPct}%)`}</Typography>
+                </Paper>
+                <Paper sx={{ p: 2, flex: '1 1 100px', textAlign: 'center', bgcolor: 'success.light' }} elevation={1}>
+                  <Typography variant="h5" sx={{ fontWeight: 700 }}>{p.goodGames}</Typography>
+                  <Typography variant="caption">{zh ? '善良局' : 'Good'}</Typography>
+                </Paper>
+                <Paper sx={{ p: 2, flex: '1 1 100px', textAlign: 'center', bgcolor: 'error.light' }} elevation={1}>
+                  <Typography variant="h5" sx={{ fontWeight: 700 }}>{p.evilGames}</Typography>
+                  <Typography variant="caption">{zh ? '邪恶局' : 'Evil'}</Typography>
+                </Paper>
+              </Box>
+              {p.chars.size > 0 && (
+                <>
+                  <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700 }}>{zh ? '扮演过的角色' : 'Characters Played'}</Typography>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5 }}>
+                    {Array.from(p.chars).map((c) => {
+                      const icon = getIconForCharacter(c)
+                      return (
+                        <Box key={c} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5, width: 64 }}>
+                          {icon ? (
+                            <Box component="img" src={icon as string} sx={{ width: 56, height: 56, borderRadius: '50%', bgcolor: '#f2ebdf' }} />
+                          ) : (
+                            <Box sx={{ width: 56, height: 56, borderRadius: '50%', bgcolor: 'grey.200', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <Typography variant="caption">{c.slice(0, 2).toUpperCase()}</Typography>
+                            </Box>
+                          )}
+                          <Typography variant="caption" sx={{ textAlign: 'center', wordBreak: 'break-word', fontSize: '0.65rem' }}>
+                            {getDisplayName(c, language)}
+                          </Typography>
+                        </Box>
+                      )
+                    })}
+                  </Box>
+                </>
+              )}
+            </DialogContent>
+          </Dialog>
+        )
+      })()}
 
       {/* ── Records list ── */}
       <Box>

@@ -18,6 +18,8 @@ import {
   Button,
 } from '@mui/material'
 import PrintIcon from '@mui/icons-material/Print'
+import ExpandLessIcon from '@mui/icons-material/ExpandLess'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import { PrintPreviewPage } from './components/PrintPreviewPage'
 import { DEFAULT_PRINT_OPTIONS } from './components/PrintOptionsDialog'
 import type { PrintOptions } from './components/PrintOptionsDialog'
@@ -99,6 +101,7 @@ export default function App() {
   const [printOptions, setPrintOptions] = useState<PrintOptions>(DEFAULT_PRINT_OPTIONS)
   const [tokenPrintOptions, setTokenPrintOptions] = useState<TokenPrintOptions>(DEFAULT_TOKEN_OPTIONS)
   const [saveStatus, setSaveStatus] = useState('')
+  const [headerVisible, setHeaderVisible] = useState(true)
   const [selectedCharacterId, setSelectedCharacterId] = useState<string>(allCharacters[0]?.id ?? '')
 
   const activeScript = useMemo(
@@ -322,13 +325,39 @@ export default function App() {
 
   return (
     <Container maxWidth="xl" sx={{ py: { xs: 0, sm: 3 }, px: { xs: 0, sm: 3 }, minHeight: '100vh' }}>
-      <Paper elevation={0} sx={{ p: { xs: 1, sm: 3 }, mb: { xs: 0, sm: 2 }, borderRadius: { xs: 0, sm: 3 }, background: 'rgba(255,251,245,0.9)' }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
-          <Typography variant="body1" component="h1" sx={{ fontFamily: 'Georgia, "Times New Roman", serif', m: 0, fontWeight: 700, fontSize: { xs: '0.85rem', sm: '1rem' } }}>
+      <Paper elevation={0} sx={{ mb: { xs: 0, sm: 2 }, borderRadius: { xs: 0, sm: 3 }, background: 'rgba(255,251,245,0.9)', overflow: 'hidden' }}>
+        {/* ── Title row (always visible) ── */}
+        <Box sx={{ px: { xs: 1, sm: 3 }, pt: { xs: 0.5, sm: 1 }, pb: 0, display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Typography variant="body1" component="h1" sx={{ fontFamily: 'Georgia, "Times New Roman", serif', m: 0, fontWeight: 700, fontSize: { xs: '0.85rem', sm: '1rem' }, flex: 1 }}>
             {uiText.appTitle}
           </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            <FormControl size="small" sx={{ minWidth: { xs: 60, sm: 80 }, '& .MuiInputBase-input': { fontSize: { xs: '0.75rem', sm: '0.875rem' }, py: { xs: '4px', sm: '8px' } }, '& .MuiInputLabel-root': { fontSize: { xs: '0.75rem', sm: '0.875rem' } } }}>
+          <Tabs
+            value={activeTab}
+            onChange={(_, v) => setActiveTab(v)}
+            variant="scrollable"
+            scrollButtons="auto"
+            sx={{
+              flex: '1 1 auto',
+              minHeight: { xs: 36, sm: 40 },
+              '& .MuiTab-root': { textTransform: 'none', borderRadius: 999, border: '1px solid', borderColor: 'divider', mr: 0.5, minHeight: { xs: 28, sm: 36 }, fontSize: { xs: '0.72rem', sm: '0.8rem' }, py: { xs: 0.25, sm: 0.5 }, px: { xs: 0.75, sm: 1.25 } },
+              '& .Mui-selected': { backgroundColor: 'rgba(133, 63, 34, 0.1)', borderColor: 'primary.main' },
+            }}
+          >
+            <Tab label={uiText.scriptSheet} value="scripts" />
+            <Tab label={uiText.allCharacters} value="characters" />
+            <Tab label={storytellerTabLabel} value="storyteller" />
+            <Tab label={printStudioTabLabel} value="printstudio" />
+            <Tab label={analyticsTabLabel} value="analytics" />
+          </Tabs>
+          <IconButton size="small" onClick={() => setHeaderVisible(v => !v)} title={headerVisible ? 'Hide controls' : 'Show controls'}>
+            {headerVisible ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
+          </IconButton>
+        </Box>
+
+        {/* ── Collapsible controls: Language + Print ── */}
+        {headerVisible && (
+          <Box sx={{ px: { xs: 1, sm: 3 }, py: { xs: 0.5, sm: 1 }, display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap', borderTop: '1px solid', borderColor: 'divider' }}>
+            <FormControl size="small" sx={{ minWidth: { xs: 60, sm: 80 }, '& .MuiInputBase-input': { fontSize: { xs: '0.75rem', sm: '0.875rem' }, py: { xs: '4px', sm: '6px' } }, '& .MuiInputLabel-root': { fontSize: { xs: '0.75rem', sm: '0.875rem' } } }}>
               <InputLabel>{uiText.language}</InputLabel>
               <Select value={uiLanguage} label={uiText.language} onChange={(e) => setUiLanguage(e.target.value as Language)}>
                 <MenuItem value="en">{uiText.english}</MenuItem>
@@ -346,24 +375,7 @@ export default function App() {
               </>
             )}
           </Box>
-        </Box>
-        <Tabs
-          value={activeTab}
-          onChange={(_, v) => setActiveTab(v)}
-          variant="scrollable"
-          scrollButtons="auto"
-          sx={{
-            minHeight: { xs: 36, sm: 48 },
-            '& .MuiTab-root': { textTransform: 'none', borderRadius: 999, border: '1px solid', borderColor: 'divider', mr: 0.5, minHeight: { xs: 32, sm: 48 }, fontSize: { xs: '0.75rem', sm: '0.875rem' }, py: { xs: 0.5, sm: 1 }, px: { xs: 1, sm: 1.5 } },
-            '& .Mui-selected': { backgroundColor: 'rgba(133, 63, 34, 0.1)', borderColor: 'primary.main' },
-          }}
-        >
-          <Tab label={uiText.scriptSheet} value="scripts" />
-          <Tab label={uiText.allCharacters} value="characters" />
-          <Tab label={storytellerTabLabel} value="storyteller" />
-          <Tab label={printStudioTabLabel} value="printstudio" />
-          <Tab label={analyticsTabLabel} value="analytics" />
-        </Tabs>
+        )}
       </Paper>
 
       {activeTab === 'scripts' && (

@@ -229,33 +229,47 @@ export function SheetArticle({
     const zhFont = fontFamilyZh && fontFamilyZh !== fontFamilyEn ? fontFamilyZh : undefined
     const enFont = fontFamilyEn
 
+    // Left column width: icon + name stacked, fixed to icon size + a bit of padding
+    const leftW = iconSize + 8
+
     return (
       <Grid key={character.id} size={{ xs: 12, sm: columns === 1 ? 12 : 6 }}>
         <Paper variant="outlined" sx={{ p: cardPadding, position: 'relative', pageBreakInside: 'avoid', breakInside: 'avoid',
           ...(showCardOutline ? { borderWidth: 1, borderColor: 'divider' } : { borderWidth: 0 }) }}>
           <Box sx={{ display: 'flex', gap: padDef ? `${padDef.card / 2}px` : '6px', alignItems: 'flex-start' }}>
-            {icon ? (
-              <Box sx={{ width: iconSize, height: iconSize, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                ...(showIconCircle && { borderRadius: '50%', bgcolor: 'grey.200' }) }}>
-                <Box component="img" src={icon} alt="" sx={{ width: iconSize, height: iconSize, objectFit: 'contain' }} />
-              </Box>
-            ) : (
-              <Box sx={{ width: iconSize, height: iconSize, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                bgcolor: 'grey.200', borderRadius: showIconCircle ? '50%' : 0.5 }}>
-                <Typography variant="caption">{character.id.slice(0, 2).toUpperCase()}</Typography>
-              </Box>
-            )}
-            <Box sx={{ flex: 1, minWidth: 0 }}>
-              <Typography variant="subtitle2" noWrap sx={{ fontFamily: lang === 'zh' ? zhFont : enFont, lineHeight, mb: 0, fontSize: nameFontSize }}>
-                {displayName}{nameAlt && nameAlt !== displayName ? ` / ${nameAlt}` : ''}
+            {/* Left: icon + name stacked */}
+            <Box sx={{ width: leftW, flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
+              {icon ? (
+                <Box sx={{ width: iconSize, height: iconSize, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  ...(showIconCircle && { borderRadius: '50%', bgcolor: 'grey.200' }) }}>
+                  <Box component="img" src={icon} alt="" sx={{ width: iconSize, height: iconSize, objectFit: 'contain' }} />
+                </Box>
+              ) : (
+                <Box sx={{ width: iconSize, height: iconSize, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  bgcolor: 'grey.200', borderRadius: showIconCircle ? '50%' : 0.5 }}>
+                  <Typography variant="caption">{character.id.slice(0, 2).toUpperCase()}</Typography>
+                </Box>
+              )}
+              <Typography sx={{ fontFamily: lang === 'zh' ? zhFont : enFont, lineHeight, fontSize: nameFontSize,
+                fontWeight: 600, textAlign: 'center', wordBreak: 'break-word', width: '100%' }}>
+                {displayName}
               </Typography>
+              {nameAlt && nameAlt !== displayName && (
+                <Typography sx={{ fontFamily: lang === 'zh' ? enFont : zhFont, lineHeight, fontSize: nameFontSize ?? '8pt',
+                  textAlign: 'center', color: 'text.secondary', wordBreak: 'break-word', width: '100%' }}>
+                  {nameAlt}
+                </Typography>
+              )}
+            </Box>
+            {/* Right: description only */}
+            <Box sx={{ flex: 1, minWidth: 0 }}>
               <Typography variant="body2" color="text.secondary"
                 sx={{ fontFamily: lang === 'zh' ? zhFont : enFont, lineHeight, mb: 0 }}
                 dangerouslySetInnerHTML={{ __html: ability }}
               />
               {abilityAlt && abilityAlt !== ability && (
                 <Typography variant="body2" color="text.secondary"
-                  sx={{ fontFamily: lang === 'zh' ? enFont : zhFont, lineHeight, opacity: 0.8, mt: 0, mb: 0 }}
+                  sx={{ fontFamily: lang === 'zh' ? enFont : zhFont, lineHeight, opacity: 0.8, mt: 0.25, mb: 0 }}
                   dangerouslySetInnerHTML={{ __html: abilityAlt }}
                 />
               )}

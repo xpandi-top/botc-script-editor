@@ -1,6 +1,6 @@
 {
   "ui": {
-    "app_title": "Script Builder",
+    "app_title": "BOTC Companion",
     "app_lead": "Edit scripts from dedicated JSON files, preview the sheet, and export it to PDF.",
     "print": "Print / Save as PDF",
     "script_sheet": "Scripts",
