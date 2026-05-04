@@ -15,6 +15,7 @@ import RemoveIcon from '@mui/icons-material/Remove'
 import { allCharacters, getDisplayName, getIconForCharacter, initialScripts } from '../../catalog'
 import { STORAGE_KEY, RECORDS_CHANGED_EVENT } from '../StorytellerSub/constants'
 import { storageSync } from '../../lib/storage'
+import { exportGameFile } from '../../lib/exportGame'
 import type { GameRecord } from '../StorytellerSub/types'
 import type { Language } from '../../types'
 
@@ -415,11 +416,7 @@ export function AnalyticsTab({ language }: { language: Language }) {
 
   // ── Export ──
   const exportRecords = () => {
-    const blob = new Blob([JSON.stringify(records, null, 2)], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url; a.download = `botc-records-${new Date().toISOString().slice(0, 10)}.json`
-    a.click(); URL.revokeObjectURL(url)
+    exportGameFile(JSON.stringify(records, null, 2), `botc-records-${new Date().toISOString().slice(0, 10)}.json`)
   }
 
   const exportAnalysis = () => {
@@ -430,11 +427,7 @@ export function AnalyticsTab({ language }: { language: Language }) {
       byPlayer: playerStats.map((p) => ({ ...p, chars: Array.from(p.chars) })),
       byCharacter: charStats,
     }
-    const blob = new Blob([JSON.stringify(analysis, null, 2)], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url; a.download = `botc-analysis-${new Date().toISOString().slice(0, 10)}.json`
-    a.click(); URL.revokeObjectURL(url)
+    exportGameFile(JSON.stringify(analysis, null, 2), `botc-analysis-${new Date().toISOString().slice(0, 10)}.json`)
   }
 
   // ── Stats ──
@@ -713,11 +706,7 @@ export function AnalyticsTab({ language }: { language: Language }) {
                 </Tooltip>
                 <Tooltip title={zh ? '下载此记录' : 'Download'}>
                   <IconButton size="small" onClick={() => {
-                    const blob = new Blob([JSON.stringify(r, null, 2)], { type: 'application/json' })
-                    const url = URL.createObjectURL(blob)
-                    const a = document.createElement('a')
-                    a.href = url; a.download = `record-${r.id.slice(0, 8)}.json`
-                    a.click(); URL.revokeObjectURL(url)
+                    exportGameFile(JSON.stringify(r, null, 2), `record-${r.id.slice(0, 8)}.json`)
                   }}>
                     <FileDownloadIcon sx={{ fontSize: 16 }} />
                   </IconButton>

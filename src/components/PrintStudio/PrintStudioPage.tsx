@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Box, Button, FormControl, IconButton, MenuItem, Paper, Select, Tooltip, Typography, useMediaQuery, useTheme } from '@mui/material'
+import { Box, Button, CircularProgress, FormControl, IconButton, MenuItem, Paper, Select, Tooltip, Typography, useMediaQuery, useTheme } from '@mui/material'
 import PrintIcon from '@mui/icons-material/Print'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import MenuIcon from '@mui/icons-material/Menu'
 import MenuOpenIcon from '@mui/icons-material/MenuOpen'
+import { printOrShare, isNativePlatform } from '../../lib/nativePrint'
 import { TokenOptionsPanel } from './TokenOptionsPanel'
 import { TokenPageGrid, TokenPrintPortal } from './TokenPageGrid'
 import { PAGE_SIZE_DEFS } from '../PrintOptionsDialog'
@@ -30,13 +31,27 @@ export function PrintStudioPage({ opts, onOptionsChange, onClose, scriptCharacte
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const [panelOpen, setPanelOpen] = useState(true)
+  const [printing, setPrinting] = useState(false)
+  const previewRef = useRef<HTMLDivElement>(null)
 
   // When "__all__" is selected, use allCharacters
-  const scriptCharacters = activeSlug === '__all__' 
+  const scriptCharacters = activeSlug === '__all__'
     ? allCharacters.map(c => ({ id: c.id, team: c.team, edition: c.edition }))
     : givenCharacters
 
-  const handlePrint = () => {
+  const handlePrint = async () => {
+    if (isNativePlatform && previewRef.current) {
+      const title = scripts.find(s => s.slug === activeSlug)
+        ? getScriptTitle(scripts.find(s => s.slug === activeSlug)!)
+        : 'tokens'
+      await printOrShare(
+        previewRef.current,
+        title,
+        () => setPrinting(true),
+        () => setPrinting(false),
+      )
+      return
+    }
     // inject @page css
     let styleEl = document.getElementById('ts-page-style') as HTMLStyleElement | null
     if (!styleEl) {
@@ -94,8 +109,8 @@ export function PrintStudioPage({ opts, onOptionsChange, onClose, scriptCharacte
             {panelOpen ? <MenuOpenIcon fontSize="small" /> : <MenuIcon fontSize="small" />}
           </IconButton>
         </Tooltip>
-        <Button variant="contained" size="small" startIcon={<PrintIcon />} onClick={handlePrint} disabled={selectedCount === 0}>
-          {zh ? '打印' : 'Print'}
+        <Button variant="contained" size="small" startIcon={printing ? <CircularProgress size={14} color="inherit" /> : <PrintIcon />} onClick={handlePrint} disabled={selectedCount === 0 || printing}>
+          {printing ? (zh ? '生成中…' : 'Exporting…') : (zh ? '打印' : 'Print')}
         </Button>
       </Paper>
 
@@ -117,7 +132,7 @@ export function PrintStudioPage({ opts, onOptionsChange, onClose, scriptCharacte
         </Box>}
 
         {/* Live preview (hidden on mobile when panel open) */}
-        <Box sx={{
+        <Box ref={previewRef} sx={{
           flex: 1,
           overflowY: 'auto',
           bgcolor: 'grey.200',

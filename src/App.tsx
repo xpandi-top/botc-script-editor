@@ -43,6 +43,7 @@ import {
 } from './catalog'
 import { STORAGE_KEY } from './components/StorytellerSub/constants'
 import { storageSync } from './lib/storage'
+import { exportGameFile } from './lib/exportGame'
 import type {
   CharacterGroup,
   EditableScript,
@@ -300,15 +301,10 @@ export default function App() {
 
   function downloadScriptFile() {
     if (!activeScript) return
+    const filename = `${activeScript.slug || 'script'}.json`
     const payload = JSON.stringify(createScriptPayload(activeScript), null, 2)
-    const blob = new Blob([payload], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `${activeScript.slug || 'script'}.json`
-    link.click()
-    URL.revokeObjectURL(url)
-    setSaveStatus(`Downloaded ${link.download}`)
+    exportGameFile(payload, filename)
+    setSaveStatus(`Downloaded ${filename}`)
   }
 
   function toggleCharacterInScript(characterId: string) {

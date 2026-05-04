@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import {
-  Box, Button, IconButton, Typography, Slider, ToggleButton, ToggleButtonGroup,
+  Box, Button, CircularProgress, IconButton, Typography, Slider, ToggleButton, ToggleButtonGroup,
   FormControlLabel, Switch, Select, MenuItem, FormControl, InputLabel,
   Divider, Paper, Tooltip, useMediaQuery, useTheme,
 } from '@mui/material'
@@ -16,6 +16,7 @@ import {
 } from './PrintOptionsDialog'
 import type { PrintOptions, PageSize, LanguageLayout } from './PrintOptionsDialog'
 import type { EditableScript, Language, ResolvedScriptCharacter, ResolvedScriptCharacterGroup } from '../types'
+import { printOrShare, isNativePlatform } from '../lib/nativePrint'
 
 type Props = {
   activeScript: EditableScript
@@ -44,10 +45,21 @@ export function PrintPreviewPage({
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const [panelOpen, setPanelOpen] = useState(true)
+  const [printing, setPrinting] = useState(false)
+  const previewRef = useRef<HTMLDivElement>(null)
   const set = <K extends keyof PrintOptions>(key: K, val: PrintOptions[K]) =>
     onOptionsChange({ ...opts, [key]: val })
 
-  const handlePrint = () => {
+  const handlePrint = async () => {
+    if (isNativePlatform && previewRef.current) {
+      await printOrShare(
+        previewRef.current,
+        getScriptTitle(activeScript) || 'script',
+        () => setPrinting(true),
+        () => setPrinting(false),
+      )
+      return
+    }
     applyPrintOptionsToPortal(opts)
     setTimeout(() => window.print(), 80)
   }
@@ -127,7 +139,9 @@ export function PrintPreviewPage({
             {panelOpen ? <MenuOpenIcon fontSize="small" /> : <MenuIcon fontSize="small" />}
           </IconButton>
         </Tooltip>
-        <Button variant="contained" size="small" startIcon={<PrintIcon />} onClick={handlePrint}>{zh ? '打印' : 'Print'}</Button>
+        <Button variant="contained" size="small" startIcon={printing ? <CircularProgress size={14} color="inherit" /> : <PrintIcon />} onClick={handlePrint} disabled={printing}>
+          {printing ? (zh ? '生成中…' : 'Exporting…') : (zh ? '打印' : 'Print')}
+        </Button>
       </Paper>
 
       <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
@@ -272,7 +286,7 @@ export function PrintPreviewPage({
         </Box>}
 
         {/* ── Live preview (hidden on mobile when panel open) ── */}
-        <Box sx={{ flex: 1, overflowY: 'auto', bgcolor: 'grey.200', p: { xs: 1, sm: 3 }, display: panelOpen && isMobile ? 'none' : 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+        <Box ref={previewRef} sx={{ flex: 1, overflowY: 'auto', bgcolor: 'grey.200', p: { xs: 1, sm: 3 }, display: panelOpen && isMobile ? 'none' : 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
           <Typography variant="caption" color="text.secondary" sx={{ alignSelf: 'flex-start', maxWidth: previewW }}>
             {PAGE_SIZE_DEFS[opts.pageSize].label} — {zh ? '以下为预览（实际打印可能有细微差异）' : 'Preview — actual print may differ slightly'}
           </Typography>

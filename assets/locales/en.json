@@ -73,7 +73,9 @@
     "chinese_text_required": "Chinese text is required.",
     "custom": "Custom",
     "experimental": "Experimental",
-    "huadeng": "Hua Deng Shan Yu",
+    "huadeng": "Hua Deng Chu Shang",
+    "huadengchushang": "Hua Deng Chu Shang",
+    "shanyuyulai": "Shan Yu Yu Lai",
     "night_order": "Night Order",
     "tb": "Trouble Brewing",
     "snv": "Sects & Violets",
@@ -1430,7 +1432,7 @@
       "revision": "v1",
       "revisions": {
         "v1": "Win/lose condition is reversed, even if you are dead. All Actors know each other. [All good players are Actors]",
-        "v2": "All other good players (except travellers) know each other, are drunk and can not change alignment. Win/lose condition is reversed, even if you lose your ability."
+        "v2": "All good players (except travellers) know each other, are drunk and can not change alignment. Win/lose condition is reversed, even if you lose your ability."
       }
     },
     "wudaozhe": {
@@ -1442,11 +1444,11 @@
       }
     },
     "bingbi": {
-      "name": "秉笔",
-      "ability": "如果你在白天死亡，当晚你会得知一名善良玩家。如果你在夜晚死亡，当晚你会得知一名邪恶玩家。",
+      "name": "Brush Holder",
+      "ability": "If you die at day, learn a good player that night. If you die at night, learn an evil player that night.",
       "revision": "v1",
       "revisions": {
-        "v1": "如果你在白天死亡，当晚你会得知一名善良玩家。如果你在夜晚死亡，当晚你会得知一名邪恶玩家。"
+        "v1": "If you die at day, learn a good player that night. If you die at night, learn an evil player that night."
       }
     },
     "chongfei": {
