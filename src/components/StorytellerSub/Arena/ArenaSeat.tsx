@@ -20,13 +20,15 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: StorytellerCo
 
   const { left, top } = getSeatPosition(index, currentDay.seats.length, isPortrait)
 
-  const tags = [
-    !seat.alive ? text.aliveTag : '',
-    seat.isExecuted ? text.executedTag : '',
-    seat.isTraveler ? text.traveler : '',
-    seat.hasNoVote ? text.noVoteTag : '',
-    ...seat.customTags,
-  ].filter(Boolean)
+  // Tag definitions with semantic colors for readability
+  type TagDef = { label: string; chipSx: object }
+  const tagDefs: TagDef[] = [
+    !seat.alive    ? { label: text.aliveTag,    chipSx: { bgcolor: '#3a3530', color: '#e8e4da', border: 'none' } } : null,
+    seat.isExecuted ? { label: text.executedTag, chipSx: { bgcolor: '#7a1e1e', color: '#fde8e8', border: 'none' } } : null,
+    seat.isTraveler ? { label: text.traveler,    chipSx: { bgcolor: '#1e4a7a', color: '#e0eaf8', border: 'none' } } : null,
+    seat.hasNoVote  ? { label: text.noVoteTag,   chipSx: { bgcolor: '#5a4a20', color: '#fdf0d0', border: 'none' } } : null,
+    ...seat.customTags.map((t: string) => ({ label: t, chipSx: {} })),
+  ].filter(Boolean) as TagDef[]
 
   const isRoundRobinSpeaker = currentDay.phase === 'public' && currentDay.publicMode === 'roundRobin' && currentDay.currentSpeakerSeat === seat.seat
   const isSpoken = currentDay.roundRobinSpokenSeats.includes(seat.seat)
@@ -108,7 +110,8 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: StorytellerCo
         }}
       >
         {/* Circle: absolutely centered above card top edge */}
-        <Box sx={{ position: 'absolute', top: -OVERLAP, left: '50%', transform: 'translateX(-50%)', zIndex: 3 }}>
+        <Box sx={{ position: 'absolute', top: -OVERLAP, left: '50%', transform: 'translateX(-50%)', zIndex: 3,
+          filter: seat.alive ? 'none' : 'grayscale(85%) brightness(0.85)', opacity: seat.alive ? 1 : 0.75 }}>
           <CharacterCircle
             size={CIRCLE}
             charIcon={charIcon}
@@ -135,27 +138,28 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: StorytellerCo
             borderRadius: 1,
             border: '1.5px solid',
             borderColor: getBorderColor(),
-            bgcolor: seat.alive ? 'background.paper' : 'action.hover',
-            opacity: seat.alive ? 1 : 0.7,
+            // Dead: clearly darker grey-stone card — unmistakable at a glance
+            bgcolor: seat.alive ? 'background.paper' : '#c8c5bc',
+            opacity: 1,
             cursor: pickerMode !== 'none' ? 'pointer' : 'default',
             transition: 'all 0.2s ease',
             '&:hover': { boxShadow: 3 },
           }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            <Box component="span" sx={{ fontWeight: seat.alive ? 700 : 500, color: seat.alive ? 'text.primary' : 'text.disabled', whiteSpace: 'nowrap' }}>#{seat.seat}</Box>
-            <Box component="span" sx={{ fontWeight: 600, whiteSpace: 'nowrap' }}>{seat.name}</Box>
+            <Box component="span" sx={{ fontWeight: 700, color: seat.alive ? 'text.secondary' : '#7a7570', whiteSpace: 'nowrap', fontSize: '0.75rem' }}>#{seat.seat}</Box>
+            <Box component="span" sx={{ fontWeight: 700, whiteSpace: 'nowrap', color: seat.alive ? 'text.primary' : '#5a5550', textDecoration: seat.alive ? 'none' : 'line-through' }}>{seat.name}</Box>
             {hasVoted && <Box component="span" sx={{ color: votedYes ? 'success.main' : 'error.main', fontWeight: 700 }}>{votedYes ? '✓' : '✗'}</Box>}
           </Box>
 
-          {tags.length > 0 && (
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.25, justifyContent: 'center', mt: 0.25 }}>
-              {tags.map((tag) => {
-                const isChar = tag.startsWith('💀')
-                const charId = isChar ? [...tag].slice(1).join('') : ''
+          {tagDefs.length > 0 && (
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.375, justifyContent: 'center', mt: 0.5 }}>
+              {tagDefs.map(({ label, chipSx }) => {
+                const isChar = label.startsWith('💀')
+                const charId = isChar ? [...label].slice(1).join('') : ''
                 const icon = isChar ? getIconForCharacter(charId) : null
-                const label = isChar ? getDisplayName(charId, language) : tag
-                return <TagChip key={`${seat.seat}-${tag}`} label={label} icon={icon as string} />
+                const displayLabel = isChar ? getDisplayName(charId, language) : label
+                return <TagChip key={`${seat.seat}-${label}`} label={displayLabel} icon={icon as string} chipSx={chipSx} />
               })}
             </Box>
           )}

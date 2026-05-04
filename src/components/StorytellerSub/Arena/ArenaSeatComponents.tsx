@@ -3,7 +3,7 @@ import type { StorytellerSeat } from '../types'
 import React, { useState } from 'react'
 import { Box, IconButton, Button, Chip, Popover, Typography } from '@mui/material'
 
-// ── TagChip: small chip with click-to-popover (larger label + icon) ──
+// ── TagChip: readable chip with click-to-popover ──
 export function TagChip({ label, icon, chipSx }: { label: string; icon?: string | null; chipSx?: any }) {
   const [anchor, setAnchor] = useState<HTMLElement | null>(null)
   return (
@@ -13,7 +13,15 @@ export function TagChip({ label, icon, chipSx }: { label: string; icon?: string 
         size="small"
         icon={icon ? <img src={icon} style={{ width: 14, height: 14, borderRadius: '50%' }} /> : undefined}
         onClick={(e) => { e.stopPropagation(); setAnchor(e.currentTarget) }}
-        sx={{ fontSize: '0.8rem', cursor: 'pointer', ...chipSx }}
+        sx={{
+          fontSize: '0.78rem',
+          fontWeight: 600,
+          height: 22,
+          cursor: 'pointer',
+          '& .MuiChip-label': { px: '6px', lineHeight: 1 },
+          '& .MuiChip-icon': { ml: '5px', mr: '-2px' },
+          ...chipSx,
+        }}
       />
       <Popover
         open={Boolean(anchor)}
