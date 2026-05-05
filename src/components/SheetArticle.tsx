@@ -155,9 +155,6 @@ export function SheetArticle({
     ...(fontSize       && { fontSize }),
     ...(baseFontFamily && { fontFamily: baseFontFamily }),
     ...(bw             && { filter: 'grayscale(100%)' }),
-    '& *': {
-      ...(fontSize && { fontSize: 'inherit' }),
-    },
   }
 
   const renderHeader = (lang: Language) => {
@@ -183,7 +180,7 @@ export function SheetArticle({
           )}
         </Typography>
         {showCharacterCount && (
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" color="text.secondary" sx={{ ...(fontSize && { fontSize }) }}>
             {activeScriptCharacters.length} {lang === 'zh' ? '个角色' : 'characters'}
           </Typography>
         )}
@@ -203,20 +200,20 @@ export function SheetArticle({
       <Box sx={{ mb: 1.5 }}>
         {rules.length > 0 && (
           <Box sx={{ mb: 1 }}>
-            <Typography variant="subtitle2" sx={{ mb: 0.5 }}>{blLabel}</Typography>
+            <Typography variant="subtitle2" sx={{ mb: 0.5, ...(fontSize && { fontSize }) }}>{blLabel}</Typography>
             <Box component="ul" sx={{ pl: 2, m: 0 }}>
               {rules.map((rule, i) => (
-                <Typography component="li" variant="body2" key={i}>{rule}</Typography>
+                <Typography component="li" variant="body2" key={i} sx={{ ...(fontSize && { fontSize }) }}>{rule}</Typography>
               ))}
             </Box>
           </Box>
         )}
         {jinxes.length > 0 && (
           <Box>
-            <Typography variant="subtitle2" sx={{ mb: 0.5 }}>{jLabel}</Typography>
+            <Typography variant="subtitle2" sx={{ mb: 0.5, ...(fontSize && { fontSize }) }}>{jLabel}</Typography>
             <Box component="ul" sx={{ pl: 2, m: 0 }}>
               {jinxes.map((jinx) => (
-                <Typography component="li" variant="body2" key={jinx.id}>
+                <Typography component="li" variant="body2" key={jinx.id} sx={{ ...(fontSize && { fontSize }) }}>
                   <strong>{jinx.names}:</strong> {jinx.reason}
                 </Typography>
               ))}
@@ -352,12 +349,12 @@ export function SheetArticle({
             {/* ── Col 3: Description ── fills remaining space */}
             <Box sx={{ flex: 1, minWidth: 80, display: 'flex', flexDirection: 'column', justifyContent: 'center', minHeight: iconSize }}>
               <Typography variant="body2"
-                sx={{ fontFamily: lang === 'zh' ? zhFont : enFont, lineHeight, mb: 0, color: 'text.primary' }}
+                sx={{ fontFamily: lang === 'zh' ? zhFont : enFont, lineHeight, mb: 0, color: 'text.primary', ...(fontSize && { fontSize }) }}
                 dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(ability) }}
               />
               {abilityAlt && abilityAlt !== ability && (
                 <Typography variant="body2"
-                  sx={{ fontFamily: lang === 'zh' ? enFont : zhFont, lineHeight, mt: 0.25, mb: 0, color: 'text.primary' }}
+                  sx={{ fontFamily: lang === 'zh' ? enFont : zhFont, lineHeight, mt: 0.25, mb: 0, color: 'text.primary', ...(fontSize && { fontSize }) }}
                   dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(abilityAlt) }}
                 />
               )}
