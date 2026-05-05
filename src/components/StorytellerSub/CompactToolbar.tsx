@@ -6,7 +6,7 @@ import AddIcon from '@mui/icons-material/Add'
 import UndoIcon from '@mui/icons-material/Undo'
 import MenuOpenIcon from '@mui/icons-material/MenuOpen'
 import AddCircleIcon from '@mui/icons-material/AddCircle'
-import EditNoteIcon from '@mui/icons-material/EditNote'
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts'
 import SaveIcon from '@mui/icons-material/Save'
 import { CHARACTER_DISTRIBUTION } from './constants'
 
@@ -90,7 +90,7 @@ export function CompactToolbar({ ctx }: { ctx: StorytellerContext }) {
         </Tooltip>
         <Tooltip title={text.editPlayers}>
           <IconButton size="medium" onClick={() => setShowEditPlayersModal(true)}>
-            <EditNoteIcon />
+            <ManageAccountsIcon />
           </IconButton>
         </Tooltip>
         <Tooltip title={text.endGame}>

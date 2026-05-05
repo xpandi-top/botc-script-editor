@@ -12,10 +12,11 @@ import ListIcon from '@mui/icons-material/List'
 import AutoStoriesIcon from '@mui/icons-material/AutoStories'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered'
-import EditIcon from '@mui/icons-material/Edit'
 import PersonAddIcon from '@mui/icons-material/PersonAdd'
 import CasinoIcon from '@mui/icons-material/Casino'
-import ArrowRightIcon from '@mui/icons-material/ArrowRight'
+import HowToVoteIcon from '@mui/icons-material/HowToVote'
+import WbSunnyIcon from '@mui/icons-material/WbSunny'
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts'
 import { AggregatedLogModal } from './AggregatedLogModal'
 import { StorytellerSetupModal } from './StorytellerSetupModal'
 import type { Phase, PublicMode } from '../types'
@@ -120,7 +121,7 @@ export function ArenaCenterContent({ ctx }: { ctx: StorytellerContext }) {
           </IconButton>
         </Tooltip>
         <Tooltip title={language === 'zh' ? '编辑角色' : 'Edit Characters'}>
-          <IconButton size="large" onClick={handleOpenCharacterEditor}><EditIcon /></IconButton>
+          <IconButton size="large" onClick={handleOpenCharacterEditor}><ManageAccountsIcon /></IconButton>
         </Tooltip>
       </Box>
     </>
@@ -141,7 +142,7 @@ export function ArenaCenterContent({ ctx }: { ctx: StorytellerContext }) {
           }}><CasinoIcon /></IconButton>
         </Tooltip>
         <Tooltip title={text.nextSpeaker}>
-          <IconButton size="large" onClick={moveToNextSpeaker}><ArrowRightIcon /></IconButton>
+          <IconButton size="large" onClick={moveToNextSpeaker}><WbSunnyIcon /></IconButton>
         </Tooltip>
       </Box>
     </Box>
@@ -151,23 +152,10 @@ export function ArenaCenterContent({ ctx }: { ctx: StorytellerContext }) {
     canNominate
       ? <Tooltip title={text.startNomination}>
           <IconButton size="large" onClick={enterNomination} color="primary">
-            <ListIcon />
+            <HowToVoteIcon />
           </IconButton>
         </Tooltip>
       : <Typography variant="caption" color="text.secondary">{text.nominationGate}: {Math.floor(secondsUntilNomination / 60)}:{String(secondsUntilNomination % 60).padStart(2, '0')}</Typography>
-  )
-
-  const nominationControls = phase === 'nomination' && (
-    <Box sx={{ display: 'flex', gap: 0.5 }}>
-      <Tooltip title={language === 'zh' ? '提名' : 'Nominate'}>
-        <IconButton size="large" onClick={() => setShowNominationSheet((v: boolean) => !v)} sx={showNominationSheet ? TIMER_CONTROL_SX : TIMER_IDLE_SX}>
-          <ListIcon />
-        </IconButton>
-      </Tooltip>
-      <Tooltip title={language === 'zh' ? '下一天' : 'Next Day'}>
-        <IconButton size="large" onClick={(e) => { e.stopPropagation(); goToNextDay() }}><ArrowRightIcon /></IconButton>
-      </Tooltip>
-    </Box>
   )
 
   return (
@@ -177,7 +165,7 @@ export function ArenaCenterContent({ ctx }: { ctx: StorytellerContext }) {
       <ToggleButtonGroup value={phase} exclusive onChange={(_, v) => v && setPhase(v)} size="large">
         {PHASES.map(p => <ToggleButton key={p} value={p}>{getPhaseLabel(p, text)}</ToggleButton>)}
       </ToggleButtonGroup>
-      <Box>
+      <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
       {phase === 'public' && <Select size="small" value={publicMode} onChange={(e) => updateCurrentDay((d: any) => ({ ...d, publicMode: e.target.value as PublicMode }))} sx={{ fontSize: '0.85rem', minWidth: 100 }}>
         <MenuItem value="free">{text.freeSpeech}</MenuItem>
         <MenuItem value="roundRobin">{text.roundRobinMode}</MenuItem>
@@ -195,6 +183,18 @@ export function ArenaCenterContent({ ctx }: { ctx: StorytellerContext }) {
       <Tooltip title={language === 'zh' ? '日志' : 'Log'}>
         <IconButton size="large" onClick={() => setShowAggLogModal(true)}><ListIcon /></IconButton>
       </Tooltip>
+      {phase === 'nomination' && (
+        <>
+          <Tooltip title={language === 'zh' ? '提名' : 'Nominate'}>
+            <IconButton size="large" onClick={() => setShowNominationSheet((v: boolean) => !v)} sx={showNominationSheet ? TIMER_CONTROL_SX : TIMER_IDLE_SX}>
+              <HowToVoteIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title={language === 'zh' ? '下一天' : 'Next Day'}>
+            <IconButton size="large" onClick={(e) => { e.stopPropagation(); goToNextDay() }}><WbSunnyIcon /></IconButton>
+          </Tooltip>
+        </>
+      )}
      </Box>
       {hasTimer && (
         <>
@@ -225,7 +225,6 @@ export function ArenaCenterContent({ ctx }: { ctx: StorytellerContext }) {
       {nightControls}
       {publicRobinControls}
       {publicFreeControls}
-      {nominationControls}
 
       <AggregatedLogModal ctx={ctx} />
       <StorytellerSetupModal ctx={ctx} />
