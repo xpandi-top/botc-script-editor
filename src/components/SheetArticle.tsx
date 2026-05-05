@@ -167,20 +167,20 @@ export function SheetArticle({
         {showEdition && (
           <Typography variant="overline" color="text.secondary">{editionLabel}</Typography>
         )}
-        <Typography variant="h5" sx={{ ...(titleFontSize && { fontSize: titleFontSize }), fontFamily: lang === 'zh' ? fontFamilyZh : fontFamilyEn }}>
+        <Typography variant="h5" sx={{ ...(titleFontSize && { fontSize: titleFontSize }), fontFamily: lang === 'zh' ? fontFamilyZh : fontFamilyEn, lineHeight: 1.2 }}>
           {title}
+          {author && (
+            <Box component="span" sx={{
+              fontWeight: 400,
+              fontSize: titleFontSize ? `calc(${titleFontSize} * 0.6)` : '0.6em',
+              opacity: 0.6,
+              ml: '0.5em',
+              verticalAlign: 'middle',
+            }}>
+              {lang === 'zh' ? '作者：' : 'by '}{author}
+            </Box>
+          )}
         </Typography>
-        {author && (
-          <Typography sx={{
-            fontWeight: 400,
-            fontSize: titleFontSize ? `calc(${titleFontSize} * 0.6)` : '0.72rem',
-            opacity: 0.6,
-            fontFamily: lang === 'zh' ? fontFamilyZh : fontFamilyEn,
-            mt: '-2px',
-          }}>
-            {lang === 'zh' ? '作者：' : 'by '}{author}
-          </Typography>
-        )}
         {showCharacterCount && (
           <Typography variant="body2" color="text.secondary">
             {activeScriptCharacters.length} {lang === 'zh' ? '个角色' : 'characters'}
