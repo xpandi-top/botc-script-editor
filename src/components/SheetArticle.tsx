@@ -230,7 +230,9 @@ export function SheetArticle({
     </Box>
   )
 
-  const renderCharacterCard = (character: ResolvedScriptCharacter, lang: Language, withBoth: boolean, leftColW: number) => {
+  // nameColW = pixel width of widest character name across the whole script.
+  // Passed in so every card in the list has identical column alignment.
+  const renderCharacterCard = (character: ResolvedScriptCharacter, lang: Language, withBoth: boolean, nameColW: number) => {
     const icon = getCharacterImage(character)
     const displayName = character.name ?? getDisplayName(character.id, lang)
     const ability = character.ability ?? getAbilityText(character.id, lang)
@@ -246,35 +248,46 @@ export function SheetArticle({
 
     return (
       <Grid key={character.id} size={{ xs: 12, sm: columns === 1 ? 12 : 6 }}>
-        <Paper variant="outlined" sx={{ p: cardPadding, position: 'relative', pageBreakInside: 'avoid', breakInside: 'avoid',
-          ...(showCardOutline ? { borderWidth: 1, borderColor: 'divider' } : { borderWidth: 0 }) }}>
-          <Box sx={{ display: 'flex', gap: '2px', alignItems: 'flex-start' }}>
-            {/* Left: icon + name stacked, fixed width = max name width across all cards */}
-            <Box sx={{ width: leftColW, flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0 }}>
+        <Paper variant="outlined" sx={{
+          p: cardPadding, position: 'relative', pageBreakInside: 'avoid', breakInside: 'avoid',
+          ...(showCardOutline ? { borderWidth: 1, borderColor: 'divider' } : { borderWidth: 0 }),
+        }}>
+          <Box sx={{ display: 'flex', gap: '4px', alignItems: 'flex-start' }}>
+
+            {/* ── Col 1: Icon ── fixed to iconSize × iconSize */}
+            <Box sx={{ width: iconSize, height: iconSize, flexShrink: 0,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              ...(showIconCircle && { borderRadius: '50%', bgcolor: 'grey.200' }) }}>
               {icon ? (
-                <Box sx={{ width: iconSize, height: iconSize, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  ...(showIconCircle && { borderRadius: '50%', bgcolor: 'grey.200' }) }}>
-                  <Box component="img" src={icon} alt="" sx={{ width: iconSize, height: iconSize, objectFit: 'contain' }} />
-                </Box>
+                <Box component="img" src={icon} alt="" sx={{ width: iconSize, height: iconSize, objectFit: 'contain' }} />
               ) : (
-                <Box sx={{ width: iconSize, height: iconSize, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  bgcolor: 'grey.200', borderRadius: showIconCircle ? '50%' : 0.5 }}>
-                  <Typography variant="caption">{character.id.slice(0, 2).toUpperCase()}</Typography>
-                </Box>
+                <Typography variant="caption">{character.id.slice(0, 2).toUpperCase()}</Typography>
               )}
-              <Typography sx={{ fontFamily: lang === 'zh' ? zhFont : enFont, lineHeight: 1.1, fontSize: nameFontSize,
-                fontWeight: 600, textAlign: 'center', whiteSpace: 'nowrap' }}>
+            </Box>
+
+            {/* ── Col 2: Name ── fixed to widest name in this script */}
+            <Box sx={{ width: nameColW, flexShrink: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', minHeight: iconSize }}>
+              <Typography sx={{
+                fontFamily: lang === 'zh' ? zhFont : enFont,
+                fontSize: nameFontSize, fontWeight: 600,
+                lineHeight: 1.2, whiteSpace: 'nowrap',
+              }}>
                 {displayName}
               </Typography>
               {nameAlt && nameAlt !== displayName && (
-                <Typography sx={{ fontFamily: lang === 'zh' ? enFont : zhFont, lineHeight: 1.1, fontSize: nameFontSize ?? '8pt',
-                  textAlign: 'center', whiteSpace: 'nowrap' }}>
+                <Typography sx={{
+                  fontFamily: lang === 'zh' ? enFont : zhFont,
+                  fontSize: nameFontSize ?? '8pt',
+                  lineHeight: 1.2, whiteSpace: 'nowrap',
+                  color: 'text.secondary',
+                }}>
                   {nameAlt}
                 </Typography>
               )}
             </Box>
-            {/* Right: ability text — minWidth prevents collapse to single-char wrapping */}
-            <Box sx={{ flex: 1, minWidth: 80 }}>
+
+            {/* ── Col 3: Description ── fills remaining space */}
+            <Box sx={{ flex: 1, minWidth: 80, display: 'flex', flexDirection: 'column', justifyContent: 'center', minHeight: iconSize }}>
               <Typography variant="body2"
                 sx={{ fontFamily: lang === 'zh' ? zhFont : enFont, lineHeight, mb: 0, color: 'text.primary' }}
                 dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(ability) }}
@@ -286,9 +299,12 @@ export function SheetArticle({
                 />
               )}
             </Box>
+
           </Box>
           {isEditMode && (
-            <IconButton size="small" aria-label={`Remove ${displayName}`} onClick={() => onRemoveCharacter(character.id)} sx={{ position: 'absolute', top: 2, right: 2 }}>×</IconButton>
+            <IconButton size="small" aria-label={`Remove ${displayName}`}
+              onClick={() => onRemoveCharacter(character.id)}
+              sx={{ position: 'absolute', top: 2, right: 2 }}>×</IconButton>
           )}
         </Paper>
       </Grid>
@@ -296,15 +312,16 @@ export function SheetArticle({
   }
 
   const renderCharacterList = (lang: Language, withBoth: boolean) => {
-    // Compute fixed left-column width = iconSize + gap + longest name text width
-    const allCharacters = groupedScriptCharacters.flatMap((g) => g.characters)
+    // Compute name-column width = widest character name text across the whole script.
+    // Icon column is separate (fixed = iconSize). Description column fills remaining space.
+    const allChars = groupedScriptCharacters.flatMap((g) => g.characters)
     const nameFont = `600 ${nameFontSize ?? '0.8rem'} ${fontFamilyEn ?? 'sans-serif'}`
-    const maxNamePx = allCharacters.reduce((max, c) => {
+    const maxNamePx = allChars.reduce((max, c) => {
       const primary = c.name ?? getDisplayName(c.id, lang)
       const alt = withBoth ? getDisplayName(c.id, lang === 'zh' ? 'en' : 'zh') : ''
       return Math.max(max, measureTextPx(primary, nameFont), alt ? measureTextPx(alt, nameFont) : 0)
     }, 0)
-    const leftColW = iconSize + 2 + Math.ceil(maxNamePx) // icon + gap + name (tight)
+    const nameColW = Math.ceil(maxNamePx) + 4 // +4px breathing room
 
     return (
       <Box sx={{ flex: 1 }}>
@@ -326,7 +343,7 @@ export function SheetArticle({
               </Typography>
             )}
             <Grid container spacing={gridSpacing}>
-              {group.characters.map((character) => renderCharacterCard(character, lang, withBoth, leftColW))}
+              {group.characters.map((character) => renderCharacterCard(character, lang, withBoth, nameColW))}
             </Grid>
           </Box>
         ))}
