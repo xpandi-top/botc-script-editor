@@ -117,7 +117,7 @@ export function PlayersTab({ newGamePanel, playerNamePool, language, seats, upda
           const isTraveler = sNum > newGamePanel.playerCount
           return (
             <Box key={sNum} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-              <Chip label={isTraveler ? `✈${sNum}` : `#${sNum}`} size="small" sx={{ minWidth: 32 }} />
+              <Chip label={isTraveler ? `✈${sNum}` : `#${sNum}`} size="small" sx={{ minWidth: 52, flexShrink: 0 }} />
               <TextField
                 size="small"
                 fullWidth

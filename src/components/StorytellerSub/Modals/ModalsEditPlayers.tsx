@@ -69,7 +69,7 @@ export function ModalsEditPlayers({ ctx }: { ctx: StorytellerContext }) {
         {regularSeats.map((seat: any) => (
           <ListItem key={seat.seat}disablePadding>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
-              <Chip label={`#${seat.seat}`} size="small" sx={{ minWidth: 36 }} />
+              <Chip label={`#${seat.seat}`} size="small" sx={{ minWidth: 52, flexShrink: 0 }} />
               <TextField
                 size="small"
                 fullWidth
@@ -103,7 +103,7 @@ export function ModalsEditPlayers({ ctx }: { ctx: StorytellerContext }) {
           {travelerSeats.map((seat: any) => (
             <ListItem key={seat.seat} disablePadding>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
-                <Chip label={`✈ #${seat.seat}`} size="small" color="info" sx={{ minWidth: 48 }} />
+                <Chip label={`✈ #${seat.seat}`} size="small" color="info" sx={{ minWidth: 64, flexShrink: 0 }} />
                 <TextField
                   size="small"
                   fullWidth
