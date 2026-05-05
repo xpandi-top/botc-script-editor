@@ -60,7 +60,7 @@ export function StorytellerSetupModal({ ctx }: { ctx: StorytellerContext }) {
 
   const modal = (
     <Dialog open={showStSetupModal} onClose={handleClose} maxWidth="sm" fullWidth
-      PaperProps={{ sx: { borderRadius: 2 } }}>
+      slotProps={{ paper: { sx: { borderRadius: 2 } } }}>
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 0.5 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <AutoStoriesIcon sx={{ fontSize: '1.4rem', color: 'primary.main' }} />

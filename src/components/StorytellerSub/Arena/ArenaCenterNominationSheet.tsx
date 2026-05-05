@@ -130,7 +130,7 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: StorytellerContext })
   const yesCount = Object.values(currentDay?.votingState?.votes ?? {}).filter(Boolean).length || voteDraft?.voters?.length || 0
 
   const content = (
-    <Dialog open={showNominationSheet} onClose={() => {}} disableEscapeKeyDown maxWidth="sm" fullWidth fullScreen={isMobile} slotProps={{ backdrop: { onClick: () => {} }, paper: { 'data-nomination-popup': true, sx: { p: 2, width: isMobile ? '100%' : 420, borderRadius: isMobile ? 0 : 2, overflowY: 'auto' } } }}>
+    <Dialog open={showNominationSheet} onClose={() => {}} maxWidth="sm" fullWidth fullScreen={isMobile} slotProps={{ backdrop: { onClick: () => {} }, paper: { 'data-nomination-popup': true, sx: { p: 2, width: isMobile ? '100%' : 420, borderRadius: isMobile ? 0 : 2, overflowY: 'auto' } } }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
         <Typography variant="h6" sx={{ fontWeight: 700 }}>{language === 'zh' ? '提名' : 'Nominate'}</Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
