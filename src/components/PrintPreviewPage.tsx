@@ -14,7 +14,7 @@ import {
   FONT_DEFINITIONS, PAGE_SIZE_DEFS, PAGE_PREVIEW_WIDTH_PX, PAGE_PREVIEW_HEIGHT_PX,
   applyPrintOptionsToPortal,
 } from './PrintOptionsDialog'
-import type { PrintOptions, PageSize, LanguageLayout } from './PrintOptionsDialog'
+import type { PrintOptions, PageSize, LanguageLayout, WakeOrderMode, TitleAlign, SectionStyle } from './PrintOptionsDialog'
 import type { EditableScript, Language, ResolvedScriptCharacter, ResolvedScriptCharacterGroup } from '../types'
 import { printOrShare, isNativePlatform } from '../lib/nativePrint'
 
@@ -234,17 +234,46 @@ export function PrintPreviewPage({
 
           <Divider />
 
+          {/* Title */}
+          <Box>
+            {sectionLabel(zh ? '标题' : 'Title')}
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>{zh ? '对齐' : 'Alignment'}</Typography>
+            <ToggleButtonGroup value={opts.titleAlign ?? 'left'} exclusive size="small"
+              onChange={(_, v) => { if (v) set('titleAlign', v as TitleAlign) }} sx={{ mb: 1 }}>
+              <ToggleButton value="left">{zh ? '左' : 'Left'}</ToggleButton>
+              <ToggleButton value="center">{zh ? '中' : 'Center'}</ToggleButton>
+              <ToggleButton value="right">{zh ? '右' : 'Right'}</ToggleButton>
+            </ToggleButtonGroup>
+            <FormControlLabel
+              control={<Switch checked={opts.showAuthor ?? true} onChange={(e) => set('showAuthor', e.target.checked)} size="small" />}
+              label={<Typography variant="body2">{zh ? '显示作者' : 'Show author'}</Typography>}
+            />
+          </Box>
+
+          <Divider />
+
+          {/* Wake order */}
+          <Box>
+            {sectionLabel(zh ? '夜序顺序' : 'Wake Order')}
+            <ToggleButtonGroup value={opts.wakeOrder ?? 'side'} exclusive size="small"
+              onChange={(_, v) => { if (v) set('wakeOrder', v as WakeOrderMode) }} sx={{ flexWrap: 'wrap' }}>
+              <ToggleButton value="side" sx={{ fontSize: '0.72rem' }}>{zh ? '侧列' : 'Side'}</ToggleButton>
+              <ToggleButton value="bottom" sx={{ fontSize: '0.72rem' }}>{zh ? '底部行' : 'Bottom'}</ToggleButton>
+              <ToggleButton value="none" sx={{ fontSize: '0.72rem' }}>{zh ? '不显示' : 'None'}</ToggleButton>
+            </ToggleButtonGroup>
+          </Box>
+
+          <Divider />
+
           {/* Section style */}
           <Box>
             {sectionLabel(zh ? '区域样式' : 'Section Style')}
-            <FormControlLabel
-              control={<Switch checked={opts.showSectionBg} onChange={(e) => set('showSectionBg', e.target.checked)} size="small" />}
-              label={<Typography variant="body2">{zh ? '显示区域背景色' : 'Section color background'}</Typography>}
-            />
-            <FormControlLabel
-              control={<Switch checked={opts.showSectionDivider} onChange={(e) => set('showSectionDivider', e.target.checked)} size="small" />}
-              label={<Typography variant="body2">{zh ? '显示区域分割线' : 'Section divider lines'}</Typography>}
-            />
+            <ToggleButtonGroup value={opts.sectionStyle ?? 'inline'} exclusive size="small"
+              onChange={(_, v) => { if (v) set('sectionStyle', v as SectionStyle) }} sx={{ flexWrap: 'wrap' }}>
+              <ToggleButton value="inline" sx={{ fontSize: '0.72rem' }}>{zh ? '内联线' : 'Inline'}</ToggleButton>
+              <ToggleButton value="chip"   sx={{ fontSize: '0.72rem' }}>{zh ? '标签' : 'Chip'}</ToggleButton>
+              <ToggleButton value="line"   sx={{ fontSize: '0.72rem' }}>{zh ? '分割线' : 'Line'}</ToggleButton>
+            </ToggleButtonGroup>
           </Box>
 
           <Divider />
@@ -340,7 +369,7 @@ export function PrintPreviewPage({
                     language={language}
                     onRemoveCharacter={() => {}}
                     sheetDensityClass={sheetDensityClass}
-                    showWakeOrder
+                    showWakeOrder={false}
                     showEdition={false}
                     showCharacterCount={false}
                     supplementalPlacement="end"

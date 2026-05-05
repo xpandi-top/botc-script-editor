@@ -42,6 +42,10 @@ export const PAGE_PREVIEW_HEIGHT_PX: Record<PageSize, number> = {
   legal:  Math.round(355.6 * 3.7795),
 }
 
+export type WakeOrderMode  = 'side' | 'bottom' | 'none'
+export type TitleAlign     = 'left' | 'center' | 'right'
+export type SectionStyle   = 'chip' | 'line' | 'inline'  // inline = ─── Townsfolk ───
+
 export type PrintOptions = {
   pageSize: PageSize
   iconSize: number
@@ -54,13 +58,18 @@ export type PrintOptions = {
   titleFontSize: number     // script title (pt)
   sectionFontSize: number   // section header e.g. Townsfolk (pt)
   lineHeight: number        // text line height multiplier
-  showSectionBg: boolean    // colored chip bg on section labels
-  showSectionDivider: boolean // show divider lines between groups
+  showSectionBg: boolean    // legacy — use sectionStyle instead
+  showSectionDivider: boolean // legacy — use sectionStyle instead
+  sectionStyle: SectionStyle  // 'chip' | 'line' | 'inline'
   showIconCircle: boolean   // show circle background behind icon
-  showCardOutline: boolean   // show border/outline around character cards
+  showCardOutline: boolean  // show border/outline around character cards
   padding: 'compact' | 'normal' | 'spacious'
   blackAndWhite: boolean
   languageLayout: LanguageLayout
+  // ── New in v2 ──────────────────────────────────────────────────────────────
+  wakeOrder: WakeOrderMode  // 'side' (columns) | 'bottom' (rows) | 'none'
+  titleAlign: TitleAlign    // 'left' | 'center' | 'right'
+  showAuthor: boolean       // append author to title line
 }
 
 export const DEFAULT_PRINT_OPTIONS: PrintOptions = {
@@ -77,11 +86,15 @@ export const DEFAULT_PRINT_OPTIONS: PrintOptions = {
   lineHeight: 1,
   showSectionBg: false,
   showSectionDivider: true,
+  sectionStyle: 'inline',
   showIconCircle: false,
   showCardOutline: false,
   padding: 'compact',
   blackAndWhite: false,
   languageLayout: 'bilingual-separate',
+  wakeOrder: 'side',
+  titleAlign: 'left',
+  showAuthor: true,
 }
 
 export const PADDING_MAP: Record<PrintOptions['padding'], { card: number; gridSpacing: number; sectionMb: number; outerPadding: number }> = {

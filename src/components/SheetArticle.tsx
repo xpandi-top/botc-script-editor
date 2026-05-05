@@ -98,10 +98,13 @@ export function SheetArticle({
   const nameFontSize     = po ? `${po.nameFontSize}pt` : undefined
   const titleFontSize   = po ? `${po.titleFontSize}pt` : undefined
   const sectionFontSize = po ? `${po.sectionFontSize}pt` : undefined
-  const showSectionBg   = po ? po.showSectionBg : true
-  const showSectionDivider = po ? po.showSectionDivider : false
+  // sectionStyle: new field takes precedence; fall back to legacy booleans
+  const sectionStyle    = po?.sectionStyle ?? (po?.showSectionBg ? 'chip' : 'inline')
   const showIconCircle  = po ? po.showIconCircle : true
   const showCardOutline = po ? po.showCardOutline : false
+  const wakeOrderMode   = po?.wakeOrder ?? (showWakeOrder ? 'side' : 'none')
+  const titleAlign      = po?.titleAlign ?? 'left'
+  const showAuthor      = po?.showAuthor ?? true
   const padDef          = po ? PADDING_MAP[po.padding] : null
   const cardPadding     = padDef ? `${Math.max(1, Math.floor(padDef.card / 2))}px ${Math.max(2, padDef.card)}px` : '2px 4px'
   const gridSpacing     = padDef ? padDef.gridSpacing : 0.5
@@ -156,21 +159,30 @@ export function SheetArticle({
     },
   }
 
-  const renderHeader = (lang: Language) => (
-    <Box sx={{ mb: 1 }}>
-      {showEdition && (
-        <Typography variant="overline" color="text.secondary">{editionLabel}</Typography>
-      )}
-      <Typography variant="h5" sx={{ ...(titleFontSize && { fontSize: titleFontSize }), fontFamily: lang === 'zh' ? fontFamilyZh : fontFamilyEn }}>
-        {lang === 'zh' ? activeScript.titleZh || activeScript.title : activeScript.title}
-      </Typography>
-      {showCharacterCount && (
-        <Typography variant="body2" color="text.secondary">
-          {activeScriptCharacters.length} {lang === 'zh' ? '个角色' : 'characters'}
+  const renderHeader = (lang: Language) => {
+    const title = lang === 'zh' ? activeScript.titleZh || activeScript.title : activeScript.title
+    const author = showAuthor && activeScript.author ? activeScript.author : null
+    return (
+      <Box sx={{ mb: 1, textAlign: titleAlign }}>
+        {showEdition && (
+          <Typography variant="overline" color="text.secondary">{editionLabel}</Typography>
+        )}
+        <Typography variant="h5" sx={{ ...(titleFontSize && { fontSize: titleFontSize }), fontFamily: lang === 'zh' ? fontFamilyZh : fontFamilyEn }}>
+          {title}
+          {author && (
+            <Box component="span" sx={{ fontWeight: 400, fontSize: '0.7em', opacity: 0.7, ml: '0.5em' }}>
+              {lang === 'zh' ? '作者：' : 'by '}{author}
+            </Box>
+          )}
         </Typography>
-      )}
-    </Box>
-  )
+        {showCharacterCount && (
+          <Typography variant="body2" color="text.secondary">
+            {activeScriptCharacters.length} {lang === 'zh' ? '个角色' : 'characters'}
+          </Typography>
+        )}
+      </Box>
+    )
+  }
 
   const renderSupplemental = (lang: Language) => {
     const rules = getBootleggerRules(lang)
@@ -232,6 +244,52 @@ export function SheetArticle({
 
   // nameColW = pixel width of widest character name across the whole script.
   // Passed in so every card in the list has identical column alignment.
+  // Wake-order as numbered rows at bottom of page
+  const renderWakeOrderBottom = (firstIds: string[], otherIds: string[], lang: Language) => {
+    const zhFont = fontFamilyZh && fontFamilyZh !== fontFamilyEn ? fontFamilyZh : undefined
+    const rowStyle = { display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap' as const }
+    const renderRow = (ids: string[], label: string) => ids.length === 0 ? null : (
+      <Box sx={{ mb: 0.5 }}>
+        <Typography sx={{ fontSize: sectionFontSize ?? '0.7rem', fontWeight: 700, textTransform: 'uppercase',
+          letterSpacing: '0.5px', color: 'text.secondary', mb: 0.25, fontFamily: lang === 'zh' ? zhFont : fontFamilyEn }}>
+          {label}
+        </Typography>
+        <Box sx={rowStyle}>
+          {ids.map((id, i) => {
+            const icon = getIconForCharacter(id)
+            const name = getDisplayName(id, lang)
+            return (
+              <Tooltip key={id} title={name} placement="top" arrow>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: '2px', mr: 0.75, cursor: 'pointer' }}
+                  onClick={() => setPopupId(id)}>
+                  <Typography sx={{ fontSize: '0.6rem', color: 'text.secondary', minWidth: '1ch', textAlign: 'right' }}>
+                    {i + 1}.
+                  </Typography>
+                  {icon ? (
+                    <Box component="img" src={icon} alt="" sx={{ width: wakeIconSize, height: wakeIconSize, objectFit: 'contain' }} />
+                  ) : (
+                    <Box sx={{ width: wakeIconSize, height: wakeIconSize, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'grey.300', borderRadius: 0.5 }}>
+                      <Typography variant="caption" sx={{ fontSize: '0.5rem' }}>{getNightOrderPlaceholderLabel(id)}</Typography>
+                    </Box>
+                  )}
+                  <Typography sx={{ fontSize: sectionFontSize ?? '0.65rem', fontFamily: lang === 'zh' ? zhFont : fontFamilyEn }}>
+                    {name}
+                  </Typography>
+                </Box>
+              </Tooltip>
+            )
+          })}
+        </Box>
+      </Box>
+    )
+    return (
+      <Box sx={{ mt: 1.5, pt: 1, borderTop: '1px solid', borderColor: 'divider' }}>
+        {renderRow(firstIds, lang === 'zh' ? '首夜顺序' : 'First Night')}
+        {renderRow(otherIds, lang === 'zh' ? '其他夜顺序' : 'Other Nights')}
+      </Box>
+    )
+  }
+
   const renderCharacterCard = (character: ResolvedScriptCharacter, lang: Language, withBoth: boolean, nameColW: number) => {
     const icon = getCharacterImage(character)
     const displayName = character.name ?? getDisplayName(character.id, lang)
@@ -337,20 +395,31 @@ export function SheetArticle({
       <Box sx={{ flex: 1 }}>
         {groupedScriptCharacters.map((group, idx) => (
           <Box key={group.team} sx={{ mb: sectionMb, pageBreakInside: 'avoid', breakInside: 'avoid' }}>
-            {showSectionDivider && idx > 0 && (
-              <Divider sx={{ mb: sectionMb, borderBottomWidth: 2 }} />
-            )}
-            {showSectionBg ? (
+              {/* Section label — chip | line | inline */}
+            {sectionStyle === 'chip' && (
               <Chip
                 label={teamLabels[lang][group.team]}
                 size="small"
                 color={bw ? 'default' : ((group.team === 'townsfolk' || group.team === 'outsider') ? 'primary' : 'error')}
                 sx={{ mb: 0.5, ...(bw && { bgcolor: 'grey.300', color: 'text.primary' }) }}
               />
-            ) : (
-              <Typography sx={{ mb: 0.5, fontSize: sectionFontSize ?? '0.85rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', color: 'text.secondary' }}>
-                {teamLabels[lang][group.team]}
-              </Typography>
+            )}
+            {sectionStyle === 'line' && (
+              <>
+                {idx > 0 && <Divider sx={{ mb: 0.5, borderBottomWidth: 1 }} />}
+                <Typography sx={{ mb: 0.5, fontSize: sectionFontSize ?? '0.85rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', color: 'text.secondary' }}>
+                  {teamLabels[lang][group.team]}
+                </Typography>
+              </>
+            )}
+            {sectionStyle === 'inline' && (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.5 }}>
+                <Box sx={{ flex: 1, height: '1px', bgcolor: 'text.secondary', opacity: 0.25 }} />
+                <Typography sx={{ fontSize: sectionFontSize ?? '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.6px', color: 'text.secondary', whiteSpace: 'nowrap' }}>
+                  {teamLabels[lang][group.team]}
+                </Typography>
+                <Box sx={{ flex: 1, height: '1px', bgcolor: 'text.secondary', opacity: 0.25 }} />
+              </Box>
             )}
             <Grid container spacing={gridSpacing}>
               {group.characters.map((character) => renderCharacterCard(character, lang, withBoth, nameColW))}
@@ -366,10 +435,11 @@ export function SheetArticle({
       {renderHeader(lang)}
       {supplementalPlacement === 'top' ? renderSupplemental(lang) : null}
       <Box sx={{ display: 'flex', gap: 1.5 }}>
-        {showWakeOrder && renderWakeOrder(firstNightOrder)}
+        {wakeOrderMode === 'side' && renderWakeOrder(firstNightOrder)}
         {renderCharacterList(lang, withBoth)}
-        {showWakeOrder && renderWakeOrder(otherNightOrder)}
+        {wakeOrderMode === 'side' && renderWakeOrder(otherNightOrder)}
       </Box>
+      {wakeOrderMode === 'bottom' && renderWakeOrderBottom(firstNightOrder, otherNightOrder, lang)}
       {supplementalPlacement === 'end' ? renderSupplemental(lang) : null}
     </Box>
   )
