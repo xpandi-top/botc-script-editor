@@ -9,6 +9,9 @@ import EventIcon from '@mui/icons-material/Event'
 import HowToVoteIcon from '@mui/icons-material/HowToVote'
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh'
 import AutoStoriesIcon from '@mui/icons-material/AutoStories'
+import FolderOpenIcon from '@mui/icons-material/FolderOpen'
+import SaveAsIcon from '@mui/icons-material/SaveAs'
+import DownloadIcon from '@mui/icons-material/Download'
 
 export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: StorytellerContext, toggleConsoleSection: any }) {
   const { language, text, gameRecords = [], setGameRecords, activeConsoleSections, loadGameRecord, exportRecordJson, saveGame } = ctx
@@ -38,23 +41,23 @@ export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: Storyt
                     <Typography variant="body2" sx={{ fontWeight: 500, wordBreak: 'break-word', mb: 0.5 }}>
                       {rec.recordName ?? (rec.scriptTitle ? `${rec.scriptTitle} - ${date}` : date)}
                     </Typography>
-                    <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                    <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', alignItems: 'center' }}>
                       {rec.savedDays && (
-                        <Button size="small" onClick={() => loadGameRecord(rec)}>
-                          {language === 'zh' ? '📂 加载' : '📂 Load'}
-                        </Button>
+                        <IconButton size="small" onClick={() => loadGameRecord(rec)} title={language === 'zh' ? '加载' : 'Load'}>
+                          <FolderOpenIcon sx={{ fontSize: '1.1rem' }} />
+                        </IconButton>
                       )}
-                      <Button size="small" onClick={() => {
+                      <IconButton size="small" onClick={() => {
                         const name = window.prompt(language === 'zh' ? '输入新文件名：' : 'Enter new file name:', rec.recordName)
                         if (name) saveGame(name)
-                      }}>
-                        {language === 'zh' ? '💾 另存' : '💾 Save As'}
-                      </Button>
-                      <Button size="small" onClick={() => exportRecordJson(rec)}>
-                        {language === 'zh' ? '📥 导出' : '📥 Export'}
-                      </Button>
-                      <IconButton size="small" color="error" onClick={() => setGameRecords((cur: any[]) => cur.filter((r) => r.id !== rec.id))}>
-                        <DeleteIcon fontSize="small" />
+                      }} title={language === 'zh' ? '另存' : 'Save As'}>
+                        <SaveAsIcon sx={{ fontSize: '1.1rem' }} />
+                      </IconButton>
+                      <IconButton size="small" onClick={() => exportRecordJson(rec)} title={language === 'zh' ? '导出' : 'Export'}>
+                        <DownloadIcon sx={{ fontSize: '1.1rem' }} />
+                      </IconButton>
+                      <IconButton size="small" color="error" onClick={() => setGameRecords((cur: any[]) => cur.filter((r) => r.id !== rec.id))} title={language === 'zh' ? '删除' : 'Delete'}>
+                        <DeleteIcon sx={{ fontSize: '1.1rem' }} />
                       </IconButton>
                     </Box>
                     <Box sx={{ display: 'flex', gap: 1, mt: 0.5, flexWrap: 'wrap' }}>

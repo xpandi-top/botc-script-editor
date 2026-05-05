@@ -16,6 +16,11 @@ import CheckIcon from '@mui/icons-material/Check'
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive'
 import ListIcon from '@mui/icons-material/List'
 import AutoStoriesIcon from '@mui/icons-material/AutoStories'
+import HowToVoteIcon from '@mui/icons-material/HowToVote'
+import WbSunnyIcon from '@mui/icons-material/WbSunny'
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts'
+import VisibilityIcon from '@mui/icons-material/Visibility'
+import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered'
 import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore'
 import { ArenaCenterNominationSheet } from './ArenaCenterNominationSheet'
 import { AggregatedLogModal } from './AggregatedLogModal'
@@ -173,8 +178,8 @@ export function PhaseControlPanel({ ctx }: { ctx: StorytellerContext }) {
             </ToggleButtonGroup>
           </Box>
 
-          {/* Public mode + notes row */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 1 }}>
+          {/* Public mode + ST Settings / Log row */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 1, flexWrap: 'wrap' }}>
             {phase === 'public' && (
               <Select
                 value={publicMode}
@@ -191,6 +196,16 @@ export function PhaseControlPanel({ ctx }: { ctx: StorytellerContext }) {
             <Button variant="outlined" sx={btnSx} onClick={() => setShowAggLogModal(true)} startIcon={<ListIcon />}>
               {language === 'zh' ? '日志' : 'Log'}
             </Button>
+            {phase === 'nomination' && (
+              <>
+                <Button variant="contained" sx={{ ...btnSx, bgcolor: 'rgba(255,255,255,0.25)' }} onClick={() => setShowNominationSheet(true)} startIcon={<HowToVoteIcon />}>
+                  {language === 'zh' ? '提名' : 'Nominate'}
+                </Button>
+                <Button variant="outlined" sx={btnSx} onClick={goToNextDay} startIcon={<WbSunnyIcon />}>
+                  {language === 'zh' ? '下一天' : 'Next Day'}
+                </Button>
+              </>
+            )}
           </Box>
 
           {/* Timer */}
@@ -246,13 +261,13 @@ export function PhaseControlPanel({ ctx }: { ctx: StorytellerContext }) {
           {/* Night controls — row 2: character, wake order, edit */}
           {phase === 'night' && (
             <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap', mb: 1 }}>
-              <Button variant={nightShowCharacter ? 'contained' : 'outlined'} sx={btnSx} onClick={() => setNightShowCharacter((v: boolean) => !v)}>
+              <Button variant={nightShowCharacter ? 'contained' : 'outlined'} sx={btnSx} onClick={() => setNightShowCharacter((v: boolean) => !v)} startIcon={<VisibilityIcon />}>
                 {language === 'zh' ? '显示角色' : 'Character'}
               </Button>
-              <Button variant={nightShowWakeOrder ? 'contained' : 'outlined'} sx={btnSx} onClick={() => setNightShowWakeOrder((v: boolean) => !v)}>
+              <Button variant={nightShowWakeOrder ? 'contained' : 'outlined'} sx={btnSx} onClick={() => setNightShowWakeOrder((v: boolean) => !v)} startIcon={<FormatListNumberedIcon />}>
                 {language === 'zh' ? '唤醒顺序' : 'Wake Order'}
               </Button>
-              <Button variant="outlined" sx={btnSx} onClick={handleOpenCharEditor}>
+              <Button variant="outlined" sx={btnSx} onClick={handleOpenCharEditor} startIcon={<ManageAccountsIcon />}>
                 {language === 'zh' ? '编辑角色' : 'Edit Characters'}
               </Button>
             </Box>
@@ -279,18 +294,6 @@ export function PhaseControlPanel({ ctx }: { ctx: StorytellerContext }) {
                 ? <Button variant="contained" onClick={enterNomination} sx={{ borderRadius: 999, fontSize: '0.95rem', px: 2, py: 0.75, minHeight: 40 }}>{text.startNomination}</Button>
                 : <Typography sx={{ color: mutedColor, fontSize: '0.85rem' }}>{text.nominationGate}: {Math.floor(secondsUntilNomination / 60)}:{String(secondsUntilNomination % 60).padStart(2, '0')}</Typography>
               }
-            </Box>
-          )}
-
-          {/* Nomination controls */}
-          {phase === 'nomination' && (
-            <Box sx={{ display: 'flex', gap: 0.75, mb: 1, flexWrap: 'wrap' }}>
-              <Button variant="contained" sx={{ ...btnSx, bgcolor: 'rgba(255,255,255,0.25)' }} onClick={() => setShowNominationSheet(true)} startIcon={<ListIcon />}>
-                {language === 'zh' ? '提名' : 'Nominate'}
-              </Button>
-              <Button variant="outlined" sx={btnSx} onClick={goToNextDay} startIcon={<ArrowForwardIcon />}>
-                {language === 'zh' ? '下一天' : 'Next Day'}
-              </Button>
             </Box>
           )}
 

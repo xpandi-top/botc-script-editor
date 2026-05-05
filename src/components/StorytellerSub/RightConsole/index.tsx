@@ -4,7 +4,7 @@ import SettingsIcon from '@mui/icons-material/Settings'
 import HistoryIcon from '@mui/icons-material/History'
 import DownloadIcon from '@mui/icons-material/Download'
 import AddCircleIcon from '@mui/icons-material/AddCircle'
-import PeopleIcon from '@mui/icons-material/People'
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts'
 import FlagIcon from '@mui/icons-material/Flag'
 import { RightPopupSettings } from './RightPopupSettings'
 import { RightConsoleRecords } from './RightConsoleRecords'
@@ -46,7 +46,6 @@ export function RightConsole({ ctx }: { ctx: StorytellerContext }) {
             borderRadius: '22px 0 0 22px',
             bgcolor: 'rgba(255,251,245,0.96)',
             borderLeft: '1px solid rgba(23,32,42,0.10)',
-            transition: 'width 0.22s ease',
             display: 'flex',
             flexDirection: 'row',
           },
@@ -56,7 +55,6 @@ export function RightConsole({ ctx }: { ctx: StorytellerContext }) {
           sx={{
             width: activeRightPopup ? drawerWidth : 0,
             overflow: 'hidden',
-            transition: 'width 0.22s ease',
             bgcolor: 'rgba(255,251,245,0.96)',
           }}
         >
@@ -90,7 +88,7 @@ export function RightConsole({ ctx }: { ctx: StorytellerContext }) {
           <Box sx={{ flex: 1 }} />
           {[
             { icon: <AddCircleIcon sx={{ fontSize: '1.1rem' }} />, label: language === 'zh' ? '新游戏' : 'New', onClick: () => { openNewGamePanel(); closeDrawer() } },
-            { icon: <PeopleIcon sx={{ fontSize: '1.1rem' }} />, label: language === 'zh' ? '玩家' : 'Players', onClick: () => { setShowEditPlayersModal(true); closeDrawer() } },
+            { icon: <ManageAccountsIcon sx={{ fontSize: '1.1rem' }} />, label: language === 'zh' ? '玩家' : 'Players', onClick: () => { setShowEditPlayersModal(true); closeDrawer() } },
             { icon: <FlagIcon sx={{ fontSize: '1.1rem' }} />, label: language === 'zh' ? '结束' : 'End', onClick: () => { openEndGamePanel(); closeDrawer() } },
             { icon: <DownloadIcon sx={{ fontSize: '1.1rem' }} />, label: language === 'zh' ? '导出' : 'Export', onClick: () => setShowExportModal(true) },
           ].map(({ icon, label, onClick }) => (
