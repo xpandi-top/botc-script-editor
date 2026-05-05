@@ -47,15 +47,19 @@ export const STATE = {
 } as const
 
 // ── Typography ───────────────────────────────────────────────────────────────
-// EN body: EB Garamond — classical book serif, manuscript/inkpot feel
-// ZH body: ZCOOL XiaoWei — refined literary brushstroke, pairs with Garamond
-// EN display: Cinzel — Roman lapidary caps, gothic-ritual gravitas
-// ZH display: Ma Shan Zheng — brushstroke calligraphic weight for headings
+// All font values reference CSS vars set by useFontSettings (see hooks/useFontSettings.ts).
+// Defaults are written to :root in main.tsx GlobalStyles.
+// Changing the CSS vars live-updates every element that uses these tokens —
+// no MUI theme recreation required.
+//
+//  --font-en-body    → body text, UI labels, captions
+//  --font-en-display → h1-h4 headings, dialog titles
+//  --font-zh         → Chinese characters across all elements (second in stack)
 export const FONT = {
-  sans:    '"EB Garamond", "ZCOOL XiaoWei", Georgia, "Times New Roman", serif',
-  serif:   '"Cinzel", "Ma Shan Zheng", Georgia, serif',
-  zhSans:  '"ZCOOL XiaoWei", "PingFang SC", "Noto Sans SC", "Microsoft YaHei", serif',
-  zhSerif: '"Ma Shan Zheng", "STKaiti", "KaiTi", serif',
+  sans:    'var(--font-en-body),    var(--font-zh), Georgia, serif',
+  serif:   'var(--font-en-display), var(--font-zh), Georgia, serif',
+  zhSans:  'var(--font-zh), "PingFang SC", "Noto Sans SC", serif',
+  zhSerif: 'var(--font-zh), "STKaiti", "KaiTi", serif',
 } as const
 
 // Weight scale — keep intentional, not decorative

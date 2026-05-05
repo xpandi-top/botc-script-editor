@@ -45,10 +45,10 @@ initNative().then(() => {
           '--state-active':   'rgba(55, 38, 27, 0.13)',
           '--state-selected': 'rgba(135, 116, 91, 0.18)',
 
-          // ── Typography ──────────────────────────────────────────────────
-          '--font-sans':    '"Avenir Next", Avenir, "Helvetica Neue", -apple-system, sans-serif',
-          '--font-serif':   'Georgia, "Times New Roman Local", "Times New Roman", serif',
-          '--font-zh-sans': '"PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif',
+          // ── Typography — defaults; overridden at runtime by useFontSettings ──
+          '--font-en-body':    '"EB Garamond"',
+          '--font-en-display': '"Cinzel"',
+          '--font-zh':         '"ZCOOL XiaoWei"',
 
           // ── Spacing (8-point) ────────────────────────────────────────────
           '--sp-1': '2px',   '--sp-2': '4px',   '--sp-3': '6px',

@@ -22,6 +22,7 @@ import MenuBookIcon from '@mui/icons-material/MenuBook'
 import TheaterComedyIcon from '@mui/icons-material/TheaterComedy'
 import QueryStatsIcon from '@mui/icons-material/QueryStats'
 import PrintIcon from '@mui/icons-material/Print'
+import TuneIcon from '@mui/icons-material/Tune'
 import BugReportIcon from '@mui/icons-material/BugReport'
 import InfoIcon from '@mui/icons-material/Info'
 import { PrintPreviewPage } from './components/PrintPreviewPage'
@@ -33,7 +34,9 @@ import type { TokenPrintOptions } from './components/PrintStudio/types'
 import { ScriptsTab } from './components/tabs/ScriptsTab'
 import { CharactersTab } from './components/tabs/CharactersTab'
 import { AnalyticsTab } from './components/tabs/AnalyticsTab'
+import { SettingsTab } from './components/tabs/SettingsTab'
 import { StorytellerHelper } from './components/StorytellerHelper'
+import { useFontSettings } from './hooks/useFontSettings'
 import {
   allCharacters,
   characterById,
@@ -59,7 +62,7 @@ import type {
   Team,
 } from './types'
 
-type TabKey = 'scripts' | 'characters' | 'storyteller' | 'printstudio' | 'analytics'
+type TabKey = 'scripts' | 'characters' | 'storyteller' | 'printstudio' | 'analytics' | 'settings'
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabKey>('scripts')
@@ -222,6 +225,10 @@ export default function App() {
       en: 'Advanced print layout designer. Create custom character tokens and print materials.',
       zh: '高级打印布局设计器。创建自定义角色令牌和打印材料。',
     },
+    settings: {
+      en: 'Customize fonts and appearance. Changes apply globally and persist across sessions.',
+      zh: '自定义字体和外观。设置全局生效并在会话间持久保存。',
+    },
   }
 
   const disclaimerText = uiLanguage === 'zh'
@@ -352,9 +359,12 @@ export default function App() {
     }))
   }
 
+  const fontSettings = useFontSettings()
+
   const stTabLabel = uiLanguage === 'zh' ? '主持助手' : 'Storyteller Helper'
   const psTabLabel = uiLanguage === 'zh' ? '打印工坊' : 'Print Studio'
   const anTabLabel = uiLanguage === 'zh' ? '数据统计' : 'Analytics'
+  const stgTabLabel = uiLanguage === 'zh' ? '设置' : 'Settings'
 
   return (
     <Container maxWidth="xl" sx={{ py: { xs: 0, sm: 3 }, px: { xs: 0, sm: 3 }, minHeight: '100vh' }}>
@@ -405,6 +415,7 @@ export default function App() {
             <Tab icon={<MenuBookIcon fontSize="small" />} value="storyteller" aria-label={stTabLabel} title={stTabLabel} />
             <Tab icon={<QueryStatsIcon fontSize="small" />} value="analytics" aria-label={anTabLabel} title={anTabLabel} />
             <Tab icon={<PrintIcon fontSize="small" />} value="printstudio" aria-label={psTabLabel} title={psTabLabel} />
+            <Tab icon={<TuneIcon fontSize="small" />} value="settings" aria-label={stgTabLabel} title={stgTabLabel} />
           </Tabs>
 
           {/* Mobile: active tab name with icon */}
@@ -416,14 +427,16 @@ export default function App() {
               : activeTab === 'characters' ? <TheaterComedyIcon fontSize="small" sx={{ color: 'primary.dark' }} />
               : activeTab === 'storyteller' ? <MenuBookIcon fontSize="small" sx={{ color: 'primary.dark' }} />
               : activeTab === 'analytics' ? <QueryStatsIcon fontSize="small" sx={{ color: 'primary.dark' }} />
-              : <PrintIcon fontSize="small" sx={{ color: 'primary.dark' }} />}
+              : activeTab === 'printstudio' ? <PrintIcon fontSize="small" sx={{ color: 'primary.dark' }} />
+              : <TuneIcon fontSize="small" sx={{ color: 'primary.dark' }} />}
             <Typography component="span"
               sx={{ fontWeight: 600, fontSize: '0.9rem', color: 'primary.dark' }}>
               {activeTab === 'scripts' ? uiText.scriptSheet
                 : activeTab === 'characters' ? uiText.allCharacters
                 : activeTab === 'storyteller' ? stTabLabel
                 : activeTab === 'printstudio' ? psTabLabel
-                : anTabLabel}
+                : activeTab === 'analytics' ? anTabLabel
+                : stgTabLabel}
             </Typography>
             <ExpandMoreIcon fontSize="small" sx={{ color: 'primary.dark' }} />
           </Box>
@@ -465,6 +478,7 @@ export default function App() {
             ['storyteller', stTabLabel, <MenuBookIcon fontSize="small" />],
             ['analytics', anTabLabel, <QueryStatsIcon fontSize="small" />],
             ['printstudio', psTabLabel, <PrintIcon fontSize="small" />],
+            ['settings', stgTabLabel, <TuneIcon fontSize="small" />],
           ] as [TabKey, string, React.ReactNode][]).map(([key, label, icon]) => (
             <MenuItem key={key} selected={activeTab === key} onClick={() => { setActiveTab(key); setTabMenuAnchor(null) }}>
               {icon}
@@ -565,6 +579,10 @@ export default function App() {
 
       {activeTab === 'analytics' && (
         <AnalyticsTab language={uiLanguage} onLanguageChange={setUiLanguage} />
+      )}
+
+      {activeTab === 'settings' && (
+        <SettingsTab language={uiLanguage} fontSettings={fontSettings} />
       )}
 
       {activeTab === 'storyteller' && (
