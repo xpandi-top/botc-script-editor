@@ -169,7 +169,7 @@ export const translations = {
   },
   traveler: {
     en: 'Traveler',
-    zh: '旅人',
+    zh: '旅行者',
   },
   tagPool: {
     en: 'Tag pool',
@@ -517,7 +517,7 @@ export const translations = {
   },
   addTraveler: {
     en: 'Add Traveler',
-    zh: '添加旅人',
+    zh: '添加旅行者',
   },
   playerPool: {
     en: 'Name Pool',
@@ -677,7 +677,7 @@ export const translations = {
   },
   travelersCount: {
     en: 'Travelers',
-    zh: '旅人',
+    zh: '旅行者',
   },
   loadCustomAlarm: {
     en: 'Load Custom',

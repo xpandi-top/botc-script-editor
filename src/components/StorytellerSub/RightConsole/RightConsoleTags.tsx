@@ -12,7 +12,7 @@ export function RightConsoleTags({ ctx, toggleConsoleSection }: { ctx: Storytell
   const isOpen = activeConsoleSections?.has('tags')
 
   const defaultTags = language === 'zh'
-    ? ['死亡', '处决', '旅人', '无投票权']
+    ? ['死亡', '处决', '旅行者', '无投票权']
     : ['Dead', 'Executed', 'Traveler', 'No vote']
   const stTags = language === 'zh'
     ? ['醉酒', '中毒', '保护']

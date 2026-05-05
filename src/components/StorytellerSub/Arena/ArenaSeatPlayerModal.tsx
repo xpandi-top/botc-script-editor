@@ -16,7 +16,9 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import CheckIcon from '@mui/icons-material/Check'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import ListIcon from '@mui/icons-material/List'
-import { getDisplayName, getIconForCharacter, getAbilityText } from '../../../catalog'
+import { getDisplayName, getIconForCharacter, getAbilityText, allCharacters } from '../../../catalog'
+
+const TRAVELER_CHAR_IDS = allCharacters.filter((c) => c.team === 'traveler').map((c) => c.id)
 
 // ── Constants ──────────────────────────────────────────────────
 const ST_TAG_PREFIX = '📝'
@@ -90,6 +92,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
     customTagPool, updateSeatWithLog, updateCurrentDay, appendEvent,
     addCustomTag, playerModalSeat, setPlayerModalSeat,
     editLogEntry, removeLogEntry, addQuickEvent,
+    nightShowCharacter,
   } = ctx
 
   const zh = language === 'zh'
@@ -359,24 +362,31 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
       </Button>
       {showCharPicker && (
         <Box sx={{ mt: 0.75 }}>
-          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.25 }}>{zh ? '实际角色' : 'Actual Character'}</Typography>
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, maxHeight: 100, overflow: 'auto', mb: 0.75 }}>
-            {(currentScriptCharacters ?? []).map((c: string) => (
-              <Chip key={c} label={getDisplayName(c, language)} size="small"
-                variant={actualCharId === c ? 'filled' : 'outlined'}
-                onClick={() => reassignChar(c)}
-                icon={getIconForCharacter(c) ? <Box component="img" src={getIconForCharacter(c) as string} sx={{ width: 14, height: 14 }} /> : undefined} />
-            ))}
-          </Box>
-          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.25 }}>{zh ? '玩家以为' : 'Perceived Character'}</Typography>
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, maxHeight: 100, overflow: 'auto' }}>
-            {(currentScriptCharacters ?? []).map((c: string) => (
-              <Chip key={`per-${c}`} label={getDisplayName(c, language)} size="small"
-                variant={perceivedCharId === c ? 'filled' : 'outlined'}
-                onClick={() => reassignPerceived(c)}
-                icon={getIconForCharacter(c) ? <Box component="img" src={getIconForCharacter(c) as string} sx={{ width: 14, height: 14 }} /> : undefined} />
-            ))}
-          </Box>
+          {(() => {
+            const charOptions = seat.isTraveler ? TRAVELER_CHAR_IDS : (currentScriptCharacters ?? [])
+            return (
+              <>
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.25 }}>{zh ? '实际角色' : 'Actual Character'}</Typography>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, maxHeight: 100, overflow: 'auto', mb: 0.75 }}>
+                  {charOptions.map((c: string) => (
+                    <Chip key={c} label={getDisplayName(c, language)} size="small"
+                      variant={actualCharId === c ? 'filled' : 'outlined'}
+                      onClick={() => reassignChar(c)}
+                      icon={getIconForCharacter(c) ? <Box component="img" src={getIconForCharacter(c) as string} sx={{ width: 14, height: 14 }} /> : undefined} />
+                  ))}
+                </Box>
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.25 }}>{zh ? '玩家以为' : 'Perceived Character'}</Typography>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, maxHeight: 100, overflow: 'auto' }}>
+                  {charOptions.map((c: string) => (
+                    <Chip key={`per-${c}`} label={getDisplayName(c, language)} size="small"
+                      variant={perceivedCharId === c ? 'filled' : 'outlined'}
+                      onClick={() => reassignPerceived(c)}
+                      icon={getIconForCharacter(c) ? <Box component="img" src={getIconForCharacter(c) as string} sx={{ width: 14, height: 14 }} /> : undefined} />
+                  ))}
+                </Box>
+              </>
+            )
+          })()}
         </Box>
       )}
     </Box>
@@ -848,6 +858,12 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
         ) : (
           <>
             <Divider sx={{ mb: 1.5 }} />
+            {(nightShowCharacter || seat.isTraveler) && (
+              <>
+                {characterSection}
+                <Divider sx={{ mb: 1.5 }} />
+              </>
+            )}
             {publicStatusSection}
             <Divider sx={{ mb: 1.5 }} />
             {abilitySection}

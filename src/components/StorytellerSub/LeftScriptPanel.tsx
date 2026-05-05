@@ -2,7 +2,17 @@ import type { StorytellerContext } from './useStoryteller'
 import React from 'react'
 import { Drawer, Box, Typography, Button, Tabs, Tab, List, ListItem, ListItemButton } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
-import { nightOrder, getDisplayName, getIconForCharacter, getAbilityText } from '../../catalog'
+import { nightOrder, getDisplayName, getIconForCharacter, getAbilityText, characterById } from '../../catalog'
+import { Divider } from '@mui/material'
+
+const TEAM_ORDER = ['townsfolk', 'outsider', 'minion', 'demon', 'traveler'] as const
+const TEAM_LABELS: Record<string, { en: string; zh: string; color: string }> = {
+  townsfolk: { en: 'Townsfolk', zh: '镇民', color: '#1565c0' },
+  outsider:  { en: 'Outsider',  zh: '外来者', color: '#0277bd' },
+  minion:    { en: 'Minion',    zh: '爪牙', color: '#b71c1c' },
+  demon:     { en: 'Demon',     zh: '恶魔', color: '#7b1fa2' },
+  traveler:  { en: 'Traveler',  zh: '旅行者', color: '#2e7d32' },
+}
 
 type ScriptView = 'characters' | 'firstNight' | 'otherNight'
 
@@ -93,30 +103,53 @@ export function LeftScriptPanel({ ctx }: { ctx: StorytellerContext }) {
         </Tabs>
 
         <Box sx={{ flex: 1, overflow: 'auto', p: 1 }}>
-          {view === 'characters' && (
-            <List dense>
-              {characterIds.length ? characterIds.map((id: string) => {
-                const icon = getIconForCharacter(id)
-                const name = getDisplayName(id, language)
-                const isSelected = selectedCharId === id
-                return (
-                  <React.Fragment key={id}>
-                    <ListItem disablePadding>
-                      <ListItemButton
-                        onClick={() => handleCharClick(id)}
-                        selected={isSelected}
-                        sx={{ borderRadius: 1, '&.Mui-selected': { bgcolor: 'rgba(133,63,34,0.1)' } }}
-                      >
-                        {icon && <Box component="img" src={icon} alt="" sx={{ width: 24, height: 24, objectFit: 'contain', borderRadius: 0.5, mr: 1 }} />}
-                        <Typography variant="body2">{name || id}</Typography>
-                      </ListItemButton>
-                    </ListItem>
-                    {isSelected && <Box sx={{ px: 1, pb: 1 }}>{renderDescription(id)}</Box>}
-                  </React.Fragment>
-                )
-              }) : <ListItem><Typography variant="body2">—</Typography></ListItem>}
-            </List>
-          )}
+          {view === 'characters' && (() => {
+            const byTeam: Record<string, string[]> = { townsfolk: [], outsider: [], minion: [], demon: [], traveler: [] }
+            for (const id of characterIds) {
+              const team = characterById[id]?.team ?? 'townsfolk'
+              if (byTeam[team]) byTeam[team].push(id)
+              else byTeam['townsfolk'].push(id)
+            }
+            const sections = TEAM_ORDER.filter((t) => byTeam[t].length > 0)
+            if (!sections.length) return <List dense><ListItem><Typography variant="body2">—</Typography></ListItem></List>
+            return (
+              <Box>
+                {sections.map((team, si) => {
+                  const info = TEAM_LABELS[team]
+                  return (
+                    <Box key={team}>
+                      {si > 0 && <Divider sx={{ my: 0.75 }} />}
+                      <Typography variant="caption" sx={{ display: 'block', fontWeight: 700, px: 1, py: 0.5, color: info.color, letterSpacing: '0.06em', textTransform: 'uppercase', fontSize: '0.7rem' }}>
+                        {language === 'zh' ? info.zh : info.en} ({byTeam[team].length})
+                      </Typography>
+                      <List dense sx={{ py: 0 }}>
+                        {byTeam[team].map((id) => {
+                          const icon = getIconForCharacter(id)
+                          const name = getDisplayName(id, language)
+                          const isSelected = selectedCharId === id
+                          return (
+                            <React.Fragment key={id}>
+                              <ListItem disablePadding>
+                                <ListItemButton
+                                  onClick={() => handleCharClick(id)}
+                                  selected={isSelected}
+                                  sx={{ borderRadius: 1, '&.Mui-selected': { bgcolor: 'rgba(133,63,34,0.1)' } }}
+                                >
+                                  {icon && <Box component="img" src={icon} alt="" sx={{ width: 24, height: 24, objectFit: 'contain', borderRadius: 0.5, mr: 1 }} />}
+                                  <Typography variant="body2">{name || id}</Typography>
+                                </ListItemButton>
+                              </ListItem>
+                              {isSelected && <Box sx={{ px: 1, pb: 1 }}>{renderDescription(id)}</Box>}
+                            </React.Fragment>
+                          )
+                        })}
+                      </List>
+                    </Box>
+                  )
+                })}
+              </Box>
+            )
+          })()}
           {view === 'firstNight' && <List dense>{renderNightList(firstNightOrder)}</List>}
           {view === 'otherNight' && <List dense>{renderNightList(otherNightOrder)}</List>}
         </Box>

@@ -293,7 +293,7 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
       {travelerSeats.length > 0 && (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
           <Divider />
-          <Typography variant="subtitle2">{zh ? '旅人角色分配' : 'Traveler Assignments'}</Typography>
+          <Typography variant="subtitle2">{zh ? '旅行者角色分配' : 'Traveler Assignments'}</Typography>
           {travelerSeats.map((sNum) => {
             const tcid = newGamePanel.travelerAssignments?.[sNum] ?? ''
             const tch = characterById[tcid]
@@ -306,14 +306,14 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
                   value={tcid}
                   options={TRAVELER_CHARS}
                   language={language}
-                  placeholder={zh ? '选择旅人…' : 'Pick traveler…'}
+                  placeholder={zh ? '选择旅行者…' : 'Pick traveler…'}
                   onChange={(id) => setTravelerAssignment(sNum, id)}
                 />
                 <TeamDot team={tch?.team} />
                 <TextField
                   size="small"
                   fullWidth
-                  placeholder={zh ? '旅人备注…' : 'Traveler note…'}
+                  placeholder={zh ? '旅行者备注…' : 'Traveler note…'}
                   value={newGamePanel.seatNotes[sNum] ?? ''}
                   onChange={(e) => updateConfig({ seatNotes: { ...newGamePanel.seatNotes, [sNum]: e.target.value } })}
                 />

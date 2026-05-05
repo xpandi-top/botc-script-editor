@@ -103,7 +103,7 @@ export function PlayersTab({ newGamePanel, playerNamePool, language, seats, upda
         <IconButton size="small" onClick={() => updateConfig({ playerCount: Math.min(15, newGamePanel.playerCount + 1) })}>
           <AddIcon />
         </IconButton>
-        <Typography variant="body2" sx={{ ml: 1 }}>{language === 'zh' ? '旅人' : 'Travelers'}: {newGamePanel.travelerCount}</Typography>
+        <Typography variant="body2" sx={{ ml: 1 }}>{language === 'zh' ? '旅行者' : 'Travelers'}: {newGamePanel.travelerCount}</Typography>
         <IconButton size="small" onClick={() => updateConfig({ travelerCount: Math.max(0, newGamePanel.travelerCount - 1) })}>
           <RemoveIcon />
         </IconButton>

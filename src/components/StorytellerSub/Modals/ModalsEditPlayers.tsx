@@ -86,7 +86,7 @@ export function ModalsEditPlayers({ ctx }: { ctx: StorytellerContext }) {
 
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 1 }}>
         <Typography variant="subtitle2">
-          {language === 'zh' ? '旅人' : 'Travelers'}: {travelerSeats.length}
+          {language === 'zh' ? '旅行者' : 'Travelers'}: {travelerSeats.length}
         </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
           <IconButton size="small" onClick={removeLastTraveler} disabled={travelerSeats.length === 0}>

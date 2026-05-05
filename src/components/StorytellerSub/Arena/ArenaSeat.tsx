@@ -118,7 +118,7 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: StorytellerCo
             size={CIRCLE}
             charIcon={charIcon}
             charName={actualCharName}
-            nightShowCharacter={nightShowCharacter}
+            nightShowCharacter={nightShowCharacter || seat.isTraveler}
             isOpen={isPlayerModalOpen}
             disabled={false}
             onClick={(e) => { e.stopPropagation(); setPlayerModalSeat(isPlayerModalOpen ? null : seat.seat) }}
