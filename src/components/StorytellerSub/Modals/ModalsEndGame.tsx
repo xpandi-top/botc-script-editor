@@ -1,7 +1,9 @@
 // @ts-nocheck
 import type { StorytellerContext } from '../useStoryteller'
 import React, { useState, useEffect } from 'react'
-import { Box, Button, TextField, Select, MenuItem, FormControl, InputLabel, Chip, Typography, FormControlLabel, Radio, RadioGroup, IconButton, Paper } from '@mui/material'
+import { Box, Button, TextField, Select, MenuItem, FormControl, InputLabel, Chip, Typography, FormControlLabel, Radio, RadioGroup, IconButton, Paper, Collapse } from '@mui/material'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import { StarRating } from '../../ui/StarRating'
 
 export function ModalsEndGame({ ctx }: { ctx: StorytellerContext }) {
@@ -18,6 +20,7 @@ export function ModalsEndGame({ ctx }: { ctx: StorytellerContext }) {
   const [recordName, setRecordName] = useState(currentRecordName || defaultName)
   const [markOption, setMarkOption] = useState(currentDay.gameEnded ? 'markDone' : 'unmark')
   const [isVisible, setIsVisible] = useState(false)
+  const [teamsExpanded, setTeamsExpanded] = useState(false)
 
   useEffect(() => { setRecordName(currentRecordName || defaultName) }, [currentRecordName, defaultName])
   useEffect(() => { if (showEndGameModal) setIsVisible(true) }, [showEndGameModal])
@@ -110,22 +113,29 @@ export function ModalsEndGame({ ctx }: { ctx: StorytellerContext }) {
       />
 
       <Box>
-        <Typography variant="subtitle2" sx={{ mb: 1 }}>{language === 'zh' ? '阵营' : 'Teams'}</Typography>
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-          {regularSeats.map((s: any) => {
-            const team = egr.playerTeams?.[s.seat]
-            return (
-              <Chip
-                key={s.seat}
-                label={`${s.seat}. ${s.name || `P${s.seat}`} ${team === 'evil' ? '🔴' : team === 'good' ? '🔵' : '⚪'}`}
-                clickable
-                color={team === 'evil' ? 'error' : team === 'good' ? 'primary' : 'default'}
-                variant={team ? 'filled' : 'outlined'}
-                onClick={() => togglePlayerTeam(s.seat, team === 'evil' ? 'good' : 'evil')}
-              />
-            )
-          })}
+        <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', userSelect: 'none' }} onClick={() => setTeamsExpanded((v) => !v)}>
+          <Typography variant="subtitle2" sx={{ flex: 1 }}>{language === 'zh' ? '阵营' : 'Teams'}</Typography>
+          <IconButton size="small" tabIndex={-1}>
+            {teamsExpanded ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
+          </IconButton>
         </Box>
+        <Collapse in={teamsExpanded}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 0.5 }}>
+            {regularSeats.map((s: any) => {
+              const team = egr.playerTeams?.[s.seat]
+              return (
+                <Chip
+                  key={s.seat}
+                  label={`${s.seat}. ${s.name || `P${s.seat}`} ${team === 'evil' ? '🔴' : team === 'good' ? '🔵' : '⚪'}`}
+                  clickable
+                  color={team === 'evil' ? 'error' : team === 'good' ? 'primary' : 'default'}
+                  variant={team ? 'filled' : 'outlined'}
+                  onClick={() => togglePlayerTeam(s.seat, team === 'evil' ? 'good' : 'evil')}
+                />
+              )
+            })}
+          </Box>
+        </Collapse>
       </Box>
 
       <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>

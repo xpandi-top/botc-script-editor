@@ -199,6 +199,7 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     setSkillOverlay(null)
     setNewGamePanel(null)
     if (setCurrentRecordName) setCurrentRecordName(null)
+    setEndGameResult(null)
     setStFabledIds?.([])
     setStCustomRules?.('')
     setGameStartedAt?.(Date.now())
