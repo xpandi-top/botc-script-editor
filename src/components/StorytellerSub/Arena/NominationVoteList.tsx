@@ -140,7 +140,7 @@ export function NominationVoteList({
                     px: 0.75,
                     py: 0,
                     minWidth: 30,
-                    color: isDead ? 'error.main' : 'text.disabled',
+                    color: isDead ? 'text.disabled' : 'error.main',
                     '&:hover': { bgcolor: 'error.light', color: 'error.dark' },
                   }}
                 >
