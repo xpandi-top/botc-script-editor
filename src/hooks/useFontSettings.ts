@@ -196,7 +196,19 @@ export const EN_DISPLAY_OPTIONS: FontOption[] = [
   },
 ]
 
+/** Sentinel: ZH uses same CSS as the currently selected EN body font. */
+export const ZH_SAME_AS_EN_ID = '__same-as-en__'
+
 export const ZH_OPTIONS: FontOption[] = [
+  // ── Special ────────────────────────────────────────────────────
+  {
+    id: ZH_SAME_AS_EN_ID,
+    label: 'Same as English',
+    labelZh: '与英文字体相同',
+    css: ZH_SAME_AS_EN_ID, // resolved at runtime in hook
+    sample: '血月钟楼',
+    sampleZh: '说书人在黑暗中低语。',
+  },
   // ── Google Fonts (project) ─────────────────────────────────────
   {
     id: 'zcool-xiaowei',
@@ -309,8 +321,10 @@ export function useFontSettings() {
   useEffect(() => {
     const enBodyCss    = findOption(EN_BODY_OPTIONS,    enBodyId).css
     const enDisplayCss = findOption(EN_DISPLAY_OPTIONS, enDisplayId).css
-    const zhCss        = findOption(ZH_OPTIONS,         zhId).css
-    applyFontVars(enBodyCss, enDisplayCss, zhCss, uiScale)
+    const zhRaw        = findOption(ZH_OPTIONS,         zhId).css
+    // Resolve sentinel: "same as EN" → use EN body CSS
+    const resolvedZhCss = zhRaw === ZH_SAME_AS_EN_ID ? enBodyCss : zhRaw
+    applyFontVars(enBodyCss, enDisplayCss, resolvedZhCss, uiScale)
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
         enBody: enBodyId, enDisplay: enDisplayId, zh: zhId, uiScale,

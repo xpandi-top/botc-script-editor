@@ -1,6 +1,6 @@
 import { Box, Paper, Typography, Divider, ToggleButtonGroup, ToggleButton } from '@mui/material'
 import type { FontOption, FontSettings, UiScale } from '../../hooks/useFontSettings'
-import { UI_SCALE_OPTIONS } from '../../hooks/useFontSettings'
+import { UI_SCALE_OPTIONS, ZH_SAME_AS_EN_ID } from '../../hooks/useFontSettings'
 import type { Language } from '../../types'
 
 // ── FontPicker ────────────────────────────────────────────────────────────────
@@ -163,7 +163,15 @@ export function SettingsTab({ language, fontSettings }: SettingsTabProps) {
   // Resolve current CSS strings for preview
   const enBodyCss    = enBodyOptions.find((o) => o.id === enBodyId)?.css    ?? enBodyOptions[0].css
   const enDisplayCss = enDisplayOptions.find((o) => o.id === enDisplayId)?.css ?? enDisplayOptions[0].css
-  const zhCss        = zhOptions.find((o) => o.id === zhId)?.css            ?? zhOptions[0].css
+  const zhRaw        = zhOptions.find((o) => o.id === zhId)?.css            ?? zhOptions[0].css
+  // Sentinel "same as EN" resolves to current EN body font for preview
+  const zhCss        = zhRaw === ZH_SAME_AS_EN_ID ? enBodyCss : zhRaw
+
+  // ZH font picker: replace sentinel css with resolved css so card previews
+  // render in the correct font rather than the literal sentinel string.
+  const zhOptionsResolved = zhOptions.map((o) =>
+    o.id === ZH_SAME_AS_EN_ID ? { ...o, css: enBodyCss } : o
+  )
 
   return (
     <Box sx={{ maxWidth: 960, mx: 'auto', px: { xs: 2, sm: 3 }, py: 3, display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -252,7 +260,7 @@ export function SettingsTab({ language, fontSettings }: SettingsTabProps) {
         <FontPicker
           label="Chinese Characters"
           labelZh="中文字符字体"
-          options={zhOptions}
+          options={zhOptionsResolved}
           selectedId={zhId}
           onSelect={setZhId}
           language={language}
