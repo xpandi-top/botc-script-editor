@@ -83,6 +83,31 @@ export const EN_BODY_OPTIONS: FontOption[] = [
     sample: 'Nominations are open.',
     sampleZh: 'Nominations are open.',
   },
+  // ── Local project fonts ────────────────────────────────────────
+  {
+    id: 'times-local',
+    label: 'Times New Roman (Local)',
+    labelZh: 'Times New Roman · 本地字体',
+    css: '"Times New Roman Local", "Times New Roman", serif',
+    sample: 'The demon strikes again tonight.',
+    sampleZh: 'The demon strikes again tonight.',
+  },
+  {
+    id: 'kaushan',
+    label: 'Kaushan Script',
+    labelZh: 'Kaushan Script · 手写草体',
+    css: '"Kaushan Script", cursive',
+    sample: 'Trust no one tonight.',
+    sampleZh: 'Trust no one tonight.',
+  },
+  {
+    id: 'edo',
+    label: 'Edo',
+    labelZh: 'Edo · 装饰英文',
+    css: 'Edo, sans-serif',
+    sample: 'Blood on the Clocktower',
+    sampleZh: 'Blood on the Clocktower',
+  },
 ]
 
 export const EN_DISPLAY_OPTIONS: FontOption[] = [
@@ -144,6 +169,31 @@ export const EN_DISPLAY_OPTIONS: FontOption[] = [
     sample: 'Blood on the Clocktower',
     sampleZh: 'Blood on the Clocktower',
   },
+  // ── Local project fonts ────────────────────────────────────────
+  {
+    id: 'times-local',
+    label: 'Times New Roman (Local)',
+    labelZh: 'Times New Roman · 本地字体',
+    css: '"Times New Roman Local", "Times New Roman", serif',
+    sample: 'Blood on the Clocktower',
+    sampleZh: 'Blood on the Clocktower',
+  },
+  {
+    id: 'kaushan',
+    label: 'Kaushan Script',
+    labelZh: 'Kaushan Script · 手写草体',
+    css: '"Kaushan Script", cursive',
+    sample: 'Blood on the Clocktower',
+    sampleZh: 'Blood on the Clocktower',
+  },
+  {
+    id: 'edo',
+    label: 'Edo',
+    labelZh: 'Edo · 装饰英文',
+    css: 'Edo, sans-serif',
+    sample: 'Blood on the Clocktower',
+    sampleZh: 'Blood on the Clocktower',
+  },
 ]
 
 export const ZH_OPTIONS: FontOption[] = [
@@ -196,6 +246,23 @@ export const ZH_OPTIONS: FontOption[] = [
     css: '"PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif',
     sample: '血月钟楼',
     sampleZh: '提名现已开放。',
+  },
+  // ── Local project fonts ────────────────────────────────────────
+  {
+    id: 'xingkai',
+    label: 'Xingkai 行楷',
+    labelZh: '行楷 · 优雅楷书',
+    css: 'Xingkai, sans-serif',
+    sample: '血月钟楼',
+    sampleZh: '说书人低语于暗夜之中。',
+  },
+  {
+    id: 'xinwei',
+    label: 'Xinwei 新魏',
+    labelZh: '新魏 · 隶变之美',
+    css: 'Xinwei, sans-serif',
+    sample: '血月钟楼',
+    sampleZh: '恶魔行走于镇民之间。',
   },
 ]
 
