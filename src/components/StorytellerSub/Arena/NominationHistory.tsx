@@ -1,12 +1,14 @@
 // @ts-nocheck
 import React from 'react'
-import { Box, Typography, Select, MenuItem } from '@mui/material'
+import { Box, Typography, Select, MenuItem, IconButton } from '@mui/material'
+import DeleteIcon from '@mui/icons-material/Delete'
 
 interface NominationHistoryProps {
   voteHistory: any[]
   historyFilter: 'all' | 'exile' | 'nomination'
   setHistoryFilter: (v: 'all' | 'exile' | 'nomination') => void
   language: string
+  updateCurrentDay: (fn: (d: any) => any) => void
 }
 
 export function NominationHistory({
@@ -14,6 +16,7 @@ export function NominationHistory({
   historyFilter,
   setHistoryFilter,
   language,
+  updateCurrentDay,
 }: NominationHistoryProps) {
   const nominatorsToday = [...new Set(voteHistory.map((r: any) => r.actor))]
   const nomineesToday = [...new Set(voteHistory.map((r: any) => r.target))]
@@ -92,15 +95,22 @@ export function NominationHistory({
                 display: 'flex',
                 alignItems: 'center',
                 gap: 0.5,
-                flexWrap: 'wrap'
+                flexWrap: 'wrap',
+                flex: 1,
               }}>
-                <Typography variant="body2" sx={{ fontWeight: 600, whiteSpace: 'nowrap' }}>
+                <Typography variant="body2" sx={{ fontWeight: 600, whiteSpace: 'nowrap', flex: 1 }}>
                   #{record.actor} {actionTag} #{record.target}{' '}
                   {record.failed
                     ? (language === 'zh' ? '失败' : 'Failed')
                     : `${record.voteCount}/${record.requiredVotes}`
                   }{voterList}
                 </Typography>
+                <IconButton size="small" color="error" onClick={() => updateCurrentDay((d: any) => ({
+                  ...d,
+                  voteHistory: d.voteHistory.filter((r: any) => r.id !== record.id),
+                }))}>
+                  <DeleteIcon sx={{ fontSize: '1rem' }} />
+                </IconButton>
               </Box>
             )
           })}

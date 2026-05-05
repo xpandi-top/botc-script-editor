@@ -272,6 +272,7 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: StorytellerContext })
         historyFilter={historyFilter}
         setHistoryFilter={setHistoryFilter}
         language={language}
+        updateCurrentDay={updateCurrentDay}
       />
     </Dialog>
   )
