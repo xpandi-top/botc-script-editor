@@ -31,6 +31,7 @@ export function useStoryteller(props: StorytellerHelperProps) {
   const [stFabledIds, setStFabledIds] = useState<string[]>(initial.stFabledIds ?? [])
   const [stCustomRules, setStCustomRules] = useState<string>(initial.stCustomRules ?? '')
   const [stName, setStName] = useState<string>(initial.stName ?? '')
+  const [gameStartedAt, setGameStartedAt] = useState<number | undefined>(initial.gameStartedAt)
 
   // ── Runtime state ──
   const [pickerMode, setPickerMode] = useState<PickerMode>('none')
@@ -176,9 +177,9 @@ export function useStoryteller(props: StorytellerHelperProps) {
 
   // ── Effects ──
   useEffect(() => {
-    const toSave = { selectedDayId, timerDefaults, days, customTagPool, gameRecords, playerNamePool, activeScriptSlug, activeScriptTitle, stFabledIds, stCustomRules, stName }
+    const toSave = { selectedDayId, timerDefaults, days, customTagPool, gameRecords, playerNamePool, activeScriptSlug, activeScriptTitle, stFabledIds, stCustomRules, stName, gameStartedAt }
     storageSync.setItem(STORAGE_KEY, JSON.stringify(toSave satisfies PersistedState))
-  }, [customTagPool, days, gameRecords, playerNamePool, selectedDayId, timerDefaults, activeScriptSlug, activeScriptTitle, stFabledIds, stCustomRules, stName])
+  }, [customTagPool, days, gameRecords, playerNamePool, selectedDayId, timerDefaults, activeScriptSlug, activeScriptTitle, stFabledIds, stCustomRules, stName, gameStartedAt])
 
   // Sync records mutated by the Analytics tab (different React tree, same localStorage)
   useEffect(() => {
@@ -214,7 +215,7 @@ export function useStoryteller(props: StorytellerHelperProps) {
   // ── Domain actions ──
   const gameActions = buildGameActions({ currentDay, timerDefaults, requiredVotes: effectiveRequiredVotes, draftPassed, isTimerRunning, skillOverlay, seatTagDrafts, updateCurrentDay, updateCurrentDayWithUndo, appendEvent, setPickerMode, setIsTimerRunning, setSkillOverlay, setSkillPopoutSeat: ui.setSkillPopoutSeat, setTagPopoutSeat: ui.setTagPopoutSeat, setSkillRoleDropdownOpen: ui.setSkillRoleDropdownOpen, setShowNominationSheet: ui.setShowNominationSheet, setCustomTagPool, setSeatTagDrafts, text })
 
-  const lifecycle = buildGameLifecycle({ days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, endGameResult, scriptOptions, onSelectScript, setDays, setDaysWithUndo, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay: (v) => setSkillOverlay(v), setNewGamePanel, setEndGameResult, setGameRecords, setSelectedAudioSrc: audio.setSelectedAudioSrc, setAudioPlaying: audio.setAudioPlaying, nightBgmSrc: NIGHT_BGM_SRC, language, appendEvent, customTagPool, playerNamePool, setCurrentRecordName, setTimerDefaults, setCustomTagPool, setPlayerNamePool, setShowEndGameModal, setNightShowCharacter: ui.setNightShowCharacter, setNightShowWakeOrder: ui.setNightShowWakeOrder, stFabledIds, stCustomRules, setStFabledIds, setStCustomRules })
+  const lifecycle = buildGameLifecycle({ days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, endGameResult, scriptOptions, onSelectScript, setDays, setDaysWithUndo, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay: (v) => setSkillOverlay(v), setNewGamePanel, setEndGameResult, setGameRecords, setSelectedAudioSrc: audio.setSelectedAudioSrc, setAudioPlaying: audio.setAudioPlaying, nightBgmSrc: NIGHT_BGM_SRC, language, appendEvent, customTagPool, playerNamePool, setCurrentRecordName, setTimerDefaults, setCustomTagPool, setPlayerNamePool, setShowEndGameModal, setNightShowCharacter: ui.setNightShowCharacter, setNightShowWakeOrder: ui.setNightShowWakeOrder, stFabledIds, stCustomRules, setStFabledIds, setStCustomRules, gameStartedAt, setGameStartedAt })
 
   function clearUnusedCustomTags() {
     const usedTags = new Set(days.flatMap((d) => d.seats.flatMap((s) => s.customTags)))

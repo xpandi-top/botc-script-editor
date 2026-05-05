@@ -212,7 +212,9 @@ export type DayState = {
 
 export type GameRecord = {
   id: string
+  startedAt?: number
   endedAt: number
+  durationMs?: number
   recordName?: string
   scriptTitle?: string
   scriptSlug?: string
@@ -258,6 +260,7 @@ export type PersistedState = {
   stFabledIds?: string[]
   stCustomRules?: string
   stName?: string
+  gameStartedAt?: number
 }
 
 export type DialogState =

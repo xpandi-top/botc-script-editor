@@ -14,6 +14,7 @@ export interface ExportDeps {
   stCustomRules?: string
   setGameRecords: React.Dispatch<React.SetStateAction<GameRecord[]>>
   setCurrentRecordName?: (name: string | null) => void
+  gameStartedAt?: number
 }
 
 function downloadJson(data: unknown, filename: string) {
@@ -32,6 +33,7 @@ export function buildGameExport(deps: ExportDeps) {
     days, currentDay, activeScriptSlug, activeScriptTitle,
     endGameResult, timerDefaults, customTagPool = [], playerNamePool = [],
     stFabledIds = [], stCustomRules = '', setGameRecords, setCurrentRecordName,
+    gameStartedAt,
   } = deps
 
   function exportGameJson(config?: ExportConfig) {
@@ -87,7 +89,9 @@ export function buildGameExport(deps: ExportDeps) {
     }
     return {
       id,
+      startedAt: gameStartedAt,
       endedAt: savedAt,
+      durationMs: gameStartedAt ? savedAt - gameStartedAt : undefined,
       recordName,
       scriptTitle: activeScriptTitle,
       scriptSlug: activeScriptSlug,

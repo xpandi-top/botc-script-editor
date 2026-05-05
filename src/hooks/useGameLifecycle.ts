@@ -43,12 +43,14 @@ interface LifecycleDeps {
   stCustomRules?: string
   setStFabledIds?: (v: string[]) => void
   setStCustomRules?: (v: string) => void
+  gameStartedAt?: number
+  setGameStartedAt?: (v: number | undefined) => void
 }
 
 export function buildGameLifecycle(deps: LifecycleDeps) {
-  const { days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, endGameResult, scriptOptions, onSelectScript, setDays, setDaysWithUndo, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay, setNewGamePanel, setEndGameResult, setGameRecords, setAudioPlaying, language, appendEvent, customTagPool = [], playerNamePool = [], setCurrentRecordName, setTimerDefaults, setCustomTagPool, setPlayerNamePool, setShowEndGameModal, setNightShowCharacter, setNightShowWakeOrder, stFabledIds = [], stCustomRules = '', setStFabledIds, setStCustomRules } = deps
+  const { days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, endGameResult, scriptOptions, onSelectScript, setDays, setDaysWithUndo, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay, setNewGamePanel, setEndGameResult, setGameRecords, setAudioPlaying, language, appendEvent, customTagPool = [], playerNamePool = [], setCurrentRecordName, setTimerDefaults, setCustomTagPool, setPlayerNamePool, setShowEndGameModal, setNightShowCharacter, setNightShowWakeOrder, stFabledIds = [], stCustomRules = '', setStFabledIds, setStCustomRules, gameStartedAt, setGameStartedAt } = deps
 
-  const exportActions = buildGameExport({ days, currentDay, activeScriptSlug, activeScriptTitle, endGameResult, timerDefaults, customTagPool, playerNamePool, stFabledIds, stCustomRules, setGameRecords, setCurrentRecordName })
+  const exportActions = buildGameExport({ days, currentDay, activeScriptSlug, activeScriptTitle, endGameResult, timerDefaults, customTagPool, playerNamePool, stFabledIds, stCustomRules, setGameRecords, setCurrentRecordName, gameStartedAt })
 
   function goToNextDay() {
     setNightShowCharacter?.(false)
@@ -199,6 +201,7 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     if (setCurrentRecordName) setCurrentRecordName(null)
     setStFabledIds?.([])
     setStCustomRules?.('')
+    setGameStartedAt?.(Date.now())
   }
 
   function applyGameChanges(newGamePanel: NewGameConfig) {
