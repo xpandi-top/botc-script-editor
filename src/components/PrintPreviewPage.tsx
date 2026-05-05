@@ -148,7 +148,29 @@ export function PrintPreviewPage({
         {/* ── Settings panel ── */}
         {panelOpen && <Box sx={{ width: { xs: '100%', sm: 300 }, flexShrink: 0, overflowY: 'auto', borderRight: { sm: '1px solid' }, borderColor: 'divider', p: { xs: 1.5, sm: 2 }, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
 
-          {/* Page */}
+          {/* 1 ── Output — biggest decisions first */}
+          <Box>
+            {sectionLabel(zh ? '输出' : 'Output')}
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+              <Typography variant="caption" color="text.secondary">{zh ? '语言布局' : 'Language'}</Typography>
+              <ToggleButtonGroup value={opts.languageLayout} exclusive size="small"
+                onChange={(_, v) => { if (v) set('languageLayout', v as LanguageLayout) }}
+                sx={{ flexWrap: 'wrap', mb: 0.5 }}
+              >
+                <ToggleButton value="current"           sx={{ fontSize: '0.72rem' }}>{zh ? '当前' : 'Current'}</ToggleButton>
+                <ToggleButton value="bilingual-mixed"   sx={{ fontSize: '0.72rem' }}>{zh ? '中英混合' : 'Mixed'}</ToggleButton>
+                <ToggleButton value="bilingual-separate" sx={{ fontSize: '0.72rem' }}>{zh ? '中英分页' : 'Separate'}</ToggleButton>
+              </ToggleButtonGroup>
+              <FormControlLabel
+                control={<Switch checked={opts.blackAndWhite} onChange={(e) => set('blackAndWhite', e.target.checked)} size="small" />}
+                label={<Typography variant="body2">{zh ? '黑白打印' : 'Black & White'}</Typography>}
+              />
+            </Box>
+          </Box>
+
+          <Divider />
+
+          {/* 2 ── Page */}
           <Box>
             {sectionLabel(zh ? '纸张' : 'Page')}
             <FormControl size="small" fullWidth sx={{ mb: 0.5 }}>
@@ -168,7 +190,7 @@ export function PrintPreviewPage({
 
           <Divider />
 
-          {/* Layout */}
+          {/* 3 ── Layout */}
           <Box>
             {sectionLabel(zh ? '布局' : 'Layout')}
             <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>{zh ? '列数' : 'Columns'}</Typography>
@@ -180,26 +202,25 @@ export function PrintPreviewPage({
 
           <Divider />
 
-          {/* Icons */}
+          {/* 4 ── Title */}
           <Box>
-            {sectionLabel(zh ? '图标' : 'Icons')}
-            <Typography variant="caption" color="text.secondary">{zh ? `角色卡图标: ${opts.iconSize}px` : `Card icon: ${opts.iconSize}px`}</Typography>
-            <Slider value={opts.iconSize} min={16} max={80} step={4}
-              onChange={(_, v) => set('iconSize', v as number)}
-              marks={[{ value: 16, label: '16' }, { value: 48, label: '48' }, { value: 80, label: '80' }]}
-              sx={{ mt: 0.5, mb: 1 }}
-            />
-            <Typography variant="caption" color="text.secondary">{zh ? `夜序图标: ${opts.wakeIconSize}px` : `Wake icon: ${opts.wakeIconSize}px`}</Typography>
-            <Slider value={opts.wakeIconSize} min={12} max={48} step={2}
-              onChange={(_, v) => set('wakeIconSize', v as number)}
-              marks={[{ value: 12, label: '12' }, { value: 28, label: '28' }, { value: 48, label: '48' }]}
-              sx={{ mt: 0.5 }}
+            {sectionLabel(zh ? '标题' : 'Title')}
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>{zh ? '对齐' : 'Alignment'}</Typography>
+            <ToggleButtonGroup value={opts.titleAlign ?? 'left'} exclusive size="small"
+              onChange={(_, v) => { if (v) set('titleAlign', v as TitleAlign) }} sx={{ mb: 1 }}>
+              <ToggleButton value="left">{zh ? '左' : 'Left'}</ToggleButton>
+              <ToggleButton value="center">{zh ? '中' : 'Center'}</ToggleButton>
+              <ToggleButton value="right">{zh ? '右' : 'Right'}</ToggleButton>
+            </ToggleButtonGroup>
+            <FormControlLabel
+              control={<Switch checked={opts.showAuthor ?? true} onChange={(e) => set('showAuthor', e.target.checked)} size="small" />}
+              label={<Typography variant="body2">{zh ? '显示作者' : 'Show author'}</Typography>}
             />
           </Box>
 
           <Divider />
 
-          {/* Typography */}
+          {/* 5 ── Typography */}
           <Box>
             {sectionLabel(zh ? '字体' : 'Typography')}
             {fontSelect(zh ? '英文字体' : 'English Font', 'fontKeyEn')}
@@ -222,7 +243,7 @@ export function PrintPreviewPage({
 
           <Divider />
 
-          {/* Spacing */}
+          {/* 6 ── Spacing */}
           <Box>
             {sectionLabel(zh ? '间距' : 'Spacing')}
             <ToggleButtonGroup value={opts.padding} exclusive size="small" onChange={(_, v) => { if (v) set('padding', v) }}>
@@ -234,38 +255,7 @@ export function PrintPreviewPage({
 
           <Divider />
 
-          {/* Title */}
-          <Box>
-            {sectionLabel(zh ? '标题' : 'Title')}
-            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>{zh ? '对齐' : 'Alignment'}</Typography>
-            <ToggleButtonGroup value={opts.titleAlign ?? 'left'} exclusive size="small"
-              onChange={(_, v) => { if (v) set('titleAlign', v as TitleAlign) }} sx={{ mb: 1 }}>
-              <ToggleButton value="left">{zh ? '左' : 'Left'}</ToggleButton>
-              <ToggleButton value="center">{zh ? '中' : 'Center'}</ToggleButton>
-              <ToggleButton value="right">{zh ? '右' : 'Right'}</ToggleButton>
-            </ToggleButtonGroup>
-            <FormControlLabel
-              control={<Switch checked={opts.showAuthor ?? true} onChange={(e) => set('showAuthor', e.target.checked)} size="small" />}
-              label={<Typography variant="body2">{zh ? '显示作者' : 'Show author'}</Typography>}
-            />
-          </Box>
-
-          <Divider />
-
-          {/* Wake order */}
-          <Box>
-            {sectionLabel(zh ? '夜序顺序' : 'Wake Order')}
-            <ToggleButtonGroup value={opts.wakeOrder ?? 'side'} exclusive size="small"
-              onChange={(_, v) => { if (v) set('wakeOrder', v as WakeOrderMode) }} sx={{ flexWrap: 'wrap' }}>
-              <ToggleButton value="side" sx={{ fontSize: '0.72rem' }}>{zh ? '侧列' : 'Side'}</ToggleButton>
-              <ToggleButton value="bottom" sx={{ fontSize: '0.72rem' }}>{zh ? '底部行' : 'Bottom'}</ToggleButton>
-              <ToggleButton value="none" sx={{ fontSize: '0.72rem' }}>{zh ? '不显示' : 'None'}</ToggleButton>
-            </ToggleButtonGroup>
-          </Box>
-
-          <Divider />
-
-          {/* Section style */}
+          {/* 7 ── Section style */}
           <Box>
             {sectionLabel(zh ? '区域样式' : 'Section Style')}
             <ToggleButtonGroup value={opts.sectionStyle ?? 'inline'} exclusive size="small"
@@ -278,9 +268,15 @@ export function PrintPreviewPage({
 
           <Divider />
 
-          {/* Icon style */}
+          {/* 8 ── Icons (size + style merged) */}
           <Box>
-            {sectionLabel(zh ? '图标样式' : 'Icon Style')}
+            {sectionLabel(zh ? '图标' : 'Icons')}
+            <Typography variant="caption" color="text.secondary">{zh ? `角色卡图标: ${opts.iconSize}px` : `Card icon: ${opts.iconSize}px`}</Typography>
+            <Slider value={opts.iconSize} min={16} max={80} step={4}
+              onChange={(_, v) => set('iconSize', v as number)}
+              marks={[{ value: 16, label: '16' }, { value: 48, label: '48' }, { value: 80, label: '80' }]}
+              sx={{ mt: 0.5, mb: 1 }}
+            />
             <FormControlLabel
               control={<Switch checked={opts.showIconCircle} onChange={(e) => set('showIconCircle', e.target.checked)} size="small" />}
               label={<Typography variant="body2">{zh ? '显示图标外圈' : 'Icon outer circle'}</Typography>}
@@ -293,25 +289,27 @@ export function PrintPreviewPage({
 
           <Divider />
 
-          {/* Output */}
+          {/* 9 ── Wake order */}
           <Box>
-            {sectionLabel(zh ? '输出' : 'Output')}
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-              <FormControlLabel
-                control={<Switch checked={opts.blackAndWhite} onChange={(e) => set('blackAndWhite', e.target.checked)} size="small" />}
-                label={<Typography variant="body2">{zh ? '黑白打印' : 'Black & White'}</Typography>}
-              />
-              <Typography variant="caption" color="text.secondary" sx={{ mb: 0.25 }}>{zh ? '语言' : 'Language'}</Typography>
-              <ToggleButtonGroup value={opts.languageLayout} exclusive size="small"
-                onChange={(_, v) => { if (v) set('languageLayout', v as LanguageLayout) }}
-                sx={{ flexWrap: 'wrap' }}
-              >
-                <ToggleButton value="current" sx={{ fontSize: '0.72rem' }}>{zh ? '当前语言' : 'Current'}</ToggleButton>
-                <ToggleButton value="bilingual-mixed" sx={{ fontSize: '0.72rem' }}>{zh ? '中英混合' : 'Mixed'}</ToggleButton>
-                <ToggleButton value="bilingual-separate" sx={{ fontSize: '0.72rem' }}>{zh ? '中英分页' : 'Separate'}</ToggleButton>
-              </ToggleButtonGroup>
-            </Box>
+            {sectionLabel(zh ? '夜晚顺序' : 'Wake Order')}
+            <ToggleButtonGroup value={opts.wakeOrder ?? 'side'} exclusive size="small"
+              onChange={(_, v) => { if (v) set('wakeOrder', v as WakeOrderMode) }} sx={{ flexWrap: 'wrap', mb: (opts.wakeOrder ?? 'side') !== 'none' ? 1 : 0 }}>
+              <ToggleButton value="side"   sx={{ fontSize: '0.72rem' }}>{zh ? '侧列' : 'Side'}</ToggleButton>
+              <ToggleButton value="bottom" sx={{ fontSize: '0.72rem' }}>{zh ? '底部' : 'Bottom'}</ToggleButton>
+              <ToggleButton value="none"   sx={{ fontSize: '0.72rem' }}>{zh ? '不显示' : 'None'}</ToggleButton>
+            </ToggleButtonGroup>
+            {(opts.wakeOrder ?? 'side') !== 'none' && (
+              <>
+                <Typography variant="caption" color="text.secondary">{zh ? `夜晚顺序图标: ${opts.wakeIconSize}px` : `Wake icon: ${opts.wakeIconSize}px`}</Typography>
+                <Slider value={opts.wakeIconSize} min={12} max={48} step={2}
+                  onChange={(_, v) => set('wakeIconSize', v as number)}
+                  marks={[{ value: 12, label: '12' }, { value: 28, label: '28' }, { value: 48, label: '48' }]}
+                  sx={{ mt: 0.5 }}
+                />
+              </>
+            )}
           </Box>
+
         </Box>}
 
         {/* ── Live preview (hidden on mobile when panel open) ── */}
@@ -342,7 +340,7 @@ export function PrintPreviewPage({
                       language={lang}
                       onRemoveCharacter={() => {}}
                       sheetDensityClass={sheetDensityClass}
-                      showWakeOrder
+                      showWakeOrder={false}
                       showEdition={false}
                       showCharacterCount={false}
                       supplementalPlacement="end"
