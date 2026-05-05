@@ -226,7 +226,7 @@ export type GameRecord = {
   funGood?: number | null
   replay?: number | null
   otherNote?: string
-  days: Array<{ day: number; votes: number; skills: number }>
+  days: Array<{ day: number; votes: number; votePassed: number; skills: number; nominations: number }>
   savedDays?: DayState[]
   timerDefaults?: TimerDefaults
   customTagPool?: string[]

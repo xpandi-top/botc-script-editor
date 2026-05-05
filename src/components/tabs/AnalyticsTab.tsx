@@ -178,9 +178,10 @@ function RecordFormDialog({ existing, zh, language, onSave, onClose }: {
       playerSummaries: playerSummaries.length > 0 ? playerSummaries : undefined,
       days: Array.from({ length: Math.max(1, dayCount) }, (_, i) => ({
         day: i + 1,
-        // preserve existing vote/skill counts per day when editing
         votes: existing?.days?.[i]?.votes ?? 0,
+        votePassed: existing?.days?.[i]?.votePassed ?? 0,
         skills: existing?.days?.[i]?.skills ?? 0,
+        nominations: existing?.days?.[i]?.nominations ?? 0,
       })),
       setup: hasSetup ? {
         playerCount: players.length,

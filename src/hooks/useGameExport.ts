@@ -107,7 +107,13 @@ export function buildGameExport(deps: ExportDeps) {
       funGood: survey?.funGood ?? null,
       replay: survey?.replay ?? null,
       otherNote: survey?.otherNote ?? '',
-      days: days.map((d) => ({ day: d.day, votes: d.voteHistory.length, skills: d.skillHistory.length })),
+      days: days.map((d) => ({
+        day: d.day,
+        votes: d.voteHistory.length,
+        votePassed: d.voteHistory.filter((v) => v.passed).length,
+        skills: d.skillHistory.length,
+        nominations: d.voteHistory.length, // each vote record = one nomination resolved
+      })),
       savedDays: savedDaysOverride ?? days,
       timerDefaults,
       customTagPool,
