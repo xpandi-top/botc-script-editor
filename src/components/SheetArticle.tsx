@@ -265,8 +265,8 @@ export function SheetArticle({
               )}
             </Box>
 
-            {/* ── Col 2: Name ── fixed to widest name in this script */}
-            <Box sx={{ width: nameColW, flexShrink: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', minHeight: iconSize }}>
+            {/* ── Col 2: Name ── at least as wide as widest name; can grow if font differs */}
+            <Box sx={{ minWidth: nameColW, flexShrink: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', minHeight: iconSize }}>
               <Typography sx={{
                 fontFamily: lang === 'zh' ? zhFont : enFont,
                 fontSize: nameFontSize, fontWeight: 600,
@@ -312,16 +312,26 @@ export function SheetArticle({
   }
 
   const renderCharacterList = (lang: Language, withBoth: boolean) => {
-    // Compute name-column width = widest character name text across the whole script.
-    // Icon column is separate (fixed = iconSize). Description column fills remaining space.
+    // Compute name-column width = widest character name across the whole script.
+    // For print: use explicit printOptions font. For web: read the actual resolved
+    // CSS var (--font-en-body) so canvas uses the same font the browser renders.
     const allChars = groupedScriptCharacters.flatMap((g) => g.characters)
-    const nameFont = `600 ${nameFontSize ?? '0.8rem'} ${fontFamilyEn ?? 'sans-serif'}`
+    const resolvedWebFont = (() => {
+      try {
+        const v = getComputedStyle(document.documentElement).getPropertyValue('--font-en-body').trim()
+        return v || 'serif'
+      } catch { return 'serif' }
+    })()
+    const nameFontSpec = po
+      ? `600 ${nameFontSize} ${fontFamilyEn ?? 'sans-serif'}`
+      : `600 1rem ${resolvedWebFont}`
     const maxNamePx = allChars.reduce((max, c) => {
       const primary = c.name ?? getDisplayName(c.id, lang)
       const alt = withBoth ? getDisplayName(c.id, lang === 'zh' ? 'en' : 'zh') : ''
-      return Math.max(max, measureTextPx(primary, nameFont), alt ? measureTextPx(alt, nameFont) : 0)
+      return Math.max(max, measureTextPx(primary, nameFontSpec), alt ? measureTextPx(alt, nameFontSpec) : 0)
     }, 0)
-    const nameColW = Math.ceil(maxNamePx) + 4 // +4px breathing room
+    // +12px buffer: accounts for font metric rounding and sub-pixel rendering
+    const nameColW = Math.ceil(maxNamePx) + 12
 
     return (
       <Box sx={{ flex: 1 }}>
