@@ -169,12 +169,18 @@ export function SheetArticle({
         )}
         <Typography variant="h5" sx={{ ...(titleFontSize && { fontSize: titleFontSize }), fontFamily: lang === 'zh' ? fontFamilyZh : fontFamilyEn }}>
           {title}
-          {author && (
-            <Box component="span" sx={{ fontWeight: 400, fontSize: '0.7em', opacity: 0.7, ml: '0.5em' }}>
-              {lang === 'zh' ? '作者：' : 'by '}{author}
-            </Box>
-          )}
         </Typography>
+        {author && (
+          <Typography sx={{
+            fontWeight: 400,
+            fontSize: titleFontSize ? `calc(${titleFontSize} * 0.6)` : '0.72rem',
+            opacity: 0.6,
+            fontFamily: lang === 'zh' ? fontFamilyZh : fontFamilyEn,
+            mt: '-2px',
+          }}>
+            {lang === 'zh' ? '作者：' : 'by '}{author}
+          </Typography>
+        )}
         {showCharacterCount && (
           <Typography variant="body2" color="text.secondary">
             {activeScriptCharacters.length} {lang === 'zh' ? '个角色' : 'characters'}
@@ -260,11 +266,8 @@ export function SheetArticle({
             const name = getDisplayName(id, lang)
             return (
               <Tooltip key={id} title={`${i + 1}. ${name}`} placement="top" arrow>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: '2px', cursor: 'pointer' }}
+                <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
                   onClick={() => setPopupId(id)}>
-                  <Typography sx={{ fontSize: '0.6rem', color: 'text.secondary', minWidth: '1ch', textAlign: 'right' }}>
-                    {i + 1}
-                  </Typography>
                   {icon ? (
                     <Box component="img" src={icon} alt={name} sx={{ width: wakeIconSize, height: wakeIconSize, objectFit: 'contain' }} />
                   ) : (
