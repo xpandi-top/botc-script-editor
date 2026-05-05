@@ -441,6 +441,27 @@ export function AnalyticsTab({ language, onLanguageChange }: { language: Languag
     exportGameFile(JSON.stringify(analysis, null, 2), `botc-analysis-${new Date().toISOString().slice(0, 10)}.json`)
   }
 
+  const exportCsv = () => {
+    const esc = (v: string | number | null | undefined) => {
+      const s = String(v ?? '')
+      return s.includes(',') || s.includes('"') || s.includes('\n') ? `"${s.replace(/"/g, '""')}"` : s
+    }
+    const rows: string[][] = [
+      ['section', 'name', 'total', 'evilWins', 'goodWins', 'winRate%', 'avgDays', 'avgVotes', 'votePassRate%', 'avgDurationMin', 'evilWinRate%', 'goodWinRate%', 'topPlayer'],
+    ]
+    for (const s of scriptStats) {
+      rows.push(['script', s.title, s.total, s.evil, s.good, s.total ? Math.round((s.good / s.total) * 100) : 0, s.avgDays, s.avgVotes, s.votePassRate ?? '', s.avgDurationMin ?? '', '', '', ''].map(String))
+    }
+    for (const p of playerStats) {
+      rows.push(['player', p.name, p.total, p.evilGames, p.goodGames, p.winRate, '', '', '', '', p.evilWinRate ?? '', p.goodWinRate ?? '', p.mostPlayedChar ?? ''].map(String))
+    }
+    for (const c of charStats) {
+      rows.push(['character', getDisplayName(c.charId, language), c.total, c.evilGames, c.goodGames, c.winRate, '', '', '', '', '', '', c.topPlayer ?? ''].map(String))
+    }
+    const csv = rows.map((r) => r.map(esc).join(',')).join('\n')
+    exportGameFile(csv, `botc-stats-${new Date().toISOString().slice(0, 10)}.csv`)
+  }
+
   const shareAnalysisImage = async (format: 'pdf' | 'png') => {
     if (!statsRef.current) return
     setSharing(true)
@@ -628,6 +649,9 @@ export function AnalyticsTab({ language, onLanguageChange }: { language: Languag
           </MenuItem>
           <MenuItem onClick={() => { exportAnalysis(); setExportMenuAnchor(null) }}>
             {zh ? '导出分析 (JSON)' : 'Export Analysis (JSON)'}
+          </MenuItem>
+          <MenuItem onClick={() => { exportCsv(); setExportMenuAnchor(null) }}>
+            {zh ? '导出统计 (CSV)' : 'Export Stats (CSV)'}
           </MenuItem>
         </Menu>
 
