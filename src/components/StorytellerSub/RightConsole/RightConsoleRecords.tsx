@@ -1,7 +1,7 @@
 // @ts-nocheck
 import type { StorytellerContext } from '../useStoryteller'
 import React, { useState, useMemo } from 'react'
-import { Box, Button, Typography, Paper, Chip, IconButton, TextField, ToggleButtonGroup, ToggleButton, Collapse } from '@mui/material'
+import { Box, Button, Divider, Typography, Paper, Chip, IconButton, TextField, ToggleButtonGroup, ToggleButton, Collapse, Tooltip } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -12,6 +12,7 @@ import FolderOpenIcon from '@mui/icons-material/FolderOpen'
 import SaveAsIcon from '@mui/icons-material/SaveAs'
 import DownloadIcon from '@mui/icons-material/Download'
 import WbSunnyIcon from '@mui/icons-material/WbSunny'
+import SaveIcon from '@mui/icons-material/Save'
 import { getDisplayName, getIconForCharacter } from '../../../catalog'
 
 const WINNER_COLOR: Record<string, string> = { good: '#1565c0', evil: '#b71c1c', storyteller: '#6a1b9a' }
@@ -30,13 +31,44 @@ function fmtDuration(ms?: number) {
 }
 
 export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: StorytellerContext, toggleConsoleSection: any }) {
-  const { language, text, gameRecords = [], setGameRecords, activeConsoleSections, loadGameRecord, exportRecordJson, saveGame } = ctx
+  const { language, text, gameRecords = [], setGameRecords, activeConsoleSections, loadGameRecord, exportRecordJson, saveGame, activeScriptSlug, activeScriptTitle, currentDay } = ctx
   const isOpen = activeConsoleSections?.has('records')
   const zh = language === 'zh'
 
   const [search, setSearch] = useState('')
   const [winnerFilter, setWinnerFilter] = useState<string | null>(null)
   const [expandedId, setExpandedId] = useState<string | null>(null)
+
+  // ── Live stats for current script & players ──────────────────────
+  const liveStats = useMemo(() => {
+    if (!gameRecords.length) return null
+    const scriptRecs = activeScriptSlug
+      ? gameRecords.filter((r: any) => r.scriptSlug === activeScriptSlug || r.scriptTitle === activeScriptTitle)
+      : gameRecords
+    if (!scriptRecs.length) return null
+
+    const evilWins = scriptRecs.filter((r: any) => r.winner === 'evil').length
+    const goodWins = scriptRecs.filter((r: any) => r.winner === 'good').length
+    const total = scriptRecs.length
+
+    // Per player on current seats
+    const playerRows = (currentDay?.seats ?? [])
+      .filter((s: any) => !s.isTraveler && s.name)
+      .map((s: any) => {
+        const name = s.name
+        const playerRecs = gameRecords.filter((r: any) =>
+          r.playerSummaries?.some((p: any) => p.name === name)
+        )
+        if (!playerRecs.length) return null
+        const wins = playerRecs.filter((r: any) =>
+          r.playerSummaries?.some((p: any) => p.name === name &&
+            ((p.team === 'evil' && r.winner === 'evil') || (p.team === 'good' && r.winner === 'good')))
+        ).length
+        return { name, total: playerRecs.length, wins, winRate: Math.round((wins / playerRecs.length) * 100) }
+      }).filter(Boolean)
+
+    return { scriptTitle: activeScriptTitle, total, evilWins, goodWins, playerRows }
+  }, [gameRecords, activeScriptSlug, activeScriptTitle, currentDay?.seats])
 
   const filtered = useMemo(() => {
     let list = gameRecords
@@ -63,6 +95,51 @@ export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: Storyt
 
       {isOpen && (
         <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
+
+          {/* ── Save checkpoint ── */}
+          <Tooltip title={zh ? '保存当前游戏进度（可随时保存）' : 'Save current game as checkpoint'}>
+            <Button
+              size="small" variant="outlined" startIcon={<SaveIcon fontSize="small" />}
+              onClick={() => {
+                const name = window.prompt(zh ? '保存名称（留空自动生成）：' : 'Checkpoint name (leave blank for auto):', '') ?? ''
+                saveGame(name || undefined)
+              }}
+              fullWidth sx={{ textTransform: 'none', fontSize: '0.8rem' }}
+            >
+              {zh ? '保存存档' : 'Save Checkpoint'}
+            </Button>
+          </Tooltip>
+
+          {/* ── Live stats ── */}
+          {liveStats && (
+            <Paper variant="outlined" sx={{ p: 1 }}>
+              <Typography variant="caption" sx={{ fontWeight: 700, display: 'block', mb: 0.5 }}>
+                {liveStats.scriptTitle ? `${liveStats.scriptTitle} — ` : ''}{liveStats.total}{zh ? '局历史' : ' games'}
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mb: 0.5 }}>
+                <Chip size="small" label={`${zh ? '邪' : 'E:'}${liveStats.evilWins}`} sx={{ bgcolor: 'rgba(183,28,28,0.12)', fontSize: '0.68rem', height: 20 }} />
+                <Chip size="small" label={`${zh ? '善' : 'G:'}${liveStats.goodWins}`} sx={{ bgcolor: 'rgba(21,101,192,0.12)', fontSize: '0.68rem', height: 20 }} />
+              </Box>
+              {liveStats.playerRows.length > 0 && (
+                <>
+                  <Divider sx={{ my: 0.5 }} />
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
+                    {liveStats.playerRows.map((p: any) => (
+                      <Box key={p.name} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Typography variant="caption" sx={{ fontSize: '0.72rem' }}>{p.name}</Typography>
+                        <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.72rem' }}>
+                          {p.total}{zh ? '局' : 'g'} · {p.winRate}%{zh ? '胜' : 'W'}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Box>
+                </>
+              )}
+            </Paper>
+          )}
+
+          <Divider />
+
           {/* Search */}
           <TextField
             size="small" fullWidth
