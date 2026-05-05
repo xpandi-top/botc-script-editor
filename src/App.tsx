@@ -17,7 +17,6 @@ import {
   Typography,
 } from '@mui/material'
 import DescriptionIcon from '@mui/icons-material/Description'
-import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import MenuBookIcon from '@mui/icons-material/MenuBook'
 import TheaterComedyIcon from '@mui/icons-material/TheaterComedy'
@@ -105,7 +104,6 @@ export default function App() {
   const [printOptions, setPrintOptions] = useState<PrintOptions>(DEFAULT_PRINT_OPTIONS)
   const [tokenPrintOptions, setTokenPrintOptions] = useState<TokenPrintOptions>(DEFAULT_TOKEN_OPTIONS)
   const [saveStatus, setSaveStatus] = useState('')
-  const [headerVisible, setHeaderVisible] = useState(true)
   const [showDescription, setShowDescription] = useState(false)
   const [tabMenuAnchor, setTabMenuAnchor] = useState<null | HTMLElement>(null)
   const [selectedCharacterId, setSelectedCharacterId] = useState<string>(allCharacters[0]?.id ?? '')
@@ -463,14 +461,6 @@ export default function App() {
               <InfoIcon />
             </IconButton>
           </Tooltip>
-          <IconButton
-            size="small"
-            onClick={() => setHeaderVisible(v => !v)}
-            title={headerVisible ? 'Hide header' : 'Show header'}
-            sx={{ flexShrink: 0 }}
-          >
-            {headerVisible ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-          </IconButton>
         </Box>
 
         {showDescription && (
