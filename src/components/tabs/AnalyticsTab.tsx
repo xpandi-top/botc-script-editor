@@ -501,64 +501,89 @@ export function AnalyticsTab({ language, onLanguageChange }: { language: Languag
   const pct = (n: number) => (total > 0 ? Math.round((n / total) * 100) : 0)
 
   const scriptStats = useMemo(() => {
-    const map = new Map<string, { title: string; total: number; evil: number; good: number }>()
+    const map = new Map<string, { title: string; total: number; evil: number; good: number; totalDays: number; totalVotes: number; totalVotePassed: number; totalDurationMs: number; durationCount: number }>()
     for (const r of records) {
       const key = r.scriptSlug || r.scriptTitle || 'unknown'
-      const entry = map.get(key) ?? { title: r.scriptTitle || r.scriptSlug || '?', total: 0, evil: 0, good: 0 }
+      const entry = map.get(key) ?? { title: r.scriptTitle || r.scriptSlug || '?', total: 0, evil: 0, good: 0, totalDays: 0, totalVotes: 0, totalVotePassed: 0, totalDurationMs: 0, durationCount: 0 }
       entry.total++
       if (r.winner === 'evil') entry.evil++
       if (r.winner === 'good') entry.good++
+      entry.totalDays += r.days?.length ?? 0
+      entry.totalVotes += r.days?.reduce((s, d) => s + (d.votes ?? 0), 0) ?? 0
+      entry.totalVotePassed += r.days?.reduce((s, d) => s + (d.votePassed ?? 0), 0) ?? 0
+      if (r.durationMs) { entry.totalDurationMs += r.durationMs; entry.durationCount++ }
       map.set(key, entry)
     }
-    return Array.from(map.values()).sort((a, b) => b.total - a.total)
+    return Array.from(map.values()).sort((a, b) => b.total - a.total).map((s) => ({
+      ...s,
+      avgDays: s.total ? +(s.totalDays / s.total).toFixed(1) : 0,
+      avgVotes: s.total ? +(s.totalVotes / s.total).toFixed(1) : 0,
+      votePassRate: s.totalVotes ? Math.round((s.totalVotePassed / s.totalVotes) * 100) : null,
+      avgDurationMin: s.durationCount ? Math.round(s.totalDurationMs / s.durationCount / 60000) : null,
+    }))
   }, [records])
 
   const playerStats = useMemo(() => {
-    const map = new Map<string, { name: string; total: number; evilGames: number; goodGames: number; wins: number; chars: Set<string> }>()
+    const map = new Map<string, { name: string; total: number; evilGames: number; goodGames: number; wins: number; evilWins: number; goodWins: number; chars: Map<string, number> }>()
     for (const r of records) {
       if (!r.playerSummaries) continue
-      // Deduplicate player names within a game (same name on two seats = one game count)
       const seenNames = new Set<string>()
       for (const ps of r.playerSummaries) {
         if (!ps.name || seenNames.has(ps.name)) continue
         seenNames.add(ps.name)
-        const entry = map.get(ps.name) ?? { name: ps.name, total: 0, evilGames: 0, goodGames: 0, wins: 0, chars: new Set() }
+        const entry = map.get(ps.name) ?? { name: ps.name, total: 0, evilGames: 0, goodGames: 0, wins: 0, evilWins: 0, goodWins: 0, chars: new Map() }
         entry.total++
-        if (ps.team === 'evil') entry.evilGames++
-        if (ps.team === 'good') entry.goodGames++
-        if ((ps.team === 'evil' && r.winner === 'evil') || (ps.team === 'good' && r.winner === 'good')) entry.wins++
+        if (ps.team === 'evil') { entry.evilGames++; if (r.winner === 'evil') { entry.wins++; entry.evilWins++ } }
+        if (ps.team === 'good') { entry.goodGames++; if (r.winner === 'good') { entry.wins++; entry.goodWins++ } }
         const charId = r.setup?.assignments?.[ps.seat]
-        if (charId) entry.chars.add(charId)
+        if (charId) entry.chars.set(charId, (entry.chars.get(charId) ?? 0) + 1)
         map.set(ps.name, entry)
       }
     }
-    return Array.from(map.values()).sort((a, b) => b.total - a.total)
+    return Array.from(map.values()).sort((a, b) => b.total - a.total).map((p) => {
+      const mostPlayedChar = p.chars.size ? [...p.chars.entries()].sort((a, b) => b[1] - a[1])[0][0] : null
+      return {
+        ...p,
+        chars: new Set(p.chars.keys()),
+        mostPlayedChar,
+        winRate: p.total ? Math.round((p.wins / p.total) * 100) : 0,
+        evilWinRate: p.evilGames ? Math.round((p.evilWins / p.evilGames) * 100) : null,
+        goodWinRate: p.goodGames ? Math.round((p.goodWins / p.goodGames) * 100) : null,
+      }
+    })
   }, [records])
 
   const charStats = useMemo(() => {
-    const map = new Map<string, { charId: string; total: number; wins: number; evilGames: number }>()
+    const map = new Map<string, { charId: string; total: number; wins: number; evilGames: number; goodGames: number; players: Map<string, number> }>()
     for (const r of records) {
       if (!r.setup?.assignments || !r.playerSummaries) continue
-      // Deduplicate: count each character once per game regardless of how many
-      // players hold that character (duplicate-char games). If a char appears on
-      // both teams in the same game (shouldn't happen but defensive), evil wins.
-      const perGame = new Map<string, 'evil' | 'good' | null>()
+      const perGame = new Map<string, { team: 'evil' | 'good' | null; playerName: string }>()
       for (const ps of r.playerSummaries) {
         const charId = r.setup.assignments[ps.seat]
         if (!charId) continue
         const prev = perGame.get(charId)
-        if (prev === undefined) perGame.set(charId, ps.team)
-        else if (ps.team === 'evil' && prev !== 'evil') perGame.set(charId, 'evil')
+        if (prev === undefined) perGame.set(charId, { team: ps.team, playerName: ps.name })
+        else if (ps.team === 'evil' && prev.team !== 'evil') perGame.set(charId, { team: 'evil', playerName: ps.name })
       }
-      for (const [charId, team] of perGame) {
-        const entry = map.get(charId) ?? { charId, total: 0, wins: 0, evilGames: 0 }
+      for (const [charId, { team, playerName }] of perGame) {
+        const entry = map.get(charId) ?? { charId, total: 0, wins: 0, evilGames: 0, goodGames: 0, players: new Map() }
         entry.total++
         if (team === 'evil') entry.evilGames++
+        else if (team === 'good') entry.goodGames++
         if ((team === 'evil' && r.winner === 'evil') || (team === 'good' && r.winner === 'good')) entry.wins++
+        if (playerName) entry.players.set(playerName, (entry.players.get(playerName) ?? 0) + 1)
         map.set(charId, entry)
       }
     }
-    return Array.from(map.values()).sort((a, b) => b.total - a.total)
+    return Array.from(map.values()).sort((a, b) => b.total - a.total).map((c) => {
+      const topPlayer = c.players.size ? [...c.players.entries()].sort((a, b) => b[1] - a[1])[0][0] : null
+      return {
+        ...c,
+        winRate: c.total ? Math.round((c.wins / c.total) * 100) : 0,
+        goodWinRate: c.goodGames ? Math.round(((c.wins - (c.evilGames > 0 && c.total - c.goodGames > 0 ? c.wins - c.goodGames : 0)) / c.goodGames) * 100) : null,
+        topPlayer,
+      }
+    })
   }, [records])
 
   const SectionTitle = ({ label }: { label: string }) => (
@@ -677,17 +702,23 @@ export function AnalyticsTab({ language, onLanguageChange }: { language: Languag
                 {scriptStats.map((s) => {
                   const stWin = s.total - s.evil - s.good
                   return (
-                    <Box key={s.title} sx={{ mb: 1.5 }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                    <Box key={s.title} sx={{ mb: 2 }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.25, flexWrap: 'wrap', gap: 0.5 }}>
                         <Typography variant="body2" sx={{ fontWeight: 600 }}>{s.title}</Typography>
                         <Typography variant="caption" color="text.secondary">
                           {s.total}{zh ? '局' : 'g'} · {zh ? `邪${s.evil} 善${s.good}${stWin > 0 ? ` 主持${stWin}` : ''}` : `E:${s.evil} G:${s.good}${stWin > 0 ? ` ST:${stWin}` : ''}`}
                         </Typography>
                       </Box>
-                      <Box sx={{ display: 'flex', height: 8, borderRadius: 1, overflow: 'hidden', gap: 0.25 }}>
+                      <Box sx={{ display: 'flex', height: 8, borderRadius: 1, overflow: 'hidden', gap: 0.25, mb: 0.5 }}>
                         {s.evil > 0 && <Box sx={{ flex: s.evil, bgcolor: 'error.main' }} />}
                         {s.good > 0 && <Box sx={{ flex: s.good, bgcolor: 'success.main' }} />}
                         {stWin > 0 && <Box sx={{ flex: stWin, bgcolor: 'grey.400' }} />}
+                      </Box>
+                      <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                        <Typography variant="caption" color="text.secondary">{zh ? `均${s.avgDays}天` : `avg ${s.avgDays}d`}</Typography>
+                        <Typography variant="caption" color="text.secondary">{zh ? `均${s.avgVotes}票` : `avg ${s.avgVotes} votes`}</Typography>
+                        {s.votePassRate !== null && <Typography variant="caption" color="text.secondary">{zh ? `处决率${s.votePassRate}%` : `exec ${s.votePassRate}%`}</Typography>}
+                        {s.avgDurationMin !== null && <Typography variant="caption" color="text.secondary">{zh ? `均${s.avgDurationMin}min` : `avg ${s.avgDurationMin}min`}</Typography>}
                       </Box>
                     </Box>
                   )
@@ -705,15 +736,20 @@ export function AnalyticsTab({ language, onLanguageChange }: { language: Languag
               <Box sx={{ pr: 0.5 }}>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                   {playerStats.map((p) => {
-                    const winPct = p.total ? Math.round((p.wins / p.total) * 100) : 0
                     return (
                       <Paper key={p.name} onClick={() => setSelectedPlayer(p.name)}
                         sx={{ p: 1.5, flex: '1 1 140px', minWidth: 140, cursor: 'pointer',
                           '&:hover': { bgcolor: 'rgba(133,63,34,0.06)' } }} elevation={1}>
                         <Typography variant="body2" sx={{ fontWeight: 700, mb: 0.25 }}>{p.name}</Typography>
                         <Typography variant="caption" sx={{ display: 'block' }} color="text.secondary">
-                          {p.total}{zh ? '局' : 'g'} · {p.wins}{zh ? '胜' : 'W'} ({winPct}%)
+                          {p.total}{zh ? '局' : 'g'} · {p.winRate}%{zh ? '胜' : 'W'}
                         </Typography>
+                        {(p.evilWinRate !== null || p.goodWinRate !== null) && (
+                          <Box sx={{ display: 'flex', gap: 0.5, mt: 0.25 }}>
+                            {p.goodWinRate !== null && <Typography variant="caption" color="success.dark">{zh ? `善${p.goodWinRate}%` : `G:${p.goodWinRate}%`}</Typography>}
+                            {p.evilWinRate !== null && <Typography variant="caption" color="error.dark">{zh ? `邪${p.evilWinRate}%` : `E:${p.evilWinRate}%`}</Typography>}
+                          </Box>
+                        )}
                         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.25, mt: 0.5 }}>
                           {Array.from(p.chars).slice(0, 8).map((c) => {
                             const icon = getIconForCharacter(c)
@@ -741,8 +777,6 @@ export function AnalyticsTab({ language, onLanguageChange }: { language: Languag
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                   {charStats.map((c) => {
                     const icon = getIconForCharacter(c.charId)
-                    const winPct = c.total ? Math.round((c.wins / c.total) * 100) : 0
-                    const goodGames = c.total - c.evilGames
                     return (
                       <Paper key={c.charId} onClick={() => setSelectedCharId(c.charId)}
                         sx={{ p: 1.5, flex: '1 1 140px', minWidth: 140, cursor: 'pointer',
@@ -760,18 +794,13 @@ export function AnalyticsTab({ language, onLanguageChange }: { language: Languag
                           </Typography>
                         </Box>
                         <Typography variant="caption" sx={{ display: 'block' }} color="text.secondary">
-                          {c.total}{zh ? '局' : 'g'} · {winPct}%{zh ? '胜' : 'W'}
+                          {c.total}{zh ? '局' : 'g'} · {c.winRate}%{zh ? '胜' : 'W'}
                         </Typography>
-                        {goodGames > 0 && (
-                          <Typography variant="caption" color="success.dark" sx={{ display: 'block' }}>
-                            {zh ? `善${goodGames}` : `G:${goodGames}`}
-                          </Typography>
-                        )}
-                        {c.evilGames > 0 && (
-                          <Typography variant="caption" color="error.dark" sx={{ display: 'block' }}>
-                            {zh ? `邪${c.evilGames}` : `E:${c.evilGames}`}
-                          </Typography>
-                        )}
+                        <Box sx={{ display: 'flex', gap: 0.5 }}>
+                          {c.goodGames > 0 && <Typography variant="caption" color="success.dark">{zh ? `善${c.goodGames}` : `G:${c.goodGames}`}</Typography>}
+                          {c.evilGames > 0 && <Typography variant="caption" color="error.dark">{zh ? `邪${c.evilGames}` : `E:${c.evilGames}`}</Typography>}
+                        </Box>
+                        {c.topPlayer && <Typography variant="caption" color="text.disabled" sx={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>★ {c.topPlayer}</Typography>}
                       </Paper>
                     )
                   })}
