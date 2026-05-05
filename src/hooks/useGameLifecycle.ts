@@ -143,7 +143,7 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     const slug = activeScriptSlug ?? scriptOptions[0]?.slug ?? ''
     const seatNames: Record<number, string> = {}
     for (let i = 1; i <= 9; i++) seatNames[i] = `Player ${i}`
-    setNewGamePanel({ playerCount: 9, travelerCount: 0, scriptSlug: slug, allowDuplicateChars: false, allowEmptyChars: false, allowSameNames: false, seatNames, assignments: {}, userAssignments: {}, seatNotes: {}, specialNote: '', demonBluffs: [] })
+    setNewGamePanel({ playerCount: 9, travelerCount: 0, scriptSlug: slug, allowDuplicateChars: false, allowEmptyChars: false, allowSameNames: false, seatNames, assignments: {}, userAssignments: {}, travelerAssignments: {}, seatNotes: {}, specialNote: '', demonBluffs: [], charPool: [] })
   }
 
   function randomAssignCharacters(config: NewGameConfig): Record<number, string> {
@@ -152,7 +152,8 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     const script = scriptOptions.find((s) => s.slug === config.scriptSlug)
     if (!script) return {}
     const byTeam: Record<string, string[]> = { townsfolk: [], outsider: [], minion: [], demon: [] }
-    for (const cid of script.characters) { const char = characterById[cid]; if (char && byTeam[char.team]) byTeam[char.team].push(cid) }
+    const pool: string[] = (config as any).charPool ?? []
+    for (const cid of script.characters) { const char = characterById[cid]; if (char && byTeam[char.team]) { if (pool.length === 0 || pool.includes(cid)) byTeam[char.team].push(cid) } }
     const teamPool: Team[] = []
     for (const { team, count } of [{ team: 'townsfolk' as Team, count: dist.townsfolk }, { team: 'outsider' as Team, count: dist.outsider }, { team: 'minion' as Team, count: dist.minion }, { team: 'demon' as Team, count: dist.demon }]) { for (let i = 0; i < count; i++) teamPool.push(team) }
     const shuffledTeams = shuffleArray(teamPool)
@@ -180,6 +181,9 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
         seat.characterId = cid || null
         seat.userCharacterId = newGamePanel.userAssignments[sNum] || null
         if (cid) { const char = characterById[cid]; if (char) seat.teamTag = (char.team === 'minion' || char.team === 'demon') ? 'evil' : 'good' }
+      } else {
+        const tcid = (newGamePanel as any).travelerAssignments?.[sNum]
+        if (tcid) seat.characterId = tcid
       }
       seat.note = newGamePanel.seatNotes[sNum] || ''
     }
@@ -269,7 +273,7 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     if (setStFabledIds) setStFabledIds(record.stFabledIds ?? [])
     if (setStCustomRules) setStCustomRules(record.stCustomRules ?? '')
     if (record.setup) {
-      setNewGamePanel({ playerCount: record.setup.playerCount, travelerCount: record.setup.travelerCount, scriptSlug: record.scriptSlug || '', allowDuplicateChars: false, allowEmptyChars: false, allowSameNames: false, seatNames: record.setup.seatNames || {}, assignments: record.setup.assignments || {}, userAssignments: record.setup.userAssignments || {}, seatNotes: record.setup.seatNotes || {}, specialNote: record.setup.specialNote || '', demonBluffs: record.setup.demonBluffs ?? [], editMode: true })
+      setNewGamePanel({ playerCount: record.setup.playerCount, travelerCount: record.setup.travelerCount, scriptSlug: record.scriptSlug || '', allowDuplicateChars: false, allowEmptyChars: false, allowSameNames: false, seatNames: record.setup.seatNames || {}, assignments: record.setup.assignments || {}, userAssignments: record.setup.userAssignments || {}, travelerAssignments: record.setup.travelerAssignments || {}, seatNotes: record.setup.seatNotes || {}, specialNote: record.setup.specialNote || '', demonBluffs: record.setup.demonBluffs ?? [], charPool: [], editMode: true })
     }
     const teams: Record<number, 'evil' | 'good' | null> = {}
     for (const s of record.savedDays[0].seats) {

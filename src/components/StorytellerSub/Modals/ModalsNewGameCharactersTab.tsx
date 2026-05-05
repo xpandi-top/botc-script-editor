@@ -1,11 +1,17 @@
 // @ts-nocheck
-import React, { useMemo } from 'react'
-import { Box, Button, TextField, Select, MenuItem, FormControl, InputLabel, Typography, Paper, Divider, Grid, Chip } from '@mui/material'
+import React, { useMemo, useState } from 'react'
+import { Box, Button, TextField, Select, MenuItem, FormControl, InputLabel, Typography, Paper, Divider, Grid, Chip, Collapse, IconButton, Tooltip } from '@mui/material'
 import CasinoIcon from '@mui/icons-material/Casino'
 import ReplayIcon from '@mui/icons-material/Replay'
-import { characterById } from '../../../catalog'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import ExpandLessIcon from '@mui/icons-material/ExpandLess'
+import ClearAllIcon from '@mui/icons-material/ClearAll'
+import { characterById, allCharacters, getDisplayName, getIconForCharacter } from '../../../catalog'
 import { CHARACTER_DISTRIBUTION } from '../constants'
 import { CharSelect, TeamDot, DistRow } from './ModalsNewGameHelpers'
+
+const TEAM_ORDER = ['townsfolk', 'outsider', 'minion', 'demon'] as const
+const TEAM_COLORS: Record<string, any> = { townsfolk: 'primary', outsider: 'info', minion: 'error', demon: 'error' }
 
 type Props = {
   newGamePanel: any
@@ -15,9 +21,91 @@ type Props = {
   randomAssignCharacters: (config: any) => Record<number, string>
 }
 
+// ── Character pool multi-picker ───────────────────────────────────────────────
+function CharPoolPicker({ scriptChars, selected, onChange, language }: {
+  scriptChars: string[]
+  selected: string[]
+  onChange: (ids: string[]) => void
+  language: string
+}) {
+  const zh = language === 'zh'
+  const byTeam = useMemo(() => {
+    const map: Record<string, string[]> = { townsfolk: [], outsider: [], minion: [], demon: [] }
+    for (const id of scriptChars) {
+      const ch = characterById[id]
+      if (ch && map[ch.team]) map[ch.team].push(id)
+    }
+    return map
+  }, [scriptChars])
+
+  const toggle = (id: string) => {
+    onChange(selected.includes(id) ? selected.filter((x) => x !== id) : [...selected, id])
+  }
+  const toggleTeam = (team: string) => {
+    const ids = byTeam[team] ?? []
+    const allOn = ids.every((id) => selected.includes(id))
+    if (allOn) onChange(selected.filter((x) => !ids.includes(x)))
+    else onChange([...new Set([...selected, ...ids])])
+  }
+
+  return (
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+      {TEAM_ORDER.map((team) => {
+        const ids = byTeam[team]
+        if (!ids?.length) return null
+        const teamAllOn = ids.every((id) => selected.includes(id))
+        return (
+          <Box key={team}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
+              <Chip
+                size="small"
+                label={zh ? { townsfolk: '镇民', outsider: '外来者', minion: '爪牙', demon: '恶魔' }[team] : team}
+                color={TEAM_COLORS[team]}
+                variant={teamAllOn ? 'filled' : 'outlined'}
+                onClick={() => toggleTeam(team)}
+                sx={{ cursor: 'pointer', fontSize: '0.65rem', height: 20 }}
+              />
+              <Typography variant="caption" color="text.disabled">{ids.length}</Typography>
+            </Box>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+              {ids.map((id) => {
+                const icon = getIconForCharacter(id)
+                const name = getDisplayName(id, language)
+                const on = selected.includes(id)
+                return (
+                  <Chip
+                    key={id}
+                    size="small"
+                    onClick={() => toggle(id)}
+                    avatar={icon ? <Box component="img" src={icon} sx={{ width: 16, height: 16, borderRadius: '50%' }} /> : undefined}
+                    label={name}
+                    color={TEAM_COLORS[team]}
+                    variant={on ? 'filled' : 'outlined'}
+                    sx={{ cursor: 'pointer', fontSize: '0.72rem', opacity: on ? 1 : 0.55 }}
+                  />
+                )
+              })}
+            </Box>
+          </Box>
+        )
+      })}
+    </Box>
+  )
+}
+
+// ── All traveler characters ────────────────────────────────────────────────────
+const TRAVELER_CHARS = allCharacters.filter((c) => c.team === 'traveler').map((c) => c.id)
+
+// ── Main tab ──────────────────────────────────────────────────────────────────
 export function CharactersTab({ newGamePanel, scriptOptions = [], language, updateConfig, randomAssignCharacters }: Props) {
+  const zh = language === 'zh'
+  const [poolOpen, setPoolOpen] = useState(false)
+
   const script = scriptOptions?.find((s: any) => s.slug === newGamePanel?.scriptSlug)
+  const scriptChars: string[] = script?.characters ?? []
+
   const calcDist = CHARACTER_DISTRIBUTION[newGamePanel?.playerCount] ?? { townsfolk: 0, outsider: 0, minion: 0, demon: 0 }
+  const charPool: string[] = newGamePanel?.charPool ?? []
 
   const actCounts = useMemo(() => {
     const c = { townsfolk: 0, outsider: 0, minion: 0, demon: 0 }
@@ -36,11 +124,11 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
   }, [newGamePanel?.userAssignments])
 
   const availableBluffs = useMemo(() =>
-    (script?.characters ?? []).filter((id: string) => !Object.values(newGamePanel?.assignments ?? {}).includes(id)),
-    [script, newGamePanel?.assignments])
+    scriptChars.filter((id: string) => !Object.values(newGamePanel?.assignments ?? {}).includes(id)),
+    [scriptChars, newGamePanel?.assignments])
 
   const handleScriptChange = (slug: string) => {
-    updateConfig({ scriptSlug: slug, assignments: {}, userAssignments: {}, demonBluffs: [] })
+    updateConfig({ scriptSlug: slug, assignments: {}, userAssignments: {}, travelerAssignments: {}, demonBluffs: [], charPool: [] })
   }
 
   const setActual = (sNum: number, cid: string) => {
@@ -59,13 +147,20 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
     updateConfig({ demonBluffs: bluffs })
   }
 
-  const travelerSeats = Array.from({ length: newGamePanel?.travelerCount ?? 0 }, (_, i) => (newGamePanel?.playerCount ?? 0) + i + 1)
+  const setTravelerAssignment = (sNum: number, cid: string) => {
+    updateConfig({ travelerAssignments: { ...(newGamePanel.travelerAssignments ?? {}), [sNum]: cid } })
+  }
+
+  const travelerSeats = Array.from(
+    { length: newGamePanel?.travelerCount ?? 0 },
+    (_, i) => (newGamePanel?.playerCount ?? 0) + i + 1
+  )
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       <FormControl size="small" fullWidth>
-        <InputLabel>{language === 'zh' ? '剧本' : 'Script'}</InputLabel>
-        <Select value={newGamePanel.scriptSlug || ''} onChange={(e) => handleScriptChange(e.target.value)} label={language === 'zh' ? '剧本' : 'Script'}>
+        <InputLabel>{zh ? '剧本' : 'Script'}</InputLabel>
+        <Select value={newGamePanel.scriptSlug || ''} onChange={(e) => handleScriptChange(e.target.value)} label={zh ? '剧本' : 'Script'}>
           {scriptOptions.map((s: any) => <MenuItem key={s.slug} value={s.slug}>{s.title}</MenuItem>)}
         </Select>
       </FormControl>
@@ -78,39 +173,88 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
           <Chip size="small" label="M" color="error" sx={{ width: 28, height: 22 }} />
           <Chip size="small" label="D" color="error" sx={{ width: 28, height: 22 }} />
         </Box>
-        <DistRow label={language === 'zh' ? '应有' : 'Calc'} counts={calcDist} />
-        <DistRow label={language === 'zh' ? '实际' : 'Act'} counts={actCounts} calc={calcDist} />
-        <DistRow label={language === 'zh' ? '感知' : 'User'} counts={userCounts} calc={calcDist} />
+        <DistRow label={zh ? '应有' : 'Calc'} counts={calcDist} />
+        <DistRow label={zh ? '实际' : 'Act'} counts={actCounts} calc={calcDist} />
+        <DistRow label={zh ? '感知' : 'User'} counts={userCounts} calc={calcDist} />
       </Paper>
 
-      <Box sx={{ display: 'flex', gap: 0.5 }}>
-        <Button size="small" variant="outlined" onClick={() => updateConfig({ assignments: randomAssignCharacters(newGamePanel) })} startIcon={<CasinoIcon fontSize="small" />}>
-          {language === 'zh' ? '随机' : 'Random'}
+      {/* ── Character pool section ── */}
+      <Paper variant="outlined" sx={{ p: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <Typography variant="caption" fontWeight={600}>
+              {zh ? '随机角色池' : 'Random Pool'}
+            </Typography>
+            {charPool.length > 0 && (
+              <Chip size="small" label={charPool.length} color="primary" sx={{ height: 18, fontSize: '0.65rem' }} />
+            )}
+          </Box>
+          <Box sx={{ display: 'flex', gap: 0.5 }}>
+            {charPool.length > 0 && (
+              <Tooltip title={zh ? '清空池' : 'Clear pool'}>
+                <IconButton size="small" onClick={() => updateConfig({ charPool: [] })}>
+                  <ClearAllIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            )}
+            <IconButton size="small" onClick={() => setPoolOpen((v) => !v)}>
+              {poolOpen ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
+            </IconButton>
+          </Box>
+        </Box>
+        <Collapse in={poolOpen}>
+          <Box sx={{ mt: 1 }}>
+            {scriptChars.length === 0 ? (
+              <Typography variant="caption" color="text.disabled">{zh ? '请先选择剧本' : 'Select a script first'}</Typography>
+            ) : (
+              <CharPoolPicker
+                scriptChars={scriptChars}
+                selected={charPool}
+                onChange={(ids) => updateConfig({ charPool: ids })}
+                language={language}
+              />
+            )}
+          </Box>
+        </Collapse>
+      </Paper>
+
+      {/* ── Action buttons ── */}
+      <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+        <Button
+          size="small"
+          variant="outlined"
+          onClick={() => updateConfig({ assignments: randomAssignCharacters(newGamePanel) })}
+          startIcon={<CasinoIcon fontSize="small" />}
+        >
+          {charPool.length > 0
+            ? (zh ? `随机（池 ${charPool.length}）` : `Random (pool ${charPool.length})`)
+            : (zh ? '随机' : 'Random')}
         </Button>
         <Button size="small" variant="outlined" onClick={() => updateConfig({ assignments: {}, userAssignments: {}, demonBluffs: [] })} startIcon={<ReplayIcon fontSize="small" />}>
-          {language === 'zh' ? '重置' : 'Reset'}
+          {zh ? '重置' : 'Reset'}
         </Button>
       </Box>
 
       <Divider />
 
+      {/* ── Player seat assignments ── */}
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
         {Array.from({ length: newGamePanel?.playerCount ?? 0 }, (_, i) => i + 1).map((sNum) => {
           const cid = newGamePanel?.assignments?.[sNum] ?? ''
           const ch = characterById[cid]
           const userCid = newGamePanel?.userAssignments?.[sNum]
           const hasUserOverride = userCid !== undefined && userCid !== null
-          const userCh = hasUserOverride ? characterById[userCid ?? ''] : null
-          const seatName = newGamePanel?.seatNames?.[sNum] || `#${sNum}`
-          const chars = script?.characters ?? []
 
           return (
             <Box key={sNum} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Typography variant="body2" sx={{ width: 50 }}>{seatName}</Typography>
-              <CharSelect value={cid} options={chars} language={language} onChange={(id) => setActual(sNum, id)} />
+              {/* Seat number only — no player name text */}
+              <Typography variant="body2" sx={{ width: 32, flexShrink: 0, fontWeight: 700, color: 'text.secondary' }}>
+                #{sNum}
+              </Typography>
+              <CharSelect value={cid} options={scriptChars} language={language} onChange={(id) => setActual(sNum, id)} />
               <TeamDot team={ch?.team} />
-              <Button 
-                size="small" 
+              <Button
+                size="small"
                 variant={hasUserOverride ? 'contained' : 'text'}
                 onClick={() => hasUserOverride ? setUserPerceived(sNum, null) : setUserPerceived(sNum, cid || null)}
                 sx={{ minWidth: 28, p: 0.5 }}
@@ -119,13 +263,13 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
               </Button>
               {hasUserOverride && (
                 <>
-                  <CharSelect value={userCid ?? ''} options={chars} language={language} placeholder={language === 'zh' ? '感知角色…' : 'User char…'} onChange={(id) => setUserPerceived(sNum, id || null)} />
-                  <TeamDot team={userCh?.team} />
+                  <CharSelect value={userCid ?? ''} options={scriptChars} language={language} placeholder={zh ? '感知角色…' : 'User char…'} onChange={(id) => setUserPerceived(sNum, id || null)} />
+                  <TeamDot team={characterById[userCid ?? '']?.team} />
                 </>
               )}
               <TextField
                 size="small"
-                placeholder={language === 'zh' ? '备注…' : 'Note…'}
+                placeholder={zh ? '备注…' : 'Note…'}
                 value={newGamePanel?.seatNotes?.[sNum] ?? ''}
                 onChange={(e) => updateConfig({ seatNotes: { ...newGamePanel?.seatNotes, [sNum]: e.target.value } })}
                 sx={{ flex: 1 }}
@@ -135,31 +279,47 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
         })}
       </Box>
 
+      {/* ── Demon bluffs ── */}
       <Paper variant="outlined" sx={{ p: 1 }}>
-        <Typography variant="subtitle2" sx={{ mb: 1 }}>{language === 'zh' ? '恶魔虚张' : 'Demon Bluffs'}</Typography>
+        <Typography variant="subtitle2" sx={{ mb: 1 }}>{zh ? '恶魔虚张' : 'Demon Bluffs'}</Typography>
         <Box sx={{ display: 'flex', gap: 1 }}>
           {[0, 1, 2].map((idx) => (
-            <CharSelect key={idx} value={newGamePanel.demonBluffs?.[idx] ?? ''} options={availableBluffs} language={language} placeholder={language === 'zh' ? '选择…' : 'Pick…'} onChange={(id) => setBluff(idx, id)} />
+            <CharSelect key={idx} value={newGamePanel.demonBluffs?.[idx] ?? ''} options={availableBluffs} language={language} placeholder={zh ? '选择…' : 'Pick…'} onChange={(id) => setBluff(idx, id)} />
           ))}
         </Box>
       </Paper>
 
+      {/* ── Traveler assignments ── */}
       {travelerSeats.length > 0 && (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
           <Divider />
-          <Typography variant="subtitle2">{language === 'zh' ? '旅人备注' : 'Traveler notes'}</Typography>
-          {travelerSeats.map((sNum) => (
-            <Box key={sNum} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Typography variant="body2" sx={{ width: 60 }}>✈ {newGamePanel.seatNames[sNum] || `#${sNum}`}</Typography>
-              <TextField
-                size="small"
-                fullWidth
-                placeholder={language === 'zh' ? '旅人备注…' : 'Traveler note…'}
-                value={newGamePanel.seatNotes[sNum] ?? ''}
-                onChange={(e) => updateConfig({ seatNotes: { ...newGamePanel.seatNotes, [sNum]: e.target.value } })}
-              />
-            </Box>
-          ))}
+          <Typography variant="subtitle2">{zh ? '旅人角色分配' : 'Traveler Assignments'}</Typography>
+          {travelerSeats.map((sNum) => {
+            const tcid = newGamePanel.travelerAssignments?.[sNum] ?? ''
+            const tch = characterById[tcid]
+            return (
+              <Box key={sNum} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Typography variant="body2" sx={{ width: 40, flexShrink: 0, fontWeight: 700, color: 'text.secondary' }}>
+                  ✈#{sNum}
+                </Typography>
+                <CharSelect
+                  value={tcid}
+                  options={TRAVELER_CHARS}
+                  language={language}
+                  placeholder={zh ? '选择旅人…' : 'Pick traveler…'}
+                  onChange={(id) => setTravelerAssignment(sNum, id)}
+                />
+                <TeamDot team={tch?.team} />
+                <TextField
+                  size="small"
+                  fullWidth
+                  placeholder={zh ? '旅人备注…' : 'Traveler note…'}
+                  value={newGamePanel.seatNotes[sNum] ?? ''}
+                  onChange={(e) => updateConfig({ seatNotes: { ...newGamePanel.seatNotes, [sNum]: e.target.value } })}
+                />
+              </Box>
+            )
+          })}
         </Box>
       )}
     </Box>

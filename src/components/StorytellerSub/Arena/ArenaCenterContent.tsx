@@ -95,9 +95,10 @@ export function ArenaCenterContent({ ctx }: { ctx: StorytellerContext }) {
       allowSameNames: false,
       assignments: Object.fromEntries(seats.map((s: any) => [s.seat, s.characterId || ''])),
       userAssignments: Object.fromEntries(seats.map((s: any) => [s.seat, s.userCharacterId || ''])),
+      travelerAssignments: Object.fromEntries(seats.filter((s: any) => s.isTraveler).map((s: any) => [s.seat, s.characterId || ''])),
       seatNames: Object.fromEntries(seats.map((s: any) => [s.seat, s.name])),
       seatNotes: Object.fromEntries(seats.map((s: any) => [s.seat, s.note || ''])),
-      specialNote: '', demonBluffs: [], editMode: true,
+      specialNote: '', demonBluffs: [], charPool: [], editMode: true,
     })
   }
 

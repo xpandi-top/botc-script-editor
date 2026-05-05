@@ -40,9 +40,11 @@ export type NewGameConfig = {
   seatNames: Record<number, string>
   assignments: Record<number, string> // seat -> characterId
   userAssignments: Record<number, string | null> // seat -> user-perceived char
+  travelerAssignments: Record<number, string> // traveler seat -> characterId
   seatNotes: Record<number, string>
   specialNote: string
   demonBluffs: string[] // up to 3 character IDs shown to the Demon
+  charPool: string[] // character IDs selected for random pool (empty = all)
   editMode?: boolean // true when editing existing game setup
 }
 
@@ -232,6 +234,7 @@ export type GameRecord = {
     seatNames: Record<number, string>
     assignments: Record<number, string>
     userAssignments: Record<number, string | null>
+    travelerAssignments?: Record<number, string>
     seatNotes: Record<number, string>
     specialNote: string
     demonBluffs: string[]
