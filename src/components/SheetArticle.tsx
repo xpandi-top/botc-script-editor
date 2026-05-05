@@ -22,6 +22,7 @@ import {
   nightOrder,
   teamLabels,
   toTitleCase,
+  locales,
 } from '../catalog'
 import type {
   EditableScript,
@@ -194,11 +195,15 @@ export function SheetArticle({
     const rules = getBootleggerRules(lang)
     const jinxes = getScriptJinxes(lang)
     if (rules.length === 0 && jinxes.length === 0) return null
+    // Derive labels from lang directly so bilingual-separate English page
+    // shows English headers, not whatever uiLanguage the caller used for props.
+    const blLabel = locales[lang].ui?.['bootlegger_rules'] ?? bootleggerRulesLabel
+    const jLabel  = locales[lang].ui?.['jinxes']           ?? jinxesLabel
     return (
       <Box sx={{ mb: 1.5 }}>
         {rules.length > 0 && (
           <Box sx={{ mb: 1 }}>
-            <Typography variant="subtitle2" sx={{ mb: 0.5 }}>{bootleggerRulesLabel}</Typography>
+            <Typography variant="subtitle2" sx={{ mb: 0.5 }}>{blLabel}</Typography>
             <Box component="ul" sx={{ pl: 2, m: 0 }}>
               {rules.map((rule, i) => (
                 <Typography component="li" variant="body2" key={i}>{rule}</Typography>
@@ -208,7 +213,7 @@ export function SheetArticle({
         )}
         {jinxes.length > 0 && (
           <Box>
-            <Typography variant="subtitle2" sx={{ mb: 0.5 }}>{jinxesLabel}</Typography>
+            <Typography variant="subtitle2" sx={{ mb: 0.5 }}>{jLabel}</Typography>
             <Box component="ul" sx={{ pl: 2, m: 0 }}>
               {jinxes.map((jinx) => (
                 <Typography component="li" variant="body2" key={jinx.id}>
@@ -414,11 +419,12 @@ export function SheetArticle({
             )}
             {sectionStyle === 'inline' && (
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.5 }}>
-                <Box sx={{ flex: 1, height: '1px', bgcolor: 'text.secondary', opacity: 0.25 }} />
+                {/* Use borderBottom not bgcolor — bgcolor is stripped in print */}
+                <Box sx={{ flex: 1, height: 0, borderBottom: '1px solid', borderColor: 'text.secondary', opacity: 0.3 }} />
                 <Typography sx={{ fontSize: sectionFontSize ?? '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.6px', color: 'text.secondary', whiteSpace: 'nowrap' }}>
                   {teamLabels[lang][group.team]}
                 </Typography>
-                <Box sx={{ flex: 1, height: '1px', bgcolor: 'text.secondary', opacity: 0.25 }} />
+                <Box sx={{ flex: 1, height: 0, borderBottom: '1px solid', borderColor: 'text.secondary', opacity: 0.3 }} />
               </Box>
             )}
             <Grid container spacing={gridSpacing}>
