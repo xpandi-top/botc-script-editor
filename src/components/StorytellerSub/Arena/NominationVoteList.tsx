@@ -2,8 +2,8 @@
 import React from 'react'
 import { Box, Typography, IconButton, Button, Tooltip } from '@mui/material'
 import ReplayIcon from '@mui/icons-material/Replay'
-import PersonOffIcon from '@mui/icons-material/PersonOff'
-import PersonIcon from '@mui/icons-material/Person'
+import HeartBrokenIcon from '@mui/icons-material/HeartBroken'
+import FavoriteIcon from '@mui/icons-material/Favorite'
 import DoNotDisturbOnIcon from '@mui/icons-material/DoNotDisturbOn'
 import DoNotDisturbOffIcon from '@mui/icons-material/DoNotDisturbOff'
 
@@ -104,8 +104,8 @@ export function NominationVoteList({
               <Box
                 onClick={() => handleVoteToggle(s.seat)}
                 sx={{
-                  px: 1.25,
-                  py: 0.4,
+                  px: 1.75,
+                  py: 0.75,
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -114,7 +114,7 @@ export function NominationVoteList({
                 }}
               >
                 <Typography sx={{
-                  fontSize: '0.82rem',
+                  fontSize: '0.95rem',
                   fontWeight: isNominee ? 800 : 700,
                   lineHeight: 1,
                   textDecoration: isDead ? 'line-through' : 'none',
@@ -122,8 +122,8 @@ export function NominationVoteList({
                   color: isVoted ? 'success.contrastText' : isNominee ? 'warning.dark' : 'text.primary',
                 }}>
                   {nameLabel}
-                  {isDead && <Box component="span" sx={{ ml: 0.25, fontSize: '0.7rem' }}>†</Box>}
-                  {hasNoVote && <Box component="span" sx={{ ml: 0.25, fontSize: '0.65rem', color: 'warning.dark' }}>∅</Box>}
+                  {isDead && <Box component="span" sx={{ ml: 0.3, fontSize: '0.78rem' }}>†</Box>}
+                  {hasNoVote && <Box component="span" sx={{ ml: 0.3, fontSize: '0.72rem', color: isVoted ? 'inherit' : 'warning.dark' }}>∅</Box>}
                 </Typography>
               </Box>
 
@@ -137,16 +137,16 @@ export function NominationVoteList({
                   onClick={() => toggleAlive(s.seat)}
                   sx={{
                     borderRadius: 0,
-                    px: 0.5,
+                    px: 0.75,
                     py: 0,
-                    minWidth: 24,
+                    minWidth: 30,
                     color: isDead ? 'error.main' : 'text.disabled',
-                    '&:hover': { bgcolor: 'error.light', color: 'error.contrastText' },
+                    '&:hover': { bgcolor: 'error.light', color: 'error.dark' },
                   }}
                 >
                   {isDead
-                    ? <PersonIcon sx={{ fontSize: '0.85rem' }} />
-                    : <PersonOffIcon sx={{ fontSize: '0.85rem' }} />
+                    ? <FavoriteIcon sx={{ fontSize: '1rem' }} />
+                    : <HeartBrokenIcon sx={{ fontSize: '1rem' }} />
                   }
                 </IconButton>
               </Tooltip>
@@ -158,16 +158,16 @@ export function NominationVoteList({
                   onClick={() => toggleNoVote(s.seat)}
                   sx={{
                     borderRadius: 0,
-                    px: 0.5,
+                    px: 0.75,
                     py: 0,
-                    minWidth: 24,
+                    minWidth: 30,
                     color: hasNoVote ? 'warning.main' : 'text.disabled',
-                    '&:hover': { bgcolor: 'warning.light', color: 'warning.contrastText' },
+                    '&:hover': { bgcolor: 'warning.light', color: 'warning.dark' },
                   }}
                 >
                   {hasNoVote
-                    ? <DoNotDisturbOnIcon sx={{ fontSize: '0.85rem' }} />
-                    : <DoNotDisturbOffIcon sx={{ fontSize: '0.85rem' }} />
+                    ? <DoNotDisturbOnIcon sx={{ fontSize: '1rem' }} />
+                    : <DoNotDisturbOffIcon sx={{ fontSize: '1rem' }} />
                   }
                 </IconButton>
               </Tooltip>
