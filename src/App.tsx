@@ -24,6 +24,7 @@ import TheaterComedyIcon from '@mui/icons-material/TheaterComedy'
 import QueryStatsIcon from '@mui/icons-material/QueryStats'
 import PrintIcon from '@mui/icons-material/Print'
 import BugReportIcon from '@mui/icons-material/BugReport'
+import InfoIcon from '@mui/icons-material/Info'
 import { PrintPreviewPage } from './components/PrintPreviewPage'
 import { DEFAULT_PRINT_OPTIONS } from './components/PrintOptionsDialog'
 import type { PrintOptions } from './components/PrintOptionsDialog'
@@ -105,6 +106,7 @@ export default function App() {
   const [tokenPrintOptions, setTokenPrintOptions] = useState<TokenPrintOptions>(DEFAULT_TOKEN_OPTIONS)
   const [saveStatus, setSaveStatus] = useState('')
   const [headerVisible, setHeaderVisible] = useState(true)
+  const [showDescription, setShowDescription] = useState(false)
   const [tabMenuAnchor, setTabMenuAnchor] = useState<null | HTMLElement>(null)
   const [selectedCharacterId, setSelectedCharacterId] = useState<string>(allCharacters[0]?.id ?? '')
 
@@ -200,6 +202,35 @@ export default function App() {
     ),
     [uiLanguage],
   )
+
+  const tabDescriptions: Record<TabKey, { en: string; zh: string }> = {
+    scripts: {
+      en: 'Browse, edit, and export BOTC script PDFs. Select characters and customize your game sheet.',
+      zh: '浏览、编辑和导出 BOTC 剧本 PDF。选择角色并自定义你的游戏卡片。',
+    },
+    characters: {
+      en: 'Complete character catalog with search and filter. View all official and custom character abilities.',
+      zh: '完整的角色目录，支持搜索和筛选。查看所有官方和自定义角色能力。',
+    },
+    storyteller: {
+      en: 'Game orchestration tool for storytellers. Manage night phases, nominations, votes, and game history.',
+      zh: '说书人游戏管理工具。管理夜晚阶段、提名、投票和游戏历史记录。',
+    },
+    analytics: {
+      en: 'Track and analyze your BOTC game statistics. View trends and export game records.',
+      zh: '追踪和分析你的 BOTC 游戏统计数据。查看趋势并导出游戏记录。',
+    },
+    printstudio: {
+      en: 'Advanced print layout designer. Create custom character tokens and print materials.',
+      zh: '高级打印布局设计器。创建自定义角色令牌和打印材料。',
+    },
+  }
+
+  const disclaimerText = uiLanguage === 'zh'
+    ? '本网站仅供社区使用，非商业用途。'
+    : 'This website is for community use only, not for commercial purposes.'
+
+  const currentDescription = tabDescriptions[activeTab]?.[uiLanguage === 'zh' ? 'zh' : 'en'] ?? ''
 
   const filteredCharacters = useMemo(() => {
     const query = characterQuery.trim().toLowerCase()
@@ -323,9 +354,9 @@ export default function App() {
     }))
   }
 
-  const storytellerTabLabel = uiLanguage === 'zh' ? '主持助手' : 'Storyteller Helper'
-  const printStudioTabLabel = uiLanguage === 'zh' ? '打印工坊' : 'Print Studio'
-  const analyticsTabLabel = uiLanguage === 'zh' ? '数据统计' : 'Analytics'
+  const stTabLabel = uiLanguage === 'zh' ? '主持助手' : 'Storyteller Helper'
+  const psTabLabel = uiLanguage === 'zh' ? '打印工坊' : 'Print Studio'
+  const anTabLabel = uiLanguage === 'zh' ? '数据统计' : 'Analytics'
 
   return (
     <Container maxWidth="xl" sx={{ py: { xs: 0, sm: 3 }, px: { xs: 0, sm: 3 }, minHeight: '100vh' }}>
@@ -380,14 +411,14 @@ export default function App() {
             <Tooltip title={uiText.allCharacters} placement="bottom">
               <Tab icon={<TheaterComedyIcon fontSize="small" />} value="characters" aria-label={uiText.allCharacters} />
             </Tooltip>
-            <Tooltip title={storytellerTabLabel} placement="bottom">
-              <Tab icon={<MenuBookIcon fontSize="small" />} value="storyteller" aria-label={storytellerTabLabel} />
+            <Tooltip title={stTabLabel} placement="bottom">
+              <Tab icon={<MenuBookIcon fontSize="small" />} value="storyteller" aria-label={stTabLabel} />
             </Tooltip>
-            <Tooltip title={analyticsTabLabel} placement="bottom">
-              <Tab icon={<QueryStatsIcon fontSize="small" />} value="analytics" aria-label={analyticsTabLabel} />
+            <Tooltip title={anTabLabel} placement="bottom">
+              <Tab icon={<QueryStatsIcon fontSize="small" />} value="analytics" aria-label={anTabLabel} />
             </Tooltip>
-            <Tooltip title={printStudioTabLabel} placement="bottom">
-              <Tab icon={<PrintIcon fontSize="small" />} value="printstudio" aria-label={printStudioTabLabel} />
+            <Tooltip title={psTabLabel} placement="bottom">
+              <Tab icon={<PrintIcon fontSize="small" />} value="printstudio" aria-label={psTabLabel} />
             </Tooltip>
           </Tabs>
 
@@ -405,9 +436,9 @@ export default function App() {
               sx={{ fontWeight: 600, fontSize: '0.9rem', color: 'primary.dark' }}>
               {activeTab === 'scripts' ? uiText.scriptSheet
                 : activeTab === 'characters' ? uiText.allCharacters
-                : activeTab === 'storyteller' ? storytellerTabLabel
-                : activeTab === 'printstudio' ? printStudioTabLabel
-                : analyticsTabLabel}
+                : activeTab === 'storyteller' ? stTabLabel
+                : activeTab === 'printstudio' ? psTabLabel
+                : anTabLabel}
             </Typography>
             <ExpandMoreIcon fontSize="small" sx={{ color: 'primary.dark' }} />
           </Box>
@@ -423,6 +454,15 @@ export default function App() {
               <BugReportIcon />
             </IconButton>
           </Tooltip>
+          <Tooltip title={showDescription ? (uiLanguage === 'zh' ? '隐藏说明' : 'Hide description') : (uiLanguage === 'zh' ? '显示说明' : 'Show description')}>
+            <IconButton
+              size="small"
+              onClick={() => setShowDescription(v => !v)}
+              sx={{ flexShrink: 0, color: showDescription ? 'primary.main' : undefined }}
+            >
+              <InfoIcon />
+            </IconButton>
+          </Tooltip>
           <IconButton
             size="small"
             onClick={() => setHeaderVisible(v => !v)}
@@ -433,14 +473,21 @@ export default function App() {
           </IconButton>
         </Box>
 
+        {showDescription && (
+          <Box sx={{ px: 2, py: 1, bgcolor: 'rgba(133,63,34,0.06)', borderTop: '1px solid', borderColor: 'divider' }}>
+            <Typography variant="body2" sx={{ color: 'text.primary', mb: 0.5 }}>{currentDescription}</Typography>
+            <Typography variant="caption" sx={{ color: 'text.secondary', fontStyle: 'italic' }}>{disclaimerText}</Typography>
+          </Box>
+        )}
+
         {/* Mobile tab menu */}
         <Menu anchorEl={tabMenuAnchor} open={Boolean(tabMenuAnchor)} onClose={() => setTabMenuAnchor(null)}>
           {([
             ['scripts', uiText.scriptSheet, <DescriptionIcon fontSize="small" />],
             ['characters', uiText.allCharacters, <TheaterComedyIcon fontSize="small" />],
-            ['storyteller', storytellerTabLabel, <MenuBookIcon fontSize="small" />],
-            ['analytics', analyticsTabLabel, <QueryStatsIcon fontSize="small" />],
-            ['printstudio', printStudioTabLabel, <PrintIcon fontSize="small" />],
+            ['storyteller', stTabLabel, <MenuBookIcon fontSize="small" />],
+            ['analytics', anTabLabel, <QueryStatsIcon fontSize="small" />],
+            ['printstudio', psTabLabel, <PrintIcon fontSize="small" />],
           ] as [TabKey, string, React.ReactNode][]).map(([key, label, icon]) => (
             <MenuItem key={key} selected={activeTab === key} onClick={() => { setActiveTab(key); setTabMenuAnchor(null) }}>
               {icon}
