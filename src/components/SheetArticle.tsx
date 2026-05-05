@@ -259,22 +259,19 @@ export function SheetArticle({
             const icon = getIconForCharacter(id)
             const name = getDisplayName(id, lang)
             return (
-              <Tooltip key={id} title={name} placement="top" arrow>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: '2px', mr: 0.75, cursor: 'pointer' }}
+              <Tooltip key={id} title={`${i + 1}. ${name}`} placement="top" arrow>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: '2px', cursor: 'pointer' }}
                   onClick={() => setPopupId(id)}>
                   <Typography sx={{ fontSize: '0.6rem', color: 'text.secondary', minWidth: '1ch', textAlign: 'right' }}>
-                    {i + 1}.
+                    {i + 1}
                   </Typography>
                   {icon ? (
-                    <Box component="img" src={icon} alt="" sx={{ width: wakeIconSize, height: wakeIconSize, objectFit: 'contain' }} />
+                    <Box component="img" src={icon} alt={name} sx={{ width: wakeIconSize, height: wakeIconSize, objectFit: 'contain' }} />
                   ) : (
                     <Box sx={{ width: wakeIconSize, height: wakeIconSize, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'grey.300', borderRadius: 0.5 }}>
                       <Typography variant="caption" sx={{ fontSize: '0.5rem' }}>{getNightOrderPlaceholderLabel(id)}</Typography>
                     </Box>
                   )}
-                  <Typography sx={{ fontSize: sectionFontSize ?? '0.65rem', fontFamily: lang === 'zh' ? zhFont : fontFamilyEn }}>
-                    {name}
-                  </Typography>
                 </Box>
               </Tooltip>
             )
