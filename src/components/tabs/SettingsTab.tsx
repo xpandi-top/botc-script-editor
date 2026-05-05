@@ -1,5 +1,6 @@
-import { Box, Paper, Typography, Divider } from '@mui/material'
-import type { FontOption, FontSettings } from '../../hooks/useFontSettings'
+import { Box, Paper, Typography, Divider, ToggleButtonGroup, ToggleButton } from '@mui/material'
+import type { FontOption, FontSettings, UiScale } from '../../hooks/useFontSettings'
+import { UI_SCALE_OPTIONS } from '../../hooks/useFontSettings'
 import type { Language } from '../../types'
 
 // ── FontPicker ────────────────────────────────────────────────────────────────
@@ -28,7 +29,8 @@ function FontPicker({
               onClick={() => onSelect(opt.id)}
               sx={{
                 px: 2, py: 1.25,
-                minWidth: 160,
+                minWidth: 150,
+                maxWidth: 220,
                 cursor: 'pointer',
                 border: '1.5px solid',
                 borderColor: selected ? 'primary.main' : 'divider',
@@ -40,7 +42,7 @@ function FontPicker({
             >
               {/* Font name */}
               <Typography sx={{
-                fontSize: '0.72rem',
+                fontSize: '0.7rem',
                 fontWeight: 600,
                 letterSpacing: '0.04em',
                 color: selected ? 'primary.contrastText' : 'text.secondary',
@@ -51,7 +53,7 @@ function FontPicker({
               {/* Live preview in the actual font */}
               <Typography sx={{
                 fontFamily: `${opt.css}, Georgia, serif`,
-                fontSize: '1rem',
+                fontSize: '0.92rem',
                 lineHeight: 1.4,
                 color: selected ? 'primary.contrastText' : 'text.primary',
               }}>
@@ -66,21 +68,78 @@ function FontPicker({
 }
 
 // ── LivePreview ───────────────────────────────────────────────────────────────
-function LivePreview({ language }: { language: Language }) {
+function LivePreview({
+  language, enBodyCss, enDisplayCss, zhCss,
+}: {
+  language: Language
+  enBodyCss: string
+  enDisplayCss: string
+  zhCss: string
+}) {
+  const zh = language === 'zh'
+
+  const previewCards = [
+    {
+      key: 'en-body',
+      label: zh ? '英文正文' : 'English Body',
+      fontFamily: `${enBodyCss}, Georgia, serif`,
+      title: 'The Storyteller speaks in shadow.',
+      body: 'Tonight, the Demon strikes again. Trust no one. Nominations are open — required votes: 7.',
+      isLarge: false,
+    },
+    {
+      key: 'en-display',
+      label: zh ? '英文标题' : 'English Title',
+      fontFamily: `${enDisplayCss}, Georgia, serif`,
+      title: 'Blood on the Clocktower',
+      body: 'Trouble Brewing · Sects & Violets',
+      isLarge: true,
+    },
+    {
+      key: 'zh-body',
+      label: zh ? '中文正文' : 'Chinese Body',
+      fontFamily: `${zhCss}, "PingFang SC", sans-serif`,
+      title: '说书人在黑暗中低语。',
+      body: '今晚，恶魔再度出击。提名现已开放，所需票数为七票。',
+      isLarge: false,
+    },
+    {
+      key: 'zh-display',
+      label: zh ? '中文标题' : 'Chinese Title',
+      fontFamily: `${zhCss}, "PingFang SC", sans-serif`,
+      title: '血月钟楼',
+      body: '酿祸记 · 教派与暴力',
+      isLarge: true,
+    },
+  ]
+
   return (
-    <Box sx={{ p: 2.5, bgcolor: 'background.default', borderRadius: 1.5, border: '1px solid', borderColor: 'divider' }}>
-      <Typography variant="h4" gutterBottom>
-        {language === 'zh' ? '血月钟楼' : 'Blood on the Clocktower'}
-      </Typography>
-      <Typography variant="body1" sx={{ mb: 1 }}>
-        {language === 'zh'
-          ? '今晚，恶魔将再次出击。说书人悄声告知旅行者：不要相信任何人。'
-          : 'Tonight, the Demon strikes again. The Storyteller whispers to the Traveler: trust no one.'}
-      </Typography>
-      <Typography variant="caption">
-        {language === 'zh' ? '提名现已开放 · 所需票数：' : 'Nominations are open · Required votes:'}
-        {' 7'}
-      </Typography>
+    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1.5 }}>
+      {previewCards.map((card) => (
+        <Box key={card.key} sx={{ p: 2, bgcolor: 'background.default', borderRadius: 1.5, border: '1px solid', borderColor: 'divider' }}>
+          <Typography variant="caption" sx={{ display: 'block', mb: 1, color: 'text.secondary', textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '0.65rem', fontWeight: 600 }}>
+            {card.label}
+          </Typography>
+          <Typography sx={{
+            fontFamily: card.fontFamily,
+            fontSize: card.isLarge ? '1.4rem' : '0.875rem',
+            lineHeight: card.isLarge ? 1.25 : 1.5,
+            fontWeight: card.isLarge ? 600 : 400,
+            mb: 0.5,
+            color: 'text.primary',
+          }}>
+            {card.title}
+          </Typography>
+          <Typography sx={{
+            fontFamily: card.fontFamily,
+            fontSize: card.isLarge ? '0.875rem' : '0.78rem',
+            color: 'text.secondary',
+            lineHeight: 1.4,
+          }}>
+            {card.body}
+          </Typography>
+        </Box>
+      ))}
     </Box>
   )
 }
@@ -96,17 +155,58 @@ export function SettingsTab({ language, fontSettings }: SettingsTabProps) {
     enBodyId,    setEnBodyId,    enBodyOptions,
     enDisplayId, setEnDisplayId, enDisplayOptions,
     zhId,        setZhId,        zhOptions,
+    uiScale,     setUiScale,
   } = fontSettings
 
+  const zh = language === 'zh'
+
+  // Resolve current CSS strings for preview
+  const enBodyCss    = enBodyOptions.find((o) => o.id === enBodyId)?.css    ?? enBodyOptions[0].css
+  const enDisplayCss = enDisplayOptions.find((o) => o.id === enDisplayId)?.css ?? enDisplayOptions[0].css
+  const zhCss        = zhOptions.find((o) => o.id === zhId)?.css            ?? zhOptions[0].css
+
   return (
-    <Box sx={{ maxWidth: 900, mx: 'auto', px: { xs: 2, sm: 3 }, py: 3, display: 'flex', flexDirection: 'column', gap: 4 }}>
+    <Box sx={{ maxWidth: 960, mx: 'auto', px: { xs: 2, sm: 3 }, py: 3, display: 'flex', flexDirection: 'column', gap: 4 }}>
 
       {/* ── Section: Live preview ── */}
       <Box>
         <Typography variant="h5" gutterBottom>
-          {language === 'zh' ? '字体预览' : 'Font Preview'}
+          {zh ? '字体预览' : 'Font Preview'}
         </Typography>
-        <LivePreview language={language} />
+        <LivePreview
+          language={language}
+          enBodyCss={enBodyCss}
+          enDisplayCss={enDisplayCss}
+          zhCss={zhCss}
+        />
+      </Box>
+
+      <Divider />
+
+      {/* ── Section: UI size ── */}
+      <Box>
+        <Typography variant="h5" gutterBottom>
+          {zh ? '界面文字大小' : 'Interface Size'}
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          {zh
+            ? '调整整体界面文字大小。"大"和"特大"会放大所有文字、间距和控件。'
+            : 'Scales all UI text, spacing, and controls uniformly.'}
+        </Typography>
+        <ToggleButtonGroup value={uiScale} exclusive onChange={(_, v) => { if (v) setUiScale(v as UiScale) }}>
+          {UI_SCALE_OPTIONS.map((opt) => (
+            <ToggleButton key={opt.id} value={opt.id} sx={{ px: 3, py: 1 }}>
+              <Box sx={{ textAlign: 'center' }}>
+                <Typography sx={{ fontSize: opt.id === 'default' ? '0.875rem' : opt.id === 'large' ? '1rem' : '1.15rem', fontWeight: 600, lineHeight: 1.2 }}>
+                  {zh ? opt.labelZh : opt.label}
+                </Typography>
+                <Typography sx={{ fontSize: '0.65rem', color: 'inherit', opacity: 0.7 }}>
+                  {opt.px}px
+                </Typography>
+              </Box>
+            </ToggleButton>
+          ))}
+        </ToggleButtonGroup>
       </Box>
 
       <Divider />
@@ -114,7 +214,7 @@ export function SettingsTab({ language, fontSettings }: SettingsTabProps) {
       {/* ── Section: English fonts ── */}
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
         <Typography variant="h5">
-          {language === 'zh' ? '英文字体' : 'English Fonts'}
+          {zh ? '英文字体' : 'English Fonts'}
         </Typography>
 
         <FontPicker
@@ -141,7 +241,12 @@ export function SettingsTab({ language, fontSettings }: SettingsTabProps) {
       {/* ── Section: Chinese font ── */}
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
         <Typography variant="h5">
-          {language === 'zh' ? '中文字体' : 'Chinese Font'}
+          {zh ? '中文字体' : 'Chinese Font'}
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: -2 }}>
+          {zh
+            ? '中文字体同时用于正文和标题。'
+            : 'Chinese font applies to both body text and titles.'}
         </Typography>
 
         <FontPicker
@@ -158,9 +263,9 @@ export function SettingsTab({ language, fontSettings }: SettingsTabProps) {
 
       {/* ── Note ── */}
       <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-        {language === 'zh'
-          ? '字体设置保存在本地，刷新后依然有效。Google Fonts 字体需要网络连接。'
-          : 'Font settings are saved locally and persist across reloads. Google Fonts require a network connection.'}
+        {zh
+          ? '字体设置保存在本地，刷新后依然有效。Google Fonts 字体需要网络连接。界面大小设置会立即生效。'
+          : 'Font settings are saved locally and persist across reloads. Google Fonts require a network connection. Size changes apply instantly.'}
       </Typography>
     </Box>
   )
