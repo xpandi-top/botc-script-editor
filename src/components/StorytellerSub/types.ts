@@ -142,7 +142,7 @@ export type SkillDraft = {
   result: 'success' | 'failure' | null
 }
 
-export type SkillRecord = SkillDraft & { id: string; activatedDuringPhase: string }
+export type SkillRecord = SkillDraft & { id: string; activatedDuringPhase: string; visibility?: 'public' | 'st-only' }
 
 export type VotingState = {
   votingOrder: number[]
@@ -156,6 +156,7 @@ export type SkillOverlayState = {
   wasTimerRunning: boolean
   draft: SkillDraft
   phaseContext: string
+  visibility: 'public' | 'st-only'
 }
 
 export type EventLogEntry = {
@@ -164,6 +165,7 @@ export type EventLogEntry = {
   phase: string
   kind: 'vote' | 'skill' | 'stateChange' | 'tagChange' | 'phaseTransition'
   detail: string
+  visibility?: 'public' | 'st-only'
 }
 
 export type AudioTrack = { name: string; src: string }

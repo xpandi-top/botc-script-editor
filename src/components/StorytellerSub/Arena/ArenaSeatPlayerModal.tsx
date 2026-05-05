@@ -51,7 +51,7 @@ function buildPlayerEntries(days: any[], seatNum: number, includeNight: boolean)
       if (!includeNight && e.phase === 'night') continue
       if (e.kind === 'vote' || e.kind === 'skill') continue
       if (eventMentionsSeat(e.detail, seatNum)) {
-        const vis: 'public' | 'st-only' = (e.kind === 'stateChange' || e.kind === 'phaseTransition') ? 'public' : 'st-only'
+        const vis: 'public' | 'st-only' = e.visibility ?? ((e.kind === 'stateChange' || e.kind === 'phaseTransition') ? 'public' : 'st-only')
         entries.push({ id: `e-${day.day}-${e.id}`, timestamp: e.timestamp, text: e.detail, kind: e.kind, type: 'event', phase: e.phase, visibility: vis, editable: e.detail })
       }
     }
@@ -66,8 +66,9 @@ function buildPlayerEntries(days: any[], seatNum: number, includeNight: boolean)
     for (const s of day.skillHistory) {
       if (s.actor === seatNum || (s.targets || []).includes(seatNum)) {
         const targetStr = (s.targets || []).length > 0 ? ` → [${(s.targets as number[]).map((t) => `#${t}`).join(', ')}]` : ''
-        const line = `#${s.actor} ${s.roleId || '?'}${targetStr}${s.statement ? ` "${s.statement}"` : ''}${s.result ? ` [${s.result}]` : ''}`
-        entries.push({ id: `s-${day.day}-${s.id}`, timestamp: parseInt(s.id, 10) || 0, text: line, kind: 'skill', type: 'skill', phase: s.activatedDuringPhase, visibility: 'st-only', editable: s.statement || '' })
+        const tNotes = Object.entries(s.targetNotes || {}).filter(([, v]) => v).map(([k, v]) => `#${k}:"${v}"`).join(' ')
+        const line = `#${s.actor} ${s.roleId || '?'}${targetStr}${s.statement ? ` "${s.statement}"` : ''}${s.result ? ` [${s.result}]` : ''}${tNotes ? ` | ${tNotes}` : ''}${s.note ? ` · ${s.note}` : ''}`
+        entries.push({ id: `s-${day.day}-${s.id}`, timestamp: parseInt(s.id, 10) || 0, text: line, kind: 'skill', type: 'skill', phase: s.activatedDuringPhase, visibility: s.visibility ?? 'st-only', editable: s.statement || '' })
       }
     }
     entries.sort((a, b) => b.timestamp - a.timestamp)
@@ -526,22 +527,70 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
       {skillOverlay ? (
         // Active skillOverlay form (from openSeatSkill)
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-          <Box sx={{ maxHeight: 140, overflow: 'auto', border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 0.5 }}>
-            {(currentDay?.seats ?? []).map((s: any) => (
-              <Box key={s.seat} sx={{ display: 'flex', alignItems: 'center', gap: 0.5, py: 0.25, cursor: 'pointer' }}
-                onClick={() => setSkillOverlay((p: any) => { if (!p) return p; const ts = p.draft.targets.includes(s.seat) ? p.draft.targets.filter((t: number) => t !== s.seat) : [...p.draft.targets, s.seat]; return { ...p, draft: { ...p.draft, targets: ts } } })}>
-                <Box sx={{ width: 18, height: 18, border: '2px solid', borderColor: skillOverlay.draft?.targets?.includes(s.seat) ? 'primary.main' : 'divider', borderRadius: 0.5, bgcolor: skillOverlay.draft?.targets?.includes(s.seat) ? 'primary.main' : 'transparent', flexShrink: 0 }} />
-                <Typography variant="body2" sx={{ fontSize: '0.82rem' }}>#{s.seat} {s.name}</Typography>
-              </Box>
-            ))}
+          <Box sx={{ maxHeight: 200, overflow: 'auto', border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 0.5 }}>
+            {(currentDay?.seats ?? []).map((s: any) => {
+              const isChecked = skillOverlay.draft?.targets?.includes(s.seat)
+              const publicTags = [...(s.customTags ?? []), ...(!s.alive ? [text.aliveTag] : []), ...(s.hasNoVote ? [text.noVoteTag] : [])]
+              const toggleTarget = () => setSkillOverlay((p: any) => {
+                if (!p) return p
+                const ts = p.draft.targets.includes(s.seat)
+                  ? p.draft.targets.filter((t: number) => t !== s.seat)
+                  : [...p.draft.targets, s.seat]
+                const tn = { ...p.draft.targetNotes }
+                if (!ts.includes(s.seat)) delete tn[s.seat]
+                return { ...p, draft: { ...p.draft, targets: ts, targetNotes: tn } }
+              })
+              return (
+                <Box key={s.seat}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, py: 0.25, cursor: 'pointer' }} onClick={toggleTarget}>
+                    <Box sx={{ width: 18, height: 18, border: '2px solid', borderColor: isChecked ? 'primary.main' : 'divider', borderRadius: 0.5, bgcolor: isChecked ? 'primary.main' : 'transparent', flexShrink: 0 }} />
+                    <Typography variant="body2" sx={{ fontSize: '0.82rem', flex: 1 }}>
+                      #{s.seat} {s.name}
+                      {!s.alive && <Box component="span" sx={{ color: 'text.disabled', ml: 0.5 }}>†</Box>}
+                    </Typography>
+                    {publicTags.length > 0 && (
+                      <Box sx={{ display: 'flex', gap: 0.25, flexWrap: 'wrap' }}>
+                        {publicTags.map((t: string) => (
+                          <Box key={t} component="span" sx={{ fontSize: '0.65rem', px: 0.5, py: 0.1, bgcolor: 'action.selected', borderRadius: 0.5, color: 'text.secondary' }}>{t}</Box>
+                        ))}
+                      </Box>
+                    )}
+                  </Box>
+                  {isChecked && (
+                    <Box sx={{ pl: 3, pb: 0.5 }}>
+                      <TextField
+                        size="small" fullWidth
+                        placeholder={zh ? '对该玩家的备注…' : 'Note for this player…'}
+                        value={skillOverlay.draft?.targetNotes?.[s.seat] ?? ''}
+                        onChange={(e) => setSkillOverlay((p: any) => p ? { ...p, draft: { ...p.draft, targetNotes: { ...p.draft.targetNotes, [s.seat]: e.target.value } } } : p)}
+                        sx={{ '& .MuiInputBase-input': { fontSize: '0.8rem' } }}
+                      />
+                    </Box>
+                  )}
+                </Box>
+              )
+            })}
           </Box>
           <TextField size="small" fullWidth label={text.statement} value={skillOverlay.draft?.statement ?? ''}
             onChange={(e) => setSkillOverlay((p: any) => p ? { ...p, draft: { ...p.draft, statement: e.target.value } } : p)} />
           <TextField size="small" fullWidth label={text.note} value={skillOverlay.draft?.note ?? ''}
             onChange={(e) => setSkillOverlay((p: any) => p ? { ...p, draft: { ...p.draft, note: e.target.value } } : p)} />
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.5 }}>
-            <Button size="small" color="error" onClick={() => closeSkillOverlay(false)} startIcon={<CloseIcon fontSize="small" />}>{zh ? '取消' : 'Cancel'}</Button>
-            <Button size="small" variant="contained" onClick={() => { closeSkillOverlay(true); setPlayerModalSeat(null) }} startIcon={<CheckIcon fontSize="small" />}>{text.saveSkill}</Button>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Box sx={{ display: 'flex', gap: 0.5 }}>
+              {(['public', 'st-only'] as const).map((v) => (
+                <Button key={v} size="small"
+                  variant={(skillOverlay.visibility ?? 'public') === v ? 'contained' : 'outlined'}
+                  color={v === 'st-only' ? 'warning' : 'primary'}
+                  onClick={() => setSkillOverlay((p: any) => p ? { ...p, visibility: v } : p)}
+                  sx={{ fontSize: '0.72rem', py: 0.25 }}>
+                  {v === 'public' ? (zh ? '公开' : 'Public') : (zh ? '仅ST' : 'ST Only')}
+                </Button>
+              ))}
+            </Box>
+            <Box sx={{ display: 'flex', gap: 0.5 }}>
+              <Button size="small" color="error" onClick={() => closeSkillOverlay(false)} startIcon={<CloseIcon fontSize="small" />}>{zh ? '取消' : 'Cancel'}</Button>
+              <Button size="small" variant="contained" onClick={() => closeSkillOverlay(true)} startIcon={<CheckIcon fontSize="small" />}>{text.saveSkill}</Button>
+            </Box>
           </Box>
         </Box>
       ) : !isNight ? (

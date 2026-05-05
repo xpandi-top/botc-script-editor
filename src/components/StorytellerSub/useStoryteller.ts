@@ -63,8 +63,8 @@ export function useStoryteller(props: StorytellerHelperProps) {
     setDaysWithUndo((cur) => cur.map((d) => (d.id === currentDay.id ? updater(d) : d)))
   }
 
-  function appendEvent(d: DayState, kind: EventLogEntry['kind'], detail: string): DayState {
-    return { ...d, eventLog: [...d.eventLog, { id: makeEventId(), timestamp: Date.now(), phase: d.phase, kind, detail }] }
+  function appendEvent(d: DayState, kind: EventLogEntry['kind'], detail: string, visibility?: 'public' | 'st-only'): DayState {
+    return { ...d, eventLog: [...d.eventLog, { id: makeEventId(), timestamp: Date.now(), phase: d.phase, kind, detail, visibility }] }
   }
 
   function syncDayTimers(d: DayState) {
@@ -143,7 +143,11 @@ export function useStoryteller(props: StorytellerHelperProps) {
         const voterList = v.voters.length > 0 ? ` [${v.voters.map((n: number) => `#${n}`).join(', ')}]` : ''
         entries.push({ id: `v-${day.day}-${v.id}`, day: day.day, phase: 'nomination', timestamp: Number(v.id), type: 'vote', visibility: 'public', detail: `#${v.actor} → #${v.target}: ${v.passed ? 'PASS' : 'FAIL'} (${v.voteCount}/${v.requiredVotes})${voterList}${v.note ? ` · ${v.note}` : ''}` })
       }
-      for (const s of day.skillHistory) entries.push({ id: `s-${day.day}-${s.id}`, day: day.day, phase: s.activatedDuringPhase, timestamp: Number(s.id), type: 'skill', visibility: 'st-only', detail: `#${s.actor} ${s.roleId || '?'}${s.statement ? ` "${s.statement}"` : ''}${s.result ? ` [${s.result}]` : ''}` })
+      for (const s of day.skillHistory) {
+        const tNotes = Object.entries(s.targetNotes || {}).filter(([, v]) => v).map(([k, v]) => `#${k}:"${v}"`).join(' ')
+        const detail = `#${s.actor} ${s.roleId || '?'}${s.targets?.length ? ` → [${s.targets.map((t: number) => `#${t}`).join(', ')}]` : ''}${s.statement ? ` "${s.statement}"` : ''}${s.result ? ` [${s.result}]` : ''}${tNotes ? ` | ${tNotes}` : ''}${s.note ? ` · ${s.note}` : ''}`
+        entries.push({ id: `s-${day.day}-${s.id}`, day: day.day, phase: s.activatedDuringPhase, timestamp: Number(s.id), type: 'skill', visibility: s.visibility ?? 'st-only', detail })
+      }
       for (const e of day.eventLog) {
         if (e.kind === 'vote' || e.kind === 'skill') continue
         const vis: 'public' | 'st-only' = (e.kind === 'stateChange' || e.kind === 'phaseTransition') ? 'public' : 'st-only'

@@ -11,7 +11,7 @@ interface ActionDeps {
   seatTagDrafts: Record<number, string>
   updateCurrentDay: (u: (d: DayState) => DayState) => void
   updateCurrentDayWithUndo: (u: (d: DayState) => DayState) => void
-  appendEvent: (d: DayState, kind: EventLogEntry['kind'], detail: string) => DayState
+  appendEvent: (d: DayState, kind: EventLogEntry['kind'], detail: string, visibility?: 'public' | 'st-only') => DayState
   setPickerMode: (m: PickerMode) => void
   setIsTimerRunning: (v: boolean) => void
   setSkillOverlay: React.Dispatch<React.SetStateAction<SkillOverlayState | null>>
@@ -157,13 +157,13 @@ export function buildGameActions(deps: ActionDeps) {
   }
 
   function openSkillOverlay() {
-    setSkillOverlay({ pausedPhase: currentDay.phase, wasTimerRunning: isTimerRunning, draft: createDefaultSkillDraft(), phaseContext: currentDay.phase })
+    setSkillOverlay({ pausedPhase: currentDay.phase, wasTimerRunning: isTimerRunning, draft: createDefaultSkillDraft(), phaseContext: currentDay.phase, visibility: 'public' })
     setIsTimerRunning(false)
     setPickerMode('skillActor')
   }
 
   function openSeatSkill(seatNumber: number) {
-    setSkillOverlay({ pausedPhase: currentDay.phase, wasTimerRunning: isTimerRunning, draft: { ...createDefaultSkillDraft(), actor: seatNumber }, phaseContext: currentDay.phase })
+    setSkillOverlay({ pausedPhase: currentDay.phase, wasTimerRunning: isTimerRunning, draft: { ...createDefaultSkillDraft(), actor: seatNumber }, phaseContext: currentDay.phase, visibility: 'public' })
     setIsTimerRunning(false)
     setPickerMode('none')
     setSkillPopoutSeat(seatNumber)
@@ -172,8 +172,9 @@ export function buildGameActions(deps: ActionDeps) {
 
   function closeSkillOverlay(record: boolean) {
     if (record && skillOverlay?.draft.actor) {
-      const sr: SkillRecord = { id: `${Date.now()}`, ...skillOverlay.draft, activatedDuringPhase: skillOverlay.phaseContext }
-      updateCurrentDay((d) => appendEvent({ ...d, skillHistory: [sr, ...d.skillHistory] }, 'skill', `#${sr.actor} ${sr.roleId || '?'} (${sr.activatedDuringPhase})`))
+      const vis = skillOverlay.visibility ?? 'public'
+      const sr: SkillRecord = { id: `${Date.now()}`, ...skillOverlay.draft, activatedDuringPhase: skillOverlay.phaseContext, visibility: vis }
+      updateCurrentDay((d) => appendEvent({ ...d, skillHistory: [sr, ...d.skillHistory] }, 'skill', `#${sr.actor} ${sr.roleId || '?'} (${sr.activatedDuringPhase})`, vis))
     }
     const wasRunning = skillOverlay?.wasTimerRunning ?? false
     setSkillOverlay(null)

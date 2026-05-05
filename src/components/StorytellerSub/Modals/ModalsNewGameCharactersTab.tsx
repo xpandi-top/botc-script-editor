@@ -281,7 +281,7 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
 
       {/* ── Demon bluffs ── */}
       <Paper variant="outlined" sx={{ p: 1 }}>
-        <Typography variant="subtitle2" sx={{ mb: 1 }}>{zh ? '恶魔虚张' : 'Demon Bluffs'}</Typography>
+        <Typography variant="subtitle2" sx={{ mb: 1 }}>{zh ? '不在场角色' : 'Demon Bluffs'}</Typography>
         <Box sx={{ display: 'flex', gap: 1 }}>
           {[0, 1, 2].map((idx) => (
             <CharSelect key={idx} value={newGamePanel.demonBluffs?.[idx] ?? ''} options={availableBluffs} language={language} placeholder={zh ? '选择…' : 'Pick…'} onChange={(id) => setBluff(idx, id)} />
