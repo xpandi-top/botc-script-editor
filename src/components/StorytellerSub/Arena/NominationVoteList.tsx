@@ -145,8 +145,8 @@ export function NominationVoteList({
                   }}
                 >
                   {isDead
-                    ? <FavoriteIcon sx={{ fontSize: '1rem' }} />
-                    : <HeartBrokenIcon sx={{ fontSize: '1rem' }} />
+                    ? <HeartBrokenIcon sx={{ fontSize: '1rem' }} />
+                    : <FavoriteIcon sx={{ fontSize: '1rem' }} />
                   }
                 </IconButton>
               </Tooltip>
