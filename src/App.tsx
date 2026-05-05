@@ -396,28 +396,15 @@ export default function App() {
             variant="scrollable"
             scrollButtons="auto"
             sx={{
-              flex: '1 1 auto',
               display: { xs: 'none', sm: 'flex' },
-              minHeight: 44,
-              gap: 0.5,
-              '& .MuiTabs-flexContainer': { gap: 0.5 },
+              '& .MuiTab-root': { minWidth: 0, px: 1 },
             }}
           >
-            <Tooltip title={uiText.scriptSheet} placement="bottom">
-              <Tab icon={<DescriptionIcon fontSize="small" />} value="scripts" aria-label={uiText.scriptSheet} />
-            </Tooltip>
-            <Tooltip title={uiText.allCharacters} placement="bottom">
-              <Tab icon={<TheaterComedyIcon fontSize="small" />} value="characters" aria-label={uiText.allCharacters} />
-            </Tooltip>
-            <Tooltip title={stTabLabel} placement="bottom">
-              <Tab icon={<MenuBookIcon fontSize="small" />} value="storyteller" aria-label={stTabLabel} />
-            </Tooltip>
-            <Tooltip title={anTabLabel} placement="bottom">
-              <Tab icon={<QueryStatsIcon fontSize="small" />} value="analytics" aria-label={anTabLabel} />
-            </Tooltip>
-            <Tooltip title={psTabLabel} placement="bottom">
-              <Tab icon={<PrintIcon fontSize="small" />} value="printstudio" aria-label={psTabLabel} />
-            </Tooltip>
+            <Tab icon={<DescriptionIcon fontSize="small" />} value="scripts" aria-label={uiText.scriptSheet} title={uiText.scriptSheet} />
+            <Tab icon={<TheaterComedyIcon fontSize="small" />} value="characters" aria-label={uiText.allCharacters} title={uiText.allCharacters} />
+            <Tab icon={<MenuBookIcon fontSize="small" />} value="storyteller" aria-label={stTabLabel} title={stTabLabel} />
+            <Tab icon={<QueryStatsIcon fontSize="small" />} value="analytics" aria-label={anTabLabel} title={anTabLabel} />
+            <Tab icon={<PrintIcon fontSize="small" />} value="printstudio" aria-label={psTabLabel} title={psTabLabel} />
           </Tabs>
 
           {/* Mobile: active tab name with icon */}
