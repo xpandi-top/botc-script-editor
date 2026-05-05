@@ -1,7 +1,11 @@
 // @ts-nocheck
 import React from 'react'
-import { Box, Typography, IconButton, Button, Chip } from '@mui/material'
+import { Box, Typography, IconButton, Button, Tooltip } from '@mui/material'
 import ReplayIcon from '@mui/icons-material/Replay'
+import PersonOffIcon from '@mui/icons-material/PersonOff'
+import PersonIcon from '@mui/icons-material/Person'
+import DoNotDisturbOnIcon from '@mui/icons-material/DoNotDisturbOn'
+import DoNotDisturbOffIcon from '@mui/icons-material/DoNotDisturbOff'
 
 interface NominationVoteListProps {
   seats: any[]
@@ -11,7 +15,7 @@ interface NominationVoteListProps {
   yesCount: number
   votingYesCount: number
   handleVoteToggle: (seatNum: number) => void
-  updateCurrentDay: ( updater: (d: any) => any) => void
+  updateCurrentDay: (updater: (d: any) => any) => void
   language: string
 }
 
@@ -26,46 +30,163 @@ export function NominationVoteList({
   updateCurrentDay,
   language,
 }: NominationVoteListProps) {
+  const zh = language === 'zh'
+
+  // ── Reorder: start from seat after nominee, wrap, nominee last ──
+  const targetSeat = voteDraft?.target ?? null
+  const orderedSeats: any[] = (() => {
+    if (targetSeat === null) return seats
+    const idx = seats.findIndex((s: any) => s.seat === targetSeat)
+    if (idx === -1) return seats
+    const after  = seats.slice(idx + 1)
+    const before = seats.slice(0, idx)
+    const target = seats[idx]
+    return [...after, ...before, target]
+  })()
+
+  // ── Quick seat-property toggles ─────────────────────────────────
+  const toggleAlive = (seatNum: number) => {
+    updateCurrentDay((d: any) => ({
+      ...d,
+      seats: d.seats.map((s: any) =>
+        s.seat === seatNum ? { ...s, alive: !s.alive } : s
+      ),
+    }))
+  }
+
+  const toggleNoVote = (seatNum: number) => {
+    updateCurrentDay((d: any) => ({
+      ...d,
+      seats: d.seats.map((s: any) =>
+        s.seat === seatNum ? { ...s, hasNoVote: !s.hasNoVote } : s
+      ),
+    }))
+  }
+
   return (
     <Box>
       <Typography variant="body1" fontWeight={600} color="text.secondary">
-        {language === 'zh' ? '投票' : 'Votes'} ({language === 'zh' ? '点击切换' : 'click to toggle'})
+        {zh ? '投票' : 'Votes'}{' '}
+        <Typography component="span" variant="caption" color="text.disabled">
+          {zh ? '（点击名字切换票，†=死亡，⊘=无票权）' : '(name=toggle vote  †=dead  ⊘=no-vote)'}
+        </Typography>
       </Typography>
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, mt: 0.5 }}>
-        {seats.map((s: any) => {
-          const voted = votingState?.votes?.[s.seat]
-          const isChecked = voted === true || voteDraft?.voters?.includes(s.seat)
-          const isDead = !s.alive
+
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 0.75 }}>
+        {orderedSeats.map((s: any) => {
+          const voted    = votingState?.votes?.[s.seat]
+          const isVoted  = voted === true || voteDraft?.voters?.includes(s.seat)
+          const isDead   = !s.alive
           const hasNoVote = !!s.hasNoVote
+          const isNominee = s.seat === targetSeat
+
           const nameLabel = s.name ? `${s.seat}. ${s.name}` : `#${s.seat}`
-          const deadLabel = isDead ? (language === 'zh' ? ' †' : ' †') : ''
-          const noVoteLabel = hasNoVote ? (language === 'zh' ? ' 无票' : ' NoVote') : ''
+
           return (
-            <Chip
+            <Box
               key={s.seat}
-              label={`${nameLabel}${deadLabel}${noVoteLabel}`}
-              size="medium"
-              variant={isChecked ? 'filled' : 'outlined'}
-              color={isChecked ? 'success' : isDead ? 'default' : 'default'}
-              onClick={() => handleVoteToggle(s.seat)}
               sx={{
-                fontSize: '0.85rem',
-                fontWeight: 700,
-                height: 36,
-                opacity: isDead ? 0.65 : 1,
-                textDecoration: isDead ? 'line-through' : 'none',
+                display: 'inline-flex',
+                alignItems: 'stretch',
+                border: '1.5px solid',
+                borderColor: isNominee
+                  ? 'warning.main'
+                  : isVoted
+                    ? 'success.main'
+                    : 'divider',
+                borderRadius: '20px',
+                overflow: 'hidden',
+                bgcolor: isVoted ? 'success.light' : 'background.paper',
+                transition: 'all 0.12s ease',
               }}
-            />
+            >
+              {/* ── Vote toggle (click name) ── */}
+              <Box
+                onClick={() => handleVoteToggle(s.seat)}
+                sx={{
+                  px: 1.25,
+                  py: 0.4,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  userSelect: 'none',
+                  '&:hover': { bgcolor: isVoted ? 'success.main' : 'action.hover' },
+                }}
+              >
+                <Typography sx={{
+                  fontSize: '0.82rem',
+                  fontWeight: isNominee ? 800 : 700,
+                  lineHeight: 1,
+                  textDecoration: isDead ? 'line-through' : 'none',
+                  opacity: isDead ? 0.6 : 1,
+                  color: isVoted ? 'success.contrastText' : isNominee ? 'warning.dark' : 'text.primary',
+                }}>
+                  {nameLabel}
+                  {isDead && <Box component="span" sx={{ ml: 0.25, fontSize: '0.7rem' }}>†</Box>}
+                  {hasNoVote && <Box component="span" sx={{ ml: 0.25, fontSize: '0.65rem', color: 'warning.dark' }}>∅</Box>}
+                </Typography>
+              </Box>
+
+              {/* ── Divider ── */}
+              <Box sx={{ width: '1px', bgcolor: isVoted ? 'success.main' : 'divider', opacity: 0.5 }} />
+
+              {/* ── Dead toggle ── */}
+              <Tooltip title={isDead ? (zh ? '恢复存活' : 'Restore alive') : (zh ? '标记死亡' : 'Mark dead')} placement="top" arrow>
+                <IconButton
+                  size="small"
+                  onClick={() => toggleAlive(s.seat)}
+                  sx={{
+                    borderRadius: 0,
+                    px: 0.5,
+                    py: 0,
+                    minWidth: 24,
+                    color: isDead ? 'error.main' : 'text.disabled',
+                    '&:hover': { bgcolor: 'error.light', color: 'error.contrastText' },
+                  }}
+                >
+                  {isDead
+                    ? <PersonIcon sx={{ fontSize: '0.85rem' }} />
+                    : <PersonOffIcon sx={{ fontSize: '0.85rem' }} />
+                  }
+                </IconButton>
+              </Tooltip>
+
+              {/* ── NoVote toggle ── */}
+              <Tooltip title={hasNoVote ? (zh ? '移除无票权' : 'Remove no-vote') : (zh ? '标记无票权' : 'Set no-vote')} placement="top" arrow>
+                <IconButton
+                  size="small"
+                  onClick={() => toggleNoVote(s.seat)}
+                  sx={{
+                    borderRadius: 0,
+                    px: 0.5,
+                    py: 0,
+                    minWidth: 24,
+                    color: hasNoVote ? 'warning.main' : 'text.disabled',
+                    '&:hover': { bgcolor: 'warning.light', color: 'warning.contrastText' },
+                  }}
+                >
+                  {hasNoVote
+                    ? <DoNotDisturbOnIcon sx={{ fontSize: '0.85rem' }} />
+                    : <DoNotDisturbOffIcon sx={{ fontSize: '0.85rem' }} />
+                  }
+                </IconButton>
+              </Tooltip>
+            </Box>
           )
         })}
       </Box>
-      <Typography variant="body2" sx={{ mt: 0.5 }}>
-        {language === 'zh' ? '同意' : 'Yes'}: <strong>{yesCount}</strong> / {effectiveRequiredVotes}
-        {voteDraft?.isExile && <Chip size="small" label={language === 'zh' ? '放逐' : 'Exile'} sx={{ ml: 0.5 }} />}
+
+      <Typography variant="body2" sx={{ mt: 0.75 }}>
+        {zh ? '同意' : 'Yes'}: <strong>{yesCount}</strong> / {effectiveRequiredVotes}
+        {voteDraft?.isExile && (
+          <Box component="span" sx={{ ml: 1, px: 0.75, py: 0.2, bgcolor: 'warning.light', borderRadius: 1, fontSize: '0.75rem', color: 'warning.dark', fontWeight: 700 }}>
+            {zh ? '放逐' : 'Exile'}
+          </Box>
+        )}
       </Typography>
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
-        <Typography variant="caption">{language === 'zh' ? '票数' : 'Count'}</Typography>
+        <Typography variant="caption">{zh ? '票数' : 'Count'}</Typography>
         <IconButton size="small" onClick={() => {
           const cur = voteDraft?.voteCountOverride ?? votingYesCount
           updateCurrentDay((d: any) => ({ ...d, voteDraft: { ...d.voteDraft, voteCountOverride: Math.max(0, cur - 1) } }))
@@ -78,8 +199,11 @@ export function NominationVoteList({
           updateCurrentDay((d: any) => ({ ...d, voteDraft: { ...d.voteDraft, voteCountOverride: cur + 1 } }))
         }}>+</IconButton>
         {voteDraft?.voteCountOverride !== null && (
-          <Button size="small" onClick={() => updateCurrentDay((d: any) => ({ ...d, voteDraft: { ...d.voteDraft, voteCountOverride: null } }))} startIcon={<ReplayIcon fontSize="small" />}>
-            {language === 'zh' ? '重置' : 'Reset'}
+          <Button size="small"
+            onClick={() => updateCurrentDay((d: any) => ({ ...d, voteDraft: { ...d.voteDraft, voteCountOverride: null } }))}
+            startIcon={<ReplayIcon fontSize="small" />}
+          >
+            {zh ? '重置' : 'Reset'}
           </Button>
         )}
       </Box>
