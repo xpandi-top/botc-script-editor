@@ -18,7 +18,6 @@ export interface ExportDeps {
 
 function downloadJson(data: unknown, filename: string) {
   exportGameFile(JSON.stringify(data, null, 2), filename).catch(() => {
-    // fallback: direct browser download
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -29,7 +28,11 @@ function downloadJson(data: unknown, filename: string) {
 }
 
 export function buildGameExport(deps: ExportDeps) {
-  const { days, currentDay, activeScriptSlug, activeScriptTitle, endGameResult, timerDefaults, customTagPool = [], playerNamePool = [], stFabledIds = [], stCustomRules = '', setGameRecords, setCurrentRecordName } = deps
+  const {
+    days, currentDay, activeScriptSlug, activeScriptTitle,
+    endGameResult, timerDefaults, customTagPool = [], playerNamePool = [],
+    stFabledIds = [], stCustomRules = '', setGameRecords, setCurrentRecordName,
+  } = deps
 
   function exportGameJson(config?: ExportConfig) {
     const cfg: ExportConfig = config ?? { includeSeats: true, includeVotes: true, includeSkills: true, includeEvents: false, includeStNotes: false, dayFilter: 'all' }
@@ -58,15 +61,18 @@ export function buildGameExport(deps: ExportDeps) {
   }
 
   function exportRecordJson(record: GameRecord) {
-    // Export the full GameRecord so all fields (winner, playerSummaries, setup,
-    // endedAt, etc.) are included, plus the heavy savedDays for reloadable records.
-    downloadJson({
-      ...record,
-      exportedAt: new Date().toISOString(),
-    }, `botc-record-${record.recordName?.replace(/\s+/g, '-') || 'game'}-${record.id}.json`)
+    downloadJson({ ...record, exportedAt: new Date().toISOString() }, `botc-record-${record.recordName?.replace(/\s+/g, '-') || 'game'}-${record.id}.json`)
   }
 
-  function buildRecordBase(_savedAt: number) {
+  // ── Shared record builder ────────────────────────────────────────
+  function buildRecord(opts: {
+    id: string
+    recordName: string
+    savedDaysOverride?: DayState[]
+    survey: EndGameResult | null
+  }): GameRecord {
+    const { id, recordName, savedDaysOverride, survey } = opts
+    const savedAt = Date.now()
     const nonTravelers = currentDay.seats.filter((s) => !s.isTraveler)
     const travelers = currentDay.seats.filter((s) => s.isTraveler)
     const seatNames: Record<number, string> = {}
@@ -79,48 +85,69 @@ export function buildGameExport(deps: ExportDeps) {
       if (s.userCharacterId) userAssignments[s.seat] = s.userCharacterId
       if (s.note) seatNotes[s.seat] = s.note
     }
-    return { nonTravelers, travelers, seatNames, assignments, userAssignments, seatNotes }
-  }
-
-  function confirmEndGame(recordName?: string, surveyData?: any) {
-    const survey = surveyData || endGameResult
-    if (!survey) return
-    const summaries = currentDay.seats.map((s) => ({ seat: s.seat, name: s.name, team: survey.playerTeams?.[s.seat] as any ?? 'good' }))
-    const updatedDays = days.map((d) => d.id === currentDay.id ? { ...d, gameEnded: currentDay.gameEnded } : d)
-    const { nonTravelers, travelers, seatNames, assignments, userAssignments, seatNotes } = buildRecordBase(Date.now())
-    const newRecord: any = {
-      id: `${Date.now()}`, endedAt: Date.now(), scriptTitle: activeScriptTitle, scriptSlug: activeScriptSlug,
-      winner: survey.winner ?? null, playerSummaries: summaries,
-      mvp: survey.mvp ?? null, balanced: survey.balanced ?? null, funEvil: survey.funEvil ?? null,
-      funGood: survey.funGood ?? null, replay: survey.replay ?? null, otherNote: survey.otherNote ?? '',
+    return {
+      id,
+      endedAt: savedAt,
+      recordName,
+      scriptTitle: activeScriptTitle,
+      scriptSlug: activeScriptSlug,
+      winner: survey?.winner ?? null,
+      playerSummaries: currentDay.seats.map((s) => ({
+        seat: s.seat,
+        name: s.name,
+        team: (survey?.playerTeams?.[s.seat] ?? null) as 'evil' | 'good' | null,
+      })),
+      mvp: survey?.mvp ?? null,
+      balanced: survey?.balanced ?? null,
+      funEvil: survey?.funEvil ?? null,
+      funGood: survey?.funGood ?? null,
+      replay: survey?.replay ?? null,
+      otherNote: survey?.otherNote ?? '',
       days: days.map((d) => ({ day: d.day, votes: d.voteHistory.length, skills: d.skillHistory.length })),
-      savedDays: updatedDays,
-      setup: { playerCount: nonTravelers.length, travelerCount: travelers.length, seatNames, assignments, userAssignments, seatNotes, specialNote: '', demonBluffs: currentDay.demonBluffs || [] },
-      stFabledIds, stCustomRules,
+      savedDays: savedDaysOverride ?? days,
+      timerDefaults,
+      customTagPool,
+      playerNamePool,
+      setup: {
+        playerCount: nonTravelers.length,
+        travelerCount: travelers.length,
+        seatNames,
+        assignments,
+        userAssignments,
+        seatNotes,
+        specialNote: '',
+        demonBluffs: currentDay.demonBluffs || [],
+      },
+      stFabledIds,
+      stCustomRules,
     }
-    if (recordName) newRecord.recordName = recordName
-    setGameRecords((cur) => [newRecord, ...cur])
   }
 
+  // ── confirmEndGame — end-of-game auto-save ───────────────────────
+  // Merges currentDay.gameEnded flag into days array before saving.
+  function confirmEndGame(recordName?: string, surveyData?: any) {
+    const survey: EndGameResult | null = surveyData || endGameResult
+    if (!survey) return
+    const savedAt = Date.now()
+    const id = `${savedAt}`
+    const finalName = recordName || `Game ${new Date(savedAt).toLocaleDateString()}`
+    const mergedDays = days.map((d) =>
+      d.id === currentDay.id ? { ...d, gameEnded: currentDay.gameEnded } : d
+    )
+    const record = buildRecord({ id, recordName: finalName, savedDaysOverride: mergedDays, survey })
+    setGameRecords((cur) => [record, ...cur])
+    if (setCurrentRecordName) setCurrentRecordName(finalName)
+  }
+
+  // ── saveGame — manual save / checkpoint ──────────────────────────
   function saveGame(name?: string, existingId?: string, surveyData?: any) {
     const savedAt = Date.now()
-    const recordId = existingId || `save-${savedAt}`
+    const id = existingId || `save-${savedAt}`
     const finalName = name || `Game ${new Date(savedAt).toLocaleDateString()}`
-    const survey = surveyData || endGameResult
-    const { nonTravelers, travelers, seatNames, assignments, userAssignments, seatNotes } = buildRecordBase(savedAt)
-    const newRecord: any = {
-      id: recordId, endedAt: savedAt, recordName: finalName, scriptTitle: activeScriptTitle, scriptSlug: activeScriptSlug,
-      winner: survey?.winner ?? null,
-      playerSummaries: currentDay.seats.map((s) => ({ seat: s.seat, name: s.name, team: survey?.playerTeams?.[s.seat] as any ?? null })),
-      mvp: survey?.mvp ?? null, balanced: survey?.balanced ?? null, funEvil: survey?.funEvil ?? null,
-      funGood: survey?.funGood ?? null, replay: survey?.replay ?? null, otherNote: survey?.otherNote ?? '',
-      days: days.map((d) => ({ day: d.day, votes: d.voteHistory.length, skills: d.skillHistory.length })),
-      savedDays: days, timerDefaults, customTagPool, playerNamePool,
-      setup: { playerCount: nonTravelers.length, travelerCount: travelers.length, seatNames, assignments, userAssignments, seatNotes, specialNote: '', demonBluffs: currentDay.demonBluffs || [] },
-      stFabledIds, stCustomRules,
-    }
-    if (existingId) setGameRecords((cur) => cur.map((r) => r.id === existingId ? newRecord : r))
-    else setGameRecords((cur) => [newRecord, ...cur])
+    const survey: EndGameResult | null = surveyData || endGameResult
+    const record = buildRecord({ id, recordName: finalName, survey })
+    if (existingId) setGameRecords((cur) => cur.map((r) => r.id === existingId ? record : r))
+    else setGameRecords((cur) => [record, ...cur])
     if (setCurrentRecordName) setCurrentRecordName(finalName)
   }
 
