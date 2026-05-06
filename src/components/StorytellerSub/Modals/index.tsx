@@ -12,12 +12,15 @@ export function Modals({ ctx }: { ctx: StorytellerContext }) {
 
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+  const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'lg'))
 
   const paperSx = { borderRadius: isMobile ? 0 : 3, bgcolor: 'rgba(255,251,245,0.96)' }
+  // tablet gets md width; desktop keeps sm (content doesn't need more)
+  const dialogMaxWidth = isMobile ? 'sm' : isTablet ? 'md' : 'sm'
 
   return (
     <>
-      <Dialog open={showEditPlayersModal} onClose={() => setShowEditPlayersModal(false)} maxWidth="sm" fullWidth fullScreen={isMobile} slotProps={{ paper: { sx: paperSx } }}>
+      <Dialog open={showEditPlayersModal} onClose={() => setShowEditPlayersModal(false)} maxWidth={dialogMaxWidth} fullWidth fullScreen={isMobile} slotProps={{ paper: { sx: paperSx } }}>
         <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
           {text.editPlayers}
           <IconButton onClick={() => setShowEditPlayersModal(false)} size="small"><CloseIcon /></IconButton>
@@ -27,7 +30,7 @@ export function Modals({ ctx }: { ctx: StorytellerContext }) {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={!!newGamePanel} onClose={() => setNewGamePanel(null)} maxWidth="sm" fullWidth fullScreen={isMobile} slotProps={{ paper: { sx: paperSx } }}>
+      <Dialog open={!!newGamePanel} onClose={() => setNewGamePanel(null)} maxWidth={dialogMaxWidth} fullWidth fullScreen={isMobile} slotProps={{ paper: { sx: paperSx } }}>
         <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
           {text.newGame}
           <IconButton onClick={() => setNewGamePanel(null)} size="small"><CloseIcon /></IconButton>
@@ -37,7 +40,7 @@ export function Modals({ ctx }: { ctx: StorytellerContext }) {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={!!showEndGameModal} onClose={() => setShowEndGameModal(false)} maxWidth="sm" fullWidth fullScreen={isMobile} slotProps={{ paper: { sx: paperSx } }}>
+      <Dialog open={!!showEndGameModal} onClose={() => setShowEndGameModal(false)} maxWidth={dialogMaxWidth} fullWidth fullScreen={isMobile} slotProps={{ paper: { sx: paperSx } }}>
         <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
           {text.endGame}
           <IconButton onClick={() => setShowEndGameModal(false)} size="small"><CloseIcon /></IconButton>
@@ -47,7 +50,7 @@ export function Modals({ ctx }: { ctx: StorytellerContext }) {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={showExportModal} onClose={() => setShowExportModal(false)} maxWidth="sm" fullWidth fullScreen={isMobile} slotProps={{ paper: { sx: paperSx } }}>
+      <Dialog open={showExportModal} onClose={() => setShowExportModal(false)} maxWidth={dialogMaxWidth} fullWidth fullScreen={isMobile} slotProps={{ paper: { sx: paperSx } }}>
         <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
           {text.exportJson}
           <IconButton onClick={() => setShowExportModal(false)} size="small"><CloseIcon /></IconButton>
