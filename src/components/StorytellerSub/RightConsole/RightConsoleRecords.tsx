@@ -230,23 +230,23 @@ export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: Storyt
                     </>
                   )}
 
-                  {/* Action icons */}
-                  <Box sx={{ display: 'flex', gap: 0.25, mt: 0.5 }}>
+                  {/* Action icons — min 44px touch targets */}
+                  <Box sx={{ display: 'flex', gap: 0, mt: 0.25 }}>
                     {rec.savedDays && (
-                      <IconButton size="small" onClick={() => loadGameRecord(rec)} title={zh ? '加载' : 'Load'}>
+                      <IconButton size="small" onClick={() => loadGameRecord(rec)} title={zh ? '加载' : 'Load'} sx={{ minWidth: 44, minHeight: 44 }}>
                         <FolderOpenIcon sx={{ fontSize: '1rem' }} />
                       </IconButton>
                     )}
                     <IconButton size="small" onClick={() => {
                       const name = window.prompt(zh ? '输入新文件名：' : 'Enter new file name:', rec.recordName)
                       if (name) saveGame(name)
-                    }} title={zh ? '另存' : 'Save As'}>
+                    }} title={zh ? '另存' : 'Save As'} sx={{ minWidth: 44, minHeight: 44 }}>
                       <SaveAsIcon sx={{ fontSize: '1rem' }} />
                     </IconButton>
-                    <IconButton size="small" onClick={() => exportRecordJson(rec)} title={zh ? '导出' : 'Export'}>
+                    <IconButton size="small" onClick={() => exportRecordJson(rec)} title={zh ? '导出' : 'Export'} sx={{ minWidth: 44, minHeight: 44 }}>
                       <DownloadIcon sx={{ fontSize: '1rem' }} />
                     </IconButton>
-                    <IconButton size="small" color="error" onClick={() => setGameRecords((cur: any[]) => cur.filter((r) => r.id !== rec.id))} title={zh ? '删除' : 'Delete'}>
+                    <IconButton size="small" color="error" onClick={() => setGameRecords((cur: any[]) => cur.filter((r) => r.id !== rec.id))} title={zh ? '删除' : 'Delete'} sx={{ minWidth: 44, minHeight: 44 }}>
                       <DeleteIcon sx={{ fontSize: '1rem' }} />
                     </IconButton>
                   </Box>

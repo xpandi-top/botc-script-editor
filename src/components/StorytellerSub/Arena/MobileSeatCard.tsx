@@ -163,7 +163,7 @@ export function MobileSeatCard({ ctx, seat }: { ctx: StorytellerContext; seat: a
           {isNightPhase && nightShowCharacter && nightShowWakeOrder && playerWakeOrder !== null && (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
               <IconButton size="small" onClick={(e) => { e.stopPropagation(); toggleNightVisitedSeat(seat.seat) }}
-                sx={{ p: 0, width: 28, height: 28, borderRadius: '50%', border: '2px solid', borderColor: isVisited ? 'success.main' : 'divider', bgcolor: isVisited ? 'success.light' : 'transparent', flexShrink: 0 }}>
+                sx={{ p: 0.25, width: 44, height: 44, borderRadius: '50%', border: '2px solid', borderColor: isVisited ? 'success.main' : 'divider', bgcolor: isVisited ? 'success.light' : 'transparent', flexShrink: 0 }}>
                 {isVisited ? <CheckIcon fontSize="small" /> : <RadioButtonUncheckedIcon fontSize="small" />}
               </IconButton>
               <Box component="span" sx={{ fontSize: '0.9rem', fontWeight: 700, color: 'text.secondary' }}>#{playerWakeOrder}</Box>
