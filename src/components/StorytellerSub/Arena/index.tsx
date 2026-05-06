@@ -9,23 +9,61 @@ import { getSeatAngle as _getSeatAngle } from '../../../utils/seats'
 import { useBreakpoint } from '../../../hooks/useBreakpoint'
 import type { Phase } from '../types'
 
-// Phase-based atmosphere overlay gradients
-// Each phase has a distinct time-of-day feel layered over the background image
-const PHASE_OVERLAY_DARK: Record<Phase, string> = {
-  night:       'linear-gradient(160deg, rgba(5,8,28,0.78) 0%, rgba(12,18,50,0.72) 100%)',
-  private:     'linear-gradient(160deg, rgba(255,140,60,0.28) 0%, rgba(255,190,120,0.20) 100%)',
-  public:      'linear-gradient(160deg, rgba(255,220,140,0.18) 0%, rgba(240,200,120,0.12) 100%)',
-  nomination:  'linear-gradient(160deg, rgba(180,80,10,0.50) 0%, rgba(140,55,5,0.60) 100%)',
-}
-const PHASE_OVERLAY_LIGHT: Record<Phase, string> = {
-  night:       'linear-gradient(160deg, rgba(8,12,40,0.60) 0%, rgba(15,22,60,0.55) 100%)',
-  private:     'linear-gradient(160deg, rgba(255,160,80,0.20) 0%, rgba(255,200,140,0.14) 100%)',
-  public:      'linear-gradient(160deg, rgba(255,235,170,0.10) 0%, rgba(240,215,140,0.06) 100%)',
-  nomination:  'linear-gradient(160deg, rgba(200,95,15,0.38) 0%, rgba(160,70,8,0.45) 100%)',
+// Phase atmosphere: CSS filter + base tint color applied to a separate background layer
+// so text/content is NOT affected by the filter
+const PHASE_ATMOSPHERE: Record<Phase, { base: string; filter: string }> = {
+  night:      {
+    base:   '#0B0F1A',
+    filter: 'brightness(0.6) contrast(1.2) saturate(0.7) hue-rotate(-10deg)',
+  },
+  private:    {
+    base:   '#E8DCC8',
+    filter: 'brightness(1.2) contrast(0.95) saturate(0.9) hue-rotate(10deg)',
+  },
+  public:     {
+    base:   '#F5EFE6',
+    filter: 'brightness(1.35) contrast(0.9) saturate(0.8)',
+  },
+  nomination: {
+    base:   '#C9A27A',
+    filter: 'brightness(0.9) contrast(1.15) saturate(1.15) hue-rotate(20deg)',
+  },
 }
 
-// Transition duration for smooth atmosphere changes
-const ATMOSPHERE_TRANSITION = 'background-image 1.2s ease, background 1.2s ease'
+/** Absolutely-positioned background layer with CSS filter applied.
+ *  Content sits above it (position:relative, zIndex≥1) so filter only
+ *  affects the background image, not text or UI elements.
+ */
+function AtmosphereBackground({
+  bgSrc,
+  phase,
+  position = 'center',
+}: {
+  bgSrc: string
+  phase: Phase
+  position?: string
+}) {
+  const atm = PHASE_ATMOSPHERE[phase]
+  return (
+    <Box
+      aria-hidden
+      sx={{
+        position: 'absolute',
+        inset: 0,
+        zIndex: 0,
+        pointerEvents: 'none',
+        overflow: 'hidden',
+        borderRadius: 'inherit',
+        backgroundColor: atm.base,
+        backgroundImage: `url('${bgSrc}')`,
+        backgroundSize: 'cover',
+        backgroundPosition: position,
+        filter: atm.filter,
+        transition: 'filter 1.2s ease, background-color 1.2s ease',
+      }}
+    />
+  )
+}
 
 export function Arena({ ctx }: { ctx: StorytellerContext }) {
   const muiTheme = useTheme()
@@ -46,9 +84,9 @@ export function Arena({ ctx }: { ctx: StorytellerContext }) {
   const { currentDay, setSelectedSeatNumber, setTagPopoutSeat, text, portraitOverride } = ctx
   const isPortrait = portraitOverride !== null ? portraitOverride : windowPortrait
   const seats = currentDay.seats
-  const phase = currentDay.phase
-  const phaseOverlay = isDark ? PHASE_OVERLAY_DARK[phase] : PHASE_OVERLAY_LIGHT[phase]
+  const phase = currentDay.phase as Phase
   const seatCount = seats.length || 1
+  const bgSrc = `/bg-${isDark ? 'dark' : 'light'}.svg`
   const { isMobile, isTablet } = useBreakpoint()
 
   // Tablet portrait: use list layout (circular arena too cramped)
@@ -74,14 +112,16 @@ export function Arena({ ctx }: { ctx: StorytellerContext }) {
     return (
       <Box sx={{
         flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0,
-        backgroundImage: `${phaseOverlay}, url('/bg-${isDark ? 'dark' : 'light'}.svg')`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center top',
-        backgroundAttachment: 'local',
-        transition: ATMOSPHERE_TRANSITION,
+        position: 'relative', overflow: 'hidden',
       }}>
-        <PlayerSeatGrid ctx={ctx} panelCollapsed={panelCollapsed} />
-        <PhaseControlPanel ctx={ctx} collapsed={panelCollapsed} setCollapsed={setPanelCollapsed} />
+        {/* Filtered background layer — does NOT affect content */}
+        <AtmosphereBackground bgSrc={bgSrc} phase={phase} position="center top" />
+
+        {/* Content above the filtered background */}
+        <Box sx={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
+          <PlayerSeatGrid ctx={ctx} panelCollapsed={panelCollapsed} />
+          <PhaseControlPanel ctx={ctx} collapsed={panelCollapsed} setCollapsed={setPanelCollapsed} />
+        </Box>
       </Box>
     )
   }
@@ -94,15 +134,18 @@ export function Arena({ ctx }: { ctx: StorytellerContext }) {
         sx={{
           p: 2,
           minHeight: 380,
-          backgroundImage: `${phaseOverlay}, url('/bg-${isDark ? 'dark' : 'light'}.svg')`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          transition: ATMOSPHERE_TRANSITION,
+          // Background is handled by AtmosphereBackground child — Paper is transparent
+          bgcolor: 'transparent',
           boxShadow: isDark ? '0 18px 60px rgba(0,0,0,0.40)' : '0 18px 60px rgba(57,43,24,0.08)',
           overflow: 'visible',
           position: 'relative',
+          borderRadius: 2,
         }}
       >
+        {/* Filtered background — clipped to Paper border-radius */}
+        <AtmosphereBackground bgSrc={bgSrc} phase={phase} />
+
+        {/* Arena content sits above filtered bg */}
         <Box
           onClick={(e) => {
             const target = e.target as Element
@@ -119,6 +162,7 @@ export function Arena({ ctx }: { ctx: StorytellerContext }) {
           }}
           sx={{
             position: 'relative',
+            zIndex: 1,
             width: '100%',
             minHeight: 350,
             borderRadius: '50%',
@@ -132,7 +176,7 @@ export function Arena({ ctx }: { ctx: StorytellerContext }) {
             <ArenaSeats ctx={ctx} isPortrait={isPortrait} />
           </Box>
         </Box>
-        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center' }}>
+        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center', position: 'relative', zIndex: 1 }}>
           {text.seatHint}
         </Typography>
       </Paper>

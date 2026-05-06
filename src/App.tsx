@@ -65,12 +65,19 @@ import type {
   ResolvedScriptCharacterGroup,
   Team,
 } from './types'
+import { useThemeMode } from './context/ThemeMode'
 
 type TabKey = 'scripts' | 'characters' | 'storyteller' | 'printstudio' | 'analytics' | 'settings'
 
 export default function App() {
+  const { mode: themeMode } = useThemeMode()
   const [activeTab, setActiveTab] = useState<TabKey>('scripts')
-  const [uiLanguage, setUiLanguage] = useState<Language>('zh')
+  const [uiLanguage, setUiLanguage] = useState<Language>(() => {
+    try { return (localStorage.getItem('botc-ui-language') as Language) ?? 'zh' } catch { return 'zh' }
+  })
+  useEffect(() => {
+    try { localStorage.setItem('botc-ui-language', uiLanguage) } catch {}
+  }, [uiLanguage])
   const initialSlugs = useMemo(() => new Set(initialScripts.map((s) => s.slug)), [])
   const [scripts, setScripts] = useState<EditableScript[]>(() => {
     try {
@@ -398,8 +405,10 @@ export default function App() {
                 cursor: { xs: 'pointer', sm: 'default' } }}
               onClick={(e) => setTabMenuAnchor(e.currentTarget as HTMLElement)}
             >
-              <Box component="img" src="appIcon.png" alt="BOTC Companion"
-                sx={{ width: { xs: 28, sm: 34 }, height: { xs: 28, sm: 34 }, flexShrink: 0 }} />
+              <Box component="img"
+                src={themeMode === 'dark' ? 'icons/icon-80.png' : 'appIcon.png'}
+                alt="BOTC Companion"
+                sx={{ width: { xs: 28, sm: 34 }, height: { xs: 28, sm: 34 }, flexShrink: 0, borderRadius: 1 }} />
               <Typography component="h1"
                 sx={{ fontFamily: 'inherit', m: 0,
                   fontWeight: 700, userSelect: 'none',
