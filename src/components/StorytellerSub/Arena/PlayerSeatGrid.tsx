@@ -6,7 +6,7 @@ import { MobileSeatCard } from './MobileSeatCard'
 // Use dvh so it matches the panel's height unit.
 // Use 46dvh (nomination is tallest phase) so all phases have enough clearance.
 const PANEL_OPEN_CLEARANCE = 'calc(56px + max(46dvh, 160px) + var(--safe-bottom, 0px) + 8px)'
-const PANEL_COLLAPSED_CLEARANCE = 'calc(56px + 56px + var(--safe-bottom, 0px) + 8px)'
+const PANEL_COLLAPSED_CLEARANCE = 'calc(56px + 64px + var(--safe-bottom, 0px) + 8px)'
 
 export function PlayerSeatGrid({ ctx, panelCollapsed }: { ctx: StorytellerContext; panelCollapsed: boolean }) {
   const { currentDay, setSelectedSeatNumber, setTagPopoutSeat } = ctx

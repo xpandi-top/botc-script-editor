@@ -367,6 +367,11 @@ export default function App() {
   const theme = useTheme()
   const isMobileView = useMediaQuery(theme.breakpoints.down('sm'))
 
+  // Scroll to top on every tab switch so the header is never off-screen
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' })
+  }, [activeTab])
+
   const stTabLabel = uiLanguage === 'zh' ? '主持助手' : 'Storyteller Helper'
   const psTabLabel = uiLanguage === 'zh' ? '打印工坊' : 'Print Studio'
   const anTabLabel = uiLanguage === 'zh' ? '数据统计' : 'Analytics'
@@ -374,12 +379,15 @@ export default function App() {
 
   return (
     <Container maxWidth="xl" sx={{ py: { xs: 0, sm: 3 }, px: { xs: 0, sm: 3 }, minHeight: '100vh', pb: { xs: '56px', sm: 0 } }}>
+      {/* Hide header on mobile storyteller — MobileTopBar is the header there.
+          Height: 100dvh in StorytellerHelper needs the viewport to start at y=0. */}
       <Paper elevation={1} sx={{
         mb: { xs: 0, sm: 2 },
         borderRadius: { xs: 0, sm: 2 },
         overflow: 'hidden',
         borderBottom: '1px solid',
         borderColor: 'divider',
+        display: (activeTab === 'storyteller' && isMobileView) ? 'none' : undefined,
       }}>
         {/* ── Title + Tabs row ── */}
         <Box sx={{ px: { xs: 2, sm: 3 }, py: { xs: 1.25, sm: 1.5 }, display: 'flex', alignItems: 'center', gap: 2 }}>
