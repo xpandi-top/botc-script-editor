@@ -197,13 +197,46 @@ function ScriptCard({ stat, records, language, zh }: { stat: ScriptStat; records
       </Box>
 
       {/* Stat pills */}
-      <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', mb: 1.5 }}>
+      <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', mb: 1 }}>
         <Typography variant="caption" color="text.secondary">{zh ? `均${stat.avgDays}天` : `avg ${stat.avgDays}d`}</Typography>
         <Typography variant="caption" color="text.secondary">{zh ? `均${stat.avgVotes}票` : `avg ${stat.avgVotes} votes`}</Typography>
         <Typography variant="caption" color="text.secondary">{zh ? `均${stat.avgNominations}次提名` : `avg ${stat.avgNominations} noms`}</Typography>
         {stat.votePassRate !== null && <Typography variant="caption" color="text.secondary">{zh ? `处决率${stat.votePassRate}%` : `exec rate ${stat.votePassRate}%`}</Typography>}
         {stat.avgDurationMin !== null && <Typography variant="caption" color="text.secondary">{stat.avgDurationMin}min</Typography>}
       </Box>
+
+      {/* Ratings row */}
+      {stat.ratingCount > 0 && (
+        <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', mb: 1.5, alignItems: 'center' }}>
+          <Typography variant="caption" color="text.disabled" sx={{ fontSize: '0.68rem' }}>
+            {zh ? `评分(${stat.ratingCount}局):` : `ratings (${stat.ratingCount}):`}
+          </Typography>
+          {stat.avgBalanced !== null && (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
+              <Typography variant="caption" sx={{ fontSize: '0.68rem', color: 'text.secondary' }}>{'⚖️'}</Typography>
+              <Typography variant="caption" sx={{ fontSize: '0.72rem', fontWeight: 600 }}>{stat.avgBalanced}</Typography>
+            </Box>
+          )}
+          {stat.avgFunEvil !== null && (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
+              <Typography variant="caption" sx={{ fontSize: '0.68rem', color: 'error.light' }}>{'😈'}</Typography>
+              <Typography variant="caption" sx={{ fontSize: '0.72rem', fontWeight: 600 }}>{stat.avgFunEvil}</Typography>
+            </Box>
+          )}
+          {stat.avgFunGood !== null && (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
+              <Typography variant="caption" sx={{ fontSize: '0.68rem', color: 'success.light' }}>{'😇'}</Typography>
+              <Typography variant="caption" sx={{ fontSize: '0.72rem', fontWeight: 600 }}>{stat.avgFunGood}</Typography>
+            </Box>
+          )}
+          {stat.avgReplay !== null && (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
+              <Typography variant="caption" sx={{ fontSize: '0.68rem' }}>{'🔁'}</Typography>
+              <Typography variant="caption" sx={{ fontSize: '0.72rem', fontWeight: 600 }}>{stat.avgReplay}</Typography>
+            </Box>
+          )}
+        </Box>
+      )}
 
       <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
         <Box sx={{ flex: '1 1 160px' }}>

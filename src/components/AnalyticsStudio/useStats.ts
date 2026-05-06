@@ -25,6 +25,12 @@ export type ScriptStat = {
   votePassRate: number | null
   avgDurationMin: number | null
   dayHistogram: number[]   // index=day-1, value=count of games that lasted that many days
+  // Rating aggregates (1–5 stars, null = no ratings yet)
+  ratingCount: number
+  avgBalanced: number | null
+  avgFunEvil: number | null
+  avgFunGood: number | null
+  avgReplay: number | null
 }
 
 export function useScriptStats(records: GameRecord[]): ScriptStat[] {
@@ -35,6 +41,7 @@ export function useScriptStats(records: GameRecord[]): ScriptStat[] {
       totalNominations: number; totalSkills: number
       totalDurationMs: number; durationCount: number
       dayHistogram: number[]
+      ratingCount: number; totalBalanced: number; totalFunEvil: number; totalFunGood: number; totalReplay: number
     }>()
 
     for (const r of records) {
@@ -46,6 +53,7 @@ export function useScriptStats(records: GameRecord[]): ScriptStat[] {
         totalNominations: 0, totalSkills: 0,
         totalDurationMs: 0, durationCount: 0,
         dayHistogram: [],
+        ratingCount: 0, totalBalanced: 0, totalFunEvil: 0, totalFunGood: 0, totalReplay: 0,
       }
       entry.total++
       if (r.winner === 'evil') entry.evil++
@@ -58,6 +66,13 @@ export function useScriptStats(records: GameRecord[]): ScriptStat[] {
       entry.totalNominations += r.days?.reduce((s, d) => s + (d.nominations ?? 0), 0) ?? 0
       entry.totalSkills += r.days?.reduce((s, d) => s + (d.skills ?? 0), 0) ?? 0
       if (r.durationMs) { entry.totalDurationMs += r.durationMs; entry.durationCount++ }
+      if (r.balanced != null || r.funEvil != null || r.funGood != null || r.replay != null) {
+        entry.ratingCount++
+        if (r.balanced != null) entry.totalBalanced += r.balanced
+        if (r.funEvil != null) entry.totalFunEvil += r.funEvil
+        if (r.funGood != null) entry.totalFunGood += r.funGood
+        if (r.replay != null) entry.totalReplay += r.replay
+      }
       if (dayLen > 0) {
         entry.dayHistogram[dayLen - 1] = (entry.dayHistogram[dayLen - 1] ?? 0) + 1
       }
@@ -73,6 +88,10 @@ export function useScriptStats(records: GameRecord[]): ScriptStat[] {
         avgNominations: s.total ? +(s.totalNominations / s.total).toFixed(1) : 0,
         votePassRate: s.totalVotes ? Math.round((s.totalVotePassed / s.totalVotes) * 100) : null,
         avgDurationMin: s.durationCount ? Math.round(s.totalDurationMs / s.durationCount / 60000) : null,
+        avgBalanced: s.ratingCount ? +(s.totalBalanced / s.ratingCount).toFixed(1) : null,
+        avgFunEvil: s.ratingCount ? +(s.totalFunEvil / s.ratingCount).toFixed(1) : null,
+        avgFunGood: s.ratingCount ? +(s.totalFunGood / s.ratingCount).toFixed(1) : null,
+        avgReplay: s.ratingCount ? +(s.totalReplay / s.ratingCount).toFixed(1) : null,
       }))
   }, [records])
 }
@@ -89,6 +108,7 @@ export type PlayerStat = {
   goodGames: number
   evilWins: number
   goodWins: number
+  mvpCount: number
   winRate: number
   evilWinRate: number | null
   goodWinRate: number | null
@@ -103,6 +123,7 @@ export function usePlayerStats(records: GameRecord[]): PlayerStat[] {
     const map = new Map<string, {
       name: string; total: number; wins: number
       evilGames: number; goodGames: number; evilWins: number; goodWins: number
+      mvpCount: number
       charMap: Map<string, CharPlayEntry>
       teammates: Map<string, number>
     }>()
@@ -119,6 +140,7 @@ export function usePlayerStats(records: GameRecord[]): PlayerStat[] {
         const entry = map.get(ps.name) ?? {
           name: ps.name, total: 0, wins: 0,
           evilGames: 0, goodGames: 0, evilWins: 0, goodWins: 0,
+          mvpCount: 0,
           charMap: new Map(),
           teammates: new Map(),
         }
@@ -130,6 +152,8 @@ export function usePlayerStats(records: GameRecord[]): PlayerStat[] {
           entry.goodGames++
           if (r.winner === 'good') { entry.wins++; entry.goodWins++ }
         }
+        // mvp tracking
+        if (r.mvp != null && r.mvp === ps.seat) entry.mvpCount++
         // char tracking
         const charId = r.setup?.assignments?.[ps.seat]
         if (charId) {

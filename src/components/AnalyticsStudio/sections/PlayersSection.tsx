@@ -50,6 +50,12 @@ function PlayerDetail({ player, language, zh }: { player: PlayerStat; language: 
                 <Typography variant="caption" color="text.secondary">{zh ? `邪恶(${player.evilGames}局)` : `Evil (${player.evilGames}g)`}</Typography>
               </Box>
             )}
+            {player.mvpCount > 0 && (
+              <Box sx={{ p: 1, borderRadius: 1.5, bgcolor: 'rgba(237,180,13,0.12)', minWidth: 60, textAlign: 'center' }}>
+                <Typography sx={{ fontWeight: 700, color: 'warning.dark' }}>🏆 {player.mvpCount}</Typography>
+                <Typography variant="caption" color="text.secondary">{zh ? 'MVP次数' : 'MVP'}</Typography>
+              </Box>
+            )}
           </Box>
         </Box>
 
@@ -110,6 +116,7 @@ function ComparePanel({ a, b, zh }: { a: PlayerStat; b: PlayerStat; language: La
     { label: zh ? '善良胜率' : 'Good W%', aVal: a.goodWinRate !== null ? `${a.goodWinRate}%` : '—', bVal: b.goodWinRate !== null ? `${b.goodWinRate}%` : '—' },
     { label: zh ? '邪恶胜率' : 'Evil W%', aVal: a.evilWinRate !== null ? `${a.evilWinRate}%` : '—', bVal: b.evilWinRate !== null ? `${b.evilWinRate}%` : '—' },
     { label: zh ? '角色数' : 'Unique Chars', aVal: a.charSet.size, bVal: b.charSet.size },
+    { label: zh ? 'MVP' : 'MVP 🏆', aVal: a.mvpCount || '—', bVal: b.mvpCount || '—' },
   ]
 
   return (
@@ -251,6 +258,11 @@ export function PlayersSection({ playerStats, language, records }: Props) {
                         return icon ? <Box component="img" src={icon as string} sx={{ width: 18, height: 18, borderRadius: '50%', flexShrink: 0 }} /> : null
                       })()}
                       {p.name}
+                      {p.mvpCount > 0 && (
+                        <Tooltip title={zh ? `MVP ×${p.mvpCount}` : `MVP ×${p.mvpCount}`}>
+                          <Typography component="span" sx={{ fontSize: '0.72rem', color: 'warning.main', ml: 0.25 }}>🏆{p.mvpCount > 1 ? `×${p.mvpCount}` : ''}</Typography>
+                        </Tooltip>
+                      )}
                     </Box>
                   </TableCell>
                   <TableCell sx={tdSx} align="center">{p.total}</TableCell>
