@@ -7,6 +7,25 @@ import { PlayerSeatGrid } from './PlayerSeatGrid'
 import { PhaseControlPanel } from './PhaseControlPanel'
 import { getSeatAngle as _getSeatAngle } from '../../../utils/seats'
 import { useBreakpoint } from '../../../hooks/useBreakpoint'
+import type { Phase } from '../types'
+
+// Phase-based atmosphere overlay gradients
+// Each phase has a distinct time-of-day feel layered over the background image
+const PHASE_OVERLAY_DARK: Record<Phase, string> = {
+  night:       'linear-gradient(160deg, rgba(5,8,28,0.78) 0%, rgba(12,18,50,0.72) 100%)',
+  private:     'linear-gradient(160deg, rgba(255,140,60,0.28) 0%, rgba(255,190,120,0.20) 100%)',
+  public:      'linear-gradient(160deg, rgba(255,220,140,0.18) 0%, rgba(240,200,120,0.12) 100%)',
+  nomination:  'linear-gradient(160deg, rgba(180,80,10,0.50) 0%, rgba(140,55,5,0.60) 100%)',
+}
+const PHASE_OVERLAY_LIGHT: Record<Phase, string> = {
+  night:       'linear-gradient(160deg, rgba(8,12,40,0.60) 0%, rgba(15,22,60,0.55) 100%)',
+  private:     'linear-gradient(160deg, rgba(255,160,80,0.20) 0%, rgba(255,200,140,0.14) 100%)',
+  public:      'linear-gradient(160deg, rgba(255,235,170,0.10) 0%, rgba(240,215,140,0.06) 100%)',
+  nomination:  'linear-gradient(160deg, rgba(200,95,15,0.38) 0%, rgba(160,70,8,0.45) 100%)',
+}
+
+// Transition duration for smooth atmosphere changes
+const ATMOSPHERE_TRANSITION = 'background-image 1.2s ease, background 1.2s ease'
 
 export function Arena({ ctx }: { ctx: StorytellerContext }) {
   const muiTheme = useTheme()
@@ -27,6 +46,8 @@ export function Arena({ ctx }: { ctx: StorytellerContext }) {
   const { currentDay, setSelectedSeatNumber, setTagPopoutSeat, text, portraitOverride } = ctx
   const isPortrait = portraitOverride !== null ? portraitOverride : windowPortrait
   const seats = currentDay.seats
+  const phase = currentDay.phase
+  const phaseOverlay = isDark ? PHASE_OVERLAY_DARK[phase] : PHASE_OVERLAY_LIGHT[phase]
   const seatCount = seats.length || 1
   const { isMobile, isTablet } = useBreakpoint()
 
@@ -53,10 +74,11 @@ export function Arena({ ctx }: { ctx: StorytellerContext }) {
     return (
       <Box sx={{
         flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0,
-        backgroundImage: `url('/bg-${isDark ? 'dark' : 'light'}.svg')`,
+        backgroundImage: `${phaseOverlay}, url('/bg-${isDark ? 'dark' : 'light'}.svg')`,
         backgroundSize: 'cover',
         backgroundPosition: 'center top',
         backgroundAttachment: 'local',
+        transition: ATMOSPHERE_TRANSITION,
       }}>
         <PlayerSeatGrid ctx={ctx} panelCollapsed={panelCollapsed} />
         <PhaseControlPanel ctx={ctx} collapsed={panelCollapsed} setCollapsed={setPanelCollapsed} />
@@ -72,11 +94,10 @@ export function Arena({ ctx }: { ctx: StorytellerContext }) {
         sx={{
           p: 2,
           minHeight: 380,
-          backgroundImage: isDark
-            ? `linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url('/bg-dark.svg')`
-            : `linear-gradient(rgba(0,0,0,0.04), rgba(0,0,0,0.04)), url('/bg-light.svg')`,
+          backgroundImage: `${phaseOverlay}, url('/bg-${isDark ? 'dark' : 'light'}.svg')`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
+          transition: ATMOSPHERE_TRANSITION,
           boxShadow: isDark ? '0 18px 60px rgba(0,0,0,0.40)' : '0 18px 60px rgba(57,43,24,0.08)',
           overflow: 'visible',
           position: 'relative',
