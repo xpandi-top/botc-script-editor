@@ -125,13 +125,14 @@ export function PrintStudioPage({ opts, onOptionsChange, onClose, onOpenPrintPre
       </Paper>
 
       <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
-        {/* Settings panel */}
+        {/* Settings panel — full-width on mobile (replaces preview), sidebar on sm+ */}
         {panelOpen && <Box sx={{
-          width: { xs: '100%', sm: 320 },
+          width: { xs: '100%', sm: 280, md: 320 },
           flexShrink: 0,
           overflowY: 'auto',
           borderRight: { sm: '1px solid' },
           borderColor: 'divider',
+          display: { xs: isMobile ? 'block' : 'none', sm: 'block' },
         }}>
           <TokenOptionsPanel
             opts={opts}
@@ -141,7 +142,7 @@ export function PrintStudioPage({ opts, onOptionsChange, onClose, onOpenPrintPre
           />
         </Box>}
 
-        {/* Live preview (hidden on mobile when panel open) */}
+        {/* Live preview — hidden only on mobile when panel is open; tablet+ always visible */}
         <Box ref={previewRef} sx={{
           flex: 1,
           overflowY: 'auto',
@@ -151,6 +152,7 @@ export function PrintStudioPage({ opts, onOptionsChange, onClose, onOpenPrintPre
           flexDirection: 'column',
           alignItems: 'center',
           gap: 2,
+          minWidth: 0,
         }}>
           {selectedCount === 0 ? (
             <Box sx={{ bgcolor: 'white', boxShadow: '0 4px 24px rgba(0,0,0,0.18)', borderRadius: 1, p: `${Math.max(0, opts.marginMm)}mm`, minHeight: 200 }}>
