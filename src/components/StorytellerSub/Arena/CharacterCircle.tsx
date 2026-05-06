@@ -23,7 +23,7 @@ export function CharacterCircle({ charIcon, charName, nightShowCharacter, isOpen
         borderRadius: '50%',
         border: '2px solid',
         borderColor: disabled ? 'divider' : isOpen ? 'primary.main' : revealed ? 'primary.light' : 'divider',
-        bgcolor: revealed && !disabled ? 'background.paper' : 'action.hover',
+        bgcolor: 'background.paper',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -61,7 +61,7 @@ export function CharacterCircle({ charIcon, charName, nightShowCharacter, isOpen
           </Box>
         </>
       ) : (
-        <Box sx={{ fontSize: `${size * 0.38}px`, color: 'text.disabled', fontWeight: 300, lineHeight: 1, userSelect: 'none' }}>
+        <Box sx={{ fontSize: `${size * 0.38}px`, color: 'text.secondary', fontWeight: 400, lineHeight: 1, userSelect: 'none' }}>
           ?
         </Box>
       )}
