@@ -161,6 +161,10 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
           display: 'flex',
           flexDirection: 'column',
           height: PANEL_HEIGHT[phase] ?? '34dvh',
+          // Landscape phones: cap at 55vh so controls stay reachable
+          '@media (max-height: 500px) and (orientation: landscape)': {
+            height: phase === 'nomination' ? '72vh' : '60vh',
+          },
           transition: 'height 0.2s ease',
           overflow: 'hidden',
         }}

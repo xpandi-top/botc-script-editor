@@ -2,8 +2,9 @@ import type { StorytellerContext } from '../useStoryteller'
 import { Box } from '@mui/material'
 import { MobileSeatCard } from './MobileSeatCard'
 
-// Clearance when panel is open vs collapsed
-const PANEL_OPEN_CLEARANCE = 'calc(36vh + var(--safe-bottom, 0px) + 8px)'
+// Clearance when panel is open vs collapsed.
+// Use dvh so it matches the panel's height unit.
+const PANEL_OPEN_CLEARANCE = 'calc(max(36dvh, 130px) + var(--safe-bottom, 0px) + 8px)'
 const PANEL_COLLAPSED_CLEARANCE = 'calc(56px + var(--safe-bottom, 0px) + 8px)'
 
 export function PlayerSeatGrid({ ctx, panelCollapsed }: { ctx: StorytellerContext; panelCollapsed: boolean }) {
@@ -25,7 +26,12 @@ export function PlayerSeatGrid({ ctx, panelCollapsed }: { ctx: StorytellerContex
       }}
       sx={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(2, 1fr)',
+        // xs (≤479px): 2 col; sm-ish (480–767px): 3 col; tablet-portrait (≥768px): 4 col
+        gridTemplateColumns: {
+          xs: 'repeat(2, 1fr)',
+          sm: 'repeat(3, 1fr)',
+          md: 'repeat(4, 1fr)',
+        },
         gap: 1,
         p: 1,
         pb: panelCollapsed ? PANEL_COLLAPSED_CLEARANCE : PANEL_OPEN_CLEARANCE,
