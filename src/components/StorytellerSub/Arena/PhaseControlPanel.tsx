@@ -2,7 +2,7 @@
 import type { StorytellerContext } from '../useStoryteller'
 import React, { useState, useMemo } from 'react'
 import {
-  Box, Button, IconButton, Typography, ToggleButton, ToggleButtonGroup,
+  Box, Button, IconButton, Tooltip, Typography, ToggleButton, ToggleButtonGroup,
   Select, MenuItem, TextField,
 } from '@mui/material'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
@@ -20,8 +20,15 @@ import HowToVoteIcon from '@mui/icons-material/HowToVote'
 import WbSunnyIcon from '@mui/icons-material/WbSunny'
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts'
 import VisibilityIcon from '@mui/icons-material/Visibility'
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff'
 import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered'
 import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore'
+import BedtimeIcon from '@mui/icons-material/Bedtime'
+import LockIcon from '@mui/icons-material/Lock'
+import GavelIcon from '@mui/icons-material/Gavel'
+import PersonAddIcon from '@mui/icons-material/PersonAdd'
+import ShuffleIcon from '@mui/icons-material/Shuffle'
+import SkipNextIcon from '@mui/icons-material/SkipNext'
 import { ArenaCenterNominationSheet } from './ArenaCenterNominationSheet'
 import { AggregatedLogModal } from './AggregatedLogModal'
 import { StorytellerSetupModal } from './StorytellerSetupModal'
@@ -40,6 +47,21 @@ const fmt = (s: number) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${Str
 
 const TIMER_ACTIVE_SX = { bgcolor: 'rgba(255,255,255,0.25)', border: '1px solid rgba(255,255,255,0.5)' }
 const TIMER_IDLE_SX = { bgcolor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.25)' }
+
+// Nomination needs more room (vote list renders inside)
+const PANEL_HEIGHT: Record<string, string> = {
+  night: '36dvh',
+  private: '32dvh',
+  public: '34dvh',
+  nomination: '46dvh',
+}
+
+const PHASE_ICONS: Record<string, React.ReactNode> = {
+  night: <BedtimeIcon sx={{ fontSize: '1rem' }} />,
+  private: <LockIcon sx={{ fontSize: '1rem' }} />,
+  public: <WbSunnyIcon sx={{ fontSize: '1rem' }} />,
+  nomination: <GavelIcon sx={{ fontSize: '1rem' }} />,
+}
 
 export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: StorytellerContext; collapsed: boolean; setCollapsed: (v: boolean) => void }) {
   const {
@@ -138,7 +160,8 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
           boxShadow: '0 -8px 32px rgba(0,0,0,0.5)',
           display: 'flex',
           flexDirection: 'column',
-          height: '33dvh',
+          height: PANEL_HEIGHT[phase] ?? '34dvh',
+          transition: 'height 0.2s ease',
           overflow: 'hidden',
         }}
       >
@@ -171,17 +194,21 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
                 '& .MuiToggleButton-root': {
                   color: textColor,
                   borderColor: 'rgba(255,255,255,0.25)',
-                  fontSize: '0.95rem',
-                  px: 1.5,
-                  py: 0.75,
+                  px: 1,
+                  py: 0.5,
                   minHeight: 38,
+                  minWidth: 40,
                   bgcolor: 'rgba(255,255,255,0.08)',
                   '&:hover': { bgcolor: 'rgba(255,255,255,0.15)' },
                   '&.Mui-selected': { color: textColor, bgcolor: 'rgba(255,255,255,0.25)' },
                 },
               }}
             >
-              {PHASES.map(p => <ToggleButton key={p} value={p}>{getPhaseLabel(p)}</ToggleButton>)}
+              {PHASES.map(p => (
+                <Tooltip key={p} title={getPhaseLabel(p)} placement="top">
+                  <ToggleButton value={p}>{PHASE_ICONS[p]}</ToggleButton>
+                </Tooltip>
+              ))}
             </ToggleButtonGroup>
           </Box>
 
@@ -197,20 +224,33 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
                 <MenuItem value="roundRobin" sx={{ fontSize: '0.95rem' }}>{text.roundRobinMode}</MenuItem>
               </Select>
             )}
-            <Button variant="outlined" sx={btnSx} onClick={() => setShowStSetupModal(true)} startIcon={<AutoStoriesIcon />}>
-              {stFabledIds?.length > 0 ? stFabledIds.length : ''}
-            </Button>
-            <Button variant="outlined" sx={btnSx} onClick={() => setShowAggLogModal(true)} startIcon={<ListIcon />}>
-              {language === 'zh' ? '日志' : 'Log'}
-            </Button>
+            <Tooltip title={language === 'zh' ? '说书人设置' : 'ST Setup'}>
+              <IconButton sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75, position: 'relative' }} onClick={() => setShowStSetupModal(true)}>
+                <AutoStoriesIcon />
+                {stFabledIds?.length > 0 && (
+                  <Box component="span" sx={{ position: 'absolute', top: 2, right: 2, bgcolor: 'warning.main', color: 'black', fontSize: '0.55rem', fontWeight: 700, borderRadius: '50%', width: 14, height: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}>
+                    {stFabledIds.length}
+                  </Box>
+                )}
+              </IconButton>
+            </Tooltip>
+            <Tooltip title={language === 'zh' ? '日志' : 'Log'}>
+              <IconButton sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={() => setShowAggLogModal(true)}>
+                <ListIcon />
+              </IconButton>
+            </Tooltip>
             {phase === 'nomination' && (
               <>
-                <Button variant="contained" sx={{ ...btnSx, bgcolor: 'rgba(255,255,255,0.25)' }} onClick={() => setShowNominationSheet(true)} startIcon={<HowToVoteIcon />}>
-                  {language === 'zh' ? '提名' : 'Nominate'}
-                </Button>
-                <Button variant="outlined" sx={btnSx} onClick={goToNextDay} startIcon={<WbSunnyIcon />}>
-                  {language === 'zh' ? '下一天' : 'Next Day'}
-                </Button>
+                <Tooltip title={language === 'zh' ? '提名' : 'Nominate'}>
+                  <IconButton sx={{ ...iconBtnSx, ...(showNominationSheet ? TIMER_ACTIVE_SX : TIMER_IDLE_SX), p: 0.75 }} onClick={() => setShowNominationSheet((v: boolean) => !v)}>
+                    <HowToVoteIcon />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title={language === 'zh' ? '下一天' : 'Next Day'}>
+                  <IconButton sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={goToNextDay}>
+                    <WbSunnyIcon />
+                  </IconButton>
+                </Tooltip>
               </>
             )}
           </Box>
@@ -248,49 +288,63 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
             </Box>
           )}
 
-          {/* Night controls — row 1: BGM */}
+          {/* Night controls — single icon row */}
           {phase === 'night' && (
-            <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap', mb: 1 }}>
-              <Button
-                variant={audioPlaying ? 'contained' : 'outlined'}
-                sx={{ ...btnSx, ...(audioPlaying ? TIMER_ACTIVE_SX : {}) }}
-                startIcon={audioPlaying ? <PauseIcon /> : <PlayArrowIcon />}
-                onClick={() => audioPlaying ? setAudioPlaying(false) : startNight()}
-              >
-                BGM
-              </Button>
-              <Button variant="outlined" sx={btnSx} startIcon={<StopIcon />} onClick={stopNight}>
-                {language === 'zh' ? '停止' : 'Stop'}
-              </Button>
-            </Box>
-          )}
-
-          {/* Night controls — row 2: character, wake order, edit */}
-          {phase === 'night' && (
-            <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap', mb: 1 }}>
-              <Button variant={nightShowCharacter ? 'contained' : 'outlined'} sx={btnSx} onClick={() => setNightShowCharacter((v: boolean) => !v)} startIcon={<VisibilityIcon />}>
-                {language === 'zh' ? '显示角色' : 'Character'}
-              </Button>
-              <Button variant={nightShowWakeOrder ? 'contained' : 'outlined'} sx={btnSx} onClick={() => setNightShowWakeOrder((v: boolean) => !v)} startIcon={<FormatListNumberedIcon />}>
-                {language === 'zh' ? '唤醒顺序' : 'Wake Order'}
-              </Button>
-              <Button variant="outlined" sx={btnSx} onClick={handleOpenCharEditor} startIcon={<ManageAccountsIcon />}>
-                {language === 'zh' ? '编辑角色' : 'Edit Characters'}
-              </Button>
+            <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mb: 1, alignItems: 'center' }}>
+              <Tooltip title={audioPlaying ? (language === 'zh' ? '暂停BGM' : 'Pause BGM') : (language === 'zh' ? '播放BGM' : 'Play BGM')}>
+                <IconButton sx={{ ...iconBtnSx, ...(audioPlaying ? TIMER_ACTIVE_SX : TIMER_IDLE_SX), p: 0.75 }} onClick={() => audioPlaying ? setAudioPlaying(false) : startNight()}>
+                  {audioPlaying ? <PauseIcon /> : <PlayArrowIcon />}
+                </IconButton>
+              </Tooltip>
+              <Tooltip title={language === 'zh' ? '停止BGM' : 'Stop BGM'}>
+                <IconButton sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={stopNight}>
+                  <StopIcon />
+                </IconButton>
+              </Tooltip>
+              <Box sx={{ width: 1, height: 24, bgcolor: 'rgba(255,255,255,0.2)', mx: 0.25 }} />
+              <Tooltip title={nightShowCharacter ? (language === 'zh' ? '隐藏角色' : 'Hide Characters') : (language === 'zh' ? '显示角色' : 'Show Characters')}>
+                <IconButton sx={{ ...iconBtnSx, ...(nightShowCharacter ? TIMER_ACTIVE_SX : TIMER_IDLE_SX), p: 0.75 }} onClick={() => setNightShowCharacter((v: boolean) => !v)}>
+                  {nightShowCharacter ? <VisibilityIcon /> : <VisibilityOffIcon />}
+                </IconButton>
+              </Tooltip>
+              <Tooltip title={nightShowWakeOrder ? (language === 'zh' ? '隐藏唤醒顺序' : 'Hide Wake Order') : (language === 'zh' ? '显示唤醒顺序' : 'Show Wake Order')}>
+                <IconButton sx={{ ...iconBtnSx, ...(nightShowWakeOrder ? TIMER_ACTIVE_SX : TIMER_IDLE_SX), p: 0.75 }} onClick={() => setNightShowWakeOrder((v: boolean) => !v)}>
+                  <FormatListNumberedIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title={language === 'zh' ? '编辑角色' : 'Edit Characters'}>
+                <IconButton sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={handleOpenCharEditor}>
+                  <ManageAccountsIcon />
+                </IconButton>
+              </Tooltip>
             </Box>
           )}
 
           {/* Public round robin controls */}
           {phase === 'public' && publicMode === 'roundRobin' && (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 1, flexWrap: 'wrap' }}>
-              <Typography sx={{ color: textColor, fontWeight: 700, fontSize: '1.15rem' }}>#{currentDay.currentSpeakerSeat ?? '—'}</Typography>
-              <Button variant="outlined" sx={btnSx} onClick={() => setPickerMode('speaker')}>{text.chooseSpeaker}</Button>
-              <Button variant="outlined" sx={btnSx} onClick={() => {
-                const all = seats.map((s: any) => s.seat)
-                const r = all[Math.floor(Math.random() * Math.max(all.length, 1))]
-                updateCurrentDay((d: any) => ({ ...d, currentSpeakerSeat: r ?? 1, roundRobinSpokenSeats: [] }))
-              }}>{text.randomSpeaker}</Button>
-              <Button variant="outlined" sx={btnSx} onClick={moveToNextSpeaker}>{text.nextSpeaker}</Button>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1, flexWrap: 'wrap' }}>
+              <Typography sx={{ color: textColor, fontWeight: 700, fontSize: '1.15rem', minWidth: 32, textAlign: 'center' }}>
+                #{currentDay.currentSpeakerSeat ?? '—'}
+              </Typography>
+              <Tooltip title={text.chooseSpeaker}>
+                <IconButton sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={() => setPickerMode('speaker')}>
+                  <PersonAddIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title={text.randomSpeaker}>
+                <IconButton sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={() => {
+                  const all = seats.map((s: any) => s.seat)
+                  const r = all[Math.floor(Math.random() * Math.max(all.length, 1))]
+                  updateCurrentDay((d: any) => ({ ...d, currentSpeakerSeat: r ?? 1, roundRobinSpokenSeats: [] }))
+                }}>
+                  <ShuffleIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title={text.nextSpeaker}>
+                <IconButton sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={moveToNextSpeaker}>
+                  <SkipNextIcon />
+                </IconButton>
+              </Tooltip>
             </Box>
           )}
 
