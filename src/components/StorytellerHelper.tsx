@@ -49,8 +49,8 @@ export function StorytellerHelper(props: StorytellerHelperProps) {
         sx={{
           display: 'grid',
           gridTemplateColumns: showScriptPanel
-            ? { xs: '1fr', md: '240px 1fr', lg: '260px 1fr' }
-            : '1fr',
+            ? { xs: '1fr', md: '240px 1fr auto', lg: '260px 1fr auto' }
+            : { xs: '1fr', md: '1fr auto' },
           gap: 1,
           flex: 1,
           minHeight: 480,
