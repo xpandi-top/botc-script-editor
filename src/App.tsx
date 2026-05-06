@@ -5,6 +5,8 @@ import {
 } from 'react'
 import {
   Box,
+  BottomNavigation,
+  BottomNavigationAction,
   Container,
   IconButton,
   ListItemText,
@@ -15,6 +17,8 @@ import {
   Tabs,
   Tooltip,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material'
 import DescriptionIcon from '@mui/icons-material/Description'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
@@ -360,6 +364,8 @@ export default function App() {
   }
 
   const fontSettings = useFontSettings()
+  const theme = useTheme()
+  const isMobileView = useMediaQuery(theme.breakpoints.down('sm'))
 
   const stTabLabel = uiLanguage === 'zh' ? '主持助手' : 'Storyteller Helper'
   const psTabLabel = uiLanguage === 'zh' ? '打印工坊' : 'Print Studio'
@@ -367,7 +373,7 @@ export default function App() {
   const stgTabLabel = uiLanguage === 'zh' ? '设置' : 'Settings'
 
   return (
-    <Container maxWidth="xl" sx={{ py: { xs: 0, sm: 3 }, px: { xs: 0, sm: 3 }, minHeight: '100vh' }}>
+    <Container maxWidth="xl" sx={{ py: { xs: 0, sm: 3 }, px: { xs: 0, sm: 3 }, minHeight: '100vh', pb: { xs: '56px', sm: 0 } }}>
       <Paper elevation={1} sx={{
         mb: { xs: 0, sm: 2 },
         borderRadius: { xs: 0, sm: 2 },
@@ -418,9 +424,9 @@ export default function App() {
             <Tab icon={<TuneIcon fontSize="small" />} value="settings" aria-label={stgTabLabel} title={stgTabLabel} />
           </Tabs>
 
-          {/* Mobile: active tab name with icon */}
+          {/* Mobile: active tab name with icon — hidden now (bottom nav replaces) */}
           <Box
-            sx={{ display: { xs: 'flex', sm: 'none' }, flex: 1, alignItems: 'center', gap: 0.5, cursor: 'pointer', userSelect: 'none' }}
+            sx={{ display: 'none', flex: 1, alignItems: 'center', gap: 0.5, cursor: 'pointer', userSelect: 'none' }}
             onClick={(e) => setTabMenuAnchor(e.currentTarget as HTMLElement)}
           >
             {activeTab === 'scripts' ? <DescriptionIcon fontSize="small" sx={{ color: 'primary.dark' }} />
@@ -594,6 +600,23 @@ export default function App() {
           onSelectScript={setStActiveSlug}
           scriptOptions={scripts.map((s) => ({ slug: s.slug, title: getScriptTitle(s), characters: s.characters }))}
         />
+      )}
+      {/* ── Mobile bottom navigation ── */}
+      {isMobileView && (
+        <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 1100, borderTop: '1px solid', borderColor: 'divider' }} elevation={3}>
+          <BottomNavigation
+            value={activeTab}
+            onChange={(_, v) => setActiveTab(v)}
+            sx={{ height: 56 }}
+          >
+            <BottomNavigationAction value="scripts"     label={uiLanguage === 'zh' ? '剧本' : 'Scripts'}     icon={<DescriptionIcon />}     sx={{ minWidth: 0, px: 0.5, '& .MuiBottomNavigationAction-label': { fontSize: '0.65rem' } }} />
+            <BottomNavigationAction value="characters"  label={uiLanguage === 'zh' ? '角色' : 'Chars'}        icon={<TheaterComedyIcon />}  sx={{ minWidth: 0, px: 0.5, '& .MuiBottomNavigationAction-label': { fontSize: '0.65rem' } }} />
+            <BottomNavigationAction value="storyteller" label={uiLanguage === 'zh' ? '主持' : 'ST'}           icon={<MenuBookIcon />}        sx={{ minWidth: 0, px: 0.5, '& .MuiBottomNavigationAction-label': { fontSize: '0.65rem' } }} />
+            <BottomNavigationAction value="analytics"   label={uiLanguage === 'zh' ? '统计' : 'Stats'}        icon={<QueryStatsIcon />}      sx={{ minWidth: 0, px: 0.5, '& .MuiBottomNavigationAction-label': { fontSize: '0.65rem' } }} />
+            <BottomNavigationAction value="printstudio" label={uiLanguage === 'zh' ? '打印' : 'Print'}        icon={<PrintIcon />}           sx={{ minWidth: 0, px: 0.5, '& .MuiBottomNavigationAction-label': { fontSize: '0.65rem' } }} />
+            <BottomNavigationAction value="settings"    label={uiLanguage === 'zh' ? '设置' : 'Settings'}     icon={<TuneIcon />}            sx={{ minWidth: 0, px: 0.5, '& .MuiBottomNavigationAction-label': { fontSize: '0.65rem' } }} />
+          </BottomNavigation>
+        </Paper>
       )}
     </Container>
   )
