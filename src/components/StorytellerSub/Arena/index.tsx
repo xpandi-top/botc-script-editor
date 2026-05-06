@@ -18,6 +18,9 @@ export function Arena({ ctx }: { ctx: StorytellerContext }) {
     return () => window.removeEventListener('resize', handler)
   }, [])
 
+  // Lifted state: both PlayerSeatGrid and PhaseControlPanel need this to sync clearance
+  const [panelCollapsed, setPanelCollapsed] = React.useState(false)
+
   const { currentDay, setSelectedSeatNumber, setTagPopoutSeat, text, portraitOverride } = ctx
   const isPortrait = portraitOverride !== null ? portraitOverride : windowPortrait
   const seats = currentDay.seats
@@ -46,8 +49,8 @@ export function Arena({ ctx }: { ctx: StorytellerContext }) {
   if (useListLayout) {
     return (
       <>
-        <PlayerSeatGrid ctx={ctx} />
-        <PhaseControlPanel ctx={ctx} />
+        <PlayerSeatGrid ctx={ctx} panelCollapsed={panelCollapsed} />
+        <PhaseControlPanel ctx={ctx} collapsed={panelCollapsed} setCollapsed={setPanelCollapsed} />
       </>
     )
   }

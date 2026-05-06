@@ -2,10 +2,11 @@ import type { StorytellerContext } from '../useStoryteller'
 import { Box } from '@mui/material'
 import { MobileSeatCard } from './MobileSeatCard'
 
-// Bottom padding accounts for fixed PhaseControlPanel height (~42vh) + any system bars
-const PANEL_CLEARANCE = 'calc(44vh + var(--safe-bottom, 0px))'
+// Clearance when panel is open vs collapsed
+const PANEL_OPEN_CLEARANCE = 'calc(36vh + var(--safe-bottom, 0px) + 8px)'
+const PANEL_COLLAPSED_CLEARANCE = 'calc(56px + var(--safe-bottom, 0px) + 8px)'
 
-export function PlayerSeatGrid({ ctx }: { ctx: StorytellerContext }) {
+export function PlayerSeatGrid({ ctx, panelCollapsed }: { ctx: StorytellerContext; panelCollapsed: boolean }) {
   const { currentDay, setSelectedSeatNumber, setTagPopoutSeat } = ctx
 
   return (
@@ -27,7 +28,8 @@ export function PlayerSeatGrid({ ctx }: { ctx: StorytellerContext }) {
         gridTemplateColumns: 'repeat(2, 1fr)',
         gap: 1,
         p: 1,
-        pb: PANEL_CLEARANCE,
+        pb: panelCollapsed ? PANEL_COLLAPSED_CLEARANCE : PANEL_OPEN_CLEARANCE,
+        transition: 'padding-bottom 0.25s ease',
         overflowY: 'auto',
         flex: 1,
       }}

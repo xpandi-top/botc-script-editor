@@ -41,7 +41,7 @@ const fmt = (s: number) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${Str
 const TIMER_ACTIVE_SX = { bgcolor: 'rgba(255,255,255,0.25)', border: '1px solid rgba(255,255,255,0.5)' }
 const TIMER_IDLE_SX = { bgcolor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.25)' }
 
-export function PhaseControlPanel({ ctx }: { ctx: StorytellerContext }) {
+export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: StorytellerContext; collapsed: boolean; setCollapsed: (v: boolean) => void }) {
   const {
     language, text, currentDay, updateCurrentDay, days,
     goToNextDay, goToPreviousDay, setSelectedDayId,
@@ -59,7 +59,6 @@ export function PhaseControlPanel({ ctx }: { ctx: StorytellerContext }) {
 
   const [timerEditing, setTimerEditing] = useState(false)
   const [timerInput, setTimerInput] = useState('')
-  const [collapsed, setCollapsed] = useState(false)
 
   const phase = currentDay.phase
 
@@ -102,17 +101,25 @@ export function PhaseControlPanel({ ctx }: { ctx: StorytellerContext }) {
         sx={{
           position: 'fixed', bottom: 'var(--safe-bottom, 0px)', left: 0, right: 0,
           zIndex: 100, bgcolor: bgColor,
-          borderTop: '1px solid rgba(255,255,255,0.12)',
+          borderTop: '1px solid rgba(255,255,255,0.15)',
+          borderRadius: '12px 12px 0 0',
           display: 'flex', alignItems: 'center', gap: 1, px: 1.5, py: 0.75,
           cursor: 'pointer',
+          minHeight: 48,
         }}
         onClick={() => setCollapsed(false)}
       >
-        <Typography sx={{ color: textColor, fontWeight: 700, fontSize: '0.8rem', flex: 1 }}>
+        {/* Drag handle pip */}
+        <Box sx={{ position: 'absolute', top: 6, left: '50%', transform: 'translateX(-50%)', width: 32, height: 3, borderRadius: 2, bgcolor: 'rgba(255,255,255,0.3)' }} />
+        <Typography sx={{ color: alarmActive ? 'warning.light' : textColor, fontWeight: 700, fontSize: '0.82rem', flex: 1 }}>
           Day {currentDay.day} · {getPhaseLabel(phase)}
           {hasTimer && ` · ${fmt(currentTimerSeconds)}`}
         </Typography>
-        <Typography sx={{ color: mutedColor, fontSize: '0.75rem' }}><UnfoldMoreIcon sx={{ fontSize: '0.9rem', verticalAlign: 'middle' }} /> {language === 'zh' ? '展开' : 'Expand'}</Typography>
+        {alarmActive && <NotificationsActiveIcon sx={{ fontSize: '1rem', color: 'warning.light' }} />}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25, color: mutedColor }}>
+          <UnfoldMoreIcon sx={{ fontSize: '1rem' }} />
+          <Typography sx={{ color: mutedColor, fontSize: '0.72rem' }}>{language === 'zh' ? '展开' : 'Expand'}</Typography>
+        </Box>
       </Box>
     )
   }
