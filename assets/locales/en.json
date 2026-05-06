@@ -1681,7 +1681,7 @@
       "ability": "On your first night, choose an alive player: they die but are register as alive. When they are about to die again, they are resurrected and you regain your ability.",
       "revision": "v1",
       "revisions": {
-        "v1": "在你的首个夜晚，你要选择一名存活玩家：他死亡但会被当作存活。当他下一次即将死亡时，他重生，随后你重获能力。"
+        "v1": "On your first night, choose an alive player: they die but are register as alive. When they are about to die again, they are resurrected and you regain your ability."
       }
     },
     "mengpo": {
@@ -1697,7 +1697,7 @@
       "ability": "Each night, choose a townsfolk character. When they next gain information from their ability, they learn the information you choose instead.",
       "revision": "v1",
       "revisions": {
-        "v1": "每个夜晚，你要选择一个镇民角色：当他下一次通过自身能力获取信息时，改为得知你给出的信息。"
+        "v1": "Each night, choose a townsfolk character. When they next gain information from their ability, they learn the information you choose instead."
       }
     },
     "hundun": {
@@ -1769,7 +1769,7 @@
       "ability": "On your first night, you see the grimoire and choose a player: they will die on the third night, even if for some reason they could not. Each night, choose a player: the previously chosenplayer dies.",
       "revision": "v1",
       "revisions": {
-        "v1": "On your first night, you may look at the grimoire and choose a player: they will die on the third night, even if for some reason they could not. Each night, choose a player: the previously chosenplayer dies."
+        "v1": "On your first night, you see the grimoire and choose a player: they will die on the third night, even if for some reason they could not. Each night, choose a player: the previously chosenplayer dies."
       }
     },
     "angel": {

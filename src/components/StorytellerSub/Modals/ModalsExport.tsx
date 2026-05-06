@@ -2,6 +2,7 @@
 import type { StorytellerContext } from '../useStoryteller'
 import React from 'react'
 import { Box, Button, Typography, Paper, FormControlLabel, Checkbox, Chip, Divider } from '@mui/material'
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents'
 
 export function ModalsExport({ ctx }: { ctx: StorytellerContext }) {
   const {
@@ -61,7 +62,7 @@ export function ModalsExport({ ctx }: { ctx: StorytellerContext }) {
           sx={{ flex: 1, p: 1.5, cursor: gameRecords.length === 0 ? 'default' : 'pointer', opacity: gameRecords.length === 0 ? 0.5 : 1 }}
           onClick={gameRecords.length > 0 ? handleExportResults : undefined}
         >
-          <Typography variant="h4">🏆</Typography>
+          <EmojiEventsIcon sx={{ fontSize: '2rem', color: 'warning.main' }} />
           <Typography variant="subtitle2">{zh ? '对局结果' : 'End Game Results'}</Typography>
           <Typography variant="caption" color="text.secondary">{zh ? `${gameRecords.length} 条记录` : `${gameRecords.length} record${gameRecords.length !== 1 ? 's' : ''}`}</Typography>
         </Paper>

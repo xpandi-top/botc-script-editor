@@ -1,5 +1,9 @@
 import { useState, useMemo } from 'react'
 import { Box, Chip, Divider, MenuItem, Paper, Select, Typography } from '@mui/material'
+import BalanceIcon from '@mui/icons-material/Balance'
+import WhatshotIcon from '@mui/icons-material/Whatshot'
+import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt'
+import ReplayIcon from '@mui/icons-material/Replay'
 import { getDisplayName, getIconForCharacter } from '../../../catalog'
 import type { ScriptStat } from '../useStats'
 import type { GameRecord } from '../../StorytellerSub/types'
@@ -213,25 +217,25 @@ function ScriptCard({ stat, records, language, zh }: { stat: ScriptStat; records
           </Typography>
           {stat.avgBalanced !== null && (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
-              <Typography variant="caption" sx={{ fontSize: '0.68rem', color: 'text.secondary' }}>{'⚖️'}</Typography>
+              <BalanceIcon sx={{ fontSize: '0.9rem', color: 'text.secondary' }} />
               <Typography variant="caption" sx={{ fontSize: '0.72rem', fontWeight: 600 }}>{stat.avgBalanced}</Typography>
             </Box>
           )}
           {stat.avgFunEvil !== null && (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
-              <Typography variant="caption" sx={{ fontSize: '0.68rem', color: 'error.light' }}>{'😈'}</Typography>
+              <WhatshotIcon sx={{ fontSize: '0.9rem', color: 'error.light' }} />
               <Typography variant="caption" sx={{ fontSize: '0.72rem', fontWeight: 600 }}>{stat.avgFunEvil}</Typography>
             </Box>
           )}
           {stat.avgFunGood !== null && (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
-              <Typography variant="caption" sx={{ fontSize: '0.68rem', color: 'success.light' }}>{'😇'}</Typography>
+              <SentimentSatisfiedAltIcon sx={{ fontSize: '0.9rem', color: 'success.main' }} />
               <Typography variant="caption" sx={{ fontSize: '0.72rem', fontWeight: 600 }}>{stat.avgFunGood}</Typography>
             </Box>
           )}
           {stat.avgReplay !== null && (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
-              <Typography variant="caption" sx={{ fontSize: '0.68rem' }}>{'🔁'}</Typography>
+              <ReplayIcon sx={{ fontSize: '0.9rem', color: 'primary.main' }} />
               <Typography variant="caption" sx={{ fontSize: '0.72rem', fontWeight: 600 }}>{stat.avgReplay}</Typography>
             </Box>
           )}

@@ -3,6 +3,7 @@ import { Box, Chip, Collapse, IconButton, Paper, Table, TableBody, TableCell, Ta
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows'
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents'
 import { getDisplayName, getIconForCharacter } from '../../../catalog'
 import type { PlayerStat } from '../useStats'
 import type { GameRecord } from '../../StorytellerSub/types'
@@ -52,7 +53,10 @@ function PlayerDetail({ player, language, zh }: { player: PlayerStat; language: 
             )}
             {player.mvpCount > 0 && (
               <Box sx={{ p: 1, borderRadius: 1.5, bgcolor: 'rgba(237,180,13,0.12)', minWidth: 60, textAlign: 'center' }}>
-                <Typography sx={{ fontWeight: 700, color: 'warning.dark' }}>🏆 {player.mvpCount}</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
+                  <EmojiEventsIcon sx={{ fontSize: '1rem', color: 'warning.dark' }} />
+                  <Typography sx={{ fontWeight: 700, color: 'warning.dark' }}>{player.mvpCount}</Typography>
+                </Box>
                 <Typography variant="caption" color="text.secondary">{zh ? 'MVP次数' : 'MVP'}</Typography>
               </Box>
             )}
@@ -116,7 +120,7 @@ function ComparePanel({ a, b, zh }: { a: PlayerStat; b: PlayerStat; language: La
     { label: zh ? '善良胜率' : 'Good W%', aVal: a.goodWinRate !== null ? `${a.goodWinRate}%` : '—', bVal: b.goodWinRate !== null ? `${b.goodWinRate}%` : '—' },
     { label: zh ? '邪恶胜率' : 'Evil W%', aVal: a.evilWinRate !== null ? `${a.evilWinRate}%` : '—', bVal: b.evilWinRate !== null ? `${b.evilWinRate}%` : '—' },
     { label: zh ? '角色数' : 'Unique Chars', aVal: a.charSet.size, bVal: b.charSet.size },
-    { label: zh ? 'MVP' : 'MVP 🏆', aVal: a.mvpCount || '—', bVal: b.mvpCount || '—' },
+    { label: zh ? 'MVP' : 'MVP', aVal: a.mvpCount || '—', bVal: b.mvpCount || '—' },
   ]
 
   return (
@@ -259,8 +263,11 @@ export function PlayersSection({ playerStats, language, records }: Props) {
                       })()}
                       {p.name}
                       {p.mvpCount > 0 && (
-                        <Tooltip title={zh ? `MVP ×${p.mvpCount}` : `MVP ×${p.mvpCount}`}>
-                          <Typography component="span" sx={{ fontSize: '0.72rem', color: 'warning.main', ml: 0.25 }}>🏆{p.mvpCount > 1 ? `×${p.mvpCount}` : ''}</Typography>
+                        <Tooltip title={`MVP ×${p.mvpCount}`}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', ml: 0.25 }}>
+                            <EmojiEventsIcon sx={{ fontSize: '0.85rem', color: 'warning.main' }} />
+                            {p.mvpCount > 1 && <Typography component="span" sx={{ fontSize: '0.68rem', color: 'warning.main', lineHeight: 1 }}>×{p.mvpCount}</Typography>}
+                          </Box>
                         </Tooltip>
                       )}
                     </Box>
