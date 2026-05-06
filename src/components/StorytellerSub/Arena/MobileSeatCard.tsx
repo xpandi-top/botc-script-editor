@@ -160,7 +160,7 @@ export function MobileSeatCard({ ctx, seat }: { ctx: StorytellerContext; seat: a
             </Box>
           )}
 
-          {isNightPhase && nightShowCharacter && nightShowWakeOrder && playerWakeOrder !== null && (
+          {isNightPhase && nightShowWakeOrder && playerWakeOrder !== null && (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
               <IconButton size="small" onClick={(e) => { e.stopPropagation(); toggleNightVisitedSeat(seat.seat) }}
                 sx={{ p: 0.25, width: 44, height: 44, borderRadius: '50%', border: '2px solid', borderColor: isVisited ? 'success.main' : 'divider', bgcolor: isVisited ? 'success.light' : 'transparent', flexShrink: 0 }}>

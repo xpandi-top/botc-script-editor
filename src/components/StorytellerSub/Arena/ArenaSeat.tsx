@@ -175,7 +175,7 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: StorytellerCo
 
           {isInNomination && <VoteButtonGroup seat={seat} cardVotedYes={cardVotedYes} cardVotedNo={cardVotedNo} handleVoteYesClick={handleVoteYesClick} handleVoteNoClick={handleVoteNoClick} handleRemoveVote={handleRemoveVote} />}
 
-          {isNightPhase && nightShowCharacter && nightShowWakeOrder && playerWakeOrder !== null && (
+          {isNightPhase && nightShowWakeOrder && playerWakeOrder !== null && (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.25 }}>
               <IconButton size="medium" onClick={(e) => { e.stopPropagation(); toggleNightVisitedSeat(seat.seat) }}
                 sx={{ p: 0.25, width: 44, height: 44, borderRadius: '50%', fontWeight: 700, border: '2px solid', borderColor: isVisited ? 'success.main' : 'divider', bgcolor: isVisited ? 'success.light' : 'transparent', flexShrink: 0 }}>
