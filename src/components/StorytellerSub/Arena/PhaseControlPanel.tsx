@@ -48,13 +48,6 @@ const fmt = (s: number) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${Str
 const TIMER_ACTIVE_SX = { bgcolor: 'rgba(255,255,255,0.25)', border: '1px solid rgba(255,255,255,0.5)' }
 const TIMER_IDLE_SX = { bgcolor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.25)' }
 
-// Nomination needs more room (vote list renders inside)
-const PANEL_HEIGHT: Record<string, string> = {
-  night: '36dvh',
-  private: '32dvh',
-  public: '34dvh',
-  nomination: '46dvh',
-}
 
 const PHASE_ICONS: Record<string, React.ReactNode> = {
   night: <BedtimeIcon sx={{ fontSize: '1rem' }} />,
@@ -173,13 +166,8 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
           boxShadow: '0 -8px 32px rgba(0,0,0,0.5)',
           display: 'flex',
           flexDirection: 'column',
-          height: PANEL_HEIGHT[phase] ?? '34dvh',
-          // Landscape phones: cap so controls stay reachable
-          '@media (max-height: 500px) and (orientation: landscape)': {
-            height: phase === 'nomination' ? '72vh' : '60vh',
-          },
-          // Smooth phase colour + height transitions
-          transition: 'background-color 0.35s ease, height 0.2s ease',
+          // Smooth phase colour transition only; height is auto-sized to content
+          transition: 'background-color 0.35s ease',
           overflow: 'hidden',
         }}
       >
@@ -188,7 +176,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
           <Box sx={{ width: 36, height: 4, borderRadius: 2, bgcolor: 'rgba(255,255,255,0.3)' }} />
         </Box>
 
-        <Box sx={{ overflowY: 'auto', flex: 1, px: 1.5, pb: 1.5 }}>
+        <Box sx={{ overflowY: 'auto', maxHeight: '38dvh', px: 1.5, pb: 1.5 }}>
           {/* Day nav + phase selector */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.75, flexWrap: 'wrap' }}>
             <IconButton sx={iconBtnSx} onClick={() => goToPreviousDay()}>
