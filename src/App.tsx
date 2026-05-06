@@ -408,7 +408,15 @@ export default function App() {
               <Box component="img"
                 src={themeMode === 'dark' ? 'icons/icon-80.png' : 'appIcon.png'}
                 alt="BOTC Companion"
-                sx={{ width: { xs: 28, sm: 34 }, height: { xs: 28, sm: 34 }, flexShrink: 0, borderRadius: 1 }} />
+                sx={{
+                  width: { xs: 28, sm: 34 }, height: { xs: 28, sm: 34 },
+                  flexShrink: 0, borderRadius: 1,
+                  // Dark: boost brightness + slight warm tint so dark artwork is legible on dark surface
+                  // Light: slight warm desaturate to blend with parchment header
+                  filter: themeMode === 'dark'
+                    ? 'brightness(1.4) contrast(0.9) saturate(1.1) drop-shadow(0 1px 3px rgba(0,0,0,0.6))'
+                    : 'brightness(0.92) saturate(0.85) sepia(0.08)',
+                }} />
               <Typography component="h1"
                 sx={{ fontFamily: 'inherit', m: 0,
                   fontWeight: 700, userSelect: 'none',

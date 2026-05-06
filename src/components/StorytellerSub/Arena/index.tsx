@@ -11,23 +11,17 @@ import type { Phase } from '../types'
 
 // Phase atmosphere: CSS filter + base tint color applied to a separate background layer
 // so text/content is NOT affected by the filter
-const PHASE_ATMOSPHERE: Record<Phase, { base: string; filter: string }> = {
-  night:      {
-    base:   '#0B0F1A',
-    filter: 'brightness(0.6) contrast(1.2) saturate(0.7) hue-rotate(-10deg)',
-  },
-  private:    {
-    base:   '#E8DCC8',
-    filter: 'brightness(1.2) contrast(0.95) saturate(0.9) hue-rotate(10deg)',
-  },
-  public:     {
-    base:   '#F5EFE6',
-    filter: 'brightness(1.35) contrast(0.9) saturate(0.8)',
-  },
-  nomination: {
-    base:   '#C9A27A',
-    filter: 'brightness(0.9) contrast(1.15) saturate(1.15) hue-rotate(20deg)',
-  },
+const PHASE_ATMOSPHERE_DARK: Record<Phase, { base: string; filter: string }> = {
+  night:      { base: '#0B0F1A', filter: 'brightness(0.6) contrast(1.2) saturate(0.7) hue-rotate(-10deg)' },
+  private:    { base: '#E8DCC8', filter: 'brightness(1.2) contrast(0.95) saturate(0.9) hue-rotate(10deg)' },
+  public:     { base: '#F5EFE6', filter: 'brightness(1.35) contrast(0.9) saturate(0.8)' },
+  nomination: { base: '#C9A27A', filter: 'brightness(0.9) contrast(1.15) saturate(1.15) hue-rotate(20deg)' },
+}
+const PHASE_ATMOSPHERE_LIGHT: Record<Phase, { base: string; filter: string }> = {
+  night:      { base: '#0B0F1A', filter: 'brightness(0.72) contrast(1.08) saturate(0.78) hue-rotate(-8deg)' },
+  private:    { base: '#E8DCC8', filter: 'brightness(1.05) contrast(0.98) saturate(0.92) hue-rotate(6deg)' },
+  public:     { base: '#F5EFE6', filter: 'brightness(1.12) contrast(0.94) saturate(0.88)' },
+  nomination: { base: '#C9A27A', filter: 'brightness(0.96) contrast(1.08) saturate(1.08) hue-rotate(12deg)' },
 }
 
 /** Absolutely-positioned background layer with CSS filter applied.
@@ -37,13 +31,15 @@ const PHASE_ATMOSPHERE: Record<Phase, { base: string; filter: string }> = {
 function AtmosphereBackground({
   bgSrc,
   phase,
+  isDark,
   position = 'center',
 }: {
   bgSrc: string
   phase: Phase
+  isDark: boolean
   position?: string
 }) {
-  const atm = PHASE_ATMOSPHERE[phase]
+  const atm = isDark ? PHASE_ATMOSPHERE_DARK[phase] : PHASE_ATMOSPHERE_LIGHT[phase]
   return (
     <Box
       aria-hidden
@@ -115,7 +111,7 @@ export function Arena({ ctx }: { ctx: StorytellerContext }) {
         position: 'relative', overflow: 'hidden',
       }}>
         {/* Filtered background layer — does NOT affect content */}
-        <AtmosphereBackground bgSrc={bgSrc} phase={phase} position="center top" />
+        <AtmosphereBackground bgSrc={bgSrc} phase={phase} isDark={isDark} position="center top" />
 
         {/* Content above the filtered background */}
         <Box sx={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
@@ -143,7 +139,7 @@ export function Arena({ ctx }: { ctx: StorytellerContext }) {
         }}
       >
         {/* Filtered background — clipped to Paper border-radius */}
-        <AtmosphereBackground bgSrc={bgSrc} phase={phase} />
+        <AtmosphereBackground bgSrc={bgSrc} phase={phase} isDark={isDark} />
 
         {/* Arena content sits above filtered bg */}
         <Box
