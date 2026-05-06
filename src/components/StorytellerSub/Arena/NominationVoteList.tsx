@@ -176,14 +176,38 @@ export function NominationVoteList({
         })}
       </Box>
 
-      <Typography variant="body2" sx={{ mt: 0.75 }}>
-        {zh ? '同意' : 'Yes'}: <strong>{yesCount}</strong> / {effectiveRequiredVotes}
-        {voteDraft?.isExile && (
-          <Box component="span" sx={{ ml: 1, px: 0.75, py: 0.2, bgcolor: 'warning.light', borderRadius: 1, fontSize: '0.75rem', color: 'warning.dark', fontWeight: 700 }}>
-            {zh ? '放逐' : 'Exile'}
+      <Box sx={{ mt: 0.75 }}>
+        {/* Yes count + label row */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+          <Typography variant="body2">
+            {zh ? '同意' : 'Yes'}: <strong>{yesCount}</strong> / {effectiveRequiredVotes}
+          </Typography>
+          {voteDraft?.isExile && (
+            <Box component="span" sx={{ px: 0.75, py: 0.2, bgcolor: 'warning.light', borderRadius: 1, fontSize: '0.75rem', color: 'warning.dark', fontWeight: 700 }}>
+              {zh ? '放逐' : 'Exile'}
+            </Box>
+          )}
+        </Box>
+        {/* Progress bar */}
+        {effectiveRequiredVotes > 0 && (
+          <Box sx={{ height: 6, borderRadius: 3, bgcolor: 'rgba(0,0,0,0.08)', overflow: 'hidden', position: 'relative' }}>
+            <Box sx={{
+              position: 'absolute', top: 0, left: 0, bottom: 0,
+              width: `${Math.min(100, (yesCount / effectiveRequiredVotes) * 100)}%`,
+              bgcolor: yesCount >= effectiveRequiredVotes ? 'error.main' : 'success.main',
+              borderRadius: 3,
+              transition: 'width 0.2s ease, background-color 0.2s ease',
+            }} />
+            {/* Required threshold marker */}
+            <Box sx={{
+              position: 'absolute', top: 0, bottom: 0,
+              left: '100%',
+              width: 2, bgcolor: 'error.dark',
+              transform: 'translateX(-2px)',
+            }} />
           </Box>
         )}
-      </Typography>
+      </Box>
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
         <Typography variant="caption">{zh ? '票数' : 'Count'}</Typography>
