@@ -121,10 +121,12 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
     return (
       <Box
         sx={{
-          position: 'fixed', bottom: 'calc(56px + var(--safe-bottom, 0px))', left: 0, right: 0,
+          position: 'fixed', bottom: 'calc(56px + var(--safe-bottom, 0px))',
+          left: '50%', transform: 'translateX(-50%)',
+          width: '100%', maxWidth: 600,
           zIndex: 1200, bgcolor: bgColor,
           borderTop: '1px solid rgba(255,255,255,0.15)',
-          borderRadius: '12px 12px 0 0',
+          borderRadius: '12px',
           display: 'flex', alignItems: 'center', gap: 1, px: 1.5, py: 0.75,
           cursor: 'pointer',
           minHeight: 48,
@@ -162,11 +164,12 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
         sx={{
           position: 'fixed',
           bottom: 'calc(56px + var(--safe-bottom, 0px))',
-          left: 0, right: 0,
+          left: '50%', transform: 'translateX(-50%)',
+          width: '100%', maxWidth: 600,
           zIndex: 1200,
           bgcolor: bgColor,
           borderTop: '1px solid rgba(255,255,255,0.2)',
-          borderRadius: '20px 20px 0 0',
+          borderRadius: '20px',
           boxShadow: '0 -8px 32px rgba(0,0,0,0.5)',
           display: 'flex',
           flexDirection: 'column',
