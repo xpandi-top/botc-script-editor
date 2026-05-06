@@ -1,10 +1,38 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { ThemeProvider, CssBaseline, GlobalStyles } from '@mui/material'
+import { CssBaseline, GlobalStyles, useTheme } from '@mui/material'
 import App from './App'
-import { theme } from './theme'
+import { ThemeModeProvider } from './context/ThemeMode'
 import { initNative } from './lib/nativeInit'
 import './fonts.css'
+
+/** Injects CSS variables and body background that react to the active MUI theme */
+function ThemeGlobalStyles() {
+  const theme = useTheme()
+  const isDark = theme.palette.mode === 'dark'
+  return (
+    <GlobalStyles styles={{
+      ':root': {
+        colorScheme: isDark ? 'dark' : 'light',
+        // Background layers
+        '--bg-page':    theme.palette.background.default,
+        '--bg-surface': theme.palette.background.paper,
+        '--bg-raised':  (theme.palette as any).surface?.raised ?? theme.palette.background.paper,
+        '--bg-sunken':  (theme.palette as any).surface?.sunken ?? theme.palette.background.default,
+      },
+      body: {
+        margin: 0,
+        minWidth: 320,
+        minHeight: '100vh',
+        background: isDark
+          ? 'linear-gradient(160deg, #1B1512 0%, #241C18 100%)'
+          : 'linear-gradient(160deg, #e8e5d8 0%, #dedad0 100%)',
+        color: theme.palette.text.primary,
+        colorScheme: isDark ? 'dark' : 'light',
+      },
+    }} />
+  )
+}
 
 // On native: await initNative so the Preferences sync-cache is populated
 // before React's synchronous useState initialisers run.
@@ -12,8 +40,9 @@ import './fonts.css'
 initNative().then(() => {
   ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <ThemeProvider theme={theme}>
+    <ThemeModeProvider>
       <CssBaseline />
+      <ThemeGlobalStyles />
       <GlobalStyles styles={{
         ':root': {
           // ── Palette tokens ──────────────────────────────────────────────
@@ -80,15 +109,7 @@ initNative().then(() => {
           '--safe-right':  'env(safe-area-inset-right, 0px)',
         },
         '*, *::before, *::after': { boxSizing: 'border-box' },
-        body: {
-          margin: 0,
-          minWidth: 320,
-          minHeight: '100vh',
-          // Light parchment — Satin Linen base with very subtle depth
-          background: 'linear-gradient(160deg, #e8e5d8 0%, #dedad0 100%)',
-          colorScheme: 'light',
-          color: '#37261b',
-        },
+        // body background + color set dynamically by ThemeGlobalStyles above
         a: { color: 'inherit' },
         button: { font: 'inherit' },
         '#root': { minHeight: '100vh' },
@@ -105,7 +126,7 @@ initNative().then(() => {
         },
       }} />
       <App />
-    </ThemeProvider>
+    </ThemeModeProvider>
   </React.StrictMode>,
 )
 })

@@ -596,7 +596,7 @@ export default function App() {
       )}
 
       {activeTab === 'settings' && (
-        <SettingsTab language={uiLanguage} fontSettings={fontSettings} />
+        <SettingsTab language={uiLanguage} onLanguageChange={setUiLanguage} fontSettings={fontSettings} />
       )}
 
       {activeTab === 'storyteller' && (

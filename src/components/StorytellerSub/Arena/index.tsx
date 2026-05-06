@@ -1,6 +1,6 @@
 import type { StorytellerContext } from '../useStoryteller'
 import React from 'react'
-import { Box, Typography, Paper } from '@mui/material'
+import { Box, Typography, Paper, useTheme } from '@mui/material'
 import { ArenaCenter } from './ArenaCenter'
 import { ArenaSeats } from './ArenaSeats'
 import { PlayerSeatGrid } from './PlayerSeatGrid'
@@ -9,6 +9,9 @@ import { getSeatAngle as _getSeatAngle } from '../../../utils/seats'
 import { useBreakpoint } from '../../../hooks/useBreakpoint'
 
 export function Arena({ ctx }: { ctx: StorytellerContext }) {
+  const muiTheme = useTheme()
+  const isDark = muiTheme.palette.mode === 'dark'
+
   const [windowPortrait, setWindowPortrait] = React.useState(
     typeof window !== 'undefined' ? window.innerHeight > window.innerWidth : false
   )
@@ -48,10 +51,16 @@ export function Arena({ ctx }: { ctx: StorytellerContext }) {
   // Mobile / tablet-portrait: scrollable seat grid + fixed phase panel at bottom
   if (useListLayout) {
     return (
-      <>
+      <Box sx={{
+        flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0,
+        backgroundImage: `url('/bg-${isDark ? 'dark' : 'light'}.svg')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center top',
+        backgroundAttachment: 'local',
+      }}>
         <PlayerSeatGrid ctx={ctx} panelCollapsed={panelCollapsed} />
         <PhaseControlPanel ctx={ctx} collapsed={panelCollapsed} setCollapsed={setPanelCollapsed} />
-      </>
+      </Box>
     )
   }
 
@@ -63,8 +72,12 @@ export function Arena({ ctx }: { ctx: StorytellerContext }) {
         sx={{
           p: 2,
           minHeight: 380,
-          background: 'radial-gradient(circle at top, rgba(255,241,214,0.9), rgba(255,251,245,0.92) 50%), linear-gradient(180deg, rgba(255,251,245,0.96), rgba(248,240,226,0.92))',
-          boxShadow: '0 18px 60px rgba(57,43,24,0.08)',
+          backgroundImage: isDark
+            ? `linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url('/bg-dark.svg')`
+            : `linear-gradient(rgba(0,0,0,0.04), rgba(0,0,0,0.04)), url('/bg-light.svg')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          boxShadow: isDark ? '0 18px 60px rgba(0,0,0,0.40)' : '0 18px 60px rgba(57,43,24,0.08)',
           overflow: 'visible',
           position: 'relative',
         }}

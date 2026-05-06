@@ -1,7 +1,10 @@
 import { Box, Paper, Typography, Divider, ToggleButtonGroup, ToggleButton } from '@mui/material'
+import LightModeIcon from '@mui/icons-material/LightMode'
+import DarkModeIcon from '@mui/icons-material/DarkMode'
 import type { FontOption, FontSettings, UiScale } from '../../hooks/useFontSettings'
 import { UI_SCALE_OPTIONS, ZH_SAME_AS_EN_ID } from '../../hooks/useFontSettings'
 import type { Language } from '../../types'
+import { useThemeMode } from '../../context/ThemeMode'
 
 // ── FontPicker ────────────────────────────────────────────────────────────────
 function FontPicker({
@@ -147,10 +150,12 @@ function LivePreview({
 // ── SettingsTab ───────────────────────────────────────────────────────────────
 interface SettingsTabProps {
   language: Language
+  onLanguageChange: (l: Language) => void
   fontSettings: FontSettings
 }
 
-export function SettingsTab({ language, fontSettings }: SettingsTabProps) {
+export function SettingsTab({ language, onLanguageChange, fontSettings }: SettingsTabProps) {
+  const { mode, setMode } = useThemeMode()
   const {
     enBodyId,    setEnBodyId,    enBodyOptions,
     enDisplayId, setEnDisplayId, enDisplayOptions,
@@ -175,6 +180,57 @@ export function SettingsTab({ language, fontSettings }: SettingsTabProps) {
 
   return (
     <Box sx={{ maxWidth: 960, mx: 'auto', px: { xs: 2, sm: 3 }, py: 3, display: 'flex', flexDirection: 'column', gap: 4 }}>
+
+      {/* ── Section: Language ── */}
+      <Box>
+        <Typography variant="h5" gutterBottom>
+          {zh ? '语言' : 'Language'}
+        </Typography>
+        <ToggleButtonGroup value={language} exclusive onChange={(_, v) => { if (v) onLanguageChange(v as Language) }}>
+          <ToggleButton value="zh" sx={{ px: 3, py: 1 }}>
+            <Box sx={{ textAlign: 'center' }}>
+              <Typography sx={{ fontSize: '1rem', fontWeight: 600, lineHeight: 1.2 }}>中文</Typography>
+              <Typography sx={{ fontSize: '0.65rem', opacity: 0.7 }}>Chinese</Typography>
+            </Box>
+          </ToggleButton>
+          <ToggleButton value="en" sx={{ px: 3, py: 1 }}>
+            <Box sx={{ textAlign: 'center' }}>
+              <Typography sx={{ fontSize: '1rem', fontWeight: 600, lineHeight: 1.2 }}>English</Typography>
+              <Typography sx={{ fontSize: '0.65rem', opacity: 0.7 }}>英文</Typography>
+            </Box>
+          </ToggleButton>
+        </ToggleButtonGroup>
+      </Box>
+
+      <Divider />
+
+      {/* ── Section: Theme ── */}
+      <Box>
+        <Typography variant="h5" gutterBottom>
+          {zh ? '界面主题' : 'Theme'}
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          {zh ? '在明亮的羊皮纸风格与黑暗血腥风格之间切换。' : 'Switch between the warm parchment light theme and the dark crimson theme.'}
+        </Typography>
+        <ToggleButtonGroup value={mode} exclusive onChange={(_, v) => { if (v) setMode(v) }}>
+          <ToggleButton value="light" sx={{ px: 3, py: 1, gap: 1 }}>
+            <LightModeIcon fontSize="small" />
+            <Box sx={{ textAlign: 'left' }}>
+              <Typography sx={{ fontSize: '0.9rem', fontWeight: 600, lineHeight: 1.2 }}>{zh ? '明亮' : 'Light'}</Typography>
+              <Typography sx={{ fontSize: '0.65rem', opacity: 0.7 }}>{zh ? '羊皮纸风格' : 'Parchment'}</Typography>
+            </Box>
+          </ToggleButton>
+          <ToggleButton value="dark" sx={{ px: 3, py: 1, gap: 1 }}>
+            <DarkModeIcon fontSize="small" />
+            <Box sx={{ textAlign: 'left' }}>
+              <Typography sx={{ fontSize: '0.9rem', fontWeight: 600, lineHeight: 1.2 }}>{zh ? '黑暗' : 'Dark'}</Typography>
+              <Typography sx={{ fontSize: '0.65rem', opacity: 0.7 }}>{zh ? '血腥猩红' : 'Crimson'}</Typography>
+            </Box>
+          </ToggleButton>
+        </ToggleButtonGroup>
+      </Box>
+
+      <Divider />
 
       {/* ── Section: Live preview ── */}
       <Box>

@@ -1,3 +1,7 @@
+// Re-export factory for dynamic usage; keep static `theme` for backwards compat.
+export { makeTheme } from './makeTheme'
+export type { ThemeMode } from './makeTheme'
+
 import { createTheme, alpha } from '@mui/material/styles'
 import { BG, INK, BORDER, STATE, FONT, WEIGHT, SHADOW, MOTION, PALETTE } from './tokens'
 
