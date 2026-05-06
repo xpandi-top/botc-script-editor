@@ -133,7 +133,17 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
       >
         {/* Drag handle pip */}
         <Box sx={{ position: 'absolute', top: 6, left: '50%', transform: 'translateX(-50%)', width: 32, height: 3, borderRadius: 2, bgcolor: 'rgba(255,255,255,0.3)' }} />
-        <Typography sx={{ color: alarmActive ? 'warning.light' : textColor, fontWeight: 700, fontSize: '0.82rem', flex: 1 }}>
+        <Typography sx={{
+          color: alarmActive ? 'warning.light' : textColor,
+          fontWeight: 700, fontSize: '0.82rem', flex: 1,
+          ...(alarmActive && {
+            animation: 'timerAlarmPulse 0.9s ease-in-out infinite',
+            '@keyframes timerAlarmPulse': {
+              '0%, 100%': { opacity: 1 },
+              '50%': { opacity: 0.3 },
+            },
+          }),
+        }}>
           Day {currentDay.day} · {getPhaseLabel(phase)}
           {hasTimer && ` · ${fmt(currentTimerSeconds)}`}
         </Typography>
@@ -161,11 +171,12 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
           display: 'flex',
           flexDirection: 'column',
           height: PANEL_HEIGHT[phase] ?? '34dvh',
-          // Landscape phones: cap at 55vh so controls stay reachable
+          // Landscape phones: cap so controls stay reachable
           '@media (max-height: 500px) and (orientation: landscape)': {
             height: phase === 'nomination' ? '72vh' : '60vh',
           },
-          transition: 'height 0.2s ease',
+          // Smooth phase colour + height transitions
+          transition: 'background-color 0.35s ease, height 0.2s ease',
           overflow: 'hidden',
         }}
       >
@@ -278,7 +289,22 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
               ) : (
                 <Box
                   onClick={() => { setTimerInput(fmt(currentTimerSeconds)); setTimerEditing(true) }}
-                  sx={{ fontFamily: 'monospace', fontSize: '1.6rem', fontWeight: 700, color: alarmActive ? 'warning.light' : textColor, px: 1, py: 0.125, borderRadius: 1, border: '1px solid rgba(255,255,255,0.25)', cursor: 'pointer', letterSpacing: '0.08em', '&:hover': { bgcolor: 'rgba(255,255,255,0.08)' } }}
+                  sx={{
+                    fontFamily: 'monospace', fontSize: '1.6rem', fontWeight: 700,
+                    color: alarmActive ? 'warning.light' : textColor,
+                    px: 1, py: 0.125, borderRadius: 1,
+                    border: '1px solid rgba(255,255,255,0.25)',
+                    cursor: 'pointer', letterSpacing: '0.08em',
+                    '&:hover': { bgcolor: 'rgba(255,255,255,0.08)' },
+                    // Pulse animation when alarm fires
+                    ...(alarmActive && {
+                      animation: 'timerAlarmPulse 0.9s ease-in-out infinite',
+                      '@keyframes timerAlarmPulse': {
+                        '0%, 100%': { opacity: 1 },
+                        '50%': { opacity: 0.25 },
+                      },
+                    }),
+                  }}
                 >
                   {fmt(currentTimerSeconds)}
                 </Box>
