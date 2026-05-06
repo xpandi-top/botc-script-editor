@@ -4,8 +4,8 @@ import { MobileSeatCard } from './MobileSeatCard'
 
 // Clearance when panel is open vs collapsed.
 // Use dvh so it matches the panel's height unit.
-const PANEL_OPEN_CLEARANCE = 'calc(max(36dvh, 130px) + var(--safe-bottom, 0px) + 8px)'
-const PANEL_COLLAPSED_CLEARANCE = 'calc(56px + var(--safe-bottom, 0px) + 8px)'
+const PANEL_OPEN_CLEARANCE = 'calc(56px + max(36dvh, 130px) + var(--safe-bottom, 0px) + 8px)'
+const PANEL_COLLAPSED_CLEARANCE = 'calc(56px + 56px + var(--safe-bottom, 0px) + 8px)'
 
 export function PlayerSeatGrid({ ctx, panelCollapsed }: { ctx: StorytellerContext; panelCollapsed: boolean }) {
   const { currentDay, setSelectedSeatNumber, setTagPopoutSeat } = ctx
