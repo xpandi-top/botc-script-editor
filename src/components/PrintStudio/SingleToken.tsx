@@ -112,7 +112,7 @@ function clipShape(shape: TokenShape, cx: number, cy: number, r: number, id: str
   let el: React.ReactElement
   if (shape === 'hexagon') {
     const pts = Array.from({ length: 6 }, (_, i) => {
-      const a = (Math.PI / 3) * i - Math.PI / 6
+      const a = (Math.PI / 3) * i
       return `${cx + r * Math.cos(a)},${cy + r * Math.sin(a)}`
     }).join(' ')
     el = <polygon points={pts} />
@@ -144,7 +144,7 @@ function borderShape(shape: TokenShape, cx: number, cy: number, r: number, sw: n
   const commonProps = { fill: 'none', stroke: color, strokeWidth: sw }
   if (shape === 'hexagon') {
     const pts = Array.from({ length: 6 }, (_, i) => {
-      const a = (Math.PI / 3) * i - Math.PI / 6
+      const a = (Math.PI / 3) * i
       return `${cx + rr * Math.cos(a)},${cy + rr * Math.sin(a)}`
     }).join(' ')
     return <polygon points={pts} {...commonProps} />
@@ -195,33 +195,46 @@ export function SingleToken({
   const nameFontPx     = opts.nameFontSize * PT_TO_PX
   const abilityFontPx  = opts.abilityFontSize * PT_TO_PX
 
-  // Icon geometry — lower half of circle
-  const iconSize  = S * 0.42 * opts.iconSizeRatio  // larger for lower half
-  const iconX     = cx - iconSize / 2
-  const iconY     = cy - iconSize / 2 + S * 0.13
+  // Shape flags
+  const isCircle = opts.shape === 'circle'
+  const isHex    = opts.shape === 'hexagon'
+
+  // Flat-top hex geometry: height = r*√3, width = 2r
+  // Top flat edge at cy - hexHalfH, bottom flat edge at cy + hexHalfH
+  const hexHalfH = r * Math.sqrt(3) / 2  // ≈ 0.433 * S (half of flat-to-flat hex height)
+
+  // Icon geometry
+  const iconSize = S * 0.42 * opts.iconSizeRatio
+  const iconX    = cx - iconSize / 2
+  // Circle: icon in lower half; Hex: centered slightly below shape-center; Square: same as circle
+  const iconY = isHex
+    ? cy - iconSize / 2 + hexHalfH * 0.08   // slight downward push within hex
+    : cy - iconSize / 2 + S * 0.13
 
   // Name geometry
-  // For circle: single bottom arc ("EN · ZH")
-  // For hex/square: flat centered text at bottom
-  const isCircle = opts.shape === 'circle'
-  const nameArcR = cR * .98          // radius for bottom name arc (larger = arc closer to edge = lower)
+  const nameArcR = cR * .98
   const nameCombined =
     opts.nameDisplay === 'both' && nameEn && nameZh && nameEn !== nameZh
       ? `${nameEn} · ${nameZh}`
       : opts.nameDisplay === 'zh' ? nameZh : nameEn
   const nameDisplayStr = overrideLabel !== undefined ? overrideLabel : nameCombined
-  // Flat name fallback (hex/square) - in lower half
-  const nameY = cy + cR * .98  
+  // Flat name: hex → just above bottom flat edge; square → same as before
+  const nameY = isHex
+    ? cy + hexHalfH - bw - nameFontPx * 0.55   // inside bottom flat edge
+    : cy + cR * .98
 
-  // Straight ability area — top half of circle
-  const abilityTop    = cy - cR
-  const abilityWidth  = cR 
-  const abilityHeight = cR
+  // Ability area (foreignObject for hex/square, SVG text for circle)
+  // Hex: from top flat edge down ~55% of hex height; width = flat-edge width (r) minus padding
+  // Square: full usable width (2*cR), full top half height
+  const abilityTop    = isHex ? cy - hexHalfH + bw + 3            : cy - cR
+  const abilityWidth  = isHex ? r - bw * 2 - 4                    : 2 * cR
+  const abilityHeight = isHex ? hexHalfH * 1.0 - bw - 3           : cR
+  const abilityLeft   = cx - abilityWidth / 2
 
   const textColor = opts.blackAndWhite ? '#000000' : '#1a1a1a'
   const grayFilter = opts.blackAndWhite ? 'grayscale(1)' : undefined
 
-  // Pre-compute multi-line arc text (top half only)
+  // Pre-compute multi-line arc text (circle top half only)
   const arcLineH = abilityFontPx * 1.01
   const { lines: arcLines, radii: arcRadii } =
     (displayAbility && opts.abilityStyle === 'arc')
@@ -240,7 +253,16 @@ export function SingleToken({
     straightLines.map(l => l.text).join('').length < displayAbility.replace(/\s+/g, '').length
   const isTextTruncated = arcTextTruncated || straightTextTruncated
 
-// Wake order and setup indicators
+  // Wake/setup indicators — placed within actual shape boundary
+  // Hex: along horizontal mid-line (y=cy) near left/right tips; setup in upper-right safe zone
+  // Circle/square: original edge positions
+  const indR = cR * 0.1
+  const indFirstX  = isHex ? cx - r * 0.80 : cx - cR
+  const indOtherX  = isHex ? cx + r * 0.80 : cx + cR
+  const indY       = cy
+  const indSetupX  = isHex ? cx + r * 0.55  : cx + cR * 0.85
+  const indSetupY  = isHex ? cy - hexHalfH * 0.65 : cy - cR * 0.5
+
   const indicators = characterId ? getWakeIndicators(characterId) : { firstNight: false, otherNight: false, hasSetup: false }
   const hasSetupMarker = opts.showSetupIndicators && /\[.*?\]/.test(displayAbility)
 
@@ -320,13 +342,13 @@ export function SingleToken({
           {opts.showWakeIndicators && characterId && (
             <>
               {indicators.firstNight && (
-                <circle cx={cx - cR} cy={cy} r={cR * 0.1} fill="#22c55e" />
+                <circle cx={indFirstX} cy={indY} r={indR} fill="#22c55e" />
               )}
               {indicators.otherNight && (
-                <circle cx={cx + cR} cy={cy} r={cR * 0.1} fill="#22c55e" />
+                <circle cx={indOtherX} cy={indY} r={indR} fill="#22c55e" />
               )}
               {hasSetupMarker && (
-                <circle cx={cx + cR * 0.85} cy={cy- cR * 0.5} r={cR * 0.1} fill="#f97316" />
+                <circle cx={indSetupX} cy={indSetupY} r={indR} fill="#f97316" />
               )}
             </>
           )}
@@ -380,7 +402,7 @@ export function SingleToken({
           {/* Ability text — straight for non-circle (hex/square) */}
           {!isCircle && displayAbility && opts.abilityStyle === 'straight' && (
             <foreignObject
-              x={cx - abilityWidth / 2}
+              x={abilityLeft}
               y={abilityTop}
               width={abilityWidth}
               height={abilityHeight}
