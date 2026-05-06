@@ -13,16 +13,17 @@ import type { StorytellerHelperProps } from './StorytellerSub/types'
 export function StorytellerHelper(props: StorytellerHelperProps) {
   const ctx = useStoryteller(props)
   const { isMobile } = useBreakpoint()
+  const { showScriptPanel } = ctx
 
   useEffect(() => {
     document.body.style.overflow = isMobile ? 'hidden' : 'auto'
     return () => { document.body.style.overflow = '' }
   }, [isMobile])
 
+  // ── Mobile layout ─────────────────────────────────────────────
   if (isMobile) {
     return (
       <>
-        {/* audio at Fragment position 0 — React preserves the DOM node across mobile/desktop switches */}
         <audio ref={ctx.audioRef} />
         <Box sx={{ display: 'flex', flexDirection: 'column', height: '100dvh', overflow: 'hidden', mx: { xs: 0, sm: -3 }, mt: { xs: 0, sm: -3 } }}>
           <MobileTopBar ctx={ctx} />
@@ -37,22 +38,38 @@ export function StorytellerHelper(props: StorytellerHelperProps) {
     )
   }
 
+  // ── Desktop / tablet layout — 2 or 3 column grid ─────────────
+  // Left panel: inline sidebar when showScriptPanel; else hidden (toggled by toolbar)
+  // Middle: Arena in Paper
+  // Right: RightConsole (drawer-based for now, Task 6 will make it inline)
   return (
     <>
       <audio ref={ctx.audioRef} />
       <Box
         sx={{
           display: 'grid',
-          gridTemplateColumns: '1fr',
+          gridTemplateColumns: showScriptPanel
+            ? { xs: '1fr', md: '240px 1fr', lg: '260px 1fr' }
+            : '1fr',
           gap: 1,
           flex: 1,
           minHeight: 480,
           minWidth: 0,
           alignItems: 'stretch',
           overflow: 'auto',
+          transition: 'grid-template-columns 0.2s ease',
         }}
       >
+        {/* Left script panel — inline sidebar on desktop */}
+        {showScriptPanel && (
+          <Box sx={{ display: { xs: 'none', md: 'flex' }, flexDirection: 'column', minHeight: 480, maxHeight: '80vh', position: 'sticky', top: 0 }}>
+            <LeftScriptPanel ctx={ctx} inlineMode />
+          </Box>
+        )}
+        {/* Drawer fallback on sm (below md) */}
         <LeftScriptPanel ctx={ctx} />
+
+        {/* Center: Arena */}
         <Paper
           elevation={0}
           sx={{
@@ -65,9 +82,10 @@ export function StorytellerHelper(props: StorytellerHelperProps) {
             borderColor: 'rgba(23,32,42,0.12)',
             overflow: 'visible',
             position: 'relative',
+            minWidth: 0,
           }}
         >
-          {/* Watermark background */}
+          {/* Watermark */}
           <Box
             sx={{
               position: 'absolute',
@@ -90,6 +108,7 @@ export function StorytellerHelper(props: StorytellerHelperProps) {
             <Arena ctx={ctx} />
           </Box>
         </Paper>
+
         <RightConsole ctx={ctx} />
         <Modals ctx={ctx} />
       </Box>

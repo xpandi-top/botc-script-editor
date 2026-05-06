@@ -16,7 +16,7 @@ const TEAM_LABELS: Record<string, { en: string; zh: string; color: string }> = {
 
 type ScriptView = 'characters' | 'firstNight' | 'otherNight'
 
-export function LeftScriptPanel({ ctx }: { ctx: StorytellerContext }) {
+export function LeftScriptPanel({ ctx, inlineMode = false }: { ctx: StorytellerContext; inlineMode?: boolean }) {
   const { language, currentScriptCharacters, activeScriptTitle, setShowScriptPanel, showScriptPanel } = ctx
 
   const isDay1 = ctx.days.length === 0 || (ctx.days.length === 1 && ctx.days[0].day === 1)
@@ -70,40 +70,27 @@ export function LeftScriptPanel({ ctx }: { ctx: StorytellerContext }) {
 
   const panelWidth = { xs: 280, sm: 340 }
 
-  return (
+  const panelContent = (
     <>
-      {showScriptPanel && (
-        <Box
-          onClick={() => setShowScriptPanel(false)}
-          sx={{ position: 'fixed', inset: 0, bgcolor: 'rgba(0,0,0,0.28)', zIndex: 490 }}
-        />
-      )}
-      <Drawer
-        anchor="left"
-        open={showScriptPanel}
-        onClose={() => setShowScriptPanel(false)}
-        sx={{
-          '& .MuiDrawer-paper': {
-            width: panelWidth,
-            borderRadius: '0 22px 22px 0',
-            bgcolor: 'rgba(255,251,245,0.96)',
-            borderRight: '1px solid rgba(23,32,42,0.12)',
-          },
-        }}
-      >
-        <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(23,32,42,0.08)' }}>
-          <Typography variant="h6" sx={{ fontSize: '0.95rem' }}>{activeScriptTitle || (language === 'zh' ? '剧本' : 'Script')}</Typography>
-          <Button size="small" variant="outlined" onClick={() => setShowScriptPanel(false)} startIcon={<CloseIcon fontSize="small" />}>{language === 'zh' ? '关闭' : 'Close'}</Button>
-        </Box>
+      <Box sx={{ p: 1.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(23,32,42,0.08)', flexShrink: 0 }}>
+        <Typography variant="h6" sx={{ fontSize: '0.9rem', fontWeight: 700, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {activeScriptTitle || (language === 'zh' ? '剧本' : 'Script')}
+        </Typography>
+        {!inlineMode && (
+          <Button size="small" variant="outlined" onClick={() => setShowScriptPanel(false)} startIcon={<CloseIcon fontSize="small" />}>
+            {language === 'zh' ? '关闭' : 'Close'}
+          </Button>
+        )}
+      </Box>
 
-        <Tabs value={view} onChange={(_, v) => setView(v)} sx={{ px: 2, borderBottom: '1px solid rgba(23,32,42,0.06)' }} variant="fullWidth">
-          <Tab label={language === 'zh' ? '角色' : 'Chars'} value="characters" />
-          <Tab label={language === 'zh' ? '第一夜' : 'First'} value="firstNight" />
-          <Tab label={language === 'zh' ? '其他夜' : 'Other'} value="otherNight" />
-        </Tabs>
+      <Tabs value={view} onChange={(_, v) => setView(v)} sx={{ px: 1, borderBottom: '1px solid rgba(23,32,42,0.06)', flexShrink: 0 }} variant="fullWidth">
+        <Tab label={language === 'zh' ? '角色' : 'Chars'} value="characters" sx={{ fontSize: '0.78rem', minWidth: 0, px: 0.5 }} />
+        <Tab label={language === 'zh' ? '第一夜' : 'First'} value="firstNight" sx={{ fontSize: '0.78rem', minWidth: 0, px: 0.5 }} />
+        <Tab label={language === 'zh' ? '其他夜' : 'Other'} value="otherNight" sx={{ fontSize: '0.78rem', minWidth: 0, px: 0.5 }} />
+      </Tabs>
 
-        <Box sx={{ flex: 1, overflow: 'auto', p: 1 }}>
-          {view === 'characters' && (() => {
+      <Box sx={{ flex: 1, overflow: 'auto', p: 1 }}>
+        {view === 'characters' && (() => {
             const byTeam: Record<string, string[]> = { townsfolk: [], outsider: [], minion: [], demon: [], traveler: [] }
             for (const id of characterIds) {
               const team = characterById[id]?.team ?? 'townsfolk'
@@ -153,6 +140,51 @@ export function LeftScriptPanel({ ctx }: { ctx: StorytellerContext }) {
           {view === 'firstNight' && <List dense>{renderNightList(firstNightOrder)}</List>}
           {view === 'otherNight' && <List dense>{renderNightList(otherNightOrder)}</List>}
         </Box>
+      </>
+  )
+
+  // Inline mode: render directly in parent grid column (desktop sidebar)
+  if (inlineMode) {
+    return (
+      <Box sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        bgcolor: 'rgba(255,251,245,0.96)',
+        borderRight: '1px solid rgba(23,32,42,0.10)',
+        borderRadius: 2,
+        overflow: 'hidden',
+      }}>
+        {panelContent}
+      </Box>
+    )
+  }
+
+  // Drawer mode: mobile / tablet overlay
+  return (
+    <>
+      {showScriptPanel && (
+        <Box
+          onClick={() => setShowScriptPanel(false)}
+          sx={{ position: 'fixed', inset: 0, bgcolor: 'rgba(0,0,0,0.28)', zIndex: 490 }}
+        />
+      )}
+      <Drawer
+        anchor="left"
+        open={showScriptPanel}
+        onClose={() => setShowScriptPanel(false)}
+        sx={{
+          '& .MuiDrawer-paper': {
+            width: panelWidth,
+            borderRadius: '0 22px 22px 0',
+            bgcolor: 'rgba(255,251,245,0.96)',
+            borderRight: '1px solid rgba(23,32,42,0.12)',
+            display: 'flex',
+            flexDirection: 'column',
+          },
+        }}
+      >
+        {panelContent}
       </Drawer>
     </>
   )
