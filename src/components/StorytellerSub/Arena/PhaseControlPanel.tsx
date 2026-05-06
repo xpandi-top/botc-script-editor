@@ -37,16 +37,16 @@ import type { Phase, PublicMode } from '../types'
 const PHASES: Phase[] = ['night', 'private', 'public', 'nomination']
 
 const PANEL_COLORS_DARK: Record<string, string> = {
-  night:      'linear-gradient(135deg, #161C28, #283347)',
-  private:    'linear-gradient(135deg, #4E4134, #6A5844)',
-  public:     'linear-gradient(135deg, #243243, #394C61)',
-  nomination: 'linear-gradient(135deg, #4A382B, #6A523D)',
+  night:      'linear-gradient(135deg, rgba(22,28,40,0.20), rgba(40,51,71,0.20))',
+  private:    'linear-gradient(135deg, rgba(78,65,52,0.20), rgba(106,88,68,0.20))',
+  public:     'linear-gradient(135deg, rgba(36,50,67,0.20), rgba(57,76,97,0.20))',
+  nomination: 'linear-gradient(135deg, rgba(74,56,43,0.20), rgba(106,82,61,0.20))',
 }
 const PANEL_COLORS_LIGHT: Record<string, string> = {
-  night:      'linear-gradient(135deg, #2B3447, #44506A)',
-  private:    'linear-gradient(135deg, #F5E8D1, #E7D4B2)',
-  public:     'linear-gradient(135deg, #EEF6FF, #DCEBFA)',
-  nomination: 'linear-gradient(135deg, #ECDCC8, #D6B896)',
+  night:      'linear-gradient(135deg, rgba(43,52,71,0.20), rgba(68,80,106,0.20))',
+  private:    'linear-gradient(135deg, rgba(245,232,209,0.20), rgba(231,212,178,0.20))',
+  public:     'linear-gradient(135deg, rgba(238,246,255,0.20), rgba(220,235,250,0.20))',
+  nomination: 'linear-gradient(135deg, rgba(236,220,200,0.20), rgba(214,184,150,0.20))',
 }
 // Light-theme phases that use a bright background → need dark text/buttons
 const LIGHT_BG_PHASES = new Set(['private', 'public', 'nomination'])
@@ -138,6 +138,8 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
           left: '50%', transform: 'translateX(-50%)',
           width: '100%', maxWidth: 600,
           zIndex: 1200, background: bgGradient,
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
           borderTop: `1px solid ${borderColor}`,
           borderRadius: '12px',
           display: 'flex', alignItems: 'center', gap: 1, px: 1.5, py: 0.75,
@@ -182,6 +184,8 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
           minHeight: 200,
           zIndex: 1200,
           background: bgGradient,
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
           borderTop: `1px solid ${borderColor}`,
           borderRadius: '20px',
           boxShadow: '0 -8px 32px rgba(0,0,0,0.5)',
