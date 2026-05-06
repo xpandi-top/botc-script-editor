@@ -159,6 +159,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
           bottom: 'calc(56px + var(--safe-bottom, 0px))',
           left: '50%', transform: 'translateX(-50%)',
           width: '100%', maxWidth: 600,
+          minHeight: 200,
           zIndex: 1200,
           bgcolor: bgColor,
           borderTop: '1px solid rgba(255,255,255,0.2)',
@@ -168,7 +169,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
           flexDirection: 'column',
           // Smooth phase colour transition only; height is auto-sized to content
           transition: 'background-color 0.35s ease',
-          overflow: 'hidden',
+          overflow: 'auto',
         }}
       >
         {/* Drag handle + collapse */}
@@ -178,14 +179,14 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
 
         <Box sx={{ overflowY: 'auto', maxHeight: '38dvh', px: 1.5, pb: 1.5 }}>
           {/* Day nav + phase selector */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.75, flexWrap: 'wrap' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.75, flexWrap: 'wrap' }}>
             <IconButton sx={iconBtnSx} onClick={() => goToPreviousDay()}>
               <ArrowBackIcon />
             </IconButton>
             <Select
               value={currentDay.id}
               onChange={(e) => setSelectedDayId(e.target.value)}
-              sx={{ color: textColor, fontWeight: 700, fontSize: '1rem', '& .MuiSelect-icon': { color: mutedColor }, '& fieldset': { borderColor: 'rgba(255,255,255,0.3)' }, minWidth: 90 }}
+              sx={{ color: textColor, fontWeight: 700, fontSize: '1rem', '& .MuiSelect-icon': { color: mutedColor }, '& fieldset': { borderColor: 'rgba(255,255,255,0.3)' }, minWidth: 100 }}
             >
               {days.map((d: any) => <MenuItem key={d.id} value={d.id} sx={{ fontSize: '0.95rem' }}>Day {d.day}</MenuItem>)}
             </Select>
@@ -197,6 +198,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
               value={phase} exclusive
               onChange={(_, v) => v && setPhase(v)}
               sx={{
+                gap: 1, 
                 '& .MuiToggleButton-root': {
                   color: textColor,
                   borderColor: 'rgba(255,255,255,0.25)',
@@ -219,7 +221,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
           </Box>
 
           {/* Public mode + ST Settings / Log row */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 1, flexWrap: 'wrap' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1, flexWrap: 'wrap' }}>
             {phase === 'public' && (
               <Select
                 value={publicMode}
@@ -260,7 +262,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
               </>
             )}
           </Box>
-
+          
           {/* Timer */}
           {hasTimer && (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 1, flexWrap: 'wrap' }}>
@@ -311,7 +313,8 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
 
           {/* Night controls — single icon row */}
           {phase === 'night' && (
-            <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mb: 1, alignItems: 'center' }}>
+            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 1, alignItems: 'left', flexDirection: 'column'}}>
+              <Box sx={{gap:2, display:'flex', alignItems:'center'}}>
               <Tooltip title={audioPlaying ? (language === 'zh' ? '暂停BGM' : 'Pause BGM') : (language === 'zh' ? '播放BGM' : 'Play BGM')}>
                 <IconButton sx={{ ...iconBtnSx, ...(audioPlaying ? TIMER_ACTIVE_SX : TIMER_IDLE_SX), p: 0.75 }} onClick={() => audioPlaying ? setAudioPlaying(false) : startNight()}>
                   {audioPlaying ? <PauseIcon /> : <PlayArrowIcon />}
@@ -322,7 +325,8 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
                   <StopIcon />
                 </IconButton>
               </Tooltip>
-              <Box sx={{ width: 1, height: 24, bgcolor: 'rgba(255,255,255,0.2)', mx: 0.25 }} />
+              </Box>
+              <Box sx={{gap:2, display:'flex'}}>
               <Tooltip title={nightShowCharacter ? (language === 'zh' ? '隐藏角色' : 'Hide Characters') : (language === 'zh' ? '显示角色' : 'Show Characters')}>
                 <IconButton sx={{ ...iconBtnSx, ...(nightShowCharacter ? TIMER_ACTIVE_SX : TIMER_IDLE_SX), p: 0.75 }} onClick={() => setNightShowCharacter((v: boolean) => !v)}>
                   {nightShowCharacter ? <VisibilityIcon /> : <VisibilityOffIcon />}
@@ -338,6 +342,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
                   <ManageAccountsIcon />
                 </IconButton>
               </Tooltip>
+              </Box>
             </Box>
           )}
 
@@ -383,7 +388,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
 
         </Box>
       </Box>
-
+      <ArenaCenterNominationSheet ctx={ctx} />
       <AggregatedLogModal ctx={ctx} />
       <StorytellerSetupModal ctx={ctx} />
     </>
