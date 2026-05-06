@@ -107,7 +107,7 @@ export function ScriptsTab({
   return (
     <Box sx={{ display: 'grid', gridTemplateColumns: gridCols, gap: 2 }}>
       {showList && (
-        <Paper elevation={0} sx={{ p: 2, borderRadius: 3, background: 'rgba(255,251,245,0.9)', border: '1px solid', borderColor: 'divider' }}>
+        <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider' }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
             <Typography variant="h6">{uiText.scriptSheet}</Typography>
             <Box sx={{ display: 'flex', gap: 0.5 }}>
@@ -207,7 +207,7 @@ export function ScriptsTab({
         </Paper>
       )}
 
-      <Paper elevation={0} sx={{ p: 2, borderRadius: 3, background: 'rgba(255,251,245,0.9)', border: '1px solid', borderColor: 'divider' }}>
+      <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider' }}>
         {activeScript ? (
           <>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2, flexWrap: 'wrap' }}>

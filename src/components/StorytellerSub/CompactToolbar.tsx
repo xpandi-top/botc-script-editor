@@ -27,7 +27,7 @@ export function CompactToolbar({ ctx }: { ctx: StorytellerContext }) {
   const distColors: Record<string, string> = { townsfolk: '#2e6ec4', outsider: '#7c4dbf', minion: '#c45c2e', demon: '#b91c1c' }
 
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1.5, pb: 1.5, borderBottom: '1px solid rgba(23,32,42,0.08)', mb: 1, flexShrink: 0 }}>
+    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1.5, pb: 1.5, borderBottom: '1px solid', borderBottomColor: 'divider', mb: 1, flexShrink: 0 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap', flex: 1 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Typography variant="h6" sx={{ fontSize: 'clamp(0.8rem, 2vw, 1rem)' }}>{aliveCount}/{totalCount}</Typography>
@@ -52,7 +52,7 @@ export function CompactToolbar({ ctx }: { ctx: StorytellerContext }) {
           />
         )}
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, border: '1px solid rgba(23,32,42,0.12)', borderRadius: 999, px: 1, py: 0.25, bgcolor: 'rgba(255,255,255,0.7)' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, border: '1px solid', borderColor: 'divider', borderRadius: 999, px: 1, py: 0.25, bgcolor: 'background.paper' }}>
           <IconButton size="small" onClick={() => setAudioPlaying((c: boolean) => !c)} sx={{ p: 0.5 }}>
             {audioPlaying ? <PauseIcon sx={{ fontSize: '0.9rem' }} /> : <PlayArrowIcon sx={{ fontSize: '0.9rem' }} />}
           </IconButton>
@@ -74,7 +74,7 @@ export function CompactToolbar({ ctx }: { ctx: StorytellerContext }) {
             sx={{ width: 60, '& .MuiSlider-thumb': { width: 12, height: 12 } }}
           />
           <label>
-            <IconButton size="medium" component="span" sx={{ p: 0.25, border: '1px dashed rgba(133,63,34,0.4)', borderRadius: 999 }}>
+            <IconButton size="medium" component="span" sx={{ p: 0.25, border: '1px dashed', borderColor: 'primary.light', borderRadius: 999 }}>
               <AddIcon />
             </IconButton>
             <input type="file" accept=".mp3" onChange={handleLocalFileChange} style={{ display: 'none' }} />

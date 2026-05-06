@@ -14,7 +14,7 @@ export function Modals({ ctx }: { ctx: StorytellerContext }) {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'lg'))
 
-  const paperSx = { borderRadius: isMobile ? 0 : 3, bgcolor: 'rgba(255,251,245,0.96)' }
+  const paperSx = { borderRadius: isMobile ? 0 : 3, bgcolor: 'background.paper' }
   // tablet gets md width; desktop keeps sm (content doesn't need more)
   const dialogMaxWidth = isMobile ? 'sm' : isTablet ? 'md' : 'sm'
 

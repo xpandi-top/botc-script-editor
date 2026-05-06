@@ -32,8 +32,9 @@ export function MobileTopBar({ ctx }: { ctx: StorytellerContext }) {
       gap: 1,
       px: 1.25,
       py: 0.75,
-      borderBottom: '1px solid rgba(23,32,42,0.12)',
-      bgcolor: 'rgba(255,251,245,0.98)',
+      borderBottom: '1px solid',
+      borderBottomColor: 'divider',
+      bgcolor: 'background.paper',
       flexShrink: 0,
       minHeight: 60,
       position: 'sticky',
@@ -80,7 +81,7 @@ export function MobileTopBar({ ctx }: { ctx: StorytellerContext }) {
             minWidth: 55,
             height: 32,
             '& .MuiSelect-select': { py: 0.25, px: 1, fontSize: '0.85rem', fontWeight: 600 },
-            '& fieldset': { border: '1px solid rgba(23,32,42,0.15)' },
+            '& fieldset': { borderColor: 'divider' },
           }}
         >
           <MenuItem value="en" sx={{ fontSize: '0.85rem' }}>EN</MenuItem>

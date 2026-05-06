@@ -27,7 +27,7 @@ export function ArenaCenter({ ctx }: { ctx: StorytellerContext }) {
         alignItems: 'center',
       }}
     >
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5, pb: 0.5, borderBottom: '1px solid rgba(23,32,42,0.08)', flexShrink: 0 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5, pb: 0.5, borderBottom: '1px solid', borderBottomColor: 'divider', flexShrink: 0 }}>
         <IconButton size="large" onClick={(e) => { e.stopPropagation(); goToPreviousDay() }} title={language === 'zh' ? '上一天' : 'Previous day'}>
           <ArrowBackIcon />
         </IconButton>

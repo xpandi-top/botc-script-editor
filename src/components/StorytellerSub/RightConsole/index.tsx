@@ -31,7 +31,7 @@ function IconBar({
   setShowExportModal: (v: boolean) => void
 }) {
   return (
-    <Box sx={{ width: barWidth, display: 'flex', flexDirection: 'column', alignItems: 'center', py: 1, gap: 0.5, borderLeft: '1px solid rgba(23,32,42,0.10)', bgcolor: 'rgba(255,251,245,0.92)', flexShrink: 0 }}>
+    <Box sx={{ width: barWidth, display: 'flex', flexDirection: 'column', alignItems: 'center', py: 1, gap: 0.5, borderLeft: '1px solid', borderLeftColor: 'divider', bgcolor: 'background.paper', flexShrink: 0 }}>
       {[
         { key: 'settings', icon: <SettingsIcon />, label: language === 'zh' ? '设置' : 'Settings' },
         { key: 'records',  icon: <HistoryIcon />,  label: language === 'zh' ? '记录' : 'Records' },
@@ -41,10 +41,11 @@ function IconBar({
           onClick={() => togglePopup(key as 'settings' | 'records')}
           sx={{
             flexDirection: 'column', width: 44, p: 0.5, borderRadius: 1.5,
-            bgcolor: activeRightPopup === key ? 'rgba(133,63,34,0.12)' : 'transparent',
-            border: activeRightPopup === key ? '1px solid rgba(133,63,34,0.3)' : '1px solid transparent',
+            bgcolor: activeRightPopup === key ? 'action.selected' : 'transparent',
+            border: activeRightPopup === key ? '1px solid' : '1px solid transparent',
+            borderColor: activeRightPopup === key ? 'primary.light' : 'transparent',
             color: activeRightPopup === key ? 'primary.main' : 'text.primary',
-            '&:hover': { bgcolor: 'rgba(133,63,34,0.08)', borderColor: 'rgba(133,63,34,0.18)' },
+            '&:hover': { bgcolor: 'action.hover' },
           }}
         >
           <Box sx={{ fontSize: '1.1rem', lineHeight: 1 }}>{icon}</Box>
@@ -111,8 +112,9 @@ export function RightConsole({ ctx }: { ctx: StorytellerContext }) {
         sx={{
           display: 'flex',
           flexDirection: 'row',
-          bgcolor: 'rgba(255,251,245,0.96)',
-          border: '1px solid rgba(23,32,42,0.10)',
+          bgcolor: 'background.paper',
+          border: '1px solid',
+          borderColor: 'divider',
           borderRadius: 2,
           overflow: 'hidden',
           alignSelf: 'stretch',
@@ -143,14 +145,15 @@ export function RightConsole({ ctx }: { ctx: StorytellerContext }) {
           '& .MuiDrawer-paper': {
             width: activeRightPopup ? drawerWidth : barWidth,
             borderRadius: '22px 0 0 22px',
-            bgcolor: 'rgba(255,251,245,0.96)',
-            borderLeft: '1px solid rgba(23,32,42,0.10)',
+            bgcolor: 'background.paper',
+            borderLeft: '1px solid',
+            borderLeftColor: 'divider',
             display: 'flex',
             flexDirection: 'row',
           },
         }}
       >
-        <Box sx={{ width: activeRightPopup ? drawerWidth : 0, overflow: 'hidden', bgcolor: 'rgba(255,251,245,0.96)' }}>
+        <Box sx={{ width: activeRightPopup ? drawerWidth : 0, overflow: 'hidden', bgcolor: 'background.paper' }}>
           {activeRightPopup === 'settings' && <RightPopupSettings ctx={ctx} />}
           {activeRightPopup === 'records' && <RightConsoleRecords ctx={ctx} toggleConsoleSection={ctx.toggleConsoleSection} />}
         </Box>

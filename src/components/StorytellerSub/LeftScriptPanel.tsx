@@ -38,7 +38,7 @@ export function LeftScriptPanel({ ctx, inlineMode = false }: { ctx: StorytellerC
     const ability = getAbilityText(id, language) ?? getAbilityText(id, 'en')
     if (!ability) return null
     return (
-      <Box sx={{ ml: 1, mt: 0.5, pl: 1, borderLeft: '3px solid rgba(133,63,34,0.35)', bgcolor: 'rgba(133,63,34,0.05)', borderRadius: '0 8px 8px 0', py: 0.5, px: 1 }}>
+      <Box sx={{ ml: 1, mt: 0.5, pl: 1, borderLeft: '3px solid', borderLeftColor: 'primary.light', bgcolor: 'action.hover', borderRadius: '0 8px 8px 0', py: 0.5, px: 1 }}>
         <Typography variant="body2" sx={{ fontSize: '0.78rem', lineHeight: 1.5 }}>{ability}</Typography>
       </Box>
     )
@@ -57,7 +57,7 @@ export function LeftScriptPanel({ ctx, inlineMode = false }: { ctx: StorytellerC
           <ListItemButton
             onClick={() => handleCharClick(id)}
             selected={isSelected}
-            sx={{ borderRadius: 1, '&.Mui-selected': { bgcolor: 'rgba(133,63,34,0.1)' } }}
+            sx={{ borderRadius: 1, '&.Mui-selected': { bgcolor: 'action.selected' } }}
           >
             {icon && <Box component="img" src={icon} alt="" sx={{ width: 24, height: 24, objectFit: 'contain', borderRadius: 0.5, mr: 1 }} />}
             <Typography variant="body2">{name || id}</Typography>
@@ -72,7 +72,7 @@ export function LeftScriptPanel({ ctx, inlineMode = false }: { ctx: StorytellerC
 
   const panelContent = (
     <>
-      <Box sx={{ p: 1.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(23,32,42,0.08)', flexShrink: 0 }}>
+      <Box sx={{ p: 1.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid', borderBottomColor: 'divider', flexShrink: 0 }}>
         <Typography variant="h6" sx={{ fontSize: '0.9rem', fontWeight: 700, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {activeScriptTitle || (language === 'zh' ? '剧本' : 'Script')}
         </Typography>
@@ -83,7 +83,7 @@ export function LeftScriptPanel({ ctx, inlineMode = false }: { ctx: StorytellerC
         )}
       </Box>
 
-      <Tabs value={view} onChange={(_, v) => setView(v)} sx={{ px: 1, borderBottom: '1px solid rgba(23,32,42,0.06)', flexShrink: 0 }} variant="fullWidth">
+      <Tabs value={view} onChange={(_, v) => setView(v)} sx={{ px: 1, borderBottom: '1px solid', borderBottomColor: 'divider', flexShrink: 0 }} variant="fullWidth">
         <Tab label={language === 'zh' ? '角色' : 'Chars'} value="characters" sx={{ fontSize: '0.78rem', minWidth: 0, px: 0.5 }} />
         <Tab label={language === 'zh' ? '第一夜' : 'First'} value="firstNight" sx={{ fontSize: '0.78rem', minWidth: 0, px: 0.5 }} />
         <Tab label={language === 'zh' ? '其他夜' : 'Other'} value="otherNight" sx={{ fontSize: '0.78rem', minWidth: 0, px: 0.5 }} />
@@ -120,7 +120,7 @@ export function LeftScriptPanel({ ctx, inlineMode = false }: { ctx: StorytellerC
                                 <ListItemButton
                                   onClick={() => handleCharClick(id)}
                                   selected={isSelected}
-                                  sx={{ borderRadius: 1, '&.Mui-selected': { bgcolor: 'rgba(133,63,34,0.1)' } }}
+                                  sx={{ borderRadius: 1, '&.Mui-selected': { bgcolor: 'action.selected' } }}
                                 >
                                   {icon && <Box component="img" src={icon} alt="" sx={{ width: 24, height: 24, objectFit: 'contain', borderRadius: 0.5, mr: 1 }} />}
                                   <Typography variant="body2">{name || id}</Typography>
@@ -150,8 +150,9 @@ export function LeftScriptPanel({ ctx, inlineMode = false }: { ctx: StorytellerC
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
-        bgcolor: 'rgba(255,251,245,0.96)',
-        borderRight: '1px solid rgba(23,32,42,0.10)',
+        bgcolor: 'background.paper',
+        borderRight: '1px solid',
+        borderRightColor: 'divider',
         borderRadius: 2,
         overflow: 'hidden',
       }}>
@@ -177,8 +178,9 @@ export function LeftScriptPanel({ ctx, inlineMode = false }: { ctx: StorytellerC
           '& .MuiDrawer-paper': {
             width: panelWidth,
             borderRadius: '0 22px 22px 0',
-            bgcolor: 'rgba(255,251,245,0.96)',
-            borderRight: '1px solid rgba(23,32,42,0.12)',
+            bgcolor: 'background.paper',
+            borderRight: '1px solid',
+            borderRightColor: 'divider',
             display: 'flex',
             flexDirection: 'column',
           },

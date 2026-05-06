@@ -64,7 +64,7 @@ export function CharactersTab({
         <Paper elevation={0} sx={{
           flex: 1, minWidth: 0,
           display: 'flex', flexDirection: 'column',
-          borderRadius: 3, background: 'rgba(255,251,245,0.9)', border: '1px solid', borderColor: 'divider',
+          borderRadius: 3, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider',
           height: { lg: '100%' },
           overflow: 'hidden',
         }}>
@@ -129,16 +129,16 @@ export function CharactersTab({
                       justifyContent: 'flex-start', border: '1px solid',
                       borderColor: isSelected ? 'primary.main' : 'divider',
                       borderRadius: 2,
-                      background: isSelected ? 'rgba(133, 63, 34, 0.05)' : '#fffdf8',
+                      bgcolor: isSelected ? 'action.selected' : 'background.paper',
                       textTransform: 'none',
-                      '&:hover': { background: 'rgba(133, 63, 34, 0.08)' },
+                      '&:hover': { bgcolor: 'action.hover' },
                     }}
                   >
                     {icon ? (
-                      <Box component="img" src={icon} alt="" sx={{ width: 48, height: 48, borderRadius: 999, objectFit: 'contain', background: '#f2ebdf', flexShrink: 0 }} />
+                      <Box component="img" src={icon} alt="" sx={{ width: 48, height: 48, borderRadius: 999, objectFit: 'contain', bgcolor: 'background.default', flexShrink: 0 }} />
                     ) : (
-                      <Box sx={{ width: 48, height: 48, borderRadius: 999, background: '#f2ebdf', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                        <Typography sx={{ fontWeight: 700, color: '#5d4730' }}>{character.id.slice(0, 2).toUpperCase()}</Typography>
+                      <Box sx={{ width: 48, height: 48, borderRadius: 999, bgcolor: 'background.default', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <Typography sx={{ fontWeight: 700, color: 'text.secondary' }}>{character.id.slice(0, 2).toUpperCase()}</Typography>
                       </Box>
                     )}
                     <Box sx={{ textAlign: 'left', flex: 1, minWidth: 0 }}>

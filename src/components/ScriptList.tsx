@@ -16,15 +16,15 @@ export function ScriptList({ title, isActive, onSelect }: ScriptListProps) {
         flexDirection: 'column',
         alignItems: 'flex-start',
         p: 1,
-        border: isActive ? '1px solid' : '1px solid',
-        borderColor: isActive ? 'primary.main' : 'rgba(23, 32, 42, 0.1)',
+        border: '1px solid',
+        borderColor: isActive ? 'primary.main' : 'divider',
         borderRadius: 2,
-        background: isActive ? 'linear-gradient(180deg, #fff6eb 0%, #fffdf8 100%)' : '#fffdf8',
+        bgcolor: isActive ? 'action.selected' : 'background.paper',
         textTransform: 'none',
         '&:hover': {
           transform: 'translateY(-1px)',
-          borderColor: 'rgba(133, 63, 34, 0.38)',
-          boxShadow: '0 8px 24px rgba(57, 43, 24, 0.08)',
+          borderColor: 'primary.light',
+          boxShadow: 2,
         },
       }}
     >
