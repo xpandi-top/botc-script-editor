@@ -1,15 +1,12 @@
 import { useCallback, useMemo, useRef, useState } from 'react'
 import {
   Autocomplete,
-  Box, Button, Chip, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle,
-  Divider, FormControl, IconButton, InputLabel, LinearProgress, Menu, MenuItem, Paper, Select,
+  Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle,
+  Divider, FormControl, IconButton, InputLabel, Menu, MenuItem, Select,
   TextField, ToggleButton, ToggleButtonGroup, Tooltip, Typography,
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
-import CloseIcon from '@mui/icons-material/Close'
-import DeleteIcon from '@mui/icons-material/Delete'
-import EditIcon from '@mui/icons-material/Edit'
 import FileDownloadIcon from '@mui/icons-material/FileDownload'
 import FileOpenIcon from '@mui/icons-material/FileOpen'
 import RefreshIcon from '@mui/icons-material/Refresh'
@@ -22,6 +19,7 @@ import { exportGameFile } from '../../lib/exportGame'
 import { isNativePlatform } from '../../lib/nativePrint'
 import type { GameRecord } from '../StorytellerSub/types'
 import type { Language } from '../../types'
+import { StudioShell } from '../AnalyticsStudio/StudioShell'
 
 // ── Storage helpers ───────────────────────────────────────────────
 
@@ -379,8 +377,6 @@ export function AnalyticsTab({ language, onLanguageChange }: { language: Languag
   const [showCreate, setShowCreate] = useState(false)
   const [importError, setImportError] = useState('')
   const [sharing, setSharing] = useState(false)
-  const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null)
-  const [selectedCharId, setSelectedCharId] = useState<string | null>(null)
   const [exportMenuAnchor, setExportMenuAnchor] = useState<null | HTMLElement>(null)
   const [shareMenuAnchor, setShareMenuAnchor] = useState<null | HTMLElement>(null)
   const statsRef = useRef<HTMLDivElement>(null)
@@ -392,7 +388,6 @@ export function AnalyticsTab({ language, onLanguageChange }: { language: Languag
     setRecords(next)
   }, [])
 
-  const deleteRecord = (id: string) => saveAndSet(records.filter((r) => r.id !== id))
   const updateRecord = (updated: GameRecord) => saveAndSet(records.map((r) => r.id === updated.id ? updated : r))
   const addRecord = (r: GameRecord) => saveAndSet([r, ...records])
 
@@ -517,11 +512,8 @@ export function AnalyticsTab({ language, onLanguageChange }: { language: Languag
     }
   }
 
-  // ── Stats ──
+  // ── Legacy stats (kept for export functions) ──
   const total = records.length
-  const evilWins = records.filter((r) => r.winner === 'evil').length
-  const goodWins = records.filter((r) => r.winner === 'good').length
-  const pct = (n: number) => (total > 0 ? Math.round((n / total) * 100) : 0)
 
   const scriptStats = useMemo(() => {
     const map = new Map<string, { title: string; total: number; evil: number; good: number; totalDays: number; totalVotes: number; totalVotePassed: number; totalDurationMs: number; durationCount: number }>()
@@ -609,12 +601,8 @@ export function AnalyticsTab({ language, onLanguageChange }: { language: Languag
     })
   }, [records])
 
-  const SectionTitle = ({ label }: { label: string }) => (
-    <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1.5 }}>{label}</Typography>
-  )
-
   return (
-    <Box sx={{ p: { xs: 1.5, sm: 2 }, maxWidth: 900, mx: 'auto' }}>
+    <Box sx={{ p: { xs: 1.5, sm: 2 }, maxWidth: 1100, mx: 'auto' }}>
 
       {/* ── Toolbar ── */}
       <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap', alignItems: 'center' }}>
@@ -692,362 +680,15 @@ export function AnalyticsTab({ language, onLanguageChange }: { language: Languag
         </Typography>
       )}
 
-      {total === 0 ? (
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 150 }}>
-          <Typography color="text.secondary">{zh ? '暂无游戏记录' : 'No game records yet'}</Typography>
-        </Box>
-      ) : (
-        <Box ref={statsRef}>
-          {/* ── Summary cards ── */}
-          <Box sx={{ display: 'flex', gap: 1.5, mb: 3, flexWrap: 'wrap' }}>
-            <Paper sx={{ p: 2, flex: '1 1 120px', textAlign: 'center' }} elevation={2}>
-              <Typography variant="h4" sx={{ fontWeight: 700 }}>{total}</Typography>
-              <Typography variant="caption" color="text.secondary">{zh ? '总局数' : 'Total Games'}</Typography>
-            </Paper>
-            <Paper sx={{ p: 2, flex: '1 1 120px', textAlign: 'center', bgcolor: '#7a2e24', color: '#f5ede8' }} elevation={2}>
-              <Typography variant="h4" sx={{ fontWeight: 700, color: '#f5ede8' }}>{pct(evilWins)}%</Typography>
-              <Typography variant="caption" sx={{ color: '#d4b0a8' }}>{zh ? `邪恶胜 (${evilWins})` : `Evil Wins (${evilWins})`}</Typography>
-            </Paper>
-            <Paper sx={{ p: 2, flex: '1 1 120px', textAlign: 'center', bgcolor: '#2e5e3a', color: '#e8f2eb' }} elevation={2}>
-              <Typography variant="h4" sx={{ fontWeight: 700, color: '#e8f2eb' }}>{pct(goodWins)}%</Typography>
-              <Typography variant="caption" sx={{ color: '#a8ccb4' }}>{zh ? `善良胜 (${goodWins})` : `Good Wins (${goodWins})`}</Typography>
-            </Paper>
-            {total - evilWins - goodWins > 0 && (
-              <Paper sx={{ p: 2, flex: '1 1 120px', textAlign: 'center' }} elevation={2}>
-                <Typography variant="h4" sx={{ fontWeight: 700 }}>{pct(total - evilWins - goodWins)}%</Typography>
-                <Typography variant="caption" color="text.secondary">{zh ? `说书人胜利 (${total - evilWins - goodWins})` : `ST Win (${total - evilWins - goodWins})`}</Typography>
-              </Paper>
-            )}
-          </Box>
-
-          {/* ── By Script (scrollable) ── */}
-          {scriptStats.length > 0 && (
-            <Box sx={{ mb: 3 }}>
-              <SectionTitle label={zh ? '剧本统计' : 'By Script'} />
-              <Box sx={{ pr: 0.5 }}>
-                {scriptStats.map((s) => {
-                  const stWin = s.total - s.evil - s.good
-                  return (
-                    <Box key={s.title} sx={{ mb: 2 }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.25, flexWrap: 'wrap', gap: 0.5 }}>
-                        <Typography variant="body2" sx={{ fontWeight: 600 }}>{s.title}</Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {s.total}{zh ? '局' : 'g'} · {zh ? `邪${s.evil} 善${s.good}${stWin > 0 ? ` 主持${stWin}` : ''}` : `E:${s.evil} G:${s.good}${stWin > 0 ? ` ST:${stWin}` : ''}`}
-                        </Typography>
-                      </Box>
-                      <Box sx={{ display: 'flex', height: 8, borderRadius: 1, overflow: 'hidden', gap: 0.25, mb: 0.5 }}>
-                        {s.evil > 0 && <Box sx={{ flex: s.evil, bgcolor: 'error.main' }} />}
-                        {s.good > 0 && <Box sx={{ flex: s.good, bgcolor: 'success.main' }} />}
-                        {stWin > 0 && <Box sx={{ flex: stWin, bgcolor: 'grey.400' }} />}
-                      </Box>
-                      <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                        <Typography variant="caption" color="text.secondary">{zh ? `均${s.avgDays}天` : `avg ${s.avgDays}d`}</Typography>
-                        <Typography variant="caption" color="text.secondary">{zh ? `均${s.avgVotes}票` : `avg ${s.avgVotes} votes`}</Typography>
-                        {s.votePassRate !== null && <Typography variant="caption" color="text.secondary">{zh ? `处决率${s.votePassRate}%` : `exec ${s.votePassRate}%`}</Typography>}
-                        {s.avgDurationMin !== null && <Typography variant="caption" color="text.secondary">{zh ? `均${s.avgDurationMin}min` : `avg ${s.avgDurationMin}min`}</Typography>}
-                      </Box>
-                    </Box>
-                  )
-                })}
-              </Box>
-            </Box>
-          )}
-
-          {playerStats.length > 0 && <Divider sx={{ mb: 3 }} />}
-
-          {/* ── By Player (clickable cards, scrollable) ── */}
-          {playerStats.length > 0 && (
-            <Box sx={{ mb: 3 }}>
-              <SectionTitle label={zh ? '玩家统计' : 'By Player'} />
-              <Box sx={{ pr: 0.5 }}>
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                  {playerStats.map((p) => {
-                    return (
-                      <Paper key={p.name} onClick={() => setSelectedPlayer(p.name)}
-                        sx={{ p: 1.5, flex: '1 1 140px', minWidth: 140, cursor: 'pointer',
-                          '&:hover': { bgcolor: 'rgba(133,63,34,0.06)' } }} elevation={1}>
-                        <Typography variant="body2" sx={{ fontWeight: 700, mb: 0.25 }}>{p.name}</Typography>
-                        <Typography variant="caption" sx={{ display: 'block' }} color="text.secondary">
-                          {p.total}{zh ? '局' : 'g'} · {p.winRate}%{zh ? '胜' : 'W'}
-                        </Typography>
-                        {(p.evilWinRate !== null || p.goodWinRate !== null) && (
-                          <Box sx={{ display: 'flex', gap: 0.5, mt: 0.25 }}>
-                            {p.goodWinRate !== null && <Typography variant="caption" color="success.dark">{zh ? `善${p.goodWinRate}%` : `G:${p.goodWinRate}%`}</Typography>}
-                            {p.evilWinRate !== null && <Typography variant="caption" color="error.dark">{zh ? `邪${p.evilWinRate}%` : `E:${p.evilWinRate}%`}</Typography>}
-                          </Box>
-                        )}
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.25, mt: 0.5 }}>
-                          {Array.from(p.chars).slice(0, 8).map((c) => {
-                            const icon = getIconForCharacter(c)
-                            return icon ? (
-                              <Box key={c} component="img" src={icon as string} sx={{ width: 18, height: 18, borderRadius: '50%' }}
-                                title={getDisplayName(c, language)} />
-                            ) : null
-                          })}
-                        </Box>
-                      </Paper>
-                    )
-                  })}
-                </Box>
-              </Box>
-            </Box>
-          )}
-
-          {charStats.length > 0 && <Divider sx={{ mb: 3 }} />}
-
-          {/* ── By Character (card grid, clickable, scrollable) ── */}
-          {charStats.length > 0 && (
-            <Box sx={{ mb: 3 }}>
-              <SectionTitle label={zh ? '角色统计' : 'By Character'} />
-              <Box sx={{ pr: 0.5 }}>
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                  {charStats.map((c) => {
-                    const icon = getIconForCharacter(c.charId)
-                    return (
-                      <Paper key={c.charId} onClick={() => setSelectedCharId(c.charId)}
-                        sx={{ p: 1.5, flex: '1 1 140px', minWidth: 140, cursor: 'pointer',
-                          '&:hover': { bgcolor: 'rgba(133,63,34,0.06)' } }} elevation={1}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
-                          {icon ? (
-                            <Box component="img" src={icon as string} sx={{ width: 32, height: 32, borderRadius: '50%', flexShrink: 0 }} />
-                          ) : (
-                            <Box sx={{ width: 32, height: 32, borderRadius: '50%', bgcolor: 'grey.200', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                              <Typography variant="caption">{c.charId.slice(0, 2).toUpperCase()}</Typography>
-                            </Box>
-                          )}
-                          <Typography variant="body2" sx={{ fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                            {getDisplayName(c.charId, language)}
-                          </Typography>
-                        </Box>
-                        <Typography variant="caption" sx={{ display: 'block' }} color="text.secondary">
-                          {c.total}{zh ? '局' : 'g'} · {c.winRate}%{zh ? '胜' : 'W'}
-                        </Typography>
-                        <Box sx={{ display: 'flex', gap: 0.5 }}>
-                          {c.goodGames > 0 && <Typography variant="caption" color="success.dark">{zh ? `善${c.goodGames}` : `G:${c.goodGames}`}</Typography>}
-                          {c.evilGames > 0 && <Typography variant="caption" color="error.dark">{zh ? `邪${c.evilGames}` : `E:${c.evilGames}`}</Typography>}
-                        </Box>
-                        {c.topPlayer && <Typography variant="caption" color="text.disabled" sx={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>★ {c.topPlayer}</Typography>}
-                      </Paper>
-                    )
-                  })}
-                </Box>
-              </Box>
-            </Box>
-          )}
-
-          <Divider sx={{ mb: 3 }} />
-        </Box>
-      )}
-
-      {/* ── Player detail popup ── */}
-      {selectedPlayer && (() => {
-        const p = playerStats.find(p => p.name === selectedPlayer)
-        if (!p) return null
-        const winPct = p.total ? Math.round((p.wins / p.total) * 100) : 0
-        return (
-          <Dialog open onClose={() => setSelectedPlayer(null)} maxWidth="sm" fullWidth>
-            <DialogTitle sx={{ display: 'flex', alignItems: 'center' }}>
-              <Typography variant="h6" sx={{ flex: 1, fontWeight: 700 }}>{p.name}</Typography>
-              <IconButton onClick={() => setSelectedPlayer(null)}><CloseIcon /></IconButton>
-            </DialogTitle>
-            <DialogContent>
-              <Box sx={{ display: 'flex', gap: 2, mb: 2, flexWrap: 'wrap' }}>
-                <Paper sx={{ p: 2, flex: '1 1 100px', textAlign: 'center' }} elevation={1}>
-                  <Typography variant="h5" sx={{ fontWeight: 700 }}>{p.total}</Typography>
-                  <Typography variant="caption" color="text.secondary">{zh ? '总局' : 'Games'}</Typography>
-                </Paper>
-                <Paper sx={{ p: 2, flex: '1 1 100px', textAlign: 'center', bgcolor: 'action.hover' }} elevation={1}>
-                  <Typography variant="h5" sx={{ fontWeight: 700 }}>{p.wins}</Typography>
-                  <Typography variant="caption" color="text.secondary">{zh ? `胜 (${winPct}%)` : `Wins (${winPct}%)`}</Typography>
-                </Paper>
-                <Paper sx={{ p: 2, flex: '1 1 100px', textAlign: 'center', bgcolor: '#2e5e3a', color: '#e8f2eb' }} elevation={1}>
-                  <Typography variant="h5" sx={{ fontWeight: 700, color: '#e8f2eb' }}>{p.goodGames}</Typography>
-                  <Typography variant="caption" sx={{ color: '#a8ccb4' }}>{zh ? '善良局' : 'Good'}</Typography>
-                </Paper>
-                <Paper sx={{ p: 2, flex: '1 1 100px', textAlign: 'center', bgcolor: '#7a2e24', color: '#f5ede8' }} elevation={1}>
-                  <Typography variant="h5" sx={{ fontWeight: 700, color: '#f5ede8' }}>{p.evilGames}</Typography>
-                  <Typography variant="caption" sx={{ color: '#d4b0a8' }}>{zh ? '邪恶局' : 'Evil'}</Typography>
-                </Paper>
-              </Box>
-              {p.chars.size > 0 && (
-                <>
-                  <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700 }}>{zh ? '扮演过的角色' : 'Characters Played'}</Typography>
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5 }}>
-                    {Array.from(p.chars).map((c) => {
-                      const icon = getIconForCharacter(c)
-                      return (
-                        <Box key={c} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5, width: 64 }}>
-                          {icon ? (
-                            <Box component="img" src={icon as string} sx={{ width: 56, height: 56, borderRadius: '50%', bgcolor: '#f2ebdf' }} />
-                          ) : (
-                            <Box sx={{ width: 56, height: 56, borderRadius: '50%', bgcolor: 'grey.200', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                              <Typography variant="caption">{c.slice(0, 2).toUpperCase()}</Typography>
-                            </Box>
-                          )}
-                          <Typography variant="caption" sx={{ textAlign: 'center', wordBreak: 'break-word', fontSize: '0.65rem' }}>
-                            {getDisplayName(c, language)}
-                          </Typography>
-                        </Box>
-                      )
-                    })}
-                  </Box>
-                </>
-              )}
-            </DialogContent>
-          </Dialog>
-        )
-      })()}
-
-      {/* ── Character detail popup ── */}
-      {selectedCharId && (() => {
-        const c = charStats.find(c => c.charId === selectedCharId)
-        if (!c) return null
-        const icon = getIconForCharacter(c.charId)
-        const winPct = c.total ? Math.round((c.wins / c.total) * 100) : 0
-        const goodGames = c.total - c.evilGames
-        const charEvilWins = c.evilGames > 0 ? Math.round((c.wins / c.total) * c.evilGames) : 0
-        const charGoodWins = c.wins - charEvilWins
-        const goodWinPct = goodGames > 0 ? Math.round((charGoodWins / goodGames) * 100) : 0
-        const evilWinPct = c.evilGames > 0 ? Math.round((charEvilWins / c.evilGames) * 100) : 0
-        // games where this character appeared
-        const charRecords = records.filter(r => r.setup?.assignments && Object.values(r.setup.assignments).includes(c.charId))
-        return (
-          <Dialog open onClose={() => setSelectedCharId(null)} maxWidth="sm" fullWidth>
-            <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              {icon ? (
-                <Box component="img" src={icon as string} sx={{ width: 56, height: 56, borderRadius: '50%', bgcolor: '#f2ebdf', flexShrink: 0 }} />
-              ) : (
-                <Box sx={{ width: 56, height: 56, borderRadius: '50%', bgcolor: 'grey.200', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Typography>{c.charId.slice(0, 2).toUpperCase()}</Typography>
-                </Box>
-              )}
-              <Box sx={{ flex: 1 }}>
-                <Typography variant="h6" sx={{ fontWeight: 700 }}>{getDisplayName(c.charId, language)}</Typography>
-                <Typography variant="caption" color="text.secondary">{c.charId}</Typography>
-              </Box>
-              <IconButton onClick={() => setSelectedCharId(null)}><CloseIcon /></IconButton>
-            </DialogTitle>
-            <DialogContent>
-              <Box sx={{ display: 'flex', gap: 1.5, mb: 2, flexWrap: 'wrap' }}>
-                <Paper sx={{ p: 2, flex: '1 1 80px', textAlign: 'center' }} elevation={1}>
-                  <Typography variant="h5" sx={{ fontWeight: 700 }}>{c.total}</Typography>
-                  <Typography variant="caption" color="text.secondary">{zh ? '总局' : 'Played'}</Typography>
-                </Paper>
-                <Paper sx={{ p: 2, flex: '1 1 80px', textAlign: 'center' }} elevation={1}>
-                  <Typography variant="h5" sx={{ fontWeight: 700 }}>{winPct}%</Typography>
-                  <Typography variant="caption" color="text.secondary">{zh ? '胜率' : 'Win Rate'}</Typography>
-                </Paper>
-                {goodGames > 0 && (
-                  <Paper sx={{ p: 2, flex: '1 1 80px', textAlign: 'center', bgcolor: '#2e5e3a', color: '#e8f2eb' }} elevation={1}>
-                    <Typography variant="h5" sx={{ fontWeight: 700, color: '#e8f2eb' }}>{goodGames}</Typography>
-                    <Typography variant="caption" sx={{ color: '#a8ccb4' }}>{zh ? `善良 ${goodWinPct}%胜` : `Good ${goodWinPct}%W`}</Typography>
-                  </Paper>
-                )}
-                {c.evilGames > 0 && (
-                  <Paper sx={{ p: 2, flex: '1 1 80px', textAlign: 'center', bgcolor: '#7a2e24', color: '#f5ede8' }} elevation={1}>
-                    <Typography variant="h5" sx={{ fontWeight: 700, color: '#f5ede8' }}>{c.evilGames}</Typography>
-                    <Typography variant="caption" sx={{ color: '#d4b0a8' }}>{zh ? `邪恶 ${evilWinPct}%胜` : `Evil ${evilWinPct}%W`}</Typography>
-                  </Paper>
-                )}
-              </Box>
-              <LinearProgress variant="determinate" value={winPct}
-                sx={{ height: 6, borderRadius: 3, mb: 2, bgcolor: 'grey.200',
-                  '& .MuiLinearProgress-bar': { bgcolor: c.evilGames > goodGames ? 'error.main' : 'success.main' } }} />
-              {charRecords.length > 0 && (
-                <>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>{zh ? '出现记录' : 'Game History'}</Typography>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                    {charRecords.map(r => (
-                      <Box key={r.id} sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 0.75, borderRadius: 1, bgcolor: 'action.hover' }}>
-                        <Typography variant="caption" sx={{ flex: 1 }}>{r.recordName || r.scriptTitle || '?'}</Typography>
-                        <Chip size="small"
-                          label={r.winner === 'evil' ? (zh ? '邪恶胜' : 'Evil') : r.winner === 'good' ? (zh ? '善良胜' : 'Good') : r.winner === 'storyteller' ? (zh ? '说书人' : 'ST') : '?'}
-                          color={r.winner === 'evil' ? 'error' : r.winner === 'good' ? 'success' : r.winner === 'storyteller' ? 'info' : 'default'}
-                          sx={{ fontSize: '0.6rem', height: 18 }} />
-                        <Typography variant="caption" color="text.secondary">{new Date(r.endedAt).toLocaleDateString()}</Typography>
-                      </Box>
-                    ))}
-                  </Box>
-                </>
-              )}
-            </DialogContent>
-          </Dialog>
-        )
-      })()}
-
-      {/* ── Records list ── */}
-      <Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5, gap: 1 }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 700, flex: 1 }}>
-            {zh ? '游戏记录' : 'Game Records'} ({records.length})
-          </Typography>
-          <Tooltip title={zh ? '新建记录' : 'New Record'}>
-            <IconButton size="small" onClick={() => setShowCreate(true)}>
-              <AddIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title={zh ? '导入 JSON' : 'Import JSON'}>
-            <IconButton size="small" component="label">
-              <FileOpenIcon fontSize="small" />
-              <input type="file" accept=".json" hidden onChange={handleImport} />
-            </IconButton>
-          </Tooltip>
-        </Box>
-
-        {records.length === 0 && (
-          <Typography variant="body2" color="text.secondary" sx={{ py: 4, textAlign: 'center' }}>
-            {zh ? '暂无记录。完成游戏后自动保存，或点击"新建记录"手动添加。' : 'No records. Games save automatically on end, or click "New Record" to add manually.'}
-          </Typography>
-        )}
-
-        {[...records]
-          .sort((a, b) => b.endedAt - a.endedAt)
-          .map((r) => (
-            <Paper key={r.id} sx={{ p: 1.5, mb: 1, display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }} elevation={1}>
-              <Typography variant="body2" sx={{ fontWeight: 600, flex: 1, minWidth: 80 }}>
-                {r.recordName || r.scriptTitle || '?'}
-              </Typography>
-              {r.winner ? (
-                <Chip size="small"
-                  label={r.winner === 'evil' ? (zh ? '邪恶胜' : 'Evil Win') : r.winner === 'good' ? (zh ? '善良胜' : 'Good Win') : r.winner === 'storyteller' ? (zh ? '说书人胜' : 'ST Win') : r.winner}
-                  color={r.winner === 'evil' ? 'error' : r.winner === 'good' ? 'success' : r.winner === 'storyteller' ? 'info' : 'default'} />
-              ) : (
-                <Chip size="small" label={zh ? '未记录' : 'No result'} />
-              )}
-              <Typography variant="caption" color="text.secondary">
-                {r.days.length}{zh ? '天' : 'd'}
-              </Typography>
-              {r.playerSummaries && (
-                <Typography variant="caption" color="text.secondary">
-                  {r.playerSummaries.length}{zh ? '人' : 'p'}
-                </Typography>
-              )}
-              <Typography variant="caption" color="text.secondary" sx={{ minWidth: 70 }}>
-                {new Date(r.endedAt).toLocaleDateString()}
-              </Typography>
-              <Box sx={{ display: 'flex', gap: 0.5 }}>
-                <Tooltip title={zh ? '编辑' : 'Edit'}>
-                  <IconButton size="small" onClick={() => setEditingRecord(r)}>
-                    <EditIcon sx={{ fontSize: 16 }} />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title={zh ? '下载此记录' : 'Download'}>
-                  <IconButton size="small" onClick={() => {
-                    exportGameFile(JSON.stringify(r, null, 2), `record-${r.id.slice(0, 8)}.json`)
-                  }}>
-                    <FileDownloadIcon sx={{ fontSize: 16 }} />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title={zh ? '删除' : 'Delete'}>
-                  <IconButton size="small" color="error" onClick={() => {
-                    if (confirm(zh ? '确定删除此记录？' : 'Delete this record?')) deleteRecord(r.id)
-                  }}>
-                    <DeleteIcon sx={{ fontSize: 16 }} />
-                  </IconButton>
-                </Tooltip>
-              </Box>
-            </Paper>
-          ))}
+      {/* ── Studio Shell ── */}
+      <Box ref={statsRef}>
+        <StudioShell
+          records={records}
+          onRecordsChange={saveAndSet}
+          language={language}
+          onCreateRecord={() => setShowCreate(true)}
+          onEditRecord={(r) => setEditingRecord(r)}
+        />
       </Box>
 
       {/* ── Dialogs ── */}

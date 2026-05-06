@@ -1,0 +1,307 @@
+import { useMemo } from 'react'
+import type { GameRecord } from '../StorytellerSub/types'
+import type { Language } from '../../types'
+// catalog helpers used in consuming components, not here
+
+// ── Script stats ─────────────────────────────────────────────────
+
+export type ScriptStat = {
+  key: string
+  title: string
+  total: number
+  evil: number
+  good: number
+  st: number
+  totalDays: number
+  totalVotes: number
+  totalVotePassed: number
+  totalNominations: number
+  totalSkills: number
+  totalDurationMs: number
+  durationCount: number
+  avgDays: number
+  avgVotes: number
+  avgNominations: number
+  votePassRate: number | null
+  avgDurationMin: number | null
+  dayHistogram: number[]   // index=day-1, value=count of games that lasted that many days
+}
+
+export function useScriptStats(records: GameRecord[]): ScriptStat[] {
+  return useMemo(() => {
+    const map = new Map<string, {
+      key: string; title: string; total: number; evil: number; good: number; st: number
+      totalDays: number; totalVotes: number; totalVotePassed: number
+      totalNominations: number; totalSkills: number
+      totalDurationMs: number; durationCount: number
+      dayHistogram: number[]
+    }>()
+
+    for (const r of records) {
+      const key = r.scriptSlug || r.scriptTitle || 'unknown'
+      const entry = map.get(key) ?? {
+        key, title: r.scriptTitle || r.scriptSlug || '?',
+        total: 0, evil: 0, good: 0, st: 0,
+        totalDays: 0, totalVotes: 0, totalVotePassed: 0,
+        totalNominations: 0, totalSkills: 0,
+        totalDurationMs: 0, durationCount: 0,
+        dayHistogram: [],
+      }
+      entry.total++
+      if (r.winner === 'evil') entry.evil++
+      else if (r.winner === 'good') entry.good++
+      else if (r.winner === 'storyteller') entry.st++
+      const dayLen = r.days?.length ?? 0
+      entry.totalDays += dayLen
+      entry.totalVotes += r.days?.reduce((s, d) => s + (d.votes ?? 0), 0) ?? 0
+      entry.totalVotePassed += r.days?.reduce((s, d) => s + (d.votePassed ?? 0), 0) ?? 0
+      entry.totalNominations += r.days?.reduce((s, d) => s + (d.nominations ?? 0), 0) ?? 0
+      entry.totalSkills += r.days?.reduce((s, d) => s + (d.skills ?? 0), 0) ?? 0
+      if (r.durationMs) { entry.totalDurationMs += r.durationMs; entry.durationCount++ }
+      if (dayLen > 0) {
+        entry.dayHistogram[dayLen - 1] = (entry.dayHistogram[dayLen - 1] ?? 0) + 1
+      }
+      map.set(key, entry)
+    }
+
+    return Array.from(map.values())
+      .sort((a, b) => b.total - a.total)
+      .map((s) => ({
+        ...s,
+        avgDays: s.total ? +(s.totalDays / s.total).toFixed(1) : 0,
+        avgVotes: s.total ? +(s.totalVotes / s.total).toFixed(1) : 0,
+        avgNominations: s.total ? +(s.totalNominations / s.total).toFixed(1) : 0,
+        votePassRate: s.totalVotes ? Math.round((s.totalVotePassed / s.totalVotes) * 100) : null,
+        avgDurationMin: s.durationCount ? Math.round(s.totalDurationMs / s.durationCount / 60000) : null,
+      }))
+  }, [records])
+}
+
+// ── Player stats ─────────────────────────────────────────────────
+
+export type CharPlayEntry = { charId: string; total: number; wins: number }
+
+export type PlayerStat = {
+  name: string
+  total: number
+  wins: number
+  evilGames: number
+  goodGames: number
+  evilWins: number
+  goodWins: number
+  winRate: number
+  evilWinRate: number | null
+  goodWinRate: number | null
+  charMap: Map<string, CharPlayEntry>   // charId → {total, wins}
+  mostPlayedChar: string | null
+  charSet: Set<string>
+  teammates: Map<string, number>        // playerName → games played together
+}
+
+export function usePlayerStats(records: GameRecord[]): PlayerStat[] {
+  return useMemo(() => {
+    const map = new Map<string, {
+      name: string; total: number; wins: number
+      evilGames: number; goodGames: number; evilWins: number; goodWins: number
+      charMap: Map<string, CharPlayEntry>
+      teammates: Map<string, number>
+    }>()
+
+    for (const r of records) {
+      if (!r.playerSummaries) continue
+      const seenNames = new Set<string>()
+      const gameNames = r.playerSummaries.map((ps) => ps.name).filter(Boolean)
+
+      for (const ps of r.playerSummaries) {
+        if (!ps.name || seenNames.has(ps.name)) continue
+        seenNames.add(ps.name)
+
+        const entry = map.get(ps.name) ?? {
+          name: ps.name, total: 0, wins: 0,
+          evilGames: 0, goodGames: 0, evilWins: 0, goodWins: 0,
+          charMap: new Map(),
+          teammates: new Map(),
+        }
+        entry.total++
+        if (ps.team === 'evil') {
+          entry.evilGames++
+          if (r.winner === 'evil') { entry.wins++; entry.evilWins++ }
+        } else if (ps.team === 'good') {
+          entry.goodGames++
+          if (r.winner === 'good') { entry.wins++; entry.goodWins++ }
+        }
+        // char tracking
+        const charId = r.setup?.assignments?.[ps.seat]
+        if (charId) {
+          const prev = entry.charMap.get(charId) ?? { charId, total: 0, wins: 0 }
+          prev.total++
+          if ((ps.team === 'evil' && r.winner === 'evil') || (ps.team === 'good' && r.winner === 'good')) prev.wins++
+          entry.charMap.set(charId, prev)
+        }
+        // teammate tracking
+        for (const tn of gameNames) {
+          if (tn && tn !== ps.name) {
+            entry.teammates.set(tn, (entry.teammates.get(tn) ?? 0) + 1)
+          }
+        }
+        map.set(ps.name, entry)
+      }
+    }
+
+    return Array.from(map.values())
+      .sort((a, b) => b.total - a.total)
+      .map((p) => {
+        const mostPlayedChar = p.charMap.size
+          ? [...p.charMap.entries()].sort((a, b) => b[1].total - a[1].total)[0][0]
+          : null
+        return {
+          ...p,
+          charSet: new Set(p.charMap.keys()),
+          mostPlayedChar,
+          winRate: p.total ? Math.round((p.wins / p.total) * 100) : 0,
+          evilWinRate: p.evilGames ? Math.round((p.evilWins / p.evilGames) * 100) : null,
+          goodWinRate: p.goodGames ? Math.round((p.goodWins / p.goodGames) * 100) : null,
+        }
+      })
+  }, [records])
+}
+
+// ── Character stats ───────────────────────────────────────────────
+
+export type CharStat = {
+  charId: string
+  total: number
+  wins: number
+  evilGames: number
+  goodGames: number
+  winRate: number
+  evilWinRate: number | null
+  goodWinRate: number | null
+  topPlayer: string | null
+  players: Map<string, number>   // playerName → count
+  scripts: Set<string>           // script keys this char appeared in
+  bluffCount: number             // how many times used as a demon bluff (not assigned)
+}
+
+export function useCharStats(records: GameRecord[], language: Language): CharStat[] {
+  return useMemo(() => {
+    const map = new Map<string, {
+      charId: string; total: number; wins: number
+      evilGames: number; goodGames: number
+      players: Map<string, number>
+      scripts: Set<string>
+      bluffCount: number
+    }>()
+
+    for (const r of records) {
+      if (!r.setup?.assignments || !r.playerSummaries) continue
+      const scriptKey = r.scriptSlug || r.scriptTitle || 'unknown'
+
+      // Track bluffs — chars used as bluffs but NOT assigned to a seat
+      const assignedChars = new Set(Object.values(r.setup.assignments))
+      for (const bluffId of (r.setup.demonBluffs ?? [])) {
+        if (!assignedChars.has(bluffId)) {
+          const be = map.get(bluffId) ?? {
+            charId: bluffId, total: 0, wins: 0, evilGames: 0, goodGames: 0,
+            players: new Map(), scripts: new Set(), bluffCount: 0,
+          }
+          be.bluffCount++
+          map.set(bluffId, be)
+        }
+      }
+
+      // Track per-game unique char→{team, player}
+      const perGame = new Map<string, { team: 'evil' | 'good' | null; playerName: string }>()
+      for (const ps of r.playerSummaries) {
+        const charId = r.setup.assignments[ps.seat]
+        if (!charId) continue
+        const prev = perGame.get(charId)
+        if (prev === undefined) perGame.set(charId, { team: ps.team, playerName: ps.name })
+        else if (ps.team === 'evil' && prev.team !== 'evil') perGame.set(charId, { team: 'evil', playerName: ps.name })
+      }
+
+      for (const [charId, { team, playerName }] of perGame) {
+        const entry = map.get(charId) ?? {
+          charId, total: 0, wins: 0, evilGames: 0, goodGames: 0,
+          players: new Map(), scripts: new Set(), bluffCount: 0,
+        }
+        entry.total++
+        entry.scripts.add(scriptKey)
+        if (team === 'evil') entry.evilGames++
+        else if (team === 'good') entry.goodGames++
+        if ((team === 'evil' && r.winner === 'evil') || (team === 'good' && r.winner === 'good')) entry.wins++
+        if (playerName) entry.players.set(playerName, (entry.players.get(playerName) ?? 0) + 1)
+        map.set(charId, entry)
+      }
+    }
+
+    return Array.from(map.values())
+      .filter((c) => c.total > 0)
+      .sort((a, b) => b.total - a.total)
+      .map((c) => {
+        const topPlayer = c.players.size
+          ? [...c.players.entries()].sort((a, b) => b[1] - a[1])[0][0]
+          : null
+        const evilWinRate = c.evilGames ? Math.round((c.wins / c.total) * 100) : null
+        const goodWinRate = c.goodGames ? Math.round((c.wins / c.total) * 100) : null
+        return {
+          ...c,
+          topPlayer,
+          winRate: c.total ? Math.round((c.wins / c.total) * 100) : 0,
+          evilWinRate,
+          goodWinRate,
+        }
+      })
+  }, [records, language])
+}
+
+// ── KPI summary ───────────────────────────────────────────────────
+
+export type KpiSummary = {
+  total: number
+  evilWins: number
+  goodWins: number
+  stWins: number
+  evilPct: number
+  goodPct: number
+  stPct: number
+  noResultPct: number
+  avgDays: number | null
+  avgDurationMin: number | null
+  avgPlayers: number | null
+}
+
+export function useKpiSummary(records: GameRecord[]): KpiSummary {
+  return useMemo(() => {
+    const total = records.length
+    if (total === 0) return {
+      total: 0, evilWins: 0, goodWins: 0, stWins: 0,
+      evilPct: 0, goodPct: 0, stPct: 0, noResultPct: 0,
+      avgDays: null, avgDurationMin: null, avgPlayers: null,
+    }
+
+    const evilWins = records.filter((r) => r.winner === 'evil').length
+    const goodWins = records.filter((r) => r.winner === 'good').length
+    const stWins = records.filter((r) => r.winner === 'storyteller').length
+
+    const totalDays = records.reduce((s, r) => s + (r.days?.length ?? 0), 0)
+    const durRecs = records.filter((r) => r.durationMs)
+    const totalDurationMs = durRecs.reduce((s, r) => s + (r.durationMs ?? 0), 0)
+    const playerRecs = records.filter((r) => r.playerSummaries?.length)
+    const totalPlayers = playerRecs.reduce((s, r) => s + (r.playerSummaries?.length ?? 0), 0)
+
+    const pct = (n: number) => Math.round((n / total) * 100)
+
+    return {
+      total,
+      evilWins, goodWins, stWins,
+      evilPct: pct(evilWins),
+      goodPct: pct(goodWins),
+      stPct: pct(stWins),
+      noResultPct: pct(total - evilWins - goodWins - stWins),
+      avgDays: total ? +(totalDays / total).toFixed(1) : null,
+      avgDurationMin: durRecs.length ? Math.round(totalDurationMs / durRecs.length / 60000) : null,
+      avgPlayers: playerRecs.length ? +(totalPlayers / playerRecs.length).toFixed(1) : null,
+    }
+  }, [records])
+}

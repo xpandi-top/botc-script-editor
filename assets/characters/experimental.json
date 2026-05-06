@@ -297,7 +297,7 @@
   },
   "acrobat": {
     "id": "acrobat",
-    "team": "outsider",
+    "team": "townsfolk",
     "edition": "experimental",
     "current_revision": "v2024-10",
     "revisions": [
@@ -413,18 +413,6 @@
   },
   "goblin": {
     "id": "goblin",
-    "team": "minion",
-    "edition": "experimental",
-    "current_revision": "v1",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": ""
-      }
-    ]
-  },
-  "mephit": {
-    "id": "mephit",
     "team": "minion",
     "edition": "experimental",
     "current_revision": "v1",

@@ -88,7 +88,10 @@ export const editionLabels: Record<Language, Record<string, string>> = {
     bmr: requireUiString('en', 'bmr'),
     custom: requireUiString('en', 'custom'),
     experimental: requireUiString('en', 'experimental'),
-    huadeng: requireUiString('en', 'huadeng'),
+    huadengchushang: requireUiString('en', 'huadengchushang'),
+    shanyuyulai: requireUiString('en', 'shanyuyulai'),
+    fabled: requireUiString('en', 'fabled'),
+    loric: requireUiString('en', 'loric'),
     'night-order': requireUiString('en', 'night_order'),
   },
   zh: {
@@ -97,7 +100,10 @@ export const editionLabels: Record<Language, Record<string, string>> = {
     bmr: requireUiString('zh', 'bmr'),
     custom: requireUiString('zh', 'custom'),
     experimental: requireUiString('zh', 'experimental'),
-    huadeng: requireUiString('zh', 'huadeng'),
+    huadengchushang: requireUiString('zh', 'huadengchushang'),
+    shanyuyulai: requireUiString('zh', 'shanyuyulai'),
+    fabled: requireUiString('zh', 'fabled'),
+    loric: requireUiString('zh', 'loric'),
     'night-order': requireUiString('zh', 'night_order'),
   },
 }

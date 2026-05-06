@@ -78,7 +78,7 @@
     "shanyuyulai": "山雨欲来",
     "night_order": "夜晚顺序",
     "tb": "暗流涌动",
-    "snv": "教派紫罗兰",
+    "snv": "梦陨春宵",
     "bmr": "黯月初升",
     "townsfolk": "镇民",
     "outsider": "外来者",
@@ -595,14 +595,6 @@
       "revision": "v1",
       "revisions": {
         "v1": "如果你在被提名后公开声明自己是哥布林且在那个白天被处决，你的阵营获胜。"
-      }
-    },
-    "mephit": {
-      "name": "Mephit",
-      "ability": "技能",
-      "revision": "v1",
-      "revisions": {
-        "v1": "技能"
       }
     },
     "mezepheles": {

@@ -597,14 +597,6 @@
         "v1": "If you publicly claim to be the Goblin when nominated & are executed that day, your team wins."
       }
     },
-    "mephit": {
-      "name": "Mephit",
-      "ability": "You start knowing a secret word. The 1st good player to say this word becomes evil that night.",
-      "revision": "v1",
-      "revisions": {
-        "v1": "You start knowing a secret word. The 1st good player to say this word becomes evil that night."
-      }
-    },
     "mezepheles": {
       "name": "Mezepheles",
       "ability": "You start knowing a secret word. The 1st good player to say this word becomes evil that night.",
@@ -1452,139 +1444,139 @@
       }
     },
     "chongfei": {
-      "name": "宠妃",
-      "ability": "每局游戏限一次，说书人会在关于你的事情上打破规则。随后，你会秘密得知说书人为此做了什么。",
+      "name": "Chongfei",
+      "ability": "Once per game, the Storyteller will break the rules about you. Then, you will secretly learn what they did for this.",
       "revision": "v1",
       "revisions": {
-        "v1": "每局游戏限一次，说书人会在关于你的事情上打破规则。随后，你会秘密得知说书人为此做了什么。"
+        "v1": "Once per game, the Storyteller will break the rules about you. Then, you will secretly learn what they did for this."
       }
     },
     "daoke": {
-      "name": "刀客",
-      "ability": "在你的首个夜晚，你会得知一个在场的爪牙角色。每局游戏限一次，你可以在白天公开选择一名玩家：如果他是你得知的角色，他死亡。",
+      "name": "Daoke",
+      "ability": "You start knowing a Minion in play. Once per game during the day, publicly choose a player: if they are the Minion you know, they die.",
       "revision": "v1",
       "revisions": {
-        "v1": "在你的首个夜晚，你会得知一个在场的爪牙角色。每局游戏限一次，你可以在白天公开选择一名玩家：如果他是你得知的角色，他死亡。"
+        "v1": "You start knowing a Minion in play. Once per game during the day, publicly choose a player: if they are the Minion you know, they die."
       }
     },
     "daoshi": {
-      "name": "道士",
-      "ability": "每个夜晚*，你要选择一名玩家：如果你选中了恶魔，你死亡，然后他醉酒直到下个黎明。",
+      "name": "Daoshi",
+      "ability": "Each night*, choose a player: if they are the Demon, you die, then they are drunk until next dawn.",
       "revision": "v1",
       "revisions": {
-        "v1": "每个夜晚*，你要选择一名玩家：如果你选中了恶魔，你死亡，然后他醉酒直到下个黎明。"
+        "v1": "Each night*, choose a player: if they are the Demon, you die, then they are drunk until next dawn."
       }
     },
     "fangshi": {
-      "name": "方士",
-      "ability": "在你的首个夜晚，你要选择一个数字。在该数字对应的那一个夜晚，你会得知对应数量的在场角色。",
+      "name": "Fangshi",
+      "ability": "On your first night, you choose a number X. On night X, you learn X characters in play.",
       "revision": "v1",
       "revisions": {
-        "v1": "在你的首个夜晚，你要选择一个数字。在该数字对应的那一个夜晚，你会得知对应数量的在场角色。"
+        "v1": "On your first night, you choose a number X. On night X, you learn X characters in play."
       }
     },
     "fengshuishi": {
-      "name": "风水师",
-      "ability": "在你的首个夜晚，你会得知一名玩家的角色类型。每个夜晚*，你会从他的顺时针方向得知下一名非旅行者玩家的角色类型。",
+      "name": "Fengshui Master",
+      "ability": "On your first night, you learn the character type of a player. Each night*, you learn character type of next non-traveler player in a clockwise direction.",
       "revision": "v1",
       "revisions": {
-        "v1": "在你的首个夜晚，你会得知一名玩家的角色类型。每个夜晚*，你会从他的顺时针方向得知下一名非旅行者玩家的角色类型。"
+        "v1": "On your first night, you learn the character type of a player. Each night*, you learn character type of next non-traveler player in a clockwise direction."
       }
     },
     "limao": {
-      "name": "狸猫",
-      "ability": "每个夜晚*，你要选择一名玩家：如果他是善良角色且当晚被邪恶角色杀死，你和他交换角色。",
+      "name": "Tiger Cat",
+      "ability": "Each night*, choose a player: if they are a good and died by Evil ability that night, you and they swap characters.",
       "revision": "v1",
       "revisions": {
-        "v1": "每个夜晚*，你要选择一名玩家：如果他是善良角色且当晚被邪恶角色杀死，你和他交换角色。"
+        "v1": "Each night*, choose a player: if they are a good and died by Evil ability that night, you and they swap characters."
       }
     },
     "qianke": {
-      "name": "掮客",
-      "ability": "每个夜晚，你要选择两名存活玩家：如果他们阵营相同，今晚任何玩家使用自身能力选择他们之一作为目标时，改为选中另一名玩家。",
+      "name": "Qianke",
+      "ability": "Each night, you choose two alive players: if they are the same alignment, any player using their own ability to target one of them will instead target the other player tonight.",
       "revision": "v1",
       "revisions": {
-        "v1": "每个夜晚，你要选择两名存活玩家：如果他们阵营相同，今晚任何玩家使用自身能力选择他们之一作为目标时，改为选中另一名玩家。"
+        "v1": "Each night, you choose two alive players: if they are the same alignment, any player using their own ability to target one of them will instead target the other player tonight."
       }
     },
     "ranfangfangzhu": {
-      "name": "染坊坊主",
-      "ability": "如果你在夜晚死亡，恶魔的能力变成“每个夜晚*，可能会有一名玩家死亡。”",
+      "name": "Ranfangfangzhu",
+      "ability": "If you die at night, Demon's ability becomes 'Each night*, a player might die.'",
       "revision": "v1",
       "revisions": {
-        "v1": "如果你在夜晚死亡，恶魔的能力变成“每个夜晚*，可能会有一名玩家死亡。”"
+        "v1": "If you die at night, Demon's ability becomes 'Each night*, a player might die.'"
       }
     },
     "shiguan": {
-      "name": "史官",
-      "ability": "每个夜晚*，如果今天白天有玩家死于处决，你会得知存活镇民的数量。",
+      "name": "Shiguan",
+      "ability": "Each night*, if a player died by execution today, you learn the number of alive townsfolks.",
       "revision": "v1",
       "revisions": {
-        "v1": "每个夜晚*，如果今天白天有玩家死于处决，你会得知存活镇民的数量。"
+        "v1": "Each night*, if a player died by execution today, you learn the number of alive townsfolks."
       }
     },
     "tixingguan": {
-      "name": "提刑官",
-      "ability": "在你首次提名玩家后，你会在当晚得知他的角色。恶魔会被你的能力当作善良角色。",
+      "name": "Tixingguan",
+      "ability": "After your first nomination, you learn their character that night. Demon will register as a good character to you.",
       "revision": "v1",
       "revisions": {
-        "v1": "在你首次提名玩家后，你会在当晚得知他的角色。恶魔会被你的能力当作善良角色。"
+        "v1": "After your first nomination, you learn their character that night. Demon will register as a good character to you."
       }
     },
     "xuncha": {
-      "name": "巡察",
-      "ability": "每个夜晚*，你要选择两个善良角色（与上个夜晚不同）：如果他们都存活，他们当晚不会死亡。",
+      "name": "Xuncha",
+      "ability": "Each night*, choose two good characters (different from the previous night): if they are both alive, they can't die tonight.",
       "revision": "v1",
       "revisions": {
-        "v1": "每个夜晚*，你要选择两个善良角色（与上个夜晚不同）：如果他们都存活，他们当晚不会死亡。"
+        "v1": "Each night*, choose two good characters (different from the previous night): if they are both alive, they can't die tonight."
       }
     },
     "yanshi": {
-      "name": "偃师",
-      "ability": "如果你在夜晚死亡，你与一名存活爪牙玩家交换角色。",
+      "name": "Yanshi",
+      "ability": "If you die at night, you swap characters with an alive Minion.",
       "revision": "v1",
       "revisions": {
-        "v1": "如果你在夜晚死亡，你与一名存活爪牙玩家交换角色。"
+        "v1": "If you die at night, you swap characters with an alive Minion."
       }
     },
     "yishi": {
-      "name": "驿使",
-      "ability": "每个白天，你可以公开声明一个角色。在当晚，你会得知该角色是否在场。如果你因此得知了否，你失去此能力。",
+      "name": "Yishi",
+      "ability": "Each day, you may publicly choose a character. That night, you learn whether that character is in play. If you learn a no, you lose this ability.",
       "revision": "v1",
       "revisions": {
-        "v1": "每个白天，你可以公开声明一个角色。在当晚，你会得知该角色是否在场。如果你因此得知了否，你失去此能力。"
+        "v1": "Each day, you may publicly choose a character. That night, you learn whether that character is in play. If you learn a no, you lose this ability."
       }
     },
     "yinluren": {
-      "name": "引路人",
-      "ability": "每个夜晚，你要选择至多三名玩家：你会得知今晚是否有邪恶玩家的能力选择或影响了他们之中的玩家。",
+      "name": "Yunluren",
+      "ability": "Each night, choose up to 3 players. You learn if any of them is targeted by an evil player's ability that night.",
       "revision": "v1",
       "revisions": {
-        "v1": "每个夜晚，你要选择至多三名玩家：你会得知今晚是否有邪恶玩家的能力选择或影响了他们之中的玩家。"
+        "v1": "Each night, choose up to 3 players. You learn if any of them is targeted by an evil player's ability that night."
       }
     },
     "yongjiang": {
-      "name": "俑匠",
-      "ability": "如果已死亡玩家中没有邪恶玩家，你只会死于处决。",
+      "name": "Yongjiang",
+      "ability": "If there are no dead evil players, you only die by execution.",
       "revision": "v1",
       "revisions": {
-        "v1": "如果已死亡玩家中没有邪恶玩家，你只会死于处决。"
+        "v1": "If there are no dead evil players, you only die by execution."
       }
     },
     "zhen": {
-      "name": "鸩",
-      "ability": "每局游戏限一次，在夜晚时*，你可以选择一个镇民角色：如果他在场，他中毒并死亡。",
+      "name": "Zhen",
+      "ability": "Once per game, at night*, choose a townsfolk. If they are in play, they are poisoned and die.",
       "revision": "v1",
       "revisions": {
-        "v1": "每局游戏限一次，在夜晚时*，你可以选择一个镇民角色：如果他在场，他中毒并死亡。"
+        "v1": "Once per game, at night*, choose a townsfolk. If they are in play, they are poisoned and die."
       }
     },
     "zhifu": {
-      "name": "知府",
-      "ability": "每个夜晚*，你会得知今天是否有非镇民且非旅行者的玩家死亡。",
+      "name": "Zhifu",
+      "ability": "Each night*, you learn if any non-townsfolk and non-traveler player died since dawn.",
       "revision": "v1",
       "revisions": {
-        "v1": "每个夜晚*，你会得知今天是否有非镇民且非旅行者的玩家死亡。"
+        "v1": "Each night*, you learn if any non-townsfolk and non-traveler player died since dawn."
       }
     },
     "shaxing": {
@@ -1620,27 +1612,27 @@
       }
     },
     "jiubao": {
-      "name": "酒保",
-      "ability": "与你邻近的善良玩家之一醉酒，即使你已死亡。",
+      "name": "Jiubao",
+      "ability": "One of your townsfolk neighbour is drunk, even if you are dead.",
       "revision": "v1",
       "revisions": {
-        "v1": "与你邻近的善良玩家之一醉酒，即使你已死亡。"
+        "v1": "One of your townsfolk neighbour is drunk, even if you are dead."
       }
     },
     "rulianshi": {
-      "name": "入殓师",
-      "ability": "如果你提名了恶魔且他死于这次处决，你会变成那个邪恶的恶魔。当剩余存活玩家小于等于四人时（旅行者除外），你失去能力。",
+      "name": "Rulianshi",
+      "ability": "If you nominate and executed the demon, you become evil demon. When there are 4 or fewer players alive (except Travellers), you lose your ability.",
       "revision": "v1",
       "revisions": {
-        "v1": "如果你提名了恶魔且他死于这次处决，你会变成那个邪恶的恶魔。当剩余存活玩家小于等于四人时（旅行者除外），你失去能力。"
+        "v1": "If you nominate and executed the demon, you become evil demon. When there are 4 or fewer players alive (except Travellers), you lose your ability."
       }
     },
     "shutong": {
-      "name": "书童",
-      "ability": "在你的首个夜晚，你要选择除你以外的一名玩家：除首个夜晚以外，当他被邪恶玩家的能力选择或影响时，你会在当晚死亡。",
+      "name": "Shutong",
+      "ability": "On your first night, choose a player (not yourself). Except first night, if they are targeted by an evil player's ability, you die that night.",
       "revision": "v1",
       "revisions": {
-        "v1": "在你的首个夜晚，你要选择除你以外的一名玩家：除首个夜晚以外，当他被邪恶玩家的能力选择或影响时，你会在当晚死亡。"
+        "v1": "On your first night, choose a player (not yourself). Except first night, if they are targeted by an evil player's ability, you die that night."
       }
     },
     "humeiniang": {
@@ -1677,32 +1669,32 @@
       }
     },
     "gudiao": {
-      "name": "蛊雕",
-      "ability": "每个夜晚，你要选择左或右：你得知该方向上的下一名存活善良玩家的角色，他中毒且其他善良玩家以为他是邪恶的蛊雕，直到下个黄昏。",
+      "name": "Gudiao",
+      "ability": "Each night, choose left or right: you learn the character of next alive good player in that direction, they are poisoned and register as evil Gudiao until dusk.",
       "revision": "v1",
       "revisions": {
-        "v1": "每个夜晚，你要选择左或右：你得知该方向上的下一名存活善良玩家的角色，他中毒且其他善良玩家以为他是邪恶的蛊雕，直到下个黄昏。"
+        "v1": "Each night, choose left or right: you learn the character of next alive good player in that direction, they are poisoned and register as evil Gudiao until dusk."
       }
     },
     "huapi": {
-      "name": "画皮",
-      "ability": "在你的首个夜晚，你要选择一名存活玩家：他死亡但会被当作存活。当他下一次即将死亡时，他重生，随后你重获能力。",
+      "name": "Huapi",
+      "ability": "On your first night, choose an alive player: they die but are register as alive. When they are about to die again, they are resurrected and you regain your ability.",
       "revision": "v1",
       "revisions": {
         "v1": "在你的首个夜晚，你要选择一名存活玩家：他死亡但会被当作存活。当他下一次即将死亡时，他重生，随后你重获能力。"
       }
     },
     "mengpo": {
-      "name": "孟婆",
-      "ability": "每个夜晚*，你要选择一名玩家：如果他存活，那么他要选择让自己失去能力，或死亡并保留能力直到下个黄昏。",
+      "name": "Mengpo",
+      "ability": "Each night*, choose a player: if they are alive, they must choose to lose their ability or die and keep their ability until dusk.",
       "revision": "v1",
       "revisions": {
-        "v1": "每个夜晚*，你要选择一名玩家：如果他存活，那么他要选择让自己失去能力，或死亡并保留能力直到下个黄昏。"
+        "v1": "Each night*, choose a player: if they are alive, they must choose to lose their ability or die and keep their ability until dusk."
       }
     },
     "niangjiushi": {
-      "name": "酿酒师",
-      "ability": "每个夜晚，你要选择一个镇民角色：当他下一次通过自身能力获取信息时，改为得知你给出的信息。",
+      "name": "Niangjiushi",
+      "ability": "Each night, choose a townsfolk character. When they next gain information from their ability, they learn the information you choose instead.",
       "revision": "v1",
       "revisions": {
         "v1": "每个夜晚，你要选择一个镇民角色：当他下一次通过自身能力获取信息时，改为得知你给出的信息。"
@@ -1741,43 +1733,43 @@
       }
     },
     "baojun": {
-      "name": "暴君",
-      "ability": "每个夜晚*，你可以选择至多两名玩家：他们死亡。你选择的玩家数量不能与上个夜晚死亡的玩家数量相同（超过二人时算作二人）。",
+      "name": "Baojun",
+      "ability": "Each night*, choose up to two players: they die. The number of players you choose cannot be the same as the number of players who died last night (if more than two, count as two).",
       "revision": "v1",
       "revisions": {
-        "v1": "每个夜晚*，你可以选择至多两名玩家：他们死亡。你选择的玩家数量不能与上个夜晚死亡的玩家数量相同（超过二人时算作二人）。"
+        "v1": "Each night*, choose up to two players: they die. The number of players you choose cannot be the same as the number of players who died last night (if more than two, count as two)."
       }
     },
     "dianyuzhang": {
-      "name": "典狱长",
-      "ability": "每个夜晚，你要选择至多三名玩家：如果明天白天他们之一死于处决，上次被你选择的其他玩家会在当晚死亡。否则，当晚他们之中会有一名玩家死亡。",
+      "name": "Dianyuzhang",
+      "ability": "Each night, choose up to three players: if one of them die by execution the next day, other chosen players will die tonight. Otherwise, one of them will die tonight.",
       "revision": "v1",
       "revisions": {
-        "v1": "每个夜晚，你要选择至多三名玩家：如果明天白天他们之一死于处决，上次被你选择的其他玩家会在当晚死亡。否则，当晚他们之中会有一名玩家死亡。"
+        "v1": "Each night, choose up to three players: if one of them die by execution the next day, other chosen players will die tonight. Otherwise, one of them will die tonight."
       }
     },
     "guhuoniao": {
-      "name": "姑获鸟",
-      "ability": "每个夜晚*，你要选择一名玩家：他死亡。你可能会拥有上一个死于处决的爪牙的能力。",
+      "name": "Guhuoniao",
+      "ability": "Each night*, choose a player: they die. You may have the ability of the last executed minion.",
       "revision": "v1",
       "revisions": {
-        "v1": "每个夜晚*，你要选择一名玩家：他死亡。你可能会拥有上一个死于处决的爪牙的能力。"
+        "v1": "Each night*, choose a player: they die. You may have the ability of the last executed minion."
       }
     },
     "jianning": {
-      "name": "奸佞",
-      "ability": "每个夜晚*，你要选择一名玩家：他死亡。如果你今天白天没有投票，今晚你可以行动两次。",
+      "name": "Jianjing",
+      "ability": "Each night*, choose a player: they die. If you did not vote today, you may act twice tonight.",
       "revision": "v1",
       "revisions": {
-        "v1": "每个夜晚*，你要选择一名玩家：他死亡。如果你今天白天没有投票，今晚你可以行动两次。"
+        "v1": "Each night*, choose a player: they die. If you did not vote today, you may act twice tonight."
       }
     },
     "yanluo": {
-      "name": "阎罗",
-      "ability": "在你的首个夜晚，你能查看魔典并选择一名玩家：他在第三个夜晚死亡，即使因为任何原因让他不会死亡。每个夜晚，你要选择一名玩家：上个夜晚被你选择的玩家死亡。",
+      "name": "Yanluo",
+      "ability": "On your first night, you see the grimoire and choose a player: they will die on the third night, even if for some reason they could not. Each night, choose a player: the previously chosenplayer dies.",
       "revision": "v1",
       "revisions": {
-        "v1": "在你的首个夜晚，你能查看魔典并选择一名玩家：他在第三个夜晚死亡，即使因为任何原因让他不会死亡。每个夜晚，你要选择一名玩家：上个夜晚被你选择的玩家死亡。"
+        "v1": "On your first night, you may look at the grimoire and choose a player: they will die on the third night, even if for some reason they could not. Each night, choose a player: the previously chosenplayer dies."
       }
     },
     "angel": {
