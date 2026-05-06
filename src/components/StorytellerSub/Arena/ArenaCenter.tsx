@@ -22,8 +22,8 @@ export function ArenaCenter({ ctx }: { ctx: StorytellerContext }) {
         minHeight: 0,
         maxHeight: '80%',
         maxWidth: '80%',
-        zIndex: 5, 
-        padding: 20,
+        zIndex: 5,
+        p: '20px',
         alignItems: 'center',
       }}
     >
