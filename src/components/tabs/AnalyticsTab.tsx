@@ -295,17 +295,17 @@ function RecordFormDialog({ existing, zh, language, onSave, onClose }: {
         </Typography>
 
         {/* Header row */}
-        <Box sx={{ display: 'grid', gridTemplateColumns: '32px 1fr 1fr 80px', gap: 0.5, alignItems: 'center' }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '28px 1fr 72px', sm: '32px 1fr 1fr 80px' }, gap: 0.5, alignItems: 'center' }}>
           <Typography variant="caption" color="text.secondary">#</Typography>
           <Typography variant="caption" color="text.secondary">{zh ? '玩家名' : 'Name'}</Typography>
-          <Typography variant="caption" color="text.secondary">{zh ? '角色' : 'Character'}</Typography>
+          <Typography variant="caption" color="text.secondary" sx={{ display: { xs: 'none', sm: 'block' } }}>{zh ? '角色' : 'Character'}</Typography>
           <Typography variant="caption" color="text.secondary">{zh ? '阵营' : 'Team'}</Typography>
         </Box>
 
         {/* Player rows */}
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75, maxHeight: 320, overflowY: 'auto', pr: 0.5 }}>
           {players.map((p, i) => (
-            <Box key={i} sx={{ display: 'grid', gridTemplateColumns: '32px 1fr 1fr 80px', gap: 0.5, alignItems: 'center' }}>
+            <Box key={i} sx={{ display: 'grid', gridTemplateColumns: { xs: '28px 1fr 72px', sm: '32px 1fr 1fr 80px' }, gap: 0.5, alignItems: 'center' }}>
               <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'center' }}>{i + 1}</Typography>
               <TextField
                 size="small"
@@ -314,30 +314,32 @@ function RecordFormDialog({ existing, zh, language, onSave, onClose }: {
                 onChange={(e) => updatePlayer(i, { name: e.target.value })}
                 sx={{ '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' } }}
               />
-              <Autocomplete
-                options={charOptions}
-                groupBy={(o) => groupLabel(o.team)}
-                getOptionLabel={(o) => o.label}
-                value={charOptions.find((c) => c.id === p.charId) ?? null}
-                onChange={(_, v) => {
-                  const charId = v?.id ?? ''
-                  const autoTeam = charId ? teamFromChar(charId) : ''
-                  updatePlayer(i, { charId, team: autoTeam })
-                }}
-                renderOption={(props, o) => (
-                  <Box component="li" {...props} sx={{ gap: 0.75, py: '2px !important' }}>
-                    {o.icon && <Box component="img" src={o.icon} sx={{ width: 20, height: 20, borderRadius: '50%', flexShrink: 0 }} />}
-                    <Typography variant="caption">{o.label}</Typography>
-                  </Box>
-                )}
-                renderInput={(params) => (
-                  <TextField {...params} size="small" placeholder={zh ? '选择角色' : 'Character'}
-                    sx={{ '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' } }} />
-                )}
-                slotProps={{ popper: { style: { zIndex: 1400 } } }}
-                clearOnEscape
-                sx={{ flex: 1 }}
-              />
+              <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
+                <Autocomplete
+                  options={charOptions}
+                  groupBy={(o) => groupLabel(o.team)}
+                  getOptionLabel={(o) => o.label}
+                  value={charOptions.find((c) => c.id === p.charId) ?? null}
+                  onChange={(_, v) => {
+                    const charId = v?.id ?? ''
+                    const autoTeam = charId ? teamFromChar(charId) : ''
+                    updatePlayer(i, { charId, team: autoTeam })
+                  }}
+                  renderOption={(props, o) => (
+                    <Box component="li" {...props} sx={{ gap: 0.75, py: '2px !important' }}>
+                      {o.icon && <Box component="img" src={o.icon} sx={{ width: 20, height: 20, borderRadius: '50%', flexShrink: 0 }} />}
+                      <Typography variant="caption">{o.label}</Typography>
+                    </Box>
+                  )}
+                  renderInput={(params) => (
+                    <TextField {...params} size="small" placeholder={zh ? '选择角色' : 'Character'}
+                      sx={{ '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' } }} />
+                  )}
+                  slotProps={{ popper: { style: { zIndex: 1400 } } }}
+                  clearOnEscape
+                  sx={{ flex: 1 }}
+                />
+              </Box>
               <ToggleButtonGroup
                 value={p.team}
                 exclusive
