@@ -95,8 +95,7 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: StorytellerCo
     else if (cardVotedYes) { updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, voters: d.voteDraft.voters.filter((v) => v !== seat.seat) } })) }
     else if (cardVotedNo) { updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, noVoters: d.voteDraft.noVoters.filter((v) => v !== seat.seat) } })) }
   }
-  const CIRCLE = 90  // circle diameter px
-
+  const CIRCLE = 90  // circle diameter px — matches --seat-size default
   const OVERLAP = CIRCLE / 2  // how much circle pokes above card top
 
   return (
@@ -129,8 +128,8 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: StorytellerCo
           onClick={(e) => { e.stopPropagation(); handleSeatClick(seat.seat) }}
           data-seat
           sx={{
-            width: 120,
-            minWidth: 100,
+            width: 'calc(var(--seat-size, 90px) * 1.33)',
+            minWidth: 'calc(var(--seat-size, 90px) * 1.1)',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -149,8 +148,8 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: StorytellerCo
           }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            <Box component="span" sx={{ fontWeight: 700, color: seat.alive ? 'text.secondary' : '#7a7570', whiteSpace: 'nowrap', fontSize: '0.85rem' }}>#{seat.seat}</Box>
-            <Box component="span" sx={{ fontWeight: 700, whiteSpace: 'nowrap', color: seat.alive ? 'text.primary' : '#5a5550', textDecoration: seat.alive ? 'none' : 'line-through' }}>{seat.name}</Box>
+            <Box component="span" sx={{ fontWeight: 700, color: seat.alive ? 'text.secondary' : '#7a7570', whiteSpace: 'nowrap', fontSize: 'clamp(0.65rem, 1.4vw, 0.85rem)' }}>#{seat.seat}</Box>
+            <Box component="span" sx={{ fontWeight: 700, whiteSpace: 'nowrap', color: seat.alive ? 'text.primary' : '#5a5550', textDecoration: seat.alive ? 'none' : 'line-through', fontSize: 'clamp(0.7rem, 1.5vw, 0.875rem)' }}>{seat.name}</Box>
             {hasVoted && <Box component="span" sx={{ color: votedYes ? 'success.main' : 'error.main', fontWeight: 700 }}>{votedYes ? <CheckIcon fontSize="small" /> : <CloseIcon fontSize="small" />}</Box>}
           </Box>
 

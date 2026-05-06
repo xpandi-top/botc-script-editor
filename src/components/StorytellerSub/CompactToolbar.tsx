@@ -30,14 +30,14 @@ export function CompactToolbar({ ctx }: { ctx: StorytellerContext }) {
     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1.5, pb: 1.5, borderBottom: '1px solid rgba(23,32,42,0.08)', mb: 1, flexShrink: 0 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap', flex: 1 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Typography variant="h6" sx={{fontSize: '1rem'}} >{aliveCount}/{totalCount}</Typography>
-          {travelerCount > 0 && <Typography variant="caption" color="text.secondary">+{travelerCount}{text.travelersCount}</Typography>}
+          <Typography variant="h6" sx={{ fontSize: 'clamp(0.8rem, 2vw, 1rem)' }}>{aliveCount}/{totalCount}</Typography>
+          {travelerCount > 0 && <Typography variant="caption" color="text.secondary" sx={{ fontSize: 'clamp(0.65rem, 1.3vw, 0.75rem)' }}>+{travelerCount}{text.travelersCount}</Typography>}
           {dist && (
-            <Box >
-              <Typography variant="caption" sx={{ fontSize: '1rem',fontWeight: 600, color: distColors.townsfolk }}>{dist.townsfolk}T</Typography>
-              <Typography variant="caption" sx={{ fontSize: '1rem', fontWeight: 600, color: distColors.outsider }}>{dist.outsider}O</Typography>
-              <Typography variant="caption" sx={{ fontSize: '1rem',fontWeight: 600, color: distColors.minion }}>{dist.minion}M</Typography>
-              <Typography variant="caption" sx={{ fontSize: '1rem',fontWeight: 600, color: distColors.demon }}>1D</Typography>
+            <Box>
+              <Typography variant="caption" sx={{ fontSize: 'clamp(0.72rem, 1.6vw, 1rem)', fontWeight: 600, color: distColors.townsfolk }}>{dist.townsfolk}T</Typography>
+              <Typography variant="caption" sx={{ fontSize: 'clamp(0.72rem, 1.6vw, 1rem)', fontWeight: 600, color: distColors.outsider }}>{dist.outsider}O</Typography>
+              <Typography variant="caption" sx={{ fontSize: 'clamp(0.72rem, 1.6vw, 1rem)', fontWeight: 600, color: distColors.minion }}>{dist.minion}M</Typography>
+              <Typography variant="caption" sx={{ fontSize: 'clamp(0.72rem, 1.6vw, 1rem)', fontWeight: 600, color: distColors.demon }}>1D</Typography>
             </Box>
           )}
         </Box>

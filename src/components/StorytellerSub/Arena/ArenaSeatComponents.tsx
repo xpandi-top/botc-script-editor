@@ -16,7 +16,7 @@ export function TagChip({ label, icon, chipSx }: { label: string; icon?: string 
         icon={icon ? <img src={icon} style={{ width: 14, height: 14, borderRadius: '50%' }} /> : undefined}
         onClick={(e) => { e.stopPropagation(); setAnchor(e.currentTarget) }}
         sx={{
-          fontSize: '0.78rem',
+          fontSize: 'clamp(0.62rem, 1.4vw, 0.78rem)',
           fontWeight: 600,
           height: 22,
           cursor: 'pointer',
