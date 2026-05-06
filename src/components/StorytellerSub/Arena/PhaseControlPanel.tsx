@@ -290,7 +290,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
                 <Box
                   onClick={() => { setTimerInput(fmt(currentTimerSeconds)); setTimerEditing(true) }}
                   sx={{
-                    fontFamily: 'monospace', fontSize: '1.6rem', fontWeight: 700,
+                    fontFamily: 'monospace', fontSize: '1.35rem', fontWeight: 700,
                     color: alarmActive ? 'warning.light' : textColor,
                     px: 1, py: 0.125, borderRadius: 1,
                     border: '1px solid rgba(255,255,255,0.25)',
@@ -309,12 +309,12 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
                   {fmt(currentTimerSeconds)}
                 </Box>
               )}
-              <IconButton sx={{ ...iconBtnSx, p: 1 }} onClick={() => setAlarmActive(false)}><NotificationsActiveIcon fontSize="large" /></IconButton>
-              <IconButton sx={isTimerRunning ? { ...iconBtnSx, ...TIMER_ACTIVE_SX, p: 1 } : { ...iconBtnSx, ...TIMER_IDLE_SX, p: 1 }} onClick={() => { setIsTimerRunning((c: boolean) => !c); if (alarmActive) setAlarmActive(false) }}>
-                {isTimerRunning ? <PauseIcon fontSize="large" /> : <PlayArrowIcon fontSize="large" />}
+              <IconButton sx={{ ...iconBtnSx, p: 0.75 }} onClick={() => setAlarmActive(false)}><NotificationsActiveIcon /></IconButton>
+              <IconButton sx={isTimerRunning ? { ...iconBtnSx, ...TIMER_ACTIVE_SX, p: 0.75 } : { ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={() => { setIsTimerRunning((c: boolean) => !c); if (alarmActive) setAlarmActive(false) }}>
+                {isTimerRunning ? <PauseIcon /> : <PlayArrowIcon />}
               </IconButton>
-              <IconButton sx={{ ...iconBtnSx, p: 1 }} onClick={() => { updateCurrentDay(syncDayTimers); setIsTimerRunning(false) }}><RefreshIcon fontSize="large" /></IconButton>
-              <IconButton sx={{ ...iconBtnSx, p: 1 }} onClick={() => { setIsTimerRunning(false); setAlarmActive(false); setCurrentTimer(0) }}><StopIcon fontSize="large" /></IconButton>
+              <IconButton sx={{ ...iconBtnSx, p: 0.75 }} onClick={() => { updateCurrentDay(syncDayTimers); setIsTimerRunning(false) }}><RefreshIcon /></IconButton>
+              <IconButton sx={{ ...iconBtnSx, p: 0.75 }} onClick={() => { setIsTimerRunning(false); setAlarmActive(false); setCurrentTimer(0) }}><StopIcon /></IconButton>
             </Box>
           )}
 

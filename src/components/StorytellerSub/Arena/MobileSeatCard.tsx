@@ -12,10 +12,10 @@ import { getDisplayName, getIconForCharacter, nightOrder } from '../../../catalo
 import { VoteButtonGroup, TagChip } from './ArenaSeatComponents'
 
 
-const CIRCLE_SIZE = 60
+const CIRCLE_SIZE = 72
 const CIRCLE_OVERLAP = CIRCLE_SIZE / 2  // how much circle sticks into card
 
-export function MobileSeatCard({ ctx, seat }: { ctx: StorytellerContext; seat: any }) {
+export function MobileSeatCard({ ctx, seat, side = 'left' }: { ctx: StorytellerContext; seat: any; side?: 'left' | 'right' }) {
   const {
     language, pickerMode, currentDay, updateCurrentDay, currentVoterSeat,
     selectedSeat, text, handleSeatClick, handleVoteYes, handleVoteNo,
@@ -92,10 +92,10 @@ export function MobileSeatCard({ ctx, seat }: { ctx: StorytellerContext; seat: a
 
   return (
     <>
-      {/* Wrapper: relative so circle can overlap left edge */}
-      <Box sx={{ position: 'relative', pl: `${CIRCLE_OVERLAP}px` }}>
-        {/* Circle positioned absolutely, overlapping left edge, vertically centered */}
-        <Box sx={{ position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)', zIndex: 3,
+      {/* Wrapper: relative so circle can overlap left or right edge */}
+      <Box sx={{ position: 'relative', pl: side === 'left' ? `${CIRCLE_OVERLAP}px` : 0, pr: side === 'right' ? `${CIRCLE_OVERLAP}px` : 0 }}>
+        {/* Circle positioned absolutely, overlapping outer edge, vertically centered */}
+        <Box sx={{ position: 'absolute', [side === 'right' ? 'right' : 'left']: 0, top: '50%', transform: 'translateY(-50%)', zIndex: 3,
           filter: seat.alive ? 'none' : 'grayscale(85%) brightness(0.85)', opacity: seat.alive ? 1 : 0.75 }}>
           <CharacterCircle
             size={CIRCLE_SIZE}
@@ -113,22 +113,23 @@ export function MobileSeatCard({ ctx, seat }: { ctx: StorytellerContext; seat: a
           data-seat
           sx={{
             pt: 0.75,
-            pr: 0.75,
+            pr: side === 'right' ? `${CIRCLE_OVERLAP + 8}px` : 0.75,
             pb: 0.75,
-            pl: `${CIRCLE_OVERLAP + 8}px`,
+            pl: side === 'left' ? `${CIRCLE_OVERLAP + 8}px` : 0.75,
             borderRadius: 1.5,
             border: '1.5px solid',
             borderColor: getBorderColor(),
             bgcolor: seat.alive ? 'background.paper' : '#c8c5bc',
             opacity: seat.alive ? 1 : 0.75,
+            minHeight: `${CIRCLE_SIZE}px`,
             cursor: pickerMode !== 'none' ? 'pointer' : 'default',
             transition: 'all 0.15s ease',
             '&:hover': { boxShadow: 3 },
           }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
-            <Box component="span" sx={{ fontWeight: 700, fontSize: '0.95rem', color: seat.alive ? 'text.secondary' : '#7a7570', whiteSpace: 'nowrap' }}>#{seat.seat}</Box>
-            <Box component="span" sx={{ fontWeight: 600, fontSize: '0.95rem', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: seat.alive ? 'text.primary' : '#5a5550', textDecoration: seat.alive ? 'none' : 'line-through' }}>{seat.name}</Box>
+            <Box component="span" sx={{ fontWeight: 700, fontSize: '1.05rem', color: seat.alive ? 'text.secondary' : '#7a7570', whiteSpace: 'nowrap' }}>#{seat.seat}</Box>
+            <Box component="span" sx={{ fontWeight: 600, fontSize: '1.05rem', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: seat.alive ? 'text.primary' : '#5a5550', textDecoration: seat.alive ? 'none' : 'line-through' }}>{seat.name}</Box>
             <Box component="span" sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: seat.alive ? 'success.main' : 'text.disabled', flexShrink: 0 }} />
             {hasVoted && <Box component="span" sx={{ fontWeight: 700, fontSize: '0.9rem', color: votedYes ? 'success.main' : 'error.main' }}>{votedYes ? <CheckIcon fontSize="small" /> : <CloseIcon fontSize="small" />}</Box>}
           </Box>

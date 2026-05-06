@@ -48,8 +48,8 @@ export function PlayerSeatGrid({ ctx, panelCollapsed }: { ctx: StorytellerContex
         return leftCol.map((s: any, i: number) => {
           const r = rightCol[i]
           return [
-            <MobileSeatCard key={s.seat} ctx={ctx} seat={s} />,
-            r ? <MobileSeatCard key={r.seat} ctx={ctx} seat={r} /> : <Box key={`empty-${i}`} />,
+            <MobileSeatCard key={s.seat} ctx={ctx} seat={s} side="left" />,
+            r ? <MobileSeatCard key={r.seat} ctx={ctx} seat={r} side="right" /> : <Box key={`empty-${i}`} />,
           ]
         }).flat()
       })()}
