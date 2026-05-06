@@ -22,7 +22,10 @@ export function Arena({ ctx }: { ctx: StorytellerContext }) {
   const isPortrait = portraitOverride !== null ? portraitOverride : windowPortrait
   const seats = currentDay.seats
   const seatCount = seats.length || 1
-  const { isMobile } = useBreakpoint()
+  const { isMobile, isTablet } = useBreakpoint()
+
+  // Tablet portrait: use list layout (circular arena too cramped)
+  const useListLayout = isMobile || (isTablet && isPortrait)
 
   React.useEffect(() => {
     const minSize = 75
@@ -39,8 +42,8 @@ export function Arena({ ctx }: { ctx: StorytellerContext }) {
     document.documentElement.style.setProperty('--center-zone', `${centerZone}%`)
   }, [seatCount, isPortrait])
 
-  // Mobile: scrollable seat grid + fixed phase panel at bottom
-  if (isMobile) {
+  // Mobile / tablet-portrait: scrollable seat grid + fixed phase panel at bottom
+  if (useListLayout) {
     return (
       <>
         <PlayerSeatGrid ctx={ctx} />
@@ -49,7 +52,7 @@ export function Arena({ ctx }: { ctx: StorytellerContext }) {
     )
   }
 
-  // Desktop/tablet: circular arena layout
+  // Desktop / tablet-landscape: circular arena layout
   return (
     <Box sx={{ display: 'grid', gap: 1, flex: 1, minHeight: 400, overflow: 'visible', width: '100%' }}>
       <Paper
