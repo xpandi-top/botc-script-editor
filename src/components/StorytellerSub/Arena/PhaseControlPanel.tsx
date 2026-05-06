@@ -3,7 +3,7 @@ import type { StorytellerContext } from '../useStoryteller'
 import React, { useState, useMemo } from 'react'
 import {
   Box, Button, IconButton, Tooltip, Typography, ToggleButton, ToggleButtonGroup,
-  Select, MenuItem, TextField,
+  Select, MenuItem, TextField, useTheme,
 } from '@mui/material'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import PauseIcon from '@mui/icons-material/Pause'
@@ -36,17 +36,22 @@ import type { Phase, PublicMode } from '../types'
 
 const PHASES: Phase[] = ['night', 'private', 'public', 'nomination']
 
-const PANEL_COLORS: Record<string, string> = {
-  night: 'rgba(25,20,45,0.98)',
-  private: 'rgba(45,38,82,0.98)',
-  public: 'rgba(22,52,28,0.98)',
-  nomination: 'rgba(82,12,12,0.98)',
+const PANEL_COLORS_DARK: Record<string, string> = {
+  night:      'linear-gradient(135deg, #161C28, #283347)',
+  private:    'linear-gradient(135deg, #4E4134, #6A5844)',
+  public:     'linear-gradient(135deg, #243243, #394C61)',
+  nomination: 'linear-gradient(135deg, #4A382B, #6A523D)',
 }
+const PANEL_COLORS_LIGHT: Record<string, string> = {
+  night:      'linear-gradient(135deg, #2B3447, #44506A)',
+  private:    'linear-gradient(135deg, #F5E8D1, #E7D4B2)',
+  public:     'linear-gradient(135deg, #EEF6FF, #DCEBFA)',
+  nomination: 'linear-gradient(135deg, #ECDCC8, #D6B896)',
+}
+// Light-theme phases that use a bright background → need dark text/buttons
+const LIGHT_BG_PHASES = new Set(['private', 'public', 'nomination'])
 
 const fmt = (s: number) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
-
-const TIMER_ACTIVE_SX = { bgcolor: 'rgba(255,255,255,0.25)', border: '1px solid rgba(255,255,255,0.5)' }
-const TIMER_IDLE_SX = { bgcolor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.25)' }
 
 
 const PHASE_ICONS: Record<string, React.ReactNode> = {
@@ -72,17 +77,32 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
     showAggLogModal, setShowAggLogModal, setShowStSetupModal, stFabledIds,
   } = ctx
 
+  const muiTheme = useTheme()
+  const isDark = muiTheme.palette.mode === 'dark'
+
   const [timerEditing, setTimerEditing] = useState(false)
   const [timerInput, setTimerInput] = useState('')
 
   const phase = currentDay.phase
-
-
   const publicMode = currentDay.publicMode
   const seats = useMemo(() => currentDay.seats, [currentDay.seats])
-  const bgColor = PANEL_COLORS[phase] ?? 'rgba(30,25,40,0.97)'
-  const textColor = 'rgba(255,255,255,0.92)'
-  const mutedColor = 'rgba(255,255,255,0.55)'
+
+  // Phase background gradient
+  const bgGradient = (isDark ? PANEL_COLORS_DARK : PANEL_COLORS_LIGHT)[phase]
+    ?? (isDark ? 'linear-gradient(135deg, #1a1520, #2a2035)' : 'linear-gradient(135deg, #ddd, #eee)')
+
+  // Text and UI element colors — light-bg phases in light theme use dark ink
+  const useDarkInk = !isDark && LIGHT_BG_PHASES.has(phase)
+  const textColor   = useDarkInk ? 'rgba(30,20,10,0.88)'  : 'rgba(255,255,255,0.92)'
+  const mutedColor  = useDarkInk ? 'rgba(30,20,10,0.50)'  : 'rgba(255,255,255,0.55)'
+  const pipColor    = useDarkInk ? 'rgba(0,0,0,0.22)'     : 'rgba(255,255,255,0.30)'
+  const borderColor = useDarkInk ? 'rgba(0,0,0,0.10)'     : 'rgba(255,255,255,0.18)'
+  const btnOverlay  = useDarkInk ? 'rgba(0,0,0,0.07)'     : 'rgba(255,255,255,0.08)'
+  const btnOverlayHover = useDarkInk ? 'rgba(0,0,0,0.14)' : 'rgba(255,255,255,0.15)'
+  const btnBorder   = useDarkInk ? 'rgba(0,0,0,0.28)'     : 'rgba(255,255,255,0.50)'
+
+  const TIMER_ACTIVE_SX = { bgcolor: useDarkInk ? 'rgba(0,0,0,0.18)' : 'rgba(255,255,255,0.25)', border: `1px solid ${useDarkInk ? 'rgba(0,0,0,0.40)' : 'rgba(255,255,255,0.5)'}` }
+  const TIMER_IDLE_SX   = { bgcolor: useDarkInk ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.05)', border: `1px solid ${useDarkInk ? 'rgba(0,0,0,0.20)' : 'rgba(255,255,255,0.25)'}` }
 
   const getPhaseLabel = (p: string) => ({ night: text.nightPhase, private: text.privateChat, public: text.publicChat, nomination: text.nomination }[p] ?? p)
 
@@ -107,7 +127,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
     })
   }
 
-  const btnSx = { color: textColor, borderColor: 'rgba(255,255,255,0.5)', fontSize: '0.95rem', px: 1.5, py: 0.75, minHeight: 40, minWidth: 0, fontWeight: 500, bgcolor: 'rgba(255,255,255,0.08)', '&:hover': { borderColor: 'rgba(255,255,255,0.7)', bgcolor: 'rgba(255,255,255,0.15)' } }
+  const btnSx = { color: textColor, borderColor: btnBorder, fontSize: '0.95rem', px: 1.5, py: 0.75, minHeight: 40, minWidth: 0, fontWeight: 500, bgcolor: btnOverlay, '&:hover': { borderColor: btnBorder, bgcolor: btnOverlayHover } }
   const iconBtnSx = { color: textColor, p: 0.75 }
 
   if (collapsed) {
@@ -117,8 +137,8 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
           position: 'fixed', bottom: 'calc(56px + var(--safe-bottom, 0px))',
           left: '50%', transform: 'translateX(-50%)',
           width: '100%', maxWidth: 600,
-          zIndex: 1200, bgcolor: bgColor,
-          borderTop: '1px solid rgba(255,255,255,0.15)',
+          zIndex: 1200, background: bgGradient,
+          borderTop: `1px solid ${borderColor}`,
           borderRadius: '12px',
           display: 'flex', alignItems: 'center', gap: 1, px: 1.5, py: 0.75,
           cursor: 'pointer',
@@ -127,7 +147,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
         onClick={() => setCollapsed(false)}
       >
         {/* Drag handle pip */}
-        <Box sx={{ position: 'absolute', top: 6, left: '50%', transform: 'translateX(-50%)', width: 32, height: 3, borderRadius: 2, bgcolor: 'rgba(255,255,255,0.3)' }} />
+        <Box sx={{ position: 'absolute', top: 6, left: '50%', transform: 'translateX(-50%)', width: 32, height: 3, borderRadius: 2, bgcolor: pipColor }} />
         <Typography sx={{
           color: alarmActive ? 'warning.light' : textColor,
           fontWeight: 700, fontSize: '0.82rem', flex: 1,
@@ -161,20 +181,18 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
           width: '100%', maxWidth: 600,
           minHeight: 200,
           zIndex: 1200,
-          bgcolor: bgColor,
-          borderTop: '1px solid rgba(255,255,255,0.2)',
+          background: bgGradient,
+          borderTop: `1px solid ${borderColor}`,
           borderRadius: '20px',
           boxShadow: '0 -8px 32px rgba(0,0,0,0.5)',
           display: 'flex',
           flexDirection: 'column',
-          // Smooth phase colour transition only; height is auto-sized to content
-          transition: 'background-color 0.35s ease',
           overflow: 'auto',
         }}
       >
         {/* Drag handle + collapse */}
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', pt: 0.5, pb: 0.25, cursor: 'pointer', flexShrink: 0 }} onClick={() => setCollapsed(true)}>
-          <Box sx={{ width: 36, height: 4, borderRadius: 2, bgcolor: 'rgba(255,255,255,0.3)' }} />
+          <Box sx={{ width: 36, height: 4, borderRadius: 2, bgcolor: pipColor }} />
         </Box>
 
         <Box sx={{ overflowY: 'auto', maxHeight: '38dvh', px: 1.5, pb: 1.5 }}>
@@ -186,7 +204,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
             <Select
               value={currentDay.id}
               onChange={(e) => setSelectedDayId(e.target.value)}
-              sx={{ color: textColor, fontWeight: 700, fontSize: '1rem', '& .MuiSelect-icon': { color: mutedColor }, '& fieldset': { borderColor: 'rgba(255,255,255,0.3)' }, minWidth: 100 }}
+              sx={{ color: textColor, fontWeight: 700, fontSize: '1rem', '& .MuiSelect-icon': { color: mutedColor }, '& fieldset': { borderColor: btnBorder }, minWidth: 100 }}
             >
               {days.map((d: any) => <MenuItem key={d.id} value={d.id} sx={{ fontSize: '0.95rem' }}>Day {d.day}</MenuItem>)}
             </Select>
@@ -201,14 +219,11 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
                 gap: 1, 
                 '& .MuiToggleButton-root': {
                   color: textColor,
-                  borderColor: 'rgba(255,255,255,0.25)',
-                  px: 1,
-                  py: 0.5,
-                  minHeight: 38,
-                  minWidth: 40,
-                  bgcolor: 'rgba(255,255,255,0.08)',
-                  '&:hover': { bgcolor: 'rgba(255,255,255,0.15)' },
-                  '&.Mui-selected': { color: textColor, bgcolor: 'rgba(255,255,255,0.25)' },
+                  borderColor: btnBorder,
+                  px: 1, py: 0.5, minHeight: 38, minWidth: 40,
+                  bgcolor: btnOverlay,
+                  '&:hover': { bgcolor: btnOverlayHover },
+                  '&.Mui-selected': { color: textColor, bgcolor: useDarkInk ? 'rgba(0,0,0,0.22)' : 'rgba(255,255,255,0.25)' },
                 },
               }}
             >
@@ -226,7 +241,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
               <Select
                 value={publicMode}
                 onChange={(e) => updateCurrentDay((d: any) => ({ ...d, publicMode: e.target.value as PublicMode }))}
-                sx={{ color: textColor, fontSize: '0.9rem', '& .MuiSelect-icon': { color: mutedColor }, '& fieldset': { borderColor: 'rgba(255,255,255,0.3)' }, minWidth: 120 }}
+                sx={{ color: textColor, fontSize: '0.9rem', '& .MuiSelect-icon': { color: mutedColor }, '& fieldset': { borderColor: btnBorder }, minWidth: 120 }}
               >
                 <MenuItem value="free" sx={{ fontSize: '0.95rem' }}>{text.freeSpeech}</MenuItem>
                 <MenuItem value="roundRobin" sx={{ fontSize: '0.95rem' }}>{text.roundRobinMode}</MenuItem>
@@ -273,8 +288,8 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
                     onChange={(e) => setTimerInput(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleTimerSave()}
                     autoFocus placeholder="MM:SS"
-                    slotProps={{ input: { style: { color: 'white', fontSize: '1.4rem', fontWeight: 700, fontFamily: 'monospace', letterSpacing: '0.08em' } } }}
-                    sx={{ width: 105, '& fieldset': { borderColor: 'rgba(255,255,255,0.4)' }, '& .MuiInputBase-root': { py: 0.75 } }}
+                    slotProps={{ input: { style: { color: textColor, fontSize: '1.4rem', fontWeight: 700, fontFamily: 'monospace', letterSpacing: '0.08em' } } }}
+                    sx={{ width: 105, '& fieldset': { borderColor: btnBorder }, '& .MuiInputBase-root': { py: 0.75 } }}
                   />
                   <Button variant="contained" onClick={handleTimerSave} sx={{ minWidth: 44, px: 1, py: 1 }}><CheckIcon /></Button>
                   <Button variant="outlined" onClick={() => setTimerEditing(false)} sx={{ ...btnSx, minWidth: 44, px: 1, py: 1 }}><CloseIcon /></Button>
@@ -286,9 +301,9 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
                     fontFamily: 'monospace', fontSize: '1.35rem', fontWeight: 700,
                     color: alarmActive ? 'warning.light' : textColor,
                     px: 1, py: 0.125, borderRadius: 1,
-                    border: '1px solid rgba(255,255,255,0.25)',
+                    border: `1px solid ${btnBorder}`,
                     cursor: 'pointer', letterSpacing: '0.08em',
-                    '&:hover': { bgcolor: 'rgba(255,255,255,0.08)' },
+                    '&:hover': { bgcolor: btnOverlay },
                     // Pulse animation when alarm fires
                     ...(alarmActive && {
                       animation: 'timerAlarmPulse 0.9s ease-in-out infinite',

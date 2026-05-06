@@ -2,7 +2,7 @@
 import type { StorytellerSeat } from '../types'
 import type { StorytellerContext } from '../useStoryteller'
 import React, { useState } from 'react'
-import { Box, Button, IconButton, Chip, Paper } from '@mui/material'
+import { Box, Button, IconButton, Chip, Paper, useTheme } from '@mui/material'
 import CheckIcon from '@mui/icons-material/Check'
 import CloseIcon from '@mui/icons-material/Close'
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked'
@@ -24,6 +24,9 @@ export function MobileSeatCard({ ctx, seat, side = 'left' }: { ctx: StorytellerC
     playerModalSeat, setPlayerModalSeat, setPlayerModalTab,
     days,
   } = ctx
+
+  const muiTheme = useTheme()
+  const isDark = muiTheme.palette.mode === 'dark'
 
   const isPlayerModalOpen = playerModalSeat === seat.seat
   const isCharacterPopoutOpen = characterPopoutSeat === seat.seat
@@ -119,8 +122,10 @@ export function MobileSeatCard({ ctx, seat, side = 'left' }: { ctx: StorytellerC
             borderRadius: 1.5,
             border: '1.5px solid',
             borderColor: getBorderColor(),
-            bgcolor: seat.alive ? 'background.paper' : '#c8c5bc',
-            opacity: seat.alive ? 1 : 0.75,
+            bgcolor: isDark
+              ? (seat.alive ? '#3D2E24' : '#111008')
+              : (seat.alive ? 'background.paper' : '#c8c5bc'),
+            opacity: seat.alive ? 1 : (isDark ? 0.65 : 0.75),
             minHeight: `${CIRCLE_SIZE}px`,
             cursor: pickerMode !== 'none' ? 'pointer' : 'default',
             transition: 'all 0.15s ease',
@@ -128,8 +133,8 @@ export function MobileSeatCard({ ctx, seat, side = 'left' }: { ctx: StorytellerC
           }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
-            <Box component="span" sx={{ fontWeight: 700, fontSize: '1.05rem', color: seat.alive ? 'text.secondary' : '#7a7570', whiteSpace: 'nowrap' }}>#{seat.seat}</Box>
-            <Box component="span" sx={{ fontWeight: 600, fontSize: '1.05rem', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: seat.alive ? 'text.primary' : '#5a5550', textDecoration: seat.alive ? 'none' : 'line-through' }}>{seat.name}</Box>
+            <Box component="span" sx={{ fontWeight: 700, fontSize: '1.05rem', color: seat.alive ? 'text.secondary' : (isDark ? '#4a453e' : '#7a7570'), whiteSpace: 'nowrap' }}>#{seat.seat}</Box>
+            <Box component="span" sx={{ fontWeight: 600, fontSize: '1.05rem', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: seat.alive ? 'text.primary' : (isDark ? '#3a3530' : '#5a5550'), textDecoration: seat.alive ? 'none' : 'line-through' }}>{seat.name}</Box>
             <Box component="span" sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: seat.alive ? 'success.main' : 'text.disabled', flexShrink: 0 }} />
             {hasVoted && <Box component="span" sx={{ fontWeight: 700, fontSize: '0.9rem', color: votedYes ? 'success.main' : 'error.main' }}>{votedYes ? <CheckIcon fontSize="small" /> : <CloseIcon fontSize="small" />}</Box>}
           </Box>
