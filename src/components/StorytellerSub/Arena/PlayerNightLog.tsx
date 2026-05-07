@@ -8,7 +8,7 @@ import {
 } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import type { DayState } from '../types'
-import { buildPlayerLogEntries, filterPlayerLogByPhase } from '../../../utils/playerLog'
+import { buildPlayerLogEntries, filterPlayerLogByCurrentPhase } from '../../../utils/playerLog'
 
 interface PlayerNightLogProps {
   open: boolean
@@ -16,16 +16,17 @@ interface PlayerNightLogProps {
   seat: any
   days: DayState[]
   language: string
+  isNight: boolean
 }
 
-export function PlayerNightLog({ open, onClose, seat, days, language }: PlayerNightLogProps) {
+export function PlayerNightLog({ open, onClose, seat, days, language, isNight }: PlayerNightLogProps) {
   if (!seat) return null
 
   const seatNum = seat.seat
   const seatLabel = seat.name ? `${seatNum}. ${seat.name}` : `#${seatNum}`
 
-  // Night entries show all (public + st-only); day-phase entries show public only
-  const dayEntries = filterPlayerLogByPhase(buildPlayerLogEntries(days, seatNum))
+  // Night phase → show all (public + st-only); day phase → public only
+  const dayEntries = filterPlayerLogByCurrentPhase(buildPlayerLogEntries(days, seatNum), isNight)
 
   const kindColor = (kind: string) => {
     if (kind === 'vote') return 'primary'

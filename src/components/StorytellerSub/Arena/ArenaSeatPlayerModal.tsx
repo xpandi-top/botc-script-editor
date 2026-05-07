@@ -18,7 +18,7 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import ListIcon from '@mui/icons-material/List'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import { getDisplayName, getIconForCharacter, getAbilityText, allCharacters, characterById } from '../../../catalog'
-import { buildPlayerLogEntries, filterPlayerLogByPhase } from '../../../utils/playerLog'
+import { buildPlayerLogEntries, filterPlayerLogByCurrentPhase } from '../../../utils/playerLog'
 
 const TRAVELER_CHAR_IDS = allCharacters.filter((c) => c.team === 'traveler').map((c) => c.id)
 
@@ -160,8 +160,8 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
   }, [skillType, knowResult, knowChars, knowInfo, changeTo, changeToChar, csSubtype, tagInput, removeTagVal])
 
   const logDays = useMemo(
-    () => filterPlayerLogByPhase(buildPlayerLogEntries(days || [currentDay], seat?.seat)),
-    [days, currentDay, seat?.seat],
+    () => filterPlayerLogByCurrentPhase(buildPlayerLogEntries(days || [currentDay], seat?.seat), isNight),
+    [days, currentDay, seat?.seat, isNight],
   )
 
   // ── Conditional return after all hooks ──

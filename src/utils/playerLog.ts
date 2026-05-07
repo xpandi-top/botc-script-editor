@@ -116,19 +116,18 @@ export function buildPlayerLogEntries(days: DayState[], seatNum: number): Player
 }
 
 /**
- * Filter player log entries using the same rules as the Game Log:
- * - Night-phase entries: show all (public + st-only)
- * - Day-phase entries (private / public / nomination): show public only
+ * Filter player log entries based on CURRENT game phase — mirrors Game Log:
+ * - isNight = true  → show all entries (public + st-only visible to ST)
+ * - isNight = false → show public entries only (private/public/nomination phases)
  *
  * Preserves day structure; removes days that become empty after filtering.
  */
-export function filterPlayerLogByPhase(days: PlayerLogDay[]): PlayerLogDay[] {
+export function filterPlayerLogByCurrentPhase(days: PlayerLogDay[], isNight: boolean): PlayerLogDay[] {
+  if (isNight) return days
   return days
     .map(({ day, entries }) => ({
       day,
-      entries: entries.filter(
-        (e) => e.phase === 'night' || e.visibility === 'public',
-      ),
+      entries: entries.filter((e) => e.visibility === 'public'),
     }))
     .filter((d) => d.entries.length > 0)
 }

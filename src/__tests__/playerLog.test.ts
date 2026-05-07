@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildPlayerLogEntries, eventMentionsSeat, filterPlayerLogByPhase } from '../utils/playerLog'
+import { buildPlayerLogEntries, eventMentionsSeat, filterPlayerLogByCurrentPhase } from '../utils/playerLog'
 import type { PlayerLogEntry, PlayerLogDay } from '../utils/playerLog'
 import type { DayState, EventLogEntry, VoteRecord, SkillRecord } from '../components/StorytellerSub/types'
 
@@ -294,104 +294,108 @@ function makeLogDay(day: number, entries: PlayerLogEntry[]): PlayerLogDay {
   return { day, entries }
 }
 
-describe('filterPlayerLogByPhase', () => {
-  it('returns empty for empty input', () => {
-    expect(filterPlayerLogByPhase([])).toHaveLength(0)
+describe('filterPlayerLogByCurrentPhase', () => {
+  it('returns empty for empty input (night)', () => {
+    expect(filterPlayerLogByCurrentPhase([], true)).toHaveLength(0)
   })
 
-  it('night public → shown', () => {
+  it('returns empty for empty input (day)', () => {
+    expect(filterPlayerLogByCurrentPhase([], false)).toHaveLength(0)
+  })
+
+  // ── isNight = true: show everything ──────────────────────────────────────
+
+  it('night mode: public entries shown', () => {
     const days = [makeLogDay(1, [makeEntry('1', 'night', 'public')])]
-    expect(filterPlayerLogByPhase(days)[0].entries).toHaveLength(1)
+    expect(filterPlayerLogByCurrentPhase(days, true)[0].entries).toHaveLength(1)
   })
 
-  it('night st-only → shown (ST entries visible during night)', () => {
+  it('night mode: st-only entries shown', () => {
     const days = [makeLogDay(1, [makeEntry('2', 'night', 'st-only')])]
-    expect(filterPlayerLogByPhase(days)[0].entries).toHaveLength(1)
+    expect(filterPlayerLogByCurrentPhase(days, true)[0].entries).toHaveLength(1)
   })
 
-  it('private public → shown', () => {
-    const days = [makeLogDay(1, [makeEntry('3', 'private', 'public')])]
-    expect(filterPlayerLogByPhase(days)[0].entries).toHaveLength(1)
+  it('night mode: st-only entries from ANY logged phase shown', () => {
+    const entries = [
+      makeEntry('3', 'night', 'st-only'),
+      makeEntry('4', 'private', 'st-only'),
+      makeEntry('5', 'nomination', 'st-only'),
+    ]
+    const result = filterPlayerLogByCurrentPhase([makeLogDay(1, entries)], true)
+    expect(result[0].entries).toHaveLength(3)
   })
 
-  it('private st-only → hidden', () => {
-    const days = [makeLogDay(1, [makeEntry('4', 'private', 'st-only')])]
-    expect(filterPlayerLogByPhase(days)).toHaveLength(0)
+  it('night mode: returns exact same array reference (no filtering)', () => {
+    const days = [makeLogDay(1, [makeEntry('6', 'private', 'st-only')])]
+    expect(filterPlayerLogByCurrentPhase(days, true)).toBe(days)
   })
 
-  it('public phase public → shown', () => {
-    const days = [makeLogDay(1, [makeEntry('5', 'public', 'public')])]
-    expect(filterPlayerLogByPhase(days)[0].entries).toHaveLength(1)
-  })
+  // ── isNight = false: public only ─────────────────────────────────────────
 
-  it('public phase st-only → hidden', () => {
-    const days = [makeLogDay(1, [makeEntry('6', 'public', 'st-only')])]
-    expect(filterPlayerLogByPhase(days)).toHaveLength(0)
-  })
-
-  it('nomination public → shown', () => {
-    const days = [makeLogDay(1, [makeEntry('7', 'nomination', 'public')])]
-    expect(filterPlayerLogByPhase(days)[0].entries).toHaveLength(1)
-  })
-
-  it('nomination st-only → hidden', () => {
-    const days = [makeLogDay(1, [makeEntry('8', 'nomination', 'st-only')])]
-    expect(filterPlayerLogByPhase(days)).toHaveLength(0)
-  })
-
-  it('mixed night entries: keeps both public and st-only', () => {
+  it('day mode: public entries shown regardless of logged phase', () => {
     const entries = [
       makeEntry('10', 'night', 'public'),
-      makeEntry('11', 'night', 'st-only'),
+      makeEntry('11', 'private', 'public'),
+      makeEntry('12', 'nomination', 'public'),
     ]
-    const result = filterPlayerLogByPhase([makeLogDay(1, entries)])
-    expect(result[0].entries).toHaveLength(2)
+    const result = filterPlayerLogByCurrentPhase([makeLogDay(1, entries)], false)
+    expect(result[0].entries).toHaveLength(3)
   })
 
-  it('mixed day entries: keeps only public', () => {
+  it('day mode: st-only entries hidden regardless of logged phase', () => {
     const entries = [
-      makeEntry('20', 'private', 'public'),
+      makeEntry('20', 'night', 'st-only'),
       makeEntry('21', 'private', 'st-only'),
-      makeEntry('22', 'nomination', 'public'),
-      makeEntry('23', 'nomination', 'st-only'),
+      makeEntry('22', 'nomination', 'st-only'),
     ]
-    const result = filterPlayerLogByPhase([makeLogDay(1, entries)])
+    expect(filterPlayerLogByCurrentPhase([makeLogDay(1, entries)], false)).toHaveLength(0)
+  })
+
+  it('day mode: mixed — keeps only public', () => {
+    const entries = [
+      makeEntry('30', 'night', 'public'),
+      makeEntry('31', 'night', 'st-only'),
+      makeEntry('32', 'private', 'public'),
+      makeEntry('33', 'private', 'st-only'),
+    ]
+    const result = filterPlayerLogByCurrentPhase([makeLogDay(1, entries)], false)
     expect(result[0].entries).toHaveLength(2)
     expect(result[0].entries.every((e) => e.visibility === 'public')).toBe(true)
   })
 
-  it('day with only st-only entries is removed entirely', () => {
+  it('day mode: day with only st-only removed entirely', () => {
     const days = [
-      makeLogDay(1, [makeEntry('30', 'private', 'st-only')]),
-      makeLogDay(2, [makeEntry('31', 'nomination', 'public')]),
+      makeLogDay(1, [makeEntry('40', 'night', 'st-only')]),
+      makeLogDay(2, [makeEntry('41', 'nomination', 'public')]),
     ]
-    const result = filterPlayerLogByPhase(days)
+    const result = filterPlayerLogByCurrentPhase(days, false)
     expect(result).toHaveLength(1)
     expect(result[0].day).toBe(2)
   })
 
-  it('does not mutate input array', () => {
-    const entries = [makeEntry('40', 'private', 'public'), makeEntry('41', 'private', 'st-only')]
+  it('day mode: does not mutate input', () => {
+    const entries = [makeEntry('50', 'private', 'public'), makeEntry('51', 'private', 'st-only')]
     const day = makeLogDay(1, entries)
-    filterPlayerLogByPhase([day])
+    filterPlayerLogByCurrentPhase([day], false)
     expect(day.entries).toHaveLength(2)
   })
 
+  // ── Parametric: all phase × visibility × isNight combos ──────────────────
+
   it.each([
-    ['night', 'st-only', true],
-    ['night', 'public', true],
-    ['private', 'public', true],
-    ['private', 'st-only', false],
-    ['public', 'public', true],
-    ['public', 'st-only', false],
-    ['nomination', 'public', true],
-    ['nomination', 'st-only', false],
+    // [isNight, entryVisibility, expected]
+    [true,  'public',  true],
+    [true,  'st-only', true],
+    [false, 'public',  true],
+    [false, 'st-only', false],
   ] as const)(
-    'phase=%s visibility=%s → included=%s',
-    (phase, visibility, expected) => {
-      const result = filterPlayerLogByPhase([makeLogDay(1, [makeEntry('99', phase, visibility)])])
-      const included = result.length > 0 && result[0].entries.length > 0
-      expect(included).toBe(expected)
+    'isNight=%s visibility=%s → included=%s',
+    (isNight, visibility, expected) => {
+      const result = filterPlayerLogByCurrentPhase(
+        [makeLogDay(1, [makeEntry('99', 'night', visibility)])],
+        isNight,
+      )
+      expect(result.length > 0 && result[0].entries.length > 0).toBe(expected)
     },
   )
 })
