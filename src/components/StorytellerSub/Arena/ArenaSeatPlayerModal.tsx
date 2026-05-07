@@ -180,6 +180,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
     if (!skillType) return false
     if (skillType === 'know' || skillType === 'guess') {
       if (knowResult === 'characters') return knowChars.length > 0
+      if (knowResult === 'demonBluffs') return true
       if (knowResult === 'info') return knowInfo.trim().length > 0
       return true
     }
@@ -257,6 +258,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
       const verb = skillType === 'know' ? 'know' : 'guess'
       const resultStr =
         knowResult === 'characters' ? knowChars.map((c) => getDisplayName(c, language)).join(', ') :
+        knowResult === 'demonBluffs' ? (currentDay?.demonBluffs ?? []).map((c: string) => getDisplayName(c, language)).join(', ') :
         knowResult === 'team' ? (knowTeam === 'good' ? 'Good' : 'Evil') :
         knowResult === 'type' ? knowType :
         knowResult === 'sameTeam' ? 'same team' :
@@ -643,6 +645,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
               <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
                 {[
                   { key: 'characters', label: zh ? '角色' : 'Characters' },
+                  { key: 'demonBluffs', label: zh ? '恶魔虚张' : 'Demon Bluffs' },
                   { key: 'team', label: zh ? '阵营' : 'Team' },
                   { key: 'type', label: zh ? '类型' : 'Type' },
                   { key: 'sameTeam', label: zh ? '同阵营' : 'Same team' },
@@ -659,15 +662,40 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
                 ))}
               </Box>
               {/* Result value input */}
-              {knowResult === 'characters' && (
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, maxHeight: 100, overflow: 'auto', border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 0.5 }}>
-                  {(currentScriptCharacters ?? []).map((c: string) => (
-                    <Chip key={c} size="small" clickable
+              {knowResult === 'characters' && (() => {
+                const inPlayIds = new Set(
+                  (currentDay?.seats ?? []).map((s: any) => s.characterId).filter(Boolean)
+                )
+                const bluffIds = new Set(currentDay?.demonBluffs ?? [])
+                return (
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, maxHeight: 100, overflow: 'auto', border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 0.5 }}>
+                    {(currentScriptCharacters ?? []).map((c: string) => {
+                      const isBluff = bluffIds.has(c)
+                      const isNotInPlay = !inPlayIds.has(c)
+                      const isSelected = knowChars.includes(c)
+                      return (
+                        <Chip key={c} size="small" clickable
+                          label={getDisplayName(c, language)}
+                          icon={getIconForCharacter(c) ? <Box component="img" src={getIconForCharacter(c) as string} sx={{ width: 14, height: 14 }} /> : undefined}
+                          color={isSelected ? 'secondary' : isBluff ? 'warning' : 'default'}
+                          variant={isSelected ? 'filled' : 'outlined'}
+                          sx={isNotInPlay && !isSelected ? { opacity: 0.45, fontStyle: 'italic' } : isBluff && !isSelected ? { borderColor: 'warning.main', color: 'warning.main' } : undefined}
+                          onClick={() => setKnowChars((prev) => prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c])} />
+                      )
+                    })}
+                  </Box>
+                )
+              })()}
+              {knowResult === 'demonBluffs' && (
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, border: '1px solid', borderColor: 'warning.main', borderRadius: 1, p: 0.75, bgcolor: isDark ? 'rgba(237,108,2,0.08)' : 'rgba(255,167,38,0.10)' }}>
+                  {(currentDay?.demonBluffs ?? []).length === 0 ? (
+                    <Typography variant="caption" color="text.secondary">{zh ? '（未设置恶魔虚张）' : '(No demon bluffs set)'}</Typography>
+                  ) : (currentDay?.demonBluffs ?? []).map((c: string) => (
+                    <Chip key={c} size="small"
                       label={getDisplayName(c, language)}
                       icon={getIconForCharacter(c) ? <Box component="img" src={getIconForCharacter(c) as string} sx={{ width: 14, height: 14 }} /> : undefined}
-                      color={knowChars.includes(c) ? 'secondary' : 'default'}
-                      variant={knowChars.includes(c) ? 'filled' : 'outlined'}
-                      onClick={() => setKnowChars((prev) => prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c])} />
+                      color="warning"
+                      variant="filled" />
                   ))}
                 </Box>
               )}

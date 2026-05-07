@@ -143,9 +143,7 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
 
   function openNewGamePanel() {
     const slug = activeScriptSlug ?? scriptOptions[0]?.slug ?? ''
-    const seatNames: Record<number, string> = {}
-    for (let i = 1; i <= 9; i++) seatNames[i] = `Player ${i}`
-    setNewGamePanel({ playerCount: 9, travelerCount: 0, scriptSlug: slug, allowDuplicateChars: false, allowEmptyChars: false, allowSameNames: false, seatNames, assignments: {}, userAssignments: {}, travelerAssignments: {}, seatNotes: {}, specialNote: '', demonBluffs: [], charPool: [] })
+    setNewGamePanel({ playerCount: 9, travelerCount: 0, scriptSlug: slug, allowDuplicateChars: false, allowEmptyChars: false, allowSameNames: false, seatNames: {}, assignments: {}, userAssignments: {}, travelerAssignments: {}, seatNotes: {}, specialNote: '', demonBluffs: [], charPool: [] })
   }
 
   function randomAssignCharacters(config: NewGameConfig): Record<number, string> {
@@ -207,6 +205,7 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
 
   function applyGameChanges(newGamePanel: NewGameConfig) {
     if (!newGamePanel) return
+    if (onSelectScript && newGamePanel.scriptSlug) onSelectScript(newGamePanel.scriptSlug)
     const totalCount = newGamePanel.playerCount + newGamePanel.travelerCount
     let updatedDay = currentDay
     const updatedSeats = currentDay.seats.map((seat) => {
