@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { buildPlayerLogEntries, eventMentionsSeat } from '../utils/playerLog'
+import { buildPlayerLogEntries, eventMentionsSeat, filterPlayerLogByPhase } from '../utils/playerLog'
+import type { PlayerLogEntry, PlayerLogDay } from '../utils/playerLog'
 import type { DayState, EventLogEntry, VoteRecord, SkillRecord } from '../components/StorytellerSub/types'
 
 // ── Factories ─────────────────────────────────────────────────────────────────
@@ -281,4 +282,116 @@ describe('buildPlayerLogEntries — deduplication', () => {
     })
     expect(buildPlayerLogEntries([day], 1)).toHaveLength(0)
   })
+})
+
+// ── filterPlayerLogByPhase ────────────────────────────────────────────────────
+
+function makeEntry(id: string, phase: string, visibility: 'public' | 'st-only'): PlayerLogEntry {
+  return { id, timestamp: Number(id), text: `entry-${id}`, kind: 'event', phase, visibility }
+}
+
+function makeLogDay(day: number, entries: PlayerLogEntry[]): PlayerLogDay {
+  return { day, entries }
+}
+
+describe('filterPlayerLogByPhase', () => {
+  it('returns empty for empty input', () => {
+    expect(filterPlayerLogByPhase([])).toHaveLength(0)
+  })
+
+  it('night public → shown', () => {
+    const days = [makeLogDay(1, [makeEntry('1', 'night', 'public')])]
+    expect(filterPlayerLogByPhase(days)[0].entries).toHaveLength(1)
+  })
+
+  it('night st-only → shown (ST entries visible during night)', () => {
+    const days = [makeLogDay(1, [makeEntry('2', 'night', 'st-only')])]
+    expect(filterPlayerLogByPhase(days)[0].entries).toHaveLength(1)
+  })
+
+  it('private public → shown', () => {
+    const days = [makeLogDay(1, [makeEntry('3', 'private', 'public')])]
+    expect(filterPlayerLogByPhase(days)[0].entries).toHaveLength(1)
+  })
+
+  it('private st-only → hidden', () => {
+    const days = [makeLogDay(1, [makeEntry('4', 'private', 'st-only')])]
+    expect(filterPlayerLogByPhase(days)).toHaveLength(0)
+  })
+
+  it('public phase public → shown', () => {
+    const days = [makeLogDay(1, [makeEntry('5', 'public', 'public')])]
+    expect(filterPlayerLogByPhase(days)[0].entries).toHaveLength(1)
+  })
+
+  it('public phase st-only → hidden', () => {
+    const days = [makeLogDay(1, [makeEntry('6', 'public', 'st-only')])]
+    expect(filterPlayerLogByPhase(days)).toHaveLength(0)
+  })
+
+  it('nomination public → shown', () => {
+    const days = [makeLogDay(1, [makeEntry('7', 'nomination', 'public')])]
+    expect(filterPlayerLogByPhase(days)[0].entries).toHaveLength(1)
+  })
+
+  it('nomination st-only → hidden', () => {
+    const days = [makeLogDay(1, [makeEntry('8', 'nomination', 'st-only')])]
+    expect(filterPlayerLogByPhase(days)).toHaveLength(0)
+  })
+
+  it('mixed night entries: keeps both public and st-only', () => {
+    const entries = [
+      makeEntry('10', 'night', 'public'),
+      makeEntry('11', 'night', 'st-only'),
+    ]
+    const result = filterPlayerLogByPhase([makeLogDay(1, entries)])
+    expect(result[0].entries).toHaveLength(2)
+  })
+
+  it('mixed day entries: keeps only public', () => {
+    const entries = [
+      makeEntry('20', 'private', 'public'),
+      makeEntry('21', 'private', 'st-only'),
+      makeEntry('22', 'nomination', 'public'),
+      makeEntry('23', 'nomination', 'st-only'),
+    ]
+    const result = filterPlayerLogByPhase([makeLogDay(1, entries)])
+    expect(result[0].entries).toHaveLength(2)
+    expect(result[0].entries.every((e) => e.visibility === 'public')).toBe(true)
+  })
+
+  it('day with only st-only entries is removed entirely', () => {
+    const days = [
+      makeLogDay(1, [makeEntry('30', 'private', 'st-only')]),
+      makeLogDay(2, [makeEntry('31', 'nomination', 'public')]),
+    ]
+    const result = filterPlayerLogByPhase(days)
+    expect(result).toHaveLength(1)
+    expect(result[0].day).toBe(2)
+  })
+
+  it('does not mutate input array', () => {
+    const entries = [makeEntry('40', 'private', 'public'), makeEntry('41', 'private', 'st-only')]
+    const day = makeLogDay(1, entries)
+    filterPlayerLogByPhase([day])
+    expect(day.entries).toHaveLength(2)
+  })
+
+  it.each([
+    ['night', 'st-only', true],
+    ['night', 'public', true],
+    ['private', 'public', true],
+    ['private', 'st-only', false],
+    ['public', 'public', true],
+    ['public', 'st-only', false],
+    ['nomination', 'public', true],
+    ['nomination', 'st-only', false],
+  ] as const)(
+    'phase=%s visibility=%s → included=%s',
+    (phase, visibility, expected) => {
+      const result = filterPlayerLogByPhase([makeLogDay(1, [makeEntry('99', phase, visibility)])])
+      const included = result.length > 0 && result[0].entries.length > 0
+      expect(included).toBe(expected)
+    },
+  )
 })

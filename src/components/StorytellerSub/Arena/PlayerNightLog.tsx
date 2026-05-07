@@ -1,14 +1,14 @@
 // @ts-nocheck
 import type { StorytellerSeat } from '../types'
-import React, { useState } from 'react'
+import React from 'react'
 import { createPortal } from 'react-dom'
 import {
   Box, Dialog, DialogTitle, DialogContent, IconButton,
-  ToggleButton, ToggleButtonGroup, Typography, Divider, Chip,
+  Typography, Divider, Chip,
 } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import type { DayState } from '../types'
-import { buildPlayerLogEntries } from '../../../utils/playerLog'
+import { buildPlayerLogEntries, filterPlayerLogByPhase } from '../../../utils/playerLog'
 
 interface PlayerNightLogProps {
   open: boolean
@@ -21,19 +21,11 @@ interface PlayerNightLogProps {
 export function PlayerNightLog({ open, onClose, seat, days, language }: PlayerNightLogProps) {
   if (!seat) return null
 
-  const [visibility, setVisibility] = useState<'all' | 'public' | 'st-only'>('all')
-
   const seatNum = seat.seat
   const seatLabel = seat.name ? `${seatNum}. ${seat.name}` : `#${seatNum}`
 
-  const allDays = buildPlayerLogEntries(days, seatNum)
-
-  const dayEntries = allDays.map(({ day, entries }) => ({
-    day,
-    entries: visibility === 'all'
-      ? entries
-      : entries.filter((e) => e.visibility === visibility),
-  })).filter((d) => d.entries.length > 0)
+  // Night entries show all (public + st-only); day-phase entries show public only
+  const dayEntries = filterPlayerLogByPhase(buildPlayerLogEntries(days, seatNum))
 
   const kindColor = (kind: string) => {
     if (kind === 'vote') return 'primary'
@@ -67,27 +59,6 @@ export function PlayerNightLog({ open, onClose, seat, days, language }: PlayerNi
         <IconButton size="small" onClick={onClose}><CloseIcon fontSize="small" /></IconButton>
       </DialogTitle>
 
-      {/* Visibility filter */}
-      <Box sx={{ px: 3, pb: 1 }}>
-        <ToggleButtonGroup
-          value={visibility}
-          exclusive
-          size="small"
-          onChange={(_, v) => { if (v) setVisibility(v) }}
-          aria-label={language === 'zh' ? '可见性过滤' : 'visibility filter'}
-        >
-          <ToggleButton value="all" sx={{ textTransform: 'none', fontSize: '0.72rem', py: 0.25, px: 1 }}>
-            {language === 'zh' ? '全部' : 'All'}
-          </ToggleButton>
-          <ToggleButton value="public" sx={{ textTransform: 'none', fontSize: '0.72rem', py: 0.25, px: 1 }}>
-            {language === 'zh' ? '公开' : 'Public'}
-          </ToggleButton>
-          <ToggleButton value="st-only" sx={{ textTransform: 'none', fontSize: '0.72rem', py: 0.25, px: 1 }}>
-            {language === 'zh' ? '仅ST' : 'ST Only'}
-          </ToggleButton>
-        </ToggleButtonGroup>
-      </Box>
-
       <DialogContent sx={{ pt: 0 }}>
         {dayEntries.length === 0 ? (
           <Typography variant="body2" color="text.secondary" sx={{ py: 2 }}>
@@ -111,10 +82,10 @@ export function PlayerNightLog({ open, onClose, seat, days, language }: PlayerNi
                     />
                     {e.visibility === 'st-only' && (
                       <Chip
-                        label="🔒"
+                        label={language === 'zh' ? 'ST' : 'ST'}
                         size="small"
-                        variant="outlined"
-                        sx={{ fontSize: '0.65rem', height: 18, flexShrink: 0, mt: 0.1, '& .MuiChip-label': { px: 0.3 } }}
+                        color="warning"
+                        sx={{ fontSize: '0.65rem', height: 18, flexShrink: 0, mt: 0.1, '& .MuiChip-label': { px: 0.5 } }}
                       />
                     )}
                     <Typography variant="body2" sx={{ fontSize: '0.82rem', wordBreak: 'break-word' }}>
