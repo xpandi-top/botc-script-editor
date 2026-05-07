@@ -12,6 +12,7 @@ import { PlayerSeatGrid } from './PlayerSeatGrid'
 import { PhaseControlPanel } from './PhaseControlPanel'
 import { getSeatAngle as _getSeatAngle } from '../../../utils/seats'
 import { useBreakpoint } from '../../../hooks/useBreakpoint'
+import { BASE_URL } from '../constants'
 import type { Phase } from '../types'
 
 // Phase atmosphere: CSS filter + base tint color applied to a separate background layer
@@ -87,7 +88,7 @@ export function Arena({ ctx }: { ctx: StorytellerContext }) {
   const seats = currentDay.seats
   const phase = currentDay.phase as Phase
   const seatCount = seats.length || 1
-  const bgSrc = `/bg-${isDark ? 'dark' : 'light'}.svg`
+  const bgSrc = `${BASE_URL}bg-${isDark ? 'dark' : 'light'}.svg`
   const { isMobile, isTablet } = useBreakpoint()
 
   // Tablet portrait: use list layout (circular arena too cramped)
