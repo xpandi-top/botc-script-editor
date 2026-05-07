@@ -16,6 +16,7 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd'
 import CasinoIcon from '@mui/icons-material/Casino'
 import HowToVoteIcon from '@mui/icons-material/HowToVote'
 import WbSunnyIcon from '@mui/icons-material/WbSunny'
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts'
 import { AggregatedLogModal } from './AggregatedLogModal'
 import { StorytellerSetupModal } from './StorytellerSetupModal'
@@ -192,7 +193,7 @@ export function ArenaCenterContent({ ctx }: { ctx: StorytellerContext }) {
             </IconButton>
           </Tooltip>
           <Tooltip title={language === 'zh' ? '下一天' : 'Next Day'}>
-            <IconButton size="large" onClick={(e) => { e.stopPropagation(); goToNextDay() }}><WbSunnyIcon /></IconButton>
+            <IconButton size="large" onClick={(e) => { e.stopPropagation(); goToNextDay() }}><ArrowForwardIosIcon /></IconButton>
           </Tooltip>
         </>
       )}

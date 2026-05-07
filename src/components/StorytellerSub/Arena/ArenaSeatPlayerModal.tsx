@@ -17,7 +17,7 @@ import CheckIcon from '@mui/icons-material/Check'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import ListIcon from '@mui/icons-material/List'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
-import { getDisplayName, getIconForCharacter, getAbilityText, allCharacters } from '../../../catalog'
+import { getDisplayName, getIconForCharacter, getAbilityText, allCharacters, characterById } from '../../../catalog'
 
 const TRAVELER_CHAR_IDS = allCharacters.filter((c) => c.team === 'traveler').map((c) => c.id)
 
@@ -303,8 +303,12 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
         } else if (csSubtype === 'removePublic') {
           for (const sn of targetArr) updateSeatWithLog(sn, (s: any) => ({ ...s, customTags: s.customTags.filter((t: string) => t !== removeTagVal) }))
         }
-      } else if (skillType === 'change' && changeTo === 'character' && changeToChar) {
-        for (const sn of targetArr) updateSeatWithLog(sn, (s: any) => ({ ...s, characterId: changeToChar, userCharacterId: changeToChar }))
+      } else if (skillType === 'change') {
+        if (changeTo === 'character' && changeToChar) {
+          for (const sn of targetArr) updateSeatWithLog(sn, (s: any) => ({ ...s, characterId: changeToChar, userCharacterId: changeToChar }))
+        } else if (changeTo === 'team') {
+          for (const sn of targetArr) updateSeatWithLog(sn, (s: any) => ({ ...s, teamTag: changeToTeam === 'evil' ? 'evil' : 'good' }))
+        }
       }
     }
 
@@ -522,20 +526,100 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
   }
 
   // ── Player multi-select list (shared across skill types) ──
+  // ── Shared char grid renderer (highlights bluffs + not-in-play, groups by team) ──
+  const renderCharGrid = (
+    isSelected: (id: string) => boolean,
+    onToggle: (id: string) => void,
+    selectedColor: 'primary' | 'secondary',
+  ) => {
+    const inPlayIds = new Set((currentDay?.seats ?? []).map((s: any) => s.characterId).filter(Boolean))
+    const bluffIds = new Set(currentDay?.demonBluffs ?? [])
+    const TEAM_ORDER_LIST = ['townsfolk', 'outsider', 'minion', 'demon'] as const
+    const TEAM_LABEL_MAP: Record<string, { en: string; zh: string; color: string }> = {
+      townsfolk: { en: 'Townsfolk', zh: '镇民', color: '#1565c0' },
+      outsider:  { en: 'Outsider',  zh: '外来者', color: '#0277bd' },
+      minion:    { en: 'Minion',    zh: '爪牙',   color: '#b71c1c' },
+      demon:     { en: 'Demon',     zh: '恶魔',   color: '#7b1fa2' },
+    }
+    const grouped: Record<string, string[]> = { townsfolk: [], outsider: [], minion: [], demon: [] }
+    for (const id of (currentScriptCharacters ?? [])) {
+      const t = characterById[id]?.team
+      if (t && grouped[t]) grouped[t].push(id)
+    }
+    const sections = TEAM_ORDER_LIST.filter((t) => grouped[t].length > 0)
+    return (
+      <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 0.5, maxHeight: 160, overflow: 'auto' }}>
+        {sections.map((team, si) => {
+          const info = TEAM_LABEL_MAP[team]
+          return (
+            <Box key={team}>
+              {si > 0 && <Divider sx={{ my: 0.5 }} />}
+              <Typography variant="caption" sx={{ display: 'block', fontWeight: 700, px: 0.5, py: 0.25, color: info.color, fontSize: '0.65rem', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+                {language === 'zh' ? info.zh : info.en}
+              </Typography>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                {grouped[team].map((c) => {
+                  const isBluff = bluffIds.has(c)
+                  const isNotInPlay = !inPlayIds.has(c)
+                  const sel = isSelected(c)
+                  return (
+                    <Chip key={c} size="small" clickable
+                      label={getDisplayName(c, language)}
+                      icon={getIconForCharacter(c) ? <Box component="img" src={getIconForCharacter(c) as string} sx={{ width: 14, height: 14 }} /> : undefined}
+                      color={sel ? selectedColor : isBluff ? 'warning' : 'default'}
+                      variant={sel ? 'filled' : 'outlined'}
+                      sx={isNotInPlay && !sel ? { opacity: 0.45, fontStyle: 'italic' } : isBluff && !sel ? { borderColor: 'warning.main', color: 'warning.main' } : undefined}
+                      onClick={() => onToggle(c)} />
+                  )
+                })}
+              </Box>
+            </Box>
+          )
+        })}
+      </Box>
+    )
+  }
+
+  const TEAM_TYPE_COLORS: Record<string, string> = {
+    townsfolk: '#1565c0', outsider: '#0277bd', minion: '#b71c1c', demon: '#7b1fa2',
+  }
+  const ALIGN_COLORS: Record<string, string> = { good: '#1565c0', evil: '#b71c1c' }
+  const TYPE_LABEL: Record<string, string> = { townsfolk: 'T', outsider: 'O', minion: 'M', demon: 'D' }
+
   const PlayerList = ({ showTags = true }: { showTags?: boolean }) => (
     <Box sx={{ maxHeight: 160, overflow: 'auto', border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 0.5 }}>
       {allSeats.map((s: any) => {
         const charName = s.characterId ? getDisplayName(s.characterId, language) : ''
         const tagSummary = seatTagSummary(s)
+        const char = s.characterId ? characterById[s.characterId] : null
+        const charTeam = char?.team ?? null
+        // teamTag overrides alignment (set by Change→Team skill)
+        const alignIsEvil = s.teamTag === 'evil' ? true : s.teamTag === 'good' ? false : (charTeam === 'minion' || charTeam === 'demon')
+        const alignLabel = (s.teamTag || charTeam) ? (alignIsEvil ? 'E' : 'G') : null
+        const typeLabel = charTeam ? (TYPE_LABEL[charTeam] ?? null) : null
+        const teamColor = charTeam ? TEAM_TYPE_COLORS[charTeam] : undefined
+        const alignColor = alignIsEvil ? ALIGN_COLORS.evil : ALIGN_COLORS.good
         return (
           <Box key={s.seat} sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.5, py: 0.25, cursor: 'pointer' }}
             onClick={() => toggleTarget(s.seat)}>
             <Box sx={{ width: 18, height: 18, mt: 0.2, border: '2px solid', borderColor: targets.has(s.seat) ? 'primary.main' : 'divider', borderRadius: 0.5, bgcolor: targets.has(s.seat) ? 'primary.main' : 'transparent', flexShrink: 0 }} />
-            <Box sx={{ minWidth: 0 }}>
-              <Typography variant="body2" sx={{ fontSize: '0.82rem', lineHeight: 1.3 }}>
-                #{s.seat} {s.name}{charName ? ` — ${charName}` : ''}
-                {!s.alive && <Box component="span" sx={{ color: 'text.disabled', ml: 0.5 }}>†</Box>}
-              </Typography>
+            <Box sx={{ minWidth: 0, flex: 1 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                <Typography variant="body2" sx={{ fontSize: '0.82rem', lineHeight: 1.3, flex: 1 }}>
+                  #{s.seat} {s.name}{charName ? ` — ${charName}` : ''}
+                  {!s.alive && <Box component="span" sx={{ color: 'text.disabled', ml: 0.5 }}>†</Box>}
+                </Typography>
+                {alignLabel && (
+                  <Box component="span" sx={{ fontSize: '0.62rem', fontWeight: 700, px: 0.4, py: 0.1, borderRadius: 0.5, border: '1px solid', borderColor: alignColor, color: alignColor, lineHeight: 1, flexShrink: 0 }}>
+                    {alignLabel}
+                  </Box>
+                )}
+                {typeLabel && (
+                  <Box component="span" sx={{ fontSize: '0.62rem', fontWeight: 700, px: 0.4, py: 0.1, borderRadius: 0.5, border: '1px solid', borderColor: teamColor, color: teamColor, lineHeight: 1, flexShrink: 0 }}>
+                    {typeLabel}
+                  </Box>
+                )}
+              </Box>
               {showTags && tagSummary && <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.72rem' }}>{tagSummary}</Typography>}
             </Box>
           </Box>
@@ -662,30 +746,11 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
                 ))}
               </Box>
               {/* Result value input */}
-              {knowResult === 'characters' && (() => {
-                const inPlayIds = new Set(
-                  (currentDay?.seats ?? []).map((s: any) => s.characterId).filter(Boolean)
-                )
-                const bluffIds = new Set(currentDay?.demonBluffs ?? [])
-                return (
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, maxHeight: 100, overflow: 'auto', border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 0.5 }}>
-                    {(currentScriptCharacters ?? []).map((c: string) => {
-                      const isBluff = bluffIds.has(c)
-                      const isNotInPlay = !inPlayIds.has(c)
-                      const isSelected = knowChars.includes(c)
-                      return (
-                        <Chip key={c} size="small" clickable
-                          label={getDisplayName(c, language)}
-                          icon={getIconForCharacter(c) ? <Box component="img" src={getIconForCharacter(c) as string} sx={{ width: 14, height: 14 }} /> : undefined}
-                          color={isSelected ? 'secondary' : isBluff ? 'warning' : 'default'}
-                          variant={isSelected ? 'filled' : 'outlined'}
-                          sx={isNotInPlay && !isSelected ? { opacity: 0.45, fontStyle: 'italic' } : isBluff && !isSelected ? { borderColor: 'warning.main', color: 'warning.main' } : undefined}
-                          onClick={() => setKnowChars((prev) => prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c])} />
-                      )
-                    })}
-                  </Box>
-                )
-              })()}
+              {knowResult === 'characters' && renderCharGrid(
+                (c) => knowChars.includes(c),
+                (c) => setKnowChars((prev) => prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]),
+                'secondary',
+              )}
               {knowResult === 'demonBluffs' && (
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, border: '1px solid', borderColor: 'warning.main', borderRadius: 1, p: 0.75, bgcolor: isDark ? 'rgba(237,108,2,0.08)' : 'rgba(255,167,38,0.10)' }}>
                   {(currentDay?.demonBluffs ?? []).length === 0 ? (
@@ -743,17 +808,10 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
                   {zh ? '阵营' : 'Team'}
                 </Button>
               </Box>
-              {changeTo === 'character' && (
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, maxHeight: 100, overflow: 'auto', border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 0.5 }}>
-                  {(currentScriptCharacters ?? []).map((c: string) => (
-                    <Chip key={c} size="small" clickable
-                      label={getDisplayName(c, language)}
-                      icon={getIconForCharacter(c) ? <Box component="img" src={getIconForCharacter(c) as string} sx={{ width: 14, height: 14 }} /> : undefined}
-                      color={changeToChar === c ? 'primary' : 'default'}
-                      variant={changeToChar === c ? 'filled' : 'outlined'}
-                      onClick={() => setChangeToChar(changeToChar === c ? '' : c)} />
-                  ))}
-                </Box>
+              {changeTo === 'character' && renderCharGrid(
+                (c) => changeToChar === c,
+                (c) => setChangeToChar(changeToChar === c ? '' : c),
+                'primary',
               )}
               {changeTo === 'team' && (
                 <Box sx={{ display: 'flex', gap: 0.5 }}>

@@ -11,10 +11,11 @@ import StopIcon from '@mui/icons-material/Stop'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import CloseIcon from '@mui/icons-material/Close'
 import CheckIcon from '@mui/icons-material/Check'
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive'
-import ListIcon from '@mui/icons-material/List'
+import ViewTimelineIcon from '@mui/icons-material/ViewTimeline'
 import AutoStoriesIcon from '@mui/icons-material/AutoStories'
 import HowToVoteIcon from '@mui/icons-material/HowToVote'
 import WbSunnyIcon from '@mui/icons-material/WbSunny'
@@ -263,7 +264,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
             </Tooltip>
             <Tooltip title={language === 'zh' ? '日志' : 'Log'}>
               <IconButton sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={() => setShowAggLogModal(true)}>
-                <ListIcon />
+                <ViewTimelineIcon />
               </IconButton>
             </Tooltip>
             {phase === 'nomination' && (
@@ -275,7 +276,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
                 </Tooltip>
                 <Tooltip title={language === 'zh' ? '下一天' : 'Next Day'}>
                   <IconButton sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={goToNextDay}>
-                    <WbSunnyIcon />
+                    <ArrowForwardIosIcon />
                   </IconButton>
                 </Tooltip>
               </>

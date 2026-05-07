@@ -1,6 +1,11 @@
 import type { StorytellerContext } from '../useStoryteller'
 import React from 'react'
 import { Box, Typography, Paper, useTheme } from '@mui/material'
+import AutoStoriesIcon from '@mui/icons-material/AutoStories'
+import ViewTimelineIcon from '@mui/icons-material/ViewTimeline'
+import HowToVoteIcon from '@mui/icons-material/HowToVote'
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts'
+import TouchAppIcon from '@mui/icons-material/TouchApp'
 import { ArenaCenter } from './ArenaCenter'
 import { ArenaSeats } from './ArenaSeats'
 import { PlayerSeatGrid } from './PlayerSeatGrid'
@@ -77,7 +82,7 @@ export function Arena({ ctx }: { ctx: StorytellerContext }) {
   // Lifted state: both PlayerSeatGrid and PhaseControlPanel need this to sync clearance
   const [panelCollapsed, setPanelCollapsed] = React.useState(false)
 
-  const { currentDay, setSelectedSeatNumber, setTagPopoutSeat, text, portraitOverride } = ctx
+  const { currentDay, setSelectedSeatNumber, setTagPopoutSeat, portraitOverride } = ctx
   const isPortrait = portraitOverride !== null ? portraitOverride : windowPortrait
   const seats = currentDay.seats
   const phase = currentDay.phase as Phase
@@ -172,9 +177,23 @@ export function Arena({ ctx }: { ctx: StorytellerContext }) {
             <ArenaSeats ctx={ctx} isPortrait={isPortrait} />
           </Box>
         </Box>
-        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', textAlign: 'center', position: 'relative', zIndex: 1 }}>
-          {text.seatHint}
-        </Typography>
+        {/* ── UI Legend ── */}
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, justifyContent: 'center', position: 'relative', zIndex: 1, mt: 0.5, px: 1 }}>
+          {([
+            { icon: <AutoStoriesIcon sx={{ fontSize: '0.85rem' }} />, en: 'ST Setup', zh: '说书人设置' },
+            { icon: <ViewTimelineIcon sx={{ fontSize: '0.85rem' }} />, en: 'Game Log', zh: '游戏日志' },
+            { icon: <HowToVoteIcon sx={{ fontSize: '0.85rem' }} />, en: 'Nominations', zh: '提名列表' },
+            { icon: <ManageAccountsIcon sx={{ fontSize: '0.85rem' }} />, en: 'Edit Roles', zh: '编辑角色' },
+            { icon: <TouchAppIcon sx={{ fontSize: '0.85rem' }} />, en: 'Tap seat → player details, role & tag changes', zh: '点击座位 → 玩家详情、角色与状态修改' },
+          ] as { icon: React.ReactNode; en: string; zh: string }[]).map(({ icon, en, zh }) => (
+            <Box key={en} sx={{ display: 'flex', alignItems: 'center', gap: 0.3 }}>
+              <Box sx={{ color: 'text.disabled', display: 'flex', alignItems: 'center' }}>{icon}</Box>
+              <Typography variant="caption" color="text.disabled" sx={{ fontSize: '0.66rem', lineHeight: 1.2 }}>
+                {ctx.language === 'zh' ? zh : en}
+              </Typography>
+            </Box>
+          ))}
+        </Box>
       </Paper>
     </Box>
   )
