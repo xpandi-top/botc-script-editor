@@ -2,7 +2,7 @@
 
 A storyteller tool for **Blood on the Clocktower** — browse scripts, run games, track votes and skills, and print character tokens.
 
-**[▶ Open the app](https://dimo.github.io/botc_webapp/)**
+**[▶ Open the app](https://xpandi-top.github.io/botc-script-editor/)**
 
 ---
 
