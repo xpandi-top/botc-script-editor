@@ -24,7 +24,6 @@ export const CHARACTER_DISTRIBUTION: Record<number, { townsfolk: number; outside
 }
 
 export const INITIAL_AUDIO_TRACKS: AudioTrack[] = [
-  { name: 'Blood on the Clocktower', src: `${BASE_URL}audio/botc.mp3` },
   { name: 'Below the Granite Arch', src: `${BASE_URL}audio/below_the_granite_arch.mp3` },
   { name: 'Measured Pulse of the Tower', src: `${BASE_URL}audio/measured_pulse_of_the_tower.mp3` },
   { name: 'Second Hand Stutter', src: `${BASE_URL}audio/second_hand_stutter.mp3` },
@@ -74,7 +73,7 @@ export function createTimerDefaults(): TimerDefaults {
     nominationTargetSeconds: 30,
     nominationVoteSeconds: 5,
     alarmSound: `${BASE_URL}audio/alarm/Vintage Clock Sound Effect.mp3`,
-    defaultBgmSrc: `${BASE_URL}audio/botc.mp3`,
+    defaultBgmSrc: `${BASE_URL}audio/below_the_granite_arch.mp3`,
     phaseSwitchSoundEnabled: false,
   }
 }
