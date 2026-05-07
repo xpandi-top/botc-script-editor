@@ -2,7 +2,7 @@
 import type { StorytellerSeat } from '../types'
 import type { StorytellerContext } from '../useStoryteller'
 import React, { useState } from 'react'
-import { Box, Button, Chip, IconButton, Paper, useTheme } from '@mui/material'
+import { Box, Chip, IconButton, Paper, useTheme } from '@mui/material'
 import CheckIcon from '@mui/icons-material/Check'
 import CloseIcon from '@mui/icons-material/Close'
 import { ArenaSeatPlayerModal } from './ArenaSeatPlayerModal'
@@ -176,14 +176,6 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: StorytellerCo
                 return <TagChip key={`${seat.seat}-${label}`} label={displayLabel} icon={icon as string} chipSx={chipSx} />
               })}
             </Box>
-          )}
-
-          {isSelected && (
-            <Button size="medium" variant={isPlayerModalOpen ? 'contained' : 'outlined'}
-              onClick={(e) => { e.stopPropagation(); setPlayerModalSeat(isPlayerModalOpen ? null : seat.seat); setPlayerModalTab(0) }}
-              sx={{ mt: 0.25, minWidth: 0, px: 0.75, py: 0.25, fontWeight: 600 }}>
-              {language === 'zh' ? '操作' : 'Actions'}
-            </Button>
           )}
 
           {isInNomination && <VoteButtonGroup seat={seat} cardVotedYes={cardVotedYes} cardVotedNo={cardVotedNo} handleVoteYesClick={handleVoteYesClick} handleVoteNoClick={handleVoteNoClick} handleRemoveVote={handleRemoveVote} />}

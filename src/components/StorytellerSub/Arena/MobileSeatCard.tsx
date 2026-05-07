@@ -2,7 +2,7 @@
 import type { StorytellerSeat } from '../types'
 import type { StorytellerContext } from '../useStoryteller'
 import React, { useState } from 'react'
-import { Box, Button, IconButton, Chip, Paper, useTheme } from '@mui/material'
+import { Box, IconButton, Chip, Paper, useTheme } from '@mui/material'
 import CheckIcon from '@mui/icons-material/Check'
 import CloseIcon from '@mui/icons-material/Close'
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked'
@@ -182,14 +182,6 @@ export function MobileSeatCard({ ctx, seat, side = 'left' }: { ctx: StorytellerC
               </IconButton>
               <Box component="span" sx={{ fontSize: '0.9rem', fontWeight: 700, color: 'text.secondary' }}>#{playerWakeOrder}</Box>
             </Box>
-          )}
-
-          {isSelected && (
-            <Button size="small" variant={isPlayerModalOpen ? 'contained' : 'outlined'}
-              onClick={(e) => { e.stopPropagation(); setPlayerModalSeat(isPlayerModalOpen ? null : seat.seat) }}
-              sx={{ minWidth: 0, px: 1, py: 0.25, fontSize: '0.8rem', fontWeight: 600, mt: 0.5 }}>
-              {language === 'zh' ? '操作' : 'Actions'}
-            </Button>
           )}
 
           {isInNomination && <VoteButtonGroup seat={seat} cardVotedYes={cardVotedYes} cardVotedNo={cardVotedNo} handleVoteYesClick={handleVoteYesClick} handleVoteNoClick={handleVoteNoClick} handleRemoveVote={handleRemoveVote} />}
