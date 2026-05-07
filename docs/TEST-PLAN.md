@@ -140,16 +140,32 @@ Covers all tabs and major user flows. Tests are grouped by tab, then by use case
 | ST-28 | Open ability info ℹ | Full ability dialog for that character |
 
 ### 3-4 Nomination Phase
-| # | Action | Expected |
-|---|--------|----------|
-| ST-29 | Enter Nomination phase | Nomination sheet button and Next Day button appear |
-| ST-30 | Pick nominator + nominee | Vote sheet opens |
-| ST-31 | Record votes | Count increments; required threshold shown |
-| ST-32 | Mark vote passed | Nomination logged as PASS in green |
-| ST-33 | Mark vote failed | Nomination logged as FAIL in red |
-| ST-34 | Exile flow | Exile flag set; threshold = all seats / 2 |
-| ST-35 | Delete nomination record | Removed from history |
-| ST-36 | Click Next Day (ArrowForwardIos) | New day created; carries over seat states |
+| # | Action | Expected | Auto |
+|---|--------|----------|------|
+| ST-29 | Enter Nomination phase | Nomination sheet button and Next Day button appear | — |
+| ST-30 | Pick nominator + nominee | Vote sheet opens | — |
+| ST-31 | Record votes | Count increments; required threshold shown | — |
+| ST-32 | Mark vote passed | Nomination logged as PASS in green | — |
+| ST-33 | Mark vote failed | Nomination logged as FAIL in red | — |
+| ST-34 | Exile flow | Exile flag set; threshold = all seats / 2 | — |
+| ST-35 | Delete nomination record | Removed from history | — |
+| ST-36 | Click Next Day (ArrowForwardIos) | New day created; carries over seat states | — |
+
+### 3-4a Nomination Threshold (unit-tested ✅)
+| # | Scenario | Expected | Auto |
+|---|----------|----------|------|
+| NT-01 | N alive non-travelers → threshold = ceil(N/2) | e.g. 7 alive → 3 | ✅ seats.test.ts |
+| NT-02 | Dead players reduce pool | 5 alive + 2 dead → threshold = 3 | ✅ seats.test.ts |
+| NT-03 | Travelers excluded from pool | 5 non-trav + 3 trav → threshold = 3 | ✅ seats.test.ts |
+| NT-04 | Dead travelers excluded | 5 alive non-trav + 1 dead trav → threshold = 3 | ✅ seats.test.ts |
+| NT-05 | All dead → minimum threshold = 1 | 0 alive → threshold = 1 | ✅ seats.test.ts |
+| NT-06 | Exile: threshold = ceil(allSeats/2) | 7 total seats → threshold = 4 | ✅ seats.test.ts |
+| NT-07 | Exile: includes dead + travelers | 5 alive + 1 dead + 1 trav → exile threshold = 4 | ✅ seats.test.ts |
+| NT-08 | Exile threshold ≥ nomination threshold when dead/travelers exist | — | ✅ seats.test.ts |
+| NT-09 | Vote passes at exactly threshold (yesCount == required) | passes = true | ✅ votes.test.ts |
+| NT-10 | Vote fails below threshold | passes = false | ✅ votes.test.ts |
+| NT-11 | manualPassed overrides system result | manualPassed=true with yesCount=0 → pass | ✅ votes.test.ts |
+| NT-12 | voteCountOverride supersedes voter count | override=7 with 0 voters → yesCount=7 | ✅ votes.test.ts |
 
 ### 3-5 Script Panel
 | # | Action | Expected |
@@ -161,15 +177,15 @@ Covers all tabs and major user flows. Tests are grouped by tab, then by use case
 | ST-41 | Change script in Edit Game modal | Script panel updates to new script |
 
 ### 3-6 Game Log
-| # | Action | Expected |
-|---|--------|----------|
-| ST-42 | Open log (ViewTimeline icon) | All events listed chronologically |
-| ST-43 | Filter by type (vote / skill / event) | Filtered entries only |
-| ST-44 | Filter by visibility (public / ST-only) | Correct entries shown |
-| ST-45 | Share public log | Share text contains only public entries |
-| ST-46 | Share ST log | Share text includes ST-only and tagChange events |
-| ST-47 | Edit log entry | Inline edit saves |
-| ST-48 | Delete log entry | Entry removed |
+| # | Action | Expected | Auto |
+|---|--------|----------|------|
+| ST-42 | Open log (ViewTimeline icon) | All events listed chronologically | ✅ logFilter.test.ts |
+| ST-43 | Filter by type (vote / skill / event) | Filtered entries only | ✅ logFilter.test.ts |
+| ST-44 | Filter by visibility (public / ST-only) | Correct entries shown | ✅ logFilter.test.ts |
+| ST-45 | Share public log | Share text contains only public entries | — |
+| ST-46 | Share ST log | Share text includes ST-only and tagChange events | — |
+| ST-47 | Edit log entry | Inline edit saves | — |
+| ST-48 | Delete log entry | Entry removed | — |
 
 ### 3-7 Multi-Day
 | # | Action | Expected |

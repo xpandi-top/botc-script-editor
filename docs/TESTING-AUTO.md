@@ -140,14 +140,16 @@ import '@testing-library/jest-dom'
 
 ## Status
 
-| ID | Test File | Status |
-|----|-----------|--------|
-| T-01 | `seats.test.ts` — 19 unit tests | ✅ passing |
-| T-02 | `NominationVoteList.test.tsx` — 10 component tests | ✅ passing |
-| T-03 | `gameExport.test.ts` — 8 unit tests | ✅ passing |
-| T-04 | `useGameLifecycle.integration.test.ts` | 🔲 planned |
-| T-05 | `e2e/golden-path.ts` (Puppeteer) | 🔲 planned |
-| T-06 | `parseScriptFromData.test.ts` | 🔲 planned |
+| ID | Test File | Tests | Status |
+|----|-----------|-------|--------|
+| T-01 | `seats.test.ts` — seat utils + nomination/exile thresholds | 41 | ✅ passing |
+| T-02 | `NominationVoteList.test.tsx` — component render + interaction | 10 | ✅ passing |
+| T-03 | `gameExport.test.ts` — saveGame, confirmEndGame | 8 | ✅ passing |
+| T-04 | `votes.test.ts` — computeYesCount, computeVotePassed | 21 | ✅ passing |
+| T-05 | `catalog.test.ts` — slugify, toTitleCase, parseScriptFromData | 36 | ✅ passing |
+| T-06 | `logFilter.test.ts` — buildAggregatedEntries, filterAndSortLog | 27 | ✅ passing |
+| T-07 | `useGameLifecycle.integration.test.ts` | — | 🔲 planned |
+| T-08 | `e2e/golden-path.ts` (Puppeteer) | — | 🔲 planned |
 
 ---
 
