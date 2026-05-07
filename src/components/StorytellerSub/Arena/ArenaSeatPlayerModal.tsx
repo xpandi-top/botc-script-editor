@@ -18,6 +18,7 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import ListIcon from '@mui/icons-material/List'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import { getDisplayName, getIconForCharacter, getAbilityText, allCharacters, characterById } from '../../../catalog'
+import { buildPlayerLogEntries } from '../../../utils/playerLog'
 
 const TRAVELER_CHAR_IDS = allCharacters.filter((c) => c.team === 'traveler').map((c) => c.id)
 
@@ -39,43 +40,6 @@ function buildStTag(label: string, sourceCharId?: string | null): string {
 type SkillType = 'know' | 'guess' | 'change' | 'changeStatus' | ''
 
 // ── Log helpers ─────────────────────────────────────────────────
-function eventMentionsSeat(detail: string, seatNum: number) {
-  return new RegExp(`#${seatNum}(?:\\D|$)`).test(detail)
-}
-
-function buildPlayerEntries(days: any[], seatNum: number, includeNight: boolean) {
-  const sortedDays = [...days].sort((a, b) => b.day - a.day)
-  return sortedDays.map((day) => {
-    const entries: any[] = []
-
-    for (const e of day.eventLog) {
-      if (!includeNight && e.phase === 'night') continue
-      if (e.kind === 'vote' || e.kind === 'skill') continue
-      if (eventMentionsSeat(e.detail, seatNum)) {
-        const vis: 'public' | 'st-only' = e.visibility ?? ((e.kind === 'stateChange' || e.kind === 'phaseTransition') ? 'public' : 'st-only')
-        entries.push({ id: `e-${day.day}-${e.id}`, timestamp: e.timestamp, text: e.detail, kind: e.kind, type: 'event', phase: e.phase, visibility: vis, editable: e.detail })
-      }
-    }
-    for (const v of day.voteHistory) {
-      if (v.actor === seatNum || v.target === seatNum) {
-        const voterList = v.voters.length > 0 ? ` [${v.voters.map((n: number) => `#${n}`).join(', ')}]` : ''
-        const base = `#${v.actor} → #${v.target}: ${v.passed ? 'PASS' : 'FAIL'} (${v.voteCount}/${v.requiredVotes})${v.isExile ? ' [exile]' : ''}${voterList}`
-        const line = v.note ? `${base} · ${v.note}` : base
-        entries.push({ id: `v-${day.day}-${v.id}`, timestamp: parseInt(v.id, 10) || 0, text: line, kind: 'vote', type: 'vote', phase: 'nomination', visibility: 'public', editable: v.note || '' })
-      }
-    }
-    for (const s of day.skillHistory) {
-      if (s.actor === seatNum || (s.targets || []).includes(seatNum)) {
-        const targetStr = (s.targets || []).length > 0 ? ` → [${(s.targets as number[]).map((t) => `#${t}`).join(', ')}]` : ''
-        const tNotes = Object.entries(s.targetNotes || {}).filter(([, v]) => v).map(([k, v]) => `#${k}:"${v}"`).join(' ')
-        const line = `#${s.actor} ${s.roleId || '?'}${targetStr}${s.statement ? ` "${s.statement}"` : ''}${s.result ? ` [${s.result}]` : ''}${tNotes ? ` | ${tNotes}` : ''}${s.note ? ` · ${s.note}` : ''}`
-        entries.push({ id: `s-${day.day}-${s.id}`, timestamp: parseInt(s.id, 10) || 0, text: line, kind: 'skill', type: 'skill', phase: s.activatedDuringPhase, visibility: s.visibility ?? 'st-only', editable: s.statement || '' })
-      }
-    }
-    entries.sort((a, b) => b.timestamp - a.timestamp)
-    return { day: day.day, entries }
-  }).filter((d) => d.entries.length > 0)
-}
 
 const ENTRY_COLORS: Record<string, 'primary' | 'secondary' | 'success' | 'error' | 'warning'> = {
   vote: 'primary', skill: 'secondary', event: 'success',
@@ -195,7 +159,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
     return false
   }, [skillType, knowResult, knowChars, knowInfo, changeTo, changeToChar, csSubtype, tagInput, removeTagVal])
 
-  const logDays = useMemo(() => buildPlayerEntries(days || [currentDay], seat?.seat, isNight), [days, currentDay, seat?.seat, isNight])
+  const logDays = useMemo(() => buildPlayerLogEntries(days || [currentDay], seat?.seat), [days, currentDay, seat?.seat])
 
   // ── Conditional return after all hooks ──
   if (!isOpen || !seat) return null
