@@ -1,97 +1,130 @@
-# BOTC Script Viewer
+# BOTC Companion
 
-Minimal static webapp scaffold for rendering Blood on the Clocktower script sheets from JSON and exporting them as PDF via the browser print dialog.
+A storyteller tool for **Blood on the Clocktower** — browse scripts, run games, track votes and skills, and print character tokens.
 
-## Stack
+**[▶ Open the app](https://dimo.github.io/botc_webapp/)**
 
-- Vite
-- React
-- TypeScript
-- Static assets from `assets/`
+---
+
+## Features at a glance
+
+| Tab | What it does |
+|-----|-------------|
+| **Scripts** | Browse official + community scripts, upload custom JSON, export to PDF |
+| **Characters** | Full character library with abilities, jinxes, EN/ZH text |
+| **Storyteller** | Run a live game — phases, timers, nominations, votes, skill log |
+| **Analytics** | Save game records, view win-rate and character frequency charts |
+| **Print Studio** | Generate printable character token sheets |
+
+---
+
+## Scripts
+
+Browse and select scripts. Click any script to see the full character list with abilities.
+
+![Scripts overview](docs/demo/desktop-D1-scripts-overview.png)
+
+Click a script to expand the character sheet with EN/ZH ability text:
+
+![Trouble Brewing script](docs/demo/desktop-D2-script-trouble-brewing.png)
+
+---
+
+## Characters
+
+Browse all characters across editions. Filter by team, edition, or search by name. Click any character for full ability text, jinxes, and revision history.
+
+![Characters tab](docs/demo/desktop-characters-tab.png)
+
+---
+
+## Storyteller — running a game
+
+### Night phase
+
+Seat circle shows all players with character icons and ST tags. Use the phase controls (Night / Private / Public / Nomination) and built-in timer to pace the game.
+
+![Arena night phase](docs/demo/desktop-D3-arena-night-phase.png)
+
+Click any seat circle to open the player modal — assign characters, record night skills, mark dead/no-vote, add ST tags.
+
+### Nomination phase
+
+Switch to Nomination to reveal the vote timer and nomination sheet.
+
+![Arena nomination phase](docs/demo/desktop-D3-arena-overview.png)
+
+Open the nomination sheet to record nominator, nominee, voters, and pass/fail result:
+
+![Nomination sheet](docs/demo/desktop-D4-nomination-sheet.png)
+
+### Game Log
+
+All votes, skills, and events are logged automatically. Filter by type (Vote / Skill / Event) and visibility (Public / ST-only). Share the public log with players at the end of the game.
+
+![Game log](docs/demo/desktop-D6-game-log-all.png)
+
+### Dark theme
+
+Full dark mode available in Settings:
+
+![Dark theme storyteller](docs/demo/desktop-dark-storyteller.png)
+
+---
+
+## Mobile
+
+Fully responsive — the seat circle becomes a grid on small screens. Bottom navigation replaces the tab bar.
+
+![Mobile seat grid](docs/demo/mobile-M2-storyteller-seat-grid.png)
+
+---
+
+## Print Studio
+
+Select characters, choose shape (circle / hex / square) and size, then print or save as PDF for physical token sheets.
+
+![Print Studio](docs/demo/desktop-D7-print-studio.png)
+
+---
 
 ## Local setup
 
 ```bash
 npm install
-npm run dev
+npm run dev        # dev server at http://localhost:5173
+npm run build      # production build → dist/
+npm test           # run unit tests (Vitest)
 ```
 
-## Add scripts
+---
 
-1. Add or edit JSON files in `assets/characters/`
-2. Keep each file as an object keyed by character id
-3. Add matching icon files to `assets/icons/` if needed
+## Upload a custom script
 
-Example:
+1. Open the **Scripts** tab
+2. Click **Upload JSON**
+3. Select a standard BotC script JSON file
+4. The script appears in the **DIY** section and is immediately usable in the Storyteller
 
-```json
-{
-  "washerwoman": {
-    "id": "washerwoman",
-    "team": "townsfolk",
-    "edition": "tb"
-  }
-}
-```
+---
 
-## Export to PDF
-
-1. Start the app and open a script
-2. Click `Print / Save as PDF`
-3. In the browser print dialog, choose `Save as PDF`
-
-## Add Character Revision
-
-Use the CLI helper instead of editing revision fields by hand.
-
-Basic usage:
+## Add a character ability revision
 
 ```bash
 npm run add-revision -- <character_id> --en "English text" --zh "Chinese text"
 ```
 
-Example:
+Updates `assets/characters/*.json` and both locale files. Run `npm run build` after to validate.
+
+---
+
+## Deploy to GitHub Pages
+
+The app builds as a static site. `vite.config.ts` sets `base: '/botc_webapp/'` to match the repo name.
 
 ```bash
-npm run add-revision -- clockmaker --en "You start knowing how many steps from the Demon to its nearest Minion." --zh "在你的首个夜晚，你会得知恶魔与爪牙之间最近的距离。（邻座的玩家距离为1）"
+npm run build       # outputs to dist/
+# push dist/ to gh-pages branch, or use the Actions workflow
 ```
 
-If you want to set the revision id explicitly:
-
-```bash
-npm run add-revision -- clockmaker --revision v2 --en "English text" --zh "中文文本"
-```
-
-If you want to store a note for the revision:
-
-```bash
-npm run add-revision -- clockmaker --revision v2 --note "Experimental wording" --en "English text" --zh "中文文本"
-```
-
-What it updates:
-
-- the matching character entry in `assets/characters/*.json`
-- `assets/locales/en.json`
-- `assets/locales/zh.json`
-
-After editing revisions, run:
-
-```bash
-npm run build
-```
-
-The build will fail if any revision metadata or localized revision text is missing.
-
-## GitHub Pages
-
-The current `vite.config.ts` uses `base: '/botc_webapp/'` for production builds, which matches this repository name.
-
-Build with:
-
-```bash
-npm run build
-```
-
-Then publish the `dist/` directory with GitHub Pages.
-
-If the repository name changes, update the production `base` value in `vite.config.ts`.
+If the repository name changes, update `base` in `vite.config.ts`.
