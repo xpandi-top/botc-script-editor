@@ -7,7 +7,7 @@ import {
   Accordion, AccordionDetails, AccordionSummary,
   Box, Button, Chip, Dialog, DialogContent, DialogTitle,
   Divider, FormControl, FormControlLabel, IconButton, InputLabel,
-  MenuItem, Select, Switch, TextField, Typography,
+  MenuItem, Select, Switch, TextField, Typography, useTheme,
 } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
@@ -16,6 +16,7 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import CheckIcon from '@mui/icons-material/Check'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import ListIcon from '@mui/icons-material/List'
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import { getDisplayName, getIconForCharacter, getAbilityText, allCharacters } from '../../../catalog'
 
 const TRAVELER_CHAR_IDS = allCharacters.filter((c) => c.team === 'traveler').map((c) => c.id)
@@ -98,6 +99,12 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
 
   const zh = language === 'zh'
   const isOpen = playerModalSeat === seat?.seat
+  const [abilityModalCharId, setAbilityModalCharId] = React.useState<string | null>(null)
+  const muiTheme = useTheme()
+  const isDark = muiTheme.palette.mode === 'dark'
+  const stBg     = isDark ? 'rgba(210, 140, 0, 0.13)' : 'rgba(255, 200, 0, 0.22)'
+  const stBorder = isDark ? 'rgba(210, 140, 0, 0.40)' : 'rgba(180, 130, 0, 0.45)'
+  const stText   = isDark ? '#E8C97A' : 'rgba(80, 50, 0, 0.90)'
 
   // ── Section state ──
   const [showCharPicker, setShowCharPicker] = useState(false)
@@ -342,8 +349,15 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
           {actualIcon ? <Box component="img" src={actualIcon as string} sx={{ width: 32, height: 32, borderRadius: '50%' }} /> : <Box sx={{ width: 32, height: 32, borderRadius: '50%', bgcolor: 'action.hover', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>?</Box>}
           <Box sx={{ minWidth: 0 }}>
             <Typography variant="caption" color="text.secondary">{zh ? '实际' : 'Actual'}</Typography>
-            <Typography variant="body2" fontWeight={600} sx={{ lineHeight: 1.2 }}>{actualCharId ? getDisplayName(actualCharId, language) : (zh ? '未分配' : 'None')}</Typography>
-            {actualCharId && <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem', display: 'block' }}>{getAbilityText(actualCharId, language)?.slice(0, 60)}{(getAbilityText(actualCharId, language)?.length ?? 0) > 60 ? '…' : ''}</Typography>}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
+              <Typography variant="body2" fontWeight={600} sx={{ lineHeight: 1.2 }}>{actualCharId ? getDisplayName(actualCharId, language) : (zh ? '未分配' : 'None')}</Typography>
+              {actualCharId && getAbilityText(actualCharId, language) && (
+                <IconButton size="small" sx={{ p: 0.25, ml: 0.25 }} onClick={(e) => { e.stopPropagation(); setAbilityModalCharId(actualCharId) }}>
+                  <InfoOutlinedIcon sx={{ fontSize: '0.9rem', color: 'text.secondary' }} />
+                </IconButton>
+              )}
+            </Box>
+            {actualCharId && <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem', display: 'block', lineHeight: 1.4 }}>{getAbilityText(actualCharId, language)?.slice(0, 60)}{(getAbilityText(actualCharId, language)?.length ?? 0) > 60 ? '…' : ''}</Typography>}
           </Box>
         </Box>
         {/* Perceived (if different) */}
@@ -352,8 +366,15 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
             {perceivedIcon ? <Box component="img" src={perceivedIcon as string} sx={{ width: 32, height: 32, borderRadius: '50%' }} /> : null}
             <Box sx={{ minWidth: 0 }}>
               <Typography variant="caption" color="warning.main">{zh ? '玩家以为' : 'Perceived'}</Typography>
-              <Typography variant="body2" fontWeight={600} sx={{ lineHeight: 1.2 }}>{perceivedCharId ? getDisplayName(perceivedCharId, language) : '—'}</Typography>
-              {perceivedCharId && <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem', display: 'block' }}>{getAbilityText(perceivedCharId, language)?.slice(0, 60)}{(getAbilityText(perceivedCharId, language)?.length ?? 0) > 60 ? '…' : ''}</Typography>}
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
+                <Typography variant="body2" fontWeight={600} sx={{ lineHeight: 1.2 }}>{perceivedCharId ? getDisplayName(perceivedCharId, language) : '—'}</Typography>
+                {perceivedCharId && getAbilityText(perceivedCharId, language) && (
+                  <IconButton size="small" sx={{ p: 0.25, ml: 0.25 }} onClick={(e) => { e.stopPropagation(); setAbilityModalCharId(perceivedCharId) }}>
+                    <InfoOutlinedIcon sx={{ fontSize: '0.9rem', color: 'text.secondary' }} />
+                  </IconButton>
+                )}
+              </Box>
+              {perceivedCharId && <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem', display: 'block', lineHeight: 1.4 }}>{getAbilityText(perceivedCharId, language)?.slice(0, 60)}{(getAbilityText(perceivedCharId, language)?.length ?? 0) > 60 ? '…' : ''}</Typography>}
             </Box>
           </Box>
         )}
@@ -852,8 +873,9 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
                   ) : (
                     <Box sx={{
                       p: 0.75, borderRadius: 1,
-                      bgcolor: e.visibility === 'st-only' ? 'warning.light' : 'background.paper',
-                      border: '1px solid', borderColor: 'divider',
+                      bgcolor: e.visibility === 'st-only' ? stBg : 'background.paper',
+                      border: '1px solid',
+                      borderColor: e.visibility === 'st-only' ? stBorder : 'divider',
                     }}>
                       <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center', flexWrap: 'wrap', mb: 0.25 }}>
                         <Chip size="small" sx={{ height: 18, fontSize: '0.62rem' }}
@@ -871,7 +893,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
                           <DeleteIcon sx={{ fontSize: 14 }} />
                         </IconButton>
                       </Box>
-                      <Typography variant="body2" sx={{ wordBreak: 'break-word', fontSize: '0.82rem' }}>{e.text}</Typography>
+                      <Typography variant="body2" sx={{ wordBreak: 'break-word', fontSize: '0.82rem', color: e.visibility === 'st-only' ? stText : 'text.primary' }}>{e.text}</Typography>
                     </Box>
                   )}
                 </Box>
@@ -924,5 +946,24 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
     </Dialog>
   )
 
-  return createPortal(modal, document.body)
+  const abilityDetailModal = abilityModalCharId ? (() => {
+    const charId = abilityModalCharId
+    const icon = getIconForCharacter(charId)
+    const name = getDisplayName(charId, language)
+    const ability = getAbilityText(charId, language) ?? getAbilityText(charId, 'en') ?? ''
+    return (
+      <Dialog open onClose={() => setAbilityModalCharId(null)} maxWidth="xs" fullWidth>
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1, pb: 1 }}>
+          {icon && <Box component="img" src={icon as string} sx={{ width: 32, height: 32, borderRadius: '50%', flexShrink: 0 }} />}
+          <Typography fontWeight={700} sx={{ flex: 1 }}>{name}</Typography>
+          <IconButton size="small" onClick={() => setAbilityModalCharId(null)}><CloseIcon fontSize="small" /></IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ pt: 0.5 }}>
+          <Typography variant="body2" sx={{ lineHeight: 1.7, color: 'text.primary' }}>{ability}</Typography>
+        </DialogContent>
+      </Dialog>
+    )
+  })() : null
+
+  return createPortal(<>{modal}{abilityDetailModal}</>, document.body)
 }

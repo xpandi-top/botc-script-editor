@@ -208,7 +208,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
             <Select
               value={currentDay.id}
               onChange={(e) => setSelectedDayId(e.target.value)}
-              sx={{ color: textColor, fontWeight: 700, fontSize: '1rem', '& .MuiSelect-icon': { color: mutedColor }, '& fieldset': { borderColor: btnBorder }, minWidth: 100 }}
+              sx={{ color: textColor, fontWeight: 700, fontSize: '1rem', '& .MuiSelect-icon': { color: mutedColor }, '& fieldset': { borderColor: btnBorder }, '& .MuiOutlinedInput-root': { background: 'transparent' }, '& .MuiSelect-select': { color: textColor }, background: 'transparent', minWidth: 100 }}
             >
               {days.map((d: any) => <MenuItem key={d.id} value={d.id} sx={{ fontSize: '0.95rem' }}>Day {d.day}</MenuItem>)}
             </Select>
@@ -245,7 +245,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
               <Select
                 value={publicMode}
                 onChange={(e) => updateCurrentDay((d: any) => ({ ...d, publicMode: e.target.value as PublicMode }))}
-                sx={{ color: textColor, fontSize: '0.9rem', '& .MuiSelect-icon': { color: mutedColor }, '& fieldset': { borderColor: btnBorder }, minWidth: 120 }}
+                sx={{ color: textColor, fontSize: '0.9rem', '& .MuiSelect-icon': { color: mutedColor }, '& fieldset': { borderColor: btnBorder }, '& .MuiSelect-select': { color: textColor }, background: 'transparent', minWidth: 120 }}
               >
                 <MenuItem value="free" sx={{ fontSize: '0.95rem' }}>{text.freeSpeech}</MenuItem>
                 <MenuItem value="roundRobin" sx={{ fontSize: '0.95rem' }}>{text.roundRobinMode}</MenuItem>
@@ -293,7 +293,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
                     onKeyDown={(e) => e.key === 'Enter' && handleTimerSave()}
                     autoFocus placeholder="MM:SS"
                     slotProps={{ input: { style: { color: textColor, fontSize: '1.4rem', fontWeight: 700, fontFamily: 'monospace', letterSpacing: '0.08em' } } }}
-                    sx={{ width: 105, '& fieldset': { borderColor: btnBorder }, '& .MuiInputBase-root': { py: 0.75 } }}
+                    sx={{ width: 105, '& fieldset': { borderColor: btnBorder }, '& .MuiInputBase-root': { py: 0.75, background: 'transparent' } }}
                   />
                   <Button variant="contained" onClick={handleTimerSave} sx={{ minWidth: 44, px: 1, py: 1 }}><CheckIcon /></Button>
                   <Button variant="outlined" onClick={() => setTimerEditing(false)} sx={{ ...btnSx, minWidth: 44, px: 1, py: 1 }}><CloseIcon /></Button>

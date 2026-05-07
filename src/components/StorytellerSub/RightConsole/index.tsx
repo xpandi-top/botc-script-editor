@@ -5,7 +5,7 @@ import HistoryIcon from '@mui/icons-material/History'
 import DownloadIcon from '@mui/icons-material/Download'
 import AddCircleIcon from '@mui/icons-material/AddCircle'
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts'
-import FlagIcon from '@mui/icons-material/Flag'
+import SaveIcon from '@mui/icons-material/Save'
 import { RightPopupSettings } from './RightPopupSettings'
 import { RightConsoleRecords } from './RightConsoleRecords'
 
@@ -54,14 +54,23 @@ function IconBar({
       ))}
       <Box sx={{ flex: 1 }} />
       {[
-        { icon: <AddCircleIcon sx={{ fontSize: '1.1rem' }} />, label: language === 'zh' ? '新游戏' : 'New',     onClick: () => { openNewGamePanel(); onClose() } },
+        { icon: <AddCircleIcon sx={{ fontSize: '1.1rem' }} />,    label: language === 'zh' ? '新游戏' : 'New',     onClick: () => { openNewGamePanel(); onClose() } },
         { icon: <ManageAccountsIcon sx={{ fontSize: '1.1rem' }} />, label: language === 'zh' ? '玩家' : 'Players', onClick: () => { setShowEditPlayersModal(true); onClose() } },
-        { icon: <FlagIcon sx={{ fontSize: '1.1rem' }} />,        label: language === 'zh' ? '结束' : 'End',     onClick: () => { openEndGamePanel(); onClose() } },
-        { icon: <DownloadIcon sx={{ fontSize: '1.1rem' }} />,    label: language === 'zh' ? '导出' : 'Export',  onClick: () => setShowExportModal(true) },
+        { icon: <SaveIcon sx={{ fontSize: '1.1rem' }} />,          label: language === 'zh' ? '保存' : 'Save',     onClick: () => { openEndGamePanel(); onClose() } },
+        { icon: <DownloadIcon sx={{ fontSize: '1.1rem' }} />,      label: language === 'zh' ? '导出' : 'Export',  onClick: () => setShowExportModal(true) },
       ].map(({ icon, label, onClick }) => (
-        <IconButton key={label} onClick={onClick} sx={{ flexDirection: 'column', width: 44, p: 0.5, borderRadius: 1.5 }}>
+        <IconButton
+          key={label}
+          onClick={onClick}
+          sx={{
+            flexDirection: 'column', width: 44, p: 0.5, borderRadius: 1.5,
+            border: '1px solid transparent',
+            color: 'text.secondary',
+            '&:hover': { bgcolor: 'action.hover', color: 'text.primary', borderColor: 'divider' },
+          }}
+        >
           <Box sx={{ fontSize: '1.1rem', lineHeight: 1 }}>{icon}</Box>
-          <Typography variant="caption" sx={{ fontSize: '0.6rem', fontWeight: 600, letterSpacing: '0.02em', lineHeight: 1 }}>{label}</Typography>
+          <Typography variant="caption" sx={{ fontSize: '0.6rem', fontWeight: 600, letterSpacing: '0.02em', lineHeight: 1, color: 'inherit' }}>{label}</Typography>
         </IconButton>
       ))}
     </Box>
@@ -99,7 +108,7 @@ export function RightConsole({ ctx }: { ctx: StorytellerContext }) {
   }
 
   const popupContent = (
-    <Box sx={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', minWidth: 0, minHeight: 0 }}>
       {activeRightPopup === 'settings' && <RightPopupSettings ctx={ctx} />}
       {activeRightPopup === 'records' && <RightConsoleRecords ctx={ctx} toggleConsoleSection={ctx.toggleConsoleSection} />}
     </Box>
@@ -131,7 +140,8 @@ export function RightConsole({ ctx }: { ctx: StorytellerContext }) {
   }
 
   // ── Mobile / tablet: slide-over drawer ───────────────────────
-  const drawerWidth = { xs: 280, sm: 360 }
+  // Drawer paper = content width + icon bar width so both fit without competing
+  const drawerTotalWidth   = { xs: 280 + barWidth, sm: 340 + barWidth }
   return (
     <>
       {showRightPanel && (
@@ -143,17 +153,28 @@ export function RightConsole({ ctx }: { ctx: StorytellerContext }) {
         onClose={closePanel}
         sx={{
           '& .MuiDrawer-paper': {
-            width: activeRightPopup ? drawerWidth : barWidth,
+            width: activeRightPopup ? drawerTotalWidth : barWidth,
             borderRadius: '22px 0 0 22px',
             bgcolor: 'background.paper',
             borderLeft: '1px solid',
             borderLeftColor: 'divider',
             display: 'flex',
             flexDirection: 'row',
+            overflow: 'hidden',
           },
         }}
       >
-        <Box sx={{ width: activeRightPopup ? drawerWidth : 0, overflow: 'hidden', bgcolor: 'background.paper' }}>
+        {/* Content panel: flex-1 fills drawerTotalWidth minus icon bar */}
+        <Box sx={{
+          flex: activeRightPopup ? 1 : 0,
+          minWidth: 0,
+          minHeight: 0,
+          overflow: 'hidden',
+          bgcolor: 'background.paper',
+          display: 'flex',
+          flexDirection: 'column',
+          transition: 'flex 0.2s ease',
+        }}>
           {activeRightPopup === 'settings' && <RightPopupSettings ctx={ctx} />}
           {activeRightPopup === 'records' && <RightConsoleRecords ctx={ctx} toggleConsoleSection={ctx.toggleConsoleSection} />}
         </Box>

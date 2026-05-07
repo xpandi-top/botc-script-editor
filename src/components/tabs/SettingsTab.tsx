@@ -110,7 +110,7 @@ function LivePreview({
       key: 'zh-display',
       label: zh ? '中文标题' : 'Chinese Title',
       fontFamily: `${zhCss}, "PingFang SC", sans-serif`,
-      title: '染血钟楼谜团',
+      title: '染·钟楼谜团',
       body: '暗流涌动 · 梦陨春宵',
       isLarge: true,
     },

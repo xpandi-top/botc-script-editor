@@ -128,7 +128,7 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
     [scriptChars, newGamePanel?.assignments])
 
   const handleScriptChange = (slug: string) => {
-    updateConfig({ scriptSlug: slug, assignments: {}, userAssignments: {}, travelerAssignments: {}, demonBluffs: [], charPool: [] })
+    updateConfig({ scriptSlug: slug })
   }
 
   const setActual = (sNum: number, cid: string) => {

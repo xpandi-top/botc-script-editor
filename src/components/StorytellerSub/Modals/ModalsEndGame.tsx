@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react'
 import { Box, Button, TextField, Select, MenuItem, FormControl, InputLabel, Chip, Typography, FormControlLabel, Radio, RadioGroup, IconButton, Paper, Collapse } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ExpandLessIcon from '@mui/icons-material/ExpandLess'
+import SaveIcon from '@mui/icons-material/Save'
+import CloseIcon from '@mui/icons-material/Close'
 import { StarRating } from '../../ui/StarRating'
 
 export function ModalsEndGame({ ctx }: { ctx: StorytellerContext }) {
@@ -156,8 +158,8 @@ export function ModalsEndGame({ ctx }: { ctx: StorytellerContext }) {
       </Box>
 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, pt: 1, borderTop: '1px solid', borderColor: 'divider' }}>
-        <Button variant="outlined" onClick={handleCancel}>{language === 'zh' ? '取消' : 'Cancel'}</Button>
-        <Button variant="contained" onClick={handleSave}>💾 {language === 'zh' ? '保存' : 'Save'}</Button>
+        <Button variant="outlined" startIcon={<CloseIcon />} onClick={handleCancel}>{language === 'zh' ? '取消' : 'Cancel'}</Button>
+        <Button variant="contained" startIcon={<SaveIcon />} onClick={handleSave}>{language === 'zh' ? '保存' : 'Save'}</Button>
       </Box>
     </Box>
   )

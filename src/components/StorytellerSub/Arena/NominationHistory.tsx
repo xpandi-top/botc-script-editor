@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React from 'react'
-import { Box, Typography, Select, MenuItem, IconButton } from '@mui/material'
+import { Box, Typography, Select, MenuItem, IconButton, useTheme } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 
 interface NominationHistoryProps {
@@ -18,6 +18,14 @@ export function NominationHistory({
   language,
   updateCurrentDay,
 }: NominationHistoryProps) {
+  const muiTheme = useTheme()
+  const isDark = muiTheme.palette.mode === 'dark'
+
+  const passedBg   = isDark ? 'rgba(46,125,50,0.28)'   : 'rgba(200,230,201,1)'
+  const passedText = isDark ? '#a5d6a7'                 : 'rgba(27,94,32,0.9)'
+  const failedBg   = isDark ? 'rgba(211,47,47,0.28)'   : 'rgba(255,205,210,1)'
+  const failedText = isDark ? '#ef9a9a'                 : 'rgba(183,28,28,0.9)'
+
   const nominatorsToday = [...new Set(voteHistory.map((r: any) => r.actor))]
   const nomineesToday = [...new Set(voteHistory.map((r: any) => r.target))]
 
@@ -91,14 +99,16 @@ export function NominationHistory({
               <Box key={record.id} sx={{
                 p: 0.5,
                 borderRadius: 1,
-                bgcolor: passed ? 'success.light' : 'error.light',
+                bgcolor: passed ? passedBg : failedBg,
+                border: '1px solid',
+                borderColor: passed ? (isDark ? 'rgba(46,125,50,0.55)' : 'rgba(46,125,50,0.25)') : (isDark ? 'rgba(211,47,47,0.55)' : 'rgba(211,47,47,0.25)'),
                 display: 'flex',
                 alignItems: 'center',
                 gap: 0.5,
                 flexWrap: 'wrap',
                 flex: 1,
               }}>
-                <Typography variant="body2" sx={{ fontWeight: 600, whiteSpace: 'nowrap', flex: 1 }}>
+                <Typography variant="body2" sx={{ fontWeight: 600, whiteSpace: 'nowrap', flex: 1, color: passed ? passedText : failedText }}>
                   #{record.actor} {actionTag} #{record.target}{' '}
                   {record.failed
                     ? (language === 'zh' ? '失败' : 'Failed')

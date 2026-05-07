@@ -683,6 +683,22 @@ export const translations = {
     en: 'Load Custom',
     zh: '加载自定义',
   },
+  shareLog: {
+    en: 'Share Log',
+    zh: '分享日志',
+  },
+  shareLogCopied: {
+    en: 'Copied!',
+    zh: '已复制！',
+  },
+  quickAddLog: {
+    en: 'Quick add log…',
+    zh: '快速添加日志…',
+  },
+  gameLogTitle: {
+    en: 'Game Log',
+    zh: '游戏日志',
+  },
 } as const
 
 export type TranslationKey = keyof typeof translations

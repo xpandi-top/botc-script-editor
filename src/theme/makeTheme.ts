@@ -351,8 +351,8 @@ export function makeTheme(mode: ThemeMode) {
       MuiBottomNavigationAction: {
         styleOverrides: {
           root: {
-            color: ink.muted,
-            '&.Mui-selected': { color: primary.main },
+            color: isDark ? DARK_PALETTE.ashen : ink.muted,
+            '&.Mui-selected': { color: isDark ? DARK_PALETTE.parchment : primary.main },
           },
         },
       },

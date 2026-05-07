@@ -1,9 +1,10 @@
 // @ts-nocheck
 import type { StorytellerContext } from '../useStoryteller'
 import React from 'react'
-import { nightOrder, getDisplayName, getIconForCharacter } from '../../../catalog'
-import { Box, Typography, Button, Tabs, Tab, Paper, List, ListItem, ListItemIcon, ListItemText, IconButton } from '@mui/material'
+import { nightOrder, getDisplayName, getIconForCharacter, getAbilityText } from '../../../catalog'
+import { Box, Typography, Button, Tabs, Tab, Paper, List, ListItem, ListItemIcon, ListItemText, IconButton, Tooltip } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
+import MenuBookIcon from '@mui/icons-material/MenuBook'
 
 type ScriptView = 'characters' | 'firstNight' | 'otherNight'
 
@@ -15,6 +16,17 @@ export function RightPopupScript({ ctx }: { ctx: StorytellerContext }) {
 
   const isDay1 = days.length === 0 || (days.length === 1 && days[0].day === 1)
   const [view, setView] = React.useState<ScriptView>(isDay1 ? 'firstNight' : 'otherNight')
+  const [showAbilities, setShowAbilities] = React.useState(false)
+
+  const renderAbility = (id: string) => {
+    const ability = getAbilityText(id, language) ?? getAbilityText(id, 'en')
+    if (!ability) return null
+    return (
+      <Box sx={{ ml: 1, mt: 0.25, pl: 1, borderLeft: '3px solid', borderLeftColor: 'primary.light', bgcolor: 'action.hover', borderRadius: '0 8px 8px 0', py: 0.5, px: 1 }}>
+        <Typography variant="body2" sx={{ fontSize: '0.75rem', lineHeight: 1.5, color: 'text.secondary' }}>{ability}</Typography>
+      </Box>
+    )
+  }
 
   const characterIds: string[] = currentScriptCharacters?.map((c) =>
     typeof c === 'string' ? c : c.id
@@ -48,14 +60,17 @@ export function RightPopupScript({ ctx }: { ctx: StorytellerContext }) {
       const icon = getIconForCharacter(id)
       const name = getDisplayName(id, language)
       return (
-        <ListItem key={`${id}-${i}`} sx={{ py: 0.5 }}>
-          {icon ? (
-            <ListItemIcon sx={{ minWidth: 32 }}>
-              <Box component="img" src={icon} alt="" sx={{ width: 24, height: 24, borderRadius: 1 }} />
-            </ListItemIcon>
-          ) : null}
-          <ListItemText primary={name || id} />
-        </ListItem>
+        <React.Fragment key={`${id}-${i}`}>
+          <ListItem sx={{ py: 0.25 }}>
+            {icon ? (
+              <ListItemIcon sx={{ minWidth: 32 }}>
+                <Box component="img" src={icon} alt="" sx={{ width: 24, height: 24, borderRadius: 1 }} />
+              </ListItemIcon>
+            ) : null}
+            <ListItemText primary={`${i + 1}. ${name || id}`} />
+          </ListItem>
+          {showAbilities && <Box sx={{ px: 1, pb: 0.5 }}>{renderAbility(id)}</Box>}
+        </React.Fragment>
       )
     }) : (
       <ListItem>
@@ -73,16 +88,25 @@ export function RightPopupScript({ ctx }: { ctx: StorytellerContext }) {
         </IconButton>
       </Box>
 
-      <Tabs
-        value={view}
-        onChange={(_, v) => setView(v)}
-        variant="fullWidth"
-        sx={{ minHeight: 36, '& .MuiTab-root': { minHeight: 36, fontSize: '0.75rem' } }}
-      >
-        <Tab label={language === 'zh' ? '角色列表' : 'Characters'} value="characters" />
-        <Tab label={language === 'zh' ? '第一夜顺序' : 'First Night'} value="firstNight" />
-        <Tab label={language === 'zh' ? '其他夜晚顺序' : 'Other Nights'} value="otherNight" />
-      </Tabs>
+      <Box sx={{ display: 'flex', alignItems: 'center', borderBottom: '1px solid', borderColor: 'divider' }}>
+        <Tabs
+          value={view}
+          onChange={(_, v) => setView(v)}
+          variant="fullWidth"
+          sx={{ flex: 1, minHeight: 36, '& .MuiTab-root': { minHeight: 36, fontSize: '0.75rem' } }}
+        >
+          <Tab label={language === 'zh' ? '角色列表' : 'Characters'} value="characters" />
+          <Tab label={language === 'zh' ? '第一夜顺序' : 'First Night'} value="firstNight" />
+          <Tab label={language === 'zh' ? '其他夜晚顺序' : 'Other Nights'} value="otherNight" />
+        </Tabs>
+        <Tooltip title={showAbilities ? (language === 'zh' ? '隐藏能力' : 'Hide Abilities') : (language === 'zh' ? '显示能力' : 'Show Abilities')}>
+          <IconButton size="small" onClick={() => setShowAbilities((v) => !v)}
+            sx={{ mx: 0.5, color: showAbilities ? 'primary.main' : 'text.secondary',
+              bgcolor: showAbilities ? 'action.selected' : 'transparent' }}>
+            <MenuBookIcon sx={{ fontSize: '1rem' }} />
+          </IconButton>
+        </Tooltip>
+      </Box>
 
       <Box sx={{ flex: 1, overflow: 'auto', p: 1 }}>
         {view === 'characters' && (
@@ -91,14 +115,17 @@ export function RightPopupScript({ ctx }: { ctx: StorytellerContext }) {
               const icon = getIconForCharacter(id)
               const name = getDisplayName(id, language)
               return (
-                <ListItem key={id} sx={{ py: 0.5 }}>
-                  {icon ? (
-                    <ListItemIcon sx={{ minWidth: 32 }}>
-                      <Box component="img" src={icon} alt="" sx={{ width: 24, height: 24, borderRadius: 1 }} />
-                    </ListItemIcon>
-                  ) : null}
-                  <ListItemText primary={name || id} />
-                </ListItem>
+                <React.Fragment key={id}>
+                  <ListItem sx={{ py: 0.25 }}>
+                    {icon ? (
+                      <ListItemIcon sx={{ minWidth: 32 }}>
+                        <Box component="img" src={icon} alt="" sx={{ width: 24, height: 24, borderRadius: 1 }} />
+                      </ListItemIcon>
+                    ) : null}
+                    <ListItemText primary={name || id} />
+                  </ListItem>
+                  {showAbilities && <Box sx={{ px: 1, pb: 0.5 }}>{renderAbility(id)}</Box>}
+                </React.Fragment>
               )
             }) : (
               <ListItem>

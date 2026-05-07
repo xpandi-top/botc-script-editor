@@ -12,7 +12,7 @@ function measureTextPx(text: string, fontCss: string): number {
   }
 }
 import DOMPurify from 'dompurify'
-import { Box, Typography, Paper, Grid, IconButton, Chip, Divider, Dialog, DialogTitle, DialogContent, Tooltip } from '@mui/material'
+import { Box, Typography, Paper, Grid, IconButton, Chip, Divider, Dialog, DialogTitle, DialogContent, Tooltip, useTheme } from '@mui/material'
 import {
   editionLabels,
   getAbilityText,
@@ -89,6 +89,8 @@ export function SheetArticle({
   viewColumns,
 }: SheetArticleProps) {
   const [popupId, setPopupId] = useState<string | null>(null)
+  const muiTheme = useTheme()
+  const isDark = muiTheme.palette.mode === 'dark'
   const po = printOptions
   const iconSize        = po?.iconSize ?? 28
   const wakeIconSize    = po?.wakeIconSize ?? 24   // smaller default → more room for description
@@ -239,7 +241,7 @@ export function SheetArticle({
             </Tooltip>
           ) : (
             <Tooltip key={id} title={name} placement="right" arrow>
-              <Box sx={{ width: wakeIconSize, height: wakeIconSize, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: bw ? 'grey.400' : 'grey.300', borderRadius: 0.5, cursor: 'pointer', '&:hover': { opacity: 0.75 } }}
+              <Box sx={{ width: wakeIconSize, height: wakeIconSize, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: bw ? 'grey.400' : (isDark ? 'rgba(255,255,255,0.10)' : 'grey.300'), borderRadius: 0.5, cursor: 'pointer', '&:hover': { opacity: 0.75 } }}
                 onClick={() => setPopupId(id)}>
                 <Typography variant="caption" sx={{ fontSize: '0.5rem' }}>{getNightOrderPlaceholderLabel(id)}</Typography>
               </Box>
@@ -273,7 +275,7 @@ export function SheetArticle({
                   {icon ? (
                     <Box component="img" src={icon} alt={name} sx={{ width: wakeIconSize, height: wakeIconSize, objectFit: 'contain' }} />
                   ) : (
-                    <Box sx={{ width: wakeIconSize, height: wakeIconSize, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'grey.300', borderRadius: 0.5 }}>
+                    <Box sx={{ width: wakeIconSize, height: wakeIconSize, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: isDark ? 'rgba(255,255,255,0.10)' : 'grey.300', borderRadius: 0.5 }}>
                       <Typography variant="caption" sx={{ fontSize: '0.5rem' }}>{getNightOrderPlaceholderLabel(id)}</Typography>
                     </Box>
                   )}
@@ -317,7 +319,7 @@ export function SheetArticle({
             {/* ── Col 1: Icon ── fixed to iconSize × iconSize */}
             <Box sx={{ width: iconSize, height: iconSize, flexShrink: 0,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              ...(showIconCircle && { borderRadius: '50%', bgcolor: 'grey.200' }) }}>
+              ...(showIconCircle && { borderRadius: '50%', bgcolor: isDark ? 'rgba(255,255,255,0.08)' : 'grey.200' }) }}>
               {icon ? (
                 <Box component="img" src={icon} alt="" sx={{ width: iconSize, height: iconSize, objectFit: 'contain' }} />
               ) : (

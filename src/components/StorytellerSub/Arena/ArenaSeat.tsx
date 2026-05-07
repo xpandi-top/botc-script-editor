@@ -66,7 +66,15 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: StorytellerCo
   const isFirstNight = currentDay.day === 1
   const nightList = isFirstNight ? (nightOrder?.first_night ?? []) : (nightOrder?.other_nights ?? [])
   const perceivedCharId = seat.userCharacterId || seat.characterId
-  const playerWakeOrder = perceivedCharId ? (() => { const idx = nightList.indexOf(perceivedCharId); return idx !== -1 ? idx + 1 : null })() : null
+
+  // Dense rank: 32,37,37,52 → 1,2,2,3 (relative within script's seats)
+  const rawWakePos = perceivedCharId ? (() => { const idx = nightList.indexOf(perceivedCharId); return idx !== -1 ? idx + 1 : null })() : null
+  const allRawPositions = currentDay.seats
+    .map((s: any) => { const cId = s.userCharacterId || s.characterId; if (!cId) return null; const idx = nightList.indexOf(cId); return idx !== -1 ? idx + 1 : null })
+    .filter((p: any): p is number => p !== null)
+  const sortedUnique = [...new Set(allRawPositions)].sort((a, b) => a - b)
+  const rankMap = new Map(sortedUnique.map((pos, i) => [pos, i + 1]))
+  const playerWakeOrder = rawWakePos !== null ? (rankMap.get(rawWakePos) ?? null) : null
 
   const getBorderColor = () => {
     if (seat.isExecuted) return 'error.main'

@@ -1,7 +1,8 @@
 import type { StorytellerContext } from './useStoryteller'
 import React from 'react'
-import { Drawer, Box, Typography, Button, Tabs, Tab, List, ListItem, ListItemButton } from '@mui/material'
+import { Drawer, Box, Typography, Button, Tabs, Tab, List, ListItem, ListItemButton, Tooltip, IconButton } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
+import MenuBookIcon from '@mui/icons-material/MenuBook'
 import { nightOrder, getDisplayName, getIconForCharacter, getAbilityText, characterById } from '../../catalog'
 import { Divider } from '@mui/material'
 
@@ -22,6 +23,7 @@ export function LeftScriptPanel({ ctx, inlineMode = false }: { ctx: StorytellerC
   const isDay1 = ctx.days.length === 0 || (ctx.days.length === 1 && ctx.days[0].day === 1)
   const [view, setView] = React.useState<ScriptView>(isDay1 ? 'firstNight' : 'otherNight')
   const [selectedCharId, setSelectedCharId] = React.useState<string | null>(null)
+  const [showAbilities, setShowAbilities] = React.useState(false)
 
   const characterIds: string[] = currentScriptCharacters?.map((c: any) => typeof c === 'string' ? c : c.id) ?? []
 
@@ -53,17 +55,21 @@ export function LeftScriptPanel({ ctx, inlineMode = false }: { ctx: StorytellerC
       const name = getDisplayName(id, language)
       const isSelected = selectedCharId === id
       return (
-        <ListItem key={`${id}-${i}`} disablePadding>
-          <ListItemButton
-            onClick={() => handleCharClick(id)}
-            selected={isSelected}
-            sx={{ borderRadius: 1, '&.Mui-selected': { bgcolor: 'action.selected' } }}
-          >
-            {icon && <Box component="img" src={icon} alt="" sx={{ width: 24, height: 24, objectFit: 'contain', borderRadius: 0.5, mr: 1 }} />}
-            <Typography variant="body2">{name || id}</Typography>
-          </ListItemButton>
-          {isSelected && <Box sx={{ px: 1, pb: 1 }}>{renderDescription(id)}</Box>}
-        </ListItem>
+        <React.Fragment key={`${id}-${i}`}>
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={() => handleCharClick(id)}
+              selected={isSelected && !showAbilities}
+              sx={{ borderRadius: 1, '&.Mui-selected': { bgcolor: 'action.selected' } }}
+            >
+              {icon && <Box component="img" src={icon} alt="" sx={{ width: 24, height: 24, objectFit: 'contain', borderRadius: 0.5, mr: 1 }} />}
+              <Typography variant="body2">{`${i + 1}. ${name || id}`}</Typography>
+            </ListItemButton>
+          </ListItem>
+          {(showAbilities || isSelected) && (
+            <Box sx={{ px: 1, pb: 1 }}>{renderDescription(id)}</Box>
+          )}
+        </React.Fragment>
       )
     })
   }
@@ -83,11 +89,21 @@ export function LeftScriptPanel({ ctx, inlineMode = false }: { ctx: StorytellerC
         )}
       </Box>
 
-      <Tabs value={view} onChange={(_, v) => setView(v)} sx={{ px: 1, borderBottom: '1px solid', borderBottomColor: 'divider', flexShrink: 0 }} variant="fullWidth">
-        <Tab label={language === 'zh' ? '角色' : 'Chars'} value="characters" sx={{ fontSize: '0.78rem', minWidth: 0, px: 0.5 }} />
-        <Tab label={language === 'zh' ? '第一夜' : 'First'} value="firstNight" sx={{ fontSize: '0.78rem', minWidth: 0, px: 0.5 }} />
-        <Tab label={language === 'zh' ? '其他夜' : 'Other'} value="otherNight" sx={{ fontSize: '0.78rem', minWidth: 0, px: 0.5 }} />
-      </Tabs>
+      <Box sx={{ display: 'flex', alignItems: 'center', px: 1, borderBottom: '1px solid', borderBottomColor: 'divider', flexShrink: 0 }}>
+        <Tabs value={view} onChange={(_, v) => setView(v)} sx={{ flex: 1 }} variant="fullWidth">
+
+          <Tab label={language === 'zh' ? '角色' : 'Chars'} value="characters" sx={{ fontSize: '0.78rem', minWidth: 0, px: 0.5 }} />
+          <Tab label={language === 'zh' ? '第一夜' : 'First'} value="firstNight" sx={{ fontSize: '0.78rem', minWidth: 0, px: 0.5 }} />
+          <Tab label={language === 'zh' ? '其他夜' : 'Other'} value="otherNight" sx={{ fontSize: '0.78rem', minWidth: 0, px: 0.5 }} />
+        </Tabs>
+        <Tooltip title={showAbilities ? (language === 'zh' ? '隐藏能力' : 'Hide Abilities') : (language === 'zh' ? '显示能力' : 'Show Abilities')}>
+          <IconButton size="small" onClick={() => setShowAbilities((v) => !v)}
+            sx={{ ml: 0.5, color: showAbilities ? 'primary.main' : 'text.secondary',
+              bgcolor: showAbilities ? 'action.selected' : 'transparent' }}>
+            <MenuBookIcon sx={{ fontSize: '1rem' }} />
+          </IconButton>
+        </Tooltip>
+      </Box>
 
       <Box sx={{ flex: 1, overflow: 'auto', p: 1 }}>
         {view === 'characters' && (() => {
@@ -119,14 +135,14 @@ export function LeftScriptPanel({ ctx, inlineMode = false }: { ctx: StorytellerC
                               <ListItem disablePadding>
                                 <ListItemButton
                                   onClick={() => handleCharClick(id)}
-                                  selected={isSelected}
+                                  selected={isSelected && !showAbilities}
                                   sx={{ borderRadius: 1, '&.Mui-selected': { bgcolor: 'action.selected' } }}
                                 >
                                   {icon && <Box component="img" src={icon} alt="" sx={{ width: 24, height: 24, objectFit: 'contain', borderRadius: 0.5, mr: 1 }} />}
                                   <Typography variant="body2">{name || id}</Typography>
                                 </ListItemButton>
                               </ListItem>
-                              {isSelected && <Box sx={{ px: 1, pb: 1 }}>{renderDescription(id)}</Box>}
+                              {(showAbilities || isSelected) && <Box sx={{ px: 1, pb: 1 }}>{renderDescription(id)}</Box>}
                             </React.Fragment>
                           )
                         })}

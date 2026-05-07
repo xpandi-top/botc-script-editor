@@ -85,7 +85,7 @@ export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: Storyt
   }, [gameRecords, search, winnerFilter])
 
   return (
-    <Paper variant="outlined" sx={{ p: 1 }}>
+    <Paper variant="outlined" sx={{ p: 1, flex: 1, minHeight: 0, overflow: 'auto', bgcolor: 'background.paper' }}>
       <Button fullWidth onClick={() => toggleConsoleSection('records')} sx={{ justifyContent: 'space-between', textTransform: 'none' }}>
         <Typography variant="body2">
           {zh ? '历史记录' : 'Game Records'} ({gameRecords.length})

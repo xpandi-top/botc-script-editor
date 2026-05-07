@@ -5,13 +5,16 @@ import { createPortal } from 'react-dom'
 import {
   Accordion, AccordionDetails, AccordionSummary,
   Box, Button, Chip, Dialog, DialogContent, DialogTitle,
-  IconButton, TextField, ToggleButton, ToggleButtonGroup, Typography,
+  IconButton, TextField, ToggleButton, ToggleButtonGroup, Tooltip, Typography, useTheme,
 } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import CloseIcon from '@mui/icons-material/Close'
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
 import CheckIcon from '@mui/icons-material/Check'
+import AddIcon from '@mui/icons-material/Add'
+import ShareIcon from '@mui/icons-material/Share'
+import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 
@@ -27,18 +30,19 @@ function phaseLabel(phase: string, text: any): string {
   return { night: text.nightPhase, private: text.privateChat, public: text.publicChat, nomination: text.nomination }[phase] ?? phase
 }
 
-function buildEntries(days: any[]) {
+function buildEntries(days: any[], text: any) {
   const all: any[] = []
   for (const day of days) {
     for (const v of day.voteHistory) {
       const voterList = v.voters.length > 0 ? ` [${v.voters.map((n: number) => `#${n}`).join(', ')}]` : ''
-      const base = `#${v.actor} → #${v.target}: ${v.passed ? 'PASS' : 'FAIL'} (${v.voteCount}/${v.requiredVotes})${voterList}`
+      const outcome = v.passed ? (text.pass || 'Pass') : (text.fail || 'Fail')
+      const base = `#${v.actor} → #${v.target}: ${outcome} (${v.voteCount}/${v.requiredVotes})${voterList}`
       const detail = v.note ? `${base} · ${v.note}` : base
       all.push({ id: `v-${day.day}-${v.id}`, day: day.day, phase: 'nomination', timestamp: Number(v.id), type: 'vote', visibility: 'public', detail })
     }
     for (const s of day.skillHistory) {
       const targetStr = (s.targets || []).length > 0 ? ` → [${(s.targets as number[]).map((t) => `#${t}`).join(', ')}]` : ''
-      const detail = `#${s.actor} ${s.roleId || '?'}${targetStr}${s.statement ? ` "${s.statement}"` : ''}${s.result ? ` [${s.result}]` : ''}`
+      const detail = `#${s.actor} ${s.roleId || ''}${targetStr}${s.statement ? ` "${s.statement}"` : ''}${s.result ? ` [${s.result}]` : ''}`
       all.push({ id: `s-${day.day}-${s.id}`, day: day.day, phase: s.activatedDuringPhase, timestamp: Number(s.id), type: 'skill', visibility: 'st-only', detail })
     }
     for (const e of day.eventLog) {
@@ -50,6 +54,53 @@ function buildEntries(days: any[]) {
   return all
 }
 
+function buildShareText(
+  days: any[], text: any, language: string,
+  visFilter: 'all' | 'public' | 'st-only',
+  typeFilters: Set<string>,
+): string {
+  const title = language === 'zh' ? '游戏日志' : 'Game Log'
+  const lines: string[] = [title, '']
+  const sortedDays = [...days].sort((a, b) => a.day - b.day)
+  for (const day of sortedDays) {
+    const dayLabel = language === 'zh' ? `第 ${day.day} 天` : `Day ${day.day}`
+    lines.push(`=== ${dayLabel} ===`)
+    // Votes (public visibility)
+    if (typeFilters.has('vote') && (visFilter === 'all' || visFilter === 'public')) {
+      for (const v of day.voteHistory) {
+        const voterList = v.voters.length > 0 ? ` [${v.voters.map((n: number) => `#${n}`).join(', ')}]` : ''
+        const outcome = v.passed ? (text.pass || 'Pass') : (text.fail || 'Fail')
+        const line = `[${text.filterVote}] #${v.actor} → #${v.target}: ${outcome} (${v.voteCount}/${v.requiredVotes})${voterList}${v.note ? ` · ${v.note}` : ''}`
+        lines.push(line)
+      }
+    }
+    // Skills (st-only visibility)
+    if (typeFilters.has('skill') && (visFilter === 'all' || visFilter === 'st-only')) {
+      for (const s of day.skillHistory ?? []) {
+        const targetStr = (s.targets || []).length > 0 ? ` → [${(s.targets as number[]).map((t: number) => `#${t}`).join(', ')}]` : ''
+        const detail = `#${s.actor} ${s.roleId || ''}${targetStr}${s.statement ? ` "${s.statement}"` : ''}${s.result ? ` [${s.result}]` : ''}`
+        lines.push(`[${text.filterSkill}] ${detail}`)
+      }
+    }
+    // Events (mixed visibility)
+    if (typeFilters.has('event')) {
+      for (const e of day.eventLog) {
+        if (e.kind === 'vote' || e.kind === 'skill') continue
+        // tagChange = ST-internal (e.g. +ST:drunk); include only when sharing ST content
+        const isTagChange = e.kind === 'tagChange'
+        if (isTagChange && visFilter === 'public') continue
+        const isPublic = !isTagChange && (e.kind === 'phaseTransition' || e.kind === 'stateChange') && e.visibility !== 'st-only'
+        const isStOnly = !isPublic
+        if (visFilter === 'public' && !isPublic) continue
+        if (visFilter === 'st-only' && !isStOnly && !isTagChange) continue
+        lines.push(`[${text.filterEvent}] ${e.detail}`)
+      }
+    }
+    lines.push('')
+  }
+  return lines.join('\n').trim()
+}
+
 export function AggregatedLogModal({ ctx }: { ctx: StorytellerContext }) {
   const {
     language, text, days, showAggLogModal, setShowAggLogModal,
@@ -57,6 +108,13 @@ export function AggregatedLogModal({ ctx }: { ctx: StorytellerContext }) {
   } = ctx
 
   const isNight = currentDay.phase === 'night'
+  const muiTheme = useTheme()
+  const isDark = muiTheme.palette.mode === 'dark'
+
+  // ST-only card colors — readable in both themes
+  const stBg      = isDark ? 'rgba(210, 140, 0, 0.13)' : 'rgba(255, 200, 0, 0.22)'
+  const stBorder  = isDark ? 'rgba(210, 140, 0, 0.40)' : 'rgba(180, 130, 0, 0.45)'
+  const stTextColor = isDark ? '#E8C97A' : 'rgba(80, 50, 0, 0.90)'
 
   const [visFilter, setVisFilter] = useState<'all' | 'public' | 'st-only'>('all')
   const [typeFilters, setTypeFilters] = useState<Set<string>>(new Set(['vote', 'skill', 'event']))
@@ -65,12 +123,32 @@ export function AggregatedLogModal({ ctx }: { ctx: StorytellerContext }) {
   const [quickText, setQuickText] = useState('')
   const [quickVis, setQuickVis] = useState<'public' | 'st-only'>('public')
   const [collapsedDays, setCollapsedDays] = useState<Set<number>>(new Set())
+  const [shareCopied, setShareCopied] = useState(false)
 
   const effectiveVisFilter = isNight ? visFilter : (visFilter === 'all' ? 'public' : visFilter)
 
+  const handleShare = async () => {
+    const shareText = buildShareText(days, text, language, effectiveVisFilter, typeFilters)
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: text.gameLogTitle || 'Game Log', text: shareText })
+      } else {
+        await navigator.clipboard.writeText(shareText)
+        setShareCopied(true)
+        setTimeout(() => setShareCopied(false), 2000)
+      }
+    } catch {
+      try {
+        await navigator.clipboard.writeText(shareText)
+        setShareCopied(true)
+        setTimeout(() => setShareCopied(false), 2000)
+      } catch { /* silent fail */ }
+    }
+  }
+
   // All entries (unfiltered) sorted ascending — used to assign global sequence numbers
   const allAsc = useMemo(() => {
-    const all = buildEntries(days)
+    const all = buildEntries(days, text)
     all.sort((a, b) => {
       if (a.day !== b.day) return a.day - b.day
       const pA = PHASE_ORDER[a.phase] ?? 99; const pB = PHASE_ORDER[b.phase] ?? 99
@@ -147,15 +225,22 @@ export function AggregatedLogModal({ ctx }: { ctx: StorytellerContext }) {
     <Dialog open={showAggLogModal} onClose={() => setShowAggLogModal(false)} maxWidth="sm" fullWidth
       PaperProps={{ sx: { height: '82vh', display: 'flex', flexDirection: 'column' } }}>
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 0 }}>
-        <Typography fontWeight={700}>{language === 'zh' ? '游戏日志' : 'Game Log'}</Typography>
-        <IconButton size="small" onClick={() => setShowAggLogModal(false)}><CloseIcon fontSize="small" /></IconButton>
+        <Typography fontWeight={700}>{text.gameLogTitle || (language === 'zh' ? '游戏日志' : 'Game Log')}</Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+          <Tooltip title={shareCopied ? (text.shareLogCopied || 'Copied!') : (text.shareLog || 'Share Log')}>
+            <IconButton size="small" color={shareCopied ? 'success' : 'default'} onClick={handleShare}>
+              {shareCopied ? <CheckIcon fontSize="small" /> : <ShareIcon fontSize="small" />}
+            </IconButton>
+          </Tooltip>
+          <IconButton size="small" onClick={() => setShowAggLogModal(false)}><CloseIcon fontSize="small" /></IconButton>
+        </Box>
       </DialogTitle>
 
       <Box sx={{ px: 3, pt: 1.5, pb: 0.5, display: 'flex', flexDirection: 'column', gap: 1, flexShrink: 0 }}>
         {/* Quick add */}
         <Box sx={{ display: 'flex', gap: 0.75, alignItems: 'center' }}>
           <TextField size="small" fullWidth
-            placeholder={language === 'zh' ? '快速添加日志…' : 'Quick add log…'}
+            placeholder={text.quickAddLog || (language === 'zh' ? '快速添加日志…' : 'Quick add log…')}
             value={quickText}
             onChange={(e) => setQuickText(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddQuick() } }}
@@ -164,7 +249,11 @@ export function AggregatedLogModal({ ctx }: { ctx: StorytellerContext }) {
             <ToggleButton value="public" sx={{ fontSize: '0.7rem', px: 1 }}>{language === 'zh' ? '公开' : 'Pub'}</ToggleButton>
             <ToggleButton value="st-only" sx={{ fontSize: '0.7rem', px: 1 }}>ST</ToggleButton>
           </ToggleButtonGroup>
-          <Button variant="contained" size="small" onClick={handleAddQuick} sx={{ minWidth: 40, px: 1 }}>+</Button>
+          <Tooltip title={language === 'zh' ? '添加' : 'Add'}>
+            <IconButton size="small" color="primary" onClick={handleAddQuick} sx={{ border: '1px solid', borderColor: 'primary.main' }}>
+              <AddIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
         </Box>
 
         {/* Filters */}
@@ -229,8 +318,9 @@ export function AggregatedLogModal({ ctx }: { ctx: StorytellerContext }) {
                     {/* Entry card */}
                     <Box sx={{
                       flex: 1, p: 0.75, borderRadius: 1,
-                      bgcolor: entry.visibility === 'st-only' ? 'warning.light' : 'background.paper',
-                      border: '1px solid', borderColor: 'divider',
+                      bgcolor: entry.visibility === 'st-only' ? stBg : 'background.paper',
+                      border: '1px solid',
+                      borderColor: entry.visibility === 'st-only' ? stBorder : 'divider',
                     }}>
                       <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center', flexWrap: 'wrap', mb: 0.25 }}>
                         <Chip size="small" sx={{ height: 18, fontSize: '0.62rem' }}
@@ -262,7 +352,7 @@ export function AggregatedLogModal({ ctx }: { ctx: StorytellerContext }) {
                           </IconButton>
                         </Box>
                       ) : (
-                        <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>{entry.detail}</Typography>
+                        <Typography variant="body2" sx={{ wordBreak: 'break-word', color: entry.visibility === 'st-only' ? stTextColor : 'text.primary' }}>{entry.detail}</Typography>
                       )}
                     </Box>
                   </Box>

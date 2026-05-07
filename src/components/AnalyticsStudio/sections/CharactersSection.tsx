@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Box, Chip, Collapse, MenuItem, Paper, Select, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material'
+import { Box, Chip, Collapse, MenuItem, Paper, Select, ToggleButton, ToggleButtonGroup, Typography, useTheme } from '@mui/material'
 import { allCharacters, getDisplayName, getIconForCharacter } from '../../../catalog'
 import type { CharStat } from '../useStats'
 import type { GameRecord } from '../../StorytellerSub/types'
@@ -121,6 +121,8 @@ function CharDetail({ stat, records, zh }: { stat: CharStat; records: GameRecord
 
 function CharCard({ stat, language, records, zh }: { stat: CharStat; language: Language; records: GameRecord[]; zh: boolean }) {
   const [expanded, setExpanded] = useState(false)
+  const muiTheme = useTheme()
+  const isDark = muiTheme.palette.mode === 'dark'
   const icon = getIconForCharacter(stat.charId)
   const team = getCharTeam(stat.charId)
   const isEvil = team ? EVIL_TEAMS.has(team) : false
@@ -148,9 +150,9 @@ function CharCard({ stat, language, records, zh }: { stat: CharStat; language: L
       >
         {/* Icon */}
         {icon ? (
-          <Box component="img" src={icon as string} sx={{ width: 36, height: 36, borderRadius: '50%', bgcolor: '#f2ebdf', flexShrink: 0 }} />
+          <Box component="img" src={icon as string} sx={{ width: 36, height: 36, borderRadius: '50%', bgcolor: isDark ? 'rgba(255,255,255,0.08)' : '#f2ebdf', flexShrink: 0 }} />
         ) : (
-          <Box sx={{ width: 36, height: 36, borderRadius: '50%', bgcolor: 'grey.200', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Box sx={{ width: 36, height: 36, borderRadius: '50%', bgcolor: isDark ? 'rgba(255,255,255,0.08)' : 'grey.200', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Typography sx={{ fontSize: '0.6rem' }}>{stat.charId.slice(0, 2).toUpperCase()}</Typography>
           </Box>
         )}

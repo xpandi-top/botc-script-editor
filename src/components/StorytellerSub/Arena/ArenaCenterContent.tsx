@@ -8,7 +8,7 @@ import RefreshIcon from '@mui/icons-material/Refresh'
 import CheckIcon from '@mui/icons-material/Check'
 import CloseIcon from '@mui/icons-material/Close'
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive'
-import ListIcon from '@mui/icons-material/List'
+import ViewTimelineIcon from '@mui/icons-material/ViewTimeline'
 import AutoStoriesIcon from '@mui/icons-material/AutoStories'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered'
@@ -182,7 +182,7 @@ export function ArenaCenterContent({ ctx }: { ctx: StorytellerContext }) {
         </IconButton>
       </Tooltip>
       <Tooltip title={language === 'zh' ? '日志' : 'Log'}>
-        <IconButton size="large" onClick={() => setShowAggLogModal(true)}><ListIcon /></IconButton>
+        <IconButton size="large" onClick={() => setShowAggLogModal(true)}><ViewTimelineIcon /></IconButton>
       </Tooltip>
       {phase === 'nomination' && (
         <>

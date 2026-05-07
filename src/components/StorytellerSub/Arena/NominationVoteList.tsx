@@ -72,8 +72,11 @@ export function NominationVoteList({
         </Typography>
       </Typography>
 
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 0.75 }}>
-        {orderedSeats.map((s: any) => {
+      {(() => {
+        const half = Math.ceil(orderedSeats.length / 2)
+        const leftSeats = orderedSeats.slice(0, half)
+        const rightSeats = [...orderedSeats.slice(half)].reverse()
+        const renderPill = (s: any) => {
           const voted    = votingState?.votes?.[s.seat]
           const isVoted  = voted === true || voteDraft?.voters?.includes(s.seat)
           const isDead   = !s.alive
@@ -173,8 +176,18 @@ export function NominationVoteList({
               </Tooltip>
             </Box>
           )
-        })}
-      </Box>
+        }
+        return (
+          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0.5, mt: 0.75 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+              {leftSeats.map(renderPill)}
+            </Box>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+              {rightSeats.map(renderPill)}
+            </Box>
+          </Box>
+        )
+      })()}
 
       <Box sx={{ mt: 0.75 }}>
         {/* Yes count + label row */}

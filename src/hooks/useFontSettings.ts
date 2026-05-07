@@ -206,7 +206,7 @@ export const ZH_OPTIONS: FontOption[] = [
     label: 'Same as English',
     labelZh: '与英文字体相同',
     css: ZH_SAME_AS_EN_ID, // resolved at runtime in hook
-    sample: '血月钟楼',
+    sample: '染·钟楼谜团',
     sampleZh: '说书人在黑暗中低语。',
   },
   // ── Google Fonts (project) ─────────────────────────────────────
@@ -215,7 +215,7 @@ export const ZH_OPTIONS: FontOption[] = [
     label: 'ZCOOL XiaoWei',
     labelZh: '站酷小薇 · 优雅文学',
     css: '"ZCOOL XiaoWei"',
-    sample: '血月钟楼',
+    sample: '染·钟楼谜团',
     sampleZh: '说书人在黑暗中低语。',
   },
   {
@@ -223,7 +223,7 @@ export const ZH_OPTIONS: FontOption[] = [
     label: 'Ma Shan Zheng',
     labelZh: '马善政楷体 · 书法笔意',
     css: '"Ma Shan Zheng"',
-    sample: '血月钟楼',
+    sample: '染·钟楼谜团',
     sampleZh: '恶魔行走于镇民之间。',
   },
   {
@@ -231,7 +231,7 @@ export const ZH_OPTIONS: FontOption[] = [
     label: 'ZCOOL QingKe HuangYou',
     labelZh: '站酷庆科黄油体 · 活泼圆润',
     css: '"ZCOOL QingKe HuangYou"',
-    sample: '血月钟楼',
+    sample: '染·钟楼谜团',
     sampleZh: '今晚的提名现已开放。',
   },
   {
@@ -239,7 +239,7 @@ export const ZH_OPTIONS: FontOption[] = [
     label: 'Zhi Mang Xing',
     labelZh: '芝芒星 · 毛笔行草',
     css: '"Zhi Mang Xing"',
-    sample: '血月钟楼',
+    sample: '染·钟楼谜团',
     sampleZh: '今夜，恶魔再度出击。',
   },
   {
@@ -247,7 +247,7 @@ export const ZH_OPTIONS: FontOption[] = [
     label: 'Noto Serif SC',
     labelZh: '思源宋体 · 标准宋体',
     css: '"Noto Serif SC"',
-    sample: '血月钟楼',
+    sample: '染·钟楼谜团',
     sampleZh: '提名现已开放，请投票。',
   },
   // ── System fonts ───────────────────────────────────────────────
@@ -256,7 +256,7 @@ export const ZH_OPTIONS: FontOption[] = [
     label: 'System Default',
     labelZh: '系统默认',
     css: '"PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif',
-    sample: '血月钟楼',
+    sample: '染·钟楼谜团',
     sampleZh: '提名现已开放。',
   },
   // ── Local project fonts ────────────────────────────────────────
@@ -265,7 +265,7 @@ export const ZH_OPTIONS: FontOption[] = [
     label: 'Xingkai 行楷',
     labelZh: '行楷 · 优雅楷书',
     css: 'Xingkai, sans-serif',
-    sample: '血月钟楼',
+    sample: '染·钟楼谜团',
     sampleZh: '说书人低语于暗夜之中。',
   },
   {
@@ -273,7 +273,7 @@ export const ZH_OPTIONS: FontOption[] = [
     label: 'Xinwei 新魏',
     labelZh: '新魏 · 隶变之美',
     css: 'Xinwei, sans-serif',
-    sample: '血月钟楼',
+    sample: '染·钟楼谜团',
     sampleZh: '恶魔行走于镇民之间。',
   },
 ]
