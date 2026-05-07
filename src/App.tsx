@@ -472,26 +472,27 @@ export default function App() {
             <ExpandMoreIcon fontSize="small" sx={{ color: 'primary.dark' }} />
           </Box>
 
-          <Tooltip title={uiLanguage === 'zh' ? '反馈建议' : 'Feedback'}>
-            <IconButton
-              size="small"
-              href="https://forms.gle/3Bk1hkr4pLFhhSPx7"
-              target="_blank"
-              rel="noopener noreferrer"
-              sx={{ flexShrink: 0 }}
-            >
-              <BugReportIcon />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title={showDescription ? (uiLanguage === 'zh' ? '隐藏说明' : 'Hide description') : (uiLanguage === 'zh' ? '显示说明' : 'Show description')}>
-            <IconButton
-              size="small"
-              onClick={() => setShowDescription(v => !v)}
-              sx={{ flexShrink: 0, color: showDescription ? 'primary.main' : undefined }}
-            >
-              <InfoIcon />
-            </IconButton>
-          </Tooltip>
+          <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0 }}>
+            <Tooltip title={uiLanguage === 'zh' ? '反馈建议' : 'Feedback'}>
+              <IconButton
+                size="small"
+                href="https://forms.gle/3Bk1hkr4pLFhhSPx7"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <BugReportIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title={showDescription ? (uiLanguage === 'zh' ? '隐藏说明' : 'Hide description') : (uiLanguage === 'zh' ? '显示说明' : 'Show description')}>
+              <IconButton
+                size="small"
+                onClick={() => setShowDescription(v => !v)}
+                sx={{ color: showDescription ? 'primary.main' : undefined }}
+              >
+                <InfoIcon />
+              </IconButton>
+            </Tooltip>
+          </Box>
         </Box>
 
         {showDescription && (
