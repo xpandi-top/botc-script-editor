@@ -10,6 +10,7 @@ import { loadInitialState } from './storage'
 import { makeEventId, STORAGE_KEY, RECORDS_CHANGED_EVENT, INITIAL_AUDIO_TRACKS } from './constants'
 import { storageSync } from '../../lib/storage'
 import { livingNonTravelers, eligibleVoters, nominationThreshold, exileThreshold } from '../../utils/seats'
+import { computeYesCount, computeVotePassed } from '../../utils/votes'
 import type { PickerMode, NewGameConfig, EndGameResult, LogFilterState, AggregatedLogEntry, DialogState, SkillOverlayState, StorytellerHelperProps, DayState, EventLogEntry, PersistedState } from './types'
 
 export function useStoryteller(props: StorytellerHelperProps) {
@@ -109,10 +110,9 @@ export function useStoryteller(props: StorytellerHelperProps) {
   const nonVoters = useMemo(() => eligibleVoterSeats.filter((s) => !currentDay.voteDraft.voters.includes(s)), [currentDay.voteDraft.voters, eligibleVoterSeats])
   void nonVoters
   // votingYesCount must be defined before draftPassedBySystem
-  const baseYesCount = currentDay.votingState ? Object.values(currentDay.votingState.votes).filter(Boolean).length : currentDay.voteDraft.voters.length
-  const votingYesCount = currentDay.voteDraft.voteCountOverride !== null ? currentDay.voteDraft.voteCountOverride : baseYesCount
+  const votingYesCount = computeYesCount(currentDay.voteDraft, currentDay.votingState)
   const draftPassedBySystem = votingYesCount >= effectiveRequiredVotes
-  const draftPassed = currentDay.voteDraft.manualPassed ?? draftPassedBySystem
+  const draftPassed = computeVotePassed(votingYesCount, effectiveRequiredVotes, currentDay.voteDraft.manualPassed)
   const isVotingComplete = currentDay.nominationStep === 'votingDone' || (currentDay.nominationStep === 'voting' && currentDay.votingState && currentDay.votingState.votingIndex >= currentDay.votingState.votingOrder.length)
   const currentVoterSeat = currentDay.votingState && currentDay.nominationStep === 'voting' && !isVotingComplete ? currentDay.votingState.votingOrder[currentDay.votingState.votingIndex] ?? null : null
   const pointerSeat = useMemo(() => {
