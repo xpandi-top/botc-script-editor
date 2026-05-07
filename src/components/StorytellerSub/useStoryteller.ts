@@ -11,6 +11,7 @@ import { makeEventId, STORAGE_KEY, RECORDS_CHANGED_EVENT, INITIAL_AUDIO_TRACKS }
 import { storageSync } from '../../lib/storage'
 import { livingNonTravelers, eligibleVoters, nominationThreshold, exileThreshold } from '../../utils/seats'
 import { computeYesCount, computeVotePassed } from '../../utils/votes'
+import { buildAggregatedEntries, filterAndSortLog } from '../../utils/logFilter'
 import type { PickerMode, NewGameConfig, EndGameResult, LogFilterState, AggregatedLogEntry, DialogState, SkillOverlayState, StorytellerHelperProps, DayState, EventLogEntry, PersistedState } from './types'
 
 export function useStoryteller(props: StorytellerHelperProps) {
@@ -136,36 +137,8 @@ export function useStoryteller(props: StorytellerHelperProps) {
   const NIGHT_BGM_SRC = INITIAL_AUDIO_TRACKS.find((t) => t.name === 'Measured Pulse of the Tower')?.src ?? INITIAL_AUDIO_TRACKS[0].src
 
   // ── Aggregated log ──
-  const PHASE_ORDER: Record<string, number> = { night: 0, private: 1, public: 2, nomination: 3 }
   const aggregatedLog = useMemo((): AggregatedLogEntry[] => {
-    const entries: AggregatedLogEntry[] = []
-    for (const day of days) {
-      for (const v of day.voteHistory) {
-        const voterList = v.voters.length > 0 ? ` [${v.voters.map((n: number) => `#${n}`).join(', ')}]` : ''
-        entries.push({ id: `v-${day.day}-${v.id}`, day: day.day, phase: 'nomination', timestamp: Number(v.id), type: 'vote', visibility: 'public', detail: `#${v.actor} → #${v.target}: ${v.passed ? 'PASS' : 'FAIL'} (${v.voteCount}/${v.requiredVotes})${voterList}${v.note ? ` · ${v.note}` : ''}` })
-      }
-      for (const s of day.skillHistory) {
-        const tNotes = Object.entries(s.targetNotes || {}).filter(([, v]) => v).map(([k, v]) => `#${k}:"${v}"`).join(' ')
-        const detail = `#${s.actor} ${s.roleId || '?'}${s.targets?.length ? ` → [${s.targets.map((t: number) => `#${t}`).join(', ')}]` : ''}${s.statement ? ` "${s.statement}"` : ''}${s.result ? ` [${s.result}]` : ''}${tNotes ? ` | ${tNotes}` : ''}${s.note ? ` · ${s.note}` : ''}`
-        entries.push({ id: `s-${day.day}-${s.id}`, day: day.day, phase: s.activatedDuringPhase, timestamp: Number(s.id), type: 'skill', visibility: s.visibility ?? 'st-only', detail })
-      }
-      for (const e of day.eventLog) {
-        if (e.kind === 'vote' || e.kind === 'skill') continue
-        const vis: 'public' | 'st-only' = (e.kind === 'stateChange' || e.kind === 'phaseTransition') ? 'public' : 'st-only'
-        entries.push({ id: `e-${day.day}-${e.id}`, day: day.day, phase: e.phase, timestamp: e.timestamp, type: 'event', visibility: vis, detail: e.detail })
-      }
-    }
-    let filtered = entries.filter((e) => logFilter.types.has(e.type))
-    if (logFilter.dayFilter !== 'all') filtered = filtered.filter((e) => e.day === logFilter.dayFilter)
-    if (logFilter.visibility !== 'all') filtered = filtered.filter((e) => e.visibility === logFilter.visibility)
-    filtered.sort((a, b) => {
-      if (a.day !== b.day) return logFilter.sortAsc ? a.day - b.day : b.day - a.day
-      const phaseA = PHASE_ORDER[a.phase] ?? 99
-      const phaseB = PHASE_ORDER[b.phase] ?? 99
-      if (phaseA !== phaseB) return logFilter.sortAsc ? phaseA - phaseB : phaseB - phaseA
-      return logFilter.sortAsc ? a.timestamp - b.timestamp : b.timestamp - a.timestamp
-    })
-    return filtered
+    return filterAndSortLog(buildAggregatedEntries(days), logFilter)
   }, [days, logFilter])
 
   function getPhaseContext(): string {
