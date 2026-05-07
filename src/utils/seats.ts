@@ -20,6 +20,24 @@ export function travelerSeats(seats: StorytellerSeat[]): StorytellerSeat[] {
   return seats.filter((s) => s.isTraveler)
 }
 
+/**
+ * Required votes for a regular nomination.
+ * = ceil(living non-traveler count / 2), minimum 1.
+ * Dead and exiled players do NOT count toward this pool.
+ */
+export function nominationThreshold(seats: StorytellerSeat[]): number {
+  return Math.max(1, Math.ceil(livingNonTravelers(seats).length / 2))
+}
+
+/**
+ * Required votes for an exile nomination.
+ * = ceil(total seat count / 2), minimum 1.
+ * All seats (including travelers, dead) count.
+ */
+export function exileThreshold(seats: StorytellerSeat[]): number {
+  return Math.max(1, Math.ceil(seats.length / 2))
+}
+
 /** Find a seat by number. */
 export function findSeat(seats: StorytellerSeat[], seatNumber: number): StorytellerSeat | null {
   return seats.find((s) => s.seat === seatNumber) ?? null

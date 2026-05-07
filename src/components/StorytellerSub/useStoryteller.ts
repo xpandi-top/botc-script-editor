@@ -9,7 +9,7 @@ import { buildGameLifecycle } from '../../hooks/useGameLifecycle'
 import { loadInitialState } from './storage'
 import { makeEventId, STORAGE_KEY, RECORDS_CHANGED_EVENT, INITIAL_AUDIO_TRACKS } from './constants'
 import { storageSync } from '../../lib/storage'
-import { livingNonTravelers, eligibleVoters } from '../../utils/seats'
+import { livingNonTravelers, eligibleVoters, nominationThreshold, exileThreshold } from '../../utils/seats'
 import type { PickerMode, NewGameConfig, EndGameResult, LogFilterState, AggregatedLogEntry, DialogState, SkillOverlayState, StorytellerHelperProps, DayState, EventLogEntry, PersistedState } from './types'
 
 export function useStoryteller(props: StorytellerHelperProps) {
@@ -101,9 +101,9 @@ export function useStoryteller(props: StorytellerHelperProps) {
 
   const currentScriptCharacters = useMemo(() => scriptOptions.find((s) => s.slug === activeScriptSlug)?.characters ?? scriptOptions[0]?.characters ?? [], [activeScriptSlug, scriptOptions])
   const livingNonTravelerSeats = useMemo(() => livingNonTravelers(currentDay.seats), [currentDay.seats])
-  const requiredVotes = Math.max(1, Math.ceil(livingNonTravelerSeats.length / 2))
+  const requiredVotes = nominationThreshold(currentDay.seats)
   /** Exile threshold: ≥50 % of ALL seats (incl. travelers + dead) */
-  const exileRequiredVotes = Math.max(1, Math.ceil(currentDay.seats.length / 2))
+  const exileRequiredVotes = exileThreshold(currentDay.seats)
   const effectiveRequiredVotes = currentDay.voteDraft.isExile ? exileRequiredVotes : requiredVotes
   const eligibleVoterSeats = useMemo(() => eligibleVoters(currentDay.seats), [currentDay.seats])
   const nonVoters = useMemo(() => eligibleVoterSeats.filter((s) => !currentDay.voteDraft.voters.includes(s)), [currentDay.voteDraft.voters, eligibleVoterSeats])
