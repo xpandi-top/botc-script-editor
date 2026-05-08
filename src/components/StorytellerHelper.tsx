@@ -20,11 +20,16 @@ export function StorytellerHelper(props: StorytellerHelperProps) {
     return () => { document.body.style.overflow = '' }
   }, [isMobile])
 
+  const ytIframe = ctx.youtubeEmbedSrc && ctx.audioPlaying
+    ? <iframe src={ctx.youtubeEmbedSrc} style={{ position: 'absolute', width: 0, height: 0, border: 0, overflow: 'hidden' }} allow="autoplay; encrypted-media" title="BGM" />
+    : null
+
   // ── Mobile layout ─────────────────────────────────────────────
   if (isMobile) {
     return (
       <>
         <audio ref={ctx.audioRef} />
+        {ytIframe}
         <Box sx={{ display: 'flex', flexDirection: 'column', height: '100dvh', overflow: 'hidden', mx: { xs: 0, sm: -3 }, mt: { xs: 0, sm: -3 } }}>
           <MobileTopBar ctx={ctx} />
           <LeftScriptPanel ctx={ctx} />
@@ -45,6 +50,7 @@ export function StorytellerHelper(props: StorytellerHelperProps) {
   return (
     <>
       <audio ref={ctx.audioRef} />
+      {ytIframe}
       <Box
         sx={{
           display: 'grid',

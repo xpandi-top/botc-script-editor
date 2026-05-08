@@ -1,23 +1,37 @@
 import type { StorytellerContext } from './useStoryteller'
-import { Box, FormControl, InputLabel, Select, MenuItem, IconButton, Typography, Slider, Chip, Tooltip } from '@mui/material'
+import { Box, FormControl, InputLabel, Select, MenuItem, IconButton, Typography, Slider, Chip, Tooltip, TextField, InputAdornment } from '@mui/material'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import PauseIcon from '@mui/icons-material/Pause'
 import AddIcon from '@mui/icons-material/Add'
+import LinkIcon from '@mui/icons-material/Link'
 import UndoIcon from '@mui/icons-material/Undo'
 import MenuOpenIcon from '@mui/icons-material/MenuOpen'
 import AddCircleIcon from '@mui/icons-material/AddCircle'
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts'
 import SaveIcon from '@mui/icons-material/Save'
+import CheckIcon from '@mui/icons-material/Check'
+import { useState } from 'react'
 import { CHARACTER_DISTRIBUTION } from './constants'
 
 export function CompactToolbar({ ctx }: { ctx: StorytellerContext }) {
   const {
     activeScriptTitle, language, onLanguageChange, currentDay, aliveCount, totalCount,
     audioPlaying, setAudioPlaying, audioTracks, selectedAudioSrc, setSelectedAudioSrc,
-    handleLocalFileChange, openNewGamePanel, openEndGamePanel,
+    handleLocalFileChange, handleUrlTrackAdd, openNewGamePanel, openEndGamePanel,
     setShowRightPanel, setShowEditPlayersModal, showScriptPanel, setShowScriptPanel,
     text, undo, canUndo, bgmVolume, setBgmVolume,
   } = ctx
+
+  const [showUrlInput, setShowUrlInput] = useState(false)
+  const [urlInputValue, setUrlInputValue] = useState('')
+
+  function submitUrl() {
+    if (urlInputValue.trim()) {
+      handleUrlTrackAdd(urlInputValue.trim())
+      setUrlInputValue('')
+      setShowUrlInput(false)
+    }
+  }
 
   const nonTravelerCount = currentDay.seats.filter((s: any) => !s.isTraveler).length
   const dist = CHARACTER_DISTRIBUTION[nonTravelerCount]
@@ -74,12 +88,44 @@ export function CompactToolbar({ ctx }: { ctx: StorytellerContext }) {
             sx={{ width: 60, '& .MuiSlider-thumb': { width: 12, height: 12 } }}
           />
           <label>
-            <IconButton size="medium" component="span" sx={{ p: 0.25, border: '1px dashed', borderColor: 'primary.light', borderRadius: 999 }}>
-              <AddIcon />
-            </IconButton>
-            <input type="file" accept=".mp3" onChange={handleLocalFileChange} style={{ display: 'none' }} />
+            <Tooltip title={language === 'zh' ? '添加本地文件' : 'Add local file'}>
+              <IconButton size="medium" component="span" sx={{ p: 0.25, border: '1px dashed', borderColor: 'primary.light', borderRadius: 999 }}>
+                <AddIcon />
+              </IconButton>
+            </Tooltip>
+            <input type="file" accept=".mp3,.ogg,.wav,.flac,.m4a,.aac" onChange={handleLocalFileChange} style={{ display: 'none' }} />
           </label>
+          <Tooltip title={language === 'zh' ? '添加URL链接' : 'Add URL (e.g. YouTube)'}>
+            <IconButton size="small" onClick={() => setShowUrlInput((v) => !v)} sx={{ p: 0.25, border: '1px dashed', borderColor: showUrlInput ? 'secondary.main' : 'primary.light', borderRadius: 999 }}>
+              <LinkIcon sx={{ fontSize: '1rem' }} />
+            </IconButton>
+          </Tooltip>
         </Box>
+        {showUrlInput && (
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: '100%', mt: 0.5 }}>
+            <TextField
+              size="small"
+              placeholder={language === 'zh' ? '粘贴YouTube或音频URL…' : 'Paste YouTube or audio URL…'}
+              value={urlInputValue}
+              onChange={(e) => setUrlInputValue(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') submitUrl() }}
+              autoFocus
+              fullWidth
+              sx={{ '& .MuiInputBase-input': { fontSize: '0.75rem', py: '4px' } }}
+              slotProps={{
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton size="small" onClick={submitUrl} disabled={!urlInputValue.trim()} edge="end">
+                        <CheckIcon sx={{ fontSize: '0.9rem' }} />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                },
+              }}
+            />
+          </Box>
+        )}
       </Box>
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>

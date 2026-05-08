@@ -168,7 +168,7 @@ export type EventLogEntry = {
   visibility?: 'public' | 'st-only'
 }
 
-export type AudioTrack = { name: string; src: string }
+export type AudioTrack = { name: string; src: string; type?: 'audio' | 'youtube'; embedSrc?: string }
 
 export type TimerDefaults = {
   privateSeconds: number
