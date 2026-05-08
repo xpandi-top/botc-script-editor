@@ -10,14 +10,15 @@ import AddCircleIcon from '@mui/icons-material/AddCircle'
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts'
 import SaveIcon from '@mui/icons-material/Save'
 import CheckIcon from '@mui/icons-material/Check'
+import CloseIcon from '@mui/icons-material/Close'
 import { useState } from 'react'
-import { CHARACTER_DISTRIBUTION } from './constants'
+import { CHARACTER_DISTRIBUTION, INITIAL_AUDIO_TRACKS } from './constants'
 
 export function CompactToolbar({ ctx }: { ctx: StorytellerContext }) {
   const {
     activeScriptTitle, language, onLanguageChange, currentDay, aliveCount, totalCount,
     audioPlaying, setAudioPlaying, audioTracks, selectedAudioSrc, setSelectedAudioSrc,
-    handleLocalFileChange, handleUrlTrackAdd, openNewGamePanel, openEndGamePanel,
+    handleLocalFileChange, handleUrlTrackAdd, deleteTrack, openNewGamePanel, openEndGamePanel,
     setShowRightPanel, setShowEditPlayersModal, showScriptPanel, setShowScriptPanel,
     text, undo, canUndo, bgmVolume, setBgmVolume,
   } = ctx
@@ -32,6 +33,8 @@ export function CompactToolbar({ ctx }: { ctx: StorytellerContext }) {
       setShowUrlInput(false)
     }
   }
+
+  const INITIAL_SRCS = new Set(INITIAL_AUDIO_TRACKS.map((t) => t.src))
 
   const nonTravelerCount = currentDay.seats.filter((s: any) => !s.isTraveler).length
   const dist = CHARACTER_DISTRIBUTION[nonTravelerCount]
@@ -76,7 +79,21 @@ export function CompactToolbar({ ctx }: { ctx: StorytellerContext }) {
             size="small"
             title={currentTrack?.name}
           >
-            {audioTracks.map((t: any) => <MenuItem key={t.src} value={t.src} sx={{ fontSize: '0.75rem' }}>{t.name}</MenuItem>)}
+            {audioTracks.map((t: any) => (
+              <MenuItem key={t.src} value={t.src} sx={{ fontSize: '0.75rem', display: 'flex', justifyContent: 'space-between', gap: 1, pr: 0.5 }}>
+                <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.name}</span>
+                {!INITIAL_SRCS.has(t.src) && (
+                  <IconButton
+                    size="small"
+                    onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); deleteTrack(t.src) }}
+                    sx={{ p: 0.25, flexShrink: 0 }}
+                    title={language === 'zh' ? '删除' : 'Remove'}
+                  >
+                    <CloseIcon sx={{ fontSize: '0.75rem' }} />
+                  </IconButton>
+                )}
+              </MenuItem>
+            ))}
           </Select>
           <Slider
             value={bgmVolume}

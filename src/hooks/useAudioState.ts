@@ -21,10 +21,36 @@ export function buildYouTubeEmbedSrc(videoId: string): string {
   return `https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1&playlist=${videoId}`
 }
 
+// ── Persistence helpers ───────────────────────────────────────────────────────
+
+export const BGM_STORAGE_KEY = 'botc-bgm-custom-tracks'
+
+const INITIAL_SRCS = new Set(INITIAL_AUDIO_TRACKS.map((t) => t.src))
+
+/** Tracks that can be saved to localStorage (excludes built-ins and ephemeral blob URLs). */
+export function filterPersistableTracks(tracks: AudioTrack[]): AudioTrack[] {
+  return tracks.filter((t) => !INITIAL_SRCS.has(t.src) && !t.src.startsWith('blob:'))
+}
+
+export function loadPersistedTracks(): AudioTrack[] {
+  try {
+    const raw = localStorage.getItem(BGM_STORAGE_KEY)
+    if (!raw) return []
+    const parsed = JSON.parse(raw)
+    if (!Array.isArray(parsed)) return []
+    return parsed as AudioTrack[]
+  } catch {
+    return []
+  }
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function useAudioState() {
-  const [audioTracks, setAudioTracks] = useState<AudioTrack[]>(INITIAL_AUDIO_TRACKS)
+  const [audioTracks, setAudioTracks] = useState<AudioTrack[]>(() => [
+    ...INITIAL_AUDIO_TRACKS,
+    ...loadPersistedTracks(),
+  ])
   const [selectedAudioSrc, setSelectedAudioSrc] = useState<string>(INITIAL_AUDIO_TRACKS[0].src)
   const [audioPlaying, setAudioPlaying] = useState(false)
   const [youtubeEmbedSrc, setYoutubeEmbedSrc] = useState<string | null>(null)
@@ -33,6 +59,12 @@ export function useAudioState() {
   // Keep a ref to tracks so effects can read current value without stale closures
   const audioTracksRef = useRef(audioTracks)
   useEffect(() => { audioTracksRef.current = audioTracks }, [audioTracks])
+
+  // Persist custom tracks on change
+  useEffect(() => {
+    const persistable = filterPersistableTracks(audioTracks)
+    localStorage.setItem(BGM_STORAGE_KEY, JSON.stringify(persistable))
+  }, [audioTracks])
 
   // Reload when track changes
   useEffect(() => {
@@ -102,6 +134,16 @@ export function useAudioState() {
     setAudioPlaying(true)
   }
 
+  function deleteTrack(src: string) {
+    if (INITIAL_SRCS.has(src)) return // built-in tracks are not deletable
+    setAudioTracks((cur) => cur.filter((t) => t.src !== src))
+    if (selectedAudioSrc === src) {
+      setSelectedAudioSrc(INITIAL_AUDIO_TRACKS[0].src)
+      setAudioPlaying(false)
+      setYoutubeEmbedSrc(null)
+    }
+  }
+
   /** Apply bgmVolume (0–1) to the <audio> element. */
   function applyVolume(vol: number) {
     if (audioRef.current) audioRef.current.volume = Math.max(0, Math.min(1, vol))
@@ -115,6 +157,7 @@ export function useAudioState() {
     audioRef,
     handleLocalFileChange,
     handleUrlTrackAdd,
+    deleteTrack,
     applyVolume,
   }
 }
