@@ -148,29 +148,46 @@ describe('confirmNewGameDiscard', () => {
 // ── confirmNewGameAfterSave ───────────────────────────────────────────────────
 
 describe('confirmNewGameAfterSave', () => {
-  it('saves game record then opens the new game panel', () => {
-    const setNewGamePanel = vi.fn()
-    const setGameRecords = vi.fn()
+  it('sets pendingNewGameAfterSave and opens EndGame modal', () => {
+    const setPendingNewGameAfterSave = vi.fn()
+    const setShowEndGameModal = vi.fn()
+    const setEndGameResult = vi.fn()
     const lc = buildGameLifecycle(makeLifecycleDeps({
       gameStartedAt: Date.now(),
-      setNewGamePanel,
-      setGameRecords,
+      setPendingNewGameAfterSave,
+      setShowEndGameModal,
+      setEndGameResult,
     }))
     lc.confirmNewGameAfterSave()
-    expect(setGameRecords).toHaveBeenCalledOnce()
-    expect(setNewGamePanel).toHaveBeenCalledOnce()
+    expect(setPendingNewGameAfterSave).toHaveBeenCalledWith(true)
+    expect(setShowEndGameModal).toHaveBeenCalledWith(true)
   })
 
-  it('saves before opening panel (save call precedes panel call)', () => {
-    const callOrder: string[] = []
-    const setNewGamePanel = vi.fn(() => callOrder.push('panel'))
-    const setGameRecords = vi.fn(() => callOrder.push('save'))
+  it('does NOT open new game panel directly', () => {
+    const setNewGamePanel = vi.fn()
+    const setShowEndGameModal = vi.fn()
+    const setEndGameResult = vi.fn()
     const lc = buildGameLifecycle(makeLifecycleDeps({
       gameStartedAt: Date.now(),
       setNewGamePanel,
-      setGameRecords,
+      setShowEndGameModal,
+      setEndGameResult,
     }))
     lc.confirmNewGameAfterSave()
-    expect(callOrder).toEqual(['save', 'panel'])
+    expect(setNewGamePanel).not.toHaveBeenCalled()
+  })
+
+  it('does NOT save record directly (save happens in EndGame modal)', () => {
+    const setGameRecords = vi.fn()
+    const setShowEndGameModal = vi.fn()
+    const setEndGameResult = vi.fn()
+    const lc = buildGameLifecycle(makeLifecycleDeps({
+      gameStartedAt: Date.now(),
+      setGameRecords,
+      setShowEndGameModal,
+      setEndGameResult,
+    }))
+    lc.confirmNewGameAfterSave()
+    expect(setGameRecords).not.toHaveBeenCalled()
   })
 })

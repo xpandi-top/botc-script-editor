@@ -46,10 +46,11 @@ interface LifecycleDeps {
   gameStartedAt?: number
   setGameStartedAt?: (v: number | undefined) => void
   setShowSaveBeforeNewGame?: (v: boolean) => void
+  setPendingNewGameAfterSave?: (v: boolean) => void
 }
 
 export function buildGameLifecycle(deps: LifecycleDeps) {
-  const { days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, endGameResult, scriptOptions, onSelectScript, setDays, setDaysWithUndo, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay, setNewGamePanel, setEndGameResult, setGameRecords, setAudioPlaying, language, appendEvent, customTagPool = [], playerNamePool = [], setCurrentRecordName, setTimerDefaults, setCustomTagPool, setPlayerNamePool, setShowEndGameModal, setNightShowCharacter, setNightShowWakeOrder, stFabledIds = [], stCustomRules = '', setStFabledIds, setStCustomRules, gameStartedAt, setGameStartedAt, setShowSaveBeforeNewGame } = deps
+  const { days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, endGameResult, scriptOptions, onSelectScript, setDays, setDaysWithUndo, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay, setNewGamePanel, setEndGameResult, setGameRecords, setAudioPlaying, language, appendEvent, customTagPool = [], playerNamePool = [], setCurrentRecordName, setTimerDefaults, setCustomTagPool, setPlayerNamePool, setShowEndGameModal, setNightShowCharacter, setNightShowWakeOrder, stFabledIds = [], stCustomRules = '', setStFabledIds, setStCustomRules, gameStartedAt, setGameStartedAt, setShowSaveBeforeNewGame, setPendingNewGameAfterSave } = deps
 
   const exportActions = buildGameExport({ days, currentDay, activeScriptSlug, activeScriptTitle, endGameResult, timerDefaults, customTagPool, playerNamePool, stFabledIds, stCustomRules, setGameRecords, setCurrentRecordName, gameStartedAt })
 
@@ -160,8 +161,9 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
   }
 
   function confirmNewGameAfterSave() {
-    exportActions.saveGame()
-    _doOpenNewGamePanel()
+    // Mark pending so EndGame modal's save action triggers new game panel
+    setPendingNewGameAfterSave?.(true)
+    openEndGamePanel()
   }
 
   function confirmNewGameDiscard() {
@@ -320,5 +322,5 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     setEndGameResult({ winner: record.winner ?? null, playerTeams: teams, mvp: record.mvp ?? null, balanced: record.balanced ?? null, funEvil: record.funEvil ?? null, funGood: record.funGood ?? null, replay: record.replay ?? null, otherNote: record.otherNote ?? '' })
   }
 
-  return { goToNextDay, goToPreviousDay, moveToNextSpeaker, setPhase, startNight, addPlayerSeat, removeLastPlayerSeat, addTravelerSeat, removeLastTraveler, openNewGamePanel, confirmNewGameAfterSave, confirmNewGameDiscard, hasActiveGame, randomAssignCharacters, startNewGame, applyGameChanges, resetCurrentGame, openEndGamePanel, markGameEnded, unmarkGameEnded, loadGameRecord, ...exportActions }
+  return { goToNextDay, goToPreviousDay, moveToNextSpeaker, setPhase, startNight, addPlayerSeat, removeLastPlayerSeat, addTravelerSeat, removeLastTraveler, openNewGamePanel, doOpenNewGamePanel: _doOpenNewGamePanel, confirmNewGameAfterSave, confirmNewGameDiscard, hasActiveGame, randomAssignCharacters, startNewGame, applyGameChanges, resetCurrentGame, openEndGamePanel, markGameEnded, unmarkGameEnded, loadGameRecord, ...exportActions }
 }

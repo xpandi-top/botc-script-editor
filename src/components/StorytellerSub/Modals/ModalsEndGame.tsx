@@ -9,10 +9,11 @@ import CloseIcon from '@mui/icons-material/Close'
 import { StarRating } from '../../ui/StarRating'
 
 export function ModalsEndGame({ ctx }: { ctx: StorytellerContext }) {
-  const { 
-    text, endGameResult, setEndGameResult, confirmEndGame, unmarkGameEnded, 
+  const {
+    text, endGameResult, setEndGameResult, confirmEndGame, unmarkGameEnded,
     saveGame, currentDay, language, setDays, currentRecordName, showEndGameModal, setShowEndGameModal,
     activeScriptTitle, gameRecords,
+    pendingNewGameAfterSave, setPendingNewGameAfterSave, doOpenNewGamePanel,
   } = ctx
   
   const playerCount = currentDay.seats.filter((s: any) => !s.isTraveler).length
@@ -57,11 +58,17 @@ export function ModalsEndGame({ ctx }: { ctx: StorytellerContext }) {
     }
     setIsVisible(false)
     setShowEndGameModal(false)
+    // If triggered from "Save & New" flow, open the new game panel after save
+    if (pendingNewGameAfterSave) {
+      setPendingNewGameAfterSave?.(false)
+      doOpenNewGamePanel?.()
+    }
   }
 
   const handleCancel = () => {
     setIsVisible(false)
     setShowEndGameModal(false)
+    if (pendingNewGameAfterSave) setPendingNewGameAfterSave?.(false)
     setTimeout(() => setEndGameResult(null), 100)
   }
 
