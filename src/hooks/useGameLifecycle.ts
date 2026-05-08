@@ -45,10 +45,11 @@ interface LifecycleDeps {
   setStCustomRules?: (v: string) => void
   gameStartedAt?: number
   setGameStartedAt?: (v: number | undefined) => void
+  setShowSaveBeforeNewGame?: (v: boolean) => void
 }
 
 export function buildGameLifecycle(deps: LifecycleDeps) {
-  const { days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, endGameResult, scriptOptions, onSelectScript, setDays, setDaysWithUndo, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay, setNewGamePanel, setEndGameResult, setGameRecords, setAudioPlaying, language, appendEvent, customTagPool = [], playerNamePool = [], setCurrentRecordName, setTimerDefaults, setCustomTagPool, setPlayerNamePool, setShowEndGameModal, setNightShowCharacter, setNightShowWakeOrder, stFabledIds = [], stCustomRules = '', setStFabledIds, setStCustomRules, gameStartedAt, setGameStartedAt } = deps
+  const { days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, endGameResult, scriptOptions, onSelectScript, setDays, setDaysWithUndo, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay, setNewGamePanel, setEndGameResult, setGameRecords, setAudioPlaying, language, appendEvent, customTagPool = [], playerNamePool = [], setCurrentRecordName, setTimerDefaults, setCustomTagPool, setPlayerNamePool, setShowEndGameModal, setNightShowCharacter, setNightShowWakeOrder, stFabledIds = [], stCustomRules = '', setStFabledIds, setStCustomRules, gameStartedAt, setGameStartedAt, setShowSaveBeforeNewGame } = deps
 
   const exportActions = buildGameExport({ days, currentDay, activeScriptSlug, activeScriptTitle, endGameResult, timerDefaults, customTagPool, playerNamePool, stFabledIds, stCustomRules, setGameRecords, setCurrentRecordName, gameStartedAt })
 
@@ -141,9 +142,30 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     }))
   }
 
-  function openNewGamePanel() {
+  function _doOpenNewGamePanel() {
     const slug = activeScriptSlug ?? scriptOptions[0]?.slug ?? ''
     setNewGamePanel({ playerCount: 9, travelerCount: 0, scriptSlug: slug, allowDuplicateChars: false, allowEmptyChars: false, allowSameNames: false, seatNames: {}, assignments: {}, userAssignments: {}, travelerAssignments: {}, seatNotes: {}, specialNote: '', demonBluffs: [], charPool: [] })
+  }
+
+  function hasActiveGame(): boolean {
+    return gameStartedAt !== undefined && currentDay.seats.length > 0
+  }
+
+  function openNewGamePanel() {
+    if (hasActiveGame() && setShowSaveBeforeNewGame) {
+      setShowSaveBeforeNewGame(true)
+    } else {
+      _doOpenNewGamePanel()
+    }
+  }
+
+  function confirmNewGameAfterSave() {
+    exportActions.saveGame()
+    _doOpenNewGamePanel()
+  }
+
+  function confirmNewGameDiscard() {
+    _doOpenNewGamePanel()
   }
 
   function randomAssignCharacters(config: NewGameConfig): Record<number, string> {
@@ -298,5 +320,5 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     setEndGameResult({ winner: record.winner ?? null, playerTeams: teams, mvp: record.mvp ?? null, balanced: record.balanced ?? null, funEvil: record.funEvil ?? null, funGood: record.funGood ?? null, replay: record.replay ?? null, otherNote: record.otherNote ?? '' })
   }
 
-  return { goToNextDay, goToPreviousDay, moveToNextSpeaker, setPhase, startNight, addPlayerSeat, removeLastPlayerSeat, addTravelerSeat, removeLastTraveler, openNewGamePanel, randomAssignCharacters, startNewGame, applyGameChanges, resetCurrentGame, openEndGamePanel, markGameEnded, unmarkGameEnded, loadGameRecord, ...exportActions }
+  return { goToNextDay, goToPreviousDay, moveToNextSpeaker, setPhase, startNight, addPlayerSeat, removeLastPlayerSeat, addTravelerSeat, removeLastTraveler, openNewGamePanel, confirmNewGameAfterSave, confirmNewGameDiscard, hasActiveGame, randomAssignCharacters, startNewGame, applyGameChanges, resetCurrentGame, openEndGamePanel, markGameEnded, unmarkGameEnded, loadGameRecord, ...exportActions }
 }

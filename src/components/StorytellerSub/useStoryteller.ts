@@ -43,6 +43,7 @@ export function useStoryteller(props: StorytellerHelperProps) {
   const [selectedSeatNumber, setSelectedSeatNumber] = useState<number | null>(null)
   const [skillOverlay, setSkillOverlay] = useState<SkillOverlayState | null>(null)
   const [newGamePanel, setNewGamePanel] = useState<NewGameConfig | null>(null)
+  const [showSaveBeforeNewGame, setShowSaveBeforeNewGame] = useState(false)
   const [endGameResult, setEndGameResult] = useState<EndGameResult | null>(initial.endGameResult ?? null)
   const [showEndGameModal, setShowEndGameModal] = useState(false)
   const [logFilter, setLogFilter] = useState<LogFilterState>({ types: new Set(['vote', 'skill', 'event']), dayFilter: 'all', sortAsc: false, visibility: 'all' })
@@ -188,7 +189,7 @@ export function useStoryteller(props: StorytellerHelperProps) {
   // ── Domain actions ──
   const gameActions = buildGameActions({ currentDay, timerDefaults, requiredVotes: effectiveRequiredVotes, draftPassed, isTimerRunning, skillOverlay, seatTagDrafts, updateCurrentDay, updateCurrentDayWithUndo, appendEvent, setPickerMode, setIsTimerRunning, setSkillOverlay, setSkillPopoutSeat: ui.setSkillPopoutSeat, setTagPopoutSeat: ui.setTagPopoutSeat, setSkillRoleDropdownOpen: ui.setSkillRoleDropdownOpen, setShowNominationSheet: ui.setShowNominationSheet, setCustomTagPool, setSeatTagDrafts, text })
 
-  const lifecycle = buildGameLifecycle({ days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, endGameResult, scriptOptions, onSelectScript, setDays, setDaysWithUndo, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay: (v) => setSkillOverlay(v), setNewGamePanel, setEndGameResult, setGameRecords, setSelectedAudioSrc: audio.setSelectedAudioSrc, setAudioPlaying: audio.setAudioPlaying, nightBgmSrc: NIGHT_BGM_SRC, language, appendEvent, customTagPool, playerNamePool, setCurrentRecordName, setTimerDefaults, setCustomTagPool, setPlayerNamePool, setShowEndGameModal, setNightShowCharacter: ui.setNightShowCharacter, setNightShowWakeOrder: ui.setNightShowWakeOrder, stFabledIds, stCustomRules, setStFabledIds, setStCustomRules, gameStartedAt, setGameStartedAt })
+  const lifecycle = buildGameLifecycle({ days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, endGameResult, scriptOptions, onSelectScript, setDays, setDaysWithUndo, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay: (v) => setSkillOverlay(v), setNewGamePanel, setEndGameResult, setGameRecords, setSelectedAudioSrc: audio.setSelectedAudioSrc, setAudioPlaying: audio.setAudioPlaying, nightBgmSrc: NIGHT_BGM_SRC, language, appendEvent, customTagPool, playerNamePool, setCurrentRecordName, setTimerDefaults, setCustomTagPool, setPlayerNamePool, setShowEndGameModal, setNightShowCharacter: ui.setNightShowCharacter, setNightShowWakeOrder: ui.setNightShowWakeOrder, stFabledIds, stCustomRules, setStFabledIds, setStCustomRules, gameStartedAt, setGameStartedAt, setShowSaveBeforeNewGame })
 
   function clearUnusedCustomTags() {
     const usedTags = new Set(days.flatMap((d) => d.seats.flatMap((s) => s.customTags)))
@@ -290,7 +291,8 @@ export function useStoryteller(props: StorytellerHelperProps) {
     ...ui,
     skillOverlay, setSkillOverlay,
     ...audio,
-    newGamePanel, setNewGamePanel, endGameResult, setEndGameResult, showEndGameModal, setShowEndGameModal,
+    newGamePanel, setNewGamePanel, showSaveBeforeNewGame, setShowSaveBeforeNewGame,
+    endGameResult, setEndGameResult, showEndGameModal, setShowEndGameModal,
     logFilter, setLogFilter,
     lastCountdownRef, text,
     selectedDayIndex, currentDay, updateCurrentDay, currentTimerSeconds,

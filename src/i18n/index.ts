@@ -447,6 +447,22 @@ export const translations = {
     en: 'New Game',
     zh: '新游戏',
   },
+  saveBeforeNewGameTitle: {
+    en: 'Start a new game?',
+    zh: '开始新游戏？',
+  },
+  saveBeforeNewGameBody: {
+    en: 'You have an active game. Save it to Records before starting a new one?',
+    zh: '当前有进行中的游戏。开始新游戏前是否保存记录？',
+  },
+  saveAndNew: {
+    en: 'Save & New',
+    zh: '保存并新建',
+  },
+  discardAndNew: {
+    en: 'Discard & New',
+    zh: '放弃并新建',
+  },
   startNewGame: {
     en: 'Start New Game',
     zh: '开始新游戏',

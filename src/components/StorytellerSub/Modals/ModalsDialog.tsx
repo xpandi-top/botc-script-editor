@@ -1,15 +1,67 @@
 // @ts-nocheck
 import type { StorytellerContext } from '../useStoryteller'
 import React from 'react'
-import { getDisplayName, getIconForCharacter } from '../../../catalog'
-import { CHARACTER_DISTRIBUTION } from '../constants'
-
+import {
+  Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
+} from '@mui/material'
+import SaveIcon from '@mui/icons-material/Save'
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
 
 export function ModalsDialog({ ctx }: { ctx: StorytellerContext }) {
-  const { activeScriptSlug, activeScriptTitle, language, onSelectScript, scriptOptions, days, setDays, selectedDayId, setSelectedDayId, timerDefaults, setTimerDefaults, customTagPool, setCustomTagPool, gameRecords, setGameRecords, playerNamePool, setPlayerNamePool, pickerMode, setPickerMode, isTimerRunning, setIsTimerRunning, dialogState, setDialogState, seatTagDrafts, setSeatTagDrafts, selectedSeatNumber, setSelectedSeatNumber, showLogPanel, setShowLogPanel, showRightPanel, setShowRightPanel, skillOverlay, setSkillOverlay, audioTracks, setAudioTracks, selectedAudioSrc, setSelectedAudioSrc, audioPlaying, setAudioPlaying, newGamePanel, setNewGamePanel, endGameResult, setEndGameResult, logFilter, setLogFilter, activeConsoleSections, setActiveConsoleSections, tagPopoutSeat, setTagPopoutSeat, skillPopoutSeat, setSkillPopoutSeat, skillRoleDropdownOpen, setSkillRoleDropdownOpen, showNominationSheet, setShowNominationSheet, showEditPlayersModal, setShowEditPlayersModal, editPlayersPreset, setEditPlayersPreset, loadTagsPreset, setLoadTagsPreset, lastCountdownRef, audioRef, text, selectedDayIndex, currentDay, updateCurrentDay, currentTimerSeconds, currentScriptCharacters, livingNonTravelerSeats, requiredVotes, eligibleVoterSeats, nonVoters, draftPassedBySystem, draftPassed, isVotingComplete, currentVoterSeat, pointerSeat, selectedSeat, selectedSeatTags, dialogTitle, aliveCount, totalCount, highestVoteThisDay, nominatorsThisDay, nomineesThisDay, leadingCandidates, nominationDelaySeconds, secondsUntilNomination, canNominate, aggregatedLog, getPhaseContext, setCurrentTimer, syncDayTimers, appendEvent, handleLocalFileChange, resetSeatNames, updateSeat, updateSeatWithLog, addCustomTag, clearUnusedCustomTags, enterNomination, confirmNomination, rejectNomination, confirmTargetSpeech, startVoting, handleVoteYes, recordVote, openSkillOverlay, openSeatSkill, closeSkillOverlay, moveToNextSpeaker, goToNextDay, goToPreviousDay, saveCurrentGame, resetCurrentGame, confirmDialog, handleSeatClick, removeSeatTag, setPhase, startNight, stopNight, addPlayerSeat, removeLastPlayerSeat, addTravelerSeat, removeLastTraveler, openNewGamePanel, randomAssignCharacters, startNewGame, openEndGamePanel, confirmEndGame, exportGameJson, toggleLogFilterType, votingYesCount, NIGHT_BGM_SRC, hasTimer, toggleConsoleSection } = ctx;
+  const {
+    language, text,
+    showSaveBeforeNewGame, setShowSaveBeforeNewGame,
+    confirmNewGameAfterSave, confirmNewGameDiscard,
+  } = ctx
+
+  const zh = language === 'zh'
+
   return (
     <>
-      
+      {/* ── Save-before-new-game prompt ── */}
+      <Dialog
+        open={!!showSaveBeforeNewGame}
+        onClose={() => setShowSaveBeforeNewGame(false)}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle sx={{ fontWeight: 700 }}>
+          {text.saveBeforeNewGameTitle}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            {text.saveBeforeNewGameBody}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={() => setShowSaveBeforeNewGame(false)}
+            sx={{ mr: 'auto' }}
+          >
+            {zh ? '取消' : 'Cancel'}
+          </Button>
+          <Button
+            variant="outlined"
+            color="error"
+            size="small"
+            startIcon={<DeleteForeverIcon fontSize="small" />}
+            onClick={() => { setShowSaveBeforeNewGame(false); confirmNewGameDiscard() }}
+          >
+            {text.discardAndNew}
+          </Button>
+          <Button
+            variant="contained"
+            size="small"
+            startIcon={<SaveIcon fontSize="small" />}
+            onClick={() => { setShowSaveBeforeNewGame(false); confirmNewGameAfterSave() }}
+          >
+            {text.saveAndNew}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
     </>
   )
 }
