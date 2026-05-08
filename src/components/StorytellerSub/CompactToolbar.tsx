@@ -6,13 +6,11 @@ import AddIcon from '@mui/icons-material/Add'
 import LinkIcon from '@mui/icons-material/Link'
 import UndoIcon from '@mui/icons-material/Undo'
 import MenuOpenIcon from '@mui/icons-material/MenuOpen'
-import AddCircleIcon from '@mui/icons-material/AddCircle'
-import ManageAccountsIcon from '@mui/icons-material/ManageAccounts'
-import SaveIcon from '@mui/icons-material/Save'
 import CheckIcon from '@mui/icons-material/Check'
 import CloseIcon from '@mui/icons-material/Close'
 import { useState } from 'react'
 import { CHARACTER_DISTRIBUTION, INITIAL_AUDIO_TRACKS } from './constants'
+import { GameActionsBar } from './GameActionsBar'
 
 export function CompactToolbar({ ctx }: { ctx: StorytellerContext }) {
   const {
@@ -146,21 +144,14 @@ export function CompactToolbar({ ctx }: { ctx: StorytellerContext }) {
       </Box>
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-        <Tooltip title={text.newGame}>
-          <IconButton size="medium" onClick={openNewGamePanel}>
-            <AddCircleIcon />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title={text.editPlayers}>
-          <IconButton size="medium" onClick={() => setShowEditPlayersModal(true)}>
-            <ManageAccountsIcon />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title={text.endGame}>
-          <IconButton size="medium" onClick={openEndGamePanel}>
-            <SaveIcon />
-          </IconButton>
-        </Tooltip>
+        <GameActionsBar
+          openNewGamePanel={openNewGamePanel}
+          setShowEditPlayersModal={setShowEditPlayersModal}
+          openEndGamePanel={openEndGamePanel}
+          text={text}
+          language={language}
+          variant="toolbar"
+        />
         <IconButton size="medium" onClick={undo} disabled={!canUndo} title={language === 'zh' ? '撤销' : 'Undo'}>
           <UndoIcon />
         </IconButton>

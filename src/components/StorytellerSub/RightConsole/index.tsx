@@ -3,17 +3,16 @@ import { Drawer, Box, IconButton, Typography, useTheme, useMediaQuery } from '@m
 import SettingsIcon from '@mui/icons-material/Settings'
 import HistoryIcon from '@mui/icons-material/History'
 import DownloadIcon from '@mui/icons-material/Download'
-import AddCircleIcon from '@mui/icons-material/AddCircle'
-import ManageAccountsIcon from '@mui/icons-material/ManageAccounts'
-import SaveIcon from '@mui/icons-material/Save'
 import { RightPopupSettings } from './RightPopupSettings'
 import { RightConsoleRecords } from './RightConsoleRecords'
+import { GameActionsBar } from '../GameActionsBar'
 
 const barWidth = 56
 
 function IconBar({
   activeRightPopup,
   language,
+  text,
   togglePopup,
   onClose,
   openNewGamePanel,
@@ -23,6 +22,7 @@ function IconBar({
 }: {
   activeRightPopup: string | null
   language: string
+  text: StorytellerContext['text']
   togglePopup: (name: 'settings' | 'records') => void
   onClose: () => void
   openNewGamePanel: () => void
@@ -53,26 +53,29 @@ function IconBar({
         </IconButton>
       ))}
       <Box sx={{ flex: 1 }} />
-      {[
-        { icon: <AddCircleIcon sx={{ fontSize: '1.1rem' }} />,    label: language === 'zh' ? '新游戏' : 'New',     onClick: () => { openNewGamePanel(); onClose() } },
-        { icon: <ManageAccountsIcon sx={{ fontSize: '1.1rem' }} />, label: language === 'zh' ? '玩家' : 'Players', onClick: () => { setShowEditPlayersModal(true); onClose() } },
-        { icon: <SaveIcon sx={{ fontSize: '1.1rem' }} />,          label: language === 'zh' ? '保存' : 'Save',     onClick: () => { openEndGamePanel(); onClose() } },
-        { icon: <DownloadIcon sx={{ fontSize: '1.1rem' }} />,      label: language === 'zh' ? '导出' : 'Export',  onClick: () => setShowExportModal(true) },
-      ].map(({ icon, label, onClick }) => (
-        <IconButton
-          key={label}
-          onClick={onClick}
-          sx={{
-            flexDirection: 'column', width: 44, p: 0.5, borderRadius: 1.5,
-            border: '1px solid transparent',
-            color: 'text.secondary',
-            '&:hover': { bgcolor: 'action.hover', color: 'text.primary', borderColor: 'divider' },
-          }}
-        >
-          <Box sx={{ fontSize: '1.1rem', lineHeight: 1 }}>{icon}</Box>
-          <Typography variant="caption" sx={{ fontSize: '0.6rem', fontWeight: 600, letterSpacing: '0.02em', lineHeight: 1, color: 'inherit' }}>{label}</Typography>
-        </IconButton>
-      ))}
+      <GameActionsBar
+        openNewGamePanel={openNewGamePanel}
+        setShowEditPlayersModal={setShowEditPlayersModal}
+        openEndGamePanel={openEndGamePanel}
+        text={text}
+        language={language}
+        onAfterAction={onClose}
+        variant="sidebar"
+      />
+      <IconButton
+        onClick={() => setShowExportModal(true)}
+        sx={{
+          flexDirection: 'column', width: 44, p: 0.5, borderRadius: 1.5,
+          border: '1px solid transparent',
+          color: 'text.secondary',
+          '&:hover': { bgcolor: 'action.hover', color: 'text.primary', borderColor: 'divider' },
+        }}
+      >
+        <Box sx={{ fontSize: '1.1rem', lineHeight: 1 }}><DownloadIcon sx={{ fontSize: '1.1rem' }} /></Box>
+        <Typography variant="caption" sx={{ fontSize: '0.6rem', fontWeight: 600, letterSpacing: '0.02em', lineHeight: 1, color: 'inherit' }}>
+          {language === 'zh' ? '导出' : 'Export'}
+        </Typography>
+      </IconButton>
     </Box>
   )
 }
@@ -80,7 +83,7 @@ function IconBar({
 export function RightConsole({ ctx }: { ctx: StorytellerContext }) {
   const {
     showRightPanel, setShowRightPanel, activeRightPopup, setActiveRightPopup,
-    language, setShowExportModal,
+    language, text, setShowExportModal,
     openNewGamePanel, setShowEditPlayersModal, openEndGamePanel,
   } = ctx
 
@@ -99,6 +102,7 @@ export function RightConsole({ ctx }: { ctx: StorytellerContext }) {
   const iconBarProps = {
     activeRightPopup,
     language,
+    text,
     togglePopup,
     onClose: closePanel,
     openNewGamePanel,
