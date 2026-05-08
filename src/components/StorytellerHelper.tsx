@@ -64,6 +64,7 @@ export function StorytellerHelper(props: StorytellerHelperProps) {
           alignItems: 'stretch',
           overflow: 'auto',
           transition: 'grid-template-columns 0.2s ease',
+          maxHeight: '90dvh',
         }}
       >
         {/* Left script panel — inline sidebar on desktop */}

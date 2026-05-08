@@ -112,7 +112,7 @@ export function RightConsole({ ctx }: { ctx: StorytellerContext }) {
   }
 
   const popupContent = (
-    <Box sx={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', minWidth: 0, minHeight: 0 }}>
+    <Box sx={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', minWidth: 0, minHeight: 0 , maxHeight: '90dvh' }}>
       {activeRightPopup === 'settings' && <RightPopupSettings ctx={ctx} />}
       {activeRightPopup === 'records' && <RightConsoleRecords ctx={ctx} toggleConsoleSection={ctx.toggleConsoleSection} />}
     </Box>
