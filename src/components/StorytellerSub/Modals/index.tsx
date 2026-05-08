@@ -66,9 +66,10 @@ export function Modals({ ctx }: { ctx: StorytellerContext }) {
           <IconButton onClick={() => setDialogState(null)} size="small"><CloseIcon /></IconButton>
         </DialogTitle>
         <DialogContent>
-          <ModalsDialog ctx={ctx} />
         </DialogContent>
       </Dialog>
+
+      <ModalsDialog ctx={ctx} />
     </>
   )
 }
