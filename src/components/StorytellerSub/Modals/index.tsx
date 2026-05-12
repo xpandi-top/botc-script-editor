@@ -8,7 +8,7 @@ import { ModalsDialog } from './ModalsDialog'
 import { ModalsExport } from './ModalsExport'
 
 export function Modals({ ctx }: { ctx: StorytellerContext }) {
-  const { showEditPlayersModal, setShowEditPlayersModal, newGamePanel, showNewGamePanel, setShowNewGamePanel, showEndGameModal, setShowEndGameModal, showExportModal, setShowExportModal, dialogState, setDialogState, text, language } = ctx
+  const { showEditPlayersModal, setShowEditPlayersModal, newGamePanel, showNewGamePanel, setShowNewGamePanel, showEndGameModal, setShowEndGameModal, showExportModal, setShowExportModal, text } = ctx
 
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
@@ -57,15 +57,6 @@ export function Modals({ ctx }: { ctx: StorytellerContext }) {
         </DialogTitle>
         <DialogContent>
           <ModalsExport ctx={ctx} />
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={!!dialogState} onClose={() => setDialogState(null)} maxWidth="xs" fullWidth slotProps={{ paper: { sx: paperSx } }}>
-        <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
-          {language === 'zh' ? '确认' : 'Confirm'}
-          <IconButton onClick={() => setDialogState(null)} size="small"><CloseIcon /></IconButton>
-        </DialogTitle>
-        <DialogContent>
         </DialogContent>
       </Dialog>
 

@@ -232,17 +232,26 @@ export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: Storyt
 
                   {/* Action icons — min 44px touch targets */}
                   <Box sx={{ display: 'flex', gap: 0, mt: 0.25 }}>
-                    {rec.savedDays && (
-                      <IconButton size="small" onClick={() => loadGameRecord(rec)} title={zh ? '加载' : 'Load'} sx={{ minWidth: 44, minHeight: 44 }}>
-                        <FolderOpenIcon sx={{ fontSize: '1rem' }} />
+                    <Tooltip title={rec.savedDays ? (zh ? '加载到说书人' : 'Load into Storyteller') : (zh ? '无游戏数据（仅分析记录）' : 'No game data (analysis-only record)')}>
+                      <span>
+                        <IconButton
+                          size="small"
+                          disabled={!rec.savedDays}
+                          onClick={() => loadGameRecord(rec)}
+                          sx={{ minWidth: 44, minHeight: 44 }}
+                        >
+                          <FolderOpenIcon sx={{ fontSize: '1rem' }} />
+                        </IconButton>
+                      </span>
+                    </Tooltip>
+                    <Tooltip title={zh ? '重命名并覆盖保存' : 'Rename and overwrite'}>
+                      <IconButton size="small" onClick={() => {
+                        const name = window.prompt(zh ? '输入新文件名：' : 'Enter new file name:', rec.recordName)
+                        if (name) saveGame(name, rec.id)
+                      }} sx={{ minWidth: 44, minHeight: 44 }}>
+                        <SaveAsIcon sx={{ fontSize: '1rem' }} />
                       </IconButton>
-                    )}
-                    <IconButton size="small" onClick={() => {
-                      const name = window.prompt(zh ? '输入新文件名：' : 'Enter new file name:', rec.recordName)
-                      if (name) saveGame(name)
-                    }} title={zh ? '另存' : 'Save As'} sx={{ minWidth: 44, minHeight: 44 }}>
-                      <SaveAsIcon sx={{ fontSize: '1rem' }} />
-                    </IconButton>
+                    </Tooltip>
                     <IconButton size="small" onClick={() => exportRecordJson(rec)} title={zh ? '导出' : 'Export'} sx={{ minWidth: 44, minHeight: 44 }}>
                       <DownloadIcon sx={{ fontSize: '1rem' }} />
                     </IconButton>
