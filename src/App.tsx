@@ -48,6 +48,7 @@ import {
   createScriptPayload,
   editionLabels,
   getAbilityText,
+  getCustomChar,
   getDisplayName,
   getEffectiveAllCharacters,
   initialScripts,
@@ -192,26 +193,30 @@ export default function App() {
 
   const activeScriptCharacters = useMemo<ResolvedScriptCharacter[]>(() => {
     if (!activeScript) return []
-    const customById = new Map(activeScript.customCharacters.map((c) => [c.id, c]))
+    // inline customCharacters in the script JSON
+    const scriptCustomById = new Map(activeScript.customCharacters.map((c) => [c.id, c]))
     return activeScript.characters
       .map<ResolvedScriptCharacter | null>((id) => {
         const cat = characterById[id]
-        const custom = customById.get(id)
-        if (!cat && !custom) return null
+        const scriptCustom = scriptCustomById.get(id)
+        // also check the global custom char registry (user-created via CharactersTab)
+        const globalCustom = getCustomChar(id)
+        if (!cat && !scriptCustom && !globalCustom) return null
         return {
           id,
-          team: custom?.team ?? cat?.team ?? 'townsfolk',
-          edition: custom?.edition ?? cat?.edition ?? activeScript.edition,
+          team: scriptCustom?.team ?? globalCustom?.team ?? cat?.team ?? 'townsfolk',
+          edition: scriptCustom?.edition ?? globalCustom?.edition ?? cat?.edition ?? activeScript.edition,
           current_revision: cat?.current_revision,
           revisions: cat?.revisions,
-          jinxes: custom?.jinxes ?? cat?.jinxes,
-          name: custom?.name,
-          ability: custom?.ability,
-          image: custom?.image,
+          jinxes: scriptCustom?.jinxes ?? globalCustom?.jinxes ?? cat?.jinxes,
+          name: scriptCustom?.name ?? (globalCustom ? getDisplayName(id, uiLanguage) : undefined),
+          ability: scriptCustom?.ability ?? (globalCustom ? getAbilityText(id, uiLanguage) : undefined),
+          image: scriptCustom?.image ?? (globalCustom?.icon ? globalCustom.icon : undefined),
         }
       })
       .filter((c): c is ResolvedScriptCharacter => c !== null)
-  }, [activeScript])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeScript, customChars, uiLanguage])
 
   const groupedScriptCharacters = useMemo<ResolvedScriptCharacterGroup[]>(
     () => teamOrder

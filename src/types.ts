@@ -108,7 +108,8 @@ export type EditableScript = {
   meta: ScriptMetaEntry
   customCharacters: ScriptCharacterItem[]
   sourceFile: string
-  notes?: string                           // ST notes for this script
+  notes?: string                           // ST notes for this script (legacy — kept for compat)
+  tags?: string[]                          // quick status tags (wip, balanced, experimental…)
   pinnedRevisions?: Record<string, string> // charId → revisionId override
 }
 

@@ -103,6 +103,21 @@ export function ScriptsTab({
   const [viewColumns, setViewColumns] = useState<1 | 2>(1)
   const [scriptSearch, setScriptSearch] = useState('')
   const [editionFilter, setEditionFilter] = useState<string | null>(null)
+  const [tagFilter, setTagFilter] = useState<string | null>(null)
+
+  const SCRIPT_TAGS = ['WIP', 'Balanced', 'Experimental', 'Needs Review', 'Archived']
+
+  const addTag = (tag: string) => {
+    if (!activeScript || isBuiltIn(activeScript.slug)) return
+    updateActiveScript((s) => ({
+      ...s,
+      tags: s.tags?.includes(tag) ? s.tags : [...(s.tags ?? []), tag],
+    }))
+  }
+  const removeTag = (tag: string) => {
+    if (!activeScript) return
+    updateActiveScript((s) => ({ ...s, tags: (s.tags ?? []).filter((t) => t !== tag) }))
+  }
 
   const gridCols = isMobile ? '1fr' : showList ? '280px 1fr' : '1fr'
 
@@ -138,6 +153,7 @@ export function ScriptsTab({
             const q = scriptSearch.trim().toLowerCase()
             const filterScript = (s: EditableScript) => {
               if (editionFilter && s.edition !== editionFilter) return false
+              if (tagFilter && !(s.tags ?? []).includes(tagFilter)) return false
               if (!q) return true
               return (
                 s.title.toLowerCase().includes(q) ||
@@ -148,10 +164,11 @@ export function ScriptsTab({
             }
 
             const allEditions = [...new Set(scripts.map((s) => s.edition).filter(Boolean))]
+            const allUsedTags = [...new Set(scripts.flatMap((s) => s.tags ?? []))]
             const official = scripts.filter((s) => OFFICIAL.has(s.slug) && filterScript(s))
             const community = scripts.filter((s) => isBuiltIn(s.slug) && !OFFICIAL.has(s.slug) && filterScript(s))
             const diy = scripts.filter((s) => !isBuiltIn(s.slug) && filterScript(s))
-            const isFiltering = !!q || !!editionFilter
+            const isFiltering = !!q || !!editionFilter || !!tagFilter
 
             const SectionHeader = ({ label, count, open, onToggle }: { label: string; count: number; open: boolean; onToggle: () => void }) => (
               <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', userSelect: 'none' }} onClick={onToggle}>
@@ -170,6 +187,7 @@ export function ScriptsTab({
                       title={getScriptTitle(script)}
                       isActive={script.slug === activeScript?.slug}
                       onSelect={() => { setActiveSlug(script.slug); if (isMobile) setListOpen(false) }}
+                      tags={script.tags}
                     />
                   </Box>
                   {!deletable && (
@@ -219,6 +237,23 @@ export function ScriptsTab({
                         variant={editionFilter === ed ? 'filled' : 'outlined'}
                         onClick={() => setEditionFilter((c) => c === ed ? null : ed)}
                         sx={{ fontSize: '0.65rem', height: 20 }}
+                      />
+                    ))}
+                  </Box>
+                )}
+                {/* Tag filter chips */}
+                {allUsedTags.length > 0 && (
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 0.5 }}>
+                    <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.6rem', alignSelf: 'center', mr: 0.25 }}>
+                      {zh ? '标签：' : 'Tags:'}
+                    </Typography>
+                    {allUsedTags.map((tag) => (
+                      <Chip key={tag} size="small"
+                        label={tag}
+                        variant={tagFilter === tag ? 'filled' : 'outlined'}
+                        color={tagFilter === tag ? 'primary' : 'default'}
+                        onClick={() => setTagFilter((c) => c === tag ? null : tag)}
+                        sx={{ fontSize: '0.6rem', height: 18 }}
                       />
                     ))}
                   </Box>
@@ -305,6 +340,31 @@ export function ScriptsTab({
                 </IconButton>
               </Tooltip>
             </Box>
+
+            {/* ── Tags bar (always visible for DIY scripts) ── */}
+            {!isBuiltIn(activeScript.slug) && (
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 1.5, alignItems: 'center' }}>
+                {(activeScript.tags ?? []).map((tag) => (
+                  <Chip
+                    key={tag}
+                    label={tag}
+                    size="small"
+                    onDelete={() => removeTag(tag)}
+                    sx={{ fontSize: '0.7rem' }}
+                  />
+                ))}
+                {SCRIPT_TAGS.filter((t) => !(activeScript.tags ?? []).includes(t)).map((tag) => (
+                  <Chip
+                    key={tag}
+                    label={`+ ${tag}`}
+                    size="small"
+                    variant="outlined"
+                    onClick={() => addTag(tag)}
+                    sx={{ fontSize: '0.65rem', opacity: 0.55, '&:hover': { opacity: 1 } }}
+                  />
+                ))}
+              </Box>
+            )}
 
             {!isEditMode && (
               <SheetArticle

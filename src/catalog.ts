@@ -72,6 +72,11 @@ export function getCharacterById(id: string): CharacterEntry | undefined {
   return characterById[id] ?? (_customCharRegistry.get(id) ? toCharacterEntry(_customCharRegistry.get(id)!) : undefined)
 }
 
+/** Returns the full CustomCharacter object by id, or undefined if it's a catalog char. */
+export function getCustomChar(id: string): CustomCharacter | undefined {
+  return _customCharRegistry.get(id)
+}
+
 const characterFiles = import.meta.glob('../assets/characters/*.json', {
   eager: true,
   import: 'default',

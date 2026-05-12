@@ -1,12 +1,13 @@
-import { Button, Typography } from '@mui/material'
+import { Box, Button, Chip, Typography } from '@mui/material'
 
 type ScriptListProps = {
   title: string
   isActive: boolean
   onSelect: () => void
+  tags?: string[]
 }
 
-export function ScriptList({ title, isActive, onSelect }: ScriptListProps) {
+export function ScriptList({ title, isActive, onSelect, tags }: ScriptListProps) {
   return (
     <Button
       onClick={onSelect}
@@ -29,6 +30,18 @@ export function ScriptList({ title, isActive, onSelect }: ScriptListProps) {
       }}
     >
       <Typography sx={{ fontWeight: 600 }}>{title}</Typography>
+      {tags && tags.length > 0 && (
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.25, mt: 0.25 }}>
+          {tags.map((tag) => (
+            <Chip
+              key={tag}
+              label={tag}
+              size="small"
+              sx={{ fontSize: '0.6rem', height: 16, '& .MuiChip-label': { px: 0.75 } }}
+            />
+          ))}
+        </Box>
+      )}
     </Button>
   )
 }

@@ -2,10 +2,13 @@ import { useState } from 'react'
 import { Box, Button, Checkbox, Chip, Dialog, DialogContent, DialogTitle, FormControlLabel, Grid, IconButton, Paper, TextField, Typography } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import CloseIcon from '@mui/icons-material/Close'
+import DeleteIcon from '@mui/icons-material/Delete'
+import EditIcon from '@mui/icons-material/Edit'
 import {
   getAbilityText,
   getCharacterRevisionIds,
   getCurrentRevision,
+  getCustomChar,
   getDisplayName,
   getIconForCharacter,
   getNextRevisionId,
@@ -13,8 +16,9 @@ import {
   getRevisionText,
   REVISION_OVERRIDES_KEY,
   refreshRevisionOverrides,
+  teamLabels,
 } from '../catalog'
-import type { CharacterEntry, Language, RevisionOverrides } from '../types'
+import type { CharacterEntry, CustomCharacter, Language, RevisionOverrides } from '../types'
 
 type CharacterRevisionPanelProps = {
   character?: CharacterEntry
@@ -27,6 +31,12 @@ type CharacterRevisionPanelProps = {
   revisionNoteLabel: string
   currentLabel: string
   noCharacterSelectedLabel: string
+  /** Called when user clicks Edit on a custom character */
+  onEditCustom?: (c: CustomCharacter) => void
+  /** Called when user clicks Delete on a custom character */
+  onDeleteCustom?: (id: string) => void
+  /** All custom chars (used to look up full CustomCharacter object) */
+  customChars?: CustomCharacter[]
 }
 
 export function CharacterRevisionPanel({
@@ -40,6 +50,8 @@ export function CharacterRevisionPanel({
   revisionNoteLabel,
   currentLabel,
   noCharacterSelectedLabel,
+  onEditCustom,
+  onDeleteCustom,
 }: CharacterRevisionPanelProps) {
   const [addOpen, setAddOpen] = useState(false)
   const [revId, setRevId] = useState('')
@@ -71,7 +83,6 @@ export function CharacterRevisionPanel({
       locale_en: {},
       locale_zh: {},
     }
-    // Remove existing entry with same id (overwrite)
     const revisions = existing.revisions.filter((r) => r.id !== revId)
     revisions.push({ id: revId, note: note.trim() })
     stored[character.id] = {
@@ -82,7 +93,7 @@ export function CharacterRevisionPanel({
     }
     localStorage.setItem(REVISION_OVERRIDES_KEY, JSON.stringify(stored))
     refreshRevisionOverrides()
-    forceUpdate((n) => n + 1) // re-render to show new revision
+    forceUpdate((n) => n + 1)
     setAddOpen(false)
   }
 
@@ -95,6 +106,9 @@ export function CharacterRevisionPanel({
     )
   }
 
+  const isCustom = character.id.startsWith('custom_')
+  const customChar = isCustom ? getCustomChar(character.id) : undefined
+
   const icon = getIconForCharacter(character.id)
   const revisionIds = getCharacterRevisionIds(character.id)
   const currentRevision = getCurrentRevision(character.id)
@@ -102,21 +116,61 @@ export function CharacterRevisionPanel({
 
   return (
     <Paper sx={{ p: 2 }}>
+      {/* ── Header ── */}
       <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
         {icon ? (
-          <Box component="img" src={icon} alt="" sx={{ width: 48, height: 48 }} />
+          <Box component="img" src={icon} alt="" sx={{ width: 48, height: 48, borderRadius: '50%', objectFit: 'contain' }} />
         ) : (
           <Box sx={{ width: 48, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'grey.200', borderRadius: 1 }}>
             <Typography variant="caption">{character.id.slice(0, 2).toUpperCase()}</Typography>
           </Box>
         )}
-        <Box>
+        <Box sx={{ flex: 1, minWidth: 0 }}>
           <Typography variant="overline" color="text.secondary">{title}</Typography>
-          <Typography variant="h6">{getDisplayName(character.id, language)}</Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Typography variant="h6" sx={{ flex: 1, minWidth: 0 }}>{getDisplayName(character.id, language)}</Typography>
+            {isCustom && (
+              <Chip label={zh ? '自定义' : 'Custom'} size="small" color="secondary" sx={{ fontSize: '0.65rem' }} />
+            )}
+          </Box>
           <Typography variant="caption" color="text.secondary">{character.id}</Typography>
+          {customChar && (
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+              {zh ? '作者：' : 'Author: '}{customChar.author}
+              {' · '}
+              {teamLabels[language]?.[customChar.team] ?? customChar.team}
+              {' · '}
+              {customChar.edition}
+            </Typography>
+          )}
         </Box>
       </Box>
 
+      {/* ── Custom char actions ── */}
+      {isCustom && (onEditCustom || onDeleteCustom) && customChar && (
+        <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+          {onEditCustom && (
+            <Button
+              size="small" variant="outlined" startIcon={<EditIcon fontSize="small" />}
+              onClick={() => onEditCustom(customChar)}
+              sx={{ textTransform: 'none', fontSize: '0.75rem' }}
+            >
+              {zh ? '编辑' : 'Edit'}
+            </Button>
+          )}
+          {onDeleteCustom && (
+            <Button
+              size="small" variant="outlined" color="error" startIcon={<DeleteIcon fontSize="small" />}
+              onClick={() => onDeleteCustom(character.id)}
+              sx={{ textTransform: 'none', fontSize: '0.75rem' }}
+            >
+              {zh ? '删除' : 'Delete'}
+            </Button>
+          )}
+        </Box>
+      )}
+
+      {/* ── Current revision ── */}
       <Box sx={{ mb: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
           <Typography variant="subtitle2">{currentRevisionLabel}</Typography>
@@ -125,6 +179,7 @@ export function CharacterRevisionPanel({
         <Typography variant="body2">{currentAbility}</Typography>
       </Box>
 
+      {/* ── Revision history ── */}
       <Box>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
           <Typography variant="subtitle2">{revisionHistoryLabel}</Typography>

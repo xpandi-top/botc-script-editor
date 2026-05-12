@@ -1,15 +1,15 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import {
-  Box, Button, Chip, Dialog, DialogContent, DialogTitle, FormControl,
+  Box, Button, Dialog, DialogContent, DialogTitle, FormControl,
   FormControlLabel, IconButton, InputLabel, MenuItem, Paper, Radio, RadioGroup,
   Select, TextField, Typography,
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import CloseIcon from '@mui/icons-material/Close'
-import DeleteIcon from '@mui/icons-material/Delete'
 import DOMPurify from 'dompurify'
 import { CharacterRevisionPanel } from '../CharacterRevisionPanel'
 import { FilterCheckbox } from '../FilterCheckbox'
+import { NightOrderPicker } from '../NightOrderPicker'
 import {
   editionLabels,
   getAbilityText,
@@ -60,8 +60,6 @@ const BLANK_CUSTOM: Omit<CustomCharacter, 'id' | 'createdAt' | 'updatedAt'> = {
   reminders: [],
 }
 
-import React from 'react'
-
 export function CharactersTab({
   uiText,
   uiLanguage,
@@ -97,7 +95,16 @@ export function CharactersTab({
 
   const openEdit = (c: CustomCharacter) => {
     setEditingChar(c)
-    setDraft({ author: c.author, team: c.team, nameEn: c.nameEn, nameZh: c.nameZh ?? '', abilityEn: c.abilityEn, abilityZh: c.abilityZh ?? '', icon: c.icon, edition: c.edition, firstNight: c.firstNight, otherNight: c.otherNight, firstNightReminder: c.firstNightReminder ?? '', otherNightReminder: c.otherNightReminder ?? '', reminders: c.reminders ?? [] })
+    setDraft({
+      author: c.author, team: c.team,
+      nameEn: c.nameEn, nameZh: c.nameZh ?? '',
+      abilityEn: c.abilityEn, abilityZh: c.abilityZh ?? '',
+      icon: c.icon, edition: c.edition,
+      firstNight: c.firstNight, otherNight: c.otherNight,
+      firstNightReminder: c.firstNightReminder ?? '',
+      otherNightReminder: c.otherNightReminder ?? '',
+      reminders: c.reminders ?? [],
+    })
     setIconError('')
     setIconMode(c.icon?.startsWith('data:') ? 'upload' : 'url')
     setCustomDialogOpen(true)
@@ -119,6 +126,8 @@ export function CharactersTab({
   const deleteCustom = (id: string) => {
     if (!window.confirm(zh ? '确认删除此自定义角色？' : 'Delete this custom character?')) return
     setCustomChars((cur) => cur.filter((c) => c.id !== id))
+    // deselect if this was selected
+    if (selectedCharacter?.id === id) setSelectedCharacterId('')
   }
 
   const handleIconUpload = async (file: File) => {
@@ -134,6 +143,21 @@ export function CharactersTab({
   const handleSelect = (id: string) => {
     setSelectedCharacterId(id)
     setMobileDetailOpen(true)
+  }
+
+  const revisionPanelProps = {
+    chineseTextLabel: uiText.chineseText,
+    currentLabel: uiText.current,
+    currentRevisionLabel: uiText.currentRevision,
+    englishTextLabel: uiText.englishText,
+    language: uiLanguage,
+    noCharacterSelectedLabel: uiText.noCharacterSelected,
+    revisionNoteLabel: uiText.revisionNote,
+    revisionHistoryLabel: uiText.revisionHistory,
+    title: uiText.characterVersions,
+    onEditCustom: openEdit,
+    onDeleteCustom: deleteCustom,
+    customChars,
   }
 
   return (
@@ -156,13 +180,19 @@ export function CharactersTab({
                   {filteredCharacters.length} {uiText.resultsSuffix}
                 </Typography>
               </Box>
-              <FormControl size="small" sx={{ minWidth: 72, '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' }, '& .MuiInputLabel-root': { fontSize: '0.8rem' } }}>
-                <InputLabel>{uiLanguage === 'zh' ? '语言' : 'Lang'}</InputLabel>
-                <Select value={uiLanguage} label={uiLanguage === 'zh' ? '语言' : 'Lang'} onChange={(e) => onLanguageChange(e.target.value as Language)}>
-                  <MenuItem value="en">EN</MenuItem>
-                  <MenuItem value="zh">中文</MenuItem>
-                </Select>
-              </FormControl>
+              <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
+                <Button size="small" startIcon={<AddIcon fontSize="small" />} onClick={openNew}
+                  sx={{ textTransform: 'none', fontSize: '0.75rem' }}>
+                  {zh ? '自定义' : 'Custom'}
+                </Button>
+                <FormControl size="small" sx={{ minWidth: 72, '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' }, '& .MuiInputLabel-root': { fontSize: '0.8rem' } }}>
+                  <InputLabel>{uiLanguage === 'zh' ? '语言' : 'Lang'}</InputLabel>
+                  <Select value={uiLanguage} label={uiLanguage === 'zh' ? '语言' : 'Lang'} onChange={(e) => onLanguageChange(e.target.value as Language)}>
+                    <MenuItem value="en">EN</MenuItem>
+                    <MenuItem value="zh">中文</MenuItem>
+                  </Select>
+                </FormControl>
+              </Box>
             </Box>
 
             <TextField
@@ -189,36 +219,6 @@ export function CharactersTab({
             </Box>
           </Box>
 
-          {/* ── Custom characters section ── */}
-          {(customChars.length > 0 || true) && (
-            <Box sx={{ px: 2, pb: 1, borderBottom: '1px solid', borderColor: 'divider' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
-                <Typography variant="overline" color="text.secondary" sx={{ fontSize: '0.65rem', lineHeight: 1.5 }}>
-                  {zh ? '自定义角色' : 'Custom Characters'} ({customChars.length})
-                </Typography>
-                <Button size="small" startIcon={<AddIcon fontSize="small" />} onClick={openNew} sx={{ textTransform: 'none', fontSize: '0.75rem' }}>
-                  {zh ? '新建' : 'New'}
-                </Button>
-              </Box>
-              {customChars.length > 0 && (
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                  {customChars.map((c) => (
-                    <Chip
-                      key={c.id}
-                      size="small"
-                      avatar={c.icon ? <Box component="img" src={c.icon} sx={{ width: 18, height: 18, borderRadius: '50%', objectFit: 'cover' }} /> : undefined}
-                      label={zh && c.nameZh ? c.nameZh : c.nameEn}
-                      sx={{ fontSize: '0.72rem', bgcolor: 'action.hover' }}
-                      onClick={() => openEdit(c)}
-                      onDelete={() => deleteCustom(c.id)}
-                      deleteIcon={<DeleteIcon sx={{ fontSize: '0.9rem !important' }} />}
-                    />
-                  ))}
-                </Box>
-              )}
-            </Box>
-          )}
-
           {/* Scrollable character list */}
           <Box sx={{ flex: 1, overflowY: 'auto', px: 2, pb: 2 }}>
             <Box sx={{ display: 'grid', gap: 1 }}>
@@ -228,6 +228,7 @@ export function CharactersTab({
                 const edition = editionLabels[uiLanguage][character.edition] ?? toTitleCase(character.edition)
                 const currentRevision = getCurrentRevision(character.id)
                 const isSelected = character.id === selectedCharacter?.id
+                const isCustom = character.id.startsWith('custom_')
 
                 return (
                   <Button
@@ -236,7 +237,7 @@ export function CharactersTab({
                     sx={{
                       display: 'flex', alignItems: 'flex-start', gap: 1.5, p: 1.5,
                       justifyContent: 'flex-start', border: '1px solid',
-                      borderColor: isSelected ? 'primary.main' : 'divider',
+                      borderColor: isSelected ? 'primary.main' : isCustom ? 'secondary.main' : 'divider',
                       borderRadius: 2,
                       bgcolor: isSelected ? 'action.selected' : 'background.paper',
                       textTransform: 'none',
@@ -253,7 +254,14 @@ export function CharactersTab({
                     <Box sx={{ textAlign: 'left', flex: 1, minWidth: 0 }}>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 1 }}>
                         <Typography sx={{ fontWeight: 600 }}>{getDisplayName(character.id, uiLanguage)}</Typography>
-                        <Typography variant="caption" color="text.secondary" sx={{ flexShrink: 0 }}>{team}</Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0 }}>
+                          {isCustom && (
+                            <Typography variant="caption" sx={{ fontSize: '0.6rem', bgcolor: 'secondary.main', color: 'secondary.contrastText', px: 0.5, borderRadius: 0.5 }}>
+                              {zh ? '自定义' : 'Custom'}
+                            </Typography>
+                          )}
+                          <Typography variant="caption" color="text.secondary">{team}</Typography>
+                        </Box>
                       </Box>
                       <Typography variant="caption" sx={{ display: 'block', color: 'text.secondary' }}>
                         {character.id} · {edition} · {currentRevision}
@@ -272,15 +280,7 @@ export function CharactersTab({
         <Box sx={{ display: { xs: 'none', lg: 'block' }, width: 380, flexShrink: 0, height: '100%', overflowY: 'auto' }}>
           <CharacterRevisionPanel
             character={selectedCharacter}
-            chineseTextLabel={uiText.chineseText}
-            currentLabel={uiText.current}
-            currentRevisionLabel={uiText.currentRevision}
-            englishTextLabel={uiText.englishText}
-            language={uiLanguage}
-            noCharacterSelectedLabel={uiText.noCharacterSelected}
-            revisionNoteLabel={uiText.revisionNote}
-            revisionHistoryLabel={uiText.revisionHistory}
-            title={uiText.characterVersions}
+            {...revisionPanelProps}
           />
         </Box>
       </Box>
@@ -305,15 +305,7 @@ export function CharactersTab({
         <DialogContent sx={{ p: 0 }}>
           <CharacterRevisionPanel
             character={selectedCharacter}
-            chineseTextLabel={uiText.chineseText}
-            currentLabel={uiText.current}
-            currentRevisionLabel={uiText.currentRevision}
-            englishTextLabel={uiText.englishText}
-            language={uiLanguage}
-            noCharacterSelectedLabel={uiText.noCharacterSelected}
-            revisionNoteLabel={uiText.revisionNote}
-            revisionHistoryLabel={uiText.revisionHistory}
-            title={uiText.characterVersions}
+            {...revisionPanelProps}
           />
         </DialogContent>
       </Dialog>
@@ -368,10 +360,28 @@ export function CharactersTab({
             {iconError && <Typography variant="caption" color="error">{iconError}</Typography>}
           </Box>
 
-          {/* Night order */}
-          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 }}>
-            <TextField size="small" type="number" label={zh ? '首夜顺序（可选）' : 'First night pos (opt)'} value={draft.firstNight ?? ''} onChange={(e) => setDraft((d) => ({ ...d, firstNight: e.target.value ? Number(e.target.value) : undefined }))} helperText={zh ? '数字越小越早唤醒' : 'Lower = earlier wake'} />
-            <TextField size="small" type="number" label={zh ? '其他夜顺序（可选）' : 'Other night pos (opt)'} value={draft.otherNight ?? ''} onChange={(e) => setDraft((d) => ({ ...d, otherNight: e.target.value ? Number(e.target.value) : undefined }))} />
+          {/* Night order — visual pickers */}
+          <Box>
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+              {zh ? '首夜唤醒位置（可选）' : 'First night wake position (optional)'}
+            </Typography>
+            <NightOrderPicker
+              value={draft.firstNight}
+              onChange={(pos) => setDraft((d) => ({ ...d, firstNight: pos }))}
+              nightType="first"
+              language={uiLanguage}
+            />
+          </Box>
+          <Box>
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+              {zh ? '其他夜唤醒位置（可选）' : 'Other nights wake position (optional)'}
+            </Typography>
+            <NightOrderPicker
+              value={draft.otherNight}
+              onChange={(pos) => setDraft((d) => ({ ...d, otherNight: pos }))}
+              nightType="other"
+              language={uiLanguage}
+            />
           </Box>
           <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 }}>
             <TextField size="small" label={zh ? '首夜提示' : 'First night reminder'} value={draft.firstNightReminder ?? ''} onChange={(e) => setDraft((d) => ({ ...d, firstNightReminder: e.target.value }))} />
