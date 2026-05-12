@@ -74,12 +74,12 @@ export function BgmBar({
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, minWidth: 0 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, minWidth: 0, width: '100%' }}>
       <Box sx={{
         display: 'flex', alignItems: 'center', gap: 0.5,
         border: '1px solid', borderColor: 'divider', borderRadius: 999,
         px: 1, py: 0.25, bgcolor: 'background.paper',
-        minWidth: 0, overflow: 'hidden',
+        width: '100%', boxSizing: 'border-box', minWidth: 0,
         ...sx,
       }}>
 
@@ -110,7 +110,7 @@ export function BgmBar({
           value={selectedAudioSrc ?? ''}
           onChange={(e) => setSelectedAudioSrc(e.target.value)}
           size="small"
-          sx={{ fontSize: '0.75rem', minWidth: 0, flex: '1 1 60px', maxWidth: 200, ...selectSx }}
+          sx={{ fontSize: '0.75rem', minWidth: 0, flex: '1 1 0', maxWidth: 200, '& .MuiSelect-select': { minWidth: '0 !important' }, ...selectSx }}
         >
           {(audioTracks ?? []).map((t) => (
             <MenuItem
