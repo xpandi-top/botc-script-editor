@@ -7,9 +7,35 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { createDayState, createSeats, createTimerDefaults } from '../components/StorytellerSub/constants'
 
+// Mock catalog so import.meta.glob (Vite-only) doesn't break the test env.
+vi.mock('../catalog', () => ({
+  allCharacters: [
+    { id: 'investigator', team: 'townsfolk' },
+    { id: 'chef', team: 'townsfolk' },
+    { id: 'empath', team: 'townsfolk' },
+    { id: 'fortuneteller', team: 'townsfolk' },
+    { id: 'undertaker', team: 'townsfolk' },
+    { id: 'monk', team: 'townsfolk' },
+    { id: 'ravenkeeper', team: 'townsfolk' },
+    { id: 'virgin', team: 'townsfolk' },
+    { id: 'slayer', team: 'townsfolk' },
+    { id: 'soldier', team: 'townsfolk' },
+    { id: 'mayor', team: 'townsfolk' },
+    { id: 'butler', team: 'outsider' },
+    { id: 'drunk', team: 'outsider' },
+    { id: 'recluse', team: 'outsider' },
+    { id: 'saint', team: 'outsider' },
+    { id: 'washerwoman', team: 'townsfolk' },
+    { id: 'librarian', team: 'townsfolk' },
+  ],
+  getDisplayName: (id: string) => id,
+  getIconForCharacter: () => null,
+}))
+
 const DEFAULT_TIMER_DEFAULTS = createTimerDefaults()
 import { buildGameLifecycle } from '../hooks/useGameLifecycle'
 import type { DayState, StorytellerSeat, GameRecord, NewGameConfig } from '../components/StorytellerSub/types'
+import { allCharacters } from '../catalog'
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -89,7 +115,9 @@ describe('Fix 1 – new game panel inherits previous player names', () => {
 
     lc.doOpenNewGamePanel()
 
-    const arg = setNewGamePanel.mock.calls[0][0] as NewGameConfig
+    // setNewGamePanel is called with an updater fn (prev => prev ?? fresh)
+    const updater0 = setNewGamePanel.mock.calls[0][0] as (prev: NewGameConfig | null) => NewGameConfig
+    const arg = updater0(null)
     expect(arg.seatNames[1]).toBe('Alice')
     expect(arg.seatNames[2]).toBe('Bob')
     expect(arg.seatNames[3]).toBeUndefined()  // 'Player 3' is default, not inherited
@@ -103,7 +131,8 @@ describe('Fix 1 – new game panel inherits previous player names', () => {
 
     lc.doOpenNewGamePanel()
 
-    const arg = setNewGamePanel.mock.calls[0][0] as NewGameConfig
+    const updater0 = setNewGamePanel.mock.calls[0][0] as (prev: NewGameConfig | null) => NewGameConfig
+    const arg = updater0(null)
     expect(Object.keys(arg.seatNames)).toHaveLength(0)
   })
 
@@ -118,7 +147,8 @@ describe('Fix 1 – new game panel inherits previous player names', () => {
 
     lc.doOpenNewGamePanel()
 
-    const arg = setNewGamePanel.mock.calls[0][0] as NewGameConfig
+    const updater0 = setNewGamePanel.mock.calls[0][0] as (prev: NewGameConfig | null) => NewGameConfig
+    const arg = updater0(null)
     expect(arg.seatNames[1]).toBe('Alice')
     expect(arg.seatNames[2]).toBeUndefined()
   })
@@ -134,7 +164,8 @@ describe('Fix 1 – new game panel inherits previous player names', () => {
 
     lc.doOpenNewGamePanel()
 
-    const arg = setNewGamePanel.mock.calls[0][0] as NewGameConfig
+    const updater0 = setNewGamePanel.mock.calls[0][0] as (prev: NewGameConfig | null) => NewGameConfig
+    const arg = updater0(null)
     expect(arg.seatNames[2]).toBe('Merlin')
   })
 
@@ -146,7 +177,8 @@ describe('Fix 1 – new game panel inherits previous player names', () => {
 
     lc.doOpenNewGamePanel()
 
-    const arg = setNewGamePanel.mock.calls[0][0] as NewGameConfig
+    const updater0 = setNewGamePanel.mock.calls[0][0] as (prev: NewGameConfig | null) => NewGameConfig
+    const arg = updater0(null)
     expect(arg.assignments).toEqual({})
     expect(arg.demonBluffs).toEqual([])
   })
@@ -313,7 +345,6 @@ describe('Demon bluff pool – always available + unique per slot', () => {
     const scriptAvail = scriptChars.filter((id) => !assigned.has(id))
     if (scriptAvail.length >= 3) return scriptAvail
     // Fall back to catalog townsfolk/outsider
-    const { allCharacters } = require('../catalog')
     const catalogFallback = (allCharacters as Array<{ id: string; team: string }>)
       .filter((c) => (c.team === 'townsfolk' || c.team === 'outsider') && !assigned.has(c.id))
       .map((c) => c.id)
