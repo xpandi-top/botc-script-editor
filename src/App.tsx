@@ -48,6 +48,7 @@ import {
   createScriptPayload,
   editionLabels,
   getAbilityText,
+  getAbilityTextForScript,
   getCustomChar,
   getDisplayName,
   getEffectiveAllCharacters,
@@ -238,7 +239,9 @@ export default function App() {
           revisions: cat?.revisions,
           jinxes: scriptCustom?.jinxes ?? globalCustom?.jinxes ?? cat?.jinxes,
           name: scriptCustom?.name ?? (globalCustom ? getDisplayName(id, uiLanguage) : undefined),
-          ability: scriptCustom?.ability ?? (globalCustom ? getAbilityText(id, uiLanguage) : undefined),
+          ability: scriptCustom?.ability ?? (globalCustom
+            ? getAbilityText(id, uiLanguage)
+            : cat ? getAbilityTextForScript(id, uiLanguage, activeScript.pinnedRevisions) : undefined),
           image: scriptCustom?.image ?? (globalCustom?.icon ? globalCustom.icon : undefined),
         }
       })
