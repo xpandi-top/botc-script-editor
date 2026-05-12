@@ -247,3 +247,43 @@ Quick-edit saves immediately via `onRecordsChange`. Full edit button still avail
 1. Add `teammatesGood: Map<string, number>` and `teammatesEvil: Map<string, number>` to `PlayerStat`.
 2. `usePlayerStats`: when iterating teammates, check both players' `team` in that record — if both good, increment `teammatesGood`; if both evil, increment `teammatesEvil`; increment `teammates` (total) regardless.
 3. `PlayerDetail` in PlayersSection: replace single teammate chip list with two rows — "As Good 🟦" chips and "As Evil 🔴" chips — top 5 each, sorted by count desc.
+
+---
+
+## I-64 — Analytics: MVP can be Storyteller
+
+**Status:** fixed  
+**Area:** StorytellerSub/types.ts, AnalyticsStudio/sections/RecordsSection.tsx, tabs/AnalyticsTab.tsx, Modals/ModalsEndGame.tsx  
+**Detail:** `GameRecord.mvp` and `EndGameResult.mvp` typed as `number | null` — no way to designate the storyteller as MVP. Extended type to `number | 'storyteller' | null`. All MVP dropdowns (RecordFormDialog, QuickEditPanel, EndGame modal) now include 🎭 Storyteller option. `usePlayerStats` guards `mvp !== 'storyteller'` before comparing to seat numbers.
+
+---
+
+## I-65 — Analytics: ST info + ratings + duration missing from record detail
+
+**Status:** fixed  
+**Area:** AnalyticsStudio/sections/RecordsSection.tsx  
+**Detail:** `RecordRowDetail` showed only player chips, day stats, and bluffs. Missing: storyteller name, game duration, MVP (resolved to name), per-dimension star ratings, ST custom rules, and other notes. Fixed: added meta strip (ST name / duration / MVP with icons), MVP chip highlight in player list (⭐ border), rating dots row (per dimension), ST custom rules callout block, other notes footer.
+
+---
+
+## I-66 — Analytics: No storyteller dimension in analytics
+
+**Status:** fixed  
+**Area:** AnalyticsStudio/useStats.ts, StudioShell.tsx, sections/OverviewSection.tsx  
+**Detail:** `stName` field collected but never aggregated or displayed. Added `useStorytellerStats` hook computing per-ST: total games, E/G/ST wins, unique scripts, avg balanced/funEvil/funGood/replay. OverviewSection now shows a "Storytellers" leaderboard (top 5, win-balance bar, E%/G%, avg ratings).
+
+---
+
+## I-67 — Analytics: Rating KPIs absent from Overview
+
+**Status:** fixed  
+**Area:** AnalyticsStudio/useStats.ts, sections/OverviewSection.tsx  
+**Detail:** `KpiSummary` had no aggregate rating fields. Extended with `avgBalanced/funEvil/funGood/replay` computed across all rated games. OverviewSection renders a 2×2 "Avg Ratings" panel with horizontal bar charts when any game has ratings.
+
+---
+
+## I-68 — Analytics: ScriptsSection doesn't render rating averages
+
+**Status:** wontfix (already implemented)  
+**Area:** AnalyticsStudio/sections/ScriptsSection.tsx  
+**Detail:** `ScriptStat` has `avgBalanced/funEvil/funGood/replay/ratingCount` and `ScriptCard` already renders the ratings row with icons (BalanceIcon, WhatshotIcon, etc.). No action needed.
