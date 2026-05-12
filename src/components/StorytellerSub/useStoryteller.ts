@@ -206,6 +206,7 @@ export function useStoryteller(props: StorytellerHelperProps) {
     if (!dialogState) return
     if (dialogState.kind === 'voteResult') { updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, manualPassed: dialogState.nextValue } })); setDialogState(null); return }
     if (dialogState.kind === 'endGame') { lifecycle.openEndGamePanel(); setDialogState(null); return }
+    if (dialogState.kind === 'deleteDay') { lifecycle.deleteDay(dialogState.dayId); setDialogState(null); return }
     lifecycle.resetCurrentGame()
     setDialogState(null)
   }

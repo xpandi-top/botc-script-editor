@@ -270,6 +270,7 @@ export type DialogState =
   | { kind: 'voteResult'; nextValue: boolean | null; systemValue: boolean }
   | { kind: 'restartGame' }
   | { kind: 'endGame' }
+  | { kind: 'deleteDay'; dayId: string; dayNum: number }
   | null
 
 export type StorytellerHelperProps = {

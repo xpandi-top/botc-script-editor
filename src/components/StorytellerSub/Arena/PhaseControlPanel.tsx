@@ -67,7 +67,7 @@ const PHASE_ICONS: Record<string, React.ReactNode> = {
 export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: StorytellerContext; collapsed: boolean; setCollapsed: (v: boolean) => void }) {
   const {
     language, text, currentDay, updateCurrentDay, days,
-    goToNextDay, goToPreviousDay, setSelectedDayId, deleteDay,
+    goToNextDay, goToPreviousDay, setSelectedDayId, setDialogState,
     hasTimer, currentTimerSeconds, isTimerRunning, setIsTimerRunning,
     setCurrentTimer, syncDayTimers, setPickerMode,
     audioPlaying, setAudioPlaying, startNight, stopNight,
@@ -207,7 +207,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
                     <Tooltip title={language === 'zh' ? '删除此天' : 'Delete this day'}>
                       <IconButton
                         size="small"
-                        onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); deleteDay(d.id) }}
+                        onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); setDialogState({ kind: 'deleteDay', dayId: d.id, dayNum: d.day }) }}
                         sx={{ p: 0.25, flexShrink: 0, color: 'error.main', opacity: 0.7, '&:hover': { opacity: 1 } }}
                       >
                         <DeleteIcon sx={{ fontSize: '0.85rem' }} />

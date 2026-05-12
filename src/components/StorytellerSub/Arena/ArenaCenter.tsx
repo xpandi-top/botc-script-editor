@@ -8,8 +8,8 @@ import { ArenaCenterNominationSheet } from './ArenaCenterNominationSheet'
 
 export function ArenaCenter({ ctx }: { ctx: StorytellerContext }) {
   const {
-    days, currentDay, goToNextDay, goToPreviousDay, setSelectedDayId, deleteDay,
-    language,
+    days, currentDay, goToNextDay, goToPreviousDay, setSelectedDayId,
+    language, setDialogState,
   } = ctx
 
   return (
@@ -45,7 +45,7 @@ export function ArenaCenter({ ctx }: { ctx: StorytellerContext }) {
                   <Tooltip title={language === 'zh' ? '删除此天' : 'Delete this day'}>
                     <IconButton
                       size="small"
-                      onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); deleteDay(d.id) }}
+                      onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); setDialogState({ kind: 'deleteDay', dayId: d.id, dayNum: d.day }) }}
                       sx={{ p: 0.25, flexShrink: 0, color: 'error.main', opacity: 0.7, '&:hover': { opacity: 1 } }}
                     >
                       <DeleteIcon sx={{ fontSize: '0.85rem' }} />
