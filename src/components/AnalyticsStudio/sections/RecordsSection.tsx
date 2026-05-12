@@ -138,8 +138,9 @@ function QuickEditPanel({ record, zh, onSave }: {
               onChange={(e) => { setMvp(e.target.value as number | 'storyteller' | ''); setDirty(true) }}
               sx={{ fontSize: '0.78rem' }}>
               <MenuItem value=""><em>{zh ? '无' : 'None'}</em></MenuItem>
-              <MenuItem value="storyteller" sx={{ fontSize: '0.78rem', fontStyle: 'italic' }}>
-                🎭 {zh ? '说书人' : 'Storyteller'}
+              <MenuItem value="storyteller" sx={{ fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: 0.75 }}>
+                <PersonIcon sx={{ fontSize: '0.85rem', color: 'purple' }} />
+                <Box component="span" sx={{ fontStyle: 'italic' }}>{zh ? '说书人' : 'Storyteller'}</Box>
               </MenuItem>
               {seats.map((s) => (
                 <MenuItem key={s.seat} value={s.seat} sx={{ fontSize: '0.78rem' }}>

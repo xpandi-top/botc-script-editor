@@ -6,6 +6,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import SaveIcon from '@mui/icons-material/Save'
 import CloseIcon from '@mui/icons-material/Close'
+import PersonIcon from '@mui/icons-material/Person'
 import { StarRating } from '../../ui/StarRating'
 
 export function ModalsEndGame({ ctx }: { ctx: StorytellerContext }) {
@@ -100,7 +101,10 @@ export function ModalsEndGame({ ctx }: { ctx: StorytellerContext }) {
         <InputLabel>{language === 'zh' ? 'MVP' : 'MVP'}</InputLabel>
         <Select value={egr.mvp ?? ''} onChange={(e) => setEndGameResult((c: any) => c ? { ...c, mvp: e.target.value || null } : c)} label={language === 'zh' ? 'MVP' : 'MVP'}>
           <MenuItem value="">{language === 'zh' ? '选择玩家' : 'Select player'}</MenuItem>
-          <MenuItem value="storyteller" sx={{ fontStyle: 'italic' }}>🎭 {language === 'zh' ? '说书人' : 'Storyteller'}</MenuItem>
+          <MenuItem value="storyteller" sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+            <PersonIcon sx={{ fontSize: '0.9rem', color: 'purple' }} />
+            <Box component="span" sx={{ fontStyle: 'italic' }}>{language === 'zh' ? '说书人' : 'Storyteller'}</Box>
+          </MenuItem>
           {regularSeats.map((s: any) => (
             <MenuItem key={s.seat} value={s.seat}>{s.seat}. {s.name || `Player ${s.seat}`}</MenuItem>
           ))}

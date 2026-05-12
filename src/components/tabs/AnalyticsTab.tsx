@@ -9,6 +9,7 @@ import AddIcon from '@mui/icons-material/Add'
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import FileDownloadIcon from '@mui/icons-material/FileDownload'
 import FileOpenIcon from '@mui/icons-material/FileOpen'
+import PersonIcon from '@mui/icons-material/Person'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import RemoveIcon from '@mui/icons-material/Remove'
 import ShareIcon from '@mui/icons-material/Share'
@@ -446,8 +447,9 @@ function RecordFormDialog({ existing, zh, language, onSave, onClose }: {
               <Select value={mvp} label="MVP"
                 onChange={(e) => setMvp(e.target.value as number | 'storyteller' | '')}>
                 <MenuItem value=""><em>{zh ? '未选择' : 'None'}</em></MenuItem>
-                <MenuItem value="storyteller" sx={{ fontSize: '0.85rem', fontStyle: 'italic' }}>
-                  🎭 {zh ? '说书人' : 'Storyteller'}
+                <MenuItem value="storyteller" sx={{ fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: 0.75 }}>
+                  <PersonIcon sx={{ fontSize: '0.9rem', color: 'purple' }} />
+                  <Box component="span" sx={{ fontStyle: 'italic' }}>{zh ? '说书人' : 'Storyteller'}</Box>
                 </MenuItem>
                 {players.map((p, i) => p.name ? (
                   <MenuItem key={i} value={i + 1} sx={{ fontSize: '0.85rem' }}>
