@@ -32,27 +32,6 @@ function IconBar({
 }) {
   return (
     <Box sx={{ width: barWidth, display: 'flex', flexDirection: 'column', alignItems: 'center', py: 1, gap: 0.5, borderLeft: '1px solid', borderLeftColor: 'divider', bgcolor: 'background.paper', flexShrink: 0 }}>
-      {[
-        { key: 'settings', icon: <SettingsIcon />, label: language === 'zh' ? '设置' : 'Settings' },
-        { key: 'records',  icon: <HistoryIcon />,  label: language === 'zh' ? '记录' : 'Records' },
-      ].map(({ key, icon, label }) => (
-        <IconButton
-          key={key}
-          onClick={() => togglePopup(key as 'settings' | 'records')}
-          sx={{
-            flexDirection: 'column', width: 44, p: 0.5, borderRadius: 1.5,
-            bgcolor: activeRightPopup === key ? 'action.selected' : 'transparent',
-            border: activeRightPopup === key ? '1px solid' : '1px solid transparent',
-            borderColor: activeRightPopup === key ? 'primary.light' : 'transparent',
-            color: activeRightPopup === key ? 'primary.main' : 'text.primary',
-            '&:hover': { bgcolor: 'action.hover' },
-          }}
-        >
-          <Box sx={{ fontSize: '1.1rem', lineHeight: 1 }}>{icon}</Box>
-          <Typography variant="caption" sx={{ fontSize: '0.6rem', fontWeight: 600, letterSpacing: '0.02em', lineHeight: 1 }}>{label}</Typography>
-        </IconButton>
-      ))}
-      <Box sx={{ flex: 1 }} />
       <GameActionsBar
         openNewGamePanel={openNewGamePanel}
         openCharacterEditor={openCharacterEditor}
@@ -76,6 +55,27 @@ function IconBar({
           {language === 'zh' ? '导出' : 'Export'}
         </Typography>
       </IconButton>
+      <Box sx={{ flex: 1 }} />
+      {[
+        { key: 'settings', icon: <SettingsIcon />, label: language === 'zh' ? '设置' : 'Settings' },
+        { key: 'records',  icon: <HistoryIcon />,  label: language === 'zh' ? '记录' : 'Records' },
+      ].map(({ key, icon, label }) => (
+        <IconButton
+          key={key}
+          onClick={() => togglePopup(key as 'settings' | 'records')}
+          sx={{
+            flexDirection: 'column', width: 44, p: 0.5, borderRadius: 1.5,
+            bgcolor: activeRightPopup === key ? 'action.selected' : 'transparent',
+            border: activeRightPopup === key ? '1px solid' : '1px solid transparent',
+            borderColor: activeRightPopup === key ? 'primary.light' : 'transparent',
+            color: activeRightPopup === key ? 'primary.main' : 'text.primary',
+            '&:hover': { bgcolor: 'action.hover' },
+          }}
+        >
+          <Box sx={{ fontSize: '1.1rem', lineHeight: 1 }}>{icon}</Box>
+          <Typography variant="caption" sx={{ fontSize: '0.6rem', fontWeight: 600, letterSpacing: '0.02em', lineHeight: 1 }}>{label}</Typography>
+        </IconButton>
+      ))}
     </Box>
   )
 }
