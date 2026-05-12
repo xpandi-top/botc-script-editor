@@ -108,6 +108,8 @@ export type EditableScript = {
   meta: ScriptMetaEntry
   customCharacters: ScriptCharacterItem[]
   sourceFile: string
+  notes?: string                           // ST notes for this script
+  pinnedRevisions?: Record<string, string> // charId → revisionId override
 }
 
 export type ResolvedScriptCharacter = CharacterEntry & {
@@ -161,3 +163,36 @@ export type NightOrderData = {
   first_night?: string[]
   other_nights?: string[]
 }
+
+// ── Custom characters (Phase 2 — stored in localStorage BOTC_CUSTOM_CHARACTERS) ──
+
+export type CustomCharacter = {
+  id: string                      // must start with "custom_"
+  author: string                  // required
+  team: Team
+  nameEn: string
+  nameZh?: string
+  abilityEn: string
+  abilityZh?: string
+  icon?: string                   // data URL (128 px JPEG) or https:// URL
+  edition: string                 // user label, default "Custom"
+  firstNight?: number             // 1-based position in night-order first_night array
+  otherNight?: number             // 1-based position in night-order other_nights array
+  firstNightReminder?: string
+  otherNightReminder?: string
+  reminders?: string[]
+  jinxes?: Array<{ id: string; reason: string }>
+  createdAt: number
+  updatedAt: number
+}
+
+// ── Revision overrides (Phase 1 — stored in localStorage BOTC_REVISION_OVERRIDES) ──
+
+export type CharacterRevisionOverride = {
+  current_revision: string
+  revisions: CharacterRevisionEntry[]
+  locale_en: Record<string, string>  // revisionId → ability text
+  locale_zh?: Record<string, string>
+}
+
+export type RevisionOverrides = Record<string, CharacterRevisionOverride>

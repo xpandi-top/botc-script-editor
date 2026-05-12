@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Box, Button, Collapse, Divider, FormControl, IconButton, InputLabel, MenuItem, Paper, Select, ToggleButton, ToggleButtonGroup, Tooltip, Typography } from '@mui/material'
+import { Box, Button, Chip, Collapse, Divider, FormControl, IconButton, InputLabel, MenuItem, Paper, Select, TextField, ToggleButton, ToggleButtonGroup, Tooltip, Typography } from '@mui/material'
 import PrintIcon from '@mui/icons-material/Print'
 import DownloadIcon from '@mui/icons-material/Download'
 import AddIcon from '@mui/icons-material/Add'
@@ -101,6 +101,8 @@ export function ScriptsTab({
   const [communityOpen, setCommunityOpen] = useState(true)
   const [diyOpen, setDiyOpen] = useState(true)
   const [viewColumns, setViewColumns] = useState<1 | 2>(1)
+  const [scriptSearch, setScriptSearch] = useState('')
+  const [editionFilter, setEditionFilter] = useState<string | null>(null)
 
   const gridCols = isMobile ? '1fr' : showList ? '280px 1fr' : '1fr'
 
@@ -130,15 +132,31 @@ export function ScriptsTab({
           </Box>
           {(() => {
             const OFFICIAL = new Set(['tb', 'bmr', 'snv'])
-            const official = scripts.filter((s) => OFFICIAL.has(s.slug))
-            const community = scripts.filter((s) => isBuiltIn(s.slug) && !OFFICIAL.has(s.slug))
-            const diy = scripts.filter((s) => !isBuiltIn(s.slug))
             const zh = uiLanguage === 'zh'
 
-            const SectionHeader = ({ label, open, onToggle }: { label: string; open: boolean; onToggle: () => void }) => (
+            // ── Filter logic ──────────────────────────────────────
+            const q = scriptSearch.trim().toLowerCase()
+            const filterScript = (s: EditableScript) => {
+              if (editionFilter && s.edition !== editionFilter) return false
+              if (!q) return true
+              return (
+                s.title.toLowerCase().includes(q) ||
+                s.titleZh.toLowerCase().includes(q) ||
+                s.author.toLowerCase().includes(q) ||
+                s.edition.toLowerCase().includes(q)
+              )
+            }
+
+            const allEditions = [...new Set(scripts.map((s) => s.edition).filter(Boolean))]
+            const official = scripts.filter((s) => OFFICIAL.has(s.slug) && filterScript(s))
+            const community = scripts.filter((s) => isBuiltIn(s.slug) && !OFFICIAL.has(s.slug) && filterScript(s))
+            const diy = scripts.filter((s) => !isBuiltIn(s.slug) && filterScript(s))
+            const isFiltering = !!q || !!editionFilter
+
+            const SectionHeader = ({ label, count, open, onToggle }: { label: string; count: number; open: boolean; onToggle: () => void }) => (
               <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', userSelect: 'none' }} onClick={onToggle}>
                 <Typography variant="overline" color="text.secondary" sx={{ fontSize: '0.6rem', lineHeight: 1, flex: 1 }}>
-                  {label}
+                  {label} ({count})
                 </Typography>
                 {open ? <ExpandLessIcon sx={{ fontSize: 14, color: 'text.secondary' }} /> : <ExpandMoreIcon sx={{ fontSize: 14, color: 'text.secondary' }} />}
               </Box>
@@ -176,27 +194,61 @@ export function ScriptsTab({
               ))
 
             return (
-              <Box sx={{ display: 'grid', gap: 0.5 }}>
-                <SectionHeader label={zh ? '官方剧本' : 'Official'} open={officialOpen} onToggle={() => setOfficialOpen((v) => !v)} />
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                {/* Search */}
+                <TextField
+                  size="small" fullWidth
+                  placeholder={zh ? '搜索剧本…' : 'Search scripts…'}
+                  value={scriptSearch}
+                  onChange={(e) => setScriptSearch(e.target.value)}
+                  sx={{ mb: 0.5 }}
+                  slotProps={{ input: { sx: { fontSize: '0.8rem' } } }}
+                />
+                {/* Edition filter chips */}
+                {allEditions.length > 1 && (
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 0.5 }}>
+                    <Chip
+                      size="small" label={zh ? '全部' : 'All'}
+                      variant={editionFilter === null ? 'filled' : 'outlined'}
+                      onClick={() => setEditionFilter(null)}
+                      sx={{ fontSize: '0.65rem', height: 20 }}
+                    />
+                    {allEditions.map((ed) => (
+                      <Chip key={ed} size="small"
+                        label={ed}
+                        variant={editionFilter === ed ? 'filled' : 'outlined'}
+                        onClick={() => setEditionFilter((c) => c === ed ? null : ed)}
+                        sx={{ fontSize: '0.65rem', height: 20 }}
+                      />
+                    ))}
+                  </Box>
+                )}
+                {isFiltering && (
+                  <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem' }}>
+                    {official.length + community.length + diy.length} {zh ? '个结果' : 'results'}
+                  </Typography>
+                )}
+                <Divider />
+                <SectionHeader label={zh ? '官方' : 'Official'} count={official.length} open={officialOpen} onToggle={() => setOfficialOpen((v) => !v)} />
                 <Collapse in={officialOpen}>
-                  <Box sx={{ display: 'grid', gap: 1, pt: 0.5 }}>{renderGroup(official, false)}</Box>
+                  <Box sx={{ display: 'grid', gap: 1, pt: 0.5 }}>{official.length > 0 ? renderGroup(official, false) : isFiltering ? <Typography variant="caption" color="text.secondary" sx={{ pl: 0.5 }}>{zh ? '无结果' : 'No matches'}</Typography> : null}</Box>
                 </Collapse>
-                {community.length > 0 && (
+                {(community.length > 0 || isFiltering) && (
                   <>
-                    <Divider sx={{ my: 0.5 }} />
-                    <SectionHeader label={zh ? '社区剧本' : 'Community'} open={communityOpen} onToggle={() => setCommunityOpen((v) => !v)} />
+                    <Divider sx={{ my: 0.25 }} />
+                    <SectionHeader label={zh ? '社区' : 'Community'} count={community.length} open={communityOpen} onToggle={() => setCommunityOpen((v) => !v)} />
                     <Collapse in={communityOpen}>
-                      <Box sx={{ display: 'grid', gap: 1, pt: 0.5 }}>{renderGroup(community, false)}</Box>
+                      <Box sx={{ display: 'grid', gap: 1, pt: 0.5 }}>{community.length > 0 ? renderGroup(community, false) : <Typography variant="caption" color="text.secondary" sx={{ pl: 0.5 }}>{zh ? '无结果' : 'No matches'}</Typography>}</Box>
                     </Collapse>
                   </>
                 )}
-                <Divider sx={{ my: 0.5 }} />
-                <SectionHeader label={zh ? '自制剧本' : 'DIY'} open={diyOpen} onToggle={() => setDiyOpen((v) => !v)} />
+                <Divider sx={{ my: 0.25 }} />
+                <SectionHeader label={zh ? '自制' : 'DIY'} count={diy.length} open={diyOpen} onToggle={() => setDiyOpen((v) => !v)} />
                 <Collapse in={diyOpen}>
                   <Box sx={{ display: 'grid', gap: 1, pt: 0.5 }}>
                     {diy.length > 0 ? renderGroup(diy, true) : (
                       <Typography variant="caption" color="text.secondary" sx={{ pl: 0.5, fontStyle: 'italic' }}>
-                        {zh ? '点击复制图标添加剧本' : 'Copy a script above to start'}
+                        {isFiltering ? (zh ? '无结果' : 'No matches') : (zh ? '点击复制图标添加剧本' : 'Copy a script above to start')}
                       </Typography>
                     )}
                   </Box>

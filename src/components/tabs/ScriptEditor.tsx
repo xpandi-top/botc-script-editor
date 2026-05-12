@@ -1,16 +1,23 @@
+import React from 'react'
 import {
   Box,
   Button,
   Checkbox,
+  Chip,
+  Collapse,
   FormControl,
   IconButton,
   MenuItem,
   Paper,
   Select,
   TextField,
+  Tooltip,
   Typography,
 } from '@mui/material'
-import { getDisplayName, teamLabels, editionLabels, toTitleCase } from '../../catalog'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import ChevronRightIcon from '@mui/icons-material/ChevronRight'
+import NoteAltIcon from '@mui/icons-material/NoteAlt'
+import { getDisplayName, teamLabels, editionLabels, toTitleCase, getCharacterRevisionIds, getCurrentRevision, getRevisionForScript } from '../../catalog'
 import type { CharacterGroup, EditableScript, Language, ResolvedScriptCharacter, ResolvedScriptCharacterGroup } from '../../types'
 
 function getTeamColor(team: string) {
@@ -55,6 +62,9 @@ export function ScriptEditor({
   availableEditions,
   charColumns,
 }: Props) {
+  const [notesOpen, setNotesOpen] = React.useState(false)
+  const zh = uiLanguage === 'zh'
+
   return (
     <Box>
       {/* Title / author / edition — top */}
@@ -70,6 +80,30 @@ export function ScriptEditor({
             <MenuItem value="custom">{uiText.custom}</MenuItem>
           </Select>
         </FormControl>
+      </Box>
+
+      {/* Script Notes */}
+      <Box sx={{ mb: 3 }}>
+        <Button
+          size="small"
+          startIcon={<NoteAltIcon fontSize="small" />}
+          endIcon={notesOpen ? <ExpandMoreIcon fontSize="small" /> : <ChevronRightIcon fontSize="small" />}
+          onClick={() => setNotesOpen((v) => !v)}
+          sx={{ textTransform: 'none', mb: 0.5 }}
+        >
+          {zh ? '脚本备注' : 'Script Notes'}
+          {activeScript.notes && !notesOpen && (
+            <Chip size="small" label={zh ? '已有备注' : 'has notes'} sx={{ ml: 1, height: 18, fontSize: '0.65rem' }} color="primary" variant="outlined" />
+          )}
+        </Button>
+        <Collapse in={notesOpen}>
+          <TextField
+            fullWidth multiline minRows={3} size="small"
+            placeholder={zh ? '在此记录说书人备注、版本说明或游戏提示…' : 'ST notes, version notes, gameplay tips…'}
+            value={activeScript.notes ?? ''}
+            onChange={(e) => updateActiveScript((s) => ({ ...s, notes: e.target.value }))}
+          />
+        </Collapse>
       </Box>
 
       {/* Bootlegger rules EN */}
@@ -177,15 +211,49 @@ export function ScriptEditor({
                   <Typography variant="subtitle2" sx={{ flex: 1, fontStyle: 'italic', color: 'white' }}>{teamLabels[uiLanguage][group.team]}</Typography>
                   <Typography variant="caption" sx={{ color: 'white' }}>{group.characters.length}</Typography>
                 </Box>
-                {group.characters.map((character) => (
-                  <Box key={character.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, border: '1px solid', borderColor: 'divider', borderRadius: 1, mb: 1 }}>
-                    <Box>
-                      <Typography variant="body2" sx={{ fontWeight: 500 }}>{character.name ?? getDisplayName(character.id, uiLanguage)}</Typography>
-                      <Typography variant="caption" color="text.secondary">{character.id}</Typography>
+                {group.characters.map((character) => {
+                  const revIds = getCharacterRevisionIds(character.id)
+                  const currentRev = getCurrentRevision(character.id)
+                  const pinnedRev = getRevisionForScript(character.id, activeScript.pinnedRevisions)
+                  const hasPinned = !!activeScript.pinnedRevisions?.[character.id]
+                  return (
+                    <Box key={character.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, border: '1px solid', borderColor: hasPinned ? 'primary.main' : 'divider', borderRadius: 1, mb: 1, gap: 1 }}>
+                      <Box sx={{ flex: 1, minWidth: 0 }}>
+                        <Typography variant="body2" sx={{ fontWeight: 500 }}>{character.name ?? getDisplayName(character.id, uiLanguage)}</Typography>
+                        <Typography variant="caption" color="text.secondary">{character.id}</Typography>
+                      </Box>
+                      {revIds.length > 1 && (
+                        <Tooltip title={zh ? '选择版本（影响说书人显示的技能文本）' : 'Pin a revision — affects ability text shown in Storyteller'}>
+                          <FormControl size="small" sx={{ minWidth: 90 }}>
+                            <Select
+                              value={pinnedRev ?? ''}
+                              displayEmpty
+                              onChange={(e) => {
+                                const val = e.target.value
+                                updateActiveScript((s) => {
+                                  const next = { ...(s.pinnedRevisions ?? {}) }
+                                  if (!val || val === currentRev) {
+                                    delete next[character.id]
+                                  } else {
+                                    next[character.id] = val
+                                  }
+                                  return { ...s, pinnedRevisions: next }
+                                })
+                              }}
+                              sx={{ fontSize: '0.72rem', '& .MuiSelect-select': { py: 0.5 } }}
+                            >
+                              <MenuItem value={currentRev ?? ''}>{zh ? '当前版本' : 'Current'}</MenuItem>
+                              {revIds.filter((r) => r !== currentRev).map((r) => (
+                                <MenuItem key={r} value={r}>{r}</MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
+                        </Tooltip>
+                      )}
+                      <IconButton size="small" onClick={() => toggleCharacterInScript(character.id)}>×</IconButton>
                     </Box>
-                    <IconButton size="small" onClick={() => toggleCharacterInScript(character.id)}>×</IconButton>
-                  </Box>
-                ))}
+                  )
+                })}
               </Box>
             ))
           ) : (

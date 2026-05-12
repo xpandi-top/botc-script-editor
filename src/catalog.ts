@@ -11,6 +11,7 @@ import type {
   Language,
   LocaleData,
   NightOrderData,
+  RevisionOverrides,
   ScriptJinxOverride,
   ScriptCharacterItem,
   ScriptFileEntry,
@@ -18,6 +19,24 @@ import type {
   ScriptMetaEntry,
   Team,
 } from './types'
+
+export const REVISION_OVERRIDES_KEY = 'BOTC_REVISION_OVERRIDES'
+
+function loadRevisionOverrides(): RevisionOverrides {
+  if (typeof window === 'undefined') return {}
+  try {
+    return JSON.parse(localStorage.getItem(REVISION_OVERRIDES_KEY) ?? '{}') as RevisionOverrides
+  } catch {
+    return {}
+  }
+}
+
+let _revisionOverrides: RevisionOverrides = loadRevisionOverrides()
+
+/** Call after writing to BOTC_REVISION_OVERRIDES so catalog picks up changes. */
+export function refreshRevisionOverrides() {
+  _revisionOverrides = loadRevisionOverrides()
+}
 
 const characterFiles = import.meta.glob('../assets/characters/*.json', {
   eager: true,
@@ -206,19 +225,54 @@ function normalizedJinxPairIdFromCharacters(left: string, right: string) {
 }
 
 export function getCurrentRevision(id: string) {
-  return characterById[id]?.current_revision
+  return _revisionOverrides[id]?.current_revision ?? characterById[id]?.current_revision
 }
 
-export function getCharacterRevisionIds(id: string) {
-  return (characterById[id]?.revisions ?? []).map((revision) => revision.id)
+export function getCharacterRevisionIds(id: string): string[] {
+  const base = (characterById[id]?.revisions ?? []).map((r) => r.id)
+  const extra = (_revisionOverrides[id]?.revisions ?? []).map((r) => r.id)
+  // Merge: base first, then any user-added ids not already present
+  const seen = new Set(base)
+  return [...base, ...extra.filter((id) => !seen.has(id))]
 }
 
 export function getRevisionText(
   id: string,
   language: Language,
   revision: string,
-) {
+): string | undefined {
+  const overrideLocale = language === 'zh'
+    ? _revisionOverrides[id]?.locale_zh
+    : _revisionOverrides[id]?.locale_en
+  if (overrideLocale?.[revision]) return overrideLocale[revision]
   return locales[language].characters?.[id]?.revisions?.[revision]
+}
+
+/**
+ * Returns the revision ID to use for a character within a specific script.
+ * Checks the script's pinned overrides first, then falls back to current_revision.
+ */
+export function getRevisionForScript(
+  charId: string,
+  pinnedRevisions?: Record<string, string>,
+): string | undefined {
+  return pinnedRevisions?.[charId] ?? getCurrentRevision(charId)
+}
+
+/**
+ * Returns ability text for a character, respecting pinned revision and user overrides.
+ */
+export function getAbilityTextForScript(
+  id: string,
+  language: Language,
+  pinnedRevisions?: Record<string, string>,
+): string {
+  const revision = getRevisionForScript(id, pinnedRevisions)
+  if (revision) {
+    const text = getRevisionText(id, language, revision)
+    if (text) return text
+  }
+  return getAbilityText(id, language)
 }
 
 export function getJinxRevisionText(id: string, language: Language, revision: string) {
