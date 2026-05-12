@@ -195,6 +195,12 @@ export function usePlayerStats(records: GameRecord[]): PlayerStat[] {
         }
         map.set(ps.name, entry)
       }
+
+      // ST-as-MVP: credit mvpCount to the player whose name matches stName
+      if (r.mvp === 'storyteller' && r.stName?.trim()) {
+        const stEntry = map.get(r.stName.trim())
+        if (stEntry) stEntry.mvpCount++
+      }
     }
 
     return Array.from(map.values())
