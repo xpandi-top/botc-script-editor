@@ -60,6 +60,9 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     if (selectedDayIndex < days.length - 1) { setSelectedDayId(days[selectedDayIndex + 1].id); setIsTimerRunning(false); return }
     if (currentDay.gameEnded) return
     const next = createDayState(days.length + 1, currentDay.seats, timerDefaults)
+    // Carry demon bluffs forward — they're set once during setup and remain
+    // valid for the entire game, not just day 1.
+    next.demonBluffs = currentDay.demonBluffs ?? []
     setDaysWithUndo((cur) => [...cur, next])
     setSelectedDayId(next.id)
     setPickerMode('none')
@@ -145,7 +148,17 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
 
   function _doOpenNewGamePanel() {
     const slug = activeScriptSlug ?? scriptOptions[0]?.slug ?? ''
-    setNewGamePanel({ playerCount: 9, travelerCount: 0, scriptSlug: slug, allowDuplicateChars: false, allowEmptyChars: false, allowSameNames: false, seatNames: {}, assignments: {}, userAssignments: {}, travelerAssignments: {}, seatNotes: {}, specialNote: '', demonBluffs: [], charPool: [] })
+    // Pre-fill seat names from current game so recurring groups don't
+    // have to re-enter names every session. Only non-default names carry over.
+    const inheritedNames: Record<number, string> = {}
+    if (currentDay?.seats) {
+      for (const s of currentDay.seats) {
+        if (s.name && !/^Player \d+$/.test(s.name) && !/^Traveler \d+$/.test(s.name)) {
+          inheritedNames[s.seat] = s.name
+        }
+      }
+    }
+    setNewGamePanel({ playerCount: 9, travelerCount: 0, scriptSlug: slug, allowDuplicateChars: false, allowEmptyChars: false, allowSameNames: false, seatNames: inheritedNames, assignments: {}, userAssignments: {}, travelerAssignments: {}, seatNotes: {}, specialNote: '', demonBluffs: [], charPool: [] })
   }
 
   function hasActiveGame(): boolean {

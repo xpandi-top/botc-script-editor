@@ -1,19 +1,23 @@
 // @ts-nocheck
 import type { StorytellerSeat } from '../types'
 import type { StorytellerContext } from '../useStoryteller'
-import React from 'react'
-import { Box, Button, TextField, IconButton, Typography, Paper, Grid, List, ListItem, ListItemText, ListItemButton, Chip } from '@mui/material'
+import React, { useState } from 'react'
+import { Box, Button, TextField, IconButton, Typography, Paper, List, ListItem, Chip, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import RemoveIcon from '@mui/icons-material/Remove'
 import { uniqueStrings } from '../constants'
 
 export function ModalsEditPlayers({ ctx }: { ctx: StorytellerContext }) {
-  const { 
+  const {
     language, text, currentDay, updateCurrentDay, updateSeat,
     playerNamePool, setPlayerNamePool, editPlayersPreset, setEditPlayersPreset,
     removeLastPlayerSeat, addPlayerSeat, removeLastTraveler, addTravelerSeat,
     resetSeatNames, setShowEditPlayersModal,
+    gameRecords, setGameRecords,
   } = ctx
+
+  // Pending rename confirmation: { seatNum, oldName, newName }
+  const [pendingRename, setPendingRename] = useState<{ seatNum: number; oldName: string; newName: string } | null>(null)
 
   const regularSeats = currentDay.seats.filter((s: any) => !s.isTraveler)
   const travelerSeats = currentDay.seats.filter((s: any) => s.isTraveler)
@@ -28,11 +32,45 @@ export function ModalsEditPlayers({ ctx }: { ctx: StorytellerContext }) {
     setEditPlayersPreset('')
   }
 
-  const handleNameBlur = (seatSeat: number, value: string) => {
-    const val = value.trim()
-    if (val && !val.match(/^Player \d+$/) && !playerNamePool.includes(val)) {
-      setPlayerNamePool((cur: string[]) => [...cur, val])
+  const handleNameBlur = (seatNum: number, newValue: string) => {
+    const newName = newValue.trim()
+    if (!newName) return
+    // Add to pool
+    if (!newName.match(/^Player \d+$/) && !playerNamePool.includes(newName)) {
+      setPlayerNamePool((cur: string[]) => [...cur, newName])
     }
+    // Find old name from current state
+    const seat = currentDay.seats.find((s: any) => s.seat === seatNum)
+    const oldName = seat?.name ?? ''
+    if (oldName && oldName !== newName && gameRecords?.length > 0) {
+      // Check if any saved records contain the old name
+      const affected = gameRecords.filter((r: any) =>
+        r.playerSummaries?.some((ps: any) => ps.name === oldName)
+      )
+      if (affected.length > 0) {
+        setPendingRename({ seatNum, oldName, newName })
+      }
+    }
+  }
+
+  const applyRenameToRecords = () => {
+    if (!pendingRename) return
+    const { oldName, newName } = pendingRename
+    setGameRecords((records: any[]) =>
+      records.map((r: any) => ({
+        ...r,
+        playerSummaries: r.playerSummaries?.map((ps: any) =>
+          ps.name === oldName ? { ...ps, name: newName } : ps
+        ),
+        // Also update mvp seat name reference isn't needed (mvp stored as seat number)
+      }))
+    )
+    // Update pool: replace old name with new
+    setPlayerNamePool((cur: string[]) => {
+      const filtered = cur.filter((n: string) => n !== oldName)
+      return uniqueStrings([...filtered, newName])
+    })
+    setPendingRename(null)
   }
 
   return (
@@ -67,7 +105,7 @@ export function ModalsEditPlayers({ ctx }: { ctx: StorytellerContext }) {
 
       <List dense sx={{ maxHeight: 200, overflow: 'auto' }}>
         {regularSeats.map((seat: any) => (
-          <ListItem key={seat.seat}disablePadding>
+          <ListItem key={seat.seat} disablePadding>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
               <Chip label={`#${seat.seat}`} size="small" sx={{ minWidth: 52, flexShrink: 0 }} />
               <TextField
@@ -111,6 +149,7 @@ export function ModalsEditPlayers({ ctx }: { ctx: StorytellerContext }) {
                   placeholder={`Traveler ${seat.seat}`}
                   value={seat.name}
                   onChange={(e) => updateSeat(seat.seat, (s: any) => ({ ...s, name: e.target.value }))}
+                  onBlur={(e) => handleNameBlur(seat.seat, e.target.value)}
                 />
               </Box>
             </ListItem>
@@ -128,6 +167,27 @@ export function ModalsEditPlayers({ ctx }: { ctx: StorytellerContext }) {
           {language === 'zh' ? '完成' : 'Done'}
         </Button>
       </Box>
+
+      {/* Rename propagation dialog */}
+      <Dialog open={!!pendingRename} onClose={() => setPendingRename(null)} maxWidth="xs" fullWidth>
+        <DialogTitle>{language === 'zh' ? '更新历史记录？' : 'Update saved records?'}</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2">
+            {language === 'zh'
+              ? `将 ${gameRecords?.filter((r: any) => r.playerSummaries?.some((ps: any) => ps.name === pendingRename?.oldName)).length ?? 0} 条历史记录中的「${pendingRename?.oldName}」改为「${pendingRename?.newName}」？`
+              : `Rename "${pendingRename?.oldName}" → "${pendingRename?.newName}" in ${gameRecords?.filter((r: any) => r.playerSummaries?.some((ps: any) => ps.name === pendingRename?.oldName)).length ?? 0} saved record(s)?`
+            }
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setPendingRename(null)}>
+            {language === 'zh' ? '仅本局' : 'This game only'}
+          </Button>
+          <Button variant="contained" onClick={applyRenameToRecords}>
+            {language === 'zh' ? '全部更新' : 'Update all'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   )
 }
