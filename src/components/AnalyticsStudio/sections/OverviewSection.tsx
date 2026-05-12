@@ -1,6 +1,11 @@
-import { Box, Paper, Tooltip, Typography } from '@mui/material'
+import { Box, Chip, Paper, Tooltip, Typography } from '@mui/material'
 import PersonIcon from '@mui/icons-material/Person'
 import BalanceIcon from '@mui/icons-material/Balance'
+import TrendingUpIcon from '@mui/icons-material/TrendingUp'
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents'
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
+import WarningAmberIcon from '@mui/icons-material/WarningAmber'
+import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined'
 import { getDisplayName, getIconForCharacter } from '../../../catalog'
 import type { KpiSummary, ScriptStat, PlayerStat, CharStat, StorytiellerStat } from '../useStats'
 import type { GameRecord } from '../../StorytellerSub/types'
@@ -47,63 +52,209 @@ function WinBalanceMeter({ kpi, zh }: { kpi: KpiSummary; zh: boolean }) {
   )
 }
 
-// ── Auto insights ─────────────────────────────────────────────────
+// ── Dynamic insights ──────────────────────────────────────────────
 
-function buildInsights(kpi: KpiSummary, scriptStats: ScriptStat[], playerStats: PlayerStat[], charStats: CharStat[], zh: boolean): string[] {
-  const out: string[] = []
+type InsightSeverity = 'info' | 'good' | 'warning' | 'highlight'
+
+type Insight = {
+  id: string
+  severity: InsightSeverity
+  label: string       // short heading
+  detail: string      // one-line context
+  value?: string      // prominent metric badge
+}
+
+const SEV_COLOR: Record<InsightSeverity, string> = {
+  info:      'rgba(2,120,211,0.08)',
+  good:      'rgba(46,125,50,0.08)',
+  warning:   'rgba(237,108,2,0.08)',
+  highlight: 'rgba(156,39,176,0.08)',
+}
+const SEV_BORDER: Record<InsightSeverity, string> = {
+  info:      '#0278d3',
+  good:      '#2e7d32',
+  warning:   '#ed6c02',
+  highlight: '#9c27b0',
+}
+
+function InsightIcon({ sev }: { sev: InsightSeverity }) {
+  const sx = { fontSize: '1rem' }
+  if (sev === 'good') return <CheckCircleOutlinedIcon sx={{ ...sx, color: '#2e7d32' }} />
+  if (sev === 'warning') return <WarningAmberIcon sx={{ ...sx, color: '#ed6c02' }} />
+  if (sev === 'highlight') return <EmojiEventsIcon sx={{ ...sx, color: '#9c27b0' }} />
+  return <InfoOutlinedIcon sx={{ ...sx, color: '#0278d3' }} />
+}
+
+function buildInsights(
+  kpi: KpiSummary,
+  scriptStats: ScriptStat[],
+  playerStats: PlayerStat[],
+  charStats: CharStat[],
+  storytellerStats: StorytiellerStat[],
+  records: GameRecord[],
+  zh: boolean,
+): Insight[] {
+  const out: Insight[] = []
   if (kpi.total === 0) return out
 
-  // Most evil-dominant script
-  const withResult = scriptStats.filter((s) => s.total >= 3)
-  if (withResult.length > 0) {
-    const mostEvil = withResult.reduce((a, b) => (b.evil / b.total > a.evil / a.total ? b : a))
-    const evilPct = Math.round((mostEvil.evil / mostEvil.total) * 100)
-    if (evilPct > 60) {
-      out.push(zh
-        ? `《${mostEvil.title}》邪恶胜率最高 (${evilPct}%)`
-        : `"${mostEvil.title}" most evil-dominant (${evilPct}% evil wins)`)
-    }
-    const mostGood = withResult.reduce((a, b) => (b.good / b.total > a.good / a.total ? b : a))
-    const goodPct = Math.round((mostGood.good / mostGood.total) * 100)
-    if (goodPct > 60) {
-      out.push(zh
-        ? `《${mostGood.title}》善良胜率最高 (${goodPct}%)`
-        : `"${mostGood.title}" most good-dominant (${goodPct}% good wins)`)
+  // ── Win balance ──
+  const diff = Math.abs(kpi.evilPct - kpi.goodPct)
+  if (kpi.total >= 5) {
+    if (diff <= 8) {
+      out.push({ id: 'balance-ok', severity: 'good',
+        label: zh ? '胜率均衡' : 'Balanced win rates',
+        detail: zh ? `邪恶 ${kpi.evilPct}% vs 善良 ${kpi.goodPct}%` : `Evil ${kpi.evilPct}% vs Good ${kpi.goodPct}%`,
+        value: `±${diff}%` })
+    } else if (kpi.evilPct > kpi.goodPct + 15) {
+      out.push({ id: 'balance-evil', severity: 'warning',
+        label: zh ? '邪恶明显领先' : 'Evil-dominant',
+        detail: zh ? '考虑选择对善良更友好的剧本' : 'Consider more good-favoured scripts',
+        value: `${kpi.evilPct}% E` })
+    } else if (kpi.goodPct > kpi.evilPct + 15) {
+      out.push({ id: 'balance-good', severity: 'warning',
+        label: zh ? '善良明显领先' : 'Good-dominant',
+        detail: zh ? '考虑提升邪恶角色或增加难度' : 'Consider harder evil roles',
+        value: `${kpi.goodPct}% G` })
     }
   }
 
-  // Most consistent player
-  const qualified = playerStats.filter((p) => p.total >= 5)
+  // ── Current evil/good win streak ──
+  const byDate = [...records].sort((a, b) => b.endedAt - a.endedAt)
+  let streak = 0; let streakSide = ''
+  for (const r of byDate) {
+    if (!r.winner || r.winner === 'storyteller') break
+    if (streak === 0) { streakSide = r.winner; streak = 1 }
+    else if (r.winner === streakSide) streak++
+    else break
+  }
+  if (streak >= 3) {
+    const side = streakSide === 'evil' ? (zh ? '邪恶' : 'Evil') : (zh ? '善良' : 'Good')
+    out.push({ id: 'streak', severity: streakSide === 'evil' ? 'warning' : 'good',
+      label: zh ? `${side}连胜 ${streak} 局` : `${streak}-game ${side} streak`,
+      detail: zh ? '最近连续结果' : 'Most recent consecutive results',
+      value: `×${streak}` })
+  }
+
+  // ── Script dominance ──
+  const qualified = scriptStats.filter((s) => s.total >= 3)
   if (qualified.length > 0) {
-    const best = qualified.reduce((a, b) => b.winRate > a.winRate ? b : a)
-    out.push(zh
-      ? `${best.name} 胜率最高: ${best.winRate}% (${best.total}局)`
-      : `${best.name} highest win rate: ${best.winRate}% (${best.total} games)`)
+    const mostEvil = qualified.reduce((a, b) => (b.evil / b.total > a.evil / a.total ? b : a))
+    const ePct = Math.round((mostEvil.evil / mostEvil.total) * 100)
+    if (ePct >= 65) {
+      out.push({ id: 'script-evil', severity: 'warning',
+        label: zh ? `《${mostEvil.title}》邪恶强势` : `"${mostEvil.title}" evil-heavy`,
+        detail: zh ? `邪恶胜率 ${ePct}%，共 ${mostEvil.total} 局` : `Evil wins ${ePct}% of ${mostEvil.total} games`,
+        value: `${ePct}%` })
+    }
+    const mostGood = qualified.reduce((a, b) => (b.good / b.total > a.good / a.total ? b : a))
+    const gPct = Math.round((mostGood.good / mostGood.total) * 100)
+    if (gPct >= 65 && mostGood.key !== mostEvil.key) {
+      out.push({ id: 'script-good', severity: 'info',
+        label: zh ? `《${mostGood.title}》善良友好` : `"${mostGood.title}" good-friendly`,
+        detail: zh ? `善良胜率 ${gPct}%，共 ${mostGood.total} 局` : `Good wins ${gPct}% of ${mostGood.total} games`,
+        value: `${gPct}%` })
+    }
+    // Highest-rated script
+    const rated = qualified.filter((s) => s.avgBalanced != null || s.avgReplay != null)
+    if (rated.length > 0) {
+      const topRated = rated.reduce((a, b) => {
+        const aScore = ((a.avgBalanced ?? 0) + (a.avgReplay ?? 0)) / 2
+        const bScore = ((b.avgBalanced ?? 0) + (b.avgReplay ?? 0)) / 2
+        return bScore > aScore ? b : a
+      })
+      const score = (((topRated.avgBalanced ?? 0) + (topRated.avgReplay ?? 0)) / 2).toFixed(1)
+      out.push({ id: 'script-toprated', severity: 'highlight',
+        label: zh ? `《${topRated.title}》评分最高` : `"${topRated.title}" top-rated`,
+        detail: zh ? `平衡+重玩均值 ${score}/5` : `Avg balance+replay ${score}/5`,
+        value: `★${score}` })
+    }
   }
 
-  // Most-played character
+  // ── Top player ──
+  const qualPlayers = playerStats.filter((p) => p.total >= 5)
+  if (qualPlayers.length > 0) {
+    const best = qualPlayers.reduce((a, b) => b.winRate > a.winRate ? b : a)
+    out.push({ id: 'player-top', severity: 'highlight',
+      label: zh ? `${best.name} 胜率最高` : `${best.name} leads win rate`,
+      detail: zh ? `${best.total}局 · 善良${best.goodWinRate ?? '—'}% 邪恶${best.evilWinRate ?? '—'}%` : `${best.total}g · Good ${best.goodWinRate ?? '—'}% Evil ${best.evilWinRate ?? '—'}%`,
+      value: `${best.winRate}%` })
+    // Lowest (struggling) player with enough games
+    const worst = qualPlayers.reduce((a, b) => b.winRate < a.winRate ? b : a)
+    if (worst.name !== best.name && worst.winRate < 40) {
+      out.push({ id: 'player-low', severity: 'info',
+        label: zh ? `${worst.name} 胜率偏低` : `${worst.name} low win rate`,
+        detail: zh ? `${worst.total} 局，可考虑角色分配优化` : `${worst.total} games — check role assignments`,
+        value: `${worst.winRate}%` })
+    }
+  }
+
+  // ── Most-played char ──
   if (charStats.length > 0) {
     const top = charStats[0]
-    const name = getDisplayName(top.charId, zh ? 'zh' : 'en')
-    out.push(zh ? `${name} 出场最多 (${top.total}次)` : `${name} most played (${top.total}×)`)
+    const charName = getDisplayName(top.charId, zh ? 'zh' : 'en')
+    out.push({ id: 'char-top', severity: 'info',
+      label: zh ? `${charName} 出场最多` : `${charName} most played`,
+      detail: zh ? `${top.total} 次出场，胜率 ${top.winRate}%` : `${top.total}× played · ${top.winRate}% win rate`,
+      value: `${top.total}×` })
   }
 
-  // Avg game duration insight
-  if (kpi.avgDurationMin) {
-    out.push(zh ? `平均游戏时长 ${kpi.avgDurationMin} 分钟` : `Avg game duration ${kpi.avgDurationMin} min`)
+  // ── MVP pattern ──
+  const mvpPlayers = playerStats.filter((p) => p.mvpCount >= 2)
+  if (mvpPlayers.length > 0) {
+    const topMvp = mvpPlayers.reduce((a, b) => b.mvpCount > a.mvpCount ? b : a)
+    out.push({ id: 'mvp-top', severity: 'highlight',
+      label: zh ? `${topMvp.name} MVP 最多` : `${topMvp.name} top MVP`,
+      detail: zh ? `获得 MVP ${topMvp.mvpCount} 次` : `${topMvp.mvpCount} MVP awards`,
+      value: `×${topMvp.mvpCount}` })
   }
 
-  // Balance check
-  const diff = Math.abs(kpi.evilPct - kpi.goodPct)
-  if (kpi.total >= 5 && diff <= 10) {
-    out.push(zh ? '✓ 邪恶与善良胜率均衡' : '✓ Evil/Good win rates are balanced')
-  } else if (kpi.total >= 5 && kpi.evilPct > kpi.goodPct + 20) {
-    out.push(zh ? '⚠ 邪恶优势明显，可考虑调整剧本' : '⚠ Evil winning significantly more — consider script balance')
-  } else if (kpi.total >= 5 && kpi.goodPct > kpi.evilPct + 20) {
-    out.push(zh ? '⚠ 善良优势明显，增加邪恶角色难度' : '⚠ Good winning significantly more — consider harder evil roles')
+  // ── ST performance ──
+  if (storytellerStats.length > 0) {
+    const mostActive = storytellerStats[0]
+    out.push({ id: 'st-active', severity: 'info',
+      label: zh ? `${mostActive.name} 说书最多` : `${mostActive.name} most active ST`,
+      detail: zh
+        ? `主持 ${mostActive.total} 局，${mostActive.scripts.size} 个剧本`
+        : `${mostActive.total} games, ${mostActive.scripts.size} scripts`,
+      value: `${mostActive.total}g` })
   }
 
-  return out.slice(0, 4)
+  // ── Duration insight ──
+  if (kpi.avgDurationMin != null) {
+    const sev: InsightSeverity = kpi.avgDurationMin > 180 ? 'warning' : 'info'
+    out.push({ id: 'duration', severity: sev,
+      label: zh ? `平均时长 ${kpi.avgDurationMin} 分钟` : `Avg ${kpi.avgDurationMin} min/game`,
+      detail: kpi.avgDurationMin > 180
+        ? (zh ? '游戏时间偏长' : 'Games running long')
+        : (zh ? '游戏节奏健康' : 'Healthy game pace'),
+      value: `${kpi.avgDurationMin}m` })
+  }
+
+  // Prioritise: highlight > warning > good > info, max 6
+  const order: InsightSeverity[] = ['highlight', 'warning', 'good', 'info']
+  return out.sort((a, b) => order.indexOf(a.severity) - order.indexOf(b.severity)).slice(0, 6)
+}
+
+function InsightCard({ insight }: { insight: Insight }) {
+  return (
+    <Box sx={{
+      display: 'flex', alignItems: 'center', gap: 1.25,
+      p: 1.25, borderRadius: 1.5,
+      bgcolor: SEV_COLOR[insight.severity],
+      borderLeft: '3px solid',
+      borderColor: SEV_BORDER[insight.severity],
+    }}>
+      <InsightIcon sev={insight.severity} />
+      <Box sx={{ flex: 1, minWidth: 0 }}>
+        <Typography variant="body2" sx={{ fontWeight: 700, lineHeight: 1.3 }}>{insight.label}</Typography>
+        <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1.3 }}>{insight.detail}</Typography>
+      </Box>
+      {insight.value && (
+        <Chip label={insight.value} size="small"
+          sx={{ fontSize: '0.68rem', height: 20, fontWeight: 700, bgcolor: SEV_BORDER[insight.severity], color: '#fff', flexShrink: 0 }} />
+      )}
+    </Box>
+  )
 }
 
 // ── Timeline mini-sparkline ───────────────────────────────────────
@@ -164,7 +315,7 @@ interface Props {
 
 export function OverviewSection({ kpi, scriptStats, playerStats, charStats, storytellerStats, language, records }: Props) {
   const zh = language === 'zh'
-  const insights = buildInsights(kpi, scriptStats, playerStats, charStats, zh)
+  const insights = buildInsights(kpi, scriptStats, playerStats, charStats, storytellerStats, records, zh)
 
   if (kpi.total === 0) {
     return (
@@ -262,17 +413,16 @@ export function OverviewSection({ kpi, scriptStats, playerStats, charStats, stor
       </Paper>
 
       <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-        {/* ── Auto Insights ── */}
+        {/* ── Dynamic Insights ── */}
         {insights.length > 0 && (
           <Paper sx={{ p: 2, flex: '2 1 260px' }} elevation={1}>
-            <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>{zh ? '数据洞察' : 'Insights'}</Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 1.25 }}>
+              <TrendingUpIcon sx={{ fontSize: '1rem', color: 'primary.main' }} />
+              <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>{zh ? '数据洞察' : 'Insights'}</Typography>
+              <Chip label={insights.length} size="small" sx={{ height: 16, fontSize: '0.62rem', ml: 'auto', '& .MuiChip-label': { px: '5px' } }} />
+            </Box>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
-              {insights.map((s, i) => (
-                <Box key={i} sx={{ display: 'flex', gap: 1, alignItems: 'flex-start' }}>
-                  <Typography sx={{ color: 'primary.main', fontWeight: 700, flexShrink: 0, lineHeight: 1.5 }}>•</Typography>
-                  <Typography variant="body2" sx={{ lineHeight: 1.5 }}>{s}</Typography>
-                </Box>
-              ))}
+              {insights.map((ins) => <InsightCard key={ins.id} insight={ins} />)}
             </Box>
           </Paper>
         )}
