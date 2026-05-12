@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Box, Button, Chip, Collapse, Divider, FormControl, IconButton, InputLabel, MenuItem, Paper, Select, TextField, ToggleButton, ToggleButtonGroup, Tooltip, Typography } from '@mui/material'
 import PrintIcon from '@mui/icons-material/Print'
@@ -12,6 +12,7 @@ import FileOpenIcon from '@mui/icons-material/FileOpen'
 import MenuIcon from '@mui/icons-material/Menu'
 import MenuOpenIcon from '@mui/icons-material/MenuOpen'
 import NightsStayIcon from '@mui/icons-material/NightsStay'
+import NoteAltIcon from '@mui/icons-material/NoteAlt'
 import ViewListIcon from '@mui/icons-material/ViewList'
 import ViewModuleIcon from '@mui/icons-material/ViewModule'
 import { useBreakpoint } from '../../hooks/useBreakpoint'
@@ -104,11 +105,13 @@ export function ScriptsTab({
   const [scriptSearch, setScriptSearch] = useState('')
   const [editionFilter, setEditionFilter] = useState<string | null>(null)
   const [tagFilter, setTagFilter] = useState<string | null>(null)
+  const [noteOpen, setNoteOpen] = useState(false)
+  const noteRef = useRef<HTMLTextAreaElement | null>(null)
 
   const SCRIPT_TAGS = ['WIP', 'Balanced', 'Experimental', 'Needs Review', 'Archived']
 
   const addTag = (tag: string) => {
-    if (!activeScript || isBuiltIn(activeScript.slug)) return
+    if (!activeScript) return
     updateActiveScript((s) => ({
       ...s,
       tags: s.tags?.includes(tag) ? s.tags : [...(s.tags ?? []), tag],
@@ -341,30 +344,80 @@ export function ScriptsTab({
               </Tooltip>
             </Box>
 
-            {/* ── Tags bar (always visible for DIY scripts) ── */}
-            {!isBuiltIn(activeScript.slug) && (
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 1.5, alignItems: 'center' }}>
-                {(activeScript.tags ?? []).map((tag) => (
-                  <Chip
-                    key={tag}
-                    label={tag}
-                    size="small"
-                    onDelete={() => removeTag(tag)}
-                    sx={{ fontSize: '0.7rem' }}
-                  />
-                ))}
-                {SCRIPT_TAGS.filter((t) => !(activeScript.tags ?? []).includes(t)).map((tag) => (
-                  <Chip
-                    key={tag}
-                    label={`+ ${tag}`}
-                    size="small"
-                    variant="outlined"
-                    onClick={() => addTag(tag)}
-                    sx={{ fontSize: '0.65rem', opacity: 0.55, '&:hover': { opacity: 1 } }}
-                  />
-                ))}
-              </Box>
-            )}
+            {/* ── Tags + Note bar (all scripts) ── */}
+            {(() => {
+              const zh = uiLanguage === 'zh'
+              const activeTags = activeScript.tags ?? []
+              const note = activeScript.notes ?? ''
+              const hasNote = note.trim().length > 0
+
+              return (
+                <Box sx={{ mb: 1.5 }}>
+                  {/* Tags row */}
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, alignItems: 'center', mb: 0.5 }}>
+                    {activeTags.map((tag) => (
+                      <Chip
+                        key={tag}
+                        label={tag}
+                        size="small"
+                        onDelete={() => removeTag(tag)}
+                        sx={{ fontSize: '0.7rem' }}
+                      />
+                    ))}
+                    {SCRIPT_TAGS.filter((t) => !activeTags.includes(t)).map((tag) => (
+                      <Chip
+                        key={tag}
+                        label={`+ ${tag}`}
+                        size="small"
+                        variant="outlined"
+                        onClick={() => addTag(tag)}
+                        sx={{ fontSize: '0.65rem', opacity: 0.45, '&:hover': { opacity: 1 } }}
+                      />
+                    ))}
+                    {/* Note toggle */}
+                    <Tooltip title={zh ? (hasNote ? '查看备注' : '添加备注') : (hasNote ? 'View note' : 'Add note')}>
+                      <Chip
+                        icon={<NoteAltIcon sx={{ fontSize: '0.85rem !important' }} />}
+                        label={hasNote
+                          ? (noteOpen ? (zh ? '收起' : 'Collapse') : note.split('\n')[0].slice(0, 40) + (note.length > 40 ? '…' : ''))
+                          : (zh ? '添加备注' : 'Add note')}
+                        size="small"
+                        variant={hasNote ? 'filled' : 'outlined'}
+                        color={hasNote ? 'info' : 'default'}
+                        onClick={() => setNoteOpen((v) => !v)}
+                        sx={{ fontSize: '0.65rem', maxWidth: 220, opacity: hasNote ? 1 : 0.45, '&:hover': { opacity: 1 } }}
+                      />
+                    </Tooltip>
+                  </Box>
+
+                  {/* Collapsible note editor */}
+                  <Collapse in={noteOpen} onEntered={() => noteRef.current?.focus()}>
+                    <Box sx={{
+                      border: '1px solid', borderColor: 'info.main', borderRadius: 1.5,
+                      p: 1, bgcolor: 'background.paper',
+                    }}>
+                      <TextField
+                        inputRef={noteRef}
+                        fullWidth multiline minRows={2} maxRows={8}
+                        size="small"
+                        placeholder={zh ? '在此记录剧本备注（仅作者可见）…' : 'Script notes — for your own reference…'}
+                        value={note}
+                        onChange={(e) =>
+                          updateActiveScript((s) => ({ ...s, notes: e.target.value }))
+                        }
+                        variant="standard"
+                        slotProps={{ input: { disableUnderline: true, sx: { fontSize: '0.82rem' } } }}
+                      />
+                      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0.5 }}>
+                        <Button size="small" onClick={() => setNoteOpen(false)} sx={{ textTransform: 'none', fontSize: '0.72rem' }}>
+                          {zh ? '收起' : 'Close'}
+                        </Button>
+                      </Box>
+                    </Box>
+                  </Collapse>
+                </Box>
+              )
+            })()}
 
             {!isEditMode && (
               <SheetArticle
