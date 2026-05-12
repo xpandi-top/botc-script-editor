@@ -109,6 +109,8 @@ export type PlayerStat = {
   evilWins: number
   goodWins: number
   mvpCount: number
+  /** Games this player ran as storyteller (matched via GameRecord.stName) */
+  stGameCount: number
   winRate: number
   evilWinRate: number | null
   goodWinRate: number | null
@@ -122,6 +124,13 @@ export type PlayerStat = {
 
 export function usePlayerStats(records: GameRecord[]): PlayerStat[] {
   return useMemo(() => {
+    // Build stName → game count map first for cross-referencing
+    const stGameCount = new Map<string, number>()
+    for (const r of records) {
+      const n = r.stName?.trim()
+      if (n) stGameCount.set(n, (stGameCount.get(n) ?? 0) + 1)
+    }
+
     const map = new Map<string, {
       name: string; total: number; wins: number
       evilGames: number; goodGames: number; evilWins: number; goodWins: number
@@ -198,6 +207,7 @@ export function usePlayerStats(records: GameRecord[]): PlayerStat[] {
           ...p,
           charSet: new Set(p.charMap.keys()),
           mostPlayedChar,
+          stGameCount: stGameCount.get(p.name) ?? 0,
           winRate: p.total ? Math.round((p.wins / p.total) * 100) : 0,
           evilWinRate: p.evilGames ? Math.round((p.evilWins / p.evilGames) * 100) : null,
           goodWinRate: p.goodGames ? Math.round((p.goodWins / p.goodGames) * 100) : null,
