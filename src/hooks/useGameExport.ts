@@ -15,6 +15,7 @@ export interface ExportDeps {
   setGameRecords: React.Dispatch<React.SetStateAction<GameRecord[]>>
   setCurrentRecordName?: (name: string | null) => void
   gameStartedAt?: number
+  stName?: string
 }
 
 function downloadJson(data: unknown, filename: string) {
@@ -33,7 +34,7 @@ export function buildGameExport(deps: ExportDeps) {
     days, currentDay, activeScriptSlug, activeScriptTitle,
     endGameResult, timerDefaults, customTagPool = [], playerNamePool = [],
     stFabledIds = [], stCustomRules = '', setGameRecords, setCurrentRecordName,
-    gameStartedAt,
+    gameStartedAt, stName,
   } = deps
 
   function exportGameJson(config?: ExportConfig) {
@@ -41,7 +42,7 @@ export function buildGameExport(deps: ExportDeps) {
     const filteredDays = cfg.dayFilter === 'all' ? days : days.filter((d) => (cfg.dayFilter as number[]).includes(d.day))
     const exportDays = filteredDays.map((d) => {
       const entry: Record<string, unknown> = { day: d.day }
-      if (cfg.includeSeats) entry.seats = cfg.includeStNotes ? d.seats : d.seats.map(({ note: _n, characterId: _c, userCharacterId: _u, teamTag: _t, ...pub }) => pub)
+      if (cfg.includeSeats) entry.seats = cfg.includeStNotes ? d.seats : d.seats.map(({ note: _n, ...pub }) => pub)
       if (cfg.includeVotes) entry.voteHistory = d.voteHistory
       if (cfg.includeSkills) entry.skillHistory = d.skillHistory
       if (cfg.includeEvents) entry.eventLog = cfg.includeStNotes ? d.eventLog : d.eventLog.filter((e) => e.kind === 'stateChange' || e.kind === 'phaseTransition')
@@ -124,12 +125,16 @@ export function buildGameExport(deps: ExportDeps) {
         seatNames,
         assignments,
         userAssignments,
+        travelerAssignments: Object.fromEntries(
+          travelers.filter((s) => s.characterId).map((s) => [s.seat, s.characterId!])
+        ),
         seatNotes,
         specialNote: '',
         demonBluffs: currentDay.demonBluffs || [],
       },
       stFabledIds,
       stCustomRules,
+      stName: stName || undefined,
     }
   }
 

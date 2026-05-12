@@ -44,6 +44,8 @@ interface LifecycleDeps {
   stCustomRules?: string
   setStFabledIds?: (v: string[]) => void
   setStCustomRules?: (v: string) => void
+  stName?: string
+  setStName?: (v: string) => void
   gameStartedAt?: number
   setGameStartedAt?: (v: number | undefined) => void
   setShowSaveBeforeNewGame?: (v: boolean) => void
@@ -51,9 +53,9 @@ interface LifecycleDeps {
 }
 
 export function buildGameLifecycle(deps: LifecycleDeps) {
-  const { days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, endGameResult, scriptOptions, onSelectScript, setDays, setDaysWithUndo, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay, setNewGamePanel, setShowNewGamePanel, setEndGameResult, setGameRecords, setAudioPlaying, language, appendEvent, customTagPool = [], playerNamePool = [], setCurrentRecordName, setTimerDefaults, setCustomTagPool, setPlayerNamePool, setShowEndGameModal, setNightShowCharacter, setNightShowWakeOrder, stFabledIds = [], stCustomRules = '', setStFabledIds, setStCustomRules, gameStartedAt, setGameStartedAt, setShowSaveBeforeNewGame, setPendingNewGameAfterSave } = deps
+  const { days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, endGameResult, scriptOptions, onSelectScript, setDays, setDaysWithUndo, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay, setNewGamePanel, setShowNewGamePanel, setEndGameResult, setGameRecords, setAudioPlaying, language, appendEvent, customTagPool = [], playerNamePool = [], setCurrentRecordName, setTimerDefaults, setCustomTagPool, setPlayerNamePool, setShowEndGameModal, setNightShowCharacter, setNightShowWakeOrder, stFabledIds = [], stCustomRules = '', setStFabledIds, setStCustomRules, stName, setStName, gameStartedAt, setGameStartedAt, setShowSaveBeforeNewGame, setPendingNewGameAfterSave } = deps
 
-  const exportActions = buildGameExport({ days, currentDay, activeScriptSlug, activeScriptTitle, endGameResult, timerDefaults, customTagPool, playerNamePool, stFabledIds, stCustomRules, setGameRecords, setCurrentRecordName, gameStartedAt })
+  const exportActions = buildGameExport({ days, currentDay, activeScriptSlug, activeScriptTitle, endGameResult, timerDefaults, customTagPool, playerNamePool, stFabledIds, stCustomRules, setGameRecords, setCurrentRecordName, gameStartedAt, stName })
 
   function goToNextDay() {
     setNightShowCharacter?.(false)
@@ -381,6 +383,8 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     if (record.playerNamePool && setPlayerNamePool) setPlayerNamePool(record.playerNamePool)
     if (setStFabledIds) setStFabledIds(record.stFabledIds ?? [])
     if (setStCustomRules) setStCustomRules(record.stCustomRules ?? '')
+    if (setStName) setStName(record.stName ?? '')
+    setGameStartedAt?.(record.startedAt)
     if (record.setup) {
       setNewGamePanel({ playerCount: record.setup.playerCount, travelerCount: record.setup.travelerCount, scriptSlug: record.scriptSlug || '', allowDuplicateChars: false, allowEmptyChars: false, allowSameNames: false, seatNames: record.setup.seatNames || {}, assignments: record.setup.assignments || {}, userAssignments: record.setup.userAssignments || {}, travelerAssignments: record.setup.travelerAssignments || {}, seatNotes: record.setup.seatNotes || {}, specialNote: record.setup.specialNote || '', demonBluffs: record.setup.demonBluffs ?? [], charPool: [], editMode: true })
       setShowNewGamePanel?.(true)
