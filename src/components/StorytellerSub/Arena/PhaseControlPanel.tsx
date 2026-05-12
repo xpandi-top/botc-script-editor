@@ -3,7 +3,7 @@ import type { StorytellerContext } from '../useStoryteller'
 import React, { useState, useMemo } from 'react'
 import {
   Box, Button, IconButton, Tooltip, Typography, ToggleButton, ToggleButtonGroup,
-  TextField, useTheme,
+  Select, MenuItem, TextField, useTheme,
 } from '@mui/material'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import PauseIcon from '@mui/icons-material/Pause'
