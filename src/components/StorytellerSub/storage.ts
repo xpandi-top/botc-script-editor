@@ -86,6 +86,7 @@ export function loadInitialState(): PersistedState {
       activeScriptSlug: p.activeScriptSlug,
       activeScriptTitle: p.activeScriptTitle,
       endGameResult: p.endGameResult ?? null,
+      gameStartedAt: p.gameStartedAt,
       stFabledIds: p.stFabledIds ?? [],
       stCustomRules: p.stCustomRules ?? '',
       stName: p.stName ?? '',
