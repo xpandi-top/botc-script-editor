@@ -3,7 +3,7 @@ import type { StorytellerContext } from '../useStoryteller'
 import React, { useState, useMemo } from 'react'
 import {
   Box, Button, IconButton, Tooltip, Typography, ToggleButton, ToggleButtonGroup,
-  Select, MenuItem, TextField, useTheme,
+  Select, MenuItem, TextField, Slider, useTheme,
 } from '@mui/material'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import PauseIcon from '@mui/icons-material/Pause'
@@ -69,6 +69,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
     hasTimer, currentTimerSeconds, isTimerRunning, setIsTimerRunning,
     setCurrentTimer, syncDayTimers, setPickerMode,
     audioPlaying, setAudioPlaying, startNight, stopNight,
+    audioTracks, selectedAudioSrc, setSelectedAudioSrc, bgmVolume, setBgmVolume,
     canNominate, secondsUntilNomination,
     showNominationSheet, setShowNominationSheet,
     enterNomination, moveToNextSpeaker, setPhase,
@@ -330,6 +331,29 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
                   <StopIcon />
                 </IconButton>
               </Tooltip>
+              {/* Mobile BGM track selector + volume — hidden on desktop (CompactToolbar handles it there) */}
+              <Box sx={{ display: { xs: 'flex', md: 'none' }, alignItems: 'center', gap: 0.5, flex: 1, minWidth: 0 }}>
+                <Select
+                  value={selectedAudioSrc ?? ''}
+                  onChange={(e) => setSelectedAudioSrc(e.target.value)}
+                  size="small"
+                  sx={{
+                    flex: 1, minWidth: 0, fontSize: '0.72rem', color: textColor,
+                    '.MuiOutlinedInput-notchedOutline': { borderColor: btnBorder },
+                    '.MuiSvgIcon-root': { color: textColor },
+                  }}
+                >
+                  {(audioTracks ?? []).map((t: any) => (
+                    <MenuItem key={t.src} value={t.src} sx={{ fontSize: '0.75rem' }}>{t.name}</MenuItem>
+                  ))}
+                </Select>
+                <Slider
+                  value={bgmVolume ?? 0.7}
+                  onChange={(_, v) => setBgmVolume(v as number)}
+                  min={0} max={1} step={0.05} size="small"
+                  sx={{ width: 56, flexShrink: 0, '& .MuiSlider-thumb': { width: 12, height: 12 }, color: textColor }}
+                />
+              </Box>
               </Box>
               <Box sx={{gap:2, display:'flex'}}>
               <Tooltip title={nightShowCharacter ? (language === 'zh' ? '隐藏角色' : 'Hide Characters') : (language === 'zh' ? '显示角色' : 'Show Characters')}>

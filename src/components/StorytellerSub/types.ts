@@ -46,6 +46,7 @@ export type NewGameConfig = {
   demonBluffs: string[] // up to 3 character IDs shown to the Demon
   charPool: string[] // character IDs selected for random pool (empty = all)
   editMode?: boolean // true when editing existing game setup
+  applyNamesToAllDays?: boolean // propagate seatNames changes to all days
 }
 
 export type EndGameResult = {

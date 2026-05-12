@@ -10,6 +10,7 @@ export function ModalsNewGame({ ctx }: { ctx: StorytellerContext }) {
   const {
     scriptOptions, playerNamePool, setPlayerNamePool, text, language,
     newGamePanel, setNewGamePanel, setShowNewGamePanel, startNewGame, applyGameChanges, randomAssignCharacters,
+    days,
   } = ctx
 
   const [activeTab, setActiveTab] = useState<'players' | 'characters' | 'config'>('players')
@@ -92,6 +93,26 @@ export function ModalsNewGame({ ctx }: { ctx: StorytellerContext }) {
           </Box>
         )}
       </Box>
+
+      {/* Apply to all days — only shown in edit mode when multiple days exist */}
+      {editMode && days.length > 1 && (
+        <FormControlLabel
+          control={
+            <Checkbox
+              size="small"
+              checked={!!newGamePanel.applyNamesToAllDays}
+              onChange={(e) => updateConfig({ applyNamesToAllDays: e.target.checked })}
+            />
+          }
+          label={
+            <Typography variant="caption">
+              {language === 'zh'
+                ? `将玩家姓名同步到全部 ${days.length} 天`
+                : `Apply player names to all ${days.length} days`}
+            </Typography>
+          }
+        />
+      )}
 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1 }}>
         <Button variant="outlined" onClick={() => setShowNewGamePanel(false)}>

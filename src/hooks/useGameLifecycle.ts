@@ -294,7 +294,20 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
       newSeat.note = newGamePanel.seatNotes[sNum] || ''
       return newSeat
     })
-    setDays((d) => d.map((day) => day.id === currentDay.id ? { ...updatedDay, seats: updatedSeats, demonBluffs: newGamePanel.demonBluffs || [] } : day))
+    if (newGamePanel.applyNamesToAllDays) {
+      // Propagate seat name changes to every day, char/note changes only to current day
+      setDays((d) => d.map((day) => {
+        if (day.id === currentDay.id) return { ...updatedDay, seats: updatedSeats, demonBluffs: newGamePanel.demonBluffs || [] }
+        // Other days: only update names for matching seats
+        const renamedSeats = day.seats.map((s) => {
+          const newName = newGamePanel.seatNames[s.seat]
+          return newName ? { ...s, name: newName } : s
+        })
+        return { ...day, seats: renamedSeats }
+      }))
+    } else {
+      setDays((d) => d.map((day) => day.id === currentDay.id ? { ...updatedDay, seats: updatedSeats, demonBluffs: newGamePanel.demonBluffs || [] } : day))
+    }
     setNewGamePanel(null)
     setShowNewGamePanel?.(false)
   }
