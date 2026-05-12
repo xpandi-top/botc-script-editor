@@ -60,6 +60,7 @@ import {
   toTitleCase,
 } from './catalog'
 import { STORAGE_KEY, USER_SCRIPTS_KEY } from './components/StorytellerSub/constants'
+import { useCloudSync } from './hooks/useCloudSync'
 
 const SCRIPT_META_KEY = 'BOTC_SCRIPT_META'
 
@@ -81,6 +82,7 @@ type TabKey = 'scripts' | 'characters' | 'storyteller' | 'printstudio' | 'analyt
 
 export default function App() {
   const { mode: themeMode } = useThemeMode()
+  const { scheduleSync } = useCloudSync()
   const [activeTab, setActiveTab] = useState<TabKey>('scripts')
   const [uiLanguage, setUiLanguage] = useState<Language>(() => {
     try { return (localStorage.getItem('botc-ui-language') as Language) ?? 'zh' } catch { return 'zh' }
@@ -139,7 +141,8 @@ export default function App() {
       if (Object.keys(m).length) meta[s.slug] = m
     }
     try { localStorage.setItem(SCRIPT_META_KEY, JSON.stringify(meta)) } catch {}
-  }, [scripts, initialSlugs])
+    scheduleSync()
+  }, [scripts, initialSlugs, scheduleSync])
 
   // ── Custom characters ─────────────────────────────────────────────────────
   const [customChars, setCustomChars] = useState<CustomCharacter[]>(() => {
@@ -154,7 +157,8 @@ export default function App() {
   useEffect(() => {
     registerCustomCharacters(customChars)
     localStorage.setItem(CUSTOM_CHARACTERS_KEY, JSON.stringify(customChars))
-  }, [customChars])
+    scheduleSync()
+  }, [customChars, scheduleSync])
 
   const [characterQuery, setCharacterQuery] = useState('')
   const [selectedTeams, setSelectedTeams] = useState<Team[]>([])

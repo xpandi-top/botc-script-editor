@@ -1,8 +1,21 @@
-import { Box, Paper, Typography, Divider, ToggleButtonGroup, ToggleButton } from '@mui/material'
+import { useState } from 'react'
+import {
+  Alert, Box, Button, Chip, CircularProgress, Dialog, DialogActions,
+  DialogContent, DialogTitle, Divider, FormControlLabel, Paper,
+  Radio, RadioGroup, ToggleButton, ToggleButtonGroup, Typography,
+} from '@mui/material'
 import LightModeIcon from '@mui/icons-material/LightMode'
 import DarkModeIcon from '@mui/icons-material/DarkMode'
+import CloudIcon from '@mui/icons-material/Cloud'
+import CloudOffIcon from '@mui/icons-material/CloudOff'
+import CloudSyncIcon from '@mui/icons-material/CloudSync'
+import DownloadIcon from '@mui/icons-material/Download'
+import UploadIcon from '@mui/icons-material/Upload'
 import type { FontOption, FontSettings, UiScale } from '../../hooks/useFontSettings'
 import { UI_SCALE_OPTIONS, ZH_SAME_AS_EN_ID } from '../../hooks/useFontSettings'
+import { useCloudSync } from '../../hooks/useCloudSync'
+import { GOOGLE_CLIENT_ID } from '../../lib/googleAuth'
+import { exportEverything, readBundleFile, applyBundle } from '../../lib/bundleIO'
 import type { Language } from '../../types'
 import { useThemeMode } from '../../context/ThemeMode'
 
@@ -156,6 +169,13 @@ interface SettingsTabProps {
 
 export function SettingsTab({ language, onLanguageChange, fontSettings }: SettingsTabProps) {
   const { mode, setMode } = useThemeMode()
+  const cloud = useCloudSync()
+  const [importDialog, setImportDialog] = useState(false)
+  const [importMode, setImportMode] = useState<'replace' | 'merge'>('merge')
+  const [importFile, setImportFile] = useState<File | null>(null)
+  const [importStatus, setImportStatus] = useState<'idle' | 'ok' | 'error'>('idle')
+  const [importError, setImportError] = useState('')
+  const cloudEnabled = !!GOOGLE_CLIENT_ID
   const {
     enBodyId,    setEnBodyId,    enBodyOptions,
     enDisplayId, setEnDisplayId, enDisplayOptions,
@@ -331,6 +351,173 @@ export function SettingsTab({ language, onLanguageChange, fontSettings }: Settin
           ? '字体设置保存在本地，刷新后依然有效。Google Fonts 字体需要网络连接。界面大小设置会立即生效。'
           : 'Font settings are saved locally and persist across reloads. Google Fonts require a network connection. Size changes apply instantly.'}
       </Typography>
+
+      <Divider />
+
+      {/* ── Section: Cloud Sync ── */}
+      <Box>
+        <Typography variant="h5" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          {cloud.connected ? <CloudSyncIcon /> : <CloudOffIcon />}
+          {zh ? 'Google Drive 同步' : 'Google Drive Sync'}
+        </Typography>
+
+        {!cloudEnabled ? (
+          <Alert severity="info" sx={{ mb: 2 }}>
+            {zh
+              ? 'Cloud 同步需要配置 Google OAuth2 Client ID。请在 .env.local 中设置 VITE_GOOGLE_CLIENT_ID。'
+              : 'Cloud sync requires a Google OAuth2 Client ID. Set VITE_GOOGLE_CLIENT_ID in .env.local — see docs/VERSIONING-CUSTOM-CLOUD.md for setup steps.'}
+          </Alert>
+        ) : cloud.connected ? (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+              <Chip
+                icon={<CloudIcon />}
+                label={zh ? '已连接 Google Drive' : 'Connected to Google Drive'}
+                color="success" size="small"
+              />
+              {cloud.status === 'syncing' || cloud.status === 'pulling' || cloud.status === 'pushing' ? (
+                <Chip icon={<CircularProgress size={12} />}
+                  label={cloud.status === 'pulling' ? (zh ? '拉取中…' : 'Pulling…') : (zh ? '推送中…' : 'Pushing…')}
+                  size="small" variant="outlined"
+                />
+              ) : cloud.status === 'error' ? (
+                <Chip label={zh ? '同步错误' : 'Sync error'} color="error" size="small" />
+              ) : null}
+            </Box>
+
+            {cloud.lastSynced && (
+              <Typography variant="caption" color="text.secondary">
+                {zh ? '上次同步：' : 'Last synced: '}
+                {cloud.lastSynced.toLocaleString()}
+              </Typography>
+            )}
+
+            {cloud.errorMessage && (
+              <Alert severity="error" sx={{ fontSize: '0.8rem' }}>{cloud.errorMessage}</Alert>
+            )}
+
+            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+              <Button
+                variant="outlined" size="small" startIcon={<CloudSyncIcon />}
+                onClick={() => void cloud.syncNow()}
+                disabled={cloud.status === 'syncing' || cloud.status === 'pulling' || cloud.status === 'pushing'}
+              >
+                {zh ? '立即同步' : 'Sync Now'}
+              </Button>
+              <Button
+                variant="outlined" size="small" color="error" startIcon={<CloudOffIcon />}
+                onClick={cloud.disconnect}
+              >
+                {zh ? '断开连接' : 'Disconnect'}
+              </Button>
+            </Box>
+
+            <Typography variant="caption" color="text.secondary" sx={{ maxWidth: 480 }}>
+              {zh
+                ? '数据存储在您的私有 Google Drive appDataFolder 中，仅本应用可见。本地更改会在 2 秒后自动同步。'
+                : 'Data stored in your private Google Drive appDataFolder — only visible to this app. Local changes auto-sync after 2 s.'}
+            </Typography>
+          </Box>
+        ) : (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 480 }}>
+              {zh
+                ? '连接 Google Drive 后，脚本、自定义角色和版本覆盖将自动跨设备同步。数据完全私有，存储在您的 Drive 中。'
+                : 'Connect Google Drive to automatically sync scripts, custom characters, and revision overrides across devices. Data stays fully private in your own Drive.'}
+            </Typography>
+            <Button
+              variant="contained" startIcon={<CloudIcon />}
+              onClick={() => void cloud.connect()}
+              sx={{ alignSelf: 'flex-start' }}
+            >
+              {zh ? '连接 Google Drive' : 'Connect Google Drive'}
+            </Button>
+          </Box>
+        )}
+      </Box>
+
+      <Divider />
+
+      {/* ── Section: Export / Import ── */}
+      <Box>
+        <Typography variant="h5" gutterBottom>
+          {zh ? '数据备份与导入' : 'Backup & Import'}
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2, maxWidth: 480 }}>
+          {zh
+            ? '导出包含脚本、自定义角色、版本覆盖和脚本元数据的完整备份文件。可分享给他人或在新设备导入。'
+            : 'Export a full backup containing scripts, custom characters, revision overrides, and script metadata. Share with others or import on a new device.'}
+        </Typography>
+
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+          <Button
+            variant="outlined" startIcon={<DownloadIcon />}
+            onClick={exportEverything}
+          >
+            {zh ? '导出全部数据' : 'Export Everything'}
+          </Button>
+          <Button
+            variant="outlined" startIcon={<UploadIcon />}
+            onClick={() => { setImportFile(null); setImportStatus('idle'); setImportError(''); setImportDialog(true) }}
+          >
+            {zh ? '导入备份文件' : 'Import Bundle'}
+          </Button>
+        </Box>
+      </Box>
+
+      {/* ── Import Dialog ── */}
+      <Dialog open={importDialog} onClose={() => setImportDialog(false)} maxWidth="xs" fullWidth>
+        <DialogTitle>{zh ? '导入备份文件' : 'Import Bundle'}</DialogTitle>
+        <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '8px !important' }}>
+          <Button variant="outlined" component="label" startIcon={<UploadIcon />}>
+            {importFile ? importFile.name : (zh ? '选择 JSON 文件' : 'Choose JSON file')}
+            <input type="file" accept=".json" hidden onChange={(e) => {
+              const f = e.target.files?.[0]
+              if (f) { setImportFile(f); setImportStatus('idle') }
+              e.target.value = ''
+            }} />
+          </Button>
+
+          <Box>
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+              {zh ? '导入模式' : 'Import mode'}
+            </Typography>
+            <RadioGroup row value={importMode} onChange={(e) => setImportMode(e.target.value as 'replace' | 'merge')}>
+              <FormControlLabel value="merge" control={<Radio size="small" />}
+                label={<Typography variant="body2">{zh ? '合并（保留现有）' : 'Merge (keep existing)'}</Typography>} />
+              <FormControlLabel value="replace" control={<Radio size="small" />}
+                label={<Typography variant="body2">{zh ? '替换（覆盖全部）' : 'Replace (overwrite all)'}</Typography>} />
+            </RadioGroup>
+          </Box>
+
+          {importStatus === 'ok' && (
+            <Alert severity="success">{zh ? '导入成功，请刷新页面。' : 'Import successful — reload the page to apply.'}</Alert>
+          )}
+          {importStatus === 'error' && (
+            <Alert severity="error">{importError}</Alert>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setImportDialog(false)}>{zh ? '取消' : 'Cancel'}</Button>
+          <Button
+            variant="contained"
+            disabled={!importFile || importStatus === 'ok'}
+            onClick={async () => {
+              if (!importFile) return
+              try {
+                const bundle = await readBundleFile(importFile)
+                applyBundle(bundle, { mode: importMode })
+                setImportStatus('ok')
+              } catch (e) {
+                setImportError(e instanceof Error ? e.message : String(e))
+                setImportStatus('error')
+              }
+            }}
+          >
+            {zh ? '导入' : 'Import'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   )
 }
