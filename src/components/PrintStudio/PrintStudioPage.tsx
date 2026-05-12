@@ -145,12 +145,12 @@ export function PrintStudioPage({ opts, onOptionsChange, onClose, onOpenPrintPre
         {/* Live preview — hidden only on mobile when panel is open; tablet+ always visible */}
         <Box ref={previewRef} sx={{
           flex: 1,
-          overflowY: 'auto',
+          overflow: 'auto',
           bgcolor: 'grey.200',
           p: { xs: 1, sm: 3 },
           display: panelOpen && isMobile ? 'none' : 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
+          alignItems: 'safe center',
           gap: 2,
           minWidth: 0,
         }}>

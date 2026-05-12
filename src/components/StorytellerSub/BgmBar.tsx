@@ -74,11 +74,12 @@ export function BgmBar({
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, minWidth: 0 }}>
       <Box sx={{
         display: 'flex', alignItems: 'center', gap: 0.5,
         border: '1px solid', borderColor: 'divider', borderRadius: 999,
         px: 1, py: 0.25, bgcolor: 'background.paper',
+        minWidth: 0, overflow: 'hidden',
         ...sx,
       }}>
 
@@ -87,7 +88,7 @@ export function BgmBar({
           <IconButton
             size={iconSize}
             onClick={onTogglePlay}
-            sx={{ ...btnPad, ...buttonSx, ...(audioPlaying ? activeButtonSx : {}) }}
+            sx={{ ...btnPad, flexShrink: 0, ...buttonSx, ...(audioPlaying ? activeButtonSx : {}) }}
           >
             {audioPlaying
               ? <PauseIcon sx={iconSx} />
@@ -98,7 +99,7 @@ export function BgmBar({
         {/* Stop — optional */}
         {onStop && (
           <Tooltip title={zh ? '停止BGM' : 'Stop BGM'}>
-            <IconButton size={iconSize} onClick={onStop} sx={{ ...btnPad, ...buttonSx }}>
+            <IconButton size={iconSize} onClick={onStop} sx={{ ...btnPad, flexShrink: 0, ...buttonSx }}>
               <StopIcon sx={iconSx} />
             </IconButton>
           </Tooltip>
@@ -109,7 +110,7 @@ export function BgmBar({
           value={selectedAudioSrc ?? ''}
           onChange={(e) => setSelectedAudioSrc(e.target.value)}
           size="small"
-          sx={{ fontSize: '0.75rem', ...selectSx }}
+          sx={{ fontSize: '0.75rem', minWidth: 0, flex: '1 1 60px', maxWidth: 200, ...selectSx }}
         >
           {(audioTracks ?? []).map((t) => (
             <MenuItem
@@ -136,7 +137,7 @@ export function BgmBar({
           value={bgmVolume ?? 0.7}
           onChange={(_, v) => setBgmVolume(v as number)}
           min={0} max={1} step={0.05} size="small"
-          sx={{ width: 60, '& .MuiSlider-thumb': { width: 12, height: 12 }, ...sliderSx }}
+          sx={{ width: 60, flexShrink: 0, '& .MuiSlider-thumb': { width: 12, height: 12 }, ...sliderSx }}
         />
 
         {/* Add local file */}
