@@ -2,14 +2,38 @@
  * Google OAuth2 PKCE flow — no backend, no client_secret.
  * Works on any static host (GitHub Pages, Netlify, etc.).
  *
- * Setup required in Google Cloud Console:
+ * Client ID can be set in two ways (checked in order):
+ *  1. localStorage key BOTC_GOOGLE_CLIENT_ID  ← set via Settings UI, no rebuild needed
+ *  2. VITE_GOOGLE_CLIENT_ID env var            ← build-time embed for self-hosters
+ *
+ * Google Cloud Console setup:
  *  1. Create project → Enable "Google Drive API"
- *  2. OAuth2 credentials → Web Application
- *  3. Authorized redirect URIs: add your deployed URL (e.g. https://you.github.io/botc_webapp/)
- *     AND http://localhost:5173/ for local dev
- *  4. Set VITE_GOOGLE_CLIENT_ID in .env.local
+ *  2. Credentials → Create → OAuth client ID → Web Application
+ *  3. Authorized redirect URIs: your deployed origin + trailing slash
+ *     (e.g. https://you.github.io/botc_webapp/ and http://localhost:5173/)
+ *  4. Paste the Client ID into Settings → Cloud Sync
  */
 
+export const CLIENT_ID_STORAGE_KEY = 'BOTC_GOOGLE_CLIENT_ID'
+
+/** Read client ID — localStorage overrides build-time env var. */
+export function getClientId(): string {
+  try {
+    const stored = localStorage.getItem(CLIENT_ID_STORAGE_KEY)
+    if (stored?.trim()) return stored.trim()
+  } catch {}
+  return (import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined) ?? ''
+}
+
+export function saveClientId(id: string): void {
+  try { localStorage.setItem(CLIENT_ID_STORAGE_KEY, id.trim()) } catch {}
+}
+
+export function clearClientId(): void {
+  try { localStorage.removeItem(CLIENT_ID_STORAGE_KEY) } catch {}
+}
+
+/** @deprecated use getClientId() — kept for legacy imports */
 export const GOOGLE_CLIENT_ID: string =
   (import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined) ?? ''
 
@@ -92,7 +116,8 @@ export function getRedirectUri(): string {
  * Call `handleOAuthCallback()` to complete.
  */
 export async function startOAuthFlow(): Promise<void> {
-  if (!GOOGLE_CLIENT_ID) throw new Error('VITE_GOOGLE_CLIENT_ID not set')
+  const clientId = getClientId()
+  if (!clientId) throw new Error('Google Client ID not configured — enter it in Settings → Cloud Sync')
 
   const verifier = randomBase64Url(96)
   const challenge = await sha256Base64Url(verifier)
@@ -102,7 +127,7 @@ export async function startOAuthFlow(): Promise<void> {
   sessionStorage.setItem(STATE_KEY, state)
 
   const params = new URLSearchParams({
-    client_id: GOOGLE_CLIENT_ID,
+    client_id: clientId,
     redirect_uri: getRedirectUri(),
     response_type: 'code',
     scope: SCOPES,
@@ -136,7 +161,7 @@ export async function handleOAuthCallback(
   if (state !== storedState) throw new Error('OAuth state mismatch — possible CSRF')
 
   const body = new URLSearchParams({
-    client_id: GOOGLE_CLIENT_ID,
+    client_id: getClientId(),
     redirect_uri: getRedirectUri(),
     grant_type: 'authorization_code',
     code,
@@ -180,7 +205,7 @@ export async function handleOAuthCallback(
 
 export async function refreshAccessToken(refreshToken: string): Promise<GoogleTokens> {
   const body = new URLSearchParams({
-    client_id: GOOGLE_CLIENT_ID,
+    client_id: getClientId(),
     grant_type: 'refresh_token',
     refresh_token: refreshToken,
   })
