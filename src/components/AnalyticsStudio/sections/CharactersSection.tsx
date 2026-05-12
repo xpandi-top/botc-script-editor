@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
-import { Box, Chip, Collapse, MenuItem, Paper, Select, ToggleButton, ToggleButtonGroup, Typography, useTheme } from '@mui/material'
+import { Box, Chip, Collapse, MenuItem, Paper, Select, ToggleButton, ToggleButtonGroup, Tooltip, Typography, useTheme } from '@mui/material'
+import FlashOnIcon from '@mui/icons-material/FlashOn'
 import { allCharacters, getDisplayName, getIconForCharacter } from '../../../catalog'
 import type { CharStat } from '../useStats'
 import type { GameRecord } from '../../StorytellerSub/types'
@@ -82,7 +83,7 @@ function CharDetail({ stat, records, zh }: { stat: CharStat; records: GameRecord
             <Typography variant="caption" sx={{ fontWeight: 700, display: 'block', mb: 0.5 }}>
               {zh ? '用作恶魔虚张声势' : 'Used as demon bluff'}
             </Typography>
-            <Chip size="small" label={`${stat.bluffCount}×`} color="warning" sx={{ fontSize: '0.7rem', height: 22 }} />
+            <Chip size="small" icon={<FlashOnIcon sx={{ fontSize: '0.75rem !important' }} />} label={`×${stat.bluffCount}`} color="warning" sx={{ fontSize: '0.7rem', height: 22 }} />
           </Box>
         )}
       </Box>
@@ -175,8 +176,12 @@ function CharCard({ stat, language, records, zh }: { stat: CharStat; language: L
         </Box>
 
         {stat.bluffCount > 0 && (
-          <Chip size="small" label={`⚡×${stat.bluffCount}`} sx={{ fontSize: '0.6rem', height: 18, flexShrink: 0 }}
-            title={zh ? '用作恶魔虚张声势次数' : 'Times used as demon bluff'} />
+          <Tooltip title={zh ? '用作恶魔虚张声势次数' : 'Times used as demon bluff'}>
+            <Chip size="small"
+              icon={<FlashOnIcon sx={{ fontSize: '0.7rem !important' }} />}
+              label={`×${stat.bluffCount}`}
+              sx={{ fontSize: '0.6rem', height: 18, flexShrink: 0 }} />
+          </Tooltip>
         )}
       </Box>
 

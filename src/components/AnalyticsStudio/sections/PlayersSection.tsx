@@ -5,6 +5,7 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows'
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents'
 import PersonIcon from '@mui/icons-material/Person'
+import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord'
 import { getDisplayName, getIconForCharacter } from '../../../catalog'
 import type { PlayerStat } from '../useStats'
 import type { GameRecord } from '../../StorytellerSub/types'
@@ -116,9 +117,12 @@ function PlayerDetail({ player, language, zh }: { player: PlayerStat; language: 
               if (goodTm.length === 0) return null
               return (
                 <Box sx={{ mb: 0.75 }}>
-                  <Typography variant="caption" color="success.dark" sx={{ fontSize: '0.62rem', fontWeight: 700, display: 'block', mb: 0.25 }}>
-                    🟦 {zh ? '善良' : 'Good'}
-                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25, mb: 0.25 }}>
+                    <FiberManualRecordIcon sx={{ fontSize: '0.6rem', color: 'primary.main' }} />
+                    <Typography variant="caption" color="primary.main" sx={{ fontSize: '0.62rem', fontWeight: 700 }}>
+                      {zh ? '善良' : 'Good'}
+                    </Typography>
+                  </Box>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                     {goodTm.map(([name, count]) => (
                       <Chip key={name} size="small" label={`${name} ×${count}`}
@@ -135,9 +139,12 @@ function PlayerDetail({ player, language, zh }: { player: PlayerStat; language: 
               if (evilTm.length === 0) return null
               return (
                 <Box sx={{ mb: 0.75 }}>
-                  <Typography variant="caption" color="error.dark" sx={{ fontSize: '0.62rem', fontWeight: 700, display: 'block', mb: 0.25 }}>
-                    🔴 {zh ? '邪恶' : 'Evil'}
-                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25, mb: 0.25 }}>
+                    <FiberManualRecordIcon sx={{ fontSize: '0.6rem', color: 'error.main' }} />
+                    <Typography variant="caption" color="error.dark" sx={{ fontSize: '0.62rem', fontWeight: 700 }}>
+                      {zh ? '邪恶' : 'Evil'}
+                    </Typography>
+                  </Box>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                     {evilTm.map(([name, count]) => (
                       <Chip key={name} size="small" label={`${name} ×${count}`}

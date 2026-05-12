@@ -6,6 +6,8 @@ import EmojiEventsIcon from '@mui/icons-material/EmojiEvents'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import WarningAmberIcon from '@mui/icons-material/WarningAmber'
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined'
+import StarIcon from '@mui/icons-material/Star'
+import ReplayIcon from '@mui/icons-material/Replay'
 import { getDisplayName, getIconForCharacter } from '../../../catalog'
 import type { KpiSummary, ScriptStat, PlayerStat, CharStat, StorytiellerStat } from '../useStats'
 import type { GameRecord } from '../../StorytellerSub/types'
@@ -62,6 +64,7 @@ type Insight = {
   label: string       // short heading
   detail: string      // one-line context
   value?: string      // prominent metric badge
+  valueIcon?: 'star'  // optional icon prefix in badge
 }
 
 const SEV_COLOR: Record<InsightSeverity, string> = {
@@ -166,7 +169,7 @@ function buildInsights(
       out.push({ id: 'script-toprated', severity: 'highlight',
         label: zh ? `《${topRated.title}》评分最高` : `"${topRated.title}" top-rated`,
         detail: zh ? `平衡+重玩均值 ${score}/5` : `Avg balance+replay ${score}/5`,
-        value: `★${score}` })
+        value: score, valueIcon: 'star' as const })
     }
   }
 
@@ -250,8 +253,12 @@ function InsightCard({ insight }: { insight: Insight }) {
         <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1.3 }}>{insight.detail}</Typography>
       </Box>
       {insight.value && (
-        <Chip label={insight.value} size="small"
-          sx={{ fontSize: '0.68rem', height: 20, fontWeight: 700, bgcolor: SEV_BORDER[insight.severity], color: '#fff', flexShrink: 0 }} />
+        <Chip
+          label={insight.value}
+          size="small"
+          icon={insight.valueIcon === 'star' ? <StarIcon sx={{ fontSize: '0.7rem !important', color: '#fff !important' }} /> : undefined}
+          sx={{ fontSize: '0.68rem', height: 20, fontWeight: 700, bgcolor: SEV_BORDER[insight.severity], color: '#fff', flexShrink: 0,
+            '& .MuiChip-icon': { ml: '4px' } }} />
       )}
     </Box>
   )
@@ -512,11 +519,23 @@ export function OverviewSection({ kpi, scriptStats, playerStats, charStats, stor
                         {(st.total - st.evil - st.good - st.st) > 0 && <Box sx={{ flex: st.total - st.evil - st.good - st.st, bgcolor: 'grey.300' }} />}
                       </Box>
                     </Tooltip>
-                    <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.62rem' }}>
-                      E:{evilPct}% G:{goodPct}%
-                      {st.avgBalanced != null ? ` · ⚖${st.avgBalanced}` : ''}
-                      {st.avgReplay != null ? ` · 🔁${st.avgReplay}` : ''}
-                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 0.5 }}>
+                      <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.62rem' }}>
+                        E:{evilPct}% G:{goodPct}%
+                      </Typography>
+                      {st.avgBalanced != null && (
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+                          <BalanceIcon sx={{ fontSize: '0.6rem', color: 'text.disabled' }} />
+                          <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.62rem' }}>{st.avgBalanced}</Typography>
+                        </Box>
+                      )}
+                      {st.avgReplay != null && (
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+                          <ReplayIcon sx={{ fontSize: '0.6rem', color: 'text.disabled' }} />
+                          <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.62rem' }}>{st.avgReplay}</Typography>
+                        </Box>
+                      )}
+                    </Box>
                   </Box>
                 </Box>
               )

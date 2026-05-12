@@ -13,6 +13,8 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import FileDownloadIcon from '@mui/icons-material/FileDownload'
 import FlashOnIcon from '@mui/icons-material/FlashOn'
 import PersonIcon from '@mui/icons-material/Person'
+import StarIcon from '@mui/icons-material/Star'
+import StarBorderIcon from '@mui/icons-material/StarBorder'
 import TimerIcon from '@mui/icons-material/Timer'
 import { getDisplayName, getIconForCharacter } from '../../../catalog'
 import { exportGameFile } from '../../../lib/exportGame'
@@ -195,10 +197,12 @@ const RATING_LABELS = {
 function StarDots({ value }: { value: number | null | undefined }) {
   if (value == null) return <Typography variant="caption" color="text.disabled">—</Typography>
   return (
-    <Box sx={{ display: 'flex', gap: '2px' }}>
-      {[1, 2, 3, 4, 5].map((i) => (
-        <Box key={i} sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: i <= value ? 'warning.main' : 'action.disabled' }} />
-      ))}
+    <Box sx={{ display: 'flex', gap: '1px' }}>
+      {[1, 2, 3, 4, 5].map((i) =>
+        i <= value
+          ? <StarIcon key={i} sx={{ fontSize: '0.75rem', color: 'warning.main' }} />
+          : <StarBorderIcon key={i} sx={{ fontSize: '0.75rem', color: 'action.disabled' }} />
+      )}
     </Box>
   )
 }
@@ -258,7 +262,8 @@ function RecordRowDetail({ record, language, zh }: { record: GameRecord; languag
                 key={ps.seat}
                 size="small"
                 avatar={icon ? <Box component="img" src={icon as string} sx={{ width: 14, height: 14, borderRadius: '50%' }} /> : undefined}
-                label={`${isMvp ? '⭐ ' : ''}${ps.name}${charName ? ` (${charName})` : ''}`}
+                label={`${ps.name}${charName ? ` (${charName})` : ''}`}
+                icon={isMvp ? <EmojiEventsIcon sx={{ fontSize: '0.75rem !important', color: 'warning.main !important' }} /> : undefined}
                 sx={{
                   fontSize: '0.68rem',
                   bgcolor: ps.team === 'evil' ? 'rgba(183,28,28,0.12)' : ps.team === 'good' ? 'rgba(21,101,192,0.12)' : undefined,
