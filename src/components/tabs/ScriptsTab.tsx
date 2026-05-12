@@ -107,6 +107,7 @@ export function ScriptsTab({
   const [tagFilter, setTagFilter] = useState<string | null>(null)
   const [noteOpen, setNoteOpen] = useState(false)
   const noteRef = useRef<HTMLTextAreaElement | null>(null)
+  const [customTagInput, setCustomTagInput] = useState('')
 
   const SCRIPT_TAGS = ['WIP', 'Balanced', 'Experimental', 'Needs Review', 'Archived']
 
@@ -374,6 +375,30 @@ export function ScriptsTab({
                         sx={{ fontSize: '0.65rem', opacity: 0.45, '&:hover': { opacity: 1 } }}
                       />
                     ))}
+                    {/* Custom tag input */}
+                    <Box
+                      component="input"
+                      placeholder={zh ? '自定义标签…' : 'Custom tag…'}
+                      value={customTagInput}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCustomTagInput(e.target.value)}
+                      onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                        if (e.key === 'Enter') {
+                          const t = customTagInput.trim()
+                          if (t) { addTag(t); setCustomTagInput('') }
+                        } else if (e.key === 'Escape') {
+                          setCustomTagInput('')
+                        }
+                      }}
+                      sx={{
+                        border: '1px dashed', borderColor: 'divider', borderRadius: '16px',
+                        px: 1.25, py: '2px', fontSize: '0.65rem',
+                        bgcolor: 'transparent', color: 'text.primary', outline: 'none',
+                        width: 110, opacity: 0.55,
+                        '&:focus': { opacity: 1, borderColor: 'primary.main', borderStyle: 'solid' },
+                        '&::placeholder': { color: 'text.disabled' },
+                      }}
+                    />
+
                     {/* Note toggle */}
                     <Tooltip title={zh ? (hasNote ? '查看备注' : '添加备注') : (hasNote ? 'View note' : 'Add note')}>
                       <Chip
