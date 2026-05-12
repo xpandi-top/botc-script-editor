@@ -45,7 +45,7 @@ interface Props {
   onEditRecord?: (r: GameRecord) => void
 }
 
-// ── Quick Edit panel (survey ratings + winner + MVP) ─────────────
+// ── Quick Edit panel ─────────────────────────────────────────────
 
 function QuickEditPanel({ record, zh, onSave }: {
   record: GameRecord; language: Language; zh: boolean; onSave: (updated: GameRecord) => void
@@ -54,14 +54,19 @@ function QuickEditPanel({ record, zh, onSave }: {
   const [mvp, setMvp] = useState<number | 'storyteller' | ''>(
     record.mvp === 'storyteller' ? 'storyteller' : (record.mvp ?? '')
   )
+  const [stName, setStName] = useState(record.stName ?? '')
+  const [stCustomRules, setStCustomRules] = useState(record.stCustomRules ?? '')
   const [balanced, setBalanced] = useState<number | null>(record.balanced ?? null)
   const [funEvil, setFunEvil] = useState<number | null>(record.funEvil ?? null)
   const [funGood, setFunGood] = useState<number | null>(record.funGood ?? null)
   const [replay, setReplay] = useState<number | null>(record.replay ?? null)
-  const [otherNote, setOtherNote] = useState<string>(record.otherNote ?? '')
+  const [otherNote, setOtherNote] = useState(record.otherNote ?? '')
   const [dirty, setDirty] = useState(false)
 
   const mark = <T,>(setter: (v: T) => void) => (v: T) => { setter(v); setDirty(true) }
+  const markStr = (setter: (v: string) => void) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setter(e.target.value); setDirty(true)
+  }
 
   const seats = record.playerSummaries ?? []
 
@@ -70,90 +75,108 @@ function QuickEditPanel({ record, zh, onSave }: {
       ...record,
       winner: (winner || null) as GameRecord['winner'],
       mvp: mvp !== '' ? (mvp as number | 'storyteller') : null,
+      stName: stName.trim() || undefined,
+      stCustomRules: stCustomRules.trim() || undefined,
       balanced,
       funEvil,
       funGood,
       replay,
-      otherNote: otherNote || undefined,
+      otherNote: otherNote.trim() || undefined,
     })
     setDirty(false)
   }
 
+  const inputSx = { '& .MuiInputBase-input': { fontSize: '0.78rem', py: '5px' }, '& .MuiInputLabel-root': { fontSize: '0.78rem' } }
+
   return (
-    <Box sx={{ px: 2, py: 1.5, bgcolor: 'rgba(0,0,0,0.025)', borderTop: '1px dashed', borderColor: 'divider' }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1 }}>
-        <FlashOnIcon sx={{ fontSize: '0.85rem', color: 'warning.main' }} />
-        <Typography variant="caption" sx={{ fontWeight: 700, color: 'warning.dark' }}>
-          {zh ? '快速编辑' : 'Quick Edit'}
-        </Typography>
+    <Box sx={{ px: 2, py: 1.25, bgcolor: 'rgba(0,0,0,0.025)', borderTop: '1px dashed', borderColor: 'divider' }}>
+
+      {/* Header */}
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+          <FlashOnIcon sx={{ fontSize: '0.8rem', color: 'warning.main' }} />
+          <Typography variant="caption" sx={{ fontWeight: 700, color: 'warning.dark', fontSize: '0.72rem' }}>
+            {zh ? '快速编辑' : 'Quick Edit'}
+          </Typography>
+        </Box>
+        <Button size="small" variant="contained" disabled={!dirty} onClick={handleSave}
+          sx={{ fontSize: '0.72rem', py: '2px', px: 1.5, minWidth: 0 }}>
+          {zh ? '保存' : 'Save'}
+        </Button>
       </Box>
 
-      <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-        {/* Winner + MVP */}
-        <Box sx={{ flex: '1 1 200px', display: 'flex', flexDirection: 'column', gap: 1 }}>
+      {/* Body: 2 columns */}
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1.5 }}>
+
+        {/* ── Left col: game outcome + ST ── */}
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+
+          {/* Result */}
           <Box>
-            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.4, fontSize: '0.68rem' }}>
               {zh ? '结果' : 'Result'}
             </Typography>
             <ToggleButtonGroup value={winner} exclusive size="small"
-              onChange={(_, v) => { if (v !== null) { setWinner(v); setDirty(true) } }}>
-              <ToggleButton value="evil" sx={{ fontSize: '0.7rem', py: '2px', px: '8px', color: 'error.main' }}>
+              onChange={(_, v) => { if (v !== null) { setWinner(v); setDirty(true) } }}
+              sx={{ '& .MuiToggleButton-root': { fontSize: '0.7rem', py: '2px', px: '8px' } }}>
+              <ToggleButton value="evil" sx={{ color: 'error.main', '&.Mui-selected': { bgcolor: 'error.main', color: '#fff' } }}>
                 {zh ? '邪恶' : 'Evil'}
               </ToggleButton>
-              <ToggleButton value="good" sx={{ fontSize: '0.7rem', py: '2px', px: '8px', color: 'success.main' }}>
+              <ToggleButton value="good" sx={{ color: 'success.main', '&.Mui-selected': { bgcolor: 'success.main', color: '#fff' } }}>
                 {zh ? '善良' : 'Good'}
               </ToggleButton>
-              <ToggleButton value="storyteller" sx={{ fontSize: '0.7rem', py: '2px', px: '8px', color: 'info.main' }}>
+              <ToggleButton value="storyteller" sx={{ color: 'info.main', '&.Mui-selected': { bgcolor: 'info.main', color: '#fff' } }}>
                 ST
               </ToggleButton>
             </ToggleButtonGroup>
           </Box>
 
-          <FormControl size="small" sx={{ minWidth: 160 }}>
-            <InputLabel sx={{ fontSize: '0.78rem' }}>{zh ? 'MVP' : 'MVP'}</InputLabel>
+          {/* MVP */}
+          <FormControl size="small" sx={inputSx}>
+            <InputLabel>{zh ? 'MVP' : 'MVP'}</InputLabel>
             <Select value={mvp} label="MVP"
               onChange={(e) => { setMvp(e.target.value as number | 'storyteller' | ''); setDirty(true) }}
-              sx={{ fontSize: '0.8rem' }}>
+              sx={{ fontSize: '0.78rem' }}>
               <MenuItem value=""><em>{zh ? '无' : 'None'}</em></MenuItem>
-              <MenuItem value="storyteller" sx={{ fontSize: '0.8rem', fontStyle: 'italic' }}>
+              <MenuItem value="storyteller" sx={{ fontSize: '0.78rem', fontStyle: 'italic' }}>
                 🎭 {zh ? '说书人' : 'Storyteller'}
               </MenuItem>
               {seats.map((s) => (
-                <MenuItem key={s.seat} value={s.seat} sx={{ fontSize: '0.8rem' }}>
+                <MenuItem key={s.seat} value={s.seat} sx={{ fontSize: '0.78rem' }}>
                   {s.seat}. {s.name || `#${s.seat}`}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
+
+          {/* ST Name */}
+          <TextField size="small" label={zh ? '说书人' : 'Storyteller'}
+            value={stName} onChange={markStr(setStName)}
+            placeholder={zh ? '说书人名字' : 'ST name'}
+            sx={inputSx} />
+
+          {/* ST Rules */}
+          <TextField size="small" label={zh ? '自定义规则' : 'Custom rules'}
+            value={stCustomRules} onChange={markStr(setStCustomRules)}
+            multiline rows={2}
+            placeholder={zh ? '自定义规则或备注' : 'House rules, variants…'}
+            sx={{ ...inputSx, '& .MuiInputBase-input': { fontSize: '0.78rem' } }} />
         </Box>
 
-        {/* Ratings */}
-        <Box sx={{ flex: '2 1 280px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0.5 }}>
-          <StarRating label={zh ? '平衡性' : 'Balanced'} value={balanced} onChange={mark(setBalanced)} />
-          <StarRating label={zh ? 'Evil方乐趣' : 'Fun (Evil)'} value={funEvil} onChange={mark(setFunEvil)} />
-          <StarRating label={zh ? '正义方乐趣' : 'Fun (Good)'} value={funGood} onChange={mark(setFunGood)} />
-          <StarRating label={zh ? '重玩愿望' : 'Replay'} value={replay} onChange={mark(setReplay)} />
+        {/* ── Right col: ratings + notes ── */}
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0.5 }}>
+            <StarRating label={zh ? '平衡性' : 'Balanced'} value={balanced} onChange={mark(setBalanced)} />
+            <StarRating label={zh ? 'Evil乐趣' : 'Fun (Evil)'} value={funEvil} onChange={mark(setFunEvil)} />
+            <StarRating label={zh ? '善良乐趣' : 'Fun (Good)'} value={funGood} onChange={mark(setFunGood)} />
+            <StarRating label={zh ? '重玩意愿' : 'Replay'} value={replay} onChange={mark(setReplay)} />
+          </Box>
+          <TextField size="small" label={zh ? '其他备注' : 'Notes'}
+            value={otherNote} onChange={markStr(setOtherNote)}
+            multiline rows={3} fullWidth
+            sx={{ ...inputSx, '& .MuiInputBase-input': { fontSize: '0.78rem' } }} />
         </Box>
 
-        {/* Note */}
-        <Box sx={{ flex: '2 1 200px' }}>
-          <TextField
-            size="small"
-            multiline
-            rows={3}
-            fullWidth
-            label={zh ? '其他备注' : 'Other notes'}
-            value={otherNote}
-            onChange={(e) => { setOtherNote(e.target.value); setDirty(true) }}
-            sx={{ '& .MuiInputBase-input': { fontSize: '0.8rem' } }}
-          />
-        </Box>
-      </Box>
-
-      <Box sx={{ mt: 1, display: 'flex', justifyContent: 'flex-end' }}>
-        <Button size="small" variant="contained" disabled={!dirty} onClick={handleSave}>
-          {zh ? '保存' : 'Save'}
-        </Button>
       </Box>
     </Box>
   )
