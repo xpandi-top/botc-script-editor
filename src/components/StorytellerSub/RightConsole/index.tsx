@@ -1,5 +1,5 @@
 import type { StorytellerContext } from '../useStoryteller'
-import { Box, Collapse, IconButton, Typography, useTheme, useMediaQuery } from '@mui/material'
+import { Box, Drawer, IconButton, Paper, Typography, useTheme, useMediaQuery } from '@mui/material'
 import SettingsIcon from '@mui/icons-material/Settings'
 import HistoryIcon from '@mui/icons-material/History'
 import DownloadIcon from '@mui/icons-material/Download'
@@ -9,8 +9,8 @@ import { GameActionsBar } from '../GameActionsBar'
 
 const barWidth = 56
 
-// ── Desktop vertical icon bar ─────────────────────────────────
-function DesktopIconBar({
+// ── Shared icon bar (vertical column) ────────────────────────
+function IconBar({
   activeRightPopup,
   language,
   text,
@@ -20,6 +20,7 @@ function DesktopIconBar({
   openCharacterEditor,
   openEndGamePanel,
   setShowExportModal,
+  sx = {},
 }: {
   activeRightPopup: string | null
   language: string
@@ -30,9 +31,10 @@ function DesktopIconBar({
   openCharacterEditor: () => void
   openEndGamePanel: () => void
   setShowExportModal: (v: boolean) => void
+  sx?: object
 }) {
   return (
-    <Box sx={{ width: barWidth, display: 'flex', flexDirection: 'column', alignItems: 'center', py: 1, gap: 0.5, borderLeft: '1px solid', borderLeftColor: 'divider', bgcolor: 'background.paper', flexShrink: 0 }}>
+    <Box sx={{ width: barWidth, display: 'flex', flexDirection: 'column', alignItems: 'center', py: 1, gap: 0.5, borderLeft: '1px solid', borderLeftColor: 'divider', bgcolor: 'background.paper', flexShrink: 0, ...sx }}>
       <GameActionsBar
         openNewGamePanel={openNewGamePanel}
         openCharacterEditor={openCharacterEditor}
@@ -43,7 +45,7 @@ function DesktopIconBar({
         variant="sidebar"
       />
       <IconButton
-        onClick={() => setShowExportModal(true)}
+        onClick={() => { setShowExportModal(true); onClose() }}
         sx={{
           flexDirection: 'column', width: 48, p: 0.75, borderRadius: 1.5,
           border: '1px solid transparent',
@@ -83,7 +85,7 @@ function DesktopIconBar({
 
 export function RightConsole({ ctx }: { ctx: StorytellerContext }) {
   const {
-    setShowRightPanel, activeRightPopup, setActiveRightPopup,
+    showRightPanel, setShowRightPanel, activeRightPopup, setActiveRightPopup,
     language, text, setShowExportModal,
     openNewGamePanel, openCharacterEditor, openEndGamePanel,
   } = ctx
@@ -100,7 +102,7 @@ export function RightConsole({ ctx }: { ctx: StorytellerContext }) {
     setShowRightPanel(false)
   }
 
-  const desktopIconBarProps = {
+  const iconBarProps = {
     activeRightPopup,
     language,
     text,
@@ -113,103 +115,103 @@ export function RightConsole({ ctx }: { ctx: StorytellerContext }) {
   }
 
   const popupContent = (
-    <Box sx={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', minWidth: 0, minHeight: 0, maxHeight: '90dvh' }}>
+    <>
       {activeRightPopup === 'settings' && <RightPopupSettings ctx={ctx} />}
       {activeRightPopup === 'records' && <RightConsoleRecords ctx={ctx} toggleConsoleSection={ctx.toggleConsoleSection} />}
-    </Box>
+    </>
   )
 
-  // ── Desktop: inline sidebar ───────────────────────────────────
+  // ── Desktop: fixed icon bar in grid + floating popup panel ────
   if (isDesktop) {
     return (
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'row',
-          bgcolor: 'background.paper',
-          border: '1px solid',
-          borderColor: 'divider',
-          borderRadius: 2,
-          overflow: 'hidden',
-          alignSelf: 'stretch',
-          width: activeRightPopup ? { md: 320, lg: 340 } : barWidth,
-          transition: 'width 0.2s ease',
-          flexShrink: 0,
-        }}
-      >
-        {activeRightPopup && popupContent}
-        <DesktopIconBar {...desktopIconBarProps} />
-      </Box>
+      <>
+        {/* Icon bar — stays in grid, fixed width, never resizes */}
+        <Box
+          sx={{
+            width: barWidth,
+            bgcolor: 'background.paper',
+            border: '1px solid',
+            borderColor: 'divider',
+            borderRadius: 2,
+            overflow: 'hidden',
+            alignSelf: 'stretch',
+            flexShrink: 0,
+          }}
+        >
+          <IconBar {...iconBarProps} sx={{ borderLeft: 'none', width: '100%' }} />
+        </Box>
+
+        {/* Floating popup — fixed overlay, appears above arena */}
+        {activeRightPopup && (
+          <>
+            {/* Backdrop to close on outside click */}
+            <Box
+              onClick={() => setActiveRightPopup(null)}
+              sx={{ position: 'fixed', inset: 0, zIndex: 1199 }}
+            />
+            <Paper
+              elevation={8}
+              sx={{
+                position: 'fixed',
+                right: barWidth + 12,
+                top: 64,
+                bottom: 16,
+                width: { md: 320, lg: 360 },
+                zIndex: 1200,
+                display: 'flex',
+                flexDirection: 'column',
+                overflow: 'hidden',
+                borderRadius: 2,
+                border: '1px solid',
+                borderColor: 'divider',
+              }}
+            >
+              {popupContent}
+            </Paper>
+          </>
+        )}
+      </>
     )
   }
 
-  // ── Mobile: inline bottom panel, no overlay drawer ────────────
-  const bottomBarBtnSx = {
-    flexDirection: 'column' as const,
-    flex: 1,
-    py: 0.5,
-    px: 0.25,
-    borderRadius: 1.5,
-    color: 'text.secondary',
-    '&:hover': { bgcolor: 'action.hover', color: 'text.primary' },
-  }
-  const activeBtnSx = {
-    color: 'primary.main',
-    bgcolor: 'action.selected',
-  }
-
+  // ── Mobile / tablet: slide-over drawer ───────────────────────
+  const drawerTotalWidth = { xs: 280 + barWidth, sm: 340 + barWidth }
   return (
-    <Box sx={{ flexShrink: 0, bgcolor: 'background.paper', borderTop: '1px solid', borderTopColor: 'divider' }}>
-      {/* Expandable content — shown when a popup is active */}
-      <Collapse in={!!activeRightPopup} unmountOnExit>
-        <Box sx={{ maxHeight: '45dvh', overflow: 'hidden', display: 'flex', flexDirection: 'column', borderBottom: '1px solid', borderBottomColor: 'divider' }}>
-          {activeRightPopup === 'settings' && <RightPopupSettings ctx={ctx} />}
-          {activeRightPopup === 'records' && <RightConsoleRecords ctx={ctx} toggleConsoleSection={ctx.toggleConsoleSection} />}
+    <>
+      {showRightPanel && (
+        <Box onClick={closePanel} sx={{ position: 'fixed', inset: 0, bgcolor: 'rgba(0,0,0,0.28)', zIndex: 490 }} />
+      )}
+      <Drawer
+        anchor="right"
+        open={showRightPanel}
+        onClose={closePanel}
+        sx={{
+          '& .MuiDrawer-paper': {
+            width: activeRightPopup ? drawerTotalWidth : barWidth,
+            borderRadius: '22px 0 0 22px',
+            bgcolor: 'background.paper',
+            borderLeft: '1px solid',
+            borderLeftColor: 'divider',
+            display: 'flex',
+            flexDirection: 'row',
+            overflow: 'hidden',
+          },
+        }}
+      >
+        <Box sx={{
+          flex: activeRightPopup ? 1 : 0,
+          minWidth: 0,
+          minHeight: 0,
+          overflow: 'hidden',
+          bgcolor: 'background.paper',
+          display: 'flex',
+          flexDirection: 'column',
+          transition: 'flex 0.2s ease',
+        }}>
+          {popupContent}
         </Box>
-      </Collapse>
-
-      {/* Horizontal bottom icon bar */}
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around', py: 0.25, px: 0.5 }}>
-        <GameActionsBar
-          openNewGamePanel={openNewGamePanel}
-          openCharacterEditor={openCharacterEditor}
-          openEndGamePanel={openEndGamePanel}
-          text={text}
-          language={language}
-          onAfterAction={closePanel}
-          variant="bottombar"
-        />
-
-        {/* Export */}
-        <IconButton onClick={() => { setShowExportModal(true); closePanel() }} sx={bottomBarBtnSx}>
-          <Box sx={{ fontSize: '1.5rem', lineHeight: 1, display: 'flex' }}><DownloadIcon fontSize="inherit" /></Box>
-          <Typography variant="caption" sx={{ fontSize: '0.6rem', fontWeight: 600, lineHeight: 1.2, color: 'inherit' }}>
-            {language === 'zh' ? '导出' : 'Export'}
-          </Typography>
-        </IconButton>
-
-        {/* Settings */}
-        <IconButton
-          onClick={() => togglePopup('settings')}
-          sx={{ ...bottomBarBtnSx, ...(activeRightPopup === 'settings' ? activeBtnSx : {}) }}
-        >
-          <Box sx={{ fontSize: '1.5rem', lineHeight: 1, display: 'flex' }}><SettingsIcon fontSize="inherit" /></Box>
-          <Typography variant="caption" sx={{ fontSize: '0.6rem', fontWeight: 600, lineHeight: 1.2, color: 'inherit' }}>
-            {language === 'zh' ? '设置' : 'Settings'}
-          </Typography>
-        </IconButton>
-
-        {/* Records */}
-        <IconButton
-          onClick={() => togglePopup('records')}
-          sx={{ ...bottomBarBtnSx, ...(activeRightPopup === 'records' ? activeBtnSx : {}) }}
-        >
-          <Box sx={{ fontSize: '1.5rem', lineHeight: 1, display: 'flex' }}><HistoryIcon fontSize="inherit" /></Box>
-          <Typography variant="caption" sx={{ fontSize: '0.6rem', fontWeight: 600, lineHeight: 1.2, color: 'inherit' }}>
-            {language === 'zh' ? '记录' : 'Records'}
-          </Typography>
-        </IconButton>
-      </Box>
-    </Box>
+        <IconBar {...iconBarProps} />
+      </Drawer>
+    </>
   )
 }
