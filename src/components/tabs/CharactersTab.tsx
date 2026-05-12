@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import {
-  Box, Button, Dialog, DialogContent, DialogTitle, FormControl,
+  Autocomplete, Box, Button, Dialog, DialogContent, DialogTitle, FormControl,
   FormControlLabel, IconButton, InputLabel, MenuItem, Paper, Radio, RadioGroup,
   Select, TextField, Typography,
 } from '@mui/material'
@@ -52,7 +52,7 @@ const BLANK_CUSTOM: Omit<CustomCharacter, 'id' | 'createdAt' | 'updatedAt'> = {
   abilityEn: '',
   abilityZh: '',
   icon: undefined,
-  edition: 'Custom',
+  edition: 'custom',
   firstNight: undefined,
   otherNight: undefined,
   firstNightReminder: '',
@@ -326,7 +326,21 @@ export function CharactersTab({
           </Box>
           <TextField size="small" required label={zh ? '作者' : 'Author'} value={draft.author} onChange={(e) => setDraft((d) => ({ ...d, author: e.target.value }))} />
           <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 }}>
-            <TextField size="small" label={zh ? '版块标签' : 'Edition label'} value={draft.edition} onChange={(e) => setDraft((d) => ({ ...d, edition: e.target.value }))} />
+            {/* Edition — autocomplete with known keys + freeSolo for custom */}
+            <Autocomplete
+              freeSolo
+              size="small"
+              options={Object.keys(editionLabels[uiLanguage]).filter((k) => k !== 'night-order')}
+              getOptionLabel={(option) => editionLabels[uiLanguage][option] ?? toTitleCase(option)}
+              value={draft.edition}
+              onChange={(_, v) => setDraft((d) => ({ ...d, edition: (v as string) ?? '' }))}
+              onInputChange={(_, v, reason) => {
+                if (reason === 'input') setDraft((d) => ({ ...d, edition: v }))
+              }}
+              renderInput={(params) => (
+                <TextField {...params} label={zh ? '版块标签' : 'Edition'} />
+              )}
+            />
             <FormControl size="small">
               <InputLabel>{zh ? '阵营' : 'Team'}</InputLabel>
               <Select value={draft.team} label={zh ? '阵营' : 'Team'} onChange={(e) => setDraft((d) => ({ ...d, team: e.target.value as Team }))}>
