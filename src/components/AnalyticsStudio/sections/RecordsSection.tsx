@@ -206,10 +206,11 @@ function RecordRowDetail({ record, language, zh }: { record: GameRecord; languag
   const assignments = record.setup?.assignments ?? {}
   const hasRatings = record.balanced != null || record.funEvil != null || record.funGood != null || record.replay != null
   const mvpName = record.mvp === 'storyteller'
-    ? (zh ? '🎭 说书人' : '🎭 Storyteller')
+    ? (record.stName?.trim() || (zh ? '说书人' : 'Storyteller'))
     : record.mvp != null
       ? (() => { const ps = record.playerSummaries?.find((p) => p.seat === record.mvp); return ps ? `${ps.seat}. ${ps.name}` : `#${record.mvp}` })()
       : null
+  const mvpIsST = record.mvp === 'storyteller'
   const durationMin = record.durationMs ? Math.round(record.durationMs / 60000) : null
 
   return (
@@ -233,9 +234,11 @@ function RecordRowDetail({ record, language, zh }: { record: GameRecord; languag
           )}
           {mvpName && (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.4 }}>
-              <EmojiEventsIcon sx={{ fontSize: '0.8rem', color: 'warning.main' }} />
+              {mvpIsST
+                ? <PersonIcon sx={{ fontSize: '0.8rem', color: 'purple' }} />
+                : <EmojiEventsIcon sx={{ fontSize: '0.8rem', color: 'warning.main' }} />}
               <Typography variant="caption" color="text.secondary">MVP: </Typography>
-              <Typography variant="caption" sx={{ fontWeight: 600, color: 'warning.dark' }}>{mvpName}</Typography>
+              <Typography variant="caption" sx={{ fontWeight: 600, color: mvpIsST ? 'purple' : 'warning.dark' }}>{mvpName}</Typography>
             </Box>
           )}
         </Box>
