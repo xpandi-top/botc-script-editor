@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import {
-  Alert, Box, Button, Chip, CircularProgress, Dialog, DialogActions,
+  Alert, Box, Button, CircularProgress, Dialog, DialogActions,
   DialogContent, DialogTitle, Divider, FormControlLabel, Paper,
   Radio, RadioGroup, ToggleButton, ToggleButtonGroup, Typography,
 } from '@mui/material'
@@ -13,7 +13,7 @@ import DownloadIcon from '@mui/icons-material/Download'
 import UploadIcon from '@mui/icons-material/Upload'
 import type { FontOption, FontSettings, UiScale } from '../../hooks/useFontSettings'
 import { UI_SCALE_OPTIONS, ZH_SAME_AS_EN_ID } from '../../hooks/useFontSettings'
-import { useCloudSync } from '../../hooks/useCloudSync'
+import type { CloudSyncState } from '../../hooks/useCloudSync'
 import { getClientId, saveClientId, clearClientId, getRedirectUri } from '../../lib/googleAuth'
 import { exportEverything, readBundleFile, applyBundle } from '../../lib/bundleIO'
 import type { Language } from '../../types'
@@ -162,14 +162,14 @@ function LivePreview({
 
 // ── SettingsTab ───────────────────────────────────────────────────────────────
 interface SettingsTabProps {
+  cloudSync: CloudSyncState
   language: Language
   onLanguageChange: (l: Language) => void
   fontSettings: FontSettings
 }
 
-export function SettingsTab({ language, onLanguageChange, fontSettings }: SettingsTabProps) {
+export function SettingsTab({ language, onLanguageChange, fontSettings, cloudSync: cloud }: SettingsTabProps) {
   const { mode, setMode } = useThemeMode()
-  const cloud = useCloudSync()
   const [importDialog, setImportDialog] = useState(false)
   const [importMode, setImportMode] = useState<'replace' | 'merge'>('merge')
   const [importFile, setImportFile] = useState<File | null>(null)
@@ -426,40 +426,58 @@ export function SettingsTab({ language, onLanguageChange, fontSettings }: Settin
           </Box>
         )}
 
-        {cloud.connected ? (
+        {cloud.connected ? (() => {
+          const isBusy = cloud.status === 'pulling' || cloud.status === 'pushing' || cloud.status === 'syncing'
+          const isError = cloud.status === 'error'
+          return (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
-              <Chip
-                icon={<CloudIcon />}
-                label={zh ? '已连接 Google Drive' : 'Connected to Google Drive'}
-                color="success" size="small"
-              />
-              {cloud.status === 'syncing' || cloud.status === 'pulling' || cloud.status === 'pushing' ? (
-                <Chip icon={<CircularProgress size={12} />}
-                  label={cloud.status === 'pulling' ? (zh ? '拉取中…' : 'Pulling…') : (zh ? '推送中…' : 'Pushing…')}
-                  size="small" variant="outlined"
-                />
-              ) : cloud.status === 'error' ? (
-                <Chip label={zh ? '同步错误' : 'Sync error'} color="error" size="small" />
-              ) : null}
+
+            {/* ── Big status banner ── */}
+            <Box sx={{
+              p: 2, borderRadius: 2,
+              border: '2px solid',
+              borderColor: isError ? 'error.main' : isBusy ? 'primary.main' : 'success.main',
+              bgcolor: isError ? 'error.light' : isBusy ? 'primary.light' : 'success.light',
+              display: 'flex', alignItems: 'center', gap: 2,
+              opacity: isError ? 1 : isBusy ? 0.95 : 1,
+            }}>
+              <Box sx={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {isBusy ? (
+                  <>
+                    <CloudSyncIcon sx={{ fontSize: 36, color: 'primary.dark' }} />
+                    <CircularProgress size={44} thickness={3}
+                      sx={{ position: 'absolute', color: 'primary.main' }} />
+                  </>
+                ) : isError ? (
+                  <CloudOffIcon sx={{ fontSize: 36, color: 'error.dark' }} />
+                ) : (
+                  <CloudIcon sx={{ fontSize: 36, color: 'success.dark' }} />
+                )}
+              </Box>
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 700,
+                  color: isError ? 'error.dark' : isBusy ? 'primary.dark' : 'success.dark' }}>
+                  {isBusy
+                    ? (cloud.status === 'pulling' ? (zh ? '正在从 Drive 拉取…' : 'Pulling from Drive…') : (zh ? '正在推送到 Drive…' : 'Pushing to Drive…'))
+                    : isError ? (zh ? '同步失败' : 'Sync Failed')
+                    : (zh ? '已连接 Google Drive' : 'Connected to Google Drive')}
+                </Typography>
+                <Typography variant="body2"
+                  sx={{ color: isError ? 'error.dark' : isBusy ? 'primary.dark' : 'success.dark', opacity: 0.85 }}>
+                  {isError
+                    ? (cloud.errorMessage ?? (zh ? '请检查网络或重新授权' : 'Check network or reconnect'))
+                    : cloud.lastSynced
+                      ? (zh ? `上次同步：${cloud.lastSynced.toLocaleString()}` : `Last synced: ${cloud.lastSynced.toLocaleString()}`)
+                      : (zh ? '数据安全存储在您的 Google Drive 中' : 'Data stored privately in your Google Drive')}
+                </Typography>
+              </Box>
             </Box>
-
-            {cloud.lastSynced && (
-              <Typography variant="caption" color="text.secondary">
-                {zh ? '上次同步：' : 'Last synced: '}
-                {cloud.lastSynced.toLocaleString()}
-              </Typography>
-            )}
-
-            {cloud.errorMessage && (
-              <Alert severity="error" sx={{ fontSize: '0.8rem' }}>{cloud.errorMessage}</Alert>
-            )}
 
             <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
               <Button
-                variant="outlined" size="small" startIcon={<CloudSyncIcon />}
+                variant="contained" size="small" startIcon={isBusy ? <CircularProgress size={14} color="inherit" /> : <CloudSyncIcon />}
                 onClick={() => void cloud.syncNow()}
-                disabled={cloud.status === 'syncing' || cloud.status === 'pulling' || cloud.status === 'pushing'}
+                disabled={isBusy}
               >
                 {zh ? '立即同步' : 'Sync Now'}
               </Button>
@@ -477,7 +495,8 @@ export function SettingsTab({ language, onLanguageChange, fontSettings }: Settin
                 : 'Data stored in your private Google Drive appDataFolder — only visible to this app. Local changes auto-sync after 2 s.'}
             </Typography>
           </Box>
-        ) : (
+          )
+        })() : (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
             <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 480 }}>
               {zh

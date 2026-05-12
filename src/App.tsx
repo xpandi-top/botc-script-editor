@@ -7,6 +7,7 @@ import {
   Box,
   BottomNavigation,
   BottomNavigationAction,
+  CircularProgress,
   Container,
   IconButton,
   ListItemText,
@@ -28,7 +29,10 @@ import QueryStatsIcon from '@mui/icons-material/QueryStats'
 import PrintIcon from '@mui/icons-material/Print'
 import TuneIcon from '@mui/icons-material/Tune'
 import BugReportIcon from '@mui/icons-material/BugReport'
+import CloudDoneIcon from '@mui/icons-material/CloudDone'
+import CloudSyncIcon from '@mui/icons-material/CloudSync'
 import InfoIcon from '@mui/icons-material/Info'
+import SyncProblemIcon from '@mui/icons-material/SyncProblem'
 import { PrintPreviewPage } from './components/PrintPreviewPage'
 import { DEFAULT_PRINT_OPTIONS } from './components/PrintOptionsDialog'
 import type { PrintOptions } from './components/PrintOptionsDialog'
@@ -82,7 +86,8 @@ type TabKey = 'scripts' | 'characters' | 'storyteller' | 'printstudio' | 'analyt
 
 export default function App() {
   const { mode: themeMode } = useThemeMode()
-  const { scheduleSync } = useCloudSync()
+  const cloudSync = useCloudSync()
+  const { scheduleSync } = cloudSync
   const [activeTab, setActiveTab] = useState<TabKey>('scripts')
   const [uiLanguage, setUiLanguage] = useState<Language>(() => {
     try { return (localStorage.getItem('botc-ui-language') as Language) ?? 'zh' } catch { return 'zh' }
@@ -535,6 +540,47 @@ export default function App() {
           </Box>
 
           <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0 }}>
+
+            {/* ── Cloud sync status badge ── */}
+            {cloudSync.connected && (() => {
+              const isBusy = cloudSync.status === 'syncing' || cloudSync.status === 'pulling' || cloudSync.status === 'pushing'
+              const isError = cloudSync.status === 'error'
+              const label = isBusy
+                ? (cloudSync.status === 'pulling'
+                  ? (uiLanguage === 'zh' ? '正在从 Drive 拉取数据…' : 'Pulling from Drive…')
+                  : (uiLanguage === 'zh' ? '正在推送到 Drive…' : 'Pushing to Drive…'))
+                : isError
+                  ? (uiLanguage === 'zh' ? `同步失败: ${cloudSync.errorMessage ?? ''}` : `Sync error: ${cloudSync.errorMessage ?? ''}`)
+                  : cloudSync.lastSynced
+                    ? (uiLanguage === 'zh' ? `已连接 Drive · 上次同步: ${cloudSync.lastSynced.toLocaleTimeString()}` : `Drive synced · ${cloudSync.lastSynced.toLocaleTimeString()}`)
+                    : (uiLanguage === 'zh' ? '已连接 Google Drive' : 'Connected to Google Drive')
+
+              return (
+                <Tooltip title={label}>
+                  <IconButton
+                    size="small"
+                    onClick={() => setActiveTab('settings')}
+                    sx={{
+                      color: isError ? 'error.main' : isBusy ? 'primary.main' : 'success.main',
+                      position: 'relative',
+                    }}
+                  >
+                    {isBusy ? (
+                      <>
+                        <CloudSyncIcon fontSize="small" />
+                        <CircularProgress size={18} thickness={5}
+                          sx={{ position: 'absolute', color: 'primary.light' }} />
+                      </>
+                    ) : isError ? (
+                      <SyncProblemIcon fontSize="small" />
+                    ) : (
+                      <CloudDoneIcon fontSize="small" />
+                    )}
+                  </IconButton>
+                </Tooltip>
+              )
+            })()}
+
             <Tooltip title={uiLanguage === 'zh' ? '反馈建议' : 'Feedback'}>
               <IconButton
                 size="small"
@@ -678,7 +724,7 @@ export default function App() {
       )}
 
       {activeTab === 'settings' && (
-        <SettingsTab language={uiLanguage} onLanguageChange={setUiLanguage} fontSettings={fontSettings} />
+        <SettingsTab language={uiLanguage} onLanguageChange={setUiLanguage} fontSettings={fontSettings} cloudSync={cloudSync} />
       )}
 
       {activeTab === 'storyteller' && (
