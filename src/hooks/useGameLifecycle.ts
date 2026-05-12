@@ -385,10 +385,6 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     if (setStCustomRules) setStCustomRules(record.stCustomRules ?? '')
     if (setStName) setStName(record.stName ?? '')
     setGameStartedAt?.(record.startedAt)
-    if (record.setup) {
-      setNewGamePanel({ playerCount: record.setup.playerCount, travelerCount: record.setup.travelerCount, scriptSlug: record.scriptSlug || '', allowDuplicateChars: false, allowEmptyChars: false, allowSameNames: false, seatNames: record.setup.seatNames || {}, assignments: record.setup.assignments || {}, userAssignments: record.setup.userAssignments || {}, travelerAssignments: record.setup.travelerAssignments || {}, seatNotes: record.setup.seatNotes || {}, specialNote: record.setup.specialNote || '', demonBluffs: record.setup.demonBluffs ?? [], charPool: [], editMode: true })
-      setShowNewGamePanel?.(true)
-    }
     const teams: Record<number, 'evil' | 'good' | null> = {}
     for (const s of record.savedDays[0].seats) {
       const team = record.playerSummaries?.find((p) => p.seat === s.seat)?.team
