@@ -295,6 +295,67 @@ export function useCharStats(records: GameRecord[], language: Language): CharSta
   }, [records, language])
 }
 
+// ── Storyteller stats ─────────────────────────────────────────────
+
+export type StorytiellerStat = {
+  name: string
+  total: number
+  evil: number
+  good: number
+  st: number
+  scripts: Set<string>
+  avgBalanced: number | null
+  avgFunEvil: number | null
+  avgFunGood: number | null
+  avgReplay: number | null
+  ratingCount: number
+}
+
+export function useStorytellerStats(records: GameRecord[]): StorytiellerStat[] {
+  return useMemo(() => {
+    const map = new Map<string, {
+      name: string; total: number; evil: number; good: number; st: number
+      scripts: Set<string>
+      ratingCount: number; totalBalanced: number; totalFunEvil: number; totalFunGood: number; totalReplay: number
+    }>()
+
+    for (const r of records) {
+      const name = r.stName?.trim()
+      if (!name) continue
+      const key = name
+      const entry = map.get(key) ?? {
+        name, total: 0, evil: 0, good: 0, st: 0,
+        scripts: new Set<string>(),
+        ratingCount: 0, totalBalanced: 0, totalFunEvil: 0, totalFunGood: 0, totalReplay: 0,
+      }
+      entry.total++
+      if (r.winner === 'evil') entry.evil++
+      else if (r.winner === 'good') entry.good++
+      else if (r.winner === 'storyteller') entry.st++
+      const scriptKey = r.scriptSlug || r.scriptTitle
+      if (scriptKey) entry.scripts.add(scriptKey)
+      if (r.balanced != null || r.funEvil != null || r.funGood != null || r.replay != null) {
+        entry.ratingCount++
+        if (r.balanced != null) entry.totalBalanced += r.balanced
+        if (r.funEvil != null) entry.totalFunEvil += r.funEvil
+        if (r.funGood != null) entry.totalFunGood += r.funGood
+        if (r.replay != null) entry.totalReplay += r.replay
+      }
+      map.set(key, entry)
+    }
+
+    return Array.from(map.values())
+      .sort((a, b) => b.total - a.total)
+      .map((s) => ({
+        ...s,
+        avgBalanced: s.ratingCount ? +(s.totalBalanced / s.ratingCount).toFixed(1) : null,
+        avgFunEvil: s.ratingCount ? +(s.totalFunEvil / s.ratingCount).toFixed(1) : null,
+        avgFunGood: s.ratingCount ? +(s.totalFunGood / s.ratingCount).toFixed(1) : null,
+        avgReplay: s.ratingCount ? +(s.totalReplay / s.ratingCount).toFixed(1) : null,
+      }))
+  }, [records])
+}
+
 // ── KPI summary ───────────────────────────────────────────────────
 
 export type KpiSummary = {
@@ -309,16 +370,23 @@ export type KpiSummary = {
   avgDays: number | null
   avgDurationMin: number | null
   avgPlayers: number | null
+  // Rating aggregates across all games
+  avgBalanced: number | null
+  avgFunEvil: number | null
+  avgFunGood: number | null
+  avgReplay: number | null
 }
 
 export function useKpiSummary(records: GameRecord[]): KpiSummary {
   return useMemo(() => {
     const total = records.length
-    if (total === 0) return {
+    const empty: KpiSummary = {
       total: 0, evilWins: 0, goodWins: 0, stWins: 0,
       evilPct: 0, goodPct: 0, stPct: 0, noResultPct: 0,
       avgDays: null, avgDurationMin: null, avgPlayers: null,
+      avgBalanced: null, avgFunEvil: null, avgFunGood: null, avgReplay: null,
     }
+    if (total === 0) return empty
 
     const evilWins = records.filter((r) => r.winner === 'evil').length
     const goodWins = records.filter((r) => r.winner === 'good').length
@@ -329,6 +397,18 @@ export function useKpiSummary(records: GameRecord[]): KpiSummary {
     const totalDurationMs = durRecs.reduce((s, r) => s + (r.durationMs ?? 0), 0)
     const playerRecs = records.filter((r) => r.playerSummaries?.length)
     const totalPlayers = playerRecs.reduce((s, r) => s + (r.playerSummaries?.length ?? 0), 0)
+
+    // Rating aggregates
+    let rCount = 0, rBal = 0, rFunE = 0, rFunG = 0, rRep = 0
+    for (const r of records) {
+      if (r.balanced != null || r.funEvil != null || r.funGood != null || r.replay != null) {
+        rCount++
+        if (r.balanced != null) rBal += r.balanced
+        if (r.funEvil != null) rFunE += r.funEvil
+        if (r.funGood != null) rFunG += r.funGood
+        if (r.replay != null) rRep += r.replay
+      }
+    }
 
     const pct = (n: number) => Math.round((n / total) * 100)
 
@@ -342,6 +422,10 @@ export function useKpiSummary(records: GameRecord[]): KpiSummary {
       avgDays: total ? +(totalDays / total).toFixed(1) : null,
       avgDurationMin: durRecs.length ? Math.round(totalDurationMs / durRecs.length / 60000) : null,
       avgPlayers: playerRecs.length ? +(totalPlayers / playerRecs.length).toFixed(1) : null,
+      avgBalanced: rCount ? +(rBal / rCount).toFixed(1) : null,
+      avgFunEvil: rCount ? +(rFunE / rCount).toFixed(1) : null,
+      avgFunGood: rCount ? +(rFunG / rCount).toFixed(1) : null,
+      avgReplay: rCount ? +(rRep / rCount).toFixed(1) : null,
     }
   }, [records])
 }

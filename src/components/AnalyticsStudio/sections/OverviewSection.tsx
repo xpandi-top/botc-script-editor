@@ -1,6 +1,8 @@
-import { Box, Paper, Typography } from '@mui/material'
+import { Box, Paper, Tooltip, Typography } from '@mui/material'
+import PersonIcon from '@mui/icons-material/Person'
+import BalanceIcon from '@mui/icons-material/Balance'
 import { getDisplayName, getIconForCharacter } from '../../../catalog'
-import type { KpiSummary, ScriptStat, PlayerStat, CharStat } from '../useStats'
+import type { KpiSummary, ScriptStat, PlayerStat, CharStat, StorytiellerStat } from '../useStats'
 import type { GameRecord } from '../../StorytellerSub/types'
 import type { Language } from '../../../types'
 
@@ -134,6 +136,20 @@ function RecentStreak({ records, zh }: { records: GameRecord[]; zh: boolean }) {
   )
 }
 
+// ── Rating mini bar ───────────────────────────────────────────────
+
+function RatingBar({ value, max = 5 }: { value: number; max?: number }) {
+  const pct = Math.round((value / max) * 100)
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+      <Box sx={{ flex: 1, height: 6, borderRadius: 3, bgcolor: 'action.hover', overflow: 'hidden' }}>
+        <Box sx={{ width: `${pct}%`, height: '100%', bgcolor: 'warning.main', borderRadius: 3, transition: 'width 0.4s ease' }} />
+      </Box>
+      <Typography variant="caption" sx={{ fontSize: '0.68rem', minWidth: 24, color: 'text.secondary' }}>{value}</Typography>
+    </Box>
+  )
+}
+
 // ── Main ──────────────────────────────────────────────────────────
 
 interface Props {
@@ -141,11 +157,12 @@ interface Props {
   scriptStats: ScriptStat[]
   playerStats: PlayerStat[]
   charStats: CharStat[]
+  storytellerStats: StorytiellerStat[]
   language: Language
   records: GameRecord[]
 }
 
-export function OverviewSection({ kpi, scriptStats, playerStats, charStats, language, records }: Props) {
+export function OverviewSection({ kpi, scriptStats, playerStats, charStats, storytellerStats, language, records }: Props) {
   const zh = language === 'zh'
   const insights = buildInsights(kpi, scriptStats, playerStats, charStats, zh)
 
@@ -201,6 +218,42 @@ export function OverviewSection({ kpi, scriptStats, playerStats, charStats, lang
           </Paper>
         )}
       </Box>
+
+      {/* ── Rating KPIs ── */}
+      {(kpi.avgBalanced != null || kpi.avgFunEvil != null || kpi.avgFunGood != null || kpi.avgReplay != null) && (
+        <Paper sx={{ p: 2 }} elevation={1}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 1.5 }}>
+            <BalanceIcon sx={{ fontSize: '1rem', color: 'warning.main' }} />
+            <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>{zh ? '平均评分' : 'Avg Ratings'}</Typography>
+          </Box>
+          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1 }}>
+            {kpi.avgBalanced != null && (
+              <Box>
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.25 }}>{zh ? '平衡性' : 'Balanced'}</Typography>
+                <RatingBar value={kpi.avgBalanced} />
+              </Box>
+            )}
+            {kpi.avgFunEvil != null && (
+              <Box>
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.25 }}>{zh ? 'Evil乐趣' : 'Fun (Evil)'}</Typography>
+                <RatingBar value={kpi.avgFunEvil} />
+              </Box>
+            )}
+            {kpi.avgFunGood != null && (
+              <Box>
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.25 }}>{zh ? '善良乐趣' : 'Fun (Good)'}</Typography>
+                <RatingBar value={kpi.avgFunGood} />
+              </Box>
+            )}
+            {kpi.avgReplay != null && (
+              <Box>
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.25 }}>{zh ? '重玩意愿' : 'Replay'}</Typography>
+                <RatingBar value={kpi.avgReplay} />
+              </Box>
+            )}
+          </Box>
+        </Paper>
+      )}
 
       {/* ── Win Balance Meter ── */}
       <Paper sx={{ p: 2 }} elevation={1}>
@@ -276,6 +329,53 @@ export function OverviewSection({ kpi, scriptStats, playerStats, charStats, lang
                 </Box>
               </Box>
             ))}
+          </Box>
+        </Paper>
+      )}
+
+      {/* ── Storyteller leaderboard ── */}
+      {storytellerStats.length > 0 && (
+        <Paper sx={{ p: 2 }} elevation={1}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 1.5 }}>
+            <PersonIcon sx={{ fontSize: '1rem', color: 'text.secondary' }} />
+            <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>{zh ? '说书人排行' : 'Storytellers'}</Typography>
+          </Box>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            {storytellerStats.slice(0, 5).map((st, idx) => {
+              const evilPct = st.total ? Math.round((st.evil / st.total) * 100) : 0
+              const goodPct = st.total ? Math.round((st.good / st.total) * 100) : 0
+              return (
+                <Box key={st.name} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Typography sx={{ fontWeight: 700, color: 'text.secondary', fontSize: '0.75rem', width: 18, flexShrink: 0 }}>#{idx + 1}</Typography>
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.25 }}>
+                      <Typography variant="body2" sx={{ fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{st.name}</Typography>
+                      <Typography variant="caption" color="text.secondary" sx={{ flexShrink: 0, ml: 1 }}>
+                        {st.total}{zh ? '局' : 'g'} · {st.scripts.size}{zh ? '剧本' : 'scripts'}
+                      </Typography>
+                    </Box>
+                    <Tooltip title={`E:${st.evil} G:${st.good}${st.st > 0 ? ` ST:${st.st}` : ''}`}>
+                      <Box sx={{ display: 'flex', height: 5, borderRadius: 1, overflow: 'hidden', gap: '1px', cursor: 'default' }}>
+                        {st.evil > 0 && <Box sx={{ flex: st.evil, bgcolor: '#b91c1c' }} />}
+                        {st.good > 0 && <Box sx={{ flex: st.good, bgcolor: '#2e7d32' }} />}
+                        {st.st > 0 && <Box sx={{ flex: st.st, bgcolor: '#6a1b9a' }} />}
+                        {(st.total - st.evil - st.good - st.st) > 0 && <Box sx={{ flex: st.total - st.evil - st.good - st.st, bgcolor: 'grey.300' }} />}
+                      </Box>
+                    </Tooltip>
+                    <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.62rem' }}>
+                      E:{evilPct}% G:{goodPct}%
+                      {st.avgBalanced != null ? ` · ⚖${st.avgBalanced}` : ''}
+                      {st.avgReplay != null ? ` · 🔁${st.avgReplay}` : ''}
+                    </Typography>
+                  </Box>
+                </Box>
+              )
+            })}
+            {storytellerStats.length > 5 && (
+              <Typography variant="caption" color="text.secondary">
+                {zh ? `+${storytellerStats.length - 5} 位说书人` : `+${storytellerStats.length - 5} more storytellers`}
+              </Typography>
+            )}
           </Box>
         </Paper>
       )}

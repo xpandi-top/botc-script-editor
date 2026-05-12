@@ -7,7 +7,7 @@ import EmojiEventsIcon from '@mui/icons-material/EmojiEvents'
 import ListAltIcon from '@mui/icons-material/ListAlt'
 import { StudioFilterBar } from './StudioFilterBar'
 import { useAnalyticsFilter } from './useAnalyticsFilter'
-import { useKpiSummary, useScriptStats, usePlayerStats, useCharStats } from './useStats'
+import { useKpiSummary, useScriptStats, usePlayerStats, useCharStats, useStorytellerStats } from './useStats'
 import { OverviewSection } from './sections/OverviewSection'
 import { ScriptsSection } from './sections/ScriptsSection'
 import { PlayersSection } from './sections/PlayersSection'
@@ -36,6 +36,7 @@ export function StudioShell({ records, onRecordsChange, language, onCreateRecord
   const scriptStats = useScriptStats(filtered)
   const playerStats = usePlayerStats(filtered)
   const charStats = useCharStats(filtered, language)
+  const storytellerStats = useStorytellerStats(filtered)
 
   const tabDefs: Array<{ key: StudioTab; label: string; labelZh: string; icon: React.ReactNode }> = [
     { key: 'overview',    label: 'Overview',    labelZh: '概览',   icon: <BarChartIcon sx={{ fontSize: '1rem' }} /> },
@@ -89,7 +90,7 @@ export function StudioShell({ records, onRecordsChange, language, onCreateRecord
 
       {/* Section content */}
       {activeTab === 'overview' && (
-        <OverviewSection kpi={kpi} scriptStats={scriptStats} playerStats={playerStats} charStats={charStats} language={language} records={filtered} />
+        <OverviewSection kpi={kpi} scriptStats={scriptStats} playerStats={playerStats} charStats={charStats} storytellerStats={storytellerStats} language={language} records={filtered} />
       )}
       {activeTab === 'scripts' && (
         <ScriptsSection scriptStats={scriptStats} language={language} records={filtered} />
