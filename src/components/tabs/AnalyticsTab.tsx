@@ -1,8 +1,8 @@
 import { useCallback, useMemo, useRef, useState } from 'react'
 import {
   Autocomplete,
-  Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle,
-  Divider, FormControl, IconButton, InputLabel, Menu, MenuItem, Select,
+  Box, Button, Chip, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle,
+  Divider, FormControl, IconButton, InputLabel, Menu, MenuItem, Select, Tab, Tabs,
   TextField, ToggleButton, ToggleButtonGroup, Tooltip, Typography,
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
@@ -101,6 +101,9 @@ function RecordFormDialog({ existing, zh, language, onSave, onClose }: {
     }))
   }
 
+  const [tab, setTab] = useState(0)
+
+  // Tab 0 — Info
   const [name, setName] = useState(existing?.recordName ?? '')
   const [scriptInput, setScriptInput] = useState(existing?.scriptTitle ?? existing?.scriptSlug ?? '')
   const [scriptSlug, setScriptSlug] = useState(existing?.scriptSlug ?? '')
@@ -109,14 +112,20 @@ function RecordFormDialog({ existing, zh, language, onSave, onClose }: {
   )
   const [winner, setWinner] = useState(existing?.winner ?? '')
   const [dayCount, setDayCount] = useState(existing?.days?.length ?? 1)
+
+  // Tab 1 — Players
+  const [players, setPlayers] = useState<PlayerRow[]>(initPlayers)
+  const [playerCount, setPlayerCount] = useState(players.length)
+
+  // Tab 2 — Survey & Storyteller
+  const [stName, setStName] = useState(existing?.stName ?? '')
+  const [stCustomRules, setStCustomRules] = useState(existing?.stCustomRules ?? '')
   const [mvp, setMvp] = useState<number | ''>(existing?.mvp ?? '')
   const [balanced, setBalanced] = useState<number | null>(existing?.balanced ?? null)
   const [funEvil, setFunEvil] = useState<number | null>(existing?.funEvil ?? null)
   const [funGood, setFunGood] = useState<number | null>(existing?.funGood ?? null)
   const [replay, setReplay] = useState<number | null>(existing?.replay ?? null)
   const [otherNote, setOtherNote] = useState(existing?.otherNote ?? '')
-  const [players, setPlayers] = useState<PlayerRow[]>(initPlayers)
-  const [playerCount, setPlayerCount] = useState(players.length)
 
   const scriptOptions = useMemo(() => loadAllScripts(language), [language])
 
@@ -157,6 +166,10 @@ function RecordFormDialog({ existing, zh, language, onSave, onClose }: {
     setPlayers((prev) => prev.map((p, idx) => idx === i ? { ...p, ...patch } : p))
   }
 
+  // Compute summary chips for tab headers
+  const hasPlayers = players.some((p) => p.name || p.charId)
+  const hasSurvey = balanced != null || funEvil != null || funGood != null || replay != null || mvp !== '' || stName || stCustomRules
+
   const handleSave = () => {
     const endedAt = new Date(date + 'T12:00:00').getTime() || Date.now()
 
@@ -186,6 +199,8 @@ function RecordFormDialog({ existing, zh, language, onSave, onClose }: {
       funGood,
       replay,
       otherNote: otherNote || undefined,
+      stName: stName || undefined,
+      stCustomRules: stCustomRules || undefined,
       playerSummaries: playerSummaries.length > 0 ? playerSummaries : undefined,
       days: Array.from({ length: Math.max(1, dayCount) }, (_, i) => ({
         day: i + 1,
@@ -211,209 +226,270 @@ function RecordFormDialog({ existing, zh, language, onSave, onClose }: {
 
   return (
     <Dialog open onClose={onClose} maxWidth="md" fullWidth
-      slotProps={{ paper: { sx: { maxHeight: '90vh' } } }}>
-      <DialogTitle sx={{ pb: 1 }}>
+      slotProps={{ paper: { sx: { maxHeight: '90vh', display: 'flex', flexDirection: 'column' } } }}>
+      <DialogTitle sx={{ pb: 0 }}>
         {existing ? (zh ? '编辑游戏记录' : 'Edit Game Record') : (zh ? '新建游戏记录' : 'New Game Record')}
       </DialogTitle>
-      <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
 
-        {/* ── Basic info ── */}
-        <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
-          <TextField
-            label={zh ? '记录名称（可选）' : 'Record name (optional)'}
-            value={name} onChange={(e) => setName(e.target.value)}
-            size="small" sx={{ flex: '2 1 180px' }}
-          />
-          <Autocomplete
-            freeSolo
-            options={scriptOptions}
-            getOptionLabel={(o) => typeof o === 'string' ? o : o.label}
-            inputValue={scriptInput}
-            onInputChange={(_, v) => {
-              setScriptInput(v)
-              // clear slug if free-typing
-              const match = scriptOptions.find((s) => s.label === v)
-              setScriptSlug(match?.slug ?? '')
-            }}
-            onChange={(_, v) => {
-              if (v && typeof v !== 'string') {
-                setScriptInput(v.label)
-                setScriptSlug(v.slug)
-              }
-            }}
-            renderInput={(params) => (
-              <TextField {...params} label={zh ? '剧本' : 'Script'} size="small" />
-            )}
-            sx={{ flex: '2 1 180px' }}
-          />
-        </Box>
-
-        <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', alignItems: 'center' }}>
-          <TextField
-            type="date"
-            label={zh ? '日期' : 'Date'}
-            value={date} onChange={(e) => setDate(e.target.value)}
-            size="small" slotProps={{ inputLabel: { shrink: true } }}
-            sx={{ flex: '1 1 130px' }}
-          />
-          <Box sx={{ flex: '1 1 200px' }}>
-            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-              {zh ? '结果' : 'Result'}
-            </Typography>
-            <ToggleButtonGroup value={winner} exclusive size="small"
-              onChange={(_, v) => { if (v !== null) setWinner(v) }}>
-              <ToggleButton value="evil" sx={{ fontSize: '0.75rem', color: 'error.main' }}>
-                {zh ? '邪恶胜' : 'Evil Win'}
-              </ToggleButton>
-              <ToggleButton value="good" sx={{ fontSize: '0.75rem', color: 'success.main' }}>
-                {zh ? '善良胜' : 'Good Win'}
-              </ToggleButton>
-              <ToggleButton value="storyteller" sx={{ fontSize: '0.75rem', color: 'info.main' }}>
-                {zh ? '说书人胜' : 'ST Win'}
-              </ToggleButton>
-            </ToggleButtonGroup>
-          </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flex: '0 0 auto' }}>
-            <Typography variant="caption" color="text.secondary">{zh ? '天数' : 'Days'}</Typography>
-            <IconButton size="small" onClick={() => setDayCount((n) => Math.max(1, n - 1))}>
-              <RemoveIcon fontSize="small" />
-            </IconButton>
-            <Typography variant="body2" sx={{ minWidth: 20, textAlign: 'center' }}>{dayCount}</Typography>
-            <IconButton size="small" onClick={() => setDayCount((n) => n + 1)}>
-              <AddIcon fontSize="small" />
-            </IconButton>
-          </Box>
-        </Box>
-
-        <Divider />
-
-        {/* ── Players ── */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Typography variant="subtitle2" sx={{ fontWeight: 700, flex: 1 }}>
+      {/* Tab bar */}
+      <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ px: 3, borderBottom: 1, borderColor: 'divider', minHeight: 40 }}
+        slotProps={{ indicator: { style: { height: 2 } } }}>
+        <Tab label={zh ? '基本信息' : 'Info'} sx={{ minHeight: 40, fontSize: '0.8rem', textTransform: 'none', py: 0 }} />
+        <Tab label={
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             {zh ? '玩家' : 'Players'}
-          </Typography>
-          <IconButton size="small" onClick={() => setPlayerCount_(playerCount - 1)}>
-            <RemoveIcon fontSize="small" />
-          </IconButton>
-          <Typography variant="body2" sx={{ minWidth: 20, textAlign: 'center' }}>{playerCount}</Typography>
-          <IconButton size="small" onClick={() => setPlayerCount_(playerCount + 1)}>
-            <AddIcon fontSize="small" />
-          </IconButton>
-        </Box>
+            {hasPlayers && <Chip label={players.filter((p) => p.name || p.charId).length} size="small" sx={{ height: 16, fontSize: '0.65rem', '& .MuiChip-label': { px: '4px' } }} />}
+          </Box>
+        } sx={{ minHeight: 40, fontSize: '0.8rem', textTransform: 'none', py: 0 }} />
+        <Tab label={
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            {zh ? '调查 & 说书人' : 'Survey & ST'}
+            {hasSurvey && <Chip color="primary" label="●" size="small" sx={{ height: 14, fontSize: '0.55rem', '& .MuiChip-label': { px: '4px' } }} />}
+          </Box>
+        } sx={{ minHeight: 40, fontSize: '0.8rem', textTransform: 'none', py: 0 }} />
+      </Tabs>
 
-        <Typography variant="caption" color="text.secondary">
-          {zh ? '角色和阵营用于统计分析。名字为空时自动用座位编号。' : 'Character + team power analytics. Blank names use seat number.'}
-        </Typography>
+      <DialogContent sx={{ flex: 1, overflowY: 'auto', pt: 2, pb: 1 }}>
 
-        {/* Header row */}
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '28px 1fr 72px', sm: '32px 1fr 1fr 80px' }, gap: 0.5, alignItems: 'center' }}>
-          <Typography variant="caption" color="text.secondary">#</Typography>
-          <Typography variant="caption" color="text.secondary">{zh ? '玩家名' : 'Name'}</Typography>
-          <Typography variant="caption" color="text.secondary" sx={{ display: { xs: 'none', sm: 'block' } }}>{zh ? '角色' : 'Character'}</Typography>
-          <Typography variant="caption" color="text.secondary">{zh ? '阵营' : 'Team'}</Typography>
-        </Box>
+        {/* ── Tab 0: Info ── */}
+        {tab === 0 && (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <TextField
+              label={zh ? '记录名称（可选）' : 'Record name (optional)'}
+              value={name} onChange={(e) => setName(e.target.value)}
+              size="small" fullWidth
+              helperText={zh ? '留空则自动使用剧本名+日期' : 'Auto-generated from script + date if blank'}
+            />
 
-        {/* Player rows */}
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75, maxHeight: 320, overflowY: 'auto', pr: 0.5 }}>
-          {players.map((p, i) => (
-            <Box key={i} sx={{ display: 'grid', gridTemplateColumns: { xs: '28px 1fr 72px', sm: '32px 1fr 1fr 80px' }, gap: 0.5, alignItems: 'center' }}>
-              <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'center' }}>{i + 1}</Typography>
+            <Autocomplete
+              freeSolo
+              options={scriptOptions}
+              getOptionLabel={(o) => typeof o === 'string' ? o : o.label}
+              inputValue={scriptInput}
+              onInputChange={(_, v) => {
+                setScriptInput(v)
+                const match = scriptOptions.find((s) => s.label === v)
+                setScriptSlug(match?.slug ?? '')
+              }}
+              onChange={(_, v) => {
+                if (v && typeof v !== 'string') {
+                  setScriptInput(v.label)
+                  setScriptSlug(v.slug)
+                }
+              }}
+              renderInput={(params) => (
+                <TextField {...params} label={zh ? '剧本' : 'Script'} size="small" />
+              )}
+              fullWidth
+            />
+
+            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'flex-start' }}>
               <TextField
-                size="small"
-                placeholder={`${zh ? '玩家' : 'Player'} ${i + 1}`}
-                value={p.name}
-                onChange={(e) => updatePlayer(i, { name: e.target.value })}
-                sx={{ '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' } }}
+                type="date"
+                label={zh ? '游戏日期' : 'Date'}
+                value={date} onChange={(e) => setDate(e.target.value)}
+                size="small" slotProps={{ inputLabel: { shrink: true } }}
+                sx={{ flex: '1 1 140px' }}
               />
-              <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
-                <Autocomplete
-                  options={charOptions}
-                  groupBy={(o) => groupLabel(o.team)}
-                  getOptionLabel={(o) => o.label}
-                  value={charOptions.find((c) => c.id === p.charId) ?? null}
-                  onChange={(_, v) => {
-                    const charId = v?.id ?? ''
-                    const autoTeam = charId ? teamFromChar(charId) : ''
-                    updatePlayer(i, { charId, team: autoTeam })
-                  }}
-                  renderOption={(props, o) => (
-                    <Box component="li" {...props} sx={{ gap: 0.75, py: '2px !important' }}>
-                      {o.icon && <Box component="img" src={o.icon} sx={{ width: 20, height: 20, borderRadius: '50%', flexShrink: 0 }} />}
-                      <Typography variant="caption">{o.label}</Typography>
-                    </Box>
-                  )}
-                  renderInput={(params) => (
-                    <TextField {...params} size="small" placeholder={zh ? '选择角色' : 'Character'}
-                      sx={{ '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' } }} />
-                  )}
-                  slotProps={{ popper: { style: { zIndex: 1400 } } }}
-                  clearOnEscape
-                  sx={{ flex: 1 }}
-                />
+
+              <Box sx={{ flex: '0 0 auto', display: 'flex', alignItems: 'center', gap: 0.5, pt: 0.5 }}>
+                <Typography variant="caption" color="text.secondary">{zh ? '天数' : 'Days'}</Typography>
+                <IconButton size="small" onClick={() => setDayCount((n) => Math.max(1, n - 1))}>
+                  <RemoveIcon fontSize="small" />
+                </IconButton>
+                <Typography variant="body2" sx={{ minWidth: 24, textAlign: 'center', fontWeight: 600 }}>{dayCount}</Typography>
+                <IconButton size="small" onClick={() => setDayCount((n) => n + 1)}>
+                  <AddIcon fontSize="small" />
+                </IconButton>
               </Box>
-              <ToggleButtonGroup
-                value={p.team}
-                exclusive
-                size="small"
-                onChange={(_, v) => { if (v !== null) updatePlayer(i, { team: v }) }}
-                sx={{ '& .MuiToggleButton-root': { py: '2px', px: '6px', fontSize: '0.7rem' } }}
-              >
-                <ToggleButton value="evil" sx={{ color: 'error.main' }}>
-                  {zh ? '邪' : 'E'}
+            </Box>
+
+            <Box>
+              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.75 }}>
+                {zh ? '游戏结果' : 'Result'}
+              </Typography>
+              <ToggleButtonGroup value={winner} exclusive size="small"
+                onChange={(_, v) => { if (v !== null) setWinner(v) }}>
+                <ToggleButton value="evil" sx={{ px: 2, color: 'error.main', '&.Mui-selected': { bgcolor: 'error.main', color: 'white' } }}>
+                  {zh ? '邪恶胜' : 'Evil Win'}
                 </ToggleButton>
-                <ToggleButton value="good" sx={{ color: 'success.main' }}>
-                  {zh ? '善' : 'G'}
+                <ToggleButton value="good" sx={{ px: 2, color: 'success.main', '&.Mui-selected': { bgcolor: 'success.main', color: 'white' } }}>
+                  {zh ? '善良胜' : 'Good Win'}
+                </ToggleButton>
+                <ToggleButton value="storyteller" sx={{ px: 2, color: 'info.main', '&.Mui-selected': { bgcolor: 'info.main', color: 'white' } }}>
+                  {zh ? '说书人胜' : 'ST Win'}
                 </ToggleButton>
               </ToggleButtonGroup>
             </Box>
-          ))}
-        </Box>
+          </Box>
+        )}
 
-        <Divider />
+        {/* ── Tab 1: Players ── */}
+        {tab === 1 && (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 700, flex: 1 }}>
+                {zh ? '玩家列表' : 'Player List'}
+              </Typography>
+              <IconButton size="small" onClick={() => setPlayerCount_(playerCount - 1)}>
+                <RemoveIcon fontSize="small" />
+              </IconButton>
+              <Typography variant="body2" sx={{ minWidth: 24, textAlign: 'center', fontWeight: 600 }}>{playerCount}</Typography>
+              <IconButton size="small" onClick={() => setPlayerCount_(playerCount + 1)}>
+                <AddIcon fontSize="small" />
+              </IconButton>
+            </Box>
 
-        {/* ── Survey: MVP + Ratings + Notes ── */}
-        <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
-          {zh ? '评分与调查' : 'Survey & Ratings'}
-        </Typography>
+            <Typography variant="caption" color="text.secondary">
+              {zh ? '角色和阵营用于统计分析。名字为空时自动用座位编号。' : 'Character + team used in analytics. Blank names auto-use seat number.'}
+            </Typography>
 
-        <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', alignItems: 'flex-start' }}>
-          {/* MVP */}
-          {players.some((p) => p.name) && (
-            <FormControl size="small" sx={{ flex: '1 1 160px' }}>
-              <InputLabel sx={{ fontSize: '0.8rem' }}>{zh ? 'MVP' : 'MVP'}</InputLabel>
-              <Select value={mvp} label="MVP" onChange={(e) => setMvp(e.target.value as number | '')} sx={{ fontSize: '0.8rem' }}>
-                <MenuItem value=""><em>{zh ? '未选择' : 'None'}</em></MenuItem>
-                {players.map((p, i) => p.name ? (
-                  <MenuItem key={i} value={i + 1} sx={{ fontSize: '0.8rem' }}>
-                    {i + 1}. {p.name}
-                  </MenuItem>
-                ) : null)}
-              </Select>
-            </FormControl>
-          )}
+            {/* Header */}
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '28px 1fr 72px', sm: '32px 1fr 1fr 80px' }, gap: 0.5, alignItems: 'center', px: 0.5 }}>
+              <Typography variant="caption" color="text.secondary">#</Typography>
+              <Typography variant="caption" color="text.secondary">{zh ? '玩家名' : 'Name'}</Typography>
+              <Typography variant="caption" color="text.secondary" sx={{ display: { xs: 'none', sm: 'block' } }}>{zh ? '角色' : 'Character'}</Typography>
+              <Typography variant="caption" color="text.secondary">{zh ? '阵营' : 'Team'}</Typography>
+            </Box>
 
-          {/* Other notes */}
-          <TextField
-            size="small"
-            multiline
-            rows={2}
-            label={zh ? '其他备注' : 'Other notes'}
-            value={otherNote}
-            onChange={(e) => setOtherNote(e.target.value)}
-            sx={{ flex: '2 1 220px', '& .MuiInputBase-input': { fontSize: '0.8rem' } }}
-          />
-        </Box>
+            {/* Player rows */}
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75, maxHeight: 360, overflowY: 'auto', pr: 0.5 }}>
+              {players.map((p, i) => (
+                <Box key={i} sx={{ display: 'grid', gridTemplateColumns: { xs: '28px 1fr 72px', sm: '32px 1fr 1fr 80px' }, gap: 0.5, alignItems: 'center' }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'center' }}>{i + 1}</Typography>
+                  <TextField
+                    size="small"
+                    placeholder={`${zh ? '玩家' : 'Player'} ${i + 1}`}
+                    value={p.name}
+                    onChange={(e) => updatePlayer(i, { name: e.target.value })}
+                    sx={{ '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' } }}
+                  />
+                  <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
+                    <Autocomplete
+                      options={charOptions}
+                      groupBy={(o) => groupLabel(o.team)}
+                      getOptionLabel={(o) => o.label}
+                      value={charOptions.find((c) => c.id === p.charId) ?? null}
+                      onChange={(_, v) => {
+                        const charId = v?.id ?? ''
+                        const autoTeam = charId ? teamFromChar(charId) : ''
+                        updatePlayer(i, { charId, team: autoTeam })
+                      }}
+                      renderOption={(props, o) => (
+                        <Box component="li" {...props} sx={{ gap: 0.75, py: '2px !important' }}>
+                          {o.icon && <Box component="img" src={o.icon} sx={{ width: 20, height: 20, borderRadius: '50%', flexShrink: 0 }} />}
+                          <Typography variant="caption">{o.label}</Typography>
+                        </Box>
+                      )}
+                      renderInput={(params) => (
+                        <TextField {...params} size="small" placeholder={zh ? '选择角色' : 'Character'}
+                          sx={{ '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' } }} />
+                      )}
+                      slotProps={{ popper: { style: { zIndex: 1400 } } }}
+                      clearOnEscape
+                      sx={{ flex: 1 }}
+                    />
+                  </Box>
+                  <ToggleButtonGroup
+                    value={p.team}
+                    exclusive
+                    size="small"
+                    onChange={(_, v) => { if (v !== null) updatePlayer(i, { team: v }) }}
+                    sx={{ '& .MuiToggleButton-root': { py: '2px', px: '6px', fontSize: '0.7rem' } }}
+                  >
+                    <ToggleButton value="evil" sx={{ color: 'error.main' }}>
+                      {zh ? '邪' : 'E'}
+                    </ToggleButton>
+                    <ToggleButton value="good" sx={{ color: 'success.main' }}>
+                      {zh ? '善' : 'G'}
+                    </ToggleButton>
+                  </ToggleButtonGroup>
+                </Box>
+              ))}
+            </Box>
+          </Box>
+        )}
 
-        {/* Star ratings 2×2 */}
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 0.5 }}>
-          <StarRating label={zh ? '平衡性' : 'Balanced'} value={balanced} onChange={setBalanced} />
-          <StarRating label={zh ? 'Evil方乐趣' : 'Fun (Evil)'} value={funEvil} onChange={setFunEvil} />
-          <StarRating label={zh ? '正义方乐趣' : 'Fun (Good)'} value={funGood} onChange={setFunGood} />
-          <StarRating label={zh ? '重玩愿望' : 'Replay'} value={replay} onChange={setReplay} />
-        </Box>
+        {/* ── Tab 2: Survey & Storyteller ── */}
+        {tab === 2 && (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+
+            {/* ST section */}
+            <Typography variant="subtitle2" sx={{ fontWeight: 700, color: 'text.secondary', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+              {zh ? '说书人' : 'Storyteller'}
+            </Typography>
+            <TextField
+              label={zh ? '说书人名称' : 'Storyteller name'}
+              value={stName} onChange={(e) => setStName(e.target.value)}
+              size="small" fullWidth
+              placeholder={zh ? '游戏说书人的名字' : 'Who ran this game?'}
+            />
+            <TextField
+              label={zh ? '自定义规则 / 设置备注' : 'Custom rules / settings'}
+              value={stCustomRules} onChange={(e) => setStCustomRules(e.target.value)}
+              size="small" fullWidth multiline rows={3}
+              placeholder={zh ? '例：使用了哪些自定义规则或剧本变体' : 'e.g. custom rules, script variants, house rules'}
+            />
+
+            <Divider />
+
+            {/* Survey section */}
+            <Typography variant="subtitle2" sx={{ fontWeight: 700, color: 'text.secondary', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+              {zh ? '游戏评分' : 'Game Survey'}
+            </Typography>
+
+            {/* MVP */}
+            {players.some((p) => p.name) && (
+              <FormControl size="small" fullWidth>
+                <InputLabel>{zh ? 'MVP 玩家' : 'MVP Player'}</InputLabel>
+                <Select value={mvp} label={zh ? 'MVP 玩家' : 'MVP Player'}
+                  onChange={(e) => setMvp(e.target.value as number | '')}>
+                  <MenuItem value=""><em>{zh ? '未选择' : 'None'}</em></MenuItem>
+                  {players.map((p, i) => p.name ? (
+                    <MenuItem key={i} value={i + 1} sx={{ fontSize: '0.85rem' }}>
+                      {i + 1}. {p.name}
+                    </MenuItem>
+                  ) : null)}
+                </Select>
+              </FormControl>
+            )}
+
+            {/* Star ratings 2×2 */}
+            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1 }}>
+              <StarRating label={zh ? '平衡性' : 'Balanced'} value={balanced} onChange={setBalanced} />
+              <StarRating label={zh ? 'Evil方乐趣' : 'Fun (Evil)'} value={funEvil} onChange={setFunEvil} />
+              <StarRating label={zh ? '正义方乐趣' : 'Fun (Good)'} value={funGood} onChange={setFunGood} />
+              <StarRating label={zh ? '重玩愿望' : 'Replay'} value={replay} onChange={setReplay} />
+            </Box>
+
+            {/* Notes */}
+            <TextField
+              size="small"
+              multiline
+              rows={2}
+              label={zh ? '其他备注' : 'Other notes'}
+              value={otherNote}
+              onChange={(e) => setOtherNote(e.target.value)}
+              fullWidth
+            />
+          </Box>
+        )}
 
       </DialogContent>
-      <DialogActions>
+      <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
+        {/* Tab navigation hints */}
+        <Box sx={{ flex: 1, display: 'flex', gap: 0.5 }}>
+          {tab > 0 && (
+            <Button size="small" onClick={() => setTab((t) => t - 1)} sx={{ fontSize: '0.75rem' }}>
+              ← {zh ? '上一步' : 'Back'}
+            </Button>
+          )}
+          {tab < 2 && (
+            <Button size="small" onClick={() => setTab((t) => t + 1)} sx={{ fontSize: '0.75rem' }}>
+              {zh ? '下一步' : 'Next'} →
+            </Button>
+          )}
+        </Box>
         <Button onClick={onClose}>{zh ? '取消' : 'Cancel'}</Button>
         <Button variant="contained" onClick={handleSave}>
           {existing ? (zh ? '保存' : 'Save') : (zh ? '创建记录' : 'Create Record')}
