@@ -59,6 +59,10 @@ import {
   toTitleCase,
 } from './catalog'
 import { STORAGE_KEY, USER_SCRIPTS_KEY } from './components/StorytellerSub/constants'
+
+const SCRIPT_META_KEY = 'BOTC_SCRIPT_META'
+
+type ScriptMeta = { tags?: string[]; notes?: string; pinnedRevisions?: Record<string, string> }
 import { storageSync } from './lib/storage'
 import { exportGameFile } from './lib/exportGame'
 import type {
@@ -86,11 +90,24 @@ export default function App() {
   const initialSlugs = useMemo(() => new Set(initialScripts.map((s) => s.slug)), [])
   const [scripts, setScripts] = useState<EditableScript[]>(() => {
     try {
-      const stored = storageSync.getItem(USER_SCRIPTS_KEY)
-      if (stored) {
-        const user = JSON.parse(stored) as EditableScript[]
-        return [...initialScripts, ...user]
+      const user = (() => {
+        const stored = storageSync.getItem(USER_SCRIPTS_KEY)
+        return stored ? (JSON.parse(stored) as EditableScript[]) : []
+      })()
+      const meta = (() => {
+        try { return JSON.parse(localStorage.getItem(SCRIPT_META_KEY) ?? '{}') as Record<string, ScriptMeta> } catch { return {} as Record<string, ScriptMeta> }
+      })()
+      const applyMeta = (s: EditableScript): EditableScript => {
+        const m = meta[s.slug]
+        if (!m) return s
+        return {
+          ...s,
+          ...(m.tags !== undefined ? { tags: m.tags } : {}),
+          ...(m.notes !== undefined ? { notes: m.notes } : {}),
+          ...(m.pinnedRevisions !== undefined ? { pinnedRevisions: m.pinnedRevisions } : {}),
+        }
       }
+      return [...initialScripts.map(applyMeta), ...user.map(applyMeta)]
     } catch {}
     return initialScripts
   })
@@ -110,6 +127,17 @@ export default function App() {
   useEffect(() => {
     const user = scripts.filter((s) => !initialSlugs.has(s.slug))
     storageSync.setItem(USER_SCRIPTS_KEY, JSON.stringify(user))
+
+    // Persist tags/notes/pinnedRevisions for ALL scripts (incl. built-ins)
+    const meta: Record<string, ScriptMeta> = {}
+    for (const s of scripts) {
+      const m: ScriptMeta = {}
+      if (s.tags?.length) m.tags = s.tags
+      if (s.notes?.trim()) m.notes = s.notes
+      if (s.pinnedRevisions && Object.keys(s.pinnedRevisions).length) m.pinnedRevisions = s.pinnedRevisions
+      if (Object.keys(m).length) meta[s.slug] = m
+    }
+    try { localStorage.setItem(SCRIPT_META_KEY, JSON.stringify(meta)) } catch {}
   }, [scripts, initialSlugs])
 
   // ── Custom characters ─────────────────────────────────────────────────────
