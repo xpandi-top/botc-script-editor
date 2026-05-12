@@ -300,3 +300,85 @@ describe('Fix 3 – demon bluffs carry across days', () => {
     expect(firstDays[0].demonBluffs).toEqual([])
   })
 })
+
+// ── Bluff pool: always populated + unique per slot ────────────────────────────
+
+describe('Demon bluff pool – always available + unique per slot', () => {
+  // Mirror the availableBluffs logic from ModalsNewGameCharactersTab
+  function computeAvailableBluffs(
+    scriptChars: string[],
+    assignments: Record<number, string>,
+  ): string[] {
+    const assigned = new Set<string>(Object.values(assignments))
+    const scriptAvail = scriptChars.filter((id) => !assigned.has(id))
+    if (scriptAvail.length >= 3) return scriptAvail
+    // Fall back to catalog townsfolk/outsider
+    const { allCharacters } = require('../catalog')
+    const catalogFallback = (allCharacters as Array<{ id: string; team: string }>)
+      .filter((c) => (c.team === 'townsfolk' || c.team === 'outsider') && !assigned.has(c.id))
+      .map((c) => c.id)
+    return [...new Set([...scriptAvail, ...catalogFallback])]
+  }
+
+  function perSlotOptions(available: string[], currentBluffs: string[]): string[][] {
+    return [0, 1, 2].map((idx) => {
+      const others = new Set(currentBluffs.filter((id, i) => i !== idx && !!id))
+      return available.filter((id) => !others.has(id))
+    })
+  }
+
+  it('falls back to catalog when script has fewer than 3 unassigned chars', () => {
+    // Tight script: 2 chars, both assigned
+    const scriptChars = ['washerwoman', 'librarian']
+    const assignments = { 1: 'washerwoman', 2: 'librarian' }
+    const pool = computeAvailableBluffs(scriptChars, assignments)
+    // Should fall back to catalog characters
+    expect(pool.length).toBeGreaterThanOrEqual(3)
+  })
+
+  it('returns only script chars when ≥3 unassigned', () => {
+    const scriptChars = ['washerwoman', 'librarian', 'investigator', 'chef', 'empath']
+    const assignments = { 1: 'washerwoman', 2: 'librarian' }
+    const pool = computeAvailableBluffs(scriptChars, assignments)
+    // 3 unassigned from script: investigator, chef, empath
+    expect(pool).toContain('investigator')
+    expect(pool).toContain('chef')
+    expect(pool).toContain('empath')
+    expect(pool).not.toContain('washerwoman')
+    expect(pool).not.toContain('librarian')
+  })
+
+  it('excludes assigned characters regardless of fallback', () => {
+    const scriptChars = ['washerwoman']
+    const assignments = { 1: 'washerwoman' }
+    const pool = computeAvailableBluffs(scriptChars, assignments)
+    expect(pool).not.toContain('washerwoman')
+  })
+
+  it('per-slot options exclude characters selected in other slots', () => {
+    const available = ['washerwoman', 'librarian', 'investigator', 'chef']
+    const currentBluffs = ['washerwoman', 'librarian', '']
+    const slots = perSlotOptions(available, currentBluffs)
+    // Slot 0 (washerwoman selected) should exclude librarian from other slots
+    expect(slots[0]).not.toContain('librarian')
+    // Slot 1 (librarian selected) should exclude washerwoman from other slots
+    expect(slots[1]).not.toContain('washerwoman')
+    // Slot 2 (empty) should exclude washerwoman and librarian
+    expect(slots[2]).not.toContain('washerwoman')
+    expect(slots[2]).not.toContain('librarian')
+    // investigator and chef should appear in all slots
+    expect(slots[0]).toContain('investigator')
+    expect(slots[1]).toContain('investigator')
+    expect(slots[2]).toContain('investigator')
+  })
+
+  it('each slot can still select its own current value', () => {
+    const available = ['washerwoman', 'librarian', 'investigator']
+    const currentBluffs = ['washerwoman', 'librarian', 'investigator']
+    const slots = perSlotOptions(available, currentBluffs)
+    // Slot 0's current value 'washerwoman' should still be in slot 0's options
+    expect(slots[0]).toContain('washerwoman')
+    expect(slots[1]).toContain('librarian')
+    expect(slots[2]).toContain('investigator')
+  })
+})

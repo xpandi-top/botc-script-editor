@@ -73,8 +73,8 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
     showNominationSheet, setShowNominationSheet,
     enterNomination, moveToNextSpeaker, setPhase,
     alarmActive, setAlarmActive, nightShowCharacter, setNightShowCharacter,
-    nightShowWakeOrder, setNightShowWakeOrder, setNewGamePanel, activeScriptSlug,
-    openNewGamePanel, openEndGamePanel, setShowEditPlayersModal,
+    nightShowWakeOrder, setNightShowWakeOrder, openCharacterEditor,
+    openNewGamePanel, openEndGamePanel,
     showAggLogModal, setShowAggLogModal, setShowStSetupModal, stFabledIds,
   } = ctx
 
@@ -111,21 +111,6 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
     const [m = '0', s = '0'] = timerInput.split(':')
     setCurrentTimer((parseInt(m) || 0) * 60 + (parseInt(s) || 0))
     setTimerEditing(false)
-  }
-
-  const handleOpenCharEditor = () => {
-    const regular = seats.filter((s: any) => !s.isTraveler)
-    const travelers = seats.filter((s: any) => s.isTraveler)
-    setNewGamePanel({
-      playerCount: regular.length, travelerCount: travelers.length,
-      scriptSlug: activeScriptSlug || '', allowDuplicateChars: false,
-      allowEmptyChars: false, allowSameNames: false,
-      assignments: Object.fromEntries(seats.map((s: any) => [s.seat, s.characterId || ''])),
-      userAssignments: Object.fromEntries(seats.map((s: any) => [s.seat, s.userCharacterId || ''])),
-      seatNames: Object.fromEntries(seats.map((s: any) => [s.seat, s.name])),
-      seatNotes: Object.fromEntries(seats.map((s: any) => [s.seat, s.note || ''])),
-      specialNote: '', demonBluffs: [], editMode: true,
-    })
   }
 
   const btnSx = { color: textColor, borderColor: btnBorder, fontSize: '0.95rem', px: 1.5, py: 0.75, minHeight: 40, minWidth: 0, fontWeight: 500, bgcolor: btnOverlay, '&:hover': { borderColor: btnBorder, bgcolor: btnOverlayHover } }
@@ -358,7 +343,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
                 </IconButton>
               </Tooltip>
               <Tooltip title={language === 'zh' ? '编辑角色' : 'Edit Characters'}>
-                <IconButton sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={handleOpenCharEditor}>
+                <IconButton sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={openCharacterEditor}>
                   <ManageAccountsIcon />
                 </IconButton>
               </Tooltip>

@@ -23,6 +23,7 @@ interface LifecycleDeps {
   setSeatTagDrafts: React.Dispatch<React.SetStateAction<Record<number, string>>>
   setSkillOverlay: (v: null) => void
   setNewGamePanel: React.Dispatch<React.SetStateAction<NewGameConfig | null>>
+  setShowNewGamePanel?: (v: boolean) => void
   setEndGameResult: React.Dispatch<React.SetStateAction<EndGameResult | null>>
   setGameRecords: React.Dispatch<React.SetStateAction<GameRecord[]>>
   setSelectedAudioSrc: (src: string) => void
@@ -50,7 +51,7 @@ interface LifecycleDeps {
 }
 
 export function buildGameLifecycle(deps: LifecycleDeps) {
-  const { days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, endGameResult, scriptOptions, onSelectScript, setDays, setDaysWithUndo, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay, setNewGamePanel, setEndGameResult, setGameRecords, setAudioPlaying, language, appendEvent, customTagPool = [], playerNamePool = [], setCurrentRecordName, setTimerDefaults, setCustomTagPool, setPlayerNamePool, setShowEndGameModal, setNightShowCharacter, setNightShowWakeOrder, stFabledIds = [], stCustomRules = '', setStFabledIds, setStCustomRules, gameStartedAt, setGameStartedAt, setShowSaveBeforeNewGame, setPendingNewGameAfterSave } = deps
+  const { days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, endGameResult, scriptOptions, onSelectScript, setDays, setDaysWithUndo, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay, setNewGamePanel, setShowNewGamePanel, setEndGameResult, setGameRecords, setAudioPlaying, language, appendEvent, customTagPool = [], playerNamePool = [], setCurrentRecordName, setTimerDefaults, setCustomTagPool, setPlayerNamePool, setShowEndGameModal, setNightShowCharacter, setNightShowWakeOrder, stFabledIds = [], stCustomRules = '', setStFabledIds, setStCustomRules, gameStartedAt, setGameStartedAt, setShowSaveBeforeNewGame, setPendingNewGameAfterSave } = deps
 
   const exportActions = buildGameExport({ days, currentDay, activeScriptSlug, activeScriptTitle, endGameResult, timerDefaults, customTagPool, playerNamePool, stFabledIds, stCustomRules, setGameRecords, setCurrentRecordName, gameStartedAt })
 
@@ -158,7 +159,32 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
         }
       }
     }
-    setNewGamePanel({ playerCount: 9, travelerCount: 0, scriptSlug: slug, allowDuplicateChars: false, allowEmptyChars: false, allowSameNames: false, seatNames: inheritedNames, assignments: {}, userAssignments: {}, travelerAssignments: {}, seatNotes: {}, specialNote: '', demonBluffs: [], charPool: [] })
+    const freshConfig: NewGameConfig = { playerCount: 9, travelerCount: 0, scriptSlug: slug, allowDuplicateChars: false, allowEmptyChars: false, allowSameNames: false, seatNames: inheritedNames, assignments: {}, userAssignments: {}, travelerAssignments: {}, seatNotes: {}, specialNote: '', demonBluffs: [], charPool: [] }
+    // Preserve existing draft so close → reopen restores in-progress config
+    setNewGamePanel((prev) => prev ?? freshConfig)
+    setShowNewGamePanel?.(true)
+  }
+
+  function openCharacterEditor() {
+    const seats = currentDay?.seats ?? []
+    const regular = seats.filter((s) => !s.isTraveler)
+    const travelers = seats.filter((s) => s.isTraveler)
+    setNewGamePanel({
+      playerCount: regular.length,
+      travelerCount: travelers.length,
+      scriptSlug: activeScriptSlug ?? scriptOptions[0]?.slug ?? '',
+      allowDuplicateChars: false, allowEmptyChars: false, allowSameNames: false,
+      assignments: Object.fromEntries(seats.map((s) => [s.seat, s.characterId ?? ''])),
+      userAssignments: Object.fromEntries(seats.map((s) => [s.seat, s.userCharacterId ?? ''])),
+      travelerAssignments: Object.fromEntries(travelers.map((s) => [s.seat, s.characterId ?? ''])),
+      seatNames: Object.fromEntries(seats.map((s) => [s.seat, s.name])),
+      seatNotes: Object.fromEntries(seats.map((s) => [s.seat, s.note ?? ''])),
+      specialNote: '',
+      demonBluffs: currentDay?.demonBluffs ?? [],
+      charPool: [],
+      editMode: true,
+    })
+    setShowNewGamePanel?.(true)
   }
 
   function hasActiveGame(): boolean {
@@ -233,6 +259,7 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     setSeatTagDrafts({})
     setSkillOverlay(null)
     setNewGamePanel(null)
+    setShowNewGamePanel?.(false)
     if (setCurrentRecordName) setCurrentRecordName(null)
     setEndGameResult(null)
     setStFabledIds?.([])
@@ -269,6 +296,7 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     })
     setDays((d) => d.map((day) => day.id === currentDay.id ? { ...updatedDay, seats: updatedSeats, demonBluffs: newGamePanel.demonBluffs || [] } : day))
     setNewGamePanel(null)
+    setShowNewGamePanel?.(false)
   }
 
   function resetCurrentGame() {
@@ -326,6 +354,7 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     if (setStCustomRules) setStCustomRules(record.stCustomRules ?? '')
     if (record.setup) {
       setNewGamePanel({ playerCount: record.setup.playerCount, travelerCount: record.setup.travelerCount, scriptSlug: record.scriptSlug || '', allowDuplicateChars: false, allowEmptyChars: false, allowSameNames: false, seatNames: record.setup.seatNames || {}, assignments: record.setup.assignments || {}, userAssignments: record.setup.userAssignments || {}, travelerAssignments: record.setup.travelerAssignments || {}, seatNotes: record.setup.seatNotes || {}, specialNote: record.setup.specialNote || '', demonBluffs: record.setup.demonBluffs ?? [], charPool: [], editMode: true })
+      setShowNewGamePanel?.(true)
     }
     const teams: Record<number, 'evil' | 'good' | null> = {}
     for (const s of record.savedDays[0].seats) {
@@ -335,5 +364,5 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     setEndGameResult({ winner: record.winner ?? null, playerTeams: teams, mvp: record.mvp ?? null, balanced: record.balanced ?? null, funEvil: record.funEvil ?? null, funGood: record.funGood ?? null, replay: record.replay ?? null, otherNote: record.otherNote ?? '' })
   }
 
-  return { goToNextDay, goToPreviousDay, moveToNextSpeaker, setPhase, startNight, addPlayerSeat, removeLastPlayerSeat, addTravelerSeat, removeLastTraveler, openNewGamePanel, doOpenNewGamePanel: _doOpenNewGamePanel, confirmNewGameAfterSave, confirmNewGameDiscard, hasActiveGame, randomAssignCharacters, startNewGame, applyGameChanges, resetCurrentGame, openEndGamePanel, markGameEnded, unmarkGameEnded, loadGameRecord, ...exportActions }
+  return { goToNextDay, goToPreviousDay, moveToNextSpeaker, setPhase, startNight, addPlayerSeat, removeLastPlayerSeat, addTravelerSeat, removeLastTraveler, openNewGamePanel, openCharacterEditor, doOpenNewGamePanel: _doOpenNewGamePanel, confirmNewGameAfterSave, confirmNewGameDiscard, hasActiveGame, randomAssignCharacters, startNewGame, applyGameChanges, resetCurrentGame, openEndGamePanel, markGameEnded, unmarkGameEnded, loadGameRecord, ...exportActions }
 }

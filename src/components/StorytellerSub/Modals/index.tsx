@@ -8,7 +8,7 @@ import { ModalsDialog } from './ModalsDialog'
 import { ModalsExport } from './ModalsExport'
 
 export function Modals({ ctx }: { ctx: StorytellerContext }) {
-  const { showEditPlayersModal, setShowEditPlayersModal, newGamePanel, setNewGamePanel, showEndGameModal, setShowEndGameModal, showExportModal, setShowExportModal, dialogState, setDialogState, text, language } = ctx
+  const { showEditPlayersModal, setShowEditPlayersModal, newGamePanel, showNewGamePanel, setShowNewGamePanel, showEndGameModal, setShowEndGameModal, showExportModal, setShowExportModal, dialogState, setDialogState, text, language } = ctx
 
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
@@ -30,10 +30,10 @@ export function Modals({ ctx }: { ctx: StorytellerContext }) {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={!!newGamePanel} onClose={() => setNewGamePanel(null)} maxWidth={dialogMaxWidth} fullWidth fullScreen={isMobile} slotProps={{ paper: { sx: paperSx } }}>
+      <Dialog open={showNewGamePanel && !!newGamePanel} onClose={() => setShowNewGamePanel(false)} maxWidth={dialogMaxWidth} fullWidth fullScreen={isMobile} slotProps={{ paper: { sx: paperSx } }}>
         <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
           {text.newGame}
-          <IconButton onClick={() => setNewGamePanel(null)} size="small"><CloseIcon /></IconButton>
+          <IconButton onClick={() => setShowNewGamePanel(false)} size="small"><CloseIcon /></IconButton>
         </DialogTitle>
         <DialogContent>
           <ModalsNewGame ctx={ctx} />

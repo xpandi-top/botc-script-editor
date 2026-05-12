@@ -9,7 +9,7 @@ import { CharactersTab } from './ModalsNewGameCharactersTab'
 export function ModalsNewGame({ ctx }: { ctx: StorytellerContext }) {
   const {
     scriptOptions, playerNamePool, setPlayerNamePool, text, language,
-    newGamePanel, setNewGamePanel, startNewGame, applyGameChanges, randomAssignCharacters,
+    newGamePanel, setNewGamePanel, setShowNewGamePanel, startNewGame, applyGameChanges, randomAssignCharacters,
   } = ctx
 
   const [activeTab, setActiveTab] = useState<'players' | 'characters' | 'config'>('players')
@@ -94,7 +94,7 @@ export function ModalsNewGame({ ctx }: { ctx: StorytellerContext }) {
       </Box>
 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1 }}>
-        <Button variant="outlined" onClick={() => setNewGamePanel(null)}>
+        <Button variant="outlined" onClick={() => setShowNewGamePanel(false)}>
           {editMode ? (language === 'zh' ? '关闭' : 'Close') : text.cancelNewGame}
         </Button>
         {!editMode && (

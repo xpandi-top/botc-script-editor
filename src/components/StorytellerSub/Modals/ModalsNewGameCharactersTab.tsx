@@ -2,6 +2,7 @@
 import React, { useMemo, useState } from 'react'
 import { Box, Button, TextField, Select, MenuItem, FormControl, InputLabel, Typography, Paper, Divider, Grid, Chip, Collapse, IconButton, Tooltip } from '@mui/material'
 import CasinoIcon from '@mui/icons-material/Casino'
+import ShuffleIcon from '@mui/icons-material/Shuffle'
 import ReplayIcon from '@mui/icons-material/Replay'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ExpandLessIcon from '@mui/icons-material/ExpandLess'
@@ -123,9 +124,34 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
     return c
   }, [newGamePanel?.userAssignments])
 
-  const availableBluffs = useMemo(() =>
-    scriptChars.filter((id: string) => !Object.values(newGamePanel?.assignments ?? {}).includes(id)),
-    [scriptChars, newGamePanel?.assignments])
+  // Characters eligible as demon bluffs: not currently assigned to any seat.
+  // Prefer script characters; fall back to ALL townsfolk/outsider from catalog
+  // so tight custom scripts never show an empty bluff picker.
+  const availableBluffs = useMemo(() => {
+    const assigned = new Set<string>(Object.values(newGamePanel?.assignments ?? {}))
+    const scriptAvail = scriptChars.filter((id: string) => !assigned.has(id))
+    if (scriptAvail.length >= 3) return scriptAvail
+    // Supplement with all catalog townsfolk/outsider not in play
+    const catalogFallback = allCharacters
+      .filter((c) => (c.team === 'townsfolk' || c.team === 'outsider') && !assigned.has(c.id))
+      .map((c) => c.id)
+    return [...new Set([...scriptAvail, ...catalogFallback])]
+  }, [scriptChars, newGamePanel?.assignments])
+
+  // Per-slot options: exclude characters already picked in the other two slots.
+  // Always include the slot's own current value so it stays visible after close/reopen.
+  const bluffSlotOptions = useMemo(() => {
+    const currentBluffs: string[] = newGamePanel?.demonBluffs ?? []
+    return [0, 1, 2].map((idx) => {
+      const others = new Set(currentBluffs.filter((id, i) => i !== idx && !!id))
+      const filtered = availableBluffs.filter((id) => !others.has(id))
+      const currentVal = currentBluffs[idx]
+      if (currentVal && !filtered.includes(currentVal)) {
+        return [currentVal, ...filtered]
+      }
+      return filtered
+    })
+  }, [availableBluffs, newGamePanel?.demonBluffs])
 
   const handleScriptChange = (slug: string) => {
     updateConfig({ scriptSlug: slug })
@@ -145,6 +171,19 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
     const bluffs = [...(newGamePanel.demonBluffs ?? []), '', '', ''].slice(0, 3)
     bluffs[idx] = cid
     updateConfig({ demonBluffs: bluffs })
+  }
+
+  const quickFillBluffs = () => {
+    // Pick 3 unique townsfolk/outsider from availableBluffs at random
+    const pool = availableBluffs.filter((id) => {
+      const ch = characterById[id]
+      return ch && (ch.team === 'townsfolk' || ch.team === 'outsider')
+    })
+    const shuffled = [...pool].sort(() => Math.random() - 0.5)
+    const picked = shuffled.slice(0, 3)
+    // Pad to 3 with empty strings if fewer available
+    while (picked.length < 3) picked.push('')
+    updateConfig({ demonBluffs: picked })
   }
 
   const setTravelerAssignment = (sNum: number, cid: string) => {
@@ -281,10 +320,17 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
 
       {/* ── Demon bluffs ── */}
       <Paper variant="outlined" sx={{ p: 1 }}>
-        <Typography variant="subtitle2" sx={{ mb: 1 }}>{zh ? '不在场角色' : 'Demon Bluffs'}</Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+          <Typography variant="subtitle2">{zh ? '不在场角色' : 'Demon Bluffs'}</Typography>
+          <Tooltip title={zh ? '随机填充镇民/外来者' : 'Quick fill with random townsfolk/outsider'}>
+            <IconButton size="small" onClick={quickFillBluffs}>
+              <ShuffleIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        </Box>
         <Box sx={{ display: 'flex', gap: 1 }}>
           {[0, 1, 2].map((idx) => (
-            <CharSelect key={idx} value={newGamePanel.demonBluffs?.[idx] ?? ''} options={availableBluffs} language={language} placeholder={zh ? '选择…' : 'Pick…'} onChange={(id) => setBluff(idx, id)} />
+            <CharSelect key={idx} value={newGamePanel.demonBluffs?.[idx] ?? ''} options={bluffSlotOptions[idx]} language={language} placeholder={zh ? '选择…' : 'Pick…'} onChange={(id) => setBluff(idx, id)} />
           ))}
         </Box>
       </Paper>

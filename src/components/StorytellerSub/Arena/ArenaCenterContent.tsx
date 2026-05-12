@@ -51,7 +51,7 @@ export function ArenaCenterContent({ ctx }: { ctx: StorytellerContext }) {
     showNominationSheet, setShowNominationSheet,
     enterNomination, moveToNextSpeaker, goToNextDay, setPhase,
     alarmActive, setAlarmActive, nightShowCharacter, setNightShowCharacter,
-    nightShowWakeOrder, setNightShowWakeOrder, setNewGamePanel, activeScriptSlug,
+    nightShowWakeOrder, setNightShowWakeOrder, openCharacterEditor,
     setShowAggLogModal, setShowStSetupModal, stFabledIds,
   } = ctx
   const [timerEditing, setTimerEditing] = useState(false)
@@ -83,26 +83,6 @@ export function ArenaCenterContent({ ctx }: { ctx: StorytellerContext }) {
     setIsTimerRunning(false)
   }
 
-  const handleOpenCharacterEditor = () => {
-    const regularSeats = seats.filter((s: any) => !s.isTraveler)
-    const travelerSeats = seats.filter((s: any) => s.isTraveler)
-
-    setNewGamePanel({
-      playerCount: regularSeats.length,
-      travelerCount: travelerSeats.length,
-      scriptSlug: activeScriptSlug || '',
-      allowDuplicateChars: false,
-      allowEmptyChars: false,
-      allowSameNames: false,
-      assignments: Object.fromEntries(seats.map((s: any) => [s.seat, s.characterId || ''])),
-      userAssignments: Object.fromEntries(seats.map((s: any) => [s.seat, s.userCharacterId || ''])),
-      travelerAssignments: Object.fromEntries(seats.filter((s: any) => s.isTraveler).map((s: any) => [s.seat, s.characterId || ''])),
-      seatNames: Object.fromEntries(seats.map((s: any) => [s.seat, s.name])),
-      seatNotes: Object.fromEntries(seats.map((s: any) => [s.seat, s.note || ''])),
-      specialNote: '', demonBluffs: [], charPool: [], editMode: true,
-    })
-  }
-
   const nightControls = phase === 'night' && (
     <>
       <Box sx={{ display: 'flex', gap: 0.5 }}>
@@ -123,7 +103,7 @@ export function ArenaCenterContent({ ctx }: { ctx: StorytellerContext }) {
           </IconButton>
         </Tooltip>
         <Tooltip title={language === 'zh' ? '编辑角色' : 'Edit Characters'}>
-          <IconButton size="large" onClick={handleOpenCharacterEditor}><ManageAccountsIcon /></IconButton>
+          <IconButton size="large" onClick={openCharacterEditor}><ManageAccountsIcon /></IconButton>
         </Tooltip>
       </Box>
     </>

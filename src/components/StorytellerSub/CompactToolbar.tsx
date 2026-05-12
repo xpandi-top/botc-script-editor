@@ -17,7 +17,7 @@ export function CompactToolbar({ ctx }: { ctx: StorytellerContext }) {
     activeScriptTitle, language, onLanguageChange, currentDay, aliveCount, totalCount,
     audioPlaying, setAudioPlaying, audioTracks, selectedAudioSrc, setSelectedAudioSrc,
     handleLocalFileChange, handleUrlTrackAdd, deleteTrack, openNewGamePanel, openEndGamePanel,
-    setShowRightPanel, setShowEditPlayersModal, showScriptPanel, setShowScriptPanel,
+    setShowRightPanel, openCharacterEditor, showScriptPanel, setShowScriptPanel,
     text, undo, canUndo, bgmVolume, setBgmVolume,
   } = ctx
 
@@ -146,7 +146,7 @@ export function CompactToolbar({ ctx }: { ctx: StorytellerContext }) {
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
         <GameActionsBar
           openNewGamePanel={openNewGamePanel}
-          setShowEditPlayersModal={setShowEditPlayersModal}
+          openCharacterEditor={openCharacterEditor}
           openEndGamePanel={openEndGamePanel}
           text={text}
           language={language}

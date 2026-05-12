@@ -16,7 +16,7 @@ function IconBar({
   togglePopup,
   onClose,
   openNewGamePanel,
-  setShowEditPlayersModal,
+  openCharacterEditor,
   openEndGamePanel,
   setShowExportModal,
 }: {
@@ -26,7 +26,7 @@ function IconBar({
   togglePopup: (name: 'settings' | 'records') => void
   onClose: () => void
   openNewGamePanel: () => void
-  setShowEditPlayersModal: (v: boolean) => void
+  openCharacterEditor: () => void
   openEndGamePanel: () => void
   setShowExportModal: (v: boolean) => void
 }) {
@@ -55,7 +55,7 @@ function IconBar({
       <Box sx={{ flex: 1 }} />
       <GameActionsBar
         openNewGamePanel={openNewGamePanel}
-        setShowEditPlayersModal={setShowEditPlayersModal}
+        openCharacterEditor={openCharacterEditor}
         openEndGamePanel={openEndGamePanel}
         text={text}
         language={language}
@@ -84,7 +84,7 @@ export function RightConsole({ ctx }: { ctx: StorytellerContext }) {
   const {
     showRightPanel, setShowRightPanel, activeRightPopup, setActiveRightPopup,
     language, text, setShowExportModal,
-    openNewGamePanel, setShowEditPlayersModal, openEndGamePanel,
+    openNewGamePanel, openCharacterEditor, openEndGamePanel,
   } = ctx
 
   const theme = useTheme()
@@ -106,7 +106,7 @@ export function RightConsole({ ctx }: { ctx: StorytellerContext }) {
     togglePopup,
     onClose: closePanel,
     openNewGamePanel,
-    setShowEditPlayersModal,
+    openCharacterEditor,
     openEndGamePanel,
     setShowExportModal,
   }

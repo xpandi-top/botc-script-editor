@@ -5,7 +5,7 @@ import SaveIcon from '@mui/icons-material/Save'
 
 interface GameActionsBarProps {
   openNewGamePanel: () => void
-  setShowEditPlayersModal: (v: boolean) => void
+  openCharacterEditor: () => void
   openEndGamePanel: () => void
   /** Localised text for tooltips / labels */
   text: { newGame?: string; editPlayers?: string; endGame?: string }
@@ -24,7 +24,7 @@ interface GameActionsBarProps {
 
 export function GameActionsBar({
   openNewGamePanel,
-  setShowEditPlayersModal,
+  openCharacterEditor,
   openEndGamePanel,
   text,
   language,
@@ -44,7 +44,7 @@ export function GameActionsBar({
       key: 'players',
       icon: <ManageAccountsIcon sx={{ fontSize: variant === 'sidebar' ? '1.1rem' : undefined }} />,
       label: text.editPlayers ?? (language === 'zh' ? '玩家' : 'Players'),
-      onClick: wrap(() => setShowEditPlayersModal(true)),
+      onClick: wrap(openCharacterEditor),
     },
     {
       key: 'save',
