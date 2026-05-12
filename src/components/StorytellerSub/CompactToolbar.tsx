@@ -1,16 +1,10 @@
 import type { StorytellerContext } from './useStoryteller'
-import { Box, FormControl, InputLabel, Select, MenuItem, IconButton, Typography, Slider, Chip, Tooltip, TextField, InputAdornment } from '@mui/material'
-import PlayArrowIcon from '@mui/icons-material/PlayArrow'
-import PauseIcon from '@mui/icons-material/Pause'
-import AddIcon from '@mui/icons-material/Add'
-import LinkIcon from '@mui/icons-material/Link'
+import { Box, FormControl, InputLabel, Select, MenuItem, IconButton, Typography, Chip } from '@mui/material'
 import UndoIcon from '@mui/icons-material/Undo'
 import MenuOpenIcon from '@mui/icons-material/MenuOpen'
-import CheckIcon from '@mui/icons-material/Check'
-import CloseIcon from '@mui/icons-material/Close'
-import { useState } from 'react'
-import { CHARACTER_DISTRIBUTION, INITIAL_AUDIO_TRACKS } from './constants'
+import { CHARACTER_DISTRIBUTION } from './constants'
 import { GameActionsBar } from './GameActionsBar'
+import { BgmBar } from './BgmBar'
 
 export function CompactToolbar({ ctx }: { ctx: StorytellerContext }) {
   const {
@@ -21,24 +15,9 @@ export function CompactToolbar({ ctx }: { ctx: StorytellerContext }) {
     text, undo, canUndo, bgmVolume, setBgmVolume,
   } = ctx
 
-  const [showUrlInput, setShowUrlInput] = useState(false)
-  const [urlInputValue, setUrlInputValue] = useState('')
-
-  function submitUrl() {
-    if (urlInputValue.trim()) {
-      handleUrlTrackAdd(urlInputValue.trim())
-      setUrlInputValue('')
-      setShowUrlInput(false)
-    }
-  }
-
-  const INITIAL_SRCS = new Set(INITIAL_AUDIO_TRACKS.map((t) => t.src))
-
   const nonTravelerCount = currentDay.seats.filter((s: any) => !s.isTraveler).length
   const dist = CHARACTER_DISTRIBUTION[nonTravelerCount]
   const travelerCount = currentDay.seats.filter((s: any) => s.isTraveler).length
-  const currentTrack = audioTracks.find((t: any) => t.src === selectedAudioSrc)
-
   const distColors: Record<string, string> = { townsfolk: '#2e6ec4', outsider: '#7c4dbf', minion: '#c45c2e', demon: '#b91c1c' }
 
   return (
@@ -67,80 +46,19 @@ export function CompactToolbar({ ctx }: { ctx: StorytellerContext }) {
           />
         )}
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, border: '1px solid', borderColor: 'divider', borderRadius: 999, px: 1, py: 0.25, bgcolor: 'background.paper' }}>
-          <IconButton size="small" onClick={() => setAudioPlaying((c: boolean) => !c)} sx={{ p: 0.5 }}>
-            {audioPlaying ? <PauseIcon sx={{ fontSize: '0.9rem' }} /> : <PlayArrowIcon sx={{ fontSize: '0.9rem' }} />}
-          </IconButton>
-          <Select
-            value={selectedAudioSrc}
-            onChange={(e) => setSelectedAudioSrc(e.target.value)}
-            size="small"
-            title={currentTrack?.name}
-          >
-            {audioTracks.map((t: any) => (
-              <MenuItem key={t.src} value={t.src} sx={{ fontSize: '0.75rem', display: 'flex', justifyContent: 'space-between', gap: 1, pr: 0.5 }}>
-                <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.name}</span>
-                {!INITIAL_SRCS.has(t.src) && (
-                  <IconButton
-                    size="small"
-                    onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); deleteTrack(t.src) }}
-                    sx={{ p: 0.25, flexShrink: 0 }}
-                    title={language === 'zh' ? '删除' : 'Remove'}
-                  >
-                    <CloseIcon sx={{ fontSize: '0.75rem' }} />
-                  </IconButton>
-                )}
-              </MenuItem>
-            ))}
-          </Select>
-          <Slider
-            value={bgmVolume}
-            onChange={(_, v) => setBgmVolume(v as number)}
-            min={0}
-            max={1}
-            step={0.05}
-            size="small"
-            sx={{ width: 60, '& .MuiSlider-thumb': { width: 12, height: 12 } }}
-          />
-          <label>
-            <Tooltip title={language === 'zh' ? '添加本地文件' : 'Add local file'}>
-              <IconButton size="medium" component="span" sx={{ p: 0.25, border: '1px dashed', borderColor: 'primary.light', borderRadius: 999 }}>
-                <AddIcon />
-              </IconButton>
-            </Tooltip>
-            <input type="file" accept=".mp3,.ogg,.wav,.flac,.m4a,.aac" onChange={handleLocalFileChange} style={{ display: 'none' }} />
-          </label>
-          <Tooltip title={language === 'zh' ? '添加URL链接' : 'Add URL (e.g. YouTube)'}>
-            <IconButton size="small" onClick={() => setShowUrlInput((v) => !v)} sx={{ p: 0.25, border: '1px dashed', borderColor: showUrlInput ? 'secondary.main' : 'primary.light', borderRadius: 999 }}>
-              <LinkIcon sx={{ fontSize: '1rem' }} />
-            </IconButton>
-          </Tooltip>
-        </Box>
-        {showUrlInput && (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: '100%', mt: 0.5 }}>
-            <TextField
-              size="small"
-              placeholder={language === 'zh' ? '粘贴YouTube或音频URL…' : 'Paste YouTube or audio URL…'}
-              value={urlInputValue}
-              onChange={(e) => setUrlInputValue(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') submitUrl() }}
-              autoFocus
-              fullWidth
-              sx={{ '& .MuiInputBase-input': { fontSize: '0.75rem', py: '4px' } }}
-              slotProps={{
-                input: {
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton size="small" onClick={submitUrl} disabled={!urlInputValue.trim()} edge="end">
-                        <CheckIcon sx={{ fontSize: '0.9rem' }} />
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                },
-              }}
-            />
-          </Box>
-        )}
+        <BgmBar
+          audioPlaying={audioPlaying}
+          onTogglePlay={() => setAudioPlaying((c: boolean) => !c)}
+          audioTracks={audioTracks}
+          selectedAudioSrc={selectedAudioSrc}
+          setSelectedAudioSrc={setSelectedAudioSrc}
+          bgmVolume={bgmVolume}
+          setBgmVolume={setBgmVolume}
+          handleLocalFileChange={handleLocalFileChange}
+          handleUrlTrackAdd={handleUrlTrackAdd}
+          deleteTrack={deleteTrack}
+          language={language}
+        />
       </Box>
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>

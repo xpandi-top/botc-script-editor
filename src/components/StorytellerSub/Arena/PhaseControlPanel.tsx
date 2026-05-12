@@ -3,11 +3,12 @@ import type { StorytellerContext } from '../useStoryteller'
 import React, { useState, useMemo } from 'react'
 import {
   Box, Button, IconButton, Tooltip, Typography, ToggleButton, ToggleButtonGroup,
-  Select, MenuItem, TextField, Slider, useTheme,
+  TextField, useTheme,
 } from '@mui/material'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import PauseIcon from '@mui/icons-material/Pause'
 import StopIcon from '@mui/icons-material/Stop'
+import { BgmBar } from '../BgmBar'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
@@ -70,6 +71,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
     setCurrentTimer, syncDayTimers, setPickerMode,
     audioPlaying, setAudioPlaying, startNight, stopNight,
     audioTracks, selectedAudioSrc, setSelectedAudioSrc, bgmVolume, setBgmVolume,
+    handleLocalFileChange, handleUrlTrackAdd, deleteTrack,
     canNominate, secondsUntilNomination,
     showNominationSheet, setShowNominationSheet,
     enterNomination, moveToNextSpeaker, setPhase,
@@ -317,60 +319,47 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
             </Box>
           )}
 
-          {/* Night controls — single icon row */}
+          {/* Night controls */}
           {phase === 'night' && (
-            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 1, alignItems: 'left', flexDirection: 'column'}}>
-              <Box sx={{gap:2, display:'flex', alignItems:'center'}}>
-              <Tooltip title={audioPlaying ? (language === 'zh' ? '暂停BGM' : 'Pause BGM') : (language === 'zh' ? '播放BGM' : 'Play BGM')}>
-                <IconButton sx={{ ...iconBtnSx, ...(audioPlaying ? TIMER_ACTIVE_SX : TIMER_IDLE_SX), p: 0.75 }} onClick={() => audioPlaying ? setAudioPlaying(false) : startNight()}>
-                  {audioPlaying ? <PauseIcon /> : <PlayArrowIcon />}
-                </IconButton>
-              </Tooltip>
-              <Tooltip title={language === 'zh' ? '停止BGM' : 'Stop BGM'}>
-                <IconButton sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={stopNight}>
-                  <StopIcon />
-                </IconButton>
-              </Tooltip>
-              {/* Mobile BGM track selector + volume — hidden on desktop (CompactToolbar handles it there) */}
-              <Box sx={{ display: { xs: 'flex', md: 'none' }, alignItems: 'center', gap: 0.5, flex: 1, minWidth: 0 }}>
-                <Select
-                  value={selectedAudioSrc ?? ''}
-                  onChange={(e) => setSelectedAudioSrc(e.target.value)}
-                  size="small"
-                  sx={{
-                    flex: 1, minWidth: 0, fontSize: '0.72rem', color: textColor,
-                    '.MuiOutlinedInput-notchedOutline': { borderColor: btnBorder },
-                    '.MuiSvgIcon-root': { color: textColor },
-                  }}
-                >
-                  {(audioTracks ?? []).map((t: any) => (
-                    <MenuItem key={t.src} value={t.src} sx={{ fontSize: '0.75rem' }}>{t.name}</MenuItem>
-                  ))}
-                </Select>
-                <Slider
-                  value={bgmVolume ?? 0.7}
-                  onChange={(_, v) => setBgmVolume(v as number)}
-                  min={0} max={1} step={0.05} size="small"
-                  sx={{ width: 56, flexShrink: 0, '& .MuiSlider-thumb': { width: 12, height: 12 }, color: textColor }}
-                />
-              </Box>
-              </Box>
-              <Box sx={{gap:2, display:'flex'}}>
-              <Tooltip title={nightShowCharacter ? (language === 'zh' ? '隐藏角色' : 'Hide Characters') : (language === 'zh' ? '显示角色' : 'Show Characters')}>
-                <IconButton sx={{ ...iconBtnSx, ...(nightShowCharacter ? TIMER_ACTIVE_SX : TIMER_IDLE_SX), p: 0.75 }} onClick={() => setNightShowCharacter((v: boolean) => !v)}>
-                  {nightShowCharacter ? <VisibilityIcon /> : <VisibilityOffIcon />}
-                </IconButton>
-              </Tooltip>
-              <Tooltip title={nightShowWakeOrder ? (language === 'zh' ? '隐藏唤醒顺序' : 'Hide Wake Order') : (language === 'zh' ? '显示唤醒顺序' : 'Show Wake Order')}>
-                <IconButton sx={{ ...iconBtnSx, ...(nightShowWakeOrder ? TIMER_ACTIVE_SX : TIMER_IDLE_SX), p: 0.75 }} onClick={() => setNightShowWakeOrder((v: boolean) => !v)}>
-                  <FormatListNumberedIcon />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title={language === 'zh' ? '编辑角色' : 'Edit Characters'}>
-                <IconButton sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={openCharacterEditor}>
-                  <ManageAccountsIcon />
-                </IconButton>
-              </Tooltip>
+            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 1, flexDirection: 'column' }}>
+              <BgmBar
+                audioPlaying={audioPlaying}
+                onTogglePlay={() => audioPlaying ? setAudioPlaying(false) : startNight()}
+                onStop={stopNight}
+                audioTracks={audioTracks}
+                selectedAudioSrc={selectedAudioSrc}
+                setSelectedAudioSrc={setSelectedAudioSrc}
+                bgmVolume={bgmVolume}
+                setBgmVolume={setBgmVolume}
+                handleLocalFileChange={handleLocalFileChange}
+                handleUrlTrackAdd={handleUrlTrackAdd}
+                deleteTrack={deleteTrack}
+                language={language}
+                sx={{ border: `1px solid ${btnBorder}`, bgcolor: 'transparent' }}
+                buttonSx={{ color: textColor }}
+                selectSx={{
+                  color: textColor,
+                  '.MuiOutlinedInput-notchedOutline': { borderColor: btnBorder },
+                  '.MuiSvgIcon-root': { color: textColor },
+                }}
+                sliderSx={{ color: textColor }}
+              />
+              <Box sx={{ gap: 1, display: 'flex' }}>
+                <Tooltip title={nightShowCharacter ? (language === 'zh' ? '隐藏角色' : 'Hide Characters') : (language === 'zh' ? '显示角色' : 'Show Characters')}>
+                  <IconButton sx={{ ...iconBtnSx, ...(nightShowCharacter ? TIMER_ACTIVE_SX : TIMER_IDLE_SX), p: 0.75 }} onClick={() => setNightShowCharacter((v: boolean) => !v)}>
+                    {nightShowCharacter ? <VisibilityIcon /> : <VisibilityOffIcon />}
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title={nightShowWakeOrder ? (language === 'zh' ? '隐藏唤醒顺序' : 'Hide Wake Order') : (language === 'zh' ? '显示唤醒顺序' : 'Show Wake Order')}>
+                  <IconButton sx={{ ...iconBtnSx, ...(nightShowWakeOrder ? TIMER_ACTIVE_SX : TIMER_IDLE_SX), p: 0.75 }} onClick={() => setNightShowWakeOrder((v: boolean) => !v)}>
+                    <FormatListNumberedIcon />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title={language === 'zh' ? '编辑角色' : 'Edit Characters'}>
+                  <IconButton sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={openCharacterEditor}>
+                    <ManageAccountsIcon />
+                  </IconButton>
+                </Tooltip>
               </Box>
             </Box>
           )}
