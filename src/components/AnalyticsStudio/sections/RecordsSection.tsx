@@ -460,12 +460,12 @@ export function RecordsSection({ records, filteredRecords, onRecordsChange, lang
                     {zh ? '人' : 'P'}
                   </TableSortLabel>
                 </TableCell>
-                <TableCell sx={{ ...thSx, width: 90 }}>
+                <TableCell sx={{ ...thSx, width: 90, display: { xs: 'none', sm: 'table-cell' } }}>
                   <TableSortLabel active={sortKey === 'date'} direction={sortKey === 'date' ? sortDir : 'desc'} onClick={() => handleSort('date')}>
                     {zh ? '日期' : 'Date'}
                   </TableSortLabel>
                 </TableCell>
-                <TableCell sx={{ ...thSx, width: 80 }} align="center">{zh ? '操作' : 'Actions'}</TableCell>
+                <TableCell sx={{ ...thSx, width: { xs: 36, sm: 80 } }} align="center" />
               </TableRow>
             </TableHead>
             <TableBody>
@@ -491,33 +491,48 @@ export function RecordsSection({ records, filteredRecords, onRecordsChange, lang
                           {r.scriptTitle}
                         </Typography>
                       )}
+                      {/* date embedded on xs when date column is hidden */}
+                      <Typography variant="caption" color="text.disabled" sx={{ display: { xs: 'block', sm: 'none' }, fontSize: '0.65rem' }}>
+                        {new Date(r.endedAt).toLocaleDateString()}
+                      </Typography>
                     </TableCell>
-                    <TableCell sx={tdSx} align="center">
+                    <TableCell sx={{ ...tdSx, width: { xs: 60, sm: 90 } }} align="center">
                       {r.winner ? (
-                        <Chip size="small"
-                          label={zh ? (WINNER_LABEL[r.winner]?.zh ?? r.winner) : (WINNER_LABEL[r.winner]?.en ?? r.winner)}
-                          color={WINNER_COLOR[r.winner] ?? 'default'}
-                          sx={{ fontSize: '0.62rem', height: 20 }} />
+                        <Tooltip title={zh ? (WINNER_LABEL[r.winner]?.zh ?? r.winner) : (WINNER_LABEL[r.winner]?.en ?? r.winner)}>
+                          <Chip size="small"
+                            label={<>
+                              <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
+                                {zh ? (WINNER_LABEL[r.winner]?.zh ?? r.winner) : (WINNER_LABEL[r.winner]?.en ?? r.winner)}
+                              </Box>
+                              <Box component="span" sx={{ display: { xs: 'inline', sm: 'none' } }}>
+                                {r.winner === 'evil' ? (zh ? '邪' : 'E') : r.winner === 'good' ? (zh ? '善' : 'G') : 'ST'}
+                              </Box>
+                            </>}
+                            color={WINNER_COLOR[r.winner] ?? 'default'}
+                            sx={{ fontSize: '0.62rem', height: 20 }} />
+                        </Tooltip>
                       ) : (
-                        <Chip size="small" label={zh ? '未记录' : '?'} sx={{ fontSize: '0.62rem', height: 20 }} />
+                        <Chip size="small" label="?" sx={{ fontSize: '0.62rem', height: 20 }} />
                       )}
                     </TableCell>
                     <TableCell sx={{ ...tdSx, display: { xs: 'none', sm: 'table-cell' } }} align="center">{r.days?.length ?? '—'}</TableCell>
                     <TableCell sx={{ ...tdSx, display: { xs: 'none', sm: 'table-cell' } }} align="center">{r.playerSummaries?.length ?? '—'}</TableCell>
-                    <TableCell sx={{ ...tdSx, color: 'text.secondary', fontSize: '0.72rem' }}>{new Date(r.endedAt).toLocaleDateString()}</TableCell>
-                    <TableCell sx={tdSx} align="center" onClick={(e) => e.stopPropagation()}>
+                    <TableCell sx={{ ...tdSx, color: 'text.secondary', fontSize: '0.72rem', display: { xs: 'none', sm: 'table-cell' } }}>
+                      {new Date(r.endedAt).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell sx={{ ...tdSx, width: { xs: 36, sm: 80 } }} align="center" onClick={(e) => e.stopPropagation()}>
                       <Box sx={{ display: 'flex', gap: 0, justifyContent: 'center' }}>
                         {onEditRecord && (
-                          <IconButton size="small" onClick={() => onEditRecord(r)} sx={{ p: 0.25 }}>
+                          <IconButton size="small" onClick={() => onEditRecord(r)} sx={{ p: 0.25, display: { xs: 'none', sm: 'inline-flex' } }}>
                             <EditIcon sx={{ fontSize: '0.9rem' }} />
                           </IconButton>
                         )}
-                        <IconButton size="small" onClick={() => exportGameFile(JSON.stringify(r, null, 2), `record-${r.id.slice(0, 8)}.json`)} sx={{ p: 0.25 }}>
+                        <IconButton size="small" onClick={() => exportGameFile(JSON.stringify(r, null, 2), `record-${r.id.slice(0, 8)}.json`)} sx={{ p: 0.25, display: { xs: 'none', sm: 'inline-flex' } }}>
                           <FileDownloadIcon sx={{ fontSize: '0.9rem' }} />
                         </IconButton>
                         <IconButton size="small" color="error" onClick={() => {
                           if (confirm(zh ? '确定删除此记录？' : 'Delete this record?')) deleteRecord(r.id)
-                        }} sx={{ p: 0.25 }}>
+                        }} sx={{ p: 0.25, display: { xs: 'none', sm: 'inline-flex' } }}>
                           <DeleteIcon sx={{ fontSize: '0.9rem' }} />
                         </IconButton>
                         <IconButton size="small" sx={{ p: 0.25 }}>

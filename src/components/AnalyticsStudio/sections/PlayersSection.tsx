@@ -289,7 +289,7 @@ export function PlayersSection({ playerStats, language, records }: Props) {
                   {zh ? '玩家' : 'Player'}
                 </TableSortLabel>
               </TableCell>
-              <TableCell sx={{ ...thSx, width: 60 }} align="center">
+              <TableCell sx={{ ...thSx, width: 60, display: { xs: 'none', sm: 'table-cell' } }} align="center">
                 <TableSortLabel active={sortKey === 'total'} direction={sortKey === 'total' ? sortDir : 'desc'} onClick={() => handleSort('total')}>
                   {zh ? '局' : 'G'}
                 </TableSortLabel>
@@ -347,18 +347,28 @@ export function PlayersSection({ playerStats, language, records }: Props) {
                         const icon = getIconForCharacter(p.mostPlayedChar)
                         return icon ? <Box component="img" src={icon as string} sx={{ width: 18, height: 18, borderRadius: '50%', flexShrink: 0 }} /> : null
                       })()}
-                      {p.name}
-                      {p.mvpCount > 0 && (
-                        <Tooltip title={`MVP ×${p.mvpCount}`}>
-                          <Box sx={{ display: 'flex', alignItems: 'center', ml: 0.25 }}>
-                            <EmojiEventsIcon sx={{ fontSize: '0.85rem', color: 'warning.main' }} />
-                            {p.mvpCount > 1 && <Typography component="span" sx={{ fontSize: '0.68rem', color: 'warning.main', lineHeight: 1 }}>×{p.mvpCount}</Typography>}
-                          </Box>
-                        </Tooltip>
-                      )}
+                      <Box sx={{ minWidth: 0 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: 'nowrap' }}>
+                          <Typography component="span" sx={{ fontWeight: 600, fontSize: '0.875rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {p.name}
+                          </Typography>
+                          {/* game count embedded on xs when 局 column is hidden */}
+                          <Typography component="span" sx={{ display: { xs: 'inline', sm: 'none' }, fontSize: '0.7rem', color: 'text.secondary', flexShrink: 0 }}>
+                            {p.total}{zh ? '局' : 'g'}
+                          </Typography>
+                          {p.mvpCount > 0 && (
+                            <Tooltip title={`MVP ×${p.mvpCount}`}>
+                              <Box sx={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                                <EmojiEventsIcon sx={{ fontSize: '0.85rem', color: 'warning.main' }} />
+                                {p.mvpCount > 1 && <Typography component="span" sx={{ fontSize: '0.68rem', color: 'warning.main', lineHeight: 1 }}>×{p.mvpCount}</Typography>}
+                              </Box>
+                            </Tooltip>
+                          )}
+                        </Box>
+                      </Box>
                     </Box>
                   </TableCell>
-                  <TableCell sx={tdSx} align="center">{p.total}</TableCell>
+                  <TableCell sx={{ ...tdSx, display: { xs: 'none', sm: 'table-cell' } }} align="center">{p.total}</TableCell>
                   <TableCell sx={{ ...tdSx, fontWeight: 700, color: p.winRate >= 60 ? 'success.dark' : p.winRate <= 35 ? 'error.dark' : 'text.primary' }} align="center">
                     {p.winRate}%
                   </TableCell>
