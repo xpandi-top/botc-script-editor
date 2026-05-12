@@ -7,10 +7,13 @@ import {
 import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import FileDownloadIcon from '@mui/icons-material/FileDownload'
 import FlashOnIcon from '@mui/icons-material/FlashOn'
+import PersonIcon from '@mui/icons-material/Person'
+import TimerIcon from '@mui/icons-material/Timer'
 import { getDisplayName, getIconForCharacter } from '../../../catalog'
 import { exportGameFile } from '../../../lib/exportGame'
 import { StarRating } from '../../ui/StarRating'
@@ -158,36 +161,93 @@ function QuickEditPanel({ record, zh, onSave }: {
 
 // ── Row detail (inline expand) ────────────────────────────────────
 
+const RATING_LABELS = {
+  balanced: { en: 'Balanced', zh: '平衡性' },
+  funEvil: { en: 'Fun (Evil)', zh: 'Evil乐趣' },
+  funGood: { en: 'Fun (Good)', zh: '善良乐趣' },
+  replay: { en: 'Replay', zh: '重玩' },
+}
+
+function StarDots({ value }: { value: number | null | undefined }) {
+  if (value == null) return <Typography variant="caption" color="text.disabled">—</Typography>
+  return (
+    <Box sx={{ display: 'flex', gap: '2px' }}>
+      {[1, 2, 3, 4, 5].map((i) => (
+        <Box key={i} sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: i <= value ? 'warning.main' : 'action.disabled' }} />
+      ))}
+    </Box>
+  )
+}
+
 function RecordRowDetail({ record, language, zh }: { record: GameRecord; language: Language; zh: boolean }) {
   const assignments = record.setup?.assignments ?? {}
+  const hasRatings = record.balanced != null || record.funEvil != null || record.funGood != null || record.replay != null
+  const mvpName = record.mvp === 'storyteller'
+    ? (zh ? '🎭 说书人' : '🎭 Storyteller')
+    : record.mvp != null
+      ? (() => { const ps = record.playerSummaries?.find((p) => p.seat === record.mvp); return ps ? `${ps.seat}. ${ps.name}` : `#${record.mvp}` })()
+      : null
+  const durationMin = record.durationMs ? Math.round(record.durationMs / 60000) : null
 
   return (
-    <Box sx={{ px: 2, pb: 1.5, pt: 0.5, bgcolor: 'rgba(0,0,0,0.02)' }}>
+    <Box sx={{ px: 2, pb: 1.5, pt: 0.75, bgcolor: 'rgba(0,0,0,0.02)' }}>
+
+      {/* ── ST + meta strip ── */}
+      {(record.stName || durationMin || mvpName) && (
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, mb: 1, pb: 0.75, borderBottom: '1px dashed', borderColor: 'divider' }}>
+          {record.stName && (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.4 }}>
+              <PersonIcon sx={{ fontSize: '0.8rem', color: 'text.secondary' }} />
+              <Typography variant="caption" color="text.secondary">{zh ? '说书人: ' : 'ST: '}</Typography>
+              <Typography variant="caption" sx={{ fontWeight: 600 }}>{record.stName}</Typography>
+            </Box>
+          )}
+          {durationMin && (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.4 }}>
+              <TimerIcon sx={{ fontSize: '0.8rem', color: 'text.secondary' }} />
+              <Typography variant="caption" color="text.secondary">{durationMin}{zh ? ' 分钟' : ' min'}</Typography>
+            </Box>
+          )}
+          {mvpName && (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.4 }}>
+              <EmojiEventsIcon sx={{ fontSize: '0.8rem', color: 'warning.main' }} />
+              <Typography variant="caption" color="text.secondary">MVP: </Typography>
+              <Typography variant="caption" sx={{ fontWeight: 600, color: 'warning.dark' }}>{mvpName}</Typography>
+            </Box>
+          )}
+        </Box>
+      )}
+
+      {/* ── Players ── */}
       {record.playerSummaries && record.playerSummaries.length > 0 && (
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, mb: 1 }}>
           {record.playerSummaries.map((ps) => {
             const charId = assignments[ps.seat]
             const icon = charId ? getIconForCharacter(charId) : null
             const charName = charId ? getDisplayName(charId, language) : null
+            const isMvp = record.mvp !== 'storyteller' && record.mvp === ps.seat
             return (
               <Chip
                 key={ps.seat}
                 size="small"
                 avatar={icon ? <Box component="img" src={icon as string} sx={{ width: 14, height: 14, borderRadius: '50%' }} /> : undefined}
-                label={`${ps.name}${charName ? ` (${charName})` : ''}`}
+                label={`${isMvp ? '⭐ ' : ''}${ps.name}${charName ? ` (${charName})` : ''}`}
                 sx={{
                   fontSize: '0.68rem',
                   bgcolor: ps.team === 'evil' ? 'rgba(183,28,28,0.12)' : ps.team === 'good' ? 'rgba(21,101,192,0.12)' : undefined,
                   border: '1px solid',
-                  borderColor: ps.team === 'evil' ? 'error.light' : ps.team === 'good' ? 'primary.light' : 'divider',
+                  borderColor: isMvp ? 'warning.main' : ps.team === 'evil' ? 'error.light' : ps.team === 'good' ? 'primary.light' : 'divider',
+                  fontWeight: isMvp ? 700 : undefined,
                 }}
               />
             )
           })}
         </Box>
       )}
+
+      {/* ── Day stats ── */}
       {record.days && record.days.length > 0 && (
-        <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
+        <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', mb: hasRatings || record.setup?.demonBluffs?.length ? 0.75 : 0 }}>
           {record.days.map((d) => (
             <Box key={d.day} sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
               <Typography variant="caption" sx={{ fontWeight: 700, color: 'primary.main' }}>{zh ? `第${d.day}天` : `D${d.day}`}</Typography>
@@ -198,8 +258,10 @@ function RecordRowDetail({ record, language, zh }: { record: GameRecord; languag
           ))}
         </Box>
       )}
+
+      {/* ── Bluffs ── */}
       {record.setup?.demonBluffs && record.setup.demonBluffs.length > 0 && (
-        <Box sx={{ mt: 0.75, display: 'flex', gap: 0.5, alignItems: 'center' }}>
+        <Box sx={{ mt: 0.5, display: 'flex', gap: 0.5, alignItems: 'center' }}>
           <Typography variant="caption" color="text.secondary">{zh ? '恶魔虚张声势：' : 'Bluffs: '}</Typography>
           {record.setup.demonBluffs.map((charId) => {
             const icon = getIconForCharacter(charId)
@@ -207,6 +269,42 @@ function RecordRowDetail({ record, language, zh }: { record: GameRecord; languag
               ? <Box key={charId} component="img" src={icon as string} sx={{ width: 18, height: 18, borderRadius: '50%' }} title={getDisplayName(charId, language)} />
               : <Typography key={charId} variant="caption">{charId}</Typography>
           })}
+        </Box>
+      )}
+
+      {/* ── Ratings ── */}
+      {hasRatings && (
+        <Box sx={{ mt: 0.75, display: 'flex', gap: 2, flexWrap: 'wrap', pt: 0.5, borderTop: '1px dashed', borderColor: 'divider' }}>
+          {(['balanced', 'funEvil', 'funGood', 'replay'] as const).map((k) => {
+            const v = record[k]
+            if (v == null) return null
+            return (
+              <Box key={k} sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+                <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.66rem' }}>
+                  {zh ? RATING_LABELS[k].zh : RATING_LABELS[k].en}
+                </Typography>
+                <StarDots value={v} />
+                <Typography variant="caption" sx={{ fontSize: '0.66rem', color: 'text.secondary' }}>{v}/5</Typography>
+              </Box>
+            )
+          })}
+        </Box>
+      )}
+
+      {/* ── ST custom rules ── */}
+      {record.stCustomRules && (
+        <Box sx={{ mt: 0.75, p: 0.75, borderRadius: 1, bgcolor: 'rgba(0,0,0,0.04)', borderLeft: '3px solid', borderColor: 'info.light' }}>
+          <Typography variant="caption" sx={{ fontWeight: 700, color: 'info.main', display: 'block', mb: 0.25, fontSize: '0.66rem' }}>
+            {zh ? '自定义规则' : 'Custom rules'}
+          </Typography>
+          <Typography variant="caption" sx={{ fontSize: '0.72rem', whiteSpace: 'pre-wrap' }}>{record.stCustomRules}</Typography>
+        </Box>
+      )}
+
+      {/* ── Other notes ── */}
+      {record.otherNote && (
+        <Box sx={{ mt: 0.5 }}>
+          <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.68rem', fontStyle: 'italic' }}>{record.otherNote}</Typography>
         </Box>
       )}
     </Box>
