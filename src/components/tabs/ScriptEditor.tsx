@@ -215,10 +215,10 @@ export function ScriptEditor({
                   const currentRev = getCurrentRevision(character.id)
                   const pinnedRev = getRevisionForScript(character.id, activeScript.pinnedRevisions)
                   const hasPinned = !!activeScript.pinnedRevisions?.[character.id]
-                  // Ability text for the displayed revision (version-specific EN/ZH, fallback to current)
-                  const displayAbility = (pinnedRev
-                    ? (getRevisionText(character.id, uiLanguage, pinnedRev) || getAbilityText(character.id, uiLanguage))
-                    : getAbilityText(character.id, uiLanguage))
+                  // Show pinned-revision text only when it differs from current (avoids duplicate with dropdown)
+                  const pinnedAbility = hasPinned
+                    ? (getRevisionText(character.id, uiLanguage, pinnedRev!) || getAbilityText(character.id, uiLanguage))
+                    : null
                   return (
                     <Box key={character.id} sx={{ p: 1, border: '1px solid', borderColor: hasPinned ? 'primary.main' : 'divider', borderRadius: 1, mb: 1 }}>
                       {/* Top row: name + version selector + remove */}
@@ -264,10 +264,12 @@ export function ScriptEditor({
                         )}
                         <IconButton size="small" onClick={() => toggleCharacterInScript(character.id)}>×</IconButton>
                       </Box>
-                      {/* Ability text for the selected revision */}
-                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5, lineHeight: 1.4 }}>
-                        {displayAbility}
-                      </Typography>
+                      {/* Show pinned-revision ability text only when non-current version is pinned */}
+                      {pinnedAbility && (
+                        <Typography variant="caption" color="primary" sx={{ display: 'block', mt: 0.5, lineHeight: 1.4 }}>
+                          {pinnedAbility}
+                        </Typography>
+                      )}
                     </Box>
                   )
                 })}
