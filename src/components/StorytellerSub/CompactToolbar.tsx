@@ -10,7 +10,7 @@ export function CompactToolbar({ ctx }: { ctx: StorytellerContext }) {
   const {
     activeScriptTitle, language, onLanguageChange, currentDay, aliveCount, totalCount,
     audioPlaying, setAudioPlaying, audioTracks, selectedAudioSrc, setSelectedAudioSrc,
-    handleLocalFileChange, handleUrlTrackAdd, deleteTrack, openNewGamePanel, openEndGamePanel,
+    handleLocalFileChange, handleUrlTrackAdd, deleteTrack, renameTrack, openNewGamePanel, openEndGamePanel,
     setShowRightPanel, openCharacterEditor, showScriptPanel, setShowScriptPanel,
     text, undo, canUndo, bgmVolume, setBgmVolume,
   } = ctx
@@ -57,6 +57,7 @@ export function CompactToolbar({ ctx }: { ctx: StorytellerContext }) {
           handleLocalFileChange={handleLocalFileChange}
           handleUrlTrackAdd={handleUrlTrackAdd}
           deleteTrack={deleteTrack}
+          renameTrack={renameTrack}
           language={language}
         />
       </Box>

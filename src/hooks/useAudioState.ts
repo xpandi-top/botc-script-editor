@@ -134,6 +134,10 @@ export function useAudioState() {
     setAudioPlaying(true)
   }
 
+  function renameTrack(src: string, newName: string) {
+    setAudioTracks((cur) => cur.map((t) => t.src === src ? { ...t, name: newName } : t))
+  }
+
   function deleteTrack(src: string) {
     if (INITIAL_SRCS.has(src)) return // built-in tracks are not deletable
     setAudioTracks((cur) => cur.filter((t) => t.src !== src))
@@ -158,6 +162,7 @@ export function useAudioState() {
     handleLocalFileChange,
     handleUrlTrackAdd,
     deleteTrack,
+    renameTrack,
     applyVolume,
   }
 }

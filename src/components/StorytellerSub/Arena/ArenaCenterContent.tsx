@@ -49,7 +49,7 @@ export function ArenaCenterContent({ ctx }: { ctx: StorytellerContext }) {
     setCurrentTimer, syncDayTimers, setPickerMode,
     audioPlaying, setAudioPlaying, startNight, stopNight,
     audioTracks, selectedAudioSrc, setSelectedAudioSrc, bgmVolume, setBgmVolume,
-    handleLocalFileChange, handleUrlTrackAdd, deleteTrack,
+    handleLocalFileChange, handleUrlTrackAdd, deleteTrack, renameTrack,
     canNominate, secondsUntilNomination,
     showNominationSheet, setShowNominationSheet,
     enterNomination, moveToNextSpeaker, goToNextDay, setPhase,
@@ -100,6 +100,7 @@ export function ArenaCenterContent({ ctx }: { ctx: StorytellerContext }) {
         handleLocalFileChange={handleLocalFileChange}
         handleUrlTrackAdd={handleUrlTrackAdd}
         deleteTrack={deleteTrack}
+        renameTrack={renameTrack}
         language={language}
         iconSize="large"
         sx={{ border: '1px solid', borderColor: 'divider', bgcolor: 'transparent', borderRadius: 2, px: 0.5, py: 0.5 }}

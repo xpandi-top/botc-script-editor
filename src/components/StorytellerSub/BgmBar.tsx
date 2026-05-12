@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, { useState } from 'react'
-import { Box, IconButton, Select, MenuItem, Slider, Tooltip, TextField, InputAdornment } from '@mui/material'
+import { Box, IconButton, Select, MenuItem, Slider, Tooltip, TextField, InputAdornment, Typography } from '@mui/material'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import PauseIcon from '@mui/icons-material/Pause'
 import StopIcon from '@mui/icons-material/Stop'
@@ -8,9 +8,21 @@ import AddIcon from '@mui/icons-material/Add'
 import LinkIcon from '@mui/icons-material/Link'
 import CheckIcon from '@mui/icons-material/Check'
 import DeleteIcon from '@mui/icons-material/Delete'
+import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline'
 import { INITIAL_AUDIO_TRACKS } from './constants'
 
 const INITIAL_SRCS = new Set(INITIAL_AUDIO_TRACKS.map((t) => t.src))
+
+/** Derive a human-readable default name from a URL */
+function deriveTrackName(url: string): string {
+  if (/youtube\.com|youtu\.be/i.test(url)) return 'YouTube Track'
+  try {
+    const seg = new URL(url).pathname.split('/').filter(Boolean).pop() ?? ''
+    return decodeURIComponent(seg).replace(/\.[^.]+$/, '') || 'New Track'
+  } catch {
+    return 'New Track'
+  }
+}
 
 interface BgmBarProps {
   audioPlaying: boolean
@@ -26,9 +38,11 @@ interface BgmBarProps {
   /** Omit to hide the file upload button */
   handleLocalFileChange?: React.ChangeEventHandler<HTMLInputElement>
   /** Omit to hide the URL button */
-  handleUrlTrackAdd?: (url: string) => void
+  handleUrlTrackAdd?: (url: string, name?: string) => void
   /** Omit to hide delete icons inside the track dropdown */
   deleteTrack?: (src: string) => void
+  /** Omit to hide rename icons inside the track dropdown */
+  renameTrack?: (src: string, name: string) => void
   language: string
   /**
    * 'small'  — compact pill style used in CompactToolbar (default)
@@ -48,17 +62,23 @@ interface BgmBarProps {
   sliderSx?: object
 }
 
+type UrlStep = 'url' | 'name'
+
 export function BgmBar({
   audioPlaying, onTogglePlay, onStop,
   audioTracks, selectedAudioSrc, setSelectedAudioSrc,
   bgmVolume, setBgmVolume,
-  handleLocalFileChange, handleUrlTrackAdd, deleteTrack,
+  handleLocalFileChange, handleUrlTrackAdd, deleteTrack, renameTrack,
   language,
   iconSize = 'small',
   sx, buttonSx, activeButtonSx, selectSx, sliderSx,
 }: BgmBarProps) {
   const [showUrlInput, setShowUrlInput] = useState(false)
+  const [urlStep, setUrlStep] = useState<UrlStep>('url')
+  const [pendingUrl, setPendingUrl] = useState('')
   const [urlInputValue, setUrlInputValue] = useState('')
+  const [renamingSrc, setRenamingSrc] = useState<string | null>(null)
+  const [renameValue, setRenameValue] = useState('')
   const zh = language === 'zh'
 
   // Icon font-size and padding scale with iconSize
@@ -66,11 +86,41 @@ export function BgmBar({
   const btnPad = iconSize === 'small' ? { p: 0.5 } : { p: 0.75 }
 
   function submitUrl() {
-    if (urlInputValue.trim()) {
-      handleUrlTrackAdd?.(urlInputValue.trim())
-      setUrlInputValue('')
-      setShowUrlInput(false)
+    const url = urlInputValue.trim()
+    if (!url) return
+    // Step 1 → step 2: move to name entry
+    setPendingUrl(url)
+    setUrlInputValue(deriveTrackName(url))
+    setUrlStep('name')
+  }
+
+  function submitName() {
+    const name = urlInputValue.trim()
+    handleUrlTrackAdd?.(pendingUrl, name || deriveTrackName(pendingUrl))
+    setPendingUrl('')
+    setUrlInputValue('')
+    setUrlStep('url')
+    setShowUrlInput(false)
+  }
+
+  function cancelUrl() {
+    setPendingUrl('')
+    setUrlInputValue('')
+    setUrlStep('url')
+    setShowUrlInput(false)
+  }
+
+  function startRename(src: string, currentName: string) {
+    setRenamingSrc(src)
+    setRenameValue(currentName)
+  }
+
+  function submitRename() {
+    if (renamingSrc && renameValue.trim()) {
+      renameTrack?.(renamingSrc, renameValue.trim())
     }
+    setRenamingSrc(null)
+    setRenameValue('')
   }
 
   return (
@@ -110,23 +160,65 @@ export function BgmBar({
           value={selectedAudioSrc ?? ''}
           onChange={(e) => setSelectedAudioSrc(e.target.value)}
           size="small"
-          sx={{ fontSize: '0.75rem', minWidth: 0, flex: '1 1 0', maxWidth: 200, '& .MuiSelect-select': { minWidth: '0 !important' }, ...selectSx }}
+          sx={{
+            fontSize: '0.75rem',
+            flex: '1 1 60px',
+            minWidth: 60,
+            maxWidth: 200,
+            overflow: 'hidden',
+            '& .MuiSelect-select': { overflow: 'hidden', textOverflow: 'ellipsis', minWidth: '0 !important' },
+            ...selectSx,
+          }}
         >
           {(audioTracks ?? []).map((t) => (
             <MenuItem
               key={t.src} value={t.src}
               sx={{ fontSize: '0.75rem', display: 'flex', justifyContent: 'space-between', gap: 1, pr: 0.5 }}
             >
-              <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.name}</span>
-              {deleteTrack && !INITIAL_SRCS.has(t.src) && (
-                <IconButton
-                  size="small"
-                  onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); deleteTrack(t.src) }}
-                  sx={{ p: 0.25, flexShrink: 0 }}
-                  title={zh ? '删除' : 'Remove'}
-                >
-                  <DeleteIcon sx={{ fontSize: '0.75rem' }} />
-                </IconButton>
+              {renamingSrc === t.src ? (
+                <TextField
+                  size="small" autoFocus
+                  value={renameValue}
+                  onClick={(e) => e.stopPropagation()}
+                  onChange={(e) => setRenameValue(e.target.value)}
+                  onKeyDown={(e) => { e.stopPropagation(); if (e.key === 'Enter') submitRename(); if (e.key === 'Escape') { setRenamingSrc(null) } }}
+                  sx={{ flex: 1, '& .MuiInputBase-input': { fontSize: '0.75rem', py: '2px' } }}
+                  slotProps={{
+                    input: {
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton size="small" onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); submitRename() }} edge="end">
+                            <CheckIcon sx={{ fontSize: '0.75rem' }} />
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    },
+                  }}
+                />
+              ) : (
+                <>
+                  <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.name}</span>
+                  {renameTrack && !INITIAL_SRCS.has(t.src) && (
+                    <IconButton
+                      size="small"
+                      onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); startRename(t.src, t.name) }}
+                      sx={{ p: 0.25, flexShrink: 0 }}
+                      title={zh ? '重命名' : 'Rename'}
+                    >
+                      <DriveFileRenameOutlineIcon sx={{ fontSize: '0.75rem' }} />
+                    </IconButton>
+                  )}
+                  {deleteTrack && !INITIAL_SRCS.has(t.src) && (
+                    <IconButton
+                      size="small"
+                      onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); deleteTrack(t.src) }}
+                      sx={{ p: 0.25, flexShrink: 0 }}
+                      title={zh ? '删除' : 'Remove'}
+                    >
+                      <DeleteIcon sx={{ fontSize: '0.75rem' }} />
+                    </IconButton>
+                  )}
+                </>
               )}
             </MenuItem>
           ))}
@@ -146,7 +238,7 @@ export function BgmBar({
             <IconButton
               size={iconSize}
               component="label"
-              sx={{ ...btnPad, border: '1px dashed', borderColor: 'primary.light', borderRadius: 999, ...buttonSx }}
+              sx={{ ...btnPad, flexShrink: 0, border: '1px dashed', borderColor: 'primary.light', borderRadius: 999, ...buttonSx }}
             >
               <AddIcon sx={iconSx} />
               <input type="file" accept=".mp3,.ogg,.wav,.flac,.m4a,.aac" onChange={handleLocalFileChange} style={{ display: 'none' }} />
@@ -159,8 +251,8 @@ export function BgmBar({
           <Tooltip title={zh ? '添加URL链接' : 'Add URL (e.g. YouTube)'}>
             <IconButton
               size={iconSize}
-              onClick={() => setShowUrlInput((v) => !v)}
-              sx={{ ...btnPad, border: '1px dashed', borderColor: showUrlInput ? 'secondary.main' : 'primary.light', borderRadius: 999, ...buttonSx }}
+              onClick={() => { if (showUrlInput) { cancelUrl() } else { setShowUrlInput(true) } }}
+              sx={{ ...btnPad, flexShrink: 0, border: '1px dashed', borderColor: showUrlInput ? 'secondary.main' : 'primary.light', borderRadius: 999, ...buttonSx }}
             >
               <LinkIcon sx={iconSize === 'medium' ? {} : { fontSize: '1rem' }} />
             </IconButton>
@@ -168,28 +260,55 @@ export function BgmBar({
         )}
       </Box>
 
-      {/* URL input row */}
+      {/* URL / Name input row */}
       {showUrlInput && (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-          <TextField
-            size="small" autoFocus fullWidth
-            placeholder={zh ? '粘贴YouTube或音频URL…' : 'Paste YouTube or audio URL…'}
-            value={urlInputValue}
-            onChange={(e) => setUrlInputValue(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter') submitUrl() }}
-            sx={{ '& .MuiInputBase-input': { fontSize: '0.75rem', py: '4px' } }}
-            slotProps={{
-              input: {
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton size="small" onClick={submitUrl} disabled={!urlInputValue.trim()} edge="end">
-                      <CheckIcon sx={{ fontSize: '0.9rem' }} />
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              },
-            }}
-          />
+          {urlStep === 'url' ? (
+            <TextField
+              size="small" autoFocus fullWidth
+              placeholder={zh ? '粘贴YouTube或音频URL…' : 'Paste YouTube or audio URL…'}
+              value={urlInputValue}
+              onChange={(e) => setUrlInputValue(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') submitUrl(); if (e.key === 'Escape') cancelUrl() }}
+              sx={{ '& .MuiInputBase-input': { fontSize: '0.75rem', py: '4px' } }}
+              slotProps={{
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton size="small" onClick={submitUrl} disabled={!urlInputValue.trim()} edge="end">
+                        <CheckIcon sx={{ fontSize: '0.9rem' }} />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                },
+              }}
+            />
+          ) : (
+            <>
+              <Typography variant="caption" sx={{ flexShrink: 0, color: 'text.secondary', fontSize: '0.7rem' }}>
+                {zh ? '名称:' : 'Name:'}
+              </Typography>
+              <TextField
+                size="small" autoFocus fullWidth
+                placeholder={zh ? '输入曲目名称…' : 'Track name…'}
+                value={urlInputValue}
+                onChange={(e) => setUrlInputValue(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') submitName(); if (e.key === 'Escape') cancelUrl() }}
+                sx={{ '& .MuiInputBase-input': { fontSize: '0.75rem', py: '4px' } }}
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton size="small" onClick={submitName} edge="end">
+                          <CheckIcon sx={{ fontSize: '0.9rem' }} />
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  },
+                }}
+              />
+            </>
+          )}
         </Box>
       )}
     </Box>
