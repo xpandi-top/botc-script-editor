@@ -403,7 +403,7 @@ export function RecordsSection({ records, filteredRecords, onRecordsChange, lang
   }
 
   const thSx = { py: 0.75, px: 1, fontSize: '0.72rem', fontWeight: 700, whiteSpace: 'nowrap' }
-  const tdSx = { py: 0.5, px: 1, fontSize: '0.8rem' }
+  const tdSx = { py: 0.75, px: 1, fontSize: '0.8rem' }
 
   return (
     <Box>
@@ -434,13 +434,13 @@ export function RecordsSection({ records, filteredRecords, onRecordsChange, lang
         </Box>
       ) : (
         <Paper elevation={2} sx={{ overflow: 'hidden' }}>
-          <Table size="small" sx={{ tableLayout: 'fixed' }}>
+          <Table size="small">
             <TableHead>
               <TableRow sx={{ bgcolor: 'rgba(0,0,0,0.04)' }}>
                 <TableCell padding="checkbox" sx={{ width: 36, py: 0.5 }}>
                   <Checkbox size="small" checked={allSelected} indeterminate={selected.size > 0 && !allSelected} onChange={toggleAll} />
                 </TableCell>
-                <TableCell sx={thSx}>
+                <TableCell sx={{ ...thSx, pl: 1.5 }}>
                   <TableSortLabel active={sortKey === 'script'} direction={sortKey === 'script' ? sortDir : 'desc'} onClick={() => handleSort('script')}>
                     {zh ? '记录' : 'Record'}
                   </TableSortLabel>
@@ -482,7 +482,7 @@ export function RecordsSection({ records, filteredRecords, onRecordsChange, lang
                     <TableCell padding="checkbox" sx={{ py: 0.5 }} onClick={(e) => e.stopPropagation()}>
                       <Checkbox size="small" checked={isSelected} onChange={() => toggleSelect(r.id)} />
                     </TableCell>
-                    <TableCell sx={{ ...tdSx, fontWeight: 600 }}>
+                    <TableCell sx={{ ...tdSx, fontWeight: 600, overflow: 'hidden', maxWidth: 0, pl: 1.5 }}>
                       <Typography variant="body2" sx={{ fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {r.recordName || r.scriptTitle || '?'}
                       </Typography>

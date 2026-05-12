@@ -265,7 +265,7 @@ export function PlayersSection({ playerStats, language, records }: Props) {
   const pB = playerStats.find((p) => p.name === compB)
 
   const thSx = { py: 0.75, px: 1, fontSize: '0.72rem', fontWeight: 700, whiteSpace: 'nowrap' }
-  const tdSx = { py: 0.5, px: 1, fontSize: '0.8rem' }
+  const tdSx = { py: 0.75, px: 1, fontSize: '0.8rem' }
 
   return (
     <Box>
@@ -280,7 +280,7 @@ export function PlayersSection({ playerStats, language, records }: Props) {
       )}
 
       <Paper elevation={2} sx={{ overflow: 'hidden' }}>
-        <Table size="small" sx={{ tableLayout: 'fixed' }}>
+        <Table size="small">
           <TableHead>
             <TableRow sx={{ bgcolor: 'rgba(0,0,0,0.04)' }}>
               <TableCell sx={{ ...thSx, width: 24 }}>#</TableCell>
@@ -341,15 +341,18 @@ export function PlayersSection({ playerStats, language, records }: Props) {
                   }}
                 >
                   <TableCell sx={{ ...tdSx, color: 'text.secondary' }}>{idx + 1}</TableCell>
-                  <TableCell sx={{ ...tdSx, fontWeight: 600 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <TableCell sx={{ ...tdSx, fontWeight: 600, overflow: 'hidden', maxWidth: 0 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, overflow: 'hidden' }}>
                       {p.mostPlayedChar && (() => {
                         const icon = getIconForCharacter(p.mostPlayedChar)
-                        return icon ? <Box component="img" src={icon as string} sx={{ width: 18, height: 18, borderRadius: '50%', flexShrink: 0 }} /> : null
+                        return icon ? (
+                          <Box component="img" src={icon as string}
+                            sx={{ width: 20, height: 20, borderRadius: '50%', flexShrink: 0, display: 'block' }} />
+                        ) : null
                       })()}
-                      <Box sx={{ minWidth: 0 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: 'nowrap' }}>
-                          <Typography component="span" sx={{ fontWeight: 600, fontSize: '0.875rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <Box sx={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          <Typography component="span" sx={{ fontWeight: 600, fontSize: '0.875rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 }}>
                             {p.name}
                           </Typography>
                           {/* game count embedded on xs when 局 column is hidden */}
