@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react'
 import {
   Box, Button, Checkbox, Chip, Collapse, Dialog, DialogActions, DialogContent, DialogTitle,
-  IconButton, Paper, Table, TableBody, TableCell, TableHead, TableRow,
-  TableSortLabel, Tooltip, Typography,
+  FormControl, IconButton, InputLabel, MenuItem, Paper, Select, Table, TableBody, TableCell,
+  TableHead, TableRow, TableSortLabel, TextField, ToggleButton, ToggleButtonGroup, Tooltip, Typography,
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -10,8 +10,10 @@ import EditIcon from '@mui/icons-material/Edit'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import FileDownloadIcon from '@mui/icons-material/FileDownload'
+import FlashOnIcon from '@mui/icons-material/FlashOn'
 import { getDisplayName, getIconForCharacter } from '../../../catalog'
 import { exportGameFile } from '../../../lib/exportGame'
+import { StarRating } from '../../ui/StarRating'
 import type { GameRecord } from '../../StorytellerSub/types'
 import type { Language } from '../../../types'
 
@@ -38,6 +40,117 @@ interface Props {
   language: Language
   onCreateRecord?: () => void
   onEditRecord?: (r: GameRecord) => void
+}
+
+// ── Quick Edit panel (survey ratings + winner + MVP) ─────────────
+
+function QuickEditPanel({ record, zh, onSave }: {
+  record: GameRecord; language: Language; zh: boolean; onSave: (updated: GameRecord) => void
+}) {
+  const [winner, setWinner] = useState<string>(record.winner ?? '')
+  const [mvp, setMvp] = useState<number | ''>(record.mvp ?? '')
+  const [balanced, setBalanced] = useState<number | null>(record.balanced ?? null)
+  const [funEvil, setFunEvil] = useState<number | null>(record.funEvil ?? null)
+  const [funGood, setFunGood] = useState<number | null>(record.funGood ?? null)
+  const [replay, setReplay] = useState<number | null>(record.replay ?? null)
+  const [otherNote, setOtherNote] = useState<string>(record.otherNote ?? '')
+  const [dirty, setDirty] = useState(false)
+
+  const mark = <T,>(setter: (v: T) => void) => (v: T) => { setter(v); setDirty(true) }
+
+  const seats = record.playerSummaries ?? []
+
+  const handleSave = () => {
+    onSave({
+      ...record,
+      winner: (winner || null) as GameRecord['winner'],
+      mvp: mvp !== '' ? mvp : null,
+      balanced,
+      funEvil,
+      funGood,
+      replay,
+      otherNote: otherNote || undefined,
+    })
+    setDirty(false)
+  }
+
+  return (
+    <Box sx={{ px: 2, py: 1.5, bgcolor: 'rgba(0,0,0,0.025)', borderTop: '1px dashed', borderColor: 'divider' }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1 }}>
+        <FlashOnIcon sx={{ fontSize: '0.85rem', color: 'warning.main' }} />
+        <Typography variant="caption" sx={{ fontWeight: 700, color: 'warning.dark' }}>
+          {zh ? '快速编辑' : 'Quick Edit'}
+        </Typography>
+      </Box>
+
+      <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+        {/* Winner + MVP */}
+        <Box sx={{ flex: '1 1 200px', display: 'flex', flexDirection: 'column', gap: 1 }}>
+          <Box>
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+              {zh ? '结果' : 'Result'}
+            </Typography>
+            <ToggleButtonGroup value={winner} exclusive size="small"
+              onChange={(_, v) => { if (v !== null) { setWinner(v); setDirty(true) } }}>
+              <ToggleButton value="evil" sx={{ fontSize: '0.7rem', py: '2px', px: '8px', color: 'error.main' }}>
+                {zh ? '邪恶' : 'Evil'}
+              </ToggleButton>
+              <ToggleButton value="good" sx={{ fontSize: '0.7rem', py: '2px', px: '8px', color: 'success.main' }}>
+                {zh ? '善良' : 'Good'}
+              </ToggleButton>
+              <ToggleButton value="storyteller" sx={{ fontSize: '0.7rem', py: '2px', px: '8px', color: 'info.main' }}>
+                ST
+              </ToggleButton>
+            </ToggleButtonGroup>
+          </Box>
+
+          {seats.length > 0 && (
+            <FormControl size="small" sx={{ minWidth: 160 }}>
+              <InputLabel sx={{ fontSize: '0.78rem' }}>{zh ? 'MVP' : 'MVP'}</InputLabel>
+              <Select value={mvp} label="MVP"
+                onChange={(e) => { setMvp(e.target.value as number | ''); setDirty(true) }}
+                sx={{ fontSize: '0.8rem' }}>
+                <MenuItem value=""><em>{zh ? '无' : 'None'}</em></MenuItem>
+                {seats.map((s) => (
+                  <MenuItem key={s.seat} value={s.seat} sx={{ fontSize: '0.8rem' }}>
+                    {s.seat}. {s.name || `#${s.seat}`}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          )}
+        </Box>
+
+        {/* Ratings */}
+        <Box sx={{ flex: '2 1 280px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0.5 }}>
+          <StarRating label={zh ? '平衡性' : 'Balanced'} value={balanced} onChange={mark(setBalanced)} />
+          <StarRating label={zh ? 'Evil方乐趣' : 'Fun (Evil)'} value={funEvil} onChange={mark(setFunEvil)} />
+          <StarRating label={zh ? '正义方乐趣' : 'Fun (Good)'} value={funGood} onChange={mark(setFunGood)} />
+          <StarRating label={zh ? '重玩愿望' : 'Replay'} value={replay} onChange={mark(setReplay)} />
+        </Box>
+
+        {/* Note */}
+        <Box sx={{ flex: '2 1 200px' }}>
+          <TextField
+            size="small"
+            multiline
+            rows={3}
+            fullWidth
+            label={zh ? '其他备注' : 'Other notes'}
+            value={otherNote}
+            onChange={(e) => { setOtherNote(e.target.value); setDirty(true) }}
+            sx={{ '& .MuiInputBase-input': { fontSize: '0.8rem' } }}
+          />
+        </Box>
+      </Box>
+
+      <Box sx={{ mt: 1, display: 'flex', justifyContent: 'flex-end' }}>
+        <Button size="small" variant="contained" disabled={!dirty} onClick={handleSave}>
+          {zh ? '保存' : 'Save'}
+        </Button>
+      </Box>
+    </Box>
+  )
 }
 
 // ── Row detail (inline expand) ────────────────────────────────────
@@ -284,6 +397,12 @@ export function RecordsSection({ records, filteredRecords, onRecordsChange, lang
                     <TableCell colSpan={7} sx={{ p: 0, border: isExpanded ? undefined : 'none' }}>
                       <Collapse in={isExpanded}>
                         <RecordRowDetail record={r} language={language} zh={zh} />
+                        <QuickEditPanel
+                          record={r}
+                          language={language}
+                          zh={zh}
+                          onSave={(updated) => onRecordsChange(records.map((x) => x.id === updated.id ? updated : x))}
+                        />
                       </Collapse>
                     </TableCell>
                   </TableRow>,

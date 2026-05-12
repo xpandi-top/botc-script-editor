@@ -115,7 +115,9 @@ export type PlayerStat = {
   charMap: Map<string, CharPlayEntry>   // charId → {total, wins}
   mostPlayedChar: string | null
   charSet: Set<string>
-  teammates: Map<string, number>        // playerName → games played together
+  teammates: Map<string, number>        // playerName → total games played together
+  teammatesGood: Map<string, number>    // playerName → games as good together
+  teammatesEvil: Map<string, number>    // playerName → games as evil together
 }
 
 export function usePlayerStats(records: GameRecord[]): PlayerStat[] {
@@ -126,12 +128,19 @@ export function usePlayerStats(records: GameRecord[]): PlayerStat[] {
       mvpCount: number
       charMap: Map<string, CharPlayEntry>
       teammates: Map<string, number>
+      teammatesGood: Map<string, number>
+      teammatesEvil: Map<string, number>
     }>()
 
     for (const r of records) {
       if (!r.playerSummaries) continue
       const seenNames = new Set<string>()
-      const gameNames = r.playerSummaries.map((ps) => ps.name).filter(Boolean)
+      // Build name→team lookup for this record
+      const nameTeam = new Map<string, 'evil' | 'good' | null>()
+      for (const ps of r.playerSummaries) {
+        if (ps.name) nameTeam.set(ps.name, ps.team)
+      }
+      const gameNames = r.playerSummaries.map((ps) => ps.name).filter(Boolean) as string[]
 
       for (const ps of r.playerSummaries) {
         if (!ps.name || seenNames.has(ps.name)) continue
@@ -143,6 +152,8 @@ export function usePlayerStats(records: GameRecord[]): PlayerStat[] {
           mvpCount: 0,
           charMap: new Map(),
           teammates: new Map(),
+          teammatesGood: new Map(),
+          teammatesEvil: new Map(),
         }
         entry.total++
         if (ps.team === 'evil') {
@@ -162,10 +173,15 @@ export function usePlayerStats(records: GameRecord[]): PlayerStat[] {
           if ((ps.team === 'evil' && r.winner === 'evil') || (ps.team === 'good' && r.winner === 'good')) prev.wins++
           entry.charMap.set(charId, prev)
         }
-        // teammate tracking
+        // teammate tracking — total + per-alignment
         for (const tn of gameNames) {
-          if (tn && tn !== ps.name) {
-            entry.teammates.set(tn, (entry.teammates.get(tn) ?? 0) + 1)
+          if (!tn || tn === ps.name) continue
+          entry.teammates.set(tn, (entry.teammates.get(tn) ?? 0) + 1)
+          const tmTeam = nameTeam.get(tn)
+          if (ps.team === 'good' && tmTeam === 'good') {
+            entry.teammatesGood.set(tn, (entry.teammatesGood.get(tn) ?? 0) + 1)
+          } else if (ps.team === 'evil' && tmTeam === 'evil') {
+            entry.teammatesEvil.set(tn, (entry.teammatesEvil.get(tn) ?? 0) + 1)
           }
         }
         map.set(ps.name, entry)

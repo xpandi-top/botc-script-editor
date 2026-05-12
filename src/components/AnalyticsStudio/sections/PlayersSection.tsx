@@ -93,17 +93,59 @@ function PlayerDetail({ player, language, zh }: { player: PlayerStat; language: 
           </Box>
         )}
 
-        {/* Teammates */}
+        {/* Teammates — split by alignment */}
         {teammates.length > 0 && (
-          <Box sx={{ flex: '1 1 120px' }}>
+          <Box sx={{ flex: '1 1 140px' }}>
             <Typography variant="caption" sx={{ fontWeight: 700, display: 'block', mb: 0.75 }}>
               {zh ? '常见队友' : 'Frequent teammates'}
             </Typography>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-              {teammates.map(([name, count]) => (
-                <Chip key={name} size="small" label={`${name} ×${count}`} sx={{ fontSize: '0.68rem', height: 20 }} />
-              ))}
-            </Box>
+
+            {/* Good teammates */}
+            {(() => {
+              const goodTm = [...player.teammatesGood.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5)
+              if (goodTm.length === 0) return null
+              return (
+                <Box sx={{ mb: 0.75 }}>
+                  <Typography variant="caption" color="success.dark" sx={{ fontSize: '0.62rem', fontWeight: 700, display: 'block', mb: 0.25 }}>
+                    🟦 {zh ? '善良' : 'Good'}
+                  </Typography>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                    {goodTm.map(([name, count]) => (
+                      <Chip key={name} size="small" label={`${name} ×${count}`}
+                        sx={{ fontSize: '0.65rem', height: 18, bgcolor: 'rgba(21,101,192,0.1)', borderColor: 'primary.light', border: '1px solid' }} />
+                    ))}
+                  </Box>
+                </Box>
+              )
+            })()}
+
+            {/* Evil teammates */}
+            {(() => {
+              const evilTm = [...player.teammatesEvil.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5)
+              if (evilTm.length === 0) return null
+              return (
+                <Box sx={{ mb: 0.75 }}>
+                  <Typography variant="caption" color="error.dark" sx={{ fontSize: '0.62rem', fontWeight: 700, display: 'block', mb: 0.25 }}>
+                    🔴 {zh ? '邪恶' : 'Evil'}
+                  </Typography>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                    {evilTm.map(([name, count]) => (
+                      <Chip key={name} size="small" label={`${name} ×${count}`}
+                        sx={{ fontSize: '0.65rem', height: 18, bgcolor: 'rgba(183,28,28,0.1)', borderColor: 'error.light', border: '1px solid' }} />
+                    ))}
+                  </Box>
+                </Box>
+              )
+            })()}
+
+            {/* Fallback: total if no alignment data */}
+            {player.teammatesGood.size === 0 && player.teammatesEvil.size === 0 && (
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                {teammates.map(([name, count]) => (
+                  <Chip key={name} size="small" label={`${name} ×${count}`} sx={{ fontSize: '0.68rem', height: 20 }} />
+                ))}
+              </Box>
+            )}
           </Box>
         )}
       </Box>

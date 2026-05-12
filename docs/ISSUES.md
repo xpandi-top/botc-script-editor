@@ -222,3 +222,28 @@ Data source: saved game records in localStorage.
 **Status:** fixed  
 **Area:** hooks/useGameExport.ts, hooks/useGameLifecycle.ts, StorytellerSub/types.ts  
 **Detail:** stFabledIds and stCustomRules added to GameRecord type and included in saveGame, confirmEndGame, exportRecordJson. loadGameRecord restores them. startNewGame clears them.
+
+---
+
+## I-62 — Analytics: Quick Edit for game records (survey ratings + winner + MVP)
+
+**Status:** open → fixed  
+**Area:** AnalyticsStudio/sections/RecordsSection.tsx  
+**Detail:** Existing "Edit" button opens full `RecordFormDialog` (players, characters, team) — too heavy for quick survey adjustments. Add a second inline quick-edit panel inside the expanded row detail that lets the user edit:
+- Winner (evil / good / storyteller) — ToggleButtonGroup
+- MVP (seat-based player picker dropdown)
+- Star ratings: balanced, funEvil, funGood, replay (reuse `StarRating` component)
+- Other note (text field)
+
+Quick-edit saves immediately via `onRecordsChange`. Full edit button still available for structural changes (players, characters, date).
+
+---
+
+## I-63 — Analytics/Players: Frequent teammates breakdown by alignment
+
+**Status:** open → fixed  
+**Area:** AnalyticsStudio/useStats.ts, AnalyticsStudio/sections/PlayersSection.tsx  
+**Detail:** `PlayerStat.teammates` is a flat `Map<name, count>` with no alignment info. Cannot tell whether player X is a frequent good-team teammate or evil-team co-conspirator. Fix:
+1. Add `teammatesGood: Map<string, number>` and `teammatesEvil: Map<string, number>` to `PlayerStat`.
+2. `usePlayerStats`: when iterating teammates, check both players' `team` in that record — if both good, increment `teammatesGood`; if both evil, increment `teammatesEvil`; increment `teammates` (total) regardless.
+3. `PlayerDetail` in PlayersSection: replace single teammate chip list with two rows — "As Good 🟦" chips and "As Evil 🔴" chips — top 5 each, sorted by count desc.
