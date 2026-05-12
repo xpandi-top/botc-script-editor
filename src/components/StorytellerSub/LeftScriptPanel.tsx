@@ -3,7 +3,7 @@ import React from 'react'
 import { Drawer, Box, Typography, Button, Tabs, Tab, List, ListItem, ListItemButton, Tooltip, IconButton } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import MenuBookIcon from '@mui/icons-material/MenuBook'
-import { nightOrder, getDisplayName, getIconForCharacter, getAbilityText, characterById } from '../../catalog'
+import { getEffectiveNightOrderFromRegistry, getDisplayName, getIconForCharacter, getAbilityText, characterById } from '../../catalog'
 import { Divider } from '@mui/material'
 
 const TEAM_ORDER = ['townsfolk', 'outsider', 'minion', 'demon', 'traveler'] as const
@@ -27,10 +27,10 @@ export function LeftScriptPanel({ ctx, inlineMode = false }: { ctx: StorytellerC
 
   const characterIds: string[] = currentScriptCharacters?.map((c: any) => typeof c === 'string' ? c : c.id) ?? []
 
-  const firstNightOrder = (nightOrder?.first_night ?? []).filter(
+  const firstNightOrder = (getEffectiveNightOrderFromRegistry().first_night ?? []).filter(
     (id) => characterIds.includes(id) || id === 'MINION_INFO' || id === 'DEMON_INFO'
   )
-  const otherNightOrder = (nightOrder?.other_nights ?? []).filter(
+  const otherNightOrder = (getEffectiveNightOrderFromRegistry().other_nights ?? []).filter(
     (id) => characterIds.includes(id)
   )
 

@@ -1,7 +1,7 @@
 // @ts-nocheck
 import type { StorytellerContext } from '../useStoryteller'
 import React from 'react'
-import { nightOrder, getDisplayName, getIconForCharacter, getAbilityText } from '../../../catalog'
+import { getEffectiveNightOrderFromRegistry, getDisplayName, getIconForCharacter, getAbilityText } from '../../../catalog'
 import { Box, Typography, Button, Tabs, Tab, Paper, List, ListItem, ListItemIcon, ListItemText, IconButton, Tooltip } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import MenuBookIcon from '@mui/icons-material/MenuBook'
@@ -32,7 +32,7 @@ export function RightPopupScript({ ctx }: { ctx: StorytellerContext }) {
     typeof c === 'string' ? c : c.id
   ) ?? []
 
-  const firstNightOrder = (nightOrder?.first_night ?? []).filter(
+  const firstNightOrder = (getEffectiveNightOrderFromRegistry().first_night ?? []).filter(
     (id) => characterIds.includes(id) || id === 'MINION_INFO' || id === 'DEMON_INFO'
   )
   const otherNightOrder = (nightOrder?.other_night ?? []).filter(

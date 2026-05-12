@@ -7,7 +7,7 @@ import CheckIcon from '@mui/icons-material/Check'
 import CloseIcon from '@mui/icons-material/Close'
 import { ArenaSeatPlayerModal } from './ArenaSeatPlayerModal'
 import { CharacterCircle } from './CharacterCircle'
-import { getDisplayName, getIconForCharacter, nightOrder } from '../../../catalog'
+import { getDisplayName, getIconForCharacter, getEffectiveNightOrderFromRegistry } from '../../../catalog'
 import { getSeatPosition } from '../../../utils/seats'
 import { VoteButtonGroup, RoundRobinIndicator, TagChip } from './ArenaSeatComponents'
 
@@ -64,7 +64,7 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: StorytellerCo
 
   const isVisited = currentDay.nightVisitedSeats.includes(seat.seat)
   const isFirstNight = currentDay.day === 1
-  const nightList = isFirstNight ? (nightOrder?.first_night ?? []) : (nightOrder?.other_nights ?? [])
+  const nightList = isFirstNight ? (getEffectiveNightOrderFromRegistry().first_night ?? []) : (getEffectiveNightOrderFromRegistry().other_nights ?? [])
   const perceivedCharId = seat.userCharacterId || seat.characterId
 
   // Dense rank: 32,37,37,52 → 1,2,2,3 (relative within script's seats)

@@ -44,13 +44,16 @@ import { useFontSettings } from './hooks/useFontSettings'
 import {
   allCharacters,
   characterById,
+  CUSTOM_CHARACTERS_KEY,
   createScriptPayload,
   editionLabels,
   getAbilityText,
   getDisplayName,
+  getEffectiveAllCharacters,
   initialScripts,
   locales,
   parseScriptFromData,
+  registerCustomCharacters,
   teamOrder,
   toTitleCase,
 } from './catalog'
@@ -59,6 +62,7 @@ import { storageSync } from './lib/storage'
 import { exportGameFile } from './lib/exportGame'
 import type {
   CharacterGroup,
+  CustomCharacter,
   EditableScript,
   Language,
   ResolvedScriptCharacter,
@@ -106,6 +110,21 @@ export default function App() {
     const user = scripts.filter((s) => !initialSlugs.has(s.slug))
     storageSync.setItem(USER_SCRIPTS_KEY, JSON.stringify(user))
   }, [scripts, initialSlugs])
+
+  // ── Custom characters ─────────────────────────────────────────────────────
+  const [customChars, setCustomChars] = useState<CustomCharacter[]>(() => {
+    try {
+      const chars = JSON.parse(localStorage.getItem(CUSTOM_CHARACTERS_KEY) ?? '[]') as CustomCharacter[]
+      registerCustomCharacters(chars) // sync init so catalog fns work on first render
+      return chars
+    } catch {
+      return []
+    }
+  })
+  useEffect(() => {
+    registerCustomCharacters(customChars)
+    localStorage.setItem(CUSTOM_CHARACTERS_KEY, JSON.stringify(customChars))
+  }, [customChars])
 
   const [characterQuery, setCharacterQuery] = useState('')
   const [selectedTeams, setSelectedTeams] = useState<Team[]>([])
@@ -209,10 +228,11 @@ export default function App() {
   }, [activeScriptCharacters.length])
 
   const availableEditions = useMemo(
-    () => Array.from(new Set(allCharacters.map((c) => c.edition))).sort(
+    () => Array.from(new Set(getEffectiveAllCharacters().map((c) => c.edition))).sort(
       (a, b) => (editionLabels[uiLanguage][a] ?? toTitleCase(a)).localeCompare(editionLabels[uiLanguage][b] ?? toTitleCase(b)),
     ),
-    [uiLanguage],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [uiLanguage, customChars],
   )
 
   const tabDescriptions: Record<TabKey, { en: string; zh: string }> = {
@@ -250,7 +270,7 @@ export default function App() {
 
   const filteredCharacters = useMemo(() => {
     const query = characterQuery.trim().toLowerCase()
-    return allCharacters.filter((c) => {
+    return getEffectiveAllCharacters().filter((c) => {
       const nameEn = getDisplayName(c.id, 'en').toLowerCase()
       const nameZh = getDisplayName(c.id, 'zh').toLowerCase()
       const abilityEn = getAbilityText(c.id, 'en').toLowerCase()
@@ -260,11 +280,12 @@ export default function App() {
       const matchesEdition = selectedEditions.length === 0 || selectedEditions.includes(c.edition)
       return matchesQuery && matchesTeam && matchesEdition
     })
-  }, [characterQuery, selectedEditions, selectedTeams])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [characterQuery, selectedEditions, selectedTeams, customChars])
 
   const filteredEditorCharacters = useMemo(() => {
     const query = editorQuery.trim().toLowerCase()
-    return allCharacters.filter((c) =>
+    return getEffectiveAllCharacters().filter((c) =>
       !query ||
       getDisplayName(c.id, 'en').toLowerCase().includes(query) ||
       getDisplayName(c.id, 'zh').toLowerCase().includes(query) ||
@@ -272,7 +293,8 @@ export default function App() {
       getAbilityText(c.id, 'en').toLowerCase().includes(query) ||
       getAbilityText(c.id, 'zh').toLowerCase().includes(query),
     )
-  }, [editorQuery])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editorQuery, customChars])
 
   const groupedEditorCharacters = useMemo<CharacterGroup[]>(
     () => teamOrder
@@ -281,7 +303,7 @@ export default function App() {
     [filteredEditorCharacters],
   )
 
-  const selectedCharacter = characterById[selectedCharacterId] ?? filteredCharacters[0] ?? allCharacters[0]
+  const selectedCharacter = (characterById[selectedCharacterId] ?? filteredCharacters[0] ?? allCharacters[0])
 
   useEffect(() => {
     if (selectedCharacter) setSelectedCharacterId(selectedCharacter.id)
@@ -590,6 +612,8 @@ export default function App() {
           setSelectedCharacterId={setSelectedCharacterId}
           toggleTeam={(team) => setSelectedTeams((cur) => cur.includes(team) ? cur.filter((t) => t !== team) : [...cur, team])}
           toggleEdition={(edition) => setSelectedEditions((cur) => cur.includes(edition) ? cur.filter((e) => e !== edition) : [...cur, edition])}
+          customChars={customChars}
+          setCustomChars={setCustomChars}
         />
       )}
 

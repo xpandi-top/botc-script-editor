@@ -6,6 +6,7 @@ import type {
   CharacterEntry,
   CharacterMap,
   CharacterRevisionEntry,
+  CustomCharacter,
   EditableScript,
   JinxEntry,
   Language,
@@ -36,6 +37,39 @@ let _revisionOverrides: RevisionOverrides = loadRevisionOverrides()
 /** Call after writing to BOTC_REVISION_OVERRIDES so catalog picks up changes. */
 export function refreshRevisionOverrides() {
   _revisionOverrides = loadRevisionOverrides()
+}
+
+// ── Custom character registry ──────────────────────────────────────────────────
+
+export const CUSTOM_CHARACTERS_KEY = 'BOTC_CUSTOM_CHARACTERS'
+
+let _customCharRegistry: Map<string, CustomCharacter> = new Map()
+let _customCharEntries: CharacterEntry[] = []
+
+/** Convert a CustomCharacter to a CharacterEntry usable by catalog consumers. */
+export function toCharacterEntry(c: CustomCharacter): CharacterEntry {
+  return { id: c.id, team: c.team, edition: c.edition }
+}
+
+/**
+ * Register custom characters so all catalog functions (getDisplayName, getAbilityText,
+ * getIconForCharacter, getEffectiveAllCharacters, getEffectiveNightOrderFromRegistry)
+ * transparently include them. Call on app init and whenever custom chars change.
+ */
+export function registerCustomCharacters(chars: CustomCharacter[]) {
+  _customCharRegistry = new Map(chars.map((c) => [c.id, c]))
+  _customCharEntries = chars.map(toCharacterEntry)
+}
+
+/** Returns catalog characters merged with currently registered custom characters. */
+export function getEffectiveAllCharacters(): CharacterEntry[] {
+  if (_customCharEntries.length === 0) return allCharacters
+  return [...allCharacters, ..._customCharEntries]
+}
+
+/** Returns CharacterEntry for any id — catalog or custom. */
+export function getCharacterById(id: string): CharacterEntry | undefined {
+  return characterById[id] ?? (_customCharRegistry.get(id) ? toCharacterEntry(_customCharRegistry.get(id)!) : undefined)
 }
 
 const characterFiles = import.meta.glob('../assets/characters/*.json', {
@@ -129,6 +163,34 @@ export const editionLabels: Record<Language, Record<string, string>> = {
 
 export const nightOrder = nightOrderData as NightOrderData
 
+/**
+ * Returns night order arrays with custom characters inserted at their
+ * specified positions (1-based). Custom chars without a position are appended.
+ */
+export function buildEffectiveNightOrder(customChars: CustomCharacter[]): NightOrderData {
+  const first = [...(nightOrder.first_night ?? [])]
+  const other = [...(nightOrder.other_nights ?? [])]
+
+  // Sort descending so splicing earlier positions doesn't shift later inserts
+  const withFirst = customChars.filter((c) => c.firstNight != null).sort((a, b) => (b.firstNight ?? 0) - (a.firstNight ?? 0))
+  const withOther = customChars.filter((c) => c.otherNight != null).sort((a, b) => (b.otherNight ?? 0) - (a.otherNight ?? 0))
+
+  for (const c of withFirst) first.splice(Math.min((c.firstNight ?? 1) - 1, first.length), 0, c.id)
+  for (const c of withOther) other.splice(Math.min((c.otherNight ?? 1) - 1, other.length), 0, c.id)
+
+  // No position → append (only if not already inserted)
+  for (const c of customChars) {
+    if (c.firstNight == null && !first.includes(c.id)) first.push(c.id)
+    if (c.otherNight == null && !other.includes(c.id)) other.push(c.id)
+  }
+  return { first_night: first, other_nights: other }
+}
+
+/** Like buildEffectiveNightOrder but uses the currently registered custom chars. */
+export function getEffectiveNightOrderFromRegistry(): NightOrderData {
+  return buildEffectiveNightOrder([..._customCharRegistry.values()])
+}
+
 export function toTitleCase(value: string) {
   return value
     .replace(/[-_]/g, ' ')
@@ -164,10 +226,14 @@ function getJinxCopy(id: string, language: Language) {
 }
 
 export function getDisplayName(id: string, language: Language = 'en') {
+  const custom = _customCharRegistry.get(id)
+  if (custom) return (language === 'zh' && custom.nameZh) ? custom.nameZh : custom.nameEn
   return getCharacterCopy(id, language)?.name ?? toTitleCase(id)
 }
 
 export function getAbilityText(id: string, language: Language = 'en') {
+  const custom = _customCharRegistry.get(id)
+  if (custom) return (language === 'zh' && custom.abilityZh) ? custom.abilityZh : custom.abilityEn
   return getCharacterCopy(id, language)?.ability ?? 'No ability text available.'
 }
 
@@ -417,7 +483,10 @@ export function createCharacterRevision(
   return normalizedRevision
 }
 
-export function getIconForCharacter(id: string) {
+export function getIconForCharacter(id: string): string | undefined {
+  const custom = _customCharRegistry.get(id)
+  if (custom?.icon) return custom.icon
+
   const entry = Object.entries(iconFiles).find(([path]) =>
     path.endsWith(`/${id}.png`) ||
     path.endsWith(`/${id}.jpg`) ||
@@ -425,7 +494,6 @@ export function getIconForCharacter(id: string) {
     path.endsWith(`/${id}.webp`) ||
     path.endsWith(`/${id}.svg`),
   )
-
   return entry?.[1]
 }
 

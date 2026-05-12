@@ -8,7 +8,7 @@ import CloseIcon from '@mui/icons-material/Close'
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked'
 import { ArenaSeatPlayerModal } from './ArenaSeatPlayerModal'
 import { CharacterCircle } from './CharacterCircle'
-import { getDisplayName, getIconForCharacter, nightOrder } from '../../../catalog'
+import { getDisplayName, getIconForCharacter, getEffectiveNightOrderFromRegistry } from '../../../catalog'
 import { VoteButtonGroup, TagChip } from './ArenaSeatComponents'
 
 
@@ -53,7 +53,7 @@ export function MobileSeatCard({ ctx, seat, side = 'left' }: { ctx: StorytellerC
   const isVisited = currentDay.nightVisitedSeats?.includes(seat.seat)
 
   const isFirstNight = currentDay.day === 1
-  const nightList = isFirstNight ? (nightOrder?.first_night ?? []) : (nightOrder?.other_nights ?? [])
+  const nightList = isFirstNight ? (getEffectiveNightOrderFromRegistry().first_night ?? []) : (getEffectiveNightOrderFromRegistry().other_nights ?? [])
 
   // Dense rank: 32,37,37,52 → 1,2,2,3 (relative within script's seats)
   const rawWakePos = perceivedCharId ? (() => { const idx = nightList.indexOf(perceivedCharId); return idx !== -1 ? idx + 1 : null })() : null
