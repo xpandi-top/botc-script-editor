@@ -11,13 +11,12 @@ import {
   Paper,
   Select,
   TextField,
-  Tooltip,
   Typography,
 } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import NoteAltIcon from '@mui/icons-material/NoteAlt'
-import { getDisplayName, teamLabels, editionLabels, toTitleCase, getCharacterRevisionIds, getCurrentRevision, getRevisionForScript } from '../../catalog'
+import { getDisplayName, teamLabels, editionLabels, toTitleCase, getCharacterRevisionIds, getCurrentRevision, getRevisionForScript, getRevisionText, getAbilityText } from '../../catalog'
 import type { CharacterGroup, EditableScript, Language, ResolvedScriptCharacter, ResolvedScriptCharacterGroup } from '../../types'
 
 function getTeamColor(team: string) {
@@ -216,18 +215,24 @@ export function ScriptEditor({
                   const currentRev = getCurrentRevision(character.id)
                   const pinnedRev = getRevisionForScript(character.id, activeScript.pinnedRevisions)
                   const hasPinned = !!activeScript.pinnedRevisions?.[character.id]
+                  // Ability text for the displayed revision (version-specific EN/ZH, fallback to current)
+                  const displayAbility = (pinnedRev
+                    ? (getRevisionText(character.id, uiLanguage, pinnedRev) || getAbilityText(character.id, uiLanguage))
+                    : getAbilityText(character.id, uiLanguage))
                   return (
-                    <Box key={character.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, border: '1px solid', borderColor: hasPinned ? 'primary.main' : 'divider', borderRadius: 1, mb: 1, gap: 1 }}>
-                      <Box sx={{ flex: 1, minWidth: 0 }}>
-                        <Typography variant="body2" sx={{ fontWeight: 500 }}>{character.name ?? getDisplayName(character.id, uiLanguage)}</Typography>
-                        <Typography variant="caption" color="text.secondary">{character.id}</Typography>
-                      </Box>
-                      {revIds.length > 1 && (
-                        <Tooltip title={zh ? '选择版本（影响说书人显示的技能文本）' : 'Pin a revision — affects ability text shown in Storyteller'}>
-                          <FormControl size="small" sx={{ minWidth: 90 }}>
+                    <Box key={character.id} sx={{ p: 1, border: '1px solid', borderColor: hasPinned ? 'primary.main' : 'divider', borderRadius: 1, mb: 1 }}>
+                      {/* Top row: name + version selector + remove */}
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                          <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                            {character.name ?? getDisplayName(character.id, uiLanguage)}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">{character.id}</Typography>
+                        </Box>
+                        {revIds.length > 1 && (
+                          <FormControl size="small" sx={{ minWidth: 100, flexShrink: 0 }}>
                             <Select
-                              value={pinnedRev ?? ''}
-                              displayEmpty
+                              value={pinnedRev ?? currentRev ?? ''}
                               onChange={(e) => {
                                 const val = e.target.value
                                 updateActiveScript((s) => {
@@ -242,15 +247,27 @@ export function ScriptEditor({
                               }}
                               sx={{ fontSize: '0.72rem', '& .MuiSelect-select': { py: 0.5 } }}
                             >
-                              <MenuItem value={currentRev ?? ''}>{zh ? '当前版本' : 'Current'}</MenuItem>
-                              {revIds.filter((r) => r !== currentRev).map((r) => (
-                                <MenuItem key={r} value={r}>{r}</MenuItem>
+                              {revIds.map((r) => (
+                                <MenuItem key={r} value={r}>
+                                  <Box sx={{ maxWidth: 320 }}>
+                                    <Typography variant="body2" sx={{ fontWeight: r === currentRev ? 700 : 400 }}>
+                                      {r}{r === currentRev ? (zh ? '（当前）' : ' (current)') : ''}
+                                    </Typography>
+                                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', whiteSpace: 'normal', lineHeight: 1.3 }}>
+                                      {getRevisionText(character.id, uiLanguage, r) || getAbilityText(character.id, uiLanguage)}
+                                    </Typography>
+                                  </Box>
+                                </MenuItem>
                               ))}
                             </Select>
                           </FormControl>
-                        </Tooltip>
-                      )}
-                      <IconButton size="small" onClick={() => toggleCharacterInScript(character.id)}>×</IconButton>
+                        )}
+                        <IconButton size="small" onClick={() => toggleCharacterInScript(character.id)}>×</IconButton>
+                      </Box>
+                      {/* Ability text for the selected revision */}
+                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5, lineHeight: 1.4 }}>
+                        {displayAbility}
+                      </Typography>
                     </Box>
                   )
                 })}
