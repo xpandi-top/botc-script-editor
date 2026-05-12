@@ -70,7 +70,9 @@ export function ModalsEndGame({ ctx }: { ctx: StorytellerContext }) {
     setIsVisible(false)
     setShowEndGameModal(false)
     if (pendingNewGameAfterSave) setPendingNewGameAfterSave?.(false)
-    setTimeout(() => setEndGameResult(null), 100)
+    // Only clear endGameResult if no record has been saved yet for this game.
+    // Clearing it when currentRecordName exists would destroy persisted survey data.
+    if (!currentRecordName) setTimeout(() => setEndGameResult(null), 100)
   }
 
   const handleMarkChange = (e: any) => {
