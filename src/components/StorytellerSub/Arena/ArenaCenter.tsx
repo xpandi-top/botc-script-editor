@@ -1,13 +1,14 @@
 import type { StorytellerContext } from '../useStoryteller'
-import { Box, IconButton, Select, MenuItem, FormControl } from '@mui/material'
+import { Box, IconButton, Select, MenuItem, FormControl, Tooltip } from '@mui/material'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
+import DeleteIcon from '@mui/icons-material/Delete'
 import { ArenaCenterContent } from './ArenaCenterContent'
 import { ArenaCenterNominationSheet } from './ArenaCenterNominationSheet'
 
 export function ArenaCenter({ ctx }: { ctx: StorytellerContext }) {
   const {
-    days, currentDay, goToNextDay, goToPreviousDay, setSelectedDayId,
+    days, currentDay, goToNextDay, goToPreviousDay, setSelectedDayId, deleteDay,
     language,
   } = ctx
 
@@ -37,7 +38,22 @@ export function ArenaCenter({ ctx }: { ctx: StorytellerContext }) {
             onChange={(e) => setSelectedDayId(e.target.value)}
             sx={{ fontSize: '1.25rem', fontWeight: 700, color: 'primary.main', '& .MuiSelect-select': { py: 0.25 } }}
           >
-            {days.map((d: any) => <MenuItem key={d.id} value={d.id}>Day {d.day}</MenuItem>)}
+            {days.map((d: any) => (
+              <MenuItem key={d.id} value={d.id} sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, pr: 0.5 }}>
+                <span style={{ flex: 1 }}>Day {d.day}</span>
+                {days.length > 1 && (
+                  <Tooltip title={language === 'zh' ? '删除此天' : 'Delete this day'}>
+                    <IconButton
+                      size="small"
+                      onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); deleteDay(d.id) }}
+                      sx={{ p: 0.25, flexShrink: 0, color: 'error.main', opacity: 0.7, '&:hover': { opacity: 1 } }}
+                    >
+                      <DeleteIcon sx={{ fontSize: '0.85rem' }} />
+                    </IconButton>
+                  </Tooltip>
+                )}
+              </MenuItem>
+            ))}
           </Select>
         </FormControl>
         <IconButton size="large" onClick={(e) => { e.stopPropagation(); goToNextDay() }} title={language === 'zh' ? '下一天' : 'Next day'}>

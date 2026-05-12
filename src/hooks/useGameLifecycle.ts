@@ -77,6 +77,22 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     setIsTimerRunning(false)
   }
 
+  function deleteDay(dayId: string) {
+    if (days.length <= 1) return // never delete last day
+    const idx = days.findIndex((d) => d.id === dayId)
+    if (idx === -1) return
+    const remaining = days.filter((d) => d.id !== dayId)
+    // Re-number days sequentially after deletion
+    const renumbered = remaining.map((d, i) => ({ ...d, day: i + 1 }))
+    setDaysWithUndo(() => renumbered)
+    // If deleting current day, move to adjacent day
+    if (days[idx].id === currentDay.id) {
+      const newIdx = Math.max(0, idx - 1)
+      setSelectedDayId(renumbered[newIdx].id)
+    }
+    setIsTimerRunning(false)
+  }
+
   function moveToNextSpeaker() {
     const cur = currentDay.currentSpeakerSeat
     const spoken = cur ? [...new Set([...currentDay.roundRobinSpokenSeats, cur])] : currentDay.roundRobinSpokenSeats
@@ -377,5 +393,5 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     setEndGameResult({ winner: record.winner ?? null, playerTeams: teams, mvp: record.mvp ?? null, balanced: record.balanced ?? null, funEvil: record.funEvil ?? null, funGood: record.funGood ?? null, replay: record.replay ?? null, otherNote: record.otherNote ?? '' })
   }
 
-  return { goToNextDay, goToPreviousDay, moveToNextSpeaker, setPhase, startNight, addPlayerSeat, removeLastPlayerSeat, addTravelerSeat, removeLastTraveler, openNewGamePanel, openCharacterEditor, doOpenNewGamePanel: _doOpenNewGamePanel, confirmNewGameAfterSave, confirmNewGameDiscard, hasActiveGame, randomAssignCharacters, startNewGame, applyGameChanges, resetCurrentGame, openEndGamePanel, markGameEnded, unmarkGameEnded, loadGameRecord, ...exportActions }
+  return { goToNextDay, goToPreviousDay, deleteDay, moveToNextSpeaker, setPhase, startNight, addPlayerSeat, removeLastPlayerSeat, addTravelerSeat, removeLastTraveler, openNewGamePanel, openCharacterEditor, doOpenNewGamePanel: _doOpenNewGamePanel, confirmNewGameAfterSave, confirmNewGameDiscard, hasActiveGame, randomAssignCharacters, startNewGame, applyGameChanges, resetCurrentGame, openEndGamePanel, markGameEnded, unmarkGameEnded, loadGameRecord, ...exportActions }
 }

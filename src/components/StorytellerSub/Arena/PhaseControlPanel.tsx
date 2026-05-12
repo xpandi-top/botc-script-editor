@@ -31,6 +31,7 @@ import GavelIcon from '@mui/icons-material/Gavel'
 import PersonAddIcon from '@mui/icons-material/PersonAdd'
 import ShuffleIcon from '@mui/icons-material/Shuffle'
 import SkipNextIcon from '@mui/icons-material/SkipNext'
+import DeleteIcon from '@mui/icons-material/Delete'
 import { ArenaCenterNominationSheet } from './ArenaCenterNominationSheet'
 import { AggregatedLogModal } from './AggregatedLogModal'
 import { StorytellerSetupModal } from './StorytellerSetupModal'
@@ -66,7 +67,7 @@ const PHASE_ICONS: Record<string, React.ReactNode> = {
 export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: StorytellerContext; collapsed: boolean; setCollapsed: (v: boolean) => void }) {
   const {
     language, text, currentDay, updateCurrentDay, days,
-    goToNextDay, goToPreviousDay, setSelectedDayId,
+    goToNextDay, goToPreviousDay, setSelectedDayId, deleteDay,
     hasTimer, currentTimerSeconds, isTimerRunning, setIsTimerRunning,
     setCurrentTimer, syncDayTimers, setPickerMode,
     audioPlaying, setAudioPlaying, startNight, stopNight,
@@ -199,7 +200,22 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
               onChange={(e) => setSelectedDayId(e.target.value)}
               sx={{ color: textColor, fontWeight: 700, fontSize: '1rem', '& .MuiSelect-icon': { color: mutedColor }, '& fieldset': { borderColor: btnBorder }, '& .MuiOutlinedInput-root': { background: 'transparent' }, '& .MuiSelect-select': { color: textColor }, background: 'transparent', minWidth: 100 }}
             >
-              {days.map((d: any) => <MenuItem key={d.id} value={d.id} sx={{ fontSize: '0.95rem' }}>Day {d.day}</MenuItem>)}
+              {days.map((d: any) => (
+                <MenuItem key={d.id} value={d.id} sx={{ fontSize: '0.95rem', display: 'flex', justifyContent: 'space-between', gap: 1, pr: 0.5 }}>
+                  <span style={{ flex: 1 }}>Day {d.day}</span>
+                  {days.length > 1 && (
+                    <Tooltip title={language === 'zh' ? '删除此天' : 'Delete this day'}>
+                      <IconButton
+                        size="small"
+                        onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); deleteDay(d.id) }}
+                        sx={{ p: 0.25, flexShrink: 0, color: 'error.main', opacity: 0.7, '&:hover': { opacity: 1 } }}
+                      >
+                        <DeleteIcon sx={{ fontSize: '0.85rem' }} />
+                      </IconButton>
+                    </Tooltip>
+                  )}
+                </MenuItem>
+              ))}
             </Select>
             <IconButton sx={iconBtnSx} onClick={() => goToNextDay()}>
               <ArrowForwardIcon />
