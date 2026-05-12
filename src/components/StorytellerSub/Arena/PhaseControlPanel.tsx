@@ -191,13 +191,14 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
 
         <Box sx={{ overflowY: 'auto', maxHeight: '38dvh', px: 1.5, pb: 1.5 }}>
           {/* Day nav + phase selector */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.75, flexWrap: 'wrap' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.75, overflowX: 'auto', pb: 0.5 }}>
             <IconButton sx={iconBtnSx} onClick={() => goToPreviousDay()}>
               <ArrowBackIcon />
             </IconButton>
             <Select
               value={currentDay.id}
               onChange={(e) => setSelectedDayId(e.target.value)}
+              renderValue={(id) => { const d = days.find((d: any) => d.id === id); return d ? `Day ${d.day}` : '' }}
               sx={{ color: textColor, fontWeight: 700, fontSize: '1rem', '& .MuiSelect-icon': { color: mutedColor }, '& fieldset': { borderColor: btnBorder }, '& .MuiOutlinedInput-root': { background: 'transparent' }, '& .MuiSelect-select': { color: textColor }, background: 'transparent', minWidth: 100 }}
             >
               {days.map((d: any) => (

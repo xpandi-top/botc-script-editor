@@ -157,7 +157,7 @@ export function ArenaCenterContent({ ctx }: { ctx: StorytellerContext }) {
   )
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5, p: 1, flex: 1, minWidth: 0, flexGrow: 1 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'safe center', gap: 0.5, p: 1, flex: 1, minWidth: 0, flexGrow: 1 }}>
       
       
       <ToggleButtonGroup value={phase} exclusive onChange={(_, v) => v && setPhase(v)} size="large">

@@ -36,6 +36,7 @@ export function ArenaCenter({ ctx }: { ctx: StorytellerContext }) {
           <Select
             value={currentDay.id}
             onChange={(e) => setSelectedDayId(e.target.value)}
+            renderValue={(id) => { const d = days.find((d: any) => d.id === id); return d ? `Day ${d.day}` : '' }}
             sx={{ fontSize: '1.25rem', fontWeight: 700, color: 'primary.main', '& .MuiSelect-select': { py: 0.25 } }}
           >
             {days.map((d: any) => (
