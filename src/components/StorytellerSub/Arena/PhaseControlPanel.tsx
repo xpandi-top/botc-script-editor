@@ -335,8 +335,10 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
                 handleUrlTrackAdd={handleUrlTrackAdd}
                 deleteTrack={deleteTrack}
                 language={language}
-                sx={{ border: `1px solid ${btnBorder}`, bgcolor: 'transparent' }}
-                buttonSx={{ color: textColor }}
+                iconSize="medium"
+                sx={{ border: `1px solid ${btnBorder}`, bgcolor: 'transparent', borderRadius: 2, px: 0.5, py: 0.5 }}
+                buttonSx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }}
+                activeButtonSx={{ ...TIMER_ACTIVE_SX }}
                 selectSx={{
                   color: textColor,
                   '.MuiOutlinedInput-notchedOutline': { borderColor: btnBorder },

@@ -20,6 +20,7 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts'
 import { AggregatedLogModal } from './AggregatedLogModal'
 import { StorytellerSetupModal } from './StorytellerSetupModal'
+import { BgmBar } from '../BgmBar'
 import type { Phase, PublicMode } from '../types'
 
 const PHASES: Phase[] = ['night', 'private', 'public', 'nomination']
@@ -47,6 +48,8 @@ export function ArenaCenterContent({ ctx }: { ctx: StorytellerContext }) {
     hasTimer, currentTimerSeconds, isTimerRunning, setIsTimerRunning,
     setCurrentTimer, syncDayTimers, setPickerMode,
     audioPlaying, setAudioPlaying, startNight, stopNight,
+    audioTracks, selectedAudioSrc, setSelectedAudioSrc, bgmVolume, setBgmVolume,
+    handleLocalFileChange, handleUrlTrackAdd, deleteTrack,
     canNominate, secondsUntilNomination,
     showNominationSheet, setShowNominationSheet,
     enterNomination, moveToNextSpeaker, goToNextDay, setPhase,
@@ -85,12 +88,24 @@ export function ArenaCenterContent({ ctx }: { ctx: StorytellerContext }) {
 
   const nightControls = phase === 'night' && (
     <>
-      <Box sx={{ display: 'flex', gap: 0.5 }}>
-        <IconButton size="large" onClick={(e) => { e.stopPropagation(); audioPlaying ? setAudioPlaying(false) : startNight() }} sx={audioPlaying ? TIMER_CONTROL_SX : TIMER_IDLE_SX}>
-          {audioPlaying ? <PauseIcon /> : <PlayArrowIcon />}
-        </IconButton>
-        <IconButton size="large" onClick={(e) => { e.stopPropagation(); stopNight() }}><StopIcon /></IconButton>
-      </Box>
+      <BgmBar
+        audioPlaying={audioPlaying}
+        onTogglePlay={() => audioPlaying ? setAudioPlaying(false) : startNight()}
+        onStop={stopNight}
+        audioTracks={audioTracks}
+        selectedAudioSrc={selectedAudioSrc}
+        setSelectedAudioSrc={setSelectedAudioSrc}
+        bgmVolume={bgmVolume}
+        setBgmVolume={setBgmVolume}
+        handleLocalFileChange={handleLocalFileChange}
+        handleUrlTrackAdd={handleUrlTrackAdd}
+        deleteTrack={deleteTrack}
+        language={language}
+        iconSize="large"
+        sx={{ border: '1px solid', borderColor: 'divider', bgcolor: 'transparent', borderRadius: 2, px: 0.5, py: 0.5 }}
+        buttonSx={{ ...TIMER_IDLE_SX }}
+        activeButtonSx={{ ...TIMER_CONTROL_SX }}
+      />
       <Box sx={{ display: 'flex', gap: 0.5 }}>
         <Tooltip title={nightShowCharacter ? (language === 'zh' ? '隐藏角色' : 'Hide Characters') : (language === 'zh' ? '显示角色' : 'Show Characters')}>
           <IconButton size="large" onClick={() => setNightShowCharacter((v: boolean) => !v)} sx={nightShowCharacter ? TIMER_CONTROL_SX : TIMER_IDLE_SX}>
