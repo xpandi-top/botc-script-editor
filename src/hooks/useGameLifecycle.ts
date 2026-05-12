@@ -372,10 +372,57 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
   }
 
   function loadGameRecord(record: GameRecord) {
-    if (!record.savedDays || record.savedDays.length === 0) return
     if (setShowEndGameModal) setShowEndGameModal(false)
-    setDaysWithUndo(record.savedDays)
-    setSelectedDayId(record.savedDays[0].id)
+
+    let restoredDays: DayState[]
+
+    if (record.savedDays && record.savedDays.length > 0) {
+      // ── Full restore ──────────────────────────────────────────
+      restoredDays = record.savedDays
+    } else {
+      // ── Partial restore from setup / playerSummaries ──────────
+      // Build seats: prefer setup.seatNames+assignments, fall back to playerSummaries
+      const setup = record.setup
+      const summaries = record.playerSummaries ?? []
+      const playerCount = setup?.playerCount ?? (summaries.filter((p) => p.team !== null).length || summaries.length || 5)
+      const travelerCount = setup?.travelerCount ?? 0
+      const totalSeats = playerCount + travelerCount
+
+      const baseSeats: StorytellerSeat[] = createSeats(totalSeats).map((s) => {
+        const seatNum = s.seat
+        const summary = summaries.find((p) => p.seat === seatNum)
+        const isTravel = travelerCount > 0 && seatNum > playerCount
+        return {
+          ...s,
+          name: setup?.seatNames?.[seatNum] ?? summary?.name ?? s.name,
+          characterId: setup?.assignments?.[seatNum] || null,
+          userCharacterId: setup?.userAssignments?.[seatNum] ?? null,
+          teamTag: summary?.team ?? null,
+          note: setup?.seatNotes?.[seatNum] ?? '',
+          isTraveler: isTravel,
+        }
+      })
+
+      // Create one day per entry in record.days (or 1 if none)
+      const dayCount = record.days?.length || 1
+      restoredDays = Array.from({ length: dayCount }, (_, i) =>
+        createDayState(i + 1, baseSeats, timerDefaults)
+      )
+      // Mark last day ended if game has a winner
+      if (record.winner) {
+        restoredDays[restoredDays.length - 1] = {
+          ...restoredDays[restoredDays.length - 1],
+          gameEnded: true,
+        }
+      }
+      // Apply demonBluffs if present
+      if (setup?.demonBluffs?.length) {
+        restoredDays[0] = { ...restoredDays[0], demonBluffs: setup.demonBluffs }
+      }
+    }
+
+    setDaysWithUndo(restoredDays)
+    setSelectedDayId(restoredDays[0].id)
     if (record.scriptSlug && record.scriptSlug !== activeScriptSlug && onSelectScript) onSelectScript(record.scriptSlug)
     if (setCurrentRecordName) setCurrentRecordName(record.recordName || null)
     if (record.timerDefaults && setTimerDefaults) setTimerDefaults(record.timerDefaults)
@@ -385,10 +432,14 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     if (setStCustomRules) setStCustomRules(record.stCustomRules ?? '')
     if (setStName) setStName(record.stName ?? '')
     setGameStartedAt?.(record.startedAt)
+
+    // Restore endGameResult from survey data
+    const firstDay = restoredDays[0]
     const teams: Record<number, 'evil' | 'good' | null> = {}
-    for (const s of record.savedDays[0].seats) {
+    for (const s of firstDay.seats) {
       const team = record.playerSummaries?.find((p) => p.seat === s.seat)?.team
-      teams[s.seat] = team ?? 'good'
+      // For partial restore, teamTag is already on the seat; use it as fallback
+      teams[s.seat] = team ?? (s.teamTag as 'evil' | 'good' | null) ?? null
     }
     setEndGameResult({ winner: record.winner ?? null, playerTeams: teams, mvp: record.mvp ?? null, balanced: record.balanced ?? null, funEvil: record.funEvil ?? null, funGood: record.funGood ?? null, replay: record.replay ?? null, otherNote: record.otherNote ?? '' })
   }

@@ -232,17 +232,16 @@ export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: Storyt
 
                   {/* Action icons — min 44px touch targets */}
                   <Box sx={{ display: 'flex', gap: 0, mt: 0.25 }}>
-                    <Tooltip title={rec.savedDays ? (zh ? '加载到说书人' : 'Load into Storyteller') : (zh ? '无游戏数据（仅分析记录）' : 'No game data (analysis-only record)')}>
-                      <span>
-                        <IconButton
-                          size="small"
-                          disabled={!rec.savedDays}
-                          onClick={() => loadGameRecord(rec)}
-                          sx={{ minWidth: 44, minHeight: 44 }}
-                        >
-                          <FolderOpenIcon sx={{ fontSize: '1rem' }} />
-                        </IconButton>
-                      </span>
+                    <Tooltip title={rec.savedDays
+                      ? (zh ? '完整加载（包含所有天数记录）' : 'Full restore — all days & events')
+                      : (zh ? '部分加载（玩家/角色/脚本）' : 'Partial restore — players, roles & script')}>
+                      <IconButton
+                        size="small"
+                        onClick={() => loadGameRecord(rec)}
+                        sx={{ minWidth: 44, minHeight: 44 }}
+                      >
+                        <FolderOpenIcon sx={{ fontSize: '1rem', opacity: rec.savedDays ? 1 : 0.55 }} />
+                      </IconButton>
                     </Tooltip>
                     <Tooltip title={zh ? '重命名并覆盖保存' : 'Rename and overwrite'}>
                       <IconButton size="small" onClick={() => {
