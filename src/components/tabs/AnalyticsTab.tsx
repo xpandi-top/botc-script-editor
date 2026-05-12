@@ -120,7 +120,9 @@ function RecordFormDialog({ existing, zh, language, onSave, onClose }: {
   // Tab 2 — Survey & Storyteller
   const [stName, setStName] = useState(existing?.stName ?? '')
   const [stCustomRules, setStCustomRules] = useState(existing?.stCustomRules ?? '')
-  const [mvp, setMvp] = useState<number | ''>(existing?.mvp ?? '')
+  const [mvp, setMvp] = useState<number | 'storyteller' | ''>(
+    existing?.mvp === 'storyteller' ? 'storyteller' : (existing?.mvp ?? '')
+  )
   const [balanced, setBalanced] = useState<number | null>(existing?.balanced ?? null)
   const [funEvil, setFunEvil] = useState<number | null>(existing?.funEvil ?? null)
   const [funGood, setFunGood] = useState<number | null>(existing?.funGood ?? null)
@@ -193,7 +195,7 @@ function RecordFormDialog({ existing, zh, language, onSave, onClose }: {
       scriptTitle: scriptInput || undefined,
       scriptSlug: scriptSlug || undefined,
       winner: (winner || null) as GameRecord['winner'],
-      mvp: mvp !== '' ? mvp : null,
+      mvp: mvp !== '' ? (mvp as number | 'storyteller') : null,
       balanced,
       funEvil,
       funGood,
@@ -439,20 +441,21 @@ function RecordFormDialog({ existing, zh, language, onSave, onClose }: {
             </Typography>
 
             {/* MVP */}
-            {players.some((p) => p.name) && (
-              <FormControl size="small" fullWidth>
-                <InputLabel>{zh ? 'MVP 玩家' : 'MVP Player'}</InputLabel>
-                <Select value={mvp} label={zh ? 'MVP 玩家' : 'MVP Player'}
-                  onChange={(e) => setMvp(e.target.value as number | '')}>
-                  <MenuItem value=""><em>{zh ? '未选择' : 'None'}</em></MenuItem>
-                  {players.map((p, i) => p.name ? (
-                    <MenuItem key={i} value={i + 1} sx={{ fontSize: '0.85rem' }}>
-                      {i + 1}. {p.name}
-                    </MenuItem>
-                  ) : null)}
-                </Select>
-              </FormControl>
-            )}
+            <FormControl size="small" fullWidth>
+              <InputLabel>{zh ? 'MVP' : 'MVP'}</InputLabel>
+              <Select value={mvp} label="MVP"
+                onChange={(e) => setMvp(e.target.value as number | 'storyteller' | '')}>
+                <MenuItem value=""><em>{zh ? '未选择' : 'None'}</em></MenuItem>
+                <MenuItem value="storyteller" sx={{ fontSize: '0.85rem', fontStyle: 'italic' }}>
+                  🎭 {zh ? '说书人' : 'Storyteller'}
+                </MenuItem>
+                {players.map((p, i) => p.name ? (
+                  <MenuItem key={i} value={i + 1} sx={{ fontSize: '0.85rem' }}>
+                    {i + 1}. {p.name}
+                  </MenuItem>
+                ) : null)}
+              </Select>
+            </FormControl>
 
             {/* Star ratings 2×2 */}
             <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1 }}>

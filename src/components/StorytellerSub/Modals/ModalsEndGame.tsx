@@ -100,6 +100,7 @@ export function ModalsEndGame({ ctx }: { ctx: StorytellerContext }) {
         <InputLabel>{language === 'zh' ? 'MVP' : 'MVP'}</InputLabel>
         <Select value={egr.mvp ?? ''} onChange={(e) => setEndGameResult((c: any) => c ? { ...c, mvp: e.target.value || null } : c)} label={language === 'zh' ? 'MVP' : 'MVP'}>
           <MenuItem value="">{language === 'zh' ? '选择玩家' : 'Select player'}</MenuItem>
+          <MenuItem value="storyteller" sx={{ fontStyle: 'italic' }}>🎭 {language === 'zh' ? '说书人' : 'Storyteller'}</MenuItem>
           {regularSeats.map((s: any) => (
             <MenuItem key={s.seat} value={s.seat}>{s.seat}. {s.name || `Player ${s.seat}`}</MenuItem>
           ))}

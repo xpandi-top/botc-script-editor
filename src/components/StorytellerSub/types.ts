@@ -51,7 +51,7 @@ export type NewGameConfig = {
 export type EndGameResult = {
   winner: 'evil' | 'good' | 'storyteller' | null
   playerTeams: Record<number, 'evil' | 'good' | null>
-  mvp: number | null
+  mvp: number | 'storyteller' | null
   balanced: number | null
   funEvil: number | null
   funGood: number | null
@@ -220,7 +220,8 @@ export type GameRecord = {
   scriptSlug?: string
   winner?: 'evil' | 'good' | 'storyteller' | null
   playerSummaries?: Array<{ seat: number; name: string; team: 'evil' | 'good' | null }>
-  mvp?: number | null
+  /** Seat number of MVP player, or 'storyteller' if the ST was the standout, or null */
+  mvp?: number | 'storyteller' | null
   balanced?: number | null
   funEvil?: number | null
   funGood?: number | null
@@ -244,6 +245,7 @@ export type GameRecord = {
     demonBluffs: string[]
   }
   stFabledIds?: string[]
+  stName?: string
   stCustomRules?: string
 }
 

@@ -48,7 +48,9 @@ function QuickEditPanel({ record, zh, onSave }: {
   record: GameRecord; language: Language; zh: boolean; onSave: (updated: GameRecord) => void
 }) {
   const [winner, setWinner] = useState<string>(record.winner ?? '')
-  const [mvp, setMvp] = useState<number | ''>(record.mvp ?? '')
+  const [mvp, setMvp] = useState<number | 'storyteller' | ''>(
+    record.mvp === 'storyteller' ? 'storyteller' : (record.mvp ?? '')
+  )
   const [balanced, setBalanced] = useState<number | null>(record.balanced ?? null)
   const [funEvil, setFunEvil] = useState<number | null>(record.funEvil ?? null)
   const [funGood, setFunGood] = useState<number | null>(record.funGood ?? null)
@@ -64,7 +66,7 @@ function QuickEditPanel({ record, zh, onSave }: {
     onSave({
       ...record,
       winner: (winner || null) as GameRecord['winner'],
-      mvp: mvp !== '' ? mvp : null,
+      mvp: mvp !== '' ? (mvp as number | 'storyteller') : null,
       balanced,
       funEvil,
       funGood,
@@ -104,21 +106,22 @@ function QuickEditPanel({ record, zh, onSave }: {
             </ToggleButtonGroup>
           </Box>
 
-          {seats.length > 0 && (
-            <FormControl size="small" sx={{ minWidth: 160 }}>
-              <InputLabel sx={{ fontSize: '0.78rem' }}>{zh ? 'MVP' : 'MVP'}</InputLabel>
-              <Select value={mvp} label="MVP"
-                onChange={(e) => { setMvp(e.target.value as number | ''); setDirty(true) }}
-                sx={{ fontSize: '0.8rem' }}>
-                <MenuItem value=""><em>{zh ? '无' : 'None'}</em></MenuItem>
-                {seats.map((s) => (
-                  <MenuItem key={s.seat} value={s.seat} sx={{ fontSize: '0.8rem' }}>
-                    {s.seat}. {s.name || `#${s.seat}`}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          )}
+          <FormControl size="small" sx={{ minWidth: 160 }}>
+            <InputLabel sx={{ fontSize: '0.78rem' }}>{zh ? 'MVP' : 'MVP'}</InputLabel>
+            <Select value={mvp} label="MVP"
+              onChange={(e) => { setMvp(e.target.value as number | 'storyteller' | ''); setDirty(true) }}
+              sx={{ fontSize: '0.8rem' }}>
+              <MenuItem value=""><em>{zh ? '无' : 'None'}</em></MenuItem>
+              <MenuItem value="storyteller" sx={{ fontSize: '0.8rem', fontStyle: 'italic' }}>
+                🎭 {zh ? '说书人' : 'Storyteller'}
+              </MenuItem>
+              {seats.map((s) => (
+                <MenuItem key={s.seat} value={s.seat} sx={{ fontSize: '0.8rem' }}>
+                  {s.seat}. {s.name || `#${s.seat}`}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </Box>
 
         {/* Ratings */}

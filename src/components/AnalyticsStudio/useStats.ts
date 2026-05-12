@@ -163,8 +163,8 @@ export function usePlayerStats(records: GameRecord[]): PlayerStat[] {
           entry.goodGames++
           if (r.winner === 'good') { entry.wins++; entry.goodWins++ }
         }
-        // mvp tracking
-        if (r.mvp != null && r.mvp === ps.seat) entry.mvpCount++
+        // mvp tracking (only seat numbers, not 'storyteller')
+        if (r.mvp != null && r.mvp !== 'storyteller' && r.mvp === ps.seat) entry.mvpCount++
         // char tracking
         const charId = r.setup?.assignments?.[ps.seat]
         if (charId) {
