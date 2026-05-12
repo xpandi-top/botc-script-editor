@@ -20,6 +20,7 @@ import { isNativePlatform } from '../../lib/nativePrint'
 import type { GameRecord } from '../StorytellerSub/types'
 import type { Language } from '../../types'
 import { StudioShell } from '../AnalyticsStudio/StudioShell'
+import { StarRating } from '../ui/StarRating'
 
 // ── Storage helpers ───────────────────────────────────────────────
 
@@ -108,6 +109,12 @@ function RecordFormDialog({ existing, zh, language, onSave, onClose }: {
   )
   const [winner, setWinner] = useState(existing?.winner ?? '')
   const [dayCount, setDayCount] = useState(existing?.days?.length ?? 1)
+  const [mvp, setMvp] = useState<number | ''>(existing?.mvp ?? '')
+  const [balanced, setBalanced] = useState<number | null>(existing?.balanced ?? null)
+  const [funEvil, setFunEvil] = useState<number | null>(existing?.funEvil ?? null)
+  const [funGood, setFunGood] = useState<number | null>(existing?.funGood ?? null)
+  const [replay, setReplay] = useState<number | null>(existing?.replay ?? null)
+  const [otherNote, setOtherNote] = useState(existing?.otherNote ?? '')
   const [players, setPlayers] = useState<PlayerRow[]>(initPlayers)
   const [playerCount, setPlayerCount] = useState(players.length)
 
@@ -173,6 +180,12 @@ function RecordFormDialog({ existing, zh, language, onSave, onClose }: {
       scriptTitle: scriptInput || undefined,
       scriptSlug: scriptSlug || undefined,
       winner: (winner || null) as GameRecord['winner'],
+      mvp: mvp !== '' ? mvp : null,
+      balanced,
+      funEvil,
+      funGood,
+      replay,
+      otherNote: otherNote || undefined,
       playerSummaries: playerSummaries.length > 0 ? playerSummaries : undefined,
       days: Array.from({ length: Math.max(1, dayCount) }, (_, i) => ({
         day: i + 1,
@@ -356,11 +369,54 @@ function RecordFormDialog({ existing, zh, language, onSave, onClose }: {
           ))}
         </Box>
 
+        <Divider />
+
+        {/* ── Survey: MVP + Ratings + Notes ── */}
+        <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+          {zh ? '评分与调查' : 'Survey & Ratings'}
+        </Typography>
+
+        <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', alignItems: 'flex-start' }}>
+          {/* MVP */}
+          {players.some((p) => p.name) && (
+            <FormControl size="small" sx={{ flex: '1 1 160px' }}>
+              <InputLabel sx={{ fontSize: '0.8rem' }}>{zh ? 'MVP' : 'MVP'}</InputLabel>
+              <Select value={mvp} label="MVP" onChange={(e) => setMvp(e.target.value as number | '')} sx={{ fontSize: '0.8rem' }}>
+                <MenuItem value=""><em>{zh ? '未选择' : 'None'}</em></MenuItem>
+                {players.map((p, i) => p.name ? (
+                  <MenuItem key={i} value={i + 1} sx={{ fontSize: '0.8rem' }}>
+                    {i + 1}. {p.name}
+                  </MenuItem>
+                ) : null)}
+              </Select>
+            </FormControl>
+          )}
+
+          {/* Other notes */}
+          <TextField
+            size="small"
+            multiline
+            rows={2}
+            label={zh ? '其他备注' : 'Other notes'}
+            value={otherNote}
+            onChange={(e) => setOtherNote(e.target.value)}
+            sx={{ flex: '2 1 220px', '& .MuiInputBase-input': { fontSize: '0.8rem' } }}
+          />
+        </Box>
+
+        {/* Star ratings 2×2 */}
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 0.5 }}>
+          <StarRating label={zh ? '平衡性' : 'Balanced'} value={balanced} onChange={setBalanced} />
+          <StarRating label={zh ? 'Evil方乐趣' : 'Fun (Evil)'} value={funEvil} onChange={setFunEvil} />
+          <StarRating label={zh ? '正义方乐趣' : 'Fun (Good)'} value={funGood} onChange={setFunGood} />
+          <StarRating label={zh ? '重玩愿望' : 'Replay'} value={replay} onChange={setReplay} />
+        </Box>
+
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>{zh ? '取消' : 'Cancel'}</Button>
         <Button variant="contained" onClick={handleSave}>
-          {zh ? '创建记录' : 'Create Record'}
+          {existing ? (zh ? '保存' : 'Save') : (zh ? '创建记录' : 'Create Record')}
         </Button>
       </DialogActions>
     </Dialog>
