@@ -28,6 +28,7 @@ import {
 } from '../../catalog'
 import { processIconFile } from '../../lib/iconResize'
 import type { CharacterEntry, CustomCharacter, Language, Team } from '../../types'
+import { makeT } from '../../lib/t'
 
 type Props = {
   uiText: Record<string, string>
@@ -89,6 +90,7 @@ export function CharactersTab({
   const [iconError, setIconError] = useState('')
   const [iconMode, setIconMode] = useState<'url' | 'upload'>('url')
   const zh = uiLanguage === 'zh'
+  const t = makeT(uiLanguage)
 
   const openNew = () => {
     setEditingChar(null)
@@ -188,7 +190,7 @@ export function CharactersTab({
               <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
                 <Button size="small" startIcon={<AddIcon fontSize="small" />} onClick={openNew}
                   sx={{ textTransform: 'none', fontSize: '0.75rem' }}>
-                  {zh ? '自定义' : 'Custom'}
+                  {t('custom')}
                 </Button>
                 <FormControl size="small" sx={{ minWidth: 72, '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' }, '& .MuiInputLabel-root': { fontSize: '0.8rem' } }}>
                   <InputLabel>{uiLanguage === 'zh' ? '语言' : 'Lang'}</InputLabel>
@@ -262,7 +264,7 @@ export function CharactersTab({
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0 }}>
                           {isCustom && (
                             <Typography variant="caption" sx={{ fontSize: '0.6rem', bgcolor: 'secondary.main', color: 'secondary.contrastText', px: 0.5, borderRadius: 0.5 }}>
-                              {zh ? '自定义' : 'Custom'}
+                              {t('custom')}
                             </Typography>
                           )}
                           <Typography variant="caption" color="text.secondary">{team}</Typography>
@@ -320,7 +322,7 @@ export function CharactersTab({
         <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           {editingChar
             ? (zh ? `编辑：${draft.nameEn}` : `Edit: ${draft.nameEn}`)
-            : (zh ? '新建自定义角色' : 'New Custom Character')}
+            : t('new_custom_char')}
           <IconButton size="small" onClick={() => setCustomDialogOpen(false)}><CloseIcon /></IconButton>
         </DialogTitle>
         <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '8px !important' }}>
@@ -347,9 +349,9 @@ export function CharactersTab({
               )}
             />
             <FormControl size="small">
-              <InputLabel>{zh ? '阵营' : 'Team'}</InputLabel>
-              <Select value={draft.team} label={zh ? '阵营' : 'Team'} onChange={(e) => setDraft((d) => ({ ...d, team: e.target.value as Team }))}>
-                {teamOrder.map((t) => <MenuItem key={t} value={t}>{teamLabels[uiLanguage][t] ?? t}</MenuItem>)}
+              <InputLabel>{t('team_label')}</InputLabel>
+              <Select value={draft.team} label={t('team_label')} onChange={(e) => setDraft((d) => ({ ...d, team: e.target.value as Team }))}>
+                {teamOrder.map((teamId) => <MenuItem key={teamId} value={teamId}>{teamLabels[uiLanguage][teamId] ?? teamId}</MenuItem>)}
               </Select>
             </FormControl>
           </Box>
@@ -364,7 +366,7 @@ export function CharactersTab({
             <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start' }}>
               <RadioGroup row value={iconMode} onChange={(e) => setIconMode(e.target.value as 'url' | 'upload')}>
                 <FormControlLabel value="url" control={<Radio size="small" />} label={<Typography variant="body2">URL</Typography>} />
-                <FormControlLabel value="upload" control={<Radio size="small" />} label={<Typography variant="body2">{zh ? '上传' : 'Upload'}</Typography>} />
+                <FormControlLabel value="upload" control={<Radio size="small" />} label={<Typography variant="body2">{t('upload')}</Typography>} />
               </RadioGroup>
               {draft.icon && <Box component="img" src={draft.icon} sx={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover', border: '1px solid', borderColor: 'divider', flexShrink: 0 }} />}
             </Box>
@@ -408,9 +410,9 @@ export function CharactersTab({
           </Box>
 
           <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, pt: 1, borderTop: '1px solid', borderColor: 'divider' }}>
-            <Button variant="outlined" onClick={() => setCustomDialogOpen(false)}>{zh ? '取消' : 'Cancel'}</Button>
+            <Button variant="outlined" onClick={() => setCustomDialogOpen(false)}>{t('cancel')}</Button>
             <Button variant="contained" onClick={saveCustom} disabled={!draft.nameEn.trim() || !draft.abilityEn.trim() || !draft.author.trim()}>
-              {zh ? '保存' : 'Save'}
+              {t('save')}
             </Button>
           </Box>
         </DialogContent>
