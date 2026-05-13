@@ -11,11 +11,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   clearTokens,
+  fetchGoogleUserInfo,
   getStoredTokens,
   getValidToken,
   handleOAuthCallback,
   isConnected,
   startOAuthFlow,
+  type GoogleUserInfo,
 } from '../lib/googleAuth'
 import {
   driveIsNewer,
@@ -37,6 +39,7 @@ export interface CloudSyncState {
   status: SyncStatus
   lastSynced: Date | null
   errorMessage: string | null
+  userInfo: GoogleUserInfo | null
   /** Call to start OAuth redirect */
   connect: () => Promise<void>
   /** Disconnect and clear tokens */
@@ -55,6 +58,10 @@ export function useCloudSync(): CloudSyncState {
     return stored ? new Date(Number(stored)) : null
   })
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const USER_INFO_KEY = 'BOTC_GOOGLE_USER_INFO'
+  const [userInfo, setUserInfo] = useState<GoogleUserInfo | null>(() => {
+    try { return JSON.parse(localStorage.getItem(USER_INFO_KEY) ?? 'null') } catch { return null }
+  })
 
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const isSyncing = useRef(false)
@@ -145,6 +152,14 @@ export function useCloudSync(): CloudSyncState {
         setStatus('offline')
         isSyncing.current = false
         return
+      }
+
+      // Fetch account info if not yet loaded
+      if (!userInfo) {
+        fetchGoogleUserInfo(token).then((info) => {
+          setUserInfo(info)
+          try { localStorage.setItem(USER_INFO_KEY, JSON.stringify(info)) } catch {}
+        }).catch(() => {})
       }
 
       if (direction === 'push') {
@@ -253,6 +268,8 @@ export function useCloudSync(): CloudSyncState {
     setConnected(false)
     setStatus('idle')
     setErrorMessage(null)
+    setUserInfo(null)
+    try { localStorage.removeItem(USER_INFO_KEY) } catch {}
   }, [])
 
   const syncNow = useCallback(async () => {
@@ -265,6 +282,7 @@ export function useCloudSync(): CloudSyncState {
     status,
     lastSynced,
     errorMessage,
+    userInfo,
     connect,
     disconnect,
     syncNow,

@@ -534,6 +534,12 @@ export function SettingsTab({ language, onLanguageChange, fontSettings, cloudSyn
                     : isError ? (zh ? '同步失败' : 'Sync Failed')
                     : (zh ? '已连接 Google Drive' : 'Connected to Google Drive')}
                 </Typography>
+                {cloud.userInfo && (
+                  <Typography variant="body2" sx={{ fontWeight: 600,
+                    color: isError ? 'error.dark' : isBusy ? 'primary.dark' : 'success.dark' }}>
+                    {cloud.userInfo.name} · {cloud.userInfo.email}
+                  </Typography>
+                )}
                 <Typography variant="body2"
                   sx={{ color: isError ? 'error.dark' : isBusy ? 'primary.dark' : 'success.dark', opacity: 0.85 }}>
                   {isError

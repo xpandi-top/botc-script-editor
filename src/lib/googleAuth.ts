@@ -60,6 +60,8 @@ export const GOOGLE_CLIENT_ID: string =
 const SCOPES = [
   'https://www.googleapis.com/auth/drive.appdata',
   'https://www.googleapis.com/auth/drive.file',
+  'email',
+  'profile',
 ].join(' ')
 
 // Tokens: localStorage so they survive tab close / reload
@@ -263,6 +265,22 @@ export async function refreshAccessToken(refreshToken: string): Promise<GoogleTo
   }
   storeTokens(tokens)
   return tokens
+}
+
+// ── Google account info ───────────────────────────────────────────────────────
+
+export interface GoogleUserInfo {
+  email: string
+  name: string
+  picture?: string
+}
+
+export async function fetchGoogleUserInfo(token: string): Promise<GoogleUserInfo> {
+  const res = await fetch('https://www.googleapis.com/oauth2/v1/userinfo?alt=json', {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  if (!res.ok) throw new Error(`userinfo failed: ${res.status}`)
+  return res.json() as Promise<GoogleUserInfo>
 }
 
 // ── Get a valid access token (auto-refresh if expired) ────────────────────────
