@@ -21,6 +21,7 @@ import type { GameRecord } from '../StorytellerSub/types'
 import type { Language } from '../../types'
 import { StudioShell } from '../AnalyticsStudio/StudioShell'
 import { RecordFormDialog } from '../AnalyticsStudio/RecordFormDialog'
+import { makeT } from '../../lib/t'
 
 // ── Storage helpers ───────────────────────────────────────────────
 
@@ -55,6 +56,7 @@ export function AnalyticsTab({ language, onLanguageChange, sharedRecords: shared
   onClearSharedRecords?: () => void
 }) {
   const zh = language === 'zh'
+  const t = makeT(language)
 
   const [records, setRecords] = useState<GameRecord[]>(() => readStorage().records)
   const [editingRecord, setEditingRecord] = useState<GameRecord | null>(null)
@@ -107,7 +109,7 @@ export function AnalyticsTab({ language, onLanguageChange, sharedRecords: shared
         const existingIds = new Set(records.map((r) => r.id))
         const newOnes = incoming.filter((r) => r.id && !existingIds.has(r.id))
         saveAndSet([...newOnes, ...records])
-        if (newOnes.length === 0) setImportError(zh ? '无新记录（ID重复）' : 'No new records (duplicate IDs)')
+        if (newOnes.length === 0) setImportError(t('no_new_records'))
       } catch (err: any) {
         setImportError(String(err?.message ?? err))
       }
@@ -317,16 +319,16 @@ export function AnalyticsTab({ language, onLanguageChange, sharedRecords: shared
         open={linkCopied}
         autoHideDuration={3000}
         onClose={() => setLinkCopied(false)}
-        message={zh ? '链接已复制！' : 'Link copied!'}
+        message={t('link_copied')}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       />
 
       {/* ── Toolbar ── */}
       <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap', alignItems: 'center' }}>
         <Typography variant="h6" sx={{ flex: 1, fontWeight: 700 }}>
-          {zh ? '数据统计' : 'Analytics'}
+          {t('analytics_title')}
         </Typography>
-        <Tooltip title={zh ? '刷新数据' : 'Refresh'}>
+        <Tooltip title={t('refresh')}>
           <IconButton size="small" onClick={refresh}><RefreshIcon fontSize="small" /></IconButton>
         </Tooltip>
         {onLanguageChange && (
@@ -339,7 +341,7 @@ export function AnalyticsTab({ language, onLanguageChange, sharedRecords: shared
           </FormControl>
         )}
         {/* Export dropdown */}
-        <Tooltip title={zh ? '导出' : 'Export'}>
+        <Tooltip title={t('export')}>
           <IconButton size="small" disabled={total === 0}
             onClick={(e) => setExportMenuAnchor(e.currentTarget)}>
             <FileDownloadIcon fontSize="small" />
@@ -423,10 +425,10 @@ export function AnalyticsTab({ language, onLanguageChange, sharedRecords: shared
                   saveAndSet([...newOnes, ...records])
                   onClearSharedRecords?.()
                 }}>
-                {zh ? '导入到我的记录' : 'Import to my records'}
+                {t('import_to_my_records')}
               </Button>
               <Button size="small" color="inherit" onClick={() => onClearSharedRecords?.()}>
-                {zh ? '退出' : 'Exit'}
+                {t('exit')}
               </Button>
             </Box>
           }
@@ -458,9 +460,9 @@ export function AnalyticsTab({ language, onLanguageChange, sharedRecords: shared
 
       {/* Share URL Dialog */}
       <Dialog open={shareUrlDialogOpen} onClose={() => setShareUrlDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>{zh ? '分享链接' : 'Share Link'}</DialogTitle>
+        <DialogTitle>{t('share_link')}</DialogTitle>
         <DialogContent>
-          {shareUrlLoading && <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 1 }}><CircularProgress size={20} /><Typography variant="body2">{zh ? '生成中…' : 'Generating…'}</Typography></Box>}
+          {shareUrlLoading && <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 1 }}><CircularProgress size={20} /><Typography variant="body2">{t('generating')}</Typography></Box>}
           {shareUrlError && <Alert severity="error" sx={{ mb: 1 }}>{shareUrlError}</Alert>}
           {!shareUrlLoading && !shareUrlError && precomputedShareUrl && (
             <TextField
@@ -480,10 +482,10 @@ export function AnalyticsTab({ language, onLanguageChange, sharedRecords: shared
                 .then(() => { setLinkCopied(true); setTimeout(() => setLinkCopied(false), 3000); setShareUrlDialogOpen(false) })
                 .catch(() => { setLinkCopied(true); setTimeout(() => setLinkCopied(false), 3000); setShareUrlDialogOpen(false) })
             }}>
-              {zh ? '复制' : 'Copy'}
+              {t('copy')}
             </Button>
           )}
-          <Button onClick={() => setShareUrlDialogOpen(false)}>{zh ? '关闭' : 'Close'}</Button>
+          <Button onClick={() => setShareUrlDialogOpen(false)}>{t('close')}</Button>
         </DialogActions>
       </Dialog>
     </Box>
