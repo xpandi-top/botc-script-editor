@@ -244,7 +244,11 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
       const tagName = csSubtype === 'removeST' || csSubtype === 'removePublic'
         ? (removeTagVal.startsWith('📝') ? parseStTag(removeTagVal).label : removeTagVal)
         : tagInput.trim()
-      const verb = { addST: '+ST', removeST: '-ST', addPublic: '+tag', removePublic: '-tag' }[csSubtype]
+      const iconPart = actualCharId ? `[icon:${actualCharId}]` : 'ST:'
+      const verb = csSubtype === 'addST'       ? `${logPhrase(language, 'addST')}${iconPart}`
+                 : csSubtype === 'removeST'    ? `${logPhrase(language, 'removeST')}${iconPart}`
+                 : csSubtype === 'addPublic'   ? logPhrase(language, 'addTag')
+                 :                               logPhrase(language, 'removeTag')
       action = `${verb}:${tagName} → ${tLabels}`
     }
     const detail = `${actorLabel} ${action}${skillNote.trim() ? ` | ${skillNote.trim()}` : ''}`

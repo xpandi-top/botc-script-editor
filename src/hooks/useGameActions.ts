@@ -1,7 +1,7 @@
 import { createDefaultVoteDraft, createDefaultSkillDraft, buildVotingOrder } from '../components/StorytellerSub/constants'
 import type { DayState, EventLogEntry, PickerMode, SkillOverlayState, SkillRecord, StorytellerSeat, TimerDefaults, VoteRecord } from '../components/StorytellerSub/types'
 import type { Language } from '../types'
-import { logDetail } from '../utils/logI18n'
+import { logDetail, logPhrase } from '../utils/logI18n'
 
 interface ActionDeps {
   currentDay: DayState
@@ -63,9 +63,21 @@ export function buildGameActions(deps: ActionDeps) {
         const newStTags = newSeat.stTags || []
         const addedStTags = newStTags.filter((t) => !oldStTags.includes(t))
         const removedStTags = oldStTags.filter((t) => !newStTags.includes(t))
-        const cleanSt = (t: string) => { const body = t.startsWith('📝') ? t.slice(2) : t; return body.split('::')[0] }
-        for (const t of addedStTags) updated = appendEvent(updated, 'tagChange', `#${seatNumber} +ST:${cleanSt(t)}`)
-        for (const t of removedStTags) updated = appendEvent(updated, 'tagChange', `#${seatNumber} -ST:${cleanSt(t)}`)
+        const parseStTag = (t: string) => {
+          const body = t.startsWith('📝') ? t.slice(2) : t
+          const sep = body.indexOf('::')
+          return sep === -1
+            ? { label: body, sourceCharId: null }
+            : { label: body.slice(0, sep), sourceCharId: body.slice(sep + 2) || null }
+        }
+        const stTagDetail = (t: string, added: boolean) => {
+          const { label, sourceCharId } = parseStTag(t)
+          const verb = logPhrase(language, added ? 'addST' : 'removeST')
+          const iconPart = sourceCharId ? `[icon:${sourceCharId}]` : 'ST:'
+          return `#${seatNumber} ${verb}${iconPart}${label}`
+        }
+        for (const t of addedStTags) updated = appendEvent(updated, 'tagChange', stTagDetail(t, true))
+        for (const t of removedStTags) updated = appendEvent(updated, 'tagChange', stTagDetail(t, false))
       }
       return updated
     })

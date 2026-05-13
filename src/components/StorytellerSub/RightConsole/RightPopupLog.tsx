@@ -2,6 +2,7 @@
 import type { StorytellerContext } from '../useStoryteller'
 import React from 'react'
 import { Box, Typography, Paper, Button, Chip, Select, MenuItem } from '@mui/material'
+import { LogDetailText } from '../LogDetailText'
 import CloseIcon from '@mui/icons-material/Close'
 
 function phaseLabel(phase: string, text: any): string {
@@ -137,7 +138,7 @@ export function RightPopupLog({ ctx }: { ctx: StorytellerContext }) {
                         <Chip label={phaseLabel(entry.phase, text)} size="small" variant="outlined" sx={{ height: 20, fontSize: '0.65rem' }} />
                       )}
                     </Box>
-                    <Typography variant="body2">{entry.detail}</Typography>
+                    <LogDetailText detail={entry.detail} />
                   </Paper>
                 ))}
               </Box>

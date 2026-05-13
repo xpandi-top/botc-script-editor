@@ -46,6 +46,11 @@ const PHRASES: Record<string, { en: string; zh: string }> = {
   false:            { en: 'False',             zh: '假'         },
   charPrefix:       { en: 'char',              zh: '角色'       },
   teamPrefix:       { en: 'team',              zh: '阵营'       },
+  // Tag add/remove verbs
+  addST:            { en: '+',                 zh: '添加'       },
+  removeST:         { en: '-',                 zh: '移除'       },
+  addTag:           { en: '+tag',              zh: '添加标签'   },
+  removeTag:        { en: '-tag',              zh: '移除标签'   },
   // Phases
   night:            { en: 'Night',             zh: '夜晚'       },
   private:          { en: 'Private',           zh: '私聊'       },

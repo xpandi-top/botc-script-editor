@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom'
 import { buildAggregatedEntries } from '../../../utils/logFilter'
 import { logDetail } from '../../../utils/logI18n'
 import { getDisplayName } from '../../../catalog'
+import { LogDetailText } from '../LogDetailText'
 import {
   Accordion, AccordionDetails, AccordionSummary,
   Box, Button, Chip, Dialog, DialogContent, DialogTitle,
@@ -332,7 +333,7 @@ export function AggregatedLogModal({ ctx }: { ctx: StorytellerContext }) {
                           </IconButton>
                         </Box>
                       ) : (
-                        <Typography variant="body2" sx={{ wordBreak: 'break-word', color: entry.visibility === 'st-only' ? stTextColor : 'text.primary' }}>{entry.detail}</Typography>
+                        <LogDetailText detail={entry.detail} sx={{ color: entry.visibility === 'st-only' ? stTextColor : 'text.primary' }} />
                       )}
                     </Box>
                   </Box>
