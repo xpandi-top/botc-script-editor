@@ -75,11 +75,12 @@ export function NominationVoteList({
       </Typography>
 
       {(() => {
-        // Right column = first half (ascending from seat after nominee) = clockwise start
-        // Left column  = second half (ascending, continuing clockwise) ending with nominee
+        // Arch layout: right col = first half ascending (clockwise from nominee+1),
+        //              left col  = second half descending (nominee at top, seat 1 near bottom).
+        // Reading right-top→right-bottom→left-bottom→left-top traces full clockwise vote order.
         const half = Math.ceil(orderedSeats.length / 2)
         const rightSeats = orderedSeats.slice(0, half)
-        const leftSeats  = orderedSeats.slice(half)
+        const leftSeats  = [...orderedSeats.slice(half)].reverse()
         const renderPill = (s: any) => {
           const voted    = votingState?.votes?.[s.seat]
           const isVoted  = voted === true || voteDraft?.voters?.includes(s.seat)
