@@ -78,14 +78,34 @@ export function exportEverything(): void {
 
 // ── Import ────────────────────────────────────────────────────────────────────
 
+const MAX_BUNDLE_FILE_SIZE = 10_000_000 // 10 MB
+
+function isArrayOfObjects(v: unknown): v is Record<string, unknown>[] {
+  return Array.isArray(v) && v.every((x) => typeof x === 'object' && x !== null)
+}
+
+function isRecordOfStrings(v: unknown): boolean {
+  return typeof v === 'object' && v !== null && !Array.isArray(v) &&
+    Object.values(v as Record<string, unknown>).every((x) => typeof x === 'string' || typeof x === 'object')
+}
+
 export function validateBundle(raw: unknown): DataBundle {
-  if (
-    typeof raw !== 'object' || raw === null ||
-    (raw as DataBundle).type !== 'botc-share-bundle' ||
-    typeof (raw as DataBundle).version !== 'number'
-  ) {
-    throw new Error('Not a valid BOTC bundle')
-  }
+  if (typeof raw !== 'object' || raw === null) throw new Error('Not a valid BOTC bundle')
+  const b = raw as Record<string, unknown>
+  if (b.type !== 'botc-share-bundle') throw new Error('Not a valid BOTC bundle')
+  if (typeof b.version !== 'number') throw new Error('Bundle missing version')
+
+  // Payload shape validation — reject structurally invalid fields
+  if (b.scripts !== undefined && b.scripts !== null && !isArrayOfObjects(b.scripts))
+    throw new Error('Bundle scripts field is invalid')
+  if (b.customCharacters !== undefined && b.customCharacters !== null && !isArrayOfObjects(b.customCharacters))
+    throw new Error('Bundle customCharacters field is invalid')
+  if (b.revisionOverrides !== undefined && b.revisionOverrides !== null && !isRecordOfStrings(b.revisionOverrides))
+    throw new Error('Bundle revisionOverrides field is invalid')
+  if (b.scriptMeta !== undefined && b.scriptMeta !== null &&
+    (typeof b.scriptMeta !== 'object' || Array.isArray(b.scriptMeta)))
+    throw new Error('Bundle scriptMeta field is invalid')
+
   return raw as DataBundle
 }
 
@@ -181,6 +201,9 @@ export function applyBundle(bundle: DataBundle, options: {
 }
 
 export async function readBundleFile(file: File): Promise<DataBundle> {
+  if (file.size > MAX_BUNDLE_FILE_SIZE) {
+    throw new Error(`Bundle file too large (${(file.size / 1_000_000).toFixed(1)} MB, max 10 MB)`)
+  }
   const text = await file.text()
   const raw = JSON.parse(text)
   return validateBundle(raw)
