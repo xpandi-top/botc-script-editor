@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Alert,
   Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle,
@@ -76,6 +76,9 @@ export function AnalyticsTab({ language, onLanguageChange, sharedRecords: shared
 
   // Records used for display: shared view overrides local
   const activeRecords = sharedRecords ?? records
+
+  // Invalidate cached share URL whenever the record set changes
+  useEffect(() => { setPrecomputedShareUrl('') }, [activeRecords])
 
   const refresh = useCallback(() => setRecords(readStorage().records), [])
 
@@ -160,8 +163,19 @@ export function AnalyticsTab({ language, onLanguageChange, sharedRecords: shared
     setShareUrlDialogOpen(true)
     if (precomputedShareUrl) return
     setShareUrlLoading(true)
-    // Strip savedDays (full game state) — not used by analytics view, but inflates URL
-    const shareRecords = activeRecords.map(({ savedDays: _sd, ...r }) => r)
+    // Whitelist only fields the analytics view actually reads — strips savedDays,
+    // timerDefaults, customTagPool, playerNamePool, survey fields, stCustomRules, etc.
+    const shareRecords = activeRecords.map((r) => ({
+      id: r.id,
+      winner: r.winner,
+      scriptSlug: r.scriptSlug,
+      scriptTitle: r.scriptTitle,
+      days: r.days,
+      durationMs: r.durationMs,
+      playerSummaries: r.playerSummaries,
+      // Only assignments sub-field is read; strip seatNames/seatNotes/demonBluffs/etc.
+      setup: r.setup ? { assignments: r.setup.assignments } : undefined,
+    }))
     encodeShareParam(shareRecords)
       .then((encoded) => {
         setPrecomputedShareUrl(buildShareUrl('ar', encoded))
