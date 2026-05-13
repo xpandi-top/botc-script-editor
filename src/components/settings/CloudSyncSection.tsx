@@ -3,7 +3,7 @@
  */
 import { useState } from 'react'
 import {
-  Alert, Box, Button, CircularProgress, Typography,
+  Alert, Box, Button, CircularProgress, Stack, Typography,
 } from '@mui/material'
 import CloudIcon from '@mui/icons-material/Cloud'
 import CloudOffIcon from '@mui/icons-material/CloudOff'
@@ -15,11 +15,13 @@ import {
   getRedirectUri,
 } from '../../lib/googleAuth'
 import type { Language } from '../../types'
+import { makeT } from '../../lib/t'
 
 export function CloudSyncSection({ cloud, language }: {
   cloud: CloudSyncState
   language: Language
 }) {
+  const t = makeT(language)
   const zh = language === 'zh'
   const [clientIdInput, setClientIdInput] = useState(() => getClientId())
   const [clientSecretInput, setClientSecretInput] = useState(() => getClientSecret())
@@ -38,7 +40,7 @@ export function CloudSyncSection({ cloud, language }: {
     <Box>
       <Typography variant="h5" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         {cloud.connected ? <CloudSyncIcon /> : <CloudOffIcon />}
-        {zh ? 'Google Drive 同步' : 'Google Drive Sync'}
+        {t('google_drive_sync')}
       </Typography>
 
       {/* Auth error */}
@@ -91,7 +93,7 @@ export function CloudSyncSection({ cloud, language }: {
             </Typography>
 
             <Typography variant="subtitle2" sx={{ mb: 0.5 }}>Client ID</Typography>
-            <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start', flexWrap: 'wrap', mb: 1 }}>
+            <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', mb: 1 }}>
               <Box
                 component="input"
                 placeholder="…apps.googleusercontent.com"
@@ -108,18 +110,18 @@ export function CloudSyncSection({ cloud, language }: {
               />
               <Button size="small" variant="outlined" disabled={!clientIdInput.trim()}
                 onClick={() => { saveClientId(clientIdInput); setClientIdSaved(true) }}>
-                {zh ? '保存' : 'Save'}
+                {t('save')}
               </Button>
               {hasClientId && (
                 <Button size="small" color="error" variant="outlined"
                   onClick={() => { clearClientId(); setClientIdInput(''); setClientIdSaved(false) }}>
-                  {zh ? '清除' : 'Clear'}
+                  {t('clear')}
                 </Button>
               )}
-            </Box>
+            </Stack>
 
             <Typography variant="subtitle2" sx={{ mb: 0.5 }}>Client Secret</Typography>
-            <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+            <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
               <Box
                 component="input"
                 type="password"
@@ -137,15 +139,15 @@ export function CloudSyncSection({ cloud, language }: {
               />
               <Button size="small" variant="outlined" disabled={!clientSecretInput.trim()}
                 onClick={() => { saveClientSecret(clientSecretInput); setClientIdSaved(true) }}>
-                {zh ? '保存' : 'Save'}
+                {t('save')}
               </Button>
               {getClientSecret() && (
                 <Button size="small" color="error" variant="outlined"
                   onClick={() => { clearClientSecret(); setClientSecretInput('') }}>
-                  {zh ? '清除' : 'Clear'}
+                  {t('clear')}
                 </Button>
               )}
-            </Box>
+            </Stack>
 
             {clientIdSaved && (
               <Typography variant="caption" color="success.main" sx={{ mt: 0.5, display: 'block' }}>
@@ -184,9 +186,9 @@ export function CloudSyncSection({ cloud, language }: {
             <Box sx={{ flex: 1 }}>
               <Typography variant="subtitle1" sx={{ fontWeight: 700, color: isError ? 'error.dark' : isBusy ? 'primary.dark' : 'success.dark' }}>
                 {isBusy
-                  ? (cloud.status === 'pulling' ? (zh ? '正在从 Drive 拉取…' : 'Pulling from Drive…') : (zh ? '正在推送到 Drive…' : 'Pushing to Drive…'))
-                  : isError ? (zh ? '同步失败' : 'Sync Failed')
-                  : (zh ? '已连接 Google Drive' : 'Connected to Google Drive')}
+                  ? (cloud.status === 'pulling' ? t('pulling_from_drive') : t('pushing_to_drive'))
+                  : isError ? t('sync_failed')
+                  : t('connected_google_drive')}
               </Typography>
               {cloud.userInfo && (
                 <Typography variant="body2" sx={{ fontWeight: 600, color: isError ? 'error.dark' : isBusy ? 'primary.dark' : 'success.dark' }}>
@@ -203,16 +205,16 @@ export function CloudSyncSection({ cloud, language }: {
             </Box>
           </Box>
 
-          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+          <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
             <Button variant="contained" size="small"
               startIcon={isBusy ? <CircularProgress size={14} color="inherit" /> : <CloudSyncIcon />}
               onClick={() => void cloud.syncNow()} disabled={isBusy}>
-              {zh ? '立即同步' : 'Sync Now'}
+              {t('sync_now')}
             </Button>
             <Button variant="outlined" size="small" color="error" startIcon={<CloudOffIcon />} onClick={cloud.disconnect}>
-              {zh ? '断开连接' : 'Disconnect'}
+              {t('disconnect')}
             </Button>
-          </Box>
+          </Stack>
 
           <Typography variant="caption" color="text.secondary" sx={{ maxWidth: 480 }}>
             {zh
@@ -231,7 +233,7 @@ export function CloudSyncSection({ cloud, language }: {
             onClick={() => void cloud.connect()}
             disabled={!isPreConfigured && (!hasClientId || !getClientSecret())}
             sx={{ alignSelf: 'flex-start' }}>
-            {zh ? '连接 Google Drive' : 'Connect Google Drive'}
+            {t('connect_google_drive')}
           </Button>
           {!isPreConfigured && (!hasClientId || !getClientSecret()) && (
             <Typography variant="caption" color="text.secondary">
