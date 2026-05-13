@@ -124,7 +124,9 @@
     "import_to_my_records": "导入到我的记录",
     "no_new_records": "无新记录（ID重复）",
     "new_custom_char": "新建自定义角色",
-    "team_label": "阵营"
+    "team_label": "阵营",
+    "theme_system": "系统",
+    "theme_system_sub": "跟随系统"
   },
   "characters": {
     "clockmaker": {

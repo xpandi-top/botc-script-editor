@@ -124,7 +124,9 @@
     "import_to_my_records": "Import to my records",
     "no_new_records": "No new records (duplicate IDs)",
     "new_custom_char": "New Custom Character",
-    "team_label": "Team"
+    "team_label": "Team",
+    "theme_system": "System",
+    "theme_system_sub": "Follow OS"
   },
   "characters": {
     "clockmaker": {

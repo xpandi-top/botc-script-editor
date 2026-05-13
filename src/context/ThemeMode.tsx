@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useMemo } from 'react'
+import React, { createContext, useContext, useState, useMemo, useEffect } from 'react'
 import { ThemeProvider } from '@mui/material/styles'
 import { makeTheme } from '../theme/makeTheme'
 import type { ThemeMode } from '../theme/makeTheme'
@@ -26,6 +26,15 @@ export function ThemeModeProvider({ children }: { children: React.ReactNode }) {
     }
   })
 
+  // Re-render when OS colour scheme changes while mode === 'system'
+  const [osTick, setOsTick] = useState(0)
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-color-scheme: dark)')
+    const handler = () => { if (mode === 'system') setOsTick((n) => n + 1) }
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [mode])
+
   const setMode = (m: ThemeMode) => {
     setModeState(m)
     try { localStorage.setItem('botc-theme-mode', m) } catch {}
@@ -33,7 +42,9 @@ export function ThemeModeProvider({ children }: { children: React.ReactNode }) {
 
   const toggleMode = () => setMode(mode === 'light' ? 'dark' : 'light')
 
-  const theme = useMemo(() => makeTheme(mode), [mode])
+  // osTick forces re-derive when OS pref changes while mode === 'system'
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const theme = useMemo(() => makeTheme(mode), [mode, osTick])
 
   return (
     <ThemeModeContext.Provider value={{ mode, setMode, toggleMode }}>

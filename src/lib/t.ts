@@ -39,7 +39,8 @@ export type UiKey =
   // Universal action verbs
   | 'save' | 'cancel' | 'close' | 'clear' | 'copy' | 'refresh' | 'exit' | 'upload'
   // Settings sections
-  | 'theme' | 'font_preview' | 'interface_size' | 'english_fonts' | 'chinese_font'
+  | 'theme' | 'theme_system' | 'theme_system_sub'
+  | 'font_preview' | 'interface_size' | 'english_fonts' | 'chinese_font'
   | 'backup_import' | 'export_everything' | 'import_bundle' | 'choose_json_file'
   | 'import_mode' | 'merge_keep_existing' | 'replace_overwrite'
   // Cloud sync

@@ -7,6 +7,7 @@ import {
 } from '@mui/material'
 import LightModeIcon from '@mui/icons-material/LightMode'
 import DarkModeIcon from '@mui/icons-material/DarkMode'
+import SettingsBrightnessIcon from '@mui/icons-material/SettingsBrightness'
 import DownloadIcon from '@mui/icons-material/Download'
 import UploadIcon from '@mui/icons-material/Upload'
 import type { FontSettings, UiScale } from '../../hooks/useFontSettings'
@@ -100,6 +101,13 @@ export function SettingsTab({ language, onLanguageChange, fontSettings, cloudSyn
             <Box sx={{ textAlign: 'left' }}>
               <Typography sx={{ fontSize: '0.9rem', fontWeight: 600, lineHeight: 1.2 }}>{zh ? '黑暗' : 'Dark'}</Typography>
               <Typography sx={{ fontSize: '0.65rem', opacity: 0.7 }}>{zh ? '血腥猩红' : 'Crimson'}</Typography>
+            </Box>
+          </ToggleButton>
+          <ToggleButton value="system" sx={{ px: 3, py: 1, gap: 1 }}>
+            <SettingsBrightnessIcon fontSize="small" />
+            <Box sx={{ textAlign: 'left' }}>
+              <Typography sx={{ fontSize: '0.9rem', fontWeight: 600, lineHeight: 1.2 }}>{t('theme_system')}</Typography>
+              <Typography sx={{ fontSize: '0.65rem', opacity: 0.7 }}>{t('theme_system_sub')}</Typography>
             </Box>
           </ToggleButton>
         </ToggleButtonGroup>

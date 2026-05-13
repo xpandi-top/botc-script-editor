@@ -10,10 +10,17 @@ const R = {
   xs:     4,
 } as const
 
-export type ThemeMode = 'light' | 'dark'
+export type ThemeMode = 'light' | 'dark' | 'system'
+
+/** Resolve 'system' to the actual light/dark preference. */
+export function resolveMode(mode: ThemeMode): 'light' | 'dark' {
+  if (mode !== 'system') return mode
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+}
 
 export function makeTheme(mode: ThemeMode) {
-  const isDark = mode === 'dark'
+  const resolved = resolveMode(mode)
+  const isDark = resolved === 'dark'
 
   const bg    = isDark ? DARK_BG    : BG
   const ink   = isDark ? DARK_INK   : INK
@@ -40,7 +47,7 @@ export function makeTheme(mode: ThemeMode) {
 
   return createTheme({
     palette: {
-      mode,
+      mode: resolved,
       primary,
       secondary,
       background: { default: bg.page, paper: bg.surface },
