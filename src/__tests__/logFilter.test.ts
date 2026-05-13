@@ -76,7 +76,7 @@ describe('buildAggregatedEntries', () => {
   it('vote detail contains actor, target, PASS/FAIL, voteCount/required', () => {
     const day = makeDay(1, { voteHistory: [makeVote('1001', 3, 5, false)] })
     const [entry] = buildAggregatedEntries([day])
-    expect(entry.detail).toContain('#3 → #5')
+    expect(entry.detail).toContain('#3 提名 #5')
     expect(entry.detail).toContain('失败')
   })
 
