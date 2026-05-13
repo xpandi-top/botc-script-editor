@@ -33,6 +33,12 @@ import type {
 import type { PrintOptions } from './PrintOptionsDialog'
 import { PADDING_MAP, FONT_CSS } from './PrintOptionsDialog'
 
+// Restrict DOMPurify to inline formatting only — no hrefs, no event attrs
+const PURIFY_OPTS: Parameters<typeof DOMPurify.sanitize>[1] = {
+  ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'u', 'br', 'span'],
+  ALLOWED_ATTR: [],
+}
+
 type SheetArticleProps = {
   activeScript: EditableScript
   activeScriptCharacters: ResolvedScriptCharacter[]
@@ -352,12 +358,12 @@ export function SheetArticle({
             <Box sx={{ flex: 1, minWidth: 80, display: 'flex', flexDirection: 'column', justifyContent: 'center', minHeight: iconSize }}>
               <Typography variant="body2"
                 sx={{ fontFamily: lang === 'zh' ? zhFont : enFont, lineHeight, mb: 0, color: 'text.primary', ...(fontSize && { fontSize }) }}
-                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(ability) }}
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(ability, PURIFY_OPTS) }}
               />
               {abilityAlt && abilityAlt !== ability && (
                 <Typography variant="body2"
                   sx={{ fontFamily: lang === 'zh' ? enFont : zhFont, lineHeight, mt: 0.25, mb: 0, color: 'text.primary', ...(fontSize && { fontSize }) }}
-                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(abilityAlt) }}
+                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(abilityAlt, PURIFY_OPTS) }}
                 />
               )}
             </Box>

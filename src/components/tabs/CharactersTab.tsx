@@ -7,6 +7,11 @@ import {
 import AddIcon from '@mui/icons-material/Add'
 import CloseIcon from '@mui/icons-material/Close'
 import DOMPurify from 'dompurify'
+
+const PURIFY_OPTS: Parameters<typeof DOMPurify.sanitize>[1] = {
+  ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'u', 'br', 'span'],
+  ALLOWED_ATTR: [],
+}
 import { CharacterRevisionPanel } from '../CharacterRevisionPanel'
 import { FilterCheckbox } from '../FilterCheckbox'
 import { NightOrderPicker } from '../NightOrderPicker'
@@ -267,7 +272,7 @@ export function CharactersTab({
                         {character.id} · {edition} · {currentRevision}
                       </Typography>
                       <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}
-                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(getAbilityText(character.id, uiLanguage)) }} />
+                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(getAbilityText(character.id, uiLanguage), PURIFY_OPTS) }} />
                     </Box>
                   </Button>
                 )

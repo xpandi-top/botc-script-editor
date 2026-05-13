@@ -211,7 +211,15 @@ export default function App() {
     decodeShareParam<GameRecord[]>(ar)
       .then((decoded) => {
         if (!Array.isArray(decoded)) throw new Error('Decoded data is not an array')
-        setSharedAnalyticsRecords(decoded)
+        // Shape-guard each record — reject malformed entries
+        const valid = decoded.filter(
+          (r): r is GameRecord =>
+            r !== null &&
+            typeof r === 'object' &&
+            typeof (r as GameRecord).id === 'string' &&
+            typeof (r as GameRecord).endedAt === 'number'
+        )
+        setSharedAnalyticsRecords(valid)
         sessionStorage.removeItem('BOTC_PENDING_AR')
       })
       .catch((e: unknown) => {

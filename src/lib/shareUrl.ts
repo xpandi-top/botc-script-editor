@@ -19,7 +19,14 @@ async function compress(text: string): Promise<Uint8Array> {
   return new Uint8Array(buf)
 }
 
+// Max compressed payload accepted (prevents zip-bomb DoS via ?ar= URL)
+const MAX_COMPRESSED_BYTES = 512_000   // 500 KB
+const MAX_DECOMPRESSED_BYTES = 5_000_000 // 5 MB
+
 async function decompress(bytes: Uint8Array): Promise<string> {
+  if (bytes.length > MAX_COMPRESSED_BYTES) {
+    throw new Error(`Share param too large (${bytes.length} bytes, max ${MAX_COMPRESSED_BYTES})`)
+  }
   if (typeof DecompressionStream === 'undefined') {
     return new TextDecoder().decode(bytes)
   }
@@ -29,7 +36,11 @@ async function decompress(bytes: Uint8Array): Promise<string> {
   const writer = stream.writable.getWriter()
   await writer.write(bytes as unknown as Uint8Array<ArrayBuffer>)
   await writer.close()
-  return resultPromise
+  const text = await resultPromise
+  if (text.length > MAX_DECOMPRESSED_BYTES) {
+    throw new Error(`Decompressed data too large (${text.length} chars, max ${MAX_DECOMPRESSED_BYTES})`)
+  }
+  return text
 }
 
 // ── Encode / decode ───────────────────────────────────────────────────────────
