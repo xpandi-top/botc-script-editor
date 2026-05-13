@@ -548,17 +548,19 @@ function loadCharacterCatalog() {
   }
 }
 
+// ── Shared script parsing helpers ────────────────────────────────────────────
+
 function inferEditionFromSlug(slug: string) {
-  if (slug === 'huadeng-shan-yu') {
-    return 'huadeng'
-  }
-
-  if (slug in editionLabels.en) {
-    return slug
-  }
-
+  if (slug === 'huadeng-shan-yu') return 'huadeng'
+  if (slug in editionLabels.en) return slug
   return 'custom'
 }
+
+const isScriptMetaEntry = (entry: ScriptFileEntry): entry is ScriptMetaEntry =>
+  typeof entry === 'object' && entry !== null && (entry as ScriptMetaEntry).id === '_meta'
+
+const isScriptCharacterItem = (entry: ScriptFileEntry): entry is ScriptCharacterItem =>
+  typeof entry === 'object' && entry !== null && (entry as ScriptMetaEntry).id !== '_meta'
 
 function loadScripts() {
   return Object.entries(scriptFiles)
@@ -566,14 +568,8 @@ function loadScripts() {
       const sourceFile = path.split('/').pop() ?? 'script.json'
       const fallbackSlug = sourceFile.replace('.json', '')
 
-      const isScriptMetaEntry = (entry: ScriptFileEntry): entry is ScriptMetaEntry =>
-        typeof entry === 'object' && entry !== null && entry.id === '_meta'
-
-      const isScriptCharacterItem = (entry: ScriptFileEntry): entry is ScriptCharacterItem =>
-        typeof entry === 'object' && entry !== null && entry.id !== '_meta'
-
       if (Array.isArray(data)) {
-        const meta = data.find(isScriptMetaEntry)
+        const meta = (data as ScriptFileEntry[]).find(isScriptMetaEntry)
         const normalizedMeta = meta
           ? {
               ...meta,
@@ -635,13 +631,8 @@ export function parseScriptFromData(data: unknown, filename: string): import('./
   const sourceFile = filename
   const fallbackSlug = filename.replace(/\.json$/i, '').replace(/\s+/g, '-').toLowerCase()
 
-  const isScriptMetaEntry = (entry: ScriptFileEntry): entry is ScriptMetaEntry =>
-    typeof entry === 'object' && entry !== null && (entry as any).id === '_meta'
-  const isScriptCharacterItem = (entry: ScriptFileEntry): entry is ScriptCharacterItem =>
-    typeof entry === 'object' && entry !== null && (entry as any).id !== '_meta'
-
   if (Array.isArray(data)) {
-    const meta = data.find(isScriptMetaEntry)
+    const meta = (data as ScriptFileEntry[]).find(isScriptMetaEntry)
     const normalizedMeta = meta
       ? {
           ...meta,
