@@ -9,6 +9,7 @@ import {
 import CloseIcon from '@mui/icons-material/Close'
 import type { DayState } from '../types'
 import { buildPlayerLogEntries, filterPlayerLogByCurrentPhase } from '../../../utils/playerLog'
+import { LogDetailText } from '../LogDetailText'
 
 interface PlayerNightLogProps {
   open: boolean
@@ -26,7 +27,7 @@ export function PlayerNightLog({ open, onClose, seat, days, language, isNight }:
   const seatLabel = seat.name ? `${seatNum}. ${seat.name}` : `#${seatNum}`
 
   // Night phase → show all (public + st-only); day phase → public only
-  const dayEntries = filterPlayerLogByCurrentPhase(buildPlayerLogEntries(days, seatNum), isNight)
+  const dayEntries = filterPlayerLogByCurrentPhase(buildPlayerLogEntries(days, seatNum, language as any), isNight)
 
   const kindColor = (kind: string) => {
     if (kind === 'vote') return 'primary'
@@ -89,9 +90,7 @@ export function PlayerNightLog({ open, onClose, seat, days, language, isNight }:
                         sx={{ fontSize: '0.65rem', height: 18, flexShrink: 0, mt: 0.1, '& .MuiChip-label': { px: 0.5 } }}
                       />
                     )}
-                    <Typography variant="body2" sx={{ fontSize: '0.82rem', wordBreak: 'break-word' }}>
-                      {e.text}
-                    </Typography>
+                    <LogDetailText detail={e.text} variant="body2" sx={{ fontSize: '0.82rem' }} />
                   </Box>
                 ))}
               </Box>

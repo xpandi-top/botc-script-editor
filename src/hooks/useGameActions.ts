@@ -2,6 +2,7 @@ import { createDefaultVoteDraft, createDefaultSkillDraft, buildVotingOrder } fro
 import type { DayState, EventLogEntry, PickerMode, SkillOverlayState, SkillRecord, StorytellerSeat, TimerDefaults, VoteRecord } from '../components/StorytellerSub/types'
 import type { Language } from '../types'
 import { logDetail, logPhrase } from '../utils/logI18n'
+import { getDisplayName } from '../catalog'
 
 interface ActionDeps {
   currentDay: DayState
@@ -46,19 +47,19 @@ export function buildGameActions(deps: ActionDeps) {
         if (oldSeat.isTraveler !== newSeat.isTraveler) updated = appendEvent(updated, 'stateChange', newSeat.isTraveler ? logDetail.seatTraveler(language, seatNumber) : logDetail.seatUntraveler(language, seatNumber))
         if (oldSeat.hasNoVote !== newSeat.hasNoVote) updated = appendEvent(updated, 'stateChange', newSeat.hasNoVote ? logDetail.seatNoVote(language, seatNumber) : logDetail.seatUnNoVote(language, seatNumber))
         if (oldSeat.characterId !== newSeat.characterId) {
-          const charName = (id: string | null) => id || '—'
+          const dn = (id: string | null) => id ? getDisplayName(id, language) : '—'
           if (oldSeat.characterId && newSeat.characterId) {
-            updated = appendEvent(updated, 'tagChange', `#${seatNumber}: ${charName(oldSeat.characterId)} → ${charName(newSeat.characterId)}`)
+            updated = appendEvent(updated, 'tagChange', `#${seatNumber} ${logPhrase(language, 'roleChanged')}: ${dn(oldSeat.characterId)} → ${dn(newSeat.characterId)}`)
           } else if (newSeat.characterId) {
-            updated = appendEvent(updated, 'tagChange', `#${seatNumber}: ${charName(newSeat.characterId)}`)
+            updated = appendEvent(updated, 'tagChange', `#${seatNumber} ${logPhrase(language, 'roleAssigned')}: ${dn(newSeat.characterId)}`)
           } else if (oldSeat.characterId) {
-            updated = appendEvent(updated, 'tagChange', `#${seatNumber}: ${charName(oldSeat.characterId)} ×`)
+            updated = appendEvent(updated, 'tagChange', `#${seatNumber} ${logPhrase(language, 'roleCleared')}: ${dn(oldSeat.characterId)}`)
           }
         }
         const added = newSeat.customTags.filter((t) => !oldSeat.customTags.includes(t))
         const removed = oldSeat.customTags.filter((t) => !newSeat.customTags.includes(t))
-        for (const t of added) updated = appendEvent(updated, 'tagChange', `#${seatNumber} +${t}`)
-        for (const t of removed) updated = appendEvent(updated, 'tagChange', `#${seatNumber} -${t}`)
+        for (const t of added) updated = appendEvent(updated, 'tagChange', `#${seatNumber} ${logPhrase(language, 'addTag')}: ${t}`)
+        for (const t of removed) updated = appendEvent(updated, 'tagChange', `#${seatNumber} ${logPhrase(language, 'removeTag')}: ${t}`)
         const oldStTags = oldSeat.stTags || []
         const newStTags = newSeat.stTags || []
         const addedStTags = newStTags.filter((t) => !oldStTags.includes(t))
@@ -73,8 +74,8 @@ export function buildGameActions(deps: ActionDeps) {
         const stTagDetail = (t: string, added: boolean) => {
           const { label, sourceCharId } = parseStTag(t)
           const verb = logPhrase(language, added ? 'addST' : 'removeST')
-          const iconPart = sourceCharId ? `[icon:${sourceCharId}]` : 'ST:'
-          return `#${seatNumber} ${verb}${iconPart}${label}`
+          const iconPart = sourceCharId ? `[icon:${sourceCharId}] ` : ''
+          return `#${seatNumber} ${verb}: ${iconPart}${label}`
         }
         for (const t of addedStTags) updated = appendEvent(updated, 'tagChange', stTagDetail(t, true))
         for (const t of removedStTags) updated = appendEvent(updated, 'tagChange', stTagDetail(t, false))
@@ -189,7 +190,8 @@ export function buildGameActions(deps: ActionDeps) {
     if (record && skillOverlay?.draft.actor) {
       const vis = skillOverlay.visibility ?? 'public'
       const sr: SkillRecord = { id: `${Date.now()}`, ...skillOverlay.draft, activatedDuringPhase: skillOverlay.phaseContext, visibility: vis }
-      updateCurrentDay((d) => appendEvent({ ...d, skillHistory: [sr, ...d.skillHistory] }, 'skill', `#${sr.actor} ${sr.roleId || '?'} (${logDetail.phase(language, sr.activatedDuringPhase)})`, vis))
+      const roleName = sr.roleId ? getDisplayName(sr.roleId, language) : '?'
+      updateCurrentDay((d) => appendEvent({ ...d, skillHistory: [sr, ...d.skillHistory] }, 'skill', `#${sr.actor} ${roleName} — ${logDetail.phase(language, sr.activatedDuringPhase)}`, vis))
     }
     const wasRunning = skillOverlay?.wasTimerRunning ?? false
     setSkillOverlay(null)

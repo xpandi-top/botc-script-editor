@@ -20,6 +20,7 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import { getDisplayName, getIconForCharacter, getAbilityText, allCharacters, characterById } from '../../../catalog'
 import { buildPlayerLogEntries, filterPlayerLogByCurrentPhase } from '../../../utils/playerLog'
 import { logPhrase } from '../../../utils/logI18n'
+import { LogDetailText } from '../LogDetailText'
 
 const TRAVELER_CHAR_IDS = allCharacters.filter((c) => c.team === 'traveler').map((c) => c.id)
 
@@ -161,8 +162,8 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
   }, [skillType, knowResult, knowChars, knowInfo, changeTo, changeToChar, csSubtype, tagInput, removeTagVal])
 
   const logDays = useMemo(
-    () => filterPlayerLogByCurrentPhase(buildPlayerLogEntries(days || [currentDay], seat?.seat), isNight),
-    [days, currentDay, seat?.seat, isNight],
+    () => filterPlayerLogByCurrentPhase(buildPlayerLogEntries(days || [currentDay], seat?.seat, language), isNight),
+    [days, currentDay, seat?.seat, isNight, language],
   )
 
   // ── Conditional return after all hooks ──
@@ -289,7 +290,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
       targets: targetArr,
       roleId: actualCharId || '',
       targetNotes: {},
-      statement: detail,
+      statement: action,
       note: skillNote.trim(),
       result: isSuccess ? 'success' as const : 'failure' as const,
       activatedDuringPhase: currentDay?.phase ?? 'night',
@@ -950,7 +951,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
                           <DeleteIcon sx={{ fontSize: 14 }} />
                         </IconButton>
                       </Box>
-                      <Typography variant="body2" sx={{ wordBreak: 'break-word', fontSize: '0.82rem', color: e.visibility === 'st-only' ? stText : 'text.primary' }}>{e.text}</Typography>
+                      <LogDetailText detail={e.text} variant="body2" sx={{ fontSize: '0.82rem', color: e.visibility === 'st-only' ? stText : 'text.primary' }} />
                     </Box>
                   )}
                 </Box>

@@ -16,46 +16,51 @@ import type { Language } from '../types'
 
 const PHRASES: Record<string, { en: string; zh: string }> = {
   // Seat state changes
-  alive:            { en: 'revived',           zh: '复活'       },
-  dead:             { en: 'died',              zh: '死亡'       },
-  executed:         { en: '+executed',         zh: '+处决'      },
-  unexecuted:       { en: '-executed',         zh: '-处决'      },
-  traveler:         { en: '+traveler',         zh: '+旅行者'    },
-  untraveler:       { en: '-traveler',         zh: '-旅行者'    },
-  noVote:           { en: '+no-vote',          zh: '+无投票权'  },
-  unNoVote:         { en: '-no-vote',          zh: '-无投票权'  },
+  alive:            { en: 'revived',              zh: '复活'       },
+  dead:             { en: 'died',                 zh: '死亡'       },
+  executed:         { en: 'marked executed',      zh: '标记处决'   },
+  unexecuted:       { en: 'execution cleared',    zh: '取消处决'   },
+  traveler:         { en: 'became traveler',      zh: '设为旅行者' },
+  untraveler:       { en: 'traveler removed',     zh: '取消旅行者' },
+  noVote:           { en: 'lost vote token',      zh: '失去投票权' },
+  unNoVote:         { en: 'regained vote token',  zh: '恢复投票权' },
   // Nomination
-  nominationFailed: { en: 'Nomination failed', zh: '提名失败'   },
-  pass:             { en: 'PASS',              zh: '通过'       },
-  fail:             { en: 'FAIL',              zh: '失败'       },
+  nominationFailed: { en: 'Nomination failed',    zh: '提名失败'   },
+  nominated:        { en: 'nominated',            zh: '提名'       },
+  pass:             { en: 'passed',               zh: '通过'       },
+  fail:             { en: 'failed',               zh: '失败'       },
   // Skill result tags
-  success:          { en: '[success]',         zh: '[成功]'     },
-  failure:          { en: '[fail]',            zh: '[失败]'     },
+  success:          { en: '[success]',            zh: '[成功]'     },
+  failure:          { en: '[fail]',               zh: '[失败]'     },
   // Skill verb types
-  know:             { en: 'know',              zh: '得知'       },
-  guess:            { en: 'guess',             zh: '猜测'       },
-  change:           { en: 'change',            zh: '变身'       },
+  know:             { en: 'know',                 zh: '得知'       },
+  guess:            { en: 'guess',                zh: '猜测'       },
+  change:           { en: 'change',               zh: '改变'       },
   // Skill result content
-  good:             { en: 'Good',              zh: '善良'       },
-  evil:             { en: 'Evil',              zh: '邪恶'       },
-  sameTeam:         { en: 'same team',         zh: '同阵营'     },
-  diffTeam:         { en: 'diff team',         zh: '不同阵营'   },
-  sameType:         { en: 'same type',         zh: '同类型'     },
-  diffType:         { en: 'diff type',         zh: '不同类型'   },
-  true:             { en: 'True',              zh: '真'         },
-  false:            { en: 'False',             zh: '假'         },
-  charPrefix:       { en: 'char',              zh: '角色'       },
-  teamPrefix:       { en: 'team',              zh: '阵营'       },
+  good:             { en: 'Good',                 zh: '善良'       },
+  evil:             { en: 'Evil',                 zh: '邪恶'       },
+  sameTeam:         { en: 'same team',            zh: '同阵营'     },
+  diffTeam:         { en: 'diff team',            zh: '不同阵营'   },
+  sameType:         { en: 'same type',            zh: '同类型'     },
+  diffType:         { en: 'diff type',            zh: '不同类型'   },
+  true:             { en: 'True',                 zh: '真'         },
+  false:            { en: 'False',                zh: '假'         },
+  charPrefix:       { en: 'char',                 zh: '角色'       },
+  teamPrefix:       { en: 'team',                 zh: '阵营'       },
   // Tag add/remove verbs
-  addST:            { en: '+',                 zh: '添加'       },
-  removeST:         { en: '-',                 zh: '移除'       },
-  addTag:           { en: '+tag',              zh: '添加标签'   },
-  removeTag:        { en: '-tag',              zh: '移除标签'   },
+  addST:            { en: 'tagged',               zh: '添加标签'   },
+  removeST:         { en: 'tag removed',          zh: '移除标签'   },
+  addTag:           { en: 'tagged',               zh: '标签'       },
+  removeTag:        { en: 'tag removed',          zh: '移除标签'   },
+  // Role assignment
+  roleAssigned:     { en: 'role assigned',        zh: '分配角色'   },
+  roleChanged:      { en: 'role changed',         zh: '角色变更'   },
+  roleCleared:      { en: 'role cleared',         zh: '角色清除'   },
   // Phases
-  night:            { en: 'Night',             zh: '夜晚'       },
-  private:          { en: 'Private',           zh: '私聊'       },
-  public:           { en: 'Public',            zh: '公众议事'   },
-  nomination:       { en: 'Nomination',        zh: '提名'       },
+  night:            { en: 'Night',                zh: '夜晚'       },
+  private:          { en: 'Private',              zh: '私聊'       },
+  public:           { en: 'Public',               zh: '公众议事'   },
+  nomination:       { en: 'Nomination',           zh: '提名'       },
 }
 
 type LogKey = keyof typeof PHRASES
@@ -85,7 +90,7 @@ export const logDetail = {
     `${logPhrase(lang, 'nominationFailed')}: #${actor} → #${target}`,
 
   voteResult: (lang: Language, actor: number | string, target: number | string, passed: boolean, voteCount: number, required: number) =>
-    `#${actor} → #${target}: ${logPhrase(lang, passed ? 'pass' : 'fail')} (${voteCount}/${required})`,
+    `#${actor} ${logPhrase(lang, 'nominated')} #${target} — ${logPhrase(lang, passed ? 'pass' : 'fail')} (${voteCount}/${required})`,
 
   /** `[success]` or `[fail]` tag embedded in skill statement */
   skillResultTag: (lang: Language, isSuccess: boolean) =>

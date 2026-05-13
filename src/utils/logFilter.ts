@@ -36,7 +36,10 @@ export function buildAggregatedEntries(days: DayState[], language: Language = 'z
         .join(' ')
       const roleName = s.roleId ? getDisplayName(s.roleId, language) : '?'
       const resultLabel = logDetail.skillResultLabel(language, s.result ?? null)
-      const detail = `#${s.actor} ${roleName}${s.targets?.length ? ` → [${s.targets.map((t: number) => `#${t}`).join(', ')}]` : ''}${s.statement ? ` "${s.statement}"` : ''}${resultLabel ? ` ${resultLabel}` : ''}${tNotes ? ` | ${tNotes}` : ''}${s.note ? ` · ${s.note}` : ''}`
+      const targetStr = s.targets?.length
+        ? s.targets.length === 1 ? ` → #${s.targets[0]}` : ` → [${s.targets.map((t: number) => `#${t}`).join(', ')}]`
+        : ''
+      const detail = `#${s.actor} ${roleName}${targetStr}${s.statement ? ` · ${s.statement}` : ''}${resultLabel ? ` ${resultLabel}` : ''}${tNotes ? ` | ${tNotes}` : ''}${s.note ? ` · ${s.note}` : ''}`
       entries.push({
         id: `s-${day.day}-${s.id}`,
         day: day.day,

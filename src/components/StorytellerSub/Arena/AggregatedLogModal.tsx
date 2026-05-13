@@ -61,10 +61,11 @@ function buildShareText(
     // Skills (st-only visibility)
     if (typeFilters.has('skill') && (visFilter === 'all' || visFilter === 'st-only')) {
       for (const s of day.skillHistory ?? []) {
-        const targetStr = (s.targets || []).length > 0 ? ` → [${(s.targets as number[]).map((t: number) => `#${t}`).join(', ')}]` : ''
+        const targets: number[] = s.targets || []
+        const targetStr = targets.length === 1 ? ` → #${targets[0]}` : targets.length > 1 ? ` → [${targets.map((t: number) => `#${t}`).join(', ')}]` : ''
         const roleName = s.roleId ? getDisplayName(s.roleId, language) : ''
         const resultLabel = logDetail.skillResultLabel(language, s.result ?? null)
-        const detail = `#${s.actor} ${roleName}${targetStr}${s.statement ? ` "${stripIconTokens(s.statement)}"` : ''}${resultLabel ? ` ${resultLabel}` : ''}`
+        const detail = `#${s.actor} ${roleName}${targetStr}${s.statement ? ` · ${stripIconTokens(s.statement)}` : ''}${resultLabel ? ` ${resultLabel}` : ''}`
         lines.push(`[${text.filterSkill}] ${detail}`)
       }
     }
