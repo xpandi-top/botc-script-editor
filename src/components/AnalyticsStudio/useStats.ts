@@ -243,7 +243,7 @@ export function useCharStats(records: GameRecord[], language: Language): CharSta
   return useMemo(() => {
     const map = new Map<string, {
       charId: string; total: number; wins: number
-      evilGames: number; goodGames: number
+      evilGames: number; goodGames: number; evilWins: number; goodWins: number
       players: Map<string, number>
       scripts: Set<string>
       bluffCount: number
@@ -258,7 +258,7 @@ export function useCharStats(records: GameRecord[], language: Language): CharSta
       for (const bluffId of (r.setup.demonBluffs ?? [])) {
         if (!assignedChars.has(bluffId)) {
           const be = map.get(bluffId) ?? {
-            charId: bluffId, total: 0, wins: 0, evilGames: 0, goodGames: 0,
+            charId: bluffId, total: 0, wins: 0, evilGames: 0, goodGames: 0, evilWins: 0, goodWins: 0,
             players: new Map(), scripts: new Set(), bluffCount: 0,
           }
           be.bluffCount++
@@ -278,14 +278,15 @@ export function useCharStats(records: GameRecord[], language: Language): CharSta
 
       for (const [charId, { team, playerName }] of perGame) {
         const entry = map.get(charId) ?? {
-          charId, total: 0, wins: 0, evilGames: 0, goodGames: 0,
+          charId, total: 0, wins: 0, evilGames: 0, goodGames: 0, evilWins: 0, goodWins: 0,
           players: new Map(), scripts: new Set(), bluffCount: 0,
         }
         entry.total++
         entry.scripts.add(scriptKey)
-        if (team === 'evil') entry.evilGames++
-        else if (team === 'good') entry.goodGames++
-        if ((team === 'evil' && r.winner === 'evil') || (team === 'good' && r.winner === 'good')) entry.wins++
+        const won = (team === 'evil' && r.winner === 'evil') || (team === 'good' && r.winner === 'good')
+        if (team === 'evil') { entry.evilGames++; if (won) entry.evilWins++ }
+        else if (team === 'good') { entry.goodGames++; if (won) entry.goodWins++ }
+        if (won) entry.wins++
         if (playerName) entry.players.set(playerName, (entry.players.get(playerName) ?? 0) + 1)
         map.set(charId, entry)
       }
@@ -298,8 +299,8 @@ export function useCharStats(records: GameRecord[], language: Language): CharSta
         const topPlayer = c.players.size
           ? [...c.players.entries()].sort((a, b) => b[1] - a[1])[0][0]
           : null
-        const evilWinRate = c.evilGames ? Math.round((c.wins / c.total) * 100) : null
-        const goodWinRate = c.goodGames ? Math.round((c.wins / c.total) * 100) : null
+        const evilWinRate = c.evilGames ? Math.round((c.evilWins / c.evilGames) * 100) : null
+        const goodWinRate = c.goodGames ? Math.round((c.goodWins / c.goodGames) * 100) : null
         return {
           ...c,
           topPlayer,
