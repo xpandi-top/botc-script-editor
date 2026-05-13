@@ -77,7 +77,7 @@ describe('buildAggregatedEntries', () => {
     const day = makeDay(1, { voteHistory: [makeVote('1001', 3, 5, false)] })
     const [entry] = buildAggregatedEntries([day])
     expect(entry.detail).toContain('#3 → #5')
-    expect(entry.detail).toContain('FAIL')
+    expect(entry.detail).toContain('失败')
   })
 
   it('vote detail lists voters in brackets', () => {
