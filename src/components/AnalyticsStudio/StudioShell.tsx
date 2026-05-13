@@ -30,7 +30,7 @@ type StudioTab = typeof TABS[number]
 export function StudioShell({ records, onRecordsChange, language, onCreateRecord, onEditRecord }: Props) {
   const zh = language === 'zh'
   const [activeTab, setActiveTab] = useState<StudioTab>('overview')
-  const { filter, setFilter, filtered, activeCount, resetFilter, allScriptOptions } = useAnalyticsFilter(records)
+  const { filter, setFilter, filtered, activeCount, resetFilter, allScriptOptions, allPlayerOptions } = useAnalyticsFilter(records)
 
   const kpi = useKpiSummary(filtered)
   const scriptStats = useScriptStats(filtered)
@@ -55,6 +55,7 @@ export function StudioShell({ records, onRecordsChange, language, onCreateRecord
         resetFilter={resetFilter}
         activeCount={activeCount}
         scriptOptions={allScriptOptions}
+        playerOptions={allPlayerOptions}
         language={language}
       />
 

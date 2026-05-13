@@ -10,10 +10,11 @@ interface Props {
   resetFilter: () => void
   activeCount: number
   scriptOptions: Array<{ key: string; label: string }>
+  playerOptions: string[]
   language: Language
 }
 
-export function StudioFilterBar({ filter, setFilter, resetFilter, activeCount, scriptOptions, language }: Props) {
+export function StudioFilterBar({ filter, setFilter, resetFilter, activeCount, scriptOptions, playerOptions, language }: Props) {
   const zh = language === 'zh'
 
   return (
@@ -87,6 +88,33 @@ export function StudioFilterBar({ filter, setFilter, resetFilter, activeCount, s
         <ToggleButton value="storyteller" sx={{ color: 'info.main' }}>ST</ToggleButton>
       </ToggleButtonGroup>
 
+      {/* Player filter */}
+      {playerOptions.length > 0 && (
+        <FormControl size="small" sx={{ minWidth: 120, maxWidth: 200 }}>
+          <InputLabel sx={{ fontSize: '0.8rem' }}>{zh ? '玩家' : 'Player'}</InputLabel>
+          <Select
+            multiple
+            value={filter.playerNames}
+            onChange={(e) => setFilter((f) => ({ ...f, playerNames: e.target.value as string[] }))}
+            input={<OutlinedInput label={zh ? '玩家' : 'Player'} />}
+            renderValue={(selected) =>
+              selected.length === 0
+                ? ''
+                : selected.length === 1
+                  ? selected[0]
+                  : `${selected.length} ${zh ? '位玩家' : 'players'}`
+            }
+            sx={{ fontSize: '0.8rem', '& .MuiSelect-select': { py: '4px' } }}
+          >
+            {playerOptions.map((name) => (
+              <MenuItem key={name} value={name} sx={{ fontSize: '0.85rem' }}>
+                {name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      )}
+
       <Box sx={{ flex: 1 }} />
 
       {/* Active filter chips */}
@@ -111,6 +139,14 @@ export function StudioFilterBar({ filter, setFilter, resetFilter, activeCount, s
           size="small"
           label={filter.winners.join(' / ')}
           onDelete={() => setFilter((f) => ({ ...f, winners: [] }))}
+          sx={{ fontSize: '0.7rem', height: 22 }}
+        />
+      )}
+      {filter.playerNames.length > 0 && (
+        <Chip
+          size="small"
+          label={filter.playerNames.length === 1 ? filter.playerNames[0] : `${filter.playerNames.length} ${zh ? '玩家' : 'players'}`}
+          onDelete={() => setFilter((f) => ({ ...f, playerNames: [] }))}
           sx={{ fontSize: '0.7rem', height: 22 }}
         />
       )}

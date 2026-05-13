@@ -6,6 +6,7 @@ export type FilterState = {
   dateFrom: string        // YYYY-MM-DD or ''
   dateTo: string          // YYYY-MM-DD or ''
   winners: Array<'evil' | 'good' | 'storyteller'>  // empty = all
+  playerNames: string[]   // empty = all; filter games where ANY listed player participated
 }
 
 export const FILTER_DEFAULTS: FilterState = {
@@ -13,6 +14,7 @@ export const FILTER_DEFAULTS: FilterState = {
   dateFrom: '',
   dateTo: '',
   winners: [],
+  playerNames: [],
 }
 
 export function useAnalyticsFilter(records: GameRecord[]) {
@@ -39,6 +41,12 @@ export function useAnalyticsFilter(records: GameRecord[]) {
       const wSet = new Set(filter.winners)
       list = list.filter((r) => r.winner && wSet.has(r.winner))
     }
+    if (filter.playerNames.length > 0) {
+      const pSet = new Set(filter.playerNames)
+      list = list.filter((r) =>
+        r.playerSummaries?.some((ps) => ps.name && pSet.has(ps.name))
+      )
+    }
     return list
   }, [records, filter])
 
@@ -46,7 +54,8 @@ export function useAnalyticsFilter(records: GameRecord[]) {
     filter.scriptSlugs.length +
     (filter.dateFrom ? 1 : 0) +
     (filter.dateTo ? 1 : 0) +
-    filter.winners.length
+    filter.winners.length +
+    filter.playerNames.length
 
   const resetFilter = () => setFilter(FILTER_DEFAULTS)
 
@@ -60,5 +69,16 @@ export function useAnalyticsFilter(records: GameRecord[]) {
     return Array.from(seen.entries()).map(([key, label]) => ({ key, label }))
   }, [records])
 
-  return { filter, setFilter, filtered, activeCount, resetFilter, allScriptOptions }
+  // All unique player names from records
+  const allPlayerOptions = useMemo(() => {
+    const seen = new Set<string>()
+    for (const r of records) {
+      for (const ps of r.playerSummaries ?? []) {
+        if (ps.name) seen.add(ps.name)
+      }
+    }
+    return Array.from(seen).sort()
+  }, [records])
+
+  return { filter, setFilter, filtered, activeCount, resetFilter, allScriptOptions, allPlayerOptions }
 }
