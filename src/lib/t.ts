@@ -51,6 +51,8 @@ export type UiKey =
   | 'import_to_my_records' | 'no_new_records'
   // Characters
   | 'new_custom_char' | 'team_label'
+  // Storyteller settings
+  | 'storyteller_settings' | 'default_st_name' | 'default_st_name_help'
 
 /**
  * Returns a `t(key)` function bound to the given language.

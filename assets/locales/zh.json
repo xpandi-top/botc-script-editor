@@ -126,7 +126,10 @@
     "new_custom_char": "新建自定义角色",
     "team_label": "阵营",
     "theme_system": "系统",
-    "theme_system_sub": "跟随系统"
+    "theme_system_sub": "跟随系统",
+    "storyteller_settings": "故事讲述者",
+    "default_st_name": "默认故事讲述者名称",
+    "default_st_name_help": "在开始新会话时自动填入你的名字。"
   },
   "characters": {
     "clockmaker": {

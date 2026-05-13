@@ -7,7 +7,7 @@ import { useHistory } from '../../hooks/useHistory'
 import { buildGameActions } from '../../hooks/useGameActions'
 import { buildGameLifecycle } from '../../hooks/useGameLifecycle'
 import { loadInitialState } from './storage'
-import { makeEventId, STORAGE_KEY, RECORDS_CHANGED_EVENT, INITIAL_AUDIO_TRACKS } from './constants'
+import { makeEventId, STORAGE_KEY, RECORDS_CHANGED_EVENT, INITIAL_AUDIO_TRACKS, DEFAULT_ST_NAME_KEY } from './constants'
 import { storageSync } from '../../lib/storage'
 import { livingNonTravelers, eligibleVoters, nominationThreshold, exileThreshold } from '../../utils/seats'
 import { computeYesCount, computeVotePassed } from '../../utils/votes'
@@ -32,7 +32,10 @@ export function useStoryteller(props: StorytellerHelperProps) {
   const [playerNamePool, setPlayerNamePool] = useState<string[]>(initial.playerNamePool)
   const [stFabledIds, setStFabledIds] = useState<string[]>(initial.stFabledIds ?? [])
   const [stCustomRules, setStCustomRules] = useState<string>(initial.stCustomRules ?? '')
-  const [stName, setStName] = useState<string>(initial.stName ?? '')
+  const [stName, setStName] = useState<string>(() => {
+    if (initial.stName) return initial.stName
+    try { return localStorage.getItem(DEFAULT_ST_NAME_KEY) ?? '' } catch { return '' }
+  })
   const [gameStartedAt, setGameStartedAt] = useState<number | undefined>(initial.gameStartedAt)
 
   // ── Runtime state ──

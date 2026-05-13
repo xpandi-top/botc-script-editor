@@ -126,7 +126,10 @@
     "new_custom_char": "New Custom Character",
     "team_label": "Team",
     "theme_system": "System",
-    "theme_system_sub": "Follow OS"
+    "theme_system_sub": "Follow OS",
+    "storyteller_settings": "Storyteller",
+    "default_st_name": "Default Storyteller Name",
+    "default_st_name_help": "Pre-fills your name when starting a new session."
   },
   "characters": {
     "clockmaker": {
