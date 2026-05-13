@@ -174,6 +174,7 @@ export async function writeAllDriveFiles(
     customCharacters?: unknown
     revisionOverrides?: unknown
     scriptMeta?: unknown
+    gameRecords?: unknown
   },
   existingMetas?: Record<string, DriveFileMeta>,
 ): Promise<void> {
@@ -193,6 +194,7 @@ export async function writeAllDriveFiles(
   writeOne('botc-custom-characters.json', payload.customCharacters)
   writeOne('botc-revision-overrides.json', payload.revisionOverrides)
   writeOne('botc-script-meta.json', payload.scriptMeta)
+  writeOne('botc-game-records.json', payload.gameRecords)
 
   await Promise.all(writes)
 }

@@ -24,7 +24,7 @@ import {
   type DriveBundle,
 } from '../lib/driveSync'
 import { storageSync } from '../lib/storage'
-import { USER_SCRIPTS_KEY } from '../components/StorytellerSub/constants'
+import { USER_SCRIPTS_KEY, STORAGE_KEY } from '../components/StorytellerSub/constants'
 import { CUSTOM_CHARACTERS_KEY, REVISION_OVERRIDES_KEY } from '../catalog'
 
 export type SyncStatus = 'idle' | 'syncing' | 'error' | 'offline' | 'pulling' | 'pushing'
@@ -83,20 +83,33 @@ export function useCloudSync(): CloudSyncState {
     customCharacters: unknown
     revisionOverrides: unknown
     scriptMeta: unknown
-  } => ({
-    scripts: (() => {
-      try { return JSON.parse(storageSync.getItem(USER_SCRIPTS_KEY) ?? 'null') } catch { return null }
-    })(),
-    customCharacters: (() => {
-      try { return JSON.parse(localStorage.getItem(CUSTOM_CHARACTERS_KEY) ?? 'null') } catch { return null }
-    })(),
-    revisionOverrides: (() => {
-      try { return JSON.parse(localStorage.getItem(REVISION_OVERRIDES_KEY) ?? 'null') } catch { return null }
-    })(),
-    scriptMeta: (() => {
-      try { return JSON.parse(localStorage.getItem(SCRIPT_META_KEY_SYNC) ?? 'null') } catch { return null }
-    })(),
-  })
+    gameRecords: unknown
+  } => {
+    // Game records live inside the full storyteller state — extract just the array
+    const gameRecords = (() => {
+      try {
+        const raw = storageSync.getItem(STORAGE_KEY)
+        if (!raw) return null
+        const parsed = JSON.parse(raw) as { gameRecords?: unknown }
+        return parsed.gameRecords ?? null
+      } catch { return null }
+    })()
+    return {
+      scripts: (() => {
+        try { return JSON.parse(storageSync.getItem(USER_SCRIPTS_KEY) ?? 'null') } catch { return null }
+      })(),
+      customCharacters: (() => {
+        try { return JSON.parse(localStorage.getItem(CUSTOM_CHARACTERS_KEY) ?? 'null') } catch { return null }
+      })(),
+      revisionOverrides: (() => {
+        try { return JSON.parse(localStorage.getItem(REVISION_OVERRIDES_KEY) ?? 'null') } catch { return null }
+      })(),
+      scriptMeta: (() => {
+        try { return JSON.parse(localStorage.getItem(SCRIPT_META_KEY_SYNC) ?? 'null') } catch { return null }
+      })(),
+      gameRecords,
+    }
+  }
 
   // ── Write Drive data to localStorage ──────────────────────────────────────
 
@@ -109,6 +122,14 @@ export function useCloudSync(): CloudSyncState {
       try { localStorage.setItem(REVISION_OVERRIDES_KEY, JSON.stringify(bundle.revisionOverrides)) } catch {}
     if (bundle.scriptMeta != null)
       try { localStorage.setItem(SCRIPT_META_KEY_SYNC, JSON.stringify(bundle.scriptMeta)) } catch {}
+    if (bundle.gameRecords != null) {
+      try {
+        // Merge into existing storyteller state — preserve active game, just replace gameRecords
+        const raw = storageSync.getItem(STORAGE_KEY)
+        const existing = raw ? (JSON.parse(raw) as Record<string, unknown>) : {}
+        storageSync.setItem(STORAGE_KEY, JSON.stringify({ ...existing, gameRecords: bundle.gameRecords }))
+      } catch {}
+    }
   }, [])
 
   // ── Core sync ─────────────────────────────────────────────────────────────

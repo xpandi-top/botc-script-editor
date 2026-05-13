@@ -65,7 +65,7 @@ import {
   teamOrder,
   toTitleCase,
 } from './catalog'
-import { STORAGE_KEY, USER_SCRIPTS_KEY } from './components/StorytellerSub/constants'
+import { STORAGE_KEY, USER_SCRIPTS_KEY, RECORDS_CHANGED_EVENT } from './components/StorytellerSub/constants'
 import { useCloudSync } from './hooks/useCloudSync'
 import { getClientId } from './lib/googleAuth'
 import type { SyncStatus } from './hooks/useCloudSync'
@@ -251,6 +251,13 @@ export default function App() {
     localStorage.setItem(CUSTOM_CHARACTERS_KEY, JSON.stringify(customChars))
     scheduleSync()
   }, [customChars, scheduleSync])
+
+  // Sync when game records change (written directly by Analytics/Storyteller, not via React state)
+  useEffect(() => {
+    const handler = () => scheduleSync()
+    window.addEventListener(RECORDS_CHANGED_EVENT, handler)
+    return () => window.removeEventListener(RECORDS_CHANGED_EVENT, handler)
+  }, [scheduleSync])
 
   const [characterQuery, setCharacterQuery] = useState('')
   const [selectedTeams, setSelectedTeams] = useState<Team[]>([])

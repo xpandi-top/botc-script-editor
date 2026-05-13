@@ -383,6 +383,20 @@ export function SettingsTab({ language, onLanguageChange, fontSettings, cloudSyn
           </Alert>
         )}
 
+        {/* ── Redirect URI — always show so user knows what to register ── */}
+        {!cloud.connected && (
+          <Box sx={{ mb: 2, p: 1.5, bgcolor: 'action.hover', borderRadius: 1.5, maxWidth: 520 }}>
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+              {zh
+                ? '在 Google Cloud Console → Authorized redirect URIs 中添加此地址：'
+                : 'Add this URI to Google Cloud Console → Authorized redirect URIs:'}
+            </Typography>
+            <Box component="code" sx={{ fontSize: '0.8rem', wordBreak: 'break-all', color: 'primary.main', fontWeight: 600 }}>
+              {getRedirectUri()}
+            </Box>
+          </Box>
+        )}
+
         {/* ── Credentials section (hidden when already connected) ── */}
         {!cloud.connected && (
           isPreConfigured ? (

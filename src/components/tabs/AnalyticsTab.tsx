@@ -1,6 +1,6 @@
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
-  Autocomplete,
+  Alert, Autocomplete,
   Box, Button, Chip, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle,
   Divider, FormControl, IconButton, InputLabel, Menu, MenuItem, Select, Tab, Tabs,
   TextField, ToggleButton, ToggleButtonGroup, Tooltip, Typography,
@@ -9,10 +9,12 @@ import AddIcon from '@mui/icons-material/Add'
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import FileDownloadIcon from '@mui/icons-material/FileDownload'
 import FileOpenIcon from '@mui/icons-material/FileOpen'
+import LinkIcon from '@mui/icons-material/Link'
 import PersonIcon from '@mui/icons-material/Person'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import RemoveIcon from '@mui/icons-material/Remove'
 import ShareIcon from '@mui/icons-material/Share'
+import { encodeShareParam, decodeShareParam, buildShareUrl } from '../../lib/shareUrl'
 import { allCharacters, getDisplayName, getIconForCharacter, initialScripts } from '../../catalog'
 import { STORAGE_KEY, RECORDS_CHANGED_EVENT } from '../StorytellerSub/constants'
 import { storageSync } from '../../lib/storage'
@@ -516,7 +518,29 @@ export function AnalyticsTab({ language, onLanguageChange }: { language: Languag
   const [sharing, setSharing] = useState(false)
   const [exportMenuAnchor, setExportMenuAnchor] = useState<null | HTMLElement>(null)
   const [shareMenuAnchor, setShareMenuAnchor] = useState<null | HTMLElement>(null)
+  const [linkCopied, setLinkCopied] = useState(false)
+  // Shared-view: records decoded from ?ar= URL param (read-only, not the user's own data)
+  const [sharedRecords, setSharedRecords] = useState<GameRecord[] | null>(null)
   const statsRef = useRef<HTMLDivElement>(null)
+
+  // Decode ?ar= param on mount → enter shared view
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const ar = params.get('ar')
+    if (!ar) return
+    decodeShareParam<GameRecord[]>(ar)
+      .then((decoded) => {
+        setSharedRecords(Array.isArray(decoded) ? decoded : [])
+        // Clean URL without reloading
+        const clean = new URL(window.location.href)
+        clean.searchParams.delete('ar')
+        window.history.replaceState({}, '', clean.toString())
+      })
+      .catch(() => { /* malformed param — ignore */ })
+  }, [])
+
+  // Records used for display: shared view overrides local
+  const activeRecords = sharedRecords ?? records
 
   const refresh = useCallback(() => setRecords(readStorage().records), [])
 
@@ -596,6 +620,18 @@ export function AnalyticsTab({ language, onLanguageChange }: { language: Languag
     exportGameFile(csv, `botc-stats-${new Date().toISOString().slice(0, 10)}.csv`)
   }
 
+  const copyShareLink = async () => {
+    try {
+      const encoded = await encodeShareParam(records)
+      const url = buildShareUrl('ar', encoded, 'analytics')
+      await navigator.clipboard.writeText(url)
+      setLinkCopied(true)
+      setTimeout(() => setLinkCopied(false), 3000)
+    } catch (e) {
+      console.error('Share link failed', e)
+    }
+  }
+
   const shareAnalysisImage = async (format: 'pdf' | 'png') => {
     if (!statsRef.current) return
     setSharing(true)
@@ -654,7 +690,7 @@ export function AnalyticsTab({ language, onLanguageChange }: { language: Languag
 
   const scriptStats = useMemo(() => {
     const map = new Map<string, { title: string; total: number; evil: number; good: number; totalDays: number; totalVotes: number; totalVotePassed: number; totalDurationMs: number; durationCount: number }>()
-    for (const r of records) {
+    for (const r of activeRecords) {
       const key = r.scriptSlug || r.scriptTitle || 'unknown'
       const entry = map.get(key) ?? { title: r.scriptTitle || r.scriptSlug || '?', total: 0, evil: 0, good: 0, totalDays: 0, totalVotes: 0, totalVotePassed: 0, totalDurationMs: 0, durationCount: 0 }
       entry.total++
@@ -673,11 +709,11 @@ export function AnalyticsTab({ language, onLanguageChange }: { language: Languag
       votePassRate: s.totalVotes ? Math.round((s.totalVotePassed / s.totalVotes) * 100) : null,
       avgDurationMin: s.durationCount ? Math.round(s.totalDurationMs / s.durationCount / 60000) : null,
     }))
-  }, [records])
+  }, [activeRecords])
 
   const playerStats = useMemo(() => {
     const map = new Map<string, { name: string; total: number; evilGames: number; goodGames: number; wins: number; evilWins: number; goodWins: number; chars: Map<string, number> }>()
-    for (const r of records) {
+    for (const r of activeRecords) {
       if (!r.playerSummaries) continue
       const seenNames = new Set<string>()
       for (const ps of r.playerSummaries) {
@@ -703,11 +739,11 @@ export function AnalyticsTab({ language, onLanguageChange }: { language: Languag
         goodWinRate: p.goodGames ? Math.round((p.goodWins / p.goodGames) * 100) : null,
       }
     })
-  }, [records])
+  }, [activeRecords])
 
   const charStats = useMemo(() => {
     const map = new Map<string, { charId: string; total: number; wins: number; evilGames: number; goodGames: number; players: Map<string, number> }>()
-    for (const r of records) {
+    for (const r of activeRecords) {
       if (!r.setup?.assignments || !r.playerSummaries) continue
       const perGame = new Map<string, { team: 'evil' | 'good' | null; playerName: string }>()
       for (const ps of r.playerSummaries) {
@@ -736,7 +772,7 @@ export function AnalyticsTab({ language, onLanguageChange }: { language: Languag
         topPlayer,
       }
     })
-  }, [records])
+  }, [activeRecords])
 
   return (
     <Box sx={{ p: { xs: 1.5, sm: 2 }, maxWidth: 1100, mx: 'auto' }}>
@@ -795,6 +831,11 @@ export function AnalyticsTab({ language, onLanguageChange }: { language: Languag
           <ArrowDropDownIcon fontSize="small" />
         </IconButton>
         <Menu anchorEl={shareMenuAnchor} open={Boolean(shareMenuAnchor)} onClose={() => setShareMenuAnchor(null)}>
+          <MenuItem onClick={() => { void copyShareLink(); setShareMenuAnchor(null) }}>
+            <LinkIcon fontSize="small" sx={{ mr: 1 }} />
+            {linkCopied ? (zh ? '链接已复制！' : 'Link copied!') : (zh ? '复制分享链接（互动查看）' : 'Copy share link (interactive)')}
+          </MenuItem>
+          <Divider />
           <MenuItem onClick={() => { shareAnalysisImage('png'); setShareMenuAnchor(null) }}>
             {zh ? '分享为 PNG 图片' : 'Share as PNG'}
           </MenuItem>
@@ -817,11 +858,39 @@ export function AnalyticsTab({ language, onLanguageChange }: { language: Languag
         </Typography>
       )}
 
+      {/* ── Shared-view banner ── */}
+      {sharedRecords && (
+        <Alert
+          severity="info"
+          sx={{ mb: 2 }}
+          action={
+            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+              <Button size="small" color="inherit" variant="outlined"
+                onClick={() => {
+                  const existingIds = new Set(records.map((r) => r.id))
+                  const newOnes = sharedRecords.filter((r) => !existingIds.has(r.id))
+                  saveAndSet([...newOnes, ...records])
+                  setSharedRecords(null)
+                }}>
+                {zh ? '导入到我的记录' : 'Import to my records'}
+              </Button>
+              <Button size="small" color="inherit" onClick={() => setSharedRecords(null)}>
+                {zh ? '退出' : 'Exit'}
+              </Button>
+            </Box>
+          }
+        >
+          {zh
+            ? `正在查看分享的数据（${sharedRecords.length} 场游戏）。此为只读视图，不影响你的本地记录。`
+            : `Viewing ${sharedRecords.length} shared game record${sharedRecords.length !== 1 ? 's' : ''}. Read-only — your own records are unaffected.`}
+        </Alert>
+      )}
+
       {/* ── Studio Shell ── */}
       <Box ref={statsRef}>
         <StudioShell
-          records={records}
-          onRecordsChange={saveAndSet}
+          records={activeRecords}
+          onRecordsChange={sharedRecords ? () => {} : saveAndSet}
           language={language}
           onCreateRecord={() => setShowCreate(true)}
           onEditRecord={(r) => setEditingRecord(r)}
