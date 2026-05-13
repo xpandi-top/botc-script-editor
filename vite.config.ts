@@ -5,6 +5,16 @@ import { VitePWA } from 'vite-plugin-pwa'
 export default defineConfig(({ command, mode }) => {
   const isNative = mode === 'native'
 
+  // Security warning: client_secret baked into bundle is visible in plain text.
+  // Acceptable for self-hosted instances; warn loudly for public builds.
+  if (command === 'build' && process.env.VITE_GOOGLE_CLIENT_SECRET) {
+    console.warn(
+      '\x1b[33m[security] VITE_GOOGLE_CLIENT_SECRET is set — it will be embedded in the ' +
+      'JS bundle in plain text. Anyone who downloads the built files can read it. ' +
+      'For public deployments, use a server-side OAuth proxy instead.\x1b[0m'
+    )
+  }
+
   return {
     test: {
       environment: 'jsdom',

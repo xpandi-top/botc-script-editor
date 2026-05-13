@@ -9,11 +9,25 @@
  *     (e.g. https://you.github.io/botc_webapp/ and http://localhost:5173/)
  *  4. Paste Client ID *and* Client Secret into Settings → Cloud Sync
  *
- * Note on client_secret in browser:
- *   Google's Web Application OAuth clients require client_secret even with PKCE.
- *   Storing it client-side is acceptable here because drive.appdata scope only
- *   exposes the app's own data — knowing the secret does not grant access to
- *   other users' files; OAuth consent is still required per-user.
+ * Security notes:
+ *
+ * client_secret in browser (B1/B2):
+ *   Google Web Application OAuth clients require client_secret for token exchange
+ *   even with PKCE. This is a known limitation of client-side-only OAuth.
+ *   Mitigations in this app:
+ *   - drive.appdata scope: knowing the secret doesn't expose other users' files;
+ *     per-user OAuth consent is still required.
+ *   - The secret is only useful for token exchanges on whitelisted redirect URIs.
+ *   - Ideal fix: route token exchange through a backend proxy (e.g. Cloudflare Worker)
+ *     so the browser never sees the secret.
+ *
+ * Tokens in localStorage (B3):
+ *   Both access_token and refresh_token are stored in localStorage so they
+ *   survive page reloads and Drive-triggered window.location.reload() calls.
+ *   sessionStorage would log users out on every reload — unacceptable UX.
+ *   Mitigations: tokens are scoped to drive.appdata only; refresh token is
+ *   revocable from Google Account settings. XSS on the origin is the primary
+ *   threat vector — keep dependencies audited.
  */
 
 export const CLIENT_ID_STORAGE_KEY = 'BOTC_GOOGLE_CLIENT_ID'
