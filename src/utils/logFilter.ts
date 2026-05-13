@@ -1,6 +1,7 @@
 import type { AggregatedLogEntry, LogFilterState, DayState } from '../components/StorytellerSub/types'
 import type { Language } from '../types'
 import { logDetail } from './logI18n'
+import { getDisplayName } from '../catalog'
 
 const PHASE_ORDER: Record<string, number> = { night: 0, private: 1, public: 2, nomination: 3 }
 
@@ -33,7 +34,9 @@ export function buildAggregatedEntries(days: DayState[], language: Language = 'z
         .filter(([, v]) => v)
         .map(([k, v]) => `#${k}:"${v}"`)
         .join(' ')
-      const detail = `#${s.actor} ${s.roleId || '?'}${s.targets?.length ? ` → [${s.targets.map((t: number) => `#${t}`).join(', ')}]` : ''}${s.statement ? ` "${s.statement}"` : ''}${s.result ? ` [${s.result}]` : ''}${tNotes ? ` | ${tNotes}` : ''}${s.note ? ` · ${s.note}` : ''}`
+      const roleName = s.roleId ? getDisplayName(s.roleId, language) : '?'
+      const resultLabel = logDetail.skillResultLabel(language, s.result ?? null)
+      const detail = `#${s.actor} ${roleName}${s.targets?.length ? ` → [${s.targets.map((t: number) => `#${t}`).join(', ')}]` : ''}${s.statement ? ` "${s.statement}"` : ''}${resultLabel ? ` ${resultLabel}` : ''}${tNotes ? ` | ${tNotes}` : ''}${s.note ? ` · ${s.note}` : ''}`
       entries.push({
         id: `s-${day.day}-${s.id}`,
         day: day.day,

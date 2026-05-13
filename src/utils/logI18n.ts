@@ -15,6 +15,7 @@ import type { Language } from '../types'
 // ── Phrase map ────────────────────────────────────────────────────────────────
 
 const PHRASES: Record<string, { en: string; zh: string }> = {
+  // Seat state changes
   alive:            { en: 'revived',           zh: '复活'       },
   dead:             { en: 'died',              zh: '死亡'       },
   executed:         { en: '+executed',         zh: '+处决'      },
@@ -23,10 +24,29 @@ const PHRASES: Record<string, { en: string; zh: string }> = {
   untraveler:       { en: '-traveler',         zh: '-旅行者'    },
   noVote:           { en: '+no-vote',          zh: '+无投票权'  },
   unNoVote:         { en: '-no-vote',          zh: '-无投票权'  },
+  // Nomination
   nominationFailed: { en: 'Nomination failed', zh: '提名失败'   },
   pass:             { en: 'PASS',              zh: '通过'       },
   fail:             { en: 'FAIL',              zh: '失败'       },
-  // phases
+  // Skill result tags
+  success:          { en: '[success]',         zh: '[成功]'     },
+  failure:          { en: '[fail]',            zh: '[失败]'     },
+  // Skill verb types
+  know:             { en: 'know',              zh: '得知'       },
+  guess:            { en: 'guess',             zh: '猜测'       },
+  change:           { en: 'change',            zh: '变身'       },
+  // Skill result content
+  good:             { en: 'Good',              zh: '善良'       },
+  evil:             { en: 'Evil',              zh: '邪恶'       },
+  sameTeam:         { en: 'same team',         zh: '同阵营'     },
+  diffTeam:         { en: 'diff team',         zh: '不同阵营'   },
+  sameType:         { en: 'same type',         zh: '同类型'     },
+  diffType:         { en: 'diff type',         zh: '不同类型'   },
+  true:             { en: 'True',              zh: '真'         },
+  false:            { en: 'False',             zh: '假'         },
+  charPrefix:       { en: 'char',              zh: '角色'       },
+  teamPrefix:       { en: 'team',              zh: '阵营'       },
+  // Phases
   night:            { en: 'Night',             zh: '夜晚'       },
   private:          { en: 'Private',           zh: '私聊'       },
   public:           { en: 'Public',            zh: '公众议事'   },
@@ -61,6 +81,14 @@ export const logDetail = {
 
   voteResult: (lang: Language, actor: number | string, target: number | string, passed: boolean, voteCount: number, required: number) =>
     `#${actor} → #${target}: ${logPhrase(lang, passed ? 'pass' : 'fail')} (${voteCount}/${required})`,
+
+  /** `[success]` or `[fail]` tag embedded in skill statement */
+  skillResultTag: (lang: Language, isSuccess: boolean) =>
+    logPhrase(lang, isSuccess ? 'success' : 'failure'),
+
+  /** Translate stored `SkillRecord.result` field ('success' | 'failure' | null) */
+  skillResultLabel: (lang: Language, result: string | null) =>
+    result ? logPhrase(lang, result as LogKey) : '',
 
   phase: (lang: Language, phase: string) => logPhrase(lang, phase as LogKey),
 }

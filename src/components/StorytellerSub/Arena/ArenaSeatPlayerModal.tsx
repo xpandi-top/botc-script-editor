@@ -19,6 +19,7 @@ import ListIcon from '@mui/icons-material/List'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import { getDisplayName, getIconForCharacter, getAbilityText, allCharacters, characterById } from '../../../catalog'
 import { buildPlayerLogEntries, filterPlayerLogByCurrentPhase } from '../../../utils/playerLog'
+import { logPhrase, logDetail as ld } from '../../../utils/logI18n'
 
 const TRAVELER_CHAR_IDS = allCharacters.filter((c) => c.team === 'traveler').map((c) => c.id)
 
@@ -218,28 +219,28 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
     const targetArr = Array.from(targets)
     const tLabels = targetArr.map((n) => `#${n}`).join(', ')
     const actorLabel = `#${seat.seat}${actualCharId ? ` (${getDisplayName(actualCharId, language)})` : ''}`
-    const successTag = isSuccess ? '[success]' : '[fail]'
+    const successTag = ld.skillResultTag(language, isSuccess)
 
     let action = ''
     if (skillType === 'know' || skillType === 'guess') {
-      const verb = skillType === 'know' ? 'know' : 'guess'
+      const verb = logPhrase(language, skillType === 'know' ? 'know' : 'guess')
       const resultStr =
         knowResult === 'characters' ? knowChars.map((c) => getDisplayName(c, language)).join(', ') :
         knowResult === 'demonBluffs' ? (currentDay?.demonBluffs ?? []).map((c: string) => getDisplayName(c, language)).join(', ') :
-        knowResult === 'team' ? (knowTeam === 'good' ? 'Good' : 'Evil') :
+        knowResult === 'team' ? logPhrase(language, knowTeam === 'good' ? 'good' : 'evil') :
         knowResult === 'type' ? knowType :
-        knowResult === 'sameTeam' ? 'same team' :
-        knowResult === 'diffTeam' ? 'different team' :
-        knowResult === 'sameType' ? 'same type' :
-        knowResult === 'diffType' ? 'different type' :
+        knowResult === 'sameTeam' ? logPhrase(language, 'sameTeam') :
+        knowResult === 'diffTeam' ? logPhrase(language, 'diffTeam') :
+        knowResult === 'sameType' ? logPhrase(language, 'sameType') :
+        knowResult === 'diffType' ? logPhrase(language, 'diffType') :
         knowResult === 'info' ? knowInfo :
-        knowResult === 'truefalse' ? (knowTrueFalse ? 'True' : 'False') : ''
+        knowResult === 'truefalse' ? logPhrase(language, knowTrueFalse ? 'true' : 'false') : ''
       action = `${verb}: ${tLabels} → ${resultStr}`
     } else if (skillType === 'change') {
       const toStr = changeTo === 'character'
-        ? `char:${changeToChar ? getDisplayName(changeToChar, language) : '?'}`
-        : `team:${changeToTeam === 'good' ? 'Good' : 'Evil'}`
-      action = `change: ${tLabels} → ${toStr}`
+        ? `${logPhrase(language, 'charPrefix')}:${changeToChar ? getDisplayName(changeToChar, language) : '?'}`
+        : `${logPhrase(language, 'teamPrefix')}:${logPhrase(language, changeToTeam === 'good' ? 'good' : 'evil')}`
+      action = `${logPhrase(language, 'change')}: ${tLabels} → ${toStr}`
     } else if (skillType === 'changeStatus') {
       const tagName = csSubtype === 'removeST' || csSubtype === 'removePublic'
         ? (removeTagVal.startsWith('📝') ? parseStTag(removeTagVal).label : removeTagVal)

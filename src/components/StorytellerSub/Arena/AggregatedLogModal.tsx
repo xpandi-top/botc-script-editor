@@ -4,6 +4,7 @@ import React, { useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { buildAggregatedEntries } from '../../../utils/logFilter'
 import { logDetail } from '../../../utils/logI18n'
+import { getDisplayName } from '../../../catalog'
 import {
   Accordion, AccordionDetails, AccordionSummary,
   Box, Button, Chip, Dialog, DialogContent, DialogTitle,
@@ -55,7 +56,9 @@ function buildShareText(
     if (typeFilters.has('skill') && (visFilter === 'all' || visFilter === 'st-only')) {
       for (const s of day.skillHistory ?? []) {
         const targetStr = (s.targets || []).length > 0 ? ` → [${(s.targets as number[]).map((t: number) => `#${t}`).join(', ')}]` : ''
-        const detail = `#${s.actor} ${s.roleId || ''}${targetStr}${s.statement ? ` "${s.statement}"` : ''}${s.result ? ` [${s.result}]` : ''}`
+        const roleName = s.roleId ? getDisplayName(s.roleId, language) : ''
+        const resultLabel = logDetail.skillResultLabel(language, s.result ?? null)
+        const detail = `#${s.actor} ${roleName}${targetStr}${s.statement ? ` "${s.statement}"` : ''}${resultLabel ? ` ${resultLabel}` : ''}`
         lines.push(`[${text.filterSkill}] ${detail}`)
       }
     }
