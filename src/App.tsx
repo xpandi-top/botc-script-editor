@@ -4,6 +4,7 @@ import {
   useState,
 } from 'react'
 import {
+  Badge,
   Box,
   BottomNavigation,
   BottomNavigationAction,
@@ -30,6 +31,7 @@ import PrintIcon from '@mui/icons-material/Print'
 import TuneIcon from '@mui/icons-material/Tune'
 import BugReportIcon from '@mui/icons-material/BugReport'
 import CloudDoneIcon from '@mui/icons-material/CloudDone'
+import CloudOffIcon from '@mui/icons-material/CloudOff'
 import CloudSyncIcon from '@mui/icons-material/CloudSync'
 import InfoIcon from '@mui/icons-material/Info'
 import SyncProblemIcon from '@mui/icons-material/SyncProblem'
@@ -65,6 +67,8 @@ import {
 } from './catalog'
 import { STORAGE_KEY, USER_SCRIPTS_KEY } from './components/StorytellerSub/constants'
 import { useCloudSync } from './hooks/useCloudSync'
+import { getClientId } from './lib/googleAuth'
+import type { SyncStatus } from './hooks/useCloudSync'
 
 const SCRIPT_META_KEY = 'BOTC_SCRIPT_META'
 
@@ -83,6 +87,89 @@ import type {
 import { useThemeMode } from './context/ThemeMode'
 
 type TabKey = 'scripts' | 'characters' | 'storyteller' | 'printstudio' | 'analytics' | 'settings'
+
+// ── Cloud sync header badge ────────────────────────────────────────────────────
+
+interface CloudSyncBadgeProps {
+  connected: boolean
+  status: SyncStatus
+  lastSynced: Date | null
+  errorMessage: string | null
+  language: Language
+  onPress: () => void
+}
+
+function CloudSyncBadge({ connected, status, lastSynced, errorMessage, language, onPress }: CloudSyncBadgeProps) {
+  const isZh = language === 'zh'
+  const isBusy = status === 'syncing' || status === 'pulling' || status === 'pushing'
+  const isError = status === 'error'
+  const isConfigured = !!getClientId()
+
+  let icon: React.ReactNode
+  let dotColor: string
+  let tooltipLines: string[]
+
+  if (!isConfigured) {
+    icon = <CloudOffIcon fontSize="small" sx={{ color: 'text.disabled' }} />
+    dotColor = 'transparent'
+    tooltipLines = [isZh ? '云同步未配置' : 'Cloud sync not configured', isZh ? '在设置中输入 Google Client ID' : 'Enter Google Client ID in Settings']
+  } else if (!connected) {
+    icon = <CloudOffIcon fontSize="small" sx={{ color: 'text.secondary' }} />
+    dotColor = 'grey.400'
+    tooltipLines = [isZh ? '未连接 Google Drive' : 'Not connected to Google Drive', isZh ? '点击前往设置' : 'Click to go to Settings']
+  } else if (isError) {
+    icon = <SyncProblemIcon fontSize="small" sx={{ color: 'error.main' }} />
+    dotColor = 'error.main'
+    tooltipLines = [
+      isZh ? '同步出错' : 'Sync error',
+      errorMessage ?? (isZh ? '未知错误' : 'Unknown error'),
+    ]
+  } else if (isBusy) {
+    icon = <CloudSyncIcon fontSize="small" sx={{ color: 'primary.main' }} />
+    dotColor = 'primary.main'
+    tooltipLines = [
+      status === 'pulling' ? (isZh ? '正在拉取数据…' : 'Pulling from Drive…')
+        : status === 'pushing' ? (isZh ? '正在推送数据…' : 'Pushing to Drive…')
+        : (isZh ? '正在同步…' : 'Syncing…'),
+    ]
+  } else {
+    // connected + idle
+    icon = <CloudDoneIcon fontSize="small" sx={{ color: 'success.main' }} />
+    dotColor = 'success.main'
+    tooltipLines = [
+      isZh ? '已连接 Google Drive' : 'Connected to Google Drive',
+      lastSynced
+        ? (isZh ? `上次同步: ${lastSynced.toLocaleTimeString()}` : `Last synced: ${lastSynced.toLocaleTimeString()}`)
+        : (isZh ? '尚未同步' : 'Not yet synced'),
+    ]
+  }
+
+  return (
+    <Tooltip title={<Box>{tooltipLines.map((l, i) => <div key={i}>{l}</div>)}</Box>}>
+      <IconButton size="small" onClick={onPress} sx={{ position: 'relative' }}>
+        <Badge
+          variant="dot"
+          sx={{
+            '& .MuiBadge-dot': {
+              bgcolor: dotColor,
+              boxShadow: '0 0 0 1.5px var(--Paper-overlay, #fff)',
+            },
+          }}
+          invisible={dotColor === 'transparent'}
+        >
+          {icon}
+        </Badge>
+        {isBusy && (
+          <CircularProgress
+            size={28}
+            thickness={2}
+            sx={{ position: 'absolute', top: 4, left: 4, color: 'primary.main', pointerEvents: 'none' }}
+          />
+        )}
+      </IconButton>
+    </Tooltip>
+  )
+}
 
 export default function App() {
   const { mode: themeMode } = useThemeMode()
@@ -541,45 +628,15 @@ export default function App() {
 
           <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0 }}>
 
-            {/* ── Cloud sync status badge ── */}
-            {cloudSync.connected && (() => {
-              const isBusy = cloudSync.status === 'syncing' || cloudSync.status === 'pulling' || cloudSync.status === 'pushing'
-              const isError = cloudSync.status === 'error'
-              const label = isBusy
-                ? (cloudSync.status === 'pulling'
-                  ? (uiLanguage === 'zh' ? '正在从 Drive 拉取数据…' : 'Pulling from Drive…')
-                  : (uiLanguage === 'zh' ? '正在推送到 Drive…' : 'Pushing to Drive…'))
-                : isError
-                  ? (uiLanguage === 'zh' ? `同步失败: ${cloudSync.errorMessage ?? ''}` : `Sync error: ${cloudSync.errorMessage ?? ''}`)
-                  : cloudSync.lastSynced
-                    ? (uiLanguage === 'zh' ? `已连接 Drive · 上次同步: ${cloudSync.lastSynced.toLocaleTimeString()}` : `Drive synced · ${cloudSync.lastSynced.toLocaleTimeString()}`)
-                    : (uiLanguage === 'zh' ? '已连接 Google Drive' : 'Connected to Google Drive')
-
-              return (
-                <Tooltip title={label}>
-                  <IconButton
-                    size="small"
-                    onClick={() => setActiveTab('settings')}
-                    sx={{
-                      color: isError ? 'error.main' : isBusy ? 'primary.main' : 'success.main',
-                      position: 'relative',
-                    }}
-                  >
-                    {isBusy ? (
-                      <>
-                        <CloudSyncIcon fontSize="small" />
-                        <CircularProgress size={18} thickness={5}
-                          sx={{ position: 'absolute', color: 'primary.light' }} />
-                      </>
-                    ) : isError ? (
-                      <SyncProblemIcon fontSize="small" />
-                    ) : (
-                      <CloudDoneIcon fontSize="small" />
-                    )}
-                  </IconButton>
-                </Tooltip>
-              )
-            })()}
+            {/* ── Cloud sync status badge — always visible ── */}
+            <CloudSyncBadge
+              connected={cloudSync.connected}
+              status={cloudSync.status}
+              lastSynced={cloudSync.lastSynced}
+              errorMessage={cloudSync.errorMessage}
+              language={uiLanguage}
+              onPress={() => setActiveTab('settings')}
+            />
 
             <Tooltip title={uiLanguage === 'zh' ? '反馈建议' : 'Feedback'}>
               <IconButton

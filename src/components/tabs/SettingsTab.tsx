@@ -14,7 +14,7 @@ import UploadIcon from '@mui/icons-material/Upload'
 import type { FontOption, FontSettings, UiScale } from '../../hooks/useFontSettings'
 import { UI_SCALE_OPTIONS, ZH_SAME_AS_EN_ID } from '../../hooks/useFontSettings'
 import type { CloudSyncState } from '../../hooks/useCloudSync'
-import { getClientId, saveClientId, clearClientId, getRedirectUri } from '../../lib/googleAuth'
+import { getClientId, saveClientId, clearClientId, getClientSecret, saveClientSecret, clearClientSecret, getRedirectUri } from '../../lib/googleAuth'
 import { exportEverything, readBundleFile, applyBundle } from '../../lib/bundleIO'
 import type { Language } from '../../types'
 import { useThemeMode } from '../../context/ThemeMode'
@@ -176,8 +176,14 @@ export function SettingsTab({ language, onLanguageChange, fontSettings, cloudSyn
   const [importStatus, setImportStatus] = useState<'idle' | 'ok' | 'error'>('idle')
   const [importError, setImportError] = useState('')
   const [clientIdInput, setClientIdInput] = useState(() => getClientId())
+  const [clientSecretInput, setClientSecretInput] = useState(() => getClientSecret())
   const [clientIdSaved, setClientIdSaved] = useState(false)
   const hasClientId = !!getClientId()
+  // True when credentials were baked in at build time (GitHub Actions secrets)
+  const isPreConfigured = !!(
+    (import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined)?.trim() &&
+    (import.meta.env.VITE_GOOGLE_CLIENT_SECRET as string | undefined)?.trim()
+  )
   const {
     enBodyId,    setEnBodyId,    enBodyOptions,
     enDisplayId, setEnDisplayId, enDisplayOptions,
@@ -363,67 +369,119 @@ export function SettingsTab({ language, onLanguageChange, fontSettings, cloudSyn
           {zh ? 'Google Drive 同步' : 'Google Drive Sync'}
         </Typography>
 
-        {/* ── Client ID input (always shown when not connected) ── */}
-        {!cloud.connected && (
-          <Box sx={{ mb: 2, p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 2, maxWidth: 520 }}>
-            <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-              {zh ? 'Google OAuth2 Client ID' : 'Google OAuth2 Client ID'}
-            </Typography>
-            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
-              {zh
-                ? '在 Google Cloud Console 创建 OAuth2 凭据后，将 Client ID 粘贴到此处。无需重新构建应用。'
-                : 'Paste your Client ID from Google Cloud Console. No rebuild required.'}
-              {' '}
-              <Box component="a"
-                href="https://console.cloud.google.com/apis/credentials"
-                target="_blank" rel="noopener noreferrer"
-                sx={{ color: 'primary.main', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}>
-                {zh ? '打开 Cloud Console →' : 'Open Cloud Console →'}
+        {/* ── Auth error banner — shown even before connected (e.g. token exchange failed) ── */}
+        {!cloud.connected && cloud.status === 'error' && cloud.errorMessage && (
+          <Alert severity="error" sx={{ mb: 2, maxWidth: 520 }}>
+            <strong>{zh ? '连接失败' : 'Connection failed'}:</strong>{' '}
+            {cloud.errorMessage}
+            {cloud.errorMessage.includes('redirect_uri_mismatch') && (
+              <Box sx={{ mt: 0.5 }}>
+                {zh ? '请确认在 Google Cloud Console 中添加了完整的 Redirect URI：' : 'Ensure this exact Redirect URI is registered in Cloud Console:'}
+                {' '}<code style={{ fontSize: '0.75rem' }}>{getRedirectUri()}</code>
               </Box>
-            </Typography>
-            <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start', flexWrap: 'wrap' }}>
-              <Box
-                component="input"
-                placeholder="…apps.googleusercontent.com"
-                value={clientIdInput}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                  setClientIdInput(e.target.value)
-                  setClientIdSaved(false)
-                }}
-                sx={{
-                  flex: 1, minWidth: 220,
-                  border: '1px solid', borderColor: 'divider', borderRadius: 1,
-                  px: 1.25, py: '6px', fontSize: '0.8rem',
-                  bgcolor: 'background.paper', color: 'text.primary', outline: 'none',
-                  '&:focus': { borderColor: 'primary.main' },
-                  fontFamily: 'monospace',
-                }}
-              />
-              <Button size="small" variant="outlined"
-                disabled={!clientIdInput.trim()}
-                onClick={() => {
-                  saveClientId(clientIdInput)
-                  setClientIdSaved(true)
-                }}>
-                {zh ? '保存' : 'Save'}
-              </Button>
-              {hasClientId && (
-                <Button size="small" color="error" variant="outlined"
-                  onClick={() => { clearClientId(); setClientIdInput(''); setClientIdSaved(false) }}>
-                  {zh ? '清除' : 'Clear'}
-                </Button>
-              )}
-            </Box>
-            {clientIdSaved && (
-              <Typography variant="caption" color="success.main" sx={{ mt: 0.5, display: 'block' }}>
-                {zh ? '已保存。Redirect URI：' : 'Saved. Add this redirect URI in Cloud Console:'}
+            )}
+          </Alert>
+        )}
+
+        {/* ── Credentials section (hidden when already connected) ── */}
+        {!cloud.connected && (
+          isPreConfigured ? (
+            // Build-time credentials from GitHub Actions secrets
+            <Alert severity="success" sx={{ mb: 2, maxWidth: 520 }}>
+              {zh
+                ? 'OAuth 凭据已由应用内置，无需手动配置。直接点击"连接 Google Drive"即可。'
+                : 'OAuth credentials are pre-configured. Just click Connect Google Drive below.'}
+            </Alert>
+          ) : (
+            <Box sx={{ mb: 2, p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 2, maxWidth: 520 }}>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+                {zh
+                  ? '需要自行配置 Google OAuth2 凭据。'
+                  : 'Configure your own Google OAuth2 credentials.'}
                 {' '}
-                <Box component="code" sx={{ fontSize: '0.75rem', wordBreak: 'break-all' }}>
-                  {getRedirectUri()}
+                <Box component="a"
+                  href="https://console.cloud.google.com/apis/credentials"
+                  target="_blank" rel="noopener noreferrer"
+                  sx={{ color: 'primary.main', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}>
+                  {zh ? '打开 Cloud Console →' : 'Open Cloud Console →'}
                 </Box>
               </Typography>
-            )}
-          </Box>
+
+              {/* Client ID */}
+              <Typography variant="subtitle2" sx={{ mb: 0.5 }}>Client ID</Typography>
+              <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start', flexWrap: 'wrap', mb: 1 }}>
+                <Box
+                  component="input"
+                  placeholder="…apps.googleusercontent.com"
+                  value={clientIdInput}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    setClientIdInput(e.target.value)
+                    setClientIdSaved(false)
+                  }}
+                  sx={{
+                    flex: 1, minWidth: 220,
+                    border: '1px solid', borderColor: 'divider', borderRadius: 1,
+                    px: 1.25, py: '6px', fontSize: '0.8rem',
+                    bgcolor: 'background.paper', color: 'text.primary', outline: 'none',
+                    '&:focus': { borderColor: 'primary.main' },
+                    fontFamily: 'monospace',
+                  }}
+                />
+                <Button size="small" variant="outlined"
+                  disabled={!clientIdInput.trim()}
+                  onClick={() => { saveClientId(clientIdInput); setClientIdSaved(true) }}>
+                  {zh ? '保存' : 'Save'}
+                </Button>
+                {hasClientId && (
+                  <Button size="small" color="error" variant="outlined"
+                    onClick={() => { clearClientId(); setClientIdInput(''); setClientIdSaved(false) }}>
+                    {zh ? '清除' : 'Clear'}
+                  </Button>
+                )}
+              </Box>
+
+              {/* Client Secret */}
+              <Typography variant="subtitle2" sx={{ mb: 0.5 }}>Client Secret</Typography>
+              <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+                <Box
+                  component="input"
+                  type="password"
+                  placeholder="GOCSPX-…"
+                  value={clientSecretInput}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setClientSecretInput(e.target.value)}
+                  sx={{
+                    flex: 1, minWidth: 220,
+                    border: '1px solid', borderColor: 'divider', borderRadius: 1,
+                    px: 1.25, py: '6px', fontSize: '0.8rem',
+                    bgcolor: 'background.paper', color: 'text.primary', outline: 'none',
+                    '&:focus': { borderColor: 'primary.main' },
+                    fontFamily: 'monospace',
+                  }}
+                />
+                <Button size="small" variant="outlined"
+                  disabled={!clientSecretInput.trim()}
+                  onClick={() => { saveClientSecret(clientSecretInput); setClientIdSaved(true) }}>
+                  {zh ? '保存' : 'Save'}
+                </Button>
+                {getClientSecret() && (
+                  <Button size="small" color="error" variant="outlined"
+                    onClick={() => { clearClientSecret(); setClientSecretInput('') }}>
+                    {zh ? '清除' : 'Clear'}
+                  </Button>
+                )}
+              </Box>
+
+              {clientIdSaved && (
+                <Typography variant="caption" color="success.main" sx={{ mt: 0.5, display: 'block' }}>
+                  {zh ? '已保存。请在 Cloud Console 中添加 Redirect URI：' : 'Saved. Register this Redirect URI in Cloud Console:'}
+                  {' '}
+                  <Box component="code" sx={{ fontSize: '0.75rem', wordBreak: 'break-all' }}>
+                    {getRedirectUri()}
+                  </Box>
+                </Typography>
+              )}
+            </Box>
+          )
         )}
 
         {cloud.connected ? (() => {
@@ -506,14 +564,14 @@ export function SettingsTab({ language, onLanguageChange, fontSettings, cloudSyn
             <Button
               variant="contained" startIcon={<CloudIcon />}
               onClick={() => void cloud.connect()}
-              disabled={!hasClientId}
+              disabled={!isPreConfigured && (!hasClientId || !getClientSecret())}
               sx={{ alignSelf: 'flex-start' }}
             >
               {zh ? '连接 Google Drive' : 'Connect Google Drive'}
             </Button>
-            {!hasClientId && (
+            {!isPreConfigured && (!hasClientId || !getClientSecret()) && (
               <Typography variant="caption" color="text.secondary">
-                {zh ? '请先保存 Client ID。' : 'Save a Client ID above first.'}
+                {zh ? '请先保存 Client ID 和 Client Secret。' : 'Save both Client ID and Client Secret above first.'}
               </Typography>
             )}
           </Box>

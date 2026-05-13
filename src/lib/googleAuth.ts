@@ -1,20 +1,23 @@
 /**
- * Google OAuth2 PKCE flow — no backend, no client_secret.
+ * Google OAuth2 PKCE flow for static web apps.
  * Works on any static host (GitHub Pages, Netlify, etc.).
- *
- * Client ID can be set in two ways (checked in order):
- *  1. localStorage key BOTC_GOOGLE_CLIENT_ID  ← set via Settings UI, no rebuild needed
- *  2. VITE_GOOGLE_CLIENT_ID env var            ← build-time embed for self-hosters
  *
  * Google Cloud Console setup:
  *  1. Create project → Enable "Google Drive API"
  *  2. Credentials → Create → OAuth client ID → Web Application
  *  3. Authorized redirect URIs: your deployed origin + trailing slash
  *     (e.g. https://you.github.io/botc_webapp/ and http://localhost:5173/)
- *  4. Paste the Client ID into Settings → Cloud Sync
+ *  4. Paste Client ID *and* Client Secret into Settings → Cloud Sync
+ *
+ * Note on client_secret in browser:
+ *   Google's Web Application OAuth clients require client_secret even with PKCE.
+ *   Storing it client-side is acceptable here because drive.appdata scope only
+ *   exposes the app's own data — knowing the secret does not grant access to
+ *   other users' files; OAuth consent is still required per-user.
  */
 
 export const CLIENT_ID_STORAGE_KEY = 'BOTC_GOOGLE_CLIENT_ID'
+export const CLIENT_SECRET_STORAGE_KEY = 'BOTC_GOOGLE_CLIENT_SECRET'
 
 /** Read client ID — localStorage overrides build-time env var. */
 export function getClientId(): string {
@@ -25,12 +28,29 @@ export function getClientId(): string {
   return (import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined) ?? ''
 }
 
+/** Read client secret — localStorage overrides build-time env var. */
+export function getClientSecret(): string {
+  try {
+    const stored = localStorage.getItem(CLIENT_SECRET_STORAGE_KEY)
+    if (stored?.trim()) return stored.trim()
+  } catch {}
+  return (import.meta.env.VITE_GOOGLE_CLIENT_SECRET as string | undefined) ?? ''
+}
+
 export function saveClientId(id: string): void {
   try { localStorage.setItem(CLIENT_ID_STORAGE_KEY, id.trim()) } catch {}
 }
 
+export function saveClientSecret(secret: string): void {
+  try { localStorage.setItem(CLIENT_SECRET_STORAGE_KEY, secret.trim()) } catch {}
+}
+
 export function clearClientId(): void {
   try { localStorage.removeItem(CLIENT_ID_STORAGE_KEY) } catch {}
+}
+
+export function clearClientSecret(): void {
+  try { localStorage.removeItem(CLIENT_SECRET_STORAGE_KEY) } catch {}
 }
 
 /** @deprecated use getClientId() — kept for legacy imports */
@@ -42,6 +62,9 @@ const SCOPES = [
   'https://www.googleapis.com/auth/drive.file',
 ].join(' ')
 
+// Tokens: localStorage so they survive tab close / reload
+// PKCE verifier + state: localStorage so they survive the navigation-away-to-Google redirect
+// (sessionStorage can be wiped on navigation in some browsers / privacy modes)
 const SESSION_KEY = 'BOTC_GOOGLE_TOKENS'
 const VERIFIER_KEY = 'BOTC_PKCE_VERIFIER'
 const STATE_KEY = 'BOTC_OAUTH_STATE'
@@ -70,11 +93,11 @@ async function sha256Base64Url(plain: string): Promise<string> {
     .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
 }
 
-// ── Token storage (sessionStorage — cleared on tab close) ─────────────────────
+// ── Token storage (localStorage — persists across reloads and tab close) ─────────────────────
 
 export function getStoredTokens(): GoogleTokens | null {
   try {
-    const raw = sessionStorage.getItem(SESSION_KEY)
+    const raw = localStorage.getItem(SESSION_KEY)
     return raw ? (JSON.parse(raw) as GoogleTokens) : null
   } catch {
     return null
@@ -82,14 +105,14 @@ export function getStoredTokens(): GoogleTokens | null {
 }
 
 export function storeTokens(tokens: GoogleTokens): void {
-  try { sessionStorage.setItem(SESSION_KEY, JSON.stringify(tokens)) } catch {}
+  try { localStorage.setItem(SESSION_KEY, JSON.stringify(tokens)) } catch {}
 }
 
 export function clearTokens(): void {
   try {
-    sessionStorage.removeItem(SESSION_KEY)
-    sessionStorage.removeItem(VERIFIER_KEY)
-    sessionStorage.removeItem(STATE_KEY)
+    localStorage.removeItem(SESSION_KEY)
+    localStorage.removeItem(VERIFIER_KEY)
+    localStorage.removeItem(STATE_KEY)
   } catch {}
 }
 
@@ -111,7 +134,7 @@ export function getRedirectUri(): string {
 
 /**
  * Kick off PKCE OAuth2.
- * Stores verifier in sessionStorage, then navigates to Google consent.
+ * Stores verifier in localStorage, then navigates to Google consent.
  * After consent, Google redirects back with `?code=...&state=...`.
  * Call `handleOAuthCallback()` to complete.
  */
@@ -123,8 +146,8 @@ export async function startOAuthFlow(): Promise<void> {
   const challenge = await sha256Base64Url(verifier)
   const state = randomBase64Url(16)
 
-  sessionStorage.setItem(VERIFIER_KEY, verifier)
-  sessionStorage.setItem(STATE_KEY, state)
+  localStorage.setItem(VERIFIER_KEY, verifier)
+  localStorage.setItem(STATE_KEY, state)
 
   const params = new URLSearchParams({
     client_id: clientId,
@@ -154,8 +177,8 @@ export async function handleOAuthCallback(
 ): Promise<OAuthCallbackResult | null> {
   const code = searchParams.get('code')
   const state = searchParams.get('state')
-  const storedState = sessionStorage.getItem(STATE_KEY)
-  const verifier = sessionStorage.getItem(VERIFIER_KEY)
+  const storedState = localStorage.getItem(STATE_KEY)
+  const verifier = localStorage.getItem(VERIFIER_KEY)
 
   if (!code || !verifier) return null
   if (state !== storedState) throw new Error('OAuth state mismatch — possible CSRF')
@@ -167,6 +190,9 @@ export async function handleOAuthCallback(
     code,
     code_verifier: verifier,
   })
+  // Web Application OAuth clients require client_secret even with PKCE
+  const secret = getClientSecret()
+  if (secret) body.set('client_secret', secret)
 
   const res = await fetch('https://oauth2.googleapis.com/token', {
     method: 'POST',
@@ -192,6 +218,10 @@ export async function handleOAuthCallback(
   }
   storeTokens(tokens)
 
+  // Clean up PKCE state — no longer needed
+  try { localStorage.removeItem(VERIFIER_KEY) } catch {}
+  try { localStorage.removeItem(STATE_KEY) } catch {}
+
   // Clean OAuth params from URL
   const clean = new URL(window.location.href)
   clean.searchParams.delete('code')
@@ -209,6 +239,8 @@ export async function refreshAccessToken(refreshToken: string): Promise<GoogleTo
     grant_type: 'refresh_token',
     refresh_token: refreshToken,
   })
+  const secret = getClientSecret()
+  if (secret) body.set('client_secret', secret)
 
   const res = await fetch('https://oauth2.googleapis.com/token', {
     method: 'POST',

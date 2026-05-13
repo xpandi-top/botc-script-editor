@@ -126,28 +126,30 @@ export function useCloudSync(): CloudSyncState {
         return
       }
 
-      if (direction === 'pull' || !direction) {
+      if (direction === 'push') {
+        // Push only
+        setStatus('pushing')
+        await writeAllDriveFiles(token, readLocal())
+      } else {
+        // Pull or auto-detect
         setStatus('pulling')
         const bundle = await readAllDriveFiles(token)
         const localTs = Number(localStorage.getItem(LAST_SYNC_KEY) ?? '0')
+        const driveHasData = bundle.scripts != null || bundle.customCharacters != null ||
+          bundle.revisionOverrides != null || bundle.scriptMeta != null
 
-        if (!direction && !driveIsNewer(bundle.fileMetas, localTs)) {
-          // Drive not newer — push local → Drive
-          setStatus('pushing')
-          const local = readLocal()
-          await writeAllDriveFiles(token, local, bundle.fileMetas)
-        } else {
-          // Pull Drive data to localStorage
+        if (driveHasData && (direction === 'pull' || driveIsNewer(bundle.fileMetas, localTs))) {
+          // Drive has data and is newer (or explicit pull) → apply locally and reload
+          // IMPORTANT: stamp LAST_SYNC_KEY *before* reloading so the next load's
+          // driveIsNewer() check returns false and we don't loop forever.
           applyDriveBundle(bundle)
-          // Reload the page so React picks up new localStorage
-          if (direction === 'pull') window.location.reload()
-        }
-      } else {
-        // push only
-        setStatus('pushing')
-        const token2 = await getValidToken()
-        if (token2) {
-          await writeAllDriveFiles(token2, readLocal())
+          try { localStorage.setItem(LAST_SYNC_KEY, String(Date.now())) } catch {}
+          window.location.reload()
+          return
+        } else {
+          // Drive is empty or local is newer → push local → Drive
+          setStatus('pushing')
+          await writeAllDriveFiles(token, readLocal(), bundle.fileMetas)
         }
       }
 
@@ -178,12 +180,25 @@ export function useCloudSync(): CloudSyncState {
     setStatus('syncing')
     handleOAuthCallback(params)
       .then(async (result) => {
-        if (!result) { setStatus('idle'); return }
+        if (!result) {
+          // Code present but verifier missing — likely PKCE state was lost.
+          // Check if we already have valid tokens (e.g. strict-mode double-fire).
+          const existing = await getValidToken()
+          if (existing) {
+            window.history.replaceState({}, '', window.location.pathname)
+            setConnected(true)
+            await doSync()
+          } else {
+            setStatus('error')
+            setErrorMessage('OAuth callback failed: PKCE verifier missing. Try connecting again.')
+          }
+          return
+        }
         // Clean URL
         window.history.replaceState({}, '', result.cleanUrl)
         setConnected(true)
-        // Initial pull on first connect
-        await doSync('pull')
+        // Auto-detect: pull if Drive has data, push if Drive is empty (first connect)
+        await doSync()
       })
       .catch(handleError)
   }, [doSync])
