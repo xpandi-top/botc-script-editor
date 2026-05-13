@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import {
   Alert, Box, Button, Dialog, DialogActions,
-  DialogContent, DialogTitle, Divider, FormControlLabel,
-  Radio, RadioGroup, ToggleButton, ToggleButtonGroup, Typography,
+  DialogContent, DialogContentText, DialogTitle, Divider,
+  FormControlLabel, Radio, RadioGroup, Stack,
+  ToggleButton, ToggleButtonGroup, Typography,
 } from '@mui/material'
 import LightModeIcon from '@mui/icons-material/LightMode'
 import DarkModeIcon from '@mui/icons-material/DarkMode'
@@ -16,6 +17,7 @@ import type { Language } from '../../types'
 import { useThemeMode } from '../../context/ThemeMode'
 import { FontPicker, LivePreview } from '../settings/FontSection'
 import { CloudSyncSection } from '../settings/CloudSyncSection'
+import { makeT } from '../../lib/t'
 
 // ── SettingsTab ───────────────────────────────────────────────────────────────
 interface SettingsTabProps {
@@ -26,6 +28,7 @@ interface SettingsTabProps {
 }
 
 export function SettingsTab({ language, onLanguageChange, fontSettings, cloudSync: cloud }: SettingsTabProps) {
+  const t = makeT(language)
   const { mode, setMode } = useThemeMode()
   const [importDialog, setImportDialog] = useState(false)
   const [importMode, setImportMode] = useState<'replace' | 'merge'>('merge')
@@ -59,9 +62,7 @@ export function SettingsTab({ language, onLanguageChange, fontSettings, cloudSyn
 
       {/* ── Section: Language ── */}
       <Box>
-        <Typography variant="h5" gutterBottom>
-          {zh ? '语言' : 'Language'}
-        </Typography>
+        <Typography variant="h5" gutterBottom>{t('language')}</Typography>
         <ToggleButtonGroup value={language} exclusive onChange={(_, v) => { if (v) onLanguageChange(v as Language) }}>
           <ToggleButton value="zh" sx={{ px: 3, py: 1 }}>
             <Box sx={{ textAlign: 'center' }}>
@@ -82,9 +83,7 @@ export function SettingsTab({ language, onLanguageChange, fontSettings, cloudSyn
 
       {/* ── Section: Theme ── */}
       <Box>
-        <Typography variant="h5" gutterBottom>
-          {zh ? '界面主题' : 'Theme'}
-        </Typography>
+        <Typography variant="h5" gutterBottom>{t('theme')}</Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
           {zh ? '在明亮的羊皮纸风格与黑暗血腥风格之间切换。' : 'Switch between the warm parchment light theme and the dark crimson theme.'}
         </Typography>
@@ -110,9 +109,7 @@ export function SettingsTab({ language, onLanguageChange, fontSettings, cloudSyn
 
       {/* ── Section: Live preview ── */}
       <Box>
-        <Typography variant="h5" gutterBottom>
-          {zh ? '字体预览' : 'Font Preview'}
-        </Typography>
+        <Typography variant="h5" gutterBottom>{t('font_preview')}</Typography>
         <LivePreview
           language={language}
           enBodyCss={enBodyCss}
@@ -125,9 +122,7 @@ export function SettingsTab({ language, onLanguageChange, fontSettings, cloudSyn
 
       {/* ── Section: UI size ── */}
       <Box>
-        <Typography variant="h5" gutterBottom>
-          {zh ? '界面文字大小' : 'Interface Size'}
-        </Typography>
+        <Typography variant="h5" gutterBottom>{t('interface_size')}</Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
           {zh
             ? '调整整体界面文字大小。"大"和"特大"会放大所有文字、间距和控件。'
@@ -153,9 +148,7 @@ export function SettingsTab({ language, onLanguageChange, fontSettings, cloudSyn
 
       {/* ── Section: English fonts ── */}
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-        <Typography variant="h5">
-          {zh ? '英文字体' : 'English Fonts'}
-        </Typography>
+        <Typography variant="h5">{t('english_fonts')}</Typography>
 
         <FontPicker
           label="Body Text"
@@ -180,9 +173,7 @@ export function SettingsTab({ language, onLanguageChange, fontSettings, cloudSyn
 
       {/* ── Section: Chinese font ── */}
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-        <Typography variant="h5">
-          {zh ? '中文字体' : 'Chinese Font'}
-        </Typography>
+        <Typography variant="h5">{t('chinese_font')}</Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mt: -2 }}>
           {zh
             ? '中文字体同时用于正文和标题。'
@@ -216,37 +207,35 @@ export function SettingsTab({ language, onLanguageChange, fontSettings, cloudSyn
 
       {/* ── Section: Export / Import ── */}
       <Box>
-        <Typography variant="h5" gutterBottom>
-          {zh ? '数据备份与导入' : 'Backup & Import'}
-        </Typography>
+        <Typography variant="h5" gutterBottom>{t('backup_import')}</Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2, maxWidth: 480 }}>
           {zh
             ? '导出包含脚本、自定义角色、版本覆盖和脚本元数据的完整备份文件。可分享给他人或在新设备导入。'
             : 'Export a full backup containing scripts, custom characters, revision overrides, and script metadata. Share with others or import on a new device.'}
         </Typography>
 
-        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+        <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
           <Button
             variant="outlined" startIcon={<DownloadIcon />}
             onClick={exportEverything}
           >
-            {zh ? '导出全部数据' : 'Export Everything'}
+            {t('export_everything')}
           </Button>
           <Button
             variant="outlined" startIcon={<UploadIcon />}
             onClick={() => { setImportFile(null); setImportStatus('idle'); setImportError(''); setImportDialog(true) }}
           >
-            {zh ? '导入备份文件' : 'Import Bundle'}
+            {t('import_bundle')}
           </Button>
-        </Box>
+        </Stack>
       </Box>
 
       {/* ── Import Dialog ── */}
       <Dialog open={importDialog} onClose={() => setImportDialog(false)} maxWidth="xs" fullWidth>
-        <DialogTitle>{zh ? '导入备份文件' : 'Import Bundle'}</DialogTitle>
+        <DialogTitle>{t('import_bundle')}</DialogTitle>
         <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '8px !important' }}>
           <Button variant="outlined" component="label" startIcon={<UploadIcon />}>
-            {importFile ? importFile.name : (zh ? '选择 JSON 文件' : 'Choose JSON file')}
+            {importFile ? importFile.name : t('choose_json_file')}
             <input type="file" accept=".json" hidden onChange={(e) => {
               const f = e.target.files?.[0]
               if (f) { setImportFile(f); setImportStatus('idle') }
@@ -255,26 +244,28 @@ export function SettingsTab({ language, onLanguageChange, fontSettings, cloudSyn
           </Button>
 
           <Box>
-            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-              {zh ? '导入模式' : 'Import mode'}
-            </Typography>
+            <DialogContentText variant="caption" sx={{ display: 'block', mb: 0.5 }}>
+              {t('import_mode')}
+            </DialogContentText>
             <RadioGroup row value={importMode} onChange={(e) => setImportMode(e.target.value as 'replace' | 'merge')}>
               <FormControlLabel value="merge" control={<Radio size="small" />}
-                label={<Typography variant="body2">{zh ? '合并（保留现有）' : 'Merge (keep existing)'}</Typography>} />
+                label={<Typography variant="body2">{t('merge_keep_existing')}</Typography>} />
               <FormControlLabel value="replace" control={<Radio size="small" />}
-                label={<Typography variant="body2">{zh ? '替换（覆盖全部）' : 'Replace (overwrite all)'}</Typography>} />
+                label={<Typography variant="body2">{t('replace_overwrite')}</Typography>} />
             </RadioGroup>
           </Box>
 
           {importStatus === 'ok' && (
-            <Alert severity="success">{zh ? '导入成功，请刷新页面。' : 'Import successful — reload the page to apply.'}</Alert>
+            <Alert severity="success">
+              {zh ? '导入成功，请刷新页面。' : 'Import successful — reload the page to apply.'}
+            </Alert>
           )}
           {importStatus === 'error' && (
             <Alert severity="error">{importError}</Alert>
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setImportDialog(false)}>{zh ? '取消' : 'Cancel'}</Button>
+          <Button onClick={() => setImportDialog(false)}>{t('cancel')}</Button>
           <Button
             variant="contained"
             disabled={!importFile || importStatus === 'ok'}
@@ -290,7 +281,7 @@ export function SettingsTab({ language, onLanguageChange, fontSettings, cloudSyn
               }
             }}
           >
-            {zh ? '导入' : 'Import'}
+            {t('import_bundle')}
           </Button>
         </DialogActions>
       </Dialog>
