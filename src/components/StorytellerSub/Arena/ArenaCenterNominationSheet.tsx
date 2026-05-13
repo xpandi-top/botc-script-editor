@@ -19,6 +19,7 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: StorytellerContext })
     showNominationSheet, setShowNominationSheet, requiredVotes, exileRequiredVotes,
     effectiveRequiredVotes, draftPassedBySystem, draftPassed, isVotingComplete,
     rejectNomination, recordVote, setDialogState, votingYesCount, timerDefaults,
+    appendEvent,
   } = ctx
 
   const [historyFilter, setHistoryFilter] = useState<'all' | 'exile' | 'nomination'>('all')
@@ -223,6 +224,7 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: StorytellerContext })
             votingYesCount={votingYesCount}
             handleVoteToggle={handleVoteToggle}
             updateCurrentDay={updateCurrentDay}
+            appendEvent={appendEvent}
             language={language}
           />
         )}

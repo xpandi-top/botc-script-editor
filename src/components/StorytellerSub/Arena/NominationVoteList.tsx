@@ -16,6 +16,7 @@ interface NominationVoteListProps {
   votingYesCount: number
   handleVoteToggle: (seatNum: number) => void
   updateCurrentDay: (updater: (d: any) => any) => void
+  appendEvent: (d: any, kind: string, detail: string) => any
   language: string
 }
 
@@ -28,6 +29,7 @@ export function NominationVoteList({
   votingYesCount,
   handleVoteToggle,
   updateCurrentDay,
+  appendEvent,
   language,
 }: NominationVoteListProps) {
   const zh = language === 'zh'
@@ -46,21 +48,21 @@ export function NominationVoteList({
 
   // ── Quick seat-property toggles ─────────────────────────────────
   const toggleAlive = (seatNum: number) => {
-    updateCurrentDay((d: any) => ({
-      ...d,
-      seats: d.seats.map((s: any) =>
-        s.seat === seatNum ? { ...s, alive: !s.alive } : s
-      ),
-    }))
+    updateCurrentDay((d: any) => {
+      const seat = d.seats.find((s: any) => s.seat === seatNum)
+      const newAlive = !seat?.alive
+      const updated = { ...d, seats: d.seats.map((s: any) => s.seat === seatNum ? { ...s, alive: newAlive } : s) }
+      return appendEvent(updated, 'stateChange', `#${seatNum} ${newAlive ? '复活' : '死亡'}`)
+    })
   }
 
   const toggleNoVote = (seatNum: number) => {
-    updateCurrentDay((d: any) => ({
-      ...d,
-      seats: d.seats.map((s: any) =>
-        s.seat === seatNum ? { ...s, hasNoVote: !s.hasNoVote } : s
-      ),
-    }))
+    updateCurrentDay((d: any) => {
+      const seat = d.seats.find((s: any) => s.seat === seatNum)
+      const newHasNoVote = !seat?.hasNoVote
+      const updated = { ...d, seats: d.seats.map((s: any) => s.seat === seatNum ? { ...s, hasNoVote: newHasNoVote } : s) }
+      return appendEvent(updated, 'stateChange', `#${seatNum} ${newHasNoVote ? '+无投票权' : '-无投票权'}`)
+    })
   }
 
   return (
@@ -73,9 +75,11 @@ export function NominationVoteList({
       </Typography>
 
       {(() => {
+        // Right column = first half (ascending from seat after nominee) = clockwise start
+        // Left column  = second half (ascending, continuing clockwise) ending with nominee
         const half = Math.ceil(orderedSeats.length / 2)
-        const leftSeats = orderedSeats.slice(0, half)
-        const rightSeats = [...orderedSeats.slice(half)].reverse()
+        const rightSeats = orderedSeats.slice(0, half)
+        const leftSeats  = orderedSeats.slice(half)
         const renderPill = (s: any) => {
           const voted    = votingState?.votes?.[s.seat]
           const isVoted  = voted === true || voteDraft?.voters?.includes(s.seat)
