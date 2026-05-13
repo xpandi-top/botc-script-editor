@@ -69,6 +69,8 @@ import { STORAGE_KEY, USER_SCRIPTS_KEY, RECORDS_CHANGED_EVENT } from './componen
 import { useCloudSync } from './hooks/useCloudSync'
 import { getClientId } from './lib/googleAuth'
 import type { SyncStatus } from './hooks/useCloudSync'
+import { decodeShareParam } from './lib/shareUrl'
+import type { GameRecord } from './components/StorytellerSub/types'
 
 const SCRIPT_META_KEY = 'BOTC_SCRIPT_META'
 
@@ -175,7 +177,50 @@ export default function App() {
   const { mode: themeMode } = useThemeMode()
   const cloudSync = useCloudSync()
   const { scheduleSync } = cloudSync
-  const [activeTab, setActiveTab] = useState<TabKey>('scripts')
+  const [activeTab, setActiveTab] = useState<TabKey>(() => {
+    // ?ar= share param → force analytics regardless of stored tab
+    const params = new URLSearchParams(window.location.search)
+    if (params.has('ar') || sessionStorage.getItem('BOTC_PENDING_AR')) return 'analytics'
+    try { return (localStorage.getItem('botc-active-tab') as TabKey) ?? 'scripts' } catch { return 'scripts' }
+  })
+  useEffect(() => {
+    try { localStorage.setItem('botc-active-tab', activeTab) } catch {}
+  }, [activeTab])
+
+  const [sharedAnalyticsRecords, setSharedAnalyticsRecords] = useState<GameRecord[] | null>(null)
+  const [shareDecodeError, setShareDecodeError] = useState<string | null>(null)
+
+  // Detect ?ar= share param on mount → decode async
+  // sessionStorage preserves the param across window.location.reload() (Drive sync)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const arFromUrl = params.get('ar')
+    const ar = arFromUrl ?? sessionStorage.getItem('BOTC_PENDING_AR')
+    if (!ar) return
+
+    // Persist to sessionStorage so Drive-triggered reload doesn't lose it
+    sessionStorage.setItem('BOTC_PENDING_AR', ar)
+
+    // Clean URL now (param is safe in sessionStorage)
+    if (arFromUrl) {
+      const clean = new URL(window.location.href)
+      clean.searchParams.delete('ar')
+      window.history.replaceState({}, '', clean.toString())
+    }
+
+    decodeShareParam<GameRecord[]>(ar)
+      .then((decoded) => {
+        if (!Array.isArray(decoded)) throw new Error('Decoded data is not an array')
+        setSharedAnalyticsRecords(decoded)
+        sessionStorage.removeItem('BOTC_PENDING_AR')
+      })
+      .catch((e: unknown) => {
+        const msg = e instanceof Error ? e.message : String(e)
+        setShareDecodeError(`Failed to load shared records: ${msg}`)
+        sessionStorage.removeItem('BOTC_PENDING_AR')
+      })
+  }, [])
+
   const [uiLanguage, setUiLanguage] = useState<Language>(() => {
     try { return (localStorage.getItem('botc-ui-language') as Language) ?? 'zh' } catch { return 'zh' }
   })
@@ -784,7 +829,13 @@ export default function App() {
       )}
 
       {activeTab === 'analytics' && (
-        <AnalyticsTab language={uiLanguage} onLanguageChange={setUiLanguage} />
+        <AnalyticsTab
+          language={uiLanguage}
+          onLanguageChange={setUiLanguage}
+          sharedRecords={sharedAnalyticsRecords}
+          shareDecodeError={shareDecodeError}
+          onClearSharedRecords={() => { setSharedAnalyticsRecords(null); setShareDecodeError(null); sessionStorage.removeItem('BOTC_PENDING_AR') }}
+        />
       )}
 
       {activeTab === 'settings' && (

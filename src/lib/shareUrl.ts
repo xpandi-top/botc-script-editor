@@ -6,25 +6,17 @@
 // ── Compress / decompress ─────────────────────────────────────────────────────
 
 async function compress(text: string): Promise<Uint8Array> {
-  if (typeof CompressionStream === 'undefined') {
-    return new TextEncoder().encode(text)
-  }
+  const encoded = new TextEncoder().encode(text)
+  if (typeof CompressionStream === 'undefined') return encoded
+
   const stream = new CompressionStream('gzip')
+  // Start draining readable BEFORE writing — avoids deadlock when buffer fills
+  const resultPromise = new Response(stream.readable).arrayBuffer()
   const writer = stream.writable.getWriter()
-  writer.write(new TextEncoder().encode(text))
-  writer.close()
-  const chunks: Uint8Array[] = []
-  const reader = stream.readable.getReader()
-  while (true) {
-    const { done, value } = await reader.read()
-    if (done) break
-    chunks.push(value)
-  }
-  const total = chunks.reduce((n, c) => n + c.length, 0)
-  const out = new Uint8Array(total)
-  let offset = 0
-  for (const chunk of chunks) { out.set(chunk, offset); offset += chunk.length }
-  return out
+  await writer.write(encoded)
+  await writer.close()
+  const buf = await resultPromise
+  return new Uint8Array(buf)
 }
 
 async function decompress(bytes: Uint8Array): Promise<string> {
@@ -32,28 +24,23 @@ async function decompress(bytes: Uint8Array): Promise<string> {
     return new TextDecoder().decode(bytes)
   }
   const stream = new DecompressionStream('gzip')
+  // Start draining readable BEFORE writing — avoids deadlock
+  const resultPromise = new Response(stream.readable).text()
   const writer = stream.writable.getWriter()
-  writer.write(bytes.buffer as ArrayBuffer)
-  writer.close()
-  const chunks: Uint8Array[] = []
-  const reader = stream.readable.getReader()
-  while (true) {
-    const { done, value } = await reader.read()
-    if (done) break
-    chunks.push(value)
-  }
-  const total = chunks.reduce((n, c) => n + c.length, 0)
-  const out = new Uint8Array(total)
-  let offset = 0
-  for (const chunk of chunks) { out.set(chunk, offset); offset += chunk.length }
-  return new TextDecoder().decode(out)
+  await writer.write(bytes as unknown as Uint8Array<ArrayBuffer>)
+  await writer.close()
+  return resultPromise
 }
 
 // ── Encode / decode ───────────────────────────────────────────────────────────
 
 function toBase64Url(bytes: Uint8Array): string {
+  // Process in chunks to avoid call-stack overflow on large arrays
+  const CHUNK = 0x8000
   let binary = ''
-  for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i])
+  for (let i = 0; i < bytes.length; i += CHUNK) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + CHUNK))
+  }
   return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
 }
 
@@ -74,7 +61,7 @@ export async function encodeShareParam(data: unknown): Promise<string> {
   return toBase64Url(compressed)
 }
 
-/** Decode a share param back to the original value. */
+/** Decode a share param back to the original value. Throws on failure. */
 export async function decodeShareParam<T>(param: string): Promise<T> {
   const bytes = fromBase64Url(param)
   const json = await decompress(bytes)
@@ -84,5 +71,7 @@ export async function decodeShareParam<T>(param: string): Promise<T> {
 /** Build a full shareable URL pointing at the current app with the given param. */
 export function buildShareUrl(paramName: string, encoded: string, hash?: string): string {
   const base = window.location.origin + window.location.pathname
-  return `${base}?${paramName}=${encoded}${hash ? '#' + hash : ''}`
+  const url = new URL(base)
+  url.searchParams.set(paramName, encoded)
+  return url.toString() + (hash ? '#' + hash : '')
 }

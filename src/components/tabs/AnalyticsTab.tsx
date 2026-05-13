@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import {
   Alert, Autocomplete,
   Box, Button, Chip, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle,
-  Divider, FormControl, IconButton, InputLabel, Menu, MenuItem, Select, Tab, Tabs,
+  Divider, FormControl, IconButton, InputLabel, Menu, MenuItem, Select, Snackbar, Tab, Tabs,
   TextField, ToggleButton, ToggleButtonGroup, Tooltip, Typography,
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
@@ -14,7 +14,7 @@ import PersonIcon from '@mui/icons-material/Person'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import RemoveIcon from '@mui/icons-material/Remove'
 import ShareIcon from '@mui/icons-material/Share'
-import { encodeShareParam, decodeShareParam, buildShareUrl } from '../../lib/shareUrl'
+import { encodeShareParam, buildShareUrl } from '../../lib/shareUrl'
 import { allCharacters, getDisplayName, getIconForCharacter, initialScripts } from '../../catalog'
 import { STORAGE_KEY, RECORDS_CHANGED_EVENT } from '../StorytellerSub/constants'
 import { storageSync } from '../../lib/storage'
@@ -508,7 +508,13 @@ function RecordFormDialog({ existing, zh, language, onSave, onClose }: {
 
 // ── Main component ────────────────────────────────────────────────
 
-export function AnalyticsTab({ language, onLanguageChange }: { language: Language; onLanguageChange?: (lang: Language) => void }) {
+export function AnalyticsTab({ language, onLanguageChange, sharedRecords: sharedRecordsProp, shareDecodeError, onClearSharedRecords }: {
+  language: Language
+  onLanguageChange?: (lang: Language) => void
+  sharedRecords?: GameRecord[] | null
+  shareDecodeError?: string | null
+  onClearSharedRecords?: () => void
+}) {
   const zh = language === 'zh'
 
   const [records, setRecords] = useState<GameRecord[]>(() => readStorage().records)
@@ -519,25 +525,13 @@ export function AnalyticsTab({ language, onLanguageChange }: { language: Languag
   const [exportMenuAnchor, setExportMenuAnchor] = useState<null | HTMLElement>(null)
   const [shareMenuAnchor, setShareMenuAnchor] = useState<null | HTMLElement>(null)
   const [linkCopied, setLinkCopied] = useState(false)
-  // Shared-view: records decoded from ?ar= URL param (read-only, not the user's own data)
-  const [sharedRecords, setSharedRecords] = useState<GameRecord[] | null>(null)
+  const [precomputedShareUrl, setPrecomputedShareUrl] = useState<string>('')
+  const [shareUrlDialogOpen, setShareUrlDialogOpen] = useState(false)
+  const [shareUrlError, setShareUrlError] = useState<string>('')
+  const [shareUrlLoading, setShareUrlLoading] = useState(false)
+  // Shared-view: records passed from App (decoded from ?ar= URL param)
+  const sharedRecords = sharedRecordsProp ?? null
   const statsRef = useRef<HTMLDivElement>(null)
-
-  // Decode ?ar= param on mount → enter shared view
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const ar = params.get('ar')
-    if (!ar) return
-    decodeShareParam<GameRecord[]>(ar)
-      .then((decoded) => {
-        setSharedRecords(Array.isArray(decoded) ? decoded : [])
-        // Clean URL without reloading
-        const clean = new URL(window.location.href)
-        clean.searchParams.delete('ar')
-        window.history.replaceState({}, '', clean.toString())
-      })
-      .catch(() => { /* malformed param — ignore */ })
-  }, [])
 
   // Records used for display: shared view overrides local
   const activeRecords = sharedRecords ?? records
@@ -620,16 +614,20 @@ export function AnalyticsTab({ language, onLanguageChange }: { language: Languag
     exportGameFile(csv, `botc-stats-${new Date().toISOString().slice(0, 10)}.csv`)
   }
 
-  const copyShareLink = async () => {
-    try {
-      const encoded = await encodeShareParam(records)
-      const url = buildShareUrl('ar', encoded, 'analytics')
-      await navigator.clipboard.writeText(url)
-      setLinkCopied(true)
-      setTimeout(() => setLinkCopied(false), 3000)
-    } catch (e) {
-      console.error('Share link failed', e)
-    }
+  const copyShareLink = () => {
+    setShareUrlError('')
+    setShareUrlDialogOpen(true)
+    if (precomputedShareUrl) return
+    setShareUrlLoading(true)
+    encodeShareParam(activeRecords)
+      .then((encoded) => {
+        setPrecomputedShareUrl(buildShareUrl('ar', encoded))
+        setShareUrlLoading(false)
+      })
+      .catch((e: unknown) => {
+        setShareUrlError(e instanceof Error ? e.message : String(e))
+        setShareUrlLoading(false)
+      })
   }
 
   const shareAnalysisImage = async (format: 'pdf' | 'png') => {
@@ -776,6 +774,13 @@ export function AnalyticsTab({ language, onLanguageChange }: { language: Languag
 
   return (
     <Box sx={{ p: { xs: 1.5, sm: 2 }, maxWidth: 1100, mx: 'auto' }}>
+      <Snackbar
+        open={linkCopied}
+        autoHideDuration={3000}
+        onClose={() => setLinkCopied(false)}
+        message={zh ? '链接已复制！' : 'Link copied!'}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      />
 
       {/* ── Toolbar ── */}
       <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap', alignItems: 'center' }}>
@@ -833,7 +838,7 @@ export function AnalyticsTab({ language, onLanguageChange }: { language: Languag
         <Menu anchorEl={shareMenuAnchor} open={Boolean(shareMenuAnchor)} onClose={() => setShareMenuAnchor(null)}>
           <MenuItem onClick={() => { void copyShareLink(); setShareMenuAnchor(null) }}>
             <LinkIcon fontSize="small" sx={{ mr: 1 }} />
-            {linkCopied ? (zh ? '链接已复制！' : 'Link copied!') : (zh ? '复制分享链接（互动查看）' : 'Copy share link (interactive)')}
+            {zh ? '复制分享链接（互动查看）' : 'Copy share link (interactive)'}
           </MenuItem>
           <Divider />
           <MenuItem onClick={() => { shareAnalysisImage('png'); setShareMenuAnchor(null) }}>
@@ -858,6 +863,13 @@ export function AnalyticsTab({ language, onLanguageChange }: { language: Languag
         </Typography>
       )}
 
+      {/* ── Share decode error ── */}
+      {shareDecodeError && (
+        <Alert severity="error" sx={{ mb: 2 }} onClose={() => onClearSharedRecords?.()}>
+          {shareDecodeError}
+        </Alert>
+      )}
+
       {/* ── Shared-view banner ── */}
       {sharedRecords && (
         <Alert
@@ -868,13 +880,13 @@ export function AnalyticsTab({ language, onLanguageChange }: { language: Languag
               <Button size="small" color="inherit" variant="outlined"
                 onClick={() => {
                   const existingIds = new Set(records.map((r) => r.id))
-                  const newOnes = sharedRecords.filter((r) => !existingIds.has(r.id))
+                  const newOnes = sharedRecords!.filter((r) => !existingIds.has(r.id))
                   saveAndSet([...newOnes, ...records])
-                  setSharedRecords(null)
+                  onClearSharedRecords?.()
                 }}>
                 {zh ? '导入到我的记录' : 'Import to my records'}
               </Button>
-              <Button size="small" color="inherit" onClick={() => setSharedRecords(null)}>
+              <Button size="small" color="inherit" onClick={() => onClearSharedRecords?.()}>
                 {zh ? '退出' : 'Exit'}
               </Button>
             </Box>
@@ -904,6 +916,37 @@ export function AnalyticsTab({ language, onLanguageChange }: { language: Languag
       {showCreate && (
         <RecordFormDialog zh={zh} language={language} onSave={addRecord} onClose={() => setShowCreate(false)} />
       )}
+
+      {/* Share URL Dialog */}
+      <Dialog open={shareUrlDialogOpen} onClose={() => setShareUrlDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>{zh ? '分享链接' : 'Share Link'}</DialogTitle>
+        <DialogContent>
+          {shareUrlLoading && <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 1 }}><CircularProgress size={20} /><Typography variant="body2">{zh ? '生成中…' : 'Generating…'}</Typography></Box>}
+          {shareUrlError && <Alert severity="error" sx={{ mb: 1 }}>{shareUrlError}</Alert>}
+          {!shareUrlLoading && !shareUrlError && precomputedShareUrl && (
+            <TextField
+              fullWidth
+              value={precomputedShareUrl}
+              slotProps={{ input: { readOnly: true } }}
+              onFocus={(e) => e.target.select()}
+              size="small"
+              sx={{ mt: 1 }}
+            />
+          )}
+        </DialogContent>
+        <DialogActions>
+          {precomputedShareUrl && !shareUrlLoading && (
+            <Button onClick={() => {
+              navigator.clipboard.writeText(precomputedShareUrl)
+                .then(() => { setLinkCopied(true); setTimeout(() => setLinkCopied(false), 3000); setShareUrlDialogOpen(false) })
+                .catch(() => { setLinkCopied(true); setTimeout(() => setLinkCopied(false), 3000); setShareUrlDialogOpen(false) })
+            }}>
+              {zh ? '复制' : 'Copy'}
+            </Button>
+          )}
+          <Button onClick={() => setShareUrlDialogOpen(false)}>{zh ? '关闭' : 'Close'}</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   )
 }

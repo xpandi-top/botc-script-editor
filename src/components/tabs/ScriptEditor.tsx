@@ -215,9 +215,9 @@ export function ScriptEditor({
                   const currentRev = getCurrentRevision(character.id)
                   const pinnedRev = getRevisionForScript(character.id, activeScript.pinnedRevisions)
                   const hasPinned = !!activeScript.pinnedRevisions?.[character.id]
-                  // Show pinned-revision text only when it differs from current (avoids duplicate with dropdown)
-                  const pinnedAbility = hasPinned
-                    ? (getRevisionText(character.id, uiLanguage, pinnedRev!) || getAbilityText(character.id, uiLanguage))
+                  // Show ability text below only when a non-current revision is pinned
+                  const pinnedAbility = (hasPinned && pinnedRev && pinnedRev !== currentRev)
+                    ? (getRevisionText(character.id, uiLanguage, pinnedRev) || getAbilityText(character.id, uiLanguage))
                     : null
                   return (
                     <Box key={character.id} sx={{ p: 1, border: '1px solid', borderColor: hasPinned ? 'primary.main' : 'divider', borderRadius: 1, mb: 1 }}>
@@ -244,6 +244,12 @@ export function ScriptEditor({
                                   }
                                   return { ...s, pinnedRevisions: next }
                                 })
+                              }}
+                              renderValue={(val) => {
+                                const r = val as string
+                                return r === currentRev
+                                  ? r + (zh ? '（当前）' : ' (current)')
+                                  : r
                               }}
                               sx={{ fontSize: '0.72rem', '& .MuiSelect-select': { py: 0.5 } }}
                             >
