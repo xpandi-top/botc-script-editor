@@ -34,6 +34,11 @@ function phaseLabel(phase: string, text: any): string {
   return { night: text.nightPhase, private: text.privateChat, public: text.publicChat, nomination: text.nomination }[phase] ?? phase
 }
 
+/** Strip [icon:xxx] tokens — plain text output can't render images */
+function stripIconTokens(s: string): string {
+  return s.replace(/\[icon:[^\]]+\]/g, '')
+}
+
 function buildShareText(
   days: any[], text: any, language: string,
   visFilter: 'all' | 'public' | 'st-only',
@@ -59,7 +64,7 @@ function buildShareText(
         const targetStr = (s.targets || []).length > 0 ? ` → [${(s.targets as number[]).map((t: number) => `#${t}`).join(', ')}]` : ''
         const roleName = s.roleId ? getDisplayName(s.roleId, language) : ''
         const resultLabel = logDetail.skillResultLabel(language, s.result ?? null)
-        const detail = `#${s.actor} ${roleName}${targetStr}${s.statement ? ` "${s.statement}"` : ''}${resultLabel ? ` ${resultLabel}` : ''}`
+        const detail = `#${s.actor} ${roleName}${targetStr}${s.statement ? ` "${stripIconTokens(s.statement)}"` : ''}${resultLabel ? ` ${resultLabel}` : ''}`
         lines.push(`[${text.filterSkill}] ${detail}`)
       }
     }
@@ -74,7 +79,7 @@ function buildShareText(
         const isStOnly = !isPublic
         if (visFilter === 'public' && !isPublic) continue
         if (visFilter === 'st-only' && !isStOnly && !isTagChange) continue
-        lines.push(`[${text.filterEvent}] ${e.detail}`)
+        lines.push(`[${text.filterEvent}] ${stripIconTokens(e.detail)}`)
       }
     }
     lines.push('')

@@ -160,7 +160,9 @@ export function AnalyticsTab({ language, onLanguageChange, sharedRecords: shared
     setShareUrlDialogOpen(true)
     if (precomputedShareUrl) return
     setShareUrlLoading(true)
-    encodeShareParam(activeRecords)
+    // Strip savedDays (full game state) — not used by analytics view, but inflates URL
+    const shareRecords = activeRecords.map(({ savedDays: _sd, ...r }) => r)
+    encodeShareParam(shareRecords)
       .then((encoded) => {
         setPrecomputedShareUrl(buildShareUrl('ar', encoded))
         setShareUrlLoading(false)
