@@ -314,7 +314,7 @@ export function useCharStats(records: GameRecord[], language: Language): CharSta
 
 // ── Storyteller stats ─────────────────────────────────────────────
 
-export type StorytiellerStat = {
+export type StorytellerStat = {
   name: string
   total: number
   evil: number
@@ -328,7 +328,7 @@ export type StorytiellerStat = {
   ratingCount: number
 }
 
-export function useStorytellerStats(records: GameRecord[]): StorytiellerStat[] {
+export function useStorytellerStats(records: GameRecord[]): StorytellerStat[] {
   return useMemo(() => {
     const map = new Map<string, {
       name: string; total: number; evil: number; good: number; st: number

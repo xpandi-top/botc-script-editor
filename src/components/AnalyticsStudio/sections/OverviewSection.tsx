@@ -9,7 +9,7 @@ import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined'
 import StarIcon from '@mui/icons-material/Star'
 import ReplayIcon from '@mui/icons-material/Replay'
 import { getDisplayName, getIconForCharacter } from '../../../catalog'
-import type { KpiSummary, ScriptStat, PlayerStat, CharStat, StorytiellerStat } from '../useStats'
+import type { KpiSummary, ScriptStat, PlayerStat, CharStat, StorytellerStat } from '../useStats'
 import type { GameRecord } from '../../StorytellerSub/types'
 import type { Language } from '../../../types'
 
@@ -93,7 +93,7 @@ function buildInsights(
   scriptStats: ScriptStat[],
   playerStats: PlayerStat[],
   charStats: CharStat[],
-  storytellerStats: StorytiellerStat[],
+  storytellerStats: StorytellerStat[],
   records: GameRecord[],
   zh: boolean,
 ): Insight[] {
@@ -315,7 +315,7 @@ interface Props {
   scriptStats: ScriptStat[]
   playerStats: PlayerStat[]
   charStats: CharStat[]
-  storytellerStats: StorytiellerStat[]
+  storytellerStats: StorytellerStat[]
   language: Language
   records: GameRecord[]
 }
