@@ -19,7 +19,7 @@ import ListIcon from '@mui/icons-material/List'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import { getDisplayName, getIconForCharacter, getAbilityText, allCharacters, characterById } from '../../../catalog'
 import { buildPlayerLogEntries, filterPlayerLogByCurrentPhase } from '../../../utils/playerLog'
-import { logPhrase, logDetail as ld } from '../../../utils/logI18n'
+import { logPhrase } from '../../../utils/logI18n'
 
 const TRAVELER_CHAR_IDS = allCharacters.filter((c) => c.team === 'traveler').map((c) => c.id)
 
@@ -219,7 +219,6 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
     const targetArr = Array.from(targets)
     const tLabels = targetArr.map((n) => `#${n}`).join(', ')
     const actorLabel = `#${seat.seat}${actualCharId ? ` (${getDisplayName(actualCharId, language)})` : ''}`
-    const successTag = ld.skillResultTag(language, isSuccess)
 
     let action = ''
     if (skillType === 'know' || skillType === 'guess') {
@@ -248,7 +247,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
       const verb = { addST: '+ST', removeST: '-ST', addPublic: '+tag', removePublic: '-tag' }[csSubtype]
       action = `${verb}:${tagName} → ${tLabels}`
     }
-    const detail = `${actorLabel} ${successTag} ${action}${skillNote.trim() ? ` | ${skillNote.trim()}` : ''}`
+    const detail = `${actorLabel} ${action}${skillNote.trim() ? ` | ${skillNote.trim()}` : ''}`
 
     // Apply state changes
     if (isSuccess) {
@@ -677,7 +676,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
           {/* Skill type toggle row */}
           <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
             {(['know', 'guess', 'change', 'changeStatus'] as const).map((t) => {
-              const labels: Record<string, string> = { know: zh ? '已知' : 'Know', guess: zh ? '猜测' : 'Guess', change: zh ? '变更' : 'Change', changeStatus: zh ? '改变状态' : 'Change Status' }
+              const labels: Record<string, string> = { know: zh ? '得知' : 'Know', guess: zh ? '猜测' : 'Guess', change: zh ? '变更' : 'Change', changeStatus: zh ? '改变状态' : 'Change Status' }
               return (
                 <Button key={t} size="small" variant={skillType === t ? 'contained' : 'outlined'}
                   onClick={() => { setSkillType(skillType === t ? '' : t); setTargets(new Set()); setRemoveTagVal('') }}>
