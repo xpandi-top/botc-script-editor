@@ -17,10 +17,8 @@
  */
 
 import { storageSync } from './storage'
-import { USER_SCRIPTS_KEY } from '../components/StorytellerSub/constants'
+import { USER_SCRIPTS_KEY, SCRIPT_META_KEY } from '../components/StorytellerSub/constants'
 import { CUSTOM_CHARACTERS_KEY, REVISION_OVERRIDES_KEY } from '../catalog'
-
-const SCRIPT_META_KEY = 'BOTC_SCRIPT_META'
 const BUNDLE_VERSION = 1
 
 export interface DataBundle {

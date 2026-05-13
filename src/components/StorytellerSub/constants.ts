@@ -4,6 +4,7 @@ import type { AudioTrack, StorytellerSeat, VoteDraft, SkillDraft, TimerDefaults,
 
 export const STORAGE_KEY = 'botc-storyteller-companion-v5'
 export const USER_SCRIPTS_KEY = 'BOTC_USER_SCRIPTS'
+export const SCRIPT_META_KEY = 'BOTC_SCRIPT_META'
 /** Dispatched on window when analytics tab mutates gameRecords in localStorage */
 export const RECORDS_CHANGED_EVENT = 'botc-records-changed'
 export const DEFAULT_PLAYER_COUNT = 10

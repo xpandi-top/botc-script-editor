@@ -1,13 +1,33 @@
 import { Capacitor } from '@capacitor/core'
 import { StatusBar, Style } from '@capacitor/status-bar'
 import { preloadStorage, migrateLegacyStorage } from './storage'
+import { STORAGE_KEY, USER_SCRIPTS_KEY, SCRIPT_META_KEY } from '../components/StorytellerSub/constants'
+import { CUSTOM_CHARACTERS_KEY, REVISION_OVERRIDES_KEY } from '../catalog'
+import { LAST_SYNC_KEY, USER_INFO_KEY } from '../hooks/useCloudSync'
+import { CLIENT_ID_STORAGE_KEY, CLIENT_SECRET_STORAGE_KEY } from './googleAuth'
 
 /** All localStorage keys the app uses — must be preloaded on native. */
 const ALL_STORAGE_KEYS = [
-  'botc-storyteller-companion-v5',
-  'botc-storyteller-companion-v4', // legacy migration source
-  'botc-storyteller-companion-v3', // legacy migration source
-  'BOTC_USER_SCRIPTS',
+  // Storyteller state (current + legacy migration sources)
+  STORAGE_KEY,
+  'botc-storyteller-companion-v4',
+  'botc-storyteller-companion-v3',
+  // Scripts & characters
+  USER_SCRIPTS_KEY,
+  SCRIPT_META_KEY,
+  CUSTOM_CHARACTERS_KEY,
+  REVISION_OVERRIDES_KEY,
+  // Cloud sync
+  LAST_SYNC_KEY,
+  USER_INFO_KEY,
+  CLIENT_ID_STORAGE_KEY,
+  CLIENT_SECRET_STORAGE_KEY,
+  // UI preferences
+  'botc-active-tab',
+  'botc-ui-language',
+  'botc-theme-mode',
+  'botc-font-settings-v2',
+  'botc-bgm-custom-tracks',
 ]
 
 export async function initNative(): Promise<void> {

@@ -65,14 +65,13 @@ import {
   teamOrder,
   toTitleCase,
 } from './catalog'
-import { STORAGE_KEY, USER_SCRIPTS_KEY, RECORDS_CHANGED_EVENT } from './components/StorytellerSub/constants'
+import { STORAGE_KEY, USER_SCRIPTS_KEY, SCRIPT_META_KEY, RECORDS_CHANGED_EVENT } from './components/StorytellerSub/constants'
 import { useCloudSync } from './hooks/useCloudSync'
 import { getClientId } from './lib/googleAuth'
 import type { SyncStatus } from './hooks/useCloudSync'
 import { decodeShareParam } from './lib/shareUrl'
 import type { GameRecord } from './components/StorytellerSub/types'
 
-const SCRIPT_META_KEY = 'BOTC_SCRIPT_META'
 
 type ScriptMeta = { tags?: string[]; notes?: string; pinnedRevisions?: Record<string, string> }
 import { storageSync } from './lib/storage'

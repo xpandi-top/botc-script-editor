@@ -26,13 +26,13 @@ import {
   type DriveBundle,
 } from '../lib/driveSync'
 import { storageSync } from '../lib/storage'
-import { USER_SCRIPTS_KEY, STORAGE_KEY } from '../components/StorytellerSub/constants'
+import { USER_SCRIPTS_KEY, STORAGE_KEY, SCRIPT_META_KEY } from '../components/StorytellerSub/constants'
 import { CUSTOM_CHARACTERS_KEY, REVISION_OVERRIDES_KEY } from '../catalog'
 
 export type SyncStatus = 'idle' | 'syncing' | 'error' | 'offline' | 'pulling' | 'pushing'
 
 export const LAST_SYNC_KEY = 'BOTC_LAST_SYNC'
-export const SCRIPT_META_KEY_SYNC = 'BOTC_SCRIPT_META'
+export const USER_INFO_KEY = 'BOTC_GOOGLE_USER_INFO'
 
 export interface CloudSyncState {
   connected: boolean
@@ -58,7 +58,6 @@ export function useCloudSync(): CloudSyncState {
     return stored ? new Date(Number(stored)) : null
   })
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const USER_INFO_KEY = 'BOTC_GOOGLE_USER_INFO'
   const [userInfo, setUserInfo] = useState<GoogleUserInfo | null>(() => {
     try { return JSON.parse(localStorage.getItem(USER_INFO_KEY) ?? 'null') } catch { return null }
   })
@@ -112,7 +111,7 @@ export function useCloudSync(): CloudSyncState {
         try { return JSON.parse(localStorage.getItem(REVISION_OVERRIDES_KEY) ?? 'null') } catch { return null }
       })(),
       scriptMeta: (() => {
-        try { return JSON.parse(localStorage.getItem(SCRIPT_META_KEY_SYNC) ?? 'null') } catch { return null }
+        try { return JSON.parse(localStorage.getItem(SCRIPT_META_KEY) ?? 'null') } catch { return null }
       })(),
       gameRecords,
     }
@@ -128,7 +127,7 @@ export function useCloudSync(): CloudSyncState {
     if (bundle.revisionOverrides != null)
       try { localStorage.setItem(REVISION_OVERRIDES_KEY, JSON.stringify(bundle.revisionOverrides)) } catch {}
     if (bundle.scriptMeta != null)
-      try { localStorage.setItem(SCRIPT_META_KEY_SYNC, JSON.stringify(bundle.scriptMeta)) } catch {}
+      try { localStorage.setItem(SCRIPT_META_KEY, JSON.stringify(bundle.scriptMeta)) } catch {}
     if (bundle.gameRecords != null) {
       try {
         // Merge into existing storyteller state — preserve active game, just replace gameRecords
