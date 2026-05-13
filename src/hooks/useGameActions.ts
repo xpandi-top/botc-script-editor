@@ -1,5 +1,7 @@
 import { createDefaultVoteDraft, createDefaultSkillDraft, buildVotingOrder } from '../components/StorytellerSub/constants'
 import type { DayState, EventLogEntry, PickerMode, SkillOverlayState, SkillRecord, StorytellerSeat, TimerDefaults, VoteRecord } from '../components/StorytellerSub/types'
+import type { Language } from '../types'
+import { logDetail } from '../utils/logI18n'
 
 interface ActionDeps {
   currentDay: DayState
@@ -22,10 +24,11 @@ interface ActionDeps {
   setCustomTagPool: React.Dispatch<React.SetStateAction<string[]>>
   setSeatTagDrafts: React.Dispatch<React.SetStateAction<Record<number, string>>>
   text: { aliveTag: string; executedTag: string; traveler: string; noVoteTag: string }
+  language: Language
 }
 
 export function buildGameActions(deps: ActionDeps) {
-  const { currentDay, timerDefaults, requiredVotes, draftPassed, isTimerRunning, skillOverlay, seatTagDrafts, updateCurrentDay, updateCurrentDayWithUndo, appendEvent, setPickerMode, setIsTimerRunning, setSkillOverlay, setSkillPopoutSeat, setTagPopoutSeat, setSkillRoleDropdownOpen, setShowNominationSheet, setCustomTagPool, setSeatTagDrafts, text } = deps
+  const { currentDay, timerDefaults, requiredVotes, draftPassed, isTimerRunning, skillOverlay, seatTagDrafts, updateCurrentDay, updateCurrentDayWithUndo, appendEvent, setPickerMode, setIsTimerRunning, setSkillOverlay, setSkillPopoutSeat, setTagPopoutSeat, setSkillRoleDropdownOpen, setShowNominationSheet, setCustomTagPool, setSeatTagDrafts, text, language } = deps
 
   function updateSeat(seatNumber: number, updater: (s: StorytellerSeat) => StorytellerSeat) {
     updateCurrentDay((d) => ({ ...d, seats: d.seats.map((s) => (s.seat === seatNumber ? updater(s) : s)) }))
@@ -38,10 +41,10 @@ export function buildGameActions(deps: ActionDeps) {
       const newSeat = newSeats.find((s) => s.seat === seatNumber)
       let updated = { ...d, seats: newSeats }
       if (oldSeat && newSeat) {
-        if (oldSeat.alive !== newSeat.alive) updated = appendEvent(updated, 'stateChange', `#${seatNumber} ${newSeat.alive ? '复活' : '死亡'}`)
-        if (oldSeat.isExecuted !== newSeat.isExecuted) updated = appendEvent(updated, 'stateChange', `#${seatNumber} ${newSeat.isExecuted ? '+处决' : '-处决'}`)
-        if (oldSeat.isTraveler !== newSeat.isTraveler) updated = appendEvent(updated, 'stateChange', `#${seatNumber} ${newSeat.isTraveler ? '+旅行者' : '-旅行者'}`)
-        if (oldSeat.hasNoVote !== newSeat.hasNoVote) updated = appendEvent(updated, 'stateChange', `#${seatNumber} ${newSeat.hasNoVote ? '+无投票权' : '-无投票权'}`)
+        if (oldSeat.alive !== newSeat.alive) updated = appendEvent(updated, 'stateChange', newSeat.alive ? logDetail.seatAlive(language, seatNumber) : logDetail.seatDead(language, seatNumber))
+        if (oldSeat.isExecuted !== newSeat.isExecuted) updated = appendEvent(updated, 'stateChange', newSeat.isExecuted ? logDetail.seatExecuted(language, seatNumber) : logDetail.seatUnexecuted(language, seatNumber))
+        if (oldSeat.isTraveler !== newSeat.isTraveler) updated = appendEvent(updated, 'stateChange', newSeat.isTraveler ? logDetail.seatTraveler(language, seatNumber) : logDetail.seatUntraveler(language, seatNumber))
+        if (oldSeat.hasNoVote !== newSeat.hasNoVote) updated = appendEvent(updated, 'stateChange', newSeat.hasNoVote ? logDetail.seatNoVote(language, seatNumber) : logDetail.seatUnNoVote(language, seatNumber))
         if (oldSeat.characterId !== newSeat.characterId) {
           const charName = (id: string | null) => id || '—'
           if (oldSeat.characterId && newSeat.characterId) {
@@ -103,7 +106,7 @@ export function buildGameActions(deps: ActionDeps) {
   function rejectNomination() {
     updateCurrentDay((d) => {
       const failRecord: VoteRecord | null = (d.voteDraft.actor && d.voteDraft.target) ? { id: `${Date.now()}`, actor: d.voteDraft.actor, target: d.voteDraft.target, voters: [], voteCount: 0, requiredVotes, passed: false, note: d.voteDraft.note.trim(), overridden: false, failed: true } : null
-      return appendEvent({ ...d, nominationStep: 'waitingForNomination', nominationWaitSeconds: timerDefaults.nominationWaitSeconds, voteHistory: failRecord ? [failRecord, ...d.voteHistory] : d.voteHistory, voteDraft: createDefaultVoteDraft(), votingState: null }, 'stateChange', `提名失败: #${d.voteDraft.actor ?? '?'} → #${d.voteDraft.target ?? '?'}`)
+      return appendEvent({ ...d, nominationStep: 'waitingForNomination', nominationWaitSeconds: timerDefaults.nominationWaitSeconds, voteHistory: failRecord ? [failRecord, ...d.voteHistory] : d.voteHistory, voteDraft: createDefaultVoteDraft(), votingState: null }, 'stateChange', logDetail.nominationFailed(language, d.voteDraft.actor ?? '?', d.voteDraft.target ?? '?'))
     })
     setPickerMode('nominator')
     setIsTimerRunning(false)
@@ -150,7 +153,7 @@ export function buildGameActions(deps: ActionDeps) {
     const vd = currentDay.voteDraft
     const finalCount = vd.voteCountOverride !== null ? vd.voteCountOverride : vd.voters.length
     const record: VoteRecord = { id: `${Date.now()}`, actor: vd.actor!, target: vd.target!, voters: [...new Set(vd.voters)], voteCount: finalCount, requiredVotes, passed: draftPassed, note: vd.note.trim(), overridden: vd.manualPassed !== null || vd.voteCountOverride !== null, isExile: vd.isExile }
-    updateCurrentDayWithUndo((d) => appendEvent({ ...d, nominationStep: 'waitingForNomination', nominationWaitSeconds: timerDefaults.nominationWaitSeconds, voteHistory: [record, ...d.voteHistory], voteDraft: createDefaultVoteDraft(), votingState: null }, 'vote', `#${record.actor} → #${record.target}: ${record.passed ? 'PASS' : 'FAIL'} (${record.voteCount}/${record.requiredVotes})`))
+    updateCurrentDayWithUndo((d) => appendEvent({ ...d, nominationStep: 'waitingForNomination', nominationWaitSeconds: timerDefaults.nominationWaitSeconds, voteHistory: [record, ...d.voteHistory], voteDraft: createDefaultVoteDraft(), votingState: null }, 'vote', logDetail.voteResult(language, record.actor, record.target, record.passed, record.voteCount, record.requiredVotes)))
     setPickerMode('nominator')
     setIsTimerRunning(false)
     // Timer does NOT auto-start — ST manually restarts nomination wait if needed
@@ -174,7 +177,7 @@ export function buildGameActions(deps: ActionDeps) {
     if (record && skillOverlay?.draft.actor) {
       const vis = skillOverlay.visibility ?? 'public'
       const sr: SkillRecord = { id: `${Date.now()}`, ...skillOverlay.draft, activatedDuringPhase: skillOverlay.phaseContext, visibility: vis }
-      updateCurrentDay((d) => appendEvent({ ...d, skillHistory: [sr, ...d.skillHistory] }, 'skill', `#${sr.actor} ${sr.roleId || '?'} (${sr.activatedDuringPhase})`, vis))
+      updateCurrentDay((d) => appendEvent({ ...d, skillHistory: [sr, ...d.skillHistory] }, 'skill', `#${sr.actor} ${sr.roleId || '?'} (${logDetail.phase(language, sr.activatedDuringPhase)})`, vis))
     }
     const wasRunning = skillOverlay?.wasTimerRunning ?? false
     setSkillOverlay(null)

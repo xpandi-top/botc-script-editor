@@ -1,12 +1,15 @@
 import type { AggregatedLogEntry, LogFilterState, DayState } from '../components/StorytellerSub/types'
+import type { Language } from '../types'
+import { logDetail } from './logI18n'
 
 const PHASE_ORDER: Record<string, number> = { night: 0, private: 1, public: 2, nomination: 3 }
 
 /**
  * Build the flat list of all aggregated log entries from all days.
  * Pure function — no filtering or sorting applied.
+ * Pass `language` to get translated detail strings for vote / skill entries.
  */
-export function buildAggregatedEntries(days: DayState[]): AggregatedLogEntry[] {
+export function buildAggregatedEntries(days: DayState[], language: Language = 'zh'): AggregatedLogEntry[] {
   const entries: AggregatedLogEntry[] = []
 
   for (const day of days) {
@@ -20,7 +23,7 @@ export function buildAggregatedEntries(days: DayState[]): AggregatedLogEntry[] {
         timestamp: Number(v.id),
         type: 'vote',
         visibility: 'public',
-        detail: `#${v.actor} → #${v.target}: ${v.passed ? 'PASS' : 'FAIL'} (${v.voteCount}/${v.requiredVotes})${voterList}${v.note ? ` · ${v.note}` : ''}`,
+        detail: `${logDetail.voteResult(language, v.actor, v.target, v.passed, v.voteCount, v.requiredVotes)}${voterList}${v.note ? ` · ${v.note}` : ''}`,
       })
     }
 

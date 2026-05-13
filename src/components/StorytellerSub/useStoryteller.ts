@@ -144,8 +144,8 @@ export function useStoryteller(props: StorytellerHelperProps) {
 
   // ── Aggregated log ──
   const aggregatedLog = useMemo((): AggregatedLogEntry[] => {
-    return filterAndSortLog(buildAggregatedEntries(days), logFilter)
-  }, [days, logFilter])
+    return filterAndSortLog(buildAggregatedEntries(days, language), logFilter)
+  }, [days, language, logFilter])
 
   function getPhaseContext(): string {
     const d = currentDay
@@ -192,7 +192,7 @@ export function useStoryteller(props: StorytellerHelperProps) {
   const { lastCountdownRef } = useTimerEffect({ currentDay, currentTimerSeconds, isTimerRunning, skillOverlay, timerDefaults, updateCurrentDay, setIsTimerRunning, setAlarmActive: ui.setAlarmActive, alarmActive: ui.alarmActive })
 
   // ── Domain actions ──
-  const gameActions = buildGameActions({ currentDay, timerDefaults, requiredVotes: effectiveRequiredVotes, draftPassed, isTimerRunning, skillOverlay, seatTagDrafts, updateCurrentDay, updateCurrentDayWithUndo, appendEvent, setPickerMode, setIsTimerRunning, setSkillOverlay, setSkillPopoutSeat: ui.setSkillPopoutSeat, setTagPopoutSeat: ui.setTagPopoutSeat, setSkillRoleDropdownOpen: ui.setSkillRoleDropdownOpen, setShowNominationSheet: ui.setShowNominationSheet, setCustomTagPool, setSeatTagDrafts, text })
+  const gameActions = buildGameActions({ currentDay, timerDefaults, requiredVotes: effectiveRequiredVotes, draftPassed, isTimerRunning, skillOverlay, seatTagDrafts, updateCurrentDay, updateCurrentDayWithUndo, appendEvent, setPickerMode, setIsTimerRunning, setSkillOverlay, setSkillPopoutSeat: ui.setSkillPopoutSeat, setTagPopoutSeat: ui.setTagPopoutSeat, setSkillRoleDropdownOpen: ui.setSkillRoleDropdownOpen, setShowNominationSheet: ui.setShowNominationSheet, setCustomTagPool, setSeatTagDrafts, text, language })
 
   const lifecycle = buildGameLifecycle({ days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, endGameResult, scriptOptions, onSelectScript, setDays, setDaysWithUndo, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay: (v) => setSkillOverlay(v), setNewGamePanel, setShowNewGamePanel, setEndGameResult, setGameRecords, setSelectedAudioSrc: audio.setSelectedAudioSrc, setAudioPlaying: audio.setAudioPlaying, nightBgmSrc: NIGHT_BGM_SRC, language, appendEvent, customTagPool, playerNamePool, setCurrentRecordName, setTimerDefaults, setCustomTagPool, setPlayerNamePool, setShowEndGameModal, setNightShowCharacter: ui.setNightShowCharacter, setNightShowWakeOrder: ui.setNightShowWakeOrder, stFabledIds, stCustomRules, setStFabledIds, setStCustomRules, stName, setStName, gameStartedAt, setGameStartedAt, setShowSaveBeforeNewGame, setPendingNewGameAfterSave })
 

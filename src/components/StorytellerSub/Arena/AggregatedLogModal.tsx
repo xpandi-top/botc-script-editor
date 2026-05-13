@@ -2,6 +2,8 @@
 import type { StorytellerContext } from '../useStoryteller'
 import React, { useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { buildAggregatedEntries } from '../../../utils/logFilter'
+import { logDetail } from '../../../utils/logI18n'
 import {
   Accordion, AccordionDetails, AccordionSummary,
   Box, Button, Chip, Dialog, DialogContent, DialogTitle,
@@ -30,30 +32,6 @@ function phaseLabel(phase: string, text: any): string {
   return { night: text.nightPhase, private: text.privateChat, public: text.publicChat, nomination: text.nomination }[phase] ?? phase
 }
 
-function buildEntries(days: any[], text: any) {
-  const all: any[] = []
-  for (const day of days) {
-    for (const v of day.voteHistory) {
-      const voterList = v.voters.length > 0 ? ` [${v.voters.map((n: number) => `#${n}`).join(', ')}]` : ''
-      const outcome = v.passed ? (text.pass || 'Pass') : (text.fail || 'Fail')
-      const base = `#${v.actor} → #${v.target}: ${outcome} (${v.voteCount}/${v.requiredVotes})${voterList}`
-      const detail = v.note ? `${base} · ${v.note}` : base
-      all.push({ id: `v-${day.day}-${v.id}`, day: day.day, phase: 'nomination', timestamp: Number(v.id), type: 'vote', visibility: 'public', detail })
-    }
-    for (const s of day.skillHistory) {
-      const targetStr = (s.targets || []).length > 0 ? ` → [${(s.targets as number[]).map((t) => `#${t}`).join(', ')}]` : ''
-      const detail = `#${s.actor} ${s.roleId || ''}${targetStr}${s.statement ? ` "${s.statement}"` : ''}${s.result ? ` [${s.result}]` : ''}`
-      all.push({ id: `s-${day.day}-${s.id}`, day: day.day, phase: s.activatedDuringPhase, timestamp: Number(s.id), type: 'skill', visibility: 'st-only', detail })
-    }
-    for (const e of day.eventLog) {
-      if (e.kind === 'vote' || e.kind === 'skill') continue
-      const vis: 'public' | 'st-only' = (e.kind === 'stateChange' || e.kind === 'phaseTransition') ? 'public' : 'st-only'
-      all.push({ id: `e-${day.day}-${e.id}`, day: day.day, phase: e.phase, timestamp: e.timestamp, type: 'event', visibility: vis, detail: e.detail })
-    }
-  }
-  return all
-}
-
 function buildShareText(
   days: any[], text: any, language: string,
   visFilter: 'all' | 'public' | 'st-only',
@@ -69,8 +47,7 @@ function buildShareText(
     if (typeFilters.has('vote') && (visFilter === 'all' || visFilter === 'public')) {
       for (const v of day.voteHistory) {
         const voterList = v.voters.length > 0 ? ` [${v.voters.map((n: number) => `#${n}`).join(', ')}]` : ''
-        const outcome = v.passed ? (text.pass || 'Pass') : (text.fail || 'Fail')
-        const line = `[${text.filterVote}] #${v.actor} → #${v.target}: ${outcome} (${v.voteCount}/${v.requiredVotes})${voterList}${v.note ? ` · ${v.note}` : ''}`
+        const line = `[${text.filterVote}] ${logDetail.voteResult(language, v.actor, v.target, v.passed, v.voteCount, v.requiredVotes)}${voterList}${v.note ? ` · ${v.note}` : ''}`
         lines.push(line)
       }
     }
@@ -148,7 +125,7 @@ export function AggregatedLogModal({ ctx }: { ctx: StorytellerContext }) {
 
   // All entries (unfiltered) sorted ascending — used to assign global sequence numbers
   const allAsc = useMemo(() => {
-    const all = buildEntries(days, text)
+    const all = buildAggregatedEntries(days, language)
     all.sort((a, b) => {
       if (a.day !== b.day) return a.day - b.day
       const pA = PHASE_ORDER[a.phase] ?? 99; const pB = PHASE_ORDER[b.phase] ?? 99
@@ -156,7 +133,7 @@ export function AggregatedLogModal({ ctx }: { ctx: StorytellerContext }) {
       return a.timestamp - b.timestamp
     })
     return all
-  }, [days])
+  }, [days, language])
 
   // Global seq number map: id → sequence number (1 = oldest)
   const seqMap = useMemo(() => {

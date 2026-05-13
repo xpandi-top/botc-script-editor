@@ -1,5 +1,6 @@
 // @ts-nocheck
 import React from 'react'
+import { logDetail } from '../../../utils/logI18n'
 import { Box, Typography, IconButton, Button, Tooltip } from '@mui/material'
 import ReplayIcon from '@mui/icons-material/Replay'
 import HeartBrokenIcon from '@mui/icons-material/HeartBroken'
@@ -52,7 +53,7 @@ export function NominationVoteList({
       const seat = d.seats.find((s: any) => s.seat === seatNum)
       const newAlive = !seat?.alive
       const updated = { ...d, seats: d.seats.map((s: any) => s.seat === seatNum ? { ...s, alive: newAlive } : s) }
-      return appendEvent(updated, 'stateChange', `#${seatNum} ${newAlive ? '复活' : '死亡'}`)
+      return appendEvent(updated, 'stateChange', newAlive ? logDetail.seatAlive(language, seatNum) : logDetail.seatDead(language, seatNum))
     })
   }
 
@@ -61,7 +62,7 @@ export function NominationVoteList({
       const seat = d.seats.find((s: any) => s.seat === seatNum)
       const newHasNoVote = !seat?.hasNoVote
       const updated = { ...d, seats: d.seats.map((s: any) => s.seat === seatNum ? { ...s, hasNoVote: newHasNoVote } : s) }
-      return appendEvent(updated, 'stateChange', `#${seatNum} ${newHasNoVote ? '+无投票权' : '-无投票权'}`)
+      return appendEvent(updated, 'stateChange', newHasNoVote ? logDetail.seatNoVote(language, seatNum) : logDetail.seatUnNoVote(language, seatNum))
     })
   }
 
