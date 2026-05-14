@@ -367,6 +367,11 @@ export default function App() {
     return ''
   }, [activeScriptCharacters.length])
 
+  // Keep registry in sync with React state before any memos read from it.
+  // useEffect fires after render — too late for useMemo. Calling here is safe
+  // because registerCustomCharacters is idempotent and has no DOM side-effects.
+  registerCustomCharacters(customChars)
+
   const availableEditions = useMemo(
     () => Array.from(new Set(getEffectiveAllCharacters().map((c) => c.edition))).sort(
       (a, b) => (editionLabels[uiLanguage][a] ?? toTitleCase(a)).localeCompare(editionLabels[uiLanguage][b] ?? toTitleCase(b)),
