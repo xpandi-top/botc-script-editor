@@ -1,0 +1,26 @@
+{
+  "id": "gnome",
+  "team": "traveler",
+  "edition": "tb",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Gnome",
+    "ability": "All players start knowing a player of your alignment. You may choose to kill anyone who nominates them.",
+    "revisions": {
+      "v1": "All players start knowing a player of your alignment. You may choose to kill anyone who nominates them."
+    }
+  },
+  "zh": {
+    "name": "侏儒",
+    "ability": "当你加入游戏时，所有玩家会得知一名与你阵营相同的玩家。每当他被提名时，你可以杀死提名者。",
+    "revisions": {
+      "v1": "当你加入游戏时，所有玩家会得知一名与你阵营相同的玩家。每当他被提名时，你可以杀死提名者。"
+    }
+  }
+}

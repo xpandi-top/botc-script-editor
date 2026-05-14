@@ -1,0 +1,26 @@
+{
+  "id": "diaomin",
+  "team": "traveler",
+  "edition": "experimental",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Diaomin",
+    "ability": "One of the players who have interrupted you roughly during the day will be drunk tonight, even if you are dead.",
+    "revisions": {
+      "v1": "One of the players who have interrupted you roughly during the day will be drunk tonight, even if you are dead."
+    }
+  },
+  "zh": {
+    "name": "刁民",
+    "ability": "曾在白天粗暴地打断过你的发言的玩家之一会在当晚醉酒，即使你已死亡。",
+    "revisions": {
+      "v1": "曾在白天粗暴地打断过你的发言的玩家之一会在当晚醉酒，即使你已死亡。"
+    }
+  }
+}
