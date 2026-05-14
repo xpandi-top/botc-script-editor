@@ -164,19 +164,27 @@ export function AnalyticsTab({ language, onLanguageChange, sharedRecords: shared
     setShareUrlDialogOpen(true)
     if (precomputedShareUrl) return
     setShareUrlLoading(true)
-    // Whitelist only fields the analytics view actually reads — strips savedDays,
-    // timerDefaults, customTagPool, playerNamePool, survey fields, stCustomRules, etc.
+    // Strip only fields unused by analytics: savedDays, timerDefaults,
+    // customTagPool, playerNamePool, stCustomRules, stFabledIds.
     // endedAt kept for share-param validation in useShareParam.
     const shareRecords = activeRecords.map((r) => ({
       id: r.id,
+      startedAt: r.startedAt,
       endedAt: r.endedAt,
+      recordName: r.recordName,
       winner: r.winner,
       scriptSlug: r.scriptSlug,
       scriptTitle: r.scriptTitle,
       days: r.days,
       durationMs: r.durationMs,
       playerSummaries: r.playerSummaries,
-      // Only assignments sub-field is read; strip seatNames/seatNotes/demonBluffs/etc.
+      mvp: r.mvp,
+      stName: r.stName,
+      balanced: r.balanced,
+      funEvil: r.funEvil,
+      funGood: r.funGood,
+      replay: r.replay,
+      otherNote: r.otherNote,
       setup: r.setup ? { assignments: r.setup.assignments } : undefined,
     }))
     encodeShareParam(shareRecords)
