@@ -16,6 +16,7 @@ import { Box, Typography, Paper, Grid, IconButton, Chip, Divider, Dialog, Dialog
 import {
   editionLabels,
   getAbilityText,
+  getAbilityTextForScript,
   getDisplayName,
   getActiveJinxesForScript,
   getIconForCharacter,
@@ -302,13 +303,30 @@ export function SheetArticle({
 
   const renderCharacterCard = (character: ResolvedScriptCharacter, lang: Language, withBoth: boolean, nameColW: number) => {
     const icon = getCharacterImage(character)
-    const displayName = character.name ?? getDisplayName(character.id, lang)
-    const ability = character.ability ?? getAbilityText(character.id, lang)
+    // Always resolve name/ability from catalog/registry using render `lang`.
+    // character.name / character.ability are pre-baked from uiLanguage in App.tsx,
+    // which breaks bilingual-separate when uiLanguage ≠ render lang.
+    // Fall back to stored values only for script-level custom chars not in any registry
+    // (getDisplayName returns toTitleCase(id) and getAbilityText returns the fallback string).
+    const NO_ABILITY = 'No ability text available.'
+    const catalogName = getDisplayName(character.id, lang)
+    const displayName = catalogName !== toTitleCase(character.id)
+      ? catalogName
+      : (character.name ?? catalogName)
+    const catalogAbility = getAbilityTextForScript(character.id, lang, activeScript.pinnedRevisions)
+    const ability = catalogAbility !== NO_ABILITY
+      ? catalogAbility
+      : (character.ability ?? NO_ABILITY)
+
+    const altLang = lang === 'zh' ? 'en' : 'zh'
     const abilityAlt = withBoth
-      ? (character.ability ?? getAbilityText(character.id, lang === 'zh' ? 'en' : 'zh'))
+      ? (() => {
+          const a = getAbilityTextForScript(character.id, altLang, activeScript.pinnedRevisions)
+          return a !== NO_ABILITY ? a : (character.ability ?? '')
+        })()
       : null
     const nameAlt = withBoth
-      ? getDisplayName(character.id, lang === 'zh' ? 'en' : 'zh')
+      ? getDisplayName(character.id, altLang)
       : null
 
     const zhFont = fontFamilyZh && fontFamilyZh !== fontFamilyEn ? fontFamilyZh : undefined

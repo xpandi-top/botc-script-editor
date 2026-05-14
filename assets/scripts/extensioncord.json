@@ -1,0 +1,33 @@
+[
+  {
+    "id": "_meta",
+    "name": "ExtensionCord",
+    "name_zh": "毒线蔓延",
+    "author": "Viva La Sam",
+    "logo": ""
+  },
+  "investigator",
+  "pixie",
+  "empath",
+  "dreamer",
+  "mathematician",
+  "oracle",
+  "monk",
+  "artist",
+  "fisherman",
+  "huntsman",
+  "soldier",
+  "ravenkeeper",
+  "cannibal",
+  "puzzlemaster",
+  "recluse",
+  "mutant",
+  "damsel",
+  "barber",
+  "poisoner",
+  "spy",
+  "scarletwoman",
+  "boomdandy",
+  "marionette",
+  "nodashii"
+]

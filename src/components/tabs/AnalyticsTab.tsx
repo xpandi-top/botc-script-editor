@@ -11,7 +11,8 @@ import FileOpenIcon from '@mui/icons-material/FileOpen'
 import LinkIcon from '@mui/icons-material/Link'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import ShareIcon from '@mui/icons-material/Share'
-import { encodeShareParam, buildShareUrl } from '../../lib/shareUrl'
+import { encodeShareParam, buildShareUrl, isLocalhost } from '../../lib/shareUrl'
+import { createShortLink } from '../../lib/firebaseShortUrl'
 import { getDisplayName } from '../../catalog'
 import { STORAGE_KEY, RECORDS_CHANGED_EVENT } from '../StorytellerSub/constants'
 import { storageSync } from '../../lib/storage'
@@ -165,8 +166,10 @@ export function AnalyticsTab({ language, onLanguageChange, sharedRecords: shared
     setShareUrlLoading(true)
     // Whitelist only fields the analytics view actually reads — strips savedDays,
     // timerDefaults, customTagPool, playerNamePool, survey fields, stCustomRules, etc.
+    // endedAt kept for share-param validation in useShareParam.
     const shareRecords = activeRecords.map((r) => ({
       id: r.id,
+      endedAt: r.endedAt,
       winner: r.winner,
       scriptSlug: r.scriptSlug,
       scriptTitle: r.scriptTitle,
@@ -177,8 +180,19 @@ export function AnalyticsTab({ language, onLanguageChange, sharedRecords: shared
       setup: r.setup ? { assignments: r.setup.assignments } : undefined,
     }))
     encodeShareParam(shareRecords)
-      .then((encoded) => {
-        setPrecomputedShareUrl(buildShareUrl('ar', encoded))
+      .then(async (encoded) => {
+        try {
+          // Short links are useless on localhost (recipients can't reach it).
+          // Also skip if Firestore is unreachable — fall back to ?ar= long URL.
+          if (!isLocalhost()) {
+            const shortId = await createShortLink(encoded)
+            setPrecomputedShareUrl(buildShareUrl('sl', shortId))
+          } else {
+            setPrecomputedShareUrl(buildShareUrl('ar', encoded))
+          }
+        } catch {
+          setPrecomputedShareUrl(buildShareUrl('ar', encoded))
+        }
         setShareUrlLoading(false)
       })
       .catch((e: unknown) => {

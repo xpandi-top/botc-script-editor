@@ -79,9 +79,23 @@ export async function decodeShareParam<T>(param: string): Promise<T> {
   return JSON.parse(json) as T
 }
 
-/** Build a full shareable URL pointing at the current app with the given param. */
+/**
+ * True when running on localhost / loopback — short links are useless here
+ * because recipients can't reach the local dev server.
+ */
+export function isLocalhost(): boolean {
+  const h = window.location.hostname
+  return h === 'localhost' || h === '127.0.0.1' || h === '::1' || h === ''
+}
+
+/**
+ * Build a full shareable URL pointing at the app with the given param.
+ * Uses VITE_APP_URL if set (preferred for production short links),
+ * otherwise falls back to window.location.origin.
+ */
 export function buildShareUrl(paramName: string, encoded: string, hash?: string): string {
-  const base = window.location.origin + window.location.pathname
+  const appUrl = (import.meta.env.VITE_APP_URL as string | undefined)?.replace(/\/$/, '')
+  const base = appUrl ?? (window.location.origin + window.location.pathname)
   const url = new URL(base)
   url.searchParams.set(paramName, encoded)
   return url.toString() + (hash ? '#' + hash : '')

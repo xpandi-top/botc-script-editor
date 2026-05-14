@@ -1,0 +1,40 @@
+[
+  {
+    "id": "_meta",
+    "name": "Buyer's Remorse",
+    "bootlegger": [
+      "Players have 7 gold. Each day, an ability is auctioned; highest unique bidder gains it until dawn, even if dead. Bids are secret & not returned (bar evil ties)."
+    ],
+    "bootlegger_zh": [
+      "每天会有一个能力被拍卖.最高的唯一出价者获得该能力直到下个黎明,即使他已死亡.",
+      "每名玩家初始拥有7枚金币(不可交易). 善良出价不会退还,邪恶出价在平手时会退还.获得能力的玩家会被秘密告知."
+    ],
+    "name_zh": "冲动消费",
+    "author": "mist",
+    "logo": ""
+  },
+  "dreamer",
+  "engineer",
+  "fisherman",
+  "mayor",
+  "nightwatchman",
+  "noble",
+  "pixie",
+  "ravenkeeper",
+  "seamstress",
+  "shugenja",
+  "snakecharmer",
+  "undertaker",
+  "village_idiot",
+  "barber",
+  "golem",
+  "puzzlemaster",
+  "recluse",
+  "goblin",
+  "harpy",
+  "psychopath",
+  "xaan",
+  "imp",
+  "lleech",
+  "nodashii"
+]
