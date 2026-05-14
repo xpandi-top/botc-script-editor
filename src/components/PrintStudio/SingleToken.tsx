@@ -1,7 +1,7 @@
 import { useId } from 'react'
 import { FONT_CSS } from '../PrintOptionsDialog'
 import type { TokenPrintOptions, TokenShape } from './types'
-import { nightOrder } from '../../catalog'
+import { getEffectiveNightOrderFromRegistry } from '../../catalog'
 
 function isChineseText(text: string): boolean {
   return /[\u4e00-\u9fff]/.test(text)
@@ -129,8 +129,9 @@ function clipShape(shape: TokenShape, cx: number, cy: number, r: number, id: str
 }
 
 function getWakeIndicators(charId: string): { firstNight: boolean; otherNight: boolean; hasSetup: boolean } {
-  const firstNightList = nightOrder?.first_night ?? []
-  const otherNightList = nightOrder?.other_nights ?? []
+  const eff = getEffectiveNightOrderFromRegistry()
+  const firstNightList = eff.first_night ?? []
+  const otherNightList = eff.other_nights ?? []
   return {
     firstNight: firstNightList.includes(charId),
     otherNight: otherNightList.includes(charId),

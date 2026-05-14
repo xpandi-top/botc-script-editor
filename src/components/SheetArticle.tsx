@@ -20,7 +20,7 @@ import {
   getDisplayName,
   getActiveJinxesForScript,
   getIconForCharacter,
-  nightOrder,
+  getEffectiveNightOrderFromRegistry,
   teamLabels,
   toTitleCase,
   locales,
@@ -137,8 +137,9 @@ export function SheetArticle({
     ?.map(normalizeNightOrderToken).filter((id) => id !== 'dusk' && id !== 'dawn') ?? []
   const customOtherNight = activeScript.meta.otherNight
     ?.map(normalizeNightOrderToken).filter((id) => id !== 'dusk' && id !== 'dawn') ?? []
-  const firstNightSource = customFirstNight.length > 0 ? customFirstNight : nightOrder.first_night ?? []
-  const otherNightSource = customOtherNight.length > 0 ? customOtherNight : nightOrder.other_nights ?? []
+  const effectiveNightOrder = getEffectiveNightOrderFromRegistry()
+  const firstNightSource = customFirstNight.length > 0 ? customFirstNight : effectiveNightOrder.first_night ?? []
+  const otherNightSource = customOtherNight.length > 0 ? customOtherNight : effectiveNightOrder.other_nights ?? []
   const firstNightOrder = firstNightSource.filter(
     (id) => id === 'MINION_INFO' || id === 'DEMON_INFO' || scriptCharacterIds.has(id),
   )

@@ -84,14 +84,17 @@ export function NightOrderPicker({ value, onChange, nightType, language }: Props
   const nightOrder = getEffectiveNightOrderFromRegistry()
   const rawList = nightType === 'first' ? (nightOrder.first_night ?? []) : (nightOrder.other_nights ?? [])
 
-  // Current display label
+  // Current display label.
+  // pos=1 → before rawList[0] (wake first); pos=N → after rawList[N-2]
   let buttonLabel: string
   if (value == null) {
     buttonLabel = zh ? '不唤醒' : 'No wake-up'
+  } else if (value === 1) {
+    buttonLabel = zh ? '第 1 位（最先唤醒）' : '#1 (wake first)'
   } else {
-    const charAtPos = rawList[value - 1]
-    const nameAtPos = charAtPos ? getDisplayName(charAtPos, language) : `#${value}`
-    buttonLabel = zh ? `第 ${value} 位（${nameAtPos} 后）` : `#${value} (after ${nameAtPos})`
+    const charBefore = rawList[value - 2]
+    const nameBefore = charBefore ? getDisplayName(charBefore, language) : `#${value - 1}`
+    buttonLabel = zh ? `第 ${value} 位（${nameBefore} 后）` : `#${value} (after ${nameBefore})`
   }
 
   const handleInsert = (pos: number) => {
