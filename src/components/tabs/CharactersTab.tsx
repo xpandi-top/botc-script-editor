@@ -32,6 +32,8 @@ import {
   clearCharacterPackOverrides,
   refreshCharPackOverrides,
   CHAR_PACK_OVERRIDES_KEY,
+  REVISION_OVERRIDES_KEY,
+  refreshRevisionOverrides,
 } from '../../catalog'
 import type { CharacterFileEntry } from '../../types'
 import { processIconFile } from '../../lib/iconResize'
@@ -234,6 +236,18 @@ export function CharactersTab({
       const base = `custom_${slugify(draft.nameEn)}`
       const id = base + '_' + now.toString(36)
       setCustomChars((cur) => [...cur, { ...draft, id, createdAt: now, updatedAt: now }])
+      // Write v1 revision so revision panel shows history immediately
+      try {
+        const stored = JSON.parse(localStorage.getItem(REVISION_OVERRIDES_KEY) ?? '{}')
+        stored[id] = {
+          current_revision: 'v1',
+          revisions: [{ id: 'v1', note: '' }],
+          locale_en: { v1: draft.abilityEn },
+          ...(draft.abilityZh?.trim() ? { locale_zh: { v1: draft.abilityZh } } : {}),
+        }
+        localStorage.setItem(REVISION_OVERRIDES_KEY, JSON.stringify(stored))
+        refreshRevisionOverrides()
+      } catch { /* ignore */ }
     }
     setCustomDialogOpen(false)
   }
