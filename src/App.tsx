@@ -414,13 +414,17 @@ export default function App() {
   const currentDescription = tabDescriptions[activeTab]?.[uiLanguage === 'zh' ? 'zh' : 'en'] ?? ''
 
   const filteredCharacters = useMemo(() => {
-    const query = characterQuery.trim().toLowerCase()
+    const tokens = characterQuery.trim().toLowerCase().split(/\s+/).filter(Boolean)
     return getEffectiveAllCharacters().filter((c) => {
       const nameEn = getDisplayName(c.id, 'en').toLowerCase()
       const nameZh = getDisplayName(c.id, 'zh').toLowerCase()
       const abilityEn = getAbilityText(c.id, 'en').toLowerCase()
       const abilityZh = getAbilityText(c.id, 'zh').toLowerCase()
-      const matchesQuery = !query || nameEn.includes(query) || nameZh.includes(query) || abilityEn.includes(query) || abilityZh.includes(query) || c.id.toLowerCase().includes(query)
+      const idLower = c.id.toLowerCase()
+      // AND: every token must match at least one field
+      const matchesQuery = tokens.length === 0 || tokens.every(
+        (t) => nameEn.includes(t) || nameZh.includes(t) || abilityEn.includes(t) || abilityZh.includes(t) || idLower.includes(t)
+      )
       const matchesTeam = selectedTeams.length === 0 || selectedTeams.includes(c.team)
       const matchesEdition = selectedEditions.length === 0 || selectedEditions.includes(c.edition)
       return matchesQuery && matchesTeam && matchesEdition
