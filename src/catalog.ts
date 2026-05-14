@@ -249,8 +249,35 @@ export function buildEffectiveNightOrder(customChars: CustomCharacter[]): NightO
   return { first_night: first, other_nights: other }
 }
 
+export const NIGHT_ORDER_OVERRIDES_KEY = 'BOTC_NIGHT_ORDER_OVERRIDES'
+
+function loadNightOrderOverrides(): { first_night: string[]; other_nights: string[] } | null {
+  if (typeof window === 'undefined') return null
+  try {
+    const raw = localStorage.getItem(NIGHT_ORDER_OVERRIDES_KEY)
+    return raw ? JSON.parse(raw) : null
+  } catch { return null }
+}
+
+let _nightOrderOverrides: { first_night: string[]; other_nights: string[] } | null = loadNightOrderOverrides()
+
+export function saveNightOrderOverrides(data: { first_night: string[]; other_nights: string[] }) {
+  _nightOrderOverrides = data
+  localStorage.setItem(NIGHT_ORDER_OVERRIDES_KEY, JSON.stringify(data))
+}
+
+export function clearNightOrderOverrides() {
+  _nightOrderOverrides = null
+  localStorage.removeItem(NIGHT_ORDER_OVERRIDES_KEY)
+}
+
+export function refreshNightOrderOverrides() {
+  _nightOrderOverrides = loadNightOrderOverrides()
+}
+
 /** Like buildEffectiveNightOrder but uses the currently registered custom chars. */
 export function getEffectiveNightOrderFromRegistry(): NightOrderData {
+  if (_nightOrderOverrides) return _nightOrderOverrides
   return buildEffectiveNightOrder([..._customCharRegistry.values()])
 }
 

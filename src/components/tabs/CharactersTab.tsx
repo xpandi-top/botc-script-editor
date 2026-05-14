@@ -1,4 +1,6 @@
 import React, { useRef, useState } from 'react'
+import NightsStayIcon from '@mui/icons-material/NightsStay'
+import { NightOrderManager } from '../NightOrderManager'
 import {
   Box, Button, Chip, Dialog, DialogContent, DialogTitle, FormControl,
   IconButton, InputLabel, Paper, Select, MenuItem, Snackbar, TextField, Tooltip, Typography,
@@ -78,6 +80,7 @@ export function CharactersTab({
 }: Props) {
   const [mobileDetailOpen, setMobileDetailOpen] = useState(false)
   const [customDialogOpen, setCustomDialogOpen] = useState(false)
+  const [nightOrderOpen, setNightOrderOpen] = useState(false)
   const [editingChar, setEditingChar] = useState<CustomCharacter | null>(null)
   const [snackMsg, setSnackMsg] = useState('')
   const [hasPackOverrides, setHasPackOverrides] = useState(() => {
@@ -358,6 +361,16 @@ export function CharactersTab({
                 }}
               />
 
+              <Button
+                size="small"
+                variant="outlined"
+                startIcon={<NightsStayIcon fontSize="small" />}
+                onClick={() => setNightOrderOpen(true)}
+                sx={{ textTransform: 'none', fontSize: '0.75rem', py: '3px' }}
+              >
+                {zh ? '夜晚顺序' : 'Night Order'}
+              </Button>
+
               {hasPackOverrides && (
                 <Chip
                   size="small"
@@ -477,6 +490,13 @@ export function CharactersTab({
         editingChar={editingChar}
         uiLanguage={uiLanguage}
         onSave={handleSaveCustom}
+      />
+
+      {/* ── Night Order Manager ── */}
+      <NightOrderManager
+        open={nightOrderOpen}
+        onClose={() => setNightOrderOpen(false)}
+        language={uiLanguage}
       />
     </>
   )
