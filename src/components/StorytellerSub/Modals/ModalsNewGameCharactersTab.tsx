@@ -7,7 +7,7 @@ import ReplayIcon from '@mui/icons-material/Replay'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import ClearAllIcon from '@mui/icons-material/ClearAll'
-import { characterById, allCharacters, getDisplayName, getIconForCharacter } from '../../../catalog'
+import { characterById, getCharacterById, allCharacters, getDisplayName, getIconForCharacter } from '../../../catalog'
 import { CHARACTER_DISTRIBUTION } from '../constants'
 import { CharSelect, TeamDot, DistRow } from './ModalsNewGameHelpers'
 
@@ -33,7 +33,7 @@ function CharPoolPicker({ scriptChars, selected, onChange, language }: {
   const byTeam = useMemo(() => {
     const map: Record<string, string[]> = { townsfolk: [], outsider: [], minion: [], demon: [] }
     for (const id of scriptChars) {
-      const ch = characterById[id]
+      const ch = getCharacterById(id)
       if (ch && map[ch.team]) map[ch.team].push(id)
     }
     return map
@@ -111,7 +111,7 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
   const actCounts = useMemo(() => {
     const c = { townsfolk: 0, outsider: 0, minion: 0, demon: 0 }
     Object.values(newGamePanel?.assignments ?? {}).forEach((cid: any) => {
-      const ch = characterById[cid]; if (ch && c[ch.team as keyof typeof c] !== undefined) c[ch.team as keyof typeof c]++
+      const ch = getCharacterById(cid); if (ch && c[ch.team as keyof typeof c] !== undefined) c[ch.team as keyof typeof c]++
     })
     return c
   }, [newGamePanel?.assignments])
@@ -119,7 +119,7 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
   const userCounts = useMemo(() => {
     const c = { townsfolk: 0, outsider: 0, minion: 0, demon: 0 }
     Object.values(newGamePanel?.userAssignments ?? {}).forEach((cid: any) => {
-      if (!cid) return; const ch = characterById[cid]; if (ch && c[ch.team as keyof typeof c] !== undefined) c[ch.team as keyof typeof c]++
+      if (!cid) return; const ch = getCharacterById(cid); if (ch && c[ch.team as keyof typeof c] !== undefined) c[ch.team as keyof typeof c]++
     })
     return c
   }, [newGamePanel?.userAssignments])
@@ -176,7 +176,7 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
   const quickFillBluffs = () => {
     // Pick 3 unique townsfolk/outsider from availableBluffs at random
     const pool = availableBluffs.filter((id) => {
-      const ch = characterById[id]
+      const ch = getCharacterById(id)
       return ch && (ch.team === 'townsfolk' || ch.team === 'outsider')
     })
     const shuffled = [...pool].sort(() => Math.random() - 0.5)
@@ -280,7 +280,7 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
         {Array.from({ length: newGamePanel?.playerCount ?? 0 }, (_, i) => i + 1).map((sNum) => {
           const cid = newGamePanel?.assignments?.[sNum] ?? ''
-          const ch = characterById[cid]
+          const ch = getCharacterById(cid)
           const userCid = newGamePanel?.userAssignments?.[sNum]
           const hasUserOverride = userCid !== undefined && userCid !== null
 
@@ -303,7 +303,7 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
               {hasUserOverride && (
                 <>
                   <CharSelect value={userCid ?? ''} options={scriptChars} language={language} placeholder={zh ? '感知角色…' : 'User char…'} onChange={(id) => setUserPerceived(sNum, id || null)} />
-                  <TeamDot team={characterById[userCid ?? '']?.team} />
+                  <TeamDot team={getCharacterById(userCid ?? '')?.team} />
                 </>
               )}
               <TextField
@@ -342,7 +342,7 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
           <Typography variant="subtitle2">{zh ? '旅行者角色分配' : 'Traveler Assignments'}</Typography>
           {travelerSeats.map((sNum) => {
             const tcid = newGamePanel.travelerAssignments?.[sNum] ?? ''
-            const tch = characterById[tcid]
+            const tch = getCharacterById(tcid)
             return (
               <Box key={sNum} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Typography variant="body2" sx={{ width: 40, flexShrink: 0, fontWeight: 700, color: 'text.secondary' }}>

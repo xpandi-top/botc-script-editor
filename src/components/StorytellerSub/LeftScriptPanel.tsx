@@ -3,7 +3,7 @@ import React from 'react'
 import { Drawer, Box, Typography, Button, Tabs, Tab, List, ListItem, ListItemButton, Tooltip, IconButton } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import MenuBookIcon from '@mui/icons-material/MenuBook'
-import { getEffectiveNightOrderFromRegistry, getDisplayName, getIconForCharacter, getAbilityText, characterById } from '../../catalog'
+import { getEffectiveNightOrderFromRegistry, getDisplayName, getIconForCharacter, getAbilityTextForScript, characterById } from '../../catalog'
 import { Divider } from '@mui/material'
 
 const TEAM_ORDER = ['townsfolk', 'outsider', 'minion', 'demon', 'traveler'] as const
@@ -18,7 +18,8 @@ const TEAM_LABELS: Record<string, { en: string; zh: string; color: string }> = {
 type ScriptView = 'characters' | 'firstNight' | 'otherNight'
 
 export function LeftScriptPanel({ ctx, inlineMode = false }: { ctx: StorytellerContext; inlineMode?: boolean }) {
-  const { language, currentScriptCharacters, activeScriptTitle, setShowScriptPanel, showScriptPanel } = ctx
+  const { language, currentScriptCharacters, activeScriptTitle, setShowScriptPanel, showScriptPanel, scriptOptions, activeScriptSlug } = ctx
+  const pinnedRevisions = scriptOptions?.find((s) => s.slug === activeScriptSlug)?.pinnedRevisions
 
   const isDay1 = ctx.days.length === 0 || (ctx.days.length === 1 && ctx.days[0].day === 1)
   const [view, setView] = React.useState<ScriptView>(isDay1 ? 'firstNight' : 'otherNight')
@@ -37,7 +38,7 @@ export function LeftScriptPanel({ ctx, inlineMode = false }: { ctx: StorytellerC
   const handleCharClick = (id: string) => setSelectedCharId((prev) => prev === id ? null : id)
 
   const renderDescription = (id: string) => {
-    const ability = getAbilityText(id, language) ?? getAbilityText(id, 'en')
+    const ability = getAbilityTextForScript(id, language, pinnedRevisions) ?? getAbilityTextForScript(id, 'en', pinnedRevisions)
     if (!ability) return null
     return (
       <Box sx={{ ml: 1, mt: 0.5, pl: 1, borderLeft: '3px solid', borderLeftColor: 'primary.light', bgcolor: 'action.hover', borderRadius: '0 8px 8px 0', py: 0.5, px: 1 }}>

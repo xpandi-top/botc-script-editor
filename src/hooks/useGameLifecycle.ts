@@ -1,4 +1,4 @@
-import { characterById, getDisplayName } from '../catalog'
+import { getCharacterById, getDisplayName } from '../catalog'
 import type { Language } from '../types'
 import { createDayState, createSeats, shuffleArray, CHARACTER_DISTRIBUTION, DEFAULT_PLAYER_COUNT, getNextRoundRobinSeat } from '../components/StorytellerSub/constants'
 import type { DayState, EndGameResult, GameRecord, NewGameConfig, Phase, NominationStep, PickerMode, StorytellerSeat, TimerDefaults } from '../components/StorytellerSub/types'
@@ -234,7 +234,7 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     if (!script) return {}
     const byTeam: Record<string, string[]> = { townsfolk: [], outsider: [], minion: [], demon: [] }
     const pool: string[] = (config as any).charPool ?? []
-    for (const cid of script.characters) { const char = characterById[cid]; if (char && byTeam[char.team]) { if (pool.length === 0 || pool.includes(cid)) byTeam[char.team].push(cid) } }
+    for (const cid of script.characters) { const char = getCharacterById(cid); if (char && byTeam[char.team]) { if (pool.length === 0 || pool.includes(cid)) byTeam[char.team].push(cid) } }
     const teamPool: Team[] = []
     for (const { team, count } of [{ team: 'townsfolk' as Team, count: dist.townsfolk }, { team: 'outsider' as Team, count: dist.outsider }, { team: 'minion' as Team, count: dist.minion }, { team: 'demon' as Team, count: dist.demon }]) { for (let i = 0; i < count; i++) teamPool.push(team) }
     const shuffledTeams = shuffleArray(teamPool)
@@ -261,7 +261,7 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
         const cid = newGamePanel.assignments[sNum]
         seat.characterId = cid || null
         seat.userCharacterId = newGamePanel.userAssignments[sNum] || null
-        if (cid) { const char = characterById[cid]; if (char) seat.teamTag = (char.team === 'minion' || char.team === 'demon') ? 'evil' : 'good' }
+        if (cid) { const char = getCharacterById(cid); if (char) seat.teamTag = (char.team === 'minion' || char.team === 'demon') ? 'evil' : 'good' }
       } else {
         const tcid = (newGamePanel as any).travelerAssignments?.[sNum]
         if (tcid) seat.characterId = tcid
@@ -300,7 +300,7 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
         const cid = newGamePanel.assignments[sNum]
         newSeat.characterId = cid || null
         newSeat.userCharacterId = newGamePanel.userAssignments[sNum] || null
-        if (cid) { const char = characterById[cid]; if (char) newSeat.teamTag = (char.team === 'minion' || char.team === 'demon') ? 'evil' : 'good' }
+        if (cid) { const char = getCharacterById(cid); if (char) newSeat.teamTag = (char.team === 'minion' || char.team === 'demon') ? 'evil' : 'good' }
         else newSeat.teamTag = null
         if (cid !== oldCharId) {
           const getCharName = (id: string | null) => id ? getDisplayName(id, language) : '—'

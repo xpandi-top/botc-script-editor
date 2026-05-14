@@ -16,7 +16,8 @@ import {
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import NoteAltIcon from '@mui/icons-material/NoteAlt'
-import { getDisplayName, teamLabels, editionLabels, toTitleCase, getCharacterRevisionIds, getCurrentRevision, getRevisionForScript, getRevisionText, getAbilityText } from '../../catalog'
+import WarningAmberIcon from '@mui/icons-material/WarningAmber'
+import { getDisplayName, teamLabels, editionLabels, toTitleCase, getCharacterRevisionIds, getCurrentRevision, getRevisionForScript, getRevisionText, getAbilityText, getCharacterById } from '../../catalog'
 import type { CharacterGroup, EditableScript, Language, ResolvedScriptCharacter, ResolvedScriptCharacterGroup } from '../../types'
 
 function getTeamColor(team: string) {
@@ -45,6 +46,7 @@ type Props = {
   toggleCharacterInScript: (id: string) => void
   availableEditions: string[]
   charColumns: '1' | '2'
+  onCreateCustomFromId?: (id: string) => void
 }
 
 export function ScriptEditor({
@@ -52,6 +54,7 @@ export function ScriptEditor({
   updateActiveScript,
   uiText,
   uiLanguage,
+  onCreateCustomFromId,
   editorQuery,
   setEditorQuery,
   groupedEditorCharacters,
@@ -63,6 +66,12 @@ export function ScriptEditor({
 }: Props) {
   const [notesOpen, setNotesOpen] = React.useState(false)
   const zh = uiLanguage === 'zh'
+
+  // IDs in the script that can't be resolved to any known character
+  const unknownCharIds = React.useMemo(() => {
+    const resolvedIds = new Set(activeScriptCharacters.map((c) => c.id))
+    return activeScript.characters.filter((id) => !resolvedIds.has(id) && !getCharacterById(id))
+  }, [activeScript.characters, activeScriptCharacters])
 
   return (
     <Box>
@@ -283,6 +292,32 @@ export function ScriptEditor({
             ))
           ) : (
             <Typography variant="body2" color="text.secondary">{uiText.noCharacters}</Typography>
+          )}
+          {/* Unknown character IDs stored in this script */}
+          {unknownCharIds.length > 0 && (
+            <Box sx={{ mt: 2, p: 1.5, border: '1px solid', borderColor: 'warning.main', borderRadius: 1, bgcolor: 'warning.light', opacity: 0.95 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                <WarningAmberIcon fontSize="small" color="warning" />
+                <Typography variant="caption" sx={{ fontWeight: 700, color: 'warning.dark' }}>
+                  {zh ? '未知角色 ID（不在当前数据库中）' : 'Unknown character IDs (not in current database)'}
+                </Typography>
+              </Box>
+              {unknownCharIds.map((id) => (
+                <Box key={id} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                  <Typography variant="body2" sx={{ flex: 1, fontFamily: 'monospace', fontSize: '0.75rem' }}>{id}</Typography>
+                  {onCreateCustomFromId && (
+                    <Button size="small" variant="outlined" color="warning" sx={{ fontSize: '0.65rem', py: 0.25 }}
+                      onClick={() => onCreateCustomFromId(id)}>
+                      {zh ? '创建自定义' : 'Create custom'}
+                    </Button>
+                  )}
+                  <Button size="small" variant="outlined" color="error" sx={{ fontSize: '0.65rem', py: 0.25 }}
+                    onClick={() => updateActiveScript((s) => ({ ...s, characters: s.characters.filter((c) => c !== id) }))}>
+                    {zh ? '移除' : 'Remove'}
+                  </Button>
+                </Box>
+              ))}
+            </Box>
           )}
         </Paper>
       </Box>

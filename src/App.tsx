@@ -253,6 +253,9 @@ export default function App() {
     scheduleSync()
   }, [customChars, scheduleSync])
 
+  // Pending custom char ID from ScriptEditor's "Create custom" action
+  const [pendingCustomCharId, setPendingCustomCharId] = useState<string | null>(null)
+
   // Sync when game records change (written directly by Analytics/Storyteller, not via React state)
   useEffect(() => {
     const handler = () => scheduleSync()
@@ -734,6 +737,7 @@ export default function App() {
           printOptions={printOptions}
           onLanguageChange={setUiLanguage}
           onPrintClick={() => setPrintPreviewOpen(true)}
+          onCreateCustomFromId={(id) => { setPendingCustomCharId(id); setActiveTab('characters') }}
         />
       )}
 
@@ -774,6 +778,8 @@ export default function App() {
           toggleEdition={(edition) => setSelectedEditions((cur) => cur.includes(edition) ? cur.filter((e) => e !== edition) : [...cur, edition])}
           customChars={customChars}
           setCustomChars={setCustomChars}
+          initialNewCharId={pendingCustomCharId}
+          onInitialNewCharConsumed={() => setPendingCustomCharId(null)}
         />
       )}
 
@@ -814,7 +820,7 @@ export default function App() {
           language={uiLanguage}
           onLanguageChange={setUiLanguage}
           onSelectScript={setStActiveSlug}
-          scriptOptions={scripts.map((s) => ({ slug: s.slug, title: getScriptTitle(s), characters: s.characters }))}
+          scriptOptions={scripts.map((s) => ({ slug: s.slug, title: getScriptTitle(s), characters: s.characters, pinnedRevisions: s.pinnedRevisions }))}
         />
       )}
       {/* ── Mobile bottom navigation ── */}

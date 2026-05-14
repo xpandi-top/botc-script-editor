@@ -35,9 +35,10 @@ type Props = {
   editingChar: CustomCharacter | null
   uiLanguage: Language
   onSave: (draft: Draft) => void
+  initialId?: string | null
 }
 
-export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSave }: Props) {
+export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSave, initialId }: Props) {
   const [draft, setDraft] = useState<Draft>(BLANK)
   const [iconError, setIconError] = useState('')
   const [iconMode, setIconMode] = useState<'url' | 'upload'>('url')
@@ -65,7 +66,7 @@ export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSav
       })
       setIconMode(editingChar.icon?.startsWith('data:') ? 'upload' : 'url')
     } else {
-      setDraft(BLANK)
+      setDraft(initialId ? { ...BLANK, nameEn: initialId } : BLANK)
       setIconMode('url')
     }
     setIconError('')

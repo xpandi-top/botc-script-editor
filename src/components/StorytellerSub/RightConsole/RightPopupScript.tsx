@@ -1,7 +1,7 @@
 // @ts-nocheck
 import type { StorytellerContext } from '../useStoryteller'
 import React from 'react'
-import { getEffectiveNightOrderFromRegistry, getDisplayName, getIconForCharacter, getAbilityText } from '../../../catalog'
+import { getEffectiveNightOrderFromRegistry, getDisplayName, getIconForCharacter, getAbilityTextForScript } from '../../../catalog'
 import { Box, Typography, Button, Tabs, Tab, Paper, List, ListItem, ListItemIcon, ListItemText, IconButton, Tooltip } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import MenuBookIcon from '@mui/icons-material/MenuBook'
@@ -11,15 +11,16 @@ type ScriptView = 'characters' | 'firstNight' | 'otherNight'
 export function RightPopupScript({ ctx }: { ctx: StorytellerContext }) {
   const {
     language, currentScriptCharacters, activeScriptTitle, days,
-    setActiveRightPopup, text,
+    setActiveRightPopup, text, scriptOptions, activeScriptSlug,
   } = ctx
+  const pinnedRevisions = scriptOptions?.find((s) => s.slug === activeScriptSlug)?.pinnedRevisions
 
   const isDay1 = days.length === 0 || (days.length === 1 && days[0].day === 1)
   const [view, setView] = React.useState<ScriptView>(isDay1 ? 'firstNight' : 'otherNight')
   const [showAbilities, setShowAbilities] = React.useState(false)
 
   const renderAbility = (id: string) => {
-    const ability = getAbilityText(id, language) ?? getAbilityText(id, 'en')
+    const ability = getAbilityTextForScript(id, language, pinnedRevisions) ?? getAbilityTextForScript(id, 'en', pinnedRevisions)
     if (!ability) return null
     return (
       <Box sx={{ ml: 1, mt: 0.25, pl: 1, borderLeft: '3px solid', borderLeftColor: 'primary.light', bgcolor: 'action.hover', borderRadius: '0 8px 8px 0', py: 0.5, px: 1 }}>

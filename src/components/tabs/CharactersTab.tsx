@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import NightsStayIcon from '@mui/icons-material/NightsStay'
 import { NightOrderManager } from '../NightOrderManager'
 import {
@@ -56,6 +56,8 @@ type Props = {
   onLanguageChange: (lang: Language) => void
   customChars: CustomCharacter[]
   setCustomChars: React.Dispatch<React.SetStateAction<CustomCharacter[]>>
+  initialNewCharId?: string | null
+  onInitialNewCharConsumed?: () => void
 }
 
 // ── Custom char dialog state ──────────────────────────────────────────────────
@@ -77,6 +79,8 @@ export function CharactersTab({
   onLanguageChange,
   customChars,
   setCustomChars,
+  initialNewCharId,
+  onInitialNewCharConsumed,
 }: Props) {
   const [mobileDetailOpen, setMobileDetailOpen] = useState(false)
   const [customDialogOpen, setCustomDialogOpen] = useState(false)
@@ -187,6 +191,14 @@ export function CharactersTab({
 
   const openNew = () => { setEditingChar(null); setCustomDialogOpen(true) }
   const openEdit = (c: CustomCharacter) => { setEditingChar(c); setCustomDialogOpen(true) }
+
+  // Auto-open create dialog when a pending ID is passed from another tab
+  useEffect(() => {
+    if (!initialNewCharId) return
+    setEditingChar(null)
+    setCustomDialogOpen(true)
+    onInitialNewCharConsumed?.()
+  }, [initialNewCharId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSaveCustom = (draft: Omit<CustomCharacter, 'id' | 'createdAt' | 'updatedAt'>) => {
     const now = Date.now()
@@ -490,6 +502,7 @@ export function CharactersTab({
         editingChar={editingChar}
         uiLanguage={uiLanguage}
         onSave={handleSaveCustom}
+        initialId={editingChar ? undefined : initialNewCharId}
       />
 
       {/* ── Night Order Manager ── */}

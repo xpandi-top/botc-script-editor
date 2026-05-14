@@ -59,6 +59,7 @@ type Props = {
   printOptions: PrintOptions
   onLanguageChange: (lang: Language) => void
   onPrintClick: () => void
+  onCreateCustomFromId?: (id: string) => void
 }
 
 export function ScriptsTab({
@@ -92,6 +93,7 @@ export function ScriptsTab({
   printOptions,
   onLanguageChange,
   onPrintClick,
+  onCreateCustomFromId,
 }: Props) {
   const { isMobile } = useBreakpoint()
   const [listOpenDesktop, setListOpenDesktop] = useState(true)
@@ -501,6 +503,7 @@ export function ScriptsTab({
                   toggleCharacterInScript={toggleCharacterInScript}
                   availableEditions={availableEditions}
                   charColumns={viewColumns === 2 ? '2' : '1'}
+                  onCreateCustomFromId={onCreateCustomFromId}
                 />
               </Box>
             )}
