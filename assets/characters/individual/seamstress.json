@@ -1,0 +1,26 @@
+{
+  "id": "seamstress",
+  "team": "townsfolk",
+  "edition": "snv",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Seamstress",
+    "ability": "Once per game, at night, choose 2 players (not yourself): you learn if they are the same alignment.",
+    "revisions": {
+      "v1": "Once per game, at night, choose 2 players (not yourself): you learn if they are the same alignment."
+    }
+  },
+  "zh": {
+    "name": "女裁缝",
+    "ability": "每局游戏限一次，在夜晚时，你可以选择除你以外的两名玩家：你会得知他们是否为同一阵营。",
+    "revisions": {
+      "v1": "每局游戏限一次，在夜晚时，你可以选择除你以外的两名玩家：你会得知他们是否为同一阵营。"
+    }
+  }
+}

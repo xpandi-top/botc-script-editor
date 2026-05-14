@@ -1,0 +1,26 @@
+{
+  "id": "judge",
+  "team": "traveler",
+  "edition": "bmr",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Judge",
+    "ability": "Once per game, if another player nominated, you may choose to force the current execution to pass or fail.",
+    "revisions": {
+      "v1": "Once per game, if another player nominated, you may choose to force the current execution to pass or fail."
+    }
+  },
+  "zh": {
+    "name": "法官",
+    "ability": "每局游戏限一次，如果其他玩家发起了提名，你可以选择让本次提名直接执行处决或让投票无效。",
+    "revisions": {
+      "v1": "每局游戏限一次，如果其他玩家发起了提名，你可以选择让本次提名直接执行处决或让投票无效。"
+    }
+  }
+}

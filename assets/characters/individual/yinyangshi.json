@@ -1,0 +1,26 @@
+{
+  "id": "yinyangshi",
+  "team": "townsfolk",
+  "edition": "huadengchushang",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Yin-Yang Diviner",
+    "ability": "You start knowing 2 good and 2 evil characters, 2 and only 2 of which are in play.",
+    "revisions": {
+      "v1": "You start knowing 2 good and 2 evil characters, 2 and only 2 of which are in play."
+    }
+  },
+  "zh": {
+    "name": "阴阳师",
+    "ability": "在你的首个夜晚，你会得知两个善良角色和两个邪恶角色。其中有且只有两个角色在场。",
+    "revisions": {
+      "v1": "在你的首个夜晚，你会得知两个善良角色和两个邪恶角色。其中有且只有两个角色在场。"
+    }
+  }
+}

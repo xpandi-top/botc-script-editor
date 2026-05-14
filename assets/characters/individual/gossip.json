@@ -1,0 +1,26 @@
+{
+  "id": "gossip",
+  "team": "townsfolk",
+  "edition": "bmr",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Gossip",
+    "ability": "Each day, you may make a public statement. Tonight, if it was true, a player dies.",
+    "revisions": {
+      "v1": "Each day, you may make a public statement. Tonight, if it was true, a player dies."
+    }
+  },
+  "zh": {
+    "name": "造谣者",
+    "ability": "每个白天，你可以公开发表一个声明。在当晚，如果该声明是正确的，会有一名玩家死亡。",
+    "revisions": {
+      "v1": "每个白天，你可以公开发表一个声明。在当晚，如果该声明是正确的，会有一名玩家死亡。"
+    }
+  }
+}

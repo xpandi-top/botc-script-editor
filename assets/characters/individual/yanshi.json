@@ -1,0 +1,26 @@
+{
+  "id": "yanshi",
+  "team": "townsfolk",
+  "edition": "shanyuyulai",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Yanshi",
+    "ability": "If you die at night, you swap characters with an alive Minion.",
+    "revisions": {
+      "v1": "If you die at night, you swap characters with an alive Minion."
+    }
+  },
+  "zh": {
+    "name": "偃师",
+    "ability": "如果你在夜晚死亡，你与一名存活爪牙玩家交换角色。",
+    "revisions": {
+      "v1": "如果你在夜晚死亡，你与一名存活爪牙玩家交换角色。"
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "yongjiang",
+  "team": "townsfolk",
+  "edition": "shanyuyulai",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Yongjiang",
+    "ability": "If there are no dead evil players, you only die by execution.",
+    "revisions": {
+      "v1": "If there are no dead evil players, you only die by execution."
+    }
+  },
+  "zh": {
+    "name": "俑匠",
+    "ability": "如果已死亡玩家中没有邪恶玩家，你只会死于处决。",
+    "revisions": {
+      "v1": "如果已死亡玩家中没有邪恶玩家，你只会死于处决。"
+    }
+  }
+}

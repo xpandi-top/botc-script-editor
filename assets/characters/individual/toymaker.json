@@ -1,0 +1,26 @@
+{
+  "id": "toymaker",
+  "team": "fabled",
+  "edition": "fabled",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Toymaker",
+    "ability": "The Demon may choose not to attack & must do this at least once per game. Evil players get normal starting info.",
+    "revisions": {
+      "v1": "The Demon may choose not to attack & must do this at least once per game. Evil players get normal starting info."
+    }
+  },
+  "zh": {
+    "name": "Toymaker",
+    "ability": "恶魔可以选择今夜不攻击，且每局至少必须这样做一次。邪恶玩家获得正常的开局信息。",
+    "revisions": {
+      "v1": "恶魔可以选择今夜不攻击，且每局至少必须这样做一次。邪恶玩家获得正常的开局信息。"
+    }
+  }
+}

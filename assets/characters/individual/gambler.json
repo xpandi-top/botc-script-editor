@@ -1,0 +1,26 @@
+{
+  "id": "gambler",
+  "team": "townsfolk",
+  "edition": "bmr",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Gambler",
+    "ability": "Each night*, choose a player & guess their character: if you guess wrong, you die.",
+    "revisions": {
+      "v1": "Each night*, choose a player & guess their character: if you guess wrong, you die."
+    }
+  },
+  "zh": {
+    "name": "赌徒",
+    "ability": "每个夜晚*，你要选择一名玩家并猜测该玩家的角色：如果你猜错了，你会死亡。",
+    "revisions": {
+      "v1": "每个夜晚*，你要选择一名玩家并猜测该玩家的角色：如果你猜错了，你会死亡。"
+    }
+  }
+}

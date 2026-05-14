@@ -1,0 +1,26 @@
+{
+  "id": "shabaloth",
+  "team": "demon",
+  "edition": "bmr",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Shabaloth",
+    "ability": "Each night*, choose 2 players: they die. A dead player you chose last night might be regurgitated.",
+    "revisions": {
+      "v1": "Each night*, choose 2 players: they die. A dead player you chose last night might be regurgitated."
+    }
+  },
+  "zh": {
+    "name": "沙巴洛斯",
+    "ability": "每个夜晚*，你要选择两名玩家：他们死亡。<br>你上个夜晚选择过且当前死亡的玩家之一可能会被你反刍。",
+    "revisions": {
+      "v1": "每个夜晚*，你要选择两名玩家：他们死亡。<br>你上个夜晚选择过且当前死亡的玩家之一可能会被你反刍。"
+    }
+  }
+}

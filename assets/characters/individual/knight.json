@@ -1,0 +1,26 @@
+{
+  "id": "knight",
+  "team": "townsfolk",
+  "edition": "experimental",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Knight",
+    "ability": "You start knowing 2 players that are not the Demon.",
+    "revisions": {
+      "v1": "You start knowing 2 players that are not the Demon."
+    }
+  },
+  "zh": {
+    "name": "骑士",
+    "ability": "在你的首个夜晚，你会得知两名非恶魔玩家。",
+    "revisions": {
+      "v1": "在你的首个夜晚，你会得知两名非恶魔玩家。"
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "id": "alsaahir",
+  "team": "townsfolk",
+  "edition": "experimental",
+  "current_revision": "v2024-11",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": "Initial wording"
+    },
+    {
+      "id": "v2024-11",
+      "note": "Changed the ability from once per day to each day."
+    }
+  ],
+  "en": {
+    "name": "Alsaahir",
+    "ability": "Each day, if you publicly guess which players are Minion(s) and which are Demon(s), good wins.",
+    "revisions": {
+      "v1": "Once per day, if you publicly guess which players are Minion(s) and which are Demon(s), good wins.",
+      "v2024-11": "Each day, if you publicly guess which players are Minion(s) and which are Demon(s), good wins."
+    }
+  },
+  "zh": {
+    "name": "戏法师",
+    "ability": "每个白天，你可以公开进行一次谁是爪牙，谁是恶魔的猜测。如果你猜对，善良阵营获胜。",
+    "revisions": {
+      "v1": "每个白天限一次，如果你公开猜测哪些玩家是爪牙、哪些玩家是恶魔，且猜对，善良阵营获胜。",
+      "v2024-11": "每个白天，你可以公开进行一次谁是爪牙，谁是恶魔的猜测。如果你猜对，善良阵营获胜。"
+    }
+  }
+}

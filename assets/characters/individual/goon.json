@@ -1,0 +1,26 @@
+{
+  "id": "goon",
+  "team": "outsider",
+  "edition": "bmr",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Goon",
+    "ability": "Each night, the 1st player to choose you with their ability is drunk until dusk. You become their alignment.",
+    "revisions": {
+      "v1": "Each night, the 1st player to choose you with their ability is drunk until dusk. You become their alignment."
+    }
+  },
+  "zh": {
+    "name": "莽夫",
+    "ability": "每个夜晚，首个使用其自身能力选择了你的玩家会醉酒直到下个黄昏。你会转变为他的阵营。",
+    "revisions": {
+      "v1": "每个夜晚，首个使用其自身能力选择了你的玩家会醉酒直到下个黄昏。你会转变为他的阵营。"
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "jiaohuazi",
+  "team": "traveler",
+  "edition": "huadengchushang",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Pauper",
+    "ability": "Each day, you may publicly choose another player and have them choose a non-Demon character: you might gain that character's ability until the next dawn.",
+    "revisions": {
+      "v1": "Each day, you may publicly choose another player and have them choose a non-Demon character: you might gain that character's ability until the next dawn."
+    }
+  },
+  "zh": {
+    "name": "叫花子",
+    "ability": "每个白天限一次，你可以公开选择一名其他玩家，让他选择一个非恶魔角色：你可能会获得这个角色的能力，直到下个黎明。",
+    "revisions": {
+      "v1": "每个白天限一次，你可以公开选择一名其他玩家，让他选择一个非恶魔角色：你可能会获得这个角色的能力，直到下个黎明。"
+    }
+  }
+}

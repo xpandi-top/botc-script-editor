@@ -1,0 +1,26 @@
+{
+  "id": "towncrier",
+  "team": "townsfolk",
+  "edition": "snv",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Town Crier",
+    "ability": "Each night*, you learn if a Minion nominated today.",
+    "revisions": {
+      "v1": "Each night*, you learn if a Minion nominated today."
+    }
+  },
+  "zh": {
+    "name": "城镇公告员",
+    "ability": "每个夜晚*，你会得知在今天白天时是否有爪牙发起过提名。",
+    "revisions": {
+      "v1": "每个夜晚*，你会得知在今天白天时是否有爪牙发起过提名。"
+    }
+  }
+}

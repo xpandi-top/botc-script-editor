@@ -1,0 +1,26 @@
+{
+  "id": "mezepheles",
+  "team": "minion",
+  "edition": "experimental",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Mezepheles",
+    "ability": "You start knowing a secret word. The 1st good player to say this word becomes evil that night.",
+    "revisions": {
+      "v1": "You start knowing a secret word. The 1st good player to say this word becomes evil that night."
+    }
+  },
+  "zh": {
+    "name": "灵言师",
+    "ability": "在你的首个夜晚，你会得知一个关键词。首个说出该关键词的善良玩家会在当晚转变为邪恶阵营。",
+    "revisions": {
+      "v1": "在你的首个夜晚，你会得知一个关键词。首个说出该关键词的善良玩家会在当晚转变为邪恶阵营。"
+    }
+  }
+}

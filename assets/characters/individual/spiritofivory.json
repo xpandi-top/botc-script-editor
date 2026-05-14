@@ -1,0 +1,26 @@
+{
+  "id": "spiritofivory",
+  "team": "fabled",
+  "edition": "fabled",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Spirit of Ivory",
+    "ability": "There can't be more than 1 extra evil player.",
+    "revisions": {
+      "v1": "There can't be more than 1 extra evil player."
+    }
+  },
+  "zh": {
+    "name": "Spirit of Ivory",
+    "ability": "额外变为邪恶的玩家不能超过1名。",
+    "revisions": {
+      "v1": "额外变为邪恶的玩家不能超过1名。"
+    }
+  }
+}

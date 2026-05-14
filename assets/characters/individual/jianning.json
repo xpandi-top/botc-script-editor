@@ -1,0 +1,26 @@
+{
+  "id": "jianning",
+  "team": "demon",
+  "edition": "shanyuyulai",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Jianjing",
+    "ability": "Each night*, choose a player: they die. If you did not vote today, you may act twice tonight.",
+    "revisions": {
+      "v1": "Each night*, choose a player: they die. If you did not vote today, you may act twice tonight."
+    }
+  },
+  "zh": {
+    "name": "奸佞",
+    "ability": "每个夜晚*，你要选择一名玩家：他死亡。如果你今天白天没有投票，今晚你可以行动两次。",
+    "revisions": {
+      "v1": "每个夜晚*，你要选择一名玩家：他死亡。如果你今天白天没有投票，今晚你可以行动两次。"
+    }
+  }
+}

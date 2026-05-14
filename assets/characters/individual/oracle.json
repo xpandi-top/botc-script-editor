@@ -1,0 +1,26 @@
+{
+  "id": "oracle",
+  "team": "townsfolk",
+  "edition": "snv",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Oracle",
+    "ability": "Each night*, you learn how many dead players are evil.",
+    "revisions": {
+      "v1": "Each night*, you learn how many dead players are evil."
+    }
+  },
+  "zh": {
+    "name": "神谕者",
+    "ability": "每个夜晚*，你会得知有多少名死亡的玩家是邪恶的。",
+    "revisions": {
+      "v1": "每个夜晚*，你会得知有多少名死亡的玩家是邪恶的。"
+    }
+  }
+}

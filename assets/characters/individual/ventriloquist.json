@@ -1,0 +1,26 @@
+{
+  "id": "ventriloquist",
+  "team": "loric",
+  "edition": "loric",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Ventriloquist",
+    "ability": "If a player is mad as a fresh character during their nomination, they might not die if executed today.",
+    "revisions": {
+      "v1": "If a player is mad as a fresh character during their nomination, they might not die if executed today."
+    }
+  },
+  "zh": {
+    "name": "Ventriloquist",
+    "ability": "如果一名玩家在自己被提名期间“疯狂”地声称一个全新的角色，那么他今天若被处决，可能不会死亡。",
+    "revisions": {
+      "v1": "如果一名玩家在自己被提名期间“疯狂”地声称一个全新的角色，那么他今天若被处决，可能不会死亡。"
+    }
+  }
+}

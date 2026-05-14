@@ -1,0 +1,26 @@
+{
+  "id": "cannibal",
+  "team": "townsfolk",
+  "edition": "experimental",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Cannibal",
+    "ability": "You have the ability of the recently killed executee. If they are evil, you are poisoned until a good player dies by execution.",
+    "revisions": {
+      "v1": "You have the ability of the recently killed executee. If they are evil, you are poisoned until a good player dies by execution."
+    }
+  },
+  "zh": {
+    "name": "食人族",
+    "ability": "你拥有上个死于处决的玩家的能力。如果该玩家属于邪恶阵营，你中毒直到下个善良玩家死于处决。",
+    "revisions": {
+      "v1": "你拥有上个死于处决的玩家的能力。如果该玩家属于邪恶阵营，你中毒直到下个善良玩家死于处决。"
+    }
+  }
+}

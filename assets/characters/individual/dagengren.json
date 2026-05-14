@@ -1,0 +1,26 @@
+{
+  "id": "dagengren",
+  "team": "townsfolk",
+  "edition": "huadengchushang",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Firewatcher",
+    "ability": "Each night*, guess the distance between you and the first player to die tonight. If correct, all players except you cannot die tonight, but you may die.",
+    "revisions": {
+      "v1": "Each night*, guess the distance between you and the first player to die tonight. If correct, all players except you cannot die tonight, but you may die."
+    }
+  },
+  "zh": {
+    "name": "打更人",
+    "ability": "每个夜晚*，你要猜测今晚首个死亡的玩家与你的距离。如果你猜测正确，则除你以外的所有玩家今晚不会死亡，但你可能会死亡。",
+    "revisions": {
+      "v1": "每个夜晚*，你要猜测今晚首个死亡的玩家与你的距离。如果你猜测正确，则除你以外的所有玩家今晚不会死亡，但你可能会死亡。"
+    }
+  }
+}

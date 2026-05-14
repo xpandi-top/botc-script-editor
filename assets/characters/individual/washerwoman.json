@@ -1,0 +1,26 @@
+{
+  "id": "washerwoman",
+  "team": "townsfolk",
+  "edition": "tb",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Washerwoman",
+    "ability": "You start knowing that 1 of 2 players is a particular Townsfolk.",
+    "revisions": {
+      "v1": "You start knowing that 1 of 2 players is a particular Townsfolk."
+    }
+  },
+  "zh": {
+    "name": "洗衣妇",
+    "ability": "在你的首个夜晚，你会得知两名玩家和一个镇民角色：这两名玩家之一是该角色。",
+    "revisions": {
+      "v1": "在你的首个夜晚，你会得知两名玩家和一个镇民角色：这两名玩家之一是该角色。"
+    }
+  }
+}

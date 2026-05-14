@@ -1,0 +1,32 @@
+{
+  "id": "balloonist",
+  "team": "townsfolk",
+  "edition": "experimental",
+  "current_revision": "v2024-06",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": "Initial wording"
+    },
+    {
+      "id": "v2024-06",
+      "note": "Changed the learning pattern and Outsider modifier."
+    }
+  ],
+  "en": {
+    "name": "Balloonist",
+    "ability": "Each night, you learn a player of a different character type than last night. [+0 or +1 Outsider]",
+    "revisions": {
+      "v1": "Each night, you learn 1 player of each character type, until there are no more types to learn. [+1 Outsider]",
+      "v2024-06": "Each night, you learn a player of a different character type than last night. [+0 or +1 Outsider]"
+    }
+  },
+  "zh": {
+    "name": "气球驾驶员",
+    "ability": "每个夜晚，你会得知一名与上个夜晚得知的玩家角色类型不同的玩家。[+0~1外来者]",
+    "revisions": {
+      "v1": "每个夜晚，你会得知一名某角色类型的玩家，直到你已得知每种角色类型的玩家各一名。[+1外来者]",
+      "v2024-06": "每个夜晚，你会得知一名与上个夜晚得知的玩家角色类型不同的玩家。[+0~1外来者]"
+    }
+  }
+}

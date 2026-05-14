@@ -1,0 +1,26 @@
+{
+  "id": "juggler",
+  "team": "townsfolk",
+  "edition": "snv",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Juggler",
+    "ability": "On your 1st day, publicly guess up to 5 players' characters. That night, you learn how many you got correct.",
+    "revisions": {
+      "v1": "On your 1st day, publicly guess up to 5 players' characters. That night, you learn how many you got correct."
+    }
+  },
+  "zh": {
+    "name": "杂耍艺人",
+    "ability": "在你的首个白天，你可以公开猜测任意玩家的角色最多五次。在当晚，你会得知猜测正确的角色数量。",
+    "revisions": {
+      "v1": "在你的首个白天，你可以公开猜测任意玩家的角色最多五次。在当晚，你会得知猜测正确的角色数量。"
+    }
+  }
+}

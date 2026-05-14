@@ -1,0 +1,26 @@
+{
+  "id": "heretic",
+  "team": "outsider",
+  "edition": "experimental",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Heretic",
+    "ability": "Whoever wins, loses & whoever loses, wins, even if you are dead.",
+    "revisions": {
+      "v1": "Whoever wins, loses & whoever loses, wins, even if you are dead."
+    }
+  },
+  "zh": {
+    "name": "异端分子",
+    "ability": "对调胜负结果，即使你已死亡。",
+    "revisions": {
+      "v1": "对调胜负结果，即使你已死亡。"
+    }
+  }
+}

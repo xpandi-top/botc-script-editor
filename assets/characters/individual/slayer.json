@@ -1,0 +1,26 @@
+{
+  "id": "slayer",
+  "team": "townsfolk",
+  "edition": "tb",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Slayer",
+    "ability": "Once per game, during the day, publicly choose a player: if they are the Demon, they die.",
+    "revisions": {
+      "v1": "Once per game, during the day, publicly choose a player: if they are the Demon, they die."
+    }
+  },
+  "zh": {
+    "name": "猎手",
+    "ability": "每局游戏限一次，你可以在白天时公开选择一名玩家：如果他是恶魔，他死亡。",
+    "revisions": {
+      "v1": "每局游戏限一次，你可以在白天时公开选择一名玩家：如果他是恶魔，他死亡。"
+    }
+  }
+}

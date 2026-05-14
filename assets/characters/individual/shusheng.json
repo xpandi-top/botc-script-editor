@@ -1,0 +1,26 @@
+{
+  "id": "shusheng",
+  "team": "outsider",
+  "edition": "huadengchushang",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Pedant",
+    "ability": "Once per game, the Demon may visit the Storyteller and guess that you are the Pedant. If correct, even if you're dead, the Demon may choose a player that night: they die. The Demon knows a Pedant is in play.",
+    "revisions": {
+      "v1": "Once per game, the Demon may visit the Storyteller and guess that you are the Pedant. If correct, even if you're dead, the Demon may choose a player that night: they die. The Demon knows a Pedant is in play."
+    }
+  },
+  "zh": {
+    "name": "书生",
+    "ability": "恶魔知道书生在场。每局游戏限一次，恶魔可以拜访说书人并猜测你是书生。如果恶魔猜测正确，即使你已死亡，当晚该恶魔可以选择一名玩家：他死亡。",
+    "revisions": {
+      "v1": "恶魔知道书生在场。每局游戏限一次，恶魔可以拜访说书人并猜测你是书生。如果恶魔猜测正确，即使你已死亡，当晚该恶魔可以选择一名玩家：他死亡。"
+    }
+  }
+}

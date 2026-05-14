@@ -1,0 +1,26 @@
+{
+  "id": "fangshi",
+  "team": "townsfolk",
+  "edition": "shanyuyulai",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Fangshi",
+    "ability": "On your first night, you choose a number X. On night X, you learn X characters in play.",
+    "revisions": {
+      "v1": "On your first night, you choose a number X. On night X, you learn X characters in play."
+    }
+  },
+  "zh": {
+    "name": "方士",
+    "ability": "在你的首个夜晚，你要选择一个数字。在该数字对应的那一个夜晚，你会得知对应数量的在场角色。",
+    "revisions": {
+      "v1": "在你的首个夜晚，你要选择一个数字。在该数字对应的那一个夜晚，你会得知对应数量的在场角色。"
+    }
+  }
+}

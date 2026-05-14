@@ -1,0 +1,32 @@
+{
+  "id": "snitch",
+  "team": "outsider",
+  "edition": "experimental",
+  "current_revision": "v2024-11",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": "Initial wording"
+    },
+    {
+      "id": "v2024-11",
+      "note": "Changed bluff presentation."
+    }
+  ],
+  "en": {
+    "name": "Snitch",
+    "ability": "Each Minion gets 3 bluffs.",
+    "revisions": {
+      "v1": "Minions start knowing 3 not-in-play characters.",
+      "v2024-11": "Each Minion gets 3 bluffs."
+    }
+  },
+  "zh": {
+    "name": "告密者",
+    "ability": "每名爪牙会得到三个伪装。",
+    "revisions": {
+      "v1": "爪牙会在其首个夜晚得知三个不在场角色。",
+      "v2024-11": "每名爪牙会得到三个伪装。"
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "kazali",
+  "team": "demon",
+  "edition": "experimental",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Kazali",
+    "ability": "Each night*, choose a player: they die. [You choose which players are which Minions. -? to +? Outsiders]",
+    "revisions": {
+      "v1": "Each night*, choose a player: they die. [You choose which players are which Minions. -? to +? Outsiders]"
+    }
+  },
+  "zh": {
+    "name": "卡扎力",
+    "ability": "每个夜晚*，你要选择一名玩家：他死亡。<br>[由你决定谁是什么爪牙，-或+任意数量外来者]",
+    "revisions": {
+      "v1": "每个夜晚*，你要选择一名玩家：他死亡。<br>[由你决定谁是什么爪牙，-或+任意数量外来者]"
+    }
+  }
+}

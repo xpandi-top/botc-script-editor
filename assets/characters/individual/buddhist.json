@@ -1,0 +1,26 @@
+{
+  "id": "buddhist",
+  "team": "fabled",
+  "edition": "fabled",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Buddhist",
+    "ability": "For the first 2 minutes of each day, veteran players may not talk.",
+    "revisions": {
+      "v1": "For the first 2 minutes of each day, veteran players may not talk."
+    }
+  },
+  "zh": {
+    "name": "Buddhist",
+    "ability": "每天开始的前2分钟，老玩家不能说话。",
+    "revisions": {
+      "v1": "每天开始的前2分钟，老玩家不能说话。"
+    }
+  }
+}

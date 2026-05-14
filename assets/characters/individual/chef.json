@@ -1,0 +1,26 @@
+{
+  "id": "chef",
+  "team": "townsfolk",
+  "edition": "tb",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Chef",
+    "ability": "You start knowing how many pairs of evil players there are.",
+    "revisions": {
+      "v1": "You start knowing how many pairs of evil players there are."
+    }
+  },
+  "zh": {
+    "name": "厨师",
+    "ability": "在你的首个夜晚，你会得知场上邻座的邪恶玩家有多少对。",
+    "revisions": {
+      "v1": "在你的首个夜晚，你会得知场上邻座的邪恶玩家有多少对。"
+    }
+  }
+}

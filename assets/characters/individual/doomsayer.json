@@ -1,0 +1,26 @@
+{
+  "id": "doomsayer",
+  "team": "fabled",
+  "edition": "fabled",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Doomsayer",
+    "ability": "If 4 or more players live, each living player may publicly choose (once per game) that a player of their own alignment dies.",
+    "revisions": {
+      "v1": "If 4 or more players live, each living player may publicly choose (once per game) that a player of their own alignment dies."
+    }
+  },
+  "zh": {
+    "name": "Doomsayer",
+    "ability": "如果有4名或更多玩家存活，每名存活玩家每局一次可以公开选择让一名与自己同阵营的玩家死亡。",
+    "revisions": {
+      "v1": "如果有4名或更多玩家存活，每名存活玩家每局一次可以公开选择让一名与自己同阵营的玩家死亡。"
+    }
+  }
+}

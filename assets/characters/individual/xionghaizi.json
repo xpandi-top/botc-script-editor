@@ -1,0 +1,26 @@
+{
+  "id": "xionghaizi",
+  "team": "townsfolk",
+  "edition": "huadengchushang",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Rascal",
+    "ability": "Each night, choose a Townsfolk character: their ability produces false information until the next dusk.",
+    "revisions": {
+      "v1": "Each night, choose a Townsfolk character: their ability produces false information until the next dusk."
+    }
+  },
+  "zh": {
+    "name": "熊孩子",
+    "ability": "每个夜晚，你要选择一个镇民角色：他们的能力会产生错误信息，直到下个黄昏。",
+    "revisions": {
+      "v1": "每个夜晚，你要选择一个镇民角色：他们的能力会产生错误信息，直到下个黄昏。"
+    }
+  }
+}

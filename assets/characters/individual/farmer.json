@@ -1,0 +1,32 @@
+{
+  "id": "farmer",
+  "team": "townsfolk",
+  "edition": "experimental",
+  "current_revision": "v2024-11",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": "Initial wording"
+    },
+    {
+      "id": "v2024-11",
+      "note": "Standardized timing wording."
+    }
+  ],
+  "en": {
+    "name": "Farmer",
+    "ability": "When you die at night, an alive good player becomes a Farmer.",
+    "revisions": {
+      "v1": "If you die at night, an alive good player becomes a Farmer.",
+      "v2024-11": "When you die at night, an alive good player becomes a Farmer."
+    }
+  },
+  "zh": {
+    "name": "农夫",
+    "ability": "当你在夜晚死亡时，一名存活的善良玩家会变成农夫。",
+    "revisions": {
+      "v1": "如果你在夜晚死亡，一名存活的善良玩家会变成农夫。",
+      "v2024-11": "当你在夜晚死亡时，一名存活的善良玩家会变成农夫。"
+    }
+  }
+}

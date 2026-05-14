@@ -1,0 +1,26 @@
+{
+  "id": "bingbi",
+  "team": "townsfolk",
+  "edition": "shanyuyulai",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Brush Holder",
+    "ability": "If you die at day, learn a good player that night. If you die at night, learn an evil player that night.",
+    "revisions": {
+      "v1": "If you die at day, learn a good player that night. If you die at night, learn an evil player that night."
+    }
+  },
+  "zh": {
+    "name": "秉笔",
+    "ability": "如果你在白天死亡，当晚你会得知一名善良玩家。如果你在夜晚死亡，当晚你会得知一名邪恶玩家。",
+    "revisions": {
+      "v1": "如果你在白天死亡，当晚你会得知一名善良玩家。如果你在夜晚死亡，当晚你会得知一名邪恶玩家。"
+    }
+  }
+}

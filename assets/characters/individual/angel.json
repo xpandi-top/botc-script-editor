@@ -1,0 +1,26 @@
+{
+  "id": "angel",
+  "team": "fabled",
+  "edition": "fabled",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Angel",
+    "ability": "Something bad might happen to whoever is most responsible for the death of a new player.",
+    "revisions": {
+      "v1": "Something bad might happen to whoever is most responsible for the death of a new player."
+    }
+  },
+  "zh": {
+    "name": "Angel",
+    "ability": "新玩家死亡时，最应为其死亡负责的人可能会遭遇不好的事。",
+    "revisions": {
+      "v1": "新玩家死亡时，最应为其死亡负责的人可能会遭遇不好的事。"
+    }
+  }
+}

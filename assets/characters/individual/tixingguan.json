@@ -1,0 +1,26 @@
+{
+  "id": "tixingguan",
+  "team": "townsfolk",
+  "edition": "shanyuyulai",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Tixingguan",
+    "ability": "After your first nomination, you learn their character that night. Demon will register as a good character to you.",
+    "revisions": {
+      "v1": "After your first nomination, you learn their character that night. Demon will register as a good character to you."
+    }
+  },
+  "zh": {
+    "name": "提刑官",
+    "ability": "在你首次提名玩家后，你会在当晚得知他的角色。恶魔会被你的能力当作善良角色。",
+    "revisions": {
+      "v1": "在你首次提名玩家后，你会在当晚得知他的角色。恶魔会被你的能力当作善良角色。"
+    }
+  }
+}

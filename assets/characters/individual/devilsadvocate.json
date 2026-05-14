@@ -1,0 +1,26 @@
+{
+  "id": "devilsadvocate",
+  "team": "minion",
+  "edition": "bmr",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Devil's Advocate",
+    "ability": "Each night, choose a living player (different to last night): if executed tomorrow, they don't die.",
+    "revisions": {
+      "v1": "Each night, choose a living player (different to last night): if executed tomorrow, they don't die."
+    }
+  },
+  "zh": {
+    "name": "魔鬼代言人",
+    "ability": "每个夜晚，你要选择一名存活的玩家（与上个夜晚不同）：如果明天白天他被处决，他不会死亡。",
+    "revisions": {
+      "v1": "每个夜晚，你要选择一名存活的玩家（与上个夜晚不同）：如果明天白天他被处决，他不会死亡。"
+    }
+  }
+}

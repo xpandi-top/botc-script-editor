@@ -1,0 +1,26 @@
+{
+  "id": "snakecharmer",
+  "team": "townsfolk",
+  "edition": "snv",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Snake Charmer",
+    "ability": "Each night, choose an alive player: a chosen Demon swaps characters & alignments with you & is then poisoned.",
+    "revisions": {
+      "v1": "Each night, choose an alive player: a chosen Demon swaps characters & alignments with you & is then poisoned."
+    }
+  },
+  "zh": {
+    "name": "舞蛇人",
+    "ability": "每个夜晚，你要选择一名存活的玩家：如果你选中了恶魔，你和他交换角色和阵营，然后他中毒。",
+    "revisions": {
+      "v1": "每个夜晚，你要选择一名存活的玩家：如果你选中了恶魔，你和他交换角色和阵营，然后他中毒。"
+    }
+  }
+}

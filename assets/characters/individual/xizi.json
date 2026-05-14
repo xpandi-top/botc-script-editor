@@ -1,0 +1,32 @@
+{
+  "id": "xizi",
+  "team": "townsfolk",
+  "edition": "huadengchushang",
+  "current_revision": "v2",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    },
+    {
+      "id": "v2",
+      "note": "new release in shanyu"
+    }
+  ],
+  "en": {
+    "name": "Actor",
+    "ability": "All good players (except travellers) know each other, are drunk and can not change alignment. Win/lose condition is reversed, even if you lose your ability.",
+    "revisions": {
+      "v1": "Win/lose condition is reversed, even if you are dead. All Actors know each other. [All good players are Actors]",
+      "v2": "All good players (except travellers) know each other, are drunk and can not change alignment. Win/lose condition is reversed, even if you lose your ability."
+    }
+  },
+  "zh": {
+    "name": "戏子",
+    "ability": "其他善良玩家醉酒（旅行者除外），你们互相认识且无法转变阵营，对调胜负结果，即使你失去能力。",
+    "revisions": {
+      "v1": "所有戏子互相认识。不论在场的戏子数量多少或存活与否，胜负结果会被对调。[所有善良玩家都是戏子]",
+      "v2": "其他善良玩家醉酒（旅行者除外），你们互相认识且无法转变阵营，对调胜负结果，即使你失去能力。"
+    }
+  }
+}

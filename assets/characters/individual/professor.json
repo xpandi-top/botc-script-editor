@@ -1,0 +1,26 @@
+{
+  "id": "professor",
+  "team": "townsfolk",
+  "edition": "bmr",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Professor",
+    "ability": "Once per game, at night*, choose a dead player: if they are a Townsfolk, they are resurrected.",
+    "revisions": {
+      "v1": "Once per game, at night*, choose a dead player: if they are a Townsfolk, they are resurrected."
+    }
+  },
+  "zh": {
+    "name": "教授",
+    "ability": "每局游戏限一次，在夜晚时*，你可以选择一名死亡的玩家：如果他是镇民，你会将他起死回生。",
+    "revisions": {
+      "v1": "每局游戏限一次，在夜晚时*，你可以选择一名死亡的玩家：如果他是镇民，你会将他起死回生。"
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "moonchild",
+  "team": "outsider",
+  "edition": "bmr",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Moonchild",
+    "ability": "When you learn that you died, publicly choose 1 alive player. Tonight, if it was a good player, they die.",
+    "revisions": {
+      "v1": "When you learn that you died, publicly choose 1 alive player. Tonight, if it was a good player, they die."
+    }
+  },
+  "zh": {
+    "name": "月之子",
+    "ability": "当你得知你死亡时，你要公开选择一名存活的玩家。如果他是善良的，在当晚他会死亡。",
+    "revisions": {
+      "v1": "当你得知你死亡时，你要公开选择一名存活的玩家。如果他是善良的，在当晚他会死亡。"
+    }
+  }
+}

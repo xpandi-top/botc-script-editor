@@ -1,0 +1,26 @@
+{
+  "id": "lord_of_typhon",
+  "team": "demon",
+  "edition": "experimental",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Lord of Typhon",
+    "ability": "Each night*, choose a player: they die. [Evil characters are in a line. You are in the middle. +1 Minion. -? to +? Outsiders]",
+    "revisions": {
+      "v1": "Each night*, choose a player: they die. [Evil characters are in a line. You are in the middle. +1 Minion. -? to +? Outsiders]"
+    }
+  },
+  "zh": {
+    "name": "堤丰之首",
+    "ability": "每个夜晚*，你要选择一名玩家：他死亡。<br>[邪恶角色全部邻座，你位于正中，+1爪牙，-或+任意数量外来者]",
+    "revisions": {
+      "v1": "每个夜晚*，你要选择一名玩家：他死亡。<br>[邪恶角色全部邻座，你位于正中，+1爪牙，-或+任意数量外来者]"
+    }
+  }
+}

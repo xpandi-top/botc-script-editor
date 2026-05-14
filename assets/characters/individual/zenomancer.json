@@ -1,0 +1,26 @@
+{
+  "id": "zenomancer",
+  "team": "loric",
+  "edition": "loric",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Zenomancer",
+    "ability": "One or more players each have a goal. When achieved, that player learns a piece of true info.",
+    "revisions": {
+      "v1": "One or more players each have a goal. When achieved, that player learns a piece of true info."
+    }
+  },
+  "zh": {
+    "name": "Zenomancer",
+    "ability": "一名或多名玩家各自拥有一个目标。达成后，该玩家会得知一条真实信息。",
+    "revisions": {
+      "v1": "一名或多名玩家各自拥有一个目标。达成后，该玩家会得知一条真实信息。"
+    }
+  }
+}

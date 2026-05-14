@@ -1,0 +1,26 @@
+{
+  "id": "drunk",
+  "team": "outsider",
+  "edition": "tb",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Drunk",
+    "ability": "You do not know you are the Drunk. You think you are a Townsfolk character, but you are not.",
+    "revisions": {
+      "v1": "You do not know you are the Drunk. You think you are a Townsfolk character, but you are not."
+    }
+  },
+  "zh": {
+    "name": "酒鬼",
+    "ability": "你不知道你是酒鬼。你以为你是一个镇民角色，但其实你不是。",
+    "revisions": {
+      "v1": "你不知道你是酒鬼。你以为你是一个镇民角色，但其实你不是。"
+    }
+  }
+}

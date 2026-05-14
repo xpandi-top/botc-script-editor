@@ -1,0 +1,26 @@
+{
+  "id": "sentinel",
+  "team": "fabled",
+  "edition": "fabled",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Sentinel",
+    "ability": "There might be 1 extra or 1 fewer Outsider in play.",
+    "revisions": {
+      "v1": "There might be 1 extra or 1 fewer Outsider in play."
+    }
+  },
+  "zh": {
+    "name": "Sentinel",
+    "ability": "场上可能会多1名或少1名外来者。",
+    "revisions": {
+      "v1": "场上可能会多1名或少1名外来者。"
+    }
+  }
+}

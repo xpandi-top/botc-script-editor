@@ -1,0 +1,26 @@
+{
+  "id": "boffin",
+  "team": "minion",
+  "edition": "experimental",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Boffin",
+    "ability": "The Demon (even if drunk or poisoned) has a not-in-play good character's ability. You both know which",
+    "revisions": {
+      "v1": "The Demon (even if drunk or poisoned) has a not-in-play good character's ability. You both know which"
+    }
+  },
+  "zh": {
+    "name": "科学怪人",
+    "ability": "恶魔拥有一个不在场的善良角色的能力，即使他醉酒或中毒。你和他都知道他获得了什么能力。",
+    "revisions": {
+      "v1": "恶魔拥有一个不在场的善良角色的能力，即使他醉酒或中毒。你和他都知道他获得了什么能力。"
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "marionette",
+  "team": "minion",
+  "edition": "experimental",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Marionette",
+    "ability": "You think you are a good character but you are not. The Demon knows who you are. [You neighbour the Demon]",
+    "revisions": {
+      "v1": "You think you are a good character but you are not. The Demon knows who you are. [You neighbour the Demon]"
+    }
+  },
+  "zh": {
+    "name": "提线木偶",
+    "ability": "你以为你是一个善良角色，但其实你不是。恶魔会知道你是提线木偶。[提线木偶会与恶魔邻座]",
+    "revisions": {
+      "v1": "你以为你是一个善良角色，但其实你不是。恶魔会知道你是提线木偶。[提线木偶会与恶魔邻座]"
+    }
+  }
+}

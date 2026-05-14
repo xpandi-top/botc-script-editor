@@ -1,0 +1,26 @@
+{
+  "id": "pukka",
+  "team": "demon",
+  "edition": "bmr",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Pukka",
+    "ability": "Each night, choose a player: they are poisoned. The previously poisoned player dies then becomes healthy.",
+    "revisions": {
+      "v1": "Each night, choose a player: they are poisoned. The previously poisoned player dies then becomes healthy."
+    }
+  },
+  "zh": {
+    "name": "普卡",
+    "ability": "每个夜晚，你要选择一名玩家：他中毒。<br>上个因你的能力中毒的玩家会死亡并恢复健康。",
+    "revisions": {
+      "v1": "每个夜晚，你要选择一名玩家：他中毒。<br>上个因你的能力中毒的玩家会死亡并恢复健康。"
+    }
+  }
+}

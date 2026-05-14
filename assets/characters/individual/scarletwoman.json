@@ -1,0 +1,26 @@
+{
+  "id": "scarletwoman",
+  "team": "minion",
+  "edition": "tb",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Scarlet Woman",
+    "ability": "If there are 5 or more players alive & the Demon dies, you become the Demon. (Travellers don’t count)",
+    "revisions": {
+      "v1": "If there are 5 or more players alive & the Demon dies, you become the Demon. (Travellers don’t count)"
+    }
+  },
+  "zh": {
+    "name": "红唇女郎",
+    "ability": "如果大于等于五名玩家存活时（旅行者不计算在内）恶魔死亡，你变成那个恶魔。",
+    "revisions": {
+      "v1": "如果大于等于五名玩家存活时（旅行者不计算在内）恶魔死亡，你变成那个恶魔。"
+    }
+  }
+}

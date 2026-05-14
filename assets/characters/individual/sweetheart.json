@@ -1,0 +1,26 @@
+{
+  "id": "sweetheart",
+  "team": "outsider",
+  "edition": "snv",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Sweetheart",
+    "ability": "When you die, 1 player is drunk from now on.",
+    "revisions": {
+      "v1": "When you die, 1 player is drunk from now on."
+    }
+  },
+  "zh": {
+    "name": "心上人",
+    "ability": "当你死亡时，会有一名玩家开始醉酒。",
+    "revisions": {
+      "v1": "当你死亡时，会有一名玩家开始醉酒。"
+    }
+  }
+}

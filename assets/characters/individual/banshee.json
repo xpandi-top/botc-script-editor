@@ -1,0 +1,26 @@
+{
+  "id": "banshee",
+  "team": "townsfolk",
+  "edition": "experimental",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Banshee",
+    "ability": "If the Demon kills you, all players learn this. From now on, you may nominate twice per day and vote twice per nomination.”",
+    "revisions": {
+      "v1": "If the Demon kills you, all players learn this. From now on, you may nominate twice per day and vote twice per nomination.”"
+    }
+  },
+  "zh": {
+    "name": "报丧女妖",
+    "ability": "如果恶魔杀死了你，所有玩家都会得知此事。从现在开始，你每天可以发起两次提名，每次投票时可以投两票。",
+    "revisions": {
+      "v1": "如果恶魔杀死了你，所有玩家都会得知此事。从现在开始，你每天可以发起两次提名，每次投票时可以投两票。"
+    }
+  }
+}

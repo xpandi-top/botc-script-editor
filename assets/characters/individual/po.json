@@ -1,0 +1,26 @@
+{
+  "id": "po",
+  "team": "demon",
+  "edition": "bmr",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Po",
+    "ability": "Each night*, you may choose a player: they die. If your last choice was no-one, choose 3 players tonight.",
+    "revisions": {
+      "v1": "Each night*, you may choose a player: they die. If your last choice was no-one, choose 3 players tonight."
+    }
+  },
+  "zh": {
+    "name": "珀",
+    "ability": "每个夜晚*，你可以选择一名玩家：他死亡。如果你上次选择时没有选择任何玩家，当晚你要选择三名玩家：他们死亡。",
+    "revisions": {
+      "v1": "每个夜晚*，你可以选择一名玩家：他死亡。如果你上次选择时没有选择任何玩家，当晚你要选择三名玩家：他们死亡。"
+    }
+  }
+}

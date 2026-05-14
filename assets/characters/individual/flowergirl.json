@@ -1,0 +1,26 @@
+{
+  "id": "flowergirl",
+  "team": "townsfolk",
+  "edition": "snv",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Flowergirl",
+    "ability": "Each night*, you learn if a Demon voted today.",
+    "revisions": {
+      "v1": "Each night*, you learn if a Demon voted today."
+    }
+  },
+  "zh": {
+    "name": "卖花女孩",
+    "ability": "每个夜晚*，你会得知在今天白天时是否有恶魔投过票。",
+    "revisions": {
+      "v1": "每个夜晚*，你会得知在今天白天时是否有恶魔投过票。"
+    }
+  }
+}

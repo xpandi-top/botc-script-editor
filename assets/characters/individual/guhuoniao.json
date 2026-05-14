@@ -1,0 +1,26 @@
+{
+  "id": "guhuoniao",
+  "team": "demon",
+  "edition": "shanyuyulai",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Guhuoniao",
+    "ability": "Each night*, choose a player: they die. You may have the ability of the last executed minion.",
+    "revisions": {
+      "v1": "Each night*, choose a player: they die. You may have the ability of the last executed minion."
+    }
+  },
+  "zh": {
+    "name": "姑获鸟",
+    "ability": "每个夜晚*，你要选择一名玩家：他死亡。你可能会拥有上一个死于处决的爪牙的能力。",
+    "revisions": {
+      "v1": "每个夜晚*，你要选择一名玩家：他死亡。你可能会拥有上一个死于处决的爪牙的能力。"
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "hindu",
+  "team": "loric",
+  "edition": "loric",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Hindu",
+    "ability": "The first 4 players to die are immediately reincarnated as Travellers of the same alignment.",
+    "revisions": {
+      "v1": "The first 4 players to die are immediately reincarnated as Travellers of the same alignment."
+    }
+  },
+  "zh": {
+    "name": "Hindu",
+    "ability": "最先死亡的4名玩家会立刻转生为同阵营的旅行者。",
+    "revisions": {
+      "v1": "最先死亡的4名玩家会立刻转生为同阵营的旅行者。"
+    }
+  }
+}

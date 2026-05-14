@@ -1,0 +1,26 @@
+{
+  "id": "chongfei",
+  "team": "townsfolk",
+  "edition": "shanyuyulai",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Chongfei",
+    "ability": "Once per game, the Storyteller will break the rules about you. Then, you will secretly learn what they did for this.",
+    "revisions": {
+      "v1": "Once per game, the Storyteller will break the rules about you. Then, you will secretly learn what they did for this."
+    }
+  },
+  "zh": {
+    "name": "宠妃",
+    "ability": "每局游戏限一次，说书人会在关于你的事情上打破规则。随后，你会秘密得知说书人为此做了什么。",
+    "revisions": {
+      "v1": "每局游戏限一次，说书人会在关于你的事情上打破规则。随后，你会秘密得知说书人为此做了什么。"
+    }
+  }
+}

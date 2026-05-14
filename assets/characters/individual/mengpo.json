@@ -1,0 +1,26 @@
+{
+  "id": "mengpo",
+  "team": "minion",
+  "edition": "shanyuyulai",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Mengpo",
+    "ability": "Each night*, choose a player: if they are alive, they must choose to lose their ability or die and keep their ability until dusk.",
+    "revisions": {
+      "v1": "Each night*, choose a player: if they are alive, they must choose to lose their ability or die and keep their ability until dusk."
+    }
+  },
+  "zh": {
+    "name": "孟婆",
+    "ability": "每个夜晚*，你要选择一名玩家：如果他存活，那么他要选择让自己失去能力，或死亡并保留能力直到下个黄昏。",
+    "revisions": {
+      "v1": "每个夜晚*，你要选择一名玩家：如果他存活，那么他要选择让自己失去能力，或死亡并保留能力直到下个黄昏。"
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "ganshiren",
+  "team": "minion",
+  "edition": "huadengchushang",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Corpse Walker",
+    "ability": "Your two townsfolk neighbour register as alive when they first die. [-1 Outsider]",
+    "revisions": {
+      "v1": "Your two townsfolk neighbour register as alive when they first die. [-1 Outsider]"
+    }
+  },
+  "zh": {
+    "name": "赶尸人",
+    "ability": "与你邻近的两名镇民玩家会在其首次死亡时被当作仍然存活。[-1外来者]",
+    "revisions": {
+      "v1": "与你邻近的两名镇民玩家会在其首次死亡时被当作仍然存活。[-1外来者]"
+    }
+  }
+}

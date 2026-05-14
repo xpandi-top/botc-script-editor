@@ -1,0 +1,26 @@
+{
+  "id": "deviant",
+  "team": "traveler",
+  "edition": "snv",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Deviant",
+    "ability": "If you were funny today, you cannot die by exile.",
+    "revisions": {
+      "v1": "If you were funny today, you cannot die by exile."
+    }
+  },
+  "zh": {
+    "name": "怪咖",
+    "ability": "如果你表现得很有趣，当天你不能被流放。",
+    "revisions": {
+      "v1": "如果你表现得很有趣，当天你不能被流放。"
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "magician",
+  "team": "townsfolk",
+  "edition": "experimental",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Magician",
+    "ability": "The Demon thinks you are a Minion. Minions think you are a Demon.",
+    "revisions": {
+      "v1": "The Demon thinks you are a Minion. Minions think you are a Demon."
+    }
+  },
+  "zh": {
+    "name": "魔术师",
+    "ability": "恶魔会以为你是爪牙。爪牙会以为你是恶魔。",
+    "revisions": {
+      "v1": "恶魔会以为你是爪牙。爪牙会以为你是恶魔。"
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "humeiniang",
+  "team": "minion",
+  "edition": "huadengchushang",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Vixen",
+    "ability": "You start by choosing a player: they learn that the Vixen is in play. If you die by execution, they become evil that night.",
+    "revisions": {
+      "v1": "You start by choosing a player: they learn that the Vixen is in play. If you die by execution, they become evil that night."
+    }
+  },
+  "zh": {
+    "name": "狐媚娘",
+    "ability": "在你的首个夜晚，你要选择一名玩家：他会知道狐媚娘在场。如果你死于处决，当晚他转变为邪恶阵营。",
+    "revisions": {
+      "v1": "在你的首个夜晚，你要选择一名玩家：他会知道狐媚娘在场。如果你死于处决，当晚他转变为邪恶阵营。"
+    }
+  }
+}

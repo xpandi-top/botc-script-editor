@@ -1,0 +1,26 @@
+{
+  "id": "barber",
+  "team": "outsider",
+  "edition": "snv",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Barber",
+    "ability": "If you died today or tonight, the Demon may choose 2 players (not another Demon) to swap characters.",
+    "revisions": {
+      "v1": "If you died today or tonight, the Demon may choose 2 players (not another Demon) to swap characters."
+    }
+  },
+  "zh": {
+    "name": "理发师",
+    "ability": "如果你死亡，在当晚恶魔可以选择两名玩家（不能选择其他恶魔）交换角色。",
+    "revisions": {
+      "v1": "如果你死亡，在当晚恶魔可以选择两名玩家（不能选择其他恶魔）交换角色。"
+    }
+  }
+}

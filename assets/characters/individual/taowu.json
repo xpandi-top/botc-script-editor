@@ -1,0 +1,26 @@
+{
+  "id": "taowu",
+  "team": "demon",
+  "edition": "huadengchushang",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Tao Wu",
+    "ability": "Each night*, choose a player: they die. When you would die, instead an alive Minion with an ability loses their ability. You do not receive Demon information.",
+    "revisions": {
+      "v1": "Each night*, choose a player: they die. When you would die, instead an alive Minion with an ability loses their ability. You do not receive Demon information."
+    }
+  },
+  "zh": {
+    "name": "梼杌",
+    "ability": "每个夜晚*，你要选择一名玩家：他死亡。当你将要死亡时，改为一名存活且具有能力的爪牙失去能力。你不会得知恶魔信息。",
+    "revisions": {
+      "v1": "每个夜晚*，你要选择一名玩家：他死亡。当你将要死亡时，改为一名存活且具有能力的爪牙失去能力。你不会得知恶魔信息。"
+    }
+  }
+}

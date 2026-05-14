@@ -1,0 +1,26 @@
+{
+  "id": "tealady",
+  "team": "townsfolk",
+  "edition": "bmr",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Tea Lady",
+    "ability": "If both your alive neighbours are good, they can't die.",
+    "revisions": {
+      "v1": "If both your alive neighbours are good, they can't die."
+    }
+  },
+  "zh": {
+    "name": "茶艺师",
+    "ability": "如果与你邻近的两名存活的玩家是善良的，他们不会死亡。",
+    "revisions": {
+      "v1": "如果与你邻近的两名存活的玩家是善良的，他们不会死亡。"
+    }
+  }
+}

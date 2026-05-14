@@ -1,0 +1,32 @@
+{
+  "id": "boomdandy",
+  "team": "minion",
+  "edition": "experimental",
+  "current_revision": "v2024-11",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": "Initial wording"
+    },
+    {
+      "id": "v2024-11",
+      "note": "Replaced the one-minute wait with a countdown."
+    }
+  ],
+  "en": {
+    "name": "Boomdandy",
+    "ability": "If you are executed, all but 3 players die. After a 10 to 1 countdown, the player with the most players pointing at them, dies.",
+    "revisions": {
+      "v1": "If you are executed, all but 3 players die. 1 minute later, the player with the most players pointing at them, dies.",
+      "v2024-11": "If you are executed, all but 3 players die. After a 10 to 1 countdown, the player with the most players pointing at them, dies."
+    }
+  },
+  "zh": {
+    "name": "炸弹人",
+    "ability": "如果你被处决，除三名玩家以外的其他所有玩家均会死亡。倒数十声后，被最多玩家手指指着的玩家死亡。",
+    "revisions": {
+      "v1": "如果你被处决，除三名玩家以外的其他所有玩家均会死亡。1分钟后，被最多玩家手指指着的玩家死亡。",
+      "v2024-11": "如果你被处决，除三名玩家以外的其他所有玩家均会死亡。倒数十声后，被最多玩家手指指着的玩家死亡。"
+    }
+  }
+}

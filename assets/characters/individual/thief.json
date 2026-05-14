@@ -1,0 +1,26 @@
+{
+  "id": "thief",
+  "team": "traveler",
+  "edition": "tb",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Thief",
+    "ability": "Each night, choose a player (not yourself): their vote counts negatively tomorrow.",
+    "revisions": {
+      "v1": "Each night, choose a player (not yourself): their vote counts negatively tomorrow."
+    }
+  },
+  "zh": {
+    "name": "窃贼",
+    "ability": "每个夜晚，你要选择除你以外的一名玩家：明天白天他的投票会被算作负数。",
+    "revisions": {
+      "v1": "每个夜晚，你要选择除你以外的一名玩家：明天白天他的投票会被算作负数。"
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "banxian",
+  "team": "townsfolk",
+  "edition": "huadengchushang",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Banxian",
+    "ability": "When a player choose you at night with their own ability, a different evil player will be chosen instead.",
+    "revisions": {
+      "v1": "When a player choose you at night with their own ability, a different evil player will be chosen instead."
+    }
+  },
+  "zh": {
+    "name": "半仙",
+    "ability": "任何在夜晚使用自身能力选择你的其他玩家，会改为选中另一名邪恶玩家作为替代。",
+    "revisions": {
+      "v1": "任何在夜晚使用自身能力选择你的其他玩家，会改为选中另一名邪恶玩家作为替代。"
+    }
+  }
+}

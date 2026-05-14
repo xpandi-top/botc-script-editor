@@ -1,0 +1,26 @@
+{
+  "id": "noble",
+  "team": "townsfolk",
+  "edition": "experimental",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Noble",
+    "ability": "You start knowing 3 players, 1 and only 1 of which is evil.",
+    "revisions": {
+      "v1": "You start knowing 3 players, 1 and only 1 of which is evil."
+    }
+  },
+  "zh": {
+    "name": "贵族",
+    "ability": "在你的首个夜晚，你会得知三名玩家：其中有且只有一名玩家是邪恶的。",
+    "revisions": {
+      "v1": "在你的首个夜晚，你会得知三名玩家：其中有且只有一名玩家是邪恶的。"
+    }
+  }
+}

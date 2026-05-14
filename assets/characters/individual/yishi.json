@@ -1,0 +1,26 @@
+{
+  "id": "yishi",
+  "team": "townsfolk",
+  "edition": "shanyuyulai",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Yishi",
+    "ability": "Each day, you may publicly choose a character. That night, you learn whether that character is in play. If you learn a no, you lose this ability.",
+    "revisions": {
+      "v1": "Each day, you may publicly choose a character. That night, you learn whether that character is in play. If you learn a no, you lose this ability."
+    }
+  },
+  "zh": {
+    "name": "驿使",
+    "ability": "每个白天，你可以公开声明一个角色。在当晚，你会得知该角色是否在场。如果你因此得知了否，你失去此能力。",
+    "revisions": {
+      "v1": "每个白天，你可以公开声明一个角色。在当晚，你会得知该角色是否在场。如果你因此得知了否，你失去此能力。"
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "witch",
+  "team": "minion",
+  "edition": "snv",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Witch",
+    "ability": "Each night, choose a player: if they nominate tomorrow, they die. If just 3 players live, you lose this ability.",
+    "revisions": {
+      "v1": "Each night, choose a player: if they nominate tomorrow, they die. If just 3 players live, you lose this ability."
+    }
+  },
+  "zh": {
+    "name": "女巫",
+    "ability": "每个夜晚，你要选择一名玩家：如果他明天白天发起提名，他死亡。如果只有三名存活的玩家，你失去此能力。",
+    "revisions": {
+      "v1": "每个夜晚，你要选择一名玩家：如果他明天白天发起提名，他死亡。如果只有三名存活的玩家，你失去此能力。"
+    }
+  }
+}

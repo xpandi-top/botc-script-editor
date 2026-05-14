@@ -1,0 +1,26 @@
+{
+  "id": "fiddler",
+  "team": "fabled",
+  "edition": "fabled",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Fiddler",
+    "ability": "Once per game, the Demon secretly chooses an opposing player: all players choose which of these 2 players win.",
+    "revisions": {
+      "v1": "Once per game, the Demon secretly chooses an opposing player: all players choose which of these 2 players win."
+    }
+  },
+  "zh": {
+    "name": "Fiddler",
+    "ability": "每局游戏一次，恶魔秘密选择一名对立阵营玩家：所有玩家选择这2人中谁获胜。",
+    "revisions": {
+      "v1": "每局游戏一次，恶魔秘密选择一名对立阵营玩家：所有玩家选择这2人中谁获胜。"
+    }
+  }
+}

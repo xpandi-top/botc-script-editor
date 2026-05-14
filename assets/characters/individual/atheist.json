@@ -1,0 +1,26 @@
+{
+  "id": "atheist",
+  "team": "townsfolk",
+  "edition": "experimental",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Atheist",
+    "ability": "The Storyteller can break the game rules & if executed, good wins, even if you are dead. [No evil characters]",
+    "revisions": {
+      "v1": "The Storyteller can break the game rules & if executed, good wins, even if you are dead. [No evil characters]"
+    }
+  },
+  "zh": {
+    "name": "无神论者",
+    "ability": "说书人可以打破游戏规则。如果说书人被处决，善良阵营获胜，即使你已死亡。[无邪恶角色在场]",
+    "revisions": {
+      "v1": "说书人可以打破游戏规则。如果说书人被处决，善良阵营获胜，即使你已死亡。[无邪恶角色在场]"
+    }
+  }
+}

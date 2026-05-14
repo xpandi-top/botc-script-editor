@@ -1,0 +1,26 @@
+{
+  "id": "poppygrower",
+  "team": "townsfolk",
+  "edition": "experimental",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Poppy Grower",
+    "ability": "Minions & Demons do not know each other. If you die, they learn who each other are that night.",
+    "revisions": {
+      "v1": "Minions & Demons do not know each other. If you die, they learn who each other are that night."
+    }
+  },
+  "zh": {
+    "name": "罂粟种植者",
+    "ability": "爪牙和恶魔互相不认识。如果你死亡，当晚他们会互相认识。",
+    "revisions": {
+      "v1": "爪牙和恶魔互相不认识。如果你死亡，当晚他们会互相认识。"
+    }
+  }
+}

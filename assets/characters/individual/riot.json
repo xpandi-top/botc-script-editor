@@ -1,0 +1,32 @@
+{
+  "id": "riot",
+  "team": "demon",
+  "edition": "experimental",
+  "current_revision": "v2024-12",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": "Initial wording"
+    },
+    {
+      "id": "v2024-12",
+      "note": "Completely reworked the day 3 behavior."
+    }
+  ],
+  "en": {
+    "name": "Riot",
+    "ability": "On day 3, Minions become Riot & nominees die but nominate an alive player immediately. This must happen.",
+    "revisions": {
+      "v1": "Nominees die, but may nominate again immediately (on day 3, they must). After day 3, evil wins. [All Minions are Riot]",
+      "v2024-12": "On day 3, Minions become Riot & nominees die but nominate an alive player immediately. This must happen."
+    }
+  },
+  "zh": {
+    "name": "暴乱",
+    "ability": "在第三个白天，所有爪牙会变成暴乱，当天被提名的玩家会立即死亡且必须再次提名一名存活的玩家。",
+    "revisions": {
+      "v1": "被提名的玩家会死亡，但可以立即再次发起提名（在第三个白天，他们必须这么做）。第三个白天后，邪恶阵营获胜。[所有爪牙都是暴乱]",
+      "v2024-12": "在第三个白天，所有爪牙会变成暴乱，当天被提名的玩家会立即死亡且必须再次提名一名存活的玩家。"
+    }
+  }
+}

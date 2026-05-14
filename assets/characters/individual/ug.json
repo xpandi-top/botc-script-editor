@@ -1,0 +1,26 @@
+{
+  "id": "ug",
+  "team": "loric",
+  "edition": "loric",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "God of Ug",
+    "ability": "One Ug hat. When wearing the Ug hat, you must speak one sound at a time but vote twice. If you fail, pass the Ug hat.",
+    "revisions": {
+      "v1": "One Ug hat. When wearing the Ug hat, you must speak one sound at a time but vote twice. If you fail, pass the Ug hat."
+    }
+  },
+  "zh": {
+    "name": "Ug 之神",
+    "ability": "只有一顶 Ug 帽子。戴着 Ug 帽子时，你每次只能发出一个声音，但拥有两票。若你失败了，传递 Ug 帽子。",
+    "revisions": {
+      "v1": "只有一顶 Ug 帽子。戴着 Ug 帽子时，你每次只能发出一个声音，但拥有两票。若你失败了，传递 Ug 帽子。"
+    }
+  }
+}

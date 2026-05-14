@@ -1,0 +1,26 @@
+{
+  "id": "xaan",
+  "team": "minion",
+  "edition": "experimental",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Xaan",
+    "ability": "On night X, all Townsfolk are poisoned until dusk. [X Outsiders]",
+    "revisions": {
+      "v1": "On night X, all Townsfolk are poisoned until dusk. [X Outsiders]"
+    }
+  },
+  "zh": {
+    "name": "限",
+    "ability": "在等同于初始外来者数量的夜晚，所有镇民玩家中毒直到下个黄昏。[外来者数量任意]",
+    "revisions": {
+      "v1": "在等同于初始外来者数量的夜晚，所有镇民玩家中毒直到下个黄昏。[外来者数量任意]"
+    }
+  }
+}

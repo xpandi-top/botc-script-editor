@@ -1,0 +1,26 @@
+{
+  "id": "limao",
+  "team": "townsfolk",
+  "edition": "shanyuyulai",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Tiger Cat",
+    "ability": "Each night*, choose a player: if they are a good and died by Evil ability that night, you and they swap characters.",
+    "revisions": {
+      "v1": "Each night*, choose a player: if they are a good and died by Evil ability that night, you and they swap characters."
+    }
+  },
+  "zh": {
+    "name": "狸猫",
+    "ability": "每个夜晚*，你要选择一名玩家：如果他是善良角色且当晚被邪恶角色杀死，你和他交换角色。",
+    "revisions": {
+      "v1": "每个夜晚*，你要选择一名玩家：如果他是善良角色且当晚被邪恶角色杀死，你和他交换角色。"
+    }
+  }
+}

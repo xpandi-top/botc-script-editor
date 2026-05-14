@@ -1,0 +1,26 @@
+{
+  "id": "pope",
+  "team": "loric",
+  "edition": "loric",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Pope",
+    "ability": "There are duplicate good characters in play. They might also be bluffs.",
+    "revisions": {
+      "v1": "There are duplicate good characters in play. They might also be bluffs."
+    }
+  },
+  "zh": {
+    "name": "Pope",
+    "ability": "场上有重复的善良角色。它们也可能同时出现在恶魔的伪装中。",
+    "revisions": {
+      "v1": "场上有重复的善良角色。它们也可能同时出现在恶魔的伪装中。"
+    }
+  }
+}

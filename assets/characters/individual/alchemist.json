@@ -1,0 +1,32 @@
+{
+  "id": "alchemist",
+  "team": "townsfolk",
+  "edition": "experimental",
+  "current_revision": "v2024-12",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": "Initial wording"
+    },
+    {
+      "id": "v2024-12",
+      "note": "Removed the not-in-play restriction and added Storyteller guidance."
+    }
+  ],
+  "en": {
+    "name": "Alchemist",
+    "ability": "You have a Minion ability. When using this, the Storyteller may prompt you to choose differently.",
+    "revisions": {
+      "v1": "You have a not-in-play Minion ability.",
+      "v2024-12": "You have a Minion ability. When using this, the Storyteller may prompt you to choose differently."
+    }
+  },
+  "zh": {
+    "name": "炼金术士",
+    "ability": "你拥有一个爪牙角色的能力。当你使用能力时，说书人可能会要求你更换选择。",
+    "revisions": {
+      "v1": "你拥有一个不在场爪牙角色的能力。",
+      "v2024-12": "你拥有一个爪牙角色的能力。当你使用能力时，说书人可能会要求你更换选择。"
+    }
+  }
+}

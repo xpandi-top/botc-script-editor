@@ -1,0 +1,26 @@
+{
+  "id": "wudaozhe",
+  "team": "townsfolk",
+  "edition": "huadengchushang",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Enlightened One",
+    "ability": "You think you are an Outsider, but you are not. If an evil player chooses or affects you with their ability, you immediately become a not in play Townsfolk character.",
+    "revisions": {
+      "v1": "You think you are an Outsider, but you are not. If an evil player chooses or affects you with their ability, you immediately become a not in play Townsfolk character."
+    }
+  },
+  "zh": {
+    "name": "悟道者",
+    "ability": "你以为你是一个外来者，但你实际上不是。如果有邪恶玩家的能力选择或影响了你，在该效果生效前你会变成一个不在场的镇民角色。",
+    "revisions": {
+      "v1": "你以为你是一个外来者，但你实际上不是。如果有邪恶玩家的能力选择或影响了你，在该效果生效前你会变成一个不在场的镇民角色。"
+    }
+  }
+}

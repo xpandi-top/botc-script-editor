@@ -197,3 +197,27 @@ export type CharacterRevisionOverride = {
 }
 
 export type RevisionOverrides = Record<string, CharacterRevisionOverride>
+
+// ── Character pack types (per-character JSON + import/export) ─────────────────
+
+/** Shape of individual per-character JSON files in assets/characters/individual/ */
+export type CharacterFileEntry = {
+  id: string
+  team: Team
+  edition: string
+  current_revision?: string
+  revisions?: CharacterRevisionEntry[]
+  jinxes?: Array<{ id: string; reason: string }>
+  en?: { name?: string; ability?: string; revisions?: Record<string, string> }
+  zh?: { name?: string; ability?: string; revisions?: Record<string, string> }
+}
+
+/** A character pack — array of CharacterFileEntry, used for download/upload */
+export type CharacterPack = CharacterFileEntry[]
+
+/** localStorage overrides from uploaded character packs */
+export type CharacterPackOverrides = Record<string, {
+  en?: { name?: string; ability?: string; revisions?: Record<string, string> }
+  zh?: { name?: string; ability?: string; revisions?: Record<string, string> }
+  current_revision?: string
+}>

@@ -1,0 +1,26 @@
+{
+  "id": "qianke",
+  "team": "townsfolk",
+  "edition": "shanyuyulai",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Qianke",
+    "ability": "Each night, you choose two alive players: if they are the same alignment, any player using their own ability to target one of them will instead target the other player tonight.",
+    "revisions": {
+      "v1": "Each night, you choose two alive players: if they are the same alignment, any player using their own ability to target one of them will instead target the other player tonight."
+    }
+  },
+  "zh": {
+    "name": "掮客",
+    "ability": "每个夜晚，你要选择两名存活玩家：如果他们阵营相同，今晚任何玩家使用自身能力选择他们之一作为目标时，改为选中另一名玩家。",
+    "revisions": {
+      "v1": "每个夜晚，你要选择两名存活玩家：如果他们阵营相同，今晚任何玩家使用自身能力选择他们之一作为目标时，改为选中另一名玩家。"
+    }
+  }
+}

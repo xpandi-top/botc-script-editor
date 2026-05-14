@@ -1,0 +1,26 @@
+{
+  "id": "rulianshi",
+  "team": "outsider",
+  "edition": "shanyuyulai",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Rulianshi",
+    "ability": "If you nominate and executed the demon, you become evil demon. When there are 4 or fewer players alive (except Travellers), you lose your ability.",
+    "revisions": {
+      "v1": "If you nominate and executed the demon, you become evil demon. When there are 4 or fewer players alive (except Travellers), you lose your ability."
+    }
+  },
+  "zh": {
+    "name": "入殓师",
+    "ability": "如果你提名了恶魔且他死于这次处决，你会变成那个邪恶的恶魔。当剩余存活玩家小于等于四人时（旅行者除外），你失去能力。",
+    "revisions": {
+      "v1": "如果你提名了恶魔且他死于这次处决，你会变成那个邪恶的恶魔。当剩余存活玩家小于等于四人时（旅行者除外），你失去能力。"
+    }
+  }
+}

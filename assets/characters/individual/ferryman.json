@@ -1,0 +1,26 @@
+{
+  "id": "ferryman",
+  "team": "fabled",
+  "edition": "fabled",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Ferryman",
+    "ability": "On the final day, all dead players regain their vote token.",
+    "revisions": {
+      "v1": "On the final day, all dead players regain their vote token."
+    }
+  },
+  "zh": {
+    "name": "Ferryman",
+    "ability": "在最后一天，所有死亡玩家取回他们的投票标记。",
+    "revisions": {
+      "v1": "在最后一天，所有死亡玩家取回他们的投票标记。"
+    }
+  }
+}

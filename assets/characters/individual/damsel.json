@@ -1,0 +1,32 @@
+{
+  "id": "damsel",
+  "team": "outsider",
+  "edition": "experimental",
+  "current_revision": "v2024-11",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": "Initial wording"
+    },
+    {
+      "id": "v2024-11",
+      "note": "Changed Minion knowledge from the player to a Damsel being in play."
+    }
+  ],
+  "en": {
+    "name": "Damsel",
+    "ability": "All Minions know a Damsel is in play. If a Minion publicly guesses you (once), your team loses.",
+    "revisions": {
+      "v1": "All Minions know you are in play. If a Minion publicly guesses you (once), your team loses.",
+      "v2024-11": "All Minions know a Damsel is in play. If a Minion publicly guesses you (once), your team loses."
+    }
+  },
+  "zh": {
+    "name": "落难少女",
+    "ability": "所有爪牙都知道落难少女在场。每局游戏限一次，任意爪牙可以公开猜测你是落难少女，如果猜对，你的阵营落败。",
+    "revisions": {
+      "v1": "所有爪牙都知道你在场。每局游戏限一次，任意爪牙可以公开猜测你是落难少女，如果猜对，你的阵营落败。",
+      "v2024-11": "所有爪牙都知道落难少女在场。每局游戏限一次，任意爪牙可以公开猜测你是落难少女，如果猜对，你的阵营落败。"
+    }
+  }
+}

@@ -1,11 +1,13 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import {
-  Autocomplete, Box, Button, Dialog, DialogContent, DialogTitle, FormControl,
+  Autocomplete, Box, Button, Chip, Dialog, DialogContent, DialogTitle, FormControl,
   FormControlLabel, IconButton, InputLabel, MenuItem, Paper, Radio, RadioGroup,
-  Select, TextField, Typography,
+  Select, Snackbar, TextField, Typography,
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import CloseIcon from '@mui/icons-material/Close'
+import DownloadIcon from '@mui/icons-material/Download'
+import UploadIcon from '@mui/icons-material/Upload'
 import DOMPurify from 'dompurify'
 
 const PURIFY_OPTS: Parameters<typeof DOMPurify.sanitize>[1] = {
@@ -25,7 +27,13 @@ import {
   teamOrder,
   toTitleCase,
   slugify,
+  allCharacterFiles,
+  applyCharacterPack,
+  clearCharacterPackOverrides,
+  refreshCharPackOverrides,
+  CHAR_PACK_OVERRIDES_KEY,
 } from '../../catalog'
+import type { CharacterFileEntry } from '../../types'
 import { processIconFile } from '../../lib/iconResize'
 import type { CharacterEntry, CustomCharacter, Language, Team } from '../../types'
 import { makeT } from '../../lib/t'
@@ -89,8 +97,52 @@ export function CharactersTab({
   const [draft, setDraft] = useState<Omit<CustomCharacter, 'id' | 'createdAt' | 'updatedAt'>>(BLANK_CUSTOM)
   const [iconError, setIconError] = useState('')
   const [iconMode, setIconMode] = useState<'url' | 'upload'>('url')
+  const [snackMsg, setSnackMsg] = useState('')
+  const [hasPackOverrides, setHasPackOverrides] = useState(() => {
+    try { return Object.keys(JSON.parse(localStorage.getItem(CHAR_PACK_OVERRIDES_KEY) ?? '{}')).length > 0 } catch { return false }
+  })
+  const importInputRef = useRef<HTMLInputElement>(null)
   const zh = uiLanguage === 'zh'
   const t = makeT(uiLanguage)
+
+  // ── Download pack ─────────────────────────────────────────────────────────────
+  const downloadPack = (edition: string) => {
+    const chars: CharacterFileEntry[] = edition === 'all'
+      ? allCharacterFiles
+      : allCharacterFiles.filter((c) => c.edition === edition)
+    const blob = new Blob([JSON.stringify(chars, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = edition === 'all' ? 'botc_characters_all.json' : `botc_characters_${edition}.json`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  // ── Import pack ───────────────────────────────────────────────────────────────
+  const handleImportPack = (file: File) => {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      try {
+        const data = JSON.parse(e.target?.result as string)
+        const pack: CharacterFileEntry[] = Array.isArray(data) ? data : [data]
+        applyCharacterPack(pack)
+        refreshCharPackOverrides()
+        setHasPackOverrides(true)
+        setSnackMsg(zh ? `已导入 ${pack.length} 个角色数据` : `Imported ${pack.length} character(s)`)
+      } catch {
+        setSnackMsg(zh ? '导入失败：JSON 格式错误' : 'Import failed: invalid JSON')
+      }
+    }
+    reader.readAsText(file)
+  }
+
+  const handleClearOverrides = () => {
+    clearCharacterPackOverrides()
+    refreshCharPackOverrides()
+    setHasPackOverrides(false)
+    setSnackMsg(zh ? '已清除所有包覆盖数据' : 'Cleared all pack overrides')
+  }
 
   const openNew = () => {
     setEditingChar(null)
@@ -224,6 +276,61 @@ export function CharactersTab({
                   onChange={() => toggleEdition(edition)} />
               ))}
             </Box>
+
+            {/* ── Import / Export row ── */}
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, mt: 1, alignItems: 'center' }}>
+              <Select
+                size="small"
+                displayEmpty
+                value=""
+                renderValue={() => (
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <DownloadIcon sx={{ fontSize: '0.9rem' }} />
+                    <Typography sx={{ fontSize: '0.75rem' }}>{zh ? '下载包' : 'Download'}</Typography>
+                  </Box>
+                )}
+                onChange={(e) => { if (e.target.value) downloadPack(e.target.value as string) }}
+                sx={{ minWidth: 110, '& .MuiSelect-select': { py: '4px', fontSize: '0.75rem' } }}
+              >
+                <MenuItem value="all" sx={{ fontSize: '0.8rem' }}>{zh ? '全部角色' : 'All characters'}</MenuItem>
+                {[...new Set(allCharacterFiles.map((c) => c.edition))].sort().map((ed) => (
+                  <MenuItem key={ed} value={ed} sx={{ fontSize: '0.8rem' }}>
+                    {editionLabels[uiLanguage][ed] ?? toTitleCase(ed)}
+                  </MenuItem>
+                ))}
+              </Select>
+
+              <Button
+                size="small"
+                variant="outlined"
+                startIcon={<UploadIcon fontSize="small" />}
+                onClick={() => importInputRef.current?.click()}
+                sx={{ textTransform: 'none', fontSize: '0.75rem', py: '3px' }}
+              >
+                {zh ? '导入包' : 'Import'}
+              </Button>
+              <input
+                ref={importInputRef}
+                type="file"
+                accept=".json"
+                hidden
+                onChange={(e) => {
+                  const f = e.target.files?.[0]
+                  if (f) handleImportPack(f)
+                  e.target.value = ''
+                }}
+              />
+
+              {hasPackOverrides && (
+                <Chip
+                  size="small"
+                  label={zh ? '包已激活' : 'Pack active'}
+                  color="secondary"
+                  onDelete={handleClearOverrides}
+                  sx={{ fontSize: '0.7rem', height: 22 }}
+                />
+              )}
+            </Box>
           </Box>
 
           {/* Scrollable character list */}
@@ -316,6 +423,15 @@ export function CharactersTab({
           />
         </DialogContent>
       </Dialog>
+
+      {/* ── Import/export snackbar ── */}
+      <Snackbar
+        open={Boolean(snackMsg)}
+        autoHideDuration={3000}
+        onClose={() => setSnackMsg('')}
+        message={snackMsg}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      />
 
       {/* ── Create / Edit Custom Character Dialog ── */}
       <Dialog open={customDialogOpen} onClose={() => setCustomDialogOpen(false)} maxWidth="sm" fullWidth>

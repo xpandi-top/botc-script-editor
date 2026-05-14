@@ -1,0 +1,26 @@
+{
+  "id": "shaxing",
+  "team": "outsider",
+  "edition": "huadengchushang",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Mr. Misfortune",
+    "ability": "When you die, one of you alive neighbour might die that night.",
+    "revisions": {
+      "v1": "When you die, one of you alive neighbour might die that night."
+    }
+  },
+  "zh": {
+    "name": "煞星",
+    "ability": "如果你死亡，当晚与你邻近的存活玩家之一可能会死亡。",
+    "revisions": {
+      "v1": "如果你死亡，当晚与你邻近的存活玩家之一可能会死亡。"
+    }
+  }
+}

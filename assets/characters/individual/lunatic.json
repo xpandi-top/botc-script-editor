@@ -1,0 +1,26 @@
+{
+  "id": "lunatic",
+  "team": "outsider",
+  "edition": "bmr",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Lunatic",
+    "ability": "You think you are a Demon, but you are not. The Demon knows who you are & who you choose at night.",
+    "revisions": {
+      "v1": "You think you are a Demon, but you are not. The Demon knows who you are & who you choose at night."
+    }
+  },
+  "zh": {
+    "name": "疯子",
+    "ability": "你以为你是一个恶魔，但其实你不是。恶魔知道你是疯子以及你在每个夜晚选择了哪些玩家。",
+    "revisions": {
+      "v1": "你以为你是一个恶魔，但其实你不是。恶魔知道你是疯子以及你在每个夜晚选择了哪些玩家。"
+    }
+  }
+}

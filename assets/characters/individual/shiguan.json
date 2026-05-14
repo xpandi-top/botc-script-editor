@@ -1,0 +1,26 @@
+{
+  "id": "shiguan",
+  "team": "townsfolk",
+  "edition": "shanyuyulai",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Shiguan",
+    "ability": "Each night*, if a player died by execution today, you learn the number of alive townsfolks.",
+    "revisions": {
+      "v1": "Each night*, if a player died by execution today, you learn the number of alive townsfolks."
+    }
+  },
+  "zh": {
+    "name": "史官",
+    "ability": "每个夜晚*，如果今天白天有玩家死于处决，你会得知存活镇民的数量。",
+    "revisions": {
+      "v1": "每个夜晚*，如果今天白天有玩家死于处决，你会得知存活镇民的数量。"
+    }
+  }
+}

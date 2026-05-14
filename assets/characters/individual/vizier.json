@@ -1,0 +1,38 @@
+{
+  "id": "vizier",
+  "team": "minion",
+  "edition": "experimental",
+  "current_revision": "v2025-01",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": "Initial wording"
+    },
+    {
+      "id": "v2024-11",
+      "note": "Clarified that all players know you are the Vizier."
+    },
+    {
+      "id": "v2025-01",
+      "note": "Minor wording cleanup."
+    }
+  ],
+  "en": {
+    "name": "Vizier",
+    "ability": "All players know you are the Vizier. You cannot die during the day. If good voted, you may choose to execute immediately.",
+    "revisions": {
+      "v1": "All players know who you are. You can not die during the day. If good voted, you may choose to execute immediately.",
+      "v2024-11": "All players know you are the Vizier. You can not die during the day. If good voted, you may choose to execute immediately.",
+      "v2025-01": "All players know you are the Vizier. You cannot die during the day. If good voted, you may choose to execute immediately."
+    }
+  },
+  "zh": {
+    "name": "维齐尔",
+    "ability": "所有玩家都知道你是维齐尔。你在白天时不会死亡。如果一次提名中有善良玩家投票，你可以让被提名者立即被处决。",
+    "revisions": {
+      "v1": "所有玩家都知道你是谁。你在白天时不会死亡。如果一次提名中有善良玩家投票，你可以让被提名者立即被处决。",
+      "v2024-11": "所有玩家都知道你是维齐尔。你在白天时不会死亡。如果一次提名中有善良玩家投票，你可以让被提名者立即被处决。",
+      "v2025-01": "所有玩家都知道你是维齐尔。你在白天时不会死亡。如果一次提名中有善良玩家投票，你可以让被提名者立即被处决。"
+    }
+  }
+}

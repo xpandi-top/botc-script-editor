@@ -1,0 +1,26 @@
+{
+  "id": "bonecollector",
+  "team": "traveler",
+  "edition": "snv",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Bone Collector",
+    "ability": "Once per game, at night, choose a dead player: they regain their ability until dusk.",
+    "revisions": {
+      "v1": "Once per game, at night, choose a dead player: they regain their ability until dusk."
+    }
+  },
+  "zh": {
+    "name": "集骨者",
+    "ability": "每局游戏限一次，在夜晚时*，你可以选择一名死亡的玩家：他重新获得能力直到下个黄昏。",
+    "revisions": {
+      "v1": "每局游戏限一次，在夜晚时*，你可以选择一名死亡的玩家：他重新获得能力直到下个黄昏。"
+    }
+  }
+}

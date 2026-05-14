@@ -1,0 +1,26 @@
+{
+  "id": "revolutionary",
+  "team": "fabled",
+  "edition": "fabled",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Revolutionary",
+    "ability": "2 neighboring players are known to be the same alignment. Once per game, 1 of them registers falsely.",
+    "revisions": {
+      "v1": "2 neighboring players are known to be the same alignment. Once per game, 1 of them registers falsely."
+    }
+  },
+  "zh": {
+    "name": "Revolutionary",
+    "ability": "相邻的2名玩家已知为同一阵营。每局游戏一次，其中1人会错误呈现。",
+    "revisions": {
+      "v1": "相邻的2名玩家已知为同一阵营。每局游戏一次，其中1人会错误呈现。"
+    }
+  }
+}

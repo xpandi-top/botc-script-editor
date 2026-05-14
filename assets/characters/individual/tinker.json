@@ -1,0 +1,26 @@
+{
+  "id": "tinker",
+  "team": "outsider",
+  "edition": "bmr",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Tinker",
+    "ability": "You might die at any time.",
+    "revisions": {
+      "v1": "You might die at any time."
+    }
+  },
+  "zh": {
+    "name": "修补匠",
+    "ability": "你随时可能死亡。",
+    "revisions": {
+      "v1": "你随时可能死亡。"
+    }
+  }
+}

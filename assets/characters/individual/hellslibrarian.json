@@ -1,0 +1,26 @@
+{
+  "id": "hellslibrarian",
+  "team": "fabled",
+  "edition": "fabled",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Hell's Librarian",
+    "ability": "Something bad might happen to whoever talks when the Storyteller has asked for silence.",
+    "revisions": {
+      "v1": "Something bad might happen to whoever talks when the Storyteller has asked for silence."
+    }
+  },
+  "zh": {
+    "name": "Hell's Librarian",
+    "ability": "当说书人要求保持安静时，开口说话的人可能会遭遇不好的事。",
+    "revisions": {
+      "v1": "当说书人要求保持安静时，开口说话的人可能会遭遇不好的事。"
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "dianxiaoer",
+  "team": "townsfolk",
+  "edition": "huadengchushang",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Waiter",
+    "ability": "You start knowing 2 good players. One of them is drunk, even if you are dead.",
+    "revisions": {
+      "v1": "You start knowing 2 good players. One of them is drunk, even if you are dead."
+    }
+  },
+  "zh": {
+    "name": "店小二",
+    "ability": "在你的首个夜晚，你会得知两名善良玩家。他们之中会有一人醉酒，即使你已死亡。",
+    "revisions": {
+      "v1": "在你的首个夜晚，你会得知两名善良玩家。他们之中会有一人醉酒，即使你已死亡。"
+    }
+  }
+}

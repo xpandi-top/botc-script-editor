@@ -1,0 +1,32 @@
+{
+  "id": "lleech",
+  "team": "demon",
+  "edition": "experimental",
+  "current_revision": "v2024-07",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": "Initial wording"
+    },
+    {
+      "id": "v2024-07",
+      "note": "Removed the alive requirement for the host choice and clarified death timing."
+    }
+  ],
+  "en": {
+    "name": "Lleech",
+    "ability": "Each night*, choose a player: they die. You start by choosing a player: they are poisoned. You die if & only if they are dead.",
+    "revisions": {
+      "v1": "Each night*, choose a player: they die. You start by choosing an alive player: they are poisoned - you die if (& only if) they die.",
+      "v2024-07": "Each night*, choose a player: they die. You start by choosing a player: they are poisoned. You die if & only if they are dead."
+    }
+  },
+  "zh": {
+    "name": "痢蛭",
+    "ability": "每个夜晚*，你要选择一名玩家：他死亡。在你的首个夜晚，你要选择一名玩家：他中毒。当且仅当他处于死亡状态时，你死亡。",
+    "revisions": {
+      "v1": "每个夜晚*，你要选择一名玩家：他死亡。在你的首个夜晚，你要选择一名存活的玩家：他中毒，只有当他处于死亡状态时你才会立即死亡。",
+      "v2024-07": "每个夜晚*，你要选择一名玩家：他死亡。在你的首个夜晚，你要选择一名玩家：他中毒。当且仅当他处于死亡状态时，你死亡。"
+    }
+  }
+}

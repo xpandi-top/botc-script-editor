@@ -1,0 +1,32 @@
+{
+  "id": "lycanthrope",
+  "team": "townsfolk",
+  "edition": "experimental",
+  "current_revision": "v2024-11",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": "Initial wording"
+    },
+    {
+      "id": "v2024-11",
+      "note": "Added demon-kill suppression and evil registration."
+    }
+  ],
+  "en": {
+    "name": "Lycanthrope",
+    "ability": "Each night*, choose an alive player. If good, they die & the Demon doesn’t kill tonight. One good player registers as evil.",
+    "revisions": {
+      "v1": "Each night*, choose an alive player: if good, they die, but they are the only player that can die tonight.",
+      "v2024-11": "Each night*, choose an alive player. If good, they die & the Demon doesn’t kill tonight. One good player registers as evil."
+    }
+  },
+  "zh": {
+    "name": "半兽人",
+    "ability": "每个夜晚*，你要选择一名存活玩家：如果他是善良的，他死亡，并且当晚恶魔不会造成死亡。<br>会有一名善良玩家始终被当作邪恶阵营。",
+    "revisions": {
+      "v1": "每个夜晚*，你要选择一名存活玩家：如果他是善良的，他死亡，但他会是今晚唯一可能死亡的玩家。",
+      "v2024-11": "每个夜晚*，你要选择一名存活玩家：如果他是善良的，他死亡，并且当晚恶魔不会造成死亡。<br>会有一名善良玩家始终被当作邪恶阵营。"
+    }
+  }
+}

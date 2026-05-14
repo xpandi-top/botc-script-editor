@@ -1,0 +1,26 @@
+{
+  "id": "imp",
+  "team": "demon",
+  "edition": "tb",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Imp",
+    "ability": "Each night*, choose a player: they die. If you kill yourself this way, a Minion becomes the Imp.",
+    "revisions": {
+      "v1": "Each night*, choose a player: they die. If you kill yourself this way, a Minion becomes the Imp."
+    }
+  },
+  "zh": {
+    "name": "小恶魔",
+    "ability": "每个夜晚*，你要选择一名玩家：他死亡。如果你以这种方式自杀，一名爪牙会变成小恶魔。",
+    "revisions": {
+      "v1": "每个夜晚*，你要选择一名玩家：他死亡。如果你以这种方式自杀，一名爪牙会变成小恶魔。"
+    }
+  }
+}

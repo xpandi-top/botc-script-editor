@@ -1,0 +1,32 @@
+{
+  "id": "jinweijun",
+  "team": "minion",
+  "edition": "huadengchushang",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    },
+    {
+      "id": "v2",
+      "note": "new release in Shanyu"
+    }
+  ],
+  "en": {
+    "name": "Imperialist",
+    "ability": "If a player is mad about being executed, they may be executed.",
+    "revisions": {
+      "v1": "If a player is mad about being executed, they may be executed.",
+      "v2": "On your first night, choose to live or to die. If a player is mad about that, they may be executed."
+    }
+  },
+  "zh": {
+    "name": "禁卫军",
+    "ability": "“疯狂”地想要死亡的玩家可能会立即被处决。",
+    "revisions": {
+      "v1": "“疯狂”地想要死亡的玩家可能会立即被处决。",
+      "v2": "在你的首个夜晚，你要选择存活或死亡。“疯狂”地想要这样做的玩家可能会立即被处决。"
+    }
+  }
+}

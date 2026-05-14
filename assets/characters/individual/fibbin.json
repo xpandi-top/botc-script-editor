@@ -1,0 +1,26 @@
+{
+  "id": "fibbin",
+  "team": "fabled",
+  "edition": "fabled",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Fibbin",
+    "ability": "Once per game, 1 good player might get incorrect information.",
+    "revisions": {
+      "v1": "Once per game, 1 good player might get incorrect information."
+    }
+  },
+  "zh": {
+    "name": "Fibbin",
+    "ability": "每局游戏一次，1名善良玩家可能会得到错误信息。",
+    "revisions": {
+      "v1": "每局游戏一次，1名善良玩家可能会得到错误信息。"
+    }
+  }
+}

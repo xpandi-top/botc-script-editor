@@ -1,0 +1,32 @@
+{
+  "id": "nightwatchman",
+  "team": "townsfolk",
+  "edition": "experimental",
+  "current_revision": "v2024-11",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": "Initial wording"
+    },
+    {
+      "id": "v2024-11",
+      "note": "Clarified the chosen player learns you are the Nightwatchman."
+    }
+  ],
+  "en": {
+    "name": "Nightwatchman",
+    "ability": "Once per game, at night, choose a player: they learn you are the Nightwatchman.",
+    "revisions": {
+      "v1": "Once per game, at night, choose a player: they learn who you are.",
+      "v2024-11": "Once per game, at night, choose a player: they learn you are the Nightwatchman."
+    }
+  },
+  "zh": {
+    "name": "守夜人",
+    "ability": "每局游戏限一次，在夜晚时，你可以选择一名玩家：他会得知你是守夜人。",
+    "revisions": {
+      "v1": "每局游戏限一次，在夜晚时，你可以选择一名玩家：他会得知你是谁。",
+      "v2024-11": "每局游戏限一次，在夜晚时，你可以选择一名玩家：他会得知你是守夜人。"
+    }
+  }
+}

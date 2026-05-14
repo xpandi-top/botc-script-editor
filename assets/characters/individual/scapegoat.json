@@ -1,0 +1,26 @@
+{
+  "id": "scapegoat",
+  "team": "traveler",
+  "edition": "tb",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Scapegoat",
+    "ability": "If a player of your alignment is executed, you might be executed instead.",
+    "revisions": {
+      "v1": "If a player of your alignment is executed, you might be executed instead."
+    }
+  },
+  "zh": {
+    "name": "替罪羊",
+    "ability": "如果你的阵营的一名玩家被处决，你可能会代替他被处决。",
+    "revisions": {
+      "v1": "如果你的阵营的一名玩家被处决，你可能会代替他被处决。"
+    }
+  }
+}

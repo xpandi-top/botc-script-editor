@@ -1,0 +1,26 @@
+{
+  "id": "mutant",
+  "team": "outsider",
+  "edition": "snv",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Mutant",
+    "ability": "If you are “mad” about being an Outsider, you might be executed.",
+    "revisions": {
+      "v1": "If you are “mad” about being an Outsider, you might be executed."
+    }
+  },
+  "zh": {
+    "name": "畸形秀演员",
+    "ability": "如果你“疯狂”地证明自己是外来者，你可能被处决。",
+    "revisions": {
+      "v1": "如果你“疯狂”地证明自己是外来者，你可能被处决。"
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "baojun",
+  "team": "demon",
+  "edition": "shanyuyulai",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Baojun",
+    "ability": "Each night*, choose up to two players: they die. The number of players you choose cannot be the same as the number of players who died last night (if more than two, count as two).",
+    "revisions": {
+      "v1": "Each night*, choose up to two players: they die. The number of players you choose cannot be the same as the number of players who died last night (if more than two, count as two)."
+    }
+  },
+  "zh": {
+    "name": "暴君",
+    "ability": "每个夜晚*，你可以选择至多两名玩家：他们死亡。你选择的玩家数量不能与上个夜晚死亡的玩家数量相同（超过二人时算作二人）。",
+    "revisions": {
+      "v1": "每个夜晚*，你可以选择至多两名玩家：他们死亡。你选择的玩家数量不能与上个夜晚死亡的玩家数量相同（超过二人时算作二人）。"
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "big_wig",
+  "team": "loric",
+  "edition": "loric",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Big Wig",
+    "ability": "Each nominee chooses a player: until voting, only they may speak & they are mad the nominee is good or they might die.",
+    "revisions": {
+      "v1": "Each nominee chooses a player: until voting, only they may speak & they are mad the nominee is good or they might die."
+    }
+  },
+  "zh": {
+    "name": "Big Wig",
+    "ability": "每位被提名者都要选择一名玩家：在投票开始前，只有该玩家可以发言，且他必须“疯狂”地声称被提名者是善良的，否则他可能会死亡。",
+    "revisions": {
+      "v1": "每位被提名者都要选择一名玩家：在投票开始前，只有该玩家可以发言，且他必须“疯狂”地声称被提名者是善良的，否则他可能会死亡。"
+    }
+  }
+}

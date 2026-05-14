@@ -1,0 +1,26 @@
+{
+  "id": "wizard",
+  "team": "minion",
+  "edition": "experimental",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Wizard",
+    "ability": "Once per game, choose to make a wish. If granted, it might have a price & leave a clue as to its nature.",
+    "revisions": {
+      "v1": "Once per game, choose to make a wish. If granted, it might have a price & leave a clue as to its nature."
+    }
+  },
+  "zh": {
+    "name": "巫师",
+    "ability": "每局游戏限一次，你可以向说书人许愿。如果愿望被实现，可能会伴随着代价和线索。",
+    "revisions": {
+      "v1": "每局游戏限一次，你可以向说书人许愿。如果愿望被实现，可能会伴随着代价和线索。"
+    }
+  }
+}

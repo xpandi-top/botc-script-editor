@@ -1,0 +1,26 @@
+{
+  "id": "goblin",
+  "team": "minion",
+  "edition": "experimental",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Goblin",
+    "ability": "If you publicly claim to be the Goblin when nominated & are executed that day, your team wins.",
+    "revisions": {
+      "v1": "If you publicly claim to be the Goblin when nominated & are executed that day, your team wins."
+    }
+  },
+  "zh": {
+    "name": "哥布林",
+    "ability": "如果你在被提名后公开声明自己是哥布林且在那个白天被处决，你的阵营获胜。",
+    "revisions": {
+      "v1": "如果你在被提名后公开声明自己是哥布林且在那个白天被处决，你的阵营获胜。"
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "amnesiac",
+  "team": "townsfolk",
+  "edition": "experimental",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Amnesiac",
+    "ability": "You do not know what your ability is. Each day, privately guess what it is: you learn how accurate you are.",
+    "revisions": {
+      "v1": "You do not know what your ability is. Each day, privately guess what it is: you learn how accurate you are."
+    }
+  },
+  "zh": {
+    "name": "失忆者",
+    "ability": "你不知道你的能力是什么。每个白天你可以找说书人猜测一次，你会得知你的猜测有多准确。<i>（无关/有关/接近/完美）</i>",
+    "revisions": {
+      "v1": "你不知道你的能力是什么。每个白天你可以找说书人猜测一次，你会得知你的猜测有多准确。<i>（无关/有关/接近/完美）</i>"
+    }
+  }
+}

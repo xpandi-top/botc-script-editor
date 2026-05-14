@@ -1,0 +1,26 @@
+{
+  "id": "ranfangfangzhu",
+  "team": "townsfolk",
+  "edition": "shanyuyulai",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Ranfangfangzhu",
+    "ability": "If you die at night, Demon's ability becomes 'Each night*, a player might die.'",
+    "revisions": {
+      "v1": "If you die at night, Demon's ability becomes 'Each night*, a player might die.'"
+    }
+  },
+  "zh": {
+    "name": "染坊坊主",
+    "ability": "如果你在夜晚死亡，恶魔的能力变成“每个夜晚*，可能会有一名玩家死亡。”",
+    "revisions": {
+      "v1": "如果你在夜晚死亡，恶魔的能力变成“每个夜晚*，可能会有一名玩家死亡。”"
+    }
+  }
+}

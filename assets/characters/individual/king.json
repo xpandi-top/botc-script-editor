@@ -1,0 +1,38 @@
+{
+  "id": "king",
+  "team": "townsfolk",
+  "edition": "experimental",
+  "current_revision": "v2024-11",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": "Initial wording"
+    },
+    {
+      "id": "v2024-05",
+      "note": "Adjusted dead-versus-living threshold."
+    },
+    {
+      "id": "v2024-11",
+      "note": "Clarified the Demon knows you are the King."
+    }
+  ],
+  "en": {
+    "name": "King",
+    "ability": "Each night, if the dead equal or outnumber the living, you learn 1 alive character. The Demon knows you are the King.",
+    "revisions": {
+      "v1": "Each night, if the dead outnumber the living, you learn 1 alive character. The Demon knows who you are.",
+      "v2024-05": "Each night, if the dead equal or outnumber the living, you learn 1 alive character. The Demon knows who you are.",
+      "v2024-11": "Each night, if the dead equal or outnumber the living, you learn 1 alive character. The Demon knows you are the King."
+    }
+  },
+  "zh": {
+    "name": "国王",
+    "ability": "每个夜晚，如果死亡的玩家数量大于或等于存活的玩家数量，你会得知一个存活的角色。恶魔知道你是国王。",
+    "revisions": {
+      "v1": "每个夜晚，如果死亡的玩家数量多于存活的玩家数量，你会得知一个存活的角色。恶魔知道你是谁。",
+      "v2024-05": "每个夜晚，如果死亡的玩家数量大于或等于存活的玩家数量，你会得知一个存活的角色。恶魔知道你是谁。",
+      "v2024-11": "每个夜晚，如果死亡的玩家数量大于或等于存活的玩家数量，你会得知一个存活的角色。恶魔知道你是国王。"
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "duchess",
+  "team": "fabled",
+  "edition": "fabled",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Duchess",
+    "ability": "Each day, 3 players may choose to visit you. At night*, each visitor learns how many visitors are evil, but 1 gets false info.",
+    "revisions": {
+      "v1": "Each day, 3 players may choose to visit you. At night*, each visitor learns how many visitors are evil, but 1 gets false info."
+    }
+  },
+  "zh": {
+    "name": "Duchess",
+    "ability": "每天，3名玩家可以选择拜访你。每个夜晚*，每位访客会得知访客中有多少人是邪恶的，但其中1人得到错误信息。",
+    "revisions": {
+      "v1": "每天，3名玩家可以选择拜访你。每个夜晚*，每位访客会得知访客中有多少人是邪恶的，但其中1人得到错误信息。"
+    }
+  }
+}

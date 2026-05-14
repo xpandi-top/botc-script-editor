@@ -1,0 +1,26 @@
+{
+  "id": "spy",
+  "team": "minion",
+  "edition": "tb",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Spy",
+    "ability": "Each night, you see the Grimoire. You might register as good & as a Townsfolk or Outsider, even if dead.",
+    "revisions": {
+      "v1": "Each night, you see the Grimoire. You might register as good & as a Townsfolk or Outsider, even if dead."
+    }
+  },
+  "zh": {
+    "name": "间谍",
+    "ability": "每个夜晚，你能查看魔典。你可能会被当作善良阵营、镇民角色或外来者角色，即使你已死亡。",
+    "revisions": {
+      "v1": "每个夜晚，你能查看魔典。你可能会被当作善良阵营、镇民角色或外来者角色，即使你已死亡。"
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "butcher",
+  "team": "traveler",
+  "edition": "snv",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Butcher",
+    "ability": "Each day, after the 1st execution, you may nominate again.",
+    "revisions": {
+      "v1": "Each day, after the 1st execution, you may nominate again."
+    }
+  },
+  "zh": {
+    "name": "屠夫",
+    "ability": "每个白天，首次处决后，你可以再次发起提名。",
+    "revisions": {
+      "v1": "每个白天，首次处决后，你可以再次发起提名。"
+    }
+  }
+}

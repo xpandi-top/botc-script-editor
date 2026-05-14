@@ -1,0 +1,26 @@
+{
+  "id": "general",
+  "team": "townsfolk",
+  "edition": "experimental",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "General",
+    "ability": "Each night, you learn which alignment the Storyteller believes is winning: good, evil, or neither.",
+    "revisions": {
+      "v1": "Each night, you learn which alignment the Storyteller believes is winning: good, evil, or neither."
+    }
+  },
+  "zh": {
+    "name": "将军",
+    "ability": "每个夜晚，你会得知说书人认为哪个阵营当前更有优势（善良/邪恶/均势）。",
+    "revisions": {
+      "v1": "每个夜晚，你会得知说书人认为哪个阵营当前更有优势（善良/邪恶/均势）。"
+    }
+  }
+}

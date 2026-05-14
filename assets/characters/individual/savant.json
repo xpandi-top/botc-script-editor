@@ -1,0 +1,26 @@
+{
+  "id": "savant",
+  "team": "townsfolk",
+  "edition": "snv",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Savant",
+    "ability": "Each day, you may visit the Storyteller to learn 2 things in private: 1 is true & 1 is false.",
+    "revisions": {
+      "v1": "Each day, you may visit the Storyteller to learn 2 things in private: 1 is true & 1 is false."
+    }
+  },
+  "zh": {
+    "name": "博学者",
+    "ability": "每个白天，你可以私下询问说书人以得知两条信息：一个是正确的，一个是错误的。",
+    "revisions": {
+      "v1": "每个白天，你可以私下询问说书人以得知两条信息：一个是正确的，一个是错误的。"
+    }
+  }
+}

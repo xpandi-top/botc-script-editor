@@ -1,0 +1,26 @@
+{
+  "id": "langzhong",
+  "team": "townsfolk",
+  "edition": "huadengchushang",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Herb Doctor",
+    "ability": "Each night, choose a player other than yourself: you learn a word related to their ability.",
+    "revisions": {
+      "v1": "Each night, choose a player other than yourself: you learn a word related to their ability."
+    }
+  },
+  "zh": {
+    "name": "郎中",
+    "ability": "每个夜晚，你要选择除你以外的一名玩家：你会得知一个与他能力相关的词语。",
+    "revisions": {
+      "v1": "每个夜晚，你要选择除你以外的一名玩家：你会得知一个与他能力相关的词语。"
+    }
+  }
+}

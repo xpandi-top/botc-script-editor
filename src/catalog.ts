@@ -4,7 +4,8 @@ import zhLocale from '../assets/locales/zh.json'
 import nightOrderData from '../assets/characters/night-order.json'
 import type {
   CharacterEntry,
-  CharacterMap,
+  CharacterFileEntry,
+  CharacterPackOverrides,
   CharacterRevisionEntry,
   CustomCharacter,
   EditableScript,
@@ -37,6 +38,45 @@ let _revisionOverrides: RevisionOverrides = loadRevisionOverrides()
 /** Call after writing to BOTC_REVISION_OVERRIDES so catalog picks up changes. */
 export function refreshRevisionOverrides() {
   _revisionOverrides = loadRevisionOverrides()
+}
+
+// ── Character pack overrides (from uploaded packs) ────────────────────────────
+
+export const CHAR_PACK_OVERRIDES_KEY = 'BOTC_CHAR_PACK_OVERRIDES'
+
+function loadCharPackOverrides(): CharacterPackOverrides {
+  if (typeof window === 'undefined') return {}
+  try {
+    return JSON.parse(localStorage.getItem(CHAR_PACK_OVERRIDES_KEY) ?? '{}') as CharacterPackOverrides
+  } catch { return {} }
+}
+
+let _charPackOverrides: CharacterPackOverrides = loadCharPackOverrides()
+
+export function refreshCharPackOverrides() {
+  _charPackOverrides = loadCharPackOverrides()
+}
+
+/** Apply an uploaded character pack — merges into existing overrides. */
+export function applyCharacterPack(pack: CharacterFileEntry[]) {
+  const current = loadCharPackOverrides()
+  for (const entry of pack) {
+    if (!entry.id) continue
+    current[entry.id] = {
+      ...current[entry.id],
+      ...(entry.en && { en: entry.en }),
+      ...(entry.zh && { zh: entry.zh }),
+      ...(entry.current_revision && { current_revision: entry.current_revision }),
+    }
+  }
+  localStorage.setItem(CHAR_PACK_OVERRIDES_KEY, JSON.stringify(current))
+  _charPackOverrides = current
+}
+
+/** Clear all character pack overrides. */
+export function clearCharacterPackOverrides() {
+  localStorage.removeItem(CHAR_PACK_OVERRIDES_KEY)
+  _charPackOverrides = {}
 }
 
 // ── Custom character registry ──────────────────────────────────────────────────
@@ -77,10 +117,25 @@ export function getCustomChar(id: string): CustomCharacter | undefined {
   return _customCharRegistry.get(id)
 }
 
-const characterFiles = import.meta.glob('../assets/characters/*.json', {
+const characterFiles = import.meta.glob('../assets/characters/individual/*.json', {
   eager: true,
   import: 'default',
-}) as Record<string, CharacterMap>
+}) as Record<string, CharacterFileEntry>
+
+// ── Build locale maps from individual character files ─────────────────────────
+
+const _charLocale: Record<Language, Record<string, { name?: string; ability?: string; revisions?: Record<string, string> }>> = {
+  en: {},
+  zh: {},
+}
+for (const entry of Object.values(characterFiles)) {
+  if (!entry?.id) continue
+  if (entry.en) _charLocale.en[entry.id] = entry.en
+  if (entry.zh) _charLocale.zh[entry.id] = entry.zh
+}
+
+// ── Exported list of all character file entries ───────────────────────────────
+export const allCharacterFiles: CharacterFileEntry[] = Object.values(characterFiles)
 
 const scriptFiles = import.meta.glob('../assets/scripts/*.json', {
   eager: true,
@@ -210,15 +265,6 @@ export function slugify(value: string) {
     .replace(/^-+|-+$/g, '')
 }
 
-function getCharacterCopy(id: string, language: Language) {
-  const preferred = locales[language].characters?.[id]
-  if (preferred?.name || preferred?.ability) {
-    return preferred
-  }
-
-  const fallbackLanguage: Language = language === 'en' ? 'zh' : 'en'
-  return locales[fallbackLanguage].characters?.[id]
-}
 
 function getJinxCopy(id: string, language: Language) {
   const preferred = locales[language].jinxes?.[id]
@@ -233,13 +279,27 @@ function getJinxCopy(id: string, language: Language) {
 export function getDisplayName(id: string, language: Language = 'en') {
   const custom = _customCharRegistry.get(id)
   if (custom) return (language === 'zh' && custom.nameZh) ? custom.nameZh : custom.nameEn
-  return getCharacterCopy(id, language)?.name ?? toTitleCase(id)
+  const fallbackLanguage: Language = language === 'en' ? 'zh' : 'en'
+  const packOverride = _charPackOverrides[id]?.[language]?.name
+  if (packOverride) return packOverride
+  const fromFile = _charLocale[language]?.[id]?.name
+  if (fromFile) return fromFile
+  const fallback = _charLocale[fallbackLanguage]?.[id]?.name ?? _charPackOverrides[id]?.[fallbackLanguage]?.name
+  if (fallback) return fallback
+  return toTitleCase(id)
 }
 
 export function getAbilityText(id: string, language: Language = 'en') {
   const custom = _customCharRegistry.get(id)
   if (custom) return (language === 'zh' && custom.abilityZh) ? custom.abilityZh : custom.abilityEn
-  return getCharacterCopy(id, language)?.ability ?? 'No ability text available.'
+  const fallbackLanguage: Language = language === 'en' ? 'zh' : 'en'
+  const packOverride = _charPackOverrides[id]?.[language]?.ability
+  if (packOverride) return packOverride
+  const fromFile = _charLocale[language]?.[id]?.ability
+  if (fromFile) return fromFile
+  const fallback = _charLocale[fallbackLanguage]?.[id]?.ability ?? _charPackOverrides[id]?.[fallbackLanguage]?.ability
+  if (fallback) return fallback
+  return 'No ability text available.'
 }
 
 export function getJinxReason(id: string, language: Language = 'en') {
@@ -316,7 +376,13 @@ export function getRevisionText(
     ? _revisionOverrides[id]?.locale_zh
     : _revisionOverrides[id]?.locale_en
   if (overrideLocale?.[revision]) return overrideLocale[revision]
-  return locales[language].characters?.[id]?.revisions?.[revision]
+  const fallbackLanguage: Language = language === 'en' ? 'zh' : 'en'
+  const packOverride = _charPackOverrides[id]?.[language]?.revisions?.[revision]
+  if (packOverride) return packOverride
+  const fromFile = _charLocale[language]?.[id]?.revisions?.[revision]
+  if (fromFile) return fromFile
+  const fallback = _charLocale[fallbackLanguage]?.[id]?.revisions?.[revision] ?? _charPackOverrides[id]?.[fallbackLanguage]?.revisions?.[revision]
+  return fallback
 }
 
 /**
@@ -471,16 +537,12 @@ export function createCharacterRevision(
   character.current_revision = normalizedRevision
 
   ;(['en', 'zh'] as Language[]).forEach((language) => {
-    const localeCharacters = locales[language].characters
-
-    if (!localeCharacters?.[id]) {
-      throw new Error(`Missing ${language} locale character entry: ${id}`)
+    if (!_charLocale[language][id]) {
+      _charLocale[language][id] = {}
     }
-
-    localeCharacters[id].revision = normalizedRevision
-    localeCharacters[id].ability = abilities[language]
-    localeCharacters[id].revisions = {
-      ...(localeCharacters[id].revisions ?? {}),
+    _charLocale[language][id].ability = abilities[language]
+    _charLocale[language][id].revisions = {
+      ...(_charLocale[language][id].revisions ?? {}),
       [normalizedRevision]: abilities[language],
     }
   })
@@ -505,33 +567,32 @@ export function getIconForCharacter(id: string): string | undefined {
 function loadCharacterCatalog() {
   const entries = new Map<string, CharacterEntry>()
 
-  for (const data of Object.values(characterFiles)) {
-    for (const [key, value] of Object.entries(data)) {
-      const candidate = {
-        id: value.id ?? key,
-        team: value.team,
-        edition: value.edition,
-        current_revision: value.current_revision,
-        revisions: Array.isArray(value.revisions)
-          ? value.revisions.filter(
-              (revision): revision is CharacterRevisionEntry =>
-                Boolean(revision?.id && typeof revision.note === 'string'),
-            )
-          : undefined,
-      }
+  for (const value of Object.values(characterFiles)) {
+    if (!value?.id) continue
+    const candidate = {
+      id: value.id,
+      team: value.team,
+      edition: value.edition,
+      current_revision: value.current_revision,
+      revisions: Array.isArray(value.revisions)
+        ? value.revisions.filter(
+            (revision): revision is CharacterRevisionEntry =>
+              Boolean(revision?.id && typeof revision.note === 'string'),
+          )
+        : undefined,
+    }
 
-      if (
-        !candidate.id ||
-        !candidate.team ||
-        !teamOrder.includes(candidate.team as Team) ||
-        !candidate.edition
-      ) {
-        continue
-      }
+    if (
+      !candidate.id ||
+      !candidate.team ||
+      !teamOrder.includes(candidate.team as Team) ||
+      !candidate.edition
+    ) {
+      continue
+    }
 
-      if (!entries.has(candidate.id)) {
-        entries.set(candidate.id, candidate as CharacterEntry)
-      }
+    if (!entries.has(candidate.id)) {
+      entries.set(candidate.id, candidate as CharacterEntry)
     }
   }
 

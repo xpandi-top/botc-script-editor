@@ -1,0 +1,26 @@
+{
+  "id": "baron",
+  "team": "minion",
+  "edition": "tb",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Baron",
+    "ability": "There are extra Outsiders in play. [+2 Outsiders]",
+    "revisions": {
+      "v1": "There are extra Outsiders in play. [+2 Outsiders]"
+    }
+  },
+  "zh": {
+    "name": "男爵",
+    "ability": "会有额外的外来者在场。[+2外来者]",
+    "revisions": {
+      "v1": "会有额外的外来者在场。[+2外来者]"
+    }
+  }
+}

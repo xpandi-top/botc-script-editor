@@ -1,0 +1,26 @@
+{
+  "id": "gunslinger",
+  "team": "traveler",
+  "edition": "tb",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Gunslinger",
+    "ability": "Each day, after the 1st vote has been tallied, you may choose a player that voted: they die.",
+    "revisions": {
+      "v1": "Each day, after the 1st vote has been tallied, you may choose a player that voted: they die."
+    }
+  },
+  "zh": {
+    "name": "枪手",
+    "ability": "每个白天，当首次投票被统计后，你可以选择一名刚投过票的玩家：他死亡。",
+    "revisions": {
+      "v1": "每个白天，当首次投票被统计后，你可以选择一名刚投过票的玩家：他死亡。"
+    }
+  }
+}

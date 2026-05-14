@@ -1,0 +1,26 @@
+{
+  "id": "gudiao",
+  "team": "minion",
+  "edition": "shanyuyulai",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Gudiao",
+    "ability": "Each night, choose left or right: you learn the character of next alive good player in that direction, they are poisoned and register as evil Gudiao until dusk.",
+    "revisions": {
+      "v1": "Each night, choose left or right: you learn the character of next alive good player in that direction, they are poisoned and register as evil Gudiao until dusk."
+    }
+  },
+  "zh": {
+    "name": "蛊雕",
+    "ability": "每个夜晚，你要选择左或右：你得知该方向上的下一名存活善良玩家的角色，他中毒且其他善良玩家以为他是邪恶的蛊雕，直到下个黄昏。",
+    "revisions": {
+      "v1": "每个夜晚，你要选择左或右：你得知该方向上的下一名存活善良玩家的角色，他中毒且其他善良玩家以为他是邪恶的蛊雕，直到下个黄昏。"
+    }
+  }
+}

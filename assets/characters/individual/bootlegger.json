@@ -1,0 +1,26 @@
+{
+  "id": "bootlegger",
+  "team": "loric",
+  "edition": "loric",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Bootlegger",
+    "ability": "This script has homebrew characters or rules.",
+    "revisions": {
+      "v1": "This script has homebrew characters or rules."
+    }
+  },
+  "zh": {
+    "name": "Bootlegger",
+    "ability": "这个剧本含有自创角色或自定义规则。",
+    "revisions": {
+      "v1": "这个剧本含有自创角色或自定义规则。"
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "tor",
+  "team": "loric",
+  "edition": "loric",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Tor",
+    "ability": "Players don't know their character or alignment. They learn them when they die.",
+    "revisions": {
+      "v1": "Players don't know their character or alignment. They learn them when they die."
+    }
+  },
+  "zh": {
+    "name": "Tor",
+    "ability": "玩家不知道自己的角色或阵营。他们会在死亡时得知。",
+    "revisions": {
+      "v1": "玩家不知道自己的角色或阵营。他们会在死亡时得知。"
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "courtier",
+  "team": "townsfolk",
+  "edition": "bmr",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Courtier",
+    "ability": "Once per game, at night, choose a character: they are drunk for 3 nights & 3 days.",
+    "revisions": {
+      "v1": "Once per game, at night, choose a character: they are drunk for 3 nights & 3 days."
+    }
+  },
+  "zh": {
+    "name": "侍臣",
+    "ability": "每局游戏限一次，在夜晚时，你可以选择一个角色：如果该角色在场，一个该角色从当晚开始醉酒三天三夜。",
+    "revisions": {
+      "v1": "每局游戏限一次，在夜晚时，你可以选择一个角色：如果该角色在场，一个该角色从当晚开始醉酒三天三夜。"
+    }
+  }
+}

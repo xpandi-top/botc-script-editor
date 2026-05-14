@@ -1,0 +1,26 @@
+{
+  "id": "voudon",
+  "team": "traveler",
+  "edition": "bmr",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Voudon",
+    "ability": "Only you and the dead can vote. They don't need a vote token to do so. A 50% majority is not required.",
+    "revisions": {
+      "v1": "Only you and the dead can vote. They don't need a vote token to do so. A 50% majority is not required."
+    }
+  },
+  "zh": {
+    "name": "巫毒师",
+    "ability": "只有你和死亡的玩家可以投票，且投票不需要使用投票标记。忽略票数需要过半的要求。",
+    "revisions": {
+      "v1": "只有你和死亡的玩家可以投票，且投票不需要使用投票标记。忽略票数需要过半的要求。"
+    }
+  }
+}

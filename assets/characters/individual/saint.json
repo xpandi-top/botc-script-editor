@@ -1,0 +1,26 @@
+{
+  "id": "saint",
+  "team": "outsider",
+  "edition": "tb",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Saint",
+    "ability": "If you die by execution, your team loses.",
+    "revisions": {
+      "v1": "If you die by execution, your team loses."
+    }
+  },
+  "zh": {
+    "name": "圣徒",
+    "ability": "如果你死于处决，你的阵营落败。",
+    "revisions": {
+      "v1": "如果你死于处决，你的阵营落败。"
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "sage",
+  "team": "townsfolk",
+  "edition": "snv",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Sage",
+    "ability": "If the Demon kills you, you learn that it is 1 of 2 players.",
+    "revisions": {
+      "v1": "If the Demon kills you, you learn that it is 1 of 2 players."
+    }
+  },
+  "zh": {
+    "name": "贤者",
+    "ability": "如果恶魔杀死了你，在当晚你会被唤醒并得知两名玩家，其中一名是杀死你的那个恶魔。",
+    "revisions": {
+      "v1": "如果恶魔杀死了你，在当晚你会被唤醒并得知两名玩家，其中一名是杀死你的那个恶魔。"
+    }
+  }
+}

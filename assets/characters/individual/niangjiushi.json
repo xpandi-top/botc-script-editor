@@ -1,0 +1,26 @@
+{
+  "id": "niangjiushi",
+  "team": "minion",
+  "edition": "shanyuyulai",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Niangjiushi",
+    "ability": "Each night, choose a townsfolk character. When they next gain information from their ability, they learn the information you choose instead.",
+    "revisions": {
+      "v1": "Each night, choose a townsfolk character. When they next gain information from their ability, they learn the information you choose instead."
+    }
+  },
+  "zh": {
+    "name": "酿酒师",
+    "ability": "每个夜晚，你要选择一个镇民角色：当他下一次通过自身能力获取信息时，改为得知你给出的信息。",
+    "revisions": {
+      "v1": "每个夜晚，你要选择一个镇民角色：当他下一次通过自身能力获取信息时，改为得知你给出的信息。"
+    }
+  }
+}

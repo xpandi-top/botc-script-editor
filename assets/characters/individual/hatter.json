@@ -1,0 +1,26 @@
+{
+  "id": "hatter",
+  "team": "outsider",
+  "edition": "experimental",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Hatter",
+    "ability": "If you died today or tonight, the Minion & Demon players may choose new Minion & Demon characters to be.",
+    "revisions": {
+      "v1": "If you died today or tonight, the Minion & Demon players may choose new Minion & Demon characters to be."
+    }
+  },
+  "zh": {
+    "name": "帽匠",
+    "ability": "如果你死亡，当晚爪牙和恶魔玩家可以选择变成新的爪牙和恶魔角色。",
+    "revisions": {
+      "v1": "如果你死亡，当晚爪牙和恶魔玩家可以选择变成新的爪牙和恶魔角色。"
+    }
+  }
+}

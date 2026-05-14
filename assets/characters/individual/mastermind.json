@@ -1,0 +1,26 @@
+{
+  "id": "mastermind",
+  "team": "minion",
+  "edition": "bmr",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Mastermind",
+    "ability": "If the Demon dies by execution (ending the game), play for 1 more day. If a player is then executed, their team loses.",
+    "revisions": {
+      "v1": "If the Demon dies by execution (ending the game), play for 1 more day. If a player is then executed, their team loses."
+    }
+  },
+  "zh": {
+    "name": "主谋",
+    "ability": "如果恶魔因为死于处决而因此导致游戏结束时，再额外进行一个夜晚和一个白天。在那个白天如果有玩家被处决，他的阵营落败。",
+    "revisions": {
+      "v1": "如果恶魔因为死于处决而因此导致游戏结束时，再额外进行一个夜晚和一个白天。在那个白天如果有玩家被处决，他的阵营落败。"
+    }
+  }
+}

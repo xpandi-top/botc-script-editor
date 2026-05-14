@@ -1,0 +1,26 @@
+{
+  "id": "shutong",
+  "team": "outsider",
+  "edition": "shanyuyulai",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Shutong",
+    "ability": "On your first night, choose a player (not yourself). Except first night, if they are targeted by an evil player's ability, you die that night.",
+    "revisions": {
+      "v1": "On your first night, choose a player (not yourself). Except first night, if they are targeted by an evil player's ability, you die that night."
+    }
+  },
+  "zh": {
+    "name": "书童",
+    "ability": "在你的首个夜晚，你要选择除你以外的一名玩家：除首个夜晚以外，当他被邪恶玩家的能力选择或影响时，你会在当晚死亡。",
+    "revisions": {
+      "v1": "在你的首个夜晚，你要选择除你以外的一名玩家：除首个夜晚以外，当他被邪恶玩家的能力选择或影响时，你会在当晚死亡。"
+    }
+  }
+}

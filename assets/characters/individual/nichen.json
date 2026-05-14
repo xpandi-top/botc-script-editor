@@ -1,0 +1,26 @@
+{
+  "id": "nichen",
+  "team": "outsider",
+  "edition": "huadengchushang",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Turncoat",
+    "ability": "You start by choosing another player: if they die by execution first, you become evil that night; and vise versa",
+    "revisions": {
+      "v1": "You start by choosing another player: if they die by execution first, you become evil that night; and vise versa"
+    }
+  },
+  "zh": {
+    "name": "逆臣",
+    "ability": "在你的首个夜晚，你要选择除你以外的一名玩家：如果他先死于处决，你会在当晚转变为邪恶；如果你先死于处决，他会在当晚转变为邪恶。",
+    "revisions": {
+      "v1": "在你的首个夜晚，你要选择除你以外的一名玩家：如果他先死于处决，你会在当晚转变为邪恶；如果你先死于处决，他会在当晚转变为邪恶。"
+    }
+  }
+}

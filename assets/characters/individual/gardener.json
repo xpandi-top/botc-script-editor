@@ -1,0 +1,26 @@
+{
+  "id": "gardener",
+  "team": "loric",
+  "edition": "loric",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Gardener",
+    "ability": "The Storyteller assigns 1 or more players' characters.",
+    "revisions": {
+      "v1": "The Storyteller assigns 1 or more players' characters."
+    }
+  },
+  "zh": {
+    "name": "Gardener",
+    "ability": "说书人指定1名或多名玩家的角色。",
+    "revisions": {
+      "v1": "说书人指定1名或多名玩家的角色。"
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "deusexfiasco",
+  "team": "fabled",
+  "edition": "fabled",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Deus ex Fiasco",
+    "ability": "At least once per game, the Storyteller will make a mistake, correct it, and publicly admit to it.",
+    "revisions": {
+      "v1": "At least once per game, the Storyteller will make a mistake, correct it, and publicly admit to it."
+    }
+  },
+  "zh": {
+    "name": "Deus ex Fiasco",
+    "ability": "每局游戏至少一次，说书人会犯错、纠正它，并公开承认。",
+    "revisions": {
+      "v1": "每局游戏至少一次，说书人会犯错、纠正它，并公开承认。"
+    }
+  }
+}

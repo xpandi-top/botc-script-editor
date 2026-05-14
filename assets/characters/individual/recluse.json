@@ -1,0 +1,26 @@
+{
+  "id": "recluse",
+  "team": "outsider",
+  "edition": "tb",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Recluse",
+    "ability": "You might register as evil & as a Minion or Demon, even if dead.",
+    "revisions": {
+      "v1": "You might register as evil & as a Minion or Demon, even if dead."
+    }
+  },
+  "zh": {
+    "name": "陌客",
+    "ability": "你可能会被当作邪恶阵营、爪牙角色或恶魔角色，即使你已死亡。",
+    "revisions": {
+      "v1": "你可能会被当作邪恶阵营、爪牙角色或恶魔角色，即使你已死亡。"
+    }
+  }
+}

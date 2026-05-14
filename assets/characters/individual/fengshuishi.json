@@ -1,0 +1,26 @@
+{
+  "id": "fengshuishi",
+  "team": "townsfolk",
+  "edition": "shanyuyulai",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Fengshui Master",
+    "ability": "On your first night, you learn the character type of a player. Each night*, you learn character type of next non-traveler player in a clockwise direction.",
+    "revisions": {
+      "v1": "On your first night, you learn the character type of a player. Each night*, you learn character type of next non-traveler player in a clockwise direction."
+    }
+  },
+  "zh": {
+    "name": "风水师",
+    "ability": "在你的首个夜晚，你会得知一名玩家的角色类型。每个夜晚*，你会从他的顺时针方向得知下一名非旅行者玩家的角色类型。",
+    "revisions": {
+      "v1": "在你的首个夜晚，你会得知一名玩家的角色类型。每个夜晚*，你会从他的顺时针方向得知下一名非旅行者玩家的角色类型。"
+    }
+  }
+}

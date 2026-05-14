@@ -1,0 +1,26 @@
+{
+  "id": "fool",
+  "team": "townsfolk",
+  "edition": "bmr",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Fool",
+    "ability": "The first time you die, you don't.",
+    "revisions": {
+      "v1": "The first time you die, you don't."
+    }
+  },
+  "zh": {
+    "name": "弄臣",
+    "ability": "当你首次将要死亡时，你不会死亡。",
+    "revisions": {
+      "v1": "当你首次将要死亡时，你不会死亡。"
+    }
+  }
+}

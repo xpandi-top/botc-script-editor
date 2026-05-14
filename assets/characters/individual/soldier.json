@@ -1,0 +1,26 @@
+{
+  "id": "soldier",
+  "team": "townsfolk",
+  "edition": "tb",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Soldier",
+    "ability": "You are safe from the Demon.",
+    "revisions": {
+      "v1": "You are safe from the Demon."
+    }
+  },
+  "zh": {
+    "name": "士兵",
+    "ability": "恶魔的负面能力对你无效。",
+    "revisions": {
+      "v1": "恶魔的负面能力对你无效。"
+    }
+  }
+}

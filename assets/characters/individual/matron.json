@@ -1,0 +1,26 @@
+{
+  "id": "matron",
+  "team": "traveler",
+  "edition": "bmr",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Matron",
+    "ability": "Each day, you may choose up to 3 sets of 2 players to swap seats. Players may not leave their seats to talk in private.",
+    "revisions": {
+      "v1": "Each day, you may choose up to 3 sets of 2 players to swap seats. Players may not leave their seats to talk in private."
+    }
+  },
+  "zh": {
+    "name": "女舍监",
+    "ability": "每个白天，你可以选择至多三对玩家交换座位。玩家不能离开座位私聊。",
+    "revisions": {
+      "v1": "每个白天，你可以选择至多三对玩家交换座位。玩家不能离开座位私聊。"
+    }
+  }
+}

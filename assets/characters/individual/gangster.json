@@ -1,0 +1,26 @@
+{
+  "id": "gangster",
+  "team": "traveler",
+  "edition": "experimental",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Gangster",
+    "ability": "Once per day, you may choose to kill an alive neighbour, if your other alive neighbour agrees.",
+    "revisions": {
+      "v1": "Once per day, you may choose to kill an alive neighbour, if your other alive neighbour agrees."
+    }
+  },
+  "zh": {
+    "name": "黑帮",
+    "ability": "每个白天限一次，你可以杀死与你邻近的两名存活的玩家中的一名，但需要另一边那个存活的玩家同意。",
+    "revisions": {
+      "v1": "每个白天限一次，你可以杀死与你邻近的两名存活的玩家中的一名，但需要另一边那个存活的玩家同意。"
+    }
+  }
+}

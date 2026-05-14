@@ -1,0 +1,26 @@
+{
+  "id": "minstrel",
+  "team": "townsfolk",
+  "edition": "bmr",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Minstrel",
+    "ability": "When a Minion dies by execution, all other players (except Travellers) are drunk until dusk tomorrow.",
+    "revisions": {
+      "v1": "When a Minion dies by execution, all other players (except Travellers) are drunk until dusk tomorrow."
+    }
+  },
+  "zh": {
+    "name": "吟游诗人",
+    "ability": "当一名爪牙死于处决时，除了你和旅行者以外的所有其他玩家醉酒直到明天黄昏。",
+    "revisions": {
+      "v1": "当一名爪牙死于处决时，除了你和旅行者以外的所有其他玩家醉酒直到明天黄昏。"
+    }
+  }
+}

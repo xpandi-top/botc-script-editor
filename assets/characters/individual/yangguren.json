@@ -1,0 +1,26 @@
+{
+  "id": "yangguren",
+  "team": "minion",
+  "edition": "huadengchushang",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Bug Keeper",
+    "ability": "Players who nominate you while you are alive die that night, even if you are dead.",
+    "revisions": {
+      "v1": "Players who nominate you while you are alive die that night, even if you are dead."
+    }
+  },
+  "zh": {
+    "name": "养蛊人",
+    "ability": "在你存活时提名你的玩家会在当晚死亡，即使你已死亡。",
+    "revisions": {
+      "v1": "在你存活时提名你的玩家会在当晚死亡，即使你已死亡。"
+    }
+  }
+}

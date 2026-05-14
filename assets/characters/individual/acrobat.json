@@ -1,0 +1,32 @@
+{
+  "id": "acrobat",
+  "team": "townsfolk",
+  "edition": "experimental",
+  "current_revision": "v2024-10",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": "Initial wording"
+    },
+    {
+      "id": "v2024-10",
+      "note": "Made the Acrobat a Townsfolk and changed the ability to target a player."
+    }
+  ],
+  "en": {
+    "name": "Acrobat",
+    "ability": "Each night*, choose a player: if they are or become drunk or poisoned tonight, you die.",
+    "revisions": {
+      "v1": "Each night*, if either good living neighbour is drunk or poisoned, you die.",
+      "v2024-10": "Each night*, choose a player: if they are or become drunk or poisoned tonight, you die."
+    }
+  },
+  "zh": {
+    "name": "杂技演员",
+    "ability": "每个夜晚*，你要选择一名玩家：如果他在今晚是或变得醉酒或中毒，你死亡。",
+    "revisions": {
+      "v1": "每个夜晚*，如果与你邻近的存活善良玩家之一醉酒或中毒，你死亡。",
+      "v2024-10": "每个夜晚*，你要选择一名玩家：如果他在今晚是或变得醉酒或中毒，你死亡。"
+    }
+  }
+}

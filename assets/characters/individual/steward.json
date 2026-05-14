@@ -1,0 +1,26 @@
+{
+  "id": "steward",
+  "team": "townsfolk",
+  "edition": "experimental",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Steward",
+    "ability": "You start knowing 1 good player.",
+    "revisions": {
+      "v1": "You start knowing 1 good player."
+    }
+  },
+  "zh": {
+    "name": "事务官",
+    "ability": "在你的首个夜晚，你会得知一名善良玩家。",
+    "revisions": {
+      "v1": "在你的首个夜晚，你会得知一名善良玩家。"
+    }
+  }
+}

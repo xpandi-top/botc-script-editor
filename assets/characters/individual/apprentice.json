@@ -1,0 +1,26 @@
+{
+  "id": "apprentice",
+  "team": "traveler",
+  "edition": "bmr",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Apprentice",
+    "ability": "On your 1st night, you gain a Townsfolk ability (if good), or a Minion ability (if evil).",
+    "revisions": {
+      "v1": "On your 1st night, you gain a Townsfolk ability (if good), or a Minion ability (if evil)."
+    }
+  },
+  "zh": {
+    "name": "学徒",
+    "ability": "在你的首个夜晚，如果你是善良的，你会获得一个镇民角色的能力；如果你是邪恶的，你会获得一个爪牙角色的能力。",
+    "revisions": {
+      "v1": "在你的首个夜晚，如果你是善良的，你会获得一个镇民角色的能力；如果你是邪恶的，你会获得一个爪牙角色的能力。"
+    }
+  }
+}

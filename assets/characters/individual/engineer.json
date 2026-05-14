@@ -1,0 +1,26 @@
+{
+  "id": "engineer",
+  "team": "townsfolk",
+  "edition": "experimental",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Engineer",
+    "ability": "Once per game, at night, choose which Minions or which Demon is in play.",
+    "revisions": {
+      "v1": "Once per game, at night, choose which Minions or which Demon is in play."
+    }
+  },
+  "zh": {
+    "name": "工程师",
+    "ability": "每局游戏限一次，在夜晚时，你可以选择让恶魔变成你选择的恶魔角色，或让所有爪牙变成你选择的爪牙角色。",
+    "revisions": {
+      "v1": "每局游戏限一次，在夜晚时，你可以选择让恶魔变成你选择的恶魔角色，或让所有爪牙变成你选择的爪牙角色。"
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "mayor",
+  "team": "townsfolk",
+  "edition": "tb",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Mayor",
+    "ability": "If only 3 players live & no execution occurs, your team wins. If you die at night, another player might die instead.",
+    "revisions": {
+      "v1": "If only 3 players live & no execution occurs, your team wins. If you die at night, another player might die instead."
+    }
+  },
+  "zh": {
+    "name": "镇长",
+    "ability": "如果只有三名玩家存活且白天没有人被处决，你的阵营获胜。如果你在夜晚死亡，可能会有一名其他玩家代替你死亡。",
+    "revisions": {
+      "v1": "如果只有三名玩家存活且白天没有人被处决，你的阵营获胜。如果你在夜晚死亡，可能会有一名其他玩家代替你死亡。"
+    }
+  }
+}

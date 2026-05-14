@@ -1,0 +1,26 @@
+{
+  "id": "bureaucrat",
+  "team": "traveler",
+  "edition": "tb",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Bureaucrat",
+    "ability": "Each night, choose a player (not yourself): their vote counts as 3 votes tomorrow.",
+    "revisions": {
+      "v1": "Each night, choose a player (not yourself): their vote counts as 3 votes tomorrow."
+    }
+  },
+  "zh": {
+    "name": "官员",
+    "ability": "每个夜晚，你要选择除你以外的一名玩家：明天白天，他的投票算作三票。",
+    "revisions": {
+      "v1": "每个夜晚，你要选择除你以外的一名玩家：明天白天，他的投票算作三票。"
+    }
+  }
+}

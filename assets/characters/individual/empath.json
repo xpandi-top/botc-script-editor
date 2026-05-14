@@ -1,0 +1,26 @@
+{
+  "id": "empath",
+  "team": "townsfolk",
+  "edition": "tb",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Empath",
+    "ability": "Each night, you learn how many of your 2 alive neighbours are evil.",
+    "revisions": {
+      "v1": "Each night, you learn how many of your 2 alive neighbours are evil."
+    }
+  },
+  "zh": {
+    "name": "共情者",
+    "ability": "每个夜晚，你会得知与你邻近的两名存活的玩家中邪恶玩家的数量。",
+    "revisions": {
+      "v1": "每个夜晚，你会得知与你邻近的两名存活的玩家中邪恶玩家的数量。"
+    }
+  }
+}

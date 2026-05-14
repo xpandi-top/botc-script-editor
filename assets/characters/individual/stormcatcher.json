@@ -1,0 +1,26 @@
+{
+  "id": "stormcatcher",
+  "team": "loric",
+  "edition": "loric",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Storm Catcher",
+    "ability": "Name a good character. If in play, they can only die by execution, but evil players learn which player it is.",
+    "revisions": {
+      "v1": "Name a good character. If in play, they can only die by execution, but evil players learn which player it is."
+    }
+  },
+  "zh": {
+    "name": "Storm Catcher",
+    "ability": "指定一个善良角色。若该角色在场，则他只能因处决而死，但邪恶玩家会得知具体是哪位玩家。",
+    "revisions": {
+      "v1": "指定一个善良角色。若该角色在场，则他只能因处决而死，但邪恶玩家会得知具体是哪位玩家。"
+    }
+  }
+}

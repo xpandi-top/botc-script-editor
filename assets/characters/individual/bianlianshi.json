@@ -1,0 +1,26 @@
+{
+  "id": "bianlianshi",
+  "team": "townsfolk",
+  "edition": "huadengchushang",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Face Changer",
+    "ability": "If you are mad about being a good character (different from before), you may gain that character's ability that night, until the next dusk.",
+    "revisions": {
+      "v1": "If you are mad about being a good character (different from before), you may gain that character's ability that night, until the next dusk."
+    }
+  },
+  "zh": {
+    "name": "变脸师",
+    "ability": "每个白天，如果你“疯狂”地证明自己是一个善良角色（与之前不同），你可能会在当晚获得那个角色的能力，直到下个黄昏。",
+    "revisions": {
+      "v1": "每个白天，如果你“疯狂”地证明自己是一个善良角色（与之前不同），你可能会在当晚获得那个角色的能力，直到下个黄昏。"
+    }
+  }
+}

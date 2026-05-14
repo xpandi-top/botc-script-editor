@@ -1,0 +1,26 @@
+{
+  "id": "bishop",
+  "team": "traveler",
+  "edition": "bmr",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Bishop",
+    "ability": "Only the Storyteller can nominate. At least 1 opposite player must be nominated each day.",
+    "revisions": {
+      "v1": "Only the Storyteller can nominate. At least 1 opposite player must be nominated each day."
+    }
+  },
+  "zh": {
+    "name": "主教",
+    "ability": "只有说书人可以发起提名。每个白天说书人至少要提名一名你对立阵营的玩家。",
+    "revisions": {
+      "v1": "只有说书人可以发起提名。每个白天说书人至少要提名一名你对立阵营的玩家。"
+    }
+  }
+}

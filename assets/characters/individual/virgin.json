@@ -1,0 +1,26 @@
+{
+  "id": "virgin",
+  "team": "townsfolk",
+  "edition": "tb",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Virgin",
+    "ability": "The 1st time you are nominated, if the nominator is a Townsfolk, they are executed immediately.",
+    "revisions": {
+      "v1": "The 1st time you are nominated, if the nominator is a Townsfolk, they are executed immediately."
+    }
+  },
+  "zh": {
+    "name": "贞洁者",
+    "ability": "当你首次被提名时，如果提名你的玩家是镇民，他立刻被处决。",
+    "revisions": {
+      "v1": "当你首次被提名时，如果提名你的玩家是镇民，他立刻被处决。"
+    }
+  }
+}

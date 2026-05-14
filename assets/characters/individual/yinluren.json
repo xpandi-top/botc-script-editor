@@ -1,0 +1,26 @@
+{
+  "id": "yinluren",
+  "team": "townsfolk",
+  "edition": "shanyuyulai",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Yunluren",
+    "ability": "Each night, choose up to 3 players. You learn if any of them is targeted by an evil player's ability that night.",
+    "revisions": {
+      "v1": "Each night, choose up to 3 players. You learn if any of them is targeted by an evil player's ability that night."
+    }
+  },
+  "zh": {
+    "name": "引路人",
+    "ability": "每个夜晚，你要选择至多三名玩家：你会得知今晚是否有邪恶玩家的能力选择或影响了他们之中的玩家。",
+    "revisions": {
+      "v1": "每个夜晚，你要选择至多三名玩家：你会得知今晚是否有邪恶玩家的能力选择或影响了他们之中的玩家。"
+    }
+  }
+}

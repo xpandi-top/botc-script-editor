@@ -1,0 +1,26 @@
+{
+  "id": "nodashii",
+  "team": "demon",
+  "edition": "snv",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "No Dashii",
+    "ability": "Each night*, choose a player: they die. Your 2 Townsfolk neighbours are poisoned.",
+    "revisions": {
+      "v1": "Each night*, choose a player: they die. Your 2 Townsfolk neighbours are poisoned."
+    }
+  },
+  "zh": {
+    "name": "诺-达鲺",
+    "ability": "每个夜晚*，你要选择一名玩家：他死亡。<br>与你邻近的两名镇民中毒。",
+    "revisions": {
+      "v1": "每个夜晚*，你要选择一名玩家：他死亡。<br>与你邻近的两名镇民中毒。"
+    }
+  }
+}

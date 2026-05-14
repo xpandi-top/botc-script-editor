@@ -1,0 +1,26 @@
+{
+  "id": "hundun",
+  "team": "demon",
+  "edition": "huadengchushang",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Hun Dun",
+    "ability": "Each night*, choose a player: they die. If you kill a Townsfolk neightbour this way, all good players except Travellers are poisoned until dusk.",
+    "revisions": {
+      "v1": "Each night*, choose a player: they die. If you kill a Townsfolk neightbour this way, all good players except Travellers are poisoned until dusk."
+    }
+  },
+  "zh": {
+    "name": "混沌",
+    "ability": "每个夜晚*，你要选择一名玩家：他死亡。<br>如果你以这种方式杀死了一名与你邻近的镇民玩家，除旅行者外的所有善良玩家会中毒直到下个黄昏。",
+    "revisions": {
+      "v1": "每个夜晚*，你要选择一名玩家：他死亡。<br>如果你以这种方式杀死了一名与你邻近的镇民玩家，除旅行者外的所有善良玩家会中毒直到下个黄昏。"
+    }
+  }
+}

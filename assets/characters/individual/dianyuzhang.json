@@ -1,0 +1,26 @@
+{
+  "id": "dianyuzhang",
+  "team": "demon",
+  "edition": "shanyuyulai",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Dianyuzhang",
+    "ability": "Each night, choose up to three players: if one of them die by execution the next day, other chosen players will die tonight. Otherwise, one of them will die tonight.",
+    "revisions": {
+      "v1": "Each night, choose up to three players: if one of them die by execution the next day, other chosen players will die tonight. Otherwise, one of them will die tonight."
+    }
+  },
+  "zh": {
+    "name": "典狱长",
+    "ability": "每个夜晚，你要选择至多三名玩家：如果明天白天他们之一死于处决，上次被你选择的其他玩家会在当晚死亡。否则，当晚他们之中会有一名玩家死亡。",
+    "revisions": {
+      "v1": "每个夜晚，你要选择至多三名玩家：如果明天白天他们之一死于处决，上次被你选择的其他玩家会在当晚死亡。否则，当晚他们之中会有一名玩家死亡。"
+    }
+  }
+}

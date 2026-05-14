@@ -1,0 +1,26 @@
+{
+  "id": "klutz",
+  "team": "outsider",
+  "edition": "snv",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Klutz",
+    "ability": "When you learn that you died, publicly choose 1 alive player: if they are evil, your team loses.",
+    "revisions": {
+      "v1": "When you learn that you died, publicly choose 1 alive player: if they are evil, your team loses."
+    }
+  },
+  "zh": {
+    "name": "呆瓜",
+    "ability": "当你得知你死亡时，你要公开选择一名存活的玩家：如果他是邪恶的，你的阵营落败。",
+    "revisions": {
+      "v1": "当你得知你死亡时，你要公开选择一名存活的玩家：如果他是邪恶的，你的阵营落败。"
+    }
+  }
+}

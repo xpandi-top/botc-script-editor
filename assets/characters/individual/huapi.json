@@ -1,0 +1,26 @@
+{
+  "id": "huapi",
+  "team": "minion",
+  "edition": "shanyuyulai",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Huapi",
+    "ability": "On your first night, choose an alive player: they die but are register as alive. When they are about to die again, they are resurrected and you regain your ability.",
+    "revisions": {
+      "v1": "On your first night, choose an alive player: they die but are register as alive. When they are about to die again, they are resurrected and you regain your ability."
+    }
+  },
+  "zh": {
+    "name": "画皮",
+    "ability": "在你的首个夜晚，你要选择一名存活玩家：他死亡但会被当作存活。当他下一次即将死亡时，他重生，随后你重获能力。",
+    "revisions": {
+      "v1": "在你的首个夜晚，你要选择一名存活玩家：他死亡但会被当作存活。当他下一次即将死亡时，他重生，随后你重获能力。"
+    }
+  }
+}

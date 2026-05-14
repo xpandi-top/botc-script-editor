@@ -1,0 +1,26 @@
+{
+  "id": "xuncha",
+  "team": "townsfolk",
+  "edition": "shanyuyulai",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Xuncha",
+    "ability": "Each night*, choose two good characters (different from the previous night): if they are both alive, they can't die tonight.",
+    "revisions": {
+      "v1": "Each night*, choose two good characters (different from the previous night): if they are both alive, they can't die tonight."
+    }
+  },
+  "zh": {
+    "name": "巡察",
+    "ability": "每个夜晚*，你要选择两个善良角色（与上个夜晚不同）：如果他们都存活，他们当晚不会死亡。",
+    "revisions": {
+      "v1": "每个夜晚*，你要选择两个善良角色（与上个夜晚不同）：如果他们都存活，他们当晚不会死亡。"
+    }
+  }
+}

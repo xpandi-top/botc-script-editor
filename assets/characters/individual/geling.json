@@ -1,0 +1,26 @@
+{
+  "id": "geling",
+  "team": "townsfolk",
+  "edition": "huadengchushang",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Diva",
+    "ability": "Once per game, during the day, you may propose that all players watch your performance and choose your audience from those who agree to attend. If the Demon becomes an audience member, you die that night.",
+    "revisions": {
+      "v1": "Once per game, during the day, you may propose that all players watch your performance and choose your audience from those who agree to attend. If the Demon becomes an audience member, you die that night."
+    }
+  },
+  "zh": {
+    "name": "歌伶",
+    "ability": "每局游戏限一次，在白天时，你可以提议所有玩家观看你的演出，并从同意参加的玩家中选择你的观众。如果恶魔成为了观众，你会在当晚死亡。",
+    "revisions": {
+      "v1": "每局游戏限一次，在白天时，你可以提议所有玩家观看你的演出，并从同意参加的玩家中选择你的观众。如果恶魔成为了观众，你会在当晚死亡。"
+    }
+  }
+}
