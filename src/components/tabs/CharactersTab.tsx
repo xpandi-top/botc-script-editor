@@ -121,17 +121,13 @@ export function CharactersTab({
 
     const chars: CharacterFileEntry[] = edition === 'all'
       ? allEntries
-      : edition === '__custom__'
-        ? customEntries
-        : allCharacterFiles.filter((c) => c.edition === edition)
+      : allEntries.filter((c) => c.edition === edition)
 
     const blob = new Blob([JSON.stringify(chars, null, 2)], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = edition === 'all' ? 'botc_characters_all.json'
-      : edition === '__custom__' ? 'botc_characters_custom.json'
-      : `botc_characters_${edition}.json`
+    a.download = edition === 'all' ? 'botc_characters_all.json' : `botc_characters_${edition}.json`
     a.click()
     URL.revokeObjectURL(url)
   }
@@ -369,12 +365,14 @@ export function CharactersTab({
                 sx={{ minWidth: 110, '& .MuiSelect-select': { py: '4px', fontSize: '0.75rem' } }}
               >
                 <MenuItem value="all" sx={{ fontSize: '0.8rem' }}>{zh ? '全部角色' : 'All characters'}</MenuItem>
-                {customChars.length > 0 && (
-                  <MenuItem value="__custom__" sx={{ fontSize: '0.8rem' }}>{zh ? '自定义角色' : 'Custom characters'}</MenuItem>
-                )}
                 {[...new Set(allCharacterFiles.map((c) => c.edition))].sort().map((ed) => (
                   <MenuItem key={ed} value={ed} sx={{ fontSize: '0.8rem' }}>
                     {editionLabels[uiLanguage][ed] ?? toTitleCase(ed)}
+                  </MenuItem>
+                ))}
+                {[...new Set(customChars.map((c) => c.edition))].sort().map((ed) => (
+                  <MenuItem key={`custom-${ed}`} value={ed} sx={{ fontSize: '0.8rem' }}>
+                    {toTitleCase(ed)}{zh ? '（自定义）' : ' (custom)'}
                   </MenuItem>
                 ))}
               </Select>
