@@ -35,7 +35,6 @@ import {
   CHAR_PACK_OVERRIDES_KEY,
   REVISION_OVERRIDES_KEY,
   refreshRevisionOverrides,
-  getEffectiveNightOrderFromRegistry,
 } from '../../catalog'
 import type { CharacterFileEntry } from '../../types'
 import type { CharacterEntry, CustomCharacter, Language, Team } from '../../types'
@@ -95,22 +94,6 @@ export function CharactersTab({
   const addCharInputRef = useRef<HTMLInputElement>(null)
   const zh = uiLanguage === 'zh'
   const t = makeT(uiLanguage)
-
-  // ── Download night order ─────────────────────────────────────────────────────
-  const downloadNightOrder = () => {
-    const order = getEffectiveNightOrderFromRegistry()
-    const payload = {
-      first_night: order.first_night ?? [],
-      other_nights: order.other_nights ?? [],
-    }
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = 'botc_night_order.json'
-    a.click()
-    URL.revokeObjectURL(url)
-  }
 
   // ── Download pack ─────────────────────────────────────────────────────────────
   const downloadPack = (edition: string) => {
@@ -399,11 +382,6 @@ export function CharactersTab({
               >
                 {zh ? '夜晚顺序' : 'Night Order'}
               </Button>
-              <Tooltip title={zh ? '下载夜晚顺序 JSON' : 'Download night order JSON'}>
-                <IconButton size="small" onClick={downloadNightOrder}>
-                  <DownloadIcon fontSize="small" />
-                </IconButton>
-              </Tooltip>
 
               {hasPackOverrides && (
                 <Chip

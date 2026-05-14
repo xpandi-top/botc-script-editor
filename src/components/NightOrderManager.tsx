@@ -17,6 +17,7 @@ import {
 import CloseIcon from '@mui/icons-material/Close'
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
+import DownloadIcon from '@mui/icons-material/Download'
 import {
   clearNightOrderOverrides,
   getDisplayName,
@@ -235,6 +236,17 @@ export function NightOrderManager({ open, onClose, language }: Props) {
     setOtherNights(order.other_nights ?? [])
   }
 
+  const handleDownload = () => {
+    const payload = { first_night: firstNight, other_nights: otherNights }
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'botc_night_order.json'
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   // Autocomplete options: all known chars not already in current list
   const allChars = getEffectiveAllCharacters()
   const currentSet = new Set(currentList)
@@ -322,9 +334,16 @@ export function NightOrderManager({ open, onClose, language }: Props) {
       </DialogContent>
 
       <DialogActions sx={{ px: 2, pb: 2, justifyContent: 'space-between' }}>
-        <Button variant="outlined" size="small" onClick={handleReset} sx={{ textTransform: 'none' }}>
-          {zh ? '恢复默认' : 'Reset to default'}
-        </Button>
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <Button variant="outlined" size="small" onClick={handleReset} sx={{ textTransform: 'none' }}>
+            {zh ? '恢复默认' : 'Reset to default'}
+          </Button>
+          <Tooltip title={zh ? '下载为 JSON' : 'Download as JSON'}>
+            <Button variant="outlined" size="small" startIcon={<DownloadIcon fontSize="small" />} onClick={handleDownload} sx={{ textTransform: 'none' }}>
+              {zh ? '下载' : 'Download'}
+            </Button>
+          </Tooltip>
+        </Box>
         <Box sx={{ display: 'flex', gap: 1 }}>
           <Button size="small" onClick={onClose} sx={{ textTransform: 'none' }}>
             {zh ? '取消' : 'Cancel'}
