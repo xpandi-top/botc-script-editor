@@ -108,14 +108,30 @@ export function CharactersTab({
 
   // ── Download pack ─────────────────────────────────────────────────────────────
   const downloadPack = (edition: string) => {
+    // Convert custom chars to CharacterFileEntry shape for export
+    const customEntries: CharacterFileEntry[] = customChars.map((c) => ({
+      id: c.id,
+      team: c.team,
+      edition: c.edition,
+      en: { name: c.nameEn, ability: c.abilityEn },
+      ...(c.nameZh || c.abilityZh ? { zh: { name: c.nameZh, ability: c.abilityZh } } : {}),
+    }))
+
+    const allEntries = [...allCharacterFiles, ...customEntries]
+
     const chars: CharacterFileEntry[] = edition === 'all'
-      ? allCharacterFiles
-      : allCharacterFiles.filter((c) => c.edition === edition)
+      ? allEntries
+      : edition === '__custom__'
+        ? customEntries
+        : allCharacterFiles.filter((c) => c.edition === edition)
+
     const blob = new Blob([JSON.stringify(chars, null, 2)], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = edition === 'all' ? 'botc_characters_all.json' : `botc_characters_${edition}.json`
+    a.download = edition === 'all' ? 'botc_characters_all.json'
+      : edition === '__custom__' ? 'botc_characters_custom.json'
+      : `botc_characters_${edition}.json`
     a.click()
     URL.revokeObjectURL(url)
   }
@@ -353,6 +369,9 @@ export function CharactersTab({
                 sx={{ minWidth: 110, '& .MuiSelect-select': { py: '4px', fontSize: '0.75rem' } }}
               >
                 <MenuItem value="all" sx={{ fontSize: '0.8rem' }}>{zh ? '全部角色' : 'All characters'}</MenuItem>
+                {customChars.length > 0 && (
+                  <MenuItem value="__custom__" sx={{ fontSize: '0.8rem' }}>{zh ? '自定义角色' : 'Custom characters'}</MenuItem>
+                )}
                 {[...new Set(allCharacterFiles.map((c) => c.edition))].sort().map((ed) => (
                   <MenuItem key={ed} value={ed} sx={{ fontSize: '0.8rem' }}>
                     {editionLabels[uiLanguage][ed] ?? toTitleCase(ed)}
