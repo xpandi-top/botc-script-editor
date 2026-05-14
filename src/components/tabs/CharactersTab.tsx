@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react'
 import {
   Autocomplete, Box, Button, Chip, Dialog, DialogContent, DialogTitle, FormControl,
   FormControlLabel, IconButton, InputLabel, MenuItem, Paper, Radio, RadioGroup,
-  Select, Snackbar, TextField, Typography,
+  Select, Snackbar, TextField, Tooltip, Typography,
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import CloseIcon from '@mui/icons-material/Close'
@@ -102,6 +102,7 @@ export function CharactersTab({
     try { return Object.keys(JSON.parse(localStorage.getItem(CHAR_PACK_OVERRIDES_KEY) ?? '{}')).length > 0 } catch { return false }
   })
   const importInputRef = useRef<HTMLInputElement>(null)
+  const addCharInputRef = useRef<HTMLInputElement>(null)
   const zh = uiLanguage === 'zh'
   const t = makeT(uiLanguage)
 
@@ -142,6 +143,49 @@ export function CharactersTab({
     refreshCharPackOverrides()
     setHasPackOverrides(false)
     setSnackMsg(zh ? '已清除所有包覆盖数据' : 'Cleared all pack overrides')
+  }
+
+  // ── Add single character from file ───────────────────────────────────────────
+  const handleAddCharFromFile = (file: File) => {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      try {
+        const raw = JSON.parse(e.target?.result as string)
+        const entry: CharacterFileEntry = Array.isArray(raw) ? raw[0] : raw
+        if (!entry?.id || !entry?.team) throw new Error('missing id or team')
+
+        const isKnown = allCharacterFiles.some((c) => c.id === entry.id)
+        if (isKnown) {
+          // Override locale data for existing catalog character
+          applyCharacterPack([entry])
+          refreshCharPackOverrides()
+          setHasPackOverrides(true)
+          const name = entry.en?.name ?? entry.id
+          setSnackMsg(zh ? `已更新角色：${name}` : `Updated character: ${name}`)
+        } else {
+          // Add as new custom character
+          const now = Date.now()
+          const newChar: CustomCharacter = {
+            id: entry.id.startsWith('custom_') ? entry.id : `custom_${entry.id}_${now.toString(36)}`,
+            author: 'Imported',
+            team: entry.team as Team,
+            edition: entry.edition ?? 'Custom',
+            nameEn: entry.en?.name ?? entry.id,
+            nameZh: entry.zh?.name,
+            abilityEn: entry.en?.ability ?? '',
+            abilityZh: entry.zh?.ability,
+            createdAt: now,
+            updatedAt: now,
+          }
+          setCustomChars((cur) => [...cur, newChar])
+          const name = newChar.nameEn
+          setSnackMsg(zh ? `已添加新角色：${name}` : `Added new character: ${name}`)
+        }
+      } catch {
+        setSnackMsg(zh ? '导入失败：无效的角色 JSON' : 'Import failed: invalid character JSON')
+      }
+    }
+    reader.readAsText(file)
   }
 
   const openNew = () => {
@@ -244,6 +288,22 @@ export function CharactersTab({
                   sx={{ textTransform: 'none', fontSize: '0.75rem' }}>
                   {t('custom')}
                 </Button>
+                <Tooltip title={zh ? '从 JSON 文件导入角色' : 'Add character from JSON file'}>
+                  <IconButton size="small" onClick={() => addCharInputRef.current?.click()} sx={{ color: 'text.secondary' }}>
+                    <UploadIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+                <input
+                  ref={addCharInputRef}
+                  type="file"
+                  accept=".json"
+                  hidden
+                  onChange={(e) => {
+                    const f = e.target.files?.[0]
+                    if (f) handleAddCharFromFile(f)
+                    e.target.value = ''
+                  }}
+                />
                 <FormControl size="small" sx={{ minWidth: 72, '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' }, '& .MuiInputLabel-root': { fontSize: '0.8rem' } }}>
                   <InputLabel>{uiLanguage === 'zh' ? '语言' : 'Lang'}</InputLabel>
                   <Select value={uiLanguage} label={uiLanguage === 'zh' ? '语言' : 'Lang'} onChange={(e) => onLanguageChange(e.target.value as Language)}>

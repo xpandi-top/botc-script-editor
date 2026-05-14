@@ -1,10 +1,12 @@
 import { useState } from 'react'
-import { Box, Button, Checkbox, Chip, Dialog, DialogContent, DialogTitle, FormControlLabel, Grid, IconButton, Paper, TextField, Typography } from '@mui/material'
+import { Box, Button, Checkbox, Chip, Dialog, DialogContent, DialogTitle, FormControlLabel, Grid, IconButton, Paper, TextField, Tooltip, Typography } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import CloseIcon from '@mui/icons-material/Close'
 import DeleteIcon from '@mui/icons-material/Delete'
+import DownloadIcon from '@mui/icons-material/Download'
 import EditIcon from '@mui/icons-material/Edit'
 import {
+  characterFileById,
   getAbilityText,
   getCharacterRevisionIds,
   getCurrentRevision,
@@ -18,7 +20,7 @@ import {
   refreshRevisionOverrides,
   teamLabels,
 } from '../catalog'
-import type { CharacterEntry, CustomCharacter, Language, RevisionOverrides } from '../types'
+import type { CharacterEntry, CharacterFileEntry, CustomCharacter, Language, RevisionOverrides } from '../types'
 
 type CharacterRevisionPanelProps = {
   character?: CharacterEntry
@@ -97,6 +99,39 @@ export function CharacterRevisionPanel({
     setAddOpen(false)
   }
 
+  const downloadCharacter = () => {
+    if (!character) return
+    // Build export from file entry, augmented with latest ability texts from catalog
+    const base: CharacterFileEntry = characterFileById[character.id] ?? {
+      id: character.id,
+      team: character.team,
+      edition: character.edition,
+      current_revision: character.current_revision,
+      revisions: character.revisions,
+    }
+    const revIds = getCharacterRevisionIds(character.id)
+    const enRevisions: Record<string, string> = {}
+    const zhRevisions: Record<string, string> = {}
+    for (const rev of revIds) {
+      const en = getRevisionText(character.id, 'en', rev)
+      const zh = getRevisionText(character.id, 'zh', rev)
+      if (en) enRevisions[rev] = en
+      if (zh) zhRevisions[rev] = zh
+    }
+    const exportEntry: CharacterFileEntry = {
+      ...base,
+      en: { name: getDisplayName(character.id, 'en'), ability: getAbilityText(character.id, 'en'), revisions: enRevisions },
+      zh: { name: getDisplayName(character.id, 'zh'), ability: getAbilityText(character.id, 'zh'), revisions: Object.keys(zhRevisions).length ? zhRevisions : undefined },
+    }
+    const blob = new Blob([JSON.stringify(exportEntry, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${character.id}.json`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   if (!character) {
     return (
       <Paper sx={{ p: 2 }}>
@@ -132,6 +167,11 @@ export function CharacterRevisionPanel({
             {isCustom && (
               <Chip label={zh ? '自定义' : 'Custom'} size="small" color="secondary" sx={{ fontSize: '0.65rem' }} />
             )}
+            <Tooltip title={zh ? '下载角色 JSON' : 'Download character JSON'}>
+              <IconButton size="small" onClick={downloadCharacter} sx={{ color: 'text.secondary' }}>
+                <DownloadIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
           </Box>
           <Typography variant="caption" color="text.secondary">{character.id}</Typography>
           {customChar && (

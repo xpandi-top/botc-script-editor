@@ -134,8 +134,11 @@ for (const entry of Object.values(characterFiles)) {
   if (entry.zh) _charLocale.zh[entry.id] = entry.zh
 }
 
-// ── Exported list of all character file entries ───────────────────────────────
+// ── Exported list and map of all character file entries ──────────────────────
 export const allCharacterFiles: CharacterFileEntry[] = Object.values(characterFiles)
+export const characterFileById: Record<string, CharacterFileEntry> = Object.fromEntries(
+  allCharacterFiles.filter((c) => c?.id).map((c) => [c.id, c])
+)
 
 const scriptFiles = import.meta.glob('../assets/scripts/*.json', {
   eager: true,
