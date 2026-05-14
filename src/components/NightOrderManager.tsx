@@ -15,9 +15,26 @@ import {
   Typography,
 } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import DownloadIcon from '@mui/icons-material/Download'
+import AddIcon from '@mui/icons-material/Add'
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator'
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import {
   clearNightOrderOverrides,
   getDisplayName,
@@ -46,136 +63,169 @@ function getCharLabel(id: string, language: Language): string {
   return getDisplayName(id, language)
 }
 
-function CharRow({
+// ── Sortable row ──────────────────────────────────────────────────────────────
+function SortableCharRow({
   id,
   index,
-  total,
   language,
-  onMoveUp,
-  onMoveDown,
   onRemove,
+  onInsertAfter,
+  insertingAfter,
+  insertOptions,
+  onInsertConfirm,
+  onInsertCancel,
 }: {
   id: string
   index: number
-  total: number
   language: Language
-  onMoveUp: () => void
-  onMoveDown: () => void
   onRemove: () => void
+  onInsertAfter: () => void
+  insertingAfter: boolean
+  insertOptions: string[]
+  onInsertConfirm: (charId: string) => void
+  onInsertCancel: () => void
 }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: `${id}__${index}` })
+  const [insertValue, setInsertValue] = useState<string | null>(null)
+  const [insertInput, setInsertInput] = useState('')
+
   const icon = getIconForCharacter(id)
   const allChars = getEffectiveAllCharacters()
   const isKnown = SPECIAL_LABELS[id] != null || allChars.some((c) => c.id === id)
-  const label = getCharLabel(id, language)
   const isSpecial = SPECIAL_LABELS[id] != null
+  const label = getCharLabel(id, language)
+
+  // Reset inline input when closed
+  useEffect(() => {
+    if (!insertingAfter) { setInsertValue(null); setInsertInput('') }
+  }, [insertingAfter])
+
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+    zIndex: isDragging ? 999 : undefined,
+  }
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 1,
-        px: 1.5,
-        py: 0.5,
-        bgcolor: index % 2 === 0 ? 'action.hover' : 'transparent',
-        borderRadius: 1,
-        opacity: isKnown ? 1 : 0.5,
-      }}
-    >
-      {/* Position badge */}
-      <Typography
+    <Box ref={setNodeRef} style={style}>
+      {/* Main row */}
+      <Box
         sx={{
-          minWidth: 24,
-          fontSize: '0.7rem',
-          color: 'text.secondary',
-          textAlign: 'right',
-          flexShrink: 0,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 0.75,
+          px: 1,
+          py: '3px',
+          borderRadius: 1,
+          bgcolor: index % 2 === 0 ? 'action.hover' : 'transparent',
+          opacity: isKnown ? 1 : 0.5,
+          '&:hover .insert-btn': { opacity: 1 },
         }}
       >
-        {index + 1}
-      </Typography>
-
-      {/* Icon */}
-      {!isSpecial && icon ? (
+        {/* Drag handle */}
         <Box
-          component="img"
-          src={icon}
-          alt=""
-          sx={{
-            width: 24,
-            height: 24,
-            borderRadius: '50%',
-            objectFit: 'contain',
-            bgcolor: 'background.default',
-            flexShrink: 0,
-          }}
-        />
-      ) : (
-        <Box
-          sx={{
-            width: 24,
-            height: 24,
-            borderRadius: '50%',
-            bgcolor: isSpecial ? 'primary.main' : 'background.default',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
-          }}
+          {...attributes}
+          {...listeners}
+          sx={{ cursor: 'grab', color: 'text.disabled', display: 'flex', alignItems: 'center', flexShrink: 0, touchAction: 'none', '&:active': { cursor: 'grabbing' } }}
         >
-          <Typography sx={{ fontSize: '0.55rem', fontWeight: 700, color: isSpecial ? 'primary.contrastText' : 'text.secondary' }}>
-            {isSpecial ? '★' : id.slice(0, 2).toUpperCase()}
-          </Typography>
+          <DragIndicatorIcon sx={{ fontSize: '1rem' }} />
         </Box>
-      )}
 
-      {/* Name */}
-      <Typography
-        variant="body2"
-        sx={{
-          flex: 1,
-          fontSize: '0.82rem',
-          fontStyle: isKnown ? 'normal' : 'italic',
-          color: isKnown ? 'text.primary' : 'text.disabled',
-          whiteSpace: 'nowrap',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-        }}
-      >
-        {label}
-        {!isKnown && (
-          <Typography component="span" sx={{ fontSize: '0.7rem', ml: 0.5, color: 'text.disabled' }}>
-            ({id})
-          </Typography>
+        {/* Position */}
+        <Typography sx={{ minWidth: 22, fontSize: '0.68rem', color: 'text.disabled', textAlign: 'right', flexShrink: 0 }}>
+          {index + 1}
+        </Typography>
+
+        {/* Character icon */}
+        {!isSpecial && icon ? (
+          <Box component="img" src={icon} alt="" sx={{ width: 24, height: 24, borderRadius: '50%', objectFit: 'contain', bgcolor: 'background.default', flexShrink: 0 }} />
+        ) : (
+          <Box sx={{ width: 24, height: 24, borderRadius: '50%', bgcolor: isSpecial ? 'primary.main' : 'background.default', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <Typography sx={{ fontSize: '0.55rem', fontWeight: 700, color: isSpecial ? 'primary.contrastText' : 'text.secondary' }}>
+              {isSpecial ? '★' : id.slice(0, 2).toUpperCase()}
+            </Typography>
+          </Box>
         )}
-      </Typography>
 
-      {/* Controls */}
-      <Box sx={{ display: 'flex', gap: 0.25, flexShrink: 0 }}>
-        <Tooltip title="Move up">
-          <span>
-            <IconButton size="small" onClick={onMoveUp} disabled={index === 0} sx={{ p: '2px' }}>
-              <KeyboardArrowUpIcon sx={{ fontSize: '1rem' }} />
-            </IconButton>
-          </span>
+        {/* Name */}
+        <Typography variant="body2" sx={{ flex: 1, fontSize: '0.82rem', fontStyle: isKnown ? 'normal' : 'italic', color: isKnown ? 'text.primary' : 'text.disabled', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {label}
+          {!isKnown && <Typography component="span" sx={{ fontSize: '0.68rem', ml: 0.5, color: 'text.disabled' }}>({id})</Typography>}
+        </Typography>
+
+        {/* Insert-after trigger */}
+        <Tooltip title={language === 'zh' ? '在此后插入角色' : 'Insert character after this'}>
+          <IconButton
+            className="insert-btn"
+            size="small"
+            onClick={onInsertAfter}
+            sx={{ p: '2px', opacity: insertingAfter ? 1 : 0, transition: 'opacity 0.15s', color: 'primary.main' }}
+          >
+            <AddIcon sx={{ fontSize: '0.9rem' }} />
+          </IconButton>
         </Tooltip>
-        <Tooltip title="Move down">
-          <span>
-            <IconButton size="small" onClick={onMoveDown} disabled={index === total - 1} sx={{ p: '2px' }}>
-              <KeyboardArrowDownIcon sx={{ fontSize: '1rem' }} />
-            </IconButton>
-          </span>
-        </Tooltip>
+
+        {/* Remove */}
         <Tooltip title={language === 'zh' ? '移除' : 'Remove'}>
           <IconButton size="small" onClick={onRemove} sx={{ p: '2px', color: 'error.main' }}>
-            <CloseIcon sx={{ fontSize: '0.9rem' }} />
+            <CloseIcon sx={{ fontSize: '0.85rem' }} />
           </IconButton>
         </Tooltip>
       </Box>
+
+      {/* Inline insert-after panel */}
+      {insertingAfter && (
+        <Box sx={{ mx: 1, mb: 0.5, mt: 0.25, p: 1, border: '1px dashed', borderColor: 'primary.main', borderRadius: 1, bgcolor: 'primary.50' }}>
+          <Autocomplete
+            autoFocus
+            openOnFocus
+            size="small"
+            options={insertOptions}
+            value={insertValue}
+            inputValue={insertInput}
+            onInputChange={(_, v) => setInsertInput(v)}
+            onChange={(_, v) => {
+              if (v) { onInsertConfirm(v); setInsertValue(null); setInsertInput('') }
+            }}
+            getOptionLabel={(optId) => getCharLabel(optId, language)}
+            renderOption={(props, optId) => {
+              const optIcon = getIconForCharacter(optId)
+              return (
+                <Box component="li" {...props} sx={{ display: 'flex', alignItems: 'center', gap: 1, py: '3px !important' }}>
+                  {optIcon ? (
+                    <Box component="img" src={optIcon} alt="" sx={{ width: 20, height: 20, borderRadius: '50%', objectFit: 'contain', flexShrink: 0 }} />
+                  ) : (
+                    <Box sx={{ width: 20, height: 20, borderRadius: '50%', bgcolor: 'action.hover', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <Typography sx={{ fontSize: '0.5rem', fontWeight: 700 }}>{optId.slice(0, 2).toUpperCase()}</Typography>
+                    </Box>
+                  )}
+                  <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{getCharLabel(optId, language)}</Typography>
+                </Box>
+              )
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                autoFocus
+                size="small"
+                placeholder={language === 'zh' ? '搜索角色…' : 'Search character…'}
+                onKeyDown={(e) => { if (e.key === 'Escape') onInsertCancel() }}
+              />
+            )}
+          />
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0.5 }}>
+            <Button size="small" sx={{ fontSize: '0.7rem', textTransform: 'none' }} onClick={onInsertCancel}>
+              {language === 'zh' ? '取消' : 'Cancel'}
+            </Button>
+          </Box>
+        </Box>
+      )}
     </Box>
   )
 }
 
+// ── Main component ────────────────────────────────────────────────────────────
 export function NightOrderManager({ open, onClose, language }: Props) {
   const zh = language === 'zh'
 
@@ -184,8 +234,8 @@ export function NightOrderManager({ open, onClose, language }: Props) {
   const [otherNights, setOtherNights] = useState<string[]>([])
   const [addValue, setAddValue] = useState<string | null>(null)
   const [addInputValue, setAddInputValue] = useState('')
+  const [insertAfterIndex, setInsertAfterIndex] = useState<number | null>(null)
 
-  // Initialize when dialog opens
   useEffect(() => {
     if (!open) return
     const order = getEffectiveNightOrderFromRegistry()
@@ -194,30 +244,38 @@ export function NightOrderManager({ open, onClose, language }: Props) {
     setTab('first')
     setAddValue(null)
     setAddInputValue('')
+    setInsertAfterIndex(null)
   }, [open])
 
   const currentList = tab === 'first' ? firstNight : otherNights
   const setCurrentList = tab === 'first' ? setFirstNight : setOtherNights
 
-  const moveUp = (index: number) => {
-    if (index === 0) return
-    const next = [...currentList]
-    ;[next[index - 1], next[index]] = [next[index], next[index - 1]]
-    setCurrentList(next)
-  }
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  )
 
-  const moveDown = (index: number) => {
-    if (index === currentList.length - 1) return
-    const next = [...currentList]
-    ;[next[index], next[index + 1]] = [next[index + 1], next[index]]
-    setCurrentList(next)
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+    const oldIndex = currentList.findIndex((id, i) => `${id}__${i}` === active.id)
+    const newIndex = currentList.findIndex((id, i) => `${id}__${i}` === over.id)
+    if (oldIndex !== -1 && newIndex !== -1) setCurrentList(arrayMove(currentList, oldIndex, newIndex))
   }
 
   const remove = (index: number) => {
+    setInsertAfterIndex(null)
     setCurrentList(currentList.filter((_, i) => i !== index))
   }
 
-  const handleAdd = (_: React.SyntheticEvent, value: string | null) => {
+  const handleInsertAfter = (atIndex: number, charId: string) => {
+    const next = [...currentList]
+    next.splice(atIndex + 1, 0, charId)
+    setCurrentList(next)
+    setInsertAfterIndex(null)
+  }
+
+  const handleAddAtEnd = (_: React.SyntheticEvent, value: string | null) => {
     if (!value) return
     setCurrentList([...currentList, value])
     setAddValue(null)
@@ -234,6 +292,7 @@ export function NightOrderManager({ open, onClose, language }: Props) {
     const order = getEffectiveNightOrderFromRegistry()
     setFirstNight(order.first_night ?? [])
     setOtherNights(order.other_nights ?? [])
+    setInsertAfterIndex(null)
   }
 
   const handleDownload = () => {
@@ -247,15 +306,15 @@ export function NightOrderManager({ open, onClose, language }: Props) {
     URL.revokeObjectURL(url)
   }
 
-  // Autocomplete options: all known chars not already in current list
   const allChars = getEffectiveAllCharacters()
   const currentSet = new Set(currentList)
-  const autocompleteOptions = allChars
-    .map((c) => c.id)
-    .filter((id) => !currentSet.has(id))
+  const availableOptions = allChars.map((c) => c.id).filter((id) => !currentSet.has(id))
+
+  // dnd-kit needs stable unique IDs per item
+  const sortableIds = currentList.map((id, i) => `${id}__${i}`)
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle sx={{ display: 'flex', alignItems: 'center', pr: 1 }}>
         <Typography variant="h6" sx={{ flex: 1 }}>
           {zh ? '夜晚顺序' : 'Night Order'}
@@ -268,48 +327,64 @@ export function NightOrderManager({ open, onClose, language }: Props) {
       <DialogContent sx={{ p: 0 }}>
         <Tabs
           value={tab}
-          onChange={(_, v) => setTab(v as 'first' | 'other')}
+          onChange={(_, v) => { setTab(v as 'first' | 'other'); setInsertAfterIndex(null) }}
           sx={{ borderBottom: 1, borderColor: 'divider', px: 2 }}
         >
-          <Tab value="first" label={zh ? '首夜' : 'First Night'} sx={{ textTransform: 'none', fontSize: '0.85rem' }} />
-          <Tab value="other" label={zh ? '其他夜' : 'Other Nights'} sx={{ textTransform: 'none', fontSize: '0.85rem' }} />
+          <Tab value="first" label={zh ? `首夜（${firstNight.length}）` : `First Night (${firstNight.length})`} sx={{ textTransform: 'none', fontSize: '0.85rem' }} />
+          <Tab value="other" label={zh ? `其他夜（${otherNights.length}）` : `Other Nights (${otherNights.length})`} sx={{ textTransform: 'none', fontSize: '0.85rem' }} />
         </Tabs>
 
-        {/* Scrollable list */}
-        <Box sx={{ maxHeight: 440, overflowY: 'auto', px: 1, py: 1 }}>
+        {/* Drag hint */}
+        <Box sx={{ px: 2, pt: 1, pb: 0.5 }}>
+          <Typography variant="caption" color="text.disabled" sx={{ fontSize: '0.68rem' }}>
+            {zh ? '拖拽手柄可排序 · 点击 + 可在该位置后插入' : 'Drag handle to reorder · Click + to insert after a row'}
+          </Typography>
+        </Box>
+
+        {/* Sortable list */}
+        <Box sx={{ maxHeight: '50vh', overflowY: 'auto', px: 1, pb: 1 }}>
           {currentList.length === 0 && (
             <Typography variant="body2" color="text.secondary" sx={{ p: 2, textAlign: 'center' }}>
               {zh ? '列表为空' : 'List is empty'}
             </Typography>
           )}
-          {currentList.map((id, index) => (
-            <CharRow
-              key={`${id}-${index}`}
-              id={id}
-              index={index}
-              total={currentList.length}
-              language={language}
-              onMoveUp={() => moveUp(index)}
-              onMoveDown={() => moveDown(index)}
-              onRemove={() => remove(index)}
-            />
-          ))}
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
+              {currentList.map((id, index) => (
+                <SortableCharRow
+                  key={`${id}__${index}`}
+                  id={id}
+                  index={index}
+                  language={language}
+                  onRemove={() => remove(index)}
+                  onInsertAfter={() => setInsertAfterIndex(insertAfterIndex === index ? null : index)}
+                  insertingAfter={insertAfterIndex === index}
+                  insertOptions={availableOptions}
+                  onInsertConfirm={(charId) => handleInsertAfter(index, charId)}
+                  onInsertCancel={() => setInsertAfterIndex(null)}
+                />
+              ))}
+            </SortableContext>
+          </DndContext>
         </Box>
 
-        {/* Add character */}
+        {/* Add at end */}
         <Box sx={{ px: 2, pb: 2, pt: 1, borderTop: 1, borderColor: 'divider' }}>
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.75, fontSize: '0.72rem' }}>
+            {zh ? '追加到末尾' : 'Append to end'}
+          </Typography>
           <Autocomplete
             size="small"
-            options={autocompleteOptions}
+            options={availableOptions}
             value={addValue}
             inputValue={addInputValue}
             onInputChange={(_, v) => setAddInputValue(v)}
-            onChange={handleAdd}
+            onChange={handleAddAtEnd}
             getOptionLabel={(id) => getCharLabel(id, language)}
             renderOption={(props, id) => {
               const icon = getIconForCharacter(id)
               return (
-                <Box component="li" {...props} sx={{ display: 'flex', alignItems: 'center', gap: 1, py: '4px !important' }}>
+                <Box component="li" {...props} sx={{ display: 'flex', alignItems: 'center', gap: 1, py: '3px !important' }}>
                   {icon ? (
                     <Box component="img" src={icon} alt="" sx={{ width: 20, height: 20, borderRadius: '50%', objectFit: 'contain', flexShrink: 0 }} />
                   ) : (
@@ -317,18 +392,13 @@ export function NightOrderManager({ open, onClose, language }: Props) {
                       <Typography sx={{ fontSize: '0.5rem', fontWeight: 700 }}>{id.slice(0, 2).toUpperCase()}</Typography>
                     </Box>
                   )}
-                  <Typography variant="body2" sx={{ fontSize: '0.82rem' }}>{getCharLabel(id, language)}</Typography>
+                  <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{getCharLabel(id, language)}</Typography>
                 </Box>
               )
             }}
             renderInput={(params) => (
-              <TextField
-                {...params}
-                placeholder={zh ? '搜索并添加角色…' : 'Search and add character…'}
-                size="small"
-              />
+              <TextField {...params} placeholder={zh ? '搜索并添加角色…' : 'Search and add character…'} size="small" />
             )}
-            sx={{ mt: 0.5 }}
           />
         </Box>
       </DialogContent>
