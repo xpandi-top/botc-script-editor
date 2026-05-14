@@ -55,6 +55,7 @@ import {
   editionLabels,
   getAbilityText,
   getAbilityTextForScript,
+  getCharacterById,
   getCustomChar,
   getDisplayName,
   getEffectiveAllCharacters,
@@ -442,7 +443,7 @@ export default function App() {
     [filteredEditorCharacters],
   )
 
-  const selectedCharacter = (characterById[selectedCharacterId] ?? filteredCharacters[0] ?? allCharacters[0])
+  const selectedCharacter = (getCharacterById(selectedCharacterId) ?? filteredCharacters[0] ?? allCharacters[0])
 
   useEffect(() => {
     if (selectedCharacter) setSelectedCharacterId(selectedCharacter.id)
