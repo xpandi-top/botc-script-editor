@@ -1,0 +1,26 @@
+{
+  "id": "knaves",
+  "team": "loric",
+  "edition": "loric",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Knaves",
+    "ability": "There are 2 Storytellers: one lies & one tells the truth. Once per game, at dusk, they might switch.",
+    "revisions": {
+      "v1": "There are 2 Storytellers: one lies & one tells the truth. Once per game, at dusk, they might switch."
+    }
+  },
+  "zh": {
+    "name": "诡诈杰克",
+    "ability": "场上有两位说书人：一人说真话，一人说假话。每局游戏限一次，他们可能会在黄昏互换。",
+    "revisions": {
+      "v1": "场上有两位说书人：一人说真话，一人说假话。每局游戏限一次，他们可能会在黄昏互换。"
+    }
+  }
+}
