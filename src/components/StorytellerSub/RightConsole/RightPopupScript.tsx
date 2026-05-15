@@ -46,7 +46,7 @@ export function RightPopupScript({ ctx }: { ctx: StorytellerContext }) {
         <ListItem key="minion-info" sx={{ py: 0.5 }}>
           <ListItemText
             primary={language === 'zh' ? '——爪牙信息——' : '— Minion Info —'}
-            primaryTypographyProps={{ variant: 'caption', color: 'primary', fontWeight: 600, textAlign: 'center' }}
+            primaryTypographyProps={{ variant: 'caption', color: 'warning.main', fontWeight: 600, textAlign: 'center' }}
           />
         </ListItem>
       )

@@ -1,24 +1,26 @@
 import type { StorytellerContext } from './useStoryteller'
 import React from 'react'
-import { Drawer, Box, Typography, Button, Tabs, Tab, List, ListItem, ListItemButton, Tooltip, IconButton } from '@mui/material'
+import { Drawer, Box, Typography, Button, Tabs, Tab, List, ListItem, ListItemButton, Tooltip, IconButton, useTheme } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import MenuBookIcon from '@mui/icons-material/MenuBook'
 import { getEffectiveNightOrderFromRegistry, getDisplayName, getIconForCharacter, getAbilityTextForScript, characterById } from '../../catalog'
 import { Divider } from '@mui/material'
 
 const TEAM_ORDER = ['townsfolk', 'outsider', 'minion', 'demon', 'traveler'] as const
-const TEAM_LABELS: Record<string, { en: string; zh: string; color: string }> = {
-  townsfolk: { en: 'Townsfolk', zh: '镇民', color: '#1565c0' },
-  outsider:  { en: 'Outsider',  zh: '外来者', color: '#0277bd' },
-  minion:    { en: 'Minion',    zh: '爪牙', color: '#b71c1c' },
-  demon:     { en: 'Demon',     zh: '恶魔', color: '#7b1fa2' },
-  traveler:  { en: 'Traveler',  zh: '旅行者', color: '#2e7d32' },
+const TEAM_LABELS: Record<string, { en: string; zh: string; light: string; dark: string }> = {
+  townsfolk: { en: 'Townsfolk', zh: '镇民',   light: '#1565c0', dark: '#90caf9' },
+  outsider:  { en: 'Outsider',  zh: '外来者', light: '#0277bd', dark: '#80deea' },
+  minion:    { en: 'Minion',    zh: '爪牙',   light: '#b71c1c', dark: '#ef9a9a' },
+  demon:     { en: 'Demon',     zh: '恶魔',   light: '#7b1fa2', dark: '#ce93d8' },
+  traveler:  { en: 'Traveler',  zh: '旅行者', light: '#2e7d32', dark: '#a5d6a7' },
 }
 
 type ScriptView = 'characters' | 'firstNight' | 'otherNight'
 
 export function LeftScriptPanel({ ctx, inlineMode = false }: { ctx: StorytellerContext; inlineMode?: boolean }) {
   const { language, currentScriptCharacters, activeScriptTitle, setShowScriptPanel, showScriptPanel, scriptOptions, activeScriptSlug } = ctx
+  const muiTheme = useTheme()
+  const isDark = muiTheme.palette.mode === 'dark'
   const pinnedRevisions = scriptOptions?.find((s) => s.slug === activeScriptSlug)?.pinnedRevisions
 
   const isDay1 = ctx.days.length === 0 || (ctx.days.length === 1 && ctx.days[0].day === 1)
@@ -50,8 +52,8 @@ export function LeftScriptPanel({ ctx, inlineMode = false }: { ctx: StorytellerC
   const renderNightList = (ids: string[]) => {
     if (!ids.length) return <ListItem sx={{ justifyContent: 'center' }}><Typography variant="body2">—</Typography></ListItem>
     return ids.map((id, i) => {
-      if (id === 'MINION_INFO') return <ListItem key="minion-info" sx={{ justifyContent: 'center' }}><Typography variant="caption" sx={{ fontWeight: 700, color: 'primary.main' }}>{language === 'zh' ? '—爪牙信息—' : '— Minion Info —'}</Typography></ListItem>
-      if (id === 'DEMON_INFO') return <ListItem key="demon-info" sx={{ justifyContent: 'center' }}><Typography variant="caption" sx={{ fontWeight: 700, color: 'primary.main' }}>{language === 'zh' ? '—恶魔信息—' : '— Demon Info —'}</Typography></ListItem>
+      if (id === 'MINION_INFO') return <ListItem key="minion-info" sx={{ justifyContent: 'center' }}><Typography variant="caption" sx={{ fontWeight: 700, color: isDark ? TEAM_LABELS.minion.dark : TEAM_LABELS.minion.light }}>{language === 'zh' ? '—爪牙信息—' : '— Minion Info —'}</Typography></ListItem>
+      if (id === 'DEMON_INFO') return <ListItem key="demon-info" sx={{ justifyContent: 'center' }}><Typography variant="caption" sx={{ fontWeight: 700, color: isDark ? TEAM_LABELS.demon.dark : TEAM_LABELS.demon.light }}>{language === 'zh' ? '—恶魔信息—' : '— Demon Info —'}</Typography></ListItem>
       const icon = getIconForCharacter(id)
       const name = getDisplayName(id, language)
       const isSelected = selectedCharId === id
@@ -123,7 +125,7 @@ export function LeftScriptPanel({ ctx, inlineMode = false }: { ctx: StorytellerC
                   return (
                     <Box key={team}>
                       {si > 0 && <Divider sx={{ my: 0.75 }} />}
-                      <Typography variant="caption" sx={{ display: 'block', fontWeight: 700, px: 1, py: 0.5, color: info.color, letterSpacing: '0.06em', textTransform: 'uppercase', fontSize: '0.7rem' }}>
+                      <Typography variant="caption" sx={{ display: 'block', fontWeight: 700, px: 1, py: 0.5, color: isDark ? info.dark : info.light, letterSpacing: '0.06em', textTransform: 'uppercase', fontSize: '0.7rem' }}>
                         {language === 'zh' ? info.zh : info.en} ({byTeam[team].length})
                       </Typography>
                       <List dense sx={{ py: 0 }}>

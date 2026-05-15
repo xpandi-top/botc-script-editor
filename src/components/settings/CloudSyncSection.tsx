@@ -65,7 +65,7 @@ export function CloudSyncSection({ cloud, language }: {
               ? '在 Google Cloud Console → Authorized redirect URIs 中添加此地址：'
               : 'Add this URI to Google Cloud Console → Authorized redirect URIs:'}
           </Typography>
-          <Box component="code" sx={{ fontSize: '0.8rem', wordBreak: 'break-all', color: 'primary.main', fontWeight: 600 }}>
+          <Box component="code" sx={{ fontSize: '0.8rem', wordBreak: 'break-all', color: 'text.primary', fontWeight: 600 }}>
             {getRedirectUri()}
           </Box>
         </Box>
@@ -87,7 +87,7 @@ export function CloudSyncSection({ cloud, language }: {
               <Box component="a"
                 href="https://console.cloud.google.com/apis/credentials"
                 target="_blank" rel="noopener noreferrer"
-                sx={{ color: 'primary.main', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}>
+                sx={{ color: 'info.main', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}>
                 {zh ? '打开 Cloud Console →' : 'Open Cloud Console →'}
               </Box>
             </Typography>
@@ -174,7 +174,7 @@ export function CloudSyncSection({ cloud, language }: {
             <Box sx={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               {isBusy ? (
                 <>
-                  <CloudSyncIcon sx={{ fontSize: 36, color: 'primary.dark' }} />
+                  <CloudSyncIcon sx={{ fontSize: 36, color: 'primary.light' }} />
                   <CircularProgress size={44} thickness={3} sx={{ position: 'absolute', color: 'primary.main' }} />
                 </>
               ) : isError ? (
@@ -184,18 +184,18 @@ export function CloudSyncSection({ cloud, language }: {
               )}
             </Box>
             <Box sx={{ flex: 1 }}>
-              <Typography variant="subtitle1" sx={{ fontWeight: 700, color: isError ? 'error.dark' : isBusy ? 'primary.dark' : 'success.dark' }}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 700, color: isError ? 'error.dark' : isBusy ? 'primary.light' : 'success.dark' }}>
                 {isBusy
                   ? (cloud.status === 'pulling' ? t('pulling_from_drive') : t('pushing_to_drive'))
                   : isError ? t('sync_failed')
                   : t('connected_google_drive')}
               </Typography>
               {cloud.userInfo && (
-                <Typography variant="body2" sx={{ fontWeight: 600, color: isError ? 'error.dark' : isBusy ? 'primary.dark' : 'success.dark' }}>
+                <Typography variant="body2" sx={{ fontWeight: 600, color: isError ? 'error.dark' : isBusy ? 'primary.light' : 'success.dark' }}>
                   {cloud.userInfo.name} · {cloud.userInfo.email}
                 </Typography>
               )}
-              <Typography variant="body2" sx={{ color: isError ? 'error.dark' : isBusy ? 'primary.dark' : 'success.dark', opacity: 0.85 }}>
+              <Typography variant="body2" sx={{ color: isError ? 'error.dark' : isBusy ? 'primary.light' : 'success.dark', opacity: 0.85 }}>
                 {isError
                   ? (cloud.errorMessage ?? (zh ? '请检查网络或重新授权' : 'Check network or reconnect'))
                   : cloud.lastSynced
