@@ -8,6 +8,36 @@ Release timeline for BOTC Companion — features, fixes, and improvements.
 
 ---
 
+## 2026-05-15
+
+### Added
+- **Drunk/poisoned MUI icon badges** — `StatusBadge` component uses `LocalBarIcon` / `ScienceIcon`; click-to-popover shows enlarged label + icon, matching other tag chips
+- **Source character icon on ST tags** — when a skill applies `drunk::washerwoman`, the Washerwoman portrait appears on the drunk badge
+- **Script tags redesign** — replaced WIP/Balanced/Experimental/Needs Review/Archived with `favorite` / `good` / `bad` / `excellent`; each tag has a MUI icon (⭐/👍/👎/✨) and EN/ZH label; font size increased
+- **Tag-based script filter** — left-panel filter chips now use predefined tags (Favorite/Good/Bad/Excellent) + any custom tags; edition filter removed; chips render in active language
+- **`red_herring` locale key** — added EN "Red Herring" and ZH "干扰项" to both locale files and `UiKey` union
+
+### Changed
+- **ST tag i18n** — `translateStTag()` + `ST_TAG_KEY_MAP` centralize tag label translation; drunk/poisoned/protected/used/red herring shown in active language throughout (seat cards, player modal, event log)
+- **i18n centralization continued** — fixed remaining hardcoded `zh ? '…' : '…'` ternaries in Storyteller components; game-term locale keys added (`nomination`, `execution`, `vote`, `drunk`, `poisoned`, `demon_bluffs`, etc.)
+- **Night phase gating** — drunk/poisoned badges only visible during night phase with "show characters" enabled (was always visible)
+
+### Fixed
+- **`t2 is not a function` crash in BgmBar** — `audioTracks.map((t) =>` shadowed `const t = makeT(language)`; renamed to `track`
+- **`t2 is not a function` crash in ArenaSeatPlayerModal** — three `map((t) =>` callbacks shadowed translation function; renamed to `skillKey` / `tag`
+- **ST tags showing English in Chinese mode** — player modal default tag list and existing stTags list now use `translateStTag(label, language)` for display
+- **Event log ST tag entries in English** — `stTagDetail()` in `useGameActions` now calls `translateStTag` for label and `logPhrase` for verb; ZH logs show Chinese labels
+- **ZH translation correction** — "red herring" was `障眼法`; corrected to `干扰项`
+
+### Tests
+- 135 new unit/integration tests added (410 total, 16 files)
+- `languageSwitch.test.ts` (42) — `logPhrase`, `logDetail`, `makeT`, `translateStTag` EN↔ZH coverage
+- `stTagFlow.test.ts` (27) — ST tag parse format, add/remove log strings EN/ZH, case-insensitive lookup
+- `nightPhase.test.ts` (13) — dense-rank wake-order algorithm, night order registry structure
+- `uiRender.test.tsx` (53) — render sanity for `CharacterCircle`, `LogDetailText`, `VoteButtonGroup`, `RoundRobinIndicator`, `NominationHistory`, `PlayerNightLog`; `noText()` helper asserts no `undefined`/`[object Object]` DOM leakage
+
+---
+
 ## 2026-05-14
 
 ### Added
