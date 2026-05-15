@@ -276,31 +276,34 @@ Covers all tabs and major user flows. Tests are grouped by tab, then by use case
 
 ## Automated Test Coverage (2026-05-14)
 
-### Currently implemented — 275 unit/integration tests
+### Currently implemented — 357 unit/integration tests
 
 | File | Count | Covers |
 |------|-------|--------|
-| `catalog.test.ts` | 30+ | Character lookup, ability text, revisions |
-| `seats.test.ts` | 20+ | Voter eligibility, required vote count |
-| `votes.test.ts` | 20+ | Vote draft/state, count logic |
-| `logFilter.test.ts` | 15+ | Event log filtering |
-| `playerLog.test.ts` | 15+ | Per-player log entry building |
-| `NominationVoteList.test.tsx` | 9 | Threshold chip, death marker, ZH locale |
+| `catalog.test.ts` | 17 | Character lookup, ability text, revisions |
+| `seats.test.ts` | 27 | Voter eligibility, required vote count |
+| `votes.test.ts` | 14 | Vote draft/state, count logic |
+| `logFilter.test.ts` | 27 | Event log filtering |
+| `playerLog.test.ts` | 40 | Per-player log entry building |
+| `NominationVoteList.test.tsx` | 10 | Threshold chip, death marker, ZH locale |
 | `statusBadgeAndTags.test.tsx` | 13 | translateStTag EN/ZH, TagChip popover, StatusBadge |
-| `storytellerFixes.test.ts` | 30+ | Phase transitions, undo/redo, seat mutations |
-| `saveBeforeNewGame.test.ts` | 10+ | Save-before-new-game flow |
-| `gameExport.test.ts` | 10+ | Record export format |
-| `urlBgm.test.ts` | 15+ | BGM URL track management |
-| `PrintOptionsDialog.test.ts` | 10+ | Print settings persistence |
+| `storytellerFixes.test.ts` | 20 | Phase transitions, undo/redo, seat mutations |
+| `saveBeforeNewGame.test.ts` | 10 | Save-before-new-game flow |
+| `gameExport.test.ts` | 13 | Record export format |
+| `urlBgm.test.ts` | 22 | BGM URL track management |
+| `PrintOptionsDialog.test.ts` | 15 | Print settings persistence |
+| `languageSwitch.test.ts` | 42 | logPhrase/logDetail/makeT/translateStTag EN↔ZH |
+| `stTagFlow.test.ts` | 27 | ST tag parse, add/remove log in EN/ZH, case-insensitive |
+| `nightPhase.test.ts` | 13 | Wake-order dense-rank algorithm, nightOrder registry |
 
 ### Priority queue — next tests to add
 
 | Priority | Test scenario | File to create |
 |----------|--------------|----------------|
-| P0 | Language toggle: ZH labels on key ST components | `languageSwitch.test.tsx` |
-| P0 | ST tag add → log entry in correct language | `stTagFlow.test.tsx` |
+| ✅ P0 | Language toggle: ZH labels on key ST components | `languageSwitch.test.ts` |
+| ✅ P0 | ST tag add → log entry in correct language | `stTagFlow.test.ts` |
+| ✅ P1 | Night phase: wake order badge render | `nightPhase.test.ts` |
 | P1 | Nomination cycle: threshold → death badge | Already partially in `NominationVoteList.test.tsx` |
-| P1 | Night phase: wake order badge render | `nightPhase.test.tsx` |
 | P2 | Playwright: tab navigation screenshots | `e2e/tabNav.spec.ts` |
 | P2 | Playwright: game walkthrough (new→night→vote→result) | `e2e/gameFlow.spec.ts` |
 | P3 | Playwright: modal open/close (all 6 modals) | `e2e/modals.spec.ts` |
