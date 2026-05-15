@@ -72,7 +72,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
     goToNextDay, goToPreviousDay, setSelectedDayId, setDialogState,
     hasTimer, currentTimerSeconds, isTimerRunning, setIsTimerRunning,
     setCurrentTimer, syncDayTimers, setPickerMode,
-    audioPlaying, setAudioPlaying, startNight, stopNight,
+    audioPlaying, setAudioPlaying, startNight, stopNight, sendYTCommand,
     audioTracks, selectedAudioSrc, setSelectedAudioSrc, bgmVolume, setBgmVolume,
     handleLocalFileChange, handleUrlTrackAdd, deleteTrack, renameTrack,
     canNominate, secondsUntilNomination,
@@ -382,7 +382,13 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
             <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 1, flexDirection: 'column' }}>
               <BgmBar
                 audioPlaying={audioPlaying}
-                onTogglePlay={() => audioPlaying ? setAudioPlaying(false) : startNight()}
+                onTogglePlay={() => {
+                  // Call sendYTCommand SYNCHRONOUSLY here — inside the user gesture.
+                  // On iOS Safari postMessage to a cross-origin iframe must happen
+                  // in the same call stack as the gesture; useEffect fires too late.
+                  if (audioPlaying) { sendYTCommand('pauseVideo'); setAudioPlaying(false) }
+                  else { sendYTCommand('playVideo'); startNight() }
+                }}
                 onStop={stopNight}
                 audioTracks={audioTracks}
                 selectedAudioSrc={selectedAudioSrc}

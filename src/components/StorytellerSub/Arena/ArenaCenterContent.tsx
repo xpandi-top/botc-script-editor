@@ -47,7 +47,7 @@ export function ArenaCenterContent({ ctx }: { ctx: StorytellerContext }) {
     language, text, currentDay, updateCurrentDay,
     hasTimer, currentTimerSeconds, isTimerRunning, setIsTimerRunning,
     setCurrentTimer, syncDayTimers, setPickerMode,
-    audioPlaying, setAudioPlaying, startNight, stopNight,
+    audioPlaying, setAudioPlaying, startNight, stopNight, sendYTCommand,
     audioTracks, selectedAudioSrc, setSelectedAudioSrc, bgmVolume, setBgmVolume,
     handleLocalFileChange, handleUrlTrackAdd, deleteTrack, renameTrack,
     canNominate, secondsUntilNomination,
@@ -90,7 +90,10 @@ export function ArenaCenterContent({ ctx }: { ctx: StorytellerContext }) {
     <>
       <BgmBar
         audioPlaying={audioPlaying}
-        onTogglePlay={() => audioPlaying ? setAudioPlaying(false) : startNight()}
+        onTogglePlay={() => {
+          if (audioPlaying) { sendYTCommand('pauseVideo'); setAudioPlaying(false) }
+          else { sendYTCommand('playVideo'); startNight() }
+        }}
         onStop={stopNight}
         audioTracks={audioTracks}
         selectedAudioSrc={selectedAudioSrc}

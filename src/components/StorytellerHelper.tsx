@@ -20,18 +20,21 @@ export function StorytellerHelper(props: StorytellerHelperProps) {
 
   // Keep the iframe in the DOM whenever a YouTube track is selected — even when paused.
   // Mobile Safari blocks autoplay on freshly-mounted iframes (gesture chain broken by React
-  // render cycle). Instead we pre-load the iframe and command it via postMessage (playVideo /
-  // pauseVideo) which Safari honours because the gesture already occurred on this page.
-  // Size: 1×1 off-screen — Safari may ignore postMessage on 0×0 elements.
+  // render cycle). Instead we pre-load the iframe with enablejsapi=1 and command it via
+  // postMessage (playVideo/pauseVideo) called SYNCHRONOUSLY inside the gesture handler.
+  //
+  // No sandbox attribute: sandbox restricts the iframe's feature policy and on iOS Safari
+  // it blocks the autoplay permission even when allow="autoplay" is set.
+  // The video ID is validated to [\w-]{1,32} before the src is built, so XSS is not a concern.
+  //
+  // Size: 1×1 off-screen — Safari can ignore postMessage on truly 0×0 elements.
   const ytIframe = ctx.youtubeEmbedSrc
     ? (
       <iframe
         ref={ctx.ytIframeRef}
         src={ctx.youtubeEmbedSrc}
-        style={{ position: 'absolute', width: 1, height: 1, border: 0, top: -2, left: -2, overflow: 'hidden', opacity: 0, pointerEvents: 'none' }}
-        allow="autoplay; encrypted-media; gyroscope; accelerometer"
-        allowFullScreen={false}
-        sandbox="allow-scripts allow-same-origin allow-presentation"
+        style={{ position: 'fixed', width: 1, height: 1, border: 0, bottom: 0, left: -2, overflow: 'hidden', opacity: 0, pointerEvents: 'none' }}
+        allow="autoplay; encrypted-media; gyroscope; accelerometer; fullscreen"
         title="BGM"
       />
     )
