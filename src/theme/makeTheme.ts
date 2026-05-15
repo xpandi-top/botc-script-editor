@@ -45,11 +45,31 @@ export function makeTheme(mode: ThemeMode) {
   }
   const shadow = isDark ? darkShadow : SHADOW
 
+  // Semantic color palettes — dark mode uses lighter shades so .dark/.main
+  // variants are readable on dark backgrounds (MUI defaults keep #c62828 / #1b5e20
+  // which are near-invisible on dark surfaces).
+  const errorPalette = isDark
+    ? { main: '#ef5350', light: '#ff6b6b', dark: '#ff8a80', contrastText: '#fff' }
+    : undefined
+  const successPalette = isDark
+    ? { main: '#66bb6a', light: '#81c784', dark: '#a5d6a7', contrastText: 'rgba(0,0,0,0.87)' }
+    : undefined
+  const warningPalette = isDark
+    ? { main: '#ffa726', light: '#ffb74d', dark: '#ffd54f', contrastText: 'rgba(0,0,0,0.87)' }
+    : undefined
+  const infoPalette = isDark
+    ? { main: '#4fc3f7', light: '#81d4fa', dark: '#b3e5fc', contrastText: 'rgba(0,0,0,0.87)' }
+    : undefined
+
   return createTheme({
     palette: {
       mode: resolved,
       primary,
       secondary,
+      ...(errorPalette   && { error:   errorPalette }),
+      ...(successPalette && { success: successPalette }),
+      ...(warningPalette && { warning: warningPalette }),
+      ...(infoPalette    && { info:    infoPalette }),
       background: { default: bg.page, paper: bg.surface },
       text: { primary: ink.primary, secondary: ink.secondary, disabled: ink.muted },
       divider: bdr.subtle,
