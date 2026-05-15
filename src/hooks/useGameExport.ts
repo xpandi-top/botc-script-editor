@@ -6,6 +6,7 @@ export interface ExportDeps {
   currentDay: DayState
   activeScriptSlug?: string
   activeScriptTitle?: string
+  activeScriptVersion?: string
   endGameResult: EndGameResult | null
   timerDefaults: TimerDefaults
   customTagPool?: string[]
@@ -31,7 +32,7 @@ function downloadJson(data: unknown, filename: string) {
 
 export function buildGameExport(deps: ExportDeps) {
   const {
-    days, currentDay, activeScriptSlug, activeScriptTitle,
+    days, currentDay, activeScriptSlug, activeScriptTitle, activeScriptVersion,
     endGameResult, timerDefaults, customTagPool = [], playerNamePool = [],
     stFabledIds = [], stCustomRules = '', setGameRecords, setCurrentRecordName,
     gameStartedAt, stName,
@@ -95,6 +96,7 @@ export function buildGameExport(deps: ExportDeps) {
       durationMs: gameStartedAt ? savedAt - gameStartedAt : undefined,
       recordName,
       scriptTitle: activeScriptTitle,
+      scriptVersion: activeScriptVersion,
       scriptSlug: activeScriptSlug,
       winner: survey?.winner ?? null,
       playerSummaries: currentDay.seats.map((s) => ({

@@ -197,7 +197,7 @@ export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: Storyt
                     <Chip size="small" icon={<WbSunnyIcon sx={{ fontSize: '0.8rem' }} />} label={`${rec.days?.length ?? 1}${t('day_short')}`} />
                     <Chip size="small" icon={<HowToVoteIcon sx={{ fontSize: '0.8rem' }} />} label={`${totalVotes}${t('vote_short')}`} />
                     <Chip size="small" icon={<AutoFixHighIcon sx={{ fontSize: '0.8rem' }} />} label={`${totalSkills}${t('ability_short')}`} />
-                    {rec.scriptTitle && <Chip size="small" icon={<AutoStoriesIcon sx={{ fontSize: '0.8rem' }} />} label={rec.scriptTitle} sx={{ maxWidth: 120, '& .MuiChip-label': { overflow: 'hidden', textOverflow: 'ellipsis' } }} />}
+                    {rec.scriptTitle && <Chip size="small" icon={<AutoStoriesIcon sx={{ fontSize: '0.8rem' }} />} label={rec.scriptVersion ? `${rec.scriptTitle} v${rec.scriptVersion}` : rec.scriptTitle} sx={{ maxWidth: 150, '& .MuiChip-label': { overflow: 'hidden', textOverflow: 'ellipsis' } }} />}
                   </Box>
 
                   {/* Player summary (expand) */}

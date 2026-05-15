@@ -12,6 +12,7 @@ interface LifecycleDeps {
   timerDefaults: TimerDefaults
   activeScriptSlug?: string
   activeScriptTitle?: string
+  activeScriptVersion?: string
   endGameResult: EndGameResult | null
   scriptOptions: Array<{ slug: string; characters: string[] }>
   onSelectScript?: (slug: string) => void
@@ -53,9 +54,9 @@ interface LifecycleDeps {
 }
 
 export function buildGameLifecycle(deps: LifecycleDeps) {
-  const { days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, endGameResult, scriptOptions, onSelectScript, setDays, setDaysWithUndo, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay, setNewGamePanel, setShowNewGamePanel, setEndGameResult, setGameRecords, setAudioPlaying, language, appendEvent, customTagPool = [], playerNamePool = [], setCurrentRecordName, setTimerDefaults, setCustomTagPool, setPlayerNamePool, setShowEndGameModal, setNightShowCharacter, setNightShowWakeOrder, stFabledIds = [], stCustomRules = '', setStFabledIds, setStCustomRules, stName, setStName, gameStartedAt, setGameStartedAt, setShowSaveBeforeNewGame, setPendingNewGameAfterSave } = deps
+  const { days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, activeScriptVersion, endGameResult, scriptOptions, onSelectScript, setDays, setDaysWithUndo, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay, setNewGamePanel, setShowNewGamePanel, setEndGameResult, setGameRecords, setAudioPlaying, language, appendEvent, customTagPool = [], playerNamePool = [], setCurrentRecordName, setTimerDefaults, setCustomTagPool, setPlayerNamePool, setShowEndGameModal, setNightShowCharacter, setNightShowWakeOrder, stFabledIds = [], stCustomRules = '', setStFabledIds, setStCustomRules, stName, setStName, gameStartedAt, setGameStartedAt, setShowSaveBeforeNewGame, setPendingNewGameAfterSave } = deps
 
-  const exportActions = buildGameExport({ days, currentDay, activeScriptSlug, activeScriptTitle, endGameResult, timerDefaults, customTagPool, playerNamePool, stFabledIds, stCustomRules, setGameRecords, setCurrentRecordName, gameStartedAt, stName })
+  const exportActions = buildGameExport({ days, currentDay, activeScriptSlug, activeScriptTitle, activeScriptVersion, endGameResult, timerDefaults, customTagPool, playerNamePool, stFabledIds, stCustomRules, setGameRecords, setCurrentRecordName, gameStartedAt, stName })
 
   function goToNextDay() {
     setNightShowCharacter?.(false)

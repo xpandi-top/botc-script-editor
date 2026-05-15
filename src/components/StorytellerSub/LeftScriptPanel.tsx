@@ -18,7 +18,7 @@ const TEAM_LABELS: Record<string, { en: string; zh: string; light: string; dark:
 type ScriptView = 'characters' | 'firstNight' | 'otherNight'
 
 export function LeftScriptPanel({ ctx, inlineMode = false }: { ctx: StorytellerContext; inlineMode?: boolean }) {
-  const { language, currentScriptCharacters, activeScriptTitle, setShowScriptPanel, showScriptPanel, scriptOptions, activeScriptSlug } = ctx
+  const { language, currentScriptCharacters, activeScriptTitle, activeScriptVersion, setShowScriptPanel, showScriptPanel, scriptOptions, activeScriptSlug } = ctx
   const muiTheme = useTheme()
   const isDark = muiTheme.palette.mode === 'dark'
   const pinnedRevisions = scriptOptions?.find((s) => s.slug === activeScriptSlug)?.pinnedRevisions
@@ -83,7 +83,7 @@ export function LeftScriptPanel({ ctx, inlineMode = false }: { ctx: StorytellerC
     <>
       <Box sx={{ p: 1.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid', borderBottomColor: 'divider', flexShrink: 0 }}>
         <Typography variant="h6" sx={{ fontSize: '0.9rem', fontWeight: 700, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          {activeScriptTitle || (language === 'zh' ? '剧本' : 'Script')}
+          {activeScriptTitle || (language === 'zh' ? '剧本' : 'Script')}{activeScriptVersion && <Typography component="span" variant="caption" sx={{ ml: 0.75, color: 'text.secondary', fontFamily: 'monospace' }}>v{activeScriptVersion}</Typography>}
         </Typography>
         {!inlineMode && (
           <Button size="small" variant="outlined" onClick={() => setShowScriptPanel(false)} startIcon={<CloseIcon fontSize="small" />}>

@@ -8,7 +8,7 @@ import { BgmBar } from './BgmBar'
 
 export function CompactToolbar({ ctx }: { ctx: StorytellerContext }) {
   const {
-    activeScriptTitle, language, onLanguageChange, currentDay, aliveCount, totalCount,
+    activeScriptTitle, activeScriptVersion, language, onLanguageChange, currentDay, aliveCount, totalCount,
     audioPlaying, setAudioPlaying, audioTracks, selectedAudioSrc, setSelectedAudioSrc,
     handleLocalFileChange, handleUrlTrackAdd, deleteTrack, renameTrack, openNewGamePanel, openEndGamePanel,
     setShowRightPanel, openCharacterEditor, showScriptPanel, setShowScriptPanel,
@@ -38,7 +38,7 @@ export function CompactToolbar({ ctx }: { ctx: StorytellerContext }) {
 
         {activeScriptTitle && (
           <Chip
-            label={activeScriptTitle}
+            label={activeScriptVersion ? `${activeScriptTitle} v${activeScriptVersion}` : activeScriptTitle}
             onClick={() => setShowScriptPanel((p: boolean) => !p)}
             color={showScriptPanel ? 'primary' : 'default'}
             variant={showScriptPanel ? 'filled' : 'outlined'}

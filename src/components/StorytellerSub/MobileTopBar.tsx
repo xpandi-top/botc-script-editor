@@ -13,7 +13,7 @@ const PHASE_COLORS: Record<string, string> = {
 export function MobileTopBar({ ctx }: { ctx: StorytellerContext }) {
   const {
     text, currentDay, aliveCount, totalCount,
-    activeScriptTitle, showScriptPanel, setShowScriptPanel,
+    activeScriptTitle, activeScriptVersion, showScriptPanel, setShowScriptPanel,
     setShowRightPanel, undo, canUndo,
     language, onLanguageChange,
   } = ctx
@@ -48,7 +48,7 @@ export function MobileTopBar({ ctx }: { ctx: StorytellerContext }) {
 
         {activeScriptTitle && (
           <Chip
-            label={activeScriptTitle}
+            label={activeScriptVersion ? `${activeScriptTitle} v${activeScriptVersion}` : activeScriptTitle}
             onClick={() => setShowScriptPanel((p: boolean) => !p)}
             color={showScriptPanel ? 'primary' : 'default'}
             variant={showScriptPanel ? 'filled' : 'outlined'}

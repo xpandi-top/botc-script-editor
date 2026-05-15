@@ -10,7 +10,7 @@ type ScriptView = 'characters' | 'firstNight' | 'otherNight'
 
 export function RightPopupScript({ ctx }: { ctx: StorytellerContext }) {
   const {
-    language, currentScriptCharacters, activeScriptTitle, days,
+    language, currentScriptCharacters, activeScriptTitle, activeScriptVersion, days,
     setActiveRightPopup, text, scriptOptions, activeScriptSlug,
   } = ctx
   const pinnedRevisions = scriptOptions?.find((s) => s.slug === activeScriptSlug)?.pinnedRevisions
@@ -83,7 +83,9 @@ export function RightPopupScript({ ctx }: { ctx: StorytellerContext }) {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, borderBottom: '1px solid', borderColor: 'divider' }}>
-        <Typography variant="h6" sx={{ fontWeight: 600 }}>{activeScriptTitle}</Typography>
+        <Typography variant="h6" sx={{ fontWeight: 600 }}>
+          {activeScriptTitle}{activeScriptVersion && <Typography component="span" variant="caption" sx={{ ml: 0.75, color: 'text.secondary', fontFamily: 'monospace', fontWeight: 400 }}>v{activeScriptVersion}</Typography>}
+        </Typography>
         <IconButton size="small" onClick={() => setActiveRightPopup(null)}>
           <CloseIcon />
         </IconButton>

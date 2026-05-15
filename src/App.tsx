@@ -822,7 +822,7 @@ export default function App() {
           language={uiLanguage}
           onLanguageChange={setUiLanguage}
           onSelectScript={setStActiveSlug}
-          scriptOptions={scripts.map((s) => ({ slug: s.slug, title: getScriptTitle(s), characters: s.characters, pinnedRevisions: s.pinnedRevisions }))}
+          scriptOptions={scripts.map((s) => ({ slug: s.slug, title: getScriptTitle(s), version: s.version, characters: s.characters, pinnedRevisions: s.pinnedRevisions }))}
         />
       )}
       {/* ── Mobile bottom navigation ── */}
