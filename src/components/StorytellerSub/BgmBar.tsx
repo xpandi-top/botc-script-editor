@@ -136,7 +136,7 @@ export function BgmBar({
       }}>
 
         {/* Play / Pause */}
-        <Tooltip title={audioPlaying ? (zh ? '暂停BGM' : 'Pause BGM') : t('play_bgm')}>
+        <Tooltip title={audioPlaying ? t('stop_bgm') : t('play_bgm')}>
           <IconButton
             size={iconSize}
             onClick={onTogglePlay}
@@ -172,12 +172,12 @@ export function BgmBar({
             ...selectSx,
           }}
         >
-          {(audioTracks ?? []).map((t) => (
+          {(audioTracks ?? []).map((track) => (
             <MenuItem
-              key={t.src} value={t.src}
+              key={track.src} value={track.src}
               sx={{ fontSize: '0.75rem', display: 'flex', justifyContent: 'space-between', gap: 1, pr: 0.5 }}
             >
-              {renamingSrc === t.src ? (
+              {renamingSrc === track.src ? (
                 <TextField
                   size="small" autoFocus
                   value={renameValue}
@@ -199,21 +199,21 @@ export function BgmBar({
                 />
               ) : (
                 <>
-                  <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.name}</span>
-                  {renameTrack && !INITIAL_SRCS.has(t.src) && (
+                  <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>{track.name}</span>
+                  {renameTrack && !INITIAL_SRCS.has(track.src) && (
                     <IconButton
                       size="small"
-                      onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); startRename(t.src, t.name) }}
+                      onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); startRename(track.src, track.name) }}
                       sx={{ p: 0.25, flexShrink: 0 }}
                       title={t('rename')}
                     >
                       <DriveFileRenameOutlineIcon sx={{ fontSize: '0.75rem' }} />
                     </IconButton>
                   )}
-                  {deleteTrack && !INITIAL_SRCS.has(t.src) && (
+                  {deleteTrack && !INITIAL_SRCS.has(track.src) && (
                     <IconButton
                       size="small"
-                      onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); deleteTrack(t.src) }}
+                      onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); deleteTrack(track.src) }}
                       sx={{ p: 0.25, flexShrink: 0 }}
                       title={t('remove')}
                     >
