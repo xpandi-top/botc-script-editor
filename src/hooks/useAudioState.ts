@@ -125,15 +125,16 @@ export function useAudioState() {
 
   // Play / pause
   useEffect(() => {
-    const audio = audioRef.current
-    if (!audio) return
     const track = audioTracksRef.current.find((t) => t.src === selectedAudioSrc)
     if (track?.type === 'youtube') {
       // Use postMessage so Mobile Safari honours the user-gesture that caused this effect.
       // The iframe stays mounted; we command it rather than toggling its src.
+      // YouTube path does not need audioRef, so check it first.
       sendYTCommand(audioPlaying ? 'playVideo' : 'pauseVideo')
       return
     }
+    const audio = audioRef.current
+    if (!audio) return
     if (audioPlaying) audio.play().catch(() => {})
     else audio.pause()
     // eslint-disable-next-line react-hooks/exhaustive-deps
