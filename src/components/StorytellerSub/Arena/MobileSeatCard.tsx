@@ -2,13 +2,13 @@
 import type { StorytellerSeat } from '../types'
 import type { StorytellerContext } from '../useStoryteller'
 import React, { useState } from 'react'
-import { Box, IconButton, Chip, Paper, useTheme } from '@mui/material'
+import { Box, IconButton, Chip, Paper, Tooltip, useTheme } from '@mui/material'
 import CheckIcon from '@mui/icons-material/Check'
 import CloseIcon from '@mui/icons-material/Close'
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked'
 import { ArenaSeatPlayerModal } from './ArenaSeatPlayerModal'
 import { CharacterCircle } from './CharacterCircle'
-import { getDisplayName, getIconForCharacter, getEffectiveNightOrderFromRegistry } from '../../../catalog'
+import { getDisplayName, getIconForCharacter, getEffectiveNightOrderFromRegistry, getAbilityText } from '../../../catalog'
 import { VoteButtonGroup, TagChip } from './ArenaSeatComponents'
 
 
@@ -50,6 +50,15 @@ export function MobileSeatCard({ ctx, seat, side = 'left' }: { ctx: StorytellerC
   const perceivedCharId = seat.userCharacterId || seat.characterId
   const charIcon = actualCharId ? getIconForCharacter(actualCharId) : null
   const actualCharName = actualCharId ? getDisplayName(actualCharId, language) : ''
+  const actualCharAbility = actualCharId ? getAbilityText(actualCharId, language) : ''
+
+  const stTagLabels: string[] = (seat.stTags || []).map((t: string) => {
+    const body = t.startsWith('📝') ? t.slice(2) : t
+    const sep = body.indexOf('::')
+    return sep === -1 ? body : body.slice(0, sep)
+  })
+  const isDrunk = stTagLabels.includes('drunk')
+  const isPoisoned = stTagLabels.includes('poisoned')
   const isVisited = currentDay.nightVisitedSeats?.includes(seat.seat)
 
   const isFirstNight = currentDay.day === 1
@@ -106,18 +115,26 @@ export function MobileSeatCard({ ctx, seat, side = 'left' }: { ctx: StorytellerC
       {/* Wrapper: relative so circle can overlap left or right edge */}
       <Box sx={{ position: 'relative', pl: side === 'left' ? `${CIRCLE_OVERLAP}px` : 0, pr: side === 'right' ? `${CIRCLE_OVERLAP}px` : 0 }}>
         {/* Circle positioned absolutely, overlapping outer edge, vertically centered */}
-        <Box sx={{ position: 'absolute', [side === 'right' ? 'right' : 'left']: 0, top: '50%', transform: 'translateY(-50%)', zIndex: 3,
-          filter: seat.alive ? 'none' : 'grayscale(85%) brightness(0.85)', opacity: seat.alive ? 1 : 0.75 }}>
-          <CharacterCircle
-            size={CIRCLE_SIZE}
-            charIcon={charIcon}
-            charName={actualCharName}
-            nightShowCharacter={nightShowCharacter}
-            isOpen={isPlayerModalOpen}
-            disabled={false}
-            onClick={(e) => { e.stopPropagation(); setPlayerModalSeat(isPlayerModalOpen ? null : seat.seat) }}
-          />
-        </Box>
+        <Tooltip
+          title={actualCharAbility || ''}
+          placement={side === 'right' ? 'right' : 'left'}
+          arrow
+          disableHoverListener={!actualCharAbility || !nightShowCharacter}
+          enterDelay={600}
+        >
+          <Box sx={{ position: 'absolute', [side === 'right' ? 'right' : 'left']: 0, top: '50%', transform: 'translateY(-50%)', zIndex: 3,
+            filter: seat.alive ? 'none' : 'grayscale(85%) brightness(0.85)', opacity: seat.alive ? 1 : 0.75 }}>
+            <CharacterCircle
+              size={CIRCLE_SIZE}
+              charIcon={charIcon}
+              charName={actualCharName}
+              nightShowCharacter={nightShowCharacter}
+              isOpen={isPlayerModalOpen}
+              disabled={false}
+              onClick={(e) => { e.stopPropagation(); setPlayerModalSeat(isPlayerModalOpen ? null : seat.seat) }}
+            />
+          </Box>
+        </Tooltip>
         <Paper
           elevation={isSelected ? 4 : 1}
           onClick={(e) => { e.stopPropagation(); handleSeatClick(seat.seat) }}
@@ -147,11 +164,28 @@ export function MobileSeatCard({ ctx, seat, side = 'left' }: { ctx: StorytellerC
             {hasVoted && <Box component="span" sx={{ fontWeight: 700, fontSize: '0.9rem', color: votedYes ? 'success.main' : 'error.main' }}>{votedYes ? <CheckIcon fontSize="small" /> : <CloseIcon fontSize="small" />}</Box>}
           </Box>
 
+          {/* Drunk / Poisoned — always visible */}
+          {(isDrunk || isPoisoned) && (
+            <Box sx={{ display: 'flex', gap: 0.3, mb: 0.25, flexWrap: 'wrap' }}>
+              {isDrunk && (
+                <Box component="span" sx={{ fontSize: '0.6rem', fontWeight: 700, px: 0.6, py: 0.15, borderRadius: '4px', lineHeight: 1.4, bgcolor: isDark ? '#6b4400' : '#fff3cd', color: isDark ? '#ffcc60' : '#7a4500', border: '1px solid', borderColor: isDark ? '#ffcc60' : '#f5a623' }}>
+                  🍺 {language === 'zh' ? '醉' : 'Drunk'}
+                </Box>
+              )}
+              {isPoisoned && (
+                <Box component="span" sx={{ fontSize: '0.6rem', fontWeight: 700, px: 0.6, py: 0.15, borderRadius: '4px', lineHeight: 1.4, bgcolor: isDark ? '#2d0045' : '#f5e8ff', color: isDark ? '#cc88ff' : '#6a008a', border: '1px solid', borderColor: isDark ? '#cc88ff' : '#a855f7' }}>
+                  ☠ {language === 'zh' ? '毒' : 'Psnd'}
+                </Box>
+              )}
+            </Box>
+          )}
+
           {isNightPhase && nightShowCharacter && (seat.stTags || []).length > 0 && (
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.25, mb: 0.25 }}>
               {(seat.stTags as string[]).map((tag: string) => {
                 const body = tag.startsWith('📝') ? tag.slice(2) : tag
                 const sep = body.indexOf('::'); const label = sep === -1 ? body : body.slice(0, sep)
+                if (label === 'drunk' || label === 'poisoned') return null
                 const srcId = sep === -1 ? null : body.slice(sep + 2) || null
                 const srcIcon = srcId ? getIconForCharacter(srcId) : null
                 return (

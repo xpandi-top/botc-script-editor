@@ -3,6 +3,7 @@ import type { StorytellerContext } from '../useStoryteller'
 import React from 'react'
 import { Box, Button, Typography, Paper, FormControlLabel, Checkbox, Chip, Divider } from '@mui/material'
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents'
+import { makeT, makeTpl } from '../../../lib/t'
 
 export function ModalsExport({ ctx }: { ctx: StorytellerContext }) {
   const {
@@ -17,6 +18,8 @@ export function ModalsExport({ ctx }: { ctx: StorytellerContext }) {
   const allDayNums = days.map((d: any) => d.day)
   const selectedDays = exportConfig.dayFilter === 'all' ? allDayNums : exportConfig.dayFilter as number[]
   const zh = language === 'zh'
+  const t = makeT(language)
+  const tpl = makeTpl(language)
 
   const toggleDay = (day: number) => {
     const cur = exportConfig.dayFilter === 'all' ? allDayNums : exportConfig.dayFilter as number[]
@@ -40,21 +43,21 @@ export function ModalsExport({ ctx }: { ctx: StorytellerContext }) {
   }
 
   const checkOptions = [
-    { key: 'includeSeats', label: zh ? '座位信息' : 'Seat info' },
-    { key: 'includeVotes', label: zh ? '投票记录' : 'Vote history' },
-    { key: 'includeSkills', label: zh ? '技能记录' : 'Skill history' },
-    { key: 'includeEvents', label: zh ? '事件日志' : 'Event log' },
-    { key: 'includeStNotes', label: zh ? 'ST 私密备注' : 'ST private notes' },
+    { key: 'includeSeats', label: t('seat_info') },
+    { key: 'includeVotes', label: t('vote_history') },
+    { key: 'includeSkills', label: t('skill_history') },
+    { key: 'includeEvents', label: t('event_log') },
+    { key: 'includeStNotes', label: t('st_private_notes') },
   ]
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      <Typography variant="h6">{zh ? '导出' : 'Export'}</Typography>
+      <Typography variant="h6">{t('export')}</Typography>
 
       <Box sx={{ display: 'flex', gap: 1 }}>
         <Paper variant="outlined" sx={{ flex: 1, p: 1.5, cursor: 'pointer' }} onClick={handleExportSetup}>
           <Typography variant="h4">🎭</Typography>
-          <Typography variant="subtitle2">{zh ? '游戏设置' : 'Game Setup'}</Typography>
+          <Typography variant="subtitle2">{t('game_setup')}</Typography>
           <Typography variant="caption" color="text.secondary">{zh ? '角色·座位·阵营' : 'Characters·Seats·Teams'}</Typography>
         </Paper>
         <Paper 
@@ -63,14 +66,14 @@ export function ModalsExport({ ctx }: { ctx: StorytellerContext }) {
           onClick={gameRecords.length > 0 ? handleExportResults : undefined}
         >
           <EmojiEventsIcon sx={{ fontSize: '2rem', color: 'warning.main' }} />
-          <Typography variant="subtitle2">{zh ? '对局结果' : 'End Game Results'}</Typography>
-          <Typography variant="caption" color="text.secondary">{zh ? `${gameRecords.length} 条记录` : `${gameRecords.length} record${gameRecords.length !== 1 ? 's' : ''}`}</Typography>
+          <Typography variant="subtitle2">{t('end_game_results')}</Typography>
+          <Typography variant="caption" color="text.secondary">{tpl('n_records', gameRecords.length)}</Typography>
         </Paper>
       </Box>
 
       <Divider />
 
-      <Typography variant="subtitle2">{zh ? '详细日志' : 'Game Log'}</Typography>
+      <Typography variant="subtitle2">{t('game_log')}</Typography>
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
         {checkOptions.map(({ key, label }) => (
@@ -95,7 +98,7 @@ export function ModalsExport({ ctx }: { ctx: StorytellerContext }) {
               onChange={(e) => setExportConfig((c: any) => ({ ...c, dayFilter: e.target.checked ? 'all' : allDayNums }))}
             />
           }
-          label={zh ? '所有回合' : 'All days'}
+          label={t('all_days')}
         />
         {allDayNums.map((day: number) => (
           <Chip
@@ -111,12 +114,12 @@ export function ModalsExport({ ctx }: { ctx: StorytellerContext }) {
       </Box>
 
       <Button variant="contained" onClick={handleExportLog} fullWidth>
-        ⬇ {zh ? '下载日志 JSON' : 'Download Log JSON'}
+        ⬇ {t('download_log_json')}
       </Button>
 
       <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
         <Button variant="outlined" onClick={() => setShowExportModal(false)}>
-          {zh ? '关闭' : 'Close'}
+          {t('close')}
         </Button>
       </Box>
     </Box>

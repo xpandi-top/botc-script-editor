@@ -10,6 +10,7 @@ import CheckIcon from '@mui/icons-material/Check'
 import DeleteIcon from '@mui/icons-material/Delete'
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline'
 import { INITIAL_AUDIO_TRACKS } from './constants'
+import { makeT } from '../../lib/t'
 
 const INITIAL_SRCS = new Set(INITIAL_AUDIO_TRACKS.map((t) => t.src))
 
@@ -80,6 +81,7 @@ export function BgmBar({
   const [renamingSrc, setRenamingSrc] = useState<string | null>(null)
   const [renameValue, setRenameValue] = useState('')
   const zh = language === 'zh'
+  const t = makeT(language)
 
   // Icon font-size and padding scale with iconSize
   const iconSx = iconSize === 'small' ? { fontSize: '0.9rem' } : {}
@@ -134,7 +136,7 @@ export function BgmBar({
       }}>
 
         {/* Play / Pause */}
-        <Tooltip title={audioPlaying ? (zh ? '暂停BGM' : 'Pause BGM') : (zh ? '播放BGM' : 'Play BGM')}>
+        <Tooltip title={audioPlaying ? (zh ? '暂停BGM' : 'Pause BGM') : t('play_bgm')}>
           <IconButton
             size={iconSize}
             onClick={onTogglePlay}
@@ -148,7 +150,7 @@ export function BgmBar({
 
         {/* Stop — optional */}
         {onStop && (
-          <Tooltip title={zh ? '停止BGM' : 'Stop BGM'}>
+          <Tooltip title={t('stop_bgm')}>
             <IconButton size={iconSize} onClick={onStop} sx={{ ...btnPad, flexShrink: 0, ...buttonSx }}>
               <StopIcon sx={iconSx} />
             </IconButton>
@@ -203,7 +205,7 @@ export function BgmBar({
                       size="small"
                       onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); startRename(t.src, t.name) }}
                       sx={{ p: 0.25, flexShrink: 0 }}
-                      title={zh ? '重命名' : 'Rename'}
+                      title={t('rename')}
                     >
                       <DriveFileRenameOutlineIcon sx={{ fontSize: '0.75rem' }} />
                     </IconButton>
@@ -213,7 +215,7 @@ export function BgmBar({
                       size="small"
                       onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); deleteTrack(t.src) }}
                       sx={{ p: 0.25, flexShrink: 0 }}
-                      title={zh ? '删除' : 'Remove'}
+                      title={t('remove')}
                     >
                       <DeleteIcon sx={{ fontSize: '0.75rem' }} />
                     </IconButton>
@@ -234,7 +236,7 @@ export function BgmBar({
 
         {/* Add local file */}
         {handleLocalFileChange && (
-          <Tooltip title={zh ? '添加本地文件' : 'Add local file'}>
+          <Tooltip title={t('add_local_audio')}>
             <IconButton
               size={iconSize}
               component="label"
@@ -248,7 +250,7 @@ export function BgmBar({
 
         {/* Add URL */}
         {handleUrlTrackAdd && (
-          <Tooltip title={zh ? '添加URL链接' : 'Add URL (e.g. YouTube)'}>
+          <Tooltip title={t('add_url_audio')}>
             <IconButton
               size={iconSize}
               onClick={() => { if (showUrlInput) { cancelUrl() } else { setShowUrlInput(true) } }}
@@ -266,7 +268,7 @@ export function BgmBar({
           {urlStep === 'url' ? (
             <TextField
               size="small" autoFocus fullWidth
-              placeholder={zh ? '粘贴YouTube或音频URL…' : 'Paste YouTube or audio URL…'}
+              placeholder={t('paste_audio_url')}
               value={urlInputValue}
               onChange={(e) => setUrlInputValue(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') submitUrl(); if (e.key === 'Escape') cancelUrl() }}
@@ -286,11 +288,11 @@ export function BgmBar({
           ) : (
             <>
               <Typography variant="caption" sx={{ flexShrink: 0, color: 'text.secondary', fontSize: '0.7rem' }}>
-                {zh ? '名称:' : 'Name:'}
+                {t('author_label')}
               </Typography>
               <TextField
                 size="small" autoFocus fullWidth
-                placeholder={zh ? '输入曲目名称…' : 'Track name…'}
+                placeholder={t('track_name_placeholder')}
                 value={urlInputValue}
                 onChange={(e) => setUrlInputValue(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') submitName(); if (e.key === 'Escape') cancelUrl() }}

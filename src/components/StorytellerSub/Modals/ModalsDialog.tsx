@@ -6,6 +6,7 @@ import {
 } from '@mui/material'
 import SaveIcon from '@mui/icons-material/Save'
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
+import { makeT, makeTpl } from '../../../lib/t'
 
 export function ModalsDialog({ ctx }: { ctx: StorytellerContext }) {
   const {
@@ -16,6 +17,8 @@ export function ModalsDialog({ ctx }: { ctx: StorytellerContext }) {
   } = ctx
 
   const zh = language === 'zh'
+  const t = makeT(language)
+  const tpl = makeTpl(language)
 
   const deleteDayState = dialogState?.kind === 'deleteDay' ? dialogState : null
 
@@ -29,7 +32,7 @@ export function ModalsDialog({ ctx }: { ctx: StorytellerContext }) {
         fullWidth
       >
         <DialogTitle sx={{ fontWeight: 700 }}>
-          {zh ? `删除第 ${deleteDayState?.dayNum} 天？` : `Delete Day ${deleteDayState?.dayNum}?`}
+          {tpl('delete_day_n', deleteDayState?.dayNum)}
         </DialogTitle>
         <DialogContent>
           <DialogContentText>
@@ -40,7 +43,7 @@ export function ModalsDialog({ ctx }: { ctx: StorytellerContext }) {
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
           <Button variant="outlined" size="small" onClick={() => setDialogState(null)} sx={{ mr: 'auto' }}>
-            {zh ? '取消' : 'Cancel'}
+            {t('cancel')}
           </Button>
           <Button
             variant="contained"
@@ -49,7 +52,7 @@ export function ModalsDialog({ ctx }: { ctx: StorytellerContext }) {
             startIcon={<DeleteForeverIcon fontSize="small" />}
             onClick={confirmDialog}
           >
-            {zh ? '删除' : 'Delete'}
+            {t('delete')}
           </Button>
         </DialogActions>
       </Dialog>
@@ -76,7 +79,7 @@ export function ModalsDialog({ ctx }: { ctx: StorytellerContext }) {
             onClick={() => setShowSaveBeforeNewGame(false)}
             sx={{ mr: 'auto' }}
           >
-            {zh ? '取消' : 'Cancel'}
+            {t('cancel')}
           </Button>
           <Button
             variant="outlined"

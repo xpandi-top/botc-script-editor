@@ -71,7 +71,6 @@ describe('NominationVoteList', () => {
     render(<NominationVoteList {...makeProps({ yesCount: 2, effectiveRequiredVotes: 5 })} />)
     // The yes count appears inside <strong> and required votes as plain text "/ 5"
     expect(screen.getAllByText(/2/).length).toBeGreaterThan(0)
-    expect(screen.getByText(/Yes/)).toBeInTheDocument()
     expect(screen.getAllByText(/5/).length).toBeGreaterThan(0)
   })
 
@@ -89,6 +88,7 @@ describe('NominationVoteList', () => {
 
   it('shows Chinese labels when language is zh', () => {
     render(<NominationVoteList {...makeProps({ language: 'zh' })} />)
-    expect(screen.getByText(/投票/)).toBeInTheDocument()
+    // 'votes' locale key in zh is '票'; count chip also shows '票' — multiple occurrences expected
+    expect(screen.getAllByText(/票/).length).toBeGreaterThan(0)
   })
 })

@@ -8,6 +8,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import ClearAllIcon from '@mui/icons-material/ClearAll'
 import { characterById, getCharacterById, allCharacters, getDisplayName, getIconForCharacter } from '../../../catalog'
+import { makeT, makeTpl } from '../../../lib/t'
 import { CHARACTER_DISTRIBUTION } from '../constants'
 import { CharSelect, TeamDot, DistRow } from './ModalsNewGameHelpers'
 
@@ -30,6 +31,7 @@ function CharPoolPicker({ scriptChars, selected, onChange, language }: {
   language: string
 }) {
   const zh = language === 'zh'
+  const t = makeT(language)
   const byTeam = useMemo(() => {
     const map: Record<string, string[]> = { townsfolk: [], outsider: [], minion: [], demon: [] }
     for (const id of scriptChars) {
@@ -60,7 +62,7 @@ function CharPoolPicker({ scriptChars, selected, onChange, language }: {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
               <Chip
                 size="small"
-                label={zh ? { townsfolk: '镇民', outsider: '外来者', minion: '爪牙', demon: '恶魔' }[team] : team}
+                label={t(team as any)}
                 color={TEAM_COLORS[team]}
                 variant={teamAllOn ? 'filled' : 'outlined'}
                 onClick={() => toggleTeam(team)}
@@ -100,6 +102,8 @@ const TRAVELER_CHARS = allCharacters.filter((c) => c.team === 'traveler').map((c
 // ── Main tab ──────────────────────────────────────────────────────────────────
 export function CharactersTab({ newGamePanel, scriptOptions = [], language, updateConfig, randomAssignCharacters }: Props) {
   const zh = language === 'zh'
+  const t = makeT(language)
+  const tpl = makeTpl(language)
   const [poolOpen, setPoolOpen] = useState(false)
 
   const script = scriptOptions?.find((s: any) => s.slug === newGamePanel?.scriptSlug)
@@ -198,8 +202,8 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       <FormControl size="small" fullWidth>
-        <InputLabel>{zh ? '剧本' : 'Script'}</InputLabel>
-        <Select value={newGamePanel.scriptSlug || ''} onChange={(e) => handleScriptChange(e.target.value)} label={zh ? '剧本' : 'Script'}>
+        <InputLabel>{t('script')}</InputLabel>
+        <Select value={newGamePanel.scriptSlug || ''} onChange={(e) => handleScriptChange(e.target.value)} label={t('script')}>
           {scriptOptions.map((s: any) => <MenuItem key={s.slug} value={s.slug}>{s.title}</MenuItem>)}
         </Select>
       </FormControl>
@@ -212,9 +216,9 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
           <Chip size="small" label="M" color="error" sx={{ width: 28, height: 22 }} />
           <Chip size="small" label="D" color="error" sx={{ width: 28, height: 22 }} />
         </Box>
-        <DistRow label={zh ? '应有' : 'Calc'} counts={calcDist} />
-        <DistRow label={zh ? '实际' : 'Act'} counts={actCounts} calc={calcDist} />
-        <DistRow label={zh ? '感知' : 'User'} counts={userCounts} calc={calcDist} />
+        <DistRow label={t('calculated')} counts={calcDist} />
+        <DistRow label={t('actual_short')} counts={actCounts} calc={calcDist} />
+        <DistRow label={t('perceived_character')} counts={userCounts} calc={calcDist} />
       </Paper>
 
       {/* ── Character pool section ── */}
@@ -222,7 +226,7 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <Typography variant="caption" fontWeight={600}>
-              {zh ? '随机角色池' : 'Random Pool'}
+              {t('random_pool')}
             </Typography>
             {charPool.length > 0 && (
               <Chip size="small" label={charPool.length} color="primary" sx={{ height: 18, fontSize: '0.65rem' }} />
@@ -230,7 +234,7 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
           </Box>
           <Box sx={{ display: 'flex', gap: 0.5 }}>
             {charPool.length > 0 && (
-              <Tooltip title={zh ? '清空池' : 'Clear pool'}>
+              <Tooltip title={t('clear_pool')}>
                 <IconButton size="small" onClick={() => updateConfig({ charPool: [] })}>
                   <ClearAllIcon fontSize="small" />
                 </IconButton>
@@ -244,7 +248,7 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
         <Collapse in={poolOpen}>
           <Box sx={{ mt: 1 }}>
             {scriptChars.length === 0 ? (
-              <Typography variant="caption" color="text.disabled">{zh ? '请先选择剧本' : 'Select a script first'}</Typography>
+              <Typography variant="caption" color="text.disabled">{t('select_script_first')}</Typography>
             ) : (
               <CharPoolPicker
                 scriptChars={scriptChars}
@@ -266,11 +270,11 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
           startIcon={<CasinoIcon fontSize="small" />}
         >
           {charPool.length > 0
-            ? (zh ? `随机（池 ${charPool.length}）` : `Random (pool ${charPool.length})`)
-            : (zh ? '随机' : 'Random')}
+            ? tpl('random_pool_n', charPool.length)
+            : t('random_pool')}
         </Button>
         <Button size="small" variant="outlined" onClick={() => updateConfig({ assignments: {}, userAssignments: {}, demonBluffs: [] })} startIcon={<ReplayIcon fontSize="small" />}>
-          {zh ? '重置' : 'Reset'}
+          {t('reset')}
         </Button>
       </Box>
 
@@ -302,13 +306,13 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
               </Button>
               {hasUserOverride && (
                 <>
-                  <CharSelect value={userCid ?? ''} options={scriptChars} language={language} placeholder={zh ? '感知角色…' : 'User char…'} onChange={(id) => setUserPerceived(sNum, id || null)} />
+                  <CharSelect value={userCid ?? ''} options={scriptChars} language={language} placeholder={t('perceived_character')} onChange={(id) => setUserPerceived(sNum, id || null)} />
                   <TeamDot team={getCharacterById(userCid ?? '')?.team} />
                 </>
               )}
               <TextField
                 size="small"
-                placeholder={zh ? '备注…' : 'Note…'}
+                placeholder={t('note_placeholder')}
                 value={newGamePanel?.seatNotes?.[sNum] ?? ''}
                 onChange={(e) => updateConfig({ seatNotes: { ...newGamePanel?.seatNotes, [sNum]: e.target.value } })}
                 sx={{ flex: 1 }}
@@ -321,8 +325,8 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
       {/* ── Demon bluffs ── */}
       <Paper variant="outlined" sx={{ p: 1 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-          <Typography variant="subtitle2">{zh ? '不在场角色' : 'Demon Bluffs'}</Typography>
-          <Tooltip title={zh ? '随机填充镇民/外来者' : 'Quick fill with random townsfolk/outsider'}>
+          <Typography variant="subtitle2">{t('demon_bluffs')}</Typography>
+          <Tooltip title={t('random_fill_hint')}>
             <IconButton size="small" onClick={quickFillBluffs}>
               <ShuffleIcon fontSize="small" />
             </IconButton>
@@ -330,7 +334,7 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
         </Box>
         <Box sx={{ display: 'flex', gap: 1 }}>
           {[0, 1, 2].map((idx) => (
-            <CharSelect key={idx} value={newGamePanel.demonBluffs?.[idx] ?? ''} options={bluffSlotOptions[idx]} language={language} placeholder={zh ? '选择…' : 'Pick…'} onChange={(id) => setBluff(idx, id)} />
+            <CharSelect key={idx} value={newGamePanel.demonBluffs?.[idx] ?? ''} options={bluffSlotOptions[idx]} language={language} placeholder={t('select_pick')} onChange={(id) => setBluff(idx, id)} />
           ))}
         </Box>
       </Paper>
@@ -339,7 +343,7 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
       {travelerSeats.length > 0 && (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
           <Divider />
-          <Typography variant="subtitle2">{zh ? '旅行者角色分配' : 'Traveler Assignments'}</Typography>
+          <Typography variant="subtitle2">{t('traveler_assignments')}</Typography>
           {travelerSeats.map((sNum) => {
             const tcid = newGamePanel.travelerAssignments?.[sNum] ?? ''
             const tch = getCharacterById(tcid)
@@ -352,14 +356,14 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
                   value={tcid}
                   options={TRAVELER_CHARS}
                   language={language}
-                  placeholder={zh ? '选择旅行者…' : 'Pick traveler…'}
+                  placeholder={t('select_traveler')}
                   onChange={(id) => setTravelerAssignment(sNum, id)}
                 />
                 <TeamDot team={tch?.team} />
                 <TextField
                   size="small"
                   fullWidth
-                  placeholder={zh ? '旅行者备注…' : 'Traveler note…'}
+                  placeholder={t('traveler_note')}
                   value={newGamePanel.seatNotes[sNum] ?? ''}
                   onChange={(e) => updateConfig({ seatNotes: { ...newGamePanel.seatNotes, [sNum]: e.target.value } })}
                 />

@@ -21,6 +21,7 @@ import { getDisplayName, getIconForCharacter, getAbilityText, allCharacters, cha
 import { buildPlayerLogEntries, filterPlayerLogByCurrentPhase } from '../../../utils/playerLog'
 import { logPhrase } from '../../../utils/logI18n'
 import { LogDetailText } from '../LogDetailText'
+import { makeT, makeTpl } from '../../../lib/t'
 
 const TRAVELER_CHAR_IDS = allCharacters.filter((c) => c.team === 'traveler').map((c) => c.id)
 
@@ -64,6 +65,8 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
   } = ctx
 
   const zh = language === 'zh'
+  const t = makeT(language)
+  const tpl = makeTpl(language)
   const isOpen = playerModalSeat === seat?.seat
   const [abilityModalCharId, setAbilityModalCharId] = React.useState<string | null>(null)
   const muiTheme = useTheme()
@@ -320,15 +323,15 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
 
   const characterSection = (
     <Box sx={{ mb: 1.5 }}>
-      <SectionLabel label={zh ? '角色' : 'Character'} />
+      <SectionLabel label={t('characters_section')} />
       <Box sx={{ display: 'flex', gap: 1, mb: 0.75 }}>
         {/* Actual */}
         <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', gap: 0.75, p: 1, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
           {actualIcon ? <Box component="img" src={actualIcon as string} sx={{ width: 32, height: 32, borderRadius: '50%' }} /> : <Box sx={{ width: 32, height: 32, borderRadius: '50%', bgcolor: 'action.hover', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>?</Box>}
           <Box sx={{ minWidth: 0 }}>
-            <Typography variant="caption" color="text.secondary">{zh ? '实际' : 'Actual'}</Typography>
+            <Typography variant="caption" color="text.secondary">{t('actual_short')}</Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
-              <Typography variant="body2" fontWeight={600} sx={{ lineHeight: 1.2 }}>{actualCharId ? getDisplayName(actualCharId, language) : (zh ? '未分配' : 'None')}</Typography>
+              <Typography variant="body2" fontWeight={600} sx={{ lineHeight: 1.2 }}>{actualCharId ? getDisplayName(actualCharId, language) : t('none_assigned')}</Typography>
               {actualCharId && getAbilityText(actualCharId, language) && (
                 <IconButton size="small" sx={{ p: 0.25, ml: 0.25 }} onClick={(e) => { e.stopPropagation(); setAbilityModalCharId(actualCharId) }}>
                   <InfoOutlinedIcon sx={{ fontSize: '0.9rem', color: 'text.secondary' }} />
@@ -343,7 +346,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
           <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', gap: 0.75, p: 1, border: '1px solid', borderColor: 'warning.main', borderRadius: 1 }}>
             {perceivedIcon ? <Box component="img" src={perceivedIcon as string} sx={{ width: 32, height: 32, borderRadius: '50%' }} /> : null}
             <Box sx={{ minWidth: 0 }}>
-              <Typography variant="caption" color="warning.main">{zh ? '玩家以为' : 'Perceived'}</Typography>
+              <Typography variant="caption" color="warning.main">{t('perceived_character')}</Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
                 <Typography variant="body2" fontWeight={600} sx={{ lineHeight: 1.2 }}>{perceivedCharId ? getDisplayName(perceivedCharId, language) : '—'}</Typography>
                 {perceivedCharId && getAbilityText(perceivedCharId, language) && (
@@ -358,7 +361,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
         )}
       </Box>
       <Button size="small" variant="outlined" onClick={() => setShowCharPicker((v) => !v)}>
-        {showCharPicker ? <ExpandMoreIcon fontSize="small" /> : <ChevronRightIcon fontSize="small" />} {zh ? '更换角色' : 'Change Character'}
+        {showCharPicker ? <ExpandMoreIcon fontSize="small" /> : <ChevronRightIcon fontSize="small" />} {t('change_character')}
       </Button>
       {showCharPicker && (
         <Box sx={{ mt: 0.75 }}>
@@ -366,7 +369,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
             const charOptions = seat.isTraveler ? TRAVELER_CHAR_IDS : (currentScriptCharacters ?? [])
             return (
               <>
-                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.25 }}>{zh ? '实际角色' : 'Actual Character'}</Typography>
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.25 }}>{t('actual_character')}</Typography>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, maxHeight: 100, overflow: 'auto', mb: 0.75 }}>
                   {charOptions.map((c: string) => (
                     <Chip key={c} label={getDisplayName(c, language)} size="small"
@@ -375,7 +378,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
                       icon={getIconForCharacter(c) ? <Box component="img" src={getIconForCharacter(c) as string} sx={{ width: 14, height: 14 }} /> : undefined} />
                   ))}
                 </Box>
-                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.25 }}>{zh ? '玩家以为' : 'Perceived Character'}</Typography>
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.25 }}>{t('perceived_character')}</Typography>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, maxHeight: 100, overflow: 'auto' }}>
                   {charOptions.map((c: string) => (
                     <Chip key={`per-${c}`} label={getDisplayName(c, language)} size="small"
@@ -394,7 +397,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
 
   const publicStatusSection = (
     <Box sx={{ mb: 1.5 }}>
-      <SectionLabel label={zh ? '公开状态' : 'Public Status'} />
+      <SectionLabel label={t('public')} />
       {/* Status toggles */}
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 0.75 }}>
         {[
@@ -411,10 +414,11 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
       </Box>
       {/* Tag quick-add */}
       <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center', mb: 0.5 }}>
-        <TextField size="small" fullWidth placeholder={text.addTag || (zh ? '添加标签' : 'Add tag')}
+        <TextField size="small" fullWidth placeholder={text.addTag || t('add_public_tag')}
           value={publicTagInput}
           onChange={(e) => setPublicTagInput(e.target.value)}
-          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddPublicTag() } }} />
+          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddPublicTag() } }}
+          />
         <Button variant="contained" onClick={() => handleAddPublicTag()} sx={{ minWidth: 40, px: 1 }}>+</Button>
       </Box>
       {/* Tag pool chips */}
@@ -449,7 +453,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
 
   const nightStStatusSection = (
     <Box sx={{ mb: 1.5 }}>
-      <SectionLabel label={zh ? '夜间/ST状态' : 'Night / ST Status'} />
+      <SectionLabel label={t('night_st_status')} />
       {/* Default tag chips */}
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 0.75 }}>
         {DEFAULT_ST_TAGS.map((label) => {
@@ -479,7 +483,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
       )}
       {/* Quick-add stTag */}
       <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
-        <TextField size="small" fullWidth placeholder={zh ? '添加ST标签' : 'Add ST tag'}
+        <TextField size="small" fullWidth placeholder={t('add_st_tag')}
           value={stTagInput}
           onChange={(e) => setStTagInput(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addStTag(stTagInput) } }} />
@@ -507,27 +511,27 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
     const inPlayIds = new Set((currentDay?.seats ?? []).map((s: any) => s.characterId).filter(Boolean))
     const bluffIds = new Set(currentDay?.demonBluffs ?? [])
     const TEAM_ORDER_LIST = ['townsfolk', 'outsider', 'minion', 'demon'] as const
-    const TEAM_LABEL_MAP: Record<string, { en: string; zh: string; color: string }> = {
-      townsfolk: { en: 'Townsfolk', zh: '镇民', color: '#1565c0' },
-      outsider:  { en: 'Outsider',  zh: '外来者', color: '#0277bd' },
-      minion:    { en: 'Minion',    zh: '爪牙',   color: '#b71c1c' },
-      demon:     { en: 'Demon',     zh: '恶魔',   color: '#7b1fa2' },
+    const TEAM_COLOR_MAP: Record<string, string> = {
+      townsfolk: '#1565c0',
+      outsider:  '#0277bd',
+      minion:    '#b71c1c',
+      demon:     '#7b1fa2',
     }
     const grouped: Record<string, string[]> = { townsfolk: [], outsider: [], minion: [], demon: [] }
     for (const id of (currentScriptCharacters ?? [])) {
-      const t = characterById[id]?.team
-      if (t && grouped[t]) grouped[t].push(id)
+      const teamId = characterById[id]?.team
+      if (teamId && grouped[teamId]) grouped[teamId].push(id)
     }
-    const sections = TEAM_ORDER_LIST.filter((t) => grouped[t].length > 0)
+    const sections = TEAM_ORDER_LIST.filter((teamId) => grouped[teamId].length > 0)
     return (
       <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 0.5, maxHeight: 160, overflow: 'auto' }}>
         {sections.map((team, si) => {
-          const info = TEAM_LABEL_MAP[team]
+          const teamColor = TEAM_COLOR_MAP[team]
           return (
             <Box key={team}>
               {si > 0 && <Divider sx={{ my: 0.5 }} />}
-              <Typography variant="caption" sx={{ display: 'block', fontWeight: 700, px: 0.5, py: 0.25, color: info.color, fontSize: '0.65rem', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-                {language === 'zh' ? info.zh : info.en}
+              <Typography variant="caption" sx={{ display: 'block', fontWeight: 700, px: 0.5, py: 0.25, color: teamColor, fontSize: '0.65rem', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+                {t(team as any)}
               </Typography>
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                 {grouped[team].map((c) => {
@@ -602,7 +606,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
 
   const abilitySection = (
     <Box sx={{ mb: 1.5 }}>
-      <SectionLabel label={isNight ? (zh ? '夜间技能' : 'Night Ability') : (zh ? '白天技能' : 'Day Ability')} />
+      <SectionLabel label={isNight ? (zh ? '夜间技能' : 'Night Ability') : t('day_ability')} />
       {skillOverlay ? (
         // Active skillOverlay form (from openSeatSkill)
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
@@ -639,7 +643,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
                     <Box sx={{ pl: 3, pb: 0.5 }}>
                       <TextField
                         size="small" fullWidth
-                        placeholder={zh ? '对该玩家的备注…' : 'Note for this player…'}
+                        placeholder={t('player_note')}
                         value={skillOverlay.draft?.targetNotes?.[s.seat] ?? ''}
                         onChange={(e) => setSkillOverlay((p: any) => p ? { ...p, draft: { ...p.draft, targetNotes: { ...p.draft.targetNotes, [s.seat]: e.target.value } } } : p)}
                         sx={{ '& .MuiInputBase-input': { fontSize: '0.8rem' } }}
@@ -662,26 +666,26 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
                   color={v === 'st-only' ? 'warning' : 'primary'}
                   onClick={() => setSkillOverlay((p: any) => p ? { ...p, visibility: v } : p)}
                   sx={{ fontSize: '0.72rem', py: 0.25 }}>
-                  {v === 'public' ? (zh ? '公开' : 'Public') : (zh ? '仅ST' : 'ST Only')}
+                  {v === 'public' ? t('public') : t('st_only')}
                 </Button>
               ))}
             </Box>
             <Box sx={{ display: 'flex', gap: 0.5 }}>
-              <Button size="small" color="error" onClick={() => closeSkillOverlay(false)} startIcon={<CloseIcon fontSize="small" />}>{zh ? '取消' : 'Cancel'}</Button>
+              <Button size="small" color="error" onClick={() => closeSkillOverlay(false)} startIcon={<CloseIcon fontSize="small" />}>{t('cancel')}</Button>
               <Button size="small" variant="contained" onClick={() => closeSkillOverlay(true)} startIcon={<CheckIcon fontSize="small" />}>{text.saveSkill}</Button>
             </Box>
           </Box>
         </Box>
       ) : !isNight ? (
         <Button variant="outlined" fullWidth onClick={() => openSeatSkill?.(seat.seat)}>
-          {zh ? '发动白天技能' : 'Use Day Ability'}
+          {t('use_day_ability')}
         </Button>
       ) : (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
           {/* Skill type toggle row */}
           <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
             {(['know', 'guess', 'change', 'changeStatus'] as const).map((t) => {
-              const labels: Record<string, string> = { know: zh ? '得知' : 'Know', guess: zh ? '猜测' : 'Guess', change: zh ? '变更' : 'Change', changeStatus: zh ? '改变状态' : 'Change Status' }
+              const labels: Record<string, string> = { know: zh ? '得知' : 'Know', guess: zh ? '猜测' : 'Guess', change: zh ? '变更' : 'Change', changeStatus: t('change_status') }
               return (
                 <Button key={t} size="small" variant={skillType === t ? 'contained' : 'outlined'}
                   onClick={() => { setSkillType(skillType === t ? '' : t); setTargets(new Set()); setRemoveTagVal('') }}>
@@ -694,22 +698,22 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
           {/* ── Know / Guess ── */}
           {(skillType === 'know' || skillType === 'guess') && (
             <>
-              <Typography variant="caption" color="text.secondary">{zh ? '玩家（多选）' : 'Players (multi-select)'}</Typography>
+              <Typography variant="caption" color="text.secondary">{t('edit_players')}</Typography>
               <PlayerList />
-              <Typography variant="caption" color="text.secondary">{zh ? '结果' : 'Result'}</Typography>
+              <Typography variant="caption" color="text.secondary">{t('result')}</Typography>
               {/* Result type button group */}
               <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
                 {[
-                  { key: 'characters', label: zh ? '角色' : 'Characters' },
-                  { key: 'demonBluffs', label: zh ? '恶魔虚张' : 'Demon Bluffs' },
-                  { key: 'team', label: zh ? '阵营' : 'Team' },
+                  { key: 'characters', label: t('characters_section') },
+                  { key: 'demonBluffs', label: t('demon_bluffs') },
+                  { key: 'team', label: t('team_label') },
                   { key: 'type', label: zh ? '类型' : 'Type' },
-                  { key: 'sameTeam', label: zh ? '同阵营' : 'Same team' },
-                  { key: 'diffTeam', label: zh ? '不同阵营' : 'Diff team' },
-                  { key: 'sameType', label: zh ? '同类型' : 'Same type' },
-                  { key: 'diffType', label: zh ? '不同类型' : 'Diff type' },
-                  { key: 'info', label: zh ? '信息' : 'Info' },
-                  { key: 'truefalse', label: zh ? '真假' : 'T/F' },
+                  { key: 'sameTeam', label: t('same_team') },
+                  { key: 'diffTeam', label: t('diff_team') },
+                  { key: 'sameType', label: t('same_type') },
+                  { key: 'diffType', label: t('diff_type') },
+                  { key: 'info', label: t('info') },
+                  { key: 'truefalse', label: t('true_false') },
                 ].map(({ key, label }) => (
                   <Chip key={key} label={label} size="small" clickable
                     color={knowResult === key ? 'primary' : 'default'}
@@ -726,7 +730,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
               {knowResult === 'demonBluffs' && (
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, border: '1px solid', borderColor: 'warning.main', borderRadius: 1, p: 0.75, bgcolor: isDark ? 'rgba(237,108,2,0.08)' : 'rgba(255,167,38,0.10)' }}>
                   {(currentDay?.demonBluffs ?? []).length === 0 ? (
-                    <Typography variant="caption" color="text.secondary">{zh ? '（未设置恶魔虚张）' : '(No demon bluffs set)'}</Typography>
+                    <Typography variant="caption" color="text.secondary">{t('demon_bluffs_unset')}</Typography>
                   ) : (currentDay?.demonBluffs ?? []).map((c: string) => (
                     <Chip key={c} size="small"
                       label={getDisplayName(c, language)}
@@ -738,29 +742,29 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
               )}
               {knowResult === 'team' && (
                 <Box sx={{ display: 'flex', gap: 0.5 }}>
-                  {(['good', 'evil'] as const).map((t) => (
-                    <Button key={t} size="small" variant={knowTeam === t ? 'contained' : 'outlined'} onClick={() => setKnowTeam(t)}>
-                      {t === 'good' ? (zh ? '善良' : 'Good') : (zh ? '邪恶' : 'Evil')}
+                  {(['good', 'evil'] as const).map((teamKey) => (
+                    <Button key={teamKey} size="small" variant={knowTeam === teamKey ? 'contained' : 'outlined'} onClick={() => setKnowTeam(teamKey)}>
+                      {teamKey === 'good' ? (zh ? '善良' : 'Good') : (zh ? '邪恶' : 'Evil')}
                     </Button>
                   ))}
                 </Box>
               )}
               {knowResult === 'type' && (
                 <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
-                  {(['townsfolk', 'outsider', 'minion', 'demon'] as const).map((t) => (
-                    <Button key={t} size="small" variant={knowType === t ? 'contained' : 'outlined'} onClick={() => setKnowType(t)}>
-                      {zh ? { townsfolk: '镇民', outsider: '外来者', minion: '爪牙', demon: '恶魔' }[t] : t}
+                  {(['townsfolk', 'outsider', 'minion', 'demon'] as const).map((typeKey) => (
+                    <Button key={typeKey} size="small" variant={knowType === typeKey ? 'contained' : 'outlined'} onClick={() => setKnowType(typeKey)}>
+                      {t(typeKey)}
                     </Button>
                   ))}
                 </Box>
               )}
               {knowResult === 'info' && (
-                <TextField size="small" fullWidth placeholder={zh ? '信息内容' : 'Info text'} value={knowInfo} onChange={(e) => setKnowInfo(e.target.value)} />
+                <TextField size="small" fullWidth placeholder={t('info_text')} value={knowInfo} onChange={(e) => setKnowInfo(e.target.value)} />
               )}
               {knowResult === 'truefalse' && (
                 <Box sx={{ display: 'flex', gap: 0.5 }}>
-                  <Button size="small" variant={knowTrueFalse ? 'contained' : 'outlined'} color="success" onClick={() => setKnowTrueFalse(true)}>{zh ? '真' : 'True'}</Button>
-                  <Button size="small" variant={!knowTrueFalse ? 'contained' : 'outlined'} color="error" onClick={() => setKnowTrueFalse(false)}>{zh ? '假' : 'False'}</Button>
+                  <Button size="small" variant={knowTrueFalse ? 'contained' : 'outlined'} color="success" onClick={() => setKnowTrueFalse(true)}>{t('true_label')}</Button>
+                  <Button size="small" variant={!knowTrueFalse ? 'contained' : 'outlined'} color="error" onClick={() => setKnowTrueFalse(false)}>{t('false_label')}</Button>
                 </Box>
               )}
             </>
@@ -769,15 +773,15 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
           {/* ── Change ── */}
           {skillType === 'change' && (
             <>
-              <Typography variant="caption" color="text.secondary">{zh ? '玩家（多选）' : 'Players (multi-select)'}</Typography>
+              <Typography variant="caption" color="text.secondary">{t('edit_players')}</Typography>
               <PlayerList />
-              <Typography variant="caption" color="text.secondary">{zh ? '变更为' : 'Change to'}</Typography>
+              <Typography variant="caption" color="text.secondary">{t('change_to')}</Typography>
               <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', alignItems: 'center' }}>
                 <Button size="small" variant={changeTo === 'character' ? 'contained' : 'outlined'} onClick={() => setChangeTo('character')}>
-                  {zh ? '角色' : 'Character'}
+                  {t('characters_section')}
                 </Button>
                 <Button size="small" variant={changeTo === 'team' ? 'contained' : 'outlined'} onClick={() => setChangeTo('team')}>
-                  {zh ? '阵营' : 'Team'}
+                  {t('team_label')}
                 </Button>
               </Box>
               {changeTo === 'character' && renderCharGrid(
@@ -787,9 +791,9 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
               )}
               {changeTo === 'team' && (
                 <Box sx={{ display: 'flex', gap: 0.5 }}>
-                  {(['good', 'evil'] as const).map((t) => (
-                    <Button key={t} size="small" variant={changeToTeam === t ? 'contained' : 'outlined'} onClick={() => setChangeToTeam(t)}>
-                      {t === 'good' ? (zh ? '善良' : 'Good') : (zh ? '邪恶' : 'Evil')}
+                  {(['good', 'evil'] as const).map((teamKey) => (
+                    <Button key={teamKey} size="small" variant={changeToTeam === teamKey ? 'contained' : 'outlined'} onClick={() => setChangeToTeam(teamKey)}>
+                      {teamKey === 'good' ? (zh ? '善良' : 'Good') : (zh ? '邪恶' : 'Evil')}
                     </Button>
                   ))}
                 </Box>
@@ -803,10 +807,10 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
               {/* Subtype selector */}
               <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
                 {[
-                  { key: 'addST', label: zh ? '+ST标签' : '+ST Tag' },
-                  { key: 'removeST', label: zh ? '-ST标签' : '-ST Tag' },
-                  { key: 'addPublic', label: zh ? '+公开标签' : '+Public Tag' },
-                  { key: 'removePublic', label: zh ? '-公开标签' : '-Public Tag' },
+                  { key: 'addST', label: '+' + t('st_tag') },
+                  { key: 'removeST', label: '-' + t('st_tag') },
+                  { key: 'addPublic', label: '+' + t('public_tag') },
+                  { key: 'removePublic', label: '-' + t('public_tag') },
                 ].map(({ key, label }) => (
                   <Button key={key} size="small"
                     variant={csSubtype === key ? 'contained' : 'outlined'}
@@ -816,13 +820,13 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
                   </Button>
                 ))}
               </Box>
-              <Typography variant="caption" color="text.secondary">{zh ? '玩家（多选）' : 'Players (multi-select)'}</Typography>
+              <Typography variant="caption" color="text.secondary">{t('edit_players')}</Typography>
               <PlayerList showTags />
               {/* Tag input / selector */}
               {(csSubtype === 'addST') && (
                 <Box>
                   <Box sx={{ display: 'flex', gap: 0.5, mb: 0.5 }}>
-                    <TextField size="small" fullWidth placeholder={zh ? 'ST标签' : 'ST tag'} value={tagInput}
+                    <TextField size="small" fullWidth placeholder={t('st_tag')} value={tagInput}
                       onChange={(e) => setTagInput(e.target.value)}
                       onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault() }} />
                   </Box>
@@ -838,7 +842,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
               )}
               {csSubtype === 'addPublic' && (
                 <Box sx={{ display: 'flex', gap: 0.5, flexDirection: 'column' }}>
-                  <TextField size="small" fullWidth placeholder={zh ? '公开标签' : 'Public tag'} value={tagInput}
+                  <TextField size="small" fullWidth placeholder={t('public_tag')} value={tagInput}
                     onChange={(e) => setTagInput(e.target.value)} />
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                     {[text.aliveTag, text.executedTag, text.traveler, text.noVoteTag].filter(Boolean).map((t: string) => (
@@ -858,8 +862,8 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
               )}
               {csSubtype === 'removeST' && (
                 <FormControl size="small" fullWidth>
-                  <InputLabel>{zh ? '移除ST标签' : 'Remove ST tag'}</InputLabel>
-                  <Select value={removeTagVal} label={zh ? '移除ST标签' : 'Remove ST tag'} onChange={(e) => setRemoveTagVal(e.target.value)}>
+                  <InputLabel>{t('remove_st_tag')}</InputLabel>
+                  <Select value={removeTagVal} label={t('remove_st_tag')} onChange={(e) => setRemoveTagVal(e.target.value)}>
                     <MenuItem value="">—</MenuItem>
                     {stTagsForTargets.map((t: string) => <MenuItem key={t} value={t}>{parseStTag(t).label}</MenuItem>)}
                   </Select>
@@ -867,8 +871,8 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
               )}
               {csSubtype === 'removePublic' && (
                 <FormControl size="small" fullWidth>
-                  <InputLabel>{zh ? '移除公开标签' : 'Remove public tag'}</InputLabel>
-                  <Select value={removeTagVal} label={zh ? '移除公开标签' : 'Remove public tag'} onChange={(e) => setRemoveTagVal(e.target.value)}>
+                  <InputLabel>{t('remove_public_tag')}</InputLabel>
+                  <Select value={removeTagVal} label={t('remove_public_tag')} onChange={(e) => setRemoveTagVal(e.target.value)}>
                     <MenuItem value="">—</MenuItem>
                     {publicTagsForTargets.map((t: string) => <MenuItem key={t} value={t}>{t}</MenuItem>)}
                   </Select>
@@ -880,12 +884,12 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
           {/* Footer: note + success toggle + save */}
           {skillType && (
             <>
-              <TextField size="small" fullWidth label={zh ? '备注（可选）' : 'Note (optional)'} value={skillNote} onChange={(e) => setSkillNote(e.target.value)} />
+              <TextField size="small" fullWidth label={t('note_optional')} value={skillNote} onChange={(e) => setSkillNote(e.target.value)} />
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <FormControlLabel
                   control={<Switch checked={isSuccess} onChange={(e) => setIsSuccess(e.target.checked)} size="small" />}
-                  label={<Typography variant="caption">{isSuccess ? (zh ? '成功' : 'Success') : (zh ? '失败' : 'Fail')}</Typography>} />
-                <Button size="small" variant="contained" disabled={!canSaveSkill} onClick={handleSaveSkill}>{zh ? '保存' : 'Save'}</Button>
+                  label={<Typography variant="caption">{isSuccess ? (zh ? '成功' : 'Success') : t('false_label')}</Typography>} />
+                <Button size="small" variant="contained" disabled={!canSaveSkill} onClick={handleSaveSkill}>{t('save')}</Button>
               </Box>
             </>
           )}
@@ -897,28 +901,28 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
   const logSection = (
     <Accordion expanded={logExpanded} onChange={(_, v) => setLogExpanded(v)} sx={{ boxShadow: 'none', border: '1px solid', borderColor: 'divider', borderRadius: '4px !important', '&:before': { display: 'none' } }}>
       <AccordionSummary expandIcon={<ExpandMoreIcon fontSize="small" />} sx={{ minHeight: 36, '& .MuiAccordionSummary-content': { my: 0.5 } }}>
-        <Typography variant="caption" fontWeight={700} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}><ListIcon fontSize="small" />{zh ? '事件记录' : 'Event Log'}</Typography>
+        <Typography variant="caption" fontWeight={700} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}><ListIcon fontSize="small" />{t('event_log')}</Typography>
       </AccordionSummary>
       <AccordionDetails sx={{ pt: 0, pb: 1, px: 1 }}>
         {/* Quick-add */}
         <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center', mb: 1 }}>
-          <TextField size="small" placeholder={zh ? '快速添加记录…' : 'Quick add note…'} value={quickAddText}
+          <TextField size="small" placeholder={t('quick_add_note')} value={quickAddText}
             onChange={(e) => setQuickAddText(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleQuickAdd() } }}
             sx={{ flex: 1 }} />
           <FormControlLabel
             control={<Switch size="small" checked={quickAddSt} onChange={(e) => setQuickAddSt(e.target.checked)} />}
-            label={<Typography variant="caption">{quickAddSt ? (zh ? 'ST' : 'ST') : (zh ? '公开' : 'Pub')}</Typography>}
+            label={<Typography variant="caption">{quickAddSt ? 'ST' : t('public_short')}</Typography>}
             sx={{ mx: 0 }} />
           <Button size="small" variant="contained" onClick={handleQuickAdd} sx={{ minWidth: 40, px: 1 }}>+</Button>
         </Box>
 
         {logDays.length === 0 ? (
-          <Typography variant="caption" color="text.secondary">{zh ? '暂无记录' : 'No events'}</Typography>
+          <Typography variant="caption" color="text.secondary">{t('no_events')}</Typography>
         ) : (
           logDays.map(({ day, entries }) => (
             <Box key={day} sx={{ mb: 1 }}>
-              <Typography variant="caption" fontWeight={700} color="primary.main">{zh ? `第${day}天` : `Day ${day}`}</Typography>
+              <Typography variant="caption" fontWeight={700} color="primary.main">{tpl('day_n', day)}</Typography>
               <Divider sx={{ mb: 0.5, mt: 0.25 }} />
               {entries.map((e: any) => (
                 <Box key={e.id} sx={{ mb: 0.5 }}>

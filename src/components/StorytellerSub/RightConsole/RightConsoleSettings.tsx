@@ -4,10 +4,12 @@ import React from 'react'
 import { Box, Button, TextField, Typography, Paper, Grid } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
+import { makeT } from '../../../lib/t'
 
 export function RightConsoleSettings({ ctx, toggleConsoleSection }: { ctx: StorytellerContext, toggleConsoleSection: any }) {
   const { language, text, activeConsoleSections, timerDefaults, setTimerDefaults, stName, setStName } = ctx
   const zh = language === 'zh'
+  const t = makeT(language)
   const isOpen = activeConsoleSections?.has('settings')
 
   const handleChange = (key: string, value: string) => {
@@ -37,15 +39,15 @@ export function RightConsoleSettings({ ctx, toggleConsoleSection }: { ctx: Story
           <TextField
             size="small"
             fullWidth
-            label={zh ? '主持人名称' : 'Storyteller Name'}
-            placeholder={zh ? '输入ST名称' : 'Your name as ST'}
+            label={t('storyteller_name')}
+            placeholder={t('enter_st_name')}
             value={stName ?? ''}
             onChange={(e) => setStName(e.target.value)}
           />
 
           {/* Timer defaults */}
           <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
-            {zh ? '计时器默认值（秒）' : 'Timer defaults (seconds)'}
+            {t('timer_defaults')}
           </Typography>
           <Grid container spacing={1}>
             {fields.map((f) => (

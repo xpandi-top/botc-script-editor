@@ -95,6 +95,17 @@ export type UiKey =
   | 'storyteller_name' | 'enter_st_name' | 'stop_bgm' | 'play_bgm'
   | 'add_local_audio' | 'add_url_audio' | 'track_name_placeholder' | 'paste_audio_url'
   | 'timer_defaults' | 'seat_info'
+  // Storyteller extra labels
+  | 'info' | 'info_text' | 'true_label' | 'false_label' | 'true_false'
+  | 'public_short' | 'good_short' | 'evil_short'
+  | 'select_pick' | 'select_traveler' | 'none_assigned' | 'confirm_yes'
+  | 'night_st_status' | 'all_days' | 'day_short' | 'ability_short'
+  | 'vote_short' | 'vote_count' | 'win_short' | 'result'
+  | 'calculated' | 'actual_short' | 'change_to' | 'n_games_suffix'
+  | 'restore_alive' | 'about_to_die'
+  | 'select_script_first' | 'enter_new_filename' | 'script'
+  | 'note_optional' | 'note_placeholder' | 'edit_players'
+  | 'drunk_tag' | 'poisoned_tag' | 'protected_tag' | 'used_tag'
 
 export type TplKey =
   | 'showing_n_of_m'
@@ -111,6 +122,8 @@ export type TplKey =
   | 'delete_day_n'
   | 'n_records'
   | 'random_pool_n'
+  | 'required_votes'
+  | 'votes_progress'
 
 /**
  * Returns a `t(key)` function bound to the given language.

@@ -14,6 +14,7 @@ import DownloadIcon from '@mui/icons-material/Download'
 import WbSunnyIcon from '@mui/icons-material/WbSunny'
 import SaveIcon from '@mui/icons-material/Save'
 import { getDisplayName, getIconForCharacter } from '../../../catalog'
+import { makeT, makeTpl } from '../../../lib/t'
 
 const WINNER_COLOR: Record<string, string> = { good: '#1565c0', evil: '#b71c1c', storyteller: '#6a1b9a' }
 const WINNER_LABEL: Record<string, { en: string; zh: string }> = {
@@ -34,6 +35,8 @@ export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: Storyt
   const { language, text, gameRecords = [], setGameRecords, activeConsoleSections, loadGameRecord, exportRecordJson, saveGame, activeScriptSlug, activeScriptTitle, currentDay } = ctx
   const isOpen = activeConsoleSections?.has('records')
   const zh = language === 'zh'
+  const t = makeT(language)
+  const tpl = makeTpl(language)
 
   const [search, setSearch] = useState('')
   const [winnerFilter, setWinnerFilter] = useState<string | null>(null)
@@ -88,7 +91,7 @@ export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: Storyt
     <Paper variant="outlined" sx={{ p: 1, flex: 1, minHeight: 0, overflow: 'auto', bgcolor: 'background.paper' }}>
       <Button fullWidth onClick={() => toggleConsoleSection('records')} sx={{ justifyContent: 'space-between', textTransform: 'none' }}>
         <Typography variant="body2">
-          {zh ? '历史记录' : 'Game Records'} ({gameRecords.length})
+          {t('game_records')} ({gameRecords.length})
         </Typography>
         {isOpen ? <ExpandMoreIcon fontSize="small" /> : <ChevronRightIcon fontSize="small" />}
       </Button>
@@ -97,16 +100,16 @@ export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: Storyt
         <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
 
           {/* ── Save checkpoint ── */}
-          <Tooltip title={zh ? '保存当前游戏进度（可随时保存）' : 'Save current game as checkpoint'}>
+          <Tooltip title={t('save_checkpoint_hint')}>
             <Button
               size="small" variant="outlined" startIcon={<SaveIcon fontSize="small" />}
               onClick={() => {
-                const name = window.prompt(zh ? '保存名称（留空自动生成）：' : 'Checkpoint name (leave blank for auto):', '') ?? ''
+                const name = window.prompt(t('checkpoint_name_prompt'), '') ?? ''
                 saveGame(name || undefined)
               }}
               fullWidth sx={{ textTransform: 'none', fontSize: '0.8rem' }}
             >
-              {zh ? '保存存档' : 'Save Checkpoint'}
+              {t('save_checkpoint')}
             </Button>
           </Tooltip>
 
@@ -117,8 +120,8 @@ export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: Storyt
                 {liveStats.scriptTitle ? `${liveStats.scriptTitle} — ` : ''}{liveStats.total}{zh ? '局历史' : ' games'}
               </Typography>
               <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mb: 0.5 }}>
-                <Chip size="small" label={`${zh ? '邪' : 'E:'}${liveStats.evilWins}`} sx={{ bgcolor: 'rgba(183,28,28,0.12)', fontSize: '0.68rem', height: 20 }} />
-                <Chip size="small" label={`${zh ? '善' : 'G:'}${liveStats.goodWins}`} sx={{ bgcolor: 'rgba(21,101,192,0.12)', fontSize: '0.68rem', height: 20 }} />
+                <Chip size="small" label={`${t('evil_short')}:${liveStats.evilWins}`} sx={{ bgcolor: 'rgba(183,28,28,0.12)', fontSize: '0.68rem', height: 20 }} />
+                <Chip size="small" label={`${t('good_short')}:${liveStats.goodWins}`} sx={{ bgcolor: 'rgba(21,101,192,0.12)', fontSize: '0.68rem', height: 20 }} />
               </Box>
               {liveStats.playerRows.length > 0 && (
                 <>
@@ -128,7 +131,7 @@ export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: Storyt
                       <Box key={p.name} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Typography variant="caption" sx={{ fontSize: '0.72rem' }}>{p.name}</Typography>
                         <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.72rem' }}>
-                          {p.total}{zh ? '局' : 'g'} · {p.winRate}%{zh ? '胜' : 'W'}
+                          {p.total}{zh ? '局' : 'g'} · {p.winRate}%{t('win_short')}
                         </Typography>
                       </Box>
                     ))}
@@ -143,7 +146,7 @@ export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: Storyt
           {/* Search */}
           <TextField
             size="small" fullWidth
-            placeholder={zh ? '搜索名称/剧本/玩家…' : 'Search name / script / player…'}
+            placeholder={t('search_records')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -191,9 +194,9 @@ export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: Storyt
 
                   {/* Stats chips */}
                   <Box sx={{ display: 'flex', gap: 0.5, mt: 0.5, flexWrap: 'wrap', alignItems: 'center' }}>
-                    <Chip size="small" icon={<WbSunnyIcon sx={{ fontSize: '0.8rem' }} />} label={`${rec.days?.length ?? 1}${zh ? '天' : 'd'}`} />
-                    <Chip size="small" icon={<HowToVoteIcon sx={{ fontSize: '0.8rem' }} />} label={`${totalVotes}${zh ? '票' : 'v'}`} />
-                    <Chip size="small" icon={<AutoFixHighIcon sx={{ fontSize: '0.8rem' }} />} label={`${totalSkills}${zh ? '技' : 's'}`} />
+                    <Chip size="small" icon={<WbSunnyIcon sx={{ fontSize: '0.8rem' }} />} label={`${rec.days?.length ?? 1}${t('day_short')}`} />
+                    <Chip size="small" icon={<HowToVoteIcon sx={{ fontSize: '0.8rem' }} />} label={`${totalVotes}${t('vote_short')}`} />
+                    <Chip size="small" icon={<AutoFixHighIcon sx={{ fontSize: '0.8rem' }} />} label={`${totalSkills}${t('ability_short')}`} />
                     {rec.scriptTitle && <Chip size="small" icon={<AutoStoriesIcon sx={{ fontSize: '0.8rem' }} />} label={rec.scriptTitle} sx={{ maxWidth: 120, '& .MuiChip-label': { overflow: 'hidden', textOverflow: 'ellipsis' } }} />}
                   </Box>
 
@@ -202,7 +205,7 @@ export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: Storyt
                     <>
                       <Button size="small" onClick={() => setExpandedId(isExpanded ? null : rec.id)}
                         sx={{ mt: 0.5, py: 0, px: 0.5, fontSize: '0.7rem', textTransform: 'none', minWidth: 0 }}>
-                        {isExpanded ? '▲' : '▼'} {zh ? '玩家' : 'Players'}
+                        {isExpanded ? '▲' : '▼'} {t('edit_players')}
                       </Button>
                       <Collapse in={isExpanded}>
                         <Box sx={{ mt: 0.5, display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
@@ -233,8 +236,8 @@ export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: Storyt
                   {/* Action icons — min 44px touch targets */}
                   <Box sx={{ display: 'flex', gap: 0, mt: 0.25 }}>
                     <Tooltip title={rec.savedDays
-                      ? (zh ? '完整加载（包含所有天数记录）' : 'Full restore — all days & events')
-                      : (zh ? '部分加载（玩家/角色/脚本）' : 'Partial restore — players, roles & script')}>
+                      ? t('full_restore')
+                      : t('partial_restore')}>
                       <IconButton
                         size="small"
                         onClick={() => loadGameRecord(rec)}
@@ -243,18 +246,18 @@ export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: Storyt
                         <FolderOpenIcon sx={{ fontSize: '1rem', opacity: rec.savedDays ? 1 : 0.55 }} />
                       </IconButton>
                     </Tooltip>
-                    <Tooltip title={zh ? '重命名并覆盖保存' : 'Rename and overwrite'}>
+                    <Tooltip title={t('rename_overwrite')}>
                       <IconButton size="small" onClick={() => {
-                        const name = window.prompt(zh ? '输入新文件名：' : 'Enter new file name:', rec.recordName)
+                        const name = window.prompt(t('enter_new_filename'), rec.recordName)
                         if (name) saveGame(name, rec.id)
                       }} sx={{ minWidth: 44, minHeight: 44 }}>
                         <SaveAsIcon sx={{ fontSize: '1rem' }} />
                       </IconButton>
                     </Tooltip>
-                    <IconButton size="small" onClick={() => exportRecordJson(rec)} title={zh ? '导出' : 'Export'} sx={{ minWidth: 44, minHeight: 44 }}>
+                    <IconButton size="small" onClick={() => exportRecordJson(rec)} title={t('export')} sx={{ minWidth: 44, minHeight: 44 }}>
                       <DownloadIcon sx={{ fontSize: '1rem' }} />
                     </IconButton>
-                    <IconButton size="small" color="error" onClick={() => setGameRecords((cur: any[]) => cur.filter((r) => r.id !== rec.id))} title={zh ? '删除' : 'Delete'} sx={{ minWidth: 44, minHeight: 44 }}>
+                    <IconButton size="small" color="error" onClick={() => setGameRecords((cur: any[]) => cur.filter((r) => r.id !== rec.id))} title={t('delete')} sx={{ minWidth: 44, minHeight: 44 }}>
                       <DeleteIcon sx={{ fontSize: '1rem' }} />
                     </IconButton>
                   </Box>

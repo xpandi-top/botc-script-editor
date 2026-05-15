@@ -2,12 +2,12 @@
 import type { StorytellerSeat } from '../types'
 import type { StorytellerContext } from '../useStoryteller'
 import React, { useState } from 'react'
-import { Box, Chip, IconButton, Paper, useTheme } from '@mui/material'
+import { Box, Chip, IconButton, Paper, Tooltip, useTheme } from '@mui/material'
 import CheckIcon from '@mui/icons-material/Check'
 import CloseIcon from '@mui/icons-material/Close'
 import { ArenaSeatPlayerModal } from './ArenaSeatPlayerModal'
 import { CharacterCircle } from './CharacterCircle'
-import { getDisplayName, getIconForCharacter, getEffectiveNightOrderFromRegistry } from '../../../catalog'
+import { getDisplayName, getIconForCharacter, getEffectiveNightOrderFromRegistry, getAbilityText } from '../../../catalog'
 import { getSeatPosition } from '../../../utils/seats'
 import { VoteButtonGroup, RoundRobinIndicator, TagChip } from './ArenaSeatComponents'
 
@@ -61,6 +61,16 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: StorytellerCo
   const actualCharId = seat.characterId
   const charIcon = actualCharId ? getIconForCharacter(actualCharId) : null
   const actualCharName = actualCharId ? getDisplayName(actualCharId, language) : ''
+  const actualCharAbility = actualCharId ? getAbilityText(actualCharId, language) : ''
+
+  // Drunk/poisoned derived from stTags — always visible to ST
+  const stTagLabels: string[] = (seat.stTags || []).map((t: string) => {
+    const body = t.startsWith('📝') ? t.slice(2) : t
+    const sep = body.indexOf('::')
+    return sep === -1 ? body : body.slice(0, sep)
+  })
+  const isDrunk = stTagLabels.includes('drunk')
+  const isPoisoned = stTagLabels.includes('poisoned')
 
   const isVisited = currentDay.nightVisitedSeats.includes(seat.seat)
   const isFirstNight = currentDay.day === 1
@@ -121,19 +131,27 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: StorytellerCo
           pointerEvents: 'auto',
         }}
       >
-        {/* Circle: absolutely centered above card top edge */}
-        <Box sx={{ position: 'absolute', top: -OVERLAP, left: '50%', transform: 'translateX(-50%)', zIndex: 3,
-          filter: seat.alive ? 'none' : 'grayscale(85%) brightness(0.85)', opacity: seat.alive ? 1 : 0.75 }}>
-          <CharacterCircle
-            size={CIRCLE}
-            charIcon={charIcon}
-            charName={actualCharName}
-            nightShowCharacter={nightShowCharacter || seat.isTraveler}
-            isOpen={isPlayerModalOpen}
-            disabled={false}
-            onClick={(e) => { e.stopPropagation(); setPlayerModalSeat(isPlayerModalOpen ? null : seat.seat) }}
-          />
-        </Box>
+        {/* Circle: absolutely centered above card top edge — tooltip shows ability */}
+        <Tooltip
+          title={actualCharAbility || ''}
+          placement="top"
+          arrow
+          disableHoverListener={!actualCharAbility || !nightShowCharacter}
+          enterDelay={600}
+        >
+          <Box sx={{ position: 'absolute', top: -OVERLAP, left: '50%', transform: 'translateX(-50%)', zIndex: 3,
+            filter: seat.alive ? 'none' : 'grayscale(85%) brightness(0.85)', opacity: seat.alive ? 1 : 0.75 }}>
+            <CharacterCircle
+              size={CIRCLE}
+              charIcon={charIcon}
+              charName={actualCharName}
+              nightShowCharacter={nightShowCharacter || seat.isTraveler}
+              isOpen={isPlayerModalOpen}
+              disabled={false}
+              onClick={(e) => { e.stopPropagation(); setPlayerModalSeat(isPlayerModalOpen ? null : seat.seat) }}
+            />
+          </Box>
+        </Tooltip>
         <Paper
           elevation={selectedSeat?.seat === seat.seat ? 4 : 1}
           onClick={(e) => { e.stopPropagation(); handleSeatClick(seat.seat) }}
@@ -166,6 +184,32 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: StorytellerCo
             {hasVoted && <Box component="span" sx={{ color: votedYes ? 'success.main' : 'error.main', fontWeight: 700 }}>{votedYes ? <CheckIcon fontSize="small" /> : <CloseIcon fontSize="small" />}</Box>}
           </Box>
 
+          {/* Drunk / Poisoned — always visible to ST, prominent status */}
+          {(isDrunk || isPoisoned) && (
+            <Box sx={{ display: 'flex', gap: 0.3, mt: 0.3, flexWrap: 'wrap', justifyContent: 'center' }}>
+              {isDrunk && (
+                <Box component="span" sx={{
+                  fontSize: '0.6rem', fontWeight: 700, px: 0.6, py: 0.15,
+                  borderRadius: '4px', lineHeight: 1.4,
+                  bgcolor: isDark ? '#6b4400' : '#fff3cd',
+                  color: isDark ? '#ffcc60' : '#7a4500',
+                  border: '1px solid',
+                  borderColor: isDark ? '#ffcc60' : '#f5a623',
+                }}>🍺 {language === 'zh' ? '醉' : 'Drunk'}</Box>
+              )}
+              {isPoisoned && (
+                <Box component="span" sx={{
+                  fontSize: '0.6rem', fontWeight: 700, px: 0.6, py: 0.15,
+                  borderRadius: '4px', lineHeight: 1.4,
+                  bgcolor: isDark ? '#2d0045' : '#f5e8ff',
+                  color: isDark ? '#cc88ff' : '#6a008a',
+                  border: '1px solid',
+                  borderColor: isDark ? '#cc88ff' : '#a855f7',
+                }}>☠ {language === 'zh' ? '毒' : 'Psnd'}</Box>
+              )}
+            </Box>
+          )}
+
           {tagDefs.length > 0 && (
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.375, justifyContent: 'center', mt: 0.5 }}>
               {tagDefs.map(({ label, chipSx }) => {
@@ -195,6 +239,8 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: StorytellerCo
               {(seat.stTags as string[]).map((tag: string) => {
                 const body = tag.startsWith('📝') ? tag.slice(2) : tag
                 const sep = body.indexOf('::'); const label = sep === -1 ? body : body.slice(0, sep)
+                // Skip drunk/poisoned — shown as permanent badges above
+                if (label === 'drunk' || label === 'poisoned') return null
                 const srcId = sep === -1 ? null : body.slice(sep + 2) || null
                 const srcIcon = srcId ? getIconForCharacter(srcId) : null
                 return (

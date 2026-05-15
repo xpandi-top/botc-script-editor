@@ -2,6 +2,7 @@ import { Box, IconButton, Tooltip, Typography } from '@mui/material'
 import AddCircleIcon from '@mui/icons-material/AddCircle'
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts'
 import SaveIcon from '@mui/icons-material/Save'
+import { makeT } from '../../lib/t'
 
 interface GameActionsBarProps {
   openNewGamePanel: () => void
@@ -27,25 +28,25 @@ export function GameActionsBar({
   variant = 'toolbar',
 }: GameActionsBarProps) {
   const wrap = (fn: () => void) => () => { fn(); onAfterAction?.() }
-  const zh = language === 'zh'
+  const t = makeT(language as any)
 
   const actions = [
     {
       key: 'new',
       icon: <AddCircleIcon />,
-      label: zh ? '新游戏' : 'New',
+      label: t('new_game'),
       onClick: wrap(openNewGamePanel),
     },
     {
       key: 'players',
       icon: <ManageAccountsIcon />,
-      label: zh ? '玩家' : 'Edit',
+      label: t('edit_players'),
       onClick: wrap(openCharacterEditor),
     },
     {
       key: 'save',
       icon: <SaveIcon />,
-      label: zh ? '保存' : 'Save',
+      label: t('save'),
       onClick: wrap(openEndGamePanel),
     },
   ]
