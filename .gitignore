@@ -9,3 +9,4 @@ coverage
 vite.config.js
 .env.local
 .env.*.local
+assets/pdfs/
