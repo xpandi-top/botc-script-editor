@@ -11,10 +11,11 @@ Release timeline for BOTC Companion — features, fixes, and improvements.
 - **Print Studio step in onboarding tutorial** — tutorial now spotlights the Print Studio tab (step 15 desktop, step 6 mobile) and explains PDF export
 
 ### Fixed
-- **YouTube BGM silent on mobile Safari** — switched embed URL to `enablejsapi=1&playsinline=1` (removed `autoplay=1` which Safari blocks); iframe now stays pre-loaded in DOM and playback is controlled via `postMessage` (`playVideo`/`pauseVideo`/`stopVideo`); `onReady` listener re-issues `playVideo` when track changes mid-session
+- **YouTube BGM play/stop on desktop** — restored original mount/unmount approach: iframe with `autoplay=1` mounts when playing, unmounts when stopped; postMessage-based control was unreliable and is removed for desktop
+- **YouTube BGM on mobile Safari** — platform-split strategy: iOS pre-loads the iframe (always mounted, no `autoplay`); tapping play synchronously sets `iframe.src` to include `autoplay=1`, which iOS treats as a user-initiated navigation and permits; stop removes `autoplay=1` from src; `sandbox` attribute removed (it overrides `allow="autoplay"` on iOS Safari)
 
 ### Tests
-- `youtubeAudio.test.ts` (18 cases) — `buildYouTubeEmbedSrc` params, `sendYTCommand` JSON payload, no-op on null ref, `onReady` listener fires only when playing, play/pause effect sends correct postMessage command
+- `youtubeAudio.test.ts` — updated to match platform-split architecture; covers URL params, `sendYTCommand` no-op on desktop, src-swap URL construction for iOS, YouTube vs audio track routing
 
 ---
 
