@@ -204,7 +204,16 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
       <FormControl size="small" fullWidth>
         <InputLabel>{t('script')}</InputLabel>
         <Select value={newGamePanel.scriptSlug || ''} onChange={(e) => handleScriptChange(e.target.value)} label={t('script')}>
-          {scriptOptions.map((s: any) => <MenuItem key={s.slug} value={s.slug}>{s.title}</MenuItem>)}
+          {scriptOptions.map((s: any) => (
+            <MenuItem key={s.slug} value={s.slug}>
+              {s.title}
+              {s.version && (
+                <Typography component="span" variant="caption" sx={{ ml: 0.75, color: 'text.secondary', fontFamily: 'monospace' }}>
+                  v{s.version}
+                </Typography>
+              )}
+            </MenuItem>
+          ))}
         </Select>
       </FormControl>
 
