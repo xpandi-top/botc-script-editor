@@ -4,7 +4,28 @@ Release timeline for BOTC Companion — features, fixes, and improvements.
 
 ---
 
-## [Unreleased]
+## 2026-05-15 (latest)
+
+### Added
+- **Script version displayed in sidebar** — script list rows show `v{version}` badge next to title; font sizes increased for better readability
+- **Version persists across import/export** — `version` stored in `_meta` entry of exported JSON; `parseScriptFromData` restores it on import; round-trip safe
+- **Changelog link in info panel** — tapping the ℹ️ info button now shows a "📋 Changelog" link to this file
+
+### Changed
+- **Script sidebar row sizing** — title `0.8→0.875rem`, version/author `0.65→0.75rem`, `text.disabled→text.secondary` for improved contrast
+- **Records expand/collapse** — Collapse animation `300→150ms`; `unmountOnExit` so hidden panels don't stay in DOM; `RecordRowDetail` + `QuickEditPanel` wrapped in `React.memo`
+- **Tab switching no longer causes remount** — Analytics and Storyteller tabs stay mounted after first visit; subsequent switches use CSS `display` toggle instead of full unmount/remount
+
+### Fixed
+- **Record detail panel hard to read on dark theme** — day labels (`primary.main` → `text.primary`), section backgrounds (`rgba(0,0,0,0.02)` → `action.hover/selected`), "Quick Edit" label (`warning.dark` → `warning.main`), all secondary labels moved to `text.primary` with opacity
+- **MUI Chip `avatar` + `icon` warning** — MVP trophy chip no longer sets both props simultaneously; trophy appears in `avatar` slot when no character icon, or inline in `label` when character icon is present
+- **Sort button hover tooltip** — removed "排序" tooltip from sort dropdown button in Scripts tab sidebar
+
+### Security
+- **YouTube iframe sandboxed** — added `sandbox="allow-scripts allow-same-origin allow-presentation"` to prevent iframe from navigating parent window
+- **YouTube video ID validation** — regex now anchors to `[\w-]{1,32}` only; prevents path-traversal style IDs from reaching iframe `src`
+- **`importJinxesJson` unguarded parse** — JSON.parse now wrapped in try-catch; type-checks result is a plain object before processing
+- **File import size limit** — script JSON import now rejects files larger than 5 MB
 
 ---
 

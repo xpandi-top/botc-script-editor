@@ -56,24 +56,24 @@ export function ScriptList({ title, author, version, isActive, onSelect, tags }:
             variant="body2"
             sx={{
               fontWeight: isActive ? 700 : 500,
-              fontSize: '0.8rem',
+              fontSize: '0.875rem',
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               whiteSpace: 'nowrap',
-              color: isActive ? 'text.primary' : 'text.primary',
+              color: 'text.primary',
               lineHeight: 1.35,
             }}
           >
             {title}
           </Typography>
           {version && (
-            <Typography variant="caption" sx={{ color: 'text.disabled', fontFamily: 'monospace', fontSize: '0.65rem', flexShrink: 0 }}>
+            <Typography variant="caption" sx={{ color: 'text.secondary', fontFamily: 'monospace', fontSize: '0.75rem', flexShrink: 0 }}>
               v{version}
             </Typography>
           )}
         </Box>
         {author && (
-          <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.68rem', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: 1.2 }}>
+          <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.75rem', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: 1.2 }}>
             {author}
           </Typography>
         )}

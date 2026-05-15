@@ -4,15 +4,17 @@ import type { AudioTrack } from '../components/StorytellerSub/types'
 
 // ── YouTube URL helpers ───────────────────────────────────────────────────────
 
+const YT_ID_RE = /^[\w-]{1,32}$/
+
 export function extractYouTubeVideoId(url: string): string | null {
   const patterns = [
-    /[?&]v=([^&#]+)/,
-    /youtu\.be\/([^?&#]+)/,
-    /embed\/([^?&#]+)/,
+    /[?&]v=([\w-]{1,32})/,
+    /youtu\.be\/([\w-]{1,32})/,
+    /embed\/([\w-]{1,32})/,
   ]
   for (const p of patterns) {
     const m = url.match(p)
-    if (m) return m[1]
+    if (m && YT_ID_RE.test(m[1])) return m[1]
   }
   return null
 }

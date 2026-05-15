@@ -177,6 +177,15 @@ export default function App() {
   const { scheduleSync } = cloudSync
   const { activeTab, setActiveTab, sharedAnalyticsRecords, shareDecodeError, clearSharedRecords } = useShareParam()
 
+  // Keep heavy tabs mounted once visited — avoids re-initialization cost on switch
+  const [mountedTabs, setMountedTabs] = useState<Set<string>>(() => new Set([activeTab]))
+  useEffect(() => {
+    setMountedTabs((prev) => {
+      if (prev.has(activeTab)) return prev
+      return new Set([...prev, activeTab])
+    })
+  }, [activeTab])
+
   const [uiLanguage, setUiLanguage] = useState<Language>(() => {
     try { return (localStorage.getItem('botc-ui-language') as Language) ?? 'zh' } catch { return 'zh' }
   })
@@ -468,6 +477,7 @@ export default function App() {
   }
 
   function importScriptFile(file: File) {
+    if (file.size > 5 * 1024 * 1024) { setSaveStatus('Import failed: file too large (max 5 MB)'); return }
     const reader = new FileReader()
     reader.onload = (e) => {
       try {
@@ -684,9 +694,19 @@ export default function App() {
         </Box>
 
         {showDescription && (
-          <Box sx={{ px: 2, py: 1, bgcolor: 'rgba(133,63,34,0.06)', borderTop: '1px solid', borderColor: 'divider' }}>
-            <Typography variant="body2" sx={{ color: 'text.primary', mb: 0.5 }}>{currentDescription}</Typography>
+          <Box sx={{ px: 2, py: 1, bgcolor: 'rgba(133,63,34,0.06)', borderTop: '1px solid', borderColor: 'divider', display: 'flex', alignItems: 'baseline', flexWrap: 'wrap', gap: 1 }}>
+            <Typography variant="body2" sx={{ color: 'text.primary' }}>{currentDescription}</Typography>
             <Typography variant="caption" sx={{ color: 'text.secondary', fontStyle: 'italic' }}>{disclaimerText}</Typography>
+            <Typography
+              component="a"
+              variant="caption"
+              href="https://github.com/xpandi-top/botc-script-editor/blob/main/docs/CHANGELOG.md"
+              target="_blank"
+              rel="noopener noreferrer"
+              sx={{ color: 'primary.main', textDecoration: 'none', '&:hover': { textDecoration: 'underline' }, flexShrink: 0 }}
+            >
+              {uiLanguage === 'zh' ? '📋 查看更新日志' : '📋 Changelog'}
+            </Typography>
           </Box>
         )}
 
@@ -801,29 +821,33 @@ export default function App() {
         />
       )}
 
-      {activeTab === 'analytics' && (
-        <AnalyticsTab
-          language={uiLanguage}
-          onLanguageChange={setUiLanguage}
-          sharedRecords={sharedAnalyticsRecords}
-          shareDecodeError={shareDecodeError}
-          onClearSharedRecords={clearSharedRecords}
-        />
+      {(activeTab === 'analytics' || mountedTabs.has('analytics')) && (
+        <Box sx={{ display: activeTab === 'analytics' ? undefined : 'none' }}>
+          <AnalyticsTab
+            language={uiLanguage}
+            onLanguageChange={setUiLanguage}
+            sharedRecords={sharedAnalyticsRecords}
+            shareDecodeError={shareDecodeError}
+            onClearSharedRecords={clearSharedRecords}
+          />
+        </Box>
       )}
 
       {activeTab === 'settings' && (
         <SettingsTab language={uiLanguage} onLanguageChange={setUiLanguage} fontSettings={fontSettings} cloudSync={cloudSync} />
       )}
 
-      {activeTab === 'storyteller' && (
-        <StorytellerHelper
-          activeScriptSlug={stActiveSlug}
-          activeScriptTitle={getScriptTitle(scripts.find((s) => s.slug === stActiveSlug) ?? scripts[0])}
-          language={uiLanguage}
-          onLanguageChange={setUiLanguage}
-          onSelectScript={setStActiveSlug}
-          scriptOptions={scripts.map((s) => ({ slug: s.slug, title: s.title, titleZh: s.titleZh || s.title, version: s.version, characters: s.characters, pinnedRevisions: s.pinnedRevisions }))}
-        />
+      {(activeTab === 'storyteller' || mountedTabs.has('storyteller')) && (
+        <Box sx={{ display: activeTab === 'storyteller' ? undefined : 'none' }}>
+          <StorytellerHelper
+            activeScriptSlug={stActiveSlug}
+            activeScriptTitle={getScriptTitle(scripts.find((s) => s.slug === stActiveSlug) ?? scripts[0])}
+            language={uiLanguage}
+            onLanguageChange={setUiLanguage}
+            onSelectScript={setStActiveSlug}
+            scriptOptions={scripts.map((s) => ({ slug: s.slug, title: s.title, titleZh: s.titleZh || s.title, version: s.version, characters: s.characters, pinnedRevisions: s.pinnedRevisions }))}
+          />
+        </Box>
       )}
       {/* ── Mobile bottom navigation ── */}
       {isMobileView && (

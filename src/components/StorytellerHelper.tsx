@@ -21,7 +21,7 @@ export function StorytellerHelper(props: StorytellerHelperProps) {
   }, [isMobile])
 
   const ytIframe = ctx.youtubeEmbedSrc && ctx.audioPlaying
-    ? <iframe src={ctx.youtubeEmbedSrc} style={{ position: 'absolute', width: 0, height: 0, border: 0, overflow: 'hidden' }} allow="autoplay; encrypted-media" title="BGM" />
+    ? <iframe src={ctx.youtubeEmbedSrc} style={{ position: 'absolute', width: 0, height: 0, border: 0, overflow: 'hidden' }} allow="autoplay; encrypted-media" sandbox="allow-scripts allow-same-origin allow-presentation" title="BGM" />
     : null
 
   // ── Mobile layout ─────────────────────────────────────────────

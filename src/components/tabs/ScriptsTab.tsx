@@ -294,20 +294,18 @@ export function ScriptsTab({
               slotProps={{ input: { sx: { fontSize: '0.78rem', pr: 0.5 } } }}
               sx={{ '& .MuiInputBase-root': { borderRadius: 1.5 } }}
             />
-            <Tooltip title={zh ? '排序' : 'Sort'}>
-              <Select
-                size="small"
-                value={sortKey}
-                onChange={(e) => setSortKey(e.target.value as typeof sortKey)}
-                renderValue={() => <SortIcon sx={{ fontSize: 16, display: 'block' }} />}
-                sx={{ minWidth: 36, '& .MuiSelect-select': { py: '6px', px: '6px !important', display: 'flex', alignItems: 'center' }, '& .MuiSelect-icon': { display: 'none' } }}
-              >
-                <MenuItem value="default" sx={{ fontSize: '0.8rem' }}>{zh ? '默认顺序' : 'Default'}</MenuItem>
-                <MenuItem value="name"    sx={{ fontSize: '0.8rem' }}>{zh ? '按名称' : 'Name A–Z'}</MenuItem>
-                <MenuItem value="author"  sx={{ fontSize: '0.8rem' }}>{zh ? '按作者' : 'Author'}</MenuItem>
-                <MenuItem value="chars"   sx={{ fontSize: '0.8rem' }}>{zh ? '按角色数' : 'Char count'}</MenuItem>
-              </Select>
-            </Tooltip>
+            <Select
+              size="small"
+              value={sortKey}
+              onChange={(e) => setSortKey(e.target.value as typeof sortKey)}
+              renderValue={() => <SortIcon sx={{ fontSize: 16, display: 'block' }} />}
+              sx={{ minWidth: 36, '& .MuiSelect-select': { py: '6px', px: '6px !important', display: 'flex', alignItems: 'center' }, '& .MuiSelect-icon': { display: 'none' } }}
+            >
+              <MenuItem value="default" sx={{ fontSize: '0.8rem' }}>{zh ? '默认顺序' : 'Default'}</MenuItem>
+              <MenuItem value="name"    sx={{ fontSize: '0.8rem' }}>{zh ? '按名称' : 'Name A–Z'}</MenuItem>
+              <MenuItem value="author"  sx={{ fontSize: '0.8rem' }}>{zh ? '按作者' : 'Author'}</MenuItem>
+              <MenuItem value="chars"   sx={{ fontSize: '0.8rem' }}>{zh ? '按角色数' : 'Char count'}</MenuItem>
+            </Select>
           </Box>
 
           {/* ── Tag filter chips ── */}

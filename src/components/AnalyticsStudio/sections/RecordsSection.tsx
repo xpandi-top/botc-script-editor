@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { memo, useMemo, useState } from 'react'
 import {
   Box, Button, Checkbox, Chip, Collapse, Dialog, DialogActions, DialogContent, DialogTitle,
   FormControl, IconButton, InputLabel, MenuItem, Paper, Select, Table, TableBody, TableCell,
@@ -49,7 +49,7 @@ interface Props {
 
 // ── Quick Edit panel ─────────────────────────────────────────────
 
-function QuickEditPanel({ record, zh, onSave }: {
+const QuickEditPanel = memo(function QuickEditPanel({ record, zh, onSave }: {
   record: GameRecord; language: Language; zh: boolean; onSave: (updated: GameRecord) => void
 }) {
   const [winner, setWinner] = useState<string>(record.winner ?? '')
@@ -91,13 +91,13 @@ function QuickEditPanel({ record, zh, onSave }: {
   const inputSx = { '& .MuiInputBase-input': { fontSize: '0.78rem', py: '5px' }, '& .MuiInputLabel-root': { fontSize: '0.78rem' } }
 
   return (
-    <Box sx={{ px: 2, py: 1.25, bgcolor: 'rgba(0,0,0,0.025)', borderTop: '1px dashed', borderColor: 'divider' }}>
+    <Box sx={{ px: 2, py: 1.25, bgcolor: 'action.selected', borderTop: '1px dashed', borderColor: 'divider' }}>
 
       {/* Header */}
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
           <FlashOnIcon sx={{ fontSize: '0.8rem', color: 'warning.main' }} />
-          <Typography variant="caption" sx={{ fontWeight: 700, color: 'warning.dark', fontSize: '0.72rem' }}>
+          <Typography variant="caption" sx={{ fontWeight: 700, color: 'warning.main', fontSize: '0.72rem' }}>
             {zh ? '快速编辑' : 'Quick Edit'}
           </Typography>
         </Box>
@@ -183,7 +183,7 @@ function QuickEditPanel({ record, zh, onSave }: {
       </Box>
     </Box>
   )
-}
+})
 
 // ── Row detail (inline expand) ────────────────────────────────────
 
@@ -207,7 +207,7 @@ function StarDots({ value }: { value: number | null | undefined }) {
   )
 }
 
-function RecordRowDetail({ record, language, zh }: { record: GameRecord; language: Language; zh: boolean }) {
+const RecordRowDetail = memo(function RecordRowDetail({ record, language, zh }: { record: GameRecord; language: Language; zh: boolean }) {
   const assignments = record.setup?.assignments ?? {}
   const hasRatings = record.balanced != null || record.funEvil != null || record.funGood != null || record.replay != null
   const mvpName = record.mvp === 'storyteller'
@@ -219,22 +219,22 @@ function RecordRowDetail({ record, language, zh }: { record: GameRecord; languag
   const durationMin = record.durationMs ? Math.round(record.durationMs / 60000) : null
 
   return (
-    <Box sx={{ px: 2, pb: 1.5, pt: 0.75, bgcolor: 'rgba(0,0,0,0.02)' }}>
+    <Box sx={{ px: 2, pb: 1.5, pt: 0.75, bgcolor: 'action.hover' }}>
 
       {/* ── ST + meta strip ── */}
       {(record.stName || durationMin || mvpName) && (
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, mb: 1, pb: 0.75, borderBottom: '1px dashed', borderColor: 'divider' }}>
           {record.stName && (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.4 }}>
-              <PersonIcon sx={{ fontSize: '0.8rem', color: 'text.secondary' }} />
-              <Typography variant="caption" color="text.secondary">{zh ? '说书人: ' : 'ST: '}</Typography>
+              <PersonIcon sx={{ fontSize: '0.8rem', color: 'text.primary', opacity: 0.6 }} />
+              <Typography variant="caption" color="text.primary" sx={{ opacity: 0.7 }}>{zh ? '说书人: ' : 'ST: '}</Typography>
               <Typography variant="caption" sx={{ fontWeight: 600 }}>{record.stName}</Typography>
             </Box>
           )}
           {durationMin && (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.4 }}>
-              <TimerIcon sx={{ fontSize: '0.8rem', color: 'text.secondary' }} />
-              <Typography variant="caption" color="text.secondary">{durationMin}{zh ? ' 分钟' : ' min'}</Typography>
+              <TimerIcon sx={{ fontSize: '0.8rem', color: 'text.primary', opacity: 0.6 }} />
+              <Typography variant="caption" color="text.primary" sx={{ opacity: 0.75 }}>{durationMin}{zh ? ' 分钟' : ' min'}</Typography>
             </Box>
           )}
           {mvpName && (
@@ -242,7 +242,7 @@ function RecordRowDetail({ record, language, zh }: { record: GameRecord; languag
               {mvpIsST
                 ? <PersonIcon sx={{ fontSize: '0.8rem', color: 'purple' }} />
                 : <EmojiEventsIcon sx={{ fontSize: '0.8rem', color: 'warning.main' }} />}
-              <Typography variant="caption" color="text.secondary">MVP: </Typography>
+              <Typography variant="caption" color="text.primary" sx={{ opacity: 0.7 }}>MVP: </Typography>
               <Typography variant="caption" sx={{ fontWeight: 600, color: mvpIsST ? 'purple' : 'warning.dark' }}>{mvpName}</Typography>
             </Box>
           )}
@@ -261,9 +261,21 @@ function RecordRowDetail({ record, language, zh }: { record: GameRecord; languag
               <Chip
                 key={ps.seat}
                 size="small"
-                avatar={icon ? <Box component="img" src={icon as string} sx={{ width: 14, height: 14, borderRadius: '50%' }} /> : undefined}
-                label={`${ps.name}${charName ? ` (${charName})` : ''}`}
-                icon={isMvp ? <EmojiEventsIcon sx={{ fontSize: '0.75rem !important', color: 'warning.main !important' }} /> : undefined}
+                avatar={
+                  isMvp && !icon
+                    ? <EmojiEventsIcon sx={{ fontSize: '0.75rem !important', color: 'warning.main !important' }} />
+                    : icon
+                      ? <Box component="img" src={icon as string} sx={{ width: 14, height: 14, borderRadius: '50%' }} />
+                      : undefined
+                }
+                label={
+                  isMvp && icon
+                    ? <Box sx={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+                        <EmojiEventsIcon sx={{ fontSize: '0.7rem', color: 'warning.main', verticalAlign: 'middle' }} />
+                        {`${ps.name}${charName ? ` (${charName})` : ''}`}
+                      </Box>
+                    : `${ps.name}${charName ? ` (${charName})` : ''}`
+                }
                 sx={{
                   fontSize: '0.68rem',
                   bgcolor: ps.team === 'evil' ? 'rgba(183,28,28,0.12)' : ps.team === 'good' ? 'rgba(21,101,192,0.12)' : undefined,
@@ -282,8 +294,8 @@ function RecordRowDetail({ record, language, zh }: { record: GameRecord; languag
         <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', mb: hasRatings || record.setup?.demonBluffs?.length ? 0.75 : 0 }}>
           {record.days.map((d) => (
             <Box key={d.day} sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
-              <Typography variant="caption" sx={{ fontWeight: 700, color: 'primary.main' }}>{zh ? `第${d.day}天` : `D${d.day}`}</Typography>
-              <Typography variant="caption" color="text.secondary">
+              <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.primary' }}>{zh ? `第${d.day}天` : `D${d.day}`}</Typography>
+              <Typography variant="caption" color="text.primary" sx={{ opacity: 0.75 }}>
                 {d.votes}{zh ? '票' : 'v'} {d.nominations}{zh ? '提' : 'n'} {d.skills}{zh ? '技' : 's'}
               </Typography>
             </Box>
@@ -312,11 +324,11 @@ function RecordRowDetail({ record, language, zh }: { record: GameRecord; languag
             if (v == null) return null
             return (
               <Box key={k} sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-                <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.66rem' }}>
+                <Typography variant="caption" color="text.primary" sx={{ fontSize: '0.66rem', opacity: 0.75 }}>
                   {zh ? RATING_LABELS[k].zh : RATING_LABELS[k].en}
                 </Typography>
                 <StarDots value={v} />
-                <Typography variant="caption" sx={{ fontSize: '0.66rem', color: 'text.secondary' }}>{v}/5</Typography>
+                <Typography variant="caption" sx={{ fontSize: '0.66rem', color: 'text.primary', opacity: 0.75 }}>{v}/5</Typography>
               </Box>
             )
           })}
@@ -336,12 +348,12 @@ function RecordRowDetail({ record, language, zh }: { record: GameRecord; languag
       {/* ── Other notes ── */}
       {record.otherNote && (
         <Box sx={{ mt: 0.5 }}>
-          <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.68rem', fontStyle: 'italic' }}>{record.otherNote}</Typography>
+          <Typography variant="caption" color="text.primary" sx={{ fontSize: '0.68rem', fontStyle: 'italic', opacity: 0.8 }}>{record.otherNote}</Typography>
         </Box>
       )}
     </Box>
   )
-}
+})
 
 // ── Main ──────────────────────────────────────────────────────────
 
@@ -543,7 +555,7 @@ export function RecordsSection({ records, filteredRecords, onRecordsChange, lang
                   </TableRow>,
                   <TableRow key={`${r.id}-detail`} sx={{ '& td': { p: 0 } }}>
                     <TableCell colSpan={7} sx={{ p: 0, border: isExpanded ? undefined : 'none' }}>
-                      <Collapse in={isExpanded}>
+                      <Collapse in={isExpanded} timeout={150} unmountOnExit>
                         <RecordRowDetail record={r} language={language} zh={zh} />
                         <QuickEditPanel
                           record={r}

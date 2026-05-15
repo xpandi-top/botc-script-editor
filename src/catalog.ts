@@ -422,7 +422,22 @@ export function exportJinxesJson(): string {
  * for entries that differ from source data.
  */
 export function importJinxesJson(json: string) {
-  const data = JSON.parse(json) as Record<string, {
+  let data: Record<string, {
+    id?: string
+    characters?: [string, string]
+    status?: 'active' | 'inactive'
+    reason_en?: string
+    reason_zh?: string
+  }>
+  try {
+    data = JSON.parse(json)
+  } catch {
+    throw new Error('Invalid JSON in jinx import file')
+  }
+  if (typeof data !== 'object' || data === null || Array.isArray(data)) {
+    throw new Error('Jinx import must be a JSON object')
+  }
+  const _data = data as Record<string, {
     id?: string
     characters?: [string, string]
     status?: 'active' | 'inactive'
@@ -431,7 +446,7 @@ export function importJinxesJson(json: string) {
   }>
 
   const stored = loadJinxOverrides()
-  for (const [id, entry] of Object.entries(data)) {
+  for (const [id, entry] of Object.entries(_data)) {
     const base = jinxes[id]
     const patch: JinxOverride = {}
     if (entry.status && entry.status !== (base?.status ?? 'active')) patch.status = entry.status
@@ -862,6 +877,7 @@ export function parseScriptFromData(data: unknown, filename: string): import('./
       edition: inferEditionFromSlug(fallbackSlug),
       characters,
       sourceFile,
+      ...(normalizedMeta?.version !== undefined ? { version: normalizedMeta.version } : {}),
     }
   }
 
@@ -879,6 +895,7 @@ export function parseScriptFromData(data: unknown, filename: string): import('./
     edition: d.edition ?? 'custom',
     characters: Array.isArray(d.characters) ? d.characters : [],
     sourceFile,
+    ...(d.version !== undefined ? { version: d.version } : {}),
   }
 }
 
@@ -916,6 +933,7 @@ export function createScriptPayload(script: EditableScript) {
       author: script.author,
       logo: script.meta.logo ?? '',
       jinxes: normalizedScriptJinxes.length > 0 ? normalizedScriptJinxes : undefined,
+      ...(script.version !== undefined ? { version: script.version } : {}),
     },
     ...sortCharacterIds(script.characters).map((id) => customCharactersById.get(id) ?? id),
   ]

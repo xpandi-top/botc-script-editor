@@ -56,6 +56,7 @@ export type ScriptMetaEntry = {
   firstNight?: string[]
   otherNight?: string[]
   use_second_page_title_image?: boolean
+  version?: string
 }
 
 export type ScriptJinxOverride = {
