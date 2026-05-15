@@ -20,7 +20,9 @@ export function extractYouTubeVideoId(url: string): string | null {
 }
 
 export function buildYouTubeEmbedSrc(videoId: string): string {
-  return `https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1&playlist=${videoId}`
+  // enablejsapi=1 lets us control playback via postMessage (required for mobile Safari).
+  // No autoplay=1 — mobile Safari blocks that even with allow="autoplay" on the iframe.
+  return `https://www.youtube.com/embed/${videoId}?enablejsapi=1&loop=1&playlist=${videoId}&playsinline=1`
 }
 
 // ── Persistence helpers ───────────────────────────────────────────────────────
@@ -57,10 +59,41 @@ export function useAudioState() {
   const [audioPlaying, setAudioPlaying] = useState(false)
   const [youtubeEmbedSrc, setYoutubeEmbedSrc] = useState<string | null>(null)
   const audioRef = useRef<HTMLAudioElement>(null)
+  const ytIframeRef = useRef<HTMLIFrameElement>(null)
+
+  /** Send a command to the YouTube IFrame API via postMessage.
+   *  Call this synchronously inside the user-gesture handler so Mobile Safari
+   *  still considers the playback request trusted. */
+  function sendYTCommand(func: 'playVideo' | 'pauseVideo' | 'stopVideo') {
+    const win = ytIframeRef.current?.contentWindow
+    if (!win) return
+    win.postMessage(JSON.stringify({ event: 'command', func, args: [] }), '*')
+  }
 
   // Keep a ref to tracks so effects can read current value without stale closures
   const audioTracksRef = useRef(audioTracks)
   useEffect(() => { audioTracksRef.current = audioTracks }, [audioTracks])
+
+  // Ref so the onMessage handler can read current playback state without stale closure
+  const audioPlayingRef = useRef(audioPlaying)
+  useEffect(() => { audioPlayingRef.current = audioPlaying }, [audioPlaying])
+
+  // Listen for YouTube IFrame API messages.
+  // When the player signals onReady (after iframe loads or src changes), auto-play
+  // if we were already in playing state — handles track switches on mobile Safari.
+  useEffect(() => {
+    function onMessage(e: MessageEvent) {
+      try {
+        const data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data
+        if (data?.event === 'onReady' && audioPlayingRef.current) {
+          sendYTCommand('playVideo')
+        }
+      } catch { /* non-JSON messages from other origins — ignore */ }
+    }
+    window.addEventListener('message', onMessage)
+    return () => window.removeEventListener('message', onMessage)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Persist custom tracks on change
   useEffect(() => {
@@ -95,7 +128,12 @@ export function useAudioState() {
     const audio = audioRef.current
     if (!audio) return
     const track = audioTracksRef.current.find((t) => t.src === selectedAudioSrc)
-    if (track?.type === 'youtube') return // iframe mount/unmount handles play state
+    if (track?.type === 'youtube') {
+      // Use postMessage so Mobile Safari honours the user-gesture that caused this effect.
+      // The iframe stays mounted; we command it rather than toggling its src.
+      sendYTCommand(audioPlaying ? 'playVideo' : 'pauseVideo')
+      return
+    }
     if (audioPlaying) audio.play().catch(() => {})
     else audio.pause()
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -161,6 +199,8 @@ export function useAudioState() {
     audioPlaying, setAudioPlaying,
     youtubeEmbedSrc,
     audioRef,
+    ytIframeRef,
+    sendYTCommand,
     handleLocalFileChange,
     handleUrlTrackAdd,
     deleteTrack,

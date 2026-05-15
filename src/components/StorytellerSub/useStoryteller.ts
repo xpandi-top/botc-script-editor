@@ -221,6 +221,7 @@ export function useStoryteller(props: StorytellerHelperProps) {
 
   function stopNight() {
     audio.setAudioPlaying(false)
+    audio.sendYTCommand('stopVideo')
     const el = audio.audioRef.current
     if (el) { el.pause(); el.currentTime = 0 }
   }

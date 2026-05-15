@@ -18,8 +18,23 @@ export function StorytellerHelper(props: StorytellerHelperProps) {
   // Do NOT set document.body.style.overflow here — StorytellerHelper is now
   // kept mounted in the background when other tabs are active.
 
-  const ytIframe = ctx.youtubeEmbedSrc && ctx.audioPlaying
-    ? <iframe src={ctx.youtubeEmbedSrc} style={{ position: 'absolute', width: 0, height: 0, border: 0, overflow: 'hidden' }} allow="autoplay; encrypted-media" sandbox="allow-scripts allow-same-origin allow-presentation" title="BGM" />
+  // Keep the iframe in the DOM whenever a YouTube track is selected — even when paused.
+  // Mobile Safari blocks autoplay on freshly-mounted iframes (gesture chain broken by React
+  // render cycle). Instead we pre-load the iframe and command it via postMessage (playVideo /
+  // pauseVideo) which Safari honours because the gesture already occurred on this page.
+  // Size: 1×1 off-screen — Safari may ignore postMessage on 0×0 elements.
+  const ytIframe = ctx.youtubeEmbedSrc
+    ? (
+      <iframe
+        ref={ctx.ytIframeRef}
+        src={ctx.youtubeEmbedSrc}
+        style={{ position: 'absolute', width: 1, height: 1, border: 0, top: -2, left: -2, overflow: 'hidden', opacity: 0, pointerEvents: 'none' }}
+        allow="autoplay; encrypted-media; gyroscope; accelerometer"
+        allowFullScreen={false}
+        sandbox="allow-scripts allow-same-origin allow-presentation"
+        title="BGM"
+      />
+    )
     : null
 
   // ── Mobile layout ─────────────────────────────────────────────
