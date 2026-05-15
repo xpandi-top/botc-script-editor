@@ -77,7 +77,7 @@ const STATUS_META: Record<string, { icon: React.ElementType; bgDark: string; bgL
   },
 }
 
-export function StatusBadge({ type, label, isDark }: { type: 'drunk' | 'poisoned'; label: string; isDark: boolean }) {
+export function StatusBadge({ type, label, isDark, srcIcon }: { type: 'drunk' | 'poisoned'; label: string; isDark: boolean; srcIcon?: string | null }) {
   const [anchor, setAnchor] = useState<HTMLElement | null>(null)
   const meta = STATUS_META[type]
   const IconComp = meta.icon
@@ -88,7 +88,11 @@ export function StatusBadge({ type, label, isDark }: { type: 'drunk' | 'poisoned
     <>
       <Chip
         size="small"
-        icon={<IconComp sx={{ fontSize: '0.85rem !important', color: `${color} !important` }} />}
+        icon={
+          srcIcon
+            ? <img src={srcIcon} style={{ width: 14, height: 14, borderRadius: '50%' }} />
+            : <IconComp sx={{ fontSize: '0.85rem !important', color: `${color} !important` }} />
+        }
         label={label}
         onClick={(e) => { e.stopPropagation(); setAnchor(e.currentTarget) }}
         sx={{
@@ -113,9 +117,12 @@ export function StatusBadge({ type, label, isDark }: { type: 'drunk' | 'poisoned
         onClick={(e) => e.stopPropagation()}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         transformOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-        slotProps={{ paper: { sx: { p: 1.5, display: 'flex', alignItems: 'center', gap: 1, borderRadius: 2, boxShadow: 4, bgcolor: bg, border: '1.5px solid', borderColor: border } } }}
+        slotProps={{ paper: { sx: { p: 1.5, display: 'flex', alignItems: 'center', gap: 1.5, borderRadius: 2, boxShadow: 4, bgcolor: bg, border: '1.5px solid', borderColor: border } } }}
       >
-        <IconComp sx={{ fontSize: '2rem', color }} />
+        {srcIcon
+          ? <Box component="img" src={srcIcon} sx={{ width: 40, height: 40, borderRadius: '50%', border: '2px solid', borderColor: border }} />
+          : <IconComp sx={{ fontSize: '2rem', color }} />
+        }
         <Typography variant="h6" fontWeight={700} sx={{ color }}>{label}</Typography>
       </Popover>
     </>

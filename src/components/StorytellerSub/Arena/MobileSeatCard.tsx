@@ -165,12 +165,23 @@ export function MobileSeatCard({ ctx, seat, side = 'left' }: { ctx: StorytellerC
           </Box>
 
           {/* Drunk / Poisoned — always visible */}
-          {(isDrunk || isPoisoned) && (
-            <Box sx={{ display: 'flex', gap: 0.3, mb: 0.25, flexWrap: 'wrap' }}>
-              {isDrunk && <StatusBadge type="drunk" label={translateStTag('drunk', language)} isDark={isDark} />}
-              {isPoisoned && <StatusBadge type="poisoned" label={translateStTag('poisoned', language)} isDark={isDark} />}
-            </Box>
-          )}
+          {(isDrunk || isPoisoned) && (() => {
+            const getTagSrcIcon = (key: string) => {
+              const raw = (seat.stTags || []).find((t: string) => {
+                const b = t.startsWith('📝') ? t.slice(2) : t; const s = b.indexOf('::'); return (s === -1 ? b : b.slice(0, s)) === key
+              })
+              if (!raw) return null
+              const b = raw.startsWith('📝') ? raw.slice(2) : raw; const s = b.indexOf('::')
+              const srcId = s === -1 ? null : b.slice(s + 2) || null
+              return srcId ? getIconForCharacter(srcId) : null
+            }
+            return (
+              <Box sx={{ display: 'flex', gap: 0.3, mb: 0.25, flexWrap: 'wrap' }}>
+                {isDrunk && <StatusBadge type="drunk" label={translateStTag('drunk', language)} isDark={isDark} srcIcon={getTagSrcIcon('drunk') as string | null} />}
+                {isPoisoned && <StatusBadge type="poisoned" label={translateStTag('poisoned', language)} isDark={isDark} srcIcon={getTagSrcIcon('poisoned') as string | null} />}
+              </Box>
+            )
+          })()}
 
           {isNightPhase && nightShowCharacter && (seat.stTags || []).length > 0 && (
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.25, mb: 0.25 }}>
