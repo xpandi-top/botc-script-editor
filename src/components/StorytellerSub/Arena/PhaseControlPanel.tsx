@@ -248,7 +248,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
           </Box>
 
           {/* Public mode + ST Settings / Log / New Game / Save row */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1, flexWrap: 'wrap' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 1, flexWrap: 'nowrap', overflowX: 'auto' }}>
             {phase === 'public' && (
               <Select
                 value={publicMode}
@@ -274,8 +274,6 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
                 <ViewTimelineIcon />
               </IconButton>
             </Tooltip>
-            {/* Divider */}
-            <Box sx={{ width: 1, height: 28, bgcolor: borderColor, mx: 0.25, flexShrink: 0 }} />
             <Tooltip title={language === 'zh' ? '新游戏' : 'New Game'}>
               <IconButton sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={openNewGamePanel}>
                 <AddCircleOutlinedIcon />

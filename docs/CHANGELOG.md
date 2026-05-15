@@ -7,6 +7,19 @@ Release timeline for BOTC Companion — features, fixes, and improvements.
 ## 2026-05-15 (latest)
 
 ### Added
+- **New Game + Save Record buttons in phase control panel** — both buttons appear inline in the ST settings/log row on mobile; no extra row
+- **In-app changelog page** — full-screen overlay accessible from the ℹ️ info panel; renders `CHANGELOG.md` with section colors, LATEST badge, back button; not shown in tab nav
+
+### Fixed
+- **Mobile Safari scroll lock after leaving Storyteller tab** — `scrollTo(0,0)` and `overflow:hidden` now in one effect; scroll runs before lock so Safari can't trap the page at a non-zero position
+- **Storyteller header not visible on entry** — scroll-to-top guaranteed before overflow lock; ST full-screen layout always starts at viewport origin
+- **Tab remount lag** — Analytics and Storyteller tabs stay mounted after first visit; switch uses CSS `display` toggle, no cold-start cost on return
+
+---
+
+## 2026-05-15
+
+### Added
 - **Script version displayed in sidebar** — script list rows show `v{version}` badge next to title; font sizes increased for better readability
 - **Version persists across import/export** — `version` stored in `_meta` entry of exported JSON; `parseScriptFromData` restores it on import; round-trip safe
 - **Changelog link in info panel** — tapping the ℹ️ info button now shows a "📋 Changelog" link to this file
