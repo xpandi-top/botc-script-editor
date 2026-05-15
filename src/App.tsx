@@ -565,18 +565,15 @@ export default function App() {
   const theme = useTheme()
   const isMobileView = useMediaQuery(theme.breakpoints.down('sm'))
 
-  // Body overflow: storyteller on mobile needs overflow:hidden for its full-screen layout.
-  // Managed here (not in StorytellerHelper) because ST stays mounted across tab switches.
+  // On every tab switch: scroll to top first, then apply overflow lock for ST mobile.
+  // Both in one effect so scroll runs before lock — prevents Safari from trapping
+  // the page at a non-zero scroll position under overflow:hidden.
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' })
     const needsLock = activeTab === 'storyteller' && isMobileView
     document.body.style.overflow = needsLock ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
   }, [activeTab, isMobileView])
-
-  // Scroll to top on every tab switch so the header is never off-screen
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'instant' })
-  }, [activeTab])
 
   const stTabLabel = uiLanguage === 'zh' ? '主持助手' : 'Storyteller Helper'
   const psTabLabel = uiLanguage === 'zh' ? '打印工坊' : 'Print Studio'

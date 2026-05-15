@@ -8,6 +8,8 @@ import {
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import PauseIcon from '@mui/icons-material/Pause'
 import StopIcon from '@mui/icons-material/Stop'
+import AddCircleOutlinedIcon from '@mui/icons-material/AddCircleOutlined'
+import SaveIcon from '@mui/icons-material/Save'
 import { BgmBar } from '../BgmBar'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
@@ -245,8 +247,8 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
             </ToggleButtonGroup>
           </Box>
 
-          {/* Public mode + ST Settings / Log row */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1, flexWrap: 'wrap' }}>
+          {/* Public mode + ST Settings / Log / New Game / Save row */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1, flexWrap: 'wrap' }}>
             {phase === 'public' && (
               <Select
                 value={publicMode}
@@ -270,6 +272,18 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
             <Tooltip title={language === 'zh' ? '日志' : 'Log'}>
               <IconButton sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={() => setShowAggLogModal(true)}>
                 <ViewTimelineIcon />
+              </IconButton>
+            </Tooltip>
+            {/* Divider */}
+            <Box sx={{ width: 1, height: 28, bgcolor: borderColor, mx: 0.25, flexShrink: 0 }} />
+            <Tooltip title={language === 'zh' ? '新游戏' : 'New Game'}>
+              <IconButton sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={openNewGamePanel}>
+                <AddCircleOutlinedIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title={language === 'zh' ? '保存记录' : 'Save Record'}>
+              <IconButton sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={openEndGamePanel}>
+                <SaveIcon />
               </IconButton>
             </Tooltip>
             {phase === 'nomination' && (
