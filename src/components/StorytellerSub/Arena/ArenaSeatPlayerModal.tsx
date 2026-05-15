@@ -684,12 +684,12 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
           {/* Skill type toggle row */}
           <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
-            {(['know', 'guess', 'change', 'changeStatus'] as const).map((t) => {
+            {(['know', 'guess', 'change', 'changeStatus'] as const).map((skillKey) => {
               const labels: Record<string, string> = { know: zh ? '得知' : 'Know', guess: zh ? '猜测' : 'Guess', change: zh ? '变更' : 'Change', changeStatus: t('change_status') }
               return (
-                <Button key={t} size="small" variant={skillType === t ? 'contained' : 'outlined'}
-                  onClick={() => { setSkillType(skillType === t ? '' : t); setTargets(new Set()); setRemoveTagVal('') }}>
-                  {labels[t]}
+                <Button key={skillKey} size="small" variant={skillType === skillKey ? 'contained' : 'outlined'}
+                  onClick={() => { setSkillType(skillType === skillKey ? '' : skillKey); setTargets(new Set()); setRemoveTagVal('') }}>
+                  {labels[skillKey]}
                 </Button>
               )
             })}
@@ -831,11 +831,11 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
                       onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault() }} />
                   </Box>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                    {DEFAULT_ST_TAGS.map((t) => (
-                      <Chip key={t} label={t} size="small" clickable
-                        color={tagInput === t ? 'warning' : 'default'}
-                        variant={tagInput === t ? 'filled' : 'outlined'}
-                        onClick={() => setTagInput(tagInput === t ? '' : t)} />
+                    {DEFAULT_ST_TAGS.map((tag) => (
+                      <Chip key={tag} label={tag} size="small" clickable
+                        color={tagInput === tag ? 'warning' : 'default'}
+                        variant={tagInput === tag ? 'filled' : 'outlined'}
+                        onClick={() => setTagInput(tagInput === tag ? '' : tag)} />
                     ))}
                   </Box>
                 </Box>
@@ -845,17 +845,17 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
                   <TextField size="small" fullWidth placeholder={t('public_tag')} value={tagInput}
                     onChange={(e) => setTagInput(e.target.value)} />
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                    {[text.aliveTag, text.executedTag, text.traveler, text.noVoteTag].filter(Boolean).map((t: string) => (
-                      <Chip key={t} label={t} size="small" clickable
-                        color={tagInput === t ? 'primary' : 'default'}
-                        variant={tagInput === t ? 'filled' : 'outlined'}
-                        onClick={() => setTagInput(tagInput === t ? '' : t)} />
+                    {[text.aliveTag, text.executedTag, text.traveler, text.noVoteTag].filter(Boolean).map((tag: string) => (
+                      <Chip key={tag} label={tag} size="small" clickable
+                        color={tagInput === tag ? 'primary' : 'default'}
+                        variant={tagInput === tag ? 'filled' : 'outlined'}
+                        onClick={() => setTagInput(tagInput === tag ? '' : tag)} />
                     ))}
-                    {customTagPool?.filter((t: string) => !t.startsWith('💀')).map((t: string) => (
-                      <Chip key={t} label={t} size="small" clickable
-                        color={tagInput === t ? 'primary' : 'default'}
-                        variant={tagInput === t ? 'filled' : 'outlined'}
-                        onClick={() => setTagInput(tagInput === t ? '' : t)} />
+                    {customTagPool?.filter((tag: string) => !tag.startsWith('💀')).map((tag: string) => (
+                      <Chip key={tag} label={tag} size="small" clickable
+                        color={tagInput === tag ? 'primary' : 'default'}
+                        variant={tagInput === tag ? 'filled' : 'outlined'}
+                        onClick={() => setTagInput(tagInput === tag ? '' : tag)} />
                     ))}
                   </Box>
                 </Box>
