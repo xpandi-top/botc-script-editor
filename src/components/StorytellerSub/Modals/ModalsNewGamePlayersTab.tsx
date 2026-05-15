@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { Box, Button, TextField, IconButton, Chip, Typography, Grid } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import RemoveIcon from '@mui/icons-material/Remove'
@@ -21,6 +21,8 @@ type Props = {
 export function PlayersTab({ newGamePanel, playerNamePool, language, seats, updateConfig, setPlayerNamePool }: Props) {
   const [showNamePool, setShowNamePool] = useState(false)
   const [quickFill, setQuickFill] = useState('')
+  // useRef (not useState) — read synchronously in handlePoolNameClick before blur clears it
+  const focusedSeatRef = useRef<number | null>(null)
 
   const handleRandomPlayers = () => {
     const shuffled = shuffleArray([...playerNamePool])
@@ -47,11 +49,13 @@ export function PlayersTab({ newGamePanel, playerNamePool, language, seats, upda
   }
 
   const handlePoolNameClick = (name: string) => {
-    const next = seats.find((n) => {
+    // focusedSeatRef is read synchronously here — reliable even if blur fired first
+    // (pool container uses onMouseDown preventDefault to keep TextField focused anyway)
+    const target = focusedSeatRef.current ?? seats.find((n) => {
       const cur = newGamePanel.seatNames[n] ?? ''
       return !cur || /^Player \d+$|^Traveler \d+$/.test(cur)
     })
-    if (next) updateConfig({ seatNames: { ...newGamePanel.seatNames, [next]: name } })
+    if (target != null) updateConfig({ seatNames: { ...newGamePanel.seatNames, [target]: name } })
   }
 
   const handleNameBlur = (sNum: number, val: string) => {
@@ -84,7 +88,10 @@ export function PlayersTab({ newGamePanel, playerNamePool, language, seats, upda
       </Box>
 
       {showNamePool && (
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+        <Box
+          sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}
+          onMouseDown={(e) => e.preventDefault()}  // keep TextField focus during chip click
+        >
           {playerNamePool.length === 0 ? (
             <Typography variant="caption" color="text.secondary">
               {language === 'zh' ? '（空）' : '(empty)'}
@@ -124,8 +131,9 @@ export function PlayersTab({ newGamePanel, playerNamePool, language, seats, upda
                 list="ng-name-pool-list"
                 placeholder={isTraveler ? `Traveler ${sNum}` : `Player ${sNum}`}
                 value={newGamePanel.seatNames[sNum] ?? ''}
+                onFocus={() => { focusedSeatRef.current = sNum }}
+                onBlur={(e) => { focusedSeatRef.current = null; handleNameBlur(sNum, e.target.value) }}
                 onChange={(e) => updateConfig({ seatNames: { ...newGamePanel.seatNames, [sNum]: e.target.value } })}
-                onBlur={(e) => handleNameBlur(sNum, e.target.value)}
               />
             </Box>
           )
