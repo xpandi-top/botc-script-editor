@@ -1,0 +1,26 @@
+{
+  "id": "cacklejack",
+  "team": "traveler",
+  "edition": "experimental",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Cacklejack",
+    "ability": "Each day, choose a player: a different player changes character tonight.",
+    "revisions": {
+      "v1": "Each day, choose a player: a different player changes character tonight."
+    }
+  },
+  "zh": {
+    "name": "笑匠",
+    "ability": "每个白天，你要选择一名玩家：一名其他玩家会在当晚改变角色。",
+    "revisions": {
+      "v1": "每个白天，你要选择一名玩家：一名其他玩家会在当晚改变角色。"
+    }
+  }
+}
