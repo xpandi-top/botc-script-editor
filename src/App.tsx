@@ -36,7 +36,10 @@ import CloudSyncIcon from '@mui/icons-material/CloudSync'
 import InfoIcon from '@mui/icons-material/Info'
 import SyncProblemIcon from '@mui/icons-material/SyncProblem'
 import HistoryIcon from '@mui/icons-material/History'
+import SchoolIcon from '@mui/icons-material/School'
 import { ChangelogPage } from './components/ChangelogPage'
+import { TutorialOverlay } from './components/Tutorial/TutorialOverlay'
+import { TUTORIAL_KEY } from './components/Tutorial/tutorialSteps'
 import { PrintPreviewPage } from './components/PrintPreviewPage'
 import { DEFAULT_PRINT_OPTIONS } from './components/PrintOptionsDialog'
 import type { PrintOptions } from './components/PrintOptionsDialog'
@@ -180,6 +183,7 @@ export default function App() {
   const { activeTab, setActiveTab, sharedAnalyticsRecords, shareDecodeError, clearSharedRecords } = useShareParam()
 
   const [showChangelog, setShowChangelog] = useState(false)
+  const [showTutorial, setShowTutorial] = useState(() => !localStorage.getItem(TUTORIAL_KEY))
 
   // Keep heavy tabs mounted once visited — avoids re-initialization cost on switch
   const [mountedTabs, setMountedTabs] = useState<Set<string>>(() => new Set([activeTab]))
@@ -695,6 +699,7 @@ export default function App() {
                 size="small"
                 onClick={() => setShowDescription(v => !v)}
                 sx={{ color: showDescription ? 'primary.main' : undefined }}
+                data-tutorial="info-btn"
               >
                 <InfoIcon />
               </IconButton>
@@ -714,6 +719,16 @@ export default function App() {
               <HistoryIcon sx={{ fontSize: '0.9rem' }} />
               <Typography variant="caption" sx={{ color: 'inherit' }}>
                 {uiLanguage === 'zh' ? '更新日志' : 'Changelog'}
+              </Typography>
+            </Box>
+            <Box
+              component="button"
+              onClick={() => { localStorage.removeItem(TUTORIAL_KEY); setShowTutorial(true) }}
+              sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.4, color: 'text.secondary', background: 'none', border: 'none', p: 0, cursor: 'pointer', textDecoration: 'underline', textDecorationColor: 'transparent', '&:hover': { textDecorationColor: 'inherit', color: 'text.primary' }, flexShrink: 0 }}
+            >
+              <SchoolIcon sx={{ fontSize: '0.9rem' }} />
+              <Typography variant="caption" sx={{ color: 'inherit' }}>
+                {uiLanguage === 'zh' ? '新手教程' : 'Tutorial'}
               </Typography>
             </Box>
           </Box>
@@ -874,6 +889,14 @@ export default function App() {
             <BottomNavigationAction value="settings"    label={uiLanguage === 'zh' ? '设置' : 'Settings'}     icon={<TuneIcon />}            sx={{ minWidth: 0, px: 0.5, '& .MuiBottomNavigationAction-label': { fontSize: '0.65rem' } }} />
           </BottomNavigation>
         </Paper>
+      )}
+
+      {showTutorial && (
+        <TutorialOverlay
+          language={uiLanguage}
+          onClose={() => setShowTutorial(false)}
+          onTabChange={(tab) => setActiveTab(tab as Parameters<typeof setActiveTab>[0])}
+        />
       )}
 
       {showChangelog && (

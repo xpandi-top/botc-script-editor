@@ -291,7 +291,7 @@ export function ScriptsTab({
               placeholder={zh ? '搜索剧本、作者、角色…' : 'Search title, author, character…'}
               value={scriptSearch}
               onChange={(e) => setScriptSearch(e.target.value)}
-              slotProps={{ input: { sx: { fontSize: '0.78rem', pr: 0.5 } } }}
+              slotProps={{ input: { sx: { fontSize: '0.78rem', pr: 0.5 } }, htmlInput: { 'data-tutorial': 'script-search' } }}
               sx={{ '& .MuiInputBase-root': { borderRadius: 1.5 } }}
             />
             <Select
