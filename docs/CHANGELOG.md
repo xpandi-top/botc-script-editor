@@ -8,6 +8,17 @@ Release timeline for BOTC Companion — features, fixes, and improvements.
 
 ---
 
+## 2026-05-15 (latest)
+
+### Fixed
+- **Name pool assigns to wrong seat** — clicking a pool chip always assigned to the first available seat, ignoring which field was focused. Fix: `focusedSeatRef` (useRef) tracks last-focused seat; pool chip container uses `onMouseDown preventDefault` to keep TextField focus; chip click now assigns to the focused seat and falls back to first empty seat only when nothing is focused.
+
+### Tests
+- `uiRender.test.tsx` (53) — render sanity for `CharacterCircle`, `LogDetailText`, `VoteButtonGroup`, `RoundRobinIndicator`, `NominationHistory`, `PlayerNightLog`; `noText()` helper asserts no `undefined`/`[object Object]` DOM leakage
+- `namePoolAssignment.test.tsx` (14) — no-focus fallback, focused-seat assignment, overwrite, all-filled no-op, focus-change between clicks, pure logic unit tests
+
+---
+
 ## 2026-05-15
 
 ### Added
