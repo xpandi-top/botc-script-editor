@@ -165,7 +165,7 @@ export function MobileSeatCard({ ctx, seat, side = 'left' }: { ctx: StorytellerC
           </Box>
 
           {/* Drunk / Poisoned — always visible */}
-          {(isDrunk || isPoisoned) && (() => {
+          {isNightPhase && nightShowCharacter && (isDrunk || isPoisoned) && (() => {
             const getTagSrcIcon = (key: string) => {
               const raw = (seat.stTags || []).find((t: string) => {
                 const b = t.startsWith('📝') ? t.slice(2) : t; const s = b.indexOf('::'); return (s === -1 ? b : b.slice(0, s)) === key
