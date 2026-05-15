@@ -1,4 +1,3 @@
-import { useEffect } from 'react'
 import { Box, Paper } from '@mui/material'
 import { LeftScriptPanel } from './StorytellerSub/LeftScriptPanel'
 import { CompactToolbar } from './StorytellerSub/CompactToolbar'
@@ -15,10 +14,9 @@ export function StorytellerHelper(props: StorytellerHelperProps) {
   const { isMobile } = useBreakpoint()
   const { showScriptPanel } = ctx
 
-  useEffect(() => {
-    document.body.style.overflow = isMobile ? 'hidden' : 'auto'
-    return () => { document.body.style.overflow = '' }
-  }, [isMobile])
+  // Body overflow is managed by App.tsx (which knows the active tab).
+  // Do NOT set document.body.style.overflow here — StorytellerHelper is now
+  // kept mounted in the background when other tabs are active.
 
   const ytIframe = ctx.youtubeEmbedSrc && ctx.audioPlaying
     ? <iframe src={ctx.youtubeEmbedSrc} style={{ position: 'absolute', width: 0, height: 0, border: 0, overflow: 'hidden' }} allow="autoplay; encrypted-media" sandbox="allow-scripts allow-same-origin allow-presentation" title="BGM" />
