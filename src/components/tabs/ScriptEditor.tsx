@@ -3,6 +3,7 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  Autocomplete,
   Box,
   Button,
   Chip,
@@ -18,6 +19,7 @@ import {
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import WarningAmberIcon from '@mui/icons-material/WarningAmber'
 import CloseIcon from '@mui/icons-material/Close'
+import SyncAltIcon from '@mui/icons-material/SyncAlt'
 import {
   getDisplayName,
   getIconForCharacter,
@@ -30,8 +32,11 @@ import {
   getRevisionText,
   getAbilityText,
   getCharacterById,
+  getEffectiveAllCharacters,
+  getJinxReason,
+  jinxes as jinxDb,
 } from '../../catalog'
-import type { CharacterGroup, EditableScript, Language, ResolvedScriptCharacter, ResolvedScriptCharacterGroup } from '../../types'
+import type { CharacterGroup, EditableScript, Language, ResolvedScriptCharacter, ResolvedScriptCharacterGroup, ScriptJinxOverride } from '../../types'
 
 function getTeamColor(team: string) {
   const colors: Record<string, string> = {
@@ -208,6 +213,159 @@ function SelectedCharRow({
   )
 }
 
+// ── Character mini-chip (icon + name) used in jinx editor ────────────────────
+function CharChip({ id, language }: { id: string; language: Language }) {
+  const icon = getIconForCharacter(id)
+  const name = getDisplayName(id, language)
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, px: 0.75, py: 0.25, borderRadius: 1, bgcolor: 'action.hover', minWidth: 0 }}>
+      {icon ? (
+        <Box component="img" src={icon} alt="" sx={{ width: 18, height: 18, borderRadius: '50%', objectFit: 'contain', flexShrink: 0 }} />
+      ) : (
+        <Box sx={{ width: 18, height: 18, borderRadius: '50%', bgcolor: 'grey.300', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Typography sx={{ fontSize: '0.4rem', fontWeight: 700 }}>{id.slice(0, 2).toUpperCase()}</Typography>
+        </Box>
+      )}
+      <Typography variant="caption" sx={{ fontSize: '0.72rem', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</Typography>
+    </Box>
+  )
+}
+
+// ── Single jinx pair row in the editor ───────────────────────────────────────
+function JinxPairRow({
+  jinx,
+  index: _index,
+  uiLanguage,
+  allCharIds,
+  updateJinx,
+  removeJinx,
+}: {
+  jinx: ScriptJinxOverride
+  index: number // eslint-disable-line @typescript-eslint/no-unused-vars
+  uiLanguage: Language
+  allCharIds: string[]
+  updateJinx: (patch: Partial<ScriptJinxOverride>) => void
+  removeJinx: () => void
+}) {
+  const zh = uiLanguage === 'zh'
+  const chars = jinx.characters ?? ['', ''] as [string, string]
+  const charA = chars[0] ?? ''
+  const charB = chars[1] ?? ''
+
+  // Derive normalized pair id
+  const pairId = charA && charB ? [charA, charB].sort().join('::') : null
+  const canonical = pairId ? jinxDb[pairId] : null
+  const canonicalReason = pairId ? getJinxReason(pairId, uiLanguage) : ''
+  const isActive = (jinx.status ?? 'active') === 'active'
+
+  const setChar = (side: 0 | 1, id: string) => {
+    const next: [string, string] = [chars[0] ?? '', chars[1] ?? '']
+    next[side] = id
+    const sorted = [...next].sort() as [string, string]
+    const newPairId = sorted[0] && sorted[1] ? sorted.join('::') : undefined
+    updateJinx({ characters: sorted, id: newPairId })
+  }
+
+  const renderCharOption = (props: React.HTMLAttributes<HTMLLIElement>, id: string) => {
+    const icon = getIconForCharacter(id)
+    return (
+      <Box component="li" {...props} sx={{ display: 'flex', alignItems: 'center', gap: 1, py: '3px !important' }}>
+        {icon
+          ? <Box component="img" src={icon} alt="" sx={{ width: 20, height: 20, borderRadius: '50%', objectFit: 'contain', flexShrink: 0 }} />
+          : <Box sx={{ width: 20, height: 20, borderRadius: '50%', bgcolor: 'action.hover', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Typography sx={{ fontSize: '0.45rem', fontWeight: 700 }}>{id.slice(0, 2).toUpperCase()}</Typography></Box>
+        }
+        <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{getDisplayName(id, uiLanguage)}</Typography>
+      </Box>
+    )
+  }
+
+  return (
+    <Box sx={{ border: '1px solid', borderColor: isActive ? 'divider' : 'action.disabledBackground', borderRadius: 1.5, p: 1.5, opacity: isActive ? 1 : 0.6 }}>
+      {/* Top row: pair picker + status + remove */}
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap', mb: 1 }}>
+        <Autocomplete
+          size="small"
+          options={allCharIds}
+          value={charA || null}
+          onChange={(_, v) => setChar(0, v ?? '')}
+          getOptionLabel={(id) => getDisplayName(id, uiLanguage)}
+          renderOption={renderCharOption}
+          renderInput={(params) => <TextField {...params} placeholder={zh ? '角色 A…' : 'Character A…'} size="small" />}
+          sx={{ flex: '1 1 140px' }}
+          disableClearable={false}
+        />
+        <Tooltip title={zh ? '互换 A ↔ B（结果相同）' : 'A ↔ B — order is symmetric'}>
+          <SyncAltIcon sx={{ fontSize: '1rem', color: 'text.disabled', flexShrink: 0 }} />
+        </Tooltip>
+        <Autocomplete
+          size="small"
+          options={allCharIds}
+          value={charB || null}
+          onChange={(_, v) => setChar(1, v ?? '')}
+          getOptionLabel={(id) => getDisplayName(id, uiLanguage)}
+          renderOption={renderCharOption}
+          renderInput={(params) => <TextField {...params} placeholder={zh ? '角色 B…' : 'Character B…'} size="small" />}
+          sx={{ flex: '1 1 140px' }}
+          disableClearable={false}
+        />
+        {/* Status toggle */}
+        <Chip
+          size="small"
+          label={isActive ? (zh ? '启用' : 'Active') : (zh ? '禁用' : 'Inactive')}
+          color={isActive ? 'success' : 'default'}
+          onClick={() => updateJinx({ status: isActive ? 'inactive' : 'active' })}
+          sx={{ cursor: 'pointer', fontSize: '0.68rem', height: 22, flexShrink: 0 }}
+        />
+        <Tooltip title={zh ? '移除' : 'Remove'}>
+          <IconButton size="small" color="error" onClick={removeJinx} sx={{ p: '2px', flexShrink: 0 }}>
+            <CloseIcon sx={{ fontSize: '0.85rem' }} />
+          </IconButton>
+        </Tooltip>
+      </Box>
+
+      {/* Canonical rule info */}
+      {pairId && (
+        <Box sx={{ mb: 1 }}>
+          {charA && charB && (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
+              <CharChip id={[charA, charB].sort()[0]} language={uiLanguage} />
+              <Typography variant="caption" sx={{ color: 'text.disabled', fontSize: '0.65rem' }}>×</Typography>
+              <CharChip id={[charA, charB].sort()[1]} language={uiLanguage} />
+              {canonical && (
+                <Chip size="small" label={zh ? '已收录' : 'In DB'} color="info" variant="outlined" sx={{ height: 18, fontSize: '0.6rem', ml: 0.5 }} />
+              )}
+            </Box>
+          )}
+          {canonicalReason && (
+            <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', fontStyle: 'italic', lineHeight: 1.4 }}>
+              {zh ? '标准规则：' : 'Canonical: '}{canonicalReason}
+            </Typography>
+          )}
+        </Box>
+      )}
+
+      {/* Override reason fields */}
+      <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 }}>
+        <TextField
+          size="small" multiline maxRows={3}
+          label={zh ? '自定义规则（EN）' : 'Override reason (EN)'}
+          value={jinx.reason ?? ''}
+          placeholder={canonicalReason}
+          onChange={(e) => updateJinx({ reason: e.target.value })}
+          slotProps={{ inputLabel: { shrink: true } }}
+        />
+        <TextField
+          size="small" multiline maxRows={3}
+          label={zh ? '自定义规则（ZH）' : 'Override reason (ZH)'}
+          value={jinx.reason_zh ?? ''}
+          onChange={(e) => updateJinx({ reason_zh: e.target.value })}
+          slotProps={{ inputLabel: { shrink: true } }}
+        />
+      </Box>
+    </Box>
+  )
+}
+
 // ── Accordion section header helper ──────────────────────────────────────────
 function SectionAccordion({
   title,
@@ -252,6 +410,30 @@ export function ScriptEditor({
   const hasNotes = !!activeScript.notes?.trim()
   const bootleggerCount = (activeScript.meta.bootlegger?.filter(Boolean).length ?? 0) + (activeScript.meta.bootlegger_zh?.filter(Boolean).length ?? 0)
   const jinxCount = activeScript.meta.jinxes?.length ?? 0
+
+  // All character ids available as jinx partners (all known + custom)
+  const allCharIds = React.useMemo(() => getEffectiveAllCharacters().map((c) => c.id), [])
+
+  const updateJinxAt = (index: number, patch: Partial<ScriptJinxOverride>) =>
+    updateActiveScript((s) => ({
+      ...s,
+      meta: {
+        ...s.meta,
+        jinxes: (s.meta.jinxes ?? []).map((j, i) => i === index ? { ...j, ...patch } : j),
+      },
+    }))
+
+  const removeJinxAt = (index: number) =>
+    updateActiveScript((s) => ({
+      ...s,
+      meta: { ...s.meta, jinxes: (s.meta.jinxes ?? []).filter((_, i) => i !== index) },
+    }))
+
+  const addJinx = () =>
+    updateActiveScript((s) => ({
+      ...s,
+      meta: { ...s.meta, jinxes: [...(s.meta.jinxes ?? []), { status: 'active' as const, reason: '', reason_zh: '' }] },
+    }))
 
   // IDs in the script that can't be resolved to any known character
   const unknownCharIds = React.useMemo(() => {
@@ -462,37 +644,32 @@ export function ScriptEditor({
         </Box>
 
         {/* Jinxes */}
-        <Typography variant="subtitle2" sx={{ mb: 0.5 }}>{uiText.scriptJinxes}</Typography>
-        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>{uiText.scriptJinxesHelp}</Typography>
-        <Box sx={{ display: 'grid', gap: 1 }}>
-          {(activeScript.meta.jinxes ?? []).map((jinx, index) => (
-            <Box key={index} sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center', p: 1, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
-              <TextField size="small" placeholder={uiText.jinxPairPlaceholder} value={jinx.id ?? ''}
-                onChange={(e) => updateActiveScript((s) => ({ ...s, meta: { ...s.meta, jinxes: (s.meta.jinxes ?? []).map((j, i) => i === index ? { ...j, id: e.target.value } : j) } }))}
-                sx={{ flex: '1 1 130px' }} />
-              <FormControl size="small" sx={{ minWidth: 90 }}>
-                <Select value={jinx.status ?? 'active'}
-                  onChange={(e) => updateActiveScript((s) => ({ ...s, meta: { ...s.meta, jinxes: (s.meta.jinxes ?? []).map((j, i) => i === index ? { ...j, status: e.target.value === 'inactive' ? 'inactive' : 'active' } : j) } }))}>
-                  <MenuItem value="active">{uiText.jinxStatusActive}</MenuItem>
-                  <MenuItem value="inactive">{uiText.jinxStatusInactive}</MenuItem>
-                </Select>
-              </FormControl>
-              <TextField size="small" placeholder={uiText.jinxReasonEnPlaceholder} value={jinx.reason ?? ''}
-                onChange={(e) => updateActiveScript((s) => ({ ...s, meta: { ...s.meta, jinxes: (s.meta.jinxes ?? []).map((j, i) => i === index ? { ...j, reason: e.target.value } : j) } }))}
-                sx={{ flex: '2 1 160px' }} />
-              <TextField size="small" placeholder={uiText.jinxReasonZhPlaceholder} value={jinx.reason_zh ?? ''}
-                onChange={(e) => updateActiveScript((s) => ({ ...s, meta: { ...s.meta, jinxes: (s.meta.jinxes ?? []).map((j, i) => i === index ? { ...j, reason_zh: e.target.value } : j) } }))}
-                sx={{ flex: '2 1 160px' }} />
-              <IconButton size="small" color="error"
-                onClick={() => updateActiveScript((s) => ({ ...s, meta: { ...s.meta, jinxes: (s.meta.jinxes ?? []).filter((_, i) => i !== index) } }))}>
-                <CloseIcon fontSize="small" />
-              </IconButton>
-            </Box>
-          ))}
-          <Button size="small" variant="outlined"
-            onClick={() => updateActiveScript((s) => ({ ...s, meta: { ...s.meta, jinxes: [...(s.meta.jinxes ?? []), { id: '', status: 'active', reason: '', reason_zh: '' }] } }))}>
-            {uiText.addJinx}
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+          <Box>
+            <Typography variant="subtitle2">{uiText.scriptJinxes}</Typography>
+            <Typography variant="caption" color="text.secondary">{uiText.scriptJinxesHelp}</Typography>
+          </Box>
+          <Button size="small" variant="outlined" onClick={addJinx} sx={{ textTransform: 'none', flexShrink: 0 }}>
+            + {zh ? '添加' : 'Add'}
           </Button>
+        </Box>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+          {(activeScript.meta.jinxes ?? []).length === 0 && (
+            <Typography variant="caption" color="text.disabled" sx={{ textAlign: 'center', py: 1 }}>
+              {zh ? '暂无自定义 Jinx 规则' : 'No custom jinx overrides'}
+            </Typography>
+          )}
+          {(activeScript.meta.jinxes ?? []).map((jinx, index) => (
+            <JinxPairRow
+              key={index}
+              jinx={jinx}
+              index={index}
+              uiLanguage={uiLanguage}
+              allCharIds={allCharIds}
+              updateJinx={(patch) => updateJinxAt(index, patch)}
+              removeJinx={() => removeJinxAt(index)}
+            />
+          ))}
         </Box>
       </SectionAccordion>
 

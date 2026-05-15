@@ -16,6 +16,8 @@ import {
   getNextRevisionId,
   getRevisionNote,
   getRevisionText,
+  getJinxReason,
+  jinxes as jinxDb,
   REVISION_OVERRIDES_KEY,
   refreshRevisionOverrides,
   teamLabels,
@@ -254,6 +256,49 @@ export function CharacterRevisionPanel({
           ))}
         </Box>
       </Box>
+
+      {/* ── Jinx partners ── */}
+      {(() => {
+        const charJinxes = Object.values(jinxDb).filter(
+          (j) => j.status === 'active' && j.characters.includes(character.id)
+        )
+        if (charJinxes.length === 0) return null
+        return (
+          <Box sx={{ mt: 2 }}>
+            <Typography variant="subtitle2" sx={{ mb: 1 }}>
+              {zh ? `Jinx 关联（${charJinxes.length}）` : `Jinxes (${charJinxes.length})`}
+            </Typography>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
+              {charJinxes.map((j) => {
+                const partnerId = j.characters[0] === character.id ? j.characters[1] : j.characters[0]
+                const partnerIcon = getIconForCharacter(partnerId)
+                const reason = getJinxReason(j.id, language) || getJinxReason(j.id, 'en')
+                return (
+                  <Box key={j.id} sx={{ display: 'flex', gap: 1, p: 1, borderRadius: 1, border: '1px solid', borderColor: 'warning.light', bgcolor: 'warning.lighter', alignItems: 'flex-start' }}>
+                    {partnerIcon ? (
+                      <Box component="img" src={partnerIcon} alt="" sx={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'contain', flexShrink: 0, mt: 0.25 }} />
+                    ) : (
+                      <Box sx={{ width: 28, height: 28, borderRadius: '50%', bgcolor: 'action.disabledBackground', flexShrink: 0, mt: 0.25, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Typography sx={{ fontSize: '0.45rem', fontWeight: 700 }}>{partnerId.slice(0, 2).toUpperCase()}</Typography>
+                      </Box>
+                    )}
+                    <Box sx={{ flex: 1, minWidth: 0 }}>
+                      <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.8rem' }}>
+                        {getDisplayName(partnerId, language)}
+                      </Typography>
+                      {reason && (
+                        <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', lineHeight: 1.4, mt: 0.25 }}>
+                          {reason}
+                        </Typography>
+                      )}
+                    </Box>
+                  </Box>
+                )
+              })}
+            </Box>
+          </Box>
+        )
+      })()}
 
       {/* ── Add Revision Dialog ── */}
       <Dialog open={addOpen} onClose={() => setAddOpen(false)} maxWidth="sm" fullWidth>
