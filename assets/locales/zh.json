@@ -127,8 +127,8 @@
     "team_label": "阵营",
     "theme_system": "系统",
     "theme_system_sub": "跟随系统",
-    "storyteller_settings": "故事讲述者",
-    "default_st_name": "默认故事讲述者名称",
+    "storyteller_settings": "说书人设置",
+    "default_st_name": "默认说书人",
     "default_st_name_help": "在开始新会话时自动填入你的名字。"
   },
   "jinxes": {
