@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Box, Button, Chip, Collapse, Divider, FormControl, IconButton, InputLabel, MenuItem, Paper, Select, TextField, ToggleButton, ToggleButtonGroup, Tooltip, Typography } from '@mui/material'
 import PrintIcon from '@mui/icons-material/Print'
@@ -15,6 +15,10 @@ import NightsStayIcon from '@mui/icons-material/NightsStay'
 import NoteAltIcon from '@mui/icons-material/NoteAlt'
 import ViewListIcon from '@mui/icons-material/ViewList'
 import ViewModuleIcon from '@mui/icons-material/ViewModule'
+import StarIcon from '@mui/icons-material/Star'
+import ThumbUpIcon from '@mui/icons-material/ThumbUp'
+import ThumbDownIcon from '@mui/icons-material/ThumbDown'
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
 import { useBreakpoint } from '../../hooks/useBreakpoint'
 import { ScriptList } from '../ScriptList'
 import { SheetArticle } from '../SheetArticle'
@@ -105,7 +109,7 @@ export function ScriptsTab({
   const [diyOpen, setDiyOpen] = useState(true)
   const [viewColumns, setViewColumns] = useState<1 | 2>(1)
   const [scriptSearch, setScriptSearch] = useState('')
-  const [editionFilter, setEditionFilter] = useState<string | null>(null)
+  const [editionFilter] = useState<string | null>(null)
   const [tagFilter, setTagFilter] = useState<string | null>(null)
   const [noteOpen, setNoteOpen] = useState(false)
   const noteRef = useRef<HTMLTextAreaElement | null>(null)
@@ -113,15 +117,19 @@ export function ScriptsTab({
 
   const SCRIPT_TAGS = ['favorite', 'good', 'bad', 'excellent']
 
-  const SCRIPT_TAG_META: Record<string, { en: string; zh: string }> = {
-    favorite:  { en: '⭐ Favorite', zh: '⭐ 收藏' },
-    good:      { en: '👍 Good',     zh: '👍 好玩' },
-    bad:       { en: '👎 Bad',      zh: '👎 较差' },
-    excellent: { en: '✨ Excellent', zh: '✨ 优秀' },
+  type TagMeta = { en: string; zh: string; Icon: React.ElementType }
+  const SCRIPT_TAG_META: Record<string, TagMeta> = {
+    favorite:  { en: 'Favorite', zh: '收藏', Icon: StarIcon },
+    good:      { en: 'Good',     zh: '好玩', Icon: ThumbUpIcon },
+    bad:       { en: 'Bad',      zh: '较差', Icon: ThumbDownIcon },
+    excellent: { en: 'Excellent',zh: '优秀', Icon: AutoAwesomeIcon },
   }
-  /** Display label for a stored tag key */
+  /** Display label for a stored tag key (no emoji) */
   const tagLabel = (key: string): string =>
     SCRIPT_TAG_META[key]?.[uiLanguage === 'zh' ? 'zh' : 'en'] ?? key
+  /** MUI icon component for a tag key, or null for custom tags */
+  const tagIcon = (key: string): React.ElementType | null =>
+    SCRIPT_TAG_META[key]?.Icon ?? null
 
   const addTag = (tag: string) => {
     if (!activeScript) return
@@ -179,7 +187,7 @@ export function ScriptsTab({
               )
             }
 
-            const allEditions = [...new Set(scripts.map((s) => s.edition).filter(Boolean))]
+
             const allUsedTags = [...new Set(scripts.flatMap((s) => s.tags ?? []))]
             const official = scripts.filter((s) => OFFICIAL.has(s.slug) && filterScript(s))
             const community = scripts.filter((s) => isBuiltIn(s.slug) && !OFFICIAL.has(s.slug) && filterScript(s))
@@ -238,42 +246,37 @@ export function ScriptsTab({
                   sx={{ mb: 0.5 }}
                   slotProps={{ input: { sx: { fontSize: '0.8rem' } } }}
                 />
-                {/* Edition filter chips */}
-                {allEditions.length > 1 && (
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 0.5 }}>
-                    <Chip
-                      size="small" label={zh ? '全部' : 'All'}
-                      variant={editionFilter === null ? 'filled' : 'outlined'}
-                      onClick={() => setEditionFilter(null)}
-                      sx={{ fontSize: '0.65rem', height: 20 }}
-                    />
-                    {allEditions.map((ed) => (
-                      <Chip key={ed} size="small"
-                        label={ed}
-                        variant={editionFilter === ed ? 'filled' : 'outlined'}
-                        onClick={() => setEditionFilter((c) => c === ed ? null : ed)}
-                        sx={{ fontSize: '0.65rem', height: 20 }}
+                {/* Tag filter chips — predefined presets + any custom tags in use */}
+                {(() => {
+                  const customUsedTags = allUsedTags.filter((t) => !SCRIPT_TAG_META[t])
+                  const presetInUse = SCRIPT_TAGS.filter((t) => allUsedTags.includes(t))
+                  const filterTags = [...presetInUse, ...customUsedTags]
+                  if (filterTags.length === 0) return null
+                  const chipSx = { fontSize: '0.78rem', height: 26, fontWeight: 600, '& .MuiChip-icon': { fontSize: '0.9rem' } }
+                  return (
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 0.5 }}>
+                      <Chip size="small" label={zh ? '全部' : 'All'}
+                        variant={tagFilter === null ? 'filled' : 'outlined'}
+                        color={tagFilter === null ? 'primary' : 'default'}
+                        onClick={() => setTagFilter(null)}
+                        sx={chipSx}
                       />
-                    ))}
-                  </Box>
-                )}
-                {/* Tag filter chips */}
-                {allUsedTags.length > 0 && (
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 0.5 }}>
-                    <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.6rem', alignSelf: 'center', mr: 0.25 }}>
-                      {zh ? '标签：' : 'Tags:'}
-                    </Typography>
-                    {allUsedTags.map((tag) => (
-                      <Chip key={tag} size="small"
-                        label={tagLabel(tag)}
-                        variant={tagFilter === tag ? 'filled' : 'outlined'}
-                        color={tagFilter === tag ? 'primary' : 'default'}
-                        onClick={() => setTagFilter((c) => c === tag ? null : tag)}
-                        sx={{ fontSize: '0.75rem', height: 22 }}
-                      />
-                    ))}
-                  </Box>
-                )}
+                      {filterTags.map((tag) => {
+                        const IconComp = tagIcon(tag)
+                        return (
+                          <Chip key={tag} size="small"
+                            label={tagLabel(tag)}
+                            icon={IconComp ? <IconComp /> : undefined}
+                            variant={tagFilter === tag ? 'filled' : 'outlined'}
+                            color={tagFilter === tag ? 'primary' : 'default'}
+                            onClick={() => setTagFilter((c) => c === tag ? null : tag)}
+                            sx={chipSx}
+                          />
+                        )
+                      })}
+                    </Box>
+                  )
+                })()}
                 {isFiltering && (
                   <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem' }}>
                     {official.length + community.length + diy.length} {zh ? '个结果' : 'results'}
@@ -368,25 +371,31 @@ export function ScriptsTab({
                 <Box sx={{ mb: 1.5 }}>
                   {/* Tags row */}
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, alignItems: 'center', mb: 0.5 }}>
-                    {activeTags.map((tag) => (
-                      <Chip
-                        key={tag}
-                        label={tagLabel(tag)}
-                        size="small"
-                        onDelete={() => removeTag(tag)}
-                        sx={{ fontSize: '0.8rem', fontWeight: 600 }}
-                      />
-                    ))}
-                    {SCRIPT_TAGS.filter((t) => !activeTags.includes(t)).map((tag) => (
-                      <Chip
-                        key={tag}
-                        label={`+ ${tagLabel(tag)}`}
-                        size="small"
-                        variant="outlined"
-                        onClick={() => addTag(tag)}
-                        sx={{ fontSize: '0.75rem', opacity: 0.5, '&:hover': { opacity: 1 } }}
-                      />
-                    ))}
+                    {activeTags.map((tag) => {
+                      const IconComp = tagIcon(tag)
+                      return (
+                        <Chip key={tag}
+                          label={tagLabel(tag)}
+                          icon={IconComp ? <IconComp /> : undefined}
+                          size="small"
+                          onDelete={() => removeTag(tag)}
+                          sx={{ fontSize: '0.8rem', fontWeight: 600, '& .MuiChip-icon': { fontSize: '1rem' } }}
+                        />
+                      )
+                    })}
+                    {SCRIPT_TAGS.filter((t) => !activeTags.includes(t)).map((tag) => {
+                      const IconComp = tagIcon(tag)
+                      return (
+                        <Chip key={tag}
+                          label={tagLabel(tag)}
+                          icon={IconComp ? <IconComp /> : undefined}
+                          size="small"
+                          variant="outlined"
+                          onClick={() => addTag(tag)}
+                          sx={{ fontSize: '0.75rem', opacity: 0.5, '&:hover': { opacity: 1 }, '& .MuiChip-icon': { fontSize: '0.9rem' } }}
+                        />
+                      )
+                    })}
                     {/* Custom tag input */}
                     <Box
                       component="input"
