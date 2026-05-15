@@ -53,6 +53,38 @@ export type UiKey =
   | 'new_custom_char' | 'team_label'
   // Storyteller settings
   | 'storyteller_settings' | 'default_st_name' | 'default_st_name_help'
+  // Inline action labels
+  | 'edit' | 'delete' | 'add' | 'active' | 'inactive' | 'modified'
+  | 'set_active' | 'set_inactive' | 'clear_overrides'
+  | 'no_rule_text' | 'rule_en' | 'rule_zh'
+  | 'character_a' | 'character_b' | 'character_a_placeholder' | 'character_b_placeholder'
+  | 'invalid_file_format' | 'advanced' | 'list_is_empty' | 'append_to_end'
+  | 'reset_to_default' | 'download_as_json' | 'drag_reorder_hint' | 'search_and_add_char'
+  | 'jinx_manager' | 'import_jinxes_json' | 'export_jinxes_json' | 'new_jinx_pair'
+  | 'jinx_export_hint' | 'download_character_json' | 'author_label' | 'add_revision'
+  | 'ability_text_en' | 'ability_text_zh' | 'ability_text_zh_optional'
+  | 'change_note_optional' | 'change_note_placeholder' | 'set_as_current_revision'
+  | 'revision_id_hint' | 'current_short' | 'swap_ab_hint' | 'jinx_in_db'
+  | 'canonical_prefix' | 'override_reason_en' | 'override_reason_zh'
+  | 'script_info_section' | 'unknown_char_ids' | 'create_custom' | 'script_notes'
+  | 'has_content' | 'st_notes_placeholder' | 'no_custom_jinxes' | 'characters_section'
+  | 'import_failed_json' | 'cleared_pack_overrides' | 'import_failed_char_json'
+  | 'confirm_delete_char' | 'add_char_from_json' | 'pack_active'
+  | 'custom_edition_suffix' | 'import_pack' | 'download_pack'
+  | 'name_en' | 'name_zh_optional' | 'icon_optional' | 'choose_image'
+  | 'first_night_wake_pos' | 'other_nights_wake_pos'
+  | 'first_night_reminder' | 'other_night_reminder'
+
+export type TplKey =
+  | 'showing_n_of_m'
+  | 'first_night_count'
+  | 'other_nights_count'
+  | 'jinxes_n'
+  | 'add_revision_for'
+  | 'imported_n_chars'
+  | 'updated_character'
+  | 'added_character'
+  | 'edit_char_title'
 
 /**
  * Returns a `t(key)` function bound to the given language.
@@ -61,4 +93,17 @@ export type UiKey =
 export function makeT(language: Language): (key: UiKey) => string {
   const dict = locales[language].ui as Record<string, string>
   return (key: UiKey): string => dict[key] ?? key
+}
+
+/**
+ * Returns a `tpl(key, ...args)` function bound to the given language.
+ * Replaces `{0}`, `{1}`, etc. with the provided arguments.
+ * Example: tpl('showing_n_of_m', 5, 100) → "Showing 5 of 100"
+ */
+export function makeTpl(language: Language): (key: TplKey, ...args: (string | number)[]) => string {
+  const dict = locales[language].ui as Record<string, string>
+  return (key: TplKey, ...args: (string | number)[]): string => {
+    const template = dict[key] ?? key
+    return template.replace(/\{(\d+)\}/g, (_, i) => String(args[Number(i)] ?? ''))
+  }
 }

@@ -44,6 +44,7 @@ import {
   saveNightOrderOverrides,
 } from '../catalog'
 import type { Language } from '../types'
+import { makeT, makeTpl } from '../lib/t'
 
 type Props = {
   open: boolean
@@ -167,7 +168,7 @@ function SortableCharRow({
         </Tooltip>
 
         {/* Remove */}
-        <Tooltip title={language === 'zh' ? '移除' : 'Remove'}>
+        <Tooltip title={makeT(language)('remove')}>
           <IconButton size="small" onClick={onRemove} sx={{ p: '2px', color: 'error.main' }}>
             <CloseIcon sx={{ fontSize: '0.85rem' }} />
           </IconButton>
@@ -216,7 +217,7 @@ function SortableCharRow({
           />
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0.5 }}>
             <Button size="small" sx={{ fontSize: '0.7rem', textTransform: 'none' }} onClick={onInsertCancel}>
-              {language === 'zh' ? '取消' : 'Cancel'}
+              {makeT(language)('cancel')}
             </Button>
           </Box>
         </Box>
@@ -227,7 +228,8 @@ function SortableCharRow({
 
 // ── Main component ────────────────────────────────────────────────────────────
 export function NightOrderManager({ open, onClose, language }: Props) {
-  const zh = language === 'zh'
+  const t = makeT(language)
+  const tpl = makeTpl(language)
 
   const [tab, setTab] = useState<'first' | 'other'>('first')
   const [firstNight, setFirstNight] = useState<string[]>([])
@@ -317,7 +319,7 @@ export function NightOrderManager({ open, onClose, language }: Props) {
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle sx={{ display: 'flex', alignItems: 'center', pr: 1 }}>
         <Typography variant="h6" sx={{ flex: 1 }}>
-          {zh ? '夜晚顺序' : 'Night Order'}
+          {t('night_order')}
         </Typography>
         <IconButton size="small" onClick={onClose}>
           <CloseIcon />
@@ -330,14 +332,14 @@ export function NightOrderManager({ open, onClose, language }: Props) {
           onChange={(_, v) => { setTab(v as 'first' | 'other'); setInsertAfterIndex(null) }}
           sx={{ borderBottom: 1, borderColor: 'divider', px: 2 }}
         >
-          <Tab value="first" label={zh ? `首夜（${firstNight.length}）` : `First Night (${firstNight.length})`} sx={{ textTransform: 'none', fontSize: '0.85rem' }} />
-          <Tab value="other" label={zh ? `其他夜（${otherNights.length}）` : `Other Nights (${otherNights.length})`} sx={{ textTransform: 'none', fontSize: '0.85rem' }} />
+          <Tab value="first" label={tpl('first_night_count', firstNight.length)} sx={{ textTransform: 'none', fontSize: '0.85rem' }} />
+          <Tab value="other" label={tpl('other_nights_count', otherNights.length)} sx={{ textTransform: 'none', fontSize: '0.85rem' }} />
         </Tabs>
 
         {/* Drag hint */}
         <Box sx={{ px: 2, pt: 1, pb: 0.5 }}>
           <Typography variant="caption" color="text.disabled" sx={{ fontSize: '0.68rem' }}>
-            {zh ? '拖拽手柄可排序 · 点击 + 可在该位置后插入' : 'Drag handle to reorder · Click + to insert after a row'}
+            {t('drag_reorder_hint')}
           </Typography>
         </Box>
 
@@ -345,7 +347,7 @@ export function NightOrderManager({ open, onClose, language }: Props) {
         <Box sx={{ maxHeight: '50vh', overflowY: 'auto', px: 1, pb: 1 }}>
           {currentList.length === 0 && (
             <Typography variant="body2" color="text.secondary" sx={{ p: 2, textAlign: 'center' }}>
-              {zh ? '列表为空' : 'List is empty'}
+              {t('list_is_empty')}
             </Typography>
           )}
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
@@ -371,7 +373,7 @@ export function NightOrderManager({ open, onClose, language }: Props) {
         {/* Add at end */}
         <Box sx={{ px: 2, pb: 2, pt: 1, borderTop: 1, borderColor: 'divider' }}>
           <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.75, fontSize: '0.72rem' }}>
-            {zh ? '追加到末尾' : 'Append to end'}
+            {t('append_to_end')}
           </Typography>
           <Autocomplete
             size="small"
@@ -397,7 +399,7 @@ export function NightOrderManager({ open, onClose, language }: Props) {
               )
             }}
             renderInput={(params) => (
-              <TextField {...params} placeholder={zh ? '搜索并添加角色…' : 'Search and add character…'} size="small" />
+              <TextField {...params} placeholder={t('search_and_add_char')} size="small" />
             )}
           />
         </Box>
@@ -406,20 +408,20 @@ export function NightOrderManager({ open, onClose, language }: Props) {
       <DialogActions sx={{ px: 2, pb: 2, justifyContent: 'space-between' }}>
         <Box sx={{ display: 'flex', gap: 1 }}>
           <Button variant="outlined" size="small" onClick={handleReset} sx={{ textTransform: 'none' }}>
-            {zh ? '恢复默认' : 'Reset to default'}
+            {t('reset_to_default')}
           </Button>
-          <Tooltip title={zh ? '下载为 JSON' : 'Download as JSON'}>
+          <Tooltip title={t('download_as_json')}>
             <Button variant="outlined" size="small" startIcon={<DownloadIcon fontSize="small" />} onClick={handleDownload} sx={{ textTransform: 'none' }}>
-              {zh ? '下载' : 'Download'}
+              {t('download_as_json')}
             </Button>
           </Tooltip>
         </Box>
         <Box sx={{ display: 'flex', gap: 1 }}>
           <Button size="small" onClick={onClose} sx={{ textTransform: 'none' }}>
-            {zh ? '取消' : 'Cancel'}
+            {t('cancel')}
           </Button>
           <Button variant="contained" size="small" onClick={handleSave} sx={{ textTransform: 'none' }}>
-            {zh ? '保存' : 'Save'}
+            {t('save')}
           </Button>
         </Box>
       </DialogActions>

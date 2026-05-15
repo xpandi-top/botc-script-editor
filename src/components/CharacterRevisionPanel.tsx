@@ -23,6 +23,7 @@ import {
   teamLabels,
 } from '../catalog'
 import type { CharacterEntry, CharacterFileEntry, CustomCharacter, Language, RevisionOverrides } from '../types'
+import { makeT, makeTpl } from '../lib/t'
 
 type CharacterRevisionPanelProps = {
   character?: CharacterEntry
@@ -64,7 +65,8 @@ export function CharacterRevisionPanel({
   const [note, setNote] = useState('')
   const [setCurrent, setSetCurrent] = useState(true)
   const [, forceUpdate] = useState(0)
-  const zh = language === 'zh'
+  const t = makeT(language)
+  const tpl = makeTpl(language)
 
   const openAdd = () => {
     if (!character) return
@@ -167,9 +169,9 @@ export function CharacterRevisionPanel({
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Typography variant="h6" sx={{ flex: 1, minWidth: 0 }}>{getDisplayName(character.id, language)}</Typography>
             {isCustom && (
-              <Chip label={zh ? '自定义' : 'Custom'} size="small" color="secondary" sx={{ fontSize: '0.65rem' }} />
+              <Chip label={t('custom')} size="small" color="secondary" sx={{ fontSize: '0.65rem' }} />
             )}
-            <Tooltip title={zh ? '下载角色 JSON' : 'Download character JSON'}>
+            <Tooltip title={t('download_character_json')}>
               <IconButton size="small" onClick={downloadCharacter} sx={{ color: 'text.secondary' }}>
                 <DownloadIcon fontSize="small" />
               </IconButton>
@@ -178,7 +180,7 @@ export function CharacterRevisionPanel({
           <Typography variant="caption" color="text.secondary">{character.id}</Typography>
           {customChar && (
             <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-              {zh ? '作者：' : 'Author: '}{customChar.author}
+              {t('author_label')}{customChar.author}
               {' · '}
               {teamLabels[language]?.[customChar.team] ?? customChar.team}
               {' · '}
@@ -197,7 +199,7 @@ export function CharacterRevisionPanel({
               onClick={() => onEditCustom(customChar)}
               sx={{ textTransform: 'none', fontSize: '0.75rem' }}
             >
-              {zh ? '编辑' : 'Edit'}
+              {t('edit')}
             </Button>
           )}
           {onDeleteCustom && (
@@ -206,7 +208,7 @@ export function CharacterRevisionPanel({
               onClick={() => onDeleteCustom(character.id)}
               sx={{ textTransform: 'none', fontSize: '0.75rem' }}
             >
-              {zh ? '删除' : 'Delete'}
+              {t('delete')}
             </Button>
           )}
         </Box>
@@ -226,7 +228,7 @@ export function CharacterRevisionPanel({
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
           <Typography variant="subtitle2">{revisionHistoryLabel}</Typography>
           <Button size="small" startIcon={<AddIcon fontSize="small" />} onClick={openAdd} sx={{ textTransform: 'none', fontSize: '0.75rem' }}>
-            {zh ? '添加版本' : 'Add Revision'}
+            {t('add_revision')}
           </Button>
         </Box>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
@@ -266,7 +268,7 @@ export function CharacterRevisionPanel({
         return (
           <Box sx={{ mt: 2 }}>
             <Typography variant="subtitle2" sx={{ mb: 1 }}>
-              {zh ? `Jinx 关联（${charJinxes.length}）` : `Jinxes (${charJinxes.length})`}
+              {tpl('jinxes_n', charJinxes.length)}
             </Typography>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
               {charJinxes.map((j) => {
@@ -303,38 +305,38 @@ export function CharacterRevisionPanel({
       {/* ── Add Revision Dialog ── */}
       <Dialog open={addOpen} onClose={() => setAddOpen(false)} maxWidth="sm" fullWidth>
         <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          {zh ? `添加版本 — ${getDisplayName(character.id, language)}` : `Add Revision — ${getDisplayName(character.id, language)}`}
+          {tpl('add_revision_for', getDisplayName(character.id, language))}
           <IconButton size="small" onClick={() => setAddOpen(false)}><CloseIcon /></IconButton>
         </DialogTitle>
         <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '8px !important' }}>
           <TextField
-            size="small" label={zh ? '版本 ID' : 'Revision ID'}
+            size="small" label={t('revision_id')}
             value={revId} onChange={(e) => setRevId(e.target.value)}
-            helperText={zh ? '如 v2、errata-2025' : 'e.g. v2, errata-2025'}
+            helperText={t('revision_id_hint')}
           />
           <TextField
             size="small" multiline minRows={2}
-            label={zh ? '技能文本（EN）' : 'Ability Text (EN)'}
+            label={t('ability_text_en')}
             value={abilityEn} onChange={(e) => setAbilityEn(e.target.value)}
           />
           <TextField
             size="small" multiline minRows={2}
-            label={zh ? '技能文本（ZH）' : 'Ability Text (ZH)'}
+            label={t('ability_text_zh')}
             value={abilityZh} onChange={(e) => setAbilityZh(e.target.value)}
           />
           <TextField
             size="small"
-            label={zh ? '修订备注（可选）' : 'Change note (optional)'}
+            label={t('change_note_optional')}
             value={note} onChange={(e) => setNote(e.target.value)}
-            placeholder={zh ? '如：第二版勘误，修正了死亡判定' : 'e.g. 2nd ed errata — clarified death trigger'}
+            placeholder={t('change_note_placeholder')}
           />
           <FormControlLabel
             control={<Checkbox checked={setCurrent} onChange={(e) => setSetCurrent(e.target.checked)} size="small" />}
-            label={<Typography variant="body2">{zh ? '设为当前版本' : 'Set as current revision'}</Typography>}
+            label={<Typography variant="body2">{t('set_as_current_revision')}</Typography>}
           />
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-            <Button variant="outlined" onClick={() => setAddOpen(false)}>{zh ? '取消' : 'Cancel'}</Button>
-            <Button variant="contained" onClick={saveRevision} disabled={!revId.trim()}>{zh ? '保存' : 'Save'}</Button>
+            <Button variant="outlined" onClick={() => setAddOpen(false)}>{t('cancel')}</Button>
+            <Button variant="contained" onClick={saveRevision} disabled={!revId.trim()}>{t('save')}</Button>
           </Box>
         </DialogContent>
       </Dialog>

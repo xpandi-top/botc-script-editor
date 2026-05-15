@@ -37,6 +37,7 @@ import {
   jinxes as jinxDb,
 } from '../../catalog'
 import type { CharacterGroup, EditableScript, Language, ResolvedScriptCharacter, ResolvedScriptCharacterGroup, ScriptJinxOverride } from '../../types'
+import { makeT } from '../../lib/t'
 
 function getTeamColor(team: string) {
   const colors: Record<string, string> = {
@@ -132,7 +133,7 @@ function SelectedCharRow({
   updateActiveScript: Props['updateActiveScript']
   toggleCharacterInScript: (id: string) => void
 }) {
-  const zh = uiLanguage === 'zh'
+  const t = makeT(uiLanguage)
   const icon = getIconForCharacter(character.id)
   const revIds = getCharacterRevisionIds(character.id)
   const currentRev = getCurrentRevision(character.id)
@@ -173,7 +174,7 @@ function SelectedCharRow({
               }}
               renderValue={(val) => {
                 const r = val as string
-                return r === currentRev ? r + (zh ? '（当前）' : ' (cur)') : r
+                return r === currentRev ? r + t('current_short') : r
               }}
               sx={{
                 fontSize: '0.7rem',
@@ -186,7 +187,7 @@ function SelectedCharRow({
                 <MenuItem key={r} value={r}>
                   <Box sx={{ maxWidth: 300 }}>
                     <Typography variant="body2" sx={{ fontWeight: r === currentRev ? 700 : 400 }}>
-                      {r}{r === currentRev ? (zh ? '（当前）' : ' (current)') : ''}
+                      {r}{r === currentRev ? t('current_short') : ''}
                     </Typography>
                     <Typography variant="caption" color="text.secondary" sx={{ display: 'block', whiteSpace: 'normal', lineHeight: 1.3 }}>
                       {getRevisionText(character.id, uiLanguage, r) || getAbilityText(character.id, uiLanguage)}
@@ -198,7 +199,7 @@ function SelectedCharRow({
           </FormControl>
         )}
         {/* Remove */}
-        <Tooltip title={zh ? '移除' : 'Remove'}>
+        <Tooltip title={t('remove')}>
           <IconButton size="small" onClick={() => toggleCharacterInScript(character.id)} sx={{ p: '2px', flexShrink: 0 }}>
             <CloseIcon sx={{ fontSize: '0.85rem' }} />
           </IconButton>
@@ -247,7 +248,7 @@ function JinxPairRow({
   updateJinx: (patch: Partial<ScriptJinxOverride>) => void
   removeJinx: () => void
 }) {
-  const zh = uiLanguage === 'zh'
+  const t = makeT(uiLanguage)
   const chars = jinx.characters ?? ['', ''] as [string, string]
   const charA = chars[0] ?? ''
   const charB = chars[1] ?? ''
@@ -290,11 +291,11 @@ function JinxPairRow({
           onChange={(_, v) => setChar(0, v ?? '')}
           getOptionLabel={(id) => getDisplayName(id, uiLanguage)}
           renderOption={renderCharOption}
-          renderInput={(params) => <TextField {...params} placeholder={zh ? '角色 A…' : 'Character A…'} size="small" />}
+          renderInput={(params) => <TextField {...params} placeholder={t('character_a_placeholder')} size="small" />}
           sx={{ flex: '1 1 140px' }}
           disableClearable={false}
         />
-        <Tooltip title={zh ? '互换 A ↔ B（结果相同）' : 'A ↔ B — order is symmetric'}>
+        <Tooltip title={t('swap_ab_hint')}>
           <SyncAltIcon sx={{ fontSize: '1rem', color: 'text.disabled', flexShrink: 0 }} />
         </Tooltip>
         <Autocomplete
@@ -304,19 +305,19 @@ function JinxPairRow({
           onChange={(_, v) => setChar(1, v ?? '')}
           getOptionLabel={(id) => getDisplayName(id, uiLanguage)}
           renderOption={renderCharOption}
-          renderInput={(params) => <TextField {...params} placeholder={zh ? '角色 B…' : 'Character B…'} size="small" />}
+          renderInput={(params) => <TextField {...params} placeholder={t('character_b_placeholder')} size="small" />}
           sx={{ flex: '1 1 140px' }}
           disableClearable={false}
         />
         {/* Status toggle */}
         <Chip
           size="small"
-          label={isActive ? (zh ? '启用' : 'Active') : (zh ? '禁用' : 'Inactive')}
+          label={isActive ? t('active') : t('inactive')}
           color={isActive ? 'success' : 'default'}
           onClick={() => updateJinx({ status: isActive ? 'inactive' : 'active' })}
           sx={{ cursor: 'pointer', fontSize: '0.68rem', height: 22, flexShrink: 0 }}
         />
-        <Tooltip title={zh ? '移除' : 'Remove'}>
+        <Tooltip title={t('remove')}>
           <IconButton size="small" color="error" onClick={removeJinx} sx={{ p: '2px', flexShrink: 0 }}>
             <CloseIcon sx={{ fontSize: '0.85rem' }} />
           </IconButton>
@@ -332,13 +333,13 @@ function JinxPairRow({
               <Typography variant="caption" sx={{ color: 'text.disabled', fontSize: '0.65rem' }}>×</Typography>
               <CharChip id={[charA, charB].sort()[1]} language={uiLanguage} />
               {canonical && (
-                <Chip size="small" label={zh ? '已收录' : 'In DB'} color="info" variant="outlined" sx={{ height: 18, fontSize: '0.6rem', ml: 0.5 }} />
+                <Chip size="small" label={t('jinx_in_db')} color="info" variant="outlined" sx={{ height: 18, fontSize: '0.6rem', ml: 0.5 }} />
               )}
             </Box>
           )}
           {canonicalReason && (
             <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', fontStyle: 'italic', lineHeight: 1.4 }}>
-              {zh ? '标准规则：' : 'Canonical: '}{canonicalReason}
+              {t('canonical_prefix')}{canonicalReason}
             </Typography>
           )}
         </Box>
@@ -348,7 +349,7 @@ function JinxPairRow({
       <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 }}>
         <TextField
           size="small" multiline maxRows={3}
-          label={zh ? '自定义规则（EN）' : 'Override reason (EN)'}
+          label={t('override_reason_en')}
           value={jinx.reason ?? ''}
           placeholder={canonicalReason}
           onChange={(e) => updateJinx({ reason: e.target.value })}
@@ -356,7 +357,7 @@ function JinxPairRow({
         />
         <TextField
           size="small" multiline maxRows={3}
-          label={zh ? '自定义规则（ZH）' : 'Override reason (ZH)'}
+          label={t('override_reason_zh')}
           value={jinx.reason_zh ?? ''}
           onChange={(e) => updateJinx({ reason_zh: e.target.value })}
           slotProps={{ inputLabel: { shrink: true } }}
@@ -405,7 +406,7 @@ export function ScriptEditor({
   toggleCharacterInScript,
   availableEditions,
 }: Props) {
-  const zh = uiLanguage === 'zh'
+  const t = makeT(uiLanguage)
 
   const hasNotes = !!activeScript.notes?.trim()
   const bootleggerCount = (activeScript.meta.bootlegger?.filter(Boolean).length ?? 0) + (activeScript.meta.bootlegger_zh?.filter(Boolean).length ?? 0)
@@ -446,7 +447,7 @@ export function ScriptEditor({
 
       {/* ── Script Info ── */}
       <SectionAccordion
-        title={zh ? '脚本信息' : 'Script Info'}
+        title={t('script_info_section')}
         defaultExpanded
       >
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(3, 1fr)' }, gap: 1.5 }}>
@@ -466,7 +467,7 @@ export function ScriptEditor({
 
       {/* ── Characters ── */}
       <SectionAccordion
-        title={zh ? '角色' : 'Characters'}
+        title={t('characters_section')}
         defaultExpanded
         badge={
           <Chip
@@ -483,7 +484,7 @@ export function ScriptEditor({
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.75 }}>
               <WarningAmberIcon fontSize="small" color="warning" />
               <Typography variant="caption" sx={{ fontWeight: 700, color: 'warning.dark' }}>
-                {zh ? '未知角色 ID（不在当前数据库中）' : 'Unknown IDs (not in database)'}
+                {t('unknown_char_ids')}
               </Typography>
             </Box>
             {unknownCharIds.map((id) => (
@@ -492,12 +493,12 @@ export function ScriptEditor({
                 {onCreateCustomFromId && (
                   <Button size="small" variant="outlined" color="warning" sx={{ fontSize: '0.65rem', py: 0.25 }}
                     onClick={() => onCreateCustomFromId(id)}>
-                    {zh ? '创建自定义' : 'Create custom'}
+                    {t('create_custom')}
                   </Button>
                 )}
                 <Button size="small" variant="outlined" color="error" sx={{ fontSize: '0.65rem', py: 0.25 }}
                   onClick={() => updateActiveScript((s) => ({ ...s, characters: s.characters.filter((c) => c !== id) }))}>
-                  {zh ? '移除' : 'Remove'}
+                  {t('remove')}
                 </Button>
               </Box>
             ))}
@@ -546,7 +547,7 @@ export function ScriptEditor({
           <Paper variant="outlined" sx={{ p: 1.5, position: 'sticky', top: 8 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
               <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
-                {zh ? '已选' : 'Selected'}
+                {t('selected_count')}
               </Typography>
               <Typography variant="caption" color="text.secondary">
                 {activeScriptCharacters.length} {uiText.selectedCount}
@@ -587,12 +588,12 @@ export function ScriptEditor({
 
       {/* ── Notes ── */}
       <SectionAccordion
-        title={zh ? '脚本备注' : 'Script Notes'}
-        badge={hasNotes ? <Chip size="small" label={zh ? '已有内容' : 'has content'} color="primary" variant="outlined" sx={{ height: 18, fontSize: '0.65rem' }} /> : undefined}
+        title={t('script_notes')}
+        badge={hasNotes ? <Chip size="small" label={t('has_content')} color="primary" variant="outlined" sx={{ height: 18, fontSize: '0.65rem' }} /> : undefined}
       >
         <TextField
           fullWidth multiline minRows={3} size="small"
-          placeholder={zh ? '在此记录说书人备注、版本说明或游戏提示…' : 'ST notes, version notes, gameplay tips…'}
+          placeholder={t('st_notes_placeholder')}
           value={activeScript.notes ?? ''}
           onChange={(e) => updateActiveScript((s) => ({ ...s, notes: e.target.value }))}
         />
@@ -600,7 +601,7 @@ export function ScriptEditor({
 
       {/* ── Advanced: Bootlegger rules + Jinxes ── */}
       <SectionAccordion
-        title={zh ? '高级设置' : 'Advanced'}
+        title={t('advanced')}
         badge={
           (bootleggerCount > 0 || jinxCount > 0) ? (
             <Chip size="small" label={bootleggerCount + jinxCount} color="secondary" sx={{ height: 18, fontSize: '0.65rem' }} />
@@ -650,13 +651,13 @@ export function ScriptEditor({
             <Typography variant="caption" color="text.secondary">{uiText.scriptJinxesHelp}</Typography>
           </Box>
           <Button size="small" variant="outlined" onClick={addJinx} sx={{ textTransform: 'none', flexShrink: 0 }}>
-            + {zh ? '添加' : 'Add'}
+            + {t('add')}
           </Button>
         </Box>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
           {(activeScript.meta.jinxes ?? []).length === 0 && (
             <Typography variant="caption" color="text.disabled" sx={{ textAlign: 'center', py: 1 }}>
-              {zh ? '暂无自定义 Jinx 规则' : 'No custom jinx overrides'}
+              {t('no_custom_jinxes')}
             </Typography>
           )}
           {(activeScript.meta.jinxes ?? []).map((jinx, index) => (

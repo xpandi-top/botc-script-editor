@@ -9,7 +9,7 @@ import { editionLabels, teamLabels, teamOrder, toTitleCase } from '../catalog'
 import { processIconFile } from '../lib/iconResize'
 import { NightOrderPicker } from './NightOrderPicker'
 import type { CustomCharacter, Language, Team } from '../types'
-import { makeT } from '../lib/t'
+import { makeT, makeTpl } from '../lib/t'
 
 type Draft = Omit<CustomCharacter, 'id' | 'createdAt' | 'updatedAt'>
 
@@ -42,8 +42,8 @@ export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSav
   const [draft, setDraft] = useState<Draft>(BLANK)
   const [iconError, setIconError] = useState('')
   const [iconMode, setIconMode] = useState<'url' | 'upload'>('url')
-  const zh = uiLanguage === 'zh'
   const t = makeT(uiLanguage)
+  const tpl = makeTpl(uiLanguage)
 
   // Populate draft when dialog opens
   useEffect(() => {
@@ -88,19 +88,19 @@ export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSav
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         {editingChar
-          ? (zh ? `编辑：${draft.nameEn}` : `Edit: ${draft.nameEn}`)
+          ? tpl('edit_char_title', draft.nameEn)
           : t('new_custom_char')}
         <IconButton size="small" onClick={onClose}><CloseIcon /></IconButton>
       </DialogTitle>
       <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '8px !important' }}>
         {/* Basic identity */}
         <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 }}>
-          <TextField size="small" required label={zh ? '名称（EN）' : 'Name (EN)'}
+          <TextField size="small" required label={t('name_en')}
             value={draft.nameEn} onChange={(e) => setDraft((d) => ({ ...d, nameEn: e.target.value }))} />
-          <TextField size="small" label={zh ? '名称（ZH，可选）' : 'Name (ZH, optional)'}
+          <TextField size="small" label={t('name_zh_optional')}
             value={draft.nameZh ?? ''} onChange={(e) => setDraft((d) => ({ ...d, nameZh: e.target.value }))} />
         </Box>
-        <TextField size="small" required label={zh ? '作者' : 'Author'}
+        <TextField size="small" required label={t('author')}
           value={draft.author} onChange={(e) => setDraft((d) => ({ ...d, author: e.target.value }))} />
         <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 }}>
           <Autocomplete
@@ -110,7 +110,7 @@ export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSav
             value={draft.edition}
             onChange={(_, v) => setDraft((d) => ({ ...d, edition: (v as string) ?? '' }))}
             onInputChange={(_, v, reason) => { if (reason === 'input') setDraft((d) => ({ ...d, edition: v })) }}
-            renderInput={(params) => <TextField {...params} label={zh ? '版块标签' : 'Edition'} />}
+            renderInput={(params) => <TextField {...params} label={t('edition_label')} />}
           />
           <FormControl size="small">
             <InputLabel>{t('team_label')}</InputLabel>
@@ -125,16 +125,16 @@ export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSav
 
         {/* Ability text */}
         <TextField size="small" required multiline minRows={2}
-          label={zh ? '技能文本（EN）' : 'Ability Text (EN)'}
+          label={t('ability_text_en')}
           value={draft.abilityEn} onChange={(e) => setDraft((d) => ({ ...d, abilityEn: e.target.value }))} />
         <TextField size="small" multiline minRows={2}
-          label={zh ? '技能文本（ZH，可选）' : 'Ability Text (ZH, optional)'}
+          label={t('ability_text_zh_optional')}
           value={draft.abilityZh ?? ''} onChange={(e) => setDraft((d) => ({ ...d, abilityZh: e.target.value }))} />
 
         {/* Icon */}
         <Box>
           <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
-            {zh ? '图标（可选，将缩放至 128px）' : 'Icon (optional — resized to 128 px)'}
+            {t('icon_optional')}
           </Typography>
           <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start' }}>
             <RadioGroup row value={iconMode} onChange={(e) => setIconMode(e.target.value as 'url' | 'upload')}>
@@ -152,7 +152,7 @@ export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSav
               onChange={(e) => setDraft((d) => ({ ...d, icon: e.target.value || undefined }))} />
           ) : (
             <Button size="small" variant="outlined" component="label">
-              {zh ? '选择图片' : 'Choose image'}
+              {t('choose_image')}
               <input type="file" accept="image/*" hidden
                 onChange={(e) => { const f = e.target.files?.[0]; if (f) handleIconUpload(f); e.target.value = '' }} />
             </Button>
@@ -163,7 +163,7 @@ export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSav
         {/* Night order */}
         <Box>
           <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-            {zh ? '首夜唤醒位置（可选）' : 'First night wake position (optional)'}
+            {t('first_night_wake_pos')}
           </Typography>
           <NightOrderPicker value={draft.firstNight}
             onChange={(pos) => setDraft((d) => ({ ...d, firstNight: pos }))}
@@ -171,17 +171,17 @@ export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSav
         </Box>
         <Box>
           <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-            {zh ? '其他夜唤醒位置（可选）' : 'Other nights wake position (optional)'}
+            {t('other_nights_wake_pos')}
           </Typography>
           <NightOrderPicker value={draft.otherNight}
             onChange={(pos) => setDraft((d) => ({ ...d, otherNight: pos }))}
             nightType="other" language={uiLanguage} />
         </Box>
         <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 }}>
-          <TextField size="small" label={zh ? '首夜提示' : 'First night reminder'}
+          <TextField size="small" label={t('first_night_reminder')}
             value={draft.firstNightReminder ?? ''}
             onChange={(e) => setDraft((d) => ({ ...d, firstNightReminder: e.target.value }))} />
-          <TextField size="small" label={zh ? '其他夜提示' : 'Other night reminder'}
+          <TextField size="small" label={t('other_night_reminder')}
             value={draft.otherNightReminder ?? ''}
             onChange={(e) => setDraft((d) => ({ ...d, otherNightReminder: e.target.value }))} />
         </Box>

@@ -38,6 +38,7 @@ import {
   setJinxOverride,
 } from '../catalog'
 import type { Language } from '../types'
+import { makeT, makeTpl } from '../lib/t'
 
 type JinxManagerProps = {
   open: boolean
@@ -85,7 +86,8 @@ function CharChip({ charId, language }: { charId: string; language: Language }) 
 }
 
 export function JinxManager({ open, onClose, language }: JinxManagerProps) {
-  const zh = language === 'zh'
+  const t = makeT(language)
+  const tpl = makeTpl(language)
   const [search, setSearch] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)   // jinx pair id being edited
   const [addOpen, setAddOpen] = useState(false)
@@ -198,7 +200,7 @@ export function JinxManager({ open, onClose, language }: JinxManagerProps) {
         importJinxesJson(e.target?.result as string)
         refresh()
       } catch {
-        alert(zh ? '文件格式无效' : 'Invalid file format')
+        alert(t('invalid_file_format'))
       }
     }
     reader.readAsText(file)
@@ -223,16 +225,16 @@ export function JinxManager({ open, onClose, language }: JinxManagerProps) {
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pb: 1 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Typography variant="h6">{zh ? 'Jinx 管理' : 'Jinx Manager'}</Typography>
+          <Typography variant="h6">{t('jinx_manager')}</Typography>
           <Chip label={allJinxIds.length} size="small" color="primary" />
         </Box>
         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-          <Tooltip title={zh ? '导入 jinxes.json' : 'Import jinxes.json'}>
+          <Tooltip title={t('import_jinxes_json')}>
             <IconButton size="small" onClick={() => importRef.current?.click()} sx={{ color: 'text.secondary' }}>
               <UploadIcon fontSize="small" />
             </IconButton>
           </Tooltip>
-          <Tooltip title={zh ? '导出 jinxes.json' : 'Export jinxes.json'}>
+          <Tooltip title={t('export_jinxes_json')}>
             <IconButton size="small" onClick={handleDownload} sx={{ color: 'text.secondary' }}>
               <DownloadIcon fontSize="small" />
             </IconButton>
@@ -257,7 +259,7 @@ export function JinxManager({ open, onClose, language }: JinxManagerProps) {
         <Box sx={{ px: 2, py: 1.5, borderBottom: '1px solid', borderColor: 'divider', display: 'flex', gap: 1, alignItems: 'center', flexShrink: 0 }}>
           <TextField
             size="small"
-            placeholder={zh ? '搜索角色…' : 'Search characters…'}
+            placeholder={t('search_characters')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             sx={{ flex: 1 }}
@@ -278,7 +280,7 @@ export function JinxManager({ open, onClose, language }: JinxManagerProps) {
             onClick={openAdd}
             sx={{ textTransform: 'none', fontSize: '0.75rem', whiteSpace: 'nowrap' }}
           >
-            {zh ? '添加 Jinx' : 'Add Jinx'}
+            {t('add_jinx')}
           </Button>
         </Box>
 
@@ -289,7 +291,7 @@ export function JinxManager({ open, onClose, language }: JinxManagerProps) {
             sx={{ mx: 2, mt: 1.5, p: 1.5, flexShrink: 0, border: '1px dashed', borderColor: 'primary.main', bgcolor: 'action.hover' }}
           >
             <Typography variant="caption" color="primary" sx={{ fontWeight: 700, display: 'block', mb: 1 }}>
-              {zh ? '新建 Jinx 对' : 'New Jinx Pair'}
+              {t('new_jinx_pair')}
             </Typography>
             <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 1 }}>
               <Autocomplete
@@ -299,7 +301,7 @@ export function JinxManager({ open, onClose, language }: JinxManagerProps) {
                 onChange={(_, v) => setDraft((d) => ({ ...d, char0: v ?? '' }))}
                 getOptionLabel={(id) => getDisplayName(id, language)}
                 renderInput={(params) => (
-                  <TextField {...params} label={zh ? '角色 A' : 'Character A'} sx={{ width: 180 }} />
+                  <TextField {...params} label={t('character_a')} sx={{ width: 180 }} />
                 )}
               />
               <Autocomplete
@@ -309,34 +311,34 @@ export function JinxManager({ open, onClose, language }: JinxManagerProps) {
                 onChange={(_, v) => setDraft((d) => ({ ...d, char1: v ?? '' }))}
                 getOptionLabel={(id) => getDisplayName(id, language)}
                 renderInput={(params) => (
-                  <TextField {...params} label={zh ? '角色 B' : 'Character B'} sx={{ width: 180 }} />
+                  <TextField {...params} label={t('character_b')} sx={{ width: 180 }} />
                 )}
               />
             </Box>
             <Box sx={{ display: 'flex', gap: 1, flexDirection: 'column', mb: 1 }}>
               <TextField
                 size="small" fullWidth multiline minRows={1}
-                label={zh ? '规则（EN）' : 'Rule (EN)'}
+                label={t('rule_en')}
                 value={draft.reasonEn}
                 onChange={(e) => setDraft((d) => ({ ...d, reasonEn: e.target.value }))}
               />
               <TextField
                 size="small" fullWidth multiline minRows={1}
-                label={zh ? '规则（ZH）' : 'Rule (ZH)'}
+                label={t('rule_zh')}
                 value={draft.reasonZh}
                 onChange={(e) => setDraft((d) => ({ ...d, reasonZh: e.target.value }))}
               />
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
               <Button size="small" onClick={cancelEdit} sx={{ textTransform: 'none' }}>
-                {zh ? '取消' : 'Cancel'}
+                {t('cancel')}
               </Button>
               <Button
                 size="small" variant="contained" onClick={saveNew}
                 disabled={!draft.char0 || !draft.char1 || draft.char0 === draft.char1}
                 sx={{ textTransform: 'none' }}
               >
-                {zh ? '添加' : 'Add'}
+                {t('add')}
               </Button>
             </Box>
           </Paper>
@@ -345,7 +347,7 @@ export function JinxManager({ open, onClose, language }: JinxManagerProps) {
         {/* Jinx list */}
         <Box sx={{ flex: 1, overflowY: 'auto', px: 2, py: 1.5 }}>
           <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
-            {zh ? `显示 ${filteredIds.length} / ${allJinxIds.length} 条` : `Showing ${filteredIds.length} of ${allJinxIds.length}`}
+            {tpl('showing_n_of_m', filteredIds.length, allJinxIds.length)}
           </Typography>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
             {filteredIds.map((id) => {
@@ -374,16 +376,16 @@ export function JinxManager({ open, onClose, language }: JinxManagerProps) {
                       <Typography variant="caption" color="text.disabled" sx={{ fontWeight: 700 }}>×</Typography>
                       <CharChip charId={charB} language={language} />
                       {isNew && (
-                        <Chip label={zh ? '自定义' : 'Custom'} size="small" color="secondary" sx={{ fontSize: '0.6rem', height: 18 }} />
+                        <Chip label={t('custom')} size="small" color="secondary" sx={{ fontSize: '0.6rem', height: 18 }} />
                       )}
                       {overridden && !isNew && (
-                        <Chip label={zh ? '已修改' : 'Modified'} size="small" color="warning" sx={{ fontSize: '0.6rem', height: 18 }} />
+                        <Chip label={t('modified')} size="small" color="warning" sx={{ fontSize: '0.6rem', height: 18 }} />
                       )}
                     </Box>
                     <Box sx={{ display: 'flex', gap: 0.5, flexShrink: 0 }}>
-                      <Tooltip title={status === 'active' ? (zh ? '设为非活跃' : 'Set inactive') : (zh ? '设为活跃' : 'Set active')}>
+                      <Tooltip title={status === 'active' ? t('set_inactive') : t('set_active')}>
                         <Chip
-                          label={status === 'active' ? (zh ? '活跃' : 'Active') : (zh ? '非活跃' : 'Inactive')}
+                          label={status === 'active' ? t('active') : t('inactive')}
                           size="small"
                           color={status === 'active' ? 'success' : 'default'}
                           onClick={() => toggleStatus(id)}
@@ -391,14 +393,14 @@ export function JinxManager({ open, onClose, language }: JinxManagerProps) {
                         />
                       </Tooltip>
                       {!isEditing && (
-                        <Tooltip title={zh ? '编辑' : 'Edit'}>
+                        <Tooltip title={t('edit')}>
                           <IconButton size="small" onClick={() => startEdit(id)} sx={{ p: 0.25 }}>
                             <EditIcon sx={{ fontSize: 14 }} />
                           </IconButton>
                         </Tooltip>
                       )}
                       {overridden && (
-                        <Tooltip title={zh ? '清除修改' : 'Clear overrides'}>
+                        <Tooltip title={t('clear_overrides')}>
                           <IconButton size="small" onClick={() => deleteOverride(id)} sx={{ p: 0.25, color: 'error.main' }}>
                             <DeleteIcon sx={{ fontSize: 14 }} />
                           </IconButton>
@@ -412,26 +414,26 @@ export function JinxManager({ open, onClose, language }: JinxManagerProps) {
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                       <TextField
                         size="small" fullWidth multiline minRows={1}
-                        label={zh ? '规则（EN）' : 'Rule (EN)'}
+                        label={t('rule_en')}
                         value={draft.reasonEn}
                         onChange={(e) => setDraft((d) => ({ ...d, reasonEn: e.target.value }))}
                       />
                       <TextField
                         size="small" fullWidth multiline minRows={1}
-                        label={zh ? '规则（ZH）' : 'Rule (ZH)'}
+                        label={t('rule_zh')}
                         value={draft.reasonZh}
                         onChange={(e) => setDraft((d) => ({ ...d, reasonZh: e.target.value }))}
                       />
                       <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
                         <Button size="small" onClick={cancelEdit} sx={{ textTransform: 'none' }}>
-                          {zh ? '取消' : 'Cancel'}
+                          {t('cancel')}
                         </Button>
                         <Button
                           size="small" variant="contained" onClick={saveEdit}
                           startIcon={<CheckIcon fontSize="small" />}
                           sx={{ textTransform: 'none' }}
                         >
-                          {zh ? '保存' : 'Save'}
+                          {t('save')}
                         </Button>
                       </Box>
                     </Box>
@@ -452,7 +454,7 @@ export function JinxManager({ open, onClose, language }: JinxManagerProps) {
                       )}
                       {!reasonEn && !reasonZh && (
                         <Typography variant="caption" sx={{ color: 'text.disabled', fontStyle: 'italic' }}>
-                          {zh ? '（无规则说明）' : '(no rule text)'}
+                          {t('no_rule_text')}
                         </Typography>
                       )}
                     </Box>
@@ -466,9 +468,7 @@ export function JinxManager({ open, onClose, language }: JinxManagerProps) {
         <Divider />
         <Box sx={{ px: 2, py: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
           <Typography variant="caption" color="text.secondary">
-            {zh
-              ? '下载导出包含所有修改的完整 jinxes.json，可直接替换资产文件'
-              : 'Download exports full jinxes.json with all overrides — drop it into assets/ to bake in.'}
+            {t('jinx_export_hint')}
           </Typography>
           <Button
             size="small"
@@ -477,7 +477,7 @@ export function JinxManager({ open, onClose, language }: JinxManagerProps) {
             onClick={handleDownload}
             sx={{ textTransform: 'none', fontSize: '0.75rem', whiteSpace: 'nowrap', ml: 2 }}
           >
-            {zh ? '导出 jinxes.json' : 'Export jinxes.json'}
+            {t('export_jinxes_json')}
           </Button>
         </Box>
       </DialogContent>

@@ -40,7 +40,7 @@ import {
 } from '../../catalog'
 import type { CharacterFileEntry } from '../../types'
 import type { CharacterEntry, CustomCharacter, Language, Team } from '../../types'
-import { makeT } from '../../lib/t'
+import { makeT, makeTpl } from '../../lib/t'
 
 type Props = {
   uiText: Record<string, string>
@@ -95,8 +95,8 @@ export function CharactersTab({
   })
   const importInputRef = useRef<HTMLInputElement>(null)
   const addCharInputRef = useRef<HTMLInputElement>(null)
-  const zh = uiLanguage === 'zh'
   const t = makeT(uiLanguage)
+  const tpl = makeTpl(uiLanguage)
 
   // ── Download pack ─────────────────────────────────────────────────────────────
   const downloadPack = (edition: string) => {
@@ -134,9 +134,9 @@ export function CharactersTab({
         applyCharacterPack(pack)
         refreshCharPackOverrides()
         setHasPackOverrides(true)
-        setSnackMsg(zh ? `已导入 ${pack.length} 个角色数据` : `Imported ${pack.length} character(s)`)
+        setSnackMsg(tpl('imported_n_chars', pack.length))
       } catch {
-        setSnackMsg(zh ? '导入失败：JSON 格式错误' : 'Import failed: invalid JSON')
+        setSnackMsg(t('import_failed_json'))
       }
     }
     reader.readAsText(file)
@@ -146,7 +146,7 @@ export function CharactersTab({
     clearCharacterPackOverrides()
     refreshCharPackOverrides()
     setHasPackOverrides(false)
-    setSnackMsg(zh ? '已清除所有包覆盖数据' : 'Cleared all pack overrides')
+    setSnackMsg(t('cleared_pack_overrides'))
   }
 
   // ── Add single character from file ───────────────────────────────────────────
@@ -165,7 +165,7 @@ export function CharactersTab({
           refreshCharPackOverrides()
           setHasPackOverrides(true)
           const name = entry.en?.name ?? entry.id
-          setSnackMsg(zh ? `已更新角色：${name}` : `Updated character: ${name}`)
+          setSnackMsg(tpl('updated_character', name))
         } else {
           // Add as new custom character
           const now = Date.now()
@@ -183,10 +183,10 @@ export function CharactersTab({
           }
           setCustomChars((cur) => [...cur, newChar])
           const name = newChar.nameEn
-          setSnackMsg(zh ? `已添加新角色：${name}` : `Added new character: ${name}`)
+          setSnackMsg(tpl('added_character', name))
         }
       } catch {
-        setSnackMsg(zh ? '导入失败：无效的角色 JSON' : 'Import failed: invalid character JSON')
+        setSnackMsg(t('import_failed_char_json'))
       }
     }
     reader.readAsText(file)
@@ -227,7 +227,7 @@ export function CharactersTab({
   }
 
   const deleteCustom = (id: string) => {
-    if (!window.confirm(zh ? '确认删除此自定义角色？' : 'Delete this custom character?')) return
+    if (!window.confirm(t('confirm_delete_char'))) return
     setCustomChars((cur) => cur.filter((c) => c.id !== id))
     // deselect if this was selected
     if (selectedCharacter?.id === id) setSelectedCharacterId('')
@@ -278,7 +278,7 @@ export function CharactersTab({
                   sx={{ textTransform: 'none', fontSize: '0.75rem' }}>
                   {t('custom')}
                 </Button>
-                <Tooltip title={zh ? '从 JSON 文件导入角色' : 'Add character from JSON file'}>
+                <Tooltip title={t('add_char_from_json')}>
                   <IconButton size="small" onClick={() => addCharInputRef.current?.click()} sx={{ color: 'text.secondary' }}>
                     <UploadIcon fontSize="small" />
                   </IconButton>
@@ -336,13 +336,13 @@ export function CharactersTab({
                 renderValue={() => (
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                     <DownloadIcon sx={{ fontSize: '0.9rem' }} />
-                    <Typography sx={{ fontSize: '0.75rem' }}>{zh ? '下载包' : 'Download'}</Typography>
+                    <Typography sx={{ fontSize: '0.75rem' }}>{t('download_pack')}</Typography>
                   </Box>
                 )}
                 onChange={(e) => { if (e.target.value) downloadPack(e.target.value as string) }}
                 sx={{ minWidth: 110, '& .MuiSelect-select': { py: '4px', fontSize: '0.75rem' } }}
               >
-                <MenuItem value="all" sx={{ fontSize: '0.8rem' }}>{zh ? '全部角色' : 'All characters'}</MenuItem>
+                <MenuItem value="all" sx={{ fontSize: '0.8rem' }}>{t('all_characters')}</MenuItem>
                 {[...new Set(allCharacterFiles.map((c) => c.edition))].sort().map((ed) => (
                   <MenuItem key={ed} value={ed} sx={{ fontSize: '0.8rem' }}>
                     {editionLabels[uiLanguage][ed] ?? toTitleCase(ed)}
@@ -350,7 +350,7 @@ export function CharactersTab({
                 ))}
                 {[...new Set(customChars.map((c) => c.edition))].sort().map((ed) => (
                   <MenuItem key={`custom-${ed}`} value={ed} sx={{ fontSize: '0.8rem' }}>
-                    {toTitleCase(ed)}{zh ? '（自定义）' : ' (custom)'}
+                    {toTitleCase(ed)}{t('custom_edition_suffix')}
                   </MenuItem>
                 ))}
               </Select>
@@ -362,7 +362,7 @@ export function CharactersTab({
                 onClick={() => importInputRef.current?.click()}
                 sx={{ textTransform: 'none', fontSize: '0.75rem', py: '3px' }}
               >
-                {zh ? '导入包' : 'Import'}
+                {t('import_pack')}
               </Button>
               <input
                 ref={importInputRef}
@@ -383,7 +383,7 @@ export function CharactersTab({
                 onClick={() => setNightOrderOpen(true)}
                 sx={{ textTransform: 'none', fontSize: '0.75rem', py: '3px' }}
               >
-                {zh ? '夜晚顺序' : 'Night Order'}
+                {t('night_order')}
               </Button>
               <Button
                 size="small"
@@ -392,13 +392,13 @@ export function CharactersTab({
                 onClick={() => setJinxOpen(true)}
                 sx={{ textTransform: 'none', fontSize: '0.75rem', py: '3px' }}
               >
-                {zh ? 'Jinx' : 'Jinxes'}
+                {t('jinxes')}
               </Button>
 
               {hasPackOverrides && (
                 <Chip
                   size="small"
-                  label={zh ? '包已激活' : 'Pack active'}
+                  label={t('pack_active')}
                   color="secondary"
                   onDelete={handleClearOverrides}
                   sx={{ fontSize: '0.7rem', height: 22 }}
