@@ -271,3 +271,46 @@ Covers all tabs and major user flows. Tests are grouped by tab, then by use case
 - [ ] Switch EN ↔ ZH and verify no broken strings
 - [ ] Test on mobile 375 px (portrait and landscape)
 - [ ] Test on tablet 768 px portrait
+
+---
+
+## Automated Test Coverage (2026-05-14)
+
+### Currently implemented — 275 unit/integration tests
+
+| File | Count | Covers |
+|------|-------|--------|
+| `catalog.test.ts` | 30+ | Character lookup, ability text, revisions |
+| `seats.test.ts` | 20+ | Voter eligibility, required vote count |
+| `votes.test.ts` | 20+ | Vote draft/state, count logic |
+| `logFilter.test.ts` | 15+ | Event log filtering |
+| `playerLog.test.ts` | 15+ | Per-player log entry building |
+| `NominationVoteList.test.tsx` | 9 | Threshold chip, death marker, ZH locale |
+| `statusBadgeAndTags.test.tsx` | 13 | translateStTag EN/ZH, TagChip popover, StatusBadge |
+| `storytellerFixes.test.ts` | 30+ | Phase transitions, undo/redo, seat mutations |
+| `saveBeforeNewGame.test.ts` | 10+ | Save-before-new-game flow |
+| `gameExport.test.ts` | 10+ | Record export format |
+| `urlBgm.test.ts` | 15+ | BGM URL track management |
+| `PrintOptionsDialog.test.ts` | 10+ | Print settings persistence |
+
+### Priority queue — next tests to add
+
+| Priority | Test scenario | File to create |
+|----------|--------------|----------------|
+| P0 | Language toggle: ZH labels on key ST components | `languageSwitch.test.tsx` |
+| P0 | ST tag add → log entry in correct language | `stTagFlow.test.tsx` |
+| P1 | Nomination cycle: threshold → death badge | Already partially in `NominationVoteList.test.tsx` |
+| P1 | Night phase: wake order badge render | `nightPhase.test.tsx` |
+| P2 | Playwright: tab navigation screenshots | `e2e/tabNav.spec.ts` |
+| P2 | Playwright: game walkthrough (new→night→vote→result) | `e2e/gameFlow.spec.ts` |
+| P3 | Playwright: modal open/close (all 6 modals) | `e2e/modals.spec.ts` |
+
+### Playwright setup (when ready)
+
+```bash
+npm install -D @playwright/test
+npx playwright install chromium
+# Add playwright.config.ts with baseURL http://localhost:5173
+npm run dev &  # or use webServer in config
+npx playwright test
+```
