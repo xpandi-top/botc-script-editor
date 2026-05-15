@@ -1,0 +1,25 @@
+{
+  "id": "wraith",
+  "team": "minion",
+  "edition": "experimental",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": "Initial wording"
+    }
+  ],
+  "en": {
+    "name": "Wraith",
+    "ability": "You may choose to open your eyes at night. You wake when other evil players do.",
+    "revisions": {
+      "v1": "You may choose to open your eyes at night. You wake when other evil players do."  }
+  },
+  "zh": {
+    "name": "亡魂",
+    "ability": "你可以在夜晚睁眼。当其他邪恶玩家被唤醒时，你也会被唤醒。",
+    "revisions": {
+      "v1": "你可以在夜晚睁眼。当其他邪恶玩家被唤醒时，你也会被唤醒。"
+    }
+  }
+}
