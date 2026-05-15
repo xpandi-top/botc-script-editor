@@ -21,7 +21,7 @@ describe('translateStTag', () => {
     expect(translateStTag('poisoned', 'zh')).toBe('中毒')
     expect(translateStTag('protected', 'zh')).toBe('受保护')
     expect(translateStTag('used', 'zh')).toBe('已使用')
-    expect(translateStTag('red herring', 'zh')).toBe('障眼法')
+    expect(translateStTag('red herring', 'zh')).toBe('干扰项')
   })
 
   it('returns raw label for unknown tags', () => {

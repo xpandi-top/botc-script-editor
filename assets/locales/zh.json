@@ -327,7 +327,7 @@
     "poisoned_tag": "中毒",
     "protected_tag": "受保护",
     "used_tag": "已使用",
-    "red_herring": "障眼法"
+    "red_herring": "干扰项"
   },
   "jinxes": {
     "alchemist::boffin": {
