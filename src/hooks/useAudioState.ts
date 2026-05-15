@@ -19,11 +19,22 @@ export function extractYouTubeVideoId(url: string): string | null {
   return null
 }
 
+/** Base embed URL — no autoplay. enablejsapi=1 lets desktop postMessage work. */
 export function buildYouTubeEmbedSrc(videoId: string): string {
-  // enablejsapi=1 lets us control playback via postMessage (required for mobile Safari).
-  // No autoplay=1 — mobile Safari blocks that even with allow="autoplay" on the iframe.
   return `https://www.youtube.com/embed/${videoId}?enablejsapi=1&loop=1&playlist=${videoId}&playsinline=1`
 }
+
+/** Same URL but with autoplay=1 — used for iOS src-swap approach. */
+function buildYouTubeAutoplaySrc(baseSrc: string): string {
+  return baseSrc + '&autoplay=1'
+}
+
+// iOS Safari detection — postMessage to cross-origin iframes does NOT carry the
+// user gesture on iOS, so playback via postMessage is silently ignored.
+const isIOS =
+  typeof navigator !== 'undefined' &&
+  (/iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1))
 
 // ── Persistence helpers ───────────────────────────────────────────────────────
 
@@ -61,14 +72,8 @@ export function useAudioState() {
   const audioRef = useRef<HTMLAudioElement>(null)
   const ytIframeRef = useRef<HTMLIFrameElement>(null)
 
-  /** Send a command to the YouTube IFrame API via postMessage.
-   *  Call this synchronously inside the user-gesture handler so Mobile Safari
-   *  still considers the playback request trusted. */
-  function sendYTCommand(func: 'playVideo' | 'pauseVideo' | 'stopVideo') {
-    const win = ytIframeRef.current?.contentWindow
-    if (!win) return
-    win.postMessage(JSON.stringify({ event: 'command', func, args: [] }), '*')
-  }
+  // Stable ref to current base embed src — readable synchronously in gesture handlers.
+  const ytEmbedSrcRef = useRef<string | null>(null)
 
   // Keep a ref to tracks so effects can read current value without stale closures
   const audioTracksRef = useRef(audioTracks)
@@ -78,10 +83,42 @@ export function useAudioState() {
   const audioPlayingRef = useRef(audioPlaying)
   useEffect(() => { audioPlayingRef.current = audioPlaying }, [audioPlaying])
 
-  // Listen for YouTube IFrame API messages.
-  // When the player signals onReady (after iframe loads or src changes), auto-play
-  // if we were already in playing state — handles track switches on mobile Safari.
+  /**
+   * Control YouTube playback.
+   *
+   * Desktop (non-iOS): postMessage to YouTube IFrame API — no reload, smooth play/pause.
+   * iOS Safari: postMessage to cross-origin iframes is ignored (gesture doesn't cross frames).
+   *   Instead we swap iframe.src synchronously inside the user-gesture handler:
+   *   - playVideo  → reload iframe with autoplay=1 (restarts from beginning — OK for BGM)
+   *   - pause/stop → reload iframe WITHOUT autoplay=1 (player loads but does not play)
+   *
+   * MUST be called synchronously within the click handler for iOS to honour the gesture.
+   */
+  function sendYTCommand(func: 'playVideo' | 'pauseVideo' | 'stopVideo') {
+    const iframe = ytIframeRef.current
+    if (!iframe) return
+
+    if (isIOS) {
+      const base = ytEmbedSrcRef.current
+      if (!base) return
+      if (func === 'playVideo') {
+        iframe.src = buildYouTubeAutoplaySrc(base)
+      } else {
+        // Remove autoplay so YouTube loads but doesn't start — effectively stops
+        iframe.src = base
+      }
+    } else {
+      // Desktop: postMessage is fast and doesn't restart the video
+      iframe.contentWindow?.postMessage(
+        JSON.stringify({ event: 'command', func, args: [] }), '*'
+      )
+    }
+  }
+
+  // Desktop-only: when YouTube player signals onReady, auto-play if we're in playing state.
+  // Not needed for iOS (src-swap handles it), and postMessage there is ignored anyway.
   useEffect(() => {
+    if (isIOS) return
     function onMessage(e: MessageEvent) {
       try {
         const data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data
@@ -107,12 +144,14 @@ export function useAudioState() {
     if (!audio || !selectedAudioSrc) return
     const track = audioTracksRef.current.find((t) => t.src === selectedAudioSrc)
     if (track?.type === 'youtube' && track.embedSrc) {
-      // YouTube track — stop HTML5 audio, let iframe handle playback
+      // YouTube track — stop HTML5 audio, iframe handles playback
+      ytEmbedSrcRef.current = track.embedSrc
       setYoutubeEmbedSrc(track.embedSrc)
       audio.pause()
       audio.src = ''
       return
     }
+    ytEmbedSrcRef.current = null
     setYoutubeEmbedSrc(null)
     audio.src = selectedAudioSrc
     audio.loop = true
@@ -123,14 +162,13 @@ export function useAudioState() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedAudioSrc])
 
-  // Play / pause
+  // Play / pause — desktop only for YouTube (iOS uses sendYTCommand in click handler)
   useEffect(() => {
     const track = audioTracksRef.current.find((t) => t.src === selectedAudioSrc)
     if (track?.type === 'youtube') {
-      // Use postMessage so Mobile Safari honours the user-gesture that caused this effect.
-      // The iframe stays mounted; we command it rather than toggling its src.
-      // YouTube path does not need audioRef, so check it first.
-      sendYTCommand(audioPlaying ? 'playVideo' : 'pauseVideo')
+      // iOS: gesture already handled in click handler via sendYTCommand / src-swap.
+      // Desktop: postMessage here (fires close enough to gesture to be allowed).
+      if (!isIOS) sendYTCommand(audioPlaying ? 'playVideo' : 'pauseVideo')
       return
     }
     const audio = audioRef.current
@@ -162,6 +200,7 @@ export function useAudioState() {
       const newTrack: AudioTrack = { name, src: trimmed, type: 'youtube', embedSrc }
       setAudioTracks((cur) => [...cur, newTrack])
       setSelectedAudioSrc(trimmed)
+      ytEmbedSrcRef.current = embedSrc
       setYoutubeEmbedSrc(embedSrc)
       setAudioPlaying(true)
       return
@@ -185,6 +224,7 @@ export function useAudioState() {
     if (selectedAudioSrc === src) {
       setSelectedAudioSrc(INITIAL_AUDIO_TRACKS[0].src)
       setAudioPlaying(false)
+      ytEmbedSrcRef.current = null
       setYoutubeEmbedSrc(null)
     }
   }
