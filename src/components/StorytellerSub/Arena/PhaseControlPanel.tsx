@@ -10,7 +10,6 @@ import PauseIcon from '@mui/icons-material/Pause'
 import StopIcon from '@mui/icons-material/Stop'
 import AddCircleOutlinedIcon from '@mui/icons-material/AddCircleOutlined'
 import SaveIcon from '@mui/icons-material/Save'
-import PrintIcon from '@mui/icons-material/Print'
 import { BgmBar } from '../BgmBar'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
@@ -83,7 +82,6 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
     nightShowWakeOrder, setNightShowWakeOrder, openCharacterEditor,
     openNewGamePanel, openEndGamePanel,
     showAggLogModal, setShowAggLogModal, setShowStSetupModal, stFabledIds,
-    onSwitchTab,
   } = ctx
 
   const muiTheme = useTheme()
@@ -307,16 +305,6 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
                 </IconButton>
               </Tooltip>
               <Typography sx={{ fontSize: '0.58rem', color: mutedColor, lineHeight: 1, userSelect: 'none' }}>{language === 'zh' ? '保存' : 'Save'}</Typography>
-            </Box>
-
-            {/* Print Studio */}
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.25 }}>
-              <Tooltip title={language === 'zh' ? '印刷工坊' : 'Print Studio'}>
-                <IconButton sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={() => onSwitchTab?.('printstudio')}>
-                  <PrintIcon />
-                </IconButton>
-              </Tooltip>
-              <Typography sx={{ fontSize: '0.58rem', color: mutedColor, lineHeight: 1, userSelect: 'none' }}>{language === 'zh' ? '印刷' : 'Print'}</Typography>
             </Box>
 
             {phase === 'nomination' && (

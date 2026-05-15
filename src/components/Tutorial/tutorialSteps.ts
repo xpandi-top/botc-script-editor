@@ -10,6 +10,7 @@ import BedtimeIcon from '@mui/icons-material/Bedtime'
 import SaveIcon from '@mui/icons-material/Save'
 import QueryStatsIcon from '@mui/icons-material/QueryStats'
 import AddCircleOutlinedIcon from '@mui/icons-material/AddCircleOutlined'
+import PrintIcon from '@mui/icons-material/Print'
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutlined'
 
 export type TooltipPlacement = 'top' | 'bottom' | 'left' | 'right' | 'center'
@@ -173,6 +174,18 @@ export const DESKTOP_STEPS: TutorialStep[] = [
     tooltipPlacement: 'top',
   },
   {
+    id: 'print-studio',
+    icon: PrintIcon,
+    title: { en: 'Print Studio', zh: '印刷工坊' },
+    body: {
+      en: 'Export your script to a printable PDF — character cards, night order sheet, and grimoire reference. Fully customizable layout.',
+      zh: '将剧本导出为可打印的 PDF：角色卡、夜晚顺序表、说书人参考册。支持自定义排版。',
+    },
+    tabToActivate: 'printstudio',
+    targetSelector: '[data-tutorial="tab-printstudio"]',
+    tooltipPlacement: 'bottom',
+  },
+  {
     id: 'done',
     icon: CheckCircleOutlineIcon,
     title: { en: "You're all set!", zh: '准备就绪！' },
@@ -229,6 +242,18 @@ export const MOBILE_STEPS: TutorialStep[] = [
     tabToActivate: 'analytics',
     targetSelector: '[data-tutorial="an-add-record"]',
     tooltipPlacement: 'bottom',
+  },
+  {
+    id: 'mobile-print',
+    icon: PrintIcon,
+    title: { en: 'Print Studio', zh: '印刷工坊' },
+    body: {
+      en: 'Export your script to a printable PDF — character cards, night order, and grimoire reference.',
+      zh: '将剧本导出为可打印 PDF：角色卡、夜晚顺序表、说书人参考册。',
+    },
+    tabToActivate: 'printstudio',
+    targetSelector: '[data-tutorial="tab-printstudio"]',
+    tooltipPlacement: 'top',
   },
   {
     id: 'done',
