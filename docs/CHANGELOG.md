@@ -7,6 +7,17 @@ Release timeline for BOTC Companion — features, fixes, and improvements.
 ## 2026-05-15 (latest)
 
 ### Added
+- **Interactive onboarding tutorial** — first-time visitors get a step-by-step spotlight tour; desktop: 14 steps (Scripts, Characters, Search, Info, Storyteller arena, roles, New Game, seating, night phase, Save Record, Analytics, add record, records table, done); mobile: 5 simplified steps; bilingual (EN/ZH); ESC or Skip to dismiss; re-trigger from ℹ️ info panel via 🎓 button; progress persisted in `localStorage`
+- **Tutorial deep-dives for Storyteller + Analytics tabs** — spotlight highlights phase control panel, new game button, save button, arena seating, records table, and add-record button in sequence; tab auto-switches during tour so user sees live UI
+
+### Fixed
+- **Tutorial tab selectors** — MUI `<Tab>` doesn't forward `value` prop to DOM; added `data-tutorial="tab-X"` attributes to each tab element so spotlight targeting works reliably
+
+---
+
+## 2026-05-15
+
+### Added  
 - **New Game + Save Record buttons in phase control panel** — both buttons appear inline in the ST settings/log row on mobile; no extra row
 - **In-app changelog page** — full-screen overlay accessible from the ℹ️ info panel; renders `CHANGELOG.md` with section colors, LATEST badge, back button; not shown in tab nav
 

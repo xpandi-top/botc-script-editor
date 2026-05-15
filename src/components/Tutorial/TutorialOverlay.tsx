@@ -269,10 +269,22 @@ export function TutorialOverlay({ language, onClose, onTabChange }: Props) {
             {stepIndex + 1} / {steps.length}
           </Typography>
 
-          {/* Title */}
-          <Typography variant="subtitle1" sx={{ fontWeight: 700, lineHeight: 1.3 }}>
-            {currentStep.title[zh ? 'zh' : 'en']}
-          </Typography>
+          {/* Title (with optional icon) */}
+          {(() => {
+            const Icon = currentStep.icon
+            return Icon ? (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                <Icon sx={{ fontSize: '1.5rem', color: 'primary.main' }} />
+                <Typography variant="subtitle1" sx={{ fontWeight: 700, lineHeight: 1.3 }}>
+                  {currentStep.title[zh ? 'zh' : 'en']}
+                </Typography>
+              </Box>
+            ) : (
+              <Typography variant="subtitle1" sx={{ fontWeight: 700, lineHeight: 1.3 }}>
+                {currentStep.title[zh ? 'zh' : 'en']}
+              </Typography>
+            )
+          })()}
 
           {/* Body */}
           <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.5 }}>

@@ -168,6 +168,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
   return (
     <>
       <Box
+        data-tutorial="st-phase-panel"
         sx={{
           position: 'fixed',
           bottom: 'calc(56px + var(--safe-bottom, 0px))',
@@ -275,12 +276,12 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
               </IconButton>
             </Tooltip>
             <Tooltip title={language === 'zh' ? '新游戏' : 'New Game'}>
-              <IconButton sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={openNewGamePanel}>
+              <IconButton data-tutorial="st-new-game-btn" sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={openNewGamePanel}>
                 <AddCircleOutlinedIcon />
               </IconButton>
             </Tooltip>
             <Tooltip title={language === 'zh' ? '保存记录' : 'Save Record'}>
-              <IconButton sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={openEndGamePanel}>
+              <IconButton data-tutorial="st-save-btn" sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={openEndGamePanel}>
                 <SaveIcon />
               </IconButton>
             </Tooltip>

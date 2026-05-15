@@ -436,7 +436,7 @@ export function RecordsSection({ records, filteredRecords, onRecordsChange, lang
           </>
         )}
         <Tooltip title={zh ? '新建记录' : 'New Record'}>
-          <IconButton size="small" onClick={onCreateRecord}><AddIcon sx={{ fontSize: '1rem' }} /></IconButton>
+          <IconButton data-tutorial="an-add-record" size="small" onClick={onCreateRecord}><AddIcon sx={{ fontSize: '1rem' }} /></IconButton>
         </Tooltip>
       </Box>
 
@@ -445,7 +445,7 @@ export function RecordsSection({ records, filteredRecords, onRecordsChange, lang
           <Typography color="text.secondary">{zh ? '无匹配记录' : 'No records match the current filter'}</Typography>
         </Box>
       ) : (
-        <Paper elevation={2} sx={{ overflow: 'hidden' }}>
+        <Paper data-tutorial="an-records-table" elevation={2} sx={{ overflow: 'hidden' }}>
           <Table size="small">
             <TableHead>
               <TableRow sx={{ bgcolor: 'rgba(0,0,0,0.04)' }}>

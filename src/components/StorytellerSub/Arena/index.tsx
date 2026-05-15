@@ -132,6 +132,7 @@ export function Arena({ ctx }: { ctx: StorytellerContext }) {
   return (
     <Box sx={{ display: 'grid', gap: 1, flex: 1, minHeight: 400, overflow: 'visible', width: '100%' }}>
       <Paper
+        data-tutorial="st-arena"
         elevation={0}
         sx={{
           p: 2,

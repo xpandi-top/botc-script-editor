@@ -641,12 +641,12 @@ export default function App() {
               '& .MuiTab-root': { minWidth: 0, px: 1 },
             }}
           >
-            <Tab icon={<DescriptionIcon fontSize="small" />} value="scripts" aria-label={uiText.scriptSheet} title={uiText.scriptSheet} />
-            <Tab icon={<TheaterComedyIcon fontSize="small" />} value="characters" aria-label={uiText.allCharacters} title={uiText.allCharacters} />
-            <Tab icon={<MenuBookIcon fontSize="small" />} value="storyteller" aria-label={stTabLabel} title={stTabLabel} />
-            <Tab icon={<QueryStatsIcon fontSize="small" />} value="analytics" aria-label={anTabLabel} title={anTabLabel} />
-            <Tab icon={<PrintIcon fontSize="small" />} value="printstudio" aria-label={psTabLabel} title={psTabLabel} />
-            <Tab icon={<TuneIcon fontSize="small" />} value="settings" aria-label={stgTabLabel} title={stgTabLabel} />
+            <Tab icon={<DescriptionIcon fontSize="small" />} value="scripts" aria-label={uiText.scriptSheet} title={uiText.scriptSheet} data-tutorial="tab-scripts" />
+            <Tab icon={<TheaterComedyIcon fontSize="small" />} value="characters" aria-label={uiText.allCharacters} title={uiText.allCharacters} data-tutorial="tab-characters" />
+            <Tab icon={<MenuBookIcon fontSize="small" />} value="storyteller" aria-label={stTabLabel} title={stTabLabel} data-tutorial="tab-storyteller" />
+            <Tab icon={<QueryStatsIcon fontSize="small" />} value="analytics" aria-label={anTabLabel} title={anTabLabel} data-tutorial="tab-analytics" />
+            <Tab icon={<PrintIcon fontSize="small" />} value="printstudio" aria-label={psTabLabel} title={psTabLabel} data-tutorial="tab-printstudio" />
+            <Tab icon={<TuneIcon fontSize="small" />} value="settings" aria-label={stgTabLabel} title={stgTabLabel} data-tutorial="tab-settings" />
           </Tabs>
 
           {/* Mobile: active tab name with icon — hidden now (bottom nav replaces) */}
