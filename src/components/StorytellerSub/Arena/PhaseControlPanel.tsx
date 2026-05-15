@@ -10,6 +10,7 @@ import PauseIcon from '@mui/icons-material/Pause'
 import StopIcon from '@mui/icons-material/Stop'
 import AddCircleOutlinedIcon from '@mui/icons-material/AddCircleOutlined'
 import SaveIcon from '@mui/icons-material/Save'
+import PrintIcon from '@mui/icons-material/Print'
 import { BgmBar } from '../BgmBar'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
@@ -82,6 +83,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
     nightShowWakeOrder, setNightShowWakeOrder, openCharacterEditor,
     openNewGamePanel, openEndGamePanel,
     showAggLogModal, setShowAggLogModal, setShowStSetupModal, stFabledIds,
+    onSwitchTab,
   } = ctx
 
   const muiTheme = useTheme()
@@ -248,8 +250,8 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
             </ToggleButtonGroup>
           </Box>
 
-          {/* Public mode + ST Settings / Log / New Game / Save row */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 1, flexWrap: 'nowrap', overflowX: 'auto' }}>
+          {/* Public mode + ST Settings / Log / New Game / Save / Print row */}
+          <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.75, mb: 1, flexWrap: 'nowrap', overflowX: 'auto' }}>
             {phase === 'public' && (
               <Select
                 value={publicMode}
@@ -260,43 +262,81 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
                 <MenuItem value="roundRobin" sx={{ fontSize: '0.95rem' }}>{text.roundRobinMode}</MenuItem>
               </Select>
             )}
-            <Tooltip title={language === 'zh' ? '说书人设置' : 'ST Setup'}>
-              <IconButton sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75, position: 'relative' }} onClick={() => setShowStSetupModal(true)}>
-                <AutoStoriesIcon />
-                {stFabledIds?.length > 0 && (
-                  <Box component="span" sx={{ position: 'absolute', top: 2, right: 2, bgcolor: 'warning.main', color: 'black', fontSize: '0.55rem', fontWeight: 700, borderRadius: '50%', width: 14, height: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}>
-                    {stFabledIds.length}
-                  </Box>
-                )}
-              </IconButton>
-            </Tooltip>
-            <Tooltip title={language === 'zh' ? '日志' : 'Log'}>
-              <IconButton sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={() => setShowAggLogModal(true)}>
-                <ViewTimelineIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title={language === 'zh' ? '新游戏' : 'New Game'}>
-              <IconButton data-tutorial="st-new-game-btn" sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={openNewGamePanel}>
-                <AddCircleOutlinedIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title={language === 'zh' ? '保存记录' : 'Save Record'}>
-              <IconButton data-tutorial="st-save-btn" sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={openEndGamePanel}>
-                <SaveIcon />
-              </IconButton>
-            </Tooltip>
+
+            {/* Labeled icon button helper */}
+            {/* ST Setup */}
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.25 }}>
+              <Tooltip title={language === 'zh' ? '说书人设置' : 'ST Setup'}>
+                <IconButton sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75, position: 'relative' }} onClick={() => setShowStSetupModal(true)}>
+                  <AutoStoriesIcon />
+                  {stFabledIds?.length > 0 && (
+                    <Box component="span" sx={{ position: 'absolute', top: 2, right: 2, bgcolor: 'warning.main', color: 'black', fontSize: '0.55rem', fontWeight: 700, borderRadius: '50%', width: 14, height: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}>
+                      {stFabledIds.length}
+                    </Box>
+                  )}
+                </IconButton>
+              </Tooltip>
+              <Typography sx={{ fontSize: '0.58rem', color: mutedColor, lineHeight: 1, userSelect: 'none' }}>{language === 'zh' ? '设置' : 'Setup'}</Typography>
+            </Box>
+
+            {/* Log */}
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.25 }}>
+              <Tooltip title={language === 'zh' ? '日志' : 'Log'}>
+                <IconButton sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={() => setShowAggLogModal(true)}>
+                  <ViewTimelineIcon />
+                </IconButton>
+              </Tooltip>
+              <Typography sx={{ fontSize: '0.58rem', color: mutedColor, lineHeight: 1, userSelect: 'none' }}>{language === 'zh' ? '日志' : 'Log'}</Typography>
+            </Box>
+
+            {/* New Game */}
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.25 }}>
+              <Tooltip title={language === 'zh' ? '新游戏' : 'New Game'}>
+                <IconButton data-tutorial="st-new-game-btn" sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={openNewGamePanel}>
+                  <AddCircleOutlinedIcon />
+                </IconButton>
+              </Tooltip>
+              <Typography sx={{ fontSize: '0.58rem', color: mutedColor, lineHeight: 1, userSelect: 'none' }}>{language === 'zh' ? '新游戏' : 'New'}</Typography>
+            </Box>
+
+            {/* Save Record */}
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.25 }}>
+              <Tooltip title={language === 'zh' ? '保存记录' : 'Save Record'}>
+                <IconButton data-tutorial="st-save-btn" sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={openEndGamePanel}>
+                  <SaveIcon />
+                </IconButton>
+              </Tooltip>
+              <Typography sx={{ fontSize: '0.58rem', color: mutedColor, lineHeight: 1, userSelect: 'none' }}>{language === 'zh' ? '保存' : 'Save'}</Typography>
+            </Box>
+
+            {/* Print Studio */}
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.25 }}>
+              <Tooltip title={language === 'zh' ? '印刷工坊' : 'Print Studio'}>
+                <IconButton sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={() => onSwitchTab?.('printstudio')}>
+                  <PrintIcon />
+                </IconButton>
+              </Tooltip>
+              <Typography sx={{ fontSize: '0.58rem', color: mutedColor, lineHeight: 1, userSelect: 'none' }}>{language === 'zh' ? '印刷' : 'Print'}</Typography>
+            </Box>
+
             {phase === 'nomination' && (
               <>
-                <Tooltip title={language === 'zh' ? '提名' : 'Nominate'}>
-                  <IconButton sx={{ ...iconBtnSx, ...(showNominationSheet ? TIMER_ACTIVE_SX : TIMER_IDLE_SX), p: 0.75 }} onClick={() => setShowNominationSheet((v: boolean) => !v)}>
-                    <HowToVoteIcon />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title={language === 'zh' ? '下一天' : 'Next Day'}>
-                  <IconButton sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={goToNextDay}>
-                    <ArrowForwardIosIcon />
-                  </IconButton>
-                </Tooltip>
+                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.25 }}>
+                  <Tooltip title={language === 'zh' ? '提名' : 'Nominate'}>
+                    <IconButton sx={{ ...iconBtnSx, ...(showNominationSheet ? TIMER_ACTIVE_SX : TIMER_IDLE_SX), p: 0.75 }} onClick={() => setShowNominationSheet((v: boolean) => !v)}>
+                      <HowToVoteIcon />
+                    </IconButton>
+                  </Tooltip>
+                  <Typography sx={{ fontSize: '0.58rem', color: mutedColor, lineHeight: 1, userSelect: 'none' }}>{language === 'zh' ? '提名' : 'Vote'}</Typography>
+                </Box>
+                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.25 }}>
+                  <Tooltip title={language === 'zh' ? '下一天' : 'Next Day'}>
+                    <IconButton sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={goToNextDay}>
+                      <ArrowForwardIosIcon />
+                    </IconButton>
+                  </Tooltip>
+                  <Typography sx={{ fontSize: '0.58rem', color: mutedColor, lineHeight: 1, userSelect: 'none' }}>{language === 'zh' ? '下一天' : 'Next'}</Typography>
+                </Box>
               </>
             )}
           </Box>

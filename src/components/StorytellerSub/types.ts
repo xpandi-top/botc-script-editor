@@ -281,5 +281,6 @@ export type StorytellerHelperProps = {
   onLanguageChange?: (lang: Language) => void
   onSelectScript?: (slug: string) => void
   scriptOptions: ScriptOption[]
+  onSwitchTab?: (tab: string) => void
 }
 

@@ -7,6 +7,14 @@ Release timeline for BOTC Companion — features, fixes, and improvements.
 ## 2026-05-15 (latest)
 
 ### Added
+- **Print Studio shortcut in phase panel** — new Print button in the ST controls row navigates directly to Print Studio tab; no need to exit Storyteller manually
+- **Button labels in phase control panel** — Setup, Log, New, Save, Print, Vote, Next labels shown below each icon for discoverability; nomination-phase buttons also labeled
+
+---
+
+## 2026-05-15
+
+### Added
 - **Interactive onboarding tutorial** — first-time visitors get a step-by-step spotlight tour; desktop: 14 steps (Scripts, Characters, Search, Info, Storyteller arena, roles, New Game, seating, night phase, Save Record, Analytics, add record, records table, done); mobile: 5 simplified steps; bilingual (EN/ZH); ESC or Skip to dismiss; re-trigger from ℹ️ info panel via 🎓 button; progress persisted in `localStorage`
 - **Tutorial deep-dives for Storyteller + Analytics tabs** — spotlight highlights phase control panel, new game button, save button, arena seating, records table, and add-record button in sequence; tab auto-switches during tour so user sees live UI
 

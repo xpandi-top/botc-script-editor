@@ -870,6 +870,7 @@ export default function App() {
             onLanguageChange={setUiLanguage}
             onSelectScript={setStActiveSlug}
             scriptOptions={scripts.map((s) => ({ slug: s.slug, title: s.title, titleZh: s.titleZh || s.title, version: s.version, characters: s.characters, pinnedRevisions: s.pinnedRevisions }))}
+            onSwitchTab={(tab) => setActiveTab(tab as Parameters<typeof setActiveTab>[0])}
           />
         </Box>
       )}

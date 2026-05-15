@@ -15,7 +15,7 @@ import { buildAggregatedEntries, filterAndSortLog } from '../../utils/logFilter'
 import type { PickerMode, NewGameConfig, EndGameResult, LogFilterState, AggregatedLogEntry, DialogState, SkillOverlayState, StorytellerHelperProps, DayState, EventLogEntry, PersistedState } from './types'
 
 export function useStoryteller(props: StorytellerHelperProps) {
-  const { activeScriptSlug, activeScriptTitle, language, onLanguageChange, onSelectScript, scriptOptions } = props
+  const { activeScriptSlug, activeScriptTitle, language, onLanguageChange, onSelectScript, scriptOptions, onSwitchTab } = props
 
   // ── Persisted state ──
   const initial = useMemo(() => loadInitialState(), [])
@@ -287,7 +287,7 @@ export function useStoryteller(props: StorytellerHelperProps) {
 
   // ── Return (identical shape as before) ──
   return {
-    activeScriptSlug, activeScriptTitle, activeScriptVersion, language, onLanguageChange, onSelectScript, scriptOptions,
+    activeScriptSlug, activeScriptTitle, activeScriptVersion, language, onLanguageChange, onSelectScript, scriptOptions, onSwitchTab,
     days, setDays, selectedDayId, setSelectedDayId, timerDefaults, setTimerDefaults,
     undo, canUndo,
     customTagPool, setCustomTagPool, gameRecords, setGameRecords, playerNamePool, setPlayerNamePool,
