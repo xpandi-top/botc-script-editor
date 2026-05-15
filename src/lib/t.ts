@@ -74,6 +74,27 @@ export type UiKey =
   | 'name_en' | 'name_zh_optional' | 'icon_optional' | 'choose_image'
   | 'first_night_wake_pos' | 'other_nights_wake_pos'
   | 'first_night_reminder' | 'other_night_reminder'
+  // BotC game terms — used in Storyteller Helper
+  | 'execution' | 'nomination' | 'vote' | 'votes' | 'alive' | 'dead'
+  | 'drunk' | 'poisoned' | 'demon_bluffs' | 'grimoire'
+  | 'day_phase' | 'night_phase'
+  | 'st_only' | 'public' | 'st_tag' | 'public_tag'
+  | 'add_st_tag' | 'add_public_tag' | 'remove_st_tag' | 'remove_public_tag'
+  | 'event_log' | 'game_log' | 'game_records' | 'new_game' | 'game_setup'
+  | 'end_game_results' | 'save_checkpoint' | 'checkpoint_name_prompt'
+  | 'save_checkpoint_hint' | 'full_restore' | 'partial_restore'
+  | 'mark_dead' | 'set_no_vote' | 'change_character' | 'change_status'
+  | 'use_day_ability' | 'day_ability' | 'exile' | 'random_pool' | 'clear_pool'
+  | 'traveler_assignments' | 'perceived_character' | 'actual_character'
+  | 'demon_bluffs_unset' | 'no_events' | 'vote_hint'
+  | 'skill_history' | 'vote_history' | 'random_fill_hint'
+  | 'rename' | 'rename_overwrite' | 'download_log_json'
+  | 'st_private_notes' | 'quick_add_note' | 'player_note' | 'traveler_note'
+  | 'record_name_optional' | 'no_votes' | 'good_wins' | 'evil_wins' | 'st_wins'
+  | 'diff_type' | 'diff_team' | 'same_type' | 'same_team' | 'search_records'
+  | 'storyteller_name' | 'enter_st_name' | 'stop_bgm' | 'play_bgm'
+  | 'add_local_audio' | 'add_url_audio' | 'track_name_placeholder' | 'paste_audio_url'
+  | 'timer_defaults' | 'seat_info'
 
 export type TplKey =
   | 'showing_n_of_m'
@@ -85,6 +106,11 @@ export type TplKey =
   | 'updated_character'
   | 'added_character'
   | 'edit_char_title'
+  // Storyteller template keys
+  | 'day_n'
+  | 'delete_day_n'
+  | 'n_records'
+  | 'random_pool_n'
 
 /**
  * Returns a `t(key)` function bound to the given language.
