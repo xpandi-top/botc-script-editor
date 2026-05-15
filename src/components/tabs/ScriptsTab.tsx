@@ -111,7 +111,17 @@ export function ScriptsTab({
   const noteRef = useRef<HTMLTextAreaElement | null>(null)
   const [customTagInput, setCustomTagInput] = useState('')
 
-  const SCRIPT_TAGS = ['WIP', 'Balanced', 'Experimental', 'Needs Review', 'Archived']
+  const SCRIPT_TAGS = ['favorite', 'good', 'bad', 'excellent']
+
+  const SCRIPT_TAG_META: Record<string, { en: string; zh: string }> = {
+    favorite:  { en: '⭐ Favorite', zh: '⭐ 收藏' },
+    good:      { en: '👍 Good',     zh: '👍 好玩' },
+    bad:       { en: '👎 Bad',      zh: '👎 较差' },
+    excellent: { en: '✨ Excellent', zh: '✨ 优秀' },
+  }
+  /** Display label for a stored tag key */
+  const tagLabel = (key: string): string =>
+    SCRIPT_TAG_META[key]?.[uiLanguage === 'zh' ? 'zh' : 'en'] ?? key
 
   const addTag = (tag: string) => {
     if (!activeScript) return
@@ -255,11 +265,11 @@ export function ScriptsTab({
                     </Typography>
                     {allUsedTags.map((tag) => (
                       <Chip key={tag} size="small"
-                        label={tag}
+                        label={tagLabel(tag)}
                         variant={tagFilter === tag ? 'filled' : 'outlined'}
                         color={tagFilter === tag ? 'primary' : 'default'}
                         onClick={() => setTagFilter((c) => c === tag ? null : tag)}
-                        sx={{ fontSize: '0.6rem', height: 18 }}
+                        sx={{ fontSize: '0.75rem', height: 22 }}
                       />
                     ))}
                   </Box>
@@ -361,20 +371,20 @@ export function ScriptsTab({
                     {activeTags.map((tag) => (
                       <Chip
                         key={tag}
-                        label={tag}
+                        label={tagLabel(tag)}
                         size="small"
                         onDelete={() => removeTag(tag)}
-                        sx={{ fontSize: '0.7rem' }}
+                        sx={{ fontSize: '0.8rem', fontWeight: 600 }}
                       />
                     ))}
                     {SCRIPT_TAGS.filter((t) => !activeTags.includes(t)).map((tag) => (
                       <Chip
                         key={tag}
-                        label={`+ ${tag}`}
+                        label={`+ ${tagLabel(tag)}`}
                         size="small"
                         variant="outlined"
                         onClick={() => addTag(tag)}
-                        sx={{ fontSize: '0.65rem', opacity: 0.45, '&:hover': { opacity: 1 } }}
+                        sx={{ fontSize: '0.75rem', opacity: 0.5, '&:hover': { opacity: 1 } }}
                       />
                     ))}
                     {/* Custom tag input */}
