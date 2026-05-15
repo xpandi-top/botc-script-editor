@@ -35,6 +35,7 @@ import CloudOffIcon from '@mui/icons-material/CloudOff'
 import CloudSyncIcon from '@mui/icons-material/CloudSync'
 import InfoIcon from '@mui/icons-material/Info'
 import SyncProblemIcon from '@mui/icons-material/SyncProblem'
+import HistoryIcon from '@mui/icons-material/History'
 import { PrintPreviewPage } from './components/PrintPreviewPage'
 import { DEFAULT_PRINT_OPTIONS } from './components/PrintOptionsDialog'
 import type { PrintOptions } from './components/PrintOptionsDialog'
@@ -697,16 +698,18 @@ export default function App() {
           <Box sx={{ px: 2, py: 1, bgcolor: 'rgba(133,63,34,0.06)', borderTop: '1px solid', borderColor: 'divider', display: 'flex', alignItems: 'baseline', flexWrap: 'wrap', gap: 1 }}>
             <Typography variant="body2" sx={{ color: 'text.primary' }}>{currentDescription}</Typography>
             <Typography variant="caption" sx={{ color: 'text.secondary', fontStyle: 'italic' }}>{disclaimerText}</Typography>
-            <Typography
+            <Box
               component="a"
-              variant="caption"
               href="https://github.com/xpandi-top/botc-script-editor/blob/main/docs/CHANGELOG.md"
               target="_blank"
               rel="noopener noreferrer"
-              sx={{ color: 'primary.main', textDecoration: 'none', '&:hover': { textDecoration: 'underline' }, flexShrink: 0 }}
+              sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.4, color: 'text.secondary', textDecoration: 'underline', textDecorationColor: 'transparent', '&:hover': { textDecorationColor: 'inherit' }, flexShrink: 0 }}
             >
-              {uiLanguage === 'zh' ? '📋 查看更新日志' : '📋 Changelog'}
-            </Typography>
+              <HistoryIcon sx={{ fontSize: '0.9rem' }} />
+              <Typography variant="caption" sx={{ color: 'inherit' }}>
+                {uiLanguage === 'zh' ? '更新日志' : 'Changelog'}
+              </Typography>
+            </Box>
           </Box>
         )}
 
