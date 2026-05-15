@@ -722,7 +722,6 @@ export default function App() {
           groupedScriptCharacters={groupedScriptCharacters}
           groupedEditorCharacters={groupedEditorCharacters}
           editorQuery={editorQuery}
-          availableEditions={availableEditions}
           sheetDensityClass={sheetDensityClass}
           setIsEditMode={setIsEditMode}
           setEditorQuery={setEditorQuery}

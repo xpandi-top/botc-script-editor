@@ -24,8 +24,6 @@ import {
   getDisplayName,
   getIconForCharacter,
   teamLabels,
-  editionLabels,
-  toTitleCase,
   getCharacterRevisionIds,
   getCurrentRevision,
   getRevisionForScript,
@@ -63,7 +61,6 @@ type Props = {
   activeScriptCharacters: ResolvedScriptCharacter[]
   groupedScriptCharacters: ResolvedScriptCharacterGroup[]
   toggleCharacterInScript: (id: string) => void
-  availableEditions: string[]
   charColumns: '1' | '2'
   onCreateCustomFromId?: (id: string) => void
 }
@@ -404,7 +401,6 @@ export function ScriptEditor({
   activeScriptCharacters,
   groupedScriptCharacters,
   toggleCharacterInScript,
-  availableEditions,
 }: Props) {
   const t = makeT(uiLanguage)
 
@@ -455,14 +451,6 @@ export function ScriptEditor({
           <TextField label={uiText.chineseTitle} value={activeScript.titleZh} onChange={(e) => updateActiveScript((s) => ({ ...s, titleZh: e.target.value }))} size="small" />
           <TextField label={uiText.author} value={activeScript.author} onChange={(e) => updateActiveScript((s) => ({ ...s, author: e.target.value }))} size="small" />
           <TextField label={uiLanguage === 'zh' ? '版本' : 'Version'} value={activeScript.version ?? ''} onChange={(e) => updateActiveScript((s) => ({ ...s, version: e.target.value }))} size="small" placeholder="1.0" />
-          <FormControl size="small">
-            <Select value={activeScript.edition} onChange={(e) => updateActiveScript((s) => ({ ...s, edition: e.target.value }))}>
-              {availableEditions.map((edition) => (
-                <MenuItem key={edition} value={edition}>{editionLabels[uiLanguage][edition] ?? toTitleCase(edition)}</MenuItem>
-              ))}
-              <MenuItem value="custom">{uiText.custom}</MenuItem>
-            </Select>
-          </FormControl>
         </Box>
       </SectionAccordion>
 

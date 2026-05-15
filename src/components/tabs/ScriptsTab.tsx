@@ -46,7 +46,6 @@ type Props = {
   groupedScriptCharacters: ResolvedScriptCharacterGroup[]
   groupedEditorCharacters: CharacterGroup[]
   editorQuery: string
-  availableEditions: string[]
   sheetDensityClass: string
   setIsEditMode: (v: boolean | ((c: boolean) => boolean)) => void
   setEditorQuery: (v: string) => void
@@ -80,7 +79,6 @@ export function ScriptsTab({
   groupedScriptCharacters,
   groupedEditorCharacters,
   editorQuery,
-  availableEditions,
   sheetDensityClass,
   setIsEditMode,
   setEditorQuery,
@@ -216,6 +214,7 @@ export function ScriptsTab({
                   <Box sx={{ flex: 1 }}>
                     <ScriptList
                       title={getScriptTitle(script)}
+                      version={script.version}
                       isActive={script.slug === activeScript?.slug}
                       onSelect={() => { setActiveSlug(script.slug); if (isMobile) setListOpen(false) }}
                       tags={script.tags}
@@ -527,7 +526,6 @@ export function ScriptsTab({
                   activeScriptCharacters={activeScriptCharacters}
                   groupedScriptCharacters={groupedScriptCharacters}
                   toggleCharacterInScript={toggleCharacterInScript}
-                  availableEditions={availableEditions}
                   charColumns={viewColumns === 2 ? '2' : '1'}
                   onCreateCustomFromId={onCreateCustomFromId}
                 />
