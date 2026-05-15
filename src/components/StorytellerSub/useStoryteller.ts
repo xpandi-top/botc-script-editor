@@ -220,8 +220,10 @@ export function useStoryteller(props: StorytellerHelperProps) {
   }
 
   function stopNight() {
-    audio.setAudioPlaying(false)
+    // sendYTCommand is iOS-only (src-swap); on desktop the iframe unmounts when
+    // audioPlaying becomes false, which stops the video automatically.
     audio.sendYTCommand('stopVideo')
+    audio.setAudioPlaying(false)
     const el = audio.audioRef.current
     if (el) { el.pause(); el.currentTime = 0 }
   }

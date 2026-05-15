@@ -1,3 +1,4 @@
+import React from 'react'
 import { Box, Paper } from '@mui/material'
 import { LeftScriptPanel } from './StorytellerSub/LeftScriptPanel'
 import { CompactToolbar } from './StorytellerSub/CompactToolbar'
@@ -7,6 +8,7 @@ import { RightConsole } from './StorytellerSub/RightConsole'
 import { Modals } from './StorytellerSub/Modals'
 import { useStoryteller } from './StorytellerSub/useStoryteller'
 import { useBreakpoint } from '../hooks/useBreakpoint'
+import { isIOSSafari } from '../hooks/useAudioState'
 import type { StorytellerHelperProps } from './StorytellerSub/types'
 
 export function StorytellerHelper(props: StorytellerHelperProps) {
@@ -18,27 +20,46 @@ export function StorytellerHelper(props: StorytellerHelperProps) {
   // Do NOT set document.body.style.overflow here — StorytellerHelper is now
   // kept mounted in the background when other tabs are active.
 
-  // Keep the iframe in the DOM whenever a YouTube track is selected — even when paused.
-  // Mobile Safari blocks autoplay on freshly-mounted iframes (gesture chain broken by React
-  // render cycle). Instead we pre-load the iframe with enablejsapi=1 and command it via
-  // postMessage (playVideo/pauseVideo) called SYNCHRONOUSLY inside the gesture handler.
+  // ── YouTube BGM iframe strategy ───────────────────────────────────────────
   //
-  // No sandbox attribute: sandbox restricts the iframe's feature policy and on iOS Safari
-  // it blocks the autoplay permission even when allow="autoplay" is set.
-  // The video ID is validated to [\w-]{1,32} before the src is built, so XSS is not a concern.
+  // DESKTOP: Original mount/unmount approach — works reliably.
+  //   Mount iframe with autoplay=1 when audioPlaying=true; unmount when false.
+  //   No postMessage needed — the browser allows autoplay once mounted.
   //
-  // Size: 1×1 off-screen — Safari can ignore postMessage on truly 0×0 elements.
-  const ytIframe = ctx.youtubeEmbedSrc
-    ? (
-      <iframe
-        ref={ctx.ytIframeRef}
-        src={ctx.youtubeEmbedSrc}
-        style={{ position: 'fixed', width: 1, height: 1, border: 0, bottom: 0, left: -2, overflow: 'hidden', opacity: 0, pointerEvents: 'none' }}
-        allow="autoplay; encrypted-media; gyroscope; accelerometer; fullscreen"
-        title="BGM"
-      />
-    )
-    : null
+  // iOS Safari: postMessage to cross-origin iframes does NOT carry the user
+  //   gesture, so playVideo via postMessage is silently ignored. Instead:
+  //   - Keep iframe always mounted (so it is loaded before the user taps play)
+  //   - sendYTCommand (called synchronously in click handlers) swaps iframe.src
+  //     to add/remove autoplay=1, which iOS treats as a user-initiated navigation
+  //
+  // Video ID is validated to [\w-]{1,32} before the embed URL is built, so XSS
+  // from the src is not a concern. No sandbox attribute — it would override
+  // allow="autoplay" on iOS Safari.
+  let ytIframe: React.ReactNode = null
+  if (ctx.youtubeEmbedSrc) {
+    if (isIOSSafari) {
+      // iOS: always mounted, sendYTCommand controls playback via src-swap
+      ytIframe = (
+        <iframe
+          ref={ctx.ytIframeRef}
+          src={ctx.youtubeEmbedSrc}
+          style={{ position: 'fixed', width: 1, height: 1, border: 0, bottom: 0, left: -2, overflow: 'hidden', opacity: 0, pointerEvents: 'none' }}
+          allow="autoplay; encrypted-media; gyroscope; accelerometer"
+          title="BGM"
+        />
+      )
+    } else if (ctx.audioPlaying) {
+      // Desktop: mount only when playing; autoplay=1 starts playback automatically
+      ytIframe = (
+        <iframe
+          src={ctx.youtubeEmbedSrc + '&autoplay=1'}
+          style={{ position: 'absolute', width: 0, height: 0, border: 0, overflow: 'hidden' }}
+          allow="autoplay; encrypted-media"
+          title="BGM"
+        />
+      )
+    }
+  }
 
   // ── Mobile layout ─────────────────────────────────────────────
   if (isMobile) {
