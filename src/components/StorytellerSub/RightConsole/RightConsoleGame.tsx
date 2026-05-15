@@ -1,7 +1,7 @@
 // @ts-nocheck
 import type { StorytellerContext } from '../useStoryteller'
 import React from 'react'
-import { Box, Typography, Button, Select, MenuItem, FormControl, InputLabel, Accordion, AccordionSummary, AccordionDetails } from '@mui/material'
+import { Box, Typography, Button, Select, MenuItem, FormControl, InputLabel, Accordion, AccordionSummary, AccordionDetails, Chip } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 
 export function RightConsoleGame({ ctx, toggleConsoleSection }: { ctx: StorytellerContext, toggleConsoleSection: any }) {
@@ -27,7 +27,16 @@ export function RightConsoleGame({ ctx, toggleConsoleSection }: { ctx: Storytell
               label={text.script}
               onChange={(e) => onSelectScript?.(e.target.value)}
             >
-              {scriptOptions.map((s) => <MenuItem key={s.slug} value={s.slug}>{s.title}</MenuItem>)}
+              {scriptOptions.map((s) => (
+                <MenuItem key={s.slug} value={s.slug}>
+                  {language === 'zh' ? (s.titleZh || s.title) : s.title}
+                  {s.version && (
+                    <Typography component="span" variant="caption" sx={{ ml: 0.75, color: 'text.secondary', fontFamily: 'monospace' }}>
+                      v{s.version}
+                    </Typography>
+                  )}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
           <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>

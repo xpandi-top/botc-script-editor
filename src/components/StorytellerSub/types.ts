@@ -88,7 +88,7 @@ export type ExportConfig = {
 
 export type ConsoleSection = 'game' | 'day' | 'player' | 'settings' | 'tags' | 'records'
 
-export type ScriptOption = { slug: string; title: string; version?: string; characters: string[]; pinnedRevisions?: Record<string, string> }
+export type ScriptOption = { slug: string; title: string; titleZh?: string; version?: string; characters: string[]; pinnedRevisions?: Record<string, string> }
 
 export type StorytellerSeat = {
   seat: number
