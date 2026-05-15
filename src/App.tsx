@@ -494,6 +494,7 @@ export default function App() {
     while (scripts.some((s) => s.slug === nextSlug)) { nextSlug = `${baseSlug}-${index}`; index++ }
     const next: EditableScript = {
       slug: nextSlug, title: 'New Script', titleZh: 'New Script', author: '',
+      version: '1.0',
       meta: { id: '_meta', name: 'New Script' }, customCharacters: [],
       edition: 'custom', characters: [], sourceFile: `${nextSlug}.json`,
     }
@@ -529,7 +530,9 @@ export default function App() {
 
   function downloadScriptFile() {
     if (!activeScript) return
-    const filename = `${activeScript.slug || 'script'}.json`
+    const safeName = (activeScript.title || activeScript.slug || 'script').replace(/[^a-zA-Z0-9_一-鿿\- ]/g, '').trim().replace(/\s+/g, '_')
+    const versionSuffix = activeScript.version ? `_v${activeScript.version}` : ''
+    const filename = `${safeName}${versionSuffix}.json`
     const payload = JSON.stringify(createScriptPayload(activeScript), null, 2)
     exportGameFile(payload, filename)
     setSaveStatus(`Downloaded ${filename}`)

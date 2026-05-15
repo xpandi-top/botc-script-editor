@@ -19,6 +19,7 @@ import StarIcon from '@mui/icons-material/Star'
 import ThumbUpIcon from '@mui/icons-material/ThumbUp'
 import ThumbDownIcon from '@mui/icons-material/ThumbDown'
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
+import { getDisplayName } from '../../catalog'
 import { useBreakpoint } from '../../hooks/useBreakpoint'
 import { ScriptList } from '../ScriptList'
 import { SheetArticle } from '../SheetArticle'
@@ -179,11 +180,17 @@ export function ScriptsTab({
               if (editionFilter && s.edition !== editionFilter) return false
               if (tagFilter && !(s.tags ?? []).includes(tagFilter)) return false
               if (!q) return true
+              const charMatch = s.characters.some((c) => {
+                const id = typeof c === 'string' ? c : (c as { id: string }).id
+                return getDisplayName(id, 'en').toLowerCase().includes(q) ||
+                       getDisplayName(id, 'zh').toLowerCase().includes(q)
+              })
               return (
                 s.title.toLowerCase().includes(q) ||
                 s.titleZh.toLowerCase().includes(q) ||
                 s.author.toLowerCase().includes(q) ||
-                s.edition.toLowerCase().includes(q)
+                s.edition.toLowerCase().includes(q) ||
+                charMatch
               )
             }
 

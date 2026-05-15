@@ -8,6 +8,15 @@ Release timeline for BOTC Companion — features, fixes, and improvements.
 
 ---
 
+## 2026-05-15
+
+### Added
+- **Script versioning** — `version` field on `EditableScript`; new scripts default to `1.0`; editable via Version text field in Script Info section of Script Editor
+- **Download filename uses script name + version** — `{Title}_v{version}.json` (e.g. `Trouble_Brewing_v1.0.json`); falls back to title-only when no version set
+- **Filter scripts by character** — search box in Scripts tab now matches character EN/ZH names within the script's character list
+
+---
+
 ## 2026-05-15 (latest)
 
 ### Fixed
