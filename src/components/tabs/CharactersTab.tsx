@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react'
 import NightsStayIcon from '@mui/icons-material/NightsStay'
+import SyncAltIcon from '@mui/icons-material/SyncAlt'
 import { NightOrderManager } from '../NightOrderManager'
+import { JinxManager } from '../JinxManager'
 import {
   Box, Button, Chip, Dialog, DialogContent, DialogTitle, FormControl,
   IconButton, InputLabel, Paper, Select, MenuItem, Snackbar, TextField, Tooltip, Typography,
@@ -85,6 +87,7 @@ export function CharactersTab({
   const [mobileDetailOpen, setMobileDetailOpen] = useState(false)
   const [customDialogOpen, setCustomDialogOpen] = useState(false)
   const [nightOrderOpen, setNightOrderOpen] = useState(false)
+  const [jinxOpen, setJinxOpen] = useState(false)
   const [editingChar, setEditingChar] = useState<CustomCharacter | null>(null)
   const [snackMsg, setSnackMsg] = useState('')
   const [hasPackOverrides, setHasPackOverrides] = useState(() => {
@@ -382,6 +385,15 @@ export function CharactersTab({
               >
                 {zh ? '夜晚顺序' : 'Night Order'}
               </Button>
+              <Button
+                size="small"
+                variant="outlined"
+                startIcon={<SyncAltIcon fontSize="small" />}
+                onClick={() => setJinxOpen(true)}
+                sx={{ textTransform: 'none', fontSize: '0.75rem', py: '3px' }}
+              >
+                {zh ? 'Jinx' : 'Jinxes'}
+              </Button>
 
               {hasPackOverrides && (
                 <Chip
@@ -509,6 +521,13 @@ export function CharactersTab({
       <NightOrderManager
         open={nightOrderOpen}
         onClose={() => setNightOrderOpen(false)}
+        language={uiLanguage}
+      />
+
+      {/* ── Jinx Manager ── */}
+      <JinxManager
+        open={jinxOpen}
+        onClose={() => setJinxOpen(false)}
         language={uiLanguage}
       />
     </>

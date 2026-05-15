@@ -10,6 +10,8 @@ import type {
   CustomCharacter,
   EditableScript,
   JinxEntry,
+  JinxOverride,
+  JinxOverrides,
   Language,
   LocaleData,
   NightOrderData,
@@ -38,6 +40,38 @@ let _revisionOverrides: RevisionOverrides = loadRevisionOverrides()
 /** Call after writing to BOTC_REVISION_OVERRIDES so catalog picks up changes. */
 export function refreshRevisionOverrides() {
   _revisionOverrides = loadRevisionOverrides()
+}
+
+// ── Jinx overrides (UI-edited reasons / status) ───────────────────────────────
+
+export const JINX_OVERRIDES_KEY = 'BOTC_JINX_OVERRIDES'
+
+function loadJinxOverrides(): JinxOverrides {
+  if (typeof window === 'undefined') return {}
+  try {
+    return JSON.parse(localStorage.getItem(JINX_OVERRIDES_KEY) ?? '{}') as JinxOverrides
+  } catch {
+    return {}
+  }
+}
+
+let _jinxOverrides: JinxOverrides = loadJinxOverrides()
+
+/** Call after writing to BOTC_JINX_OVERRIDES so catalog picks up changes. */
+export function refreshJinxOverrides() {
+  _jinxOverrides = loadJinxOverrides()
+}
+
+/** Write a partial override for a jinx pair. Pass null to clear the override. */
+export function setJinxOverride(id: string, patch: JinxOverride | null) {
+  const stored = loadJinxOverrides()
+  if (patch === null) {
+    delete stored[id]
+  } else {
+    stored[id] = { ...stored[id], ...patch }
+  }
+  localStorage.setItem(JINX_OVERRIDES_KEY, JSON.stringify(stored))
+  refreshJinxOverrides()
 }
 
 // ── Character pack overrides (from uploaded packs) ────────────────────────────
@@ -333,7 +367,80 @@ export function getAbilityText(id: string, language: Language = 'en') {
 }
 
 export function getJinxReason(id: string, language: Language = 'en') {
+  const overrideKey = language === 'en' ? 'reason_en' : 'reason_zh'
+  const override = _jinxOverrides[id]?.[overrideKey]
+  if (override !== undefined) return override
   return getJinxCopy(id, language)?.reason ?? ''
+}
+
+/** Effective status: override wins over jinxes.json status. */
+export function getJinxStatus(id: string): 'active' | 'inactive' {
+  const override = _jinxOverrides[id]?.status
+  if (override) return override
+  return jinxes[id]?.status ?? 'active'
+}
+
+/**
+ * Returns all known jinx pair IDs — from jinxes.json plus any added via overrides
+ * that don't already exist in the source file.
+ */
+export function getAllJinxIds(): string[] {
+  const sourceIds = Object.keys(jinxes)
+  const overrideIds = Object.keys(_jinxOverrides).filter((id) => !jinxes[id])
+  return [...sourceIds, ...overrideIds]
+}
+
+/**
+ * Export all jinx data as a portable JSON string (source merged with overrides).
+ * Format: Record<pairId, { id, characters, status, reason_en, reason_zh }>
+ */
+export function exportJinxesJson(): string {
+  const result: Record<string, {
+    id: string
+    characters: [string, string]
+    status: 'active' | 'inactive'
+    reason_en: string
+    reason_zh: string
+  }> = {}
+
+  for (const id of getAllJinxIds()) {
+    const base = jinxes[id]
+    const chars = base?.characters ?? (id.split('::') as [string, string])
+    result[id] = {
+      id,
+      characters: chars,
+      status: getJinxStatus(id),
+      reason_en: getJinxReason(id, 'en'),
+      reason_zh: getJinxReason(id, 'zh'),
+    }
+  }
+  return JSON.stringify(result, null, 2)
+}
+
+/**
+ * Import a portable jinx JSON (from exportJinxesJson). Stores as overrides only
+ * for entries that differ from source data.
+ */
+export function importJinxesJson(json: string) {
+  const data = JSON.parse(json) as Record<string, {
+    id?: string
+    characters?: [string, string]
+    status?: 'active' | 'inactive'
+    reason_en?: string
+    reason_zh?: string
+  }>
+
+  const stored = loadJinxOverrides()
+  for (const [id, entry] of Object.entries(data)) {
+    const base = jinxes[id]
+    const patch: JinxOverride = {}
+    if (entry.status && entry.status !== (base?.status ?? 'active')) patch.status = entry.status
+    if (entry.reason_en !== undefined && entry.reason_en !== (getJinxCopy(id, 'en')?.reason ?? '')) patch.reason_en = entry.reason_en
+    if (entry.reason_zh !== undefined && entry.reason_zh !== (getJinxCopy(id, 'zh')?.reason ?? '')) patch.reason_zh = entry.reason_zh
+    if (Object.keys(patch).length > 0) stored[id] = patch
+  }
+  localStorage.setItem(JINX_OVERRIDES_KEY, JSON.stringify(stored))
+  refreshJinxOverrides()
 }
 
 function normalizeJinxPairId(id: string) {

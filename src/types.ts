@@ -158,6 +158,14 @@ export type JinxEntry = {
   revisions: JinxRevisionEntry[]
 }
 
+export type JinxOverride = {
+  status?: 'active' | 'inactive'
+  reason_en?: string
+  reason_zh?: string
+}
+
+export type JinxOverrides = Record<string, JinxOverride>
+
 export type Language = 'en' | 'zh'
 
 export type NightOrderData = {
