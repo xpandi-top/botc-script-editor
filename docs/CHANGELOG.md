@@ -7,8 +7,14 @@ Release timeline for BOTC Companion — features, fixes, and improvements.
 ## 2026-05-15 (latest)
 
 ### Added
-- **Print Studio shortcut in phase panel** — new Print button in the ST controls row navigates directly to Print Studio tab; no need to exit Storyteller manually
-- **Button labels in phase control panel** — Setup, Log, New, Save, Print, Vote, Next labels shown below each icon for discoverability; nomination-phase buttons also labeled
+- **Button labels in phase control panel** — Setup, Log, New, Save, Vote, Next labels shown below each icon for discoverability; nomination-phase buttons also labeled
+- **Print Studio step in onboarding tutorial** — tutorial now spotlights the Print Studio tab (step 15 desktop, step 6 mobile) and explains PDF export
+
+### Fixed
+- **YouTube BGM silent on mobile Safari** — switched embed URL to `enablejsapi=1&playsinline=1` (removed `autoplay=1` which Safari blocks); iframe now stays pre-loaded in DOM and playback is controlled via `postMessage` (`playVideo`/`pauseVideo`/`stopVideo`); `onReady` listener re-issues `playVideo` when track changes mid-session
+
+### Tests
+- `youtubeAudio.test.ts` (18 cases) — `buildYouTubeEmbedSrc` params, `sendYTCommand` JSON payload, no-op on null ref, `onReady` listener fires only when playing, play/pause effect sends correct postMessage command
 
 ---
 
