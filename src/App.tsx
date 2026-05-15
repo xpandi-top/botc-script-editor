@@ -36,6 +36,7 @@ import CloudSyncIcon from '@mui/icons-material/CloudSync'
 import InfoIcon from '@mui/icons-material/Info'
 import SyncProblemIcon from '@mui/icons-material/SyncProblem'
 import HistoryIcon from '@mui/icons-material/History'
+import { ChangelogPage } from './components/ChangelogPage'
 import { PrintPreviewPage } from './components/PrintPreviewPage'
 import { DEFAULT_PRINT_OPTIONS } from './components/PrintOptionsDialog'
 import type { PrintOptions } from './components/PrintOptionsDialog'
@@ -177,6 +178,8 @@ export default function App() {
   const cloudSync = useCloudSync()
   const { scheduleSync } = cloudSync
   const { activeTab, setActiveTab, sharedAnalyticsRecords, shareDecodeError, clearSharedRecords } = useShareParam()
+
+  const [showChangelog, setShowChangelog] = useState(false)
 
   // Keep heavy tabs mounted once visited — avoids re-initialization cost on switch
   const [mountedTabs, setMountedTabs] = useState<Set<string>>(() => new Set([activeTab]))
@@ -699,11 +702,9 @@ export default function App() {
             <Typography variant="body2" sx={{ color: 'text.primary' }}>{currentDescription}</Typography>
             <Typography variant="caption" sx={{ color: 'text.secondary', fontStyle: 'italic' }}>{disclaimerText}</Typography>
             <Box
-              component="a"
-              href="https://github.com/xpandi-top/botc-script-editor/blob/main/docs/CHANGELOG.md"
-              target="_blank"
-              rel="noopener noreferrer"
-              sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.4, color: 'text.secondary', textDecoration: 'underline', textDecorationColor: 'transparent', '&:hover': { textDecorationColor: 'inherit' }, flexShrink: 0 }}
+              component="button"
+              onClick={() => setShowChangelog(true)}
+              sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.4, color: 'text.secondary', background: 'none', border: 'none', p: 0, cursor: 'pointer', textDecoration: 'underline', textDecorationColor: 'transparent', '&:hover': { textDecorationColor: 'inherit', color: 'text.primary' }, flexShrink: 0 }}
             >
               <HistoryIcon sx={{ fontSize: '0.9rem' }} />
               <Typography variant="caption" sx={{ color: 'inherit' }}>
@@ -868,6 +869,10 @@ export default function App() {
             <BottomNavigationAction value="settings"    label={uiLanguage === 'zh' ? '设置' : 'Settings'}     icon={<TuneIcon />}            sx={{ minWidth: 0, px: 0.5, '& .MuiBottomNavigationAction-label': { fontSize: '0.65rem' } }} />
           </BottomNavigation>
         </Paper>
+      )}
+
+      {showChangelog && (
+        <ChangelogPage onClose={() => setShowChangelog(false)} language={uiLanguage} />
       )}
     </Container>
   )
