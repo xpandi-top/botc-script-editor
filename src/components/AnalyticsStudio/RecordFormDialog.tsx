@@ -43,11 +43,15 @@ function getScriptLabel(s: { slug: string; title: string; titleZh?: string }, la
   return (language === 'zh' && s.titleZh) ? s.titleZh : (s.title || s.slug)
 }
 
-function loadAllScripts(language: Language): Array<{ slug: string; label: string }> {
-  const base = initialScripts.map((s) => ({ slug: s.slug, label: getScriptLabel(s, language) }))
+function loadAllScripts(language: Language): Array<{ slug: string; label: string; version?: string }> {
+  const base = initialScripts.map((s) => ({ slug: s.slug, label: getScriptLabel(s, language), version: (s as any).version as string | undefined }))
   try {
-    const user = JSON.parse(storageSync.getItem(USER_SCRIPTS_KEY) || '[]') as { slug?: string; title?: string }[]
-    const userMapped = user.map((s) => ({ slug: s.slug ?? '', label: s.title || s.slug || '?' }))
+    const user = JSON.parse(storageSync.getItem(USER_SCRIPTS_KEY) || '[]') as { slug?: string; title?: string; titleZh?: string; version?: string }[]
+    const userMapped = user.map((s) => ({
+      slug: s.slug ?? '',
+      label: (language === 'zh' && s.titleZh) ? s.titleZh : (s.title || s.slug || '?'),
+      version: s.version,
+    }))
     return [...base, ...userMapped]
   } catch {
     return base
@@ -234,19 +238,29 @@ export function RecordFormDialog({ existing, zh, language, onSave, onClose }: {
             <Autocomplete
               freeSolo
               options={scriptOptions}
-              getOptionLabel={(o) => typeof o === 'string' ? o : o.label}
+              getOptionLabel={(o) => typeof o === 'string' ? o : (o.version ? `${o.label} v${o.version}` : o.label)}
               inputValue={scriptInput}
               onInputChange={(_, v) => {
                 setScriptInput(v)
-                const match = scriptOptions.find((s) => s.label === v)
+                const match = scriptOptions.find((s) => s.label === v || (s.version && `${s.label} v${s.version}` === v))
                 setScriptSlug(match?.slug ?? '')
               }}
               onChange={(_, v) => {
                 if (v && typeof v !== 'string') {
-                  setScriptInput(v.label)
+                  setScriptInput(v.version ? `${v.label} v${v.version}` : v.label)
                   setScriptSlug(v.slug)
                 }
               }}
+              renderOption={(props, o) => (
+                <Box component="li" {...props}>
+                  <Typography variant="body2" sx={{ flex: 1 }}>{o.label}</Typography>
+                  {o.version && (
+                    <Typography variant="caption" sx={{ ml: 1, color: 'text.secondary', fontFamily: 'monospace', flexShrink: 0 }}>
+                      v{o.version}
+                    </Typography>
+                  )}
+                </Box>
+              )}
               renderInput={(params) => (
                 <TextField {...params} label={zh ? '剧本' : 'Script'} size="small" />
               )}
