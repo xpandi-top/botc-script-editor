@@ -105,7 +105,7 @@ export type UiKey =
   | 'restore_alive' | 'about_to_die'
   | 'select_script_first' | 'enter_new_filename' | 'script'
   | 'note_optional' | 'note_placeholder' | 'edit_players'
-  | 'drunk_tag' | 'poisoned_tag' | 'protected_tag' | 'used_tag'
+  | 'drunk_tag' | 'poisoned_tag' | 'protected_tag' | 'used_tag' | 'red_herring'
 
 export type TplKey =
   | 'showing_n_of_m'

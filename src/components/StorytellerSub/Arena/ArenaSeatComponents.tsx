@@ -4,14 +4,34 @@ import React, { useState } from 'react'
 import { Box, IconButton, Button, Chip, Popover, Typography } from '@mui/material'
 import CheckIcon from '@mui/icons-material/Check'
 import CloseIcon from '@mui/icons-material/Close'
+import LocalBarIcon from '@mui/icons-material/LocalBar'
+import ScienceIcon from '@mui/icons-material/Science'
+import type { UiKey } from '../../../lib/t'
+import { makeT } from '../../../lib/t'
+
+// ── ST tag label → locale key map ──────────────────────────────────────────
+export const ST_TAG_KEY_MAP: Partial<Record<string, UiKey>> = {
+  'drunk':       'drunk_tag',
+  'poisoned':    'poisoned_tag',
+  'protected':   'protected_tag',
+  'used':        'used_tag',
+  'red herring': 'red_herring',
+}
+
+/** Translate a stored ST tag label for display. Falls back to raw label. */
+export function translateStTag(label: string, language: string): string {
+  const key = ST_TAG_KEY_MAP[label.toLowerCase()]
+  return key ? makeT(language)(key) : label
+}
 
 // ── TagChip: readable chip with click-to-popover ──
-export function TagChip({ label, icon, chipSx }: { label: string; icon?: string | null; chipSx?: any }) {
+export function TagChip({ label, icon, chipSx, language }: { label: string; icon?: string | null; chipSx?: any; language?: string }) {
   const [anchor, setAnchor] = useState<HTMLElement | null>(null)
+  const displayLabel = language ? translateStTag(label, language) : label
   return (
     <>
       <Chip
-        label={label}
+        label={displayLabel}
         size="small"
         icon={icon ? <img src={icon} style={{ width: 14, height: 14, borderRadius: '50%' }} /> : undefined}
         onClick={(e) => { e.stopPropagation(); setAnchor(e.currentTarget) }}
@@ -35,7 +55,68 @@ export function TagChip({ label, icon, chipSx }: { label: string; icon?: string 
         slotProps={{ paper: { sx: { p: 1.5, display: 'flex', alignItems: 'center', gap: 1, borderRadius: 2, boxShadow: 4 } } }}
       >
         {icon && <Box component="img" src={icon} sx={{ width: 40, height: 40, borderRadius: '50%' }} />}
-        <Typography variant="h6" fontWeight={700}>{label}</Typography>
+        <Typography variant="h6" fontWeight={700}>{displayLabel}</Typography>
+      </Popover>
+    </>
+  )
+}
+
+// ── StatusBadge: drunk/poisoned status chip with MUI icon + popover ─────────
+const STATUS_META: Record<string, { icon: React.ElementType; bgDark: string; bgLight: string; colorDark: string; colorLight: string; borderDark: string; borderLight: string }> = {
+  drunk: {
+    icon: LocalBarIcon,
+    bgDark: '#6b4400', bgLight: '#fff3cd',
+    colorDark: '#ffcc60', colorLight: '#7a4500',
+    borderDark: '#ffcc60', borderLight: '#f5a623',
+  },
+  poisoned: {
+    icon: ScienceIcon,
+    bgDark: '#2d0045', bgLight: '#f5e8ff',
+    colorDark: '#cc88ff', colorLight: '#6a008a',
+    borderDark: '#cc88ff', borderLight: '#a855f7',
+  },
+}
+
+export function StatusBadge({ type, label, isDark }: { type: 'drunk' | 'poisoned'; label: string; isDark: boolean }) {
+  const [anchor, setAnchor] = useState<HTMLElement | null>(null)
+  const meta = STATUS_META[type]
+  const IconComp = meta.icon
+  const bg = isDark ? meta.bgDark : meta.bgLight
+  const color = isDark ? meta.colorDark : meta.colorLight
+  const border = isDark ? meta.borderDark : meta.borderLight
+  return (
+    <>
+      <Chip
+        size="small"
+        icon={<IconComp sx={{ fontSize: '0.85rem !important', color: `${color} !important` }} />}
+        label={label}
+        onClick={(e) => { e.stopPropagation(); setAnchor(e.currentTarget) }}
+        sx={{
+          fontSize: '0.72rem',
+          fontWeight: 700,
+          height: 22,
+          cursor: 'pointer',
+          bgcolor: bg,
+          color,
+          border: '1px solid',
+          borderColor: border,
+          borderRadius: '6px',
+          '& .MuiChip-label': { px: '5px', lineHeight: 1 },
+          '& .MuiChip-icon': { ml: '5px', mr: '-2px', color: `${color} !important` },
+          '&:hover': { filter: 'brightness(1.15)' },
+        }}
+      />
+      <Popover
+        open={Boolean(anchor)}
+        anchorEl={anchor}
+        onClose={(e: any) => { e?.stopPropagation?.(); setAnchor(null) }}
+        onClick={(e) => e.stopPropagation()}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        transformOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        slotProps={{ paper: { sx: { p: 1.5, display: 'flex', alignItems: 'center', gap: 1, borderRadius: 2, boxShadow: 4, bgcolor: bg, border: '1.5px solid', borderColor: border } } }}
+      >
+        <IconComp sx={{ fontSize: '2rem', color }} />
+        <Typography variant="h6" fontWeight={700} sx={{ color }}>{label}</Typography>
       </Popover>
     </>
   )
@@ -170,14 +251,16 @@ export function NightActionGroup({
 
       {nightShowCharacter && stTags.length > 0 && (
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.25, mt: 0.25, maxWidth: 90 }}>
-          {stTags.map((tag: string) => (
-            <Chip
-              key={tag}
-              label={tag.replace('📝', '')}
-              size="small"
-              sx={{ fontSize: '0.6rem', height: 16, bgcolor: 'warning.light', color: 'warning.contrastText', '& .MuiChip-label': { px: 0.5 } }}
-            />
-          ))}
+          {stTags.map((tag: string) => {
+            const body = tag.startsWith('📝') ? tag.slice(2) : tag
+            const sep = body.indexOf('::')
+            const rawLabel = sep === -1 ? body : body.slice(0, sep)
+            if (rawLabel === 'drunk' || rawLabel === 'poisoned') return null
+            const displayLabel = translateStTag(rawLabel, language)
+            return (
+              <TagChip key={tag} label={displayLabel} chipSx={{ bgcolor: 'warning.light', color: 'warning.contrastText' }} />
+            )
+          })}
         </Box>
       )}
     </>

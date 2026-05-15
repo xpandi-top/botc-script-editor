@@ -326,7 +326,8 @@
     "drunk_tag": "Drunk",
     "poisoned_tag": "Poisoned",
     "protected_tag": "Protected",
-    "used_tag": "Used"
+    "used_tag": "Used",
+    "red_herring": "Red Herring"
   },
   "jinxes": {
     "alchemist::boffin": {

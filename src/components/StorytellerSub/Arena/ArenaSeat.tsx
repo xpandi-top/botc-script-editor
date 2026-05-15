@@ -9,7 +9,7 @@ import { ArenaSeatPlayerModal } from './ArenaSeatPlayerModal'
 import { CharacterCircle } from './CharacterCircle'
 import { getDisplayName, getIconForCharacter, getEffectiveNightOrderFromRegistry, getAbilityText } from '../../../catalog'
 import { getSeatPosition } from '../../../utils/seats'
-import { VoteButtonGroup, RoundRobinIndicator, TagChip } from './ArenaSeatComponents'
+import { VoteButtonGroup, RoundRobinIndicator, TagChip, StatusBadge, translateStTag } from './ArenaSeatComponents'
 
 export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: StorytellerContext, seat: any, index: number, isPortrait: boolean }) {
   const {
@@ -187,26 +187,8 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: StorytellerCo
           {/* Drunk / Poisoned — always visible to ST, prominent status */}
           {(isDrunk || isPoisoned) && (
             <Box sx={{ display: 'flex', gap: 0.3, mt: 0.3, flexWrap: 'wrap', justifyContent: 'center' }}>
-              {isDrunk && (
-                <Box component="span" sx={{
-                  fontSize: '0.6rem', fontWeight: 700, px: 0.6, py: 0.15,
-                  borderRadius: '4px', lineHeight: 1.4,
-                  bgcolor: isDark ? '#6b4400' : '#fff3cd',
-                  color: isDark ? '#ffcc60' : '#7a4500',
-                  border: '1px solid',
-                  borderColor: isDark ? '#ffcc60' : '#f5a623',
-                }}>🍺 {language === 'zh' ? '醉' : 'Drunk'}</Box>
-              )}
-              {isPoisoned && (
-                <Box component="span" sx={{
-                  fontSize: '0.6rem', fontWeight: 700, px: 0.6, py: 0.15,
-                  borderRadius: '4px', lineHeight: 1.4,
-                  bgcolor: isDark ? '#2d0045' : '#f5e8ff',
-                  color: isDark ? '#cc88ff' : '#6a008a',
-                  border: '1px solid',
-                  borderColor: isDark ? '#cc88ff' : '#a855f7',
-                }}>☠ {language === 'zh' ? '毒' : 'Psnd'}</Box>
-              )}
+              {isDrunk && <StatusBadge type="drunk" label={translateStTag('drunk', language)} isDark={isDark} />}
+              {isPoisoned && <StatusBadge type="poisoned" label={translateStTag('poisoned', language)} isDark={isDark} />}
             </Box>
           )}
 
@@ -238,13 +220,13 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: StorytellerCo
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.25, mt: 0.25, maxWidth: 90 }}>
               {(seat.stTags as string[]).map((tag: string) => {
                 const body = tag.startsWith('📝') ? tag.slice(2) : tag
-                const sep = body.indexOf('::'); const label = sep === -1 ? body : body.slice(0, sep)
-                // Skip drunk/poisoned — shown as permanent badges above
-                if (label === 'drunk' || label === 'poisoned') return null
+                const sep = body.indexOf('::'); const rawLabel = sep === -1 ? body : body.slice(0, sep)
+                if (rawLabel === 'drunk' || rawLabel === 'poisoned') return null
                 const srcId = sep === -1 ? null : body.slice(sep + 2) || null
                 const srcIcon = srcId ? getIconForCharacter(srcId) : null
+                const displayLabel = translateStTag(rawLabel, language)
                 return (
-                  <TagChip key={tag} label={label} icon={srcIcon as string}
+                  <TagChip key={tag} label={displayLabel} icon={srcIcon as string}
                     chipSx={{ bgcolor: 'warning.light', color: 'warning.contrastText' }} />
                 )
               })}

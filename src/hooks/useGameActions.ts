@@ -3,6 +3,7 @@ import type { DayState, EventLogEntry, PickerMode, SkillOverlayState, SkillRecor
 import type { Language } from '../types'
 import { logDetail, logPhrase } from '../utils/logI18n'
 import { getDisplayName } from '../catalog'
+import { translateStTag } from '../components/StorytellerSub/Arena/ArenaSeatComponents'
 
 interface ActionDeps {
   currentDay: DayState
@@ -73,9 +74,10 @@ export function buildGameActions(deps: ActionDeps) {
         }
         const stTagDetail = (t: string, added: boolean) => {
           const { label, sourceCharId } = parseStTag(t)
+          const translatedLabel = translateStTag(label, language)
           const verb = logPhrase(language, added ? 'addST' : 'removeST')
           const iconPart = sourceCharId ? `[icon:${sourceCharId}] ` : ''
-          return `#${seatNumber} ${verb}: ${iconPart}${label}`
+          return `#${seatNumber} ${verb}: ${iconPart}${translatedLabel}`
         }
         for (const t of addedStTags) updated = appendEvent(updated, 'tagChange', stTagDetail(t, true))
         for (const t of removedStTags) updated = appendEvent(updated, 'tagChange', stTagDetail(t, false))

@@ -326,7 +326,8 @@
     "drunk_tag": "醉酒",
     "poisoned_tag": "中毒",
     "protected_tag": "受保护",
-    "used_tag": "已使用"
+    "used_tag": "已使用",
+    "red_herring": "障眼法"
   },
   "jinxes": {
     "alchemist::boffin": {

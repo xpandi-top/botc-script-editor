@@ -22,6 +22,7 @@ import { buildPlayerLogEntries, filterPlayerLogByCurrentPhase } from '../../../u
 import { logPhrase } from '../../../utils/logI18n'
 import { LogDetailText } from '../LogDetailText'
 import { makeT, makeTpl } from '../../../lib/t'
+import { translateStTag } from './ArenaSeatComponents'
 
 const TRAVELER_CHAR_IDS = allCharacters.filter((c) => c.team === 'traveler').map((c) => c.id)
 
@@ -457,9 +458,10 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
       {/* Default tag chips */}
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 0.75 }}>
         {DEFAULT_ST_TAGS.map((label) => {
-          const active = stTags.some((t) => parseStTag(t).label === label)
+          const active = stTags.some((stTag) => parseStTag(stTag).label === label)
+          const displayLabel = translateStTag(label, language)
           return (
-            <Chip key={label} label={label} size="small" clickable
+            <Chip key={label} label={displayLabel} size="small" clickable
               color={active ? 'warning' : 'default'}
               variant={active ? 'filled' : 'outlined'}
               onClick={() => toggleDefaultStTag(label)} />
@@ -472,8 +474,9 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
           {stTags.map((tag: string) => {
             const { label, sourceCharId } = parseStTag(tag)
             const srcIcon = sourceCharId ? getIconForCharacter(sourceCharId) : null
+            const displayLabel = translateStTag(label, language)
             return (
-              <Chip key={`st-${tag}`} label={label} size="small"
+              <Chip key={`st-${tag}`} label={displayLabel} size="small"
                 icon={srcIcon ? <Box component="img" src={srcIcon as string} sx={{ width: 16, height: 16, ml: '4px !important', borderRadius: '50%' }} /> : undefined}
                 onDelete={() => removeStTag(tag)}
                 sx={{ bgcolor: 'warning.light', color: 'warning.contrastText', '& .MuiChip-deleteIcon': { color: 'warning.dark' } }} />
@@ -832,7 +835,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
                   </Box>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                     {DEFAULT_ST_TAGS.map((tag) => (
-                      <Chip key={tag} label={tag} size="small" clickable
+                      <Chip key={tag} label={translateStTag(tag, language)} size="small" clickable
                         color={tagInput === tag ? 'warning' : 'default'}
                         variant={tagInput === tag ? 'filled' : 'outlined'}
                         onClick={() => setTagInput(tagInput === tag ? '' : tag)} />
