@@ -6,11 +6,20 @@ Release timeline for BOTC Companion — features, fixes, and improvements.
 
 ## 2026-05-17 (latest)
 
+### Added
+- **Fabled / Loric characters in new/edit game modal** — Settings tab now includes a collapsible Fabled & Loric picker with search; selected characters shown as cards with icon, name, and ability text; count badge in section header; selections persisted to `stFabledIds` on game start/apply
+- **Storyteller name moved into game modal** — ST name field lives in the Settings tab of the new/edit game modal instead of the global Settings tab; persisted to `localStorage` as before
+
+### Changed
+- **New/edit game modal tab order** — Settings tab is now first (was last); removed `Allow Duplicate Characters`, `Allow Empty Characters`, `Allow Same Names` checkboxes (always-allow behaviour)
+- **ST popup settings trimmed** — Storyteller Name field removed from the ST right-panel settings section (now in modal)
+
 ### Fixed
 - **YouTube BGM on iOS Safari (second attempt)** — previous src-swap approach failed because modifying `.src` on an already-mounted iframe triggers an async page reload; iOS Safari's user-gesture window has already closed by the time the new URL's media starts. Fix: `sendYTCommand` now creates a fresh `<iframe>` element via vanilla DOM synchronously within the click handler, sets `autoplay=1` in `src`, and appends it to `document.body` — iOS permits autoplay when iframe is created+src-set within the gesture. Stop = remove element from DOM. React-managed "always-mounted" iOS iframe removed.
 - **YouTube BGM auto-starts on iOS when URL is first added** — `handleUrlTrackAdd` now calls `sendYTCommand('playVideo')` immediately after setting `ytEmbedSrcRef`, while still inside the ✓ button tap gesture
 - **Player count change mid-game not applying** — `applyGameChanges` now removes excess seats when count decreases and adds new blank seats when count increases; previously only updated properties on existing seats
 - **New game panel defaults to 9 players** — `_doOpenNewGamePanel` now inherits player/traveler count from the current game instead of hardcoding 9
+- **React hooks violation in game modal** — `useMemo`/`useState` calls moved before early `return null` guard; fixed runtime error when opening new/edit game panel
 
 ---
 
