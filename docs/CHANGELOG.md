@@ -21,6 +21,10 @@ Release timeline for BOTC Companion — features, fixes, and improvements.
 - **Player count change mid-game not applying** — `applyGameChanges` now removes excess seats when count decreases and adds new blank seats when count increases; previously only updated properties on existing seats
 - **New game panel defaults to 9 players** — `_doOpenNewGamePanel` now inherits player/traveler count from the current game instead of hardcoding 9
 - **React hooks violation in game modal** — `useMemo`/`useState` calls moved before early `return null` guard; fixed runtime error when opening new/edit game panel
+- **YouTube BGM on iOS Safari (third attempt)** — abandoned vanilla-DOM fresh-iframe approach (iOS blocks autoplay for cross-origin iframes regardless of gesture timing); replaced with persistent React mini-player (160×90, bottom-right corner): `ref` connects it to `sendYTCommand` postMessage, `visibility:hidden` keeps iframe alive when paused without unloading it, `sandbox` without `allow-top-navigation` blocks tap-to-YouTube-app redirect; user taps ▶ once to unlock the iframe's media context, then our play/pause buttons control via postMessage
+- **YouTube BGM play/pause buttons now control iOS mini-player** — `sendYTCommand` rewired to postMessage to the persistent mini-player ref instead of creating/removing DOM iframes; pause/resume work after user's first tap
+- **Tapping iOS mini-player no longer opens YouTube app** — `sandbox` attribute without `allow-top-navigation` prevents iframe from redirecting parent or launching YouTube app on tap
+- **YouTube embed URL includes `origin` param** — aligns with YouTube IFrame API recommendation; embed URL now includes `origin=<page-origin>` for better API reliability
 
 ---
 
