@@ -178,7 +178,9 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
         }
       }
     }
-    const freshConfig: NewGameConfig = { playerCount: 9, travelerCount: 0, scriptSlug: slug, allowDuplicateChars: false, allowEmptyChars: false, allowSameNames: false, seatNames: inheritedNames, assignments: {}, userAssignments: {}, travelerAssignments: {}, seatNotes: {}, specialNote: '', demonBluffs: [], charPool: [] }
+    const currentPlayerCount = currentDay?.seats ? currentDay.seats.filter((s) => !s.isTraveler).length : 9
+    const currentTravelerCount = currentDay?.seats ? currentDay.seats.filter((s) => s.isTraveler).length : 0
+    const freshConfig: NewGameConfig = { playerCount: currentPlayerCount || 9, travelerCount: currentTravelerCount, scriptSlug: slug, allowDuplicateChars: false, allowEmptyChars: false, allowSameNames: false, seatNames: inheritedNames, assignments: {}, userAssignments: {}, travelerAssignments: {}, seatNotes: {}, specialNote: '', demonBluffs: [], charPool: [] }
     // Preserve existing draft so close → reopen restores in-progress config
     setNewGamePanel((prev) => prev ?? freshConfig)
     setShowNewGamePanel?.(true)
@@ -291,28 +293,41 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     if (onSelectScript && newGamePanel.scriptSlug) onSelectScript(newGamePanel.scriptSlug)
     const totalCount = newGamePanel.playerCount + newGamePanel.travelerCount
     let updatedDay = currentDay
-    const updatedSeats = currentDay.seats.map((seat) => {
-      const sNum = seat.seat
-      if (sNum > totalCount) return seat
-      const newSeat = { ...seat }
-      const oldCharId = seat.characterId
-      newSeat.name = newGamePanel.seatNames[sNum] || seat.name
-      if (!seat.isTraveler) {
-        const cid = newGamePanel.assignments[sNum]
-        newSeat.characterId = cid || null
-        newSeat.userCharacterId = newGamePanel.userAssignments[sNum] || null
-        if (cid) { const char = getCharacterById(cid); if (char) newSeat.teamTag = (char.team === 'minion' || char.team === 'demon') ? 'evil' : 'good' }
-        else newSeat.teamTag = null
-        if (cid !== oldCharId) {
-          const getCharName = (id: string | null) => id ? getDisplayName(id, language) : '—'
-          if (oldCharId && cid) updatedDay = appendEvent(updatedDay, 'tagChange', `#${sNum}: ${getCharName(oldCharId)} → ${getCharName(cid)}`)
-          else if (cid) updatedDay = appendEvent(updatedDay, 'tagChange', `#${sNum}: ${getCharName(cid)}`)
-          else if (oldCharId) updatedDay = appendEvent(updatedDay, 'tagChange', `#${sNum}: ${getCharName(oldCharId)} ×`)
+    // Update existing seats (only those within the new count)
+    const updatedExisting = currentDay.seats
+      .filter((seat) => seat.seat <= totalCount)
+      .map((seat) => {
+        const sNum = seat.seat
+        const newSeat = { ...seat }
+        const oldCharId = seat.characterId
+        newSeat.name = newGamePanel.seatNames[sNum] || seat.name
+        if (!seat.isTraveler) {
+          const cid = newGamePanel.assignments[sNum]
+          newSeat.characterId = cid || null
+          newSeat.userCharacterId = newGamePanel.userAssignments[sNum] || null
+          if (cid) { const char = getCharacterById(cid); if (char) newSeat.teamTag = (char.team === 'minion' || char.team === 'demon') ? 'evil' : 'good' }
+          else newSeat.teamTag = null
+          if (cid !== oldCharId) {
+            const getCharName = (id: string | null) => id ? getDisplayName(id, language) : '—'
+            if (oldCharId && cid) updatedDay = appendEvent(updatedDay, 'tagChange', `#${sNum}: ${getCharName(oldCharId)} → ${getCharName(cid)}`)
+            else if (cid) updatedDay = appendEvent(updatedDay, 'tagChange', `#${sNum}: ${getCharName(cid)}`)
+            else if (oldCharId) updatedDay = appendEvent(updatedDay, 'tagChange', `#${sNum}: ${getCharName(oldCharId)} ×`)
+          }
         }
-      }
-      newSeat.note = newGamePanel.seatNotes[sNum] || ''
-      return newSeat
-    })
+        newSeat.note = newGamePanel.seatNotes[sNum] || ''
+        return newSeat
+      })
+    // Add new seats if count increased
+    const newSeats: StorytellerSeat[] = []
+    for (let sNum = currentDay.seats.length + 1; sNum <= totalCount; sNum++) {
+      const isTraveler = sNum > newGamePanel.playerCount
+      const defaultName = newGamePanel.seatNames[sNum] || (isTraveler ? `Traveler ${sNum}` : `Player ${sNum}`)
+      const cid = isTraveler ? null : (newGamePanel.assignments[sNum] || null)
+      let teamTag: 'evil' | 'good' | null = null
+      if (cid) { const char = getCharacterById(cid); if (char) teamTag = (char.team === 'minion' || char.team === 'demon') ? 'evil' : 'good' }
+      newSeats.push({ seat: sNum, name: defaultName, alive: true, isTraveler, isExecuted: false, hasNoVote: false, customTags: [], stTags: [], characterId: cid, userCharacterId: newGamePanel.userAssignments[sNum] || null, teamTag, note: newGamePanel.seatNotes[sNum] || '' })
+    }
+    const updatedSeats = [...updatedExisting, ...newSeats]
     if (newGamePanel.applyNamesToAllDays) {
       // Propagate seat name changes to every day, char/note changes only to current day
       setDays((d) => d.map((day) => {

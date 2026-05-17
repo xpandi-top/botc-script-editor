@@ -4,7 +4,15 @@ Release timeline for BOTC Companion — features, fixes, and improvements.
 
 ---
 
-## 2026-05-15 (latest)
+## 2026-05-17 (latest)
+
+### Fixed
+- **Player count change mid-game not applying** — `applyGameChanges` now removes excess seats when count decreases and adds new blank seats when count increases; previously only updated properties on existing seats
+- **New game panel defaults to 9 players** — `_doOpenNewGamePanel` now inherits player/traveler count from the current game instead of hardcoding 9
+
+---
+
+## 2026-05-15
 
 ### Added
 - **Button labels in phase control panel** — Setup, Log, New, Save, Vote, Next labels shown below each icon for discoverability; nomination-phase buttons also labeled
@@ -77,7 +85,7 @@ Release timeline for BOTC Companion — features, fixes, and improvements.
 
 ---
 
-## 2026-05-15 (latest)
+## 2026-05-15
 
 ### Fixed
 - **Name pool assigns to wrong seat** — clicking a pool chip always assigned to the first available seat, ignoring which field was focused. Fix: `focusedSeatRef` (useRef) tracks last-focused seat; pool chip container uses `onMouseDown preventDefault` to keep TextField focus; chip click now assigns to the focused seat and falls back to first empty seat only when nothing is focused.
