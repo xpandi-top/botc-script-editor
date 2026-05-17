@@ -34,9 +34,6 @@ export type NewGameConfig = {
   playerCount: number
   travelerCount: number
   scriptSlug: string
-  allowDuplicateChars: boolean
-  allowEmptyChars: boolean
-  allowSameNames: boolean
   seatNames: Record<number, string>
   assignments: Record<number, string> // seat -> characterId
   userAssignments: Record<number, string | null> // seat -> user-perceived char

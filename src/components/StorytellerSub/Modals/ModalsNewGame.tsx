@@ -5,15 +5,16 @@ import { Box, Button, Tabs, Tab, TextField, FormControlLabel, Checkbox, Typograp
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import { PlayersTab } from './ModalsNewGamePlayersTab'
 import { CharactersTab } from './ModalsNewGameCharactersTab'
+import { DEFAULT_ST_NAME_KEY } from '../constants'
 
 export function ModalsNewGame({ ctx }: { ctx: StorytellerContext }) {
   const {
     scriptOptions, playerNamePool, setPlayerNamePool, text, language,
     newGamePanel, setNewGamePanel, setShowNewGamePanel, startNewGame, applyGameChanges, randomAssignCharacters,
-    days,
+    days, stName, setStName,
   } = ctx
 
-  const [activeTab, setActiveTab] = useState<'players' | 'characters' | 'config'>('players')
+  const [activeTab, setActiveTab] = useState<'players' | 'characters' | 'settings'>('settings')
 
   if (!newGamePanel) return null
 
@@ -25,12 +26,37 @@ export function ModalsNewGame({ ctx }: { ctx: StorytellerContext }) {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       <Tabs value={activeTab} onChange={(_, v) => setActiveTab(v)} variant="fullWidth">
+        <Tab label={language === 'zh' ? '设置' : 'Settings'} value="settings" />
         <Tab label={language === 'zh' ? '玩家' : 'Players'} value="players" />
         <Tab label={language === 'zh' ? '角色' : 'Characters'} value="characters" />
-        <Tab label={language === 'zh' ? '配置' : 'Config'} value="config" />
       </Tabs>
 
       <Box sx={{ minHeight: 300 }}>
+        {activeTab === 'settings' && (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <TextField
+              size="small"
+              fullWidth
+              label={language === 'zh' ? '说书人名称' : 'Storyteller Name'}
+              value={stName ?? ''}
+              onChange={(e) => {
+                setStName(e.target.value)
+                try { localStorage.setItem(DEFAULT_ST_NAME_KEY, e.target.value) } catch {}
+              }}
+              placeholder={language === 'zh' ? '例如：小明' : 'e.g. Dimo'}
+            />
+            <TextField
+              size="small"
+              multiline
+              rows={3}
+              fullWidth
+              label={language === 'zh' ? '特殊备注' : 'Special Note'}
+              value={newGamePanel.specialNote || ''}
+              onChange={(e) => updateConfig({ specialNote: e.target.value })}
+            />
+          </Box>
+        )}
+
         {activeTab === 'players' && (
           <PlayersTab
             newGamePanel={newGamePanel}
@@ -50,47 +76,6 @@ export function ModalsNewGame({ ctx }: { ctx: StorytellerContext }) {
             updateConfig={updateConfig}
             randomAssignCharacters={randomAssignCharacters}
           />
-        )}
-
-        {activeTab === 'config' && (
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={newGamePanel.allowDuplicateChars}
-                  onChange={(e) => updateConfig({ allowDuplicateChars: e.target.checked })}
-                />
-              }
-              label={language === 'zh' ? '允许重复角色' : 'Allow duplicate characters'}
-            />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={newGamePanel.allowEmptyChars}
-                  onChange={(e) => updateConfig({ allowEmptyChars: e.target.checked })}
-                />
-              }
-              label={language === 'zh' ? '允许空角色' : 'Allow empty characters'}
-            />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={newGamePanel.allowSameNames}
-                  onChange={(e) => updateConfig({ allowSameNames: e.target.checked })}
-                />
-              }
-              label={language === 'zh' ? '允许重复名字' : 'Allow same player names'}
-            />
-            <TextField
-              size="small"
-              multiline
-              rows={3}
-              fullWidth
-              label={language === 'zh' ? '特殊备注' : 'Special Note'}
-              value={newGamePanel.specialNote || ''}
-              onChange={(e) => updateConfig({ specialNote: e.target.value })}
-            />
-          </Box>
         )}
       </Box>
 

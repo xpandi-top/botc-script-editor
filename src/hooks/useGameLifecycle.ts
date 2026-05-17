@@ -180,7 +180,7 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     }
     const currentPlayerCount = currentDay?.seats ? currentDay.seats.filter((s) => !s.isTraveler).length : 9
     const currentTravelerCount = currentDay?.seats ? currentDay.seats.filter((s) => s.isTraveler).length : 0
-    const freshConfig: NewGameConfig = { playerCount: currentPlayerCount || 9, travelerCount: currentTravelerCount, scriptSlug: slug, allowDuplicateChars: false, allowEmptyChars: false, allowSameNames: false, seatNames: inheritedNames, assignments: {}, userAssignments: {}, travelerAssignments: {}, seatNotes: {}, specialNote: '', demonBluffs: [], charPool: [] }
+    const freshConfig: NewGameConfig = { playerCount: currentPlayerCount || 9, travelerCount: currentTravelerCount, scriptSlug: slug, seatNames: inheritedNames, assignments: {}, userAssignments: {}, travelerAssignments: {}, seatNotes: {}, specialNote: '', demonBluffs: [], charPool: [] }
     // Preserve existing draft so close → reopen restores in-progress config
     setNewGamePanel((prev) => prev ?? freshConfig)
     setShowNewGamePanel?.(true)
@@ -194,7 +194,6 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
       playerCount: regular.length,
       travelerCount: travelers.length,
       scriptSlug: activeScriptSlug ?? scriptOptions[0]?.slug ?? '',
-      allowDuplicateChars: false, allowEmptyChars: false, allowSameNames: false,
       assignments: Object.fromEntries(seats.map((s) => [s.seat, s.characterId ?? ''])),
       userAssignments: Object.fromEntries(seats.map((s) => [s.seat, s.userCharacterId ?? ''])),
       travelerAssignments: Object.fromEntries(travelers.map((s) => [s.seat, s.characterId ?? ''])),
@@ -245,7 +244,7 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     const assignments: Record<number, string> = {}
     for (let i = 0; i < config.playerCount; i++) {
       const pool = byTeam[shuffledTeams[i]] || []
-      const eligible = config.allowDuplicateChars ? pool : pool.filter((c) => !usedChars.has(c))
+      const eligible = pool.filter((c) => !usedChars.has(c))
       const picked = (eligible.length > 0 ? eligible : pool)[Math.floor(Math.random() * (eligible.length > 0 ? eligible : pool).length)]
       if (picked) { assignments[i + 1] = picked; usedChars.add(picked) }
     }
