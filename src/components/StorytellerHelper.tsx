@@ -20,45 +20,26 @@ export function StorytellerHelper(props: StorytellerHelperProps) {
   // Do NOT set document.body.style.overflow here — StorytellerHelper is now
   // kept mounted in the background when other tabs are active.
 
-  // ── YouTube BGM iframe strategy ───────────────────────────────────────────
+  // ── YouTube BGM iframe (desktop only) ────────────────────────────────────────
   //
-  // DESKTOP: Original mount/unmount approach — works reliably.
-  //   Mount iframe with autoplay=1 when audioPlaying=true; unmount when false.
-  //   No postMessage needed — the browser allows autoplay once mounted.
+  // Desktop: mount iframe with autoplay=1 when playing; unmount when stopped.
+  //          Browser allows autoplay on mount because the mount is triggered by
+  //          a user click (React state change from the click handler).
   //
-  // iOS Safari: postMessage to cross-origin iframes does NOT carry the user
-  //   gesture, so playVideo via postMessage is silently ignored. Instead:
-  //   - Keep iframe always mounted (so it is loaded before the user taps play)
-  //   - sendYTCommand (called synchronously in click handlers) swaps iframe.src
-  //     to add/remove autoplay=1, which iOS treats as a user-initiated navigation
-  //
-  // Video ID is validated to [\w-]{1,32} before the embed URL is built, so XSS
-  // from the src is not a concern. No sandbox attribute — it would override
-  // allow="autoplay" on iOS Safari.
+  // iOS Safari: managed entirely via vanilla DOM in sendYTCommand (useAudioState).
+  //             Creating a new iframe element synchronously within the gesture
+  //             handler is the only approach iOS permits for iframe autoplay.
+  //             No React-managed iframe is needed for iOS.
   let ytIframe: React.ReactNode = null
-  if (ctx.youtubeEmbedSrc) {
-    if (isIOSSafari) {
-      // iOS: always mounted, sendYTCommand controls playback via src-swap
-      ytIframe = (
-        <iframe
-          ref={ctx.ytIframeRef}
-          src={ctx.youtubeEmbedSrc}
-          style={{ position: 'fixed', width: 1, height: 1, border: 0, bottom: 0, left: -2, overflow: 'hidden', opacity: 0, pointerEvents: 'none' }}
-          allow="autoplay; encrypted-media; gyroscope; accelerometer"
-          title="BGM"
-        />
-      )
-    } else if (ctx.audioPlaying) {
-      // Desktop: mount only when playing; autoplay=1 starts playback automatically
-      ytIframe = (
-        <iframe
-          src={ctx.youtubeEmbedSrc + '&autoplay=1'}
-          style={{ position: 'absolute', width: 0, height: 0, border: 0, overflow: 'hidden' }}
-          allow="autoplay; encrypted-media"
-          title="BGM"
-        />
-      )
-    }
+  if (ctx.youtubeEmbedSrc && !isIOSSafari && ctx.audioPlaying) {
+    ytIframe = (
+      <iframe
+        src={ctx.youtubeEmbedSrc + '&autoplay=1'}
+        style={{ position: 'absolute', width: 0, height: 0, border: 0, overflow: 'hidden' }}
+        allow="autoplay; encrypted-media"
+        title="BGM"
+      />
+    )
   }
 
   // ── Mobile layout ─────────────────────────────────────────────

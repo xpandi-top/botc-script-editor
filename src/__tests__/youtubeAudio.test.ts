@@ -1,15 +1,19 @@
 /**
  * YouTube BGM — platform-split strategy tests
  *
- * Desktop: iframe mounted with autoplay=1 only when playing; unmounted to stop.
- *          sendYTCommand is a no-op (mount/unmount controls everything).
- * iOS:     iframe always mounted; sendYTCommand swaps iframe.src
- *          (adds/removes autoplay=1) synchronously in the gesture handler.
+ * Desktop: React mounts iframe with autoplay=1 when playing; unmounts when stopped.
+ *          sendYTCommand is a no-op.
+ * iOS:     sendYTCommand creates a fresh <iframe> element synchronously via vanilla
+ *          DOM within the user-gesture handler, sets autoplay=1 in src, and appends
+ *          it to document.body. Stop removes the element. This is the only approach
+ *          iOS Safari permits for cross-origin iframe autoplay — changing .src on
+ *          an already-mounted iframe doesn't work because the actual media start
+ *          happens asynchronously (after the gesture window closes).
  *
  * Covers:
  *  - buildYouTubeEmbedSrc URL params (enablejsapi, playsinline, no autoplay)
  *  - sendYTCommand is no-op on non-iOS (jsdom environment = non-iOS)
- *  - sendYTCommand src-swap logic for playVideo / pauseVideo / stopVideo (iOS path)
+ *  - iOS DOM creation: autoplay URL construction, container element, cleanup
  *  - Play/pause effect does NOT call postMessage for YouTube tracks (removed)
  *  - Non-YouTube tracks still play/pause via HTML5 audio element
  */
@@ -20,6 +24,7 @@ import {
   buildYouTubeEmbedSrc,
   isIOSSafari,
   useAudioState,
+  IOS_YT_CONTAINER_ID,
 } from '../hooks/useAudioState'
 
 // ── buildYouTubeEmbedSrc — params ─────────────────────────────────────────────
@@ -61,26 +66,20 @@ describe('isIOSSafari', () => {
 // ── sendYTCommand — no-op on desktop (non-iOS) ────────────────────────────────
 
 describe('sendYTCommand on desktop (non-iOS)', () => {
-  const mockSrc = Object.getOwnPropertyDescriptor(HTMLIFrameElement.prototype, 'src')
-
-  beforeEach(() => {
-    // Spy on iframe src setter to detect any src changes
-    vi.spyOn(HTMLIFrameElement.prototype, 'src', 'set')
-  })
-
   afterEach(() => {
     vi.restoreAllMocks()
-    if (mockSrc) Object.defineProperty(HTMLIFrameElement.prototype, 'src', mockSrc)
+    document.getElementById(IOS_YT_CONTAINER_ID)?.remove()
   })
 
-  it('is a no-op when isIOSSafari is false (returns before touching iframe)', () => {
+  it('is a no-op when isIOSSafari is false — no DOM element created', () => {
     const { result } = renderHook(() => useAudioState())
-    const srcSetter = vi.spyOn(HTMLIFrameElement.prototype, 'src', 'set')
+    const appendSpy = vi.spyOn(document.body, 'appendChild')
 
     act(() => result.current.sendYTCommand('playVideo'))
 
-    // No iframe src should be changed — desktop uses mount/unmount instead
-    expect(srcSetter).not.toHaveBeenCalled()
+    // Desktop uses React mount/unmount; no DOM iframe should be created
+    expect(appendSpy).not.toHaveBeenCalled()
+    expect(document.getElementById(IOS_YT_CONTAINER_ID)).toBeNull()
   })
 
   it('does not throw when ytIframeRef is null', () => {
@@ -89,10 +88,9 @@ describe('sendYTCommand on desktop (non-iOS)', () => {
   })
 })
 
-// ── sendYTCommand src-swap logic (iOS path, tested directly) ──────────────────
-// We test the src-swap logic by calling the function with a mocked iframe ref
-// and a mocked isIOSSafari. Since isIOSSafari is a module constant, we test
-// the URL-construction logic via a helper extracted from the same module.
+// ── YouTube embed URL — autoplay variant ─────────────────────────────────────
+// The iOS vanilla-DOM iframe is created with base + '&autoplay=1'.
+// These tests verify the URL construction logic.
 
 describe('YouTube embed URL — autoplay variant', () => {
   it('appending autoplay=1 to base URL produces valid embed src', () => {
@@ -104,10 +102,14 @@ describe('YouTube embed URL — autoplay variant', () => {
     expect(withAutoplay).toContain('playsinline=1')
   })
 
-  it('base URL without autoplay stops playback when assigned to iframe.src', () => {
+  it('base URL does not contain autoplay=1 (iOS stop = remove element, not src-swap)', () => {
     const base = buildYouTubeEmbedSrc('abc123')
-    // Verify no autoplay in base — reassigning this src stops iOS YouTube
     expect(base).not.toContain('autoplay=1')
+  })
+
+  it('IOS_YT_CONTAINER_ID is a non-empty string for DOM targeting', () => {
+    expect(typeof IOS_YT_CONTAINER_ID).toBe('string')
+    expect(IOS_YT_CONTAINER_ID.length).toBeGreaterThan(0)
   })
 })
 

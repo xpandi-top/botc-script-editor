@@ -7,6 +7,8 @@ Release timeline for BOTC Companion — features, fixes, and improvements.
 ## 2026-05-17 (latest)
 
 ### Fixed
+- **YouTube BGM on iOS Safari (second attempt)** — previous src-swap approach failed because modifying `.src` on an already-mounted iframe triggers an async page reload; iOS Safari's user-gesture window has already closed by the time the new URL's media starts. Fix: `sendYTCommand` now creates a fresh `<iframe>` element via vanilla DOM synchronously within the click handler, sets `autoplay=1` in `src`, and appends it to `document.body` — iOS permits autoplay when iframe is created+src-set within the gesture. Stop = remove element from DOM. React-managed "always-mounted" iOS iframe removed.
+- **YouTube BGM auto-starts on iOS when URL is first added** — `handleUrlTrackAdd` now calls `sendYTCommand('playVideo')` immediately after setting `ytEmbedSrcRef`, while still inside the ✓ button tap gesture
 - **Player count change mid-game not applying** — `applyGameChanges` now removes excess seats when count decreases and adds new blank seats when count increases; previously only updated properties on existing seats
 - **New game panel defaults to 9 players** — `_doOpenNewGamePanel` now inherits player/traveler count from the current game instead of hardcoding 9
 
