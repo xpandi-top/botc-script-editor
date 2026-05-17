@@ -3,7 +3,7 @@ import type { StorytellerContext } from '../useStoryteller'
 import React from 'react'
 import { Box, Button, TextField, Typography, Paper, Select, MenuItem, FormControl, InputLabel, Chip, Grid, IconButton, Switch, FormControlLabel } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
-import { uniqueStrings, INITIAL_AUDIO_TRACKS } from '../constants'
+import { uniqueStrings, INITIAL_AUDIO_TRACKS, DEFAULT_ST_NAME_KEY } from '../constants'
 import { BASE_URL } from '../constants'
 
 export function RightPopupSettings({ ctx }: { ctx: StorytellerContext }) {
@@ -13,6 +13,7 @@ export function RightPopupSettings({ ctx }: { ctx: StorytellerContext }) {
     seatTagDrafts, setSeatTagDrafts, addCustomTag, clearUnusedCustomTags,
     loadTagsPreset, setLoadTagsPreset, setActiveRightPopup, text,
     audioTracks, setAudioTracks, selectedAudioSrc, setSelectedAudioSrc, setAudioPlaying,
+    stName, setStName,
   } = ctx
 
   const defaultTags = language === 'zh'
@@ -42,6 +43,24 @@ export function RightPopupSettings({ ctx }: { ctx: StorytellerContext }) {
       </Box>
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <Paper variant="outlined" sx={{ p: 1.5 }}>
+          <Typography variant="subtitle2" sx={{ mb: 1 }}>{language === 'zh' ? '说书人名称' : 'Storyteller Name'}</Typography>
+          <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
+            {language === 'zh' ? '设置默认说书人名称，新游戏和游戏记录将使用此名称。' : 'Default name used for new games and saved records.'}
+          </Typography>
+          <TextField
+            size="small"
+            fullWidth
+            label={language === 'zh' ? '说书人名称' : 'Storyteller Name'}
+            value={stName ?? ''}
+            onChange={(e) => {
+              setStName(e.target.value)
+              try { localStorage.setItem(DEFAULT_ST_NAME_KEY, e.target.value) } catch {}
+            }}
+            placeholder={language === 'zh' ? '例如：小明' : 'e.g. Dimo'}
+          />
+        </Paper>
+
         <Paper variant="outlined" sx={{ p: 1.5 }}>
           <Typography variant="subtitle2" sx={{ mb: 1 }}>{language === 'zh' ? '倒计时设置' : 'Countdown Settings'}</Typography>
           <Grid container spacing={1}>

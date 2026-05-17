@@ -3,7 +3,7 @@ import {
   Alert, Box, Button, Dialog, DialogActions,
   DialogContent, DialogContentText, DialogTitle, Divider,
   FormControlLabel, Radio, RadioGroup, Stack,
-  TextField, ToggleButton, ToggleButtonGroup, Typography,
+  ToggleButton, ToggleButtonGroup, Typography,
 } from '@mui/material'
 import LightModeIcon from '@mui/icons-material/LightMode'
 import DarkModeIcon from '@mui/icons-material/DarkMode'
@@ -16,7 +16,6 @@ import type { CloudSyncState } from '../../hooks/useCloudSync'
 import { exportEverything, readBundleFile, applyBundle } from '../../lib/bundleIO'
 import type { Language } from '../../types'
 import { useThemeMode } from '../../context/ThemeMode'
-import { DEFAULT_ST_NAME_KEY } from '../StorytellerSub/constants'
 import { FontPicker, LivePreview } from '../settings/FontSection'
 import { CloudSyncSection } from '../settings/CloudSyncSection'
 import { makeT } from '../../lib/t'
@@ -37,9 +36,6 @@ export function SettingsTab({ language, onLanguageChange, fontSettings, cloudSyn
   const [importFile, setImportFile] = useState<File | null>(null)
   const [importStatus, setImportStatus] = useState<'idle' | 'ok' | 'error'>('idle')
   const [importError, setImportError] = useState('')
-  const [defaultStName, setDefaultStName] = useState<string>(() => {
-    try { return localStorage.getItem(DEFAULT_ST_NAME_KEY) ?? '' } catch { return '' }
-  })
   const {
     enBodyId,    setEnBodyId,    enBodyOptions,
     enDisplayId, setEnDisplayId, enDisplayOptions,
@@ -210,27 +206,6 @@ export function SettingsTab({ language, onLanguageChange, fontSettings, cloudSyn
           ? '字体设置保存在本地，刷新后依然有效。Google Fonts 字体需要网络连接。界面大小设置会立即生效。'
           : 'Font settings are saved locally and persist across reloads. Google Fonts require a network connection. Size changes apply instantly.'}
       </Typography>
-
-      <Divider />
-
-      {/* ── Section: Storyteller ── */}
-      <Box>
-        <Typography variant="h5" gutterBottom>{t('storyteller_settings')}</Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2, maxWidth: 480 }}>
-          {t('default_st_name_help')}
-        </Typography>
-        <TextField
-          label={t('default_st_name')}
-          value={defaultStName}
-          onChange={(e) => {
-            setDefaultStName(e.target.value)
-            try { localStorage.setItem(DEFAULT_ST_NAME_KEY, e.target.value) } catch {}
-          }}
-          size="small"
-          sx={{ maxWidth: 320 }}
-          placeholder="e.g. Dimo"
-        />
-      </Box>
 
       <Divider />
 
