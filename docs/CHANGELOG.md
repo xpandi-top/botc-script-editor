@@ -7,6 +7,7 @@ Release timeline for BOTC Companion — features, fixes, and improvements.
 ## 2026-05-17 (latest)
 
 ### Added
+- **Delete from name pool** — each name chip in the Players tab now shows a × button to permanently remove that name from the pool
 - **Fabled / Loric characters in new/edit game modal** — Settings tab now includes a collapsible Fabled & Loric picker with search; selected characters shown as cards with icon, name, and ability text; count badge in section header; selections persisted to `stFabledIds` on game start/apply
 - **Storyteller name moved into game modal** — ST name field lives in the Settings tab of the new/edit game modal instead of the global Settings tab; persisted to `localStorage` as before
 
