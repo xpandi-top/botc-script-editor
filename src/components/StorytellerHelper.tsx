@@ -42,33 +42,40 @@ export function StorytellerHelper(props: StorytellerHelperProps) {
     )
   }
 
-  // iOS fallback: visible mini-player the user can tap if autoplay didn't fire.
-  // `key` remounts on track change so YouTube reloads fresh.
-  let iosYtMiniPlayer: React.ReactNode = null
-  if (isIOSSafari && ctx.youtubeEmbedSrc && ctx.audioPlaying) {
-    iosYtMiniPlayer = (
-      <Box sx={{
-        position: 'fixed', bottom: 'calc(56px + var(--safe-bottom, 0px))', right: 8,
-        zIndex: 1400, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 0.25,
-      }}>
-        <Typography variant="caption" sx={{ fontSize: '0.6rem', color: 'text.secondary', lineHeight: 1 }}>
-          ♫ Tap ▶ if silent
-        </Typography>
-        <Box sx={{ width: 160, height: 90, borderRadius: 1, overflow: 'hidden', boxShadow: 4 }}>
-          <iframe
-            key={ctx.youtubeEmbedSrc}
-            src={ctx.youtubeEmbedSrc + '&autoplay=1&playsinline=1'}
-            width="160"
-            height="90"
-            allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
-            allowFullScreen
-            style={{ border: 'none', display: 'block' }}
-            title="YouTube BGM"
-          />
-        </Box>
+  // iOS persistent mini-player — stays mounted so postMessage (pause/resume) works
+  // after the user has tapped ▶ once inside the player.
+  //
+  // - visibility:hidden (NOT display:none) when paused keeps the iframe alive.
+  // - sandbox without allow-top-navigation prevents tap → YouTube app redirect.
+  // - key remounts (reloads YouTube) when the track changes.
+  // - ref=ctx.ytIframeRef connects sendYTCommand postMessage to this element.
+  const iosYtMiniPlayer = isIOSSafari && ctx.youtubeEmbedSrc ? (
+    <Box sx={{
+      position: 'fixed', bottom: 'calc(56px + var(--safe-bottom, 0px))', right: 8,
+      zIndex: 1400, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 0.25,
+      visibility: ctx.audioPlaying ? 'visible' : 'hidden',
+      pointerEvents: ctx.audioPlaying ? 'auto' : 'none',
+    }}>
+      <Typography variant="caption" sx={{ fontSize: '0.6rem', color: 'text.secondary', lineHeight: 1 }}>
+        ♫ Tap ▶ once to start
+      </Typography>
+      <Box sx={{ width: 160, height: 90, borderRadius: 1, overflow: 'hidden', boxShadow: 4 }}>
+        <iframe
+          ref={ctx.ytIframeRef}
+          key={ctx.youtubeEmbedSrc}
+          src={ctx.youtubeEmbedSrc + '&playsinline=1&enablejsapi=1'}
+          width="160"
+          height="90"
+          allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+          // sandbox blocks allow-top-navigation → prevents tap opening YouTube app
+          sandbox="allow-scripts allow-same-origin allow-presentation allow-popups-to-escape-sandbox"
+          allowFullScreen
+          style={{ border: 'none', display: 'block' }}
+          title="YouTube BGM"
+        />
       </Box>
-    )
-  }
+    </Box>
+  ) : null
 
   // ── Mobile layout ─────────────────────────────────────────────
   if (isMobile) {

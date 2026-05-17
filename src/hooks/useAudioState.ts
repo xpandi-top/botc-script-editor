@@ -63,9 +63,7 @@ export function loadPersistedTracks(): AudioTrack[] {
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-// DOM container id for the iOS vanilla-DOM YouTube iframe.
-// We manage this outside React so it can be created synchronously within a
-// user-gesture handler — the only way iOS Safari permits iframe autoplay.
+// Kept for any residual cleanup calls; no longer used for creation.
 export const IOS_YT_CONTAINER_ID = 'botc-yt-bgm-ios'
 
 export function useAudioState() {
@@ -88,55 +86,26 @@ export function useAudioState() {
   useEffect(() => { audioTracksRef.current = audioTracks }, [audioTracks])
 
   /**
-   * Control YouTube playback on iOS Safari.
+   * Control YouTube playback on iOS Safari via postMessage to the mini-player.
    *
-   * DESKTOP: React mounts/unmounts the iframe with autoplay=1.  sendYTCommand is a no-op.
+   * DESKTOP: React mounts/unmounts the iframe with autoplay=1. No-op here.
    *
-   * iOS: Setting .src on an already-mounted iframe does NOT honour the user gesture —
-   *      iOS defers the actual media start until the new page loads inside the frame,
-   *      which happens asynchronously, after the gesture window has closed.
+   * iOS: autoplay via programmatic iframe creation is blocked by Safari.
+   *      A persistent mini-player iframe is rendered in StorytellerHelper
+   *      (ref = ytIframeRef). The user taps it ONCE to unlock playback in
+   *      that iframe's browsing context. After that, playVideo / pauseVideo
+   *      via postMessage work because the context is already user-activated.
    *
-   *      The ONLY reliable technique: create a brand-new <iframe> element (with
-   *      autoplay=1 already in the src), append it to the DOM, and hand iOS the src
-   *      assignment — all synchronously within the click-handler call stack.
-   *      iOS Safari sees the iframe creation as user-initiated navigation and permits
-   *      autoplay.  Stop = remove the element from the DOM.
-   *
-   * MUST be called synchronously within the click handler for iOS to honour the gesture.
+   *      postMessage target '*' — covers both youtube.com and youtube-nocookie.com.
    */
   function sendYTCommand(func: 'playVideo' | 'pauseVideo' | 'stopVideo') {
     if (!isIOSSafari) return // desktop uses React mount/unmount
-    const base = ytEmbedSrcRef.current
-    if (!base) return
-
-    if (func === 'playVideo') {
-      // Remove any previous container first
-      document.getElementById(IOS_YT_CONTAINER_ID)?.remove()
-      ytIframeRef.current = null
-
-      // Create a fresh iframe synchronously — iOS allows autoplay when the
-      // element is created & src-set within the gesture handler call stack.
-      // IMPORTANT: iOS withholds autoplay for zero-size / opacity:0 iframes.
-      // Use real dimensions positioned far off-screen instead.
-      const container = document.createElement('div')
-      container.id = IOS_YT_CONTAINER_ID
-      container.style.cssText = 'position:fixed;width:320px;height:180px;top:-9999px;left:-9999px;pointer-events:none;'
-
-      const iframe = document.createElement('iframe')
-      iframe.src = base + '&autoplay=1&mute=0'
-      iframe.setAttribute('allow', 'autoplay; encrypted-media; fullscreen; gyroscope; accelerometer; picture-in-picture')
-      iframe.setAttribute('allowfullscreen', '')
-      iframe.setAttribute('title', 'BGM')
-      iframe.style.cssText = 'width:320px;height:180px;border:none;display:block;'
-
-      container.appendChild(iframe)
-      document.body.appendChild(container)
-      ytIframeRef.current = iframe
-    } else {
-      // Pause/stop: remove the iframe from DOM
-      document.getElementById(IOS_YT_CONTAINER_ID)?.remove()
-      ytIframeRef.current = null
-    }
+    const iframe = ytIframeRef.current
+    if (!iframe?.contentWindow) return
+    iframe.contentWindow.postMessage(
+      JSON.stringify({ event: 'command', func, args: [] }),
+      '*'
+    )
   }
 
   // Persist custom tracks on change
@@ -147,12 +116,6 @@ export function useAudioState() {
 
   // Reload when track changes
   useEffect(() => {
-    // iOS: stop any currently-playing iframe when the track switches.
-    // The new track will only start when the user taps play (gesture required).
-    if (isIOSSafari) {
-      document.getElementById(IOS_YT_CONTAINER_ID)?.remove()
-      ytIframeRef.current = null
-    }
     const audio = audioRef.current
     if (!audio || !selectedAudioSrc) return
     const track = audioTracksRef.current.find((t) => t.src === selectedAudioSrc)
@@ -179,7 +142,7 @@ export function useAudioState() {
     const track = audioTracksRef.current.find((t) => t.src === selectedAudioSrc)
     if (track?.type === 'youtube') {
       // Desktop: controlled by iframe mount/unmount in StorytellerHelper (no-op here).
-      // iOS:     controlled by sendYTCommand src-swap in click handlers (no-op here).
+      // iOS:     controlled by sendYTCommand postMessage to mini-player (no-op here).
       return
     }
     const audio = audioRef.current
@@ -214,10 +177,7 @@ export function useAudioState() {
       ytEmbedSrcRef.current = embedSrc
       setYoutubeEmbedSrc(embedSrc)
       setAudioPlaying(true)
-      // iOS: start playback immediately — we're still inside the button-tap gesture
-      // (the ✓ button in BgmBar URL input). sendYTCommand creates a fresh iframe
-      // synchronously, which iOS Safari honours as user-initiated.
-      if (isIOSSafari) sendYTCommand('playVideo')
+      // iOS: mini-player will appear (audioPlaying=true); user taps it once to start.
       return
     }
 
@@ -241,10 +201,6 @@ export function useAudioState() {
       setAudioPlaying(false)
       ytEmbedSrcRef.current = null
       setYoutubeEmbedSrc(null)
-      if (isIOSSafari) {
-        document.getElementById(IOS_YT_CONTAINER_ID)?.remove()
-        ytIframeRef.current = null
-      }
     }
   }
 
