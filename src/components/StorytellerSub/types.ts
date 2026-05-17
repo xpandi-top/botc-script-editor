@@ -42,6 +42,7 @@ export type NewGameConfig = {
   specialNote: string
   demonBluffs: string[] // up to 3 character IDs shown to the Demon
   charPool: string[] // character IDs selected for random pool (empty = all)
+  fabledIds?: string[] // fabled + loric character IDs active for this game
   editMode?: boolean // true when editing existing game setup
   applyNamesToAllDays?: boolean // propagate seatNames changes to all days
 }

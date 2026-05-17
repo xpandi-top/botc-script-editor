@@ -180,7 +180,7 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     }
     const currentPlayerCount = currentDay?.seats ? currentDay.seats.filter((s) => !s.isTraveler).length : 9
     const currentTravelerCount = currentDay?.seats ? currentDay.seats.filter((s) => s.isTraveler).length : 0
-    const freshConfig: NewGameConfig = { playerCount: currentPlayerCount || 9, travelerCount: currentTravelerCount, scriptSlug: slug, seatNames: inheritedNames, assignments: {}, userAssignments: {}, travelerAssignments: {}, seatNotes: {}, specialNote: '', demonBluffs: [], charPool: [] }
+    const freshConfig: NewGameConfig = { playerCount: currentPlayerCount || 9, travelerCount: currentTravelerCount, scriptSlug: slug, seatNames: inheritedNames, assignments: {}, userAssignments: {}, travelerAssignments: {}, seatNotes: {}, specialNote: '', demonBluffs: [], charPool: [], fabledIds: [...(stFabledIds ?? [])] }
     // Preserve existing draft so close → reopen restores in-progress config
     setNewGamePanel((prev) => prev ?? freshConfig)
     setShowNewGamePanel?.(true)
@@ -202,6 +202,7 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
       specialNote: '',
       demonBluffs: currentDay?.demonBluffs ?? [],
       charPool: [],
+      fabledIds: [...(stFabledIds ?? [])],
       editMode: true,
     })
     setShowNewGamePanel?.(true)
@@ -282,7 +283,7 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     setShowNewGamePanel?.(false)
     if (setCurrentRecordName) setCurrentRecordName(null)
     setEndGameResult(null)
-    setStFabledIds?.([])
+    setStFabledIds?.(newGamePanel.fabledIds ?? [])
     setStCustomRules?.('')
     setGameStartedAt?.(Date.now())
   }
@@ -341,6 +342,7 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     } else {
       setDays((d) => d.map((day) => day.id === currentDay.id ? { ...updatedDay, seats: updatedSeats, demonBluffs: newGamePanel.demonBluffs || [] } : day))
     }
+    if (newGamePanel.fabledIds !== undefined) setStFabledIds?.(newGamePanel.fabledIds)
     setNewGamePanel(null)
     setShowNewGamePanel?.(false)
   }
