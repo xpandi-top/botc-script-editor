@@ -97,7 +97,14 @@ export function PlayersTab({ newGamePanel, playerNamePool, language, seats, upda
               {language === 'zh' ? '（空）' : '(empty)'}
             </Typography>
           ) : playerNamePool.map((name: string) => (
-            <Chip key={name} label={name} size="small" clickable onClick={() => handlePoolNameClick(name)} />
+            <Chip
+              key={name}
+              label={name}
+              size="small"
+              clickable
+              onClick={() => handlePoolNameClick(name)}
+              onDelete={() => setPlayerNamePool((p: string[]) => p.filter((n) => n !== name))}
+            />
           ))}
         </Box>
       )}
