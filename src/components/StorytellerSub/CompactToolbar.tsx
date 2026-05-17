@@ -10,6 +10,7 @@ export function CompactToolbar({ ctx }: { ctx: StorytellerContext }) {
   const {
     activeScriptTitle, activeScriptVersion, language, onLanguageChange, currentDay, aliveCount, totalCount,
     audioPlaying, setAudioPlaying, audioTracks, selectedAudioSrc, setSelectedAudioSrc,
+    sendYTCommand,
     handleLocalFileChange, handleUrlTrackAdd, deleteTrack, renameTrack, openNewGamePanel, openEndGamePanel,
     setShowRightPanel, openCharacterEditor, showScriptPanel, setShowScriptPanel,
     text, undo, canUndo, bgmVolume, setBgmVolume,
@@ -48,7 +49,12 @@ export function CompactToolbar({ ctx }: { ctx: StorytellerContext }) {
 
         <BgmBar
           audioPlaying={audioPlaying}
-          onTogglePlay={() => setAudioPlaying((c: boolean) => !c)}
+          onTogglePlay={() => {
+            // sendYTCommand MUST run synchronously inside the tap gesture for iOS Safari.
+            // It is a no-op on desktop and when no YouTube track is active.
+            if (audioPlaying) { sendYTCommand('pauseVideo'); setAudioPlaying(false) }
+            else { sendYTCommand('playVideo'); setAudioPlaying(true) }
+          }}
           audioTracks={audioTracks}
           selectedAudioSrc={selectedAudioSrc}
           setSelectedAudioSrc={setSelectedAudioSrc}
