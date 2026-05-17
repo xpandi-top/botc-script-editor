@@ -1,5 +1,5 @@
 import React from 'react'
-import { Box, Paper } from '@mui/material'
+import { Box, Paper, Typography } from '@mui/material'
 import { LeftScriptPanel } from './StorytellerSub/LeftScriptPanel'
 import { CompactToolbar } from './StorytellerSub/CompactToolbar'
 import { MobileTopBar } from './StorytellerSub/MobileTopBar'
@@ -20,16 +20,16 @@ export function StorytellerHelper(props: StorytellerHelperProps) {
   // Do NOT set document.body.style.overflow here — StorytellerHelper is now
   // kept mounted in the background when other tabs are active.
 
-  // ── YouTube BGM iframe (desktop only) ────────────────────────────────────────
+  // ── YouTube BGM iframe ────────────────────────────────────────────────────────
   //
-  // Desktop: mount iframe with autoplay=1 when playing; unmount when stopped.
-  //          Browser allows autoplay on mount because the mount is triggered by
-  //          a user click (React state change from the click handler).
+  // Desktop: mount/unmount hidden iframe with autoplay=1.
   //
-  // iOS Safari: managed entirely via vanilla DOM in sendYTCommand (useAudioState).
-  //             Creating a new iframe element synchronously within the gesture
-  //             handler is the only approach iOS permits for iframe autoplay.
-  //             No React-managed iframe is needed for iOS.
+  // iOS Safari: cross-origin iframe autoplay is blocked even within user gestures.
+  //   Strategy A — off-screen real-size iframe created synchronously in gesture
+  //                (sendYTCommand in useAudioState). This MAY work on some iOS versions.
+  //   Strategy B — visible mini-player (160×90 corner overlay) that the user can
+  //                tap once if Strategy A failed. Shown whenever audioPlaying + YouTube.
+  //
   let ytIframe: React.ReactNode = null
   if (ctx.youtubeEmbedSrc && !isIOSSafari && ctx.audioPlaying) {
     ytIframe = (
@@ -42,12 +42,41 @@ export function StorytellerHelper(props: StorytellerHelperProps) {
     )
   }
 
+  // iOS fallback: visible mini-player the user can tap if autoplay didn't fire.
+  // `key` remounts on track change so YouTube reloads fresh.
+  let iosYtMiniPlayer: React.ReactNode = null
+  if (isIOSSafari && ctx.youtubeEmbedSrc && ctx.audioPlaying) {
+    iosYtMiniPlayer = (
+      <Box sx={{
+        position: 'fixed', bottom: 'calc(56px + var(--safe-bottom, 0px))', right: 8,
+        zIndex: 1400, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 0.25,
+      }}>
+        <Typography variant="caption" sx={{ fontSize: '0.6rem', color: 'text.secondary', lineHeight: 1 }}>
+          ♫ Tap ▶ if silent
+        </Typography>
+        <Box sx={{ width: 160, height: 90, borderRadius: 1, overflow: 'hidden', boxShadow: 4 }}>
+          <iframe
+            key={ctx.youtubeEmbedSrc}
+            src={ctx.youtubeEmbedSrc + '&autoplay=1&playsinline=1'}
+            width="160"
+            height="90"
+            allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+            allowFullScreen
+            style={{ border: 'none', display: 'block' }}
+            title="YouTube BGM"
+          />
+        </Box>
+      </Box>
+    )
+  }
+
   // ── Mobile layout ─────────────────────────────────────────────
   if (isMobile) {
     return (
       <>
         <audio ref={ctx.audioRef} />
         {ytIframe}
+        {iosYtMiniPlayer}
         <Box sx={{ display: 'flex', flexDirection: 'column', height: '100dvh', overflow: 'hidden', mx: { xs: 0, sm: -3 }, mt: { xs: 0, sm: -3 } }}>
           <MobileTopBar ctx={ctx} />
           <LeftScriptPanel ctx={ctx} />
@@ -69,6 +98,7 @@ export function StorytellerHelper(props: StorytellerHelperProps) {
     <>
       <audio ref={ctx.audioRef} />
       {ytIframe}
+      {iosYtMiniPlayer}
       <Box
         sx={{
           display: 'grid',

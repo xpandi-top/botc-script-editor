@@ -25,7 +25,9 @@ export function extractYouTubeVideoId(url: string): string | null {
  * iOS:     the base URL is loaded always; playback is triggered via src-swap (see sendYTCommand).
  */
 export function buildYouTubeEmbedSrc(videoId: string): string {
-  return `https://www.youtube.com/embed/${videoId}?enablejsapi=1&loop=1&playlist=${videoId}&playsinline=1`
+  const origin = typeof window !== 'undefined' ? encodeURIComponent(window.location.origin) : ''
+  const originParam = origin ? `&origin=${origin}` : ''
+  return `https://www.youtube.com/embed/${videoId}?enablejsapi=1&loop=1&playlist=${videoId}&playsinline=1${originParam}`
 }
 
 // iOS Safari detection.
@@ -114,15 +116,18 @@ export function useAudioState() {
 
       // Create a fresh iframe synchronously — iOS allows autoplay when the
       // element is created & src-set within the gesture handler call stack.
+      // IMPORTANT: iOS withholds autoplay for zero-size / opacity:0 iframes.
+      // Use real dimensions positioned far off-screen instead.
       const container = document.createElement('div')
       container.id = IOS_YT_CONTAINER_ID
-      container.style.cssText = 'position:fixed;width:1px;height:1px;bottom:0;left:-2px;overflow:hidden;opacity:0;pointer-events:none;border:none;'
+      container.style.cssText = 'position:fixed;width:320px;height:180px;top:-9999px;left:-9999px;pointer-events:none;'
 
       const iframe = document.createElement('iframe')
-      iframe.src = base + '&autoplay=1'
-      iframe.setAttribute('allow', 'autoplay; encrypted-media; gyroscope; accelerometer')
+      iframe.src = base + '&autoplay=1&mute=0'
+      iframe.setAttribute('allow', 'autoplay; encrypted-media; fullscreen; gyroscope; accelerometer; picture-in-picture')
+      iframe.setAttribute('allowfullscreen', '')
       iframe.setAttribute('title', 'BGM')
-      iframe.style.cssText = 'width:1px;height:1px;border:none;'
+      iframe.style.cssText = 'width:320px;height:180px;border:none;display:block;'
 
       container.appendChild(iframe)
       document.body.appendChild(container)

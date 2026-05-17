@@ -60,7 +60,7 @@ describe('extractYouTubeVideoId', () => {
 describe('buildYouTubeEmbedSrc', () => {
   it('builds embed URL with enablejsapi, loop, playlist, playsinline params', () => {
     const src = buildYouTubeEmbedSrc('mRo7tMnM60I')
-    expect(src).toBe('https://www.youtube.com/embed/mRo7tMnM60I?enablejsapi=1&loop=1&playlist=mRo7tMnM60I&playsinline=1')
+    expect(src).toContain('https://www.youtube.com/embed/mRo7tMnM60I?enablejsapi=1&loop=1&playlist=mRo7tMnM60I&playsinline=1')
   })
 
   it('includes video ID in both embed path and playlist param (required for loop)', () => {
