@@ -3,6 +3,7 @@
   "team": "minion",
   "edition": "tb",
   "current_revision": "v1",
+  "reminders": ["Poisoned"],
   "revisions": [
     {
       "id": "v1",

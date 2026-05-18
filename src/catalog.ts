@@ -134,19 +134,21 @@ export function refreshCharReminders() {
 
 /**
  * Get effective reminders for any character id.
- * Custom chars: from CustomCharacter.reminders.
- * Catalog chars: from BOTC_CHAR_REMINDERS overrides.
+ * Priority: CustomCharacter fields → BOTC_CHAR_REMINDERS user override → character JSON file.
  */
 export function getCharacterReminders(id: string): string[] {
   const custom = _customCharRegistry.get(id)
   if (custom) return custom.reminders ?? []
-  return _charReminders[id]?.reminders ?? []
+  if (_charReminders[id]?.reminders !== undefined) return _charReminders[id].reminders!
+  // Fall back to value baked into the character JSON file (loaded at startup via characterById)
+  return characterById[id]?.reminders ?? []
 }
 
 export function getCharacterRemindersGlobal(id: string): string[] {
   const custom = _customCharRegistry.get(id)
   if (custom) return custom.remindersGlobal ?? []
-  return _charReminders[id]?.remindersGlobal ?? []
+  if (_charReminders[id]?.remindersGlobal !== undefined) return _charReminders[id].remindersGlobal!
+  return characterById[id]?.remindersGlobal ?? []
 }
 
 /** Persist reminder overrides for a catalog character. Pass null to clear. */
@@ -786,6 +788,12 @@ function loadCharacterCatalog() {
             (revision): revision is CharacterRevisionEntry =>
               Boolean(revision?.id && typeof revision.note === 'string'),
           )
+        : undefined,
+      reminders: Array.isArray(value.reminders)
+        ? value.reminders.filter((r): r is string => typeof r === 'string')
+        : undefined,
+      remindersGlobal: Array.isArray(value.remindersGlobal)
+        ? value.remindersGlobal.filter((r): r is string => typeof r === 'string')
         : undefined,
     }
 

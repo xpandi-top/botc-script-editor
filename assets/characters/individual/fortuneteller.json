@@ -3,6 +3,10 @@
   "team": "townsfolk",
   "edition": "tb",
   "current_revision": "v1",
+  "reminders": [
+    "Wrong",
+    "No ability"
+  ],
   "revisions": [
     {
       "id": "v1",

@@ -3,6 +3,9 @@
   "team": "outsider",
   "edition": "tb",
   "current_revision": "v1",
+  "reminders": [
+    "Master"
+  ],
   "revisions": [
     {
       "id": "v1",

@@ -17,6 +17,10 @@ export type CharacterEntry = {
     id: string
     reason: string
   }>
+  /** Reminder tokens this character places on other players' seats. */
+  reminders?: string[]
+  /** Reminder tokens available on all seats regardless of assignment. */
+  remindersGlobal?: string[]
 }
 
 export type CharacterRevisionEntry = {
@@ -220,6 +224,10 @@ export type CharacterFileEntry = {
   current_revision?: string
   revisions?: CharacterRevisionEntry[]
   jinxes?: Array<{ id: string; reason: string }>
+  /** Reminder tokens this character places on other players' seats. */
+  reminders?: string[]
+  /** Reminder tokens available on all seats regardless of assignment. */
+  remindersGlobal?: string[]
   en?: { name?: string; ability?: string; revisions?: Record<string, string> }
   zh?: { name?: string; ability?: string; revisions?: Record<string, string> }
 }
