@@ -86,11 +86,15 @@ export const logDetail = {
   seatNoVote:       (lang: Language, seat: number) => `#${seat} ${logPhrase(lang, 'noVote')}`,
   seatUnNoVote:     (lang: Language, seat: number) => `#${seat} ${logPhrase(lang, 'unNoVote')}`,
 
-  nominationFailed: (lang: Language, actor: number | string, target: number | string) =>
-    `${logPhrase(lang, 'nominationFailed')}: #${actor} → #${target}`,
+  nominationFailed: (lang: Language, actor: number | string, target: number | string) => {
+    const targetLabel = target === 0 || target === '0' ? (lang === 'zh' ? '🎭说书人' : '🎭ST') : `#${target}`
+    return `${logPhrase(lang, 'nominationFailed')}: #${actor} → ${targetLabel}`
+  },
 
-  voteResult: (lang: Language, actor: number | string, target: number | string, passed: boolean, voteCount: number, required: number) =>
-    `#${actor} ${logPhrase(lang, 'nominated')} #${target} — ${logPhrase(lang, passed ? 'pass' : 'fail')} (${voteCount}/${required})`,
+  voteResult: (lang: Language, actor: number | string, target: number | string, passed: boolean, voteCount: number, required: number) => {
+    const targetLabel = target === 0 || target === '0' ? (lang === 'zh' ? '🎭说书人' : '🎭ST') : `#${target}`
+    return `#${actor} ${logPhrase(lang, 'nominated')} ${targetLabel} — ${logPhrase(lang, passed ? 'pass' : 'fail')} (${voteCount}/${required})`
+  },
 
   /** `[success]` or `[fail]` tag embedded in skill statement */
   skillResultTag: (lang: Language, isSuccess: boolean) =>

@@ -174,6 +174,7 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: StorytellerContext })
           <InputLabel>{text.target}</InputLabel>
           <Select value={voteDraft?.target ?? ''} label={text.target} onChange={handleTargetChange}>
             <MenuItem value="">{language === 'zh' ? '— 选择 —' : '— Select —'}</MenuItem>
+            <MenuItem value={0}>{language === 'zh' ? '🎭 说书人' : '🎭 Storyteller'}</MenuItem>
             {seats.map((s: any) => (
               <MenuItem key={s.seat} value={s.seat}>#{s.seat} {s.name}{s.isTraveler ? ` (${language === 'zh' ? '旅行者' : 'Traveler'})` : ''}</MenuItem>
             ))}

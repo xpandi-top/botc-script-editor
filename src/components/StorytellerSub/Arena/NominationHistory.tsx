@@ -109,7 +109,7 @@ export function NominationHistory({
                 flex: 1,
               }}>
                 <Typography variant="body2" sx={{ fontWeight: 600, whiteSpace: 'nowrap', flex: 1, color: passed ? passedText : failedText }}>
-                  #{record.actor} {actionTag} #{record.target}{' '}
+                  #{record.actor} {actionTag} {record.target === 0 ? (language === 'zh' ? '🎭说书人' : '🎭ST') : `#${record.target}`}{' '}
                   {record.failed
                     ? (language === 'zh' ? '失败' : 'Failed')
                     : `${record.voteCount}/${record.requiredVotes}`

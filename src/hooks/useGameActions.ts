@@ -135,7 +135,7 @@ export function buildGameActions(deps: ActionDeps) {
   }
 
   function startVoting() {
-    if (!currentDay.voteDraft.target) return
+    if (currentDay.voteDraft.target === null || currentDay.voteDraft.target === undefined) return
     const canStart = currentDay.nominationStep === 'targetSpeech' || currentDay.nominationStep === 'readyToVote' || currentDay.nominationStep === 'voting' || currentDay.nominationStep === 'votingDone'
     if (!canStart && currentDay.nominationStep !== 'nominationDecision') return
     const order = buildVotingOrder(currentDay.seats, currentDay.voteDraft.target)
@@ -164,7 +164,7 @@ export function buildGameActions(deps: ActionDeps) {
   function handleVoteNo(seatNumber: number) { _advanceVote(seatNumber, false) }
 
   function recordVote() {
-    if (!currentDay.voteDraft.actor || !currentDay.voteDraft.target) return
+    if (!currentDay.voteDraft.actor || currentDay.voteDraft.target === null || currentDay.voteDraft.target === undefined) return
     const vd = currentDay.voteDraft
     const finalCount = vd.voteCountOverride !== null ? vd.voteCountOverride : vd.voters.length
     const record: VoteRecord = { id: `${Date.now()}`, actor: vd.actor!, target: vd.target!, voters: [...new Set(vd.voters)], voteCount: finalCount, requiredVotes, passed: draftPassed, note: vd.note.trim(), overridden: vd.manualPassed !== null || vd.voteCountOverride !== null, isExile: vd.isExile }
