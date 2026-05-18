@@ -1,9 +1,10 @@
 // @ts-nocheck
 import React, { useMemo, useState } from 'react'
-import { Box, Button, TextField, Select, MenuItem, FormControl, InputLabel, Typography, Paper, Divider, Grid, Chip, Collapse, IconButton, Tooltip } from '@mui/material'
+import { Box, Button, CircularProgress, TextField, Select, MenuItem, FormControl, InputLabel, Typography, Paper, Divider, Grid, Chip, Collapse, IconButton, Tooltip } from '@mui/material'
 import CasinoIcon from '@mui/icons-material/Casino'
 import ShuffleIcon from '@mui/icons-material/Shuffle'
 import ReplayIcon from '@mui/icons-material/Replay'
+import StyleIcon from '@mui/icons-material/Style'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import ClearAllIcon from '@mui/icons-material/ClearAll'
@@ -11,6 +12,7 @@ import { characterById, getCharacterById, allCharacters, getDisplayName, getIcon
 import { makeT, makeTpl } from '../../../lib/t'
 import { CHARACTER_DISTRIBUTION } from '../constants'
 import { CharSelect, TeamDot, DistRow } from './ModalsNewGameHelpers'
+import { createDealSession, shuffleDealCards, HOST_TOKEN_KEY } from '../../../lib/firebaseDeal'
 
 const TEAM_ORDER = ['townsfolk', 'outsider', 'minion', 'demon'] as const
 const TEAM_COLORS: Record<string, any> = { townsfolk: 'primary', outsider: 'info', minion: 'error', demon: 'error' }
@@ -105,6 +107,28 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
   const t = makeT(language)
   const tpl = makeTpl(language)
   const [poolOpen, setPoolOpen] = useState(false)
+  const [dealing, setDealing] = useState(false)
+
+  const handleDealCards = async () => {
+    // Collect assigned character IDs (may be partial — just deal what's assigned)
+    const assignments = newGamePanel?.assignments ?? {}
+    const characterIds: string[] = Object.values(assignments).filter(Boolean) as string[]
+    if (characterIds.length < 2) return // nothing meaningful to deal
+    setDealing(true)
+    try {
+      const shuffled = shuffleDealCards(characterIds)
+      const { sessionId, hostToken } = await createDealSession(shuffled)
+      // Persist host token so ST can re-open the dashboard without ?host= in URL
+      try { localStorage.setItem(HOST_TOKEN_KEY(sessionId), hostToken) } catch {}
+      // Open deal host page in new tab — ST keeps the new-game modal open
+      const url = `${window.location.origin}${window.location.pathname}?deal=${sessionId}&host=${hostToken}`
+      window.open(url, '_blank', 'noopener')
+    } catch (e) {
+      console.error('Failed to create deal session', e)
+    } finally {
+      setDealing(false)
+    }
+  }
 
   const script = scriptOptions?.find((s: any) => s.slug === newGamePanel?.scriptSlug)
   const scriptChars: string[] = script?.characters ?? []
@@ -285,6 +309,20 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
         <Button size="small" variant="outlined" onClick={() => updateConfig({ assignments: {}, userAssignments: {}, demonBluffs: [] })} startIcon={<ReplayIcon fontSize="small" />}>
           {t('reset')}
         </Button>
+        <Tooltip title={zh ? '将已分配角色发给玩家（新标签页）' : 'Deal assigned characters to players (new tab)'}>
+          <span>
+            <Button
+              size="small"
+              variant="contained"
+              color="secondary"
+              onClick={handleDealCards}
+              disabled={dealing || Object.values(newGamePanel?.assignments ?? {}).filter(Boolean).length < 2}
+              startIcon={dealing ? <CircularProgress size={14} color="inherit" /> : <StyleIcon fontSize="small" />}
+            >
+              {zh ? '发牌' : 'Deal Cards'}
+            </Button>
+          </span>
+        </Tooltip>
       </Box>
 
       <Divider />

@@ -22,11 +22,29 @@ export interface ShareParamState {
   sharedAnalyticsRecords: GameRecord[] | null
   shareDecodeError: string | null
   clearSharedRecords: () => void
+  /** ?deal=<id> param — present means render deal page instead of normal UI */
+  dealSessionId: string | null
+  /** ?host=<token> param — set when ST opens their own host link */
+  dealHostToken: string | null
 }
 
 export function useShareParam(): ShareParamState {
+  // Read deal params once on mount — constant for page lifetime
+  const dealSessionId = useState<string | null>(() => {
+    const params = new URLSearchParams(window.location.search)
+    return params.get('deal')
+  })[0]
+  const dealHostToken = useState<string | null>(() => {
+    const params = new URLSearchParams(window.location.search)
+    return params.get('host')
+  })[0]
+
   const [activeTab, setActiveTabState] = useState<TabKey>(() => {
     const params = new URLSearchParams(window.location.search)
+    // ?deal= takes over the whole page — keep last saved tab (don't redirect to analytics)
+    if (params.has('deal')) {
+      try { return (localStorage.getItem(ACTIVE_TAB_KEY) as TabKey) ?? 'scripts' } catch { return 'scripts' }
+    }
     if (params.has('ar') || params.has('sl') || sessionStorage.getItem(PENDING_AR_KEY) || sessionStorage.getItem(PENDING_SL_KEY)) return 'analytics'
     try { return (localStorage.getItem(ACTIVE_TAB_KEY) as TabKey) ?? 'scripts' } catch { return 'scripts' }
   })
@@ -120,5 +138,7 @@ export function useShareParam(): ShareParamState {
     sharedAnalyticsRecords,
     shareDecodeError,
     clearSharedRecords,
+    dealSessionId,
+    dealHostToken,
   }
 }

@@ -1,0 +1,333 @@
+/**
+ * DealHostPage — Storyteller live dashboard for an active deal session.
+ *
+ * Features:
+ * - Real-time card status via Firestore onSnapshot
+ * - Peek at all characters (toggle face-up/down)
+ * - Click claimed card → assign seat number + player name
+ * - "Apply to Game" → patches NewGameConfig with seatNames + assignments
+ * - Copy share link + close session
+ */
+import React, { useEffect, useState, useCallback } from 'react'
+import {
+  Box, Button, Chip, CircularProgress, Divider, IconButton,
+  Paper, TextField, Tooltip, Typography,
+} from '@mui/material'
+import CheckIcon from '@mui/icons-material/Check'
+import CloseIcon from '@mui/icons-material/Close'
+import ContentCopyIcon from '@mui/icons-material/ContentCopy'
+import VisibilityIcon from '@mui/icons-material/Visibility'
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff'
+import PlayArrowIcon from '@mui/icons-material/PlayArrow'
+import AutoStoriesIcon from '@mui/icons-material/AutoStories'
+import PersonIcon from '@mui/icons-material/Person'
+import LockIcon from '@mui/icons-material/Lock'
+import {
+  getDealSession,
+  subscribeCards,
+  updateCardAssignment,
+  closeDealSession,
+  type DealSession,
+  type DealCard,
+} from '../lib/firebaseDeal'
+import { getDisplayName, getIconForCharacter } from '../catalog'
+import type { NewGameConfig } from './StorytellerSub/types'
+
+interface Props {
+  sessionId: string
+  hostToken: string
+  language: 'en' | 'zh'
+  /** Called when ST clicks "Apply to Game" */
+  onApplyToGame?: (patch: Partial<NewGameConfig>) => void
+  /** Called to close this page */
+  onClose?: () => void
+}
+
+export function DealHostPage({ sessionId, hostToken, language, onApplyToGame, onClose }: Props) {
+  const [session, setSession] = useState<DealSession | null>(null)
+  const [cards, setCards] = useState<DealCard[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [showFaceUp, setShowFaceUp] = useState(false)
+  const [selectedPos, setSelectedPos] = useState<number | null>(null)
+  const [editSeat, setEditSeat] = useState('')
+  const [editName, setEditName] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [copied, setCopied] = useState(false)
+  const [closing, setClosing] = useState(false)
+
+  const zh = language === 'zh'
+
+  // Load session metadata once
+  useEffect(() => {
+    getDealSession(sessionId)
+      .then(s => { setSession(s); setLoading(false) })
+      .catch(e => { setError(e instanceof Error ? e.message : String(e)); setLoading(false) })
+  }, [sessionId])
+
+  // Real-time subscription to cards
+  useEffect(() => {
+    const unsub = subscribeCards(sessionId, (updated) => {
+      setCards(updated)
+    })
+    return unsub
+  }, [sessionId])
+
+  // Sync edit fields when selection changes
+  useEffect(() => {
+    if (selectedPos === null) return
+    const card = cards.find(c => c.position === selectedPos)
+    if (!card) return
+    setEditSeat(card.assignedSeat != null ? String(card.assignedSeat) : '')
+    setEditName(card.assignedName ?? card.claimedByName ?? '')
+  }, [selectedPos, cards])
+
+  const claimedCount = cards.filter(c => c.claimedByToken !== null).length
+  const totalCount   = session?.cardCount ?? cards.length
+
+  const shareUrl = `${window.location.origin}${window.location.pathname}?deal=${sessionId}`
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      // fallback — select text from a temp input
+    }
+  }
+
+  const handleSaveAssignment = useCallback(async () => {
+    if (selectedPos === null) return
+    setSaving(true)
+    const seat = parseInt(editSeat)
+    try {
+      await updateCardAssignment(sessionId, selectedPos, isNaN(seat) ? null : seat, editName)
+    } finally {
+      setSaving(false)
+    }
+  }, [sessionId, selectedPos, editSeat, editName])
+
+  const handleApplyToGame = () => {
+    if (!onApplyToGame) return
+    const assigned = cards.filter(c => c.assignedSeat != null)
+    const patch: Partial<NewGameConfig> = {
+      seatNames: Object.fromEntries(
+        assigned.map(c => [c.assignedSeat!, c.assignedName ?? c.claimedByName ?? `Player ${c.assignedSeat}`])
+      ),
+      assignments: Object.fromEntries(
+        assigned.map(c => [c.assignedSeat!, c.characterId])
+      ),
+    }
+    onApplyToGame(patch)
+  }
+
+  const handleClose = async () => {
+    setClosing(true)
+    try {
+      await closeDealSession(sessionId, hostToken)
+      setSession(prev => prev ? { ...prev, status: 'closed' } : prev)
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : String(e))
+    } finally {
+      setClosing(false)
+    }
+  }
+
+  const selectedCard = selectedPos !== null ? cards.find(c => c.position === selectedPos) : null
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 200 }}>
+        <CircularProgress />
+      </Box>
+    )
+  }
+
+  if (error) {
+    return (
+      <Box sx={{ p: 2 }}>
+        <Typography color="error">{error}</Typography>
+      </Box>
+    )
+  }
+
+  return (
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, p: 2, maxWidth: 680, mx: 'auto' }}>
+
+      {/* Header */}
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+        <AutoStoriesIcon color="primary" />
+        <Typography variant="h6" fontWeight={700} sx={{ flex: 1 }}>
+          {zh ? '发牌控制台' : 'Deal Dashboard'}
+        </Typography>
+        {onClose && (
+          <IconButton size="small" onClick={onClose}><CloseIcon /></IconButton>
+        )}
+      </Box>
+
+      {/* Session info bar */}
+      <Paper variant="outlined" sx={{ p: 1.5, borderRadius: 2, display: 'flex', flexWrap: 'wrap', gap: 1, alignItems: 'center' }}>
+        <Chip
+          size="small"
+          label={`${claimedCount}/${totalCount} ${zh ? '已认领' : 'claimed'}`}
+          color={claimedCount === totalCount ? 'success' : 'default'}
+        />
+        {session?.status === 'closed' && (
+          <Chip size="small" label={zh ? '已关闭' : 'Closed'} color="warning" />
+        )}
+        <Box sx={{ flex: 1 }} />
+        <Tooltip title={copied ? (zh ? '已复制！' : 'Copied!') : (zh ? '复制玩家链接' : 'Copy player link')}>
+          <Button size="small" startIcon={<ContentCopyIcon />} onClick={handleCopyLink} variant="outlined">
+            {copied ? (zh ? '已复制' : 'Copied') : (zh ? '复制链接' : 'Copy Link')}
+          </Button>
+        </Tooltip>
+        <Tooltip title={showFaceUp ? (zh ? '隐藏角色' : 'Hide characters') : (zh ? '显示角色' : 'Show characters')}>
+          <IconButton size="small" onClick={() => setShowFaceUp(v => !v)}>
+            {showFaceUp ? <VisibilityOffIcon /> : <VisibilityIcon />}
+          </IconButton>
+        </Tooltip>
+        {session?.status === 'open' && (
+          <Tooltip title={zh ? '关闭发牌（玩家将无法再认领）' : 'Close deal (no more claims)'}>
+            <Button size="small" color="warning" startIcon={<LockIcon />} onClick={handleClose} disabled={closing}>
+              {zh ? '关闭' : 'Close'}
+            </Button>
+          </Tooltip>
+        )}
+      </Paper>
+
+      {/* Card grid */}
+      <Box sx={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(90px, 1fr))',
+        gap: 1,
+      }}>
+        {cards.map((card) => {
+          const claimed = card.claimedByToken !== null
+          const icon = getIconForCharacter(card.characterId)
+          const isSelected = selectedPos === card.position
+          return (
+            <Paper
+              key={card.position}
+              onClick={() => setSelectedPos(isSelected ? null : card.position)}
+              elevation={isSelected ? 6 : 1}
+              sx={{
+                height: 110,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 0.5,
+                cursor: 'pointer',
+                borderRadius: 2,
+                border: '2px solid',
+                borderColor: isSelected ? 'primary.main' : claimed ? 'success.light' : 'divider',
+                transition: 'all 0.15s',
+                p: 0.5,
+                userSelect: 'none',
+                '&:hover': { borderColor: 'primary.light' },
+              }}
+            >
+              {(showFaceUp || claimed) && icon ? (
+                <Box component="img" src={icon}
+                  sx={{ width: 36, height: 36, objectFit: 'contain', opacity: claimed ? 1 : 0.5 }}
+                />
+              ) : (
+                <AutoStoriesIcon sx={{ fontSize: 28, color: claimed ? 'success.main' : 'text.disabled' }} />
+              )}
+              {claimed && (
+                <Typography variant="caption" sx={{ fontSize: '0.6rem', lineHeight: 1.2, textAlign: 'center', maxWidth: 80, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {card.assignedName ?? card.claimedByName ?? (zh ? '匿名' : 'Anon')}
+                </Typography>
+              )}
+              {card.assignedSeat != null && (
+                <Chip label={`#${card.assignedSeat}`} size="small" sx={{ height: 16, fontSize: '0.6rem' }} />
+              )}
+              {showFaceUp && !claimed && (
+                <Typography variant="caption" sx={{ fontSize: '0.58rem', textAlign: 'center', lineHeight: 1.2, maxWidth: 80 }}>
+                  {getDisplayName(card.characterId, language)}
+                </Typography>
+              )}
+            </Paper>
+          )
+        })}
+      </Box>
+
+      {/* Selected card detail */}
+      {selectedCard && (
+        <>
+          <Divider />
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              {getIconForCharacter(selectedCard.characterId) && (
+                <Box component="img" src={getIconForCharacter(selectedCard.characterId)!}
+                  sx={{ width: 40, height: 40, objectFit: 'contain' }}
+                />
+              )}
+              <Box>
+                <Typography variant="subtitle2" fontWeight={700}>
+                  {getDisplayName(selectedCard.characterId, language)}
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {selectedCard.claimedByToken
+                    ? `${zh ? '玩家' : 'Player'}: ${selectedCard.claimedByName ?? (zh ? '匿名' : 'Anonymous')}`
+                    : (zh ? '未认领' : 'Unclaimed')}
+                </Typography>
+              </Box>
+            </Box>
+
+            <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-end', flexWrap: 'wrap' }}>
+              <TextField
+                size="small"
+                label={zh ? '座位号' : 'Seat #'}
+                value={editSeat}
+                onChange={e => setEditSeat(e.target.value.replace(/\D/g, ''))}
+                sx={{ width: 90 }}
+                slotProps={{ htmlInput: { inputMode: 'numeric', pattern: '[0-9]*' } }}
+              />
+              <TextField
+                size="small"
+                label={zh ? '玩家名' : 'Player name'}
+                value={editName}
+                onChange={e => setEditName(e.target.value)}
+                sx={{ flex: 1, minWidth: 120 }}
+                slotProps={{ input: { startAdornment: <PersonIcon sx={{ fontSize: '1rem', mr: 0.5, color: 'text.secondary' }} /> } }}
+              />
+              <Button
+                variant="contained"
+                size="small"
+                onClick={handleSaveAssignment}
+                disabled={saving}
+                startIcon={saving ? <CircularProgress size={14} /> : <CheckIcon />}
+              >
+                {zh ? '保存' : 'Save'}
+              </Button>
+            </Box>
+          </Box>
+        </>
+      )}
+
+      {/* Apply to Game */}
+      {onApplyToGame && (
+        <>
+          <Divider />
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
+            <Typography variant="caption" color="text.secondary">
+              {zh
+                ? `已分配 ${cards.filter(c => c.assignedSeat != null).length}/${totalCount} 座位`
+                : `${cards.filter(c => c.assignedSeat != null).length}/${totalCount} seats assigned`}
+            </Typography>
+            <Button
+              variant="contained"
+              startIcon={<PlayArrowIcon />}
+              onClick={handleApplyToGame}
+              disabled={cards.filter(c => c.assignedSeat != null).length === 0}
+            >
+              {zh ? '应用到游戏' : 'Apply to Game'}
+            </Button>
+          </Box>
+        </>
+      )}
+    </Box>
+  )
+}
