@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Box, Button, Checkbox, Chip, Dialog, DialogContent, DialogTitle, FormControlLabel, Grid, IconButton, Paper, TextField, Tooltip, Typography } from '@mui/material'
+import { Box, Button, Checkbox, Chip, Dialog, DialogContent, DialogTitle, Divider, FormControlLabel, Grid, IconButton, Paper, TextField, Tooltip, Typography } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import CloseIcon from '@mui/icons-material/Close'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -8,6 +8,8 @@ import EditIcon from '@mui/icons-material/Edit'
 import {
   characterFileById,
   getAbilityText,
+  getCharacterReminders,
+  getCharacterRemindersGlobal,
   getCharacterRevisionIds,
   getCurrentRevision,
   getCustomChar,
@@ -20,8 +22,10 @@ import {
   jinxes as jinxDb,
   REVISION_OVERRIDES_KEY,
   refreshRevisionOverrides,
+  setCharacterRemindersOverride,
   teamLabels,
 } from '../catalog'
+import { ReminderTokenEditor } from './ReminderTokenEditor'
 import type { CharacterEntry, CharacterFileEntry, CustomCharacter, Language, RevisionOverrides } from '../types'
 import { makeT, makeTpl } from '../lib/t'
 
@@ -65,6 +69,9 @@ export function CharacterRevisionPanel({
   const [note, setNote] = useState('')
   const [setCurrent, setSetCurrent] = useState(true)
   const [, forceUpdate] = useState(0)
+  // Reminder token editing state (catalog chars only — custom chars use CustomCharDialog)
+  const [remindersEdit, setRemindersEdit] = useState<string[] | null>(null)
+  const [remindersGlobalEdit, setRemindersGlobalEdit] = useState<string[] | null>(null)
   const t = makeT(language)
   const tpl = makeTpl(language)
 
@@ -76,6 +83,30 @@ export function CharacterRevisionPanel({
     setNote('')
     setSetCurrent(true)
     setAddOpen(true)
+  }
+
+  // Catalog-only: initialize reminder edit state from stored overrides
+  const openRemindersEdit = () => {
+    if (!character) return
+    setRemindersEdit(getCharacterReminders(character.id))
+    setRemindersGlobalEdit(getCharacterRemindersGlobal(character.id))
+  }
+
+  const saveReminders = () => {
+    if (!character) return
+    setCharacterRemindersOverride(
+      character.id,
+      remindersEdit,
+      remindersGlobalEdit,
+    )
+    forceUpdate((n) => n + 1)
+    setRemindersEdit(null)
+    setRemindersGlobalEdit(null)
+  }
+
+  const cancelReminders = () => {
+    setRemindersEdit(null)
+    setRemindersGlobalEdit(null)
   }
 
   const saveRevision = () => {
@@ -147,6 +178,9 @@ export function CharacterRevisionPanel({
 
   const isCustom = character.id.startsWith('custom_')
   const customChar = isCustom ? getCustomChar(character.id) : undefined
+  const currentReminders = getCharacterReminders(character.id)
+  const currentRemindersGlobal = getCharacterRemindersGlobal(character.id)
+  const reminderEditOpen = remindersEdit !== null
 
   const icon = getIconForCharacter(character.id)
   const revisionIds = getCharacterRevisionIds(character.id)
@@ -301,6 +335,79 @@ export function CharacterRevisionPanel({
           </Box>
         )
       })()}
+
+      {/* ── Reminder tokens ── */}
+      <Box sx={{ mt: 2 }}>
+        <Divider sx={{ mb: 2 }} />
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+          <Typography variant="subtitle2">
+            {language === 'zh' ? '提示标记' : 'Reminder Tokens'}
+          </Typography>
+          {!isCustom && !reminderEditOpen && (
+            <Button size="small" startIcon={<EditIcon fontSize="small" />} onClick={openRemindersEdit}
+              sx={{ textTransform: 'none', fontSize: '0.75rem' }}>
+              {t('edit')}
+            </Button>
+          )}
+          {isCustom && onEditCustom && customChar && (
+            <Button size="small" startIcon={<EditIcon fontSize="small" />}
+              onClick={() => onEditCustom(customChar)}
+              sx={{ textTransform: 'none', fontSize: '0.75rem' }}>
+              {t('edit')}
+            </Button>
+          )}
+        </Box>
+
+        {/* View mode */}
+        {!reminderEditOpen && (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+            <Box>
+              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+                {language === 'zh' ? '其他座位标记' : 'Other-seat tokens'}
+              </Typography>
+              {currentReminders.length > 0
+                ? <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                    {currentReminders.map((r) => <Chip key={r} label={r} size="small" variant="outlined" />)}
+                  </Box>
+                : <Typography variant="caption" color="text.disabled" sx={{ fontStyle: 'italic' }}>—</Typography>
+              }
+            </Box>
+            <Box>
+              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+                {language === 'zh' ? '全局标记（所有座位）' : 'Global tokens (all seats)'}
+              </Typography>
+              {currentRemindersGlobal.length > 0
+                ? <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                    {currentRemindersGlobal.map((r) => <Chip key={r} label={r} size="small" variant="outlined" color="secondary" />)}
+                  </Box>
+                : <Typography variant="caption" color="text.disabled" sx={{ fontStyle: 'italic' }}>—</Typography>
+              }
+            </Box>
+          </Box>
+        )}
+
+        {/* Edit mode — catalog chars only */}
+        {reminderEditOpen && (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <ReminderTokenEditor
+              label={language === 'zh' ? '提示标记（放置于其他座位）' : 'Reminder tokens (placed on other seats)'}
+              hint={language === 'zh' ? '此角色放置在其他玩家座位上的标记' : 'Tokens this character places on other players\' seats'}
+              tokens={remindersEdit ?? []}
+              onChange={setRemindersEdit}
+            />
+            <ReminderTokenEditor
+              label={language === 'zh' ? '全局提示标记（所有座位）' : 'Global reminder tokens (all seats)'}
+              hint={language === 'zh' ? '在所有座位上均可使用的标记' : 'Tokens available on every seat regardless of assignment'}
+              tokens={remindersGlobalEdit ?? []}
+              onChange={setRemindersGlobalEdit}
+            />
+            <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+              <Button size="small" variant="outlined" onClick={cancelReminders}>{t('cancel')}</Button>
+              <Button size="small" variant="contained" onClick={saveReminders}>{t('save')}</Button>
+            </Box>
+          </Box>
+        )}
+      </Box>
 
       {/* ── Add Revision Dialog ── */}
       <Dialog open={addOpen} onClose={() => setAddOpen(false)} maxWidth="sm" fullWidth>

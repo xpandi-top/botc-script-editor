@@ -113,6 +113,61 @@ export function clearCharacterPackOverrides() {
   _charPackOverrides = {}
 }
 
+// ── Character reminder token overrides (catalog chars) ────────────────────────
+
+export const CHAR_REMINDERS_KEY = 'BOTC_CHAR_REMINDERS'
+
+type CharRemindersOverrides = Record<string, { reminders?: string[]; remindersGlobal?: string[] }>
+
+function loadCharReminders(): CharRemindersOverrides {
+  if (typeof window === 'undefined') return {}
+  try {
+    return JSON.parse(localStorage.getItem(CHAR_REMINDERS_KEY) ?? '{}') as CharRemindersOverrides
+  } catch { return {} }
+}
+
+let _charReminders: CharRemindersOverrides = loadCharReminders()
+
+export function refreshCharReminders() {
+  _charReminders = loadCharReminders()
+}
+
+/**
+ * Get effective reminders for any character id.
+ * Custom chars: from CustomCharacter.reminders.
+ * Catalog chars: from BOTC_CHAR_REMINDERS overrides.
+ */
+export function getCharacterReminders(id: string): string[] {
+  const custom = _customCharRegistry.get(id)
+  if (custom) return custom.reminders ?? []
+  return _charReminders[id]?.reminders ?? []
+}
+
+export function getCharacterRemindersGlobal(id: string): string[] {
+  const custom = _customCharRegistry.get(id)
+  if (custom) return custom.remindersGlobal ?? []
+  return _charReminders[id]?.remindersGlobal ?? []
+}
+
+/** Persist reminder overrides for a catalog character. Pass null to clear. */
+export function setCharacterRemindersOverride(
+  id: string,
+  reminders: string[] | null,
+  remindersGlobal: string[] | null,
+) {
+  const stored = loadCharReminders()
+  if (reminders === null && remindersGlobal === null) {
+    delete stored[id]
+  } else {
+    stored[id] = {
+      ...(reminders !== null && { reminders }),
+      ...(remindersGlobal !== null && { remindersGlobal }),
+    }
+  }
+  localStorage.setItem(CHAR_REMINDERS_KEY, JSON.stringify(stored))
+  _charReminders = stored
+}
+
 // ── Custom character registry ──────────────────────────────────────────────────
 
 export const CUSTOM_CHARACTERS_KEY = 'BOTC_CUSTOM_CHARACTERS'
