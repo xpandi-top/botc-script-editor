@@ -228,6 +228,10 @@ export type CharacterFileEntry = {
   reminders?: string[]
   /** Reminder tokens available on all seats regardless of assignment. */
   remindersGlobal?: string[]
+  firstNight?: number
+  otherNight?: number
+  firstNightReminder?: string
+  otherNightReminder?: string
   en?: { name?: string; ability?: string; revisions?: Record<string, string> }
   zh?: { name?: string; ability?: string; revisions?: Record<string, string> }
 }

@@ -332,11 +332,7 @@ export function buildEffectiveNightOrder(customChars: CustomCharacter[]): NightO
   for (const c of withFirst) first.splice(Math.min((c.firstNight ?? 1) - 1, first.length), 0, c.id)
   for (const c of withOther) other.splice(Math.min((c.otherNight ?? 1) - 1, other.length), 0, c.id)
 
-  // No position → append (only if not already inserted)
-  for (const c of customChars) {
-    if (c.firstNight == null && !first.includes(c.id)) first.push(c.id)
-    if (c.otherNight == null && !other.includes(c.id)) other.push(c.id)
-  }
+  // Characters with no position (undefined / 0) do NOT wake that night — exclude them.
   return { first_night: first, other_nights: other }
 }
 

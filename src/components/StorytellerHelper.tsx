@@ -1,5 +1,5 @@
 import React from 'react'
-import { Box, Paper, Typography } from '@mui/material'
+import { Box, Paper } from '@mui/material'
 import { LeftScriptPanel } from './StorytellerSub/LeftScriptPanel'
 import { CompactToolbar } from './StorytellerSub/CompactToolbar'
 import { MobileTopBar } from './StorytellerSub/MobileTopBar'

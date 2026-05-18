@@ -137,6 +137,7 @@ export function CharacterRevisionPanel({
   const downloadCharacter = () => {
     if (!character) return
     // Build export from file entry, augmented with latest ability texts from catalog
+    const customChar = getCustomChar(character.id)
     const base: CharacterFileEntry = characterFileById[character.id] ?? {
       id: character.id,
       team: character.team,
@@ -155,6 +156,18 @@ export function CharacterRevisionPanel({
     }
     const exportEntry: CharacterFileEntry = {
       ...base,
+      // For custom characters, include all runtime fields missing from the base stub
+      ...(customChar ? {
+        reminders: customChar.reminders?.length ? customChar.reminders : undefined,
+        remindersGlobal: customChar.remindersGlobal?.length ? customChar.remindersGlobal : undefined,
+        firstNight: customChar.firstNight ?? undefined,
+        otherNight: customChar.otherNight ?? undefined,
+        firstNightReminder: customChar.firstNightReminder || undefined,
+        otherNightReminder: customChar.otherNightReminder || undefined,
+      } : {
+        reminders: base.reminders?.length ? base.reminders : undefined,
+        remindersGlobal: base.remindersGlobal?.length ? base.remindersGlobal : undefined,
+      }),
       en: { name: getDisplayName(character.id, 'en'), ability: getAbilityText(character.id, 'en'), revisions: enRevisions },
       zh: { name: getDisplayName(character.id, 'zh'), ability: getAbilityText(character.id, 'zh'), revisions: Object.keys(zhRevisions).length ? zhRevisions : undefined },
     }
