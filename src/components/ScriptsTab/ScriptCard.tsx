@@ -28,8 +28,13 @@ export function ScriptCard({ script, isActive, isBuiltIn, language,
   // - Known edition (tb/bmr/snv) → show that badge
   // - DIY script (!isBuiltIn) with no recognized edition → show "DIY"/"自制"
   // - Built-in community scripts with unrecognized edition → no badge
+  // Only show badge for official editions (tb/bmr/snv) OR user-created DIY.
+  // Built-in community scripts may have edition:"custom" — never show "自制" for them.
   const editionKey = script.edition?.toLowerCase() ?? ''
-  const editionMeta = EDITION_LABELS[editionKey] ?? (!isBuiltIn ? EDITION_LABELS['custom'] : undefined)
+  const OFFICIAL_EDITIONS = new Set(['tb', 'bmr', 'snv'])
+  const editionMeta = OFFICIAL_EDITIONS.has(editionKey)
+    ? EDITION_LABELS[editionKey]
+    : (!isBuiltIn ? EDITION_LABELS['custom'] : undefined)
 
   // Tag dots (first 3)
   const tags = script.tags ?? []
