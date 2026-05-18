@@ -118,6 +118,8 @@ export type EditableScript = {
   tags?: string[]                          // quick status tags (wip, balanced, experimental…)
   pinnedRevisions?: Record<string, string> // charId → revisionId override
   folderId?: string                        // optional folder assignment (DIY scripts only)
+  /** Per-character night positions extracted from the script JSON (overrides catalog order) */
+  scriptNightPositions?: Record<string, { firstNight?: number; otherNight?: number }>
 }
 
 // ── Script folders (Phase 3) ──────────────────────────────────────────────────

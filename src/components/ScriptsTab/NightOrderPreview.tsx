@@ -89,6 +89,47 @@ export function NightOrderPreview({ script, language, open, onToggle }: Props) {
 
   const { firstNight, otherNights } = useMemo(() => {
     const scriptCharIds = new Set(script.characters)
+    const positions = script.scriptNightPositions
+
+    // ── Path A: script has inline night positions ─────────────────────────────
+    // Use those to build a sorted order; fall back to catalog order for the
+    // remaining chars that have no explicit position.
+    if (positions && Object.keys(positions).length > 0) {
+      // Chars with explicit firstNight position (sorted ascending, exclude 0)
+      const withFirst = Object.entries(positions)
+        .filter(([id, p]) => p.firstNight != null && scriptCharIds.has(id))
+        .sort(([, a], [, b]) => (a.firstNight ?? 0) - (b.firstNight ?? 0))
+        .map(([id]) => id)
+
+      const withOther = Object.entries(positions)
+        .filter(([id, p]) => p.otherNight != null && scriptCharIds.has(id))
+        .sort(([, a], [, b]) => (a.otherNight ?? 0) - (b.otherNight ?? 0))
+        .map(([id]) => id)
+
+      // Catalog-ordered chars that have no explicit position in the script
+      const catalogOrder = getEffectiveNightOrderFromRegistry()
+      const explicitFirst = new Set(withFirst)
+      const explicitOther = new Set(withOther)
+
+      const PLACEHOLDERS = new Set(['MINION_INFO', 'DEMON_INFO'])
+
+      const catalogFirst = (catalogOrder.first_night ?? [])
+        .map(normalizeToken)
+        .filter((id) => id !== 'dusk' && id !== 'dawn')
+        .filter((id) => (scriptCharIds.has(id) || PLACEHOLDERS.has(id)) && !explicitFirst.has(id))
+
+      const catalogOther = (catalogOrder.other_nights ?? [])
+        .map(normalizeToken)
+        .filter((id) => id !== 'dusk' && id !== 'dawn')
+        .filter((id) => (scriptCharIds.has(id) || PLACEHOLDERS.has(id)) && !explicitOther.has(id))
+
+      return {
+        firstNight: [...withFirst, ...catalogFirst],
+        otherNights: [...withOther, ...catalogOther],
+      }
+    }
+
+    // ── Path B: no inline positions — existing catalog / meta.firstNight logic ─
     const order = getEffectiveNightOrderFromRegistry()
 
     const firstRaw = (script.meta?.firstNight?.length

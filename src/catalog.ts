@@ -834,6 +834,21 @@ const isScriptMetaEntry = (entry: ScriptFileEntry): entry is ScriptMetaEntry =>
 const isScriptCharacterItem = (entry: ScriptFileEntry): entry is ScriptCharacterItem =>
   typeof entry === 'object' && entry !== null && (entry as ScriptMetaEntry).id !== '_meta'
 
+/** Extract per-character night position overrides from script JSON items. */
+function extractScriptNightPositions(
+  items: ScriptCharacterItem[],
+): Record<string, { firstNight?: number; otherNight?: number }> | undefined {
+  const result: Record<string, { firstNight?: number; otherNight?: number }> = {}
+  for (const item of items) {
+    const fn = typeof item.firstNight === 'number' && item.firstNight > 0 ? item.firstNight : undefined
+    const on = typeof item.otherNight === 'number' && item.otherNight > 0 ? item.otherNight : undefined
+    if (fn !== undefined || on !== undefined) {
+      result[item.id] = { ...(fn !== undefined ? { firstNight: fn } : {}), ...(on !== undefined ? { otherNight: on } : {}) }
+    }
+  }
+  return Object.keys(result).length > 0 ? result : undefined
+}
+
 function loadScripts() {
   return Object.entries(scriptFiles)
     .map(([path, data]) => {
@@ -865,6 +880,7 @@ function loadScripts() {
           )
           .map((entry) => (typeof entry === 'string' ? entry : entry.id))
 
+        const nightPositions = extractScriptNightPositions(scriptCharacterItems)
         return {
           slug: fallbackSlug,
           title: normalizedMeta?.name ?? toTitleCase(fallbackSlug),
@@ -877,6 +893,7 @@ function loadScripts() {
           edition: inferEditionFromSlug(fallbackSlug),
           characters,
           sourceFile,
+          ...(nightPositions ? { scriptNightPositions: nightPositions } : {}),
         }
       }
 
@@ -924,6 +941,7 @@ export function parseScriptFromData(data: unknown, filename: string): import('./
     let counter = 2
     while (initialScripts.some((s) => s.slug === slug)) { slug = `${fallbackSlug}-${counter}`; counter++ }
 
+    const nightPositions = extractScriptNightPositions(scriptCharacterItems)
     return {
       slug,
       title: normalizedMeta?.name ?? toTitleCase(fallbackSlug),
@@ -937,6 +955,7 @@ export function parseScriptFromData(data: unknown, filename: string): import('./
       characters,
       sourceFile,
       ...(normalizedMeta?.version !== undefined ? { version: normalizedMeta.version } : {}),
+      ...(nightPositions ? { scriptNightPositions: nightPositions } : {}),
     }
   }
 
