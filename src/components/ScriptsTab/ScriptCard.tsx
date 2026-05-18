@@ -1,19 +1,6 @@
 import { Box, Chip, Typography } from '@mui/material'
 import { SCRIPT_TAG_META } from '../tabs/ScriptsTab.constants'
-import type { EditableScript, Language, Team } from '../../types'
-
-// Team dot colors — consistent with the rest of the app
-const TEAM_COLORS: Record<Team, string> = {
-  townsfolk: '#1565c0',
-  outsider:  '#0277bd',
-  minion:    '#c45c2e',
-  demon:     '#b91c1c',
-  traveler:  '#6a1b9a',
-  fabled:    '#f57f17',
-  loric:     '#00897b',
-}
-
-const TEAM_ORDER: Team[] = ['townsfolk', 'outsider', 'minion', 'demon', 'traveler', 'fabled', 'loric']
+import type { EditableScript, Language } from '../../types'
 
 // Edition badge labels
 const EDITION_LABELS: Record<string, { en: string; zh: string; color: string }> = {
@@ -29,17 +16,10 @@ type Props = {
   isBuiltIn: boolean
   language: Language
   onSelect: () => void
-  /** Counts by team for the team dot row; pass null to skip dots */
-  teamCounts?: Partial<Record<Team, number>> | null
 }
 
-export function ScriptCard({
-  script,
-  isActive,
-  isBuiltIn,
-  language,
+export function ScriptCard({ script, isActive, isBuiltIn, language,
   onSelect,
-  teamCounts,
 }: Props) {
   const zh = language === 'zh'
   const title = language === 'zh' && script.titleZh ? script.titleZh : script.title
@@ -129,7 +109,7 @@ export function ScriptCard({
         )}
       </Box>
 
-      {/* Row 2: author + team dots */}
+      {/* Row 2: author + char count */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, minWidth: 0 }}>
         {script.author && (
           <Typography variant="caption" sx={{
@@ -138,19 +118,6 @@ export function ScriptCard({
           }}>
             {script.author}
           </Typography>
-        )}
-
-        {/* Team composition dots */}
-        {teamCounts && (
-          <Box sx={{ display: 'flex', gap: '2px', flexShrink: 0, alignItems: 'center' }}>
-            {TEAM_ORDER.filter((t) => (teamCounts[t] ?? 0) > 0).map((team) => (
-              <Box key={team} title={`${team}: ${teamCounts[team]}`} sx={{
-                width: 8, height: 8, borderRadius: '50%',
-                bgcolor: TEAM_COLORS[team],
-                flexShrink: 0,
-              }} />
-            ))}
-          </Box>
         )}
 
         {/* Total char count */}

@@ -1,4 +1,4 @@
-import { useDeferredValue, useMemo, useState } from 'react'
+import { useEffect, useDeferredValue, useMemo, useState } from 'react'
 import { FixedSizeList, type ListChildComponentProps } from 'react-window'
 import {
   Box, Chip, Collapse, Divider, IconButton, Select,
@@ -13,26 +13,15 @@ import MenuOpenIcon from '@mui/icons-material/MenuOpen'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import DeleteIcon from '@mui/icons-material/Delete'
 import SortIcon from '@mui/icons-material/Sort'
-import { allCharacters, getCharacterById, getDisplayName } from '../../catalog'
+import { allCharacters, getDisplayName } from '../../catalog'
 import { ScriptCard } from './ScriptCard'
 import { SCRIPT_TAG_META, SCRIPT_TAGS } from '../tabs/ScriptsTab.constants'
-import type { EditableScript, Language, Team } from '../../types'
+import type { EditableScript, Language } from '../../types'
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
 const OFFICIAL = new Set(['tb', 'bmr', 'snv'])
-const ROW_H = 52  // taller rows for the richer card
-
-// ── Team count helper ────────────────────────────────────────────────────────
-
-function getTeamCounts(script: EditableScript): Partial<Record<Team, number>> {
-  const counts: Partial<Record<Team, number>> = {}
-  for (const id of script.characters) {
-    const team = getCharacterById(id)?.team
-    if (team) counts[team] = (counts[team] ?? 0) + 1
-  }
-  return counts
-}
+const ROW_H = 48  // row height
 
 // ── Virtual row ──────────────────────────────────────────────────────────────
 
@@ -51,7 +40,6 @@ type VRowData = {
 function ScriptRow({ index, style, data }: ListChildComponentProps<VRowData>) {
   const { rows, activeSlug, language, onSelect, onClose, isMobile, duplicateScript, deleteScript } = data
   const { script, deletable } = rows[index]
-  const teamCounts = useMemo(() => getTeamCounts(script), [script])
 
   return (
     <Box style={style} sx={{ display: 'flex', alignItems: 'center', gap: 0.25, pr: 0.5 }}>
@@ -61,7 +49,6 @@ function ScriptRow({ index, style, data }: ListChildComponentProps<VRowData>) {
           isActive={script.slug === activeSlug}
           isBuiltIn={!deletable}
           language={language}
-          teamCounts={teamCounts}
           onSelect={() => { onSelect(script.slug); if (isMobile) onClose() }}
         />
       </Box>
@@ -169,6 +156,15 @@ export function ScriptsLeftPanel({
       isFiltering: !!q || !!tagFilter,
     }
   }, [scripts, deferredSearch, tagFilter, sortKey, charNameIndex, isBuiltIn, getScriptTitle])
+
+  // ── Auto-expand section containing the active script ─────────────────────
+  const activeSlug = activeScript?.slug
+  useEffect(() => {
+    if (!activeSlug || isFiltering) return
+    if (diy.some((s) => s.slug === activeSlug))       { setDiyOpen(true);       return }
+    if (community.some((s) => s.slug === activeSlug)) { setCommunityOpen(true); return }
+    if (official.some((s) => s.slug === activeSlug))  { setOfficialOpen(true);  return }
+  }, [activeSlug])  // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Tag filter chips (only tags in use) ──────────────────────────────────
   const filterTags = useMemo(() => {
