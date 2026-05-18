@@ -11,7 +11,7 @@ import type { PlayerStat } from '../useStats'
 import type { GameRecord } from '../../StorytellerSub/types'
 import type { Language } from '../../../types'
 
-type SortKey = 'name' | 'total' | 'winRate' | 'goodWinRate' | 'evilWinRate' | 'mvpCount' | 'stGameCount'
+type SortKey = 'name' | 'total' | 'winRate' | 'goodWinRate' | 'evilWinRate' | 'evilRate' | 'mvpCount' | 'stGameCount'
 
 // ── Inline player detail ──────────────────────────────────────────
 
@@ -181,6 +181,7 @@ function ComparePanel({ a, b, zh }: { a: PlayerStat; b: PlayerStat; language: La
     { label: zh ? '善良胜率' : 'Good W%',    aVal: fmt(a.goodWinRate),                 bVal: fmt(b.goodWinRate) },
     { label: zh ? '邪恶场' : 'Evil games',   aVal: a.evilGames || '—',                 bVal: b.evilGames || '—' },
     { label: zh ? '邪恶胜率' : 'Evil W%',    aVal: fmt(a.evilWinRate),                 bVal: fmt(b.evilWinRate) },
+    { label: zh ? '邪恶率' : 'Evil rate',    aVal: fmt(a.evilRate),                    bVal: fmt(b.evilRate) },
     { label: zh ? '角色数' : 'Unique Chars', aVal: a.charSet.size,                     bVal: b.charSet.size },
     { label: zh ? 'MVP' : 'MVP',             aVal: a.mvpCount || '—',                  bVal: b.mvpCount || '—' },
     { label: zh ? '说书场' : 'ST games',     aVal: a.stGameCount || '—',               bVal: b.stGameCount || '—' },
@@ -227,6 +228,7 @@ export function PlayersSection({ playerStats, language, records }: Props) {
     if (sortKey === 'winRate') return p.winRate
     if (sortKey === 'goodWinRate') return p.goodWinRate ?? -1
     if (sortKey === 'evilWinRate') return p.evilWinRate ?? -1
+    if (sortKey === 'evilRate') return p.evilRate ?? -1
     if (sortKey === 'mvpCount') return p.mvpCount
     if (sortKey === 'stGameCount') return p.stGameCount
     return p.total
@@ -309,6 +311,13 @@ export function PlayersSection({ playerStats, language, records }: Props) {
                   {zh ? '邪%' : 'E%'}
                 </TableSortLabel>
               </TableCell>
+              <TableCell sx={{ ...thSx, width: 70, display: { xs: 'none', sm: 'table-cell' } }} align="center">
+                <Tooltip title={zh ? '邪恶率：出任邪恶阵营的比例' : 'Evil rate: % of games played as evil'}>
+                  <TableSortLabel active={sortKey === 'evilRate'} direction={sortKey === 'evilRate' ? sortDir : 'desc'} onClick={() => handleSort('evilRate')}>
+                    {zh ? '邪率' : 'Evil↑'}
+                  </TableSortLabel>
+                </Tooltip>
+              </TableCell>
               <TableCell sx={{ ...thSx, width: 44, display: { xs: 'none', md: 'table-cell' } }} align="center">
                 <Tooltip title={zh ? 'MVP次数' : 'MVP count'}>
                   <TableSortLabel active={sortKey === 'mvpCount'} direction={sortKey === 'mvpCount' ? sortDir : 'desc'} onClick={() => handleSort('mvpCount')}>
@@ -380,6 +389,9 @@ export function PlayersSection({ playerStats, language, records }: Props) {
                   </TableCell>
                   <TableCell sx={{ ...tdSx, display: { xs: 'none', sm: 'table-cell' }, color: 'error.dark' }} align="center">
                     {p.evilWinRate !== null ? `${p.evilWinRate}%` : '—'}
+                  </TableCell>
+                  <TableCell sx={{ ...tdSx, display: { xs: 'none', sm: 'table-cell' }, color: p.evilRate != null && p.evilRate > 50 ? 'error.main' : 'text.secondary' }} align="center">
+                    {p.evilRate !== null ? `${p.evilRate}%` : '—'}
                   </TableCell>
                   <TableCell sx={{ ...tdSx, display: { xs: 'none', md: 'table-cell' }, color: 'warning.dark', fontWeight: p.mvpCount > 0 ? 700 : 400 }} align="center">
                     {p.mvpCount > 0 ? p.mvpCount : '—'}

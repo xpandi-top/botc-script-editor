@@ -27,7 +27,7 @@ export function ModalsNewGame({ ctx }: { ctx: StorytellerContext }) {
   } = ctx
 
   // All hooks MUST be declared before any early return
-  const [activeTab, setActiveTab] = useState<'settings' | 'players' | 'characters'>('settings')
+  const [activeTab, setActiveTab] = useState<'settings' | 'players' | 'characters'>('players')
   const [showFabledPicker, setShowFabledPicker] = useState(false)
   const [fabledSearch, setFabledSearch] = useState('')
 
@@ -54,9 +54,9 @@ export function ModalsNewGame({ ctx }: { ctx: StorytellerContext }) {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       <Tabs value={activeTab} onChange={(_, v) => setActiveTab(v)} variant="fullWidth">
-        <Tab label={language === 'zh' ? '设置' : 'Settings'} value="settings" />
         <Tab label={language === 'zh' ? '玩家' : 'Players'} value="players" />
         <Tab label={language === 'zh' ? '角色' : 'Characters'} value="characters" />
+        <Tab label={language === 'zh' ? '设置' : 'Settings'} value="settings" />
       </Tabs>
 
       <Box sx={{ minHeight: 300 }}>

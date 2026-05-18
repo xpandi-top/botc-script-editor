@@ -556,13 +556,15 @@ export function RecordsSection({ records, filteredRecords, onRecordsChange, lang
                   <TableRow key={`${r.id}-detail`} sx={{ '& td': { p: 0 } }}>
                     <TableCell colSpan={7} sx={{ p: 0, border: isExpanded ? undefined : 'none' }}>
                       <Collapse in={isExpanded} timeout={150} unmountOnExit>
-                        <RecordRowDetail record={r} language={language} zh={zh} />
-                        <QuickEditPanel
-                          record={r}
-                          language={language}
-                          zh={zh}
-                          onSave={(updated) => onRecordsChange(records.map((x) => x.id === updated.id ? updated : x))}
-                        />
+                        <Box sx={{ maxHeight: { xs: '60vh', sm: 'none' }, overflowY: { xs: 'auto', sm: 'visible' } }}>
+                          <RecordRowDetail record={r} language={language} zh={zh} />
+                          <QuickEditPanel
+                            record={r}
+                            language={language}
+                            zh={zh}
+                            onSave={(updated) => onRecordsChange(records.map((x) => x.id === updated.id ? updated : x))}
+                          />
+                        </Box>
                       </Collapse>
                     </TableCell>
                   </TableRow>,

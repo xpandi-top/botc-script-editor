@@ -114,6 +114,8 @@ export type PlayerStat = {
   winRate: number
   evilWinRate: number | null
   goodWinRate: number | null
+  /** evilGames / (evilGames + goodGames) * 100 — how often this player is evil */
+  evilRate: number | null
   charMap: Map<string, CharPlayEntry>   // charId → {total, wins}
   mostPlayedChar: string | null
   charSet: Set<string>
@@ -217,6 +219,9 @@ export function usePlayerStats(records: GameRecord[]): PlayerStat[] {
           winRate: p.total ? Math.round((p.wins / p.total) * 100) : 0,
           evilWinRate: p.evilGames ? Math.round((p.evilWins / p.evilGames) * 100) : null,
           goodWinRate: p.goodGames ? Math.round((p.goodWins / p.goodGames) * 100) : null,
+          evilRate: (p.evilGames + p.goodGames) > 0
+            ? Math.round((p.evilGames / (p.evilGames + p.goodGames)) * 100)
+            : null,
         }
       })
   }, [records])

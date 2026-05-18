@@ -5,6 +5,7 @@ import AddIcon from '@mui/icons-material/Add'
 import RemoveIcon from '@mui/icons-material/Remove'
 import ReplayIcon from '@mui/icons-material/Replay'
 import CasinoIcon from '@mui/icons-material/Casino'
+import DownloadDoneIcon from '@mui/icons-material/DownloadDone'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { shuffleArray, uniqueStrings } from '../constants'
@@ -66,14 +67,26 @@ export function PlayersTab({ newGamePanel, playerNamePool, language, seats, upda
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-      <TextField
-        size="small"
-        fullWidth
-        placeholder={language === 'zh' ? '用逗号分隔快速填入名字，如：Alice, Bob, Carol' : 'Paste names separated by commas'}
-        value={quickFill}
-        onChange={(e) => setQuickFill(e.target.value)}
-        onKeyDown={(e) => { if (e.key === 'Enter') handleQuickFill() }}
-      />
+      <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'flex-start' }}>
+        <TextField
+          size="small"
+          fullWidth
+          placeholder={language === 'zh' ? '用逗号分隔快速填入名字，如：Alice, Bob, Carol' : 'Paste names separated by commas'}
+          value={quickFill}
+          onChange={(e) => setQuickFill(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter') handleQuickFill() }}
+        />
+        <Button
+          size="small"
+          variant="contained"
+          onClick={handleQuickFill}
+          disabled={!quickFill.trim()}
+          startIcon={<DownloadDoneIcon fontSize="small" />}
+          sx={{ flexShrink: 0, height: 40 }}
+        >
+          {language === 'zh' ? '填入' : 'Fill'}
+        </Button>
+      </Box>
 
       <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
         <Button size="small" variant="outlined" onClick={handleRandomPlayers} startIcon={<CasinoIcon fontSize="small" />}>
