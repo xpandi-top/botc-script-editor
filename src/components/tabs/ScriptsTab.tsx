@@ -146,7 +146,7 @@ export function ScriptsTab({
           borderRadius: 3, bgcolor: 'background.paper',
           border: '1px solid', borderColor: 'divider',
           overflow: 'hidden', display: 'flex', flexDirection: 'column',
-          maxHeight: 'calc(100vh - 120px)',
+          height: '100%',
         }}>
           <ScriptsMasonryGrid
             scripts={scripts}
@@ -165,7 +165,7 @@ export function ScriptsTab({
           p: 1.5, borderRadius: 3, bgcolor: 'background.paper',
           border: '1px solid', borderColor: 'divider',
           display: 'flex', flexDirection: 'column', gap: 1,
-          maxHeight: 'calc(100vh - 120px)', overflow: 'hidden',
+          height: '100%', overflow: 'hidden',
         }}>
           <ScriptsLeftPanel
             scripts={scripts}
@@ -194,7 +194,7 @@ export function ScriptsTab({
 
       {/* ── Right detail panel — hidden in masonry when no script selected ── */}
       {(browseMode !== 'masonry' || activeScript) && (
-      <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider' }}>
+      <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', height: '100%', boxSizing: 'border-box' }}>
         {activeScript ? (
           <>
             {/* ── Toolbar ── */}
