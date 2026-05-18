@@ -7,15 +7,21 @@ Release timeline for BOTC Companion — features, fixes, and improvements.
 ## 2026-05-17 (latest)
 
 ### Added
+- **Deal card active-session reopen** — the Characters tab now shows an `Open <sessionId>` button next to `Deal Cards` for the current host dashboard; `Deal Cards` still creates a fresh session
+- **Deal card seat entry** — players can optionally enter their seat number before claiming a card; Storyteller assignment still overrides player-entered seats
+- **Storyteller claim controls** — host dashboard can mark individual cards claimed or unclaimed, including clearing seat/name assignment when a card is reset
 - **Delete from name pool** — each name chip in the Players tab now shows a × button to permanently remove that name from the pool
 - **Fabled / Loric characters in new/edit game modal** — Settings tab now includes a collapsible Fabled & Loric picker with search; selected characters shown as cards with icon, name, and ability text; count badge in section header; selections persisted to `stFabledIds` on game start/apply
 - **Storyteller name moved into game modal** — ST name field lives in the Settings tab of the new/edit game modal instead of the global Settings tab; persisted to `localStorage` as before
 
 ### Changed
+- **Deal card Firebase rules documentation** — documented `claimedBySeat`, host assignment, and host claim/unclaim update fields for the Firestore rules used by deal sessions
 - **New/edit game modal tab order** — Settings tab is now first (was last); removed `Allow Duplicate Characters`, `Allow Empty Characters`, `Allow Same Names` checkboxes (always-allow behaviour)
 - **ST popup settings trimmed** — Storyteller Name field removed from the ST right-panel settings section (now in modal)
 
 ### Fixed
+- **Deal card claim bounce** — successful claims now show the claimed character card instead of returning to the name/seat form; claim conflicts stay on the card grid with a warning
+- **Deal card apply-to-game mapping** — host assignments use confirmed ST seats first and fall back to player-entered seats, expanding player count when needed
 - **YouTube BGM on iOS Safari (second attempt)** — previous src-swap approach failed because modifying `.src` on an already-mounted iframe triggers an async page reload; iOS Safari's user-gesture window has already closed by the time the new URL's media starts. Fix: `sendYTCommand` now creates a fresh `<iframe>` element via vanilla DOM synchronously within the click handler, sets `autoplay=1` in `src`, and appends it to `document.body` — iOS permits autoplay when iframe is created+src-set within the gesture. Stop = remove element from DOM. React-managed "always-mounted" iOS iframe removed.
 - **YouTube BGM auto-starts on iOS when URL is first added** — `handleUrlTrackAdd` now calls `sendYTCommand('playVideo')` immediately after setting `ytEmbedSrcRef`, while still inside the ✓ button tap gesture
 - **Player count change mid-game not applying** — `applyGameChanges` now removes excess seats when count decreases and adds new blank seats when count increases; previously only updated properties on existing seats

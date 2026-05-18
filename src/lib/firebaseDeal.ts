@@ -12,15 +12,24 @@
  *     allow create: if request.resource.data.keys().hasAll(['createdAt','expiresAt','hostToken','status','cardCount'])
  *                  && request.resource.data.cardCount is int
  *                  && request.resource.data.cardCount <= 20;
- *     allow update, delete: if false;
+ *     allow update: if true;   // host token check is app-layer; tighten in Phase 2
+ *     allow delete: if false;
  *
  *     match /cards/{position} {
  *       allow read: if true;
+ *       allow create: if true;
  *       allow update: if resource.data.claimedByToken == null
  *                     && request.resource.data.claimedByToken is string
+ *                     && request.resource.data.claimedByToken.size() > 0
  *                     && request.resource.data.diff(resource.data).affectedKeys()
- *                          .hasOnly(['claimedByToken','claimedByName','claimedAt']);
- *       allow create, delete: if false;
+ *                          .hasOnly(['claimedByToken','claimedByName','claimedBySeat','claimedAt'])
+ *                     && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['claimedBySeat'])
+ *                         || request.resource.data.claimedBySeat is int)
+ *                  || request.resource.data.diff(resource.data).affectedKeys()
+ *                          .hasOnly(['assignedSeat','assignedName'])
+ *                  || request.resource.data.diff(resource.data).affectedKeys()
+ *                          .hasOnly(['claimedByToken','claimedByName','claimedBySeat','claimedAt','assignedSeat','assignedName']);
+ *       allow delete: if false;
  *     }
  *   }
  * ─────────────────────────────────────────────────────────────────────
@@ -34,7 +43,6 @@ import {
   getFirestore,
   doc,
   getDoc,
-  setDoc,
   updateDoc,
   writeBatch,
   collection,
@@ -62,8 +70,9 @@ export type DealCard = {
   characterId: string       // visible only to claimant (enforced app-layer)
   claimedByToken: string | null
   claimedByName: string | null
+  claimedBySeat: number | null  // guest-suggested seat; ST can override
   claimedAt: Timestamp | null
-  assignedSeat: number | null
+  assignedSeat: number | null   // ST-confirmed seat (overrides claimedBySeat)
   assignedName: string | null
 }
 
@@ -76,6 +85,9 @@ const CHARS      = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789'
 
 // localStorage key where ST's hostToken is stored, keyed by sessionId
 export const HOST_TOKEN_KEY = (id: string) => `botc-deal-host-${id}`
+
+// localStorage key for the ST's most recently created host dashboard session
+export const ACTIVE_HOST_DEAL_KEY = 'botc-deal-active-host'
 
 // sessionStorage key for the guest's browser token
 export const GUEST_TOKEN_KEY = 'botc-deal-guest-token'
@@ -151,6 +163,7 @@ export async function createDealSession(
       characterId,
       claimedByToken: null,
       claimedByName:  null,
+      claimedBySeat:  null,
       claimedAt:      null,
       assignedSeat:   null,
       assignedName:   null,
@@ -214,13 +227,25 @@ export async function claimCard(
   position: number,
   guestToken: string,
   displayName: string,
+  claimedSeat?: number | null,
 ): Promise<DealCard> {
   const ref = cardRef(sessionId, position)
-  await updateDoc(ref, {
+  const claimPayload: Record<string, unknown> = {
     claimedByToken: guestToken,
     claimedByName:  displayName.trim() || null,
     claimedAt:      serverTimestamp(),
-  })
+  }
+  if (claimedSeat != null) claimPayload.claimedBySeat = claimedSeat
+  try {
+    await updateDoc(ref, claimPayload)
+  } catch (e) {
+    if (claimedSeat == null) throw e
+    await updateDoc(ref, {
+      claimedByToken: guestToken,
+      claimedByName:  displayName.trim() || null,
+      claimedAt:      serverTimestamp(),
+    })
+  }
   const snap = await getDoc(ref)
   return snap.data() as DealCard
 }
@@ -249,6 +274,38 @@ export async function updateCardAssignment(
   await updateDoc(cardRef(sessionId, position), {
     assignedSeat: seat,
     assignedName: name.trim() || null,
+  })
+}
+
+/** Mark a card claimed from the host dashboard. ST only. */
+export async function markCardClaimedByHost(
+  sessionId: string,
+  position: number,
+  name: string,
+  seat: number | null,
+): Promise<void> {
+  await updateDoc(cardRef(sessionId, position), {
+    claimedByToken: `host-${randomId(24)}`,
+    claimedByName: name.trim() || null,
+    claimedBySeat: seat,
+    claimedAt: serverTimestamp(),
+    assignedSeat: seat,
+    assignedName: name.trim() || null,
+  })
+}
+
+/** Mark a card unclaimed and clear any ST seat/name assignment. ST only. */
+export async function markCardUnclaimedByHost(
+  sessionId: string,
+  position: number,
+): Promise<void> {
+  await updateDoc(cardRef(sessionId, position), {
+    claimedByToken: null,
+    claimedByName: null,
+    claimedBySeat: null,
+    claimedAt: null,
+    assignedSeat: null,
+    assignedName: null,
   })
 }
 

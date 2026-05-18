@@ -98,35 +98,34 @@ service cloud.firestore {
       allow delete, update: if false;
     }
 
-    // Deal sessions — ST creates, guests read metadata only
+    // Deal sessions
     match /dealSessions/{sessionId} {
-      allow read:   if true;
+      allow read: if true;
       allow create: if request.resource.data.keys().hasAll(['createdAt','expiresAt','hostToken','status','cardCount'])
                     && request.resource.data.cardCount is int
                     && request.resource.data.cardCount <= 20;
-      // Only host can close session (update status); verified via hostToken in app layer
-      allow update: if false;  // handled by Cloud Function or trusted client check
+      allow update: if true;   // host token check is app-layer; tighten in Phase 2
       allow delete: if false;
 
-      // Cards sub-collection
       match /cards/{position} {
-        // Guests can read position + claimed status
-        // characterId is returned only if claimedByToken matches the request header
-        // (enforced in app layer — Firestore can't inspect request headers directly)
         allow read: if true;
-
-        // Atomic claim: only update an unclaimed card, set your own token
-        allow update: if resource.data.claimedByToken == null
-                      && request.resource.data.claimedByToken is string
-                      && request.resource.data.claimedByToken.size() > 0
-                      && request.resource.data.diff(resource.data).affectedKeys()
-                           .hasOnly(['claimedByToken','claimedByName','claimedAt']);
-
-        // ST assigns seat/name — validated in app layer via hostToken
-        // Use a separate path or Cloud Function for full security
-        allow update: if true;   // tighten in Phase 2 with hostToken check
-
-        allow create, delete: if false;
+        // ST creates cards during session setup (batch write)
+        allow create: if true;
+        // Guest atomic claim — Firestore rejects if already claimed
+        allow update: if (resource.data.claimedByToken == null
+                          && request.resource.data.claimedByToken is string
+                          && request.resource.data.claimedByToken.size() > 0
+                          && request.resource.data.diff(resource.data).affectedKeys()
+                               .hasOnly(['claimedByToken','claimedByName','claimedBySeat','claimedAt'])
+                          && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['claimedBySeat'])
+                              || request.resource.data.claimedBySeat is int))
+                      // ST seat/name assignment
+                      || request.resource.data.diff(resource.data).affectedKeys()
+                               .hasOnly(['assignedSeat','assignedName'])
+                      // ST claim/unclaim override
+                      || request.resource.data.diff(resource.data).affectedKeys()
+                               .hasOnly(['claimedByToken','claimedByName','claimedBySeat','claimedAt','assignedSeat','assignedName']);
+        allow delete: if false;
       }
     }
   }

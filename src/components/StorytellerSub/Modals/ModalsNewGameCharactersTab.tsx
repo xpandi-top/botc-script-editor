@@ -5,6 +5,7 @@ import CasinoIcon from '@mui/icons-material/Casino'
 import ShuffleIcon from '@mui/icons-material/Shuffle'
 import ReplayIcon from '@mui/icons-material/Replay'
 import StyleIcon from '@mui/icons-material/Style'
+import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import ClearAllIcon from '@mui/icons-material/ClearAll'
@@ -12,7 +13,7 @@ import { characterById, getCharacterById, allCharacters, getDisplayName, getIcon
 import { makeT, makeTpl } from '../../../lib/t'
 import { CHARACTER_DISTRIBUTION } from '../constants'
 import { CharSelect, TeamDot, DistRow } from './ModalsNewGameHelpers'
-import { createDealSession, shuffleDealCards, HOST_TOKEN_KEY } from '../../../lib/firebaseDeal'
+import { createDealSession, shuffleDealCards, HOST_TOKEN_KEY, ACTIVE_HOST_DEAL_KEY } from '../../../lib/firebaseDeal'
 
 const TEAM_ORDER = ['townsfolk', 'outsider', 'minion', 'demon'] as const
 const TEAM_COLORS: Record<string, any> = { townsfolk: 'primary', outsider: 'info', minion: 'error', demon: 'error' }
@@ -23,7 +24,10 @@ type Props = {
   language: string
   updateConfig: (patch: any) => void
   randomAssignCharacters: (config: any) => Record<number, string>
+  activeDealSession?: { sessionId: string; hostToken: string } | null
+  lastDealSession?: { sessionId: string; hostToken: string } | null
   onDealCreated?: (sessionId: string, hostToken: string) => void
+  onDealOpen?: (sessionId: string, hostToken: string) => void
 }
 
 // ── Character pool multi-picker ───────────────────────────────────────────────
@@ -103,7 +107,7 @@ function CharPoolPicker({ scriptChars, selected, onChange, language }: {
 const TRAVELER_CHARS = allCharacters.filter((c) => c.team === 'traveler').map((c) => c.id)
 
 // ── Main tab ──────────────────────────────────────────────────────────────────
-export function CharactersTab({ newGamePanel, scriptOptions = [], language, updateConfig, randomAssignCharacters, onDealCreated }: Props) {
+export function CharactersTab({ newGamePanel, scriptOptions = [], language, updateConfig, randomAssignCharacters, activeDealSession, lastDealSession, onDealCreated, onDealOpen }: Props) {
   const zh = language === 'zh'
   const t = makeT(language)
   const tpl = makeTpl(language)
@@ -121,6 +125,8 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
       const { sessionId, hostToken } = await createDealSession(shuffled)
       // Persist host token so deal page can verify without ?host= param
       try { localStorage.setItem(HOST_TOKEN_KEY(sessionId), hostToken) } catch {}
+      try { localStorage.setItem(ACTIVE_HOST_DEAL_KEY, JSON.stringify({ sessionId, hostToken })) } catch {}
+      updateConfig({ activeDealSession: { sessionId, hostToken } })
       // Hand off to parent — shown as overlay dialog (no new tab, no state loss)
       onDealCreated?.(sessionId, hostToken)
     } catch (e) {
@@ -135,6 +141,7 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
 
   const calcDist = CHARACTER_DISTRIBUTION[newGamePanel?.playerCount] ?? { townsfolk: 0, outsider: 0, minion: 0, demon: 0 }
   const charPool: string[] = newGamePanel?.charPool ?? []
+  const existingDealSession = lastDealSession ?? activeDealSession ?? newGamePanel?.activeDealSession ?? null
 
   const actCounts = useMemo(() => {
     const c = { townsfolk: 0, outsider: 0, minion: 0, demon: 0 }
@@ -295,7 +302,7 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
       </Paper>
 
       {/* ── Action buttons ── */}
-      <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+      <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap', alignItems: 'center' }}>
         <Button
           size="small"
           variant="outlined"
@@ -323,6 +330,20 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
             </Button>
           </span>
         </Tooltip>
+        {existingDealSession && (
+          <Tooltip title={zh ? '打开当前发牌控制台' : 'Open active deal dashboard'}>
+            <Button
+              size="small"
+              variant="outlined"
+              color="secondary"
+              onClick={() => onDealOpen?.(existingDealSession.sessionId, existingDealSession.hostToken)}
+              startIcon={<OpenInNewIcon fontSize="small" />}
+              sx={{ fontFamily: 'monospace', fontWeight: 700 }}
+            >
+              {zh ? `打开 ${existingDealSession.sessionId}` : `Open ${existingDealSession.sessionId}`}
+            </Button>
+          </Tooltip>
+        )}
       </Box>
 
       <Divider />

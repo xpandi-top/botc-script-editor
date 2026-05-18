@@ -8,7 +8,7 @@
  *  4. All other cards lock immediately
  *  5. Re-open link → restored from claimedByToken in sessionStorage
  */
-import React, { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, type ReactNode } from 'react'
 import {
   Box, Button, CircularProgress, TextField, Typography, Paper,
 } from '@mui/material'
@@ -36,12 +36,13 @@ type PageState =
   | { kind: 'expired' }
   | { kind: 'closed' }
   | { kind: 'name'; session: DealSession; cards: DealCard[]; alreadyClaimed: DealCard | null }
-  | { kind: 'grid'; session: DealSession; cards: DealCard[]; claiming: number | null }
+  | { kind: 'grid'; session: DealSession; cards: DealCard[]; claiming: number | null; message?: string }
   | { kind: 'claimed'; card: DealCard }
 
 export function DealGuestPage({ sessionId, language }: Props) {
   const [state, setState] = useState<PageState>({ kind: 'loading' })
   const [displayName, setDisplayName] = useState('')
+  const [claimedSeat, setClaimedSeat] = useState('')
   const zh = language === 'zh'
 
   const load = useCallback(async () => {
@@ -75,15 +76,37 @@ export function DealGuestPage({ sessionId, language }: Props) {
 
   const handleClaimCard = async (position: number) => {
     if (state.kind !== 'grid' || state.claiming !== null) return
-    setState({ ...state, claiming: position })
+    const currentGrid = state
+    setState({ ...state, claiming: position, message: undefined })
     try {
       const guestToken = getGuestToken()
-      const claimed = await claimCard(sessionId, position, guestToken, displayName)
+      const seat = parseInt(claimedSeat, 10)
+      const claimed = await claimCard(sessionId, position, guestToken, displayName, Number.isNaN(seat) ? null : seat)
       setState({ kind: 'claimed', card: claimed })
     } catch {
-      // Card was claimed by someone else — reload grid
-      setState({ kind: 'loading' })
-      await load()
+      try {
+        const cards = await getDealCards(sessionId)
+        const alreadyClaimed = await findClaimedCard(sessionId, getGuestToken())
+        if (alreadyClaimed) {
+          setState({ kind: 'claimed', card: alreadyClaimed })
+          return
+        }
+        setState({
+          kind: 'grid',
+          session: currentGrid.session,
+          cards,
+          claiming: null,
+          message: zh ? '这张牌已被认领，请选择另一张。' : 'That card was already claimed. Pick another card.',
+        })
+      } catch {
+        setState({
+          kind: 'grid',
+          session: currentGrid.session,
+          cards: currentGrid.cards,
+          claiming: null,
+          message: zh ? '认领失败，请再试一次。' : 'Could not claim that card. Please try again.',
+        })
+      }
     }
   }
 
@@ -139,7 +162,7 @@ export function DealGuestPage({ sessionId, language }: Props) {
     const icon = getIconForCharacter(card.characterId)
     return (
       <CenteredBox>
-        <Typography variant="h5" fontWeight={700} sx={{ mb: 2 }}>
+        <Typography variant="h5" sx={{ mb: 2, fontWeight: 700 }}>
           {zh ? '你的角色' : 'Your Character'}
         </Typography>
         <Paper elevation={4} sx={{ p: 3, borderRadius: 3, maxWidth: 300, width: '100%', textAlign: 'center' }}>
@@ -148,9 +171,14 @@ export function DealGuestPage({ sessionId, language }: Props) {
               sx={{ width: 96, height: 96, objectFit: 'contain', mb: 2, mx: 'auto', display: 'block' }}
             />
           )}
-          <Typography variant="h5" fontWeight={700}>
+          <Typography variant="h5" sx={{ fontWeight: 700 }}>
             {getDisplayName(card.characterId, language)}
           </Typography>
+          {card.claimedBySeat != null && (
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
+              {zh ? `座位 #${card.claimedBySeat}` : `Seat #${card.claimedBySeat}`}
+            </Typography>
+          )}
           {language !== 'en' && (
             <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
               {getDisplayName(card.characterId, 'en')}
@@ -171,7 +199,7 @@ export function DealGuestPage({ sessionId, language }: Props) {
     return (
       <CenteredBox>
         <AutoStoriesIcon sx={{ fontSize: 48, color: 'primary.main', mb: 2 }} />
-        <Typography variant="h5" fontWeight={700} sx={{ mb: 1 }}>
+        <Typography variant="h5" sx={{ mb: 1, fontWeight: 700 }}>
           {zh ? '血染钟楼 — 发牌' : 'Blood on the Clocktower — Deal'}
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
@@ -186,7 +214,17 @@ export function DealGuestPage({ sessionId, language }: Props) {
           value={displayName}
           onChange={e => setDisplayName(e.target.value)}
           onKeyDown={e => { if (e.key === 'Enter') handleStartPicking() }}
+          sx={{ maxWidth: 300, mb: 1.5 }}
+        />
+        <TextField
+          size="small"
+          fullWidth
+          label={zh ? '座位号（可选）' : 'Seat # (optional)'}
+          value={claimedSeat}
+          onChange={e => setClaimedSeat(e.target.value.replace(/\D/g, ''))}
+          onKeyDown={e => { if (e.key === 'Enter') handleStartPicking() }}
           sx={{ maxWidth: 300, mb: 2 }}
+          slotProps={{ htmlInput: { inputMode: 'numeric', pattern: '[0-9]*' } }}
         />
         <Button variant="contained" size="large" onClick={handleStartPicking}>
           {zh ? '查看牌面' : 'View Cards'}
@@ -196,15 +234,20 @@ export function DealGuestPage({ sessionId, language }: Props) {
   }
 
   // state.kind === 'grid'
-  const { cards, claiming } = state
+  const { cards, claiming, message } = state
   return (
     <Box sx={{ p: 2, maxWidth: 600, mx: 'auto' }}>
-      <Typography variant="h6" fontWeight={700} sx={{ mb: 0.5, textAlign: 'center' }}>
+      <Typography variant="h6" sx={{ mb: 0.5, textAlign: 'center', fontWeight: 700 }}>
         {zh ? '选择你的角色牌' : 'Pick Your Character Card'}
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2, textAlign: 'center' }}>
         {zh ? '点击一张翻开，其余将被锁定' : 'Tap one card to flip it — others will lock'}
       </Typography>
+      {message && (
+        <Typography variant="body2" color="warning.main" sx={{ mb: 2, textAlign: 'center' }}>
+          {message}
+        </Typography>
+      )}
 
       <Box sx={{
         display: 'grid',
@@ -261,7 +304,7 @@ export function DealGuestPage({ sessionId, language }: Props) {
   )
 }
 
-function CenteredBox({ children }: { children: React.ReactNode }) {
+function CenteredBox({ children }: { children: ReactNode }) {
   return (
     <Box sx={{
       minHeight: '100dvh',

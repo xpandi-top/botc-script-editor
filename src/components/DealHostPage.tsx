@@ -8,7 +8,7 @@
  * - "Apply to Game" → patches NewGameConfig with seatNames + assignments
  * - Copy share link + close session
  */
-import React, { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import {
   Box, Button, Chip, CircularProgress, Divider, IconButton,
   Paper, TextField, Tooltip, Typography,
@@ -22,10 +22,14 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import AutoStoriesIcon from '@mui/icons-material/AutoStories'
 import PersonIcon from '@mui/icons-material/Person'
 import LockIcon from '@mui/icons-material/Lock'
+import PersonAddIcon from '@mui/icons-material/PersonAdd'
+import PersonOffIcon from '@mui/icons-material/PersonOff'
 import {
   getDealSession,
   subscribeCards,
   updateCardAssignment,
+  markCardClaimedByHost,
+  markCardUnclaimedByHost,
   closeDealSession,
   type DealSession,
   type DealCard,
@@ -78,7 +82,8 @@ export function DealHostPage({ sessionId, hostToken, language, onApplyToGame, on
     if (selectedPos === null) return
     const card = cards.find(c => c.position === selectedPos)
     if (!card) return
-    setEditSeat(card.assignedSeat != null ? String(card.assignedSeat) : '')
+    const seat = card.assignedSeat ?? card.claimedBySeat
+    setEditSeat(seat != null ? String(seat) : '')
     setEditName(card.assignedName ?? card.claimedByName ?? '')
   }, [selectedPos, cards])
 
@@ -100,23 +105,47 @@ export function DealHostPage({ sessionId, hostToken, language, onApplyToGame, on
   const handleSaveAssignment = useCallback(async () => {
     if (selectedPos === null) return
     setSaving(true)
-    const seat = parseInt(editSeat)
+    const seat = parseInt(editSeat, 10)
     try {
-      await updateCardAssignment(sessionId, selectedPos, isNaN(seat) ? null : seat, editName)
+      await updateCardAssignment(sessionId, selectedPos, Number.isNaN(seat) ? null : seat, editName)
     } finally {
       setSaving(false)
     }
   }, [sessionId, selectedPos, editSeat, editName])
 
+  const handleMarkClaimed = useCallback(async () => {
+    if (selectedPos === null) return
+    setSaving(true)
+    const seat = parseInt(editSeat, 10)
+    try {
+      await markCardClaimedByHost(sessionId, selectedPos, editName, Number.isNaN(seat) ? null : seat)
+    } finally {
+      setSaving(false)
+    }
+  }, [sessionId, selectedPos, editSeat, editName])
+
+  const handleMarkUnclaimed = useCallback(async () => {
+    if (selectedPos === null) return
+    setSaving(true)
+    try {
+      await markCardUnclaimedByHost(sessionId, selectedPos)
+    } finally {
+      setSaving(false)
+    }
+  }, [sessionId, selectedPos])
+
   const handleApplyToGame = () => {
     if (!onApplyToGame) return
-    const assigned = cards.filter(c => c.assignedSeat != null)
+    const assigned = cards
+      .map(c => ({ ...c, effectiveSeat: c.assignedSeat ?? c.claimedBySeat }))
+      .filter((c): c is DealCard & { effectiveSeat: number } => c.effectiveSeat != null)
     const patch: Partial<NewGameConfig> = {
+      playerCount: Math.max(totalCount, ...assigned.map(c => c.effectiveSeat)),
       seatNames: Object.fromEntries(
-        assigned.map(c => [c.assignedSeat!, c.assignedName ?? c.claimedByName ?? `Player ${c.assignedSeat}`])
+        assigned.map(c => [c.effectiveSeat, c.assignedName ?? c.claimedByName ?? `Player ${c.effectiveSeat}`])
       ),
       assignments: Object.fromEntries(
-        assigned.map(c => [c.assignedSeat!, c.characterId])
+        assigned.map(c => [c.effectiveSeat, c.characterId])
       ),
     }
     onApplyToGame(patch)
@@ -158,7 +187,7 @@ export function DealHostPage({ sessionId, hostToken, language, onApplyToGame, on
       {/* Header */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
         <AutoStoriesIcon color="primary" />
-        <Typography variant="h6" fontWeight={700} sx={{ flex: 1 }}>
+        <Typography variant="h6" sx={{ flex: 1, fontWeight: 700 }}>
           {zh ? '发牌控制台' : 'Deal Dashboard'}
         </Typography>
         {onClose && (
@@ -243,6 +272,9 @@ export function DealHostPage({ sessionId, hostToken, language, onApplyToGame, on
               {card.assignedSeat != null && (
                 <Chip label={`#${card.assignedSeat}`} size="small" sx={{ height: 16, fontSize: '0.6rem' }} />
               )}
+              {card.assignedSeat == null && card.claimedBySeat != null && (
+                <Chip label={`#${card.claimedBySeat}?`} size="small" variant="outlined" sx={{ height: 16, fontSize: '0.6rem' }} />
+              )}
               {showFaceUp && !claimed && (
                 <Typography variant="caption" sx={{ fontSize: '0.58rem', textAlign: 'center', lineHeight: 1.2, maxWidth: 80 }}>
                   {getDisplayName(card.characterId, language)}
@@ -265,7 +297,7 @@ export function DealHostPage({ sessionId, hostToken, language, onApplyToGame, on
                 />
               )}
               <Box>
-                <Typography variant="subtitle2" fontWeight={700}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
                   {getDisplayName(selectedCard.characterId, language)}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
@@ -273,6 +305,11 @@ export function DealHostPage({ sessionId, hostToken, language, onApplyToGame, on
                     ? `${zh ? '玩家' : 'Player'}: ${selectedCard.claimedByName ?? (zh ? '匿名' : 'Anonymous')}`
                     : (zh ? '未认领' : 'Unclaimed')}
                 </Typography>
+                {selectedCard.claimedBySeat != null && (
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+                    {zh ? `玩家填写座位 #${selectedCard.claimedBySeat}` : `Player entered seat #${selectedCard.claimedBySeat}`}
+                  </Typography>
+                )}
               </Box>
             </Box>
 
@@ -302,6 +339,29 @@ export function DealHostPage({ sessionId, hostToken, language, onApplyToGame, on
               >
                 {zh ? '保存' : 'Save'}
               </Button>
+              {selectedCard.claimedByToken ? (
+                <Button
+                  variant="outlined"
+                  color="warning"
+                  size="small"
+                  onClick={handleMarkUnclaimed}
+                  disabled={saving}
+                  startIcon={<PersonOffIcon fontSize="small" />}
+                >
+                  {zh ? '设为未认领' : 'Set Unclaimed'}
+                </Button>
+              ) : (
+                <Button
+                  variant="outlined"
+                  color="success"
+                  size="small"
+                  onClick={handleMarkClaimed}
+                  disabled={saving}
+                  startIcon={<PersonAddIcon fontSize="small" />}
+                >
+                  {zh ? '设为已认领' : 'Set Claimed'}
+                </Button>
+              )}
             </Box>
           </Box>
         </>
@@ -314,14 +374,14 @@ export function DealHostPage({ sessionId, hostToken, language, onApplyToGame, on
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
             <Typography variant="caption" color="text.secondary">
               {zh
-                ? `已分配 ${cards.filter(c => c.assignedSeat != null).length}/${totalCount} 座位`
-                : `${cards.filter(c => c.assignedSeat != null).length}/${totalCount} seats assigned`}
+                ? `可应用 ${cards.filter(c => (c.assignedSeat ?? c.claimedBySeat) != null).length}/${totalCount} 座位`
+                : `${cards.filter(c => (c.assignedSeat ?? c.claimedBySeat) != null).length}/${totalCount} seats ready`}
             </Typography>
             <Button
               variant="contained"
               startIcon={<PlayArrowIcon />}
               onClick={handleApplyToGame}
-              disabled={cards.filter(c => c.assignedSeat != null).length === 0}
+              disabled={cards.filter(c => (c.assignedSeat ?? c.claimedBySeat) != null).length === 0}
             >
               {zh ? '应用并开始游戏' : 'Apply & Start Game'}
             </Button>

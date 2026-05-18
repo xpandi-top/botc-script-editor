@@ -12,6 +12,7 @@ import { storageSync } from '../../lib/storage'
 import { livingNonTravelers, eligibleVoters, nominationThreshold, exileThreshold } from '../../utils/seats'
 import { computeYesCount, computeVotePassed } from '../../utils/votes'
 import { buildAggregatedEntries, filterAndSortLog } from '../../utils/logFilter'
+import { ACTIVE_HOST_DEAL_KEY } from '../../lib/firebaseDeal'
 import type { PickerMode, NewGameConfig, EndGameResult, LogFilterState, AggregatedLogEntry, DialogState, SkillOverlayState, StorytellerHelperProps, DayState, EventLogEntry, PersistedState } from './types'
 
 export function useStoryteller(props: StorytellerHelperProps) {
@@ -48,6 +49,14 @@ export function useStoryteller(props: StorytellerHelperProps) {
   const [newGamePanel, setNewGamePanel] = useState<NewGameConfig | null>(null)
   const [showNewGamePanel, setShowNewGamePanel] = useState(false)
   const [activeDealSession, setActiveDealSession] = useState<{ sessionId: string; hostToken: string } | null>(null)
+  const [lastDealSession, setLastDealSession] = useState<{ sessionId: string; hostToken: string } | null>(() => {
+    try {
+      const raw = localStorage.getItem(ACTIVE_HOST_DEAL_KEY)
+      return raw ? JSON.parse(raw) : null
+    } catch {
+      return null
+    }
+  })
   const [showSaveBeforeNewGame, setShowSaveBeforeNewGame] = useState(false)
   const [pendingNewGameAfterSave, setPendingNewGameAfterSave] = useState(false)
   const [endGameResult, setEndGameResult] = useState<EndGameResult | null>(initial.endGameResult ?? null)
@@ -303,7 +312,7 @@ export function useStoryteller(props: StorytellerHelperProps) {
     skillOverlay, setSkillOverlay,
     ...audio,
     newGamePanel, setNewGamePanel, showNewGamePanel, setShowNewGamePanel,
-    activeDealSession, setActiveDealSession,
+    activeDealSession, setActiveDealSession, lastDealSession, setLastDealSession,
     showSaveBeforeNewGame, setShowSaveBeforeNewGame,
     pendingNewGameAfterSave, setPendingNewGameAfterSave,
     endGameResult, setEndGameResult, showEndGameModal, setShowEndGameModal,

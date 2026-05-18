@@ -11,7 +11,7 @@ import { DealHostPage } from '../../DealHostPage'
 export function Modals({ ctx }: { ctx: StorytellerContext }) {
   const {
     showEditPlayersModal, setShowEditPlayersModal,
-    newGamePanel, setNewGamePanel, showNewGamePanel, setShowNewGamePanel,
+    newGamePanel, showNewGamePanel, setShowNewGamePanel,
     showEndGameModal, setShowEndGameModal,
     showExportModal, setShowExportModal,
     text, language,
