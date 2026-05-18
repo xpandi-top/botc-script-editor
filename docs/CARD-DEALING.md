@@ -4,196 +4,271 @@ Storyteller selects N characters, shuffles them into face-down cards, shares a l
 
 ---
 
+## Firebase Integration
+
+Project already uses **Firebase Firestore** (`src/lib/firebase.ts`, `src/lib/firebaseShortUrl.ts`):
+
+- `getFirebaseApp()` — singleton initialised from `VITE_FIREBASE_*` env vars
+- `getFirestore()` — Firestore client, Spark plan compatible
+- Existing `shortlinks` collection pattern: `setDoc` / `getDoc` / `deleteDoc`, lazy TTL cleanup on read
+- **Firestore `onSnapshot`** — real-time listener for ST dashboard (no polling needed)
+
+Card dealing uses the same Firebase project, same `getFirebaseApp()` / `getFirestore()` imports. No new SDK dependencies.
+
+---
+
 ## User Flow
 
 ### Storyteller (Host)
 
-1. Open **New Game** → Characters tab → pick characters (e.g. 9 players → 9 chars + travellers/bluffs)
+1. Open **New Game** → Characters tab → pick characters (e.g. 9 players → 9 chars)
 2. Click **"Deal Cards"** button
-3. App shuffles cards, generates a **deal session** with a short URL:
-   `https://botc.app/deal/<sessionId>`
-4. ST sees a live dashboard:
-   - Grid of N cards (face-down by default, or ST can toggle face-up)
-   - Each card shows: claimed / unclaimed status, player's chosen display name, timestamp
-   - ST can assign **seat number** and **player name** to each claimed card
-   - Once all assigned: **"Apply to Game"** button → fills `seatNames` + `assignments` in the New Game panel
+3. App shuffles cards, writes a **deal session** to Firestore, generates a share URL:
+   `https://botc.app/?deal=<sessionId>` (same query-param pattern as `?sl=`)
+4. ST sees live dashboard:
+   - Grid of N face-down cards (ST can toggle face-up to peek)
+   - Each card shows: claimed / unclaimed, player's display name, timestamp
+   - Click claimed card → assign **seat number** + **player name**
+   - **"Apply to Game"** → fills `seatNames` + `assignments` in New Game panel
 
 ### Player (Guest)
 
-1. Receive link from ST (QR code, chat, etc.)
-2. Open link on phone → landing page shows N face-down cards in a grid
-3. Player enters a **display name** (optional, for ST to identify them)
-4. Player taps any **one** card → it flips, shows character icon + name + ability
-5. All other cards lock (greyed out, unclickable) — cannot flip a second one
-6. Player can **copy/screenshot** their character; page stays open showing their card
-7. If player closes and reopens link: their card is still shown (keyed by browser token)
+1. Receive link (QR code / chat)
+2. Open link → landing page shows N face-down cards
+3. Enter a **display name** (optional)
+4. Tap **one** card → flips, reveals character icon + name + ability text
+5. All other cards lock immediately (greyed, unclickable)
+6. Player keeps page open — character stays shown; re-open link shows their card again (keyed by browser token stored in `sessionStorage`)
 
 ---
 
-## Data Model
+## Data Model (Firestore)
 
-### Deal Session (server-side or Supabase)
+### Collection: `dealSessions/{sessionId}`
 
 ```ts
 type DealSession = {
-  id: string                      // short random ID (e.g. "xk7p2")
-  createdAt: number               // timestamp
-  expiresAt: number               // TTL: 24h after creation
-  hostToken: string               // secret token for ST dashboard (stored in ST's localStorage)
-  cards: DealCard[]               // shuffled array, index = card position
-  status: 'open' | 'closed'      // ST closes when done
+  createdAt:  Timestamp
+  expiresAt:  Timestamp          // 24 h TTL — lazy-deleted on read (Spark plan)
+  hostToken:  string             // 128-bit secret; ST stores in localStorage
+  status:     'open' | 'closed'
+  cardCount:  number
 }
+```
 
+### Sub-collection: `dealSessions/{sessionId}/cards/{position}`
+
+```ts
 type DealCard = {
-  position: number                // 0-indexed slot in the grid
-  characterId: string             // the character at this slot
-  claimedByToken: string | null   // guest's browser token, null if unclaimed
-  claimedByName: string | null    // guest's display name
-  claimedAt: number | null
-  assignedSeat: number | null     // ST-assigned seat number
-  assignedName: string | null     // ST-assigned player name (may differ from display name)
+  position:       number          // 0-indexed grid slot
+  characterId:    string          // only returned to the claiming guest
+  claimedByToken: string | null   // guest's sessionStorage token
+  claimedByName:  string | null   // guest's display name
+  claimedAt:      Timestamp | null
+  assignedSeat:   number | null   // ST-assigned seat
+  assignedName:   string | null   // ST-assigned player name
 }
 ```
 
 ### Guest Token
 
-- Generated client-side: `crypto.randomUUID()` stored in `sessionStorage`
-- Sent with every claim request
-- Identifies the same browser tab/session
-- No account required
+```ts
+// Generated once per browser tab, stored in sessionStorage
+const guestToken = sessionStorage.getItem('botc-deal-token')
+  ?? (() => { const t = crypto.randomUUID(); sessionStorage.setItem('botc-deal-token', t); return t })()
+```
+
+---
+
+## Firestore Security Rules
+
+Extend existing rules in Firebase console:
+
+```js
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Existing shortlinks (unchanged)
+    match /shortlinks/{id} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly(['data','expiresAt'])
+                    && request.resource.data.data is string
+                    && request.resource.data.data.size() < 500000;
+      allow delete, update: if false;
+    }
+
+    // Deal sessions — ST creates, guests read metadata only
+    match /dealSessions/{sessionId} {
+      allow read:   if true;
+      allow create: if request.resource.data.keys().hasAll(['createdAt','expiresAt','hostToken','status','cardCount'])
+                    && request.resource.data.cardCount is int
+                    && request.resource.data.cardCount <= 20;
+      // Only host can close session (update status); verified via hostToken in app layer
+      allow update: if false;  // handled by Cloud Function or trusted client check
+      allow delete: if false;
+
+      // Cards sub-collection
+      match /cards/{position} {
+        // Guests can read position + claimed status
+        // characterId is returned only if claimedByToken matches the request header
+        // (enforced in app layer — Firestore can't inspect request headers directly)
+        allow read: if true;
+
+        // Atomic claim: only update an unclaimed card, set your own token
+        allow update: if resource.data.claimedByToken == null
+                      && request.resource.data.claimedByToken is string
+                      && request.resource.data.claimedByToken.size() > 0
+                      && request.resource.data.diff(resource.data).affectedKeys()
+                           .hasOnly(['claimedByToken','claimedByName','claimedAt']);
+
+        // ST assigns seat/name — validated in app layer via hostToken
+        // Use a separate path or Cloud Function for full security
+        allow update: if true;   // tighten in Phase 2 with hostToken check
+
+        allow create, delete: if false;
+      }
+    }
+  }
+}
+```
+
+**Note:** Firestore rules can't read `characterId` conditionally per-caller in a single rule. App layer enforces: the `characterId` field is only sent to the client after their claim succeeds (fetch after write). Other guests who read unclaimed cards get a response that excludes `characterId` — enforced by the client library helper, not by Firestore rules alone. For full server-side enforcement, use a Cloud Function.
 
 ---
 
 ## Sync Architecture
 
-### Option A — Supabase Realtime (Recommended)
+### Real-time Updates (ST Dashboard)
 
-Supabase Postgres + Realtime subscriptions.
+Uses Firestore `onSnapshot` — same SDK already in the project:
 
-```
-ST creates session → INSERT into deal_sessions + deal_cards
-Guest opens link   → SELECT cards (positions only, no characterId until claimed)
-Guest claims card  → UPDATE deal_cards SET claimedByToken, claimedByName, claimedAt
-                     WHERE position=X AND claimedByToken IS NULL   ← atomic
-ST dashboard       → SUBSCRIBE to deal_cards changes → live updates
-```
+```ts
+import { getFirestore, collection, onSnapshot } from 'firebase/firestore'
+import { getFirebaseApp } from './firebase'
 
-**Why Supabase:**
-- Row-level security: guests can only see their own claimed card's characterId
-- Realtime pushes to ST dashboard without polling
-- Atomic UPDATE prevents two guests claiming the same card (DB constraint)
-- Already in tech stack consideration (see VERSIONING-CUSTOM-CLOUD.md)
-
-**RLS Policy sketch:**
-```sql
--- Guests: can read position + claimed status; can read characterId only for their own token
-CREATE POLICY "guest_read" ON deal_cards FOR SELECT
-  USING (claimed_by_token = current_setting('app.guest_token', true)
-         OR claimed_by_token IS NULL);   -- unclaimed cards show position only (no char)
-
--- Guests: can claim one unclaimed card per session token (enforce in app layer + DB trigger)
-CREATE POLICY "guest_claim" ON deal_cards FOR UPDATE
-  USING (claimed_by_token IS NULL)
-  WITH CHECK (claimed_by_token = current_setting('app.guest_token', true));
+function subscribeToCards(sessionId: string, onChange: (cards: DealCard[]) => void) {
+  const db = getFirestore(getFirebaseApp())
+  const ref = collection(db, 'dealSessions', sessionId, 'cards')
+  return onSnapshot(ref, (snap) => {
+    const cards = snap.docs.map(d => d.data() as DealCard)
+    onChange(cards)
+  })
+  // returns unsubscribe fn — call in useEffect cleanup
+}
 ```
 
-### Option B — Simple Polling (No Backend)
+### Atomic Card Claim (Guest)
 
-For a lightweight MVP with no server:
+```ts
+import { getFirestore, doc, updateDoc, getDoc } from 'firebase/firestore'
 
-- Store session in **localStorage on the ST's device** only
-- Generate per-card **one-time tokens** baked into the URL fragment:
-  `https://botc.app/deal/<sessionId>#<cardToken>`
-- Each card gets a unique URL; ST generates N QR codes
-- Guest opens their specific URL → sees their card immediately (no claim step)
-- No cross-device sync; ST sends each QR/link directly to each player
+async function claimCard(sessionId: string, position: number, guestToken: string, displayName: string) {
+  const db  = getFirestore(getFirebaseApp())
+  const ref = doc(db, 'dealSessions', sessionId, 'cards', String(position))
 
-**Tradeoff:** Simpler but less fun — no "flip" moment, no live dashboard.
+  // Firestore update with field-level write — fails if already claimed
+  // (Firestore rule: claimedByToken must be null before update)
+  await updateDoc(ref, {
+    claimedByToken: guestToken,
+    claimedByName:  displayName || null,
+    claimedAt:      serverTimestamp(),
+  })
 
-### Option C — Firebase Realtime Database
+  // Fetch full card (including characterId) after successful claim
+  const snap = await getDoc(ref)
+  return snap.data() as DealCard
+}
+```
 
-Similar to Supabase but uses Firebase. Skip if avoiding Google dependency.
+Two guests racing to claim the same card: the second `updateDoc` is rejected by the Firestore security rule (`claimedByToken == null` fails on the already-claimed card). First writer wins.
+
+### TTL / Cleanup
+
+Mirrors the existing `shortlinks` pattern:
+
+```ts
+// On session read, lazily delete if expired
+if (session.expiresAt.toMillis() < Date.now()) {
+  // delete session + cards sub-collection (batch or Cloud Function)
+  deleteDoc(sessionRef).catch(() => {})
+  return null
+}
+```
+
+Spark plan compatible — no scheduled functions or TTL policies needed.
 
 ---
 
-## Security Considerations
+## New Firestore Helper: `src/lib/firebaseDeal.ts`
 
-| Risk | Mitigation |
-|------|-----------|
-| Guest sees other cards before claiming | Server never sends `characterId` for unclaimed cards (only position index) |
-| Guest claims multiple cards | DB UPDATE WHERE claimed_by_token IS NULL — first writer wins; second request finds row already claimed |
-| Guest replays old token | Token is `sessionStorage`-scoped; tab close loses it; fine for game session duration |
-| ST link guessed by guests | `hostToken` is a 128-bit random secret; separate from `sessionId` |
-| Session lasts forever | TTL: auto-expire after 24h; ST can manually close |
+Mirrors `firebaseShortUrl.ts` pattern:
+
+```ts
+export async function createDealSession(cards: { characterId: string }[], hostToken: string): Promise<string>
+export async function getDealSession(sessionId: string): Promise<DealSession | null>
+export async function subscribeCards(sessionId: string, cb: (cards: DealCard[]) => void): () => void
+export async function claimCard(sessionId: string, position: number, guestToken: string, name: string): Promise<DealCard>
+export async function updateCardAssignment(sessionId: string, position: number, seat: number, name: string, hostToken: string): Promise<void>
+export async function closeDealSession(sessionId: string, hostToken: string): Promise<void>
+```
 
 ---
 
 ## UI Components
 
-### ST Dashboard (`/deal/<id>?host=<hostToken>`)
+### ST Dashboard (`/?deal=<id>&host=<hostToken>`)
 
 ```
-┌─────────────────────────────────────────────────┐
-│  Deal Session  xk7p2   [Copy Link]  [Show QR]   │
-│  5/9 claimed · expires in 23h      [Close Deal]  │
-├─────────────────────────────────────────────────┤
-│  ┌────┐ ┌────┐ ┌────┐ ┌────┐ ┌────┐            │
+┌──────────────────────────────────────────────────┐
+│  Deal Session                  [Copy Link] [QR]  │
+│  5/9 claimed · expires in 23h     [Close Deal]   │
+├──────────────────────────────────────────────────┤
+│  ┌────┐ ┌────┐ ┌────┐ ┌────┐ ┌────┐             │
 │  │ ✓  │ │ ✓  │ │    │ │    │ │ ✓  │  ...        │
-│  │Alex│ │Bob │ │ -- │ │ -- │ │Carol│            │
-│  │[1] │ │[3] │ │    │ │    │ │[5] │            │
-│  └────┘ └────┘ └────┘ └────┘ └────┘            │
-│                                                  │
-│  Claimed card detail panel (click a card):       │
-│  Character: Imp  ·  Player: Alex  ·  Seat: [1▼] │
-└─────────────────────────────────────────────────┘
+│  │Alex│ │Bob │ │    │ │    │ │Carol│             │
+│  │[1▼]│ │[3▼]│ │    │ │    │ │[5▼]│             │
+│  └────┘ └────┘ └────┘ └────┘ └────┘             │
+│                                                   │
+│  Selected: Imp · Alex · Seat [1▼] Name [_______] │
+│                              [Apply to Game]      │
+└──────────────────────────────────────────────────┘
 ```
 
-- Cards toggle face-up/down (ST can peek at all)
-- Click claimed card → edit seat number and player name
-- "Apply to Game" → writes into New Game panel assignments
-
-### Guest Page (`/deal/<id>`)
+### Guest Page (`/?deal=<id>`)
 
 ```
-┌─────────────────────────┐
-│   Your display name:    │
-│   [_____________]       │
-│                         │
-│  ┌──┐ ┌──┐ ┌──┐        │
-│  │??│ │??│ │??│  ...    │
-│  └──┘ └──┘ └──┘        │
-│                         │
-│  Tap one card to flip!  │
-└─────────────────────────┘
-
-After flip:
-┌─────────────────────────┐
-│  [Imp icon]             │
-│  You are the Imp        │
-│  Each night...          │
-│                         │
-│  ✓ Card saved           │
-└─────────────────────────┘
+┌──────────────────────────┐      ┌──────────────────────────┐
+│  Your name: [_________]  │  →   │  [Imp icon]              │
+│                          │      │  You are the Imp         │
+│  ┌──┐ ┌──┐ ┌──┐  ...    │      │  "Each night* choose..."  │
+│  │??│ │??│ │??│          │      │                           │
+│  └──┘ └──┘ └──┘          │      │  ✓ Card saved             │
+│  Tap one card to flip!   │      └──────────────────────────┘
+└──────────────────────────┘
 ```
 
-- Card flip animation (CSS 3D flip)
-- Other cards grey out immediately after flip
-- Bilingual (EN/ZH) same as rest of app
+- CSS 3D card-flip animation on claim
+- Other cards grey out + `pointer-events:none` immediately
+- Character icon from existing `getIconForCharacter()` in `catalog.ts`
+- Ability text from existing `getAbilityText()` + bilingual support
 
 ---
 
 ## Integration with New Game Panel
 
-After all players claim cards:
-
 ```ts
-// ST clicks "Apply to Game" on dashboard
+// ST clicks "Apply to Game"
 const patch: Partial<NewGameConfig> = {
   seatNames: Object.fromEntries(
-    cards.filter(c => c.assignedSeat).map(c => [c.assignedSeat, c.assignedName ?? c.claimedByName ?? `Player ${c.assignedSeat}`])
+    cards
+      .filter(c => c.assignedSeat != null)
+      .map(c => [c.assignedSeat!, c.assignedName ?? c.claimedByName ?? `Player ${c.assignedSeat}`])
   ),
   assignments: Object.fromEntries(
-    cards.filter(c => c.assignedSeat).map(c => [c.assignedSeat, c.characterId])
+    cards
+      .filter(c => c.assignedSeat != null)
+      .map(c => [c.assignedSeat!, c.characterId])
   ),
 }
 setNewGamePanel(prev => ({ ...prev, ...patch }))
@@ -203,32 +278,31 @@ setNewGamePanel(prev => ({ ...prev, ...patch }))
 
 ## Implementation Phases
 
-### Phase 1 — MVP (Option B, no backend)
-- ST generates N unique card URLs (one per character)
-- Each URL contains an encrypted card token in the fragment
-- Guest opens URL, sees their character immediately
-- No live dashboard; ST manages manually
-- **Effort:** ~1–2 days
+### Phase 1 — MVP
+- `firebaseDeal.ts` helpers
+- ST creates session, gets shareable URL (`?deal=<id>`)
+- Guest claim flow (no display name required)
+- ST dashboard with `onSnapshot` live updates
+- Assign seat numbers manually, "Apply to Game" button
+- **Effort:** ~3 days
 
-### Phase 2 — Full (Option A, Supabase)
-- Session creation, claim flow, live ST dashboard
-- RLS policies, realtime subscriptions
-- QR code generation per session link
-- Apply-to-game integration
-- **Effort:** ~4–6 days
+### Phase 2 — Polish
+- QR code display for session link
+- Card flip CSS animation
+- Demon-only bluff card section (deal bluffs separately after demon is known)
+- ST can reset an unclaimed card (re-open for another guest)
+- Session replay export
 
-### Phase 3 — Polish
-- Card flip animation
-- ST can send reminders to unclaimed players
-- Session replay (export who got which character)
-- Bluff cards section (demon bluffs dealt separately to demon player only)
+### Phase 3 — Security Hardening
+- Cloud Function for `hostToken`-gated writes (seat assignment, close session)
+- Firestore rule: `characterId` field excluded from unclaimed card reads at DB level
 
 ---
 
 ## Open Questions
 
-1. **Demon bluffs** — deal bluff cards to only the player who is Demon? Requires ST to know who got Demon before bluffs are dealt.
-2. **Travellers** — include in the deal or handle separately?
-3. **Re-deal** — if a player exits before claiming, can ST reset their card?
-4. **Offline** — should Phase 1 work fully offline (no server)? Yes for Option B.
-5. **QR vs link** — generate one QR for the whole session (all players scan same URL) or one QR per player card?
+1. **Demon bluffs** — deal 3 bluff cards after demon is identified, or include in initial deal as a separate "bluff" phase?
+2. **Travellers** — include in main deal grid or separate flow?
+3. **Re-deal** — if guest exits before claiming, ST can reset `claimedByToken = null`?
+4. **QR vs link** — one QR for whole session (all players scan same URL) — yes, simpler
+5. **Offline** — not supported; Firebase required; fallback to manual assignment
