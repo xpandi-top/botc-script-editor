@@ -7,6 +7,7 @@ import CheckIcon from '@mui/icons-material/Check'
 import CloseIcon from '@mui/icons-material/Close'
 import EditNoteIcon from '@mui/icons-material/EditNote'
 import ReplayIcon from '@mui/icons-material/Replay'
+import AutoStoriesIcon from '@mui/icons-material/AutoStories'
 import { createDefaultVoteDraft } from '../constants'
 import { useBreakpoint } from '../../../hooks/useBreakpoint'
 import { NominationTimer } from './NominationTimer'
@@ -174,7 +175,10 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: StorytellerContext })
           <InputLabel>{text.target}</InputLabel>
           <Select value={voteDraft?.target ?? ''} label={text.target} onChange={handleTargetChange}>
             <MenuItem value="">{language === 'zh' ? '— 选择 —' : '— Select —'}</MenuItem>
-            <MenuItem value={0}>{language === 'zh' ? '🎭 说书人' : '🎭 Storyteller'}</MenuItem>
+            <MenuItem value={0} sx={{ gap: 0.75 }}>
+              <AutoStoriesIcon sx={{ fontSize: '1rem', color: 'text.secondary' }} />
+              {language === 'zh' ? '说书人' : 'Storyteller'}
+            </MenuItem>
             {seats.map((s: any) => (
               <MenuItem key={s.seat} value={s.seat}>#{s.seat} {s.name}{s.isTraveler ? ` (${language === 'zh' ? '旅行者' : 'Traveler'})` : ''}</MenuItem>
             ))}

@@ -87,12 +87,12 @@ export const logDetail = {
   seatUnNoVote:     (lang: Language, seat: number) => `#${seat} ${logPhrase(lang, 'unNoVote')}`,
 
   nominationFailed: (lang: Language, actor: number | string, target: number | string) => {
-    const targetLabel = target === 0 || target === '0' ? (lang === 'zh' ? '🎭说书人' : '🎭ST') : `#${target}`
+    const targetLabel = target === 0 || target === '0' ? (lang === 'zh' ? '[说书人]' : '[ST]') : `#${target}`
     return `${logPhrase(lang, 'nominationFailed')}: #${actor} → ${targetLabel}`
   },
 
   voteResult: (lang: Language, actor: number | string, target: number | string, passed: boolean, voteCount: number, required: number) => {
-    const targetLabel = target === 0 || target === '0' ? (lang === 'zh' ? '🎭说书人' : '🎭ST') : `#${target}`
+    const targetLabel = target === 0 || target === '0' ? (lang === 'zh' ? '[说书人]' : '[ST]') : `#${target}`
     return `#${actor} ${logPhrase(lang, 'nominated')} ${targetLabel} — ${logPhrase(lang, passed ? 'pass' : 'fail')} (${voteCount}/${required})`
   },
 
