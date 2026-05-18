@@ -9,9 +9,11 @@ import NightsStayIcon from '@mui/icons-material/NightsStay'
 import NoteAltIcon from '@mui/icons-material/NoteAlt'
 import ViewListIcon from '@mui/icons-material/ViewList'
 import ViewModuleIcon from '@mui/icons-material/ViewModule'
+import DashboardIcon from '@mui/icons-material/Dashboard'
 import { useBreakpoint } from '../../hooks/useBreakpoint'
 import { SheetArticle } from '../SheetArticle'
 import { ScriptsLeftPanel } from '../ScriptsTab/ScriptsLeftPanel'
+import { ScriptsMasonryGrid } from '../ScriptsTab/ScriptsMasonryGrid'
 import { NightOrderPreview } from '../ScriptsTab/NightOrderPreview'
 import { ScriptEditor } from './ScriptEditor'
 import { SCRIPT_TAG_META, SCRIPT_TAGS } from './ScriptsTab.constants'
@@ -95,6 +97,7 @@ export function ScriptsTab({
   const showList = isMobile ? listOpenMobile : listOpenDesktop
   const setListOpen = isMobile ? setListOpenMobile : setListOpenDesktop
   const [viewColumns, setViewColumns] = useState<1 | 2>(1)
+  const [browseMode, setBrowseMode] = useState<'list' | 'masonry'>('list')
   const [noteOpen, setNoteOpen] = useState(false)
   const noteRef = useRef<HTMLTextAreaElement | null>(null)
   const [customTagInput, setCustomTagInput] = useState('')
@@ -117,12 +120,33 @@ export function ScriptsTab({
     updateActiveScript((s) => ({ ...s, tags: (s.tags ?? []).filter((t) => t !== tag) }))
   }
 
-  const gridCols = isMobile ? '1fr' : showList ? '320px 1fr' : '1fr'
+  const gridCols = isMobile
+    ? '1fr'
+    : browseMode === 'masonry'
+      ? (activeScript ? '420px 1fr' : '1fr')
+      : (showList ? '320px 1fr' : '1fr')
 
   return (
-    <Box sx={{ display: 'grid', gridTemplateColumns: gridCols, gap: 2 }}>
-      {/* ── Left panel ── */}
-      {showList && (
+    <Box sx={{ display: 'grid', gridTemplateColumns: gridCols, gap: 2, minHeight: 0 }}>
+      {/* ── Left / browse panel ── */}
+      {browseMode === 'masonry' ? (
+        <Paper elevation={0} sx={{
+          borderRadius: 3, bgcolor: 'background.paper',
+          border: '1px solid', borderColor: 'divider',
+          overflow: 'hidden', display: 'flex', flexDirection: 'column',
+          maxHeight: 'calc(100vh - 120px)',
+        }}>
+          <ScriptsMasonryGrid
+            scripts={scripts}
+            activeScript={activeScript}
+            language={uiLanguage}
+            onSelect={setActiveSlug}
+            isBuiltIn={isBuiltIn}
+            createNewScript={createNewScript}
+            importScriptFile={importScriptFile}
+          />
+        </Paper>
+      ) : showList ? (
         <Paper elevation={0} sx={{
           p: 1.5, borderRadius: 3, bgcolor: 'background.paper',
           border: '1px solid', borderColor: 'divider',
@@ -144,18 +168,36 @@ export function ScriptsTab({
             isBuiltIn={isBuiltIn}
           />
         </Paper>
-      )}
+      ) : null}
 
-      {/* ── Right panel ── */}
+      {/* ── Right detail panel — hidden in masonry when no script selected ── */}
+      {(browseMode !== 'masonry' || activeScript) && (
       <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider' }}>
         {activeScript ? (
           <>
             {/* ── Toolbar ── */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2, flexWrap: 'wrap' }}>
-              <IconButton size="small" onClick={() => setListOpen((v) => !v)}
-                title={showList ? 'Hide list' : 'Show list'}>
-                {showList ? <MenuOpenIcon fontSize="small" /> : <MenuIcon fontSize="small" />}
-              </IconButton>
+              {/* Browse-mode toggle */}
+              <ToggleButtonGroup size="small" exclusive
+                value={browseMode}
+                onChange={(_, v) => { if (v) setBrowseMode(v) }}>
+                <ToggleButton value="list">
+                  <Tooltip title={zh ? '列表视图' : 'List view'}>
+                    <ViewListIcon fontSize="small" />
+                  </Tooltip>
+                </ToggleButton>
+                <ToggleButton value="masonry">
+                  <Tooltip title={zh ? '卡片视图' : 'Card view'}>
+                    <DashboardIcon fontSize="small" />
+                  </Tooltip>
+                </ToggleButton>
+              </ToggleButtonGroup>
+              {browseMode === 'list' && (
+                <IconButton size="small" onClick={() => setListOpen((v) => !v)}
+                  title={showList ? 'Hide list' : 'Show list'}>
+                  {showList ? <MenuOpenIcon fontSize="small" /> : <MenuIcon fontSize="small" />}
+                </IconButton>
+              )}
               {!isBuiltIn(activeScript.slug) && (
                 <Button variant="outlined" size="small" onClick={() => setIsEditMode((c) => !c)}>
                   {isEditMode ? uiText.doneEditing : uiText.editScript}
@@ -348,6 +390,7 @@ export function ScriptsTab({
           <Typography>{uiText.noScripts}</Typography>
         )}
       </Paper>
+      )}
     </Box>
   )
 }
