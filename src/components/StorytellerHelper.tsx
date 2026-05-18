@@ -52,20 +52,18 @@ export function StorytellerHelper(props: StorytellerHelperProps) {
   const iosYtMiniPlayer = isIOSSafari && ctx.youtubeEmbedSrc ? (
     <Box sx={{
       position: 'fixed', bottom: 'calc(56px + var(--safe-bottom, 0px))', right: 8,
-      zIndex: 1400, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 0.25,
+      // z-index 1250: above app bar (1100) but BELOW MUI Dialog (1300) so modals stay on top
+      zIndex: 1250, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 0.25,
       visibility: ctx.audioPlaying ? 'visible' : 'hidden',
       pointerEvents: ctx.audioPlaying ? 'auto' : 'none',
     }}>
-      <Typography variant="caption" sx={{ fontSize: '0.6rem', color: 'text.secondary', lineHeight: 1 }}>
-        ♫ Tap ▶ once to start
-      </Typography>
-      <Box sx={{ width: 160, height: 90, borderRadius: 1, overflow: 'hidden', boxShadow: 4 }}>
+      <Box sx={{ width: 112, height: 63, borderRadius: 1, overflow: 'hidden', boxShadow: 3, opacity: 0.85 }}>
         <iframe
           ref={ctx.ytIframeRef}
           key={ctx.youtubeEmbedSrc}
           src={ctx.youtubeEmbedSrc + '&playsinline=1&enablejsapi=1'}
-          width="160"
-          height="90"
+          width="112"
+          height="63"
           allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
           // sandbox blocks allow-top-navigation → prevents tap opening YouTube app
           sandbox="allow-scripts allow-same-origin allow-presentation allow-popups-to-escape-sandbox"
