@@ -192,6 +192,8 @@ export type CustomCharacter = {
   firstNightReminder?: string
   otherNightReminder?: string
   reminders?: string[]
+  /** Reminder tokens available on ALL seats regardless of which character sits there. */
+  remindersGlobal?: string[]
   jinxes?: Array<{ id: string; reason: string }>
   createdAt: number
   updatedAt: number

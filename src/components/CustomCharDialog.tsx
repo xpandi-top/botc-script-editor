@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import {
-  Autocomplete, Box, Button, Dialog, DialogContent, DialogTitle,
+  Autocomplete, Box, Button, Dialog, DialogContent, DialogTitle, Divider,
   FormControl, FormControlLabel, IconButton, InputLabel, MenuItem,
   Radio, RadioGroup, Select, TextField, Typography,
 } from '@mui/material'
@@ -8,6 +8,7 @@ import CloseIcon from '@mui/icons-material/Close'
 import { editionLabels, teamLabels, teamOrder, toTitleCase } from '../catalog'
 import { processIconFile } from '../lib/iconResize'
 import { NightOrderPicker } from './NightOrderPicker'
+import { ReminderTokenEditor } from './ReminderTokenEditor'
 import type { CustomCharacter, Language, Team } from '../types'
 import { makeT, makeTpl } from '../lib/t'
 
@@ -27,6 +28,7 @@ const BLANK: Draft = {
   firstNightReminder: '',
   otherNightReminder: '',
   reminders: [],
+  remindersGlobal: [],
 }
 
 type Props = {
@@ -63,6 +65,7 @@ export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSav
         firstNightReminder: editingChar.firstNightReminder ?? '',
         otherNightReminder: editingChar.otherNightReminder ?? '',
         reminders: editingChar.reminders ?? [],
+        remindersGlobal: editingChar.remindersGlobal ?? [],
       })
       setIconMode(editingChar.icon?.startsWith('data:') ? 'upload' : 'url')
     } else {
@@ -185,6 +188,21 @@ export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSav
             value={draft.otherNightReminder ?? ''}
             onChange={(e) => setDraft((d) => ({ ...d, otherNightReminder: e.target.value }))} />
         </Box>
+
+        <Divider />
+
+        <ReminderTokenEditor
+          label={t('reminder_tokens')}
+          hint={t('reminder_tokens_hint')}
+          tokens={draft.reminders ?? []}
+          onChange={(v) => setDraft((d) => ({ ...d, reminders: v }))}
+        />
+        <ReminderTokenEditor
+          label={t('reminder_tokens_global')}
+          hint={t('reminder_tokens_global_hint')}
+          tokens={draft.remindersGlobal ?? []}
+          onChange={(v) => setDraft((d) => ({ ...d, remindersGlobal: v }))}
+        />
 
         <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, pt: 1, borderTop: '1px solid', borderColor: 'divider' }}>
           <Button variant="outlined" onClick={onClose}>{t('cancel')}</Button>

@@ -74,6 +74,8 @@ export type UiKey =
   | 'name_en' | 'name_zh_optional' | 'icon_optional' | 'choose_image'
   | 'first_night_wake_pos' | 'other_nights_wake_pos'
   | 'first_night_reminder' | 'other_night_reminder'
+  | 'reminder_tokens' | 'reminder_tokens_hint'
+  | 'reminder_tokens_global' | 'reminder_tokens_global_hint'
   // BotC game terms — used in Storyteller Helper
   | 'execution' | 'nomination' | 'vote' | 'votes' | 'alive' | 'dead'
   | 'drunk' | 'poisoned' | 'demon_bluffs' | 'grimoire'
