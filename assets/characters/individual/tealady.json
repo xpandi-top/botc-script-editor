@@ -3,6 +3,10 @@
   "team": "townsfolk",
   "edition": "bmr",
   "current_revision": "v1",
+  "reminders": [
+    "Alive",
+    "Alive"
+  ],
   "revisions": [
     {
       "id": "v1",

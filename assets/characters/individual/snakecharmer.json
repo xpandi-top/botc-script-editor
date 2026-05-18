@@ -3,6 +3,10 @@
   "team": "townsfolk",
   "edition": "snv",
   "current_revision": "v1",
+  "reminders": [
+    "Poisoned",
+    "New role"
+  ],
   "revisions": [
     {
       "id": "v1",

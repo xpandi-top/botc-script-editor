@@ -3,6 +3,9 @@
   "team": "townsfolk",
   "edition": "snv",
   "current_revision": "v1",
+  "reminders": [
+    "Not this player"
+  ],
   "revisions": [
     {
       "id": "v1",

@@ -3,6 +3,9 @@
   "team": "outsider",
   "edition": "snv",
   "current_revision": "v1",
+  "reminders": [
+    "Swapped"
+  ],
   "revisions": [
     {
       "id": "v1",

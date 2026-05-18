@@ -3,6 +3,12 @@
   "team": "townsfolk",
   "edition": "bmr",
   "current_revision": "v1",
+  "reminders": [
+    "Protected"
+  ],
+  "remindersGlobal": [
+    "Drunk"
+  ],
   "revisions": [
     {
       "id": "v1",

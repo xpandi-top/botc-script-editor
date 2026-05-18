@@ -3,6 +3,9 @@
   "team": "minion",
   "edition": "snv",
   "current_revision": "v1",
+  "remindersGlobal": [
+    "Mad"
+  ],
   "revisions": [
     {
       "id": "v1",

@@ -3,6 +3,11 @@
   "team": "demon",
   "edition": "bmr",
   "current_revision": "v1",
+  "reminders": [
+    "Chosen",
+    "Chosen",
+    "Chosen"
+  ],
   "revisions": [
     {
       "id": "v1",

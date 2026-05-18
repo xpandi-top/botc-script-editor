@@ -3,6 +3,9 @@
   "team": "townsfolk",
   "edition": "bmr",
   "current_revision": "v1",
+  "reminders": [
+    "Grandmother"
+  ],
   "revisions": [
     {
       "id": "v1",

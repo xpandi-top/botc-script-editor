@@ -3,6 +3,9 @@
   "team": "demon",
   "edition": "snv",
   "current_revision": "v1",
+  "remindersGlobal": [
+    "Poisoned"
+  ],
   "revisions": [
     {
       "id": "v1",

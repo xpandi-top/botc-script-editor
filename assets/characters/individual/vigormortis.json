@@ -3,6 +3,10 @@
   "team": "demon",
   "edition": "snv",
   "current_revision": "v1",
+  "remindersGlobal": [
+    "Dead",
+    "No ability"
+  ],
   "revisions": [
     {
       "id": "v1",

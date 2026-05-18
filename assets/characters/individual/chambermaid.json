@@ -3,6 +3,10 @@
   "team": "townsfolk",
   "edition": "bmr",
   "current_revision": "v1",
+  "reminders": [
+    "No ability",
+    "+1"
+  ],
   "revisions": [
     {
       "id": "v1",

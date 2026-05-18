@@ -3,6 +3,10 @@
   "team": "demon",
   "edition": "bmr",
   "current_revision": "v1",
+  "reminders": [
+    "Dead",
+    "Dead"
+  ],
   "revisions": [
     {
       "id": "v1",

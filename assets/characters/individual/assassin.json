@@ -3,6 +3,9 @@
   "team": "minion",
   "edition": "bmr",
   "current_revision": "v1",
+  "remindersGlobal": [
+    "Dead"
+  ],
   "revisions": [
     {
       "id": "v1",

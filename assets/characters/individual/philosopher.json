@@ -3,6 +3,10 @@
   "team": "townsfolk",
   "edition": "snv",
   "current_revision": "v1",
+  "reminders": [
+    "Is the Philosopher",
+    "Poisoned"
+  ],
   "revisions": [
     {
       "id": "v1",
