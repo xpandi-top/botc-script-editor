@@ -1,5 +1,4 @@
 import { useEffect, useDeferredValue, useMemo, useState } from 'react'
-import { FixedSizeList, type ListChildComponentProps } from 'react-window'
 import {
   Box, Chip, Collapse, Divider, IconButton, Select,
   MenuItem, TextField, Tooltip, Typography,
@@ -21,35 +20,31 @@ import type { EditableScript, Language } from '../../types'
 // ── Constants ────────────────────────────────────────────────────────────────
 
 const OFFICIAL = new Set(['tb', 'bmr', 'snv'])
-const ROW_H = 48  // row height
+// Max CSS height per section before it scrolls internally
+const SECTION_MAX_H = 360
 
-// ── Virtual row ──────────────────────────────────────────────────────────────
+// ── Script row (plain div — no react-window) ─────────────────────────────────
 
-type VRow = { script: EditableScript; deletable: boolean }
-type VRowData = {
-  rows: VRow[]
-  activeSlug: string | undefined
+type RowProps = {
+  script: EditableScript
+  isActive: boolean
+  deletable: boolean
   language: Language
-  onSelect: (slug: string) => void
-  onClose: () => void
-  isMobile: boolean
+  onSelect: () => void
   duplicateScript: (slug: string) => void
   deleteScript: (slug: string) => void
 }
 
-function ScriptRow({ index, style, data }: ListChildComponentProps<VRowData>) {
-  const { rows, activeSlug, language, onSelect, onClose, isMobile, duplicateScript, deleteScript } = data
-  const { script, deletable } = rows[index]
-
+function ScriptRow({ script, isActive, deletable, language, onSelect, duplicateScript, deleteScript }: RowProps) {
   return (
-    <Box style={style} sx={{ display: 'flex', alignItems: 'center', gap: 0.25, pr: 0.5 }}>
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25, pr: 0.5 }}>
       <Box sx={{ flex: 1, minWidth: 0 }}>
         <ScriptCard
           script={script}
-          isActive={script.slug === activeSlug}
+          isActive={isActive}
           isBuiltIn={!deletable}
           language={language}
-          onSelect={() => { onSelect(script.slug); if (isMobile) onClose() }}
+          onSelect={onSelect}
         />
       </Box>
       {!deletable && (
@@ -119,9 +114,7 @@ export function ScriptsLeftPanel({
   const charNameIndex = useMemo(() => {
     const m = new Map<string, string>()
     for (const c of allCharacters) {
-      const en = getDisplayName(c.id, 'en').toLowerCase()
-      const zh2 = getDisplayName(c.id, 'zh').toLowerCase()
-      m.set(c.id, `${en}|${zh2}`)
+      m.set(c.id, `${getDisplayName(c.id, 'en').toLowerCase()}|${getDisplayName(c.id, 'zh').toLowerCase()}`)
     }
     return m
   }, [])
@@ -150,9 +143,9 @@ export function ScriptsLeftPanel({
     }
 
     return {
-      official:    sort(scripts.filter((s) => OFFICIAL.has(s.slug)       && filter(s))),
-      community:   sort(scripts.filter((s) => isBuiltIn(s.slug) && !OFFICIAL.has(s.slug) && filter(s))),
-      diy:         sort(scripts.filter((s) => !isBuiltIn(s.slug)         && filter(s))),
+      official:    sort(scripts.filter((s) => OFFICIAL.has(s.slug)                           && filter(s))),
+      community:   sort(scripts.filter((s) => isBuiltIn(s.slug) && !OFFICIAL.has(s.slug)     && filter(s))),
+      diy:         sort(scripts.filter((s) => !isBuiltIn(s.slug)                             && filter(s))),
       isFiltering: !!q || !!tagFilter,
     }
   }, [scripts, deferredSearch, tagFilter, sortKey, charNameIndex, isBuiltIn, getScriptTitle])
@@ -174,27 +167,20 @@ export function ScriptsLeftPanel({
     return [...preset, ...custom]
   }, [scripts])
 
-  // ── Virtual list builder ─────────────────────────────────────────────────
-  const rowData: Omit<VRowData, 'rows'> = {
-    activeSlug: activeScript?.slug,
-    language,
-    onSelect: setActiveSlug,
-    onClose,
-    isMobile,
-    duplicateScript,
-    deleteScript,
-  }
-
-  const mkList = (rows: VRow[], key: string) => {
-    if (!rows.length) return null
-    const h = Math.min(rows.length * ROW_H, 400)
-    return (
-      <FixedSizeList key={key} height={h} width="100%" itemCount={rows.length}
-        itemSize={ROW_H} itemData={{ ...rowData, rows }} overscanCount={4}>
-        {ScriptRow}
-      </FixedSizeList>
-    )
-  }
+  // ── Shared row renderer ───────────────────────────────────────────────────
+  const mkRows = (rows: EditableScript[], deletable: boolean) =>
+    rows.map((script) => (
+      <ScriptRow
+        key={script.slug}
+        script={script}
+        isActive={script.slug === activeSlug}
+        deletable={deletable}
+        language={language}
+        onSelect={() => { setActiveSlug(script.slug); if (isMobile) onClose() }}
+        duplicateScript={duplicateScript}
+        deleteScript={deleteScript}
+      />
+    ))
 
   const chipSx = {
     fontSize: '0.72rem', height: 22, fontWeight: 600,
@@ -202,12 +188,9 @@ export function ScriptsLeftPanel({
   }
 
   return (
-    <Box sx={{
-      display: 'flex', flexDirection: 'column', gap: 1,
-      height: '100%', minHeight: 0,
-    }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, height: '100%', minHeight: 0 }}>
       {/* ── Toolbar ── */}
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0 }}>
         <Typography variant="subtitle2" sx={{ flex: 1, fontWeight: 700, fontSize: '0.85rem' }}>
           {zh ? '剧本' : 'Scripts'}
           <Typography component="span" variant="caption" color="text.secondary" sx={{ ml: 0.75 }}>
@@ -232,7 +215,7 @@ export function ScriptsLeftPanel({
       </Box>
 
       {/* ── Search + Sort ── */}
-      <Box sx={{ display: 'flex', gap: 0.5 }}>
+      <Box sx={{ display: 'flex', gap: 0.5, flexShrink: 0 }}>
         <TextField
           size="small" fullWidth
           placeholder={zh ? '搜索剧本、作者、角色…' : 'Search title, author, character…'}
@@ -260,7 +243,7 @@ export function ScriptsLeftPanel({
 
       {/* ── Tag filter chips ── */}
       {filterTags.length > 0 && (
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.4 }}>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.4, flexShrink: 0 }}>
           <Chip size="small" label={zh ? '全部' : 'All'}
             variant={tagFilter === null ? 'filled' : 'outlined'}
             color={tagFilter === null ? 'primary' : 'default'}
@@ -282,32 +265,35 @@ export function ScriptsLeftPanel({
       )}
 
       {isFiltering && (
-        <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem' }}>
+        <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem', flexShrink: 0 }}>
           {official.length + community.length + diy.length} {zh ? '个结果' : 'results'}
         </Typography>
       )}
 
       {/* ── Script sections ── */}
-      <Box sx={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column', gap: 0.25 }}>
+      <Box sx={{ flex: 1, overflow: 'auto', minHeight: 0 }}>
         {isFiltering ? (
-          // Flat list when filtering
+          // Flat scrollable list when filtering
           official.length + community.length + diy.length === 0 ? (
             <Typography variant="caption" color="text.secondary" sx={{ pl: 0.5 }}>
               {zh ? '无结果' : 'No matches'}
             </Typography>
-          ) : mkList([
-            ...official.map((s) => ({ script: s, deletable: false })),
-            ...community.map((s) => ({ script: s, deletable: false })),
-            ...diy.map((s) => ({ script: s, deletable: true })),
-          ], 'flat')
+          ) : (
+            <>
+              {mkRows(official, false)}
+              {mkRows(community, false)}
+              {mkRows(diy, true)}
+            </>
+          )
         ) : (
-          <>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
             {/* Official */}
             <SectionHeader label={zh ? '官方' : 'Official'} count={official.length}
               open={officialOpen} onToggle={() => setOfficialOpen((v) => !v)} />
             <Collapse in={officialOpen}>
-              {mkList(official.map((s) => ({ script: s, deletable: false })), 'official') ??
-                <EmptyRow />}
+              <Box sx={{ maxHeight: SECTION_MAX_H, overflow: 'auto' }}>
+                {official.length > 0 ? mkRows(official, false) : <EmptyRow />}
+              </Box>
             </Collapse>
 
             <Divider sx={{ my: 0.25 }} />
@@ -316,8 +302,9 @@ export function ScriptsLeftPanel({
             <SectionHeader label={zh ? '社区' : 'Community'} count={community.length}
               open={communityOpen} onToggle={() => setCommunityOpen((v) => !v)} />
             <Collapse in={communityOpen}>
-              {mkList(community.map((s) => ({ script: s, deletable: false })), 'community') ??
-                <EmptyRow />}
+              <Box sx={{ maxHeight: SECTION_MAX_H, overflow: 'auto' }}>
+                {community.length > 0 ? mkRows(community, false) : <EmptyRow />}
+              </Box>
             </Collapse>
 
             <Divider sx={{ my: 0.25 }} />
@@ -326,12 +313,14 @@ export function ScriptsLeftPanel({
             <SectionHeader label={zh ? '自制' : 'DIY'} count={diy.length}
               open={diyOpen} onToggle={() => setDiyOpen((v) => !v)} />
             <Collapse in={diyOpen}>
-              {mkList(diy.map((s) => ({ script: s, deletable: true })), 'diy') ?? (
-                <Typography variant="caption" color="text.secondary"
-                  sx={{ pl: 0.5, fontStyle: 'italic', fontSize: '0.75rem' }}>
-                  {zh ? '点击复制图标添加剧本' : 'Copy a script above to start'}
-                </Typography>
-              )}
+              <Box sx={{ maxHeight: SECTION_MAX_H, overflow: 'auto' }}>
+                {diy.length > 0 ? mkRows(diy, true) : (
+                  <Typography variant="caption" color="text.secondary"
+                    sx={{ pl: 0.5, fontStyle: 'italic', fontSize: '0.75rem' }}>
+                    {zh ? '点击复制图标添加剧本' : 'Copy a script above to start'}
+                  </Typography>
+                )}
+              </Box>
             </Collapse>
 
             {/* ── Folder placeholder (Phase 3) ── */}
@@ -339,15 +328,14 @@ export function ScriptsLeftPanel({
             <Box sx={{
               display: 'flex', alignItems: 'center', gap: 0.75,
               px: 1, py: 0.75, borderRadius: 1.5,
-              border: '1px dashed', borderColor: 'divider',
-              opacity: 0.45,
+              border: '1px dashed', borderColor: 'divider', opacity: 0.45,
             }}>
               <FolderIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
               <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.72rem' }}>
                 {zh ? '文件夹（即将推出）' : 'Folders — coming soon'}
               </Typography>
             </Box>
-          </>
+          </Box>
         )}
       </Box>
     </Box>
