@@ -1,0 +1,56 @@
+[
+  {
+    "id": "_meta",
+    "name": "一出好戏II",
+    "jinxes": [
+      {
+        "id": "atheist::xizi",
+        "characters": [
+          "atheist",
+          "xizi"
+        ],
+        "status": "active",
+        "reason": "Xizi can not flip the result of executing sotryteller",
+        "reason_zh": "处决说书人导致的结果不会被反转"
+      },
+      {
+        "id": "legion::xizi",
+        "characters": [
+          "legion",
+          "xizi"
+        ],
+        "status": "active",
+        "reason": "If Legion tells ST they want to kill themselves, ST will wake all Legions and ask them.",
+        "reason_zh": "军团可以告诉说书人“想要自杀”.说书人会唤醒所有军团并询问意向"
+      }
+    ],
+    "name_zh": "一出好戏II",
+    "author": "刘中奇",
+    "logo": ""
+  },
+  "xizi",
+  "atheist",
+  "balloonist",
+  "cannibal",
+  "bianlianshi",
+  "langzhong",
+  "savant",
+  "shiguan",
+  "qintianjian",
+  "tixingguan",
+  "village_idiot",
+  "dianxiaoer",
+  "yinyangshi",
+  "drunk",
+  "lunatic",
+  "politician",
+  "puzzlemaster",
+  "yangguren",
+  "harpy",
+  "marionette",
+  "organ_grinder",
+  "scarletwoman",
+  "hundun",
+  "legion",
+  "lilmonsta"
+]

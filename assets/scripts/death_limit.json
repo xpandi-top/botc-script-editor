@@ -1,0 +1,31 @@
+[
+  {
+    "id": "_meta",
+    "name": "死限",
+    "bootlegger_zh": [
+      "可能会有一名外来者加入邪恶阵营"
+    ],
+    "bootlegger": [
+      "One outsider may turn Evil."
+    ],
+    "name_zh": "死限",
+    "author": "马力多多",
+    "logo": ""
+  },
+  "bingbi",
+  "fisherman",
+  "king",
+  "librarian",
+  "noble",
+  "pixie",
+  "seamstress",
+  "shiguan",
+  "snakecharmer",
+  "virgin",
+  "damsel",
+  "klutz",
+  "zealot",
+  "spy",
+  "xaan",
+  "riot"
+]

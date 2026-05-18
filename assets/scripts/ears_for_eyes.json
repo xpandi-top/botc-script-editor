@@ -1,0 +1,40 @@
+[
+  {
+    "id": "_meta",
+    "name": "以耳代目",
+    "bootlegger": [
+      "Starting Minion is always Poisoner",
+      "The player executed at first night may not die.",
+      "One not in play character is given as demon bluff each day, for up to 3",
+      "Bounty Hounter and Scarlet Woman is only added in 9 player game"
+    ],
+    "bootlegger_zh": [
+      "初始爪牙始终为投毒者",
+      "首个白天处决的玩家可能不会死亡",
+      "恶魔的伪装调整为每晚得知一个角色,至多三个",
+      "赏金猎人与红唇女郎仅在9人游戏时加入"
+    ],
+    "name_zh": "以耳代目",
+    "author": "夜雀",
+    "logo": ""
+  },
+  "bountyhunter",
+  "exorcist",
+  "flowergirl",
+  "mathematician",
+  "mayor",
+  "monk",
+  "pixie",
+  "poppygrower",
+  "seamstress",
+  "snakecharmer",
+  "barber",
+  "mutant",
+  "plague_doctor",
+  "sweetheart",
+  "baron",
+  "cerenovus",
+  "poisoner",
+  "scarletwoman",
+  "ojo"
+]

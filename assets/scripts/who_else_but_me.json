@@ -1,0 +1,35 @@
+[
+  {
+    "id": "_meta",
+    "name": "舍我其谁",
+    "bootlegger": [
+      "Each day, if no one is executed, Evil wins."
+    ],
+    "bootlegger_zh": [
+      "如果没有人被处决,邪恶阵营获胜"
+    ],
+    "name_zh": "舍我其谁",
+    "author": "阿璟",
+    "logo": ""
+  },
+  "chongfei",
+  "fool",
+  "langzhong",
+  "knight",
+  "sailor",
+  "savant",
+  "snakecharmer",
+  "qintianjian",
+  "tixingguan",
+  "village_idiot",
+  "zhen",
+  "drunk",
+  "moonchild",
+  "plague_doctor",
+  "boffin",
+  "yangguren",
+  "devilsadvocate",
+  "harpy",
+  "lleech",
+  "taowu"
+]
