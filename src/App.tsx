@@ -83,7 +83,7 @@ import { useShareParam } from './hooks/useShareParam'
 import type { TabKey } from './hooks/useShareParam'
 
 
-type ScriptMeta = { tags?: string[]; notes?: string; pinnedRevisions?: Record<string, string> }
+type ScriptMeta = { tags?: string[]; notes?: string; pinnedRevisions?: Record<string, string>; folderId?: string }
 import { storageSync } from './lib/storage'
 import { exportGameFile } from './lib/exportGame'
 import type {
@@ -223,6 +223,7 @@ export default function App() {
           ...(m.tags !== undefined ? { tags: m.tags } : {}),
           ...(m.notes !== undefined ? { notes: m.notes } : {}),
           ...(m.pinnedRevisions !== undefined ? { pinnedRevisions: m.pinnedRevisions } : {}),
+          ...(m.folderId !== undefined ? { folderId: m.folderId } : {}),
         }
       }
       return [...initialScripts.map(applyMeta), ...user.map(applyMeta)]
@@ -253,6 +254,7 @@ export default function App() {
       if (s.tags?.length) m.tags = s.tags
       if (s.notes?.trim()) m.notes = s.notes
       if (s.pinnedRevisions && Object.keys(s.pinnedRevisions).length) m.pinnedRevisions = s.pinnedRevisions
+      if (s.folderId) m.folderId = s.folderId
       if (Object.keys(m).length) meta[s.slug] = m
     }
     try { localStorage.setItem(SCRIPT_META_KEY, JSON.stringify(meta)) } catch {}

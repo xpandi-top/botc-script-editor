@@ -35,6 +35,7 @@ type RowProps = {
   script: EditableScript
   isActive: boolean
   deletable: boolean
+  canFolder: boolean           // true for DIY + community (not official)
   language: Language
   folders: ScriptFolder[]
   onSelect: () => void
@@ -43,7 +44,7 @@ type RowProps = {
   moveScriptToFolder: (slug: string, folderId: string | undefined) => void
 }
 
-function ScriptRow({ script, isActive, deletable, language, folders, onSelect, duplicateScript, deleteScript, moveScriptToFolder }: RowProps) {
+function ScriptRow({ script, isActive, deletable, canFolder, language, folders, onSelect, duplicateScript, deleteScript, moveScriptToFolder }: RowProps) {
   const zh = language === 'zh'
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null)
 
@@ -58,6 +59,7 @@ function ScriptRow({ script, isActive, deletable, language, folders, onSelect, d
           onSelect={onSelect}
         />
       </Box>
+      {/* Copy-to-DIY: official + community */}
       {!deletable && (
         <Tooltip title={zh ? '复制到自制' : 'Copy to DIY'}>
           <IconButton size="small" onClick={() => duplicateScript(script.slug)}
@@ -66,7 +68,8 @@ function ScriptRow({ script, isActive, deletable, language, folders, onSelect, d
           </IconButton>
         </Tooltip>
       )}
-      {deletable && folders.length > 0 && (
+      {/* Move-to-folder: DIY + community */}
+      {canFolder && folders.length > 0 && (
         <>
           <Tooltip title={zh ? '移动到文件夹' : 'Move to folder'}>
             <IconButton size="small" onClick={(e) => setMenuAnchor(e.currentTarget)}
@@ -93,6 +96,7 @@ function ScriptRow({ script, isActive, deletable, language, folders, onSelect, d
           </Menu>
         </>
       )}
+      {/* Delete: DIY only */}
       {deletable && (
         <Tooltip title={zh ? '删除' : 'Delete'}>
           <IconButton size="small" color="error" onClick={() => deleteScript(script.slug)}
@@ -222,13 +226,15 @@ export function ScriptsLeftPanel({
   }, [scripts])
 
   // ── Shared row renderer ───────────────────────────────────────────────────
-  const mkRows = (rows: EditableScript[], deletable: boolean) =>
+  // canFolder = true for DIY (deletable) + community (!deletable && !official)
+  const mkRows = (rows: EditableScript[], deletable: boolean, canFolder = false) =>
     rows.map((script) => (
       <ScriptRow
         key={script.slug}
         script={script}
         isActive={script.slug === activeSlug}
         deletable={deletable}
+        canFolder={deletable || canFolder}
         language={language}
         folders={scriptFolders}
         onSelect={() => { setActiveSlug(script.slug); if (isMobile) onClose() }}
@@ -351,7 +357,7 @@ export function ScriptsLeftPanel({
           ) : (
             <>
               {mkRows(official, false)}
-              {mkRows(community, false)}
+              {mkRows(community, false, true)}
               {mkRows(diy, true)}
             </>
           )
@@ -369,11 +375,28 @@ export function ScriptsLeftPanel({
             <Divider sx={{ my: 0.25 }} />
 
             {/* Community */}
-            <SectionHeader label={zh ? '社区' : 'Community'} count={community.length}
-              open={communityOpen} onToggle={() => setCommunityOpen((v) => !v)} />
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Box sx={{ flex: 1 }}>
+                <SectionHeader label={zh ? '社区' : 'Community'} count={community.length}
+                  open={communityOpen} onToggle={() => setCommunityOpen((v) => !v)} />
+              </Box>
+              <NewFolderButton language={language} onCreate={(name) => createFolder(name)} />
+            </Box>
             <Collapse in={communityOpen}>
               <Box sx={{ maxHeight: SECTION_MAX_H, overflow: 'auto' }}>
-                {community.length > 0 ? mkRows(community, false) : <EmptyRow />}
+                {community.length === 0 ? <EmptyRow /> : (
+                  <ScriptTree
+                    scripts={community}
+                    folders={scriptFolders}
+                    language={language}
+                    deletable={false}
+                    canFolder={true}
+                    renameFolder={renameFolder}
+                    deleteFolder={deleteFolder}
+                    toggleFolderCollapsed={toggleFolderCollapsed}
+                    mkRows={mkRows}
+                  />
+                )}
               </Box>
             </Collapse>
 
@@ -395,10 +418,12 @@ export function ScriptsLeftPanel({
                     {zh ? '点击复制图标添加剧本' : 'Copy a script above to start'}
                   </Typography>
                 ) : (
-                  <DiyScriptTree
+                  <ScriptTree
                     scripts={diy}
                     folders={scriptFolders}
                     language={language}
+                    deletable={true}
+                    canFolder={true}
                     renameFolder={renameFolder}
                     deleteFolder={deleteFolder}
                     toggleFolderCollapsed={toggleFolderCollapsed}
@@ -414,12 +439,14 @@ export function ScriptsLeftPanel({
   )
 }
 
-// ── DIY folder tree ───────────────────────────────────────────────────────────
+// ── Script folder tree (used by both Community + DIY sections) ───────────────
 
-function DiyScriptTree({
+function ScriptTree({
   scripts,
   folders,
   language,
+  deletable,
+  canFolder,
   renameFolder,
   deleteFolder,
   toggleFolderCollapsed,
@@ -428,22 +455,27 @@ function DiyScriptTree({
   scripts: EditableScript[]
   folders: ScriptFolder[]
   language: Language
+  deletable: boolean
+  canFolder: boolean
   renameFolder: (id: string, name: string) => void
   deleteFolder: (id: string) => void
   toggleFolderCollapsed: (id: string) => void
-  mkRows: (rows: EditableScript[], deletable: boolean) => React.ReactNode
+  mkRows: (rows: EditableScript[], deletable: boolean, canFolder?: boolean) => React.ReactNode
 }) {
   const unfoldered = scripts.filter((s) => !s.folderId)
+  // Only show folders that have at least one script from this section,
+  // or if global folder set is shared — show all folders but scoped scripts
   const sorted = [...folders].sort((a, b) => a.order - b.order)
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
-      {/* Unfoldered scripts first */}
-      {unfoldered.length > 0 && mkRows(unfoldered, true)}
+      {/* Unfoldered scripts */}
+      {unfoldered.length > 0 && mkRows(unfoldered, deletable, canFolder)}
 
-      {/* Folder sections */}
+      {/* Folder sections — only folders that contain scripts from this section */}
       {sorted.map((folder) => {
         const folderScripts = scripts.filter((s) => s.folderId === folder.id)
+        if (folderScripts.length === 0) return null
         return (
           <ScriptFolderRow
             key={folder.id}
@@ -454,7 +486,7 @@ function DiyScriptTree({
             onRename={(name) => renameFolder(folder.id, name)}
             onDelete={() => deleteFolder(folder.id)}
           >
-            {mkRows(folderScripts, true)}
+            {mkRows(folderScripts, deletable, canFolder)}
           </ScriptFolderRow>
         )
       })}
