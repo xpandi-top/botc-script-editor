@@ -6,9 +6,18 @@ import { ModalsNewGame } from './ModalsNewGame'
 import { ModalsEndGame } from './ModalsEndGame'
 import { ModalsDialog } from './ModalsDialog'
 import { ModalsExport } from './ModalsExport'
+import { DealHostPage } from '../../DealHostPage'
 
 export function Modals({ ctx }: { ctx: StorytellerContext }) {
-  const { showEditPlayersModal, setShowEditPlayersModal, newGamePanel, showNewGamePanel, setShowNewGamePanel, showEndGameModal, setShowEndGameModal, showExportModal, setShowExportModal, text } = ctx
+  const {
+    showEditPlayersModal, setShowEditPlayersModal,
+    newGamePanel, setNewGamePanel, showNewGamePanel, setShowNewGamePanel,
+    showEndGameModal, setShowEndGameModal,
+    showExportModal, setShowExportModal,
+    text, language,
+    activeDealSession, setActiveDealSession,
+    startNewGame,
+  } = ctx
 
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
@@ -61,6 +70,36 @@ export function Modals({ ctx }: { ctx: StorytellerContext }) {
       </Dialog>
 
       <ModalsDialog ctx={ctx} />
+
+      {/* ── Deal host overlay — shown when ST clicks "Deal Cards" ── */}
+      <Dialog
+        open={!!activeDealSession}
+        onClose={() => setActiveDealSession(null)}
+        fullScreen
+        slotProps={{ paper: { sx: { bgcolor: 'background.default' } } }}
+      >
+        <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
+          {language === 'zh' ? '发牌控制台' : 'Deal Dashboard'}
+          <IconButton onClick={() => setActiveDealSession(null)} size="small"><CloseIcon /></IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ p: 0 }}>
+          {activeDealSession && (
+            <DealHostPage
+              sessionId={activeDealSession.sessionId}
+              hostToken={activeDealSession.hostToken}
+              language={language}
+              onApplyToGame={(patch) => {
+                if (!newGamePanel) return
+                const merged = { ...newGamePanel, ...patch }
+                setActiveDealSession(null)
+                setShowNewGamePanel(false)
+                startNewGame(merged)
+              }}
+              onClose={() => setActiveDealSession(null)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   )
 }

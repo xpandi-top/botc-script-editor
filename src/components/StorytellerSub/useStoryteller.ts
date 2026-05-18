@@ -47,6 +47,7 @@ export function useStoryteller(props: StorytellerHelperProps) {
   const [skillOverlay, setSkillOverlay] = useState<SkillOverlayState | null>(null)
   const [newGamePanel, setNewGamePanel] = useState<NewGameConfig | null>(null)
   const [showNewGamePanel, setShowNewGamePanel] = useState(false)
+  const [activeDealSession, setActiveDealSession] = useState<{ sessionId: string; hostToken: string } | null>(null)
   const [showSaveBeforeNewGame, setShowSaveBeforeNewGame] = useState(false)
   const [pendingNewGameAfterSave, setPendingNewGameAfterSave] = useState(false)
   const [endGameResult, setEndGameResult] = useState<EndGameResult | null>(initial.endGameResult ?? null)
@@ -302,6 +303,7 @@ export function useStoryteller(props: StorytellerHelperProps) {
     skillOverlay, setSkillOverlay,
     ...audio,
     newGamePanel, setNewGamePanel, showNewGamePanel, setShowNewGamePanel,
+    activeDealSession, setActiveDealSession,
     showSaveBeforeNewGame, setShowSaveBeforeNewGame,
     pendingNewGameAfterSave, setPendingNewGameAfterSave,
     endGameResult, setEndGameResult, showEndGameModal, setShowEndGameModal,

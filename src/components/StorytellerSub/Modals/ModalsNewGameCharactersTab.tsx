@@ -23,6 +23,7 @@ type Props = {
   language: string
   updateConfig: (patch: any) => void
   randomAssignCharacters: (config: any) => Record<number, string>
+  onDealCreated?: (sessionId: string, hostToken: string) => void
 }
 
 // ── Character pool multi-picker ───────────────────────────────────────────────
@@ -102,7 +103,7 @@ function CharPoolPicker({ scriptChars, selected, onChange, language }: {
 const TRAVELER_CHARS = allCharacters.filter((c) => c.team === 'traveler').map((c) => c.id)
 
 // ── Main tab ──────────────────────────────────────────────────────────────────
-export function CharactersTab({ newGamePanel, scriptOptions = [], language, updateConfig, randomAssignCharacters }: Props) {
+export function CharactersTab({ newGamePanel, scriptOptions = [], language, updateConfig, randomAssignCharacters, onDealCreated }: Props) {
   const zh = language === 'zh'
   const t = makeT(language)
   const tpl = makeTpl(language)
@@ -118,11 +119,10 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
     try {
       const shuffled = shuffleDealCards(characterIds)
       const { sessionId, hostToken } = await createDealSession(shuffled)
-      // Persist host token so ST can re-open the dashboard without ?host= in URL
+      // Persist host token so deal page can verify without ?host= param
       try { localStorage.setItem(HOST_TOKEN_KEY(sessionId), hostToken) } catch {}
-      // Open deal host page in new tab — ST keeps the new-game modal open
-      const url = `${window.location.origin}${window.location.pathname}?deal=${sessionId}&host=${hostToken}`
-      window.open(url, '_blank', 'noopener')
+      // Hand off to parent — shown as overlay dialog (no new tab, no state loss)
+      onDealCreated?.(sessionId, hostToken)
     } catch (e) {
       console.error('Failed to create deal session', e)
     } finally {

@@ -323,7 +323,7 @@ export function DealHostPage({ sessionId, hostToken, language, onApplyToGame, on
               onClick={handleApplyToGame}
               disabled={cards.filter(c => c.assignedSeat != null).length === 0}
             >
-              {zh ? '应用到游戏' : 'Apply to Game'}
+              {zh ? '应用并开始游戏' : 'Apply & Start Game'}
             </Button>
           </Box>
         </>
