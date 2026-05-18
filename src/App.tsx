@@ -75,6 +75,7 @@ import {
   toTitleCase,
 } from './catalog'
 import { STORAGE_KEY, USER_SCRIPTS_KEY, SCRIPT_META_KEY, RECORDS_CHANGED_EVENT } from './components/StorytellerSub/constants'
+import { BOTC_SCRIPT_FOLDERS_KEY } from './components/tabs/ScriptsTab.constants'
 import { useCloudSync } from './hooks/useCloudSync'
 import { getClientId } from './lib/googleAuth'
 import type { SyncStatus } from './hooks/useCloudSync'
@@ -92,6 +93,7 @@ import type {
   Language,
   ResolvedScriptCharacter,
   ResolvedScriptCharacterGroup,
+  ScriptFolder,
   Team,
 } from './types'
 import { useThemeMode } from './context/ThemeMode'
@@ -256,6 +258,35 @@ export default function App() {
     try { localStorage.setItem(SCRIPT_META_KEY, JSON.stringify(meta)) } catch {}
     scheduleSync()
   }, [scripts, initialSlugs, scheduleSync])
+
+  // ── Script folders ────────────────────────────────────────────────────────
+  const [scriptFolders, setScriptFolders] = useState<ScriptFolder[]>(() => {
+    try { return JSON.parse(localStorage.getItem(BOTC_SCRIPT_FOLDERS_KEY) ?? '[]') as ScriptFolder[] } catch { return [] }
+  })
+  useEffect(() => {
+    try { localStorage.setItem(BOTC_SCRIPT_FOLDERS_KEY, JSON.stringify(scriptFolders)) } catch {}
+  }, [scriptFolders])
+
+  function createFolder(name: string): ScriptFolder {
+    const id = `folder-${Date.now()}`
+    const folder: ScriptFolder = { id, name, order: scriptFolders.length }
+    setScriptFolders((cur) => [...cur, folder])
+    return folder
+  }
+  function renameFolder(id: string, name: string) {
+    setScriptFolders((cur) => cur.map((f) => f.id === id ? { ...f, name } : f))
+  }
+  function deleteFolder(id: string) {
+    // un-assign scripts that were in this folder
+    setScripts((cur) => cur.map((s) => s.folderId === id ? { ...s, folderId: undefined } : s))
+    setScriptFolders((cur) => cur.filter((f) => f.id !== id))
+  }
+  function toggleFolderCollapsed(id: string) {
+    setScriptFolders((cur) => cur.map((f) => f.id === id ? { ...f, collapsed: !f.collapsed } : f))
+  }
+  function moveScriptToFolder(slug: string, folderId: string | undefined) {
+    setScripts((cur) => cur.map((s) => s.slug === slug ? { ...s, folderId } : s))
+  }
 
   // ── Custom characters ─────────────────────────────────────────────────────
   const [customChars, setCustomChars] = useState<CustomCharacter[]>(() => {
@@ -813,6 +844,12 @@ export default function App() {
           deleteScript={deleteScript}
           duplicateScript={duplicateScript}
           isBuiltIn={(slug) => initialSlugs.has(slug)}
+          scriptFolders={scriptFolders}
+          createFolder={createFolder}
+          renameFolder={renameFolder}
+          deleteFolder={deleteFolder}
+          toggleFolderCollapsed={toggleFolderCollapsed}
+          moveScriptToFolder={moveScriptToFolder}
           downloadScriptFile={downloadScriptFile}
           updateActiveScript={updateActiveScript}
           toggleCharacterInScript={toggleCharacterInScript}

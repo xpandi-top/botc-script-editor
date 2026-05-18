@@ -1,7 +1,8 @@
-import { useEffect, useDeferredValue, useMemo, useState } from 'react'
+import React, { useEffect, useDeferredValue, useMemo, useState } from 'react'
 import {
-  Box, Chip, Collapse, Divider, IconButton, Select,
-  MenuItem, TextField, ToggleButton, ToggleButtonGroup, Tooltip, Typography,
+  Box, Chip, Collapse, Divider, IconButton, ListItemIcon, ListItemText,
+  Menu, MenuItem, Select, TextField,
+  ToggleButton, ToggleButtonGroup, Tooltip, Typography,
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import DashboardIcon from '@mui/icons-material/Dashboard'
@@ -12,12 +13,15 @@ import FolderIcon from '@mui/icons-material/Folder'
 import MenuOpenIcon from '@mui/icons-material/MenuOpen'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import DeleteIcon from '@mui/icons-material/Delete'
+import DriveFileMoveIcon from '@mui/icons-material/DriveFileMove'
+import FolderOffIcon from '@mui/icons-material/FolderOff'
 import SortIcon from '@mui/icons-material/Sort'
 import ViewListIcon from '@mui/icons-material/ViewList'
+import { ScriptFolderRow, NewFolderButton } from './ScriptFolderRow'
 import { allCharacters, getDisplayName } from '../../catalog'
 import { ScriptCard } from './ScriptCard'
 import { SCRIPT_TAG_META, SCRIPT_TAGS } from '../tabs/ScriptsTab.constants'
-import type { EditableScript, Language } from '../../types'
+import type { EditableScript, Language, ScriptFolder } from '../../types'
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -32,12 +36,17 @@ type RowProps = {
   isActive: boolean
   deletable: boolean
   language: Language
+  folders: ScriptFolder[]
   onSelect: () => void
   duplicateScript: (slug: string) => void
   deleteScript: (slug: string) => void
+  moveScriptToFolder: (slug: string, folderId: string | undefined) => void
 }
 
-function ScriptRow({ script, isActive, deletable, language, onSelect, duplicateScript, deleteScript }: RowProps) {
+function ScriptRow({ script, isActive, deletable, language, folders, onSelect, duplicateScript, deleteScript, moveScriptToFolder }: RowProps) {
+  const zh = language === 'zh'
+  const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null)
+
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25, pr: 0.5 }}>
       <Box sx={{ flex: 1, minWidth: 0 }}>
@@ -50,15 +59,42 @@ function ScriptRow({ script, isActive, deletable, language, onSelect, duplicateS
         />
       </Box>
       {!deletable && (
-        <Tooltip title={language === 'zh' ? '复制到自制' : 'Copy to DIY'}>
+        <Tooltip title={zh ? '复制到自制' : 'Copy to DIY'}>
           <IconButton size="small" onClick={() => duplicateScript(script.slug)}
             sx={{ flexShrink: 0, opacity: 0.35, '&:hover': { opacity: 1 } }}>
             <ContentCopyIcon sx={{ fontSize: 13 }} />
           </IconButton>
         </Tooltip>
       )}
+      {deletable && folders.length > 0 && (
+        <>
+          <Tooltip title={zh ? '移动到文件夹' : 'Move to folder'}>
+            <IconButton size="small" onClick={(e) => setMenuAnchor(e.currentTarget)}
+              sx={{ flexShrink: 0, opacity: 0.35, '&:hover': { opacity: 1 } }}>
+              <DriveFileMoveIcon sx={{ fontSize: 13 }} />
+            </IconButton>
+          </Tooltip>
+          <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={() => setMenuAnchor(null)}
+            slotProps={{ paper: { sx: { minWidth: 160 } } }}>
+            {script.folderId && (
+              <MenuItem dense onClick={() => { moveScriptToFolder(script.slug, undefined); setMenuAnchor(null) }}>
+                <ListItemIcon><FolderOffIcon sx={{ fontSize: 16 }} /></ListItemIcon>
+                <ListItemText slotProps={{ primary: { sx: { fontSize: '0.8rem' } } }}>
+                  {zh ? '移出文件夹' : 'Remove from folder'}
+                </ListItemText>
+              </MenuItem>
+            )}
+            {folders.map((f) => f.id !== script.folderId && (
+              <MenuItem key={f.id} dense onClick={() => { moveScriptToFolder(script.slug, f.id); setMenuAnchor(null) }}>
+                <ListItemIcon><FolderIcon sx={{ fontSize: 16, color: 'warning.main' }} /></ListItemIcon>
+                <ListItemText slotProps={{ primary: { sx: { fontSize: '0.8rem' } } }}>{f.name}</ListItemText>
+              </MenuItem>
+            ))}
+          </Menu>
+        </>
+      )}
       {deletable && (
-        <Tooltip title={language === 'zh' ? '删除' : 'Delete'}>
+        <Tooltip title={zh ? '删除' : 'Delete'}>
           <IconButton size="small" color="error" onClick={() => deleteScript(script.slug)}
             sx={{ flexShrink: 0, opacity: 0.45, '&:hover': { opacity: 1 } }}>
             <DeleteIcon sx={{ fontSize: 14 }} />
@@ -86,6 +122,12 @@ type Props = {
   deleteScript: (slug: string) => void
   duplicateScript: (slug: string) => void
   isBuiltIn: (slug: string) => boolean
+  scriptFolders: ScriptFolder[]
+  createFolder: (name: string) => ScriptFolder
+  renameFolder: (id: string, name: string) => void
+  deleteFolder: (id: string) => void
+  toggleFolderCollapsed: (id: string) => void
+  moveScriptToFolder: (slug: string, folderId: string | undefined) => void
 }
 
 // ── Component ────────────────────────────────────────────────────────────────
@@ -105,6 +147,12 @@ export function ScriptsLeftPanel({
   deleteScript,
   duplicateScript,
   isBuiltIn,
+  scriptFolders,
+  createFolder,
+  renameFolder,
+  deleteFolder,
+  toggleFolderCollapsed,
+  moveScriptToFolder,
 }: Props) {
   const zh = language === 'zh'
 
@@ -182,9 +230,11 @@ export function ScriptsLeftPanel({
         isActive={script.slug === activeSlug}
         deletable={deletable}
         language={language}
+        folders={scriptFolders}
         onSelect={() => { setActiveSlug(script.slug); if (isMobile) onClose() }}
         duplicateScript={duplicateScript}
         deleteScript={deleteScript}
+        moveScriptToFolder={moveScriptToFolder}
       />
     ))
 
@@ -330,34 +380,84 @@ export function ScriptsLeftPanel({
             <Divider sx={{ my: 0.25 }} />
 
             {/* DIY */}
-            <SectionHeader label={zh ? '自制' : 'DIY'} count={diy.length}
-              open={diyOpen} onToggle={() => setDiyOpen((v) => !v)} />
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Box sx={{ flex: 1 }}>
+                <SectionHeader label={zh ? '自制' : 'DIY'} count={diy.length}
+                  open={diyOpen} onToggle={() => setDiyOpen((v) => !v)} />
+              </Box>
+              <NewFolderButton language={language} onCreate={(name) => createFolder(name)} />
+            </Box>
             <Collapse in={diyOpen}>
               <Box sx={{ maxHeight: SECTION_MAX_H, overflow: 'auto' }}>
-                {diy.length > 0 ? mkRows(diy, true) : (
+                {diy.length === 0 ? (
                   <Typography variant="caption" color="text.secondary"
                     sx={{ pl: 0.5, fontStyle: 'italic', fontSize: '0.75rem' }}>
                     {zh ? '点击复制图标添加剧本' : 'Copy a script above to start'}
                   </Typography>
+                ) : (
+                  <DiyScriptTree
+                    scripts={diy}
+                    folders={scriptFolders}
+                    language={language}
+                    renameFolder={renameFolder}
+                    deleteFolder={deleteFolder}
+                    toggleFolderCollapsed={toggleFolderCollapsed}
+                    mkRows={mkRows}
+                  />
                 )}
               </Box>
             </Collapse>
-
-            {/* ── Folder placeholder (Phase 3) ── */}
-            <Divider sx={{ my: 0.5 }} />
-            <Box sx={{
-              display: 'flex', alignItems: 'center', gap: 0.75,
-              px: 1, py: 0.75, borderRadius: 1.5,
-              border: '1px dashed', borderColor: 'divider', opacity: 0.45,
-            }}>
-              <FolderIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
-              <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.72rem' }}>
-                {zh ? '文件夹（即将推出）' : 'Folders — coming soon'}
-              </Typography>
-            </Box>
           </Box>
         )}
       </Box>
+    </Box>
+  )
+}
+
+// ── DIY folder tree ───────────────────────────────────────────────────────────
+
+function DiyScriptTree({
+  scripts,
+  folders,
+  language,
+  renameFolder,
+  deleteFolder,
+  toggleFolderCollapsed,
+  mkRows,
+}: {
+  scripts: EditableScript[]
+  folders: ScriptFolder[]
+  language: Language
+  renameFolder: (id: string, name: string) => void
+  deleteFolder: (id: string) => void
+  toggleFolderCollapsed: (id: string) => void
+  mkRows: (rows: EditableScript[], deletable: boolean) => React.ReactNode
+}) {
+  const unfoldered = scripts.filter((s) => !s.folderId)
+  const sorted = [...folders].sort((a, b) => a.order - b.order)
+
+  return (
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
+      {/* Unfoldered scripts first */}
+      {unfoldered.length > 0 && mkRows(unfoldered, true)}
+
+      {/* Folder sections */}
+      {sorted.map((folder) => {
+        const folderScripts = scripts.filter((s) => s.folderId === folder.id)
+        return (
+          <ScriptFolderRow
+            key={folder.id}
+            folder={folder}
+            count={folderScripts.length}
+            language={language}
+            onToggle={() => toggleFolderCollapsed(folder.id)}
+            onRename={(name) => renameFolder(folder.id, name)}
+            onDelete={() => deleteFolder(folder.id)}
+          >
+            {mkRows(folderScripts, true)}
+          </ScriptFolderRow>
+        )
+      })}
     </Box>
   )
 }

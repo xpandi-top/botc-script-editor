@@ -8,6 +8,8 @@ export type TagMeta = { en: string; zh: string; Icon: React.ElementType; color: 
 
 export const SCRIPT_TAGS = ['favorite', 'good', 'bad', 'excellent'] as const
 
+export const BOTC_SCRIPT_FOLDERS_KEY = 'BOTC_SCRIPT_FOLDERS'
+
 export const SCRIPT_TAG_META: Record<string, TagMeta> = {
   favorite:  { en: 'Favorite',  zh: '收藏', Icon: StarIcon,        color: '#f9a825' },
   good:      { en: 'Good',      zh: '好玩', Icon: ThumbUpIcon,     color: '#388e3c' },

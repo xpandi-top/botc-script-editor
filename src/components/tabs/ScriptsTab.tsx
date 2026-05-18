@@ -22,6 +22,7 @@ import type {
   Language,
   ResolvedScriptCharacter,
   ResolvedScriptCharacterGroup,
+  ScriptFolder,
 } from '../../types'
 import type { PrintOptions } from '../PrintOptionsDialog'
 
@@ -47,6 +48,12 @@ type Props = {
   deleteScript: (slug: string) => void
   duplicateScript: (slug: string) => void
   isBuiltIn: (slug: string) => boolean
+  scriptFolders: ScriptFolder[]
+  createFolder: (name: string) => ScriptFolder
+  renameFolder: (id: string, name: string) => void
+  deleteFolder: (id: string) => void
+  toggleFolderCollapsed: (id: string) => void
+  moveScriptToFolder: (slug: string, folderId: string | undefined) => void
   downloadScriptFile: () => void
   updateActiveScript: (updater: (script: EditableScript) => EditableScript, nextSlug?: string) => void
   toggleCharacterInScript: (id: string) => void
@@ -80,6 +87,12 @@ export function ScriptsTab({
   deleteScript,
   duplicateScript,
   isBuiltIn,
+  scriptFolders,
+  createFolder,
+  renameFolder,
+  deleteFolder,
+  toggleFolderCollapsed,
+  moveScriptToFolder,
   downloadScriptFile,
   updateActiveScript,
   toggleCharacterInScript,
@@ -169,6 +182,12 @@ export function ScriptsTab({
             deleteScript={deleteScript}
             duplicateScript={duplicateScript}
             isBuiltIn={isBuiltIn}
+            scriptFolders={scriptFolders}
+            createFolder={createFolder}
+            renameFolder={renameFolder}
+            deleteFolder={deleteFolder}
+            toggleFolderCollapsed={toggleFolderCollapsed}
+            moveScriptToFolder={moveScriptToFolder}
           />
         </Paper>
       ) : null}

@@ -117,6 +117,16 @@ export type EditableScript = {
   notes?: string                           // ST notes for this script (legacy — kept for compat)
   tags?: string[]                          // quick status tags (wip, balanced, experimental…)
   pinnedRevisions?: Record<string, string> // charId → revisionId override
+  folderId?: string                        // optional folder assignment (DIY scripts only)
+}
+
+// ── Script folders (Phase 3) ──────────────────────────────────────────────────
+
+export type ScriptFolder = {
+  id: string
+  name: string
+  order: number
+  collapsed?: boolean
 }
 
 export type ResolvedScriptCharacter = CharacterEntry & {
