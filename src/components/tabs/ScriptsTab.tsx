@@ -272,13 +272,14 @@ export function ScriptsTab({
             })()}
 
             {/* ── Night order preview (standalone, collapsible) ── */}
-            {showWakeOrderPreview && !isEditMode && (
-              <Box sx={{
-                mb: 2, p: 1.5,
-                border: '1px solid', borderColor: 'divider', borderRadius: 2,
-                bgcolor: 'action.hover',
-              }}>
-                <NightOrderPreview script={activeScript} language={uiLanguage} />
+            {!isEditMode && (
+              <Box sx={{ mb: 2 }}>
+                <NightOrderPreview
+                  script={activeScript}
+                  language={uiLanguage}
+                  open={showWakeOrderPreview}
+                  onToggle={() => setShowWakeOrderPreview((c) => !c)}
+                />
               </Box>
             )}
 

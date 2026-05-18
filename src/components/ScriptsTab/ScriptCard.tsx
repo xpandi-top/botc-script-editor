@@ -44,9 +44,12 @@ export function ScriptCard({
   const zh = language === 'zh'
   const title = language === 'zh' && script.titleZh ? script.titleZh : script.title
 
-  // Determine edition badge
-  const editionKey = script.edition?.toLowerCase() ?? (isBuiltIn ? 'custom' : 'custom')
-  const editionMeta = EDITION_LABELS[editionKey]
+  // Determine edition badge:
+  // - Known edition (tb/bmr/snv) → show that badge
+  // - DIY script (!isBuiltIn) with no recognized edition → show "DIY"/"自制"
+  // - Built-in community scripts with unrecognized edition → no badge
+  const editionKey = script.edition?.toLowerCase() ?? ''
+  const editionMeta = EDITION_LABELS[editionKey] ?? (!isBuiltIn ? EDITION_LABELS['custom'] : undefined)
 
   // Tag dots (first 3)
   const tags = script.tags ?? []
@@ -83,7 +86,7 @@ export function ScriptCard({
               const color = SCRIPT_TAG_META[tag]?.color ?? '#9e9e9e'
               return (
                 <Box key={tag} title={tag} sx={{
-                  width: 5, height: 5, borderRadius: '50%', bgcolor: color, flexShrink: 0,
+                  width: 7, height: 7, borderRadius: '50%', bgcolor: color, flexShrink: 0,
                 }} />
               )
             })}
@@ -142,7 +145,7 @@ export function ScriptCard({
           <Box sx={{ display: 'flex', gap: '2px', flexShrink: 0, alignItems: 'center' }}>
             {TEAM_ORDER.filter((t) => (teamCounts[t] ?? 0) > 0).map((team) => (
               <Box key={team} title={`${team}: ${teamCounts[team]}`} sx={{
-                width: 6, height: 6, borderRadius: '50%',
+                width: 8, height: 8, borderRadius: '50%',
                 bgcolor: TEAM_COLORS[team],
                 flexShrink: 0,
               }} />
