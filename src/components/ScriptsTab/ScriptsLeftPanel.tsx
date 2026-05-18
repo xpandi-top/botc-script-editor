@@ -1,9 +1,10 @@
 import { useEffect, useDeferredValue, useMemo, useState } from 'react'
 import {
   Box, Chip, Collapse, Divider, IconButton, Select,
-  MenuItem, TextField, Tooltip, Typography,
+  MenuItem, TextField, ToggleButton, ToggleButtonGroup, Tooltip, Typography,
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
+import DashboardIcon from '@mui/icons-material/Dashboard'
 import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import FileOpenIcon from '@mui/icons-material/FileOpen'
@@ -12,6 +13,7 @@ import MenuOpenIcon from '@mui/icons-material/MenuOpen'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import DeleteIcon from '@mui/icons-material/Delete'
 import SortIcon from '@mui/icons-material/Sort'
+import ViewListIcon from '@mui/icons-material/ViewList'
 import { allCharacters, getDisplayName } from '../../catalog'
 import { ScriptCard } from './ScriptCard'
 import { SCRIPT_TAG_META, SCRIPT_TAGS } from '../tabs/ScriptsTab.constants'
@@ -74,6 +76,8 @@ type Props = {
   activeScript: EditableScript | undefined
   language: Language
   isMobile: boolean
+  browseMode: 'list' | 'masonry'
+  onBrowseModeChange: (mode: 'list' | 'masonry') => void
   getScriptTitle: (s: EditableScript) => string
   setActiveSlug: (slug: string) => void
   onClose: () => void
@@ -91,6 +95,8 @@ export function ScriptsLeftPanel({
   activeScript,
   language,
   isMobile,
+  browseMode,
+  onBrowseModeChange,
   getScriptTitle,
   setActiveSlug,
   onClose,
@@ -197,6 +203,20 @@ export function ScriptsLeftPanel({
             ({official.length + community.length + diy.length})
           </Typography>
         </Typography>
+        <ToggleButtonGroup size="small" exclusive value={browseMode}
+          onChange={(_, v) => { if (v) onBrowseModeChange(v) }}
+          sx={{ '& .MuiToggleButton-root': { py: '2px', px: '5px' } }}>
+          <ToggleButton value="list">
+            <Tooltip title={zh ? '列表视图' : 'List view'}>
+              <ViewListIcon sx={{ fontSize: 15 }} />
+            </Tooltip>
+          </ToggleButton>
+          <ToggleButton value="masonry">
+            <Tooltip title={zh ? '卡片视图' : 'Card view'}>
+              <DashboardIcon sx={{ fontSize: 15 }} />
+            </Tooltip>
+          </ToggleButton>
+        </ToggleButtonGroup>
         <Tooltip title={zh ? '新建剧本' : 'New Script'}>
           <IconButton size="small" onClick={createNewScript}><AddIcon sx={{ fontSize: 16 }} /></IconButton>
         </Tooltip>

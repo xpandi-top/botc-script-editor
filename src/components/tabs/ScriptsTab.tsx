@@ -9,7 +9,6 @@ import NightsStayIcon from '@mui/icons-material/NightsStay'
 import NoteAltIcon from '@mui/icons-material/NoteAlt'
 import ViewListIcon from '@mui/icons-material/ViewList'
 import ViewModuleIcon from '@mui/icons-material/ViewModule'
-import DashboardIcon from '@mui/icons-material/Dashboard'
 import { useBreakpoint } from '../../hooks/useBreakpoint'
 import { SheetArticle } from '../SheetArticle'
 import { ScriptsLeftPanel } from '../ScriptsTab/ScriptsLeftPanel'
@@ -140,6 +139,8 @@ export function ScriptsTab({
             scripts={scripts}
             activeScript={activeScript}
             language={uiLanguage}
+            browseMode={browseMode}
+            onBrowseModeChange={setBrowseMode}
             onSelect={setActiveSlug}
             isBuiltIn={isBuiltIn}
             createNewScript={createNewScript}
@@ -158,6 +159,8 @@ export function ScriptsTab({
             activeScript={activeScript}
             language={uiLanguage}
             isMobile={isMobile}
+            browseMode={browseMode}
+            onBrowseModeChange={setBrowseMode}
             getScriptTitle={getScriptTitle}
             setActiveSlug={setActiveSlug}
             onClose={() => setListOpen(false)}
@@ -177,27 +180,10 @@ export function ScriptsTab({
           <>
             {/* ── Toolbar ── */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2, flexWrap: 'wrap' }}>
-              {/* Browse-mode toggle */}
-              <ToggleButtonGroup size="small" exclusive
-                value={browseMode}
-                onChange={(_, v) => { if (v) setBrowseMode(v) }}>
-                <ToggleButton value="list">
-                  <Tooltip title={zh ? '列表视图' : 'List view'}>
-                    <ViewListIcon fontSize="small" />
-                  </Tooltip>
-                </ToggleButton>
-                <ToggleButton value="masonry">
-                  <Tooltip title={zh ? '卡片视图' : 'Card view'}>
-                    <DashboardIcon fontSize="small" />
-                  </Tooltip>
-                </ToggleButton>
-              </ToggleButtonGroup>
-              {browseMode === 'list' && (
-                <IconButton size="small" onClick={() => setListOpen((v) => !v)}
-                  title={showList ? 'Hide list' : 'Show list'}>
-                  {showList ? <MenuOpenIcon fontSize="small" /> : <MenuIcon fontSize="small" />}
-                </IconButton>
-              )}
+              <IconButton size="small" onClick={() => setListOpen((v) => !v)}
+                title={showList ? 'Hide list' : 'Show list'}>
+                {showList ? <MenuOpenIcon fontSize="small" /> : <MenuIcon fontSize="small" />}
+              </IconButton>
               {!isBuiltIn(activeScript.slug) && (
                 <Button variant="outlined" size="small" onClick={() => setIsEditMode((c) => !c)}>
                   {isEditMode ? uiText.doneEditing : uiText.editScript}

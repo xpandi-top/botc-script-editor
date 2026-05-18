@@ -1,12 +1,14 @@
 import React, { useDeferredValue, useMemo, useState } from 'react'
 import {
   Box, Chip, Divider, IconButton, InputAdornment,
-  TextField, Tooltip, Typography,
+  TextField, ToggleButton, ToggleButtonGroup, Tooltip, Typography,
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import ClearIcon from '@mui/icons-material/Clear'
+import DashboardIcon from '@mui/icons-material/Dashboard'
 import FileOpenIcon from '@mui/icons-material/FileOpen'
 import SearchIcon from '@mui/icons-material/Search'
+import ViewListIcon from '@mui/icons-material/ViewList'
 import { allCharacters, getDisplayName } from '../../catalog'
 import { MasonryScriptCard } from './MasonryScriptCard'
 import { SCRIPT_TAG_META, SCRIPT_TAGS } from '../tabs/ScriptsTab.constants'
@@ -18,6 +20,8 @@ type Props = {
   scripts: EditableScript[]
   activeScript: EditableScript | undefined
   language: Language
+  browseMode: 'list' | 'masonry'
+  onBrowseModeChange: (mode: 'list' | 'masonry') => void
   onSelect: (slug: string) => void
   isBuiltIn: (slug: string) => boolean
   createNewScript: () => void
@@ -28,6 +32,8 @@ export function ScriptsMasonryGrid({
   scripts,
   activeScript,
   language,
+  browseMode,
+  onBrowseModeChange,
   onSelect,
   isBuiltIn,
   createNewScript,
@@ -119,6 +125,19 @@ export function ScriptsMasonryGrid({
           </Typography>
         )}
         <Box sx={{ flex: 1 }} />
+        <ToggleButtonGroup size="small" exclusive value={browseMode}
+          onChange={(_, v) => { if (v) onBrowseModeChange(v) }}>
+          <ToggleButton value="list">
+            <Tooltip title={zh ? '列表视图' : 'List view'}>
+              <ViewListIcon fontSize="small" />
+            </Tooltip>
+          </ToggleButton>
+          <ToggleButton value="masonry">
+            <Tooltip title={zh ? '卡片视图' : 'Card view'}>
+              <DashboardIcon fontSize="small" />
+            </Tooltip>
+          </ToggleButton>
+        </ToggleButtonGroup>
         <Tooltip title={zh ? '新建剧本' : 'New Script'}>
           <IconButton size="small" onClick={createNewScript}><AddIcon /></IconButton>
         </Tooltip>
