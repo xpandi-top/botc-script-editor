@@ -31,15 +31,22 @@ type NightRowProps = {
   pos: number
   id: string
   language: Language
+  /** Override from script's own customCharacters (for non-catalog IDs) */
+  nameOverride?: string
+  iconOverride?: string
 }
 
-function NightRow({ pos, id, language }: NightRowProps) {
+function NightRow({ pos, id, language, nameOverride, iconOverride }: NightRowProps) {
   const isPlaceholder = id.startsWith('MINION_') || id.startsWith('DEMON_')
   const ph = PLACEHOLDER_LABELS[id]
+
+  // Name: placeholder label → nameOverride (script data) → catalog lookup
   const name = isPlaceholder
     ? (language === 'zh' ? (ph?.zh ?? id) : (ph?.en ?? id))
-    : getDisplayName(id, language)
-  const icon = isPlaceholder ? undefined : getIconForCharacter(id)
+    : (nameOverride ?? getDisplayName(id, language))
+
+  // Icon: placeholder has none → iconOverride (URL from script) → catalog asset
+  const icon = isPlaceholder ? undefined : (iconOverride ?? getIconForCharacter(id))
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, py: '4px' }}>
@@ -86,6 +93,21 @@ type Props = {
 
 export function NightOrderPreview({ script, language, open, onToggle }: Props) {
   const zh = language === 'zh'
+
+  // Build lookup: id → {name, nameEn, icon} from the script's own character objects.
+  // Used for scripts that carry their own character data (non-catalog IDs or Chinese
+  // community scripts where name/image live in the script JSON, not the catalog).
+  const customCharMap = useMemo(() => {
+    const map = new Map<string, { name: string; nameEn?: string; icon?: string }>()
+    for (const c of script.customCharacters) {
+      const icon = Array.isArray(c.image) ? c.image[0] : (c.image as string | undefined)
+      const nameEn = (c as Record<string, unknown>).name_eng as string | undefined
+      if (c.name || icon) map.set(c.id, { name: c.name ?? c.id, nameEn, icon })
+    }
+    return map
+  }, [script.customCharacters])
+
+  const resolveChar = (id: string) => customCharMap.get(id)
 
   const { firstNight, otherNights } = useMemo(() => {
     const scriptCharIds = new Set(script.characters)
@@ -198,9 +220,12 @@ export function NightOrderPreview({ script, language, open, onToggle }: Props) {
                 {firstNight.length}
               </Typography>
             </Box>
-            {firstNight.map((id, i) => (
-              <NightRow key={id} pos={i + 1} id={id} language={language} />
-            ))}
+            {firstNight.map((id, i) => {
+              const c = resolveChar(id)
+              const name = c ? (language === 'zh' ? c.name : (c.nameEn ?? c.name)) : undefined
+              return <NightRow key={id} pos={i + 1} id={id} language={language}
+                nameOverride={name} iconOverride={c?.icon} />
+            })}
           </Box>
 
           {/* Other Nights */}
@@ -214,9 +239,12 @@ export function NightOrderPreview({ script, language, open, onToggle }: Props) {
                 {otherNights.length}
               </Typography>
             </Box>
-            {otherNights.map((id, i) => (
-              <NightRow key={id} pos={i + 1} id={id} language={language} />
-            ))}
+            {otherNights.map((id, i) => {
+              const c = resolveChar(id)
+              const name = c ? (language === 'zh' ? c.name : (c.nameEn ?? c.name)) : undefined
+              return <NightRow key={id} pos={i + 1} id={id} language={language}
+                nameOverride={name} iconOverride={c?.icon} />
+            })}
           </Box>
         </Box>
       </Collapse>

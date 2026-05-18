@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Box, Chip, Typography } from '@mui/material'
 import { getIconForCharacter } from '../../catalog'
 import { SCRIPT_TAG_META } from '../tabs/ScriptsTab.constants'
@@ -14,10 +14,13 @@ const EDITION_LABELS: Record<string, { en: string; zh: string; color: string }> 
 
 // ── Character collage ─────────────────────────────────────────────────────────
 
-function CharCollage({ charIds }: { charIds: string[] }) {
+function CharCollage({ charIds, customIconMap }: {
+  charIds: string[]
+  customIconMap?: Map<string, string>
+}) {
   const icons = charIds.slice(0, 9).map((id) => ({
     id,
-    src: getIconForCharacter(id),
+    src: customIconMap?.get(id) ?? getIconForCharacter(id),
   }))
 
   if (icons.length === 0) return (
@@ -69,6 +72,17 @@ export function MasonryScriptCard({ script, isActive, isBuiltIn, language, onSel
   const zh = language === 'zh'
   const [imgErr, setImgErr] = useState(false)
   const title = zh && script.titleZh ? script.titleZh : script.title
+
+  // Build icon map from script's own character data (for community scripts with image URLs)
+  const customIconMap = useMemo(() => {
+    if (!script.customCharacters.length) return undefined
+    const map = new Map<string, string>()
+    for (const c of script.customCharacters) {
+      const img = Array.isArray(c.image) ? c.image[0] : c.image
+      if (img) map.set(c.id, img)
+    }
+    return map.size > 0 ? map : undefined
+  }, [script.customCharacters])
 
   const logo = script.meta?.logo
   const showLogo = !!logo && !imgErr
@@ -128,7 +142,7 @@ export function MasonryScriptCard({ script, isActive, isBuiltIn, language, onSel
           }}
         />
       ) : (
-        <CharCollage charIds={script.characters} />
+        <CharCollage charIds={script.characters} customIconMap={customIconMap} />
       )}
 
       {/* ── Info bar ── */}
