@@ -5,6 +5,7 @@ import App from './App'
 import { ThemeModeProvider } from './context/ThemeMode'
 import { initNative } from './lib/nativeInit'
 import { migrateAiSettings } from './lib/aiSettings'
+import { initVectorIndex } from './lib/botcVectorSearch'
 import './fonts.css'
 
 /** Injects CSS variables and body background that react to the active MUI theme */
@@ -39,6 +40,7 @@ function ThemeGlobalStyles() {
 // before React's synchronous useState initialisers run.
 // On web: initNative returns immediately (no-op), so no delay.
 migrateAiSettings()
+initVectorIndex()  // fire-and-forget; falls back to TF-IDF if unavailable
 initNative().then(() => {
   ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

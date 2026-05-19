@@ -998,21 +998,31 @@ export default function App() {
 
       {/* AI chat FAB — bottom-right, hidden on storyteller mobile (has its own chrome) */}
       {isGeminiAvailable() && !(activeTab === 'storyteller' && isMobileView) && (
-        <Fab
-          size="small"
-          onClick={() => setAiChatOpen(true)}
-          sx={{
-            position: 'fixed',
-            bottom: { xs: 68, sm: 24 },
-            right: { xs: 12, sm: 24 },
-            zIndex: 1200,
-            bgcolor: 'primary.main',
-            color: 'primary.contrastText',
-            '&:hover': { bgcolor: 'primary.dark' },
-          }}
-        >
-          <AutoAwesomeIcon fontSize="small" />
-        </Fab>
+        <Tooltip title={uiLanguage === 'zh' ? 'AI 助手（实验功能）' : 'AI Assistant (Experimental)'} placement="left">
+          <Box sx={{ position: 'fixed', bottom: { xs: 68, sm: 24 }, right: { xs: 12, sm: 24 }, zIndex: 1200 }}>
+            <Fab
+              size="small"
+              onClick={() => setAiChatOpen(true)}
+              sx={{
+                bgcolor: 'primary.main',
+                color: 'primary.contrastText',
+                '&:hover': { bgcolor: 'primary.dark' },
+              }}
+            >
+              <AutoAwesomeIcon fontSize="small" />
+            </Fab>
+            {/* Experimental badge */}
+            <Box sx={{
+              position: 'absolute', top: -6, right: -6,
+              bgcolor: 'warning.main', color: 'warning.contrastText',
+              fontSize: '0.55rem', fontWeight: 700, px: 0.5, py: 0.1,
+              borderRadius: 0.75, lineHeight: 1.4, pointerEvents: 'none',
+              letterSpacing: '0.02em',
+            }}>
+              {uiLanguage === 'zh' ? '实验' : 'EXP'}
+            </Box>
+          </Box>
+        </Tooltip>
       )}
 
       <AiChatDialog

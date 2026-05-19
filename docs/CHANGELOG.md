@@ -6,6 +6,26 @@ Release timeline for BOTC Companion — features, fixes, and improvements.
 
 ## 2026-05-19 (latest)
 
+### Added — AI Agent _(Experimental)_
+
+> **Status: Experimental** — feature is opt-in via the ✨ FAB. Requires a Groq, OpenRouter, or Gemini API key stored in localStorage. May produce incorrect output; always review before applying.
+
+- **Context-aware AI chat** (`AiChatDialog`) — floating ✨ FAB opens a chat panel that knows the currently open character form; agent can suggest, translate, and fill individual fields
+- **Structured fill cards** — agent responses with `fills: [{ field, value, label }]` render as per-field Apply/Skip cards; fills are applied directly to the form without copy-paste
+- **Fill log** — collapsible panel records every AI fill with timestamp, field, old/new value, model used; supports per-entry undo and Markdown export
+- **BotC glossary injection** — 30+ EN↔ZH game terms (Storyteller, Demon, Minion, …) injected into every system prompt for consistent terminology
+- **Runtime provider/model switching** — settings panel in dialog switches between Groq / OpenRouter / Gemini and any model in the provider's list without restart; keys stored only in `localStorage`
+- **TF-IDF catalog search** (`botcSearch.ts`) — lazy-built sparse index over 239 catalog characters; `getTeamExamples`, `getTranslationPairs`, `findSimilarByTFIDF` for few-shot retrieval
+- **Few-shot prompt injection** — `suggestAbility` injects same-team examples + TF-IDF similar chars; `translateText` injects catalog translation pairs; chat system prompt includes team examples and translation pairs when a character form is open
+- **Translation memory** (`translationMemory.ts`) — confirmed EN→ZH fills auto-stored to `BOTC_TRANSLATION_MEMORY` localStorage; retrieved as few-shot context on subsequent translations; max 200 entries
+- **Semantic vector search** (`botcVectorSearch.ts`) — loads pre-computed Gemini embeddings from `/public/embeddings.json` if present; cosine similarity for query; falls back to TF-IDF silently
+- **Embedding pre-compute script** (`scripts/build-embeddings.mjs`) — `npm run build-embeddings` calls Gemini `text-embedding-004` batchEmbedContents for all chars; writes `public/embeddings.json`
+- **`experimental` badge** — FAB shows `EXP` / `实验` superscript chip; dialog title shows "Experimental" / "实验性功能" chip
+
+---
+
+## 2026-05-19
+
 ### Added
 - **Locale-aware night reminders (zh + en)** — `firstNightReminder` / `otherNightReminder` migrated from top-level strings to `en` / `zh` locale sections in all 141 character JSON files. Chinese reminder text sourced from the clocktower-wiki night order page (~80 official characters). New `getNightReminder(id, language, night)` catalog export returns zh with en fallback.
 - **Character-linked reminder tags** — ST Tags and Public Tags sections in the player modal now include a character picker. Selecting a character shows its reminder tokens as quick-add chips; the resulting tag stores `📝label::charId` and renders with the character's portrait icon. Works in both ST and Public tag flows.

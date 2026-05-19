@@ -25,9 +25,15 @@ import {
   serializeContextForPrompt, type AgentContext, type FillAction, type AgentResponse,
 } from '../lib/agentContext'
 import {
+  getTeamExamples, getTranslationPairs, formatExamplesPrompt,
+} from '../lib/botcSearch'
+import { getAllPairs, formatTmPrompt } from '../lib/translationMemory'
+import type { Team } from '../types'
+import {
   appendFillLog, getFillLogForForm, markUndone, exportFillLogMd,
   type FillLogEntry,
 } from '../lib/fillLog'
+import { storePair } from '../lib/translationMemory'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -47,15 +53,47 @@ const PROVIDER_LABELS: Record<AiProvider, string> = {
 
 // ── System prompt ─────────────────────────────────────────────────────────────
 
+function buildFewShotSection(ctx?: AgentContext): string {
+  if (!ctx || ctx.form !== 'character') return ''
+
+  const teamField = ctx.fields.find((f) => f.key === 'team')
+  const team = (teamField?.value ?? '') as Team
+  const charId = ctx.fields.find((f) => f.key === 'id')?.value as string | undefined
+
+  const excludeIds = charId ? [charId] : []
+
+  const parts: string[] = []
+
+  // Ability few-shot: same team
+  if (team) {
+    const teamExamples = getTeamExamples(team, 3, excludeIds)
+    const abilitySection = formatExamplesPrompt(teamExamples, 'ability')
+    if (abilitySection) parts.push(abilitySection)
+  }
+
+  // Translation few-shot: catalog + confirmed memory
+  const catalogPairs = getTranslationPairs(3, { excludeIds })
+  const catalogSection = formatExamplesPrompt(catalogPairs, 'translation')
+  if (catalogSection) parts.push(catalogSection)
+
+  // User-confirmed TM pairs (recent 3)
+  const tmPairs = getAllPairs().slice(0, 3)
+  const tmSection = formatTmPrompt(tmPairs)
+  if (tmSection) parts.push(tmSection)
+
+  return parts.length > 0 ? `\n\n${parts.join('\n\n')}` : ''
+}
+
 function buildSystemPrompt(ctx?: AgentContext): string {
   const glossary = buildGlossaryPrompt('zh')
   const ctxSection = ctx ? `\n\n${serializeContextForPrompt(ctx)}` : ''
+  const fewShot = buildFewShotSection(ctx)
   return `\
 You are an AI assistant for Blood on the Clocktower (BotC) custom character authoring.
 Help the user create, translate, and refine characters and scripts.
 
 ${glossary}
-${ctxSection}
+${ctxSection}${fewShot}
 
 When the user asks you to fill, translate, suggest, or generate content for a specific field,
 respond with JSON in this exact format (no markdown fences, no extra text):
@@ -138,6 +176,17 @@ export function AiChatDialog({ open, onClose, context, callbacks, language = 'en
 
   const applyFill = useCallback((msgId: string, fill: FillAction, oldValue: unknown) => {
     callbacks?.onFill(fill.field, fill.value)
+
+    // Auto-store translation memory when applying ZH fields
+    if (fill.field === 'abilityZh' || fill.field === 'nameZh') {
+      const enField = fill.field === 'abilityZh' ? 'abilityEn' : 'nameEn'
+      const enValue = context?.fields.find((f) => f.key === enField)?.value as string | undefined
+      const charId  = context?.fields.find((f) => f.key === 'id')?.value as string | undefined
+      if (enValue && String(fill.value)) {
+        storePair(enValue, String(fill.value), { charId, field: fill.field })
+      }
+    }
+
     const entry = appendFillLog({
       timestamp: Date.now(),
       form: formKey,
@@ -154,7 +203,7 @@ export function AiChatDialog({ open, onClose, context, callbacks, language = 'en
         ? { ...m, appliedFills: [...(m.appliedFills ?? []), fill.field] }
         : m,
     ))
-  }, [callbacks, formKey, settings.model])
+  }, [callbacks, context, formKey, settings.model])
 
   const undoFill = useCallback((entry: FillLogEntry) => {
     callbacks?.onUndo(entry.field, entry.oldValue)
@@ -219,8 +268,15 @@ export function AiChatDialog({ open, onClose, context, callbacks, language = 'en
       {/* Title bar */}
       <DialogTitle sx={{ pb: 0, display: 'flex', alignItems: 'center', gap: 0.5 }}>
         <AutoAwesomeIcon sx={{ color: 'primary.main', fontSize: 18 }} />
-        <Box sx={{ flex: 1, fontSize: '1rem', fontWeight: 600 }}>
+        <Box sx={{ flex: 1, fontSize: '1rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 0.75 }}>
           {zh ? 'AI 助手' : 'AI Assistant'}
+          <Chip
+            label={zh ? '实验性功能' : 'Experimental'}
+            size="small"
+            color="warning"
+            variant="outlined"
+            sx={{ fontSize: '0.6rem', height: 18, '& .MuiChip-label': { px: 0.75 } }}
+          />
         </Box>
         <Tooltip title={zh ? '设置' : 'Settings'}>
           <IconButton size="small" onClick={() => setShowSettings((v) => !v)}

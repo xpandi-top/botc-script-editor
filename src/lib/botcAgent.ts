@@ -15,6 +15,10 @@
  */
 
 import { geminiAsk } from './gemini'
+import {
+  getTeamExamples, getTranslationPairs, findSimilarByTFIDF, formatExamplesPrompt,
+} from './botcSearch'
+import { findSimilarPairs, formatTmPrompt } from './translationMemory'
 import type { Team } from '../types'
 
 // ── System prompt shared across all tasks ───────────────────────────────────
@@ -28,15 +32,24 @@ Be concise. Output ONLY what is asked — no preamble, no explanation, no markdo
 
 /**
  * Translate ability / name text between EN and ZH.
- * Direction is auto-detected from content.
+ * Injects few-shot examples from catalog + translation memory.
  */
 export async function translateText(
   text: string,
   targetLang: 'en' | 'zh',
 ): Promise<string> {
   const dir = targetLang === 'zh' ? 'into Simplified Chinese' : 'into English'
+
+  // Few-shot: catalog pairs + user-confirmed TM pairs
+  const catalogExamples = getTranslationPairs(3)
+  const tmPairs         = findSimilarPairs(text, 2)
+  const catalogSection  = formatExamplesPrompt(catalogExamples, 'translation')
+  const tmSection       = formatTmPrompt(tmPairs)
+
+  const fewShot = [catalogSection, tmSection].filter(Boolean).join('\n\n')
+
   return geminiAsk(
-    `Translate the following BotC character text ${dir}. Keep game-specific terms accurate. Output translation only.\n\n${text}`,
+    `Translate the following BotC character text ${dir}. Keep game-specific terms accurate. Output translation only.${fewShot ? `\n\n${fewShot}` : ''}\n\nText to translate:\n${text}`,
     { system: SYSTEM, temperature: 0.3 },
   )
 }
@@ -100,20 +113,32 @@ export type AbilitySuggestion = {
 
 /**
  * Draft an ability text from name + team + optional concept note.
+ * Injects few-shot examples from same team + TF-IDF similar chars.
  */
 export async function suggestAbility(opts: {
   nameEn: string
   team: Team
   concept?: string
   generateZh?: boolean
+  excludeIds?: string[]
 }): Promise<AbilitySuggestion> {
   const conceptLine = opts.concept ? `\nDesign concept: ${opts.concept}` : ''
   const zhLine = opts.generateZh ? '\nAlso provide a Chinese translation as "abilityZh".' : ''
 
+  // Few-shot: team examples + TF-IDF similar by concept
+  const teamExamples = getTeamExamples(opts.team, 3, opts.excludeIds ?? [])
+  const similarExamples = opts.concept
+    ? findSimilarByTFIDF(opts.concept, 2, { team: opts.team, excludeIds: opts.excludeIds })
+    : []
+  // Deduplicate by id
+  const seen = new Set(teamExamples.map((e) => e.id))
+  const combined = [...teamExamples, ...similarExamples.filter((e) => !seen.has(e.id))]
+  const fewShot = formatExamplesPrompt(combined, 'ability')
+
   const raw = await geminiAsk(
     `Write a BotC ability for a ${opts.team} character named "${opts.nameEn}".${conceptLine}
 Follow official BotC ability writing style: present tense, second person ("You"), concise.${zhLine}
-
+${fewShot ? `\n${fewShot}\n` : ''}
 Respond with JSON only:
 {"abilityEn":"<ability>","abilityZh":"<ZH ability or empty string>"}`,
     { system: SYSTEM, temperature: 0.9 },
