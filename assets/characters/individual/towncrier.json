@@ -3,6 +3,8 @@
   "team": "townsfolk",
   "edition": "snv",
   "current_revision": "v1",
+  "setup": false,
+  "otherNightReminder": "Either nod or shake your head.",
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +14,7 @@
   "en": {
     "name": "Town Crier",
     "ability": "Each night*, you learn if a Minion nominated today.",
+    "flavor": "Hear ye! Hear ye! Witchcraft in the labyrinth! Genius savant reveals all! Town in danger! Hear Ye!",
     "revisions": {
       "v1": "Each night*, you learn if a Minion nominated today."
     }

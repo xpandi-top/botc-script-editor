@@ -3,6 +3,8 @@
   "team": "townsfolk",
   "edition": "bmr",
   "current_revision": "v1",
+  "setup": false,
+  "otherNightReminder": "The Professor might choose a dead player. :reminder: :reminder:",
   "reminders": [
     "Alive"
   ],
@@ -15,6 +17,7 @@
   "en": {
     "name": "Professor",
     "ability": "Once per game, at night*, choose a dead player: if they are a Townsfolk, they are resurrected.",
+    "flavor": "The process is simple. Attach the hydraulic confabulator to the modified chi matrix amplifier, add 20 CCs of pseudodorafine, keep his Z levels above 20%, and your husband will be fine. Now, all we need is a lightning strike.",
     "revisions": {
       "v1": "Once per game, at night*, choose a dead player: if they are a Townsfolk, they are resurrected."
     }

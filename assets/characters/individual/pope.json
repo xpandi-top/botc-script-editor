@@ -3,6 +3,7 @@
   "team": "loric",
   "edition": "loric",
   "current_revision": "v1",
+  "setup": true,
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +13,7 @@
   "en": {
     "name": "Pope",
     "ability": "There are duplicate good characters in play. They might also be bluffs.",
+    "flavor": "...Pulcherrimae.",
     "revisions": {
       "v1": "There are duplicate good characters in play. They might also be bluffs."
     }

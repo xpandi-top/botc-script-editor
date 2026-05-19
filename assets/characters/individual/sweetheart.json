@@ -3,6 +3,8 @@
   "team": "outsider",
   "edition": "snv",
   "current_revision": "v1",
+  "setup": false,
+  "otherNightReminder": "If the Sweetheart died, a player became drunk immediately. If you haven't done this yet, do so now. :reminder:",
   "remindersGlobal": [
     "Drunk"
   ],
@@ -15,6 +17,7 @@
   "en": {
     "name": "Sweetheart",
     "ability": "When you die, 1 player is drunk from now on.",
+    "flavor": "I will never forget her. Never.",
     "revisions": {
       "v1": "When you die, 1 player is drunk from now on."
     }

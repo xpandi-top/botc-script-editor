@@ -3,6 +3,8 @@
   "team": "minion",
   "edition": "tb",
   "current_revision": "v1",
+  "setup": false,
+  "otherNightReminder": "If the Scarlet Woman became the Demon today, show them the *YOU ARE* token, then the Demon token.",
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +14,7 @@
   "en": {
     "name": "Scarlet Woman",
     "ability": "If there are 5 or more players alive & the Demon dies, you become the Demon. (Travellers don’t count)",
+    "flavor": "You have shown me the secrets of the Council of the Purple Flame. We have lain together in fire and in lust and in beastly commune, and I am forever your servant. But tonight, my dear, I am your master.",
     "revisions": {
       "v1": "If there are 5 or more players alive & the Demon dies, you become the Demon. (Travellers don’t count)"
     }

@@ -3,6 +3,7 @@
   "team": "minion",
   "edition": "experimental",
   "current_revision": "v1",
+  "setup": false,
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +13,7 @@
   "en": {
     "name": "Goblin",
     "ability": "If you publicly claim to be the Goblin when nominated & are executed that day, your team wins.",
+    "flavor": "You don’t want to insult the goblins. You really, really don’t. On a completely different note… can I have another piece of cake?",
     "revisions": {
       "v1": "If you publicly claim to be the Goblin when nominated & are executed that day, your team wins."
     }

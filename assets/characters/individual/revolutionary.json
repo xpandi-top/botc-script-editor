@@ -3,6 +3,7 @@
   "team": "fabled",
   "edition": "fabled",
   "current_revision": "v1",
+  "setup": false,
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +13,7 @@
   "en": {
     "name": "Revolutionary",
     "ability": "2 neighboring players are known to be the same alignment. Once per game, 1 of them registers falsely.",
+    "flavor": "United we feigned. Divided, we stalled.",
     "revisions": {
       "v1": "2 neighboring players are known to be the same alignment. Once per game, 1 of them registers falsely."
     }

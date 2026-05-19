@@ -3,6 +3,7 @@
   "team": "loric",
   "edition": "loric",
   "current_revision": "v1",
+  "setup": true,
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +13,7 @@
   "en": {
     "name": "Gardener",
     "ability": "The Storyteller assigns 1 or more players' characters.",
+    "flavor": "When sophistry becomes stupidity and hypocrisy cruelty, retreat to the garden. The final love of old men is flowers and stones.",
     "revisions": {
       "v1": "The Storyteller assigns 1 or more players' characters."
     }

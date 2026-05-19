@@ -3,6 +3,7 @@
   "team": "traveler",
   "edition": "experimental",
   "current_revision": "v1",
+  "setup": false,
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +13,7 @@
   "en": {
     "name": "Gangster",
     "ability": "Once per day, you may choose to kill an alive neighbour, if your other alive neighbour agrees.",
+    "flavor": "I like your shoes. It would be such a shame if you had a little accident, and they got ruined. Now that you mention it, I like your cufflinks too.",
     "revisions": {
       "v1": "Once per day, you may choose to kill an alive neighbour, if your other alive neighbour agrees."
     }

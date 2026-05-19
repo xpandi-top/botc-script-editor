@@ -3,6 +3,8 @@
   "team": "townsfolk",
   "edition": "experimental",
   "current_revision": "v2024-11",
+  "setup": false,
+  "otherNightReminder": "The Lycanthrope chooses a player. :reminder:",
   "revisions": [
     {
       "id": "v1",
@@ -16,6 +18,7 @@
   "en": {
     "name": "Lycanthrope",
     "ability": "Each night*, choose an alive player. If good, they die & the Demon doesn’t kill tonight. One good player registers as evil.",
+    "flavor": "Beneath the thin veneer of civilisation lies a howling madness.",
     "revisions": {
       "v1": "Each night*, choose an alive player: if good, they die, but they are the only player that can die tonight.",
       "v2024-11": "Each night*, choose an alive player. If good, they die & the Demon doesn’t kill tonight. One good player registers as evil."

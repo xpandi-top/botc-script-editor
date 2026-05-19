@@ -3,6 +3,7 @@
   "team": "townsfolk",
   "edition": "tb",
   "current_revision": "v1",
+  "setup": false,
   "reminders": [
     "Nominated"
   ],
@@ -15,6 +16,7 @@
   "en": {
     "name": "Virgin",
     "ability": "The 1st time you are nominated, if the nominator is a Townsfolk, they are executed immediately.",
+    "flavor": "I am pure. Let those who are without sin cast themselves down and suffer in my stead. My reputation shall not be stained with your venomous accusations.",
     "revisions": {
       "v1": "The 1st time you are nominated, if the nominator is a Townsfolk, they are executed immediately."
     }

@@ -3,6 +3,7 @@
   "team": "traveler",
   "edition": "snv",
   "current_revision": "v1",
+  "setup": false,
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +13,7 @@
   "en": {
     "name": "Deviant",
     "ability": "If you were funny today, you cannot die by exile.",
+    "flavor": "Twas the lady's quip, forsooth.",
     "revisions": {
       "v1": "If you were funny today, you cannot die by exile."
     }

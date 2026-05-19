@@ -3,6 +3,9 @@
   "team": "demon",
   "edition": "experimental",
   "current_revision": "v2024-07",
+  "setup": false,
+  "firstNightReminder": "The Lleech chooses a player. :reminder:",
+  "otherNightReminder": "The Lleech chooses a player. :reminder:",
   "revisions": [
     {
       "id": "v1",
@@ -16,6 +19,7 @@
   "en": {
     "name": "Lleech",
     "ability": "Each night*, choose a player: they die. You start by choosing a player: they are poisoned. You die if & only if they are dead.",
+    "flavor": "Tasty, tasty, tasty, tasty, tasty, tasty, tasty, tasty brai- I mean pie! Yes. Tasty pie. That’s what I meant to say.",
     "revisions": {
       "v1": "Each night*, choose a player: they die. You start by choosing an alive player: they are poisoned - you die if (& only if) they die.",
       "v2024-07": "Each night*, choose a player: they die. You start by choosing a player: they are poisoned. You die if & only if they are dead."

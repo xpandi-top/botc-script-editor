@@ -3,6 +3,9 @@
   "team": "townsfolk",
   "edition": "bmr",
   "current_revision": "v1",
+  "setup": false,
+  "firstNightReminder": "The Sailor chooses a living player. :reminder:",
+  "otherNightReminder": "The Sailor chooses a living player. :reminder:",
   "remindersGlobal": [
     "Drunk"
   ],
@@ -15,6 +18,7 @@
   "en": {
     "name": "Sailor",
     "ability": "Each night, choose an alive player: either you or they are drunk until dusk. You can't die.",
+    "flavor": "I'll drink any one of yer under the table! You! The chatterbox! Reckon you can take me? No? Howza 'bout you, Grandma? You ever tried Old McKillys Extra Spiced Rum before? Guaranteed to put hairs on yer chest! Step aboard, aye!",
     "revisions": {
       "v1": "Each night, choose an alive player: either you or they are drunk until dusk. You can't die."
     }

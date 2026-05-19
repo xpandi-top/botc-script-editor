@@ -3,6 +3,7 @@
   "team": "outsider",
   "edition": "experimental",
   "current_revision": "v1",
+  "setup": false,
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +13,7 @@
   "en": {
     "name": "Politician",
     "ability": "If you were the player most responsible for your team losing, you change alignment & win, even if dead.",
+    "flavor": "I'm glad you asked that question. Truly, I am. But I think the REAL question here is...",
     "revisions": {
       "v1": "If you were the player most responsible for your team losing, you change alignment & win, even if dead."
     }

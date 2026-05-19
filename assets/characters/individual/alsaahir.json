@@ -3,6 +3,7 @@
   "team": "townsfolk",
   "edition": "experimental",
   "current_revision": "v2024-11",
+  "setup": false,
   "revisions": [
     {
       "id": "v1",
@@ -16,6 +17,7 @@
   "en": {
     "name": "Alsaahir",
     "ability": "Each day, if you publicly guess which players are Minion(s) and which are Demon(s), good wins.",
+    "flavor": "I am here because of you, and you are here because of me.",
     "revisions": {
       "v1": "Once per day, if you publicly guess which players are Minion(s) and which are Demon(s), good wins.",
       "v2024-11": "Each day, if you publicly guess which players are Minion(s) and which are Demon(s), good wins."

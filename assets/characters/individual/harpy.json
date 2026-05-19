@@ -3,6 +3,9 @@
   "team": "minion",
   "edition": "experimental",
   "current_revision": "v2024-06",
+  "setup": false,
+  "firstNightReminder": "The Harpy chooses 2 players. :reminder: :reminder: Put the Harpy to sleep. Wake the 1st target. Show the *THIS CHARACTER SELECTED YOU* token, the Harpy token, then point to the 2nd target.",
+  "otherNightReminder": "The Harpy chooses 2 players. :reminder: :reminder: Put the Harpy to sleep. Wake the 1st target. Show the *THIS CHARACTER SELECTED YOU* token, the Harpy token, then point to the 2nd target.",
   "revisions": [
     {
       "id": "v1",
@@ -16,6 +19,7 @@
   "en": {
     "name": "Harpy",
     "ability": "Each night, choose 2 players: tomorrow, the 1st player is mad that the 2nd is evil, or one or both might die.",
+    "flavor": "So fair a day I never did see, nor so fowl a presence hanging over me.",
     "revisions": {
       "v1": "Each night, choose 2 players: tomorrow, the 1st player is mad that the 2nd is evil, or both might die.",
       "v2024-06": "Each night, choose 2 players: tomorrow, the 1st player is mad that the 2nd is evil, or one or both might die."

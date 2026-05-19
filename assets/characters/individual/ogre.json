@@ -3,6 +3,8 @@
   "team": "outsider",
   "edition": "experimental",
   "current_revision": "v1",
+  "setup": false,
+  "firstNightReminder": "The Ogre chooses a player. :reminder:",
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +14,7 @@
   "en": {
     "name": "Ogre",
     "ability": "On your 1st night, choose a player (not yourself): you become their alignment (you don't know which) even if drunk or poisoned.",
+    "flavor": "<grunt><grin></grunt>",
     "revisions": {
       "v1": "On your 1st night, choose a player (not yourself): you become their alignment (you don't know which) even if drunk or poisoned."
     }

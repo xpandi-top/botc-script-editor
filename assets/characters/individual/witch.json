@@ -3,6 +3,9 @@
   "team": "minion",
   "edition": "snv",
   "current_revision": "v1",
+  "setup": false,
+  "firstNightReminder": "The Witch chooses a player. :reminder:",
+  "otherNightReminder": "The Witch chooses a player. :reminder:",
   "remindersGlobal": [
     "Cursed"
   ],
@@ -15,6 +18,7 @@
   "en": {
     "name": "Witch",
     "ability": "Each night, choose a player: if they nominate tomorrow, they die. If just 3 players live, you lose this ability.",
+    "flavor": "Three drops of goat's blood. A lock of hair, torn in anger. The name is spoken, the shadow cast. Walk left foot first down that brambled path, and don't look back.",
     "revisions": {
       "v1": "Each night, choose a player: if they nominate tomorrow, they die. If just 3 players live, you lose this ability."
     }

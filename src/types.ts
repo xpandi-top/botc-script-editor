@@ -21,6 +21,12 @@ export type CharacterEntry = {
   reminders?: string[]
   /** Reminder tokens available on all seats regardless of assignment. */
   remindersGlobal?: string[]
+  /** Whether this character affects game setup (bag composition). */
+  setup?: boolean
+  /** ST reminder shown during the first night phase. */
+  firstNightReminder?: string
+  /** ST reminder shown during other night phases. */
+  otherNightReminder?: string
 }
 
 export type CharacterRevisionEntry = {
@@ -118,8 +124,21 @@ export type EditableScript = {
   tags?: string[]                          // quick status tags (wip, balanced, experimental…)
   pinnedRevisions?: Record<string, string> // charId → revisionId override
   folderId?: string                        // optional folder assignment (DIY scripts only)
+  /** Structured revision history for this script (project extension, not in official schema). */
+  scriptRevisions?: ScriptRevision[]
+  /** ID of the currently active revision in scriptRevisions. */
+  currentScriptRevision?: string
   /** Per-character night positions extracted from the script JSON (overrides catalog order) */
   scriptNightPositions?: Record<string, { firstNight?: number; otherNight?: number }>
+}
+
+// ── Script revisions ─────────────────────────────────────────────────────────
+
+/** A single revision entry for a script (project-specific extension). */
+export type ScriptRevision = {
+  id: string        // e.g. "v1", "v2", "beta-3"
+  note: string      // changelog / what changed
+  date?: string     // ISO 8601 date string e.g. "2025-05-19"
 }
 
 // ── Script folders (Phase 3) ──────────────────────────────────────────────────
@@ -240,12 +259,27 @@ export type CharacterFileEntry = {
   reminders?: string[]
   /** Reminder tokens available on all seats regardless of assignment. */
   remindersGlobal?: string[]
+  /** Whether this character affects game setup (bag composition). From official schema. */
+  setup?: boolean
   firstNight?: number
   otherNight?: number
+  /** ST reminder shown during first night. Matches official roles.json field. */
   firstNightReminder?: string
+  /** ST reminder shown during other nights. Matches official roles.json field. */
   otherNightReminder?: string
-  en?: { name?: string; ability?: string; revisions?: Record<string, string> }
-  zh?: { name?: string; ability?: string; revisions?: Record<string, string> }
+  en?: {
+    name?: string
+    ability?: string
+    /** English flavor text from official roles.json. */
+    flavor?: string
+    revisions?: Record<string, string>
+  }
+  zh?: {
+    name?: string
+    ability?: string
+    flavor?: string
+    revisions?: Record<string, string>
+  }
 }
 
 /** A character pack — array of CharacterFileEntry, used for download/upload */

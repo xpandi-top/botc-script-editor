@@ -3,6 +3,7 @@
   "team": "traveler",
   "edition": "tb",
   "current_revision": "v1",
+  "setup": false,
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +13,7 @@
   "en": {
     "name": "Gunslinger",
     "ability": "Each day, after the 1st vote has been tallied, you may choose a player that voted: they die.",
+    "flavor": "It's time someone took matters into their own hands. That someone... is me.",
     "revisions": {
       "v1": "Each day, after the 1st vote has been tallied, you may choose a player that voted: they die."
     }

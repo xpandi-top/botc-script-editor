@@ -3,6 +3,8 @@
   "team": "townsfolk",
   "edition": "tb",
   "current_revision": "v1",
+  "setup": false,
+  "firstNightReminder": "Give a finger signal.",
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +14,7 @@
   "en": {
     "name": "Chef",
     "ability": "You start knowing how many pairs of evil players there are.",
+    "flavor": "This evening's reservations seem odd. Never before has Mrs. Mayweather kept company with that scamp from Hudson Lane. Yet, tonight, they have a table for two. Strange.",
     "revisions": {
       "v1": "You start knowing how many pairs of evil players there are."
     }

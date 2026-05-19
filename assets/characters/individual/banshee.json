@@ -3,6 +3,8 @@
   "team": "townsfolk",
   "edition": "experimental",
   "current_revision": "v1",
+  "setup": false,
+  "otherNightReminder": "If the Banshee was killed by the Demon tonight, announce that the Banshee has died. :reminder:",
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +14,7 @@
   "en": {
     "name": "Banshee",
     "ability": "If the Demon kills you, all players learn this. From now on, you may nominate twice per day and vote twice per nomination.”",
+    "flavor": "Gorm do shúile, dearg do ghruaig, ní bheidh sé i bhfad, is a mbeidh tú san uaigh.",
     "revisions": {
       "v1": "If the Demon kills you, all players learn this. From now on, you may nominate twice per day and vote twice per nomination.”"
     }

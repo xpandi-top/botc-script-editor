@@ -3,6 +3,8 @@
   "team": "townsfolk",
   "edition": "experimental",
   "current_revision": "v1",
+  "setup": false,
+  "firstNightReminder": "Point to the 2 players marked *KNOW*.",
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +14,7 @@
   "en": {
     "name": "Knight",
     "ability": "You start knowing 2 players that are not the Demon.",
+    "flavor": "When a man lies, he murders some part of the world.",
     "revisions": {
       "v1": "You start knowing 2 players that are not the Demon."
     }

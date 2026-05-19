@@ -3,6 +3,9 @@
   "team": "demon",
   "edition": "experimental",
   "current_revision": "v1",
+  "setup": false,
+  "firstNightReminder": "Announce that the Leviathan is in play. :reminder:",
+  "otherNightReminder": "Change the Leviathan reminder token to the relevant day. :reminder: You may announce that the Leviathan is in play.",
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +15,7 @@
   "en": {
     "name": "Leviathan",
     "ability": "If more than 1 good player is executed, you win. All players know you are in play. After day 5, evil wins.",
+    "flavor": "To the last, I grapple with thee. From Hell’s heart, I stab at thee. For hate’s sake, I spit my last breath at thee.",
     "revisions": {
       "v1": "If more than 1 good player is executed, you win. All players know you are in play. After day 5, evil wins."
     }

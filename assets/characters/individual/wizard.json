@@ -3,6 +3,9 @@
   "team": "minion",
   "edition": "experimental",
   "current_revision": "v1",
+  "setup": false,
+  "firstNightReminder": "Do whatever needs to be done to satisfy the Wizard's ability.",
+  "otherNightReminder": "Do whatever needs to be done to satisfy the Wizard's ability.",
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +15,7 @@
   "en": {
     "name": "Wizard",
     "ability": "Once per game, choose to make a wish. If granted, it might have a price & leave a clue as to its nature.",
+    "flavor": "Every man and every woman is a star. Love is the law, love under will.",
     "revisions": {
       "v1": "Once per game, choose to make a wish. If granted, it might have a price & leave a clue as to its nature."
     }

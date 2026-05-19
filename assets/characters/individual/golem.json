@@ -3,6 +3,7 @@
   "team": "outsider",
   "edition": "experimental",
   "current_revision": "v1",
+  "setup": false,
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +13,7 @@
   "en": {
     "name": "Golem",
     "ability": "You may only nominate once per game. When you do, if the nominee is not the Demon, they die.",
+    "flavor": "Golem help? Golem smash! Golem help.",
     "revisions": {
       "v1": "You may only nominate once per game. When you do, if the nominee is not the Demon, they die."
     }

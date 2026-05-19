@@ -3,6 +3,8 @@
   "team": "traveler",
   "edition": "bmr",
   "current_revision": "v1",
+  "setup": false,
+  "firstNightReminder": "Show the *YOU ARE* info token, then a Townsfolk or Minion token. Swap the Apprentice & Townsfolk or Minion tokens. :reminder:",
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +14,7 @@
   "en": {
     "name": "Apprentice",
     "ability": "On your 1st night, you gain a Townsfolk ability (if good), or a Minion ability (if evil).",
+    "flavor": "For years have I traveled, studying the ways of The Craft. Which craft, you ask? Simply that of the simple folk. Nothing to worry about. Not yet.",
     "revisions": {
       "v1": "On your 1st night, you gain a Townsfolk ability (if good), or a Minion ability (if evil)."
     }

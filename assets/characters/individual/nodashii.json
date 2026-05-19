@@ -3,6 +3,8 @@
   "team": "demon",
   "edition": "snv",
   "current_revision": "v1",
+  "setup": false,
+  "otherNightReminder": "The No Dashii chooses a player. :reminder:",
   "remindersGlobal": [
     "Poisoned"
   ],
@@ -15,6 +17,7 @@
   "en": {
     "name": "No Dashii",
     "ability": "Each night*, choose a player: they die. Your 2 Townsfolk neighbours are poisoned.",
+    "flavor": "By the sins of Arnoch, I feel thy laden stench. By the curs-ed sun and her foul legion of tiny grinning gods, I corrupt thee. By the blessed night and the hidden depths of the horrid and unholy sea, I end thy squalid life upon this plane.",
     "revisions": {
       "v1": "Each night*, choose a player: they die. Your 2 Townsfolk neighbours are poisoned."
     }

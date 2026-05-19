@@ -3,6 +3,9 @@
   "team": "minion",
   "edition": "experimental",
   "current_revision": "v2025-01",
+  "setup": false,
+  "firstNightReminder": "The Organ Grinder either nods their head yes to be drunk, or shakes their head no to be sober. :reminder:",
+  "otherNightReminder": "The Organ Grinder either nods their head yes to be drunk, or shakes their head no to be sober. :reminder:",
   "revisions": [
     {
       "id": "v1",
@@ -20,6 +23,7 @@
   "en": {
     "name": "Organ Grinder",
     "ability": "All players keep their eyes closed when voting and the vote tally is secret. Each night, choose if you are drunk until dusk.",
+    "flavor": "Round and round the handles go. The more you dance the less you know.",
     "revisions": {
       "v1": "All players keep their eyes closed when voting & the vote tally is secret. Votes for you only count if you vote.",
       "v2024-10": "All players keep their eyes closed when voting and the vote tally is secret. Each night, choose if you are drunk or not.",

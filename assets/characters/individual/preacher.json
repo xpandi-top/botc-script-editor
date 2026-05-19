@@ -3,6 +3,9 @@
   "team": "townsfolk",
   "edition": "experimental",
   "current_revision": "v1",
+  "setup": false,
+  "firstNightReminder": "The Preacher chooses a player. :reminder: If they chose a Minion: Put the Preacher to sleep. Wake the target. Show the *THIS CHARACTER SELECTED YOU* & Preacher tokens.",
+  "otherNightReminder": "The Preacher chooses a player. :reminder: If they chose a Minion: Put the Preacher to sleep. Wake the target. Show the *THIS CHARACTER SELECTED YOU* & Preacher tokens.",
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +15,7 @@
   "en": {
     "name": "Preacher",
     "ability": "Each night, choose a player: a Minion, if chosen, learns this. All chosen Minions have no ability.",
+    "flavor": "It is better to be rich and healthy than poor and sick.",
     "revisions": {
       "v1": "Each night, choose a player: a Minion, if chosen, learns this. All chosen Minions have no ability."
     }

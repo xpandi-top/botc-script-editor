@@ -3,6 +3,9 @@
   "team": "traveler",
   "edition": "tb",
   "current_revision": "v1",
+  "setup": false,
+  "firstNightReminder": "The Thief chooses a player. :reminder:",
+  "otherNightReminder": "The Thief chooses a player. :reminder:",
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +15,7 @@
   "en": {
     "name": "Thief",
     "ability": "Each night, choose a player (not yourself): their vote counts negatively tomorrow.",
+    "flavor": "I ain't done nuffink. I weren't even in dat alley last night! It weren't me what stole Mayor Bruno's briefcase wiv all dem fancy dockoments innit. Besides, it was too 'eavy to carry far.",
     "revisions": {
       "v1": "Each night, choose a player (not yourself): their vote counts negatively tomorrow."
     }

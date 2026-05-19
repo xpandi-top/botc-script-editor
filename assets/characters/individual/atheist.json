@@ -3,6 +3,7 @@
   "team": "townsfolk",
   "edition": "experimental",
   "current_revision": "v1",
+  "setup": true,
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +13,7 @@
   "en": {
     "name": "Atheist",
     "ability": "The Storyteller can break the game rules & if executed, good wins, even if you are dead. [No evil characters]",
+    "flavor": "Let us disperse with unnecessary conjecture and silly paranoia. There is a perfectly rational explanation for everything. Yes, a teacup may indeed be orbiting the planet, too small to see, but I shall drink my tea from the very real china in my very real hands.",
     "revisions": {
       "v1": "The Storyteller can break the game rules & if executed, good wins, even if you are dead. [No evil characters]"
     }

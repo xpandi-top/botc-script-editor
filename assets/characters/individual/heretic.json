@@ -3,6 +3,7 @@
   "team": "outsider",
   "edition": "experimental",
   "current_revision": "v1",
+  "setup": false,
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +13,7 @@
   "en": {
     "name": "Heretic",
     "ability": "Whoever wins, loses & whoever loses, wins, even if you are dead.",
+    "flavor": "After the hail has smashed the roof and splintered the glass of the Cathedral windows, it melts again into the earth, like a dying lamb in the desert sun. Such is the parable of the madman.",
     "revisions": {
       "v1": "Whoever wins, loses & whoever loses, wins, even if you are dead."
     }

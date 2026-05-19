@@ -3,6 +3,9 @@
   "team": "townsfolk",
   "edition": "tb",
   "current_revision": "v1",
+  "setup": false,
+  "firstNightReminder": "Give a finger signal.",
+  "otherNightReminder": "Give a finger signal.",
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +15,7 @@
   "en": {
     "name": "Empath",
     "ability": "Each night, you learn how many of your 2 alive neighbours are evil.",
+    "flavor": "My skin prickles. Something is not right here. I can feel it.",
     "revisions": {
       "v1": "Each night, you learn how many of your 2 alive neighbours are evil."
     }

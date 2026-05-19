@@ -3,6 +3,8 @@
   "team": "minion",
   "edition": "experimental",
   "current_revision": "v1",
+  "setup": false,
+  "firstNightReminder": "Show the Grimoire for as long as the Widow needs. The Widow chooses a player. :reminder: Put the Widow to sleep. Wake the player marked *KNOW* & show the Widow token. :reminder:",
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +14,7 @@
   "en": {
     "name": "Widow",
     "ability": "On your 1st night, look at the Grimoire and choose a player: they are poisoned. 1 good player knows a Widow is in play.",
+    "flavor": "More wine? Château d’Ergot ’07 is a very special vintage. My yes, very special indeed.",
     "revisions": {
       "v1": "On your 1st night, look at the Grimoire and choose a player: they are poisoned. 1 good player knows a Widow is in play."
     }

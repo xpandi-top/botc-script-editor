@@ -3,6 +3,8 @@
   "team": "demon",
   "edition": "bmr",
   "current_revision": "v1",
+  "setup": false,
+  "otherNightReminder": "A previously chosen player might be resurrected. :reminder: The Shabaloth chooses 2 players. :reminder: :reminder:",
   "reminders": [
     "Dead",
     "Dead"
@@ -16,6 +18,7 @@
   "en": {
     "name": "Shabaloth",
     "ability": "Each night*, choose 2 players: they die. A dead player you chose last night might be regurgitated.",
+    "flavor": "Blarg f'taag nm mataan! No sho gumtha m'sik na yuuu. Fluuuuuuuuurg h-sikkkh.",
     "revisions": {
       "v1": "Each night*, choose 2 players: they die. A dead player you chose last night might be regurgitated."
     }

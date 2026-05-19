@@ -3,6 +3,7 @@
   "team": "loric",
   "edition": "loric",
   "current_revision": "v1",
+  "setup": false,
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +13,7 @@
   "en": {
     "name": "Zenomancer",
     "ability": "One or more players each have a goal. When achieved, that player learns a piece of true info.",
+    "flavor": "The universe is a verb not a noun, they say, and it is turtles, turtles all the way down. Turtles all the way down, my friend, turtles all the way down.",
     "revisions": {
       "v1": "One or more players each have a goal. When achieved, that player learns a piece of true info."
     }

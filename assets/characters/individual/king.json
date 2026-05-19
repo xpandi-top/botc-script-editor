@@ -3,6 +3,9 @@
   "team": "townsfolk",
   "edition": "experimental",
   "current_revision": "v2024-11",
+  "setup": false,
+  "firstNightReminder": "Wake the Demon: Show the *THIS PLAYER IS* & King tokens, then point to the King.",
+  "otherNightReminder": "If the dead equal or outnumber the living, show the character token of a living player.",
   "revisions": [
     {
       "id": "v1",
@@ -20,6 +23,7 @@
   "en": {
     "name": "King",
     "ability": "Each night, if the dead equal or outnumber the living, you learn 1 alive character. The Demon knows you are the King.",
+    "flavor": "Betwixt the unknown strains of mortal strife / And morbid night, sweet with mystery and woe / Lies unfettered joys of fate’s long and colored life / Who’s garden blooms with each painted Face to Show.",
     "revisions": {
       "v1": "Each night, if the dead outnumber the living, you learn 1 alive character. The Demon knows who you are.",
       "v2024-05": "Each night, if the dead equal or outnumber the living, you learn 1 alive character. The Demon knows who you are.",

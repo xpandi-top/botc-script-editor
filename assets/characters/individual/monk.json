@@ -3,6 +3,8 @@
   "team": "townsfolk",
   "edition": "tb",
   "current_revision": "v1",
+  "setup": false,
+  "otherNightReminder": "The Monk chooses a player. :reminder:",
   "reminders": [
     "Protected"
   ],
@@ -15,6 +17,7 @@
   "en": {
     "name": "Monk",
     "ability": "Each night*, choose a player (not yourself): they are safe from the Demon tonight.",
+    "flavor": "'Tis an ill and deathly wind that blows tonight. Come, my brother, take shelter in the abbey while the storm rages. By my word, or by my life, you will be safe.",
     "revisions": {
       "v1": "Each night*, choose a player (not yourself): they are safe from the Demon tonight."
     }

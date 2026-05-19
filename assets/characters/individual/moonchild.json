@@ -3,6 +3,8 @@
   "team": "outsider",
   "edition": "bmr",
   "current_revision": "v1",
+  "setup": false,
+  "otherNightReminder": "If the Moonchild is due to kill a good player, they die. :reminder:",
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +14,7 @@
   "en": {
     "name": "Moonchild",
     "ability": "When you learn that you died, publicly choose 1 alive player. Tonight, if it was a good player, they die.",
+    "flavor": "Scorpio looks sideways at the lovers, and you have a choice to make. With silver cross my palm, and your fate shall be revealed. With steel cross my throat, and by the stars you shall regret it.",
     "revisions": {
       "v1": "When you learn that you died, publicly choose 1 alive player. Tonight, if it was a good player, they die."
     }

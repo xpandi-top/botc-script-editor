@@ -3,6 +3,8 @@
   "team": "outsider",
   "edition": "bmr",
   "current_revision": "v1",
+  "setup": false,
+  "otherNightReminder": "The Tinker might die. :reminder:",
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +14,7 @@
   "en": {
     "name": "Tinker",
     "ability": "You might die at any time.",
+    "flavor": "I think I see the problem. Luckily, I have an idea! This catapult will shoot twice as far with just a minor adjustment...",
     "revisions": {
       "v1": "You might die at any time."
     }

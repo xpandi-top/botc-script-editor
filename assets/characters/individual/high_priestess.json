@@ -3,6 +3,9 @@
   "team": "townsfolk",
   "edition": "experimental",
   "current_revision": "v1",
+  "setup": false,
+  "firstNightReminder": "Point to a player.",
+  "otherNightReminder": "Point to a player.",
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +15,7 @@
   "en": {
     "name": "High Priestess",
     "ability": "Each night, learn which player the Storyteller believes you should talk to most.",
+    "flavor": "There is life behind the personality that uses personalities as masks. There are times when life puts off the mask and deep answers to deep.",
     "revisions": {
       "v1": "Each night, learn which player the Storyteller believes you should talk to most."
     }

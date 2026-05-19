@@ -3,6 +3,9 @@
   "team": "townsfolk",
   "edition": "experimental",
   "current_revision": "v1",
+  "setup": false,
+  "firstNightReminder": "The Cult Leader might change alignment. If so, show the *YOU ARE* info token & give a thumb signal.",
+  "otherNightReminder": "The Cult Leader might change alignment. If so, show the *YOU ARE* info token & give a thumb signal.",
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +15,7 @@
   "en": {
     "name": "Cult Leader",
     "ability": "Each night, you become the alignment of an alive neighbour. If all good players choose to join your cult, your team wins.",
+    "flavor": "Thinking themselves wise, they became fools.",
     "revisions": {
       "v1": "Each night, you become the alignment of an alive neighbour. If all good players choose to join your cult, your team wins."
     }

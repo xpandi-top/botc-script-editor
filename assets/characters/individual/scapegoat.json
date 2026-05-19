@@ -3,6 +3,7 @@
   "team": "traveler",
   "edition": "tb",
   "current_revision": "v1",
+  "setup": false,
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +13,7 @@
   "en": {
     "name": "Scapegoat",
     "ability": "If a player of your alignment is executed, you might be executed instead.",
+    "flavor": "Good evening! Thank you for inviting me to the ball. I'm not from around here, but you sure seem like a friendly bunch, by golly. I'm sure we'll get along just dandy. What's all that rope for?",
     "revisions": {
       "v1": "If a player of your alignment is executed, you might be executed instead."
     }

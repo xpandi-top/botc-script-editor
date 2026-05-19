@@ -3,6 +3,7 @@
   "team": "townsfolk",
   "edition": "snv",
   "current_revision": "v1",
+  "setup": false,
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +13,7 @@
   "en": {
     "name": "Artist",
     "ability": "Once per game, during the day, privately ask the Storyteller any yes/no question.",
+    "flavor": "Mon Dieu! C'est lumineux! My work, she is... how you say... Magnifique! Dieu est révélé! Oui.",
     "revisions": {
       "v1": "Once per game, during the day, privately ask the Storyteller any yes/no question."
     }

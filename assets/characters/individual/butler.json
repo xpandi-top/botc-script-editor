@@ -3,6 +3,9 @@
   "team": "outsider",
   "edition": "tb",
   "current_revision": "v1",
+  "setup": false,
+  "firstNightReminder": "The Butler chooses a player. :reminder:",
+  "otherNightReminder": "The Butler chooses a player. :reminder:",
   "reminders": [
     "Master"
   ],
@@ -15,6 +18,7 @@
   "en": {
     "name": "Butler",
     "ability": "Each night, choose a player (not yourself): tomorrow, you may only vote if they are voting too.",
+    "flavor": "Yes, sir... No, sir... Certainly, sir.",
     "revisions": {
       "v1": "Each night, choose a player (not yourself): tomorrow, you may only vote if they are voting too."
     }

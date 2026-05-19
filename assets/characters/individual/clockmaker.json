@@ -3,6 +3,8 @@
   "team": "townsfolk",
   "edition": "snv",
   "current_revision": "v1",
+  "setup": false,
+  "firstNightReminder": "Give a finger signal.",
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +14,7 @@
   "en": {
     "name": "Clockmaker",
     "ability": "You start knowing how many steps from the Demon to its nearest Minion.",
+    "flavor": "Do not disturb me. The tick must continue, for the circle is a symbol of life and contains all things - all answers - in its divine machinery. I must work.",
     "revisions": {
       "v1": "You start knowing how many steps from the Demon to its nearest Minion."
     }

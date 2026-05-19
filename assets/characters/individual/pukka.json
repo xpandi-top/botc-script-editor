@@ -3,6 +3,9 @@
   "team": "demon",
   "edition": "bmr",
   "current_revision": "v1",
+  "setup": false,
+  "firstNightReminder": "The Pukka chooses a player. :reminder:",
+  "otherNightReminder": "The Pukka chooses a player. :reminder: The previously poisoned player dies then becomes healthy. :reminder:",
   "remindersGlobal": [
     "Poisoned"
   ],
@@ -15,6 +18,7 @@
   "en": {
     "name": "Pukka",
     "ability": "Each night, choose a player: they are poisoned. The previously poisoned player dies then becomes healthy.",
+    "flavor": "You truly have been kind welcoming me into your beautiful home. I am so sorry I accidentally scratched you. A little thing. No matter. But please, take this golden toothpick as a humble token of my regret.",
     "revisions": {
       "v1": "Each night, choose a player: they are poisoned. The previously poisoned player dies then becomes healthy."
     }

@@ -3,6 +3,8 @@
   "team": "townsfolk",
   "edition": "bmr",
   "current_revision": "v1",
+  "setup": false,
+  "otherNightReminder": "If the Gossip is due to kill a player, they die. :reminder:",
   "reminders": [
     "Dead"
   ],
@@ -15,6 +17,7 @@
   "en": {
     "name": "Gossip",
     "ability": "Each day, you may make a public statement. Tonight, if it was true, a player dies.",
+    "flavor": "Blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah. Blah.",
     "revisions": {
       "v1": "Each day, you may make a public statement. Tonight, if it was true, a player dies."
     }

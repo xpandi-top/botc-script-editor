@@ -3,6 +3,8 @@
   "team": "outsider",
   "edition": "experimental",
   "current_revision": "v1",
+  "setup": false,
+  "otherNightReminder": "If the Hatter died, wake the Minions & Demons. Each may choose a new character. If they do, show the *YOU ARE* token & their new character token.",
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +14,7 @@
   "en": {
     "name": "Hatter",
     "ability": "If you died today or tonight, the Minion & Demon players may choose new Minion & Demon characters to be.",
+    "flavor": "One Hat. Too Hat. Three Hat. Tea Hat. Fore Hat. Thrive Hat. Six Hat. Sticks Hat.",
     "revisions": {
       "v1": "If you died today or tonight, the Minion & Demon players may choose new Minion & Demon characters to be."
     }

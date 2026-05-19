@@ -3,6 +3,7 @@
   "team": "outsider",
   "edition": "tb",
   "current_revision": "v1",
+  "setup": false,
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +13,7 @@
   "en": {
     "name": "Saint",
     "ability": "If you die by execution, your team loses.",
+    "flavor": "Wisdom begets peace. Patience begets wisdom. Fear not, for the time shall come when fear too shall pass. Let us pray, and may the unity of our vision make saints of us all.",
     "revisions": {
       "v1": "If you die by execution, your team loses."
     }

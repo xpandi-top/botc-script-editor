@@ -3,6 +3,7 @@
   "team": "outsider",
   "edition": "snv",
   "current_revision": "v1",
+  "setup": false,
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +13,7 @@
   "en": {
     "name": "Mutant",
     "ability": "If you are “mad” about being an Outsider, you might be executed.",
+    "flavor": "I am not a freak! I am a human being! Have mercy!",
     "revisions": {
       "v1": "If you are “mad” about being an Outsider, you might be executed."
     }

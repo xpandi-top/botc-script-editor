@@ -3,6 +3,8 @@
   "team": "demon",
   "edition": "experimental",
   "current_revision": "v1",
+  "setup": true,
+  "otherNightReminder": "A player might die. :reminder:",
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +14,7 @@
   "en": {
     "name": "Legion",
     "ability": "Each night*, a player might die. Executions fail if only evil voted. You register as a Minion too. [Most players are Legion]",
+    "flavor": "We are the chill wind on a winter’s day. We are the shadow in the moonless night. We are the poison in your tea and the whisper in your ear. We are everywhere.",
     "revisions": {
       "v1": "Each night*, a player might die. Executions fail if only evil voted. You register as a Minion too. [Most players are Legion]"
     }

@@ -3,6 +3,8 @@
   "team": "townsfolk",
   "edition": "tb",
   "current_revision": "v1",
+  "setup": false,
+  "firstNightReminder": "Show the Outsider character token. Point to both the *OUTSIDER* and *WRONG* players.",
   "reminders": [
     "Wrong"
   ],
@@ -15,6 +17,7 @@
   "en": {
     "name": "Librarian",
     "ability": "You start knowing that 1 of 2 players is a particular Outsider. (Or that zero are in play.)",
+    "flavor": "Certainly madam, under normal circumstances, you may borrow the Codex Malificarium from the library vaults. However, you do not seem to be a member.",
     "revisions": {
       "v1": "You start knowing that 1 of 2 players is a particular Outsider. (Or that zero are in play.)"
     }

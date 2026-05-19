@@ -3,6 +3,8 @@
   "team": "townsfolk",
   "edition": "experimental",
   "current_revision": "v2024-11",
+  "setup": false,
+  "otherNightReminder": "If the Farmer died tonight, wake a living good player. Show the *YOU ARE* info token and a Farmer token.",
   "revisions": [
     {
       "id": "v1",
@@ -16,6 +18,7 @@
   "en": {
     "name": "Farmer",
     "ability": "When you die at night, an alive good player becomes a Farmer.",
+    "flavor": "Even the high and mighty need food on the table. Without us, the city starves.",
     "revisions": {
       "v1": "If you die at night, an alive good player becomes a Farmer.",
       "v2024-11": "When you die at night, an alive good player becomes a Farmer."

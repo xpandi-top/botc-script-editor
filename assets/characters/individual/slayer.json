@@ -3,6 +3,7 @@
   "team": "townsfolk",
   "edition": "tb",
   "current_revision": "v1",
+  "setup": false,
   "reminders": [
     "Dead"
   ],
@@ -15,6 +16,7 @@
   "en": {
     "name": "Slayer",
     "ability": "Once per game, during the day, publicly choose a player: if they are the Demon, they die.",
+    "flavor": "Die.",
     "revisions": {
       "v1": "Once per game, during the day, publicly choose a player: if they are the Demon, they die."
     }

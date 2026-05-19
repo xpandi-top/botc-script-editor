@@ -3,6 +3,8 @@
   "team": "fabled",
   "edition": "fabled",
   "current_revision": "v1",
+  "setup": false,
+  "firstNightReminder": "Announce which players are affected by the Buddhist.",
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +14,7 @@
   "en": {
     "name": "Buddhist",
     "ability": "For the first 2 minutes of each day, veteran players may not talk.",
+    "flavor": "You throw thorns. Falling in my silence, they become flowers.",
     "revisions": {
       "v1": "For the first 2 minutes of each day, veteran players may not talk."
     }

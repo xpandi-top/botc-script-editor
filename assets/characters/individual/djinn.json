@@ -3,6 +3,7 @@
   "team": "fabled",
   "edition": "fabled",
   "current_revision": "v1",
+  "setup": false,
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +13,7 @@
   "en": {
     "name": "Djinn",
     "ability": "Use the Djinn's special rule. All players know what it is.",
+    "flavor": "نحن لسنا هنا. انت لست حقيقي. كل شيء هو وهم. أسئلتك هي جبل نار في يوم صافٍ.",
     "revisions": {
       "v1": "Use the Djinn's special rule. All players know what it is."
     }

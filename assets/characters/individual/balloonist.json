@@ -3,6 +3,9 @@
   "team": "townsfolk",
   "edition": "experimental",
   "current_revision": "v2024-06",
+  "setup": true,
+  "firstNightReminder": "Point to any player. :reminder:",
+  "otherNightReminder": "Point to a player with a different character type to the previously shown player. :reminder:",
   "revisions": [
     {
       "id": "v1",
@@ -16,6 +19,7 @@
   "en": {
     "name": "Balloonist",
     "ability": "Each night, you learn a player of a different character type than last night. [+0 or +1 Outsider]",
+    "flavor": "More heat! Higher! Higher! Più alto! Ahhh... it is so beautiful from up here, don't you agree? Can you see the children fishing by the river, under the willow? Can you see the  glint of the sun on the circus tent-poles? What's this? An old man, alone, passed out in the vineyard? Less heat! Lower! Lower! Vai più in basso!",
     "revisions": {
       "v1": "Each night, you learn 1 player of each character type, until there are no more types to learn. [+1 Outsider]",
       "v2024-06": "Each night, you learn a player of a different character type than last night. [+0 or +1 Outsider]"

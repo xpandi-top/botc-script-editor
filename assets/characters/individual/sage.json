@@ -3,6 +3,8 @@
   "team": "townsfolk",
   "edition": "snv",
   "current_revision": "v1",
+  "setup": false,
+  "otherNightReminder": "If the Demon killed the Sage, wake the Sage and point to 2 players, 1 of which is the Demon.",
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +14,7 @@
   "en": {
     "name": "Sage",
     "ability": "If the Demon kills you, you learn that it is 1 of 2 players.",
+    "flavor": "These mountainous tomes guard the secret, I am sure of it! Twixt word and word, it lies in wait. More candles, boy! More ink! These notes may look arcane, but the infernal puzzle is revealing itself.",
     "revisions": {
       "v1": "If the Demon kills you, you learn that it is 1 of 2 players."
     }

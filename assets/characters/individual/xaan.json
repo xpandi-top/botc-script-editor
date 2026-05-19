@@ -3,6 +3,9 @@
   "team": "minion",
   "edition": "experimental",
   "current_revision": "v1",
+  "setup": true,
+  "firstNightReminder": "If X is 1, mark the Xaan with the *X* reminder token. :reminder: :reminder:",
+  "otherNightReminder": "Change the Xaan reminder token to the relevant night. If it is night X, mark the Xaan with the *X* reminder token. :reminder: :reminder:",
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +15,7 @@
   "en": {
     "name": "Xaan",
     "ability": "On night X, all Townsfolk are poisoned until dusk. [X Outsiders]",
+    "flavor": "Down they fall. One by one. By two, by three, by five.",
     "revisions": {
       "v1": "On night X, all Townsfolk are poisoned until dusk. [X Outsiders]"
     }

@@ -215,7 +215,7 @@ const characterFiles = import.meta.glob('../assets/characters/individual/*.json'
 
 // ── Build locale maps from individual character files ─────────────────────────
 
-const _charLocale: Record<Language, Record<string, { name?: string; ability?: string; revisions?: Record<string, string> }>> = {
+const _charLocale: Record<Language, Record<string, { name?: string; ability?: string; flavor?: string; revisions?: Record<string, string> }>> = {
   en: {},
   zh: {},
 }
@@ -417,6 +417,15 @@ export function getAbilityText(id: string, language: Language = 'en') {
   const fallback = _charLocale[fallbackLanguage]?.[id]?.ability ?? _charPackOverrides[id]?.[fallbackLanguage]?.ability
   if (fallback) return fallback
   return 'No ability text available.'
+}
+
+/** Returns the flavor text for a character. Only official characters have flavor (English only from official schema). */
+export function getFlavorText(id: string, language: Language = 'en'): string | undefined {
+  const fromFile = _charLocale[language]?.[id]?.flavor
+  if (fromFile) return fromFile
+  // Flavor is English-only in official schema; fall back to en when zh is requested
+  if (language === 'zh') return _charLocale.en[id]?.flavor
+  return undefined
 }
 
 export function getJinxReason(id: string, language: Language = 'en') {
@@ -791,6 +800,11 @@ function loadCharacterCatalog() {
       remindersGlobal: Array.isArray(value.remindersGlobal)
         ? value.remindersGlobal.filter((r): r is string => typeof r === 'string')
         : undefined,
+      setup: typeof value.setup === 'boolean' ? value.setup : undefined,
+      firstNightReminder: typeof value.firstNightReminder === 'string' && value.firstNightReminder
+        ? value.firstNightReminder : undefined,
+      otherNightReminder: typeof value.otherNightReminder === 'string' && value.otherNightReminder
+        ? value.otherNightReminder : undefined,
     }
 
     if (

@@ -3,6 +3,9 @@
   "team": "townsfolk",
   "edition": "snv",
   "current_revision": "v1",
+  "setup": false,
+  "firstNightReminder": "Give a finger signal.",
+  "otherNightReminder": "Give a finger signal.",
   "reminders": [
     "+1"
   ],
@@ -15,6 +18,7 @@
   "en": {
     "name": "Mathematician",
     "ability": "Each night, you learn how many players’ abilities worked abnormally (since dawn) due to another character's ability.",
+    "flavor": "Any consistent formal system x, within which a certain amount of elementary arithmetic can be carried out is incomplete; that is, there are statements of the language of x which can neither be proved nor disproved in x. Ergo, you are drunk.",
     "revisions": {
       "v1": "Each night, you learn how many players’ abilities worked abnormally (since dawn) due to another character's ability."
     }

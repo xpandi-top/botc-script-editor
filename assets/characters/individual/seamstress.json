@@ -3,6 +3,9 @@
   "team": "townsfolk",
   "edition": "snv",
   "current_revision": "v1",
+  "setup": false,
+  "firstNightReminder": "The Seamstress might choose 2 players. Nod or shake your head. :reminder:",
+  "otherNightReminder": "The Seamstress might choose 2 players. Nod or shake your head. :reminder:",
   "reminders": [
     "Not this player"
   ],
@@ -15,6 +18,7 @@
   "en": {
     "name": "Seamstress",
     "ability": "Once per game, at night, choose 2 players (not yourself): you learn if they are the same alignment.",
+    "flavor": "Did you hear that stranger in the cashmere coat put the word on our young Belle? And she said yes? Well, that's nothing compared to what Harry and that juggler got up to at the fair! The things I could say if I was a tattletale... my, yes.",
     "revisions": {
       "v1": "Once per game, at night, choose 2 players (not yourself): you learn if they are the same alignment."
     }

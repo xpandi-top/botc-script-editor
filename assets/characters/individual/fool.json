@@ -3,6 +3,7 @@
   "team": "townsfolk",
   "edition": "bmr",
   "current_revision": "v1",
+  "setup": false,
   "reminders": [
     "No ability"
   ],
@@ -15,6 +16,7 @@
   "en": {
     "name": "Fool",
     "ability": "The first time you die, you don't.",
+    "flavor": "...and the King said 'What?! I've never even owned a pair of rubber pantaloons, let alone a custard cannon!' Ho-ho! Jolly day!",
     "revisions": {
       "v1": "The first time you die, you don't."
     }

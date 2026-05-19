@@ -1,0 +1,31 @@
+{
+  "id": "godofug",
+  "team": "loric",
+  "edition": "loric",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Hat"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "God of Ug",
+    "ability": "One Ug hat. When wear Ug hat, must speak one sound at a time but vote twice. If fail, pass Ug hat.",
+    "revisions": {
+      "v1": "One Ug hat. When wear Ug hat, must speak one sound at a time but vote twice. If fail, pass Ug hat."
+    },
+    "flavor": "Blessed are my children, for they see the beauty in simple things."
+  },
+  "zh": {
+    "name": "God of Ug",
+    "ability": "One Ug hat. When wear Ug hat, must speak one sound at a time but vote twice. If fail, pass Ug hat.",
+    "revisions": {
+      "v1": "One Ug hat. When wear Ug hat, must speak one sound at a time but vote twice. If fail, pass Ug hat."
+    }
+  }
+}

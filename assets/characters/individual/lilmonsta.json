@@ -3,6 +3,9 @@
   "team": "demon",
   "edition": "experimental",
   "current_revision": "v2024-06",
+  "setup": true,
+  "firstNightReminder": "Wake the Minions. They choose a player. :reminder: Put the Minions to sleep. Wake the target. Show the *YOU ARE* & Lil' Monsta tokens.",
+  "otherNightReminder": "Wake the Minions. They choose a player. :reminder: Put the Minions to sleep. Wake the target. Show the *YOU ARE* & Lil' Monsta tokens. A player might die. :reminder:",
   "revisions": [
     {
       "id": "v1",
@@ -16,6 +19,7 @@
   "en": {
     "name": "Lil' Monsta",
     "ability": "Each night, Minions choose who babysits Lil' Monsta & 'is the Demon'. Each night*, a player might die. [+1 Minion]",
+    "flavor": "Step 1: Be cute. Step 2: World domination. Step 3: Bweakfast.",
     "revisions": {
       "v1": "Each night, Minions choose who babysits Lil' Monsta's token & \"is the Demon\". A player dies each night*. [+1 Minion]",
       "v2024-06": "Each night, Minions choose who babysits Lil' Monsta & 'is the Demon'. Each night*, a player might die. [+1 Minion]"

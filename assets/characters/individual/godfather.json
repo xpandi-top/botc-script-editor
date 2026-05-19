@@ -3,6 +3,9 @@
   "team": "minion",
   "edition": "bmr",
   "current_revision": "v1",
+  "setup": true,
+  "firstNightReminder": "Show the character tokens of all in-play Outsiders.",
+  "otherNightReminder": "If an Outsider died today, the Godfather chooses a player. :reminder:",
   "reminders": [
     "Died today"
   ],
@@ -15,6 +18,7 @@
   "en": {
     "name": "Godfather",
     "ability": "You start knowing which Outsiders are in play. If 1 died today, choose a player tonight: they die. [−1 or +1 Outsider]",
+    "flavor": "Normally, it's just business. But when you insult my daughter, you insult me. And when you insult me, you insult my family. You really should be more careful - it would be a shame if you had an unfortunate accident.",
     "revisions": {
       "v1": "You start knowing which Outsiders are in play. If 1 died today, choose a player tonight: they die. [−1 or +1 Outsider]"
     }

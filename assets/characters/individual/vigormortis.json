@@ -3,6 +3,8 @@
   "team": "demon",
   "edition": "snv",
   "current_revision": "v1",
+  "setup": true,
+  "otherNightReminder": "The Vigormortis chooses a player. :reminder: If that player is a Minion, poison a neighboring Townsfolk. :reminder: :reminder:",
   "remindersGlobal": [
     "Dead",
     "No ability"
@@ -16,6 +18,7 @@
   "en": {
     "name": "Vigormortis",
     "ability": "Each night*, choose a player: they die. Minions you kill keep their ability & poison 1 Townsfolk neighbour. [−1 Outsider]",
+    "flavor": "All doors are one door. All keys are one key. All cups are one cup, but whosoever drinketh of the water that I give shall never thirst, but the water shall be in him a well springing up into everlasting life.",
     "revisions": {
       "v1": "Each night*, choose a player: they die. Minions you kill keep their ability & poison 1 Townsfolk neighbour. [−1 Outsider]"
     }

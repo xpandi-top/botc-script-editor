@@ -3,6 +3,8 @@
   "team": "minion",
   "edition": "experimental",
   "current_revision": "v2025-01",
+  "setup": false,
+  "firstNightReminder": "Announce which player is the Vizier.",
   "revisions": [
     {
       "id": "v1",
@@ -20,6 +22,7 @@
   "en": {
     "name": "Vizier",
     "ability": "All players know you are the Vizier. You cannot die during the day. If good voted, you may choose to execute immediately.",
+    "flavor": "An excellent decision, as always, sire. Such a petty crime as bumping into the Bishop indeed deserves your ‘justice’ and ‘mercy’. Take a stroll in the gardens. Visit the gallery and peruse the sculptures of Von Strauf. Relax, sire. Leave everything… to me.",
     "revisions": {
       "v1": "All players know who you are. You can not die during the day. If good voted, you may choose to execute immediately.",
       "v2024-11": "All players know you are the Vizier. You can not die during the day. If good voted, you may choose to execute immediately.",

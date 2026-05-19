@@ -3,6 +3,8 @@
   "team": "outsider",
   "edition": "experimental",
   "current_revision": "v2024-11",
+  "setup": false,
+  "otherNightReminder": "If the Plague Doctor died, the Storyteller gained a Minion ability. If you haven’t done this yet, do so now. :reminder:",
   "revisions": [
     {
       "id": "v1",
@@ -20,6 +22,7 @@
   "en": {
     "name": "Plague Doctor",
     "ability": "When you die, the Storyteller gains a Minion ability.",
+    "flavor": "Pleauze shtay shtill. Thinks nid tiime for hillink. Myrhh-myrhh.",
     "revisions": {
       "v1": "If you die, the Storyteller gains a not-in-play Minion ability.",
       "v2024-06": "If you die, the Storyteller gains a Minion ability.",

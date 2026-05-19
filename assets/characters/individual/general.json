@@ -3,6 +3,9 @@
   "team": "townsfolk",
   "edition": "experimental",
   "current_revision": "v1",
+  "setup": false,
+  "firstNightReminder": "Give a thumb signal.",
+  "otherNightReminder": "Give a thumb signal.",
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +15,7 @@
   "en": {
     "name": "General",
     "ability": "Each night, you learn which alignment the Storyteller believes is winning: good, evil, or neither.",
+    "flavor": "I don’t have time for quotes.",
     "revisions": {
       "v1": "Each night, you learn which alignment the Storyteller believes is winning: good, evil, or neither."
     }

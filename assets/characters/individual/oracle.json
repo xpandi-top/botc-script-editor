@@ -3,6 +3,8 @@
   "team": "townsfolk",
   "edition": "snv",
   "current_revision": "v1",
+  "setup": false,
+  "otherNightReminder": "Give a finger signal.",
   "reminders": [
     "Dead"
   ],
@@ -15,6 +17,7 @@
   "en": {
     "name": "Oracle",
     "ability": "Each night*, you learn how many dead players are evil.",
+    "flavor": "Only the chosen may gaze beyond the veil. The dead are restless, and they point in silence toward the icy north.",
     "revisions": {
       "v1": "Each night*, you learn how many dead players are evil."
     }

@@ -3,6 +3,7 @@
   "team": "loric",
   "edition": "loric",
   "current_revision": "v1",
+  "setup": true,
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +13,7 @@
   "en": {
     "name": "Bootlegger",
     "ability": "This script has homebrew characters or rules.",
+    "flavor": "When I was born, I was named ‘Homebrewy McHomebrewface’, like my father before me. A respectable name, for a dignified age.",
     "revisions": {
       "v1": "This script has homebrew characters or rules."
     }

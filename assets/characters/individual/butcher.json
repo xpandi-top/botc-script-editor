@@ -3,6 +3,7 @@
   "team": "traveler",
   "edition": "snv",
   "current_revision": "v1",
+  "setup": false,
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +13,7 @@
   "en": {
     "name": "Butcher",
     "ability": "Each day, after the 1st execution, you may nominate again.",
+    "flavor": "It tastes like chicken. More please.",
     "revisions": {
       "v1": "Each day, after the 1st execution, you may nominate again."
     }

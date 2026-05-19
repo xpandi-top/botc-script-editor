@@ -3,6 +3,7 @@
   "team": "townsfolk",
   "edition": "tb",
   "current_revision": "v1",
+  "setup": false,
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +13,7 @@
   "en": {
     "name": "Soldier",
     "ability": "You are safe from the Demon.",
+    "flavor": "As David said to Goliath, as Theseus said to the Minotaur, as Arjuna said to Bhagadatta... No.",
     "revisions": {
       "v1": "You are safe from the Demon."
     }

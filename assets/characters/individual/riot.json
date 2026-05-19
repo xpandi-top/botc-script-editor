@@ -3,6 +3,8 @@
   "team": "demon",
   "edition": "experimental",
   "current_revision": "v2024-12",
+  "setup": false,
+  "otherNightReminder": "Change the Riot reminder token to the relevant day. :reminder: If it is night 3, you may wake the Minions. Show the *YOU ARE* & Riot tokens.",
   "revisions": [
     {
       "id": "v1",
@@ -16,6 +18,7 @@
   "en": {
     "name": "Riot",
     "ability": "On day 3, Minions become Riot & nominees die but nominate an alive player immediately. This must happen.",
+    "flavor": "Larga vida a la revolución! Mi revolucion!",
     "revisions": {
       "v1": "Nominees die, but may nominate again immediately (on day 3, they must). After day 3, evil wins. [All Minions are Riot]",
       "v2024-12": "On day 3, Minions become Riot & nominees die but nominate an alive player immediately. This must happen."

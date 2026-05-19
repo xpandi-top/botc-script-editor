@@ -3,6 +3,7 @@
   "team": "fabled",
   "edition": "fabled",
   "current_revision": "v1",
+  "setup": false,
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +13,7 @@
   "en": {
     "name": "Hell's Librarian",
     "ability": "Something bad might happen to whoever talks when the Storyteller has asked for silence.",
+    "flavor": "Shhhhhh. Please be quiet. It is best not to disturb the Librarian. I've heard it has a temper.",
     "revisions": {
       "v1": "Something bad might happen to whoever talks when the Storyteller has asked for silence."
     }

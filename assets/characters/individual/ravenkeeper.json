@@ -3,6 +3,8 @@
   "team": "townsfolk",
   "edition": "tb",
   "current_revision": "v1",
+  "setup": false,
+  "otherNightReminder": "If the Ravenkeeper died tonight, the Ravenkeeper chooses a player. Show that player's character token.",
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +14,7 @@
   "en": {
     "name": "Ravenkeeper",
     "ability": "If you die at night, you are woken to choose a player: you learn their character.",
+    "flavor": "My birds will avenge me! Fly! Fly, my sweet and dutiful pets! To the manor and to the river! To the alleys and to the salons! Fly!",
     "revisions": {
       "v1": "If you die at night, you are woken to choose a player: you learn their character."
     }

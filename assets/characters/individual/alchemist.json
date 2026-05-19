@@ -3,6 +3,8 @@
   "team": "townsfolk",
   "edition": "experimental",
   "current_revision": "v2024-12",
+  "setup": false,
+  "firstNightReminder": "Show the *YOU ARE* info token and a Minion token.",
   "revisions": [
     {
       "id": "v1",
@@ -16,6 +18,7 @@
   "en": {
     "name": "Alchemist",
     "ability": "You have a Minion ability. When using this, the Storyteller may prompt you to choose differently.",
+    "flavor": "Visit the interior of the Earth. By rectification thou shalt find the hidden stone. Above the gold, lieth the red. Kether in Malkuth.",
     "revisions": {
       "v1": "You have a not-in-play Minion ability.",
       "v2024-12": "You have a Minion ability. When using this, the Storyteller may prompt you to choose differently."

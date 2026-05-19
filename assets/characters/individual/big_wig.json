@@ -3,6 +3,7 @@
   "team": "loric",
   "edition": "loric",
   "current_revision": "v1",
+  "setup": false,
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +13,7 @@
   "en": {
     "name": "Big Wig",
     "ability": "Each nominee chooses a player: until voting, only they may speak & they are mad the nominee is good or they might die.",
+    "flavor": "Vanity asks ‘Is it popular?’ Cowardice asks ‘Is it safe?’ Conscience asks ‘Is it right?’ Who among us will ask: ‘Is it true?’",
     "revisions": {
       "v1": "Each nominee chooses a player: until voting, only they may speak & they are mad the nominee is good or they might die."
     }

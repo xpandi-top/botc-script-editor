@@ -3,6 +3,7 @@
   "team": "minion",
   "edition": "experimental",
   "current_revision": "v1",
+  "setup": false,
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +13,7 @@
   "en": {
     "name": "Psychopath",
     "ability": "Each day, before nominations, you may publicly choose a player: they die. If executed, you only die if you lose roshambo.",
+    "flavor": "Surprise!",
     "revisions": {
       "v1": "Each day, before nominations, you may publicly choose a player: they die. If executed, you only die if you lose roshambo."
     }

@@ -3,6 +3,9 @@
   "team": "townsfolk",
   "edition": "experimental",
   "current_revision": "v1",
+  "setup": false,
+  "firstNightReminder": "Do whatever needs to be done to satisfy the Amnesiac's ability.",
+  "otherNightReminder": "Do whatever needs to be done to satisfy the Amnesiac's ability.",
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +15,7 @@
   "en": {
     "name": "Amnesiac",
     "ability": "You do not know what your ability is. Each day, privately guess what it is: you learn how accurate you are.",
+    "flavor": "Wait. What. Who? Oh, ok. Wait. What?",
     "revisions": {
       "v1": "You do not know what your ability is. Each day, privately guess what it is: you learn how accurate you are."
     }

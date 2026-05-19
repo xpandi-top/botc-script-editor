@@ -3,6 +3,7 @@
   "team": "traveler",
   "edition": "bmr",
   "current_revision": "v1",
+  "setup": false,
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +13,7 @@
   "en": {
     "name": "Voudon",
     "ability": "Only you and the dead can vote. They don't need a vote token to do so. A 50% majority is not required.",
+    "flavor": "Bien venu. Sit down. Breathe deep. Enter the land of the dead. See with their eyes. Speak with their voice. Yon sel lang se janm ase.",
     "revisions": {
       "v1": "Only you and the dead can vote. They don't need a vote token to do so. A 50% majority is not required."
     }

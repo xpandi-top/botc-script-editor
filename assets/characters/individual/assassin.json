@@ -3,6 +3,8 @@
   "team": "minion",
   "edition": "bmr",
   "current_revision": "v1",
+  "setup": false,
+  "otherNightReminder": "The Assassin might choose a player. :reminder: :reminder:",
   "remindersGlobal": [
     "Dead"
   ],
@@ -15,6 +17,7 @@
   "en": {
     "name": "Assassin",
     "ability": "Once per game, at night*, choose a player: they die, even if for some reason they could not.",
+    "flavor": "...",
     "revisions": {
       "v1": "Once per game, at night*, choose a player: they die, even if for some reason they could not."
     }

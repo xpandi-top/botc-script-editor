@@ -3,6 +3,7 @@
   "team": "townsfolk",
   "edition": "bmr",
   "current_revision": "v1",
+  "setup": false,
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +13,7 @@
   "en": {
     "name": "Pacifist",
     "ability": "Executed good players might not die.",
+    "flavor": "Distrust all in whom the impulse to punish is powerful.",
     "revisions": {
       "v1": "Executed good players might not die."
     }

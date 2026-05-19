@@ -3,6 +3,7 @@
   "team": "loric",
   "edition": "loric",
   "current_revision": "v1",
+  "setup": false,
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +13,7 @@
   "en": {
     "name": "Knaves",
     "ability": "There are 2 Storytellers: one lies & one tells the truth. Once per game, at dusk, they might switch.",
+    "flavor": "Every wall is a door. Every meal is a feast.",
     "revisions": {
       "v1": "There are 2 Storytellers: one lies & one tells the truth. Once per game, at dusk, they might switch."
     }

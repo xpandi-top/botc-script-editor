@@ -3,6 +3,9 @@
   "team": "minion",
   "edition": "snv",
   "current_revision": "v1",
+  "setup": false,
+  "firstNightReminder": "The Cerenovus chooses a player & a character. :reminder: Put the Cerenovus to sleep. Wake the target. Show the *THIS CHARACTER SELECTED YOU* token, the Cerenovus token, then the madness-character token.",
+  "otherNightReminder": "The Cerenovus chooses a player & a character. :reminder: Put the Cerenovus to sleep. Wake the target. Show the *THIS CHARACTER SELECTED YOU* token, the Cerenovus token, then the madness-character token.",
   "remindersGlobal": [
     "Mad"
   ],
@@ -15,6 +18,7 @@
   "en": {
     "name": "Cerenovus",
     "ability": "Each night, choose a player & a good character: they are “mad” they are this character tomorrow, or might be executed.",
+    "flavor": "Reality is merely an opinion. Specifically, my opinion.",
     "revisions": {
       "v1": "Each night, choose a player & a good character: they are “mad” they are this character tomorrow, or might be executed."
     }

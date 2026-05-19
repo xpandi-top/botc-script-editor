@@ -3,6 +3,8 @@
   "team": "townsfolk",
   "edition": "snv",
   "current_revision": "v1",
+  "setup": false,
+  "otherNightReminder": "Give a finger signal.",
   "reminders": [
     "Juggled"
   ],
@@ -15,6 +17,7 @@
   "en": {
     "name": "Juggler",
     "ability": "On your 1st day, publicly guess up to 5 players' characters. That night, you learn how many you got correct.",
+    "flavor": "For my next trick, as per request, I will need a flower, a bag of beans, a toy snake, a paintbrush, and a motorized gasoline-powered hedge trimming device. I warn you, this trick may be my last. Oh dear.",
     "revisions": {
       "v1": "On your 1st day, publicly guess up to 5 players' characters. That night, you learn how many you got correct."
     }

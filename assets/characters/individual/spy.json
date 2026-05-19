@@ -3,6 +3,9 @@
   "team": "minion",
   "edition": "tb",
   "current_revision": "v1",
+  "setup": false,
+  "firstNightReminder": "Show the Grimoire for as long as the Spy needs.",
+  "otherNightReminder": "Show the Grimoire for as long as the Spy needs.",
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +15,7 @@
   "en": {
     "name": "Spy",
     "ability": "Each night, you see the Grimoire. You might register as good & as a Townsfolk or Outsider, even if dead.",
+    "flavor": "Any brewmaster worth their liquor, knows no concoction pours trouble quicker, than one where spies seem double.",
     "revisions": {
       "v1": "Each night, you see the Grimoire. You might register as good & as a Townsfolk or Outsider, even if dead."
     }

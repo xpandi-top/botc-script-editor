@@ -3,6 +3,9 @@
   "team": "outsider",
   "edition": "experimental",
   "current_revision": "v2024-11",
+  "setup": false,
+  "firstNightReminder": "During Minion Info, show the Minions the Damsel token. If you haven't done this yet, do so now. If the Damsel was chosen by the Huntsman, show the *YOU ARE* info token & their new character token.",
+  "otherNightReminder": "If the Damsel was chosen by the Huntsman, show the *YOU ARE* info token & their new character token.",
   "revisions": [
     {
       "id": "v1",
@@ -16,6 +19,7 @@
   "en": {
     "name": "Damsel",
     "ability": "All Minions know a Damsel is in play. If a Minion publicly guesses you (once), your team loses.",
+    "flavor": "Don't touch the hair, honey.",
     "revisions": {
       "v1": "All Minions know you are in play. If a Minion publicly guesses you (once), your team loses.",
       "v2024-11": "All Minions know a Damsel is in play. If a Minion publicly guesses you (once), your team loses."

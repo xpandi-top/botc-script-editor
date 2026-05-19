@@ -3,6 +3,7 @@
   "team": "outsider",
   "edition": "bmr",
   "current_revision": "v1",
+  "setup": false,
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +13,7 @@
   "en": {
     "name": "Goon",
     "ability": "Each night, the 1st player to choose you with their ability is drunk until dusk. You become their alignment.",
+    "flavor": "Yes boss. I explained fings real good to dat geezer. He don't want me explain it again. Nah boss, I don't need no doctor - it's only a knife wound. Be right come mornin'",
     "revisions": {
       "v1": "Each night, the 1st player to choose you with their ability is drunk until dusk. You become their alignment."
     }

@@ -3,6 +3,7 @@
   "team": "outsider",
   "edition": "experimental",
   "current_revision": "v1",
+  "setup": false,
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +13,7 @@
   "en": {
     "name": "Zealot",
     "ability": "If there are 5 or more players alive, you must vote for every nomination.",
+    "flavor": "I enjoy talking to you. Your mind appeals to me. It resembles my own mind except that you happen to be insane.",
     "revisions": {
       "v1": "If there are 5 or more players alive, you must vote for every nomination."
     }

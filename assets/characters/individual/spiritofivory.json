@@ -3,6 +3,7 @@
   "team": "fabled",
   "edition": "fabled",
   "current_revision": "v1",
+  "setup": false,
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +13,7 @@
   "en": {
     "name": "Spirit of Ivory",
     "ability": "There can't be more than 1 extra evil player.",
+    "flavor": "The Wasteland calls. Bones rise to flesh, then fall to dust. The great spirit grows. The great spirit watches. The great spirit guides. The human listens, or the human is no more.",
     "revisions": {
       "v1": "There can't be more than 1 extra evil player."
     }

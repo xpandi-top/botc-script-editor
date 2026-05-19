@@ -3,6 +3,8 @@
   "team": "minion",
   "edition": "snv",
   "current_revision": "v1",
+  "setup": false,
+  "firstNightReminder": "Wake both twins. Allow eye contact. Show the good twin's character token to the Evil Twin & vice versa.",
   "reminders": [
     "Twin"
   ],
@@ -15,6 +17,7 @@
   "en": {
     "name": "Evil Twin",
     "ability": "You & an opposing player know each other. If the good player is executed, evil wins. Good can't win if you both live.",
+    "flavor": "I'm not Sara! I'm Clara! SHE is Sara! Sara is the evil one! Not me!",
     "revisions": {
       "v1": "You & an opposing player know each other. If the good player is executed, evil wins. Good can't win if you both live."
     }

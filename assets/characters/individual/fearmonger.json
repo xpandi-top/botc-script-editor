@@ -3,6 +3,9 @@
   "team": "minion",
   "edition": "experimental",
   "current_revision": "v1",
+  "setup": false,
+  "firstNightReminder": "The Fearmonger chooses a player. :reminder: Announce that the Fearmonger has chosen a player.",
+  "otherNightReminder": "The Fearmonger chooses a player. :reminder: If the target is different to last night, announce that the Fearmonger has chosen a player.",
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +15,7 @@
   "en": {
     "name": "Fearmonger",
     "ability": "Each night, choose a player. If you nominate & execute them, their team loses. All players know if you choose a new player.",
+    "flavor": "Beware of gazing long into the Abyss, lest the Abyss also gaze into you.",
     "revisions": {
       "v1": "Each night, choose a player. If you nominate & execute them, their team loses. All players know if you choose a new player."
     }

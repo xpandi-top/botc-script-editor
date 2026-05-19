@@ -3,6 +3,9 @@
   "team": "townsfolk",
   "edition": "snv",
   "current_revision": "v1",
+  "setup": false,
+  "firstNightReminder": "The Philosopher might choose a character. If necessary, swap their character token. :reminder:",
+  "otherNightReminder": "The Philosopher might choose a character. If necessary, swap their character token. :reminder:",
   "reminders": [
     "Is the Philosopher",
     "Poisoned"
@@ -16,6 +19,7 @@
   "en": {
     "name": "Philosopher",
     "ability": "Once per game, at night, choose a good character: gain that ability. If this character is in play, they are drunk.",
+    "flavor": "If anything is real, beer is real. Drink, for tomorrow we may die.",
     "revisions": {
       "v1": "Once per game, at night, choose a good character: gain that ability. If this character is in play, they are drunk."
     }

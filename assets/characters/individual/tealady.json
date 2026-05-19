@@ -3,6 +3,7 @@
   "team": "townsfolk",
   "edition": "bmr",
   "current_revision": "v1",
+  "setup": false,
   "reminders": [
     "Alive",
     "Alive"
@@ -16,6 +17,7 @@
   "en": {
     "name": "Tea Lady",
     "ability": "If both your alive neighbours are good, they can't die.",
+    "flavor": "If you are cold, tea will warm you. If you are too heated, tea will cool you. If you are depressed, tea will cheer you. If you are excited, tea will calm you.",
     "revisions": {
       "v1": "If both your alive neighbours are good, they can't die."
     }

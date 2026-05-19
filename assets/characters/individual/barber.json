@@ -3,6 +3,8 @@
   "team": "outsider",
   "edition": "snv",
   "current_revision": "v1",
+  "setup": false,
+  "otherNightReminder": "If the Barber died today or tonight, show the Demon the *THIS CHARACTER SELECTED YOU* & Barber tokens. If the Demon chose 2 players, wake one at a time. Show the *YOU ARE* token & their new character token.",
   "reminders": [
     "Swapped"
   ],
@@ -15,6 +17,7 @@
   "en": {
     "name": "Barber",
     "ability": "If you died today or tonight, the Demon may choose 2 players (not another Demon) to swap characters.",
+    "flavor": "Did you know that barbery and surgery were once the same profession? No? Well, now you do.",
     "revisions": {
       "v1": "If you died today or tonight, the Demon may choose 2 players (not another Demon) to swap characters."
     }

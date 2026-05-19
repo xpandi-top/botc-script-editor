@@ -3,6 +3,8 @@
   "team": "minion",
   "edition": "experimental",
   "current_revision": "v1",
+  "setup": true,
+  "firstNightReminder": "Wake the Demon. Show the *THIS PLAYER IS* & Marionette tokens. Point to the Marionette.",
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +14,7 @@
   "en": {
     "name": "Marionette",
     "ability": "You think you are a good character but you are not. The Demon knows who you are. [You neighbour the Demon]",
+    "flavor": "Words, words. They're all we have to go on.",
     "revisions": {
       "v1": "You think you are a good character but you are not. The Demon knows who you are. [You neighbour the Demon]"
     }

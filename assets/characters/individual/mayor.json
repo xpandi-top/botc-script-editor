@@ -3,6 +3,7 @@
   "team": "townsfolk",
   "edition": "tb",
   "current_revision": "v1",
+  "setup": false,
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +13,7 @@
   "en": {
     "name": "Mayor",
     "ability": "If only 3 players live & no execution occurs, your team wins. If you die at night, another player might die instead.",
+    "flavor": "We must put our differences aside, and cease this senseless killing. We are all taxpayers after all. Well, most of us.",
     "revisions": {
       "v1": "If only 3 players live & no execution occurs, your team wins. If you die at night, another player might die instead."
     }

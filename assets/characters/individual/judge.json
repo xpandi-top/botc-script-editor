@@ -3,6 +3,7 @@
   "team": "traveler",
   "edition": "bmr",
   "current_revision": "v1",
+  "setup": false,
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +13,7 @@
   "en": {
     "name": "Judge",
     "ability": "Once per game, if another player nominated, you may choose to force the current execution to pass or fail.",
+    "flavor": "I find the defendant guilty of the crimes of murder, fraud, arson, larceny, impersonating an officer of the law, practicing medicine without a license, slander, regicide, and littering.",
     "revisions": {
       "v1": "Once per game, if another player nominated, you may choose to force the current execution to pass or fail."
     }

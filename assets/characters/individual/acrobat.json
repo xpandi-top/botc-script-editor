@@ -3,6 +3,8 @@
   "team": "townsfolk",
   "edition": "experimental",
   "current_revision": "v2024-10",
+  "setup": false,
+  "otherNightReminder": "The Acrobat chooses a player. :reminder:",
   "revisions": [
     {
       "id": "v1",
@@ -16,6 +18,7 @@
   "en": {
     "name": "Acrobat",
     "ability": "Each night*, choose a player: if they are or become drunk or poisoned tonight, you die.",
+    "flavor": "Welcome, one and all, to the greatest show on earth.",
     "revisions": {
       "v1": "Each night*, if either good living neighbour is drunk or poisoned, you die.",
       "v2024-10": "Each night*, choose a player: if they are or become drunk or poisoned tonight, you die."

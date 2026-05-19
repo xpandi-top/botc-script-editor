@@ -3,6 +3,8 @@
   "team": "demon",
   "edition": "experimental",
   "current_revision": "v1",
+  "setup": false,
+  "otherNightReminder": "The Ojo chooses a character. :reminder:",
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +14,7 @@
   "en": {
     "name": "Ojo",
     "ability": "Each night*, choose a character: they die. If they are not in play, the Storyteller chooses who dies.",
+    "flavor": "Like a bonfire on a moonless night… I see you, mortal.",
     "revisions": {
       "v1": "Each night*, choose a character: they die. If they are not in play, the Storyteller chooses who dies."
     }

@@ -3,6 +3,9 @@
   "team": "townsfolk",
   "edition": "experimental",
   "current_revision": "v1",
+  "setup": true,
+  "firstNightReminder": "If there are multiple Village Idiots, mark one as *DRUNK*. :reminder: Wake the Village Idiots one at a time to choose a player. Give a thumb signal.",
+  "otherNightReminder": "Wake the Village Idiots one at a time to choose a player. Give a thumb signal.",
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +15,7 @@
   "en": {
     "name": "Village Idiot",
     "ability": "Each night, choose a player: you learn their alignment. [+0 to +2 Village Idiots. 1 of the extras is drunk]",
+    "flavor": "Roses are blue, and violets are red, Please reverse what I just said.",
     "revisions": {
       "v1": "Each night, choose a player: you learn their alignment. [+0 to +2 Village Idiots. 1 of the extras is drunk]"
     }

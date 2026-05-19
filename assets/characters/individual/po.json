@@ -3,6 +3,8 @@
   "team": "demon",
   "edition": "bmr",
   "current_revision": "v1",
+  "setup": false,
+  "otherNightReminder": "The Po may choose a player OR chooses 3 players if they chose no-one last night. :reminder: or :reminder: :reminder: :reminder:",
   "reminders": [
     "Chosen",
     "Chosen",
@@ -17,6 +19,7 @@
   "en": {
     "name": "Po",
     "ability": "Each night*, you may choose a player: they die. If your last choice was no-one, choose 3 players tonight.",
+    "flavor": "Would you like a flower? I'm so lonely.",
     "revisions": {
       "v1": "Each night*, you may choose a player: they die. If your last choice was no-one, choose 3 players tonight."
     }

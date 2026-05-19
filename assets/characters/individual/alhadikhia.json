@@ -3,6 +3,8 @@
   "team": "demon",
   "edition": "experimental",
   "current_revision": "v2024-12",
+  "setup": false,
+  "otherNightReminder": "The Al-Hadikhia chooses 3 players. :reminder: :reminder: :reminder: In order, wake each target. They nod or shake their head. Put them to sleep before waking the next target.",
   "revisions": [
     {
       "id": "v1",
@@ -16,6 +18,7 @@
   "en": {
     "name": "Al-Hadikhia",
     "ability": "Each night*, you may choose 3 players (all players learn who): each silently chooses to live or die, but if all live, all die.",
+    "flavor": "Alsukut min dhahab.",
     "revisions": {
       "v1": "Each night*, choose 3 players (all players learn who): each silently chooses to live or die, but if all live, all die.",
       "v2024-12": "Each night*, you may choose 3 players (all players learn who): each silently chooses to live or die, but if all live, all die."

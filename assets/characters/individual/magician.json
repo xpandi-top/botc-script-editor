@@ -3,6 +3,8 @@
   "team": "townsfolk",
   "edition": "experimental",
   "current_revision": "v1",
+  "setup": false,
+  "firstNightReminder": "During Minion Info, point to the Magician and the Demon. During Demon Info, point to the Magician and the Minions.",
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +14,7 @@
   "en": {
     "name": "Magician",
     "ability": "The Demon thinks you are a Minion. Minions think you are a Demon.",
+    "flavor": "1... 2... Abra... 3... 4... Cadabra... *poof!* And, as you can see, ladies and gentlemen, Captain Farnsworth’s bag of gold has disappeared! Gone! Without a trace! Thank you, and goodnight!",
     "revisions": {
       "v1": "The Demon thinks you are a Minion. Minions think you are a Demon."
     }

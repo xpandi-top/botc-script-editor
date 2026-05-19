@@ -3,6 +3,7 @@
   "team": "fabled",
   "edition": "fabled",
   "current_revision": "v1",
+  "setup": true,
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +13,7 @@
   "en": {
     "name": "Sentinel",
     "ability": "There might be 1 extra or 1 fewer Outsider in play.",
+    "flavor": "Name, please. Papers, please. Weapons, please.",
     "revisions": {
       "v1": "There might be 1 extra or 1 fewer Outsider in play."
     }

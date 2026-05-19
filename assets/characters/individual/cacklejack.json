@@ -3,6 +3,8 @@
   "team": "traveler",
   "edition": "experimental",
   "current_revision": "v1",
+  "setup": false,
+  "otherNightReminder": "Before dawn, choose a player not marked *NOT ME*. Wake the target. Show the *YOU ARE* info token & their new character token.",
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +14,7 @@
   "en": {
     "name": "Cacklejack",
     "ability": "Each day, choose a player: a different player changes character tonight.",
+    "flavor": "Wire α To wire β. LigHt oN. BuZZer off. GAzOinks! Arms STra1ght. FingER 2 nose. hOooLd stiLL. BoiNgo-banGo! Ha-ha-ha!",
     "revisions": {
       "v1": "Each day, choose a player: a different player changes character tonight."
     }

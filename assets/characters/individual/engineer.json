@@ -3,6 +3,9 @@
   "team": "townsfolk",
   "edition": "experimental",
   "current_revision": "v1",
+  "setup": false,
+  "firstNightReminder": "The Engineer might choose Minions or Demons. Put the Engineer to sleep. Wake the target(s) one at a time. Show the *YOU ARE* info token & their new character token. :reminder:",
+  "otherNightReminder": "The Engineer might choose Minions or Demons. Put the Engineer to sleep. Wake the target(s) one at a time. Show the *YOU ARE* info token & their new character token. :reminder:",
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +15,7 @@
   "en": {
     "name": "Engineer",
     "ability": "Once per game, at night, choose which Minions or which Demon is in play.",
+    "flavor": "If it bends, great. If it breaks, well, it probably needed fixing anyway.",
     "revisions": {
       "v1": "Once per game, at night, choose which Minions or which Demon is in play."
     }

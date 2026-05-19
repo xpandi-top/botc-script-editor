@@ -3,6 +3,9 @@
   "team": "townsfolk",
   "edition": "experimental",
   "current_revision": "v2024-11",
+  "setup": false,
+  "firstNightReminder": "The Nightwatchman might choose a player. Put the Nightwatchman to sleep. Wake the target. Show the *THIS PLAYER IS* & Nightwatchman tokens, then point to the Nightwatchman. :reminder:",
+  "otherNightReminder": "The Nightwatchman might choose a player. Put the Nightwatchman to sleep. Wake the target. Show the *THIS PLAYER IS* & Nightwatchman tokens, then point to the Nightwatchman. :reminder:",
   "revisions": [
     {
       "id": "v1",
@@ -16,6 +19,7 @@
   "en": {
     "name": "Nightwatchman",
     "ability": "Once per game, at night, choose a player: they learn you are the Nightwatchman.",
+    "flavor": "The night is cold and lonely, but I have the moon, the stars, the crisp wind and the soft thud of leather boots on cobbled stone for company. Yonder, candlelight flickers behind a murky window...",
     "revisions": {
       "v1": "Once per game, at night, choose a player: they learn who you are.",
       "v2024-11": "Once per game, at night, choose a player: they learn you are the Nightwatchman."

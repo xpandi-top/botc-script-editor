@@ -3,6 +3,7 @@
   "team": "outsider",
   "edition": "snv",
   "current_revision": "v1",
+  "setup": false,
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +13,7 @@
   "en": {
     "name": "Klutz",
     "ability": "When you learn that you died, publicly choose 1 alive player: if they are evil, your team loses.",
+    "flavor": "Oops.",
     "revisions": {
       "v1": "When you learn that you died, publicly choose 1 alive player: if they are evil, your team loses."
     }

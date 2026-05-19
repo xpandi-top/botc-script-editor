@@ -3,6 +3,7 @@
   "team": "traveler",
   "edition": "bmr",
   "current_revision": "v1",
+  "setup": false,
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +13,7 @@
   "en": {
     "name": "Bishop",
     "ability": "Only the Storyteller can nominate. At least 1 opposite player must be nominated each day.",
+    "flavor": "In nomine Patris, et Filii, et Spiritus Sancti… Nos mos Dei. Deus vult de nobis.",
     "revisions": {
       "v1": "Only the Storyteller can nominate. At least 1 opposite player must be nominated each day."
     }

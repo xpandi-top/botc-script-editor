@@ -3,6 +3,9 @@
   "team": "townsfolk",
   "edition": "bmr",
   "current_revision": "v1",
+  "setup": false,
+  "firstNightReminder": "Point to the grandchild player & show their character token.",
+  "otherNightReminder": "If the grandchild was killed by the Demon, the Grandmother dies too. :reminder:",
   "reminders": [
     "Grandmother"
   ],
@@ -15,6 +18,7 @@
   "en": {
     "name": "Grandmother",
     "ability": "You start knowing a good player & their character. If the Demon kills them, you die too.",
+    "flavor": "Take a jacket if you go outside, dearie. And your thermos. And your scarf. I have a weak heart, you know. Whatever would I do if you caught cold...or worse?",
     "revisions": {
       "v1": "You start knowing a good player & their character. If the Demon kills them, you die too."
     }

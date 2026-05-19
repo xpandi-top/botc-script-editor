@@ -3,6 +3,8 @@
   "team": "townsfolk",
   "edition": "experimental",
   "current_revision": "v1",
+  "setup": false,
+  "firstNightReminder": "Point clockwise or anticlockwise.",
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +14,7 @@
   "en": {
     "name": "Shugenja",
     "ability": "You start knowing if your closest evil player is clockwise or anti-clockwise. If equidistant, this info is arbitrary.",
+    "flavor": "これは夢。それも夢。すべ て夢です。",
     "revisions": {
       "v1": "You start knowing if your closest evil player is clockwise or anti-clockwise. If equidistant, this info is arbitrary."
     }

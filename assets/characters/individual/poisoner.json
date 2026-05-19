@@ -3,7 +3,12 @@
   "team": "minion",
   "edition": "tb",
   "current_revision": "v1",
-  "reminders": ["Poisoned"],
+  "setup": false,
+  "firstNightReminder": "The Poisoner chooses a player. :reminder:",
+  "otherNightReminder": "The Poisoner chooses a player. :reminder:",
+  "reminders": [
+    "Poisoned"
+  ],
   "revisions": [
     {
       "id": "v1",
@@ -13,6 +18,7 @@
   "en": {
     "name": "Poisoner",
     "ability": "Each night, choose a player: they are poisoned tonight and tomorrow day.",
+    "flavor": "Add compound Alpha to compound Beta... NOT TOO MUCH!",
     "revisions": {
       "v1": "Each night, choose a player: they are poisoned tonight and tomorrow day."
     }

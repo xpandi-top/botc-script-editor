@@ -3,6 +3,7 @@
   "team": "fabled",
   "edition": "fabled",
   "current_revision": "v1",
+  "setup": false,
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +13,7 @@
   "en": {
     "name": "Fiddler",
     "ability": "Once per game, the Demon secretly chooses an opposing player: all players choose which of these 2 players win.",
+    "flavor": "I'll wager mi lyef ye cannae best me in a fiddle contest, ye boss-eyed snook! We'll go out on the lash, get the pub jammers an' have a right craic. I'll be layin' ma boots into ya come mornin' ye rumbly muppet.",
     "revisions": {
       "v1": "Once per game, the Demon secretly chooses an opposing player: all players choose which of these 2 players win."
     }

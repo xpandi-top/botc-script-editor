@@ -3,6 +3,8 @@
   "team": "outsider",
   "edition": "experimental",
   "current_revision": "v2024-11",
+  "setup": false,
+  "firstNightReminder": "Wake each Minion. Show the *THESE CHARACTERS ARE NOT IN PLAY* token. Show 3 not-in-play character tokens.",
   "revisions": [
     {
       "id": "v1",
@@ -16,6 +18,7 @@
   "en": {
     "name": "Snitch",
     "ability": "Each Minion gets 3 bluffs.",
+    "flavor": "It was John.",
     "revisions": {
       "v1": "Minions start knowing 3 not-in-play characters.",
       "v2024-11": "Each Minion gets 3 bluffs."

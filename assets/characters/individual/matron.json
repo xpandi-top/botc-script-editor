@@ -3,6 +3,7 @@
   "team": "traveler",
   "edition": "bmr",
   "current_revision": "v1",
+  "setup": false,
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +13,7 @@
   "en": {
     "name": "Matron",
     "ability": "Each day, you may choose up to 3 sets of 2 players to swap seats. Players may not leave their seats to talk in private.",
+    "flavor": "Miss Featherbottom, be quiet. Master Rutherford, a teacup needs just the four fingers, please. I know you are a father of nine, but age, or lack there-of as the case may be, is never an excuse for poor manners.",
     "revisions": {
       "v1": "Each day, you may choose up to 3 sets of 2 players to swap seats. Players may not leave their seats to talk in private."
     }

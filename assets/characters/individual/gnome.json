@@ -3,6 +3,7 @@
   "team": "traveler",
   "edition": "tb",
   "current_revision": "v1",
+  "setup": false,
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +13,7 @@
   "en": {
     "name": "Gnome",
     "ability": "All players start knowing a player of your alignment. You may choose to kill anyone who nominates them.",
+    "flavor": "Four the score or seven beers, no shows are goes for me and my. A prank to crack the cranks and planks o’ the floor foundation length, so incontravertabubbilly mini. The large essays down streams of joyse, no greater than is scene, not inherdt. Ha-urrumph.",
     "revisions": {
       "v1": "All players start knowing a player of your alignment. You may choose to kill anyone who nominates them."
     }

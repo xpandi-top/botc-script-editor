@@ -1,0 +1,33 @@
+{
+  "id": "hermit",
+  "team": "outsider",
+  "edition": "carousel",
+  "current_revision": "v1",
+  "setup": true,
+  "reminders": [
+    "1",
+    "2",
+    "3"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Hermit",
+    "ability": "You have all Outsider abilities. [-0 or -1 Outsider]",
+    "revisions": {
+      "v1": "You have all Outsider abilities. [-0 or -1 Outsider]"
+    },
+    "flavor": "In the lost and forgotten places of the earth, the soul’s light beckons."
+  },
+  "zh": {
+    "name": "Hermit",
+    "ability": "You have all Outsider abilities. [-0 or -1 Outsider]",
+    "revisions": {
+      "v1": "You have all Outsider abilities. [-0 or -1 Outsider]"
+    }
+  }
+}

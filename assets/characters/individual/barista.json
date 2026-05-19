@@ -3,6 +3,9 @@
   "team": "traveler",
   "edition": "snv",
   "current_revision": "v1",
+  "setup": false,
+  "firstNightReminder": "Choose a player. Wake them, show the *THIS CHARACTER SELECTED YOU* & Barista tokens, then give a finger signal. :reminder:",
+  "otherNightReminder": "Choose a player. Wake them, show the *THIS CHARACTER SELECTED YOU* & Barista tokens, then give a finger signal. :reminder:",
   "revisions": [
     {
       "id": "v1",
@@ -12,6 +15,7 @@
   "en": {
     "name": "Barista",
     "ability": "Each night, until dusk, 1) a player becomes sober, healthy and gets true info, or 2) their ability works twice. They learn which.",
+    "flavor": "A cup of coffee with no cream, Monsieur? I’m terribly sorry, but we’re fresh out of cream — how about with no milk?",
     "revisions": {
       "v1": "Each night, until dusk, 1) a player becomes sober, healthy and gets true info, or 2) their ability works twice. They learn which."
     }
