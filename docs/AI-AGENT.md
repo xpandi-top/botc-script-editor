@@ -115,35 +115,31 @@ User types "武德" → embed query → cosine search chars_zh → top-3 similar
 
 ## Layer 3 — REST API / Skill Endpoints
 
-Expose BOTC operations as HTTP endpoints so **external agents** (Claude Desktop, n8n, custom bots) can connect.
+> **Simplified**: character catalog lives in bundled assets, custom chars + scripts in Firebase.
+> No Cloudflare Worker needed. Two paths depending on use case:
 
-### Option A — Cloudflare Worker (recommended)
+### Path A — Firebase Cloud Functions (external agent access)
+
+Already have Firebase. Add HTTP Cloud Functions to expose BOTC data.
 
 ```
-workers/botc-agent/
+functions/
   src/
-    index.ts          router
-    tools/            one file per tool
-    botcData.ts       character catalog (bundled from assets/)
+    characters.ts     GET /characters, GET /characters/:id
+    search.ts         POST /search  (semantic, uses precomputed embeddings)
+    tools.ts          POST /tool/:id  (translate, generate, analyze)
 ```
 
-Endpoints:
-```
-POST /v1/tool/{toolId}         execute a tool
-GET  /v1/characters            list all characters
-GET  /v1/characters/{id}       get character + locale
-POST /v1/embed                 embed text, return vector
-POST /v1/search                semantic search
-GET  /v1/health
-```
+Only add if external agents (n8n, Claude Desktop remote, etc.) need HTTP access.
+For single-user local use → skip entirely.
 
-Auth: `Authorization: Bearer <BOTC_AGENT_SECRET>`
+### Path B — In-process tool layer (no HTTP, recommended for now)
 
-Deployed free on Cloudflare Workers (100K req/day free).
+Tools run in-browser. Orchestrator calls them directly as TypeScript functions.
+No server, no deploy, no auth needed.
+MCP server (Layer 4) reads local asset files directly — no HTTP middleman.
 
-### Option B — Vite + local Express (dev only)
-
-Simple `server/` folder, runs alongside `npm run dev`. Not for production.
+**Decision**: start with Path B. Add Firebase Functions only when external HTTP access is actually needed.
 
 ---
 
@@ -193,12 +189,21 @@ review_script      — balance analysis of a script
 translate_script   — batch translate all custom chars in a script
 ```
 
+### Data access
+
+MCP server reads character data **directly from local asset files** — no HTTP layer needed:
+```
+mcp-server/src/botcData.ts   reads assets/characters/*.json + assets/locales/*.json
+```
+Custom chars + scripts that live in Firebase: MCP server can either read Firebase directly
+(service account key) or accept them as input parameters from the calling agent.
+
 ### Deploy options
 
 | Mode | How |
 |------|-----|
-| Local dev | `node mcp-server/dist/index.js` → Claude Desktop config |
-| Remote (prod) | Deploy as Cloudflare Worker with MCP adapter |
+| Local dev | `node mcp-server/dist/index.js` → Claude Desktop `mcpServers` config |
+| Remote (if needed) | Firebase Cloud Function wrapping the same tool logic |
 
 ---
 
@@ -268,10 +273,11 @@ export const BOTC_TERMS = {
 - [ ] `generate_character` as multi-step tool chain
 - [ ] `script_analysis` tool
 
-### Phase 4 — REST API / CF Worker (1–2 weeks)
-- [ ] `workers/botc-agent/` — Cloudflare Worker
-- [ ] Expose `/v1/tool/*`, `/v1/characters`, `/v1/search`
-- [ ] Deploy + add `BOTC_AGENT_URL` env var
+### Phase 4 — REST API (optional, Firebase Functions)
+- [ ] Add only when external HTTP access is needed
+- [ ] `functions/src/characters.ts` — GET /characters, GET /characters/:id
+- [ ] `functions/src/tools.ts` — POST /tool/:id
+- [ ] Reuses same tool layer from Phase 3 (no logic duplication)
 
 ### Phase 5 — MCP Server (2–3 weeks)
 - [ ] `mcp-server/` — standalone Node.js MCP server
@@ -309,11 +315,10 @@ src/
     AiChatDialog.tsx    (current)
     ConceptToChar.tsx   full-page char creation wizard       [Phase 3]
 
-workers/
-  botc-agent/           Cloudflare Worker REST API           [Phase 4]
-    src/
-      index.ts
-      tools/
+functions/              Firebase Cloud Functions              [Phase 4, optional]
+  src/
+    characters.ts       HTTP endpoints if external access needed
+    tools.ts
 
 mcp-server/             MCP server                           [Phase 5]
   src/
