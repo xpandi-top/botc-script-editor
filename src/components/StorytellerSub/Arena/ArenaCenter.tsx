@@ -17,14 +17,14 @@ export function ArenaCenter({ ctx }: { ctx: StorytellerContext }) {
       sx={{
         display: 'flex',
         flexDirection: 'column',
-        width: '80%',
-        height: '80%',
-        minWidth: 0,
-        minHeight: 0,
-        maxHeight: '80%',
-        maxWidth: '80%',
+        // width: '100%',
+        // height: '100%',
+        width: 700,
+        height: 600,
+        // maxHeight: '80%',
+        // maxWidth: '80%',
         zIndex: 5,
-        padding: 20,
+        padding: `max(160px, calc((8dvh) / 2))`,
         alignItems: 'center',
       }}
     >

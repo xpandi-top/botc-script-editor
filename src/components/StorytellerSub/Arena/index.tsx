@@ -130,7 +130,7 @@ export function Arena({ ctx }: { ctx: StorytellerContext }) {
 
   // Desktop / tablet-landscape: circular arena layout
   return (
-    <Box sx={{ display: 'grid', gap: 1, flex: 1, minHeight: 400, overflow: 'visible', width: '100%' }}>
+    <Box sx={{ display: 'grid', gap: 1, flex: 1, minHeight: 400, overflow: 'visible', width: '100%', height: '100dvh' }}>
       <Paper
         data-tutorial="st-arena"
         elevation={0}
@@ -167,7 +167,8 @@ export function Arena({ ctx }: { ctx: StorytellerContext }) {
             position: 'relative',
             zIndex: 1,
             width: '100%',
-            minHeight: 350,
+            height: '70dvh',
+            minHeight: 600,
             borderRadius: '50%',
             display: 'flex',
             alignItems: 'center',
