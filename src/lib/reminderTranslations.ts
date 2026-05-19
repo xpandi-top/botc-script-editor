@@ -1,0 +1,126 @@
+/**
+ * Chinese translations for official BotC reminder token labels.
+ * Keys are normalized: lowercase, spaces/punctuation stripped.
+ * Usage: normalizeReminderKey(label) → lookup → zh string
+ */
+export const REMINDER_ZH_MAP: Record<string, string> = {
+  '2nd':                   '第二名',
+  '3attacks':              '攻击三次',
+  '3votes':                '3票',
+  'abnormal':              '未正常生效',
+  'abouttodie':            '即将被处决',
+  'actstwice':             '行动两次',
+  'aligned':               '同阵营',
+  'alive':                 '复活',
+  'amigo':                 '同伴',
+  'cannotdie':             '不会死亡',
+  'chosen':                '被选择',
+  'claimed':               '已宣称',
+  'correct':               '猜测正确',
+  'cursed':                '被诅咒',
+  'day1':                  '第一天',
+  'day2':                  '第二天',
+  'day3':                  '第三天',
+  'day4':                  '第四天',
+  'day5':                  '第五天',
+  'dead':                  '死亡',
+  'demonnotvoted':         '恶魔未投票',
+  'demonvoted':            '恶魔已投票',
+  'diedtoday':             '死于今日',
+  'doesntkill':            '没有死亡',
+  'drunk':                 '醉酒',
+  'drunk1':                '醉酒1',
+  'drunk2':                '醉酒2',
+  'drunk3':                '醉酒3',
+  'everyoneisdrunk':       '全员醉酒',
+  'evil':                  '邪恶',
+  'evilwakes':             '唤醒邪恶',
+  'falseinfo':             '错误信息',
+  'fauxpaw':               '失足',
+  'fear':                  '恐惧',
+  'finalnightnoattack':    '无法攻击',
+  'friend':                '挚友',
+  'goal':                  '目标',
+  'good':                  '善良',
+  'goodplayerexecuted':    '善良被处决',
+  'grandchild':            '孙子',
+  'guessused':             '已被猜测',
+  'haircutstonight':       '今晚理发',
+  'hasability':            '具有能力',
+  'isthealchemist':        '是炼金术士',
+  'istheapprentice':       '是学徒',
+  'isthedemon':            '是恶魔',
+  'isthedrunk':            '是酒鬼',
+  'isthemarionette':       '是提线木偶',
+  'isthephilosopher':      '是哲学家',
+  'know':                  '得知',
+  'lunch':                 '饱餐',
+  'mad':                   '疯狂',
+  'master':                '主人',
+  'maynotnominate':        '无法提名',
+  'minion':                '爪牙',
+  'minionnominated':       '爪牙已提名',
+  'minionsnotnominated':   '爪牙未提名',
+  'negativevote':          '负票',
+  'nominated':             '已被提名',
+  'nominating':            '正在提名',
+  'night1':                '第一晚',
+  'night2':                '第二晚',
+  'night3':                '第三晚',
+  'noability':             '失去能力',
+  'nominateevil':          '提名邪恶方',
+  'nominategood':          '提名善良方',
+  'nomoreevil':            '禁止邪恶',
+  'notme':                 '不是我',
+  'once':                  '限一次',
+  'outsider':              '外来者',
+  'poisoned':              '中毒',
+  'protected':             '庇护',
+  'redherring':            '干扰项',
+  'registerfalsely':       '被当作其他',
+  'safe':                  '不会死亡',
+  'soberhealthy':          '清醒且健康',
+  'somethingbad':          '不好的事',
+  'stormcaught':           '不会死亡',
+  'storytellerability':    '说书人能力',
+  'survivesexecution':     '处决不死',
+  'teapartytonight':       '今晚茶会',
+  'townsfolk':             '镇民',
+  'turnsevil':             '转为邪恶',
+  'twin':                  '对立双子',
+  'visitor':               '访客',
+  'whoopsie':              '哎呀！',
+  'wrong':                 '错误',
+
+  // Common reminder label variants from official character files
+  'poisonedtoken':         '中毒',
+  'lostability':           '失去能力',
+  'loseability':           '失去能力',
+  'noability2':            '失去能力',
+  'used':                  '已使用',
+  'haircuttonight':        '今晚理发',
+  'haircut':               '理发',
+  'nomimic':               '不可模仿',
+  'mimiced':               '已被模仿',
+  'cannotkill':            '无法击杀',
+  'demonnotkilled':        '恶魔无效',
+  'executed':              '被处决',
+  'townsfolktoken':        '镇民',
+  'outsidertoken':         '外来者',
+  'miniontoken':           '爪牙',
+}
+
+/**
+ * Normalize a reminder label for map lookup.
+ * "Red Herring" → "redherring", "Haircut Tonight" → "haircuttonight"
+ */
+export function normalizeReminderKey(label: string): string {
+  return label.toLowerCase().replace(/[\s\-_'.,!?]/g, '')
+}
+
+/**
+ * Translate a reminder label to Chinese if available; otherwise return as-is.
+ */
+export function translateReminderZh(label: string): string {
+  return REMINDER_ZH_MAP[normalizeReminderKey(label)] ?? label
+}
