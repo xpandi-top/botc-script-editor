@@ -42,13 +42,16 @@ export function PlayerSeatGrid({ ctx, panelCollapsed }: { ctx: StorytellerContex
       {(() => {
         const seats: any[] = currentDay.seats
         const half = Math.ceil(seats.length / 2)
-        const leftCol = seats.slice(0, half)
-        const rightCol = seats.slice(half).reverse()
-        return leftCol.map((s: any, i: number) => {
-          const r = rightCol[i]
+        // Clockwise layout: right col = seats 1..half (going down = clockwise right side),
+        // left col = seats half+1..n reversed (going down = clockwise left side going up).
+        // Trace for n=5: 1(top-R)→2(mid-R)→3(bot-R)→4(mid-L)→5(top-L)→1 ✓
+        const rightCol = seats.slice(0, half)
+        const leftCol  = seats.slice(half).reverse()
+        return rightCol.map((s: any, i: number) => {
+          const l = leftCol[i]
           return [
-            <MobileSeatCard key={s.seat} ctx={ctx} seat={s} side="left" />,
-            r ? <MobileSeatCard key={r.seat} ctx={ctx} seat={r} side="right" /> : <Box key={`empty-${i}`} />,
+            l ? <MobileSeatCard key={l.seat} ctx={ctx} seat={l} side="left" /> : <Box key={`empty-${i}`} />,
+            <MobileSeatCard key={s.seat} ctx={ctx} seat={s} side="right" />,
           ]
         }).flat()
       })()}

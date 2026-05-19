@@ -122,7 +122,8 @@ export function MobileSeatCard({ ctx, seat, side = 'left' }: { ctx: StorytellerC
           disableHoverListener={!actualCharAbility || !nightShowCharacter}
           enterDelay={600}
         >
-          <Box sx={{ position: 'absolute', [side === 'right' ? 'right' : 'left']: 0, top: '50%', transform: 'translateY(-50%)', zIndex: 3,
+          <Box sx={{ position: 'absolute', [side === 'right' ? 'right' : 'left']: 0, top: 0, bottom: 0,
+            display: 'flex', alignItems: 'center', zIndex: 3,
             filter: seat.alive ? 'none' : 'grayscale(85%) brightness(0.85)', opacity: seat.alive ? 1 : 0.75 }}>
             <CharacterCircle
               size={CIRCLE_SIZE}
