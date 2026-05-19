@@ -20,13 +20,15 @@
     "flavor": "The process is simple. Attach the hydraulic confabulator to the modified chi matrix amplifier, add 20 CCs of pseudodorafine, keep his Z levels above 20%, and your husband will be fine. Now, all we need is a lightning strike.",
     "revisions": {
       "v1": "Once per game, at night*, choose a dead player: if they are a Townsfolk, they are resurrected."
-    }
+    },
+    "otherNightReminder": "The Professor might choose a dead player. :reminder: :reminder:"
   },
   "zh": {
     "name": "教授",
     "ability": "每局游戏限一次，在夜晚时*，你可以选择一名死亡的玩家：如果他是镇民，你会将他起死回生。",
     "revisions": {
       "v1": "每局游戏限一次，在夜晚时*，你可以选择一名死亡的玩家：如果他是镇民，你会将他起死回生。"
-    }
+    },
+    "otherNightReminder": "如果教授未曾使用能力且在城镇广场上有玩家死亡，唤醒教授，他可以摇头不使用能力，或选择一名已死亡的玩家。如果该玩家是镇民，该玩家被起死回生。"
   }
 }

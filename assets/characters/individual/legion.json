@@ -17,13 +17,15 @@
     "flavor": "We are the chill wind on a winter’s day. We are the shadow in the moonless night. We are the poison in your tea and the whisper in your ear. We are everywhere.",
     "revisions": {
       "v1": "Each night*, a player might die. Executions fail if only evil voted. You register as a Minion too. [Most players are Legion]"
-    }
+    },
+    "otherNightReminder": "A player might die. :reminder:"
   },
   "zh": {
     "name": "军团",
     "ability": "每个夜晚*，可能有一名玩家死亡。如果一项提名只有邪恶玩家投票，投票无效。你也会被当作是爪牙。[多数玩家为军团]",
     "revisions": {
       "v1": "每个夜晚*，可能有一名玩家死亡。如果一项提名只有邪恶玩家投票，投票无效。你也会被当作是爪牙。[多数玩家为军团]"
-    }
+    },
+    "otherNightReminder": "决定今晚谁会因为军团能力死亡。"
   }
 }

@@ -17,13 +17,15 @@
     "flavor": "Black is White. Right is Wrong. Left is Right. Up is Long. Down is Sight. Short is Blind. Follow me. Answers find.",
     "revisions": {
       "v1": "Each night*, choose a player: they die. Townsfolk abilities yield false info. Each day, if no-one is executed, evil wins."
-    }
+    },
+    "otherNightReminder": "The Vortox chooses a player. :reminder:"
   },
   "zh": {
     "name": "涡流",
     "ability": "每个夜晚*，你要选择一名玩家：他死亡。<br>镇民玩家的能力都会产生错误信息。<br>如果白天没人被处决，邪恶阵营获胜。",
     "revisions": {
       "v1": "每个夜晚*，你要选择一名玩家：他死亡。<br>镇民玩家的能力都会产生错误信息。<br>如果白天没人被处决，邪恶阵营获胜。"
-    }
+    },
+    "otherNightReminder": "唤醒涡流，让他攻击一名玩家。"
   }
 }

@@ -17,13 +17,15 @@
     "flavor": "これは夢。それも夢。すべ て夢です。",
     "revisions": {
       "v1": "You start knowing if your closest evil player is clockwise or anti-clockwise. If equidistant, this info is arbitrary."
-    }
+    },
+    "firstNightReminder": "Point clockwise or anticlockwise."
   },
   "zh": {
     "name": "修行者",
     "ability": "在你的首个夜晚，你会得知距离最近的邪恶玩家位于你的顺时针还是逆时针方向。如果两侧的邪恶玩家与你距离相等，你得知的信息由说书人决定。",
     "revisions": {
       "v1": "在你的首个夜晚，你会得知距离最近的邪恶玩家位于你的顺时针还是逆时针方向。如果两侧的邪恶玩家与你距离相等，你得知的信息由说书人决定。"
-    }
+    },
+    "firstNightReminder": "唤醒修行者，对他指向对应方向来告知他最近的邪恶玩家的方向。"
   }
 }

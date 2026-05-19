@@ -18,7 +18,9 @@
     "flavor": "Sign here please. And here. And here. Aaaaaaaaand here. This should all be sorted and tallied by the end of the day, assuming everyone's signatures are legible. We haven't had a mix-up in the paperwork for ages. Yesterday noon, if memory serves...",
     "revisions": {
       "v1": "Each night, choose a player (not yourself): their vote counts as 3 votes tomorrow."
-    }
+    },
+    "firstNightReminder": "The Bureaucrat chooses a player. :reminder:",
+    "otherNightReminder": "The Bureaucrat chooses a player. :reminder:"
   },
   "zh": {
     "name": "官员",

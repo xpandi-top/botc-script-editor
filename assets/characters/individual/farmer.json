@@ -22,7 +22,8 @@
     "revisions": {
       "v1": "If you die at night, an alive good player becomes a Farmer.",
       "v2024-11": "When you die at night, an alive good player becomes a Farmer."
-    }
+    },
+    "otherNightReminder": "If the Farmer died tonight, wake a living good player. Show the *YOU ARE* info token and a Farmer token."
   },
   "zh": {
     "name": "农夫",
@@ -30,6 +31,7 @@
     "revisions": {
       "v1": "如果你在夜晚死亡，一名存活的善良玩家会变成农夫。",
       "v2024-11": "当你在夜晚死亡时，一名存活的善良玩家会变成农夫。"
-    }
+    },
+    "otherNightReminder": "如果农夫死于夜晚，唤醒一名存活的善良玩家告知他角色变化。"
   }
 }

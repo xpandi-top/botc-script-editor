@@ -17,7 +17,8 @@
     "flavor": "You throw thorns. Falling in my silence, they become flowers.",
     "revisions": {
       "v1": "For the first 2 minutes of each day, veteran players may not talk."
-    }
+    },
+    "firstNightReminder": "Announce which players are affected by the Buddhist."
   },
   "zh": {
     "name": "佛教徒",

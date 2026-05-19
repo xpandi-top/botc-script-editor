@@ -18,13 +18,17 @@
     "flavor": "Gon(z)a7les6. Take cau8tun. The mech4an4ion is iNvert10d. E99ors insy6tum. Reco{7}fig.",
     "revisions": {
       "v1": "Each night*, choose a player: they die. [You choose which players are which Minions. -? to +? Outsiders]"
-    }
+    },
+    "firstNightReminder": "The Kazali chooses which players are which Minions. Wake each target. Show the *YOU ARE* and Minion tokens & give a thumbs-down.",
+    "otherNightReminder": "The Kazali chooses a player. :reminder:"
   },
   "zh": {
     "name": "卡扎力",
     "ability": "每个夜晚*，你要选择一名玩家：他死亡。<br>[由你决定谁是什么爪牙，-或+任意数量外来者]",
     "revisions": {
       "v1": "每个夜晚*，你要选择一名玩家：他死亡。<br>[由你决定谁是什么爪牙，-或+任意数量外来者]"
-    }
+    },
+    "firstNightReminder": "唤醒卡扎力，让他选择玩家变成邪恶爪牙。",
+    "otherNightReminder": "唤醒卡扎力，让他攻击一名玩家。"
   }
 }

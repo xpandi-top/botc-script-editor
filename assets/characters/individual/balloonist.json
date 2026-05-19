@@ -23,7 +23,9 @@
     "revisions": {
       "v1": "Each night, you learn 1 player of each character type, until there are no more types to learn. [+1 Outsider]",
       "v2024-06": "Each night, you learn a player of a different character type than last night. [+0 or +1 Outsider]"
-    }
+    },
+    "firstNightReminder": "Point to any player. :reminder:",
+    "otherNightReminder": "Point to a player with a different character type to the previously shown player. :reminder:"
   },
   "zh": {
     "name": "气球驾驶员",
@@ -31,6 +33,8 @@
     "revisions": {
       "v1": "每个夜晚，你会得知一名某角色类型的玩家，直到你已得知每种角色类型的玩家各一名。[+1外来者]",
       "v2024-06": "每个夜晚，你会得知一名与上个夜晚得知的玩家角色类型不同的玩家。[+0~1外来者]"
-    }
+    },
+    "firstNightReminder": "唤醒气球驾驶员，对他指向一名玩家。",
+    "otherNightReminder": "唤醒气球驾驶员，对他指向一名玩家，这名玩家与之前气球驾驶员得知过的玩家属于不同的角色类型。"
   }
 }

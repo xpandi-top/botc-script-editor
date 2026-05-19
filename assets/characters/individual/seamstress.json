@@ -21,13 +21,17 @@
     "flavor": "Did you hear that stranger in the cashmere coat put the word on our young Belle? And she said yes? Well, that's nothing compared to what Harry and that juggler got up to at the fair! The things I could say if I was a tattletale... my, yes.",
     "revisions": {
       "v1": "Once per game, at night, choose 2 players (not yourself): you learn if they are the same alignment."
-    }
+    },
+    "firstNightReminder": "The Seamstress might choose 2 players. Nod or shake your head. :reminder:",
+    "otherNightReminder": "The Seamstress might choose 2 players. Nod or shake your head. :reminder:"
   },
   "zh": {
     "name": "女裁缝",
     "ability": "每局游戏限一次，在夜晚时，你可以选择除你以外的两名玩家：你会得知他们是否为同一阵营。",
     "revisions": {
       "v1": "每局游戏限一次，在夜晚时，你可以选择除你以外的两名玩家：你会得知他们是否为同一阵营。"
-    }
+    },
+    "firstNightReminder": "唤醒女裁缝，她可以摇头不使用能力，或选择除自己以外的两名玩家。以点头或摇头告知她选择的玩家是否为同一阵营。",
+    "otherNightReminder": "如果女裁缝未曾使用能力，唤醒女裁缝，她可以摇头不使用能力，或选择除自己以外的两名玩家。以点头或摇头告知她选择的玩家是否为同一阵营。"
   }
 }

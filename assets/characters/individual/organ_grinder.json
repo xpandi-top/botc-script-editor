@@ -28,7 +28,9 @@
       "v1": "All players keep their eyes closed when voting & the vote tally is secret. Votes for you only count if you vote.",
       "v2024-10": "All players keep their eyes closed when voting and the vote tally is secret. Each night, choose if you are drunk or not.",
       "v2025-01": "All players keep their eyes closed when voting and the vote tally is secret. Each night, choose if you are drunk until dusk."
-    }
+    },
+    "firstNightReminder": "The Organ Grinder either nods their head yes to be drunk, or shakes their head no to be sober. :reminder:",
+    "otherNightReminder": "The Organ Grinder either nods their head yes to be drunk, or shakes their head no to be sober. :reminder:"
   },
   "zh": {
     "name": "街头风琴手",
@@ -37,6 +39,8 @@
       "v1": "所有玩家在投票时都闭眼，且票数结果保密。只有当你投票时，对你的投票才会生效。",
       "v2024-10": "所有玩家在投票时都闭眼，且票数结果保密。每个夜晚，你选择自己是否醉酒。",
       "v2025-01": "所有玩家在投票时都闭眼，且票数结果保密。每个夜晚，你选择自己是否醉酒直到黄昏。"
-    }
+    },
+    "firstNightReminder": "让街头风琴手选择自己是否醉酒。如果他点头，标记街头风琴手醉酒。",
+    "otherNightReminder": "让街头风琴手选择自己是否醉酒。如果他点头，标记街头风琴手醉酒。如果他摇头，移除街头风琴手的醉酒标记。"
   }
 }

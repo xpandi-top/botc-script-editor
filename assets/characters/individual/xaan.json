@@ -18,13 +18,17 @@
     "flavor": "Down they fall. One by one. By two, by three, by five.",
     "revisions": {
       "v1": "On night X, all Townsfolk are poisoned until dusk. [X Outsiders]"
-    }
+    },
+    "firstNightReminder": "If X is 1, mark the Xaan with the *X* reminder token. :reminder: :reminder:",
+    "otherNightReminder": "Change the Xaan reminder token to the relevant night. If it is night X, mark the Xaan with the *X* reminder token. :reminder: :reminder:"
   },
   "zh": {
     "name": "限",
     "ability": "在等同于初始外来者数量的夜晚，所有镇民玩家中毒直到下个黄昏。[外来者数量任意]",
     "revisions": {
       "v1": "在等同于初始外来者数量的夜晚，所有镇民玩家中毒直到下个黄昏。[外来者数量任意]"
-    }
+    },
+    "firstNightReminder": "在等同初始外来者数量的夜晚，所有镇民中毒。",
+    "otherNightReminder": "在等同初始外来者数量的夜晚，所有镇民中毒。"
   }
 }

@@ -1,13 +1,15 @@
-import { useMemo } from 'react'
-import { Box, Collapse, Typography } from '@mui/material'
+import { useMemo, useState } from 'react'
+import { Box, Collapse, IconButton, Popover, Tooltip, Typography } from '@mui/material'
 import NightsStayIcon from '@mui/icons-material/NightsStay'
 import WbSunnyIcon from '@mui/icons-material/WbSunny'
 import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import MenuBookIcon from '@mui/icons-material/MenuBook'
 import {
   getDisplayName,
   getEffectiveNightOrderFromRegistry,
   getIconForCharacter,
+  getNightReminder,
 } from '../../catalog'
 import type { EditableScript, Language } from '../../types'
 
@@ -15,6 +17,18 @@ import type { EditableScript, Language } from '../../types'
 const PLACEHOLDER_LABELS: Record<string, { en: string; zh: string }> = {
   MINION_INFO: { en: 'Minion Info', zh: '爪牙信息' },
   DEMON_INFO:  { en: 'Demon Info',  zh: '恶魔信息' },
+}
+
+// Placeholder reminders (en = empty until translated; zh from wiki)
+const PLACEHOLDER_REMINDERS: Record<string, { en: string; zh: string }> = {
+  MINION_INFO: {
+    en: '',
+    zh: '如果有七名或更多玩家，唤醒所有爪牙：展示"他是恶魔"信息标记。指向恶魔。如果下方的其他对爪牙暴露的角色在场，不要让爪牙入睡，而是一并给出相关信息后再让爪牙入睡。',
+  },
+  DEMON_INFO: {
+    en: '',
+    zh: '如果有七名或更多玩家，唤醒恶魔：展示"他们是你的爪牙"信息标记。指向所有爪牙。展示"这些角色不在场"信息标记。展示三个不在场的善良角色。如果其他对恶魔暴露的角色在场，不要让恶魔入睡，而是一并给出相关信息后再让恶魔入睡。',
+  },
 }
 
 // Fixed colors that work on both light/dark themes
@@ -34,11 +48,15 @@ type NightRowProps = {
   /** Override from script's own customCharacters (for non-catalog IDs) */
   nameOverride?: string
   iconOverride?: string
+  reminder?: string
+  showReminder?: boolean
 }
 
-function NightRow({ pos, id, language, nameOverride, iconOverride }: NightRowProps) {
+function NightRow({ pos, id, language, nameOverride, iconOverride, reminder, showReminder }: NightRowProps) {
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
   const isPlaceholder = id.startsWith('MINION_') || id.startsWith('DEMON_')
   const ph = PLACEHOLDER_LABELS[id]
+  const phReminder = PLACEHOLDER_REMINDERS[id]
 
   // Name: placeholder label → nameOverride (script data) → catalog lookup
   const name = isPlaceholder
@@ -48,37 +66,91 @@ function NightRow({ pos, id, language, nameOverride, iconOverride }: NightRowPro
   // Icon: placeholder has none → iconOverride (URL from script) → catalog asset
   const icon = isPlaceholder ? undefined : (iconOverride ?? getIconForCharacter(id))
 
+  // Effective reminder: placeholder map → passed reminder prop
+  const effectiveReminder = isPlaceholder
+    ? (language === 'zh' ? phReminder?.zh : phReminder?.en) || undefined
+    : reminder
+
+  const hasReminder = Boolean(effectiveReminder)
+  const popoverOpen = Boolean(anchorEl)
+
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, py: '4px' }}>
-      <Typography sx={{
-        color: 'text.disabled', fontFamily: 'monospace',
-        fontSize: '0.8rem', minWidth: 20, textAlign: 'right', flexShrink: 0,
-      }}>
-        {pos}
-      </Typography>
-      {icon ? (
-        <Box component="img" src={icon} alt="" sx={{
-          width: 22, height: 22, borderRadius: '50%', flexShrink: 0, objectFit: 'cover',
-        }} />
-      ) : (
-        <Box sx={{
-          width: 22, height: 22, borderRadius: '50%', flexShrink: 0,
-          bgcolor: 'action.disabledBackground',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
+    <Box
+      onClick={(e) => { if (hasReminder) setAnchorEl(popoverOpen ? null : e.currentTarget) }}
+      sx={{
+        py: '3px', px: 0.5, borderRadius: 1,
+        cursor: hasReminder ? 'pointer' : 'default',
+        bgcolor: popoverOpen ? 'action.selected' : 'transparent',
+        '&:hover': hasReminder ? { bgcolor: 'action.hover' } : {},
+        transition: 'background 0.1s',
+      }}
+    >
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Typography sx={{
+          color: 'text.disabled', fontFamily: 'monospace',
+          fontSize: '0.8rem', minWidth: 20, textAlign: 'right', flexShrink: 0,
         }}>
-          <Typography sx={{ fontSize: '0.55rem', fontWeight: 700, color: 'text.disabled' }}>
-            {name.slice(0, 2).toUpperCase()}
+          {pos}
+        </Typography>
+        {icon ? (
+          <Box component="img" src={icon} alt="" sx={{
+            width: 22, height: 22, borderRadius: '50%', flexShrink: 0, objectFit: 'cover',
+          }} />
+        ) : (
+          <Box sx={{
+            width: 22, height: 22, borderRadius: '50%', flexShrink: 0,
+            bgcolor: 'action.disabledBackground',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <Typography sx={{ fontSize: '0.55rem', fontWeight: 700, color: 'text.disabled' }}>
+              {name.slice(0, 2).toUpperCase()}
+            </Typography>
+          </Box>
+        )}
+        <Typography sx={{
+          fontSize: '0.9rem', lineHeight: 1.3,
+          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+          color: isPlaceholder ? 'text.disabled' : 'text.primary',
+          fontStyle: isPlaceholder ? 'italic' : 'normal',
+        }}>
+          {name}
+        </Typography>
+        {hasReminder && (
+          <Typography sx={{ fontSize: '0.65rem', color: 'text.disabled', ml: 'auto', flexShrink: 0 }}>
+            ···
+          </Typography>
+        )}
+      </Box>
+
+      {/* Inline reminder (book toggle) */}
+      {showReminder && effectiveReminder && (
+        <Box sx={{ pl: '36px', pt: 0.25 }}>
+          <Typography sx={{ fontSize: '0.72rem', color: 'text.secondary', fontStyle: 'italic', lineHeight: 1.3 }}>
+            {effectiveReminder}
           </Typography>
         </Box>
       )}
-      <Typography sx={{
-        fontSize: '0.9rem', lineHeight: 1.3,
-        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-        color: isPlaceholder ? 'text.disabled' : 'text.primary',
-        fontStyle: isPlaceholder ? 'italic' : 'normal',
-      }}>
-        {name}
-      </Typography>
+
+      {/* Click popover */}
+      {hasReminder && (
+        <Popover
+          open={popoverOpen}
+          anchorEl={anchorEl}
+          onClose={() => setAnchorEl(null)}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+          transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+          disableRestoreFocus
+          slotProps={{ paper: { sx: { maxWidth: 280, p: 1.5, borderRadius: 1.5 } } }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <Typography sx={{ fontSize: '0.75rem', fontWeight: 600, color: 'text.secondary', mb: 0.5 }}>
+            {name}
+          </Typography>
+          <Typography sx={{ fontSize: '0.8rem', lineHeight: 1.6, color: 'text.primary' }}>
+            {effectiveReminder}
+          </Typography>
+        </Popover>
+      )}
     </Box>
   )
 }
@@ -93,6 +165,7 @@ type Props = {
 
 export function NightOrderPreview({ script, language, open, onToggle }: Props) {
   const zh = language === 'zh'
+  const [showReminders, setShowReminders] = useState(false)
 
   // Build lookup: id → {name, nameEn, icon} from the script's own character objects.
   // Used for scripts that carry their own character data (non-catalog IDs or Chinese
@@ -198,6 +271,14 @@ export function NightOrderPreview({ script, language, open, onToggle }: Props) {
             : `First ${firstNight.length} · Other ${otherNights.length}`
           }
         </Typography>
+        {open && (
+          <Tooltip title={showReminders ? (zh ? '隐藏提示' : 'Hide reminders') : (zh ? '显示提示' : 'Show reminders')} placement="top">
+            <IconButton size="small" onClick={(e) => { e.stopPropagation(); setShowReminders(v => !v) }}
+              sx={{ p: 0.25, color: showReminders ? 'primary.main' : 'text.disabled' }}>
+              <MenuBookIcon sx={{ fontSize: 15 }} />
+            </IconButton>
+          </Tooltip>
+        )}
         {open
           ? <ExpandLessIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
           : <ExpandMoreIcon sx={{ fontSize: 16, color: 'text.secondary' }} />}
@@ -223,8 +304,9 @@ export function NightOrderPreview({ script, language, open, onToggle }: Props) {
             {firstNight.map((id, i) => {
               const c = resolveChar(id)
               const name = c ? (language === 'zh' ? c.name : (c.nameEn ?? c.name)) : undefined
+              const reminder = getNightReminder(id, language, 'first')
               return <NightRow key={id} pos={i + 1} id={id} language={language}
-                nameOverride={name} iconOverride={c?.icon} />
+                nameOverride={name} iconOverride={c?.icon} reminder={reminder} showReminder={showReminders} />
             })}
           </Box>
 
@@ -242,8 +324,9 @@ export function NightOrderPreview({ script, language, open, onToggle }: Props) {
             {otherNights.map((id, i) => {
               const c = resolveChar(id)
               const name = c ? (language === 'zh' ? c.name : (c.nameEn ?? c.name)) : undefined
+              const reminder = getNightReminder(id, language, 'other')
               return <NightRow key={id} pos={i + 1} id={id} language={language}
-                nameOverride={name} iconOverride={c?.icon} />
+                nameOverride={name} iconOverride={c?.icon} reminder={reminder} showReminder={showReminders} />
             })}
           </Box>
         </Box>

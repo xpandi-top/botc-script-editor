@@ -17,13 +17,15 @@
     "flavor": "How DARE you accuse Her Ladyship of wrongdoing? I’ve known her my entire life! All nine years!",
     "revisions": {
       "v1": "You start knowing 1 good player."
-    }
+    },
+    "firstNightReminder": "Point to the player marked *KNOW*."
   },
   "zh": {
     "name": "事务官",
     "ability": "在你的首个夜晚，你会得知一名善良玩家。",
     "revisions": {
       "v1": "在你的首个夜晚，你会得知一名善良玩家。"
-    }
+    },
+    "firstNightReminder": "唤醒事务官，对他指向一名善良玩家。"
   }
 }

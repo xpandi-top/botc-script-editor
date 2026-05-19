@@ -20,13 +20,15 @@
     "flavor": "I will never forget her. Never.",
     "revisions": {
       "v1": "When you die, 1 player is drunk from now on."
-    }
+    },
+    "otherNightReminder": "If the Sweetheart died, a player became drunk immediately. If you haven't done this yet, do so now. :reminder:"
   },
   "zh": {
     "name": "心上人",
     "ability": "当你死亡时，会有一名玩家开始醉酒。",
     "revisions": {
       "v1": "当你死亡时，会有一名玩家开始醉酒。"
-    }
+    },
+    "otherNightReminder": "如果心上人死亡，一名玩家醉酒。"
   }
 }

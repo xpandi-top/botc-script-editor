@@ -18,13 +18,17 @@
     "flavor": "In the shadowed and forgotten corners of the cosmos, where the stars whisper secrets to the void, lies a truth so profound that the merest glimpse of it unravels the sanity of mortal minds.",
     "revisions": {
       "v1": "Each night*, choose a player: they die. [Evil characters are in a line. You are in the middle. +1 Minion. -? to +? Outsiders]"
-    }
+    },
+    "firstNightReminder": "Wake the Lord of Typhon's neighbors. Show the *YOU ARE* and Minion tokens & give a thumbs-down.",
+    "otherNightReminder": "The Lord of Typhon chooses a player. :reminder:"
   },
   "zh": {
     "name": "堤丰之首",
     "ability": "每个夜晚*，你要选择一名玩家：他死亡。<br>[邪恶角色全部邻座，你位于正中，+1爪牙，-或+任意数量外来者]",
     "revisions": {
       "v1": "每个夜晚*，你要选择一名玩家：他死亡。<br>[邪恶角色全部邻座，你位于正中，+1爪牙，-或+任意数量外来者]"
-    }
+    },
+    "firstNightReminder": "将位于堤丰之首两侧的对应数量的玩家变成邪恶的爪牙，并分别唤醒他们通知他们的角色和阵营变化。",
+    "otherNightReminder": "唤醒堤丰之首，让他攻击一名玩家。"
   }
 }

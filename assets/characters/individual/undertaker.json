@@ -20,13 +20,15 @@
     "flavor": "Hmmm....what have we here? The left boot is worn down to the heel, with flint shavings under the tongue. This is the garb of a Military man.",
     "revisions": {
       "v1": "Each night*, you learn which character died by execution today."
-    }
+    },
+    "otherNightReminder": "If a player was executed today, show their character token."
   },
   "zh": {
     "name": "送葬者",
     "ability": "每个夜晚*，你会得知今天白天死于处决的玩家的角色。",
     "revisions": {
       "v1": "每个夜晚*，你会得知今天白天死于处决的玩家的角色。"
-    }
+    },
+    "otherNightReminder": "如果今天白天有玩家死于处决，唤醒送葬者，对他展示那名玩家的角色标记。"
   }
 }

@@ -17,13 +17,15 @@
     "flavor": "Scorpio looks sideways at the lovers, and you have a choice to make. With silver cross my palm, and your fate shall be revealed. With steel cross my throat, and by the stars you shall regret it.",
     "revisions": {
       "v1": "When you learn that you died, publicly choose 1 alive player. Tonight, if it was a good player, they die."
-    }
+    },
+    "otherNightReminder": "If the Moonchild is due to kill a good player, they die. :reminder:"
   },
   "zh": {
     "name": "月之子",
     "ability": "当你得知你死亡时，你要公开选择一名存活的玩家。如果他是善良的，在当晚他会死亡。",
     "revisions": {
       "v1": "当你得知你死亡时，你要公开选择一名存活的玩家。如果他是善良的，在当晚他会死亡。"
-    }
+    },
+    "otherNightReminder": "如果月之子在今天白天的时候使用自己的能力选择了一名善良玩家，那名玩家死亡。"
   }
 }

@@ -23,10 +23,14 @@ export type CharacterEntry = {
   remindersGlobal?: string[]
   /** Whether this character affects game setup (bag composition). */
   setup?: boolean
-  /** ST reminder shown during the first night phase. */
+  /** ST reminder shown during the first night phase (English). */
   firstNightReminder?: string
-  /** ST reminder shown during other night phases. */
+  /** ST reminder shown during other night phases (English). */
   otherNightReminder?: string
+  /** ST reminder shown during the first night phase (Chinese). */
+  firstNightReminderZh?: string
+  /** ST reminder shown during other night phases (Chinese). */
+  otherNightReminderZh?: string
 }
 
 export type CharacterRevisionEntry = {
@@ -273,12 +277,16 @@ export type CharacterFileEntry = {
     /** English flavor text from official roles.json. */
     flavor?: string
     revisions?: Record<string, string>
+    firstNightReminder?: string
+    otherNightReminder?: string
   }
   zh?: {
     name?: string
     ability?: string
     flavor?: string
     revisions?: Record<string, string>
+    firstNightReminder?: string
+    otherNightReminder?: string
   }
 }
 

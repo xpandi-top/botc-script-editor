@@ -28,7 +28,9 @@
       "v1": "Each night, if the dead outnumber the living, you learn 1 alive character. The Demon knows who you are.",
       "v2024-05": "Each night, if the dead equal or outnumber the living, you learn 1 alive character. The Demon knows who you are.",
       "v2024-11": "Each night, if the dead equal or outnumber the living, you learn 1 alive character. The Demon knows you are the King."
-    }
+    },
+    "firstNightReminder": "Wake the Demon: Show the *THIS PLAYER IS* & King tokens, then point to the King.",
+    "otherNightReminder": "If the dead equal or outnumber the living, show the character token of a living player."
   },
   "zh": {
     "name": "国王",
@@ -37,6 +39,8 @@
       "v1": "每个夜晚，如果死亡的玩家数量多于存活的玩家数量，你会得知一个存活的角色。恶魔知道你是谁。",
       "v2024-05": "每个夜晚，如果死亡的玩家数量大于或等于存活的玩家数量，你会得知一个存活的角色。恶魔知道你是谁。",
       "v2024-11": "每个夜晚，如果死亡的玩家数量大于或等于存活的玩家数量，你会得知一个存活的角色。恶魔知道你是国王。"
-    }
+    },
+    "firstNightReminder": "如果国王在场，对恶魔展示国王角色标记并指向国王玩家。",
+    "otherNightReminder": "如果满足国王的唤醒条件，唤醒国王，对他展示一个存活的角色标记。"
   }
 }

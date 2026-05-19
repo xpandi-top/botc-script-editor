@@ -21,13 +21,17 @@
     "flavor": "Any consistent formal system x, within which a certain amount of elementary arithmetic can be carried out is incomplete; that is, there are statements of the language of x which can neither be proved nor disproved in x. Ergo, you are drunk.",
     "revisions": {
       "v1": "Each night, you learn how many players’ abilities worked abnormally (since dawn) due to another character's ability."
-    }
+    },
+    "firstNightReminder": "Give a finger signal.",
+    "otherNightReminder": "Give a finger signal."
   },
   "zh": {
     "name": "数学家",
     "ability": "每个夜晚，你会得知有多少名玩家的能力因为其他角色的能力而未正常生效。（从上个黎明到你被唤醒时）",
     "revisions": {
       "v1": "每个夜晚，你会得知有多少名玩家的能力因为其他角色的能力而未正常生效。（从上个黎明到你被唤醒时）"
-    }
+    },
+    "firstNightReminder": "唤醒数学家，用手势比划数字来告诉他今天有多少玩家的能力未正常生效。",
+    "otherNightReminder": "唤醒数学家，用手势比划数字来告诉他今天有多少玩家的能力未正常生效。"
   }
 }

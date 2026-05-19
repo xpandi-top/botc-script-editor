@@ -18,13 +18,17 @@
     "flavor": "Beware of gazing long into the Abyss, lest the Abyss also gaze into you.",
     "revisions": {
       "v1": "Each night, choose a player. If you nominate & execute them, their team loses. All players know if you choose a new player."
-    }
+    },
+    "firstNightReminder": "The Fearmonger chooses a player. :reminder: Announce that the Fearmonger has chosen a player.",
+    "otherNightReminder": "The Fearmonger chooses a player. :reminder: If the target is different to last night, announce that the Fearmonger has chosen a player."
   },
   "zh": {
     "name": "恐惧之灵",
     "ability": "每个夜晚，你要选择一名玩家：如果你提名他且他被处决，他的阵营落败。当你首次选择或更换目标时，所有玩家都会得知你选择了新的玩家。",
     "revisions": {
       "v1": "每个夜晚，你要选择一名玩家：如果你提名他且他被处决，他的阵营落败。当你首次选择或更换目标时，所有玩家都会得知你选择了新的玩家。"
-    }
+    },
+    "firstNightReminder": "唤醒恐惧之灵，让他选择一名玩家，随后通知所有玩家恐惧之灵选择了一名玩家。",
+    "otherNightReminder": "唤醒恐惧之灵，让他选择一名玩家，随后如果恐惧之灵的目标发生了变更，通知所有玩家恐惧之灵选择了一名玩家。"
   }
 }

@@ -22,7 +22,8 @@
     "revisions": {
       "v1": "Each night*, choose 3 players (all players learn who): each silently chooses to live or die, but if all live, all die.",
       "v2024-12": "Each night*, you may choose 3 players (all players learn who): each silently chooses to live or die, but if all live, all die."
-    }
+    },
+    "otherNightReminder": "The Al-Hadikhia chooses 3 players. :reminder: :reminder: :reminder: In order, wake each target. They nod or shake their head. Put them to sleep before waking the next target."
   },
   "zh": {
     "name": "哈迪寂亚",
@@ -30,6 +31,7 @@
     "revisions": {
       "v1": "每个夜晚*，你要选择三名玩家（所有玩家会得知你选了谁）：他们分别秘密决定自己的生死，然后如果他们都存活则都死亡。",
       "v2024-12": "每个夜晚*，你可以选择三名玩家（所有玩家会得知你选了谁）：他们分别秘密决定自己的生死，然后如果他们都存活则都死亡。"
-    }
+    },
+    "otherNightReminder": "唤醒哈迪寂亚，让他选择三名玩家。执行哈迪寂亚的能力流程（参考哈迪寂亚的百科页面）。"
   }
 }

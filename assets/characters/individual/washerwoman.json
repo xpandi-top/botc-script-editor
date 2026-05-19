@@ -20,13 +20,15 @@
     "flavor": "Bloodstains on a dinner jacket? No, this is cooking sherry. How careless.",
     "revisions": {
       "v1": "You start knowing that 1 of 2 players is a particular Townsfolk."
-    }
+    },
+    "firstNightReminder": "Show the Townsfolk character token. Point to both the *TOWNSFOLK* and *WRONG* players."
   },
   "zh": {
     "name": "洗衣妇",
     "ability": "在你的首个夜晚，你会得知两名玩家和一个镇民角色：这两名玩家之一是该角色。",
     "revisions": {
       "v1": "在你的首个夜晚，你会得知两名玩家和一个镇民角色：这两名玩家之一是该角色。"
-    }
+    },
+    "firstNightReminder": "唤醒洗衣妇，对她指向两名玩家，并展示一个镇民角色标记。这两名玩家其中之一是这个镇民。"
   }
 }

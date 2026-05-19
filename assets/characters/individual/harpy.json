@@ -23,7 +23,9 @@
     "revisions": {
       "v1": "Each night, choose 2 players: tomorrow, the 1st player is mad that the 2nd is evil, or both might die.",
       "v2024-06": "Each night, choose 2 players: tomorrow, the 1st player is mad that the 2nd is evil, or one or both might die."
-    }
+    },
+    "firstNightReminder": "The Harpy chooses 2 players. :reminder: :reminder: Put the Harpy to sleep. Wake the 1st target. Show the *THIS CHARACTER SELECTED YOU* token, the Harpy token, then point to the 2nd target.",
+    "otherNightReminder": "The Harpy chooses 2 players. :reminder: :reminder: Put the Harpy to sleep. Wake the 1st target. Show the *THIS CHARACTER SELECTED YOU* token, the Harpy token, then point to the 2nd target."
   },
   "zh": {
     "name": "鹰身女妖",
@@ -31,6 +33,8 @@
     "revisions": {
       "v1": "每个夜晚，你要选择两名玩家：明天第一名玩家需要“疯狂”地证明第二名玩家是邪恶的，否则他们都可能死亡。",
       "v2024-06": "每个夜晚，你要选择两名玩家：明天第一名玩家需要“疯狂”地证明第二名玩家是邪恶的，否则他们之中可能会有人死亡。"
-    }
+    },
+    "firstNightReminder": "唤醒鹰身女妖，让她选择两名玩家，第一名玩家明天需要\"疯狂\"证明第二名玩家邪恶。在鹰身女妖入睡后通知第一名玩家被鹰身女妖选中。",
+    "otherNightReminder": "唤醒鹰身女妖，让她选择两名玩家，第一名玩家明天需要\"疯狂\"证明第二名玩家邪恶。在鹰身女妖入睡后通知第一名玩家被鹰身女妖选中。"
   }
 }

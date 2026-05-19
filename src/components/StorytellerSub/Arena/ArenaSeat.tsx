@@ -2,14 +2,65 @@
 import type { StorytellerSeat } from '../types'
 import type { StorytellerContext } from '../useStoryteller'
 import React, { useState } from 'react'
-import { Box, Chip, IconButton, Paper, Tooltip, useTheme } from '@mui/material'
+import { Box, Chip, IconButton, Paper, Popover, Tooltip, Typography, useTheme } from '@mui/material'
 import CheckIcon from '@mui/icons-material/Check'
 import CloseIcon from '@mui/icons-material/Close'
 import { ArenaSeatPlayerModal } from './ArenaSeatPlayerModal'
 import { CharacterCircle } from './CharacterCircle'
-import { getDisplayName, getIconForCharacter, getEffectiveNightOrderFromRegistry, getAbilityText } from '../../../catalog'
+import { getDisplayName, getIconForCharacter, getEffectiveNightOrderFromRegistry, getAbilityText, getNightReminder } from '../../../catalog'
 import { getSeatPosition } from '../../../utils/seats'
 import { VoteButtonGroup, RoundRobinIndicator, TagChip, StatusBadge, translateStTag } from './ArenaSeatComponents'
+
+function WakeOrderBadge({ wakeOrder, isVisited, reminder, onToggle }: { wakeOrder: number; isVisited: boolean; reminder?: string; onToggle: (e: React.MouseEvent) => void }) {
+  const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null)
+  const open = Boolean(anchorEl)
+
+  const handleNumberClick = (e: React.MouseEvent<HTMLElement>) => {
+    e.stopPropagation()
+    if (!reminder) return
+    setAnchorEl(open ? null : e.currentTarget)
+  }
+
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.25 }}>
+      <IconButton size="small" onClick={(e) => { e.stopPropagation(); onToggle(e) }}
+        sx={{ p: 0, width: 20, height: 20, minWidth: 0, borderRadius: '50%', border: '1.5px solid', borderColor: isVisited ? 'success.main' : 'divider', bgcolor: isVisited ? 'success.light' : 'transparent', flexShrink: 0 }}>
+        {isVisited ? <CheckIcon sx={{ fontSize: '0.65rem' }} /> : null}
+      </IconButton>
+
+      <Box component="span"
+        onClick={handleNumberClick}
+        sx={{
+          fontWeight: 700, fontSize: '0.85rem', userSelect: 'none',
+          cursor: reminder ? 'pointer' : 'default',
+          color: reminder ? (open ? 'info.dark' : 'info.main') : 'text.secondary',
+          textDecoration: reminder ? 'underline' : 'none',
+          textDecorationStyle: 'dotted', textUnderlineOffset: '2px',
+          px: 0.75, py: 0.375, borderRadius: '6px',
+          bgcolor: open ? 'action.selected' : 'transparent',
+          transition: 'background 0.1s',
+          '&:hover': reminder ? { bgcolor: 'action.hover' } : {},
+        }}>
+        #{wakeOrder}
+      </Box>
+
+      <Popover
+        open={open}
+        anchorEl={anchorEl}
+        onClose={(e: any) => { if (e?.stopPropagation) e.stopPropagation(); setAnchorEl(null) }}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        transformOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        disableRestoreFocus
+        slotProps={{ paper: { sx: { maxWidth: 240, p: 1.25, borderRadius: 1.5 } } }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <Typography sx={{ fontSize: '0.78rem', lineHeight: 1.5, color: 'text.primary' }}>
+          {reminder}
+        </Typography>
+      </Popover>
+    </Box>
+  )
+}
 
 export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: StorytellerContext, seat: any, index: number, isPortrait: boolean }) {
   const {
@@ -206,10 +257,23 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: StorytellerCo
           {tagDefs.length > 0 && (
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.375, justifyContent: 'center', mt: 0.5 }}>
               {tagDefs.map(({ label, chipSx }) => {
-                const isChar = label.startsWith('💀')
-                const charId = isChar ? [...label].slice(1).join('') : ''
-                const icon = isChar ? getIconForCharacter(charId) : null
-                const displayLabel = isChar ? getDisplayName(charId, language) : label
+                const isCharTag = label.startsWith('💀')
+                const isLinked = !isCharTag && label.startsWith('📝')
+                let icon = null, displayLabel = label
+                if (isCharTag) {
+                  const charId = [...label].slice(1).join('')
+                  icon = getIconForCharacter(charId)
+                  displayLabel = getDisplayName(charId, language)
+                } else if (isLinked) {
+                  const body = label.slice(2)
+                  const sep = body.indexOf('::')
+                  const rawLabel = sep === -1 ? body : body.slice(0, sep)
+                  displayLabel = translateStTag(rawLabel, language)
+                  const srcId = sep === -1 ? '' : body.slice(sep + 2)
+                  icon = srcId ? getIconForCharacter(srcId) : null
+                } else {
+                  displayLabel = translateStTag(label, language)
+                }
                 return <TagChip key={`${seat.seat}-${label}`} label={displayLabel} icon={icon as string} chipSx={chipSx} />
               })}
             </Box>
@@ -218,13 +282,12 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: StorytellerCo
           {isInNomination && <VoteButtonGroup seat={seat} cardVotedYes={cardVotedYes} cardVotedNo={cardVotedNo} handleVoteYesClick={handleVoteYesClick} handleVoteNoClick={handleVoteNoClick} handleRemoveVote={handleRemoveVote} />}
 
           {isNightPhase && nightShowWakeOrder && playerWakeOrder !== null && (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.25 }}>
-              <IconButton size="medium" onClick={(e) => { e.stopPropagation(); toggleNightVisitedSeat(seat.seat) }}
-                sx={{ p: 0.25, width: 44, height: 44, borderRadius: '50%', fontWeight: 700, border: '2px solid', borderColor: isVisited ? 'success.main' : 'divider', bgcolor: isVisited ? 'success.light' : 'transparent', flexShrink: 0 }}>
-                {isVisited ? <CheckIcon fontSize="small" /> : null}
-              </IconButton>
-              <Box component="span" sx={{ fontWeight: 600 }}>#{playerWakeOrder}</Box>
-            </Box>
+            <WakeOrderBadge
+              wakeOrder={playerWakeOrder}
+              isVisited={isVisited}
+              reminder={actualCharId ? getNightReminder(actualCharId, language, isFirstNight ? 'first' : 'other') : undefined}
+              onToggle={() => toggleNightVisitedSeat(seat.seat)}
+            />
           )}
 
           {isNightPhase && nightShowCharacter && (seat.stTags || []).length > 0 && (

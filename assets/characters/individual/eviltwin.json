@@ -20,13 +20,15 @@
     "flavor": "I'm not Sara! I'm Clara! SHE is Sara! Sara is the evil one! Not me!",
     "revisions": {
       "v1": "You & an opposing player know each other. If the good player is executed, evil wins. Good can't win if you both live."
-    }
+    },
+    "firstNightReminder": "Wake both twins. Allow eye contact. Show the good twin's character token to the Evil Twin & vice versa."
   },
   "zh": {
     "name": "镜像双子",
     "ability": "你与一名对立阵营的玩家互相知道对方是什么角色。如果其中善良玩家被处决，邪恶阵营获胜。如果你们都存活，善良阵营无法获胜。",
     "revisions": {
       "v1": "你与一名对立阵营的玩家互相知道对方是什么角色。如果其中善良玩家被处决，邪恶阵营获胜。如果你们都存活，善良阵营无法获胜。"
-    }
+    },
+    "firstNightReminder": "分别独自唤醒镜像双子和对立双子，告知他们由于镜像双子能力而得知的信息。"
   }
 }

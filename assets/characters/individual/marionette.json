@@ -17,13 +17,15 @@
     "flavor": "Words, words. They're all we have to go on.",
     "revisions": {
       "v1": "You think you are a good character but you are not. The Demon knows who you are. [You neighbour the Demon]"
-    }
+    },
+    "firstNightReminder": "Wake the Demon. Show the *THIS PLAYER IS* & Marionette tokens. Point to the Marionette."
   },
   "zh": {
     "name": "提线木偶",
     "ability": "你以为你是一个善良角色，但其实你不是。恶魔会知道你是提线木偶。[提线木偶会与恶魔邻座]",
     "revisions": {
       "v1": "你以为你是一个善良角色，但其实你不是。恶魔会知道你是提线木偶。[提线木偶会与恶魔邻座]"
-    }
+    },
+    "firstNightReminder": "如果提线木偶在场，对恶魔展示提线木偶角色标记并指向提线木偶玩家。"
   }
 }

@@ -18,13 +18,17 @@
     "flavor": "That which issues from the heart alone, will bend the hearts of others to your own.",
     "revisions": {
       "v1": "You start knowing a secret word. The 1st good player to say this word becomes evil that night."
-    }
+    },
+    "firstNightReminder": "Show the secret word.",
+    "otherNightReminder": "If a good player said the secret word, wake the player. Show the *YOU ARE* info token & give a thumbs-down. :reminder: :reminder:"
   },
   "zh": {
     "name": "灵言师",
     "ability": "在你的首个夜晚，你会得知一个关键词。首个说出该关键词的善良玩家会在当晚转变为邪恶阵营。",
     "revisions": {
       "v1": "在你的首个夜晚，你会得知一个关键词。首个说出该关键词的善良玩家会在当晚转变为邪恶阵营。"
-    }
+    },
+    "firstNightReminder": "唤醒灵言师，对他展示他的关键词。",
+    "otherNightReminder": "如果首次有善良玩家说出了灵言师的关键词，唤醒该玩家并通知他阵营变化。"
   }
 }

@@ -18,13 +18,17 @@
     "flavor": "Ra'āb ina pān ṣilli ša dāri. Rigim qallu ina šūri, šītu ša šunātīka iredde, u napšutka idlul ina pān maṣṣartī dāriti.",
     "revisions": {
       "v1": "You may choose to open your eyes at night. You wake when other evil players do."
-    }
+    },
+    "firstNightReminder": "Wake the Wraith whenever other evil players wake.",
+    "otherNightReminder": "Wake the Wraith whenever other evil players wake."
   },
   "zh": {
     "name": "亡魂",
     "ability": "你可以在夜晚睁眼。当其他邪恶玩家被唤醒时，你也会被唤醒。",
     "revisions": {
       "v1": "你可以在夜晚睁眼。当其他邪恶玩家被唤醒时，你也会被唤醒。"
-    }
+    },
+    "firstNightReminder": "从现在开始，亡魂可以在夜晚睁眼。每当你要在夜晚唤醒一名邪恶玩家时，先唤醒亡魂。当你让这名邪恶玩家重新入睡时，也让亡魂入睡。",
+    "otherNightReminder": "从现在开始，亡魂可以在夜晚睁眼。每当你要在夜晚唤醒一名邪恶玩家时，先唤醒亡魂。当你让这名邪恶玩家重新入睡时，也让亡魂入睡。"
   }
 }

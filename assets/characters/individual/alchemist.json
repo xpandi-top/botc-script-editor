@@ -22,7 +22,8 @@
     "revisions": {
       "v1": "You have a not-in-play Minion ability.",
       "v2024-12": "You have a Minion ability. When using this, the Storyteller may prompt you to choose differently."
-    }
+    },
+    "firstNightReminder": "Show the *YOU ARE* info token and a Minion token."
   },
   "zh": {
     "name": "炼金术士",
@@ -30,6 +31,7 @@
     "revisions": {
       "v1": "你拥有一个不在场爪牙角色的能力。",
       "v2024-12": "你拥有一个爪牙角色的能力。当你使用能力时，说书人可能会要求你更换选择。"
-    }
+    },
+    "firstNightReminder": "唤醒炼金术士，对他展示他获得的能力所对应的爪牙角色标记。"
   }
 }

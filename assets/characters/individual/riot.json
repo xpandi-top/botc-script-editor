@@ -22,7 +22,8 @@
     "revisions": {
       "v1": "Nominees die, but may nominate again immediately (on day 3, they must). After day 3, evil wins. [All Minions are Riot]",
       "v2024-12": "On day 3, Minions become Riot & nominees die but nominate an alive player immediately. This must happen."
-    }
+    },
+    "otherNightReminder": "Change the Riot reminder token to the relevant day. :reminder: If it is night 3, you may wake the Minions. Show the *YOU ARE* & Riot tokens."
   },
   "zh": {
     "name": "暴乱",

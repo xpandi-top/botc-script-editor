@@ -10,13 +10,15 @@
     "flavor": "Our words are hounds, bound by silken threads, dear lords. Let kindness weave them true, lest the reigns unravel and rend our court.",
     "revisions": {
       "v1": "On your 1st day, if you nominated & executed a player, the Demon doesn’t kill tonight."
-    }
+    },
+    "otherNightReminder": "If the Princess nominated the player who was executed today, wake the Demon as normal, but no one dies to the Demon's ability. :reminder:"
   },
   "zh": {
     "name": "公主",
     "ability": "在你的首个白天，如果你提名并处决了一名玩家，当晚恶魔不会造成死亡。",
     "revisions": {
       "v1": "在你的首个白天，如果你提名并处决了一名玩家，当晚恶魔不会造成死亡。"
-    }
+    },
+    "otherNightReminder": "如果公主在今天白天提名并处决了一名玩家，当晚恶魔不会造成死亡。"
   }
 }

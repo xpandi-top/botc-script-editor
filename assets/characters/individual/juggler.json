@@ -20,13 +20,15 @@
     "flavor": "For my next trick, as per request, I will need a flower, a bag of beans, a toy snake, a paintbrush, and a motorized gasoline-powered hedge trimming device. I warn you, this trick may be my last. Oh dear.",
     "revisions": {
       "v1": "On your 1st day, publicly guess up to 5 players' characters. That night, you learn how many you got correct."
-    }
+    },
+    "otherNightReminder": "Give a finger signal."
   },
   "zh": {
     "name": "杂耍艺人",
     "ability": "在你的首个白天，你可以公开猜测任意玩家的角色最多五次。在当晚，你会得知猜测正确的角色数量。",
     "revisions": {
       "v1": "在你的首个白天，你可以公开猜测任意玩家的角色最多五次。在当晚，你会得知猜测正确的角色数量。"
-    }
+    },
+    "otherNightReminder": "如果杂耍艺人在今天白天使用了能力，唤醒杂耍艺人，对他用手势比划数字来告知他白天猜测正确的次数。"
   }
 }

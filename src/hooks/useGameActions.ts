@@ -59,8 +59,24 @@ export function buildGameActions(deps: ActionDeps) {
         }
         const added = newSeat.customTags.filter((t) => !oldSeat.customTags.includes(t))
         const removed = oldSeat.customTags.filter((t) => !newSeat.customTags.includes(t))
-        for (const t of added) updated = appendEvent(updated, 'tagChange', `#${seatNumber} ${logPhrase(language, 'addTag')}: ${t}`)
-        for (const t of removed) updated = appendEvent(updated, 'tagChange', `#${seatNumber} ${logPhrase(language, 'removeTag')}: ${t}`)
+        const parsePublicTag = (t: string) => {
+          if (!t.startsWith('📝')) return { label: t, sourceCharId: null }
+          const body = t.slice(2)
+          const sep = body.indexOf('::')
+          return sep === -1 ? { label: body, sourceCharId: null } : { label: body.slice(0, sep), sourceCharId: body.slice(sep + 2) || null }
+        }
+        const publicTagDetail = (t: string, isAdded: boolean) => {
+          const { label, sourceCharId } = parsePublicTag(t)
+          const translatedLabel = translateStTag(label, language)
+          const verb = logPhrase(language, isAdded ? 'addTag' : 'removeTag')
+          if (sourceCharId) {
+            const charName = getDisplayName(sourceCharId, language)
+            return `#${seatNumber} ${verb}: [icon:${sourceCharId}] ${charName}:${translatedLabel}`
+          }
+          return `#${seatNumber} ${verb}: ${translatedLabel}`
+        }
+        for (const t of added) updated = appendEvent(updated, 'tagChange', publicTagDetail(t, true))
+        for (const t of removed) updated = appendEvent(updated, 'tagChange', publicTagDetail(t, false))
         const oldStTags = oldSeat.stTags || []
         const newStTags = newSeat.stTags || []
         const addedStTags = newStTags.filter((t) => !oldStTags.includes(t))

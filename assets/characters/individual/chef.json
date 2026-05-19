@@ -17,13 +17,15 @@
     "flavor": "This evening's reservations seem odd. Never before has Mrs. Mayweather kept company with that scamp from Hudson Lane. Yet, tonight, they have a table for two. Strange.",
     "revisions": {
       "v1": "You start knowing how many pairs of evil players there are."
-    }
+    },
+    "firstNightReminder": "Give a finger signal."
   },
   "zh": {
     "name": "厨师",
     "ability": "在你的首个夜晚，你会得知场上邻座的邪恶玩家有多少对。",
     "revisions": {
       "v1": "在你的首个夜晚，你会得知场上邻座的邪恶玩家有多少对。"
-    }
+    },
+    "firstNightReminder": "唤醒厨师，对他用手势比划数字来告知他邻座邪恶玩家有几对。"
   }
 }

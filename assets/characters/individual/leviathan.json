@@ -18,13 +18,16 @@
     "flavor": "To the last, I grapple with thee. From Hell’s heart, I stab at thee. For hate’s sake, I spit my last breath at thee.",
     "revisions": {
       "v1": "If more than 1 good player is executed, you win. All players know you are in play. After day 5, evil wins."
-    }
+    },
+    "firstNightReminder": "Announce that the Leviathan is in play. :reminder:",
+    "otherNightReminder": "Change the Leviathan reminder token to the relevant day. :reminder: You may announce that the Leviathan is in play."
   },
   "zh": {
     "name": "利维坦",
     "ability": "如果多于一名善良玩家被处决，邪恶阵营获胜。<br>所有玩家都知道利维坦在场。<br>在第五个白天结束时，邪恶阵营获胜。",
     "revisions": {
       "v1": "如果多于一名善良玩家被处决，邪恶阵营获胜。<br>所有玩家都知道利维坦在场。<br>在第五个白天结束时，邪恶阵营获胜。"
-    }
+    },
+    "otherNightReminder": "如果利维坦在场，告知所有人利维坦在场，现在是第几个白天。"
   }
 }

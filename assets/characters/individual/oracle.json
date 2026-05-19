@@ -20,13 +20,15 @@
     "flavor": "Only the chosen may gaze beyond the veil. The dead are restless, and they point in silence toward the icy north.",
     "revisions": {
       "v1": "Each night*, you learn how many dead players are evil."
-    }
+    },
+    "otherNightReminder": "Give a finger signal."
   },
   "zh": {
     "name": "神谕者",
     "ability": "每个夜晚*，你会得知有多少名死亡的玩家是邪恶的。",
     "revisions": {
       "v1": "每个夜晚*，你会得知有多少名死亡的玩家是邪恶的。"
-    }
+    },
+    "otherNightReminder": "唤醒神谕者，对他用手势比划数字来告知他当前死亡玩家中邪恶玩家的数量。"
   }
 }

@@ -801,10 +801,10 @@ function loadCharacterCatalog() {
         ? value.remindersGlobal.filter((r): r is string => typeof r === 'string')
         : undefined,
       setup: typeof value.setup === 'boolean' ? value.setup : undefined,
-      firstNightReminder: typeof value.firstNightReminder === 'string' && value.firstNightReminder
-        ? value.firstNightReminder : undefined,
-      otherNightReminder: typeof value.otherNightReminder === 'string' && value.otherNightReminder
-        ? value.otherNightReminder : undefined,
+      firstNightReminder: value.en?.firstNightReminder ?? (typeof value.firstNightReminder === 'string' && value.firstNightReminder ? value.firstNightReminder : undefined),
+      otherNightReminder: value.en?.otherNightReminder ?? (typeof value.otherNightReminder === 'string' && value.otherNightReminder ? value.otherNightReminder : undefined),
+      firstNightReminderZh: value.zh?.firstNightReminder ?? undefined,
+      otherNightReminderZh: value.zh?.otherNightReminder ?? undefined,
     }
 
     if (
@@ -927,6 +927,21 @@ function loadScripts() {
 }
 
 export const { allCharacters, characterById } = loadCharacterCatalog()
+
+/**
+ * Get ST night reminder for a character in the given language.
+ * Falls back: zh → en if zh not available; returns undefined if no reminder.
+ */
+export function getNightReminder(id: string, language: Language, night: 'first' | 'other'): string | undefined {
+  const char = characterById[id]
+  if (!char) return undefined
+  if (night === 'first') {
+    if (language === 'zh') return char.firstNightReminderZh ?? char.firstNightReminder
+    return char.firstNightReminder
+  }
+  if (language === 'zh') return char.otherNightReminderZh ?? char.otherNightReminder
+  return char.otherNightReminder
+}
 
 export const initialScripts = loadScripts()
 

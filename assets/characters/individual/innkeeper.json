@@ -23,13 +23,15 @@
     "flavor": "Come inside, fair traveller, and rest your weary bones. Drink and be merry, for the legions of the Dark One shall not harass thee tonight.",
     "revisions": {
       "v1": "Each night*, choose 2 players: they can't die tonight, but 1 is drunk until dusk."
-    }
+    },
+    "otherNightReminder": "The Innkeeper chooses 2 players. :reminder: :reminder: :reminder:"
   },
   "zh": {
     "name": "旅店老板",
     "ability": "每个夜晚*，你要选择两名玩家：他们当晚不会死亡，但其中一人会醉酒到下个黄昏。",
     "revisions": {
       "v1": "每个夜晚*，你要选择两名玩家：他们当晚不会死亡，但其中一人会醉酒到下个黄昏。"
-    }
+    },
+    "otherNightReminder": "唤醒旅店老板，让他选择两名玩家。这两名玩家今晚不死，同时需要决定他俩其中谁因为旅店老板能力醉酒。"
   }
 }

@@ -17,13 +17,15 @@
     "flavor": "I think I see the problem. Luckily, I have an idea! This catapult will shoot twice as far with just a minor adjustment...",
     "revisions": {
       "v1": "You might die at any time."
-    }
+    },
+    "otherNightReminder": "The Tinker might die. :reminder:"
   },
   "zh": {
     "name": "修补匠",
     "ability": "你随时可能死亡。",
     "revisions": {
       "v1": "你随时可能死亡。"
-    }
+    },
+    "otherNightReminder": "在夜晚的任意时机，你都可以决定杀死修补匠。这里只是一个提示以免遗忘修补匠。"
   }
 }

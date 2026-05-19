@@ -17,13 +17,15 @@
     "flavor": "When a man lies, he murders some part of the world.",
     "revisions": {
       "v1": "You start knowing 2 players that are not the Demon."
-    }
+    },
+    "firstNightReminder": "Point to the 2 players marked *KNOW*."
   },
   "zh": {
     "name": "骑士",
     "ability": "在你的首个夜晚，你会得知两名非恶魔玩家。",
     "revisions": {
       "v1": "在你的首个夜晚，你会得知两名非恶魔玩家。"
-    }
+    },
+    "firstNightReminder": "唤醒骑士，对他指向两名非恶魔玩家。"
   }
 }

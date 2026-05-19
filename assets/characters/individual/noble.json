@@ -17,13 +17,15 @@
     "flavor": "Sarcasm is indeed the lowest form of wit. But speaking in response to your criticism, Sir, it is, nevertheless, a form of wit.",
     "revisions": {
       "v1": "You start knowing 3 players, 1 and only 1 of which is evil."
-    }
+    },
+    "firstNightReminder": "Point to the 3 players marked *KNOW*."
   },
   "zh": {
     "name": "贵族",
     "ability": "在你的首个夜晚，你会得知三名玩家：其中有且只有一名玩家是邪恶的。",
     "revisions": {
       "v1": "在你的首个夜晚，你会得知三名玩家：其中有且只有一名玩家是邪恶的。"
-    }
+    },
+    "firstNightReminder": "唤醒贵族，对他指向三名玩家。这三名玩家中有且仅有一名是邪恶玩家。"
   }
 }

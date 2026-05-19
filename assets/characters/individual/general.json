@@ -18,13 +18,17 @@
     "flavor": "I don’t have time for quotes.",
     "revisions": {
       "v1": "Each night, you learn which alignment the Storyteller believes is winning: good, evil, or neither."
-    }
+    },
+    "firstNightReminder": "Give a thumb signal.",
+    "otherNightReminder": "Give a thumb signal."
   },
   "zh": {
     "name": "将军",
     "ability": "每个夜晚，你会得知说书人认为哪个阵营当前更有优势（善良/邪恶/均势）。",
     "revisions": {
       "v1": "每个夜晚，你会得知说书人认为哪个阵营当前更有优势（善良/邪恶/均势）。"
-    }
+    },
+    "firstNightReminder": "唤醒将军，对他用手势比划当前的优势阵营。",
+    "otherNightReminder": "唤醒将军，对他用手势比划当前的优势阵营。"
   }
 }

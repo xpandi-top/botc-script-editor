@@ -22,13 +22,17 @@
     "flavor": "I sense great evil in your soul! But... that could just be your perfume. I am allergic to Elderberry.",
     "revisions": {
       "v1": "Each night, choose 2 players: you learn if either is a Demon. There is a good player that registers as a Demon to you."
-    }
+    },
+    "firstNightReminder": "The Fortune Teller chooses 2 players. Nod if either is the Demon (or the *RED HERRING*).",
+    "otherNightReminder": "The Fortune Teller chooses 2 players. Nod if either is the Demon (or the *RED HERRING*)."
   },
   "zh": {
     "name": "占卜师",
     "ability": "每个夜晚，你要选择两名玩家：你会得知他们之中是否有恶魔。会有一名善良玩家始终被你的能力当作恶魔。<i>（干扰项）</i>",
     "revisions": {
       "v1": "每个夜晚，你要选择两名玩家：你会得知他们之中是否有恶魔。会有一名善良玩家始终被你的能力当作恶魔。<i>（干扰项）</i>"
-    }
+    },
+    "firstNightReminder": "唤醒占卜师，让他选择两名玩家。以点头或摇头告知他是否选中了恶魔。",
+    "otherNightReminder": "唤醒占卜师，让他选择两名玩家。以点头或摇头告知他是否选中了恶魔。"
   }
 }

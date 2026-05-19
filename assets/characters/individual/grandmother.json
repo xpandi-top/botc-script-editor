@@ -21,13 +21,17 @@
     "flavor": "Take a jacket if you go outside, dearie. And your thermos. And your scarf. I have a weak heart, you know. Whatever would I do if you caught cold...or worse?",
     "revisions": {
       "v1": "You start knowing a good player & their character. If the Demon kills them, you die too."
-    }
+    },
+    "firstNightReminder": "Point to the grandchild player & show their character token.",
+    "otherNightReminder": "If the grandchild was killed by the Demon, the Grandmother dies too. :reminder:"
   },
   "zh": {
     "name": "祖母",
     "ability": "在你的首个夜晚，你会得知一名善良玩家和他的角色。如果恶魔杀死了他，你也会死亡。",
     "revisions": {
       "v1": "在你的首个夜晚，你会得知一名善良玩家和他的角色。如果恶魔杀死了他，你也会死亡。"
-    }
+    },
+    "firstNightReminder": "唤醒祖母，对她指向一名善良玩家，并展示该玩家的角色标记。",
+    "otherNightReminder": "如果恶魔杀死了孙子，祖母死亡。"
   }
 }

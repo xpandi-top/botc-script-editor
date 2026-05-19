@@ -18,13 +18,17 @@
     "flavor": "Murders inside the Rue Morgue? Фальшивые новости! Hounds on the Baskerville moor? Фальшивые новости! Death while sailing the Nile? Фальшивые новости!",
     "revisions": {
       "v1": "You start knowing a secret phrase. For each time you said it publicly today, a player might die."
-    }
+    },
+    "firstNightReminder": "Show the Yaggababble their secret phrase.",
+    "otherNightReminder": "For each time the Yaggababble said their phrase today, a player might die. :reminder:"
   },
   "zh": {
     "name": "牙噶巴卜",
     "ability": "在你的首个夜晚，你会得知一段秘密短语。<br>每次你在白天公开说出这段短语，当天便可能会有一名玩家在这之后死亡。",
     "revisions": {
       "v1": "在你的首个夜晚，你会得知一段秘密短语。<br>每次你在白天公开说出这段短语，当天便可能会有一名玩家在这之后死亡。"
-    }
+    },
+    "firstNightReminder": "唤醒牙噶巴卜，对他展示他的秘密短语。",
+    "otherNightReminder": "根据已放置的提示标记数量，选择最多等同于该数量的玩家死亡。该夜晚行动只是一个提示，死亡的造成时机可以是白天，也可以是夜晚的任何时候。"
   }
 }

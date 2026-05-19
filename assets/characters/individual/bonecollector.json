@@ -17,7 +17,8 @@
     "flavor": "I collect many things. Hair. Teeth. Clothes. Fragments of poems. The dreams of lost lovers. My secret arts are not for you to know but my fee is a mere pittance. Bring me the blood of a noblewoman who died of heartbreak under a full moon, and you shall have your answers.",
     "revisions": {
       "v1": "Once per game, at night, choose a dead player: they regain their ability until dusk."
-    }
+    },
+    "otherNightReminder": "The Bone Collector might choose a dead player. :reminder: If necessary, wake the chosen player to use their ability."
   },
   "zh": {
     "name": "集骨者",

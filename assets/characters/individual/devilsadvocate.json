@@ -21,13 +21,17 @@
     "flavor": "My client, should the objection be overruled, pleads innocent by virtue of the prosecution's non-observance of statute 27.B - incorrect or misleading conjugation of a verb. The fact that nine of the jury died last night is simply prima facie, which is, as Wills vs Thule set precedent for, further reason to acquit.",
     "revisions": {
       "v1": "Each night, choose a living player (different to last night): if executed tomorrow, they don't die."
-    }
+    },
+    "firstNightReminder": "The Devil's Advocate chooses a living player. :reminder:",
+    "otherNightReminder": "The Devil's Advocate chooses a living player. :reminder:"
   },
   "zh": {
     "name": "魔鬼代言人",
     "ability": "每个夜晚，你要选择一名存活的玩家（与上个夜晚不同）：如果明天白天他被处决，他不会死亡。",
     "revisions": {
       "v1": "每个夜晚，你要选择一名存活的玩家（与上个夜晚不同）：如果明天白天他被处决，他不会死亡。"
-    }
+    },
+    "firstNightReminder": "唤醒魔鬼代言人，让他选择一名玩家，那名玩家处决不死。",
+    "otherNightReminder": "唤醒魔鬼代言人，让他选择一名与上一晚不同的玩家，那名玩家处决不死。"
   }
 }

@@ -23,7 +23,9 @@
     "revisions": {
       "v1": "Once per game, at night, choose a player: they learn who you are.",
       "v2024-11": "Once per game, at night, choose a player: they learn you are the Nightwatchman."
-    }
+    },
+    "firstNightReminder": "The Nightwatchman might choose a player. Put the Nightwatchman to sleep. Wake the target. Show the *THIS PLAYER IS* & Nightwatchman tokens, then point to the Nightwatchman. :reminder:",
+    "otherNightReminder": "The Nightwatchman might choose a player. Put the Nightwatchman to sleep. Wake the target. Show the *THIS PLAYER IS* & Nightwatchman tokens, then point to the Nightwatchman. :reminder:"
   },
   "zh": {
     "name": "守夜人",
@@ -31,6 +33,8 @@
     "revisions": {
       "v1": "每局游戏限一次，在夜晚时，你可以选择一名玩家：他会得知你是谁。",
       "v2024-11": "每局游戏限一次，在夜晚时，你可以选择一名玩家：他会得知你是守夜人。"
-    }
+    },
+    "firstNightReminder": "唤醒守夜人，他可以摇头不使用能力，或选择一名玩家。如果守夜人选择了玩家，则在守夜人入睡后通知那名玩家谁是守夜人。",
+    "otherNightReminder": "如果守夜人未曾使用能力，唤醒守夜人，他可以摇头不使用能力，或选择一名玩家。如果守夜人选择了玩家，则在守夜人入睡后通知那名玩家谁是守夜人。"
   }
 }

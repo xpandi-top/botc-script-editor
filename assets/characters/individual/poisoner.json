@@ -21,13 +21,17 @@
     "flavor": "Add compound Alpha to compound Beta... NOT TOO MUCH!",
     "revisions": {
       "v1": "Each night, choose a player: they are poisoned tonight and tomorrow day."
-    }
+    },
+    "firstNightReminder": "The Poisoner chooses a player. :reminder:",
+    "otherNightReminder": "The Poisoner chooses a player. :reminder:"
   },
   "zh": {
     "name": "投毒者",
     "ability": "每个夜晚，你要选择一名玩家：他在当晚和明天白天中毒。",
     "revisions": {
       "v1": "每个夜晚，你要选择一名玩家：他在当晚和明天白天中毒。"
-    }
+    },
+    "firstNightReminder": "唤醒投毒者，让他选择一名玩家，那名玩家中毒。",
+    "otherNightReminder": "唤醒投毒者，让他选择一名玩家，那名玩家中毒。"
   }
 }

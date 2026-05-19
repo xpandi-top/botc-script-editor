@@ -18,13 +18,17 @@
     "flavor": "Every man and every woman is a star. Love is the law, love under will.",
     "revisions": {
       "v1": "Once per game, choose to make a wish. If granted, it might have a price & leave a clue as to its nature."
-    }
+    },
+    "firstNightReminder": "Do whatever needs to be done to satisfy the Wizard's ability.",
+    "otherNightReminder": "Do whatever needs to be done to satisfy the Wizard's ability."
   },
   "zh": {
     "name": "巫师",
     "ability": "每局游戏限一次，你可以向说书人许愿。如果愿望被实现，可能会伴随着代价和线索。",
     "revisions": {
       "v1": "每局游戏限一次，你可以向说书人许愿。如果愿望被实现，可能会伴随着代价和线索。"
-    }
+    },
+    "firstNightReminder": "如果有必要，让巫师的能力生效。",
+    "otherNightReminder": "如果有必要，让巫师的能力生效。"
   }
 }

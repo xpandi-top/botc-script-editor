@@ -22,7 +22,8 @@
     "revisions": {
       "v1": "Minions start knowing 3 not-in-play characters.",
       "v2024-11": "Each Minion gets 3 bluffs."
-    }
+    },
+    "firstNightReminder": "Wake each Minion. Show the *THESE CHARACTERS ARE NOT IN PLAY* token. Show 3 not-in-play character tokens."
   },
   "zh": {
     "name": "告密者",
@@ -30,6 +31,7 @@
     "revisions": {
       "v1": "爪牙会在其首个夜晚得知三个不在场角色。",
       "v2024-11": "每名爪牙会得到三个伪装。"
-    }
+    },
+    "firstNightReminder": "如果告密者在场，对爪牙展示三个不在场的善良角色标记。"
   }
 }

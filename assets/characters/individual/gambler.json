@@ -20,13 +20,15 @@
     "flavor": "Heads, I win. Tails, you lose.",
     "revisions": {
       "v1": "Each night*, choose a player & guess their character: if you guess wrong, you die."
-    }
+    },
+    "otherNightReminder": "The Gambler chooses a player & a character. :reminder:"
   },
   "zh": {
     "name": "赌徒",
     "ability": "每个夜晚*，你要选择一名玩家并猜测该玩家的角色：如果你猜错了，你会死亡。",
     "revisions": {
       "v1": "每个夜晚*，你要选择一名玩家并猜测该玩家的角色：如果你猜错了，你会死亡。"
-    }
+    },
+    "otherNightReminder": "唤醒赌徒，让他进行猜测。如果猜测错误，他死亡。"
   }
 }

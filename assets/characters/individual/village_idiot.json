@@ -18,13 +18,17 @@
     "flavor": "Roses are blue, and violets are red, Please reverse what I just said.",
     "revisions": {
       "v1": "Each night, choose a player: you learn their alignment. [+0 to +2 Village Idiots. 1 of the extras is drunk]"
-    }
+    },
+    "firstNightReminder": "If there are multiple Village Idiots, mark one as *DRUNK*. :reminder: Wake the Village Idiots one at a time to choose a player. Give a thumb signal.",
+    "otherNightReminder": "Wake the Village Idiots one at a time to choose a player. Give a thumb signal."
   },
   "zh": {
     "name": "村夫",
     "ability": "每个夜晚，你要选择一名玩家：你会得知他的阵营。<br>[+0~2村夫，复数村夫中有一人醉酒]",
     "revisions": {
       "v1": "每个夜晚，你要选择一名玩家：你会得知他的阵营。<br>[+0~2村夫，复数村夫中有一人醉酒]"
-    }
+    },
+    "firstNightReminder": "唤醒村夫，让他指向一名玩家，用手势告诉他那名玩家的阵营。",
+    "otherNightReminder": "唤醒村夫，让他指向一名玩家，用手势告诉他那名玩家的阵营。"
   }
 }

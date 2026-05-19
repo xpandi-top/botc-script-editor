@@ -18,13 +18,17 @@
     "flavor": "It is better to be rich and healthy than poor and sick.",
     "revisions": {
       "v1": "Each night, choose a player: a Minion, if chosen, learns this. All chosen Minions have no ability."
-    }
+    },
+    "firstNightReminder": "The Preacher chooses a player. :reminder: If they chose a Minion: Put the Preacher to sleep. Wake the target. Show the *THIS CHARACTER SELECTED YOU* & Preacher tokens.",
+    "otherNightReminder": "The Preacher chooses a player. :reminder: If they chose a Minion: Put the Preacher to sleep. Wake the target. Show the *THIS CHARACTER SELECTED YOU* & Preacher tokens."
   },
   "zh": {
     "name": "传教士",
     "ability": "每个夜晚，你要选择一名玩家：如果你选中了爪牙，他会得知被传教士选中。<br>所有被你选中的爪牙失去能力。",
     "revisions": {
       "v1": "每个夜晚，你要选择一名玩家：如果你选中了爪牙，他会得知被传教士选中。<br>所有被你选中的爪牙失去能力。"
-    }
+    },
+    "firstNightReminder": "唤醒传教士，让他选择一名玩家。如果他选中了爪牙，该爪牙失去能力。在传教士入睡后通知该爪牙被传教士选中。",
+    "otherNightReminder": "唤醒传教士，让他选择一名玩家。如果他选中了爪牙，该爪牙失去能力。在传教士入睡后通知该爪牙被传教士选中。"
   }
 }

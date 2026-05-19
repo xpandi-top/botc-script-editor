@@ -17,13 +17,15 @@
     "flavor": "<grunt><grin></grunt>",
     "revisions": {
       "v1": "On your 1st night, choose a player (not yourself): you become their alignment (you don't know which) even if drunk or poisoned."
-    }
+    },
+    "firstNightReminder": "The Ogre chooses a player. :reminder:"
   },
   "zh": {
     "name": "食人魔",
     "ability": "在你的首个夜晚，你要选择除你以外的一名玩家：你转变为他的阵营，即使你已醉酒或中毒，但你不知道你转变后的阵营。",
     "revisions": {
       "v1": "在你的首个夜晚，你要选择除你以外的一名玩家：你转变为他的阵营，即使你已醉酒或中毒，但你不知道你转变后的阵营。"
-    }
+    },
+    "firstNightReminder": "唤醒食人魔，让他选择一名玩家。如果他选择了邪恶玩家，将他的角色标记在魔典中倒置以表示他转变为邪恶阵营。"
   }
 }

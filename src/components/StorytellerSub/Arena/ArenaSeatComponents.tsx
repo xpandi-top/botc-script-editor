@@ -8,6 +8,7 @@ import LocalBarIcon from '@mui/icons-material/LocalBar'
 import ScienceIcon from '@mui/icons-material/Science'
 import type { UiKey } from '../../../lib/t'
 import { makeT } from '../../../lib/t'
+import { translateReminderZh } from '../../../lib/reminderTranslations'
 
 // ── ST tag label → locale key map ──────────────────────────────────────────
 export const ST_TAG_KEY_MAP: Partial<Record<string, UiKey>> = {
@@ -21,7 +22,9 @@ export const ST_TAG_KEY_MAP: Partial<Record<string, UiKey>> = {
 /** Translate a stored ST tag label for display. Falls back to raw label. */
 export function translateStTag(label: string, language: string): string {
   const key = ST_TAG_KEY_MAP[label.toLowerCase()]
-  return key ? makeT(language)(key) : label
+  if (key) return makeT(language)(key)
+  if (language === 'zh') return translateReminderZh(label)
+  return label
 }
 
 // ── TagChip: readable chip with click-to-popover ──

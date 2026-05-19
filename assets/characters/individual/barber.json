@@ -20,13 +20,15 @@
     "flavor": "Did you know that barbery and surgery were once the same profession? No? Well, now you do.",
     "revisions": {
       "v1": "If you died today or tonight, the Demon may choose 2 players (not another Demon) to swap characters."
-    }
+    },
+    "otherNightReminder": "If the Barber died today or tonight, show the Demon the *THIS CHARACTER SELECTED YOU* & Barber tokens. If the Demon chose 2 players, wake one at a time. Show the *YOU ARE* token & their new character token."
   },
   "zh": {
     "name": "理发师",
     "ability": "如果你死亡，在当晚恶魔可以选择两名玩家（不能选择其他恶魔）交换角色。",
     "revisions": {
       "v1": "如果你死亡，在当晚恶魔可以选择两名玩家（不能选择其他恶魔）交换角色。"
-    }
+    },
+    "otherNightReminder": "如果理发师死于白天，唤醒恶魔让他决定是否使用理发师的能力。如果理发师死于夜晚，让一名恶魔决定是否使用理发师的能力。"
   }
 }

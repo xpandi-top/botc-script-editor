@@ -18,13 +18,17 @@
     "flavor": "My skin prickles. Something is not right here. I can feel it.",
     "revisions": {
       "v1": "Each night, you learn how many of your 2 alive neighbours are evil."
-    }
+    },
+    "firstNightReminder": "Give a finger signal.",
+    "otherNightReminder": "Give a finger signal."
   },
   "zh": {
     "name": "共情者",
     "ability": "每个夜晚，你会得知与你邻近的两名存活的玩家中邪恶玩家的数量。",
     "revisions": {
       "v1": "每个夜晚，你会得知与你邻近的两名存活的玩家中邪恶玩家的数量。"
-    }
+    },
+    "firstNightReminder": "唤醒共情者，对他用手势比划数字来告知他与他邻近的存活玩家中有几人是邪恶玩家。",
+    "otherNightReminder": "唤醒共情者，对他用手势比划数字来告知他与他邻近的存活玩家中有几人是邪恶玩家。"
   }
 }

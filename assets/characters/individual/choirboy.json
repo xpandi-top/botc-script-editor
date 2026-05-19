@@ -17,13 +17,15 @@
     "flavor": "I saw it, I did. I was in the pews, tidying the hymn books, when a dreadful tune started from the pipe organ. The organist had a long cloak, and long fingers on the keys. And a hat that looked… just like… yours.",
     "revisions": {
       "v1": "If the Demon kills the King, you learn which player is the Demon. [+ the King]"
-    }
+    },
+    "otherNightReminder": "If the Demon killed the King, point to the Demon player."
   },
   "zh": {
     "name": "唱诗男孩",
     "ability": "如果恶魔杀死了国王，你会得知哪名玩家是恶魔。[+国王]",
     "revisions": {
       "v1": "如果恶魔杀死了国王，你会得知哪名玩家是恶魔。[+国王]"
-    }
+    },
+    "otherNightReminder": "如果恶魔杀死了国王，唤醒唱诗男孩，对他指向恶魔。"
   }
 }

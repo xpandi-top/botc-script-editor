@@ -21,13 +21,15 @@
     "flavor": "Blarg f'taag nm mataan! No sho gumtha m'sik na yuuu. Fluuuuuuuuurg h-sikkkh.",
     "revisions": {
       "v1": "Each night*, choose 2 players: they die. A dead player you chose last night might be regurgitated."
-    }
+    },
+    "otherNightReminder": "A previously chosen player might be resurrected. :reminder: The Shabaloth chooses 2 players. :reminder: :reminder:"
   },
   "zh": {
     "name": "沙巴洛斯",
     "ability": "每个夜晚*，你要选择两名玩家：他们死亡。<br>你上个夜晚选择过且当前死亡的玩家之一可能会被你反刍。",
     "revisions": {
       "v1": "每个夜晚*，你要选择两名玩家：他们死亡。<br>你上个夜晚选择过且当前死亡的玩家之一可能会被你反刍。"
-    }
+    },
+    "otherNightReminder": "决定上一夜被沙巴洛斯选择的玩家是否被反刍。然后唤醒沙巴洛斯，让他攻击两名玩家。"
   }
 }

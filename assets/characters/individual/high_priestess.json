@@ -18,13 +18,17 @@
     "flavor": "There is life behind the personality that uses personalities as masks. There are times when life puts off the mask and deep answers to deep.",
     "revisions": {
       "v1": "Each night, learn which player the Storyteller believes you should talk to most."
-    }
+    },
+    "firstNightReminder": "Point to a player.",
+    "otherNightReminder": "Point to a player."
   },
   "zh": {
     "name": "女祭司",
     "ability": "每个夜晚，你会得知一名说书人认为你最应该与其交流的玩家。",
     "revisions": {
       "v1": "每个夜晚，你会得知一名说书人认为你最应该与其交流的玩家。"
-    }
+    },
+    "firstNightReminder": "唤醒女祭司，对她指向一名玩家。",
+    "otherNightReminder": "唤醒女祭司，对她指向一名玩家。"
   }
 }

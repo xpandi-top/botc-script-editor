@@ -21,13 +21,17 @@
     "flavor": "Yes, sir... No, sir... Certainly, sir.",
     "revisions": {
       "v1": "Each night, choose a player (not yourself): tomorrow, you may only vote if they are voting too."
-    }
+    },
+    "firstNightReminder": "The Butler chooses a player. :reminder:",
+    "otherNightReminder": "The Butler chooses a player. :reminder:"
   },
   "zh": {
     "name": "管家",
     "ability": "每个夜晚，你要选择除你以外的一名玩家：明天白天，只有他投票时你才能投票。",
     "revisions": {
       "v1": "每个夜晚，你要选择除你以外的一名玩家：明天白天，只有他投票时你才能投票。"
-    }
+    },
+    "firstNightReminder": "唤醒管家，让他选择一名除自己以外的玩家，那名玩家成为他的主人。",
+    "otherNightReminder": "唤醒管家，让他选择一名除自己以外的玩家，那名玩家成为他的主人。"
   }
 }

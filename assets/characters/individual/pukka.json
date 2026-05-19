@@ -21,13 +21,17 @@
     "flavor": "You truly have been kind welcoming me into your beautiful home. I am so sorry I accidentally scratched you. A little thing. No matter. But please, take this golden toothpick as a humble token of my regret.",
     "revisions": {
       "v1": "Each night, choose a player: they are poisoned. The previously poisoned player dies then becomes healthy."
-    }
+    },
+    "firstNightReminder": "The Pukka chooses a player. :reminder:",
+    "otherNightReminder": "The Pukka chooses a player. :reminder: The previously poisoned player dies then becomes healthy. :reminder:"
   },
   "zh": {
     "name": "普卡",
     "ability": "每个夜晚，你要选择一名玩家：他中毒。<br>上个因你的能力中毒的玩家会死亡并恢复健康。",
     "revisions": {
       "v1": "每个夜晚，你要选择一名玩家：他中毒。<br>上个因你的能力中毒的玩家会死亡并恢复健康。"
-    }
+    },
+    "firstNightReminder": "唤醒普卡，让他选择一名玩家，那名玩家中毒。",
+    "otherNightReminder": "唤醒普卡，让他选择一名玩家，该玩家中毒。上一个被普卡中毒的玩家死亡。"
   }
 }

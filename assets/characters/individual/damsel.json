@@ -23,7 +23,9 @@
     "revisions": {
       "v1": "All Minions know you are in play. If a Minion publicly guesses you (once), your team loses.",
       "v2024-11": "All Minions know a Damsel is in play. If a Minion publicly guesses you (once), your team loses."
-    }
+    },
+    "firstNightReminder": "During Minion Info, show the Minions the Damsel token. If you haven't done this yet, do so now. If the Damsel was chosen by the Huntsman, show the *YOU ARE* info token & their new character token.",
+    "otherNightReminder": "If the Damsel was chosen by the Huntsman, show the *YOU ARE* info token & their new character token."
   },
   "zh": {
     "name": "落难少女",
@@ -31,6 +33,7 @@
     "revisions": {
       "v1": "所有爪牙都知道你在场。每局游戏限一次，任意爪牙可以公开猜测你是落难少女，如果猜对，你的阵营落败。",
       "v2024-11": "所有爪牙都知道落难少女在场。每局游戏限一次，任意爪牙可以公开猜测你是落难少女，如果猜对，你的阵营落败。"
-    }
+    },
+    "firstNightReminder": "如果落难少女在场，对爪牙展示落难少女角色标记。"
   }
 }

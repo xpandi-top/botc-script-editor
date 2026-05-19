@@ -5,6 +5,47 @@ Status: `open` | `fixed` | `wontfix`
 
 ---
 
+## I-69 — ST: Character-linked reminder tags (picker in player modal)
+
+**Status:** fixed  
+**Area:** Arena/ArenaSeatPlayerModal.tsx, hooks/useGameActions.ts, ArenaSeatComponents.tsx, lib/reminderTranslations.ts  
+**Detail:** Two enhancements to tag sections in the player modal:
+
+1. **Character-icon reminder picker** — Both ST Tags and Public Tags sections gain a character picker dropdown showing all characters in the current script (sorted in-play first for ST section). Selecting a character reveals its reminder tokens as quick-add chips. Tag stored as `📝label::charId`; chip renders with character portrait icon.
+
+2. **zh translation pipeline for reminder tags** — `translateStTag` falls through to `translateReminderZh` (80+ entry map in `lib/reminderTranslations.ts`) so all standard BotC reminder tokens render in Chinese when language is zh.
+
+3. **Log format fix** — Public tag add/remove logs show `[icon:charId] CharName:ReminderLabel` instead of raw `📝label::charId` format. `[icon:X]` tokens rendered as inline portraits by `LogDetailText`.
+
+4. **REMINDER_ZH_MAP additions** — `nominated`, `nominating` added to translations map.
+
+---
+
+## I-70 — Locale-aware night reminders (schema migration + zh data)
+
+**Status:** fixed  
+**Area:** assets/characters/individual/*.json (141 files), src/types.ts, src/catalog.ts  
+**Detail:** Night reminder fields were English-only top-level strings. Migrated to locale-aware structure:
+
+- `CharacterFileEntry.en.firstNightReminder` / `en.otherNightReminder` — English text (moved from top-level; backward-compat fallback retained)
+- `CharacterFileEntry.zh.firstNightReminder` / `zh.otherNightReminder` — Chinese text sourced from clocktower-wiki.gstonegames.com night order page; covers ~80 characters across all editions
+- `CharacterEntry` gains `firstNightReminderZh` / `otherNightReminderZh` populated at catalog load time
+- New export `getNightReminder(id, language, 'first'|'other')` — returns zh text with en fallback; used by all reminder display sites
+
+---
+
+## I-71 — Night reminder UI: popovers in Arena seat + NightOrderPreview
+
+**Status:** fixed  
+**Area:** Arena/ArenaSeat.tsx, ScriptsTab/NightOrderPreview.tsx  
+**Detail:** Two-part improvement to how night reminders are surfaced:
+
+1. **ArenaSeat wake order badge** — Replaced `Tooltip` (clipped by card overflow) with MUI `Popover` that renders in a portal. Clicking the `#N` wake-order number opens a persistent popover showing the ST reminder for that character in the current language. Click the number again or outside to close. Badge uses `getNightReminder` → zh/en aware.
+
+2. **NightOrderPreview character rows** — Each row in the First Night / Other Nights columns is now clickable when a reminder exists (shown by `···` indicator). Click opens a Popover anchored below the row with the character name and full reminder text. zh reminders shown when language is zh. `MINION_INFO` and `DEMON_INFO` placeholders now carry zh reminder text from the wiki. Book-icon toggle still available to show all reminders inline simultaneously.
+
+---
+
 ## I-43 — Script tab: no JSON import option
 
 **Status:** fixed  

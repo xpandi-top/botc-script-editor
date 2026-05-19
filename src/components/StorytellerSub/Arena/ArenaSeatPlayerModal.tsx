@@ -7,7 +7,7 @@ import {
   Accordion, AccordionDetails, AccordionSummary,
   Box, Button, Chip, Dialog, DialogContent, DialogTitle,
   Divider, FormControl, FormControlLabel, IconButton, InputLabel,
-  MenuItem, Select, Switch, TextField, Typography, useTheme,
+  MenuItem, Select, Switch, TextField, Tooltip, Typography, useTheme,
 } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
@@ -17,6 +17,7 @@ import CheckIcon from '@mui/icons-material/Check'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import ListIcon from '@mui/icons-material/List'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
+import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 import { getDisplayName, getIconForCharacter, getAbilityText, allCharacters, characterById } from '../../../catalog'
 import { buildPlayerLogEntries, filterPlayerLogByCurrentPhase } from '../../../utils/playerLog'
 import { logPhrase } from '../../../utils/logI18n'
@@ -80,6 +81,10 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
   const [showCharPicker, setShowCharPicker] = useState(false)
   const [stTagInput, setStTagInput] = useState('')
   const [publicTagInput, setPublicTagInput] = useState('')
+  const [charReminderPickerOpen, setCharReminderPickerOpen] = useState(false)
+  const [selectedReminderChar, setSelectedReminderChar] = useState<string | null>(null)
+  const [charPublicPickerOpen, setCharPublicPickerOpen] = useState(false)
+  const [selectedPublicChar, setSelectedPublicChar] = useState<string | null>(null)
 
   // ── Night Ability state ──
   const [skillType, setSkillType] = useState<SkillType>('')
@@ -121,6 +126,10 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
       setSkillNote('')
       setStTagInput('')
       setPublicTagInput('')
+      setCharReminderPickerOpen(false)
+      setSelectedReminderChar(null)
+      setCharPublicPickerOpen(false)
+      setSelectedPublicChar(null)
       setLogExpanded(false)
       setEditingId(null)
       setQuickAddText('')
@@ -164,6 +173,23 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
 
   // Fall back to DEFAULT_ST_TAGS when no script reminders (e.g. no script loaded)
   const stTagChips = scriptReminderTags.length > 0 ? scriptReminderTags : DEFAULT_ST_TAGS
+
+  // All script chars with deduplicated reminders (empty array = no reminders)
+  // Sorted: in-play first, then alphabetically within each group
+  const scriptAllChars = useMemo(() => {
+    const inPlayIds = new Set(allSeats.map((s: any) => s.characterId).filter(Boolean))
+    const ids = [...new Set<string>([...(currentScriptCharacters ?? []), ...inPlayIds])]
+    return ids
+      .map(id => {
+        const char = characterById[id]
+        const reminders = [...new Set([...(char?.reminders ?? []), ...(char?.remindersGlobal ?? [])])]
+        return { id, reminders, isInPlay: inPlayIds.has(id) }
+      })
+      .sort((a, b) => {
+        if (b.isInPlay !== a.isInPlay) return (b.isInPlay ? 1 : 0) - (a.isInPlay ? 1 : 0)
+        return 0
+      })
+  }, [currentScriptCharacters, allSeats])
 
   const canSaveSkill = useMemo(() => {
     if (!skillType) return false
@@ -222,10 +248,11 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
   }
 
   // ── Custom public tag helpers ──
-  const handleAddPublicTag = (label?: string) => {
+  const handleAddPublicTag = (label?: string, sourceCharId?: string | null) => {
     const val = (label ?? publicTagInput).trim()
     if (!val) return
-    updateSeatWithLog(seat.seat, (s: any) => ({ ...s, customTags: [...new Set([...s.customTags, val])] }))
+    const stored = sourceCharId ? `📝${val}::${sourceCharId}` : val
+    updateSeatWithLog(seat.seat, (s: any) => ({ ...s, customTags: [...new Set([...s.customTags, stored])] }))
     setSeatTagDrafts?.((c: any) => ({ ...c, [seat.seat]: '' }))
     setPublicTagInput('')
   }
@@ -432,24 +459,121 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
           </Button>
         ))}
       </Box>
-      {/* Tag quick-add */}
+      {/* Character reminder picker for public tags */}
+      {charPublicPickerOpen && scriptAllChars.length > 0 && (
+        <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 0.75, mb: 0.75 }}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: selectedPublicChar ? 0.75 : 0 }}>
+            {(() => {
+              const withR = scriptAllChars.filter(c => c.reminders.length > 0)
+              const withoutR = scriptAllChars.filter(c => c.reminders.length === 0)
+              const renderIcon = (c: typeof scriptAllChars[number]) => {
+                const icon = getIconForCharacter(c.id)
+                const name = getDisplayName(c.id, language)
+                const isSelected = selectedPublicChar === c.id
+                return (
+                  <Tooltip key={c.id} title={name} placement="top" arrow>
+                    <Box component="img" src={icon as string}
+                      onClick={() => setSelectedPublicChar(isSelected ? null : c.id)}
+                      sx={{
+                        width: 30, height: 30, borderRadius: '50%', cursor: 'pointer',
+                        outline: isSelected ? '2px solid' : '1px solid',
+                        outlineColor: isSelected ? 'primary.main' : 'divider',
+                        transition: 'outline 0.12s',
+                      }}
+                    />
+                  </Tooltip>
+                )
+              }
+              return (
+                <>
+                  {withR.map(renderIcon)}
+                  {withoutR.length > 0 && withR.length > 0 && (
+                    <Box sx={{ width: '100%', borderTop: '1px dashed', borderColor: 'divider', my: 0.25 }} />
+                  )}
+                  {withoutR.map(renderIcon)}
+                </>
+              )
+            })()}
+          </Box>
+          {selectedPublicChar && (() => {
+            const charEntry = scriptAllChars.find(c => c.id === selectedPublicChar)
+            const charIcon = getIconForCharacter(selectedPublicChar)
+            return charEntry ? (
+              <Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
+                  {charIcon && <Box component="img" src={charIcon as string} sx={{ width: 16, height: 16, borderRadius: '50%' }} />}
+                  <Typography variant="caption" color="text.secondary" fontWeight={600}>
+                    {getDisplayName(selectedPublicChar, language)}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" sx={{ ml: 0.5 }}>
+                    {zh ? '— 输入自定义文字或选提醒' : '— type custom or pick reminder'}
+                  </Typography>
+                </Box>
+                {charEntry.reminders.length > 0 && (
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                    {charEntry.reminders.map(reminder => {
+                      const storedTag = `📝${reminder}::${selectedPublicChar}`
+                      const active = seat.customTags.includes(storedTag)
+                      return (
+                        <Chip key={reminder}
+                          label={translateStTag(reminder, language)}
+                          size="small" clickable
+                          color={active ? 'primary' : 'default'}
+                          variant={active ? 'filled' : 'outlined'}
+                          onClick={() => active ? toggleCustomTag(storedTag) : handleAddPublicTag(reminder, selectedPublicChar)}
+                        />
+                      )
+                    })}
+                  </Box>
+                )}
+              </Box>
+            ) : null
+          })()}
+        </Box>
+      )}
+      {/* Tag quick-add — links to selectedPublicChar when set */}
       <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center', mb: 0.5 }}>
-        <TextField size="small" fullWidth placeholder={text.addTag || t('add_public_tag')}
+        {selectedPublicChar && charPublicPickerOpen && (() => {
+          const icon = getIconForCharacter(selectedPublicChar)
+          return icon ? <Box component="img" src={icon as string} sx={{ width: 22, height: 22, borderRadius: '50%', flexShrink: 0, outline: '1.5px solid', outlineColor: 'primary.main' }} /> : null
+        })()}
+        <TextField size="small" fullWidth
+          placeholder={selectedPublicChar && charPublicPickerOpen
+            ? (zh ? `添加 ${getDisplayName(selectedPublicChar, language)} 标记` : `Tag for ${getDisplayName(selectedPublicChar, language)}`)
+            : (text.addTag || t('add_public_tag'))}
           value={publicTagInput}
           onChange={(e) => setPublicTagInput(e.target.value)}
-          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddPublicTag() } }}
+          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddPublicTag(undefined, selectedPublicChar) } }}
           />
-        <Button variant="contained" onClick={() => handleAddPublicTag()} sx={{ minWidth: 40, px: 1 }}>+</Button>
+        <Tooltip title={charPublicPickerOpen ? (zh ? '关闭角色提醒' : 'Close char picker') : (zh ? '按角色选提醒' : 'Pick by character')} placement="top">
+          <IconButton size="small"
+            color={charPublicPickerOpen ? 'primary' : 'default'}
+            onClick={() => { setCharPublicPickerOpen(v => !v); setSelectedPublicChar(null) }}>
+            <AccountCircleIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+        <Button variant="contained" onClick={() => handleAddPublicTag(undefined, selectedPublicChar)} sx={{ minWidth: 40, px: 1 }}>+</Button>
       </Box>
-      {/* Tag pool chips */}
+      {/* Tag pool chips — when char selected, clicks add linked version */}
       {customTagPool?.filter((t: string) => !isCharacterTag(t)).length > 0 && (
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 0.5 }}>
-          {customTagPool.filter((t: string) => !isCharacterTag(t)).map((tag: string) => (
-            <Chip key={tag} label={tag} size="small" clickable
-              color={seat.customTags.includes(tag) ? 'primary' : 'default'}
-              variant={seat.customTags.includes(tag) ? 'filled' : 'outlined'}
-              onClick={() => toggleCustomTag(tag)} />
-          ))}
+          {customTagPool.filter((t: string) => !isCharacterTag(t)).map((tag: string) => {
+            const linkedCharId = charPublicPickerOpen ? selectedPublicChar : null
+            const storedLinked = linkedCharId ? `📝${tag}::${linkedCharId}` : tag
+            const active = seat.customTags.includes(linkedCharId ? storedLinked : tag)
+            return (
+              <Chip key={tag} label={tag} size="small" clickable
+                color={active ? 'primary' : 'default'}
+                variant={active ? 'filled' : 'outlined'}
+                onClick={() => {
+                  if (linkedCharId) {
+                    active ? toggleCustomTag(storedLinked) : handleAddPublicTag(tag, linkedCharId)
+                  } else {
+                    toggleCustomTag(tag)
+                  }
+                }} />
+            )
+          })}
         </Box>
       )}
       {/* Active custom tags (removable) */}
@@ -457,12 +581,23 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
           {seat.customTags.map((tag: string) => {
             const isChar = isCharacterTag(tag)
-            const charId = isChar ? [...tag].slice(1).join('') : ''
-            const icon = isChar ? getIconForCharacter(charId) : null
-            const label = isChar ? getDisplayName(charId, language) : tag
+            const isLinked = !isChar && tag.startsWith('📝')
+            let icon = null, label = tag
+            if (isChar) {
+              const charId = [...tag].slice(1).join('')
+              icon = getIconForCharacter(charId)
+              label = getDisplayName(charId, language)
+            } else if (isLinked) {
+              const body = tag.slice(2)
+              const sep = body.indexOf('::')
+              const rawLabel = sep === -1 ? body : body.slice(0, sep)
+              label = translateStTag(rawLabel, language)
+              const srcId = sep === -1 ? '' : body.slice(sep + 2)
+              icon = srcId ? getIconForCharacter(srcId) : null
+            }
             return (
               <Chip key={tag} label={label} size="small"
-                icon={icon ? <Box component="img" src={icon as string} sx={{ width: 14, height: 14 }} /> : undefined}
+                icon={icon ? <Box component="img" src={icon as string} sx={{ width: 14, height: 14, borderRadius: '50%' }} /> : undefined}
                 onDelete={() => toggleCustomTag(tag)} />
             )
           })}
@@ -474,16 +609,27 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
   const nightStStatusSection = (
     <Box sx={{ mb: 1.5 }}>
       <SectionLabel label={t('night_st_status')} />
-      {/* Script reminder chips (falls back to default tags when no script loaded) */}
+      {/* Script reminder chips — when char selected, clicks link to that char */}
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 0.75 }}>
         {stTagChips.map((label) => {
-          const active = stTags.some((stTag) => parseStTag(stTag).label === label)
+          const linkedCharId = charReminderPickerOpen ? selectedReminderChar : null
+          const active = linkedCharId
+            ? stTags.some(t => { const p = parseStTag(t); return p.label === label && p.sourceCharId === linkedCharId })
+            : stTags.some(t => parseStTag(t).label === label)
           const displayLabel = translateStTag(label, language)
           return (
             <Chip key={label} label={displayLabel} size="small" clickable
               color={active ? 'warning' : 'default'}
               variant={active ? 'filled' : 'outlined'}
-              onClick={() => toggleDefaultStTag(label)} />
+              onClick={() => {
+                if (linkedCharId) {
+                  const existing = stTags.find(t => { const p = parseStTag(t); return p.label === label && p.sourceCharId === linkedCharId })
+                  if (existing) removeStTag(existing)
+                  else addStTag(label, linkedCharId)
+                } else {
+                  toggleDefaultStTag(label)
+                }
+              }} />
           )
         })}
       </Box>
@@ -503,13 +649,116 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
           })}
         </Box>
       )}
-      {/* Quick-add stTag */}
+      {/* Character + Reminder picker */}
+      {charReminderPickerOpen && scriptAllChars.length > 0 && (
+        <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 0.75, mb: 0.75 }}>
+          {/* Character icon row — in-play first, divider before no-reminder chars */}
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: selectedReminderChar ? 0.75 : 0 }}>
+            {(() => {
+              const withR = scriptAllChars.filter(c => c.reminders.length > 0)
+              const withoutR = scriptAllChars.filter(c => c.reminders.length === 0)
+              const renderIcon = (c: typeof scriptAllChars[number]) => {
+                const icon = getIconForCharacter(c.id)
+                const name = getDisplayName(c.id, language)
+                const isSelected = selectedReminderChar === c.id
+                return (
+                  <Tooltip key={c.id} title={name} placement="top" arrow>
+                    <Box component="img" src={icon as string}
+                      onClick={() => setSelectedReminderChar(isSelected ? null : c.id)}
+                      sx={{
+                        width: 30, height: 30, borderRadius: '50%', cursor: 'pointer',
+                        opacity: c.isInPlay ? 1 : 0.45,
+                        outline: isSelected ? '2px solid' : c.isInPlay ? '1.5px solid' : '1px solid',
+                        outlineColor: isSelected ? 'warning.main' : c.isInPlay ? 'warning.light' : 'divider',
+                        filter: c.isInPlay ? 'none' : 'grayscale(50%)',
+                        transition: 'outline 0.12s, opacity 0.12s',
+                        '&:hover': { opacity: 1, filter: 'none' },
+                      }}
+                    />
+                  </Tooltip>
+                )
+              }
+              return (
+                <>
+                  {withR.map(renderIcon)}
+                  {withoutR.length > 0 && withR.length > 0 && (
+                    <Box sx={{ width: '100%', borderTop: '1px dashed', borderColor: 'divider', my: 0.25 }} />
+                  )}
+                  {withoutR.map(renderIcon)}
+                </>
+              )
+            })()}
+          </Box>
+          {/* Selected char name + reminder chips */}
+          {selectedReminderChar && (() => {
+            const charEntry = scriptAllChars.find(c => c.id === selectedReminderChar)
+            const charIcon = getIconForCharacter(selectedReminderChar)
+            return charEntry ? (
+              <Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
+                  {charIcon && <Box component="img" src={charIcon as string} sx={{ width: 16, height: 16, borderRadius: '50%' }} />}
+                  <Typography variant="caption" color="text.secondary" fontWeight={600}>
+                    {getDisplayName(selectedReminderChar, language)}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" sx={{ ml: 0.5 }}>
+                    {zh ? '— 输入自定义文字或选提醒' : '— type custom or pick reminder'}
+                  </Typography>
+                </Box>
+                {charEntry.reminders.length > 0 && (
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                    {charEntry.reminders.map(reminder => {
+                      const active = stTags.some(t => {
+                        const p = parseStTag(t)
+                        return p.label === reminder && p.sourceCharId === selectedReminderChar
+                      })
+                      return (
+                        <Chip key={reminder}
+                          label={translateStTag(reminder, language)}
+                          size="small" clickable
+                          color={active ? 'warning' : 'default'}
+                          variant={active ? 'filled' : 'outlined'}
+                          onClick={() => {
+                            if (active) {
+                              const existing = stTags.find(t => {
+                                const p = parseStTag(t)
+                                return p.label === reminder && p.sourceCharId === selectedReminderChar
+                              })
+                              if (existing) removeStTag(existing)
+                            } else {
+                              addStTag(reminder, selectedReminderChar)
+                            }
+                          }}
+                        />
+                      )
+                    })}
+                  </Box>
+                )}
+              </Box>
+            ) : null
+          })()}
+        </Box>
+      )}
+      {/* Quick-add stTag — links to selectedReminderChar when set */}
       <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
-        <TextField size="small" fullWidth placeholder={t('add_st_tag')}
+        {selectedReminderChar && charReminderPickerOpen && (() => {
+          const icon = getIconForCharacter(selectedReminderChar)
+          return icon ? <Box component="img" src={icon as string} sx={{ width: 22, height: 22, borderRadius: '50%', flexShrink: 0, outline: '1.5px solid', outlineColor: 'warning.main' }} /> : null
+        })()}
+        <TextField size="small" fullWidth
+          placeholder={selectedReminderChar && charReminderPickerOpen
+            ? (zh ? `添加 ${getDisplayName(selectedReminderChar, language)} 标记` : `Tag for ${getDisplayName(selectedReminderChar, language)}`)
+            : t('add_st_tag')}
           value={stTagInput}
           onChange={(e) => setStTagInput(e.target.value)}
-          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addStTag(stTagInput) } }} />
-        <Button variant="contained" color="warning" onClick={() => addStTag(stTagInput)} sx={{ minWidth: 40, px: 1 }}>+</Button>
+          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addStTag(stTagInput, selectedReminderChar) } }} />
+        <Tooltip title={charReminderPickerOpen ? (zh ? '关闭角色提醒' : 'Close char picker') : (zh ? '按角色选提醒' : 'Pick by character')} placement="top">
+          <IconButton size="small"
+            color={charReminderPickerOpen ? 'warning' : 'default'}
+            onClick={() => { setCharReminderPickerOpen(v => !v); setSelectedReminderChar(null) }}>
+            <AccountCircleIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+        <Button variant="contained" color="warning" onClick={() => addStTag(stTagInput, selectedReminderChar)} sx={{ minWidth: 40, px: 1 }}>+</Button>
       </Box>
     </Box>
   )

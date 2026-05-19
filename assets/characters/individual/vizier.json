@@ -27,7 +27,8 @@
       "v1": "All players know who you are. You can not die during the day. If good voted, you may choose to execute immediately.",
       "v2024-11": "All players know you are the Vizier. You can not die during the day. If good voted, you may choose to execute immediately.",
       "v2025-01": "All players know you are the Vizier. You cannot die during the day. If good voted, you may choose to execute immediately."
-    }
+    },
+    "firstNightReminder": "Announce which player is the Vizier."
   },
   "zh": {
     "name": "维齐尔",

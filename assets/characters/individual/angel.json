@@ -17,7 +17,8 @@
     "flavor": "Let those who are without sin dare to raise their hand to my chosen, for I shall strike such fools down with the fury and righteousness of a thousand storms.",
     "revisions": {
       "v1": "Something bad might happen to whoever is most responsible for the death of a new player."
-    }
+    },
+    "firstNightReminder": "Announce which players are protected by the Angel. :reminder:"
   },
   "zh": {
     "name": "天使",
