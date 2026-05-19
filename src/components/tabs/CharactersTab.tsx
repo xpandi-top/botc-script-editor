@@ -4,12 +4,14 @@ import SyncAltIcon from '@mui/icons-material/SyncAlt'
 import { NightOrderManager } from '../NightOrderManager'
 import { JinxManager } from '../JinxManager'
 import {
-  Box, Button, Chip, Dialog, DialogContent, DialogTitle, FormControl,
+  Box, Button, Checkbox, Chip, Collapse, Dialog, DialogActions, DialogContent, DialogTitle, Divider, FormControl,
   IconButton, InputLabel, Paper, Select, MenuItem, Snackbar, TextField, Tooltip, Typography,
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import CloseIcon from '@mui/icons-material/Close'
 import DownloadIcon from '@mui/icons-material/Download'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import UploadIcon from '@mui/icons-material/Upload'
 import DOMPurify from 'dompurify'
 
@@ -38,6 +40,11 @@ import {
   REVISION_OVERRIDES_KEY,
   refreshRevisionOverrides,
 } from '../../catalog'
+
+// Read pack overrides at render time to know which chars have overrides applied
+function getPackOverrideIds(): Set<string> {
+  try { return new Set(Object.keys(JSON.parse(localStorage.getItem(CHAR_PACK_OVERRIDES_KEY) ?? '{}'))) } catch { return new Set() }
+}
 import type { CharacterFileEntry } from '../../types'
 import type { CharacterEntry, CustomCharacter, Language, Team } from '../../types'
 import { makeT, makeTpl } from '../../lib/t'
@@ -60,6 +67,190 @@ type Props = {
   setCustomChars: React.Dispatch<React.SetStateAction<CustomCharacter[]>>
   initialNewCharId?: string | null
   onInitialNewCharConsumed?: () => void
+}
+
+// ── Pack Import Preview Dialog ────────────────────────────────────────────────
+
+type PackImportDialogProps = {
+  open: boolean
+  onClose: () => void
+  pack: CharacterFileEntry[]
+  language: Language
+  knownIds: Set<string>
+  onConfirm: (selected: CharacterFileEntry[]) => void
+}
+
+function PackImportDialog({ open, onClose, pack, language, knownIds, onConfirm }: PackImportDialogProps) {
+  const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [expanded, setExpanded] = useState<Set<string>>(new Set())
+  const [edits, setEdits] = useState<Record<string, Partial<CharacterFileEntry>>>({})
+
+  // Reset on open
+  React.useEffect(() => {
+    if (open) {
+      setSelected(new Set(pack.map((c) => c.id)))
+      setExpanded(new Set())
+      setEdits({})
+    }
+  }, [open, pack])
+
+  const toggleSelect = (id: string) => setSelected((s) => {
+    const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n
+  })
+  const toggleExpand = (id: string) => setExpanded((s) => {
+    const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n
+  })
+  const selectAll = () => setSelected(new Set(pack.map((c) => c.id)))
+  const selectNone = () => setSelected(new Set())
+
+  const setEdit = (id: string, field: string, value: string) => {
+    setEdits((prev) => {
+      const entry = prev[id] ?? {}
+      if (field === 'nameEn')    return { ...prev, [id]: { ...entry, en: { ...entry.en, name: value } } }
+      if (field === 'nameZh')    return { ...prev, [id]: { ...entry, zh: { ...entry.zh, name: value } } }
+      if (field === 'abilityEn') return { ...prev, [id]: { ...entry, en: { ...entry.en, ability: value } } }
+      if (field === 'abilityZh') return { ...prev, [id]: { ...entry, zh: { ...entry.zh, ability: value } } }
+      return prev
+    })
+  }
+
+  const handleConfirm = () => {
+    const out = pack
+      .filter((c) => selected.has(c.id))
+      .map((c) => {
+        const e = edits[c.id]
+        if (!e) return c
+        return {
+          ...c,
+          en: e.en ? { ...c.en, ...e.en } : c.en,
+          zh: e.zh ? { ...c.zh, ...e.zh } : c.zh,
+        } as CharacterFileEntry
+      })
+    onConfirm(out)
+  }
+
+  const newCount  = pack.filter((c) => !knownIds.has(c.id) && selected.has(c.id)).length
+  const overCount = pack.filter((c) =>  knownIds.has(c.id) && selected.has(c.id)).length
+
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth scroll="paper">
+      <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 1 }}>
+        <Box>
+          <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+            {language === 'zh' ? '导入角色包预览' : 'Import Character Pack'}
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            {language === 'zh'
+              ? `共 ${pack.length} 个角色 · 已选 ${selected.size}`
+              : `${pack.length} characters · ${selected.size} selected`}
+          </Typography>
+        </Box>
+        <IconButton size="small" onClick={onClose}><CloseIcon /></IconButton>
+      </DialogTitle>
+
+      {/* Summary chips */}
+      <Box sx={{ px: 2, pb: 1, display: 'flex', gap: 0.75, flexWrap: 'wrap', alignItems: 'center' }}>
+        <Button size="small" onClick={selectAll} sx={{ textTransform: 'none', fontSize: '0.72rem', py: 0 }}>
+          {language === 'zh' ? '全选' : 'All'}
+        </Button>
+        <Button size="small" onClick={selectNone} sx={{ textTransform: 'none', fontSize: '0.72rem', py: 0 }}>
+          {language === 'zh' ? '取消全选' : 'None'}
+        </Button>
+        {newCount > 0 && (
+          <Chip size="small" label={language === 'zh' ? `新增 ${newCount}` : `${newCount} new`} color="success" sx={{ fontSize: '0.7rem', height: 20 }} />
+        )}
+        {overCount > 0 && (
+          <Chip size="small" label={language === 'zh' ? `覆盖 ${overCount}` : `${overCount} overrides`} color="warning" sx={{ fontSize: '0.7rem', height: 20 }} />
+        )}
+      </Box>
+
+      <Divider />
+      <DialogContent sx={{ p: 0 }}>
+        {pack.map((c, i) => {
+          const isNew = !knownIds.has(c.id)
+          const isSelected = selected.has(c.id)
+          const isExpanded = expanded.has(c.id)
+          const edit = edits[c.id]
+          const nameEn = edit?.en?.name ?? c.en?.name ?? c.id
+          const nameZh = edit?.zh?.name ?? c.zh?.name ?? ''
+          const abilityEn = edit?.en?.ability ?? c.en?.ability ?? ''
+          const abilityZh = edit?.zh?.ability ?? c.zh?.ability ?? ''
+          const displayName = language === 'zh' ? (nameZh || nameEn) : nameEn
+
+          return (
+            <Box key={c.id}>
+              {i > 0 && <Divider />}
+              <Box
+                sx={{
+                  display: 'flex', alignItems: 'center', gap: 1, px: 1.5, py: 0.75,
+                  bgcolor: isSelected ? 'transparent' : 'action.disabledBackground',
+                  opacity: isSelected ? 1 : 0.6,
+                  transition: 'background 0.1s',
+                }}
+              >
+                <Checkbox
+                  size="small" checked={isSelected}
+                  onChange={() => toggleSelect(c.id)}
+                  sx={{ p: 0.25, flexShrink: 0 }}
+                />
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, flexWrap: 'wrap' }}>
+                    <Typography sx={{ fontWeight: 600, fontSize: '0.88rem', lineHeight: 1.3 }}>{displayName}</Typography>
+                    <Chip
+                      size="small"
+                      label={isNew ? (language === 'zh' ? '新增' : 'NEW') : (language === 'zh' ? '覆盖' : 'UPDATE')}
+                      color={isNew ? 'success' : 'warning'}
+                      variant="outlined"
+                      sx={{ fontSize: '0.62rem', height: 18, '& .MuiChip-label': { px: 0.5 } }}
+                    />
+                    <Chip
+                      size="small"
+                      label={c.team}
+                      variant="outlined"
+                      sx={{ fontSize: '0.62rem', height: 18, '& .MuiChip-label': { px: 0.5 }, textTransform: 'capitalize' }}
+                    />
+                    <Typography variant="caption" color="text.disabled" sx={{ fontSize: '0.65rem' }}>{c.id}</Typography>
+                  </Box>
+                  {!isExpanded && abilityEn && (
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.25, fontSize: '0.75rem', lineHeight: 1.35 }}
+                      dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(language === 'zh' ? (abilityZh || abilityEn) : abilityEn, PURIFY_OPTS) }} />
+                  )}
+                </Box>
+                <IconButton size="small" onClick={() => toggleExpand(c.id)} sx={{ p: 0.25, flexShrink: 0 }}>
+                  {isExpanded ? <ExpandLessIcon sx={{ fontSize: 16 }} /> : <ExpandMoreIcon sx={{ fontSize: 16 }} />}
+                </IconButton>
+              </Box>
+
+              {/* Expanded edit section */}
+              <Collapse in={isExpanded}>
+                <Box sx={{ px: 2, pb: 1.5, pt: 0.5, bgcolor: 'action.hover', display: 'flex', flexDirection: 'column', gap: 1 }}>
+                  <Box sx={{ display: 'flex', gap: 1 }}>
+                    <TextField size="small" fullWidth label={language === 'zh' ? '英文名' : 'Name (EN)'}
+                      value={nameEn} onChange={(e) => setEdit(c.id, 'nameEn', e.target.value)} />
+                    <TextField size="small" fullWidth label={language === 'zh' ? '中文名' : 'Name (ZH)'}
+                      value={nameZh} onChange={(e) => setEdit(c.id, 'nameZh', e.target.value)} />
+                  </Box>
+                  <TextField size="small" fullWidth multiline minRows={2} label={language === 'zh' ? '能力 (EN)' : 'Ability (EN)'}
+                    value={abilityEn} onChange={(e) => setEdit(c.id, 'abilityEn', e.target.value)} />
+                  <TextField size="small" fullWidth multiline minRows={2} label={language === 'zh' ? '能力 (ZH)' : 'Ability (ZH)'}
+                    value={abilityZh} onChange={(e) => setEdit(c.id, 'abilityZh', e.target.value)} />
+                </Box>
+              </Collapse>
+            </Box>
+          )
+        })}
+      </DialogContent>
+      <Divider />
+      <DialogActions sx={{ px: 2, py: 1 }}>
+        <Button onClick={onClose} sx={{ textTransform: 'none' }}>
+          {language === 'zh' ? '取消' : 'Cancel'}
+        </Button>
+        <Button variant="contained" disabled={selected.size === 0} onClick={handleConfirm} sx={{ textTransform: 'none' }}>
+          {language === 'zh' ? `导入 ${selected.size} 个` : `Import ${selected.size}`}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  )
 }
 
 // ── Custom char dialog state ──────────────────────────────────────────────────
@@ -93,6 +284,8 @@ export function CharactersTab({
   const [hasPackOverrides, setHasPackOverrides] = useState(() => {
     try { return Object.keys(JSON.parse(localStorage.getItem(CHAR_PACK_OVERRIDES_KEY) ?? '{}')).length > 0 } catch { return false }
   })
+  const [importPreviewPack, setImportPreviewPack] = useState<CharacterFileEntry[]>([])
+  const [importPreviewOpen, setImportPreviewOpen] = useState(false)
   const importInputRef = useRef<HTMLInputElement>(null)
   const addCharInputRef = useRef<HTMLInputElement>(null)
   const t = makeT(uiLanguage)
@@ -131,15 +324,68 @@ export function CharactersTab({
       try {
         const data = JSON.parse(e.target?.result as string)
         const pack: CharacterFileEntry[] = Array.isArray(data) ? data : [data]
-        applyCharacterPack(pack)
-        refreshCharPackOverrides()
-        setHasPackOverrides(true)
-        setSnackMsg(tpl('imported_n_chars', pack.length))
+        if (!pack.length) { setSnackMsg(t('import_failed_json')); return }
+        setImportPreviewPack(pack)
+        setImportPreviewOpen(true)
       } catch {
         setSnackMsg(t('import_failed_json'))
       }
     }
     reader.readAsText(file)
+  }
+
+  const knownCatalogIds = React.useMemo(
+    () => new Set(allCharacterFiles.map((c) => c.id)),
+    [],
+  )
+
+  const handleConfirmImport = (selected: CharacterFileEntry[]) => {
+    const overrides: CharacterFileEntry[] = []
+    const newChars: CustomCharacter[] = []
+    const now = Date.now()
+
+    for (const entry of selected) {
+      if (knownCatalogIds.has(entry.id)) {
+        // Existing catalog char — update via pack overrides
+        overrides.push(entry)
+      } else {
+        // New character — add to customChars so it appears in the list
+        newChars.push({
+          id: entry.id.startsWith('custom_') ? entry.id : `custom_${entry.id}_${now.toString(36)}`,
+          author: 'Imported',
+          team: entry.team as Team,
+          edition: entry.edition ?? 'Custom',
+          nameEn: entry.en?.name ?? entry.id,
+          nameZh: entry.zh?.name,
+          abilityEn: entry.en?.ability ?? '',
+          abilityZh: entry.zh?.ability,
+          firstNight: entry.firstNight,
+          otherNight: entry.otherNight,
+          firstNightReminder: entry.firstNightReminder,
+          otherNightReminder: entry.otherNightReminder,
+          reminders: entry.reminders,
+          remindersGlobal: entry.remindersGlobal,
+          createdAt: now,
+          updatedAt: now,
+        })
+      }
+    }
+
+    if (overrides.length > 0) {
+      applyCharacterPack(overrides)
+      refreshCharPackOverrides()
+      setHasPackOverrides(true)
+    }
+    if (newChars.length > 0) {
+      setCustomChars((cur) => [...cur, ...newChars])
+    }
+
+    setImportPreviewOpen(false)
+    setSnackMsg(
+      uiLanguage === 'zh'
+        ? `已导入 ${selected.length} 个角色${newChars.length > 0 ? `（${newChars.length} 新增）` : ''}`
+        : `Imported ${selected.length} character${selected.length !== 1 ? 's' : ''}${newChars.length > 0 ? ` (${newChars.length} new)` : ''}`
+    )
   }
 
   const handleClearOverrides = () => {
@@ -410,13 +656,19 @@ export function CharactersTab({
           {/* Scrollable character list */}
           <Box sx={{ flex: 1, overflowY: 'auto', px: 2, pb: 2 }}>
             <Box sx={{ display: 'grid', gap: 1 }}>
-              {filteredCharacters.map((character) => {
+              {(() => {
+                const packOverrideIds = getPackOverrideIds()
+                return filteredCharacters.map((character) => {
                 const icon = getIconForCharacter(character.id)
                 const team = teamLabels[uiLanguage][character.team]
                 const edition = editionLabels[uiLanguage][character.edition] ?? toTitleCase(character.edition)
                 const currentRevision = getCurrentRevision(character.id)
                 const isSelected = character.id === selectedCharacter?.id
                 const isCustom = character.id.startsWith('custom_')
+                const hasPackOverride = !isCustom && packOverrideIds.has(character.id)
+                // "New" = custom char added within last 60 seconds (imported this session)
+                const customEntry = customChars.find((c) => c.id === character.id)
+                const isNewlyImported = customEntry && (Date.now() - customEntry.createdAt < 60_000) && customEntry.author === 'Imported'
 
                 return (
                   <Button
@@ -443,9 +695,19 @@ export function CharactersTab({
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 1 }}>
                         <Typography sx={{ fontWeight: 600 }}>{getDisplayName(character.id, uiLanguage)}</Typography>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0 }}>
-                          {isCustom && (
+                          {isNewlyImported && (
+                            <Typography variant="caption" sx={{ fontSize: '0.6rem', bgcolor: 'success.main', color: 'success.contrastText', px: 0.5, borderRadius: 0.5 }}>
+                              {uiLanguage === 'zh' ? '新' : 'NEW'}
+                            </Typography>
+                          )}
+                          {isCustom && !isNewlyImported && (
                             <Typography variant="caption" sx={{ fontSize: '0.6rem', bgcolor: 'secondary.main', color: 'secondary.contrastText', px: 0.5, borderRadius: 0.5 }}>
                               {t('custom')}
+                            </Typography>
+                          )}
+                          {hasPackOverride && (
+                            <Typography variant="caption" sx={{ fontSize: '0.6rem', bgcolor: 'warning.main', color: 'warning.contrastText', px: 0.5, borderRadius: 0.5 }}>
+                              {uiLanguage === 'zh' ? '已覆盖' : 'PACK'}
                             </Typography>
                           )}
                           <Typography variant="caption" color="text.secondary">{team}</Typography>
@@ -459,7 +721,8 @@ export function CharactersTab({
                     </Box>
                   </Button>
                 )
-              })}
+              })
+              })()}
             </Box>
           </Box>
         </Paper>
@@ -497,6 +760,16 @@ export function CharactersTab({
           />
         </DialogContent>
       </Dialog>
+
+      {/* ── Pack Import Preview ── */}
+      <PackImportDialog
+        open={importPreviewOpen}
+        onClose={() => setImportPreviewOpen(false)}
+        pack={importPreviewPack}
+        language={uiLanguage}
+        knownIds={knownCatalogIds}
+        onConfirm={handleConfirmImport}
+      />
 
       {/* ── Import/export snackbar ── */}
       <Snackbar

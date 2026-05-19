@@ -110,11 +110,19 @@ export function MobileSeatCard({ ctx, seat, side = 'left' }: { ctx: StorytellerC
     else if (cardVotedNo) { updateCurrentDay((d: any) => ({ ...d, voteDraft: { ...d.voteDraft, noVoters: d.voteDraft.noVoters.filter((v: number) => v !== seat.seat) } })) }
   }
 
+  const circleAlpha = seat.alive ? 1 : 0.75
+  const circleFilter = seat.alive ? 'none' : 'grayscale(85%) brightness(0.85)'
+
   return (
     <>
-      {/* Wrapper: relative so circle can overlap left or right edge */}
-      <Box sx={{ position: 'relative', pl: side === 'left' ? `${CIRCLE_OVERLAP}px` : 0, pr: side === 'right' ? `${CIRCLE_OVERLAP}px` : 0 }}>
-        {/* Circle positioned absolutely, overlapping outer edge, vertically centered */}
+      {/* Unified flex row: circle + card share the same layout container.
+          Circle overlaps card edge via negative margin — no absolute positioning needed. */}
+      <Box sx={{
+        display: 'flex',
+        alignItems: 'center',
+        flexDirection: side === 'right' ? 'row-reverse' : 'row',
+      }}>
+        {/* Circle — pulled into card by negative margin on the card-facing side */}
         <Tooltip
           title={actualCharAbility || ''}
           placement={side === 'right' ? 'right' : 'left'}
@@ -122,9 +130,12 @@ export function MobileSeatCard({ ctx, seat, side = 'left' }: { ctx: StorytellerC
           disableHoverListener={!actualCharAbility || !nightShowCharacter}
           enterDelay={600}
         >
-          <Box sx={{ position: 'absolute', [side === 'right' ? 'right' : 'left']: 0, top: 0, bottom: 0,
-            display: 'flex', alignItems: 'center', zIndex: 3,
-            filter: seat.alive ? 'none' : 'grayscale(85%) brightness(0.85)', opacity: seat.alive ? 1 : 0.75 }}>
+          <Box sx={{
+            flexShrink: 0, zIndex: 3,
+            mr: side === 'left'  ? `-${CIRCLE_OVERLAP}px` : 0,
+            ml: side === 'right' ? `-${CIRCLE_OVERLAP}px` : 0,
+            filter: circleFilter, opacity: circleAlpha,
+          }}>
             <CharacterCircle
               size={CIRCLE_SIZE}
               charIcon={charIcon}
@@ -136,15 +147,17 @@ export function MobileSeatCard({ ctx, seat, side = 'left' }: { ctx: StorytellerC
             />
           </Box>
         </Tooltip>
+
+        {/* Card — extra padding on circle side keeps content clear of the circle */}
         <Paper
           elevation={isSelected ? 4 : 1}
           onClick={(e) => { e.stopPropagation(); handleSeatClick(seat.seat) }}
           data-seat
           sx={{
-            pt: 0.75,
+            flex: 1, minWidth: 0,
+            pt: 0.75, pb: 0.75,
             pr: side === 'right' ? `${CIRCLE_OVERLAP + 8}px` : 0.75,
-            pb: 0.75,
-            pl: side === 'left' ? `${CIRCLE_OVERLAP + 8}px` : 0.75,
+            pl: side === 'left'  ? `${CIRCLE_OVERLAP + 8}px` : 0.75,
             borderRadius: 1.5,
             border: '1.5px solid',
             borderColor: getBorderColor(),
@@ -155,6 +168,7 @@ export function MobileSeatCard({ ctx, seat, side = 'left' }: { ctx: StorytellerC
             minHeight: `${CIRCLE_SIZE}px`,
             cursor: pickerMode !== 'none' ? 'pointer' : 'default',
             transition: 'all 0.15s ease',
+            position: 'relative', zIndex: 2,
             '&:hover': { boxShadow: 3 },
           }}
         >
