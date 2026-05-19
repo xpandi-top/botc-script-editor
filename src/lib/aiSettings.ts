@@ -47,9 +47,17 @@ const DEFAULT_MODELS: Record<AiProvider, string> = {
 const LS_KEY = 'BOTC_AI_SETTINGS'
 
 function envKey(provider: AiProvider): string {
-  if (provider === 'groq')       return (import.meta.env.VITE_GROQ_API_KEY as string) ?? ''
-  if (provider === 'openrouter') return (import.meta.env.VITE_AI_API_KEY as string) ?? ''
-  return (import.meta.env.VITE_GEMINI_API_KEY as string) ?? (import.meta.env.VITE_AI_API_KEY as string) ?? ''
+  const universal = (import.meta.env.VITE_AI_API_KEY as string | undefined)?.trim() ?? ''
+  const activeProvider = (import.meta.env.VITE_AI_PROVIDER as AiProvider | undefined) ?? 'groq'
+  if (provider === 'groq') {
+    return (import.meta.env.VITE_GROQ_API_KEY as string | undefined)?.trim()
+      || (activeProvider === 'groq' ? universal : '')
+  }
+  if (provider === 'openrouter') {
+    return (activeProvider === 'openrouter' ? universal : '')
+  }
+  return (import.meta.env.VITE_GEMINI_API_KEY as string | undefined)?.trim()
+    || (activeProvider === 'gemini' ? universal : '')
 }
 
 function defaultSettings(): AiSettings {
