@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   Autocomplete, Box, Button, Dialog, DialogContent, DialogTitle, Divider,
   FormControl, FormControlLabel, IconButton, InputLabel, MenuItem,
   Radio, RadioGroup, Select, TextField, Typography,
 } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
-import { editionLabels, teamLabels, teamOrder, toTitleCase } from '../catalog'
+import { editionLabels, slugify, teamLabels, teamOrder, toTitleCase } from '../catalog'
 import { processIconFile } from '../lib/iconResize'
 import { NightOrderPicker } from './NightOrderPicker'
 import { ReminderTokenEditor } from './ReminderTokenEditor'
@@ -36,12 +36,14 @@ type Props = {
   onClose: () => void
   editingChar: CustomCharacter | null
   uiLanguage: Language
-  onSave: (draft: Draft) => void
+  onSave: (draft: Draft, customId?: string) => void
   initialId?: string | null
 }
 
 export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSave, initialId }: Props) {
   const [draft, setDraft] = useState<Draft>(BLANK)
+  const [draftId, setDraftId] = useState('')
+  const idManuallyEdited = useRef(false)
   const [iconError, setIconError] = useState('')
   const [iconMode, setIconMode] = useState<'url' | 'upload'>('url')
   const t = makeT(uiLanguage)
@@ -69,7 +71,10 @@ export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSav
       })
       setIconMode(editingChar.icon?.startsWith('data:') ? 'upload' : 'url')
     } else {
-      setDraft(initialId ? { ...BLANK, nameEn: initialId } : BLANK)
+      const baseEn = initialId ?? ''
+      setDraft(baseEn ? { ...BLANK, nameEn: baseEn } : BLANK)
+      setDraftId(baseEn ? `custom_${slugify(baseEn)}` : '')
+      idManuallyEdited.current = false
       setIconMode('url')
     }
     setIconError('')
@@ -85,7 +90,7 @@ export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSav
     }
   }
 
-  const canSave = draft.nameEn.trim() && draft.abilityEn.trim() && draft.author.trim()
+  const canSave = draft.nameEn.trim() && draft.abilityEn.trim()
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
@@ -99,10 +104,32 @@ export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSav
         {/* Basic identity */}
         <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 }}>
           <TextField size="small" required label={t('name_en')}
-            value={draft.nameEn} onChange={(e) => setDraft((d) => ({ ...d, nameEn: e.target.value }))} />
+            value={draft.nameEn}
+            onChange={(e) => {
+              const v = e.target.value
+              setDraft((d) => ({ ...d, nameEn: v }))
+              // Auto-suggest ID from name only if user hasn't manually edited ID
+              if (!idManuallyEdited.current && !editingChar) {
+                setDraftId(v.trim() ? `custom_${slugify(v)}` : '')
+              }
+            }} />
           <TextField size="small" label={t('name_zh_optional')}
             value={draft.nameZh ?? ''} onChange={(e) => setDraft((d) => ({ ...d, nameZh: e.target.value }))} />
         </Box>
+        {/* ID field — new chars only */}
+        {!editingChar && (
+          <TextField size="small" fullWidth
+            label={uiLanguage === 'zh' ? '角色 ID（唯一标识，custom_ 开头）' : 'Character ID (must start with custom_)'}
+            value={draftId}
+            onChange={(e) => { idManuallyEdited.current = true; setDraftId(e.target.value) }}
+            error={Boolean(draftId) && !/^custom_[a-z0-9_-]+$/.test(draftId)}
+            helperText={(() => {
+              if (!draftId) return uiLanguage === 'zh' ? '留空则自动生成' : 'Leave blank to auto-generate'
+              if (!/^custom_[a-z0-9_-]+$/.test(draftId)) return uiLanguage === 'zh' ? '须以 custom_ 开头，只允许小写字母、数字、-、_' : 'Must start with custom_, then lowercase letters, digits, - _'
+              return ''
+            })()}
+          />
+        )}
         <TextField size="small" required label={t('author')}
           value={draft.author} onChange={(e) => setDraft((d) => ({ ...d, author: e.target.value }))} />
         <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 }}>
@@ -206,7 +233,7 @@ export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSav
 
         <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, pt: 1, borderTop: '1px solid', borderColor: 'divider' }}>
           <Button variant="outlined" onClick={onClose}>{t('cancel')}</Button>
-          <Button variant="contained" onClick={() => onSave(draft)} disabled={!canSave}>
+          <Button variant="contained" onClick={() => onSave(draft, editingChar ? undefined : (draftId.trim() || undefined))} disabled={!canSave}>
             {t('save')}
           </Button>
         </Box>

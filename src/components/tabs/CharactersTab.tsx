@@ -622,7 +622,7 @@ export function CharactersTab({
         const icon = imgRaw?.trim() || undefined
         const author = authorByOrigId[entry.id] ?? 'Imported'
         newChars.push({
-          id: entry.id.startsWith('custom_') ? entry.id : `custom_${entry.id}`,
+          id: entry.id,
           author,
           team: entry.team as Team,
           edition: entry.edition ?? 'Custom',
@@ -721,12 +721,12 @@ export function CharactersTab({
     onInitialNewCharConsumed?.()
   }, [initialNewCharId]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleSaveCustom = (draft: Omit<CustomCharacter, 'id' | 'createdAt' | 'updatedAt'>) => {
+  const handleSaveCustom = (draft: Omit<CustomCharacter, 'id' | 'createdAt' | 'updatedAt'>, customId?: string) => {
     const now = Date.now()
     if (editingChar) {
       setCustomChars((cur) => cur.map((c) => c.id === editingChar.id ? { ...editingChar, ...draft, updatedAt: now } : c))
     } else {
-      const id = `custom_${slugify(draft.nameEn)}_${now.toString(36)}`
+      const id = customId?.trim() || `custom_${slugify(draft.nameEn)}_${now.toString(36)}`
       setCustomChars((cur) => [...cur, { ...draft, id, createdAt: now, updatedAt: now }])
       // Write v1 revision so revision panel shows history immediately
       try {
