@@ -115,6 +115,12 @@ function normalizePackEntry(raw: unknown): CharacterFileEntry | null {
   if (Array.isArray(r.remindersGlobal))
     result.remindersGlobal = r.remindersGlobal.filter((x): x is string => typeof x === 'string')
 
+  // Preserve image: normalize array → first string
+  if (typeof r.image === 'string' && r.image)
+    result.image = r.image
+  else if (Array.isArray(r.image) && typeof r.image[0] === 'string')
+    result.image = r.image[0]
+
   return result
 }
 
@@ -128,6 +134,7 @@ type PackEdit = {
   setup?: boolean
   firstNight?: string   // stored as string for text field; parsed to number on confirm
   otherNight?: string
+  image?: string    // icon URL (string; array already collapsed to first element)
   en?: { name?: string; ability?: string }
   zh?: { name?: string; ability?: string }
 }
@@ -188,6 +195,9 @@ function PackImportDialog({ open, onClose, pack, language, knownIds, onConfirm }
       const finalId   = e.id?.trim() || c.id
       const firstNum  = e.firstNight !== undefined ? (parseFloat(e.firstNight) || undefined) : c.firstNight
       const otherNum  = e.otherNight !== undefined ? (parseFloat(e.otherNight) || undefined) : c.otherNight
+      // Resolve effective image: edit override → entry value (normalize array→string)
+      const rawImg    = Array.isArray(c.image) ? c.image[0] : (c.image as string | undefined)
+      const finalImg  = e.image !== undefined ? (e.image.trim() || undefined) : (rawImg || undefined)
       out.push({
         ...c,
         id:         finalId,
@@ -196,6 +206,7 @@ function PackImportDialog({ open, onClose, pack, language, knownIds, onConfirm }
         setup:      e.setup     ?? c.setup,
         firstNight: firstNum,
         otherNight: otherNum,
+        image:      finalImg,
         en: e.en ? { ...c.en, ...e.en } : c.en,
         zh: e.zh ? { ...c.zh, ...e.zh } : c.zh,
       })
@@ -254,6 +265,10 @@ function PackImportDialog({ open, onClose, pack, language, knownIds, onConfirm }
           const setupVal  = e.setup   ?? c.setup ?? false
           const fnVal     = e.firstNight !== undefined ? e.firstNight : (c.firstNight?.toString() ?? '')
           const onVal     = e.otherNight !== undefined ? e.otherNight : (c.otherNight?.toString() ?? '')
+          // Effective image: edit override → normalized entry image → undefined
+          const rawImgEntry = Array.isArray(c.image) ? c.image[0] : (c.image as string | undefined)
+          const imageVal  = e.image !== undefined ? e.image : (rawImgEntry ?? '')
+          const imageUrl  = imageVal.trim() || null   // null when empty
           const displayName = zh ? (nameZh || nameEn) : nameEn
 
           return (
@@ -266,6 +281,20 @@ function PackImportDialog({ open, onClose, pack, language, knownIds, onConfirm }
                 opacity: isSel ? 1 : 0.6,
               }}>
                 <Checkbox size="small" checked={isSel} onChange={() => toggleSelect(c.id)} sx={{ p: 0.25, flexShrink: 0 }} />
+                {/* Character image preview */}
+                {imageUrl ? (
+                  <Box component="img" src={imageUrl} alt=""
+                    onError={(ev) => { (ev.target as HTMLImageElement).style.display = 'none' }}
+                    sx={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'contain',
+                      bgcolor: 'background.default', flexShrink: 0, border: '1px solid', borderColor: 'divider' }} />
+                ) : (
+                  <Box sx={{ width: 36, height: 36, borderRadius: '50%', bgcolor: 'action.disabledBackground',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <Typography sx={{ fontSize: '0.65rem', fontWeight: 700, color: 'text.disabled' }}>
+                      {(nameEn || c.id).slice(0, 2).toUpperCase()}
+                    </Typography>
+                  </Box>
+                )}
                 <Box sx={{ flex: 1, minWidth: 0 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, flexWrap: 'wrap' }}>
                     <Typography sx={{ fontWeight: 600, fontSize: '0.88rem', lineHeight: 1.3 }}>{displayName}</Typography>
@@ -384,6 +413,32 @@ function PackImportDialog({ open, onClose, pack, language, knownIds, onConfirm }
                       onChange={(ev) => patchEdit(c.id, { otherNight: ev.target.value })} />
                   </Box>
 
+                  {/* Image URL with live preview */}
+                  <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start' }}>
+                    <TextField size="small" fullWidth
+                      label={zh ? '角色图片 URL' : 'Icon Image URL'}
+                      value={imageVal}
+                      placeholder="https://..."
+                      onChange={(ev) => patchEdit(c.id, { image: ev.target.value })}
+                      helperText={imageUrl ? (zh ? '预览见右侧' : 'Preview on right') : (zh ? '留空使用默认占位符' : 'Leave empty for placeholder')}
+                    />
+                    {/* Live preview circle */}
+                    {imageUrl ? (
+                      <Box component="img" src={imageUrl} alt=""
+                        onError={(ev) => { (ev.target as HTMLImageElement).style.visibility = 'hidden' }}
+                        sx={{ width: 48, height: 48, borderRadius: '50%', objectFit: 'contain', flexShrink: 0,
+                          border: '1.5px solid', borderColor: 'divider', bgcolor: 'background.default', mt: 0.5 }} />
+                    ) : (
+                      <Box sx={{ width: 48, height: 48, borderRadius: '50%', bgcolor: 'action.disabledBackground',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, mt: 0.5,
+                        border: '1.5px dashed', borderColor: 'divider' }}>
+                        <Typography sx={{ fontSize: '0.6rem', color: 'text.disabled' }}>
+                          {(nameEn || c.id).slice(0, 2).toUpperCase()}
+                        </Typography>
+                      </Box>
+                    )}
+                  </Box>
+
                 </Box>
               </Collapse>
             </Box>
@@ -500,6 +555,9 @@ export function CharactersTab({
         overrides.push(entry)
       } else {
         // New character — add to customChars so it appears in the list
+        // Resolve image: entry.image may be string or string[] (script schema)
+        const imgRaw = Array.isArray(entry.image) ? entry.image[0] : (entry.image as string | undefined)
+        const icon = imgRaw?.trim() || undefined
         newChars.push({
           id: entry.id.startsWith('custom_') ? entry.id : `custom_${entry.id}_${now.toString(36)}`,
           author: 'Imported',
@@ -509,6 +567,7 @@ export function CharactersTab({
           nameZh: entry.zh?.name,
           abilityEn: entry.en?.ability ?? '',
           abilityZh: entry.zh?.ability,
+          icon,
           firstNight: entry.firstNight,
           otherNight: entry.otherNight,
           firstNightReminder: entry.firstNightReminder,

@@ -267,6 +267,8 @@ export type CharacterFileEntry = {
   setup?: boolean
   firstNight?: number
   otherNight?: number
+  /** Icon image URL (from BOTC script schema). String or array; normalised to string on import. */
+  image?: string | string[]
   /** ST reminder shown during first night. Matches official roles.json field. */
   firstNightReminder?: string
   /** ST reminder shown during other nights. Matches official roles.json field. */
