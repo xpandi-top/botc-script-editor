@@ -146,6 +146,25 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
     return Array.from(s)
   }, [targets, allSeats])
 
+  // ── Script reminder tags — derived from chars in script + in-play ──────────
+  // Replaces the hardcoded DEFAULT_ST_TAGS wherever script reminders are available.
+  const scriptReminderTags = useMemo(() => {
+    const ids = new Set<string>([
+      ...(currentScriptCharacters ?? []),
+      ...allSeats.map((s: any) => s.characterId).filter(Boolean),
+    ])
+    const tags = new Set<string>()
+    for (const id of ids) {
+      const char = characterById[id]
+      ;(char?.reminders ?? []).forEach((r: string) => tags.add(r))
+      ;(char?.remindersGlobal ?? []).forEach((r: string) => tags.add(r))
+    }
+    return [...tags].sort()
+  }, [currentScriptCharacters, allSeats])
+
+  // Fall back to DEFAULT_ST_TAGS when no script reminders (e.g. no script loaded)
+  const stTagChips = scriptReminderTags.length > 0 ? scriptReminderTags : DEFAULT_ST_TAGS
+
   const canSaveSkill = useMemo(() => {
     if (!skillType) return false
     if (skillType === 'know' || skillType === 'guess') {
@@ -455,9 +474,9 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
   const nightStStatusSection = (
     <Box sx={{ mb: 1.5 }}>
       <SectionLabel label={t('night_st_status')} />
-      {/* Default tag chips */}
+      {/* Script reminder chips (falls back to default tags when no script loaded) */}
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 0.75 }}>
-        {DEFAULT_ST_TAGS.map((label) => {
+        {stTagChips.map((label) => {
           const active = stTags.some((stTag) => parseStTag(stTag).label === label)
           const displayLabel = translateStTag(label, language)
           return (
@@ -834,7 +853,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
                       onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault() }} />
                   </Box>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                    {DEFAULT_ST_TAGS.map((tag) => (
+                    {stTagChips.map((tag) => (
                       <Chip key={tag} label={translateStTag(tag, language)} size="small" clickable
                         color={tagInput === tag ? 'warning' : 'default'}
                         variant={tagInput === tag ? 'filled' : 'outlined'}
