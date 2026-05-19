@@ -76,16 +76,25 @@ function defaultSettings(): AiSettings {
 export function loadAiSettings(): AiSettings {
   try {
     const raw = localStorage.getItem(LS_KEY)
-    if (!raw) return defaultSettings()
-    const parsed = JSON.parse(raw) as Partial<AiSettings>
     const defaults = defaultSettings()
+    if (!raw) return defaults
+
+    const parsed = JSON.parse(raw) as Partial<AiSettings>
+
+    // Env provider always wins — prevents stale localStorage locking to old provider
+    const provider = defaults.provider
+    const model = (parsed.provider === provider && parsed.model)
+      ? parsed.model
+      : defaults.model
+
     return {
-      provider: parsed.provider ?? defaults.provider,
-      model:    parsed.model    ?? defaults.model,
+      provider,
+      model,
       keys: {
-        groq:       parsed.keys?.groq       || defaults.keys.groq,
-        openrouter: parsed.keys?.openrouter || defaults.keys.openrouter,
-        gemini:     parsed.keys?.gemini     || defaults.keys.gemini,
+        // Env keys take precedence; localStorage fills in keys user entered via UI
+        groq:       defaults.keys.groq       || parsed.keys?.groq       || '',
+        openrouter: defaults.keys.openrouter || parsed.keys?.openrouter || '',
+        gemini:     defaults.keys.gemini     || parsed.keys?.gemini     || '',
       },
     }
   } catch {
@@ -95,6 +104,21 @@ export function loadAiSettings(): AiSettings {
 
 export function saveAiSettings(s: AiSettings): void {
   localStorage.setItem(LS_KEY, JSON.stringify(s))
+}
+
+/** Call once on app init — clears stale provider lock from localStorage. */
+export function migrateAiSettings(): void {
+  try {
+    const raw = localStorage.getItem(LS_KEY)
+    if (!raw) return
+    const parsed = JSON.parse(raw) as Partial<AiSettings>
+    const envProvider = (import.meta.env.VITE_AI_PROVIDER as AiProvider | undefined) ?? 'groq'
+    if (parsed.provider && parsed.provider !== envProvider) {
+      // Provider changed in env — reset provider + model, keep any manually-entered keys
+      const updated = { ...parsed, provider: envProvider, model: DEFAULT_MODELS[envProvider] }
+      localStorage.setItem(LS_KEY, JSON.stringify(updated))
+    }
+  } catch { /* ignore */ }
 }
 
 export function getDefaultModel(provider: AiProvider): string {

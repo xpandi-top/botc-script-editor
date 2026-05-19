@@ -4,6 +4,7 @@ import { CssBaseline, GlobalStyles, useTheme } from '@mui/material'
 import App from './App'
 import { ThemeModeProvider } from './context/ThemeMode'
 import { initNative } from './lib/nativeInit'
+import { migrateAiSettings } from './lib/aiSettings'
 import './fonts.css'
 
 /** Injects CSS variables and body background that react to the active MUI theme */
@@ -37,6 +38,7 @@ function ThemeGlobalStyles() {
 // On native: await initNative so the Preferences sync-cache is populated
 // before React's synchronous useState initialisers run.
 // On web: initNative returns immediately (no-op), so no delay.
+migrateAiSettings()
 initNative().then(() => {
   ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
