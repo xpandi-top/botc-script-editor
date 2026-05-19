@@ -126,7 +126,7 @@ export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSav
             helperText={(() => {
               if (!draftId) return uiLanguage === 'zh' ? '留空则自动生成' : 'Leave blank to auto-generate'
               if (!/^[a-z0-9_-]+$/.test(draftId)) return uiLanguage === 'zh' ? '只允许小写字母、数字、-、_' : 'Only lowercase letters, digits, - _'
-              return uiLanguage === 'zh' ? `将保存为 custom_${draftId}` : `Will be saved as custom_${draftId}`
+              return ''
             })()}
           />
         )}

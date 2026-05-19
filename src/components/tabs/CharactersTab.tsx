@@ -173,9 +173,9 @@ function PackImportDialog({ open, onClose, pack, language, knownIds, existingCus
           const clean = slugify(c.id)
           if (clean && clean !== c.id) initialEdits[c.id] = { id: clean }
         } else {
-          // New char: ensure custom_ prefix + clean slug
-          const base = c.id.startsWith('custom_') ? c.id : `custom_${slugify(c.id) || c.id}`
-          if (base !== c.id) initialEdits[c.id] = { id: base }
+          // New char: clean slug if dirty
+          const clean = slugify(c.id)
+          if (clean && clean !== c.id) initialEdits[c.id] = { id: clean }
         }
       }
       setEdits(initialEdits)
@@ -688,7 +688,7 @@ export function CharactersTab({
           // Add as new custom character
           const now = Date.now()
           const newChar: CustomCharacter = {
-            id: entry.id.startsWith('custom_') ? entry.id : `custom_${entry.id}`,
+            id: entry.id,
             author: 'Imported',
             team: entry.team as Team,
             edition: entry.edition ?? 'Custom',
@@ -727,9 +727,7 @@ export function CharactersTab({
       setCustomChars((cur) => cur.map((c) => c.id === editingChar.id ? { ...editingChar, ...draft, updatedAt: now } : c))
     } else {
       const rawId = customId?.trim()
-      const id = rawId
-        ? (rawId.startsWith('custom_') ? rawId : `custom_${rawId}`)
-        : `custom_${slugify(draft.nameEn)}_${now.toString(36)}`
+      const id = rawId || `${slugify(draft.nameEn)}_${now.toString(36)}`
       setCustomChars((cur) => [...cur, { ...draft, id, createdAt: now, updatedAt: now }])
       // Write v1 revision so revision panel shows history immediately
       try {
@@ -939,7 +937,7 @@ export function CharactersTab({
                 const edition = editionLabels[uiLanguage][character.edition] ?? toTitleCase(character.edition)
                 const currentRevision = getCurrentRevision(character.id)
                 const isSelected = character.id === selectedCharacter?.id
-                const isCustom = character.id.startsWith('custom_')
+                const isCustom = Boolean(customChars.find((c) => c.id === character.id))
                 const hasPackOverride = !isCustom && packOverrideIds.has(character.id)
                 // "New" = custom char added within last 60 seconds (imported this session)
                 const customEntry = customChars.find((c) => c.id === character.id)

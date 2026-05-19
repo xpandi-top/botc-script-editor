@@ -219,8 +219,8 @@ export function CharacterRevisionPanel({
     )
   }
 
-  const isCustom = character.id.startsWith('custom_')
-  const customChar = isCustom ? getCustomChar(character.id) : undefined
+  const customChar = getCustomChar(character.id)
+  const isCustom = Boolean(customChar)
   const currentReminders = getCharacterReminders(character.id)
   const currentRemindersGlobal = getCharacterRemindersGlobal(character.id)
   const reminderEditOpen = remindersEdit !== null
