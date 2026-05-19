@@ -4,7 +4,26 @@ Release timeline for BOTC Companion — features, fixes, and improvements.
 
 ---
 
-## 2026-05-17 (latest)
+## 2026-05-19 (latest)
+
+### Added
+- **Locale-aware night reminders (zh + en)** — `firstNightReminder` / `otherNightReminder` migrated from top-level strings to `en` / `zh` locale sections in all 141 character JSON files. Chinese reminder text sourced from the clocktower-wiki night order page (~80 official characters). New `getNightReminder(id, language, night)` catalog export returns zh with en fallback.
+- **Character-linked reminder tags** — ST Tags and Public Tags sections in the player modal now include a character picker. Selecting a character shows its reminder tokens as quick-add chips; the resulting tag stores `📝label::charId` and renders with the character's portrait icon. Works in both ST and Public tag flows.
+- **`MINION_INFO` / `DEMON_INFO` zh reminders** — First Night placeholder rows in NightOrderPreview now show Chinese reminder text from the wiki when language is zh.
+
+### Changed
+- **NightOrderPreview rows are clickable** — clicking any character row (when a reminder exists) opens a Popover anchored below the row showing the character name and full ST reminder in the current language. `···` indicator marks rows that have a reminder. Book-icon toggle still available for showing all reminders inline simultaneously.
+- **Wake-order badge uses Popover** — replaced MUI `Tooltip` (clipped by card overflow) with a portal-rendered `Popover`. Clicking the `#N` number opens the ST night reminder for that seat's character in the current language; click again or outside to close.
+- **Reminder tag zh translation** — `translateStTag` now falls through to `translateReminderZh` (80+ entry map) for zh mode, so all standard BotC reminder token labels render in Chinese.
+- **Public tag log format** — add/remove tag log entries now show `[icon:charId] CharName:Label` (with inline character portrait) instead of the raw `📝label::charId` storage string.
+
+### Fixed
+- **Wake-order number click area too small** — increased padding on `#N` badge; active state shown via background highlight when popover is open.
+- **`nominated` / `nominating` missing from zh reminder map** — added to `REMINDER_ZH_MAP`.
+
+---
+
+## 2026-05-17
 
 ### Added
 - **Deal card active-session reopen** — the Characters tab now shows an `Open <sessionId>` button next to `Deal Cards` for the current host dashboard; `Deal Cards` still creates a fresh session
