@@ -7,10 +7,8 @@ import {
 import CloseIcon from '@mui/icons-material/Close'
 import { editionLabels, slugify, teamLabels, teamOrder, toTitleCase } from '../catalog'
 import { processIconFile } from '../lib/iconResize'
-import { translateText, suggestId, suggestChineseName, suggestAbility } from '../lib/botcAgent'
 import { NightOrderPicker } from './NightOrderPicker'
 import { ReminderTokenEditor } from './ReminderTokenEditor'
-import { AgentButton } from './AgentButton'
 import type { CustomCharacter, Language, Team } from '../types'
 import { makeT, makeTpl } from '../lib/t'
 
@@ -115,22 +113,11 @@ export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSav
                 setDraftId(v.trim() ? slugify(v) : '')
               }
             }} />
-          <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.5 }}>
-            <TextField size="small" fullWidth label={t('name_zh_optional')}
-              value={draft.nameZh ?? ''} onChange={(e) => setDraft((d) => ({ ...d, nameZh: e.target.value }))} />
-            <AgentButton
-              label={uiLanguage === 'zh' ? 'AI 建议中文名' : 'AI: suggest Chinese name'}
-              action={async () => {
-                const r = await suggestChineseName(draft.nameEn, draft.abilityEn)
-                setDraft((d) => ({ ...d, nameZh: r.name }))
-              }}
-              disabled={!draft.nameEn.trim()}
-            />
-          </Box>
+          <TextField size="small" fullWidth label={t('name_zh_optional')}
+            value={draft.nameZh ?? ''} onChange={(e) => setDraft((d) => ({ ...d, nameZh: e.target.value }))} />
         </Box>
         {/* ID field — new chars only */}
         {!editingChar && (
-          <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.5 }}>
           <TextField size="small" fullWidth
             label={uiLanguage === 'zh' ? '角色 ID（唯一标识）' : 'Character ID'}
             value={draftId}
@@ -142,15 +129,6 @@ export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSav
               return ''
             })()}
           />
-            <AgentButton
-              label={uiLanguage === 'zh' ? 'AI 建议 ID' : 'AI: suggest ID'}
-              action={async () => {
-                const id = await suggestId(draft.nameEn)
-                if (id) { idManuallyEdited.current = true; setDraftId(id) }
-              }}
-              disabled={!draft.nameEn.trim()}
-            />
-          </Box>
         )}
         <TextField size="small" required label={t('author')}
           value={draft.author} onChange={(e) => setDraft((d) => ({ ...d, author: e.target.value }))} />
@@ -176,32 +154,12 @@ export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSav
         </Box>
 
         {/* Ability text */}
-        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.5 }}>
-          <TextField size="small" required multiline minRows={2} fullWidth
-            label={t('ability_text_en')}
-            value={draft.abilityEn} onChange={(e) => setDraft((d) => ({ ...d, abilityEn: e.target.value }))} />
-          <AgentButton
-            label={uiLanguage === 'zh' ? 'AI 生成能力文本' : 'AI: generate ability'}
-            action={async () => {
-              const r = await suggestAbility({ nameEn: draft.nameEn, team: draft.team, generateZh: false })
-              setDraft((d) => ({ ...d, abilityEn: r.abilityEn }))
-            }}
-            disabled={!draft.nameEn.trim()}
-          />
-        </Box>
-        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.5 }}>
-          <TextField size="small" multiline minRows={2} fullWidth
-            label={t('ability_text_zh_optional')}
-            value={draft.abilityZh ?? ''} onChange={(e) => setDraft((d) => ({ ...d, abilityZh: e.target.value }))} />
-          <AgentButton
-            label={uiLanguage === 'zh' ? 'AI 翻译为中文' : 'AI: translate to Chinese'}
-            action={async () => {
-              const zh = await translateText(draft.abilityEn, 'zh')
-              setDraft((d) => ({ ...d, abilityZh: zh }))
-            }}
-            disabled={!draft.abilityEn.trim()}
-          />
-        </Box>
+        <TextField size="small" required multiline minRows={2}
+          label={t('ability_text_en')}
+          value={draft.abilityEn} onChange={(e) => setDraft((d) => ({ ...d, abilityEn: e.target.value }))} />
+        <TextField size="small" multiline minRows={2}
+          label={t('ability_text_zh_optional')}
+          value={draft.abilityZh ?? ''} onChange={(e) => setDraft((d) => ({ ...d, abilityZh: e.target.value }))} />
 
         {/* Icon */}
         <Box>
