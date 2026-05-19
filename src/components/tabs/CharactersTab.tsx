@@ -149,10 +149,11 @@ type PackImportDialogProps = {
   pack: CharacterFileEntry[]
   language: Language
   knownIds: Set<string>
+  existingCustomIds: Set<string>
   onConfirm: (selected: CharacterFileEntry[], authorByOrigId: Record<string, string>) => void
 }
 
-function PackImportDialog({ open, onClose, pack, language, knownIds, onConfirm }: PackImportDialogProps) {
+function PackImportDialog({ open, onClose, pack, language, knownIds, existingCustomIds, onConfirm }: PackImportDialogProps) {
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
   const [edits, setEdits] = useState<Record<string, PackEdit>>({})
@@ -162,11 +163,20 @@ function PackImportDialog({ open, onClose, pack, language, knownIds, onConfirm }
     if (open) {
       setSelected(new Set(pack.map((c) => c.id)))
       setExpanded(new Set())
-      // Auto-initialize edits with cleaned IDs if dirty
+      // Auto-initialize edits with cleaned IDs.
+      // For new chars (not in catalog), pre-fill with custom_ prefix.
       const initialEdits: Record<string, PackEdit> = {}
       for (const c of pack) {
-        const clean = slugify(c.id)
-        if (clean && clean !== c.id) initialEdits[c.id] = { id: clean }
+        const isKnown = knownIds.has(c.id)
+        if (isKnown) {
+          // Catalog char: clean if dirty, no prefix needed
+          const clean = slugify(c.id)
+          if (clean && clean !== c.id) initialEdits[c.id] = { id: clean }
+        } else {
+          // New char: ensure custom_ prefix + clean slug
+          const base = c.id.startsWith('custom_') ? c.id : `custom_${slugify(c.id) || c.id}`
+          if (base !== c.id) initialEdits[c.id] = { id: base }
+        }
       }
       setEdits(initialEdits)
     }
@@ -211,7 +221,7 @@ function PackImportDialog({ open, onClose, pack, language, knownIds, onConfirm }
       // Reminders: edit override (split from comma string) → original entry value
       const finalReminders       = e.reminders       !== undefined ? splitTokens(e.reminders)       : c.reminders
       const finalRemindersGlobal = e.remindersGlobal !== undefined ? splitTokens(e.remindersGlobal) : c.remindersGlobal
-      if (e.author?.trim()) authorByOrigId[c.id] = e.author.trim()
+      if (e.author?.trim()) authorByOrigId[finalId] = e.author.trim()
       out.push({
         ...c,
         id:               finalId,
@@ -345,18 +355,27 @@ function PackImportDialog({ open, onClose, pack, language, knownIds, onConfirm }
               <Collapse in={isExp}>
                 <Box sx={{ px: 2, pb: 1.5, pt: 0.75, bgcolor: 'action.hover', display: 'flex', flexDirection: 'column', gap: 1.25 }}>
 
-                  {/* ID row with clean suggestion */}
+                  {/* ID row with clean suggestion + duplicate check */}
                   <Box>
                     <TextField size="small" fullWidth
                       label={zh ? '角色 ID（唯一标识）' : 'Character ID (unique key)'}
                       value={e.id ?? c.id}
                       onChange={(ev) => patchEdit(c.id, { id: ev.target.value })}
-                      error={Boolean(e.id) && !/^[a-z0-9_-]+$/.test(e.id ?? '')}
+                      error={(() => {
+                        const raw = e.id ?? c.id
+                        if (!/^[a-z0-9_-]+$/.test(raw)) return true
+                        // Duplicate: same as another pack entry (different origId) or existing custom char
+                        const otherPack = pack.some((p) => p.id !== c.id && (edits[p.id]?.id?.trim() || p.id) === raw)
+                        return otherPack || existingCustomIds.has(raw)
+                      })()}
                       helperText={(() => {
                         const raw = e.id ?? c.id
                         const clean = slugify(raw)
-                        if (raw !== clean && clean) return (zh ? '建议: ' : 'Suggested: ') + clean
                         if (!/^[a-z0-9_-]+$/.test(raw)) return zh ? '只允许小写字母、数字、-、_' : 'Only lowercase letters, digits, - _'
+                        const otherPack = pack.some((p) => p.id !== c.id && (edits[p.id]?.id?.trim() || p.id) === raw)
+                        if (otherPack) return zh ? '⚠ 与包内另一角色 ID 重复' : '⚠ Duplicate ID within this pack'
+                        if (existingCustomIds.has(raw)) return zh ? '⚠ 已存在同名自定义角色' : '⚠ Custom character with this ID already exists'
+                        if (raw !== clean && clean) return (zh ? '建议: ' : 'Suggested: ') + clean
                         return ''
                       })()}
                       slotProps={{
@@ -603,7 +622,7 @@ export function CharactersTab({
         const icon = imgRaw?.trim() || undefined
         const author = authorByOrigId[entry.id] ?? 'Imported'
         newChars.push({
-          id: entry.id.startsWith('custom_') ? entry.id : `custom_${entry.id}_${now.toString(36)}`,
+          id: entry.id.startsWith('custom_') ? entry.id : `custom_${entry.id}`,
           author,
           team: entry.team as Team,
           edition: entry.edition ?? 'Custom',
@@ -669,7 +688,7 @@ export function CharactersTab({
           // Add as new custom character
           const now = Date.now()
           const newChar: CustomCharacter = {
-            id: entry.id.startsWith('custom_') ? entry.id : `custom_${entry.id}_${now.toString(36)}`,
+            id: entry.id.startsWith('custom_') ? entry.id : `custom_${entry.id}`,
             author: 'Imported',
             team: entry.team as Team,
             edition: entry.edition ?? 'Custom',
@@ -1021,6 +1040,7 @@ export function CharactersTab({
         pack={importPreviewPack}
         language={uiLanguage}
         knownIds={knownCatalogIds}
+        existingCustomIds={React.useMemo(() => new Set(customChars.map((c) => c.id)), [customChars])}
         onConfirm={handleConfirmImport}
       />
 
