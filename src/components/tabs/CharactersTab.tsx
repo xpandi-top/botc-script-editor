@@ -135,17 +135,21 @@ type PackEdit = {
   firstNight?: string   // stored as string for text field; parsed to number on confirm
   otherNight?: string
   image?: string    // icon URL (string; array already collapsed to first element)
+  author?: string   // custom character author attribution
+  reminders?: string        // comma-separated; split to array on confirm
+  remindersGlobal?: string  // comma-separated
   en?: { name?: string; ability?: string }
   zh?: { name?: string; ability?: string }
 }
 
+// authorByOrigId: maps original char ID → author string for new (non-catalog) chars
 type PackImportDialogProps = {
   open: boolean
   onClose: () => void
   pack: CharacterFileEntry[]
   language: Language
   knownIds: Set<string>
-  onConfirm: (selected: CharacterFileEntry[]) => void
+  onConfirm: (selected: CharacterFileEntry[], authorByOrigId: Record<string, string>) => void
 }
 
 function PackImportDialog({ open, onClose, pack, language, knownIds, onConfirm }: PackImportDialogProps) {
@@ -187,31 +191,43 @@ function PackImportDialog({ open, onClose, pack, language, knownIds, onConfirm }
     })
   }
 
+  const splitTokens = (s: string | undefined): string[] | undefined => {
+    if (s === undefined) return undefined
+    const arr = s.split(',').map((t) => t.trim()).filter(Boolean)
+    return arr.length > 0 ? arr : []
+  }
+
   const handleConfirm = () => {
     const out: CharacterFileEntry[] = []
+    const authorByOrigId: Record<string, string> = {}
     for (const c of pack) {
       if (!selected.has(c.id)) continue
       const e = edits[c.id] ?? {}
       const finalId   = e.id?.trim() || c.id
       const firstNum  = e.firstNight !== undefined ? (parseFloat(e.firstNight) || undefined) : c.firstNight
       const otherNum  = e.otherNight !== undefined ? (parseFloat(e.otherNight) || undefined) : c.otherNight
-      // Resolve effective image: edit override → entry value (normalize array→string)
       const rawImg    = Array.isArray(c.image) ? c.image[0] : (c.image as string | undefined)
       const finalImg  = e.image !== undefined ? (e.image.trim() || undefined) : (rawImg || undefined)
+      // Reminders: edit override (split from comma string) → original entry value
+      const finalReminders       = e.reminders       !== undefined ? splitTokens(e.reminders)       : c.reminders
+      const finalRemindersGlobal = e.remindersGlobal !== undefined ? splitTokens(e.remindersGlobal) : c.remindersGlobal
+      if (e.author?.trim()) authorByOrigId[c.id] = e.author.trim()
       out.push({
         ...c,
-        id:         finalId,
-        team:       e.team      ?? c.team,
-        edition:    e.edition   ?? c.edition,
-        setup:      e.setup     ?? c.setup,
-        firstNight: firstNum,
-        otherNight: otherNum,
-        image:      finalImg,
+        id:               finalId,
+        team:             e.team    ?? c.team,
+        edition:          e.edition ?? c.edition,
+        setup:            e.setup   ?? c.setup,
+        firstNight:       firstNum,
+        otherNight:       otherNum,
+        image:            finalImg,
+        reminders:        finalReminders,
+        remindersGlobal:  finalRemindersGlobal,
         en: e.en ? { ...c.en, ...e.en } : c.en,
         zh: e.zh ? { ...c.zh, ...e.zh } : c.zh,
       })
     }
-    onConfirm(out)
+    onConfirm(out, authorByOrigId)
   }
 
   // Effective (post-edit) IDs for counting
@@ -268,7 +284,11 @@ function PackImportDialog({ open, onClose, pack, language, knownIds, onConfirm }
           // Effective image: edit override → normalized entry image → undefined
           const rawImgEntry = Array.isArray(c.image) ? c.image[0] : (c.image as string | undefined)
           const imageVal  = e.image !== undefined ? e.image : (rawImgEntry ?? '')
-          const imageUrl  = imageVal.trim() || null   // null when empty
+          const imageUrl  = imageVal.trim() || null
+          const authorVal = e.author ?? ''
+          // Reminders: edit (comma-sep string) → join original array → empty string
+          const remindersVal       = e.reminders       !== undefined ? e.reminders       : (c.reminders?.join(', ')       ?? '')
+          const remindersGlobalVal = e.remindersGlobal !== undefined ? e.remindersGlobal : (c.remindersGlobal?.join(', ') ?? '')
           const displayName = zh ? (nameZh || nameEn) : nameEn
 
           return (
@@ -413,6 +433,30 @@ function PackImportDialog({ open, onClose, pack, language, knownIds, onConfirm }
                       onChange={(ev) => patchEdit(c.id, { otherNight: ev.target.value })} />
                   </Box>
 
+                  {/* Author */}
+                  <TextField size="small" fullWidth
+                    label={zh ? '作者' : 'Author'}
+                    value={authorVal}
+                    placeholder={zh ? '（留空则显示"Imported"）' : 'Leave empty → "Imported"'}
+                    onChange={(ev) => patchEdit(c.id, { author: ev.target.value })}
+                  />
+
+                  {/* Reminder tokens */}
+                  <TextField size="small" fullWidth
+                    label={zh ? '提示标记（逗号分隔）' : 'Reminder tokens (comma-separated)'}
+                    value={remindersVal}
+                    placeholder={zh ? '例如: Wrong, Drunk' : 'e.g. Wrong, Drunk'}
+                    helperText={zh ? '放置于其他玩家座位上的标记' : 'Tokens placed on other players\' seats'}
+                    onChange={(ev) => patchEdit(c.id, { reminders: ev.target.value })}
+                  />
+                  <TextField size="small" fullWidth
+                    label={zh ? '全局提示标记（逗号分隔）' : 'Global reminder tokens (comma-separated)'}
+                    value={remindersGlobalVal}
+                    placeholder={zh ? '例如: No Ability' : 'e.g. No Ability'}
+                    helperText={zh ? '所有座位均可使用的标记' : 'Tokens available on all seats'}
+                    onChange={(ev) => patchEdit(c.id, { remindersGlobal: ev.target.value })}
+                  />
+
                   {/* Image URL with live preview */}
                   <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start' }}>
                     <TextField size="small" fullWidth
@@ -544,7 +588,7 @@ export function CharactersTab({
     [],
   )
 
-  const handleConfirmImport = (selected: CharacterFileEntry[]) => {
+  const handleConfirmImport = (selected: CharacterFileEntry[], authorByOrigId: Record<string, string>) => {
     const overrides: CharacterFileEntry[] = []
     const newChars: CustomCharacter[] = []
     const now = Date.now()
@@ -555,12 +599,12 @@ export function CharactersTab({
         overrides.push(entry)
       } else {
         // New character — add to customChars so it appears in the list
-        // Resolve image: entry.image may be string or string[] (script schema)
         const imgRaw = Array.isArray(entry.image) ? entry.image[0] : (entry.image as string | undefined)
         const icon = imgRaw?.trim() || undefined
+        const author = authorByOrigId[entry.id] ?? 'Imported'
         newChars.push({
           id: entry.id.startsWith('custom_') ? entry.id : `custom_${entry.id}_${now.toString(36)}`,
-          author: 'Imported',
+          author,
           team: entry.team as Team,
           edition: entry.edition ?? 'Custom',
           nameEn: entry.en?.name ?? entry.id,
