@@ -11,6 +11,7 @@ import {
   getCharacterReminders,
   getCharacterRemindersGlobal,
   getCharacterRevisionIds,
+  getCharNightOverride,
   getCurrentRevision,
   getCustomChar,
   getDisplayName,
@@ -23,6 +24,7 @@ import {
   REVISION_OVERRIDES_KEY,
   refreshRevisionOverrides,
   setCharacterRemindersOverride,
+  setCharNightOverride,
   teamLabels,
 } from '../catalog'
 import { ReminderTokenEditor } from './ReminderTokenEditor'
@@ -72,6 +74,9 @@ export function CharacterRevisionPanel({
   // Reminder token editing state (catalog chars only — custom chars use CustomCharDialog)
   const [remindersEdit, setRemindersEdit] = useState<string[] | null>(null)
   const [remindersGlobalEdit, setRemindersGlobalEdit] = useState<string[] | null>(null)
+  // Night reminder editing state (catalog chars only)
+  type NightReminderDraft = { firstEn: string; firstZh: string; otherEn: string; otherZh: string }
+  const [nightReminderEdit, setNightReminderEdit] = useState<NightReminderDraft | null>(null)
   const t = makeT(language)
   const tpl = makeTpl(language)
 
@@ -108,6 +113,31 @@ export function CharacterRevisionPanel({
     setRemindersEdit(null)
     setRemindersGlobalEdit(null)
   }
+
+  const openNightReminderEdit = () => {
+    if (!character) return
+    const ov = getCharNightOverride(character.id)
+    setNightReminderEdit({
+      firstEn:  ov?.firstNightReminder  ?? character.firstNightReminder  ?? '',
+      firstZh:  ov?.firstNightReminderZh ?? character.firstNightReminderZh ?? '',
+      otherEn:  ov?.otherNightReminder  ?? character.otherNightReminder  ?? '',
+      otherZh:  ov?.otherNightReminderZh ?? character.otherNightReminderZh ?? '',
+    })
+  }
+
+  const saveNightReminders = () => {
+    if (!character || !nightReminderEdit) return
+    setCharNightOverride(character.id, {
+      firstNightReminder:   nightReminderEdit.firstEn  || undefined,
+      firstNightReminderZh: nightReminderEdit.firstZh  || undefined,
+      otherNightReminder:   nightReminderEdit.otherEn  || undefined,
+      otherNightReminderZh: nightReminderEdit.otherZh  || undefined,
+    })
+    forceUpdate((n) => n + 1)
+    setNightReminderEdit(null)
+  }
+
+  const cancelNightReminders = () => setNightReminderEdit(null)
 
   const saveRevision = () => {
     if (!character || !revId.trim()) return
@@ -421,6 +451,166 @@ export function CharacterRevisionPanel({
           </Box>
         )}
       </Box>
+
+      {/* ── Night Reminders ── */}
+      {(() => {
+        const isCustomChar = isCustom
+        const ov = !isCustomChar ? getCharNightOverride(character.id) : undefined
+        const firstEn  = ov?.firstNightReminder   ?? character.firstNightReminder
+        const firstZh  = ov?.firstNightReminderZh ?? character.firstNightReminderZh
+        const otherEn  = ov?.otherNightReminder   ?? character.otherNightReminder
+        const otherZh  = ov?.otherNightReminderZh ?? character.otherNightReminderZh
+        const hasAny = firstEn || firstZh || otherEn || otherZh
+        const nightEditOpen = nightReminderEdit !== null
+        const fileEntry = characterFileById[character.id]
+        const setup = fileEntry?.setup
+        const firstNightPos = customChar?.firstNight ?? fileEntry?.firstNight
+        const otherNightPos = customChar?.otherNight ?? fileEntry?.otherNight
+        return (
+          <Box sx={{ mt: 2 }}>
+            <Divider sx={{ mb: 2 }} />
+            {/* Night Reminders header */}
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+              <Typography variant="subtitle2">
+                {language === 'zh' ? '夜间提示' : 'Night Reminders'}
+              </Typography>
+              {!isCustomChar && !nightEditOpen && (
+                <Button size="small" startIcon={<EditIcon fontSize="small" />} onClick={openNightReminderEdit}
+                  sx={{ textTransform: 'none', fontSize: '0.75rem' }}>
+                  {t('edit')}
+                </Button>
+              )}
+              {isCustomChar && onEditCustom && customChar && (
+                <Button size="small" startIcon={<EditIcon fontSize="small" />}
+                  onClick={() => onEditCustom(customChar)}
+                  sx={{ textTransform: 'none', fontSize: '0.75rem' }}>
+                  {t('edit')}
+                </Button>
+              )}
+            </Box>
+
+            {/* View mode */}
+            {!nightEditOpen && (
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                {/* First Night */}
+                <Box>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.25 }}>
+                    {language === 'zh' ? '第一夜 (EN)' : 'First Night (EN)'}
+                    {firstNightPos != null && (
+                      <Box component="span" sx={{ ml: 1, color: 'primary.main', fontWeight: 600 }}>
+                        #{firstNightPos}
+                      </Box>
+                    )}
+                  </Typography>
+                  {firstEn
+                    ? <Typography variant="body2" sx={{ fontSize: '0.8rem', lineHeight: 1.5 }}>{firstEn}</Typography>
+                    : <Typography variant="caption" color="text.disabled" sx={{ fontStyle: 'italic' }}>—</Typography>
+                  }
+                </Box>
+                <Box>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.25 }}>
+                    {language === 'zh' ? '第一夜 (ZH)' : 'First Night (ZH)'}
+                  </Typography>
+                  {firstZh
+                    ? <Typography variant="body2" sx={{ fontSize: '0.8rem', lineHeight: 1.5 }}>{firstZh}</Typography>
+                    : <Typography variant="caption" color="text.disabled" sx={{ fontStyle: 'italic' }}>—</Typography>
+                  }
+                </Box>
+                {/* Other Nights */}
+                <Box>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.25 }}>
+                    {language === 'zh' ? '其他夜晚 (EN)' : 'Other Nights (EN)'}
+                    {otherNightPos != null && (
+                      <Box component="span" sx={{ ml: 1, color: 'warning.main', fontWeight: 600 }}>
+                        #{otherNightPos}
+                      </Box>
+                    )}
+                  </Typography>
+                  {otherEn
+                    ? <Typography variant="body2" sx={{ fontSize: '0.8rem', lineHeight: 1.5 }}>{otherEn}</Typography>
+                    : <Typography variant="caption" color="text.disabled" sx={{ fontStyle: 'italic' }}>—</Typography>
+                  }
+                </Box>
+                <Box>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.25 }}>
+                    {language === 'zh' ? '其他夜晚 (ZH)' : 'Other Nights (ZH)'}
+                  </Typography>
+                  {otherZh
+                    ? <Typography variant="body2" sx={{ fontSize: '0.8rem', lineHeight: 1.5 }}>{otherZh}</Typography>
+                    : <Typography variant="caption" color="text.disabled" sx={{ fontStyle: 'italic' }}>—</Typography>
+                  }
+                </Box>
+                {!hasAny && (
+                  <Typography variant="caption" color="text.disabled" sx={{ fontStyle: 'italic' }}>
+                    {language === 'zh' ? '（此角色无夜间提示）' : '(no night reminders for this character)'}
+                  </Typography>
+                )}
+              </Box>
+            )}
+
+            {/* Edit mode — catalog chars only */}
+            {nightEditOpen && nightReminderEdit && (
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                <TextField size="small" multiline minRows={2}
+                  label={language === 'zh' ? '第一夜提示 (EN)' : 'First Night Reminder (EN)'}
+                  value={nightReminderEdit.firstEn}
+                  onChange={(e) => setNightReminderEdit({ ...nightReminderEdit, firstEn: e.target.value })}
+                />
+                <TextField size="small" multiline minRows={2}
+                  label={language === 'zh' ? '第一夜提示 (ZH)' : 'First Night Reminder (ZH)'}
+                  value={nightReminderEdit.firstZh}
+                  onChange={(e) => setNightReminderEdit({ ...nightReminderEdit, firstZh: e.target.value })}
+                />
+                <TextField size="small" multiline minRows={2}
+                  label={language === 'zh' ? '其他夜晚提示 (EN)' : 'Other Nights Reminder (EN)'}
+                  value={nightReminderEdit.otherEn}
+                  onChange={(e) => setNightReminderEdit({ ...nightReminderEdit, otherEn: e.target.value })}
+                />
+                <TextField size="small" multiline minRows={2}
+                  label={language === 'zh' ? '其他夜晚提示 (ZH)' : 'Other Nights Reminder (ZH)'}
+                  value={nightReminderEdit.otherZh}
+                  onChange={(e) => setNightReminderEdit({ ...nightReminderEdit, otherZh: e.target.value })}
+                />
+                <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+                  <Button size="small" variant="outlined" onClick={cancelNightReminders}>{t('cancel')}</Button>
+                  <Button size="small" variant="contained" onClick={saveNightReminders}>{t('save')}</Button>
+                </Box>
+              </Box>
+            )}
+
+            {/* ── Attributes (setup, night positions) ── */}
+            <Divider sx={{ my: 2 }} />
+            <Typography variant="subtitle2" sx={{ mb: 1 }}>
+              {language === 'zh' ? '属性' : 'Attributes'}
+            </Typography>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+              <Chip
+                size="small"
+                label={language === 'zh' ? `设置影响: ${setup ? '是' : '否'}` : `Setup: ${setup ? 'yes' : 'no'}`}
+                color={setup ? 'warning' : 'default'}
+                variant={setup ? 'filled' : 'outlined'}
+              />
+              {firstNightPos != null && (
+                <Chip size="small" variant="outlined"
+                  label={language === 'zh' ? `第一夜 #${firstNightPos}` : `First night #${firstNightPos}`}
+                  sx={{ color: 'primary.main', borderColor: 'primary.main' }}
+                />
+              )}
+              {otherNightPos != null && (
+                <Chip size="small" variant="outlined"
+                  label={language === 'zh' ? `其他夜晚 #${otherNightPos}` : `Other nights #${otherNightPos}`}
+                  sx={{ color: 'warning.main', borderColor: 'warning.main' }}
+                />
+              )}
+              {firstNightPos == null && otherNightPos == null && (
+                <Typography variant="caption" color="text.disabled" sx={{ fontStyle: 'italic', alignSelf: 'center' }}>
+                  {language === 'zh' ? '无夜间唤醒' : 'no night wake'}
+                </Typography>
+              )}
+            </Box>
+          </Box>
+        )
+      })()}
 
       {/* ── Add Revision Dialog ── */}
       <Dialog open={addOpen} onClose={() => setAddOpen(false)} maxWidth="sm" fullWidth>

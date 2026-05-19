@@ -170,6 +170,50 @@ export function setCharacterRemindersOverride(
   _charReminders = stored
 }
 
+// ── Night reminder overrides ───────────────────────────────────────────────────
+
+export const CHAR_NIGHT_OVERRIDES_KEY = 'BOTC_CHAR_NIGHT_OVERRIDES'
+
+type CharNightOverrides = Record<string, {
+  firstNightReminder?: string
+  firstNightReminderZh?: string
+  otherNightReminder?: string
+  otherNightReminderZh?: string
+  setup?: boolean
+}>
+
+function loadCharNightOverrides(): CharNightOverrides {
+  if (typeof window === 'undefined') return {}
+  try {
+    return JSON.parse(localStorage.getItem(CHAR_NIGHT_OVERRIDES_KEY) ?? '{}') as CharNightOverrides
+  } catch { return {} }
+}
+
+let _charNightOverrides: CharNightOverrides = loadCharNightOverrides()
+
+export function refreshCharNightOverrides() {
+  _charNightOverrides = loadCharNightOverrides()
+}
+
+export function getCharNightOverride(id: string): CharNightOverrides[string] | undefined {
+  return _charNightOverrides[id]
+}
+
+/** Persist night reminder / setup overrides for a catalog character. Pass null to clear all. */
+export function setCharNightOverride(
+  id: string,
+  patch: CharNightOverrides[string] | null,
+) {
+  const stored = loadCharNightOverrides()
+  if (patch === null) {
+    delete stored[id]
+  } else {
+    stored[id] = { ...stored[id], ...patch }
+  }
+  localStorage.setItem(CHAR_NIGHT_OVERRIDES_KEY, JSON.stringify(stored))
+  _charNightOverrides = stored
+}
+
 // ── Custom character registry ──────────────────────────────────────────────────
 
 export const CUSTOM_CHARACTERS_KEY = 'BOTC_CUSTOM_CHARACTERS'
@@ -933,14 +977,27 @@ export const { allCharacters, characterById } = loadCharacterCatalog()
  * Falls back: zh → en if zh not available; returns undefined if no reminder.
  */
 export function getNightReminder(id: string, language: Language, night: 'first' | 'other'): string | undefined {
-  const char = characterById[id]
-  if (!char) return undefined
-  if (night === 'first') {
-    if (language === 'zh') return char.firstNightReminderZh ?? char.firstNightReminder
-    return char.firstNightReminder
+  // Custom chars: read from registry
+  const custom = _customCharRegistry.get(id)
+  if (custom) {
+    if (night === 'first') return custom.firstNightReminder || undefined
+    return custom.otherNightReminder || undefined
   }
-  if (language === 'zh') return char.otherNightReminderZh ?? char.otherNightReminder
-  return char.otherNightReminder
+  // Catalog chars: user override takes priority, then catalog data
+  const ov = _charNightOverrides[id]
+  const char = characterById[id]
+  if (night === 'first') {
+    if (language === 'zh') {
+      return ov?.firstNightReminderZh ?? ov?.firstNightReminder
+        ?? char?.firstNightReminderZh ?? char?.firstNightReminder
+    }
+    return ov?.firstNightReminder ?? char?.firstNightReminder
+  }
+  if (language === 'zh') {
+    return ov?.otherNightReminderZh ?? ov?.otherNightReminder
+      ?? char?.otherNightReminderZh ?? char?.otherNightReminder
+  }
+  return ov?.otherNightReminder ?? char?.otherNightReminder
 }
 
 export const initialScripts = loadScripts()
