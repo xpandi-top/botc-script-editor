@@ -1,35 +1,10 @@
 /**
  * Provider-agnostic AI client.
- *
- * Supported providers (set VITE_AI_PROVIDER):
- *   groq       — https://console.groq.com  (free tier, recommended)
- *   openrouter — https://openrouter.ai     (free models available)
- *   gemini     — https://aistudio.google.com (original, quota-limited)
- *
- * Env vars:
- *   VITE_AI_PROVIDER   = groq | openrouter | gemini   (default: groq)
- *   VITE_AI_API_KEY    = your key
- *   VITE_GEMINI_API_KEY = legacy fallback for gemini provider
+ * Provider/model/key resolved at call time from aiSettings (localStorage),
+ * falling back to env vars. No page reload needed to switch provider.
  */
 
-type Provider = 'groq' | 'openrouter' | 'gemini'
-
-const PROVIDER = (import.meta.env.VITE_AI_PROVIDER as Provider | undefined) ?? 'groq'
-
-const API_KEY: string | undefined =
-  (import.meta.env.VITE_AI_API_KEY as string | undefined)?.trim() ||
-  (import.meta.env.VITE_GEMINI_API_KEY as string | undefined)?.trim() ||
-  undefined
-
-// ── Default models per provider ──────────────────────────────────────────────
-
-const DEFAULT_MODELS: Record<Provider, string> = {
-  groq:       'llama-3.3-70b-versatile',
-  openrouter: 'meta-llama/llama-3.3-70b-instruct:free',
-  gemini:     'gemini-2.0-flash',
-}
-
-// ── Error class ───────────────────────────────────────────────────────────────
+import { loadAiSettings, type AiProvider } from './aiSettings'
 
 export class GeminiError extends Error {
   constructor(
@@ -42,17 +17,10 @@ export class GeminiError extends Error {
   }
 }
 
-// ── Availability check ────────────────────────────────────────────────────────
-
 export function isGeminiAvailable(): boolean {
-  return Boolean(API_KEY)
+  const s = loadAiSettings()
+  return Boolean(s.keys[s.provider]?.trim())
 }
-
-export function getActiveProvider(): Provider {
-  return PROVIDER
-}
-
-// ── Core request ──────────────────────────────────────────────────────────────
 
 export type GeminiRequest = {
   model?: string
@@ -68,19 +36,20 @@ export type GeminiResponse = {
 }
 
 export async function geminiGenerate(req: GeminiRequest): Promise<GeminiResponse> {
-  if (!API_KEY) throw new GeminiError('No AI API key set (VITE_AI_API_KEY)')
+  const settings = loadAiSettings()
+  const provider = settings.provider
+  const apiKey   = settings.keys[provider]?.trim()
+  const model    = req.model ?? settings.model
 
-  const model = req.model ?? DEFAULT_MODELS[PROVIDER]
+  if (!apiKey) throw new GeminiError(`No API key set for provider "${provider}"`)
 
-  if (PROVIDER === 'gemini') {
-    return _callGemini(req, model)
-  }
-  return _callOpenAICompat(req, model)
+  if (provider === 'gemini') return _callGemini(req, model, apiKey)
+  return _callOpenAICompat(req, model, apiKey, provider)
 }
 
-// ── Gemini native format ──────────────────────────────────────────────────────
+// ── Gemini native ─────────────────────────────────────────────────────────────
 
-async function _callGemini(req: GeminiRequest, model: string): Promise<GeminiResponse> {
+async function _callGemini(req: GeminiRequest, model: string, apiKey: string): Promise<GeminiResponse> {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`
   const body: Record<string, unknown> = {
     contents: req.contents,
@@ -92,10 +61,9 @@ async function _callGemini(req: GeminiRequest, model: string): Promise<GeminiRes
   if (req.systemInstruction) {
     body.systemInstruction = { parts: [{ text: req.systemInstruction }] }
   }
-
   const res = await fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'X-goog-api-key': API_KEY! },
+    headers: { 'Content-Type': 'application/json', 'X-goog-api-key': apiKey },
     body: JSON.stringify(body),
   })
   if (!res.ok) {
@@ -108,60 +76,59 @@ async function _callGemini(req: GeminiRequest, model: string): Promise<GeminiRes
   return { text: text.trim(), finishReason: candidate?.finishReason ?? 'UNKNOWN' }
 }
 
-// ── OpenAI-compatible format (Groq, OpenRouter, Cerebras, etc.) ──────────────
+// ── OpenAI-compatible (Groq, OpenRouter) ─────────────────────────────────────
 
-const OPENAI_COMPAT_URLS: Record<string, string> = {
+const COMPAT_URLS: Record<string, string> = {
   groq:       'https://api.groq.com/openai/v1/chat/completions',
   openrouter: 'https://openrouter.ai/api/v1/chat/completions',
 }
 
-async function _callOpenAICompat(req: GeminiRequest, model: string): Promise<GeminiResponse> {
-  const url = OPENAI_COMPAT_URLS[PROVIDER] ?? OPENAI_COMPAT_URLS.groq
+async function _callOpenAICompat(
+  req: GeminiRequest,
+  model: string,
+  apiKey: string,
+  provider: AiProvider,
+): Promise<GeminiResponse> {
+  const url = COMPAT_URLS[provider] ?? COMPAT_URLS.groq
 
-  // Convert Gemini-style contents → OpenAI messages
   const messages: Array<{ role: string; content: string }> = []
-  if (req.systemInstruction) {
-    messages.push({ role: 'system', content: req.systemInstruction })
-  }
+  if (req.systemInstruction) messages.push({ role: 'system', content: req.systemInstruction })
   for (const c of req.contents) {
-    messages.push({
-      role: c.role === 'model' ? 'assistant' : 'user',
-      content: c.parts.map((p) => p.text).join(''),
-    })
-  }
-
-  const body: Record<string, unknown> = {
-    model,
-    messages,
-    temperature: req.temperature ?? 0.7,
-    ...(req.maxOutputTokens ? { max_tokens: req.maxOutputTokens } : {}),
+    messages.push({ role: c.role === 'model' ? 'assistant' : 'user', content: c.parts.map((p) => p.text).join('') })
   }
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${API_KEY}`,
+    'Authorization': `Bearer ${apiKey}`,
   }
-  // OpenRouter asks for a site URL header (optional but polite)
-  if (PROVIDER === 'openrouter') {
+  if (provider === 'openrouter') {
     headers['HTTP-Referer'] = 'https://botc-companion.app'
     headers['X-Title'] = 'BOTC Companion'
   }
 
-  const res = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body) })
+  const res = await fetch(url, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      model,
+      messages,
+      temperature: req.temperature ?? 0.7,
+      ...(req.maxOutputTokens ? { max_tokens: req.maxOutputTokens } : {}),
+    }),
+  })
   if (!res.ok) {
     const err = await res.json().catch(() => null)
     throw new GeminiError(err?.error?.message ?? `HTTP ${res.status}`, res.status, err)
   }
-
   const data = await res.json()
   const choice = data?.choices?.[0]
-  const text: string = choice?.message?.content ?? ''
-  const finishReason: string = choice?.finish_reason ?? 'UNKNOWN'
-  return { text: text.trim(), finishReason }
+  return {
+    text: (choice?.message?.content ?? '').trim(),
+    finishReason: choice?.finish_reason ?? 'UNKNOWN',
+  }
 }
 
-// ── Convenience wrapper (used by botcAgent.ts) ────────────────────────────────
-
+/** Single-turn convenience wrapper used by botcAgent.ts */
 export async function geminiAsk(
   prompt: string,
   opts?: { system?: string; temperature?: number; model?: string },

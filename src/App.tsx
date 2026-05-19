@@ -39,6 +39,10 @@ import HistoryIcon from '@mui/icons-material/History'
 import SchoolIcon from '@mui/icons-material/School'
 import { ChangelogPage } from './components/ChangelogPage'
 import { TutorialOverlay } from './components/Tutorial/TutorialOverlay'
+import { AiChatDialog } from './components/AiChatDialog'
+import { isGeminiAvailable } from './lib/gemini'
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
+import Fab from '@mui/material/Fab'
 import { TUTORIAL_KEY } from './components/Tutorial/tutorialSteps'
 import { PrintPreviewPage } from './components/PrintPreviewPage'
 import { DEFAULT_PRINT_OPTIONS } from './components/PrintOptionsDialog'
@@ -328,6 +332,7 @@ export default function App() {
   const [tokenPrintOptions, setTokenPrintOptions] = useState<TokenPrintOptions>(DEFAULT_TOKEN_OPTIONS)
   const [saveStatus, setSaveStatus] = useState('')
   const [showDescription, setShowDescription] = useState(false)
+  const [aiChatOpen, setAiChatOpen] = useState(false)
   const [tabMenuAnchor, setTabMenuAnchor] = useState<null | HTMLElement>(null)
   const [selectedCharacterId, setSelectedCharacterId] = useState<string>(allCharacters[0]?.id ?? '')
 
@@ -980,6 +985,31 @@ export default function App() {
       {showChangelog && (
         <ChangelogPage onClose={() => setShowChangelog(false)} language={uiLanguage} />
       )}
+
+      {/* AI chat FAB — bottom-right, hidden on storyteller mobile (has its own chrome) */}
+      {isGeminiAvailable() && !(activeTab === 'storyteller' && isMobileView) && (
+        <Fab
+          size="small"
+          onClick={() => setAiChatOpen(true)}
+          sx={{
+            position: 'fixed',
+            bottom: { xs: 68, sm: 24 },
+            right: { xs: 12, sm: 24 },
+            zIndex: 1200,
+            bgcolor: 'primary.main',
+            color: 'primary.contrastText',
+            '&:hover': { bgcolor: 'primary.dark' },
+          }}
+        >
+          <AutoAwesomeIcon fontSize="small" />
+        </Fab>
+      )}
+
+      <AiChatDialog
+        open={aiChatOpen}
+        onClose={() => setAiChatOpen(false)}
+        language={uiLanguage}
+      />
     </Container>
   )
 }
