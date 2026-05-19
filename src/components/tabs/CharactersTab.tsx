@@ -69,7 +69,68 @@ type Props = {
   onInitialNewCharConsumed?: () => void
 }
 
+// ── Script-schema normalizer ──────────────────────────────────────────────────
+// BOTC scripts embed characters as: { id, name, ability, team, ... } (flat, no en/zh).
+// We normalize to CharacterFileEntry with locale sections.
+
+function normalizePackEntry(raw: unknown): CharacterFileEntry | null {
+  if (!raw || typeof raw !== 'object') return null
+  const r = raw as Record<string, unknown>
+  const id = typeof r.id === 'string' ? r.id.trim() : null
+  if (!id || id.startsWith('_')) return null  // skip _meta etc.
+
+  const team = (typeof r.team === 'string' ? r.team : 'townsfolk') as Team
+  const edition = typeof r.edition === 'string' ? r.edition : 'custom'
+
+  // Already in our locale format (has en/zh objects)
+  if (r.en && typeof r.en === 'object') {
+    return { ...r, id, team, edition } as unknown as CharacterFileEntry
+  }
+
+  // Script schema: flat name/ability fields
+  const nameFlat  = typeof r.name     === 'string' ? r.name     : undefined
+  const nameEng   = typeof r.name_eng === 'string' ? r.name_eng : undefined  // some zh scripts
+  const abilityFlat = typeof r.ability === 'string' ? r.ability : undefined
+  // Detect Chinese text by CJK codepoint range
+  const isChinese = nameFlat ? /[一-鿿㐀-䶿]/.test(nameFlat) : false
+
+  const result: CharacterFileEntry = { id, team, edition }
+
+  if (isChinese) {
+    result.zh = { name: nameFlat, ability: abilityFlat }
+    if (nameEng) result.en = { name: nameEng }
+  } else {
+    result.en = { name: nameFlat, ability: abilityFlat }
+    if (nameEng) result.zh = { name: nameEng }  // some packs store zh in name_eng position
+  }
+
+  // Preserve mechanical fields if present
+  if (typeof r.firstNight === 'number')           result.firstNight = r.firstNight
+  if (typeof r.otherNight === 'number')           result.otherNight = r.otherNight
+  if (typeof r.firstNightReminder === 'string')   result.firstNightReminder = r.firstNightReminder
+  if (typeof r.otherNightReminder === 'string')   result.otherNightReminder = r.otherNightReminder
+  if (typeof r.setup === 'boolean')               result.setup = r.setup
+  if (Array.isArray(r.reminders))
+    result.reminders = r.reminders.filter((x): x is string => typeof x === 'string')
+  if (Array.isArray(r.remindersGlobal))
+    result.remindersGlobal = r.remindersGlobal.filter((x): x is string => typeof x === 'string')
+
+  return result
+}
+
 // ── Pack Import Preview Dialog ────────────────────────────────────────────────
+
+// Per-entry edits (keyed by ORIGINAL id)
+type PackEdit = {
+  id?: string       // user-overridden ID
+  team?: Team
+  edition?: string
+  setup?: boolean
+  firstNight?: string   // stored as string for text field; parsed to number on confirm
+  otherNight?: string
+  en?: { name?: string; ability?: string }
+  zh?: { name?: string; ability?: string }
+}
 
 type PackImportDialogProps = {
   open: boolean
@@ -83,64 +144,83 @@ type PackImportDialogProps = {
 function PackImportDialog({ open, onClose, pack, language, knownIds, onConfirm }: PackImportDialogProps) {
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
-  const [edits, setEdits] = useState<Record<string, Partial<CharacterFileEntry>>>({})
+  const [edits, setEdits] = useState<Record<string, PackEdit>>({})
+  const zh = language === 'zh'
 
-  // Reset on open
   React.useEffect(() => {
     if (open) {
       setSelected(new Set(pack.map((c) => c.id)))
       setExpanded(new Set())
-      setEdits({})
+      // Auto-initialize edits with cleaned IDs if dirty
+      const initialEdits: Record<string, PackEdit> = {}
+      for (const c of pack) {
+        const clean = slugify(c.id)
+        if (clean && clean !== c.id) initialEdits[c.id] = { id: clean }
+      }
+      setEdits(initialEdits)
     }
   }, [open, pack])
 
-  const toggleSelect = (id: string) => setSelected((s) => {
-    const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n
+  const toggleSelect = (origId: string) => setSelected((s) => {
+    const n = new Set(s); n.has(origId) ? n.delete(origId) : n.add(origId); return n
   })
-  const toggleExpand = (id: string) => setExpanded((s) => {
-    const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n
+  const toggleExpand = (origId: string) => setExpanded((s) => {
+    const n = new Set(s); n.has(origId) ? n.delete(origId) : n.add(origId); return n
   })
-  const selectAll = () => setSelected(new Set(pack.map((c) => c.id)))
+  const selectAll  = () => setSelected(new Set(pack.map((c) => c.id)))
   const selectNone = () => setSelected(new Set())
 
-  const setEdit = (id: string, field: string, value: string) => {
+  const patchEdit = (origId: string, patch: Partial<PackEdit>) => {
+    setEdits((prev) => ({ ...prev, [origId]: { ...prev[origId], ...patch } }))
+  }
+  const patchEditLocale = (origId: string, lang: 'en' | 'zh', field: 'name' | 'ability', value: string) => {
     setEdits((prev) => {
-      const entry = prev[id] ?? {}
-      if (field === 'nameEn')    return { ...prev, [id]: { ...entry, en: { ...entry.en, name: value } } }
-      if (field === 'nameZh')    return { ...prev, [id]: { ...entry, zh: { ...entry.zh, name: value } } }
-      if (field === 'abilityEn') return { ...prev, [id]: { ...entry, en: { ...entry.en, ability: value } } }
-      if (field === 'abilityZh') return { ...prev, [id]: { ...entry, zh: { ...entry.zh, ability: value } } }
-      return prev
+      const cur = prev[origId] ?? {}
+      return { ...prev, [origId]: { ...cur, [lang]: { ...cur[lang], [field]: value } } }
     })
   }
 
   const handleConfirm = () => {
-    const out = pack
-      .filter((c) => selected.has(c.id))
-      .map((c) => {
-        const e = edits[c.id]
-        if (!e) return c
-        return {
-          ...c,
-          en: e.en ? { ...c.en, ...e.en } : c.en,
-          zh: e.zh ? { ...c.zh, ...e.zh } : c.zh,
-        } as CharacterFileEntry
+    const out: CharacterFileEntry[] = []
+    for (const c of pack) {
+      if (!selected.has(c.id)) continue
+      const e = edits[c.id] ?? {}
+      const finalId   = e.id?.trim() || c.id
+      const firstNum  = e.firstNight !== undefined ? (parseFloat(e.firstNight) || undefined) : c.firstNight
+      const otherNum  = e.otherNight !== undefined ? (parseFloat(e.otherNight) || undefined) : c.otherNight
+      out.push({
+        ...c,
+        id:         finalId,
+        team:       e.team      ?? c.team,
+        edition:    e.edition   ?? c.edition,
+        setup:      e.setup     ?? c.setup,
+        firstNight: firstNum,
+        otherNight: otherNum,
+        en: e.en ? { ...c.en, ...e.en } : c.en,
+        zh: e.zh ? { ...c.zh, ...e.zh } : c.zh,
       })
+    }
     onConfirm(out)
   }
 
-  const newCount  = pack.filter((c) => !knownIds.has(c.id) && selected.has(c.id)).length
-  const overCount = pack.filter((c) =>  knownIds.has(c.id) && selected.has(c.id)).length
+  // Effective (post-edit) IDs for counting
+  const effectiveId = (c: CharacterFileEntry) => edits[c.id]?.id?.trim() || c.id
+  const selectedEffIds = new Set(pack.filter((c) => selected.has(c.id)).map(effectiveId))
+  const newCount  = [...selectedEffIds].filter((id) => !knownIds.has(id)).length
+  const overCount = [...selectedEffIds].filter((id) =>  knownIds.has(id)).length
+
+  // Detect dirty ID (doesn't match its own slugified form)
+  const isIdDirty = (id: string) => { const s = slugify(id); return s !== id && s.length > 0 }
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth scroll="paper">
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 1 }}>
         <Box>
           <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-            {language === 'zh' ? '导入角色包预览' : 'Import Character Pack'}
+            {zh ? '导入角色包预览' : 'Import Character Pack'}
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            {language === 'zh'
+            {zh
               ? `共 ${pack.length} 个角色 · 已选 ${selected.size}`
               : `${pack.length} characters · ${selected.size} selected`}
           </Typography>
@@ -148,92 +228,162 @@ function PackImportDialog({ open, onClose, pack, language, knownIds, onConfirm }
         <IconButton size="small" onClick={onClose}><CloseIcon /></IconButton>
       </DialogTitle>
 
-      {/* Summary chips */}
       <Box sx={{ px: 2, pb: 1, display: 'flex', gap: 0.75, flexWrap: 'wrap', alignItems: 'center' }}>
-        <Button size="small" onClick={selectAll} sx={{ textTransform: 'none', fontSize: '0.72rem', py: 0 }}>
-          {language === 'zh' ? '全选' : 'All'}
-        </Button>
-        <Button size="small" onClick={selectNone} sx={{ textTransform: 'none', fontSize: '0.72rem', py: 0 }}>
-          {language === 'zh' ? '取消全选' : 'None'}
-        </Button>
-        {newCount > 0 && (
-          <Chip size="small" label={language === 'zh' ? `新增 ${newCount}` : `${newCount} new`} color="success" sx={{ fontSize: '0.7rem', height: 20 }} />
-        )}
-        {overCount > 0 && (
-          <Chip size="small" label={language === 'zh' ? `覆盖 ${overCount}` : `${overCount} overrides`} color="warning" sx={{ fontSize: '0.7rem', height: 20 }} />
-        )}
+        <Button size="small" onClick={selectAll}  sx={{ textTransform: 'none', fontSize: '0.72rem', py: 0 }}>{zh ? '全选' : 'All'}</Button>
+        <Button size="small" onClick={selectNone} sx={{ textTransform: 'none', fontSize: '0.72rem', py: 0 }}>{zh ? '取消全选' : 'None'}</Button>
+        {newCount  > 0 && <Chip size="small" label={zh ? `新增 ${newCount}`  : `${newCount} new`}       color="success" sx={{ fontSize: '0.7rem', height: 20 }} />}
+        {overCount > 0 && <Chip size="small" label={zh ? `覆盖 ${overCount}` : `${overCount} overrides`} color="warning" sx={{ fontSize: '0.7rem', height: 20 }} />}
       </Box>
 
       <Divider />
       <DialogContent sx={{ p: 0 }}>
         {pack.map((c, i) => {
-          const isNew = !knownIds.has(c.id)
-          const isSelected = selected.has(c.id)
-          const isExpanded = expanded.has(c.id)
-          const edit = edits[c.id]
-          const nameEn = edit?.en?.name ?? c.en?.name ?? c.id
-          const nameZh = edit?.zh?.name ?? c.zh?.name ?? ''
-          const abilityEn = edit?.en?.ability ?? c.en?.ability ?? ''
-          const abilityZh = edit?.zh?.ability ?? c.zh?.ability ?? ''
-          const displayName = language === 'zh' ? (nameZh || nameEn) : nameEn
+          const e        = edits[c.id] ?? {}
+          const finalId  = e.id?.trim() || c.id
+          const effIsNew = !knownIds.has(finalId)
+          const isSel    = selected.has(c.id)
+          const isExp    = expanded.has(c.id)
+          const idDirty  = isIdDirty(c.id) && !e.id   // original is dirty and not yet fixed
+
+          const nameEn    = e.en?.name    ?? c.en?.name    ?? c.id
+          const nameZh    = e.zh?.name    ?? c.zh?.name    ?? ''
+          const abilityEn = e.en?.ability ?? c.en?.ability ?? ''
+          const abilityZh = e.zh?.ability ?? c.zh?.ability ?? ''
+          const teamVal   = e.team    ?? c.team
+          const editionVal= e.edition ?? c.edition
+          const setupVal  = e.setup   ?? c.setup ?? false
+          const fnVal     = e.firstNight !== undefined ? e.firstNight : (c.firstNight?.toString() ?? '')
+          const onVal     = e.otherNight !== undefined ? e.otherNight : (c.otherNight?.toString() ?? '')
+          const displayName = zh ? (nameZh || nameEn) : nameEn
 
           return (
             <Box key={c.id}>
               {i > 0 && <Divider />}
-              <Box
-                sx={{
-                  display: 'flex', alignItems: 'center', gap: 1, px: 1.5, py: 0.75,
-                  bgcolor: isSelected ? 'transparent' : 'action.disabledBackground',
-                  opacity: isSelected ? 1 : 0.6,
-                  transition: 'background 0.1s',
-                }}
-              >
-                <Checkbox
-                  size="small" checked={isSelected}
-                  onChange={() => toggleSelect(c.id)}
-                  sx={{ p: 0.25, flexShrink: 0 }}
-                />
+              {/* Row header */}
+              <Box sx={{
+                display: 'flex', alignItems: 'center', gap: 1, px: 1.5, py: 0.75,
+                bgcolor: isSel ? 'transparent' : 'action.disabledBackground',
+                opacity: isSel ? 1 : 0.6,
+              }}>
+                <Checkbox size="small" checked={isSel} onChange={() => toggleSelect(c.id)} sx={{ p: 0.25, flexShrink: 0 }} />
                 <Box sx={{ flex: 1, minWidth: 0 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, flexWrap: 'wrap' }}>
                     <Typography sx={{ fontWeight: 600, fontSize: '0.88rem', lineHeight: 1.3 }}>{displayName}</Typography>
-                    <Chip
-                      size="small"
-                      label={isNew ? (language === 'zh' ? '新增' : 'NEW') : (language === 'zh' ? '覆盖' : 'UPDATE')}
-                      color={isNew ? 'success' : 'warning'}
-                      variant="outlined"
-                      sx={{ fontSize: '0.62rem', height: 18, '& .MuiChip-label': { px: 0.5 } }}
-                    />
-                    <Chip
-                      size="small"
-                      label={c.team}
-                      variant="outlined"
-                      sx={{ fontSize: '0.62rem', height: 18, '& .MuiChip-label': { px: 0.5 }, textTransform: 'capitalize' }}
-                    />
-                    <Typography variant="caption" color="text.disabled" sx={{ fontSize: '0.65rem' }}>{c.id}</Typography>
+                    <Chip size="small"
+                      label={effIsNew ? (zh ? '新增' : 'NEW') : (zh ? '覆盖' : 'UPDATE')}
+                      color={effIsNew ? 'success' : 'warning'} variant="outlined"
+                      sx={{ fontSize: '0.62rem', height: 18, '& .MuiChip-label': { px: 0.5 } }} />
+                    <Chip size="small" label={teamVal} variant="outlined"
+                      sx={{ fontSize: '0.62rem', height: 18, '& .MuiChip-label': { px: 0.5 }, textTransform: 'capitalize' }} />
+                    {idDirty && (
+                      <Chip size="small" label={zh ? 'ID需清理' : 'dirty ID'} color="error" variant="outlined"
+                        sx={{ fontSize: '0.62rem', height: 18, '& .MuiChip-label': { px: 0.5 } }} />
+                    )}
+                    <Typography variant="caption" color="text.disabled" sx={{ fontSize: '0.65rem' }}>{finalId}</Typography>
                   </Box>
-                  {!isExpanded && abilityEn && (
-                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.25, fontSize: '0.75rem', lineHeight: 1.35 }}
-                      dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(language === 'zh' ? (abilityZh || abilityEn) : abilityEn, PURIFY_OPTS) }} />
+                  {!isExp && abilityEn && (
+                    <Typography variant="caption" color="text.secondary"
+                      sx={{ display: 'block', mt: 0.25, fontSize: '0.75rem', lineHeight: 1.35 }}
+                      dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(zh ? (abilityZh || abilityEn) : abilityEn, PURIFY_OPTS) }} />
                   )}
                 </Box>
                 <IconButton size="small" onClick={() => toggleExpand(c.id)} sx={{ p: 0.25, flexShrink: 0 }}>
-                  {isExpanded ? <ExpandLessIcon sx={{ fontSize: 16 }} /> : <ExpandMoreIcon sx={{ fontSize: 16 }} />}
+                  {isExp ? <ExpandLessIcon sx={{ fontSize: 16 }} /> : <ExpandMoreIcon sx={{ fontSize: 16 }} />}
                 </IconButton>
               </Box>
 
-              {/* Expanded edit section */}
-              <Collapse in={isExpanded}>
-                <Box sx={{ px: 2, pb: 1.5, pt: 0.5, bgcolor: 'action.hover', display: 'flex', flexDirection: 'column', gap: 1 }}>
-                  <Box sx={{ display: 'flex', gap: 1 }}>
-                    <TextField size="small" fullWidth label={language === 'zh' ? '英文名' : 'Name (EN)'}
-                      value={nameEn} onChange={(e) => setEdit(c.id, 'nameEn', e.target.value)} />
-                    <TextField size="small" fullWidth label={language === 'zh' ? '中文名' : 'Name (ZH)'}
-                      value={nameZh} onChange={(e) => setEdit(c.id, 'nameZh', e.target.value)} />
+              {/* Expanded edit form */}
+              <Collapse in={isExp}>
+                <Box sx={{ px: 2, pb: 1.5, pt: 0.75, bgcolor: 'action.hover', display: 'flex', flexDirection: 'column', gap: 1.25 }}>
+
+                  {/* ID row with clean suggestion */}
+                  <Box>
+                    <TextField size="small" fullWidth
+                      label={zh ? '角色 ID（唯一标识）' : 'Character ID (unique key)'}
+                      value={e.id ?? c.id}
+                      onChange={(ev) => patchEdit(c.id, { id: ev.target.value })}
+                      error={Boolean(e.id) && !/^[a-z0-9_-]+$/.test(e.id ?? '')}
+                      helperText={(() => {
+                        const raw = e.id ?? c.id
+                        const clean = slugify(raw)
+                        if (raw !== clean && clean) return (zh ? '建议: ' : 'Suggested: ') + clean
+                        if (!/^[a-z0-9_-]+$/.test(raw)) return zh ? '只允许小写字母、数字、-、_' : 'Only lowercase letters, digits, - _'
+                        return ''
+                      })()}
+                      slotProps={{
+                        input: {
+                          endAdornment: (() => {
+                            const raw = e.id ?? c.id
+                            const clean = slugify(raw)
+                            return (raw !== clean && clean) ? (
+                              <Button size="small" onClick={() => patchEdit(c.id, { id: clean })}
+                                sx={{ textTransform: 'none', fontSize: '0.7rem', px: 0.75, py: 0, minWidth: 0 }}>
+                                {zh ? '应用' : 'Apply'}
+                              </Button>
+                            ) : null
+                          })() as React.ReactNode,
+                        },
+                      }}
+                    />
                   </Box>
-                  <TextField size="small" fullWidth multiline minRows={2} label={language === 'zh' ? '能力 (EN)' : 'Ability (EN)'}
-                    value={abilityEn} onChange={(e) => setEdit(c.id, 'abilityEn', e.target.value)} />
-                  <TextField size="small" fullWidth multiline minRows={2} label={language === 'zh' ? '能力 (ZH)' : 'Ability (ZH)'}
-                    value={abilityZh} onChange={(e) => setEdit(c.id, 'abilityZh', e.target.value)} />
+
+                  {/* Names row */}
+                  <Box sx={{ display: 'flex', gap: 1 }}>
+                    <TextField size="small" fullWidth label={zh ? '英文名' : 'Name (EN)'}
+                      value={nameEn}
+                      onChange={(ev) => patchEditLocale(c.id, 'en', 'name', ev.target.value)} />
+                    <TextField size="small" fullWidth label={zh ? '中文名' : 'Name (ZH)'}
+                      value={nameZh}
+                      onChange={(ev) => patchEditLocale(c.id, 'zh', 'name', ev.target.value)} />
+                  </Box>
+
+                  {/* Ability rows */}
+                  <TextField size="small" fullWidth multiline minRows={2}
+                    label={zh ? '能力文本 (EN)' : 'Ability (EN)'}
+                    value={abilityEn}
+                    onChange={(ev) => patchEditLocale(c.id, 'en', 'ability', ev.target.value)} />
+                  <TextField size="small" fullWidth multiline minRows={2}
+                    label={zh ? '能力文本 (ZH)' : 'Ability (ZH)'}
+                    value={abilityZh}
+                    onChange={(ev) => patchEditLocale(c.id, 'zh', 'ability', ev.target.value)} />
+
+                  {/* Team / Edition / Setup row */}
+                  <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'flex-start' }}>
+                    <FormControl size="small" sx={{ minWidth: 110 }}>
+                      <InputLabel sx={{ fontSize: '0.8rem' }}>{zh ? '阵营' : 'Team'}</InputLabel>
+                      <Select
+                        value={teamVal} label={zh ? '阵营' : 'Team'}
+                        onChange={(ev) => patchEdit(c.id, { team: ev.target.value as Team })}
+                        sx={{ fontSize: '0.8rem' }}
+                      >
+                        {teamOrder.map((t) => (
+                          <MenuItem key={t} value={t} sx={{ fontSize: '0.8rem', textTransform: 'capitalize' }}>{t}</MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                    <TextField size="small" label={zh ? '版本/来源' : 'Edition'}
+                      value={editionVal}
+                      onChange={(ev) => patchEdit(c.id, { edition: ev.target.value })}
+                      sx={{ width: 100 }} />
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, pt: 0.5 }}>
+                      <Checkbox size="small" checked={setupVal} sx={{ p: 0.25 }}
+                        onChange={(ev) => patchEdit(c.id, { setup: ev.target.checked })} />
+                      <Typography variant="caption" color="text.secondary">{zh ? '影响setup' : 'Setup'}</Typography>
+                    </Box>
+                  </Box>
+
+                  {/* Night order positions */}
+                  <Box sx={{ display: 'flex', gap: 1 }}>
+                    <TextField size="small" sx={{ width: 130 }}
+                      label={zh ? '第一夜顺序' : 'First Night #'}
+                      value={fnVal} type="number" slotProps={{ htmlInput: { min: 0 } }}
+                      onChange={(ev) => patchEdit(c.id, { firstNight: ev.target.value })} />
+                    <TextField size="small" sx={{ width: 130 }}
+                      label={zh ? '其他夜顺序' : 'Other Night #'}
+                      value={onVal} type="number" slotProps={{ htmlInput: { min: 0 } }}
+                      onChange={(ev) => patchEdit(c.id, { otherNight: ev.target.value })} />
+                  </Box>
+
                 </Box>
               </Collapse>
             </Box>
@@ -242,11 +392,9 @@ function PackImportDialog({ open, onClose, pack, language, knownIds, onConfirm }
       </DialogContent>
       <Divider />
       <DialogActions sx={{ px: 2, py: 1 }}>
-        <Button onClick={onClose} sx={{ textTransform: 'none' }}>
-          {language === 'zh' ? '取消' : 'Cancel'}
-        </Button>
+        <Button onClick={onClose} sx={{ textTransform: 'none' }}>{zh ? '取消' : 'Cancel'}</Button>
         <Button variant="contained" disabled={selected.size === 0} onClick={handleConfirm} sx={{ textTransform: 'none' }}>
-          {language === 'zh' ? `导入 ${selected.size} 个` : `Import ${selected.size}`}
+          {zh ? `导入 ${selected.size} 个` : `Import ${selected.size}`}
         </Button>
       </DialogActions>
     </Dialog>
@@ -323,7 +471,9 @@ export function CharactersTab({
     reader.onload = (e) => {
       try {
         const data = JSON.parse(e.target?.result as string)
-        const pack: CharacterFileEntry[] = Array.isArray(data) ? data : [data]
+        const raw: unknown[] = Array.isArray(data) ? data : [data]
+        // Normalize: handles both script-schema format and our CharacterFileEntry format
+        const pack = raw.map(normalizePackEntry).filter((c): c is CharacterFileEntry => c !== null)
         if (!pack.length) { setSnackMsg(t('import_failed_json')); return }
         setImportPreviewPack(pack)
         setImportPreviewOpen(true)
