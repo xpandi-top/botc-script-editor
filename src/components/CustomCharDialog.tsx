@@ -7,6 +7,7 @@ import {
 import CloseIcon from '@mui/icons-material/Close'
 import { editionLabels, slugify, teamLabels, teamOrder, toTitleCase } from '../catalog'
 import { processIconFile } from '../lib/iconResize'
+import { buildCharacterContext } from '../lib/agentContext'
 import { NightOrderPicker } from './NightOrderPicker'
 import { ReminderTokenEditor } from './ReminderTokenEditor'
 import type { CustomCharacter, Language, Team } from '../types'
@@ -31,6 +32,8 @@ const BLANK: Draft = {
   remindersGlobal: [],
 }
 
+export type CharDialogAgentContext = ReturnType<typeof buildCharacterContext>
+
 type Props = {
   open: boolean
   onClose: () => void
@@ -38,9 +41,13 @@ type Props = {
   uiLanguage: Language
   onSave: (draft: Draft, customId?: string) => void
   initialId?: string | null
+  /** Called whenever context changes so parent can pass it to AiChatDialog */
+  onContextChange?: (ctx: CharDialogAgentContext) => void
+  /** Parent passes a setter here; dialog stores fillField fn into it so parent can call fills */
+  fillRef?: React.MutableRefObject<((field: string, value: unknown) => void) | null>
 }
 
-export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSave, initialId }: Props) {
+export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSave, initialId, onContextChange, fillRef }: Props) {
   const [draft, setDraft] = useState<Draft>(BLANK)
   const [draftId, setDraftId] = useState('')
   const idManuallyEdited = useRef(false)
@@ -79,6 +86,35 @@ export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSav
     }
     setIconError('')
   }, [open, editingChar])
+
+  // Emit context whenever draft or draftId changes
+  useEffect(() => {
+    if (!open || !onContextChange) return
+    onContextChange(buildCharacterContext({
+      id: draftId || undefined,
+      nameEn: draft.nameEn,
+      nameZh: draft.nameZh,
+      team: draft.team,
+      edition: draft.edition,
+      author: draft.author,
+      abilityEn: draft.abilityEn,
+      abilityZh: draft.abilityZh,
+      firstNightReminder: draft.firstNightReminder,
+      otherNightReminder: draft.otherNightReminder,
+      firstNight: draft.firstNight,
+      otherNight: draft.otherNight,
+    }, uiLanguage, !editingChar))
+  }, [open, draft, draftId, uiLanguage, editingChar, onContextChange])
+
+  // Register fill function with parent via fillRef
+  useEffect(() => {
+    if (!fillRef) return
+    fillRef.current = (field: string, value: unknown) => {
+      if (field === 'id') { idManuallyEdited.current = true; setDraftId(String(value)); return }
+      setDraft((d) => ({ ...d, [field]: value }))
+    }
+    return () => { if (fillRef) fillRef.current = null }
+  })
 
   const handleIconUpload = async (file: File) => {
     setIconError('')

@@ -1,6 +1,7 @@
 import {
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react'
 import {
@@ -39,8 +40,9 @@ import HistoryIcon from '@mui/icons-material/History'
 import SchoolIcon from '@mui/icons-material/School'
 import { ChangelogPage } from './components/ChangelogPage'
 import { TutorialOverlay } from './components/Tutorial/TutorialOverlay'
-import { AiChatDialog } from './components/AiChatDialog'
+import { AiChatDialog, type AiChatCallbacks } from './components/AiChatDialog'
 import { isGeminiAvailable } from './lib/gemini'
+import type { AgentContext } from './lib/agentContext'
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
 import Fab from '@mui/material/Fab'
 import { TUTORIAL_KEY } from './components/Tutorial/tutorialSteps'
@@ -333,6 +335,12 @@ export default function App() {
   const [saveStatus, setSaveStatus] = useState('')
   const [showDescription, setShowDescription] = useState(false)
   const [aiChatOpen, setAiChatOpen] = useState(false)
+  const [aiContext, setAiContext] = useState<AgentContext | undefined>(undefined)
+  const aiFillRef = useRef<((field: string, value: unknown) => void) | null>(null)
+  const aiCallbacks: AiChatCallbacks = {
+    onFill:  (field, value) => aiFillRef.current?.(field, value),
+    onUndo:  (field, value) => aiFillRef.current?.(field, value),
+  }
   const [tabMenuAnchor, setTabMenuAnchor] = useState<null | HTMLElement>(null)
   const [selectedCharacterId, setSelectedCharacterId] = useState<string>(allCharacters[0]?.id ?? '')
 
@@ -908,6 +916,8 @@ export default function App() {
           setCustomChars={setCustomChars}
           initialNewCharId={pendingCustomCharId}
           onInitialNewCharConsumed={() => setPendingCustomCharId(null)}
+          onAiContextChange={setAiContext}
+          aiFillRef={aiFillRef}
         />
       )}
 
@@ -1009,6 +1019,8 @@ export default function App() {
         open={aiChatOpen}
         onClose={() => setAiChatOpen(false)}
         language={uiLanguage}
+        context={aiContext}
+        callbacks={aiCallbacks}
       />
     </Container>
   )

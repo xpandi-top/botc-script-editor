@@ -67,6 +67,8 @@ type Props = {
   setCustomChars: React.Dispatch<React.SetStateAction<CustomCharacter[]>>
   initialNewCharId?: string | null
   onInitialNewCharConsumed?: () => void
+  onAiContextChange?: (ctx: import('../../lib/agentContext').AgentContext) => void
+  aiFillRef?: React.MutableRefObject<((field: string, value: unknown) => void) | null>
 }
 
 // ── Script-schema normalizer ──────────────────────────────────────────────────
@@ -540,6 +542,8 @@ export function CharactersTab({
   setCustomChars,
   initialNewCharId,
   onInitialNewCharConsumed,
+  onAiContextChange,
+  aiFillRef,
 }: Props) {
   const [mobileDetailOpen, setMobileDetailOpen] = useState(false)
   const [customDialogOpen, setCustomDialogOpen] = useState(false)
@@ -1077,6 +1081,8 @@ export function CharactersTab({
         uiLanguage={uiLanguage}
         onSave={handleSaveCustom}
         initialId={editingChar ? undefined : initialNewCharId}
+        onContextChange={onAiContextChange}
+        fillRef={aiFillRef}
       />
 
       {/* ── Night Order Manager ── */}
