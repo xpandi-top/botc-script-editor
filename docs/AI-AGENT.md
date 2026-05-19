@@ -1,74 +1,332 @@
-# BOTC AI Agent — Design & Roadmap
+# BOTC AI Agent — Architecture Plan
 
-## Overview
-
-Gemini-powered assistant embedded in the BOTC webapp. Helps authors create, translate, and refine custom characters and scripts.
-
-**API**: Google Gemini (`gemini-2.0-flash` by default via REST)  
-**Key**: `VITE_GEMINI_API_KEY` in `.env.local`  
-**Gating**: All AI features hidden when key not set (`isGeminiAvailable()` guard)
-
----
-
-## Architecture
+## Current State (MVP)
 
 ```
-src/lib/gemini.ts       — thin REST client (geminiAsk, geminiGenerate)
-src/lib/botcAgent.ts    — BOTC-specific agent functions
-src/components/AgentButton.tsx  — reusable ✨ button with loading + error handling
+src/lib/gemini.ts        provider-agnostic REST client (groq/openrouter/gemini)
+src/lib/aiSettings.ts    runtime provider/model/key switching via localStorage
+src/lib/botcAgent.ts     6 BOTC task functions (translate, suggestId, suggestName, etc.)
+src/components/AgentButton.tsx   drop-in ✨ button
+src/components/AiChatDialog.tsx  chat UI with provider/model switcher
 ```
 
-`AgentButton` is a drop-in beside any text field. Passes `action: () => Promise<void>` — caller decides what to do with the result. Renders `null` when Gemini key unavailable.
+**Problem**: functions are isolated prompt calls. No shared context, no tool use, no memory. Each call re-explains BOTC from scratch. Translations miss character-specific terminology. Suggestions don't know what characters already exist.
 
 ---
 
-## MVP Features (implemented)
+## Target Architecture
 
-| Feature | Function | Entry point |
-|---------|----------|-------------|
-| Translate ability EN→ZH | `translateText(text, 'zh')` | Ability ZH field in CustomCharDialog |
-| Suggest slug ID | `suggestId(name)` | ID field in CustomCharDialog (new) |
-| Suggest Chinese name | `suggestChineseName(nameEn, ability?)` | Name ZH field in CustomCharDialog |
-| Generate ability text | `suggestAbility({name, team, concept?})` | Ability EN field in CustomCharDialog |
-| Full character draft | `suggestCharacter(description)` | (wired, no UI yet) |
-| Script theme / flavor | `suggestScriptTheme(chars, title?)` | (wired, no UI yet) |
-
----
-
-## Planned Features
-
-### Phase 2 — Character authoring
-- **Concept-to-character**: dialog where ST describes an idea in free text → full character JSON generated
-- **Jinx suggestions**: given two chars, suggest why they'd be jinxed and what the restriction is
-- **Balance review**: flag ability text that seems too strong/weak for the assigned team
-
-### Phase 3 — Script authoring
-- **Script flavor generator**: thematic blurb, author notes, script title suggestions
-- **Night order advice**: warn if too many first-night characters unbalance setup
-- **Composition check**: flag if outsider/minion/demon counts look off for player count
-
-### Phase 4 — Icon generation
-- **Character icon**: use Gemini Imagen (or external API) to generate a 256×256 character portrait
-- **Script cover art**: generate a cover image matching script theme
-- Input: name + team + short visual description
-
-### Phase 5 — Conversational assistant
-- Floating chat panel in the Characters tab
-- Multi-turn: user can refine suggestions ("make the ability more complicated", "use a Chinese pun in the name")
-- Stores last 10 turns in session, resets on tab change
+```
+┌─────────────────────────────────────────────────────┐
+│  UI Layer (React)                                   │
+│  AgentButton / AiChatDialog / Concept-to-Char       │
+└────────────────────┬────────────────────────────────┘
+                     │ calls
+┌────────────────────▼────────────────────────────────┐
+│  Agent Orchestrator  (src/lib/agentOrchestrator.ts) │
+│  - routes tasks to tools                            │
+│  - manages multi-step plans                         │
+│  - injects BOTC context window                      │
+└──────┬──────────┬──────────┬──────────┬─────────────┘
+       │          │          │          │
+   ┌───▼───┐ ┌───▼───┐ ┌───▼────┐ ┌───▼──────────┐
+   │ Tools │ │Embed  │ │ REST   │ │  MCP Server  │
+   │ Layer │ │ Index │ │  API   │ │  (optional)  │
+   └───────┘ └───────┘ └────────┘ └──────────────┘
+```
 
 ---
 
-## API Notes
+## Layer 1 — Tools / Skills
 
-- Model: `gemini-2.0-flash` (fast, cheap, good for JSON tasks)
-- For image generation: `gemini-2.0-flash-preview-image-generation` or Imagen 3
-- Temperature: 0.3 for translation, 0.7–1.0 for creative tasks
-- All prompts include a shared BOTC system instruction for consistent terminology
-- JSON responses: parsed with try/catch fallback to raw string
+Each BOTC operation is a **named tool** the LLM can invoke (function calling / tool use).
+Tools have typed input/output schemas — LLM fills params, orchestrator executes.
 
-## Cost & Rate Limits
+### Tool catalogue
 
-- Flash model: very cheap (~$0.075/1M input tokens)
-- Free tier: 15 RPM, 1M TPD — sufficient for single-user webapp
-- Add debounce (300ms) before any auto-trigger features to avoid spam
+| Tool ID | Input | Output | Notes |
+|---------|-------|--------|-------|
+| `search_characters` | query, filters (team, edition) | CharacterEntry[] | Uses embeddings |
+| `get_character` | id | Full CharacterEntry + locale | Injects from catalog |
+| `translate_text` | text, sourceLang, targetLang, context? | translated string | Context = char name + team |
+| `suggest_name_zh` | nameEn, abilityEn, team | {name, pinyin, note} | Uses similar char examples |
+| `suggest_id` | nameEn, nameZh? | slug | Checks existing IDs for collision |
+| `generate_ability` | name, team, concept, style? | {abilityEn, abilityZh} | Few-shot from real chars |
+| `check_balance` | ability, team | {verdict, reason} | Compare against team norms |
+| `suggest_jinx` | charA, charB | {reason, restriction} | Infer from ability mechanics |
+| `generate_character` | description | CharacterDraft | Chains above tools |
+| `script_analysis` | characterIds[] | {balance, nightOrder, warnings} | Composition check |
+| `generate_icon_prompt` | name, team, concept | image_prompt string | For Stable Diffusion / Flux |
+
+### Implementation
+
+```typescript
+// src/lib/tools/index.ts
+export type Tool = {
+  id: string
+  description: string
+  parameters: JSONSchema
+  execute: (params: unknown, ctx: AgentContext) => Promise<unknown>
+}
+```
+
+LLM receives tool list in system prompt. Response parsed for `tool_calls`. Orchestrator dispatches → result injected back for next turn (ReAct loop).
+
+---
+
+## Layer 2 — Embeddings + Knowledge Base
+
+### Purpose
+- Semantic character search ("find characters like Fortune Teller")
+- Few-shot injection: find 3 similar chars → include in prompt so LLM mimics real style
+- Translation memory: store confirmed EN↔ZH pairs, retrieve on next translation
+- Ability uniqueness check: detect if new ability is too similar to existing one
+
+### Embedding targets
+
+| Collection | Items | Use |
+|------------|-------|-----|
+| `chars_en` | `{id, name, ability}` per character (EN) | Semantic search, few-shot |
+| `chars_zh` | `{id, name, ability}` per character (ZH) | ZH suggestions with real examples |
+| `abilities` | Ability text chunks | Similarity + uniqueness |
+| `translation_memory` | `{src, tgt, context}` pairs | Consistent terminology |
+| `jinxes` | Jinx reason sentences | Jinx pattern matching |
+
+### Stack options
+
+| Option | Cost | Notes |
+|--------|------|-------|
+| **In-browser (MVP)** | Free | ~500 chars × 1536 dims = ~3MB. `transformers.js` for local embed or precompute + ship as JSON |
+| **Cloudflare Vectorize** | Free tier 5M vectors | Good for production, pairs with CF Workers |
+| **Supabase pgvector** | Free tier | Easy if already using Postgres |
+| **Pinecone** | Free 100K vectors | Simple REST API |
+
+**MVP path**: precompute embeddings at build time (`scripts/build-embeddings.ts`) → ship as `assets/embeddings.json` → load in browser → cosine similarity search locally. No server needed.
+
+### Workflow
+
+```
+User types "武德" → embed query → cosine search chars_zh → top-3 similar chars
+→ inject into prompt: "Here are similar characters for style reference: ..."
+→ LLM generates in consistent style
+```
+
+---
+
+## Layer 3 — REST API / Skill Endpoints
+
+Expose BOTC operations as HTTP endpoints so **external agents** (Claude Desktop, n8n, custom bots) can connect.
+
+### Option A — Cloudflare Worker (recommended)
+
+```
+workers/botc-agent/
+  src/
+    index.ts          router
+    tools/            one file per tool
+    botcData.ts       character catalog (bundled from assets/)
+```
+
+Endpoints:
+```
+POST /v1/tool/{toolId}         execute a tool
+GET  /v1/characters            list all characters
+GET  /v1/characters/{id}       get character + locale
+POST /v1/embed                 embed text, return vector
+POST /v1/search                semantic search
+GET  /v1/health
+```
+
+Auth: `Authorization: Bearer <BOTC_AGENT_SECRET>`
+
+Deployed free on Cloudflare Workers (100K req/day free).
+
+### Option B — Vite + local Express (dev only)
+
+Simple `server/` folder, runs alongside `npm run dev`. Not for production.
+
+---
+
+## Layer 4 — MCP Server
+
+**Model Context Protocol** — Anthropic standard. Claude Desktop / Claude API can connect to MCP servers and call tools natively.
+
+### Server structure
+
+```
+mcp-server/
+  src/
+    index.ts          MCP server entry
+    resources/
+      characters.ts   expose character catalog as Resources
+      scripts.ts      expose scripts
+    tools/
+      translate.ts
+      search.ts
+      generate.ts
+      analyze.ts
+    prompts/
+      create_character.ts   guided prompt template
+      script_review.ts
+```
+
+### Resources (read-only data)
+
+```
+botc://characters              all character IDs + names
+botc://characters/{id}         full character JSON
+botc://scripts/{slug}          script JSON
+botc://editions                edition list
+botc://night-order/first
+botc://night-order/other
+```
+
+### Tools (actions)
+
+Same as Tool catalogue above, wrapped in MCP tool schema.
+
+### Prompts (guided workflows)
+
+```
+create_character   — step-by-step character creation with user Q&A
+review_script      — balance analysis of a script
+translate_script   — batch translate all custom chars in a script
+```
+
+### Deploy options
+
+| Mode | How |
+|------|-----|
+| Local dev | `node mcp-server/dist/index.js` → Claude Desktop config |
+| Remote (prod) | Deploy as Cloudflare Worker with MCP adapter |
+
+---
+
+## Layer 5 — Improved Translation & Suggestions
+
+### Problems with current approach
+1. No BOTC terminology consistency (e.g. "Storyteller" not "讲故事的人")
+2. No style reference (generated abilities don't match official BotC phrasing)
+3. No collision check (suggest ID that already exists)
+
+### Fixes
+
+**Translation**:
+- Inject terminology glossary in system prompt
+- Retrieve 2–3 similar existing chars → provide as style examples
+- Two-pass: draft → review (second LLM call checks consistency)
+
+**Name suggestion**:
+- Search `chars_zh` embeddings for similar ability → find names with similar meaning
+- Pass top-3 as examples: "Here are ZH names for similar mechanics: ..."
+- Validate: no homophone collision with existing chars
+
+**Ability generation**:
+- Few-shot: retrieve 3 chars of same team → include full ability text
+- Chain: draft → `check_balance` → if too strong, ask LLM to revise
+
+**Glossary** (`src/lib/botcGlossary.ts`):
+```typescript
+export const BOTC_TERMS = {
+  en: {
+    'Storyteller': 'Storyteller',
+    'Demon': 'Demon', 'Minion': 'Minion', ...
+  },
+  zh: {
+    'Storyteller': '说书人',
+    'Demon': '恶魔', 'Minion': '爪牙',
+    'Townsfolk': '镇民', 'Outsider': '外来者',
+    'Traveler': '旅行者', 'Fabled': '传奇角色',
+    'nominate': '提名', 'execute': '处决',
+    'dead vote': '亡者票', 'ghost vote': '亡魂票',
+    'poison': '中毒', 'drunk': '醉酒',
+    'mad': '疯狂', 'register': '登记为',
+    'night': '夜晚', 'day': '白天',
+  },
+}
+```
+
+---
+
+## Implementation Roadmap
+
+### Phase 1 — Improve current MVP (1–2 weeks)
+- [ ] `botcGlossary.ts` — terminology constant, inject into all prompts
+- [ ] Few-shot injection for `suggestAbility` and `translate` (use catalog similarity)
+- [ ] ID collision check against existing catalog in `suggestId`
+- [ ] Two-pass translation (draft + review)
+
+### Phase 2 — Embeddings (2–3 weeks)
+- [ ] `scripts/build-embeddings.ts` — precompute all char embeddings at build time
+- [ ] `src/lib/botcSearch.ts` — cosine similarity search in browser
+- [ ] Wire into `suggestAbility` and `suggestChineseName` for few-shot
+- [ ] Translation memory (store confirmed translations in localStorage)
+
+### Phase 3 — Tool layer + Orchestrator (2–3 weeks)
+- [ ] `src/lib/tools/` — formalize all operations as typed Tools
+- [ ] `src/lib/agentOrchestrator.ts` — ReAct loop, tool dispatch, context injection
+- [ ] `generate_character` as multi-step tool chain
+- [ ] `script_analysis` tool
+
+### Phase 4 — REST API / CF Worker (1–2 weeks)
+- [ ] `workers/botc-agent/` — Cloudflare Worker
+- [ ] Expose `/v1/tool/*`, `/v1/characters`, `/v1/search`
+- [ ] Deploy + add `BOTC_AGENT_URL` env var
+
+### Phase 5 — MCP Server (2–3 weeks)
+- [ ] `mcp-server/` — standalone Node.js MCP server
+- [ ] Resources: characters, scripts
+- [ ] Tools: translate, search, generate, analyze
+- [ ] Prompts: create_character, review_script
+- [ ] Claude Desktop config instructions
+
+### Phase 6 — Icon generation (1 week)
+- [ ] `generate_icon_prompt` tool → structured prompt for image models
+- [ ] Wire to Stability AI / Replicate / fal.ai API (all have free/cheap tiers)
+- [ ] Image result → store as icon URL in CustomCharacter
+
+---
+
+## File Structure (target)
+
+```
+src/
+  lib/
+    gemini.ts           AI client (current)
+    aiSettings.ts       provider settings (current)
+    botcAgent.ts        high-level task functions (current → refactor)
+    botcGlossary.ts     terminology + style constants        [Phase 1]
+    botcSearch.ts       embedding search                     [Phase 2]
+    agentOrchestrator.ts tool-use ReAct loop                [Phase 3]
+    tools/
+      index.ts          tool registry
+      translate.ts
+      search.ts
+      generate.ts
+      analyze.ts
+  components/
+    AgentButton.tsx     (current)
+    AiChatDialog.tsx    (current)
+    ConceptToChar.tsx   full-page char creation wizard       [Phase 3]
+
+workers/
+  botc-agent/           Cloudflare Worker REST API           [Phase 4]
+    src/
+      index.ts
+      tools/
+
+mcp-server/             MCP server                           [Phase 5]
+  src/
+    index.ts
+    resources/
+    tools/
+    prompts/
+
+scripts/
+  build-embeddings.ts   precompute + write assets/           [Phase 2]
+
+assets/
+  embeddings/
+    chars_en.json       precomputed vectors                  [Phase 2]
+    chars_zh.json
+```
