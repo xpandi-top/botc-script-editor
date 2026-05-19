@@ -726,7 +726,10 @@ export function CharactersTab({
     if (editingChar) {
       setCustomChars((cur) => cur.map((c) => c.id === editingChar.id ? { ...editingChar, ...draft, updatedAt: now } : c))
     } else {
-      const id = customId?.trim() || `custom_${slugify(draft.nameEn)}_${now.toString(36)}`
+      const rawId = customId?.trim()
+      const id = rawId
+        ? (rawId.startsWith('custom_') ? rawId : `custom_${rawId}`)
+        : `custom_${slugify(draft.nameEn)}_${now.toString(36)}`
       setCustomChars((cur) => [...cur, { ...draft, id, createdAt: now, updatedAt: now }])
       // Write v1 revision so revision panel shows history immediately
       try {

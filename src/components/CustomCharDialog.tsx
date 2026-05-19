@@ -73,7 +73,7 @@ export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSav
     } else {
       const baseEn = initialId ?? ''
       setDraft(baseEn ? { ...BLANK, nameEn: baseEn } : BLANK)
-      setDraftId(baseEn ? `custom_${slugify(baseEn)}` : '')
+      setDraftId(baseEn ? slugify(baseEn) : '')
       idManuallyEdited.current = false
       setIconMode('url')
     }
@@ -110,7 +110,7 @@ export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSav
               setDraft((d) => ({ ...d, nameEn: v }))
               // Auto-suggest ID from name only if user hasn't manually edited ID
               if (!idManuallyEdited.current && !editingChar) {
-                setDraftId(v.trim() ? `custom_${slugify(v)}` : '')
+                setDraftId(v.trim() ? slugify(v) : '')
               }
             }} />
           <TextField size="small" label={t('name_zh_optional')}
@@ -119,14 +119,14 @@ export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSav
         {/* ID field — new chars only */}
         {!editingChar && (
           <TextField size="small" fullWidth
-            label={uiLanguage === 'zh' ? '角色 ID（唯一标识，custom_ 开头）' : 'Character ID (must start with custom_)'}
+            label={uiLanguage === 'zh' ? '角色 ID（唯一标识）' : 'Character ID'}
             value={draftId}
             onChange={(e) => { idManuallyEdited.current = true; setDraftId(e.target.value) }}
-            error={Boolean(draftId) && !/^custom_[a-z0-9_-]+$/.test(draftId)}
+            error={Boolean(draftId) && !/^[a-z0-9_-]+$/.test(draftId)}
             helperText={(() => {
               if (!draftId) return uiLanguage === 'zh' ? '留空则自动生成' : 'Leave blank to auto-generate'
-              if (!/^custom_[a-z0-9_-]+$/.test(draftId)) return uiLanguage === 'zh' ? '须以 custom_ 开头，只允许小写字母、数字、-、_' : 'Must start with custom_, then lowercase letters, digits, - _'
-              return ''
+              if (!/^[a-z0-9_-]+$/.test(draftId)) return uiLanguage === 'zh' ? '只允许小写字母、数字、-、_' : 'Only lowercase letters, digits, - _'
+              return uiLanguage === 'zh' ? `将保存为 custom_${draftId}` : `Will be saved as custom_${draftId}`
             })()}
           />
         )}
