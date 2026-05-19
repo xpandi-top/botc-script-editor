@@ -650,6 +650,21 @@ export function CharactersTab({
     }
     if (newChars.length > 0) {
       setCustomChars((cur) => [...cur, ...newChars])
+      // Write v1 revision so CharacterRevisionPanel shows history immediately
+      try {
+        const stored = JSON.parse(localStorage.getItem(REVISION_OVERRIDES_KEY) ?? '{}')
+        for (const c of newChars) {
+          if (!c.abilityEn?.trim()) continue
+          stored[c.id] = {
+            current_revision: 'v1',
+            revisions: [{ id: 'v1', note: '' }],
+            locale_en: { v1: c.abilityEn },
+            ...(c.abilityZh?.trim() ? { locale_zh: { v1: c.abilityZh } } : {}),
+          }
+        }
+        localStorage.setItem(REVISION_OVERRIDES_KEY, JSON.stringify(stored))
+        refreshRevisionOverrides()
+      } catch { /* ignore */ }
     }
 
     setImportPreviewOpen(false)
