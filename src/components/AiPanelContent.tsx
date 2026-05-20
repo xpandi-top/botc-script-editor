@@ -241,7 +241,14 @@ function buildFewShotSection(ctx?: AgentContext): string {
   return parts.length ? `\n\n${parts.join('\n\n')}` : ''
 }
 
-function buildSystemPrompt(ctx?: AgentContext, gameLogCtx?: GameLogContext, query?: string): string {
+function buildSystemPrompt(
+  ctx?: AgentContext,
+  gameLogCtx?: GameLogContext,
+  query?: string,
+  lang: 'en' | 'zh' = 'en',
+): string {
+  const zh = lang === 'zh'
+
   // Wiki RAG — inject relevant chunks for any query
   let wikiSection = ''
   if (query && query.length > 4) {
@@ -252,23 +259,49 @@ function buildSystemPrompt(ctx?: AgentContext, gameLogCtx?: GameLogContext, quer
 
   // ── Game log / 复盘 mode ────────────────────────────────────────────────────
   if (gameLogCtx) {
-    return `You are an AI assistant for Blood on the Clocktower (BotC) game analysis.
-Help analyze game logs, perform 复盘 (post-game debrief), and answer questions about the game.
+    return zh
+      ? `你是一个血腥钟楼（BotC）游戏复盘 AI 助手。
+帮助分析游戏记录、进行复盘，并回答关于游戏过程的问题。
 
 ${buildGlossaryPrompt('zh')}${wikiSection}
 
 ${gameLogCtx.serialized}
 
-Respond in plain text. Be specific and analytical.
+用中文回答。分析要具体、深入。
+始终以 JSON 格式回复：{"message": "你的回答"}`
+      : `You are an AI assistant for Blood on the Clocktower (BotC) game analysis.
+Help analyze game logs, perform post-game debrief (复盘), and answer questions about the game.
+
+${buildGlossaryPrompt('en')}${wikiSection}
+
+${gameLogCtx.serialized}
+
+Respond in English. Be specific and analytical.
 Always respond as JSON: {"message": "<your response>"}`
   }
 
   // ── Character authoring mode ────────────────────────────────────────────────
-  return `\
-You are an AI assistant for Blood on the Clocktower (BotC) custom character authoring.
-Help the user create, translate, and refine characters and scripts.
+  return zh
+    ? `你是一个血腥钟楼（BotC）自定义角色创作 AI 助手。
+帮助用户创建、翻译和完善角色与剧本。
 
 ${buildGlossaryPrompt('zh')}${wikiSection}
+${ctx ? `\n${serializeContextForPrompt(ctx)}` : ''}${buildFewShotSection(ctx)}
+
+需要填写字段时，请用以下 JSON 格式回复（不要用代码块围栏）：
+{
+  "message": "说明",
+  "fills": [{ "field": "字段键", "value": "填入值", "label": "字段名" }],
+  "warning": "可选警告"
+}
+
+不需要填写时省略 "fills"。始终包含 "message"。
+可用字段键：${ctx?.fields.map((f) => f.key).join(', ') ?? '无'}。
+只填写明确要求的字段。`
+    : `You are an AI assistant for Blood on the Clocktower (BotC) custom character authoring.
+Help the user create, translate, and refine characters and scripts.
+
+${buildGlossaryPrompt('en')}${wikiSection}
 ${ctx ? `\n${serializeContextForPrompt(ctx)}` : ''}${buildFewShotSection(ctx)}
 
 When filling fields, respond with JSON in this exact format (no markdown fences):
@@ -409,7 +442,7 @@ export function AiPanelContent({
       .filter((m) => m.role !== 'error')
       .map((m) => ({ role: m.role === 'user' ? 'user' as const : 'model' as const, parts: [{ text: m.content }] }))
     try {
-      const res    = await geminiGenerate({ systemInstruction: buildSystemPrompt(context, gameLogContext, text), contents: history, temperature: 0.6 })
+      const res    = await geminiGenerate({ systemInstruction: buildSystemPrompt(context, gameLogContext, text, language), contents: history, temperature: 0.6 })
       const parsed = parseResponse(res.text)
       const msgId  = crypto.randomUUID()
       setMessages((m) => [...m, { id: msgId, role: 'assistant', content: parsed.message, fills: parsed.fills, appliedFills: [] }])
