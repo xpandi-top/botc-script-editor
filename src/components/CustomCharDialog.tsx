@@ -10,6 +10,7 @@ import { processIconFile } from '../lib/iconResize'
 import { buildCharacterContext } from '../lib/agentContext'
 import { NightOrderPicker } from './NightOrderPicker'
 import { ReminderTokenEditor } from './ReminderTokenEditor'
+import { AiPanelContent, AiToggleButton, type AiChatCallbacks } from './AiPanelContent'
 import type { CustomCharacter, Language, Team } from '../types'
 import { makeT, makeTpl } from '../lib/t'
 
@@ -53,6 +54,7 @@ export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSav
   const idManuallyEdited = useRef(false)
   const [iconError, setIconError] = useState('')
   const [iconMode, setIconMode] = useState<'url' | 'upload'>('url')
+  const [aiOpen, setAiOpen] = useState(false)
   const t = makeT(uiLanguage)
   const tpl = makeTpl(uiLanguage)
 
@@ -106,7 +108,7 @@ export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSav
     }, uiLanguage, !editingChar))
   }, [open, draft, draftId, uiLanguage, editingChar, onContextChange])
 
-  // Register fill function with parent via fillRef
+  // Register fill function with parent via fillRef (for app-level AI side panel)
   useEffect(() => {
     if (!fillRef) return
     fillRef.current = (field: string, value: unknown) => {
@@ -115,6 +117,11 @@ export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSav
     }
     return () => { if (fillRef) fillRef.current = null }
   })
+
+  // Reset AI panel when dialog closes
+  useEffect(() => {
+    if (!open) setAiOpen(false)
+  }, [open])
 
   const handleIconUpload = async (file: File) => {
     setIconError('')
@@ -128,15 +135,44 @@ export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSav
 
   const canSave = draft.nameEn.trim() && draft.abilityEn.trim()
 
+  // Internal fill function shared by fillRef (parent/app-level AI) and embedded AI panel
+  const fillField = (field: string, value: unknown) => {
+    if (field === 'id') { idManuallyEdited.current = true; setDraftId(String(value)); return }
+    setDraft((d) => ({ ...d, [field]: value }))
+  }
+
+  // Internal AI callbacks for embedded panel
+  const aiCallbacks: AiChatCallbacks = {
+    onFill: fillField,
+    onUndo: fillField,  // undo = restore old value via same setter
+  }
+
+  // Build agent context for embedded panel from current draft
+  const embeddedAiContext = buildCharacterContext({
+    id: draftId || undefined,
+    nameEn: draft.nameEn, nameZh: draft.nameZh,
+    team: draft.team, edition: draft.edition, author: draft.author,
+    abilityEn: draft.abilityEn, abilityZh: draft.abilityZh,
+    firstNightReminder: draft.firstNightReminder,
+    otherNightReminder: draft.otherNightReminder,
+    firstNight: draft.firstNight, otherNight: draft.otherNight,
+  }, uiLanguage, !editingChar)
+
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        {editingChar
-          ? tpl('edit_char_title', draft.nameEn)
-          : t('new_custom_char')}
-        <IconButton size="small" onClick={onClose}><CloseIcon /></IconButton>
+    <Dialog open={open} onClose={onClose} maxWidth={aiOpen ? 'lg' : 'sm'} fullWidth
+      slotProps={{ paper: { sx: { height: aiOpen ? '90vh' : undefined, transition: 'max-width 0.2s ease' } } }}>
+      <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1.25 }}>
+        <Box sx={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', mr: 1 }}>
+          {editingChar ? tpl('edit_char_title', draft.nameEn) : t('new_custom_char')}
+        </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0 }}>
+          <AiToggleButton open={aiOpen} onToggle={() => setAiOpen((v) => !v)} language={uiLanguage} />
+          <IconButton size="small" onClick={onClose}><CloseIcon /></IconButton>
+        </Box>
       </DialogTitle>
-      <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '8px !important' }}>
+      {/* Split layout: form (left) + AI panel (right when open) */}
+      <Box sx={{ display: 'flex', flex: 1, minHeight: 0, overflow: 'hidden' }}>
+      <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '8px !important', flex: 1, overflowY: 'auto' }}>
         {/* Basic identity */}
         <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 }}>
           <TextField size="small" required label={t('name_en')}
@@ -274,6 +310,24 @@ export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSav
           </Button>
         </Box>
       </DialogContent>
+
+      {/* Embedded AI panel — right column, only when aiOpen */}
+      {aiOpen && (
+        <Box sx={{
+          width: 340, flexShrink: 0, borderLeft: '1px solid', borderColor: 'divider',
+          display: 'flex', flexDirection: 'column', overflow: 'hidden',
+        }}>
+          <AiPanelContent
+            open={aiOpen}
+            onClose={() => setAiOpen(false)}
+            context={embeddedAiContext}
+            callbacks={aiCallbacks}
+            language={uiLanguage}
+            variant="embedded"
+          />
+        </Box>
+      )}
+      </Box>
     </Dialog>
   )
 }
