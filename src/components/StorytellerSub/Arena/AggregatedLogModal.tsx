@@ -6,8 +6,8 @@ import { buildAggregatedEntries } from '../../../utils/logFilter'
 import { logDetail } from '../../../utils/logI18n'
 import { getDisplayName } from '../../../catalog'
 import { LogDetailText } from '../LogDetailText'
-import { AiPanelContent, AiToggleButton } from '../../AiPanelContent'
-import { buildGameLogContext } from '../../../lib/gameLogContext'
+import { AiPanelContent, AiToggleButton } from '../../AiPanel'
+import { buildGameLogContext } from '../../../lib/ai'
 import {
   Accordion, AccordionDetails, AccordionSummary,
   Box, Button, Chip, Dialog, DialogContent, DialogTitle,
@@ -377,8 +377,7 @@ export function AggregatedLogModal({ ctx }: { ctx: StorytellerContext }) {
           <AiPanelContent
             open={aiOpen}
             onClose={() => setAiOpen(false)}
-            gameLogContext={gameLogCtx}
-            language={language}
+            context={gameLogCtx}
             variant="embedded"
           />
         </Box>

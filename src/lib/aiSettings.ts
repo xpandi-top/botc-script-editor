@@ -129,3 +129,9 @@ export function isAiAvailable(s?: AiSettings): boolean {
   const settings = s ?? loadAiSettings()
   return Boolean(settings.keys[settings.provider]?.trim())
 }
+
+export const PROVIDER_LABELS: Record<AiProvider, string> = {
+  groq: 'Groq',
+  openrouter: 'OpenRouter',
+  gemini: 'Gemini',
+}

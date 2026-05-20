@@ -7,10 +7,11 @@ import {
 import CloseIcon from '@mui/icons-material/Close'
 import { editionLabels, slugify, teamLabels, teamOrder, toTitleCase } from '../catalog'
 import { processIconFile } from '../lib/iconResize'
-import { buildCharacterContext } from '../lib/agentContext'
+import { buildCharacterContext } from '../lib/ai'
 import { NightOrderPicker } from './NightOrderPicker'
 import { ReminderTokenEditor } from './ReminderTokenEditor'
-import { AiPanelContent, AiToggleButton, type AiChatCallbacks } from './AiPanelContent'
+import { AiPanelContent, AiToggleButton, type AiChatCallbacks } from './AiPanel'
+import type { AiContext } from '../lib/ai'
 import type { CustomCharacter, Language, Team } from '../types'
 import { makeT, makeTpl } from '../lib/t'
 
@@ -33,7 +34,7 @@ const BLANK: Draft = {
   remindersGlobal: [],
 }
 
-export type CharDialogAgentContext = ReturnType<typeof buildCharacterContext>
+export type CharDialogAgentContext = AiContext
 
 type Props = {
   open: boolean
@@ -105,7 +106,8 @@ export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSav
       otherNightReminder: draft.otherNightReminder,
       firstNight: draft.firstNight,
       otherNight: draft.otherNight,
-    }, uiLanguage, !editingChar))
+      isNew: !editingChar,
+    }, uiLanguage))
   }, [open, draft, draftId, uiLanguage, editingChar, onContextChange])
 
   // Register fill function with parent via fillRef (for app-level AI side panel)
@@ -156,7 +158,8 @@ export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSav
     firstNightReminder: draft.firstNightReminder,
     otherNightReminder: draft.otherNightReminder,
     firstNight: draft.firstNight, otherNight: draft.otherNight,
-  }, uiLanguage, !editingChar)
+    isNew: !editingChar,
+  }, uiLanguage)
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth={aiOpen ? 'lg' : 'sm'} fullWidth
@@ -322,7 +325,6 @@ export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSav
             onClose={() => setAiOpen(false)}
             context={embeddedAiContext}
             callbacks={aiCallbacks}
-            language={uiLanguage}
             variant="embedded"
           />
         </Box>

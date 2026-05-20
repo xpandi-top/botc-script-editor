@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Box, Paper } from '@mui/material'
 import { LeftScriptPanel } from './StorytellerSub/LeftScriptPanel'
 import { CompactToolbar } from './StorytellerSub/CompactToolbar'
@@ -9,12 +9,26 @@ import { Modals } from './StorytellerSub/Modals'
 import { useStoryteller } from './StorytellerSub/useStoryteller'
 import { useBreakpoint } from '../hooks/useBreakpoint'
 import { isIOSSafari } from '../hooks/useAudioState'
+import { buildStorytellerContext } from '../lib/ai'
 import type { StorytellerHelperProps } from './StorytellerSub/types'
 
 export function StorytellerHelper(props: StorytellerHelperProps) {
   const ctx = useStoryteller(props)
   const { isMobile } = useBreakpoint()
   const { showScriptPanel } = ctx
+
+  // Emit storyteller AI context whenever game state changes
+  useEffect(() => {
+    if (!props.onAiContextChange) return
+    props.onAiContextChange(buildStorytellerContext({
+      scriptName: ctx.activeScriptTitle || 'Game',
+      stName: ctx.stName || undefined,
+      currentDay: ctx.currentDay,
+      days: ctx.days,
+      language: ctx.language,
+    }))
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ctx.currentDay, ctx.days, ctx.activeScriptTitle, ctx.stName, ctx.language])
 
   // Body overflow is managed by App.tsx (which knows the active tab).
   // Do NOT set document.body.style.overflow here — StorytellerHelper is now

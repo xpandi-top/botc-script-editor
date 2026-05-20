@@ -280,5 +280,6 @@ export type StorytellerHelperProps = {
   onSelectScript?: (slug: string) => void
   scriptOptions: ScriptOption[]
   onSwitchTab?: (tab: string) => void
+  onAiContextChange?: (ctx: import('../../lib/ai').AiContext | undefined) => void
 }
 

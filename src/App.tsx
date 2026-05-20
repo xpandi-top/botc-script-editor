@@ -41,7 +41,8 @@ import SchoolIcon from '@mui/icons-material/School'
 import { ChangelogPage } from './components/ChangelogPage'
 import { TutorialOverlay } from './components/Tutorial/TutorialOverlay'
 import { AiChatDialog, type AiChatCallbacks } from './components/AiChatDialog'
-import type { AgentContext } from './lib/agentContext'
+import type { AiContext } from './lib/ai'
+import { buildScriptContext, buildGeneralContext, buildAnalysisContext } from './lib/ai'
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
 import Fab from '@mui/material/Fab'
 import { TUTORIAL_KEY } from './components/Tutorial/tutorialSteps'
@@ -334,7 +335,8 @@ export default function App() {
   const [saveStatus, setSaveStatus] = useState('')
   const [showDescription, setShowDescription] = useState(false)
   const [aiChatOpen, setAiChatOpen] = useState(false)
-  const [aiContext, setAiContext] = useState<AgentContext | undefined>(undefined)
+  const [aiContext, setAiContext] = useState<AiContext | undefined>(undefined)
+  const [stAiContext, setStAiContext] = useState<AiContext | undefined>(undefined)
   const aiFillRef = useRef<((field: string, value: unknown) => void) | null>(null)
   const aiCallbacks: AiChatCallbacks = {
     onFill:  (field, value) => aiFillRef.current?.(field, value),
@@ -347,6 +349,21 @@ export default function App() {
     () => scripts.find((s) => s.slug === activeSlug) ?? scripts[0],
     [activeSlug, scripts],
   )
+
+  const scriptAiContext = useMemo(() => {
+    if (!activeScript) return buildGeneralContext(uiLanguage)
+    return buildScriptContext({ script: activeScript, language: uiLanguage })
+  }, [activeScript, uiLanguage])
+
+  const effectiveAiContext = useMemo((): AiContext => {
+    switch (activeTab) {
+      case 'scripts':     return scriptAiContext
+      case 'storyteller': return stAiContext ?? buildGeneralContext(uiLanguage)
+      case 'characters':  return aiContext ?? buildGeneralContext(uiLanguage)
+      case 'analytics':   return buildAnalysisContext({ language: uiLanguage })
+      default:            return buildGeneralContext(uiLanguage)
+    }
+  }, [activeTab, scriptAiContext, stAiContext, aiContext, uiLanguage])
 
   const uiText = useMemo(() => {
     const ui = locales[uiLanguage].ui
@@ -962,6 +979,7 @@ export default function App() {
             onSelectScript={setStActiveSlug}
             scriptOptions={scripts.map((s) => ({ slug: s.slug, title: s.title, titleZh: s.titleZh || s.title, version: s.version, characters: s.characters, pinnedRevisions: s.pinnedRevisions }))}
             onSwitchTab={(tab) => setActiveTab(tab as Parameters<typeof setActiveTab>[0])}
+            onAiContextChange={setStAiContext}
           />
         </Box>
       )}
@@ -1029,7 +1047,7 @@ export default function App() {
         open={aiChatOpen}
         onClose={() => setAiChatOpen(false)}
         language={uiLanguage}
-        context={aiContext}
+        context={effectiveAiContext}
         callbacks={aiCallbacks}
       />
     </Container>

@@ -67,7 +67,7 @@ type Props = {
   setCustomChars: React.Dispatch<React.SetStateAction<CustomCharacter[]>>
   initialNewCharId?: string | null
   onInitialNewCharConsumed?: () => void
-  onAiContextChange?: (ctx: import('../../lib/agentContext').AgentContext) => void
+  onAiContextChange?: (ctx: import('../../lib/ai').AiContext) => void
   aiFillRef?: React.MutableRefObject<((field: string, value: unknown) => void) | null>
 }
 

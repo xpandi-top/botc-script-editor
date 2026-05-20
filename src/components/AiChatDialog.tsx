@@ -7,21 +7,22 @@
  */
 
 import { Dialog } from '@mui/material'
-import { AiPanelContent, type AiChatCallbacks, type AiPanelContentProps } from './AiPanelContent'
-import type { AgentContext } from '../lib/agentContext'
+import { AiPanelContent } from './AiPanel'
+import type { AiChatCallbacks, AiPanelContentProps } from './AiPanel'
+import type { AiContext } from '../lib/ai'
 
 export type { AiChatCallbacks }
 
 type Props = {
   open: boolean
   onClose: () => void
-  context?: AgentContext
+  context?: AiContext
   callbacks?: AiChatCallbacks
   language?: 'en' | 'zh'
 }
 
-export function AiChatDialog({ open, onClose, context, callbacks, language = 'en' }: Props) {
-  const panelProps: AiPanelContentProps = { open, onClose, context, callbacks, language, variant: 'side' }
+export function AiChatDialog({ open, onClose, context, callbacks }: Props) {
+  const panelProps: AiPanelContentProps = { open, onClose, context, callbacks, variant: 'side' }
 
   return (
     <Dialog
