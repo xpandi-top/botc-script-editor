@@ -379,7 +379,7 @@ export function AiChatDialog({ open, onClose, context, callbacks, language = 'en
   return (
     <Dialog
       open={open}
-      onClose={onClose}
+      onClose={(_, reason) => { if (reason !== 'backdropClick') onClose() }}
       hideBackdrop
       disableEnforceFocus
       disableScrollLock
@@ -392,6 +392,7 @@ export function AiChatDialog({ open, onClose, context, callbacks, language = 'en
         },
       }}
       slotProps={{
+        backdrop: { sx: { pointerEvents: 'none' } },
         paper: {
           elevation: 8,
           sx: {
