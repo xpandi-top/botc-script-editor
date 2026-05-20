@@ -32,6 +32,10 @@ import AbcIcon           from '@mui/icons-material/Abc'
 import AutoFixHighIcon   from '@mui/icons-material/AutoFixHigh'
 import NightsStayIcon    from '@mui/icons-material/NightsStay'
 import InfoOutlinedIcon  from '@mui/icons-material/InfoOutlined'
+import ArticleIcon       from '@mui/icons-material/Article'
+import TimelineIcon      from '@mui/icons-material/Timeline'
+import BarChartIcon      from '@mui/icons-material/BarChart'
+import ReviewsIcon       from '@mui/icons-material/Reviews'
 import {
   loadAiSettings, saveAiSettings, PROVIDER_MODELS, getDefaultModel,
   type AiProvider, type AiSettings,
@@ -50,6 +54,8 @@ import {
   getTeamExamples, getTranslationPairs, formatExamplesPrompt,
 } from '../lib/botcSearch'
 import { getAllPairs, formatTmPrompt } from '../lib/translationMemory'
+import { searchWiki, formatWikiPrompt } from '../lib/wikiSearch'
+import type { GameLogContext } from '../lib/gameLogContext'
 import type { Team } from '../types'
 
 // ── Public types ──────────────────────────────────────────────────────────────
@@ -68,6 +74,8 @@ export type AiPanelContentProps = {
   callbacks?: AiChatCallbacks
   language?: 'en' | 'zh'
   variant?: AiPanelVariant
+  /** Optional game log context — enables 复盘 skills */
+  gameLogContext?: GameLogContext
 }
 
 // ── Internal types ────────────────────────────────────────────────────────────
@@ -95,6 +103,7 @@ type SkillDef = {
   desc: string;  descZh: string
   prompt: (ctx?: AgentContext) => string
   requiresForm?: boolean
+  requiresGameLog?: boolean
   chip?: boolean
 }
 
@@ -178,6 +187,39 @@ export const SKILLS: SkillDef[] = [
     },
     requiresForm: false, chip: false,
   },
+  // ── Game log / 复盘 skills ───────────────────────────────────────────────────
+  {
+    id: 'game-summary', icon: <ArticleIcon fontSize="small" />,
+    label: 'Game Summary', labelZh: '游戏总结',
+    desc: 'Summarize the full game: script, days, outcome, and key moments.',
+    descZh: '总结整局游戏：剧本、天数、结果、关键时刻。',
+    prompt: () => 'Summarize this game. Include: script name, days played, who survived, who died and when, key vote results, and the final outcome. Write a concise narrative (3–6 sentences).',
+    requiresGameLog: true, chip: true,
+  },
+  {
+    id: 'debrief', icon: <ReviewsIcon fontSize="small" />,
+    label: '复盘 (Debrief)', labelZh: '复盘分析',
+    desc: 'Analyze player decisions, deception, and pivotal turning points.',
+    descZh: '分析玩家决策、欺骗行为和关键转折点。',
+    prompt: () => 'Perform a thorough 复盘 (post-game debrief) analysis covering: (1) key information flow and who was deceived and when; (2) the most critical vote decisions and whether they were correct in hindsight; (3) which actions most influenced the final outcome; (4) what the good/evil sides could have done differently. Be specific and analytical.',
+    requiresGameLog: true, chip: true,
+  },
+  {
+    id: 'timeline', icon: <TimelineIcon fontSize="small" />,
+    label: 'Timeline', labelZh: '时间线',
+    desc: 'Chronological timeline of key events by day.',
+    descZh: '按天整理的关键事件时间线。',
+    prompt: () => 'Create a concise chronological timeline of the most important game events. Format as a bullet list grouped by day. Focus on: deaths, execution vote outcomes, ability uses, and information reveals.',
+    requiresGameLog: true, chip: false,
+  },
+  {
+    id: 'player-stats', icon: <BarChartIcon fontSize="small" />,
+    label: 'Player Stats', labelZh: '玩家统计',
+    desc: 'Per-player stats: role, nominations, votes, survival.',
+    descZh: '每位玩家统计：角色、提名、投票、存活。',
+    prompt: () => 'Generate per-player statistics from the game log. For each player list: their role (if known), whether they survived, nominations they made, times they were nominated, and any notable ability uses. Format as a structured table or list.',
+    requiresGameLog: true, chip: false,
+  },
 ]
 
 // ── Few-shot + system prompt ──────────────────────────────────────────────────
@@ -199,12 +241,34 @@ function buildFewShotSection(ctx?: AgentContext): string {
   return parts.length ? `\n\n${parts.join('\n\n')}` : ''
 }
 
-function buildSystemPrompt(ctx?: AgentContext): string {
+function buildSystemPrompt(ctx?: AgentContext, gameLogCtx?: GameLogContext, query?: string): string {
+  // Wiki RAG — inject relevant chunks for any query
+  let wikiSection = ''
+  if (query && query.length > 4) {
+    const chunks = searchWiki(query, 3)
+    const fmt = formatWikiPrompt(chunks)
+    if (fmt) wikiSection = `\n\n${fmt}`
+  }
+
+  // ── Game log / 复盘 mode ────────────────────────────────────────────────────
+  if (gameLogCtx) {
+    return `You are an AI assistant for Blood on the Clocktower (BotC) game analysis.
+Help analyze game logs, perform 复盘 (post-game debrief), and answer questions about the game.
+
+${buildGlossaryPrompt('zh')}${wikiSection}
+
+${gameLogCtx.serialized}
+
+Respond in plain text. Be specific and analytical.
+Always respond as JSON: {"message": "<your response>"}`
+  }
+
+  // ── Character authoring mode ────────────────────────────────────────────────
   return `\
 You are an AI assistant for Blood on the Clocktower (BotC) custom character authoring.
 Help the user create, translate, and refine characters and scripts.
 
-${buildGlossaryPrompt('zh')}
+${buildGlossaryPrompt('zh')}${wikiSection}
 ${ctx ? `\n${serializeContextForPrompt(ctx)}` : ''}${buildFewShotSection(ctx)}
 
 When filling fields, respond with JSON in this exact format (no markdown fences):
@@ -271,6 +335,7 @@ export function AiPanelContent({
   callbacks,
   language = 'en',
   variant = 'side',
+  gameLogContext,
 }: AiPanelContentProps) {
   const zh = language === 'zh'
   const [settings, setSettings]     = useState<AiSettings>(() => loadAiSettings())
@@ -284,8 +349,9 @@ export function AiPanelContent({
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef  = useRef<HTMLInputElement>(null)
 
-  const formKey = context ? `${context.form}:${context.title}` : 'none'
-  const hasForm = Boolean(context && context.form !== 'none')
+  const formKey    = context ? `${context.form}:${context.title}` : (gameLogContext ? `game-log:${gameLogContext.title}` : 'none')
+  const hasForm    = Boolean(context && context.form !== 'none')
+  const hasGameLog = Boolean(gameLogContext)
 
   useEffect(() => {
     if (open) {
@@ -343,7 +409,7 @@ export function AiPanelContent({
       .filter((m) => m.role !== 'error')
       .map((m) => ({ role: m.role === 'user' ? 'user' as const : 'model' as const, parts: [{ text: m.content }] }))
     try {
-      const res    = await geminiGenerate({ systemInstruction: buildSystemPrompt(context), contents: history, temperature: 0.6 })
+      const res    = await geminiGenerate({ systemInstruction: buildSystemPrompt(context, gameLogContext, text), contents: history, temperature: 0.6 })
       const parsed = parseResponse(res.text)
       const msgId  = crypto.randomUUID()
       setMessages((m) => [...m, { id: msgId, role: 'assistant', content: parsed.message, fills: parsed.fills, appliedFills: [] }])
@@ -359,7 +425,7 @@ export function AiPanelContent({
       setLoading(false)
       setTimeout(() => inputRef.current?.focus(), 50)
     }
-  }, [input, loading, messages, context, autoApply, doApplyFill])
+  }, [input, loading, messages, context, gameLogContext, autoApply, doApplyFill])
 
   const downloadLog = () => {
     const md  = exportFillLogMd(fillLog)
@@ -371,7 +437,10 @@ export function AiPanelContent({
 
   const apiKey     = settings.keys[settings.provider]
   const models     = PROVIDER_MODELS[settings.provider]
-  const quickSkills = SKILLS.filter((s) => s.chip && (!s.requiresForm || hasForm))
+  const quickSkills = SKILLS.filter((s) => s.chip && (
+    (s.requiresGameLog && hasGameLog) ||
+    (!s.requiresGameLog && (!s.requiresForm || hasForm))
+  ))
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
@@ -440,12 +509,14 @@ export function AiPanelContent({
       </Collapse>
 
       {/* ── Context badge ───────────────────────────────────────────── */}
-      {hasForm && (
+      {(hasForm || hasGameLog) && (
         <Box sx={{ px: 1.5, pt: 0.5, pb: 0.25, flexShrink: 0 }}>
           <Chip
             size="small"
             icon={<InfoOutlinedIcon sx={{ fontSize: '12px !important' }} />}
-            label={`${context!.form} › ${context!.title || '(unnamed)'}`}
+            label={hasGameLog
+              ? `game-log › ${gameLogContext!.title || '(unnamed)'}`
+              : `${context!.form} › ${context!.title || '(unnamed)'}`}
             variant="outlined"
             sx={{ fontSize: '0.65rem', height: 19, maxWidth: '100%', '& .MuiChip-label': { overflow: 'hidden', textOverflow: 'ellipsis' } }}
           />
@@ -492,9 +563,11 @@ export function AiPanelContent({
           <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', opacity: 0.38, gap: 1.5, py: 4 }}>
             <AutoAwesomeIcon sx={{ fontSize: 28 }} />
             <Typography variant="body2" align="center" sx={{ px: 2, fontSize: '0.8rem' }}>
-              {hasForm
-                ? (zh ? `正在编辑 "${context?.title || '角色'}"` : `Editing "${context?.title || 'character'}"`)
-                : (zh ? '未打开任何表单' : 'No form open')}
+              {hasGameLog
+                ? (zh ? `复盘: "${gameLogContext!.title}"` : `Analyzing: "${gameLogContext!.title}"`)
+                : hasForm
+                  ? (zh ? `正在编辑 "${context?.title || '角色'}"` : `Editing "${context?.title || 'character'}"`)
+                  : (zh ? '未打开任何表单' : 'No form open')}
             </Typography>
             {quickSkills.length > 0 && (
               <Typography variant="caption" align="center" sx={{ opacity: 0.8, px: 3 }}>
@@ -575,7 +648,9 @@ export function AiPanelContent({
           <Typography variant="caption" color="text.secondary">
             {zh ? '点击技能卡片运行' : 'Click a skill card to run it'}
           </Typography>
-          {SKILLS.filter((s) => !s.requiresForm || hasForm).map((skill) => (
+
+          {/* Available char skills */}
+          {SKILLS.filter((s) => !s.requiresGameLog && (!s.requiresForm || hasForm)).map((skill) => (
             <Paper key={skill.id} variant="outlined" sx={{
               p: 1, cursor: 'pointer', borderRadius: 1.25,
               transition: 'all 0.15s',
@@ -592,13 +667,66 @@ export function AiPanelContent({
               </Typography>
             </Paper>
           ))}
-          {SKILLS.some((s) => s.requiresForm && !hasForm) && (
+
+          {/* Disabled char skills (require form) */}
+          {SKILLS.some((s) => !s.requiresGameLog && s.requiresForm && !hasForm) && (
             <>
               <Divider sx={{ my: 0.25 }} />
               <Typography variant="caption" color="text.disabled">
                 {zh ? '需要打开角色表单' : 'Requires a character form open'}
               </Typography>
-              {SKILLS.filter((s) => s.requiresForm && !hasForm).map((skill) => (
+              {SKILLS.filter((s) => !s.requiresGameLog && s.requiresForm && !hasForm).map((skill) => (
+                <Paper key={skill.id} variant="outlined" sx={{ p: 1, borderRadius: 1.25, opacity: 0.4 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.25 }}>
+                    <Box sx={{ color: 'text.disabled', display: 'flex', flexShrink: 0 }}>{skill.icon}</Box>
+                    <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.8rem', color: 'text.secondary' }}>
+                      {zh ? skill.labelZh : skill.label}
+                    </Typography>
+                  </Box>
+                  <Typography variant="caption" color="text.disabled" sx={{ lineHeight: 1.35 }}>
+                    {zh ? skill.descZh : skill.desc}
+                  </Typography>
+                </Paper>
+              ))}
+            </>
+          )}
+
+          {/* Game log / 复盘 skills */}
+          {hasGameLog && (
+            <>
+              <Divider sx={{ my: 0.25 }} />
+              <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
+                {zh ? '复盘技能' : 'Game Log Analysis'}
+              </Typography>
+              {SKILLS.filter((s) => s.requiresGameLog).map((skill) => (
+                <Paper key={skill.id} variant="outlined" sx={{
+                  p: 1, cursor: 'pointer', borderRadius: 1.25,
+                  transition: 'all 0.15s',
+                  borderColor: 'secondary.main',
+                  '&:hover': { borderColor: 'secondary.dark', bgcolor: (t) => alpha(t.palette.secondary.main, 0.04) },
+                }} onClick={() => handleSend(skill.prompt(context))}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.25 }}>
+                    <Box sx={{ color: 'secondary.main', display: 'flex', flexShrink: 0 }}>{skill.icon}</Box>
+                    <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.8rem' }}>
+                      {zh ? skill.labelZh : skill.label}
+                    </Typography>
+                  </Box>
+                  <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1.35 }}>
+                    {zh ? skill.descZh : skill.desc}
+                  </Typography>
+                </Paper>
+              ))}
+            </>
+          )}
+
+          {/* Disabled log skills (no game log loaded) */}
+          {!hasGameLog && SKILLS.some((s) => s.requiresGameLog) && (
+            <>
+              <Divider sx={{ my: 0.25 }} />
+              <Typography variant="caption" color="text.disabled">
+                {zh ? '需要打开游戏日志' : 'Requires game log context'}
+              </Typography>
+              {SKILLS.filter((s) => s.requiresGameLog).map((skill) => (
                 <Paper key={skill.id} variant="outlined" sx={{ p: 1, borderRadius: 1.25, opacity: 0.4 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.25 }}>
                     <Box sx={{ color: 'text.disabled', display: 'flex', flexShrink: 0 }}>{skill.icon}</Box>

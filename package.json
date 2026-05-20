@@ -6,6 +6,7 @@
   "scripts": {
     "add-revision": "node scripts/add-character-revision.mjs",
     "build-embeddings": "node scripts/build-embeddings.mjs",
+    "build-wiki": "node scripts/build-wiki.mjs",
     "dev": "vite",
     "build": "node scripts/validate-revisions.mjs && tsc -b && vite build",
     "build:native": "node scripts/validate-revisions.mjs && tsc -b && vite build --mode native",

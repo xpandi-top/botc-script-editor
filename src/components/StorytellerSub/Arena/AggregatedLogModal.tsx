@@ -6,6 +6,8 @@ import { buildAggregatedEntries } from '../../../utils/logFilter'
 import { logDetail } from '../../../utils/logI18n'
 import { getDisplayName } from '../../../catalog'
 import { LogDetailText } from '../LogDetailText'
+import { AiPanelContent, AiToggleButton } from '../../AiPanelContent'
+import { buildGameLogContext } from '../../../lib/gameLogContext'
 import {
   Accordion, AccordionDetails, AccordionSummary,
   Box, Button, Chip, Dialog, DialogContent, DialogTitle,
@@ -111,6 +113,14 @@ export function AggregatedLogModal({ ctx }: { ctx: StorytellerContext }) {
   const [quickVis, setQuickVis] = useState<'public' | 'st-only'>('public')
   const [collapsedDays, setCollapsedDays] = useState<Set<number>>(new Set())
   const [shareCopied, setShareCopied] = useState(false)
+  const [aiOpen, setAiOpen] = useState(false)
+
+  const gameLogCtx = useMemo(() => buildGameLogContext({
+    scriptName: ctx.activeScriptTitle || 'Unknown Script',
+    stName: ctx.stName || undefined,
+    days: ctx.days,
+    language: ctx.language,
+  }), [ctx.days, ctx.activeScriptTitle, ctx.stName, ctx.language])
 
   const effectiveVisFilter = isNight ? visFilter : (visFilter === 'all' ? 'public' : visFilter)
 
@@ -209,8 +219,9 @@ export function AggregatedLogModal({ ctx }: { ctx: StorytellerContext }) {
   if (!showAggLogModal) return null
 
   const modal = (
-    <Dialog open={showAggLogModal} onClose={() => setShowAggLogModal(false)} maxWidth="sm" fullWidth
-      PaperProps={{ sx: { height: '82vh', display: 'flex', flexDirection: 'column' } }}>
+    <Dialog open={showAggLogModal} onClose={() => setShowAggLogModal(false)}
+      maxWidth={aiOpen ? 'lg' : 'sm'} fullWidth
+      slotProps={{ paper: { sx: { height: '82vh', display: 'flex', flexDirection: 'column', transition: 'max-width 0.2s ease' } } }}>
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 0 }}>
         <Typography fontWeight={700}>{text.gameLogTitle || (language === 'zh' ? '游戏日志' : 'Game Log')}</Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
@@ -219,10 +230,14 @@ export function AggregatedLogModal({ ctx }: { ctx: StorytellerContext }) {
               {shareCopied ? <CheckIcon fontSize="small" /> : <ShareIcon fontSize="small" />}
             </IconButton>
           </Tooltip>
+          <AiToggleButton open={aiOpen} onToggle={() => setAiOpen((v) => !v)} language={language} />
           <IconButton size="small" onClick={() => setShowAggLogModal(false)}><CloseIcon fontSize="small" /></IconButton>
         </Box>
       </DialogTitle>
 
+      {/* Split layout: log content (left) + AI panel (right when open) */}
+      <Box sx={{ display: 'flex', flex: 1, minHeight: 0, overflow: 'hidden' }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0, overflow: 'hidden' }}>
       <Box sx={{ px: 3, pt: 1.5, pb: 0.5, display: 'flex', flexDirection: 'column', gap: 1, flexShrink: 0 }}>
         {/* Quick add */}
         <Box sx={{ display: 'flex', gap: 0.75, alignItems: 'center' }}>
@@ -351,6 +366,24 @@ export function AggregatedLogModal({ ctx }: { ctx: StorytellerContext }) {
           )
         })}
       </DialogContent>
+      </Box>{/* end log column */}
+
+      {/* AI panel — right column */}
+      {aiOpen && (
+        <Box sx={{
+          width: 340, flexShrink: 0, borderLeft: '1px solid', borderColor: 'divider',
+          display: 'flex', flexDirection: 'column', overflow: 'hidden',
+        }}>
+          <AiPanelContent
+            open={aiOpen}
+            onClose={() => setAiOpen(false)}
+            gameLogContext={gameLogCtx}
+            language={language}
+            variant="embedded"
+          />
+        </Box>
+      )}
+      </Box>{/* end split layout */}
     </Dialog>
   )
 
