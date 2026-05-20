@@ -305,7 +305,7 @@ export const SKILLS: SkillDef[] = [
     label: 'Rules question',
     labelZh: '规则问题',
     desc: 'Ask a rules question about Blood on the Clocktower.',
-    descZh: '提问关于血腥钟楼的规则问题。',
+    descZh: '提问关于血染钟楼的规则问题。',
     forContexts: ['character', 'script', 'storyteller', 'gamelog', 'analysis', 'general'],
     chip: false,
     prompt: () => 'I have a rules question about Blood on the Clocktower.',

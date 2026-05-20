@@ -5,6 +5,9 @@
   "current_revision": "v1",
   "setup": false,
   "otherNightReminder": "If the Banshee was killed by the Demon tonight, announce that the Banshee has died. :reminder:",
+  "reminders": [
+    "Active"
+  ],
   "revisions": [
     {
       "id": "v1",

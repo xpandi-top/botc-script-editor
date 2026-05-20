@@ -48,7 +48,7 @@ function characterPrompt(ctx: AiContext, wiki: string, zh: boolean): string {
   const fewShot    = buildFewShotSection(ctx)
   const fieldKeys  = ctx.fields.map((f) => f.key).join(', ') || 'none'
   return zh
-    ? `你是一个血腥钟楼（BotC）自定义角色创作 AI 助手。
+    ? `你是一个血染钟楼（BotC）自定义角色创作 AI 助手。
 帮助用户创建、翻译和完善角色与剧本。
 
 ${buildGlossaryPrompt('zh')}${wiki}
@@ -87,7 +87,7 @@ Only fill fields explicitly requested.`
 function scriptPrompt(ctx: AiContext, wiki: string, zh: boolean): string {
   const serialized = ctx.serialized ?? serializeContext(ctx)
   return zh
-    ? `你是一个血腥钟楼（BotC）剧本分析 AI 助手。
+    ? `你是一个血染钟楼（BotC）剧本分析 AI 助手。
 帮助用户分析、理解和改进剧本设计。
 
 ${buildGlossaryPrompt('zh')}${wiki}
@@ -108,7 +108,7 @@ Respond in English. Always respond as JSON: {"message": "<your response>"}`
 function storytellerPrompt(ctx: AiContext, wiki: string, zh: boolean): string {
   const serialized = ctx.serialized ?? serializeContext(ctx)
   return zh
-    ? `你是一个血腥钟楼（BotC）说书人 AI 助手。
+    ? `你是一个血染钟楼（BotC）说书人 AI 助手。
 帮助分析当前游戏状态并提供说书人建议。
 
 ${buildGlossaryPrompt('zh')}${wiki}
@@ -129,7 +129,7 @@ Respond in English. Always respond as JSON: {"message": "<your response>"}`
 function gamelogPrompt(ctx: AiContext, wiki: string, zh: boolean): string {
   const log = ctx.serialized || (ctx.fields.find((f) => f.key === 'gameLogText')?.value as string | undefined) || ''
   return zh
-    ? `你是一个血腥钟楼（BotC）游戏复盘 AI 助手。
+    ? `你是一个血染钟楼（BotC）游戏复盘 AI 助手。
 帮助分析游戏记录、进行复盘，并回答关于游戏过程的问题。
 
 ${buildGlossaryPrompt('zh')}${wiki}
@@ -152,7 +152,7 @@ Always respond as JSON: {"message": "<your response>"}`
 function analysisPrompt(ctx: AiContext, wiki: string, zh: boolean): string {
   const serialized = ctx.serialized ?? serializeContext(ctx)
   return zh
-    ? `你是一个血腥钟楼（BotC）游戏统计分析 AI 助手。
+    ? `你是一个血染钟楼（BotC）游戏统计分析 AI 助手。
 帮助用户分析游戏历史数据和趋势。
 
 ${buildGlossaryPrompt('zh')}${wiki}
@@ -172,7 +172,7 @@ Respond in English. Always respond as JSON: {"message": "<your response>"}`
 
 function generalPrompt(wiki: string, zh: boolean): string {
   return zh
-    ? `你是一个血腥钟楼（BotC）AI 助手。
+    ? `你是一个血染钟楼（BotC）AI 助手。
 回答关于游戏规则、角色、策略的各种问题。
 
 ${buildGlossaryPrompt('zh')}${wiki}

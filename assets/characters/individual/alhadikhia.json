@@ -4,6 +4,11 @@
   "edition": "experimental",
   "current_revision": "v2024-12",
   "setup": false,
+  "reminders": [
+    "1st Target",
+    "2nd Target",
+    "3rd Target"
+  ],
   "otherNightReminder": "The Al-Hadikhia chooses 3 players. :reminder: :reminder: :reminder: In order, wake each target. They nod or shake their head. Put them to sleep before waking the next target.",
   "revisions": [
     {

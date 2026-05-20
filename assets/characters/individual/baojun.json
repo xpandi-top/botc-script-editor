@@ -3,6 +3,11 @@
   "team": "demon",
   "edition": "shanyuyulai",
   "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "1stTarget",
+    "2ndTarget"
+  ],
   "revisions": [
     {
       "id": "v1",

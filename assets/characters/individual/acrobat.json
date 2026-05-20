@@ -5,6 +5,9 @@
   "current_revision": "v2024-10",
   "setup": false,
   "otherNightReminder": "The Acrobat chooses a player. :reminder:",
+  "reminders": [
+    "Check"
+  ],
   "revisions": [
     {
       "id": "v1",
