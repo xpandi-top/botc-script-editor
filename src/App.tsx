@@ -41,7 +41,6 @@ import SchoolIcon from '@mui/icons-material/School'
 import { ChangelogPage } from './components/ChangelogPage'
 import { TutorialOverlay } from './components/Tutorial/TutorialOverlay'
 import { AiChatDialog, type AiChatCallbacks } from './components/AiChatDialog'
-import { isGeminiAvailable } from './lib/gemini'
 import type { AgentContext } from './lib/agentContext'
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
 import Fab from '@mui/material/Fab'
@@ -996,17 +995,18 @@ export default function App() {
         <ChangelogPage onClose={() => setShowChangelog(false)} language={uiLanguage} />
       )}
 
-      {/* AI chat FAB — bottom-right, hidden on storyteller mobile (has its own chrome) */}
-      {isGeminiAvailable() && !(activeTab === 'storyteller' && isMobileView) && (
+      {/* AI chat FAB — always shown (runtime key config), hidden on storyteller mobile */}
+      {!(activeTab === 'storyteller' && isMobileView) && (
         <Tooltip title={uiLanguage === 'zh' ? 'AI 助手（实验功能）' : 'AI Assistant (Experimental)'} placement="left">
           <Box sx={{ position: 'fixed', bottom: { xs: 68, sm: 24 }, right: { xs: 12, sm: 24 }, zIndex: 1200 }}>
             <Fab
               size="small"
-              onClick={() => setAiChatOpen(true)}
+              onClick={() => setAiChatOpen((v) => !v)}
               sx={{
-                bgcolor: 'primary.main',
+                bgcolor: aiChatOpen ? 'primary.dark' : 'primary.main',
                 color: 'primary.contrastText',
                 '&:hover': { bgcolor: 'primary.dark' },
+                boxShadow: aiChatOpen ? 'none' : undefined,
               }}
             >
               <AutoAwesomeIcon fontSize="small" />
