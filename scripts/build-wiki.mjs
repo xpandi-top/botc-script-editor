@@ -19,10 +19,25 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const ROOT = path.resolve(__dirname, '..')
 const OUT  = path.join(ROOT, 'public', 'wiki-chunks.json')
 
+const ZH_BASE = 'https://clocktower-wiki.gstonegames.com/index.php?title='
+
+const ZH_UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+const BOT_UA = 'BotCCompanionBot/1.0 (build-wiki.mjs; non-commercial)'
+
 const WIKI_PAGES = [
-  { key: 'setup',       url: 'https://wiki.bloodontheclocktower.com/Setup',       label: 'Setup Rules' },
-  { key: 'how-to-run',  url: 'https://wiki.bloodontheclocktower.com/How_to_Run',  label: 'How to Run' },
-  { key: 'glossary',    url: 'https://wiki.bloodontheclocktower.com/Glossary',     label: 'Glossary' },
+  // ── English wiki ─────────────────────────────────────────────────────────────
+  { key: 'setup',        url: 'https://wiki.bloodontheclocktower.com/Setup',               label: 'Setup Rules' },
+  { key: 'rules',        url: 'https://wiki.bloodontheclocktower.com/Rules_Explanation',   label: 'Rules Explanation' },
+  { key: 'glossary',     url: 'https://wiki.bloodontheclocktower.com/Glossary',            label: 'Glossary' },
+  { key: 'st-advice',    url: 'https://wiki.bloodontheclocktower.com/Storyteller_Advice',  label: 'Storyteller Advice' },
+  { key: 'states',       url: 'https://wiki.bloodontheclocktower.com/States',              label: 'States' },
+  { key: 'abilities',    url: 'https://wiki.bloodontheclocktower.com/Abilities',           label: 'Abilities' },
+  // ── Chinese wiki (gstonegames) — requires browser UA ─────────────────────────
+  { key: 'zh-rules',     url: ZH_BASE + encodeURIComponent('规则概要'),            label: '规则概要', ua: ZH_UA },
+  { key: 'zh-details',   url: ZH_BASE + encodeURIComponent('重要细节'),            label: '重要细节', ua: ZH_UA },
+  { key: 'zh-glossary',  url: ZH_BASE + encodeURIComponent('术语汇总'),            label: '术语汇总', ua: ZH_UA },
+  { key: 'zh-st-tips',   url: ZH_BASE + encodeURIComponent('给说书人的建议'),      label: '给说书人的建议', ua: ZH_UA },
+  { key: 'zh-jinx',      url: ZH_BASE + encodeURIComponent('相克规则'),            label: '相克规则', ua: ZH_UA },
 ]
 
 const MAX_CHUNK_WORDS  = 350
@@ -136,10 +151,10 @@ function chunkText(text, pageKey, pageUrl) {
 
 // ── Fetch + process one page ──────────────────────────────────────────────────
 
-async function processPage({ key, url, label }) {
-  console.log(`  Fetching ${url} …`)
+async function processPage({ key, url, label, ua }) {
+  console.log(`  Fetching [${label}] …`)
   const res = await fetch(url, {
-    headers: { 'User-Agent': 'BotCCompanionBot/1.0 (build-wiki.mjs; non-commercial)' },
+    headers: { 'User-Agent': ua ?? BOT_UA },
   })
   if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`)
   const html    = await res.text()

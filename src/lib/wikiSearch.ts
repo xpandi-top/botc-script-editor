@@ -36,11 +36,15 @@ let _initAttempted = false
 // ── TF-IDF helpers ────────────────────────────────────────────────────────────
 
 function tokenize(text: string): string[] {
-  return text
+  // Split CJK characters individually; keep Latin alphanumeric words
+  const cjkTokens = (text.match(/[一-鿿㐀-䶿]/g) ?? [])
+  const latinTokens = text
     .toLowerCase()
+    .replace(/[一-鿿㐀-䶿]/g, ' ')
     .replace(/[^a-z0-9\s]/g, ' ')
     .split(/\s+/)
     .filter((t) => t.length > 2)
+  return [...latinTokens, ...cjkTokens]
 }
 
 function buildIdf(docs: string[][]): Map<string, number> {
