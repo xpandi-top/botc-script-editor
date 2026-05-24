@@ -264,6 +264,12 @@ export function ScriptsTab({
             scriptFolders={scriptFolders}
             createNewScript={createNewScript}
             importScriptFile={importScriptFile}
+            deleteScript={deleteScript}
+            duplicateScript={duplicateScript}
+            createFolder={createFolder}
+            renameFolder={renameFolder}
+            deleteFolder={deleteFolder}
+            moveScriptToFolder={moveScriptToFolder}
           />
         </Paper>
       )}
