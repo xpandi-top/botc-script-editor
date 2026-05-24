@@ -707,6 +707,7 @@ export function getActiveJinxesForScript(
     { id: string; names: string; reason: string; characters: [string, string] }
   >()
 
+  // ── Static jinxes from jinxes.json ───────────────────────────────────────
   Object.values(jinxes)
     .filter(
       (jinx) =>
@@ -715,9 +716,8 @@ export function getActiveJinxesForScript(
         ids.has(jinx.characters[1]),
     )
     .forEach((jinx) => {
-      if (jinx.status !== 'active') {
-        return
-      }
+      // Use getJinxStatus so user status-overrides from JinxManager are respected
+      if (getJinxStatus(jinx.id) !== 'active') return
 
       activeJinxMap.set(jinx.id, {
         id: jinx.id,
@@ -727,6 +727,28 @@ export function getActiveJinxesForScript(
           .sort((left, right) => left.localeCompare(right))
           .join(' / '),
         reason: getJinxReason(jinx.id, language),
+      })
+    })
+
+  // ── User-created jinxes from JinxManager (override-only, not in jinxes.json) ─
+  // IDs are encoded as "charA::charB" (sorted alphabetically on creation).
+  Object.entries(_jinxOverrides)
+    .filter(([id]) => !jinxes[id])          // skip entries that shadow jinxes.json
+    .forEach(([id, ov]) => {
+      if ((ov.status ?? 'active') !== 'active') return
+      const parts = id.split('::')
+      if (parts.length !== 2) return
+      const [char0, char1] = parts as [string, string]
+      if (!ids.has(char0) || !ids.has(char1)) return
+      const reason = (language === 'zh' ? ov.reason_zh : ov.reason_en) ?? ov.reason_en ?? ov.reason_zh ?? ''
+      activeJinxMap.set(id, {
+        id,
+        characters: [char0, char1],
+        names: [char0, char1]
+          .map((cid) => getDisplayName(cid, language))
+          .sort((a, b) => a.localeCompare(b))
+          .join(' / '),
+        reason,
       })
     })
 

@@ -121,7 +121,7 @@ export function MasonryScriptCard({
   const bgGradient = OFFICIAL_BG[script.slug] ?? slugGradient(script.slug)
   const tags = script.tags ?? []
 
-  const hasActions = isDeletable || !!onDuplicate
+  const hasActions = isDeletable || !!onDuplicate || !!onMoveToFolder
   const menuOpen = Boolean(menuAnchor)
   const showActions = hovered || menuOpen || Boolean(folderMenuAnchor)
 
@@ -304,8 +304,8 @@ export function MasonryScriptCard({
           </MenuItem>
         )}
 
-        {/* Move to folder */}
-        {isDeletable && onMoveToFolder && (
+        {/* Move to folder — available for any script (community or DIY) when onMoveToFolder provided */}
+        {onMoveToFolder && (
           <>
             {/* Remove from folder */}
             {script.folderId && (
