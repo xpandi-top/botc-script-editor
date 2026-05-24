@@ -1,6 +1,7 @@
 import React, { useDeferredValue, useMemo, useState } from 'react'
 import {
-  Box, Button, Chip, Divider, IconButton, InputAdornment,
+  Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle,
+  Divider, IconButton, InputAdornment,
   TextField, Tooltip, Typography,
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
@@ -67,6 +68,8 @@ export function ScriptsMasonryGrid({
   const [query, setQuery]               = useState('')
   const [tagFilter, setTagFilter]       = useState<string | null>(null)
   const [folderFilter, setFolderFilter] = useState<string | null>(null)
+  const [newFolderOpen, setNewFolderOpen] = useState(false)
+  const [newFolderName, setNewFolderName] = useState('')
   const deferredQuery = useDeferredValue(query)
 
   // ── Character name index ──────────────────────────────────────────────────
@@ -113,7 +116,8 @@ export function ScriptsMasonryGrid({
   }, [scripts])
 
   // ── Folder grouping helper ─────────────────────────────────────────────────
-  function makeByFolder(sectionScripts: typeof community) {
+  // includeEmpty=true → show all folders even if section has no scripts in them (for DIY)
+  function makeByFolder(sectionScripts: typeof community, includeEmpty: boolean) {
     if (folderFilter !== null) return null
     const sortedFolders = [...scriptFolders].sort((a, b) => a.order - b.order)
     const byFolder = sortedFolders
@@ -121,21 +125,21 @@ export function ScriptsMasonryGrid({
         folder,
         scripts: sectionScripts.filter((s) => s.folderId === folder.id),
       }))
-      .filter(({ scripts: ss }) => ss.length > 0)
+      .filter(({ scripts: ss }) => includeEmpty || ss.length > 0)
     const unfoldered = sectionScripts.filter((s) => !s.folderId)
     return { byFolder, unfoldered }
   }
 
   const isFilteringNow = !!deferredQuery.trim() || !!tagFilter
 
-  // ── Community grouping by folder ──────────────────────────────────────────
+  // Community: only show folders that actually contain community scripts
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const communityByFolder = useMemo(() => makeByFolder(community),
+  const communityByFolder = useMemo(() => makeByFolder(community, false),
     [community, scriptFolders, folderFilter])
 
-  // ── DIY grouping by folder ─────────────────────────────────────────────────
+  // DIY: show ALL folders (including newly-created empty ones)
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const diyByFolder = useMemo(() => makeByFolder(diy),
+  const diyByFolder = useMemo(() => makeByFolder(diy, true),
     [diy, scriptFolders, folderFilter])
 
   const total = official.length + community.length + diy.length
@@ -144,8 +148,16 @@ export function ScriptsMasonryGrid({
   const handleSelect = (slug: string) => { onSelect(slug); onDetailOpen() }
 
   const handleCreateFolder = () => {
-    const name = prompt(zh ? '新建文件夹名称：' : 'New folder name:')
-    if (name?.trim()) createFolder(name.trim())
+    setNewFolderName('')
+    setNewFolderOpen(true)
+    // focus handled by Dialog's TransitionProps
+  }
+
+  const commitNewFolder = () => {
+    const name = newFolderName.trim()
+    if (name) createFolder(name)
+    setNewFolderOpen(false)
+    setNewFolderName('')
   }
 
   const chipSx = {
@@ -399,6 +411,41 @@ export function ScriptsMasonryGrid({
           </Box>
         )}
       </Box>
+
+      {/* ── New folder dialog ── */}
+      <Dialog
+        open={newFolderOpen}
+        onClose={() => setNewFolderOpen(false)}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle sx={{ fontSize: '1rem', pb: 1 }}>
+          {zh ? '新建文件夹' : 'New folder'}
+        </DialogTitle>
+        <DialogContent sx={{ pt: '8px !important' }}>
+          <TextField
+            autoFocus
+            fullWidth
+            size="small"
+            placeholder={zh ? '文件夹名称…' : 'Folder name…'}
+            value={newFolderName}
+            onChange={(e) => setNewFolderName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') commitNewFolder()
+              if (e.key === 'Escape') setNewFolderOpen(false)
+            }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setNewFolderOpen(false)} size="small">
+            {zh ? '取消' : 'Cancel'}
+          </Button>
+          <Button onClick={commitNewFolder} size="small" variant="contained"
+            disabled={!newFolderName.trim()}>
+            {zh ? '创建' : 'Create'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   )
 }
