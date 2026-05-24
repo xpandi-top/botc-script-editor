@@ -4,7 +4,33 @@ Release timeline for BOTC Companion — features, fixes, and improvements.
 
 ---
 
-## 2026-05-19 (latest)
+## 2026-05-23 (latest)
+
+### Added
+- **Script share links** — Share button (📤) in Scripts tab toolbar generates shareable URLs:
+  - Built-in scripts: stable permanent link (`?t=scripts&s=<slug>`) — never expires
+  - Custom scripts: Firebase 24h short link (`?ss=<shortId>`) via Firestore
+- **Custom characters embedded in share payload** — scripts using global-registry custom chars now include full character data (EN+ZH name, ability, icon, night order, reminders, jinxes) in the share payload; recipients see all custom roles without needing the original author's localStorage
+- **Bilingual custom characters in shared scripts** — `name_zh` / `ability_zh` fields added to `ScriptCharacterItem` and `ResolvedScriptCharacter`; shared custom chars render correctly in both EN and ZH
+- **Script tags preserved in download/import** — `tags` field round-trips through exported JSON (`_meta.tags`); restored on import
+- **Hide ability toggle** — Scripts tab toolbar toggle (📋 icon) shows icon + name only, hiding ability text; defaults to enabled on mobile; bilingual
+
+### Changed
+- **URL-based navigation** — active tab synced to `?t=<tab>` in URL at all times; `?s=<slug>` included when a built-in script is open; opening a direct link restores the correct tab and script
+- **AI context serialization** — character and script contexts now use rich BotC-specific format:
+  - Character: team-role semantics, filled/empty field status, night info, new-character marker
+  - Script: ALL characters grouped by team with full ability text, typical 15-player composition reference, per-team count summary
+- **AI prompt design hints** — BotC ability design principles (sentence count, night order, team-specific guidance) injected into character chat system prompt
+
+### Fixed
+- **`Invalid URL` in Capacitor / file:// context** — `buildShareUrl` and `updateUrlParams` now guard against `window.location.origin === "null"`; fall back to `href.split('?')[0]` for base URL construction
+- **Share link showing localhost** — `VITE_APP_URL` read from `.env.production` at build time; dev builds use `window.location`, production builds use the configured URL
+- **`?ss=` redirect to wrong script** — URL sync `useEffect` now skips while Firebase short-link resolution is pending (`scriptLinkPending` flag); prevents `?ss=` being overwritten before the script loads
+- **Raw base64 in `?ss=`** — removed `isLocalhost()` bypass that put full encoded data in the URL; always attempt Firebase; detect short ID vs raw encoded by length (`≤20 chars` = short ID, decode directly otherwise)
+
+---
+
+## 2026-05-19
 
 ### Added — AI Agent _(Experimental)_
 
