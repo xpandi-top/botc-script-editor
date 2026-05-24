@@ -1,8 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   Box, Chip, Divider, IconButton,
   ListItemIcon, ListItemText, Menu, MenuItem, TextField, Typography,
 } from '@mui/material'
+import CheckIcon from '@mui/icons-material/Check'
+import CloseIcon from '@mui/icons-material/Close'
 import DeleteIcon from '@mui/icons-material/Delete'
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline'
 import FolderOpenIcon from '@mui/icons-material/FolderOpen'
@@ -25,8 +27,18 @@ export function FolderCard({ folder, scripts, language, onOpen, onRename, onDele
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null)
   const [renaming, setRenaming] = useState(false)
   const [renameValue, setRenameValue] = useState(folder.name)
+  const inputRef = useRef<HTMLInputElement>(null)
   const menuOpen = Boolean(menuAnchor)
   const showActions = hovered || menuOpen
+
+  // Focus input when rename mode activates
+  useEffect(() => {
+    if (renaming) {
+      // Defer to let MUI finish rendering
+      const id = setTimeout(() => inputRef.current?.select(), 50)
+      return () => clearTimeout(id)
+    }
+  }, [renaming])
 
   const openMenu = (e: React.MouseEvent<HTMLElement>) => {
     e.stopPropagation()
@@ -34,17 +46,29 @@ export function FolderCard({ folder, scripts, language, onOpen, onRename, onDele
   }
   const closeMenu = () => setMenuAnchor(null)
 
+  const startRename = () => {
+    setRenameValue(folder.name)
+    setRenaming(true)
+    closeMenu()
+  }
+
   const commitRename = () => {
     const v = renameValue.trim()
     if (v && v !== folder.name) onRename(v)
     setRenaming(false)
   }
 
+  const cancelRename = (e?: React.MouseEvent) => {
+    e?.stopPropagation()
+    setRenameValue(folder.name)
+    setRenaming(false)
+  }
+
   return (
     <>
       <Box
-        role="button"
-        tabIndex={0}
+        role={renaming ? undefined : 'button'}
+        tabIndex={renaming ? undefined : 0}
         onClick={renaming ? undefined : onOpen}
         onKeyDown={(e) => { if (!renaming && (e.key === 'Enter' || e.key === ' ')) onOpen() }}
         onMouseEnter={() => setHovered(true)}
@@ -55,7 +79,7 @@ export function FolderCard({ folder, scripts, language, onOpen, onRename, onDele
           cursor: renaming ? 'default' : 'pointer',
           userSelect: 'none',
           border: '2px dashed',
-          borderColor: 'divider',
+          borderColor: renaming ? 'primary.main' : 'divider',
           bgcolor: 'background.paper',
           minHeight: 210,
           display: 'flex',
@@ -81,29 +105,42 @@ export function FolderCard({ folder, scripts, language, onOpen, onRename, onDele
         }}>
           <FolderOpenIcon sx={{ color: 'warning.main', fontSize: 22, flexShrink: 0 }} />
           {renaming ? (
-            <TextField
-              size="small" value={renameValue} autoFocus
-              onChange={(e) => setRenameValue(e.target.value)}
-              onBlur={commitRename}
-              onClick={(e) => e.stopPropagation()}
-              onKeyDown={(e) => {
-                e.stopPropagation()
-                if (e.key === 'Enter') commitRename()
-                if (e.key === 'Escape') { setRenameValue(folder.name); setRenaming(false) }
-              }}
-              slotProps={{ input: { sx: { fontSize: '0.875rem', py: '2px' } } }}
-              sx={{ flex: 1 }}
-            />
+            <>
+              <TextField
+                inputRef={inputRef}
+                size="small"
+                value={renameValue}
+                onChange={(e) => setRenameValue(e.target.value)}
+                onClick={(e) => e.stopPropagation()}
+                onKeyDown={(e) => {
+                  e.stopPropagation()
+                  if (e.key === 'Enter') commitRename()
+                  if (e.key === 'Escape') cancelRename()
+                }}
+                slotProps={{ input: { sx: { fontSize: '0.875rem', py: '3px' } } }}
+                sx={{ flex: 1 }}
+              />
+              <IconButton size="small" onClick={(e) => { e.stopPropagation(); commitRename() }}
+                sx={{ color: 'success.main', flexShrink: 0 }}>
+                <CheckIcon sx={{ fontSize: 16 }} />
+              </IconButton>
+              <IconButton size="small" onClick={cancelRename}
+                sx={{ color: 'text.disabled', flexShrink: 0 }}>
+                <CloseIcon sx={{ fontSize: 16 }} />
+              </IconButton>
+            </>
           ) : (
-            <Typography sx={{
-              fontWeight: 700, fontSize: '0.9rem', flex: 1,
-              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-            }}>
-              {folder.name}
-            </Typography>
+            <>
+              <Typography sx={{
+                fontWeight: 700, fontSize: '0.9rem', flex: 1,
+                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+              }}>
+                {folder.name}
+              </Typography>
+              <Chip size="small" label={scripts.length}
+                sx={{ height: 18, fontSize: '0.65rem', fontWeight: 700, flexShrink: 0, '& .MuiChip-label': { px: '6px' } }} />
+            </>
           )}
-          <Chip size="small" label={scripts.length}
-            sx={{ height: 18, fontSize: '0.65rem', fontWeight: 700, flexShrink: 0, '& .MuiChip-label': { px: '6px' } }} />
         </Box>
 
         {/* ── Script preview list ── */}
@@ -134,24 +171,26 @@ export function FolderCard({ folder, scripts, language, onOpen, onRename, onDele
           )}
         </Box>
 
-        {/* ── Action button (hover) ── */}
-        <Box sx={{
-          position: 'absolute', top: 7, right: 7,
-          opacity: showActions ? 1 : 0,
-          transition: 'opacity 0.15s ease',
-        }}>
-          <IconButton size="small" onClick={openMenu}
-            sx={{ bgcolor: 'action.selected', width: 26, height: 26, '&:hover': { bgcolor: 'action.focus' } }}>
-            <MoreVertIcon sx={{ fontSize: 15 }} />
-          </IconButton>
-        </Box>
+        {/* ── Three-dot action button (hover, hidden when renaming) ── */}
+        {!renaming && (
+          <Box sx={{
+            position: 'absolute', top: 7, right: 7,
+            opacity: showActions ? 1 : 0,
+            transition: 'opacity 0.15s ease',
+          }}>
+            <IconButton size="small" onClick={openMenu}
+              sx={{ bgcolor: 'action.selected', width: 26, height: 26, '&:hover': { bgcolor: 'action.focus' } }}>
+              <MoreVertIcon sx={{ fontSize: 15 }} />
+            </IconButton>
+          </Box>
+        )}
       </Box>
 
       {/* ── Action menu ── */}
       <Menu anchorEl={menuAnchor} open={menuOpen} onClose={closeMenu}
         onClick={(e) => e.stopPropagation()}
         slotProps={{ paper: { sx: { minWidth: 150 } } }}>
-        <MenuItem dense onClick={() => { setRenameValue(folder.name); setRenaming(true); closeMenu() }}>
+        <MenuItem dense onClick={startRename}>
           <ListItemIcon><DriveFileRenameOutlineIcon sx={{ fontSize: 15 }} /></ListItemIcon>
           <ListItemText slotProps={{ primary: { sx: { fontSize: '0.82rem' } } }}>
             {zh ? '重命名' : 'Rename'}

@@ -1,6 +1,6 @@
 import React, { useDeferredValue, useMemo, useState } from 'react'
 import {
-  Box, Chip, Divider, IconButton, InputAdornment,
+  Box, Button, Chip, Divider, IconButton, InputAdornment,
   TextField, Tooltip, Typography,
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
@@ -113,7 +113,7 @@ export function ScriptsMasonryGrid({
   }, [scripts])
 
   // ── Folder grouping helper ─────────────────────────────────────────────────
-  function makeByFolder(sectionScripts: typeof community, isFiltering: boolean) {
+  function makeByFolder(sectionScripts: typeof community) {
     if (folderFilter !== null) return null
     const sortedFolders = [...scriptFolders].sort((a, b) => a.order - b.order)
     const byFolder = sortedFolders
@@ -121,7 +121,7 @@ export function ScriptsMasonryGrid({
         folder,
         scripts: sectionScripts.filter((s) => s.folderId === folder.id),
       }))
-      .filter(({ scripts: ss }) => ss.length > 0 || !isFiltering)
+      .filter(({ scripts: ss }) => ss.length > 0)
     const unfoldered = sectionScripts.filter((s) => !s.folderId)
     return { byFolder, unfoldered }
   }
@@ -130,13 +130,13 @@ export function ScriptsMasonryGrid({
 
   // ── Community grouping by folder ──────────────────────────────────────────
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const communityByFolder = useMemo(() => makeByFolder(community, isFilteringNow),
-    [community, scriptFolders, folderFilter, deferredQuery, tagFilter])
+  const communityByFolder = useMemo(() => makeByFolder(community),
+    [community, scriptFolders, folderFilter])
 
   // ── DIY grouping by folder ─────────────────────────────────────────────────
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const diyByFolder = useMemo(() => makeByFolder(diy, isFilteringNow),
-    [diy, scriptFolders, folderFilter, deferredQuery, tagFilter])
+  const diyByFolder = useMemo(() => makeByFolder(diy),
+    [diy, scriptFolders, folderFilter])
 
   const total = official.length + community.length + diy.length
   const activeFolder = folderFilter ? scriptFolders.find((f) => f.id === folderFilter) : null
@@ -210,16 +210,6 @@ export function ScriptsMasonryGrid({
         <Tooltip title={zh ? '切换列表视图' : 'Switch to list view'}>
           <IconButton size="small" onClick={() => onBrowseModeChange('list')}>
             <ViewListIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title={zh ? '新建文件夹' : 'New folder'}>
-          <IconButton size="small" onClick={handleCreateFolder}>
-            <CreateNewFolderIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title={zh ? '新建剧本' : 'New Script'}>
-          <IconButton size="small" onClick={createNewScript}>
-            <AddIcon fontSize="small" />
           </IconButton>
         </Tooltip>
         <Tooltip title={zh ? '导入 JSON' : 'Import JSON'}>
@@ -307,8 +297,9 @@ export function ScriptsMasonryGrid({
             )}
 
             {/* Community */}
-            {communityByFolder && (community.length > 0 || scriptFolders.some((f) => community.some((s) => s.folderId === f.id))) && (
-              <GridSection label={zh ? '社区' : 'Community'} count={community.length}>
+            {communityByFolder && (community.length > 0 || communityByFolder.byFolder.length > 0) && (
+              <GridSection label={zh ? '社区' : 'Community'} count={community.length}
+                zh={zh} onAddFolder={handleCreateFolder}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                   {/* Folder tiles for community scripts */}
                   {communityByFolder.byFolder.length > 0 && (
@@ -347,8 +338,9 @@ export function ScriptsMasonryGrid({
             )}
 
             {/* DIY: folder tiles + unfoldered scripts */}
-            {diyByFolder && (diy.length > 0 || scriptFolders.length > 0) && (
-              <GridSection label={zh ? '自制' : 'DIY'} count={diy.length}>
+            {diyByFolder && (diy.length > 0 || diyByFolder.byFolder.length > 0) && (
+              <GridSection label={zh ? '自制' : 'DIY'} count={diy.length}
+                zh={zh} onAddFolder={handleCreateFolder} onAddScript={createNewScript}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
 
                   {/* Folder tiles */}
@@ -406,8 +398,9 @@ export function ScriptsMasonryGrid({
 
 // ── Section header ─────────────────────────────────────────────────────────────
 
-function GridSection({ label, count, children }: {
+function GridSection({ label, count, children, onAddFolder, onAddScript, zh }: {
   label: string; count: number; children: React.ReactNode
+  onAddFolder?: () => void; onAddScript?: () => void; zh?: boolean
 }) {
   return (
     <Box>
@@ -421,6 +414,20 @@ function GridSection({ label, count, children }: {
           ({count})
         </Typography>
         <Divider sx={{ flex: 1 }} />
+        {onAddFolder && (
+          <Button size="small" startIcon={<CreateNewFolderIcon sx={{ fontSize: '0.9rem !important' }} />}
+            onClick={onAddFolder}
+            sx={{ fontSize: '0.7rem', py: '2px', px: 1, minWidth: 0, textTransform: 'none', color: 'text.secondary', '&:hover': { color: 'primary.main' } }}>
+            {zh ? '新建文件夹' : 'Add folder'}
+          </Button>
+        )}
+        {onAddScript && (
+          <Button size="small" startIcon={<AddIcon sx={{ fontSize: '0.9rem !important' }} />}
+            onClick={onAddScript}
+            sx={{ fontSize: '0.7rem', py: '2px', px: 1, minWidth: 0, textTransform: 'none', color: 'text.secondary', '&:hover': { color: 'primary.main' } }}>
+            {zh ? '新建剧本' : 'Add script'}
+          </Button>
+        )}
       </Box>
       {children}
     </Box>
