@@ -337,8 +337,8 @@ export function ScriptsMasonryGrid({
               </GridSection>
             )}
 
-            {/* DIY: folder tiles + unfoldered scripts */}
-            {diyByFolder && (diy.length > 0 || diyByFolder.byFolder.length > 0) && (
+            {/* DIY: folder tiles + unfoldered scripts — always shown so add buttons are accessible */}
+            {diyByFolder && (
               <GridSection label={zh ? '自制' : 'DIY'} count={diy.length}
                 zh={zh} onAddFolder={handleCreateFolder} onAddScript={createNewScript}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
@@ -385,6 +385,13 @@ export function ScriptsMasonryGrid({
                         ))}
                       </Box>
                     </>
+                  )}
+
+                  {/* Empty state */}
+                  {diyByFolder.byFolder.length === 0 && diyByFolder.unfoldered.length === 0 && (
+                    <Typography sx={{ fontSize: '0.78rem', color: 'text.disabled', fontStyle: 'italic' }}>
+                      {zh ? '暂无自制剧本，点击上方按钮新建' : 'No custom scripts yet — use the buttons above to get started.'}
+                    </Typography>
                   )}
                 </Box>
               </GridSection>
