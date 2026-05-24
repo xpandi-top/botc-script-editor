@@ -54,7 +54,7 @@ export function ArenaCenterContent({ ctx }: { ctx: StorytellerContext }) {
     showNominationSheet, setShowNominationSheet,
     enterNomination, moveToNextSpeaker, goToNextDay, setPhase,
     alarmActive, setAlarmActive, nightShowCharacter, setNightShowCharacter,
-    nightShowWakeOrder, setNightShowWakeOrder, openCharacterEditor,
+    nightShowWakeOrder, setNightShowWakeOrder, setShowEditPlayersModal,
     setShowAggLogModal, setShowStSetupModal, stFabledIds,
   } = ctx
   const [timerEditing, setTimerEditing] = useState(false)
@@ -121,8 +121,8 @@ export function ArenaCenterContent({ ctx }: { ctx: StorytellerContext }) {
             <FormatListNumberedIcon />
           </IconButton>
         </Tooltip>
-        <Tooltip title={language === 'zh' ? '编辑角色' : 'Edit Characters'}>
-          <IconButton size="large" onClick={openCharacterEditor}><ManageAccountsIcon /></IconButton>
+        <Tooltip title={language === 'zh' ? '编辑游戏角色' : 'Edit Game Characters'}>
+          <IconButton size="large" onClick={() => setShowEditPlayersModal(true)}><ManageAccountsIcon /></IconButton>
         </Tooltip>
       </Box>
     </>

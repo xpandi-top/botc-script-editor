@@ -41,6 +41,12 @@ function stripIconTokens(s: string): string {
   return s.replace(/\[icon:[^\]]+\]/g, '')
 }
 
+const PHASE_SHARE_ORDER = ['night', 'private', 'public', 'nomination']
+
+function phaseLabelI18n(language: string, phase: string): string {
+  return logDetail.phase(language as any, phase) || phase
+}
+
 function buildShareText(
   days: any[], text: any, language: string,
   visFilter: 'all' | 'public' | 'st-only',
@@ -49,18 +55,25 @@ function buildShareText(
   const title = language === 'zh' ? '游戏日志' : 'Game Log'
   const lines: string[] = [title, '']
   const sortedDays = [...days].sort((a, b) => a.day - b.day)
+
   for (const day of sortedDays) {
     const dayLabel = language === 'zh' ? `第 ${day.day} 天` : `Day ${day.day}`
     lines.push(`=== ${dayLabel} ===`)
-    // Votes (public visibility)
+
+    // ── Collect all entries with their phase ─────────────────────────────────
+    type Entry = { phase: string; timestamp: number; line: string }
+    const entries: Entry[] = []
+
+    // Votes → always nomination phase
     if (typeFilters.has('vote') && (visFilter === 'all' || visFilter === 'public')) {
       for (const v of day.voteHistory) {
         const voterList = v.voters.length > 0 ? ` [${v.voters.map((n: number) => `#${n}`).join(', ')}]` : ''
         const line = `[${text.filterVote}] ${logDetail.voteResult(language, v.actor, v.target, v.passed, v.voteCount, v.requiredVotes)}${voterList}${v.note ? ` · ${v.note}` : ''}`
-        lines.push(line)
+        entries.push({ phase: 'nomination', timestamp: v.timestamp ?? 0, line })
       }
     }
-    // Skills (st-only visibility)
+
+    // Skills — use activatedDuringPhase
     if (typeFilters.has('skill') && (visFilter === 'all' || visFilter === 'st-only')) {
       for (const s of day.skillHistory ?? []) {
         const targets: number[] = s.targets || []
@@ -68,23 +81,46 @@ function buildShareText(
         const roleName = s.roleId ? getDisplayName(s.roleId, language) : ''
         const resultLabel = logDetail.skillResultLabel(language, s.result ?? null)
         const detail = `#${s.actor} ${roleName}${targetStr}${s.statement ? ` · ${stripIconTokens(s.statement)}` : ''}${resultLabel ? ` ${resultLabel}` : ''}`
-        lines.push(`[${text.filterSkill}] ${detail}`)
+        entries.push({ phase: s.activatedDuringPhase ?? 'night', timestamp: s.timestamp ?? 0, line: `[${text.filterSkill}] ${detail}` })
       }
     }
-    // Events (mixed visibility)
+
+    // Events — use event.phase
     if (typeFilters.has('event')) {
       for (const e of day.eventLog) {
         if (e.kind === 'vote' || e.kind === 'skill') continue
-        // tagChange = ST-internal (e.g. +ST:drunk); include only when sharing ST content
         const isTagChange = e.kind === 'tagChange'
         if (isTagChange && visFilter === 'public') continue
         const isPublic = !isTagChange && (e.kind === 'phaseTransition' || e.kind === 'stateChange') && e.visibility !== 'st-only'
         const isStOnly = !isPublic
         if (visFilter === 'public' && !isPublic) continue
         if (visFilter === 'st-only' && !isStOnly && !isTagChange) continue
-        lines.push(`[${text.filterEvent}] ${stripIconTokens(e.detail)}`)
+        if (e.kind === 'phaseTransition') continue  // skip redundant phase-change events in text log
+        entries.push({ phase: e.phase ?? 'night', timestamp: e.timestamp ?? 0, line: `[${text.filterEvent}] ${stripIconTokens(e.detail)}` })
       }
     }
+
+    // ── Group by phase in order ───────────────────────────────────────────────
+    const byPhase = new Map<string, Entry[]>()
+    for (const entry of entries) {
+      const p = entry.phase in PHASE_SHARE_ORDER.reduce((a, v) => ({ ...a, [v]: true }), {} as Record<string,boolean>)
+        ? entry.phase : 'night'
+      if (!byPhase.has(p)) byPhase.set(p, [])
+      byPhase.get(p)!.push(entry)
+    }
+
+    let hasContent = false
+    for (const phase of PHASE_SHARE_ORDER) {
+      const phaseEntries = byPhase.get(phase)
+      if (!phaseEntries || phaseEntries.length === 0) continue
+      hasContent = true
+      const pLabel = phaseLabelI18n(language, phase)
+      lines.push(`--- ${pLabel} ---`)
+      phaseEntries.sort((a, b) => a.timestamp - b.timestamp)
+      for (const e of phaseEntries) lines.push(e.line)
+    }
+
+    if (!hasContent) lines.push(language === 'zh' ? '（无记录）' : '(no entries)')
     lines.push('')
   }
   return lines.join('\n').trim()

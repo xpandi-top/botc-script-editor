@@ -79,7 +79,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
     showNominationSheet, setShowNominationSheet,
     enterNomination, moveToNextSpeaker, setPhase,
     alarmActive, setAlarmActive, nightShowCharacter, setNightShowCharacter,
-    nightShowWakeOrder, setNightShowWakeOrder, openCharacterEditor,
+    nightShowWakeOrder, setNightShowWakeOrder, setShowEditPlayersModal,
     openNewGamePanel, openEndGamePanel,
     showAggLogModal, setShowAggLogModal, setShowStSetupModal, stFabledIds,
   } = ctx
@@ -422,8 +422,8 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
                     <FormatListNumberedIcon />
                   </IconButton>
                 </Tooltip>
-                <Tooltip title={language === 'zh' ? '编辑角色' : 'Edit Characters'}>
-                  <IconButton sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={openCharacterEditor}>
+                <Tooltip title={language === 'zh' ? '编辑游戏角色' : 'Edit Game Characters'}>
+                  <IconButton sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={() => setShowEditPlayersModal(true)}>
                     <ManageAccountsIcon />
                   </IconButton>
                 </Tooltip>
