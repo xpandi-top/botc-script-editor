@@ -132,11 +132,6 @@ export function ScriptsMasonryGrid({
 
   const isFilteringNow = !!deferredQuery.trim() || !!tagFilter
 
-  // Community: only show folders that actually contain community scripts
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const communityByFolder = useMemo(() => makeByFolder(community, false),
-    [community, scriptFolders, folderFilter])
-
   // DIY: show ALL folders (including newly-created empty ones)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const diyByFolder = useMemo(() => makeByFolder(diy, true),
@@ -308,43 +303,19 @@ export function ScriptsMasonryGrid({
               </GridSection>
             )}
 
-            {/* Community */}
-            {communityByFolder && (community.length > 0 || communityByFolder.byFolder.length > 0) && (
-              <GridSection label={zh ? '社区' : 'Community'} count={community.length}
-                zh={zh} onAddFolder={handleCreateFolder}>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                  {/* Folder tiles for community scripts */}
-                  {communityByFolder.byFolder.length > 0 && (
-                    <Box sx={GRID_SX}>
-                      {communityByFolder.byFolder.map(({ folder, scripts: ss }) => (
-                        <FolderCard
-                          key={folder.id}
-                          folder={folder}
-                          scripts={ss}
-                          language={language}
-                          onOpen={() => setFolderFilter(folder.id)}
-                          onRename={(name) => renameFolder(folder.id, name)}
-                          onDelete={() => deleteFolder(folder.id)}
-                        />
-                      ))}
-                    </Box>
-                  )}
-                  {/* Unfoldered community scripts */}
-                  {communityByFolder.unfoldered.length > 0 && (
-                    <Box sx={GRID_SX}>
-                      {communityByFolder.unfoldered.map((s) => (
-                        <MasonryScriptCard key={s.slug} script={s}
-                          isActive={s.slug === activeScript?.slug}
-                          language={language}
-                          onSelect={() => handleSelect(s.slug)}
-                          isDeletable={false}
-                          scriptFolders={scriptFolders}
-                          onDuplicate={() => duplicateScript(s.slug)}
-                          onMoveToFolder={(fid) => moveScriptToFolder(s.slug, fid)}
-                        />
-                      ))}
-                    </Box>
-                  )}
+            {/* Community — flat list, no folder management (built-in read-only scripts) */}
+            {community.length > 0 && (
+              <GridSection label={zh ? '社区' : 'Community'} count={community.length}>
+                <Box sx={GRID_SX}>
+                  {community.map((s) => (
+                    <MasonryScriptCard key={s.slug} script={s}
+                      isActive={s.slug === activeScript?.slug}
+                      language={language}
+                      onSelect={() => handleSelect(s.slug)}
+                      isDeletable={false}
+                      onDuplicate={() => duplicateScript(s.slug)}
+                    />
+                  ))}
                 </Box>
               </GridSection>
             )}
