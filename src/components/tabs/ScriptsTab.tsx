@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Alert, Box, Button, Chip, CircularProgress, Collapse, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, IconButton, InputLabel, MenuItem, Paper, Select, TextField, ToggleButton, ToggleButtonGroup, Tooltip, Typography } from '@mui/material'
+import { Alert, Box, Button, Chip, CircularProgress, Collapse, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, IconButton, InputLabel, MenuItem, Paper, Select, TextField, Tooltip, Typography } from '@mui/material'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import PrintIcon from '@mui/icons-material/Print'
 import DownloadIcon from '@mui/icons-material/Download'
 import ShareIcon from '@mui/icons-material/Share'
@@ -124,6 +125,8 @@ export function ScriptsTab({
   const setListOpen = isMobile ? setListOpenMobile : setListOpenDesktop
   const [viewColumns, setViewColumns] = useState<1 | 2>(1)
   const [hideAbility, setHideAbility] = useState(() => isMobile)
+  // Masonry card-view detail overlay — when true the full detail panel is shown over the grid
+  const [masonryDetailOpen, setMasonryDetailOpen] = useState(false)
 
   // ── Script share dialog ───────────────────────────────────────────────────
   const [shareDialogOpen, setShareDialogOpen] = useState(false)
@@ -228,16 +231,21 @@ export function ScriptsTab({
     updateActiveScript((s) => ({ ...s, tags: (s.tags ?? []).filter((t) => t !== tag) }))
   }
 
+  // In masonry mode the grid is always single-column (full-width);
+  // detail panel replaces the grid when masonryDetailOpen.
   const gridCols = isMobile
     ? '1fr'
-    : browseMode === 'masonry'
-      ? (activeScript ? '420px 1fr' : '1fr')
-      : (showList ? '320px 1fr' : '1fr')
+    : (browseMode === 'list' && showList ? '320px 1fr' : '1fr')
+
+  const handleBrowseModeChange = (mode: 'list' | 'masonry') => {
+    setBrowseMode(mode)
+    if (mode === 'masonry') setMasonryDetailOpen(false)
+  }
 
   return (
     <Box sx={{ display: 'grid', gridTemplateColumns: gridCols, gap: 2, minHeight: 0 }}>
-      {/* ── Left / browse panel ── */}
-      {browseMode === 'masonry' ? (
+      {/* ── Card gallery (masonry mode — full width, hides when detail open) ── */}
+      {browseMode === 'masonry' && !masonryDetailOpen && (
         <Paper elevation={0} sx={{
           borderRadius: 3, bgcolor: 'background.paper',
           border: '1px solid', borderColor: 'divider',
@@ -249,14 +257,19 @@ export function ScriptsTab({
             activeScript={activeScript}
             language={uiLanguage}
             browseMode={browseMode}
-            onBrowseModeChange={setBrowseMode}
+            onBrowseModeChange={handleBrowseModeChange}
             onSelect={setActiveSlug}
+            onDetailOpen={() => setMasonryDetailOpen(true)}
             isBuiltIn={isBuiltIn}
+            scriptFolders={scriptFolders}
             createNewScript={createNewScript}
             importScriptFile={importScriptFile}
           />
         </Paper>
-      ) : showList ? (
+      )}
+
+      {/* ── Left sidebar (list mode only) ── */}
+      {browseMode === 'list' && showList && (
         <Paper elevation={0} sx={{
           p: 1.5, borderRadius: 3, bgcolor: 'background.paper',
           border: '1px solid', borderColor: 'divider',
@@ -268,8 +281,7 @@ export function ScriptsTab({
             activeScript={activeScript}
             language={uiLanguage}
             isMobile={isMobile}
-            browseMode={browseMode}
-            onBrowseModeChange={setBrowseMode}
+            onBrowseModeChange={handleBrowseModeChange}
             getScriptTitle={getScriptTitle}
             setActiveSlug={setActiveSlug}
             onClose={() => setListOpen(false)}
@@ -286,19 +298,29 @@ export function ScriptsTab({
             moveScriptToFolder={moveScriptToFolder}
           />
         </Paper>
-      ) : null}
+      )}
 
-      {/* ── Right detail panel — hidden in masonry when no script selected ── */}
-      {(browseMode !== 'masonry' || activeScript) && (
+      {/* ── Detail panel — list mode always; masonry mode only when detail open ── */}
+      {(browseMode === 'list' || masonryDetailOpen) && (
       <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', height: '100%', boxSizing: 'border-box' }}>
         {activeScript ? (
           <>
             {/* ── Toolbar ── */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2, flexWrap: 'wrap' }}>
-              <IconButton size="small" onClick={() => setListOpen((v) => !v)}
-                title={showList ? 'Hide list' : 'Show list'}>
-                {showList ? <MenuOpenIcon fontSize="small" /> : <MenuIcon fontSize="small" />}
-              </IconButton>
+              {browseMode === 'masonry' ? (
+                /* Back to card gallery */
+                <Tooltip title={zh ? '返回卡片视图' : 'Back to card view'}>
+                  <IconButton size="small" onClick={() => setMasonryDetailOpen(false)}>
+                    <ArrowBackIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              ) : (
+                /* Toggle list sidebar */
+                <IconButton size="small" onClick={() => setListOpen((v) => !v)}
+                  title={showList ? 'Hide list' : 'Show list'}>
+                  {showList ? <MenuOpenIcon fontSize="small" /> : <MenuIcon fontSize="small" />}
+                </IconButton>
+              )}
               {!isBuiltIn(activeScript.slug) && (
                 <Button variant="outlined" size="small" onClick={() => setIsEditMode((c) => !c)}>
                   {isEditMode ? uiText.doneEditing : uiText.editScript}
@@ -323,11 +345,15 @@ export function ScriptsTab({
                   <NightsStayIcon fontSize="small" />
                 </IconButton>
               </Tooltip>
-              <ToggleButtonGroup size="small" exclusive value={viewColumns}
-                onChange={(_, v) => { if (v) setViewColumns(v) }}>
-                <ToggleButton value={1}><ViewListIcon fontSize="small" /></ToggleButton>
-                <ToggleButton value={2}><ViewModuleIcon fontSize="small" /></ToggleButton>
-              </ToggleButtonGroup>
+              <Tooltip title={viewColumns === 2
+                ? (zh ? '单列视图' : 'Single column')
+                : (zh ? '双列视图' : 'Two columns')}>
+                <IconButton size="small" onClick={() => setViewColumns((v) => (v === 1 ? 2 : 1))}>
+                  {viewColumns === 2
+                    ? <ViewListIcon fontSize="small" />
+                    : <ViewModuleIcon fontSize="small" />}
+                </IconButton>
+              </Tooltip>
               <Tooltip title={hideAbility
                 ? (zh ? '显示能力描述' : 'Show ability text')
                 : (zh ? '隐藏能力描述' : 'Hide ability text')}>
