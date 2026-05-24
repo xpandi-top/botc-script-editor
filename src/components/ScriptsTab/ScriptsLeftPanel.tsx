@@ -455,8 +455,6 @@ function ScriptTree({
   mkRows: (rows: EditableScript[], deletable: boolean, canFolder?: boolean) => React.ReactNode
 }) {
   const unfoldered = scripts.filter((s) => !s.folderId)
-  // Only show folders that have at least one script from this section,
-  // or if global folder set is shared — show all folders but scoped scripts
   const sorted = [...folders].sort((a, b) => a.order - b.order)
 
   return (
@@ -464,10 +462,9 @@ function ScriptTree({
       {/* Unfoldered scripts */}
       {unfoldered.length > 0 && mkRows(unfoldered, deletable, canFolder)}
 
-      {/* Folder sections — only folders that contain scripts from this section */}
+      {/* Folder sections — all folders including empty ones */}
       {sorted.map((folder) => {
         const folderScripts = scripts.filter((s) => s.folderId === folder.id)
-        if (folderScripts.length === 0) return null
         return (
           <ScriptFolderRow
             key={folder.id}
