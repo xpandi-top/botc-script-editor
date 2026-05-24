@@ -5,6 +5,7 @@ import {
   TableHead, TableRow, TableSortLabel, TextField, ToggleButton, ToggleButtonGroup, Tooltip, Typography,
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
+import CloseIcon from '@mui/icons-material/Close'
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents'
@@ -18,6 +19,7 @@ import StarBorderIcon from '@mui/icons-material/StarBorder'
 import TimerIcon from '@mui/icons-material/Timer'
 import { getDisplayName, getIconForCharacter } from '../../../catalog'
 import { exportGameFile } from '../../../lib/exportGame'
+import { useBreakpoint } from '../../../hooks/useBreakpoint'
 import { StarRating } from '../../ui/StarRating'
 import type { GameRecord } from '../../StorytellerSub/types'
 import type { Language } from '../../../types'
@@ -359,11 +361,14 @@ const RecordRowDetail = memo(function RecordRowDetail({ record, language, zh }: 
 
 export function RecordsSection({ records, filteredRecords, onRecordsChange, language, onCreateRecord, onEditRecord }: Props) {
   const zh = language === 'zh'
+  const { isMobile } = useBreakpoint()
   const [sortKey, setSortKey] = useState<SortKey>('date')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [confirmBulkDelete, setConfirmBulkDelete] = useState(false)
+  // Mobile: show record detail in a full-screen dialog instead of inline expand
+  const [mobileDetail, setMobileDetail] = useState<GameRecord | null>(null)
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) setSortDir((d) => d === 'asc' ? 'desc' : 'asc')
@@ -446,7 +451,8 @@ export function RecordsSection({ records, filteredRecords, onRecordsChange, lang
         </Box>
       ) : (
         <Paper data-tutorial="an-records-table" elevation={2} sx={{ overflow: 'hidden' }}>
-          <Table size="small">
+          <Box sx={{ overflowX: 'auto' }}>
+          <Table size="small" sx={{ minWidth: { xs: 280, sm: 'unset' } }}>
             <TableHead>
               <TableRow sx={{ bgcolor: 'rgba(0,0,0,0.04)' }}>
                 <TableCell padding="checkbox" sx={{ width: 36, py: 0.5 }}>
@@ -489,7 +495,10 @@ export function RecordsSection({ records, filteredRecords, onRecordsChange, lang
                     key={r.id}
                     selected={isSelected}
                     sx={{ cursor: 'pointer', '&:hover': { bgcolor: 'rgba(0,0,0,0.03)' } }}
-                    onClick={() => setExpandedId(isExpanded ? null : r.id)}
+                    onClick={() => {
+                      if (isMobile) setMobileDetail(r)
+                      else setExpandedId(isExpanded ? null : r.id)
+                    }}
                   >
                     <TableCell padding="checkbox" sx={{ py: 0.5 }} onClick={(e) => e.stopPropagation()}>
                       <Checkbox size="small" checked={isSelected} onChange={() => toggleSelect(r.id)} />
@@ -572,8 +581,83 @@ export function RecordsSection({ records, filteredRecords, onRecordsChange, lang
               })}
             </TableBody>
           </Table>
+          </Box>
         </Paper>
       )}
+
+      {/* ── Mobile record detail dialog ── */}
+      <Dialog
+        open={!!mobileDetail}
+        onClose={() => setMobileDetail(null)}
+        fullWidth
+        maxWidth="sm"
+        slotProps={{ paper: { sx: { m: 1, maxHeight: '92dvh', display: 'flex', flexDirection: 'column' } } }}
+      >
+        {mobileDetail && (
+          <>
+            <DialogTitle sx={{ pb: 1 }}>
+              <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Typography sx={{ fontWeight: 700, fontSize: '1rem', lineHeight: 1.3 }}>
+                    {mobileDetail.recordName || mobileDetail.scriptTitle || '?'}
+                  </Typography>
+                  {mobileDetail.scriptTitle && mobileDetail.recordName && (
+                    <Typography variant="caption" color="text.secondary">
+                      {mobileDetail.scriptTitle}
+                    </Typography>
+                  )}
+                  <Typography variant="caption" color="text.disabled" sx={{ display: 'block', fontSize: '0.65rem' }}>
+                    {new Date(mobileDetail.endedAt).toLocaleDateString()}
+                  </Typography>
+                </Box>
+                {mobileDetail.winner && (
+                  <Chip size="small"
+                    label={zh ? (WINNER_LABEL[mobileDetail.winner]?.zh ?? mobileDetail.winner) : (WINNER_LABEL[mobileDetail.winner]?.en ?? mobileDetail.winner)}
+                    color={WINNER_COLOR[mobileDetail.winner] ?? 'default'}
+                    sx={{ fontSize: '0.7rem', height: 22, flexShrink: 0 }} />
+                )}
+                <IconButton size="small" onClick={() => setMobileDetail(null)} sx={{ flexShrink: 0 }}>
+                  <CloseIcon fontSize="small" />
+                </IconButton>
+              </Box>
+            </DialogTitle>
+            <DialogContent dividers sx={{ p: 0, overflowY: 'auto', flex: 1 }}>
+              <RecordRowDetail record={mobileDetail} language={language} zh={zh} />
+              <QuickEditPanel
+                record={mobileDetail}
+                language={language}
+                zh={zh}
+                onSave={(updated) => {
+                  onRecordsChange(records.map((x) => x.id === updated.id ? updated : x))
+                  setMobileDetail(updated)
+                }}
+              />
+            </DialogContent>
+            <DialogActions sx={{ gap: 0.5, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+              <IconButton size="small"
+                onClick={() => exportGameFile(JSON.stringify(mobileDetail, null, 2), `record-${mobileDetail.id.slice(0, 8)}.json`)}>
+                <FileDownloadIcon fontSize="small" />
+              </IconButton>
+              {onEditRecord && (
+                <IconButton size="small" onClick={() => { onEditRecord(mobileDetail); setMobileDetail(null) }}>
+                  <EditIcon fontSize="small" />
+                </IconButton>
+              )}
+              <IconButton size="small" color="error" onClick={() => {
+                if (confirm(zh ? '确定删除此记录？' : 'Delete this record?')) {
+                  deleteRecord(mobileDetail.id)
+                  setMobileDetail(null)
+                }
+              }}>
+                <DeleteIcon fontSize="small" />
+              </IconButton>
+              <Button size="small" onClick={() => setMobileDetail(null)}>
+                {zh ? '关闭' : 'Close'}
+              </Button>
+            </DialogActions>
+          </>
+        )}
+      </Dialog>
 
       {/* Bulk delete confirm */}
       <Dialog open={confirmBulkDelete} onClose={() => setConfirmBulkDelete(false)} maxWidth="xs">
