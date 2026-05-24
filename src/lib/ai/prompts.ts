@@ -43,15 +43,38 @@ function buildFewShotSection(ctx: AiContext): string {
 
 // ── Per-type prompt builders ──────────────────────────────────────────────────
 
+const CHAR_DESIGN_HINTS = {
+  en: `BotC ability design principles:
+- Townsfolk: provide information or protection; should feel powerful but not game-breaking
+- Outsiders: good alignment but negative/drawback ability; add risk to the good team
+- Minions: evil support; disrupt, mislead, or protect the Demon
+- Demon: kills at night; ability defines the script's threat level
+- Abilities should be 1–3 sentences; clear, concise, unambiguous
+- Avoid "each night*" on Demons (they already kill); night reminders must match ability
+- Night order: lower number = acts earlier; 0 = does not act that night`,
+
+  zh: `血染钟楼能力设计原则：
+- 镇民：提供信息或保护；强力但不破坏平衡
+- 外来者：好人阵营但有负面效果；增加好人阵营风险
+- 爪牙：邪恶辅助；干扰、误导或保护恶魔
+- 恶魔：每夜杀人；能力决定剧本的威胁等级
+- 能力文本1-3句；简洁清晰无歧义
+- 恶魔不需"每夜*"（已有击杀）；夜间提示必须匹配能力
+- 夜间顺序：数字越小越先行动；0 = 当晚不行动`,
+}
+
 function characterPrompt(ctx: AiContext, wiki: string, zh: boolean): string {
   const serialized = ctx.serialized ?? serializeContext(ctx)
   const fewShot    = buildFewShotSection(ctx)
   const fieldKeys  = ctx.fields.map((f) => f.key).join(', ') || 'none'
+  const designHints = zh ? CHAR_DESIGN_HINTS.zh : CHAR_DESIGN_HINTS.en
   return zh
     ? `你是一个血染钟楼（BotC）自定义角色创作 AI 助手。
 帮助用户创建、翻译和完善角色与剧本。
 
 ${buildGlossaryPrompt('zh')}${wiki}
+
+${designHints}
 
 ${serialized}${fewShot}
 
@@ -69,6 +92,8 @@ ${serialized}${fewShot}
 Help the user create, translate, and refine characters and scripts.
 
 ${buildGlossaryPrompt('en')}${wiki}
+
+${designHints}
 
 ${serialized}${fewShot}
 
