@@ -85,10 +85,12 @@ export type ScriptJinxOverride = {
 export type ScriptCharacterItem = {
   id: string
   name?: string
+  name_zh?: string           // localized name (Chinese)
   image?: string | string[]
   team?: Team
   edition?: string
   ability?: string
+  ability_zh?: string        // localized ability (Chinese)
   flavor?: string
   firstNight?: number
   firstNightReminder?: string
@@ -157,7 +159,9 @@ export type ScriptFolder = {
 
 export type ResolvedScriptCharacter = CharacterEntry & {
   name?: string
+  nameZh?: string      // inline Chinese name (for shared custom chars)
   ability?: string
+  abilityZh?: string   // inline Chinese ability (for shared custom chars)
   image?: string | string[]
 }
 

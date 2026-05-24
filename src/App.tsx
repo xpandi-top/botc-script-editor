@@ -464,10 +464,14 @@ export default function App() {
           current_revision: cat?.current_revision,
           revisions: cat?.revisions,
           jinxes: scriptCustom?.jinxes ?? globalCustom?.jinxes ?? cat?.jinxes,
-          name: scriptCustom?.name ?? (globalCustom ? getDisplayName(id, uiLanguage) : undefined),
+          name: scriptCustom?.name ?? (globalCustom ? getDisplayName(id, 'en') : undefined),
+          nameZh: scriptCustom?.name_zh ?? (globalCustom ? getDisplayName(id, 'zh') : undefined),
           ability: scriptCustom?.ability ?? (globalCustom
-            ? getAbilityText(id, uiLanguage)
-            : cat ? getAbilityTextForScript(id, uiLanguage, activeScript.pinnedRevisions) : undefined),
+            ? getAbilityText(id, 'en')
+            : cat ? getAbilityTextForScript(id, 'en', activeScript.pinnedRevisions) : undefined),
+          abilityZh: scriptCustom?.ability_zh ?? (globalCustom
+            ? getAbilityText(id, 'zh')
+            : cat ? getAbilityTextForScript(id, 'zh', activeScript.pinnedRevisions) : undefined),
           image: scriptCustom?.image ?? (globalCustom?.icon ? globalCustom.icon : undefined),
         }
       })

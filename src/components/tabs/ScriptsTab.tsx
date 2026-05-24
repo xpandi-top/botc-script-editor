@@ -167,7 +167,9 @@ export function ScriptsTab({
               ...missing.map((c) => ({
                 id: c.id,
                 name: c.nameEn,
+                ...(c.nameZh ? { name_zh: c.nameZh } : {}),
                 ability: c.abilityEn,
+                ...(c.abilityZh ? { ability_zh: c.abilityZh } : {}),
                 team: c.team,
                 edition: c.edition,
                 ...(c.icon ? { image: c.icon } : {}),

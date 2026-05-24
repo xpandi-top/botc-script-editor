@@ -312,24 +312,38 @@ export function SheetArticle({
     // Fall back to stored values only for script-level custom chars not in any registry
     // (getDisplayName returns toTitleCase(id) and getAbilityText returns the fallback string).
     const NO_ABILITY = 'No ability text available.'
+
+    // Prefer catalog (handles revisions); fall back to inline data on the character.
+    // character.nameZh / character.abilityZh are populated for shared custom chars
+    // that the recipient doesn't have in their local catalog.
     const catalogName = getDisplayName(character.id, lang)
+    const inlineName  = lang === 'zh' ? (character.nameZh ?? character.name) : character.name
     const displayName = catalogName !== toTitleCase(character.id)
       ? catalogName
-      : (character.name ?? catalogName)
+      : (inlineName ?? catalogName)
+
     const catalogAbility = getAbilityTextForScript(character.id, lang, activeScript.pinnedRevisions)
+    const inlineAbility  = lang === 'zh' ? (character.abilityZh ?? character.ability) : character.ability
     const ability = catalogAbility !== NO_ABILITY
       ? catalogAbility
-      : (character.ability ?? NO_ABILITY)
+      : (inlineAbility ?? NO_ABILITY)
 
     const altLang = lang === 'zh' ? 'en' : 'zh'
     const abilityAlt = withBoth
       ? (() => {
           const a = getAbilityTextForScript(character.id, altLang, activeScript.pinnedRevisions)
-          return a !== NO_ABILITY ? a : (character.ability ?? '')
+          if (a !== NO_ABILITY) return a
+          // Inline bilingual fallback for shared custom chars
+          return altLang === 'zh'
+            ? (character.abilityZh ?? character.ability ?? '')
+            : (character.ability ?? '')
         })()
       : null
+    const nameAltRaw = withBoth ? getDisplayName(character.id, altLang) : null
     const nameAlt = withBoth
-      ? getDisplayName(character.id, altLang)
+      ? (nameAltRaw !== toTitleCase(character.id)
+          ? nameAltRaw
+          : (altLang === 'zh' ? (character.nameZh ?? character.name) : character.name) ?? nameAltRaw)
       : null
 
     const zhFont = fontFamilyZh && fontFamilyZh !== fontFamilyEn ? fontFamilyZh : undefined
