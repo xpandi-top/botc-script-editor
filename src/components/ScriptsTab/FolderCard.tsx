@@ -132,8 +132,9 @@ export function FolderCard({ folder, scripts, language, onOpen, onRename, onDele
           ) : (
             <>
               <Typography sx={{
-                fontWeight: 700, fontSize: '0.9rem', flex: 1,
+                fontWeight: 700, fontSize: '0.75rem', flex: 1,
                 overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                textTransform: 'uppercase', letterSpacing: '0.08em', color: 'text.secondary',
               }}>
                 {folder.name}
               </Typography>
