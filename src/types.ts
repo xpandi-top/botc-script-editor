@@ -155,6 +155,8 @@ export type ScriptFolder = {
   name: string
   order: number
   collapsed?: boolean
+  /** Which script section owns this folder. Existing folders without this field default to 'diy'. */
+  section?: 'community' | 'diy'
 }
 
 export type ResolvedScriptCharacter = CharacterEntry & {

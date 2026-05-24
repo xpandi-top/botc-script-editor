@@ -125,7 +125,7 @@ type Props = {
   duplicateScript: (slug: string) => void
   isBuiltIn: (slug: string) => boolean
   scriptFolders: ScriptFolder[]
-  createFolder: (name: string) => ScriptFolder
+  createFolder: (name: string, section?: 'community' | 'diy') => ScriptFolder
   renameFolder: (id: string, name: string) => void
   deleteFolder: (id: string) => void
   toggleFolderCollapsed: (id: string) => void
@@ -222,9 +222,12 @@ export function ScriptsLeftPanel({
     return [...preset, ...custom]
   }, [scripts])
 
+  const communityFolders = scriptFolders.filter((f) => (f.section ?? 'diy') === 'community')
+  const diyFolders       = scriptFolders.filter((f) => (f.section ?? 'diy') === 'diy')
+
   // ── Shared row renderer ───────────────────────────────────────────────────
   // canFolder = true for DIY (deletable) + community (!deletable && !official)
-  const mkRows = (rows: EditableScript[], deletable: boolean, canFolder = false) =>
+  const mkRows = (rows: EditableScript[], deletable: boolean, canFolder = false, sectionFolders = diyFolders) =>
     rows.map((script) => (
       <ScriptRow
         key={script.slug}
@@ -233,7 +236,7 @@ export function ScriptsLeftPanel({
         deletable={deletable}
         canFolder={deletable || canFolder}
         language={language}
-        folders={scriptFolders}
+        folders={sectionFolders}
         onSelect={() => { setActiveSlug(script.slug); if (isMobile) onClose() }}
         duplicateScript={duplicateScript}
         deleteScript={deleteScript}
@@ -346,8 +349,8 @@ export function ScriptsLeftPanel({
           ) : (
             <>
               {mkRows(official, false)}
-              {mkRows(community, false, true)}
-              {mkRows(diy, true)}
+              {mkRows(community, false, true, communityFolders)}
+              {mkRows(diy, true, false, diyFolders)}
             </>
           )
         ) : (
@@ -369,14 +372,14 @@ export function ScriptsLeftPanel({
                 <SectionHeader label={zh ? '社区' : 'Community'} count={community.length}
                   open={communityOpen} onToggle={() => setCommunityOpen((v) => !v)} />
               </Box>
-              <NewFolderButton language={language} onCreate={(name) => createFolder(name)} />
+              <NewFolderButton language={language} onCreate={(name) => createFolder(name, 'community')} />
             </Box>
             <Collapse in={communityOpen}>
               <Box sx={{ maxHeight: SECTION_MAX_H, overflow: 'auto' }}>
                 {community.length === 0 ? <EmptyRow /> : (
                   <ScriptTree
                     scripts={community}
-                    folders={scriptFolders}
+                    folders={scriptFolders.filter((f) => (f.section ?? 'diy') === 'community')}
                     language={language}
                     deletable={false}
                     canFolder={true}
@@ -397,7 +400,7 @@ export function ScriptsLeftPanel({
                 <SectionHeader label={zh ? '自制' : 'DIY'} count={diy.length}
                   open={diyOpen} onToggle={() => setDiyOpen((v) => !v)} />
               </Box>
-              <NewFolderButton language={language} onCreate={(name) => createFolder(name)} />
+              <NewFolderButton language={language} onCreate={(name) => createFolder(name, 'diy')} />
             </Box>
             <Collapse in={diyOpen}>
               <Box sx={{ maxHeight: SECTION_MAX_H, overflow: 'auto' }}>
@@ -409,7 +412,7 @@ export function ScriptsLeftPanel({
                 ) : (
                   <ScriptTree
                     scripts={diy}
-                    folders={scriptFolders}
+                    folders={scriptFolders.filter((f) => (f.section ?? 'diy') === 'diy')}
                     language={language}
                     deletable={true}
                     canFolder={true}

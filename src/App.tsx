@@ -312,9 +312,9 @@ export default function App() {
     try { localStorage.setItem(BOTC_SCRIPT_FOLDERS_KEY, JSON.stringify(scriptFolders)) } catch {}
   }, [scriptFolders])
 
-  function createFolder(name: string): ScriptFolder {
+  function createFolder(name: string, section: 'community' | 'diy' = 'diy'): ScriptFolder {
     const id = `folder-${Date.now()}`
-    const folder: ScriptFolder = { id, name, order: scriptFolders.length }
+    const folder: ScriptFolder = { id, name, order: scriptFolders.length, section }
     setScriptFolders((cur) => [...cur, folder])
     return folder
   }
