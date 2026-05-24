@@ -1,8 +1,11 @@
 import React, { useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Box, Button, Chip, Collapse, FormControl, IconButton, InputLabel, MenuItem, Paper, Select, TextField, ToggleButton, ToggleButtonGroup, Tooltip, Typography } from '@mui/material'
+import { Alert, Box, Button, Chip, CircularProgress, Collapse, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, IconButton, InputLabel, MenuItem, Paper, Select, TextField, ToggleButton, ToggleButtonGroup, Tooltip, Typography } from '@mui/material'
 import PrintIcon from '@mui/icons-material/Print'
 import DownloadIcon from '@mui/icons-material/Download'
+import ShareIcon from '@mui/icons-material/Share'
+import ContentCopyIcon from '@mui/icons-material/ContentCopy'
+import CheckIcon from '@mui/icons-material/Check'
 import MenuIcon from '@mui/icons-material/Menu'
 import MenuOpenIcon from '@mui/icons-material/MenuOpen'
 import NightsStayIcon from '@mui/icons-material/NightsStay'
@@ -11,6 +14,8 @@ import ViewListIcon from '@mui/icons-material/ViewList'
 import ViewModuleIcon from '@mui/icons-material/ViewModule'
 import SubjectIcon from '@mui/icons-material/Subject'
 import SortIcon from '@mui/icons-material/Sort'
+import { encodeShareParam, buildShareUrl, isLocalhost } from '../../lib/shareUrl'
+import { createShortLink, TTL_MS_SCRIPT } from '../../lib/firebaseShortUrl'
 import { useBreakpoint } from '../../hooks/useBreakpoint'
 import { SheetArticle } from '../SheetArticle'
 import { ScriptsLeftPanel } from '../ScriptsTab/ScriptsLeftPanel'
@@ -65,6 +70,8 @@ type Props = {
   onLanguageChange: (lang: Language) => void
   onPrintClick: () => void
   onCreateCustomFromId?: (id: string) => void
+  /** Whether the current script is built-in (stable slug, no encoding needed) */
+  isCurrentBuiltIn: boolean
 }
 
 export function ScriptsTab({
@@ -104,6 +111,7 @@ export function ScriptsTab({
   onLanguageChange,
   onPrintClick,
   onCreateCustomFromId,
+  isCurrentBuiltIn,
 }: Props) {
   const { isMobile } = useBreakpoint()
   const [listOpenDesktop, setListOpenDesktop] = useState(true)
@@ -112,6 +120,57 @@ export function ScriptsTab({
   const setListOpen = isMobile ? setListOpenMobile : setListOpenDesktop
   const [viewColumns, setViewColumns] = useState<1 | 2>(1)
   const [hideAbility, setHideAbility] = useState(() => isMobile)
+
+  // ── Script share dialog ───────────────────────────────────────────────────
+  const [shareDialogOpen, setShareDialogOpen] = useState(false)
+  const [shareUrl, setShareUrl] = useState('')
+  const [shareLoading, setShareLoading] = useState(false)
+  const [shareError, setShareError] = useState('')
+  const [shareCopied, setShareCopied] = useState(false)
+
+  const openShareDialog = () => {
+    if (!activeScript) return
+    setShareDialogOpen(true)
+    setShareError('')
+    setShareUrl('')
+    setShareLoading(true)
+    setShareCopied(false)
+
+    if (isCurrentBuiltIn) {
+      // Built-in script: just encode slug in URL — no Firebase needed
+      const url = new URL(window.location.origin + window.location.pathname)
+      url.searchParams.set('t', 'scripts')
+      url.searchParams.set('s', activeScript.slug)
+      const appUrl = (import.meta.env.VITE_APP_URL as string | undefined)?.replace(/\/$/, '')
+      const finalUrl = appUrl
+        ? new URL(appUrl).origin + new URL(appUrl).pathname + '?' + url.searchParams.toString()
+        : url.toString()
+      setShareUrl(finalUrl)
+      setShareLoading(false)
+    } else {
+      // Custom script: encode full script + create Firebase short link (7 days)
+      encodeShareParam(activeScript)
+        .then(async (encoded) => {
+          try {
+            if (!isLocalhost()) {
+              const shortId = await createShortLink(encoded, TTL_MS_SCRIPT)
+              setShareUrl(buildShareUrl('ss', shortId))
+            } else {
+              // localhost: fall back to ?ss= with long encoded inline (for dev only)
+              setShareUrl(buildShareUrl('ss', encoded))
+            }
+          } catch {
+            setShareError('Failed to create short link. Copy the long URL instead.')
+            setShareUrl(buildShareUrl('ss', encoded))
+          }
+          setShareLoading(false)
+        })
+        .catch((e: unknown) => {
+          setShareError(e instanceof Error ? e.message : String(e))
+          setShareLoading(false)
+        })
+    }
+  }
   const [browseMode, setBrowseMode] = useState<'list' | 'masonry'>('list')
   const [noteOpen, setNoteOpen] = useState(false)
   const noteRef = useRef<HTMLTextAreaElement | null>(null)
@@ -214,6 +273,11 @@ export function ScriptsTab({
               <Tooltip title={uiText.downloadJson}>
                 <IconButton size="small" onClick={downloadScriptFile}>
                   <DownloadIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title={zh ? '复制分享链接' : 'Copy share link'}>
+                <IconButton size="small" onClick={openShareDialog}>
+                  <ShareIcon fontSize="small" />
                 </IconButton>
               </Tooltip>
               <Tooltip title={showWakeOrderPreview
@@ -409,6 +473,56 @@ export function ScriptsTab({
         )}
       </Paper>
       )}
+
+      {/* ── Script share dialog ── */}
+      <Dialog open={shareDialogOpen} onClose={() => setShareDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>{zh ? '分享剧本' : 'Share Script'}</DialogTitle>
+        <DialogContent>
+          {shareLoading && (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 1 }}>
+              <CircularProgress size={20} />
+              <Typography variant="body2">{zh ? '生成链接…' : 'Generating link…'}</Typography>
+            </Box>
+          )}
+          {shareError && <Alert severity="warning" sx={{ mb: 1 }}>{shareError}</Alert>}
+          {!shareLoading && shareUrl && (
+            <Box sx={{ mt: 1 }}>
+              {isCurrentBuiltIn ? (
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                  {zh ? '此链接会直接打开此剧本。链接永久有效。' : 'This link opens this script directly. Link never expires.'}
+                </Typography>
+              ) : (
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                  {zh ? '此链接包含剧本的完整副本，7天后失效。' : 'This link contains a full copy of the script. Valid for 7 days.'}
+                </Typography>
+              )}
+              <TextField
+                fullWidth size="small" value={shareUrl} slotProps={{ input: { readOnly: true } }}
+                onClick={(e) => (e.target as HTMLInputElement).select()}
+                sx={{ fontFamily: 'monospace', '& input': { fontSize: '0.78rem' } }}
+              />
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          {!shareLoading && shareUrl && (
+            <Button
+              startIcon={shareCopied ? <CheckIcon /> : <ContentCopyIcon />}
+              color={shareCopied ? 'success' : 'primary'}
+              onClick={() => {
+                navigator.clipboard.writeText(shareUrl)
+                  .then(() => { setShareCopied(true); setTimeout(() => { setShareCopied(false); setShareDialogOpen(false) }, 1800) })
+                  .catch(() => { setShareCopied(true); setTimeout(() => { setShareCopied(false); setShareDialogOpen(false) }, 1800) })
+              }}
+            >
+              {shareCopied ? (zh ? '已复制！' : 'Copied!') : (zh ? '复制链接' : 'Copy Link')}
+            </Button>
+          )}
+          <Button onClick={() => setShareDialogOpen(false)}>
+            {zh ? '关闭' : 'Close'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   )
 }

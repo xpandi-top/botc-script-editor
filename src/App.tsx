@@ -85,7 +85,7 @@ import { BOTC_SCRIPT_FOLDERS_KEY } from './components/tabs/ScriptsTab.constants'
 import { useCloudSync } from './hooks/useCloudSync'
 import { getClientId } from './lib/googleAuth'
 import type { SyncStatus } from './hooks/useCloudSync'
-import { useShareParam } from './hooks/useShareParam'
+import { useShareParam, updateUrlParams } from './hooks/useShareParam'
 import type { TabKey } from './hooks/useShareParam'
 
 
@@ -191,7 +191,12 @@ export default function App() {
   const { mode: themeMode } = useThemeMode()
   const cloudSync = useCloudSync()
   const { scheduleSync } = cloudSync
-  const { activeTab, setActiveTab, sharedAnalyticsRecords, shareDecodeError, clearSharedRecords, dealSessionId, dealHostToken } = useShareParam()
+  const {
+    activeTab, setActiveTab,
+    sharedAnalyticsRecords, shareDecodeError, clearSharedRecords,
+    dealSessionId, dealHostToken,
+    initialScriptSlug, sharedScript, sharedScriptError, clearSharedScript,
+  } = useShareParam()
 
   const [showChangelog, setShowChangelog] = useState(false)
   const [showTutorial, setShowTutorial] = useState(() => !localStorage.getItem(TUTORIAL_KEY))
@@ -236,7 +241,37 @@ export default function App() {
     } catch {}
     return initialScripts
   })
-  const [activeSlug, setActiveSlug] = useState<string>(initialScripts[0]?.slug ?? '')
+  const [activeSlug, setActiveSlug] = useState<string>(() => {
+    // ?s=<slug> takes priority — jump straight to that built-in script
+    if (initialScriptSlug && initialScripts.some((s) => s.slug === initialScriptSlug)) {
+      return initialScriptSlug
+    }
+    return initialScripts[0]?.slug ?? ''
+  })
+
+  // ── URL sync: keep ?t= and ?s= in sync with active tab/script ────────────────
+  useEffect(() => {
+    if (dealSessionId) return  // deal page owns the URL
+    const isBuiltIn = initialSlugs.has(activeSlug)
+    updateUrlParams({
+      t: activeTab,
+      s: (activeTab === 'scripts' && isBuiltIn) ? activeSlug : null,
+    })
+  }, [activeTab, activeSlug, initialSlugs, dealSessionId])
+
+  // ── Handle shared custom script from ?ss= short link ─────────────────────────
+  useEffect(() => {
+    if (!sharedScript) return
+    // Import as if user uploaded the file
+    let slug = sharedScript.slug
+    let counter = 2
+    while (scripts.some((s) => s.slug === slug)) { slug = `${sharedScript.slug}-${counter}`; counter++ }
+    const imported = { ...sharedScript, slug }
+    setScripts((cur) => [...cur, imported])
+    setActiveSlug(imported.slug)
+    clearSharedScript()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sharedScript])
 
   // ST has its own independent script selection — not shared with Scripts tab
   const [stActiveSlug, setStActiveSlug] = useState<string>(() => {
@@ -332,7 +367,7 @@ export default function App() {
   const [printPreviewOpen, setPrintPreviewOpen] = useState(false)
   const [printOptions, setPrintOptions] = useState<PrintOptions>(DEFAULT_PRINT_OPTIONS)
   const [tokenPrintOptions, setTokenPrintOptions] = useState<TokenPrintOptions>(DEFAULT_TOKEN_OPTIONS)
-  const [saveStatus, setSaveStatus] = useState('')
+  const [saveStatus, setSaveStatus] = useState(sharedScriptError ?? '')
   const [showDescription, setShowDescription] = useState(false)
   const [aiChatOpen, setAiChatOpen] = useState(false)
   const [aiContext, setAiContext] = useState<AiContext | undefined>(undefined)
@@ -890,6 +925,7 @@ export default function App() {
           onLanguageChange={setUiLanguage}
           onPrintClick={() => setPrintPreviewOpen(true)}
           onCreateCustomFromId={(id) => { setPendingCustomCharId(id); setActiveTab('characters') }}
+          isCurrentBuiltIn={!!(activeScript && initialSlugs.has(activeScript.slug))}
         />
       )}
 

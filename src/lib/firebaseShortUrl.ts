@@ -11,9 +11,10 @@
 import { getFirestore, doc, setDoc, getDoc, deleteDoc, Timestamp } from 'firebase/firestore'
 import { getFirebaseApp } from './firebase'
 
-const COLLECTION = 'shortlinks'
-const TTL_MS     = 24 * 60 * 60 * 1000   // 24 hours
-const ID_LEN     = 7
+const COLLECTION      = 'shortlinks'
+const TTL_MS_DEFAULT  = 24 * 60 * 60 * 1000         // 24 hours (analytics)
+export const TTL_MS_SCRIPT = 7 * 24 * 60 * 60 * 1000 // 7 days  (script share)
+const ID_LEN          = 7
 // Omit visually ambiguous chars (0/O, 1/I/l)
 const CHARS      = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789'
 
@@ -31,10 +32,11 @@ function db() {
 /**
  * Store `encodedData` (the gzip+base64url string from encodeShareParam)
  * and return the short ID.  Throws on Firestore error.
+ * @param ttlMs  TTL in milliseconds (default 24 h; use TTL_MS_SCRIPT for 7 d)
  */
-export async function createShortLink(encodedData: string): Promise<string> {
+export async function createShortLink(encodedData: string, ttlMs = TTL_MS_DEFAULT): Promise<string> {
   const id        = randomId()
-  const expiresAt = Timestamp.fromDate(new Date(Date.now() + TTL_MS))
+  const expiresAt = Timestamp.fromDate(new Date(Date.now() + ttlMs))
   await setDoc(doc(db(), COLLECTION, id), { data: encodedData, expiresAt })
   return id
 }
