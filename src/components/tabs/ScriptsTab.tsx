@@ -15,7 +15,7 @@ import ViewModuleIcon from '@mui/icons-material/ViewModule'
 import SubjectIcon from '@mui/icons-material/Subject'
 import SortIcon from '@mui/icons-material/Sort'
 import { encodeShareParam, buildShareUrl, isLocalhost } from '../../lib/shareUrl'
-import { createShortLink, TTL_MS_SCRIPT } from '../../lib/firebaseShortUrl'
+import { createShortLink } from '../../lib/firebaseShortUrl'
 import { useBreakpoint } from '../../hooks/useBreakpoint'
 import { SheetArticle } from '../SheetArticle'
 import { ScriptsLeftPanel } from '../ScriptsTab/ScriptsLeftPanel'
@@ -137,15 +137,16 @@ export function ScriptsTab({
     setShareCopied(false)
 
     if (isCurrentBuiltIn) {
-      // Built-in script: just encode slug in URL — no Firebase needed
-      const url = new URL(window.location.origin + window.location.pathname)
-      url.searchParams.set('t', 'scripts')
-      url.searchParams.set('s', activeScript.slug)
-      const appUrl = (import.meta.env.VITE_APP_URL as string | undefined)?.replace(/\/$/, '')
-      const finalUrl = appUrl
-        ? new URL(appUrl).origin + new URL(appUrl).pathname + '?' + url.searchParams.toString()
-        : url.toString()
-      setShareUrl(finalUrl)
+      // Built-in script: stable slug — no Firebase needed, link never expires.
+      // Use buildShareUrl so VITE_APP_URL / capacitor origins are handled correctly.
+      try {
+        const base = new URL(buildShareUrl('s', activeScript.slug))
+        base.searchParams.set('t', 'scripts')
+        setShareUrl(base.toString())
+      } catch {
+        // Last-resort fallback: just show relative path
+        setShareUrl(`?t=scripts&s=${encodeURIComponent(activeScript.slug)}`)
+      }
       setShareLoading(false)
     } else {
       // Custom script: encode full script + create Firebase short link (7 days)
@@ -153,7 +154,7 @@ export function ScriptsTab({
         .then(async (encoded) => {
           try {
             if (!isLocalhost()) {
-              const shortId = await createShortLink(encoded, TTL_MS_SCRIPT)
+              const shortId = await createShortLink(encoded)
               setShareUrl(buildShareUrl('ss', shortId))
             } else {
               // localhost: fall back to ?ss= with long encoded inline (for dev only)
@@ -493,7 +494,7 @@ export function ScriptsTab({
                 </Typography>
               ) : (
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                  {zh ? '此链接包含剧本的完整副本，7天后失效。' : 'This link contains a full copy of the script. Valid for 7 days.'}
+                  {zh ? '此链接包含剧本的完整副本，24小时后失效。' : 'This link contains a full copy of the script. Valid for 24 hours.'}
                 </Typography>
               )}
               <TextField

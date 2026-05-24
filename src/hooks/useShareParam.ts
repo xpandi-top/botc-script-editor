@@ -50,12 +50,16 @@ export interface ShareParamState {
 
 /** Update URL without navigation, preserving unrelated params. */
 export function updateUrlParams(updates: Record<string, string | null>) {
-  const url = new URL(window.location.href)
-  for (const [k, v] of Object.entries(updates)) {
-    if (v === null) url.searchParams.delete(k)
-    else url.searchParams.set(k, v)
+  try {
+    const url = new URL(window.location.href)
+    for (const [k, v] of Object.entries(updates)) {
+      if (v === null) url.searchParams.delete(k)
+      else url.searchParams.set(k, v)
+    }
+    window.history.replaceState({}, '', url.toString())
+  } catch {
+    // Non-standard origin (capacitor, file://) — skip URL update silently
   }
-  window.history.replaceState({}, '', url.toString())
 }
 
 export function useShareParam(): ShareParamState {

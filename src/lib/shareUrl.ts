@@ -95,7 +95,10 @@ export function isLocalhost(): boolean {
  */
 export function buildShareUrl(paramName: string, encoded: string, hash?: string): string {
   const appUrl = (import.meta.env.VITE_APP_URL as string | undefined)?.replace(/\/$/, '')
-  const base = appUrl ?? (window.location.origin + window.location.pathname)
+  // window.location.origin can be "null" for file:// or capacitor:// origins.
+  // In that case fall back to a relative URL so the function never throws.
+  const rawBase = appUrl ?? window.location.origin
+  const base = rawBase === 'null' || !rawBase ? window.location.href.split('?')[0] : rawBase + window.location.pathname
   const url = new URL(base)
   url.searchParams.set(paramName, encoded)
   return url.toString() + (hash ? '#' + hash : '')
