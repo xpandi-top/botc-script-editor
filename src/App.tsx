@@ -928,6 +928,7 @@ export default function App() {
           onPrintClick={() => setPrintPreviewOpen(true)}
           onCreateCustomFromId={(id) => { setPendingCustomCharId(id); setActiveTab('characters') }}
           isCurrentBuiltIn={!!(activeScript && initialSlugs.has(activeScript.slug))}
+          customChars={customChars}
         />
       )}
 

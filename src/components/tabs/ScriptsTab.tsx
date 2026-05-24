@@ -25,6 +25,7 @@ import { ScriptEditor } from './ScriptEditor'
 import { SCRIPT_TAG_META, SCRIPT_TAGS } from './ScriptsTab.constants'
 import type {
   CharacterGroup,
+  CustomCharacter,
   EditableScript,
   Language,
   ResolvedScriptCharacter,
@@ -72,6 +73,8 @@ type Props = {
   onCreateCustomFromId?: (id: string) => void
   /** Whether the current script is built-in (stable slug, no encoding needed) */
   isCurrentBuiltIn: boolean
+  /** Global custom characters (CharactersTab) — needed to embed into share payload */
+  customChars: CustomCharacter[]
 }
 
 export function ScriptsTab({
@@ -112,6 +115,7 @@ export function ScriptsTab({
   onPrintClick,
   onCreateCustomFromId,
   isCurrentBuiltIn,
+  customChars,
 }: Props) {
   const { isMobile } = useBreakpoint()
   const [listOpenDesktop, setListOpenDesktop] = useState(true)
@@ -149,8 +153,38 @@ export function ScriptsTab({
       }
       setShareLoading(false)
     } else {
+      // Embed any globally-registered custom chars referenced by this script
+      // that aren't already inline in customCharacters[].
+      // Recipients won't have these in their catalog — embedding ensures they render.
+      const charSet = new Set(activeScript.characters)
+      const alreadyInline = new Set(activeScript.customCharacters.map((c) => c.id))
+      const missing = customChars.filter((c) => charSet.has(c.id) && !alreadyInline.has(c.id))
+      const scriptToShare: EditableScript = missing.length > 0
+        ? {
+            ...activeScript,
+            customCharacters: [
+              ...activeScript.customCharacters,
+              ...missing.map((c) => ({
+                id: c.id,
+                name: c.nameEn,
+                ability: c.abilityEn,
+                team: c.team,
+                edition: c.edition,
+                ...(c.icon ? { image: c.icon } : {}),
+                ...(c.firstNight !== undefined ? { firstNight: c.firstNight } : {}),
+                ...(c.otherNight !== undefined ? { otherNight: c.otherNight } : {}),
+                ...(c.firstNightReminder ? { firstNightReminder: c.firstNightReminder } : {}),
+                ...(c.otherNightReminder ? { otherNightReminder: c.otherNightReminder } : {}),
+                ...(c.reminders?.length ? { reminders: c.reminders } : {}),
+                ...(c.remindersGlobal?.length ? { remindersGlobal: c.remindersGlobal } : {}),
+                ...(c.jinxes?.length ? { jinxes: c.jinxes } : {}),
+              })),
+            ],
+          }
+        : activeScript
+
       // Custom script: encode full script + create Firebase short link
-      encodeShareParam(activeScript)
+      encodeShareParam(scriptToShare)
         .then(async (encoded) => {
           try {
             const shortId = await createShortLink(encoded)
