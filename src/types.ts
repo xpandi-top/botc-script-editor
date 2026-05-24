@@ -71,6 +71,7 @@ export type ScriptMetaEntry = {
   otherNight?: string[]
   use_second_page_title_image?: boolean
   version?: string
+  tags?: string[]                        // status tags preserved in exported JSON
 }
 
 export type ScriptJinxOverride = {

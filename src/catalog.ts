@@ -1041,6 +1041,7 @@ export function parseScriptFromData(data: unknown, filename: string): import('./
       characters,
       sourceFile,
       ...(normalizedMeta?.version !== undefined ? { version: normalizedMeta.version } : {}),
+      ...(normalizedMeta?.tags?.length ? { tags: normalizedMeta.tags } : {}),
       ...(nightPositions ? { scriptNightPositions: nightPositions } : {}),
     }
   }
@@ -1098,6 +1099,7 @@ export function createScriptPayload(script: EditableScript) {
       logo: script.meta.logo ?? '',
       jinxes: normalizedScriptJinxes.length > 0 ? normalizedScriptJinxes : undefined,
       ...(script.version !== undefined ? { version: script.version } : {}),
+      ...(script.tags?.length ? { tags: script.tags } : {}),
     },
     ...sortCharacterIds(script.characters).map((id) => customCharactersById.get(id) ?? id),
   ]

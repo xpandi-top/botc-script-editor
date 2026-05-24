@@ -57,6 +57,7 @@ type SheetArticleProps = {
   supplementalPlacement?: 'top' | 'end'
   printOptions?: PrintOptions
   viewColumns?: 1 | 2
+  hideAbility?: boolean
 }
 
 function getNightOrderPlaceholderLabel(id: string) {
@@ -94,6 +95,7 @@ export function SheetArticle({
   supplementalPlacement = 'top',
   printOptions,
   viewColumns,
+  hideAbility = false,
 }: SheetArticleProps) {
   const [popupId, setPopupId] = useState<string | null>(null)
   const muiTheme = useTheme()
@@ -352,12 +354,13 @@ export function SheetArticle({
               )}
             </Box>
 
-            {/* ── Col 2: Name ── at least as wide as widest name; can grow if font differs */}
-            <Box sx={{ minWidth: nameColW, flexShrink: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', minHeight: iconSize }}>
+            {/* ── Col 2: Name ── grows to fill when ability hidden, otherwise fixed */}
+            <Box sx={{ ...(hideAbility ? { flex: 1 } : { minWidth: nameColW, flexShrink: 0 }), display: 'flex', flexDirection: 'column', justifyContent: 'center', minHeight: iconSize }}>
               <Typography sx={{
                 fontFamily: lang === 'zh' ? zhFont : enFont,
                 fontSize: nameFontSize, fontWeight: 600,
                 lineHeight: 1.2, whiteSpace: 'nowrap',
+                overflow: 'hidden', textOverflow: 'ellipsis',
               }}>
                 {displayName}
               </Typography>
@@ -373,19 +376,21 @@ export function SheetArticle({
               )}
             </Box>
 
-            {/* ── Col 3: Description ── fills remaining space */}
-            <Box sx={{ flex: 1, minWidth: 80, display: 'flex', flexDirection: 'column', justifyContent: 'center', minHeight: iconSize }}>
-              <Typography variant="body2"
-                sx={{ fontFamily: lang === 'zh' ? zhFont : enFont, lineHeight, mb: 0, color: 'text.primary', ...(fontSize && { fontSize }) }}
-                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(ability, PURIFY_OPTS) }}
-              />
-              {abilityAlt && abilityAlt !== ability && (
+            {/* ── Col 3: Description ── hidden when hideAbility=true */}
+            {!hideAbility && (
+              <Box sx={{ flex: 1, minWidth: 80, display: 'flex', flexDirection: 'column', justifyContent: 'center', minHeight: iconSize }}>
                 <Typography variant="body2"
-                  sx={{ fontFamily: lang === 'zh' ? enFont : zhFont, lineHeight, mt: 0.25, mb: 0, color: 'text.primary', ...(fontSize && { fontSize }) }}
-                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(abilityAlt, PURIFY_OPTS) }}
+                  sx={{ fontFamily: lang === 'zh' ? zhFont : enFont, lineHeight, mb: 0, color: 'text.primary', ...(fontSize && { fontSize }) }}
+                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(ability, PURIFY_OPTS) }}
                 />
-              )}
-            </Box>
+                {abilityAlt && abilityAlt !== ability && (
+                  <Typography variant="body2"
+                    sx={{ fontFamily: lang === 'zh' ? enFont : zhFont, lineHeight, mt: 0.25, mb: 0, color: 'text.primary', ...(fontSize && { fontSize }) }}
+                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(abilityAlt, PURIFY_OPTS) }}
+                  />
+                )}
+              </Box>
+            )}
 
           </Box>
           {isEditMode && (

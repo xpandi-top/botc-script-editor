@@ -9,6 +9,8 @@ import NightsStayIcon from '@mui/icons-material/NightsStay'
 import NoteAltIcon from '@mui/icons-material/NoteAlt'
 import ViewListIcon from '@mui/icons-material/ViewList'
 import ViewModuleIcon from '@mui/icons-material/ViewModule'
+import SubjectIcon from '@mui/icons-material/Subject'
+import SortIcon from '@mui/icons-material/Sort'
 import { useBreakpoint } from '../../hooks/useBreakpoint'
 import { SheetArticle } from '../SheetArticle'
 import { ScriptsLeftPanel } from '../ScriptsTab/ScriptsLeftPanel'
@@ -109,6 +111,7 @@ export function ScriptsTab({
   const showList = isMobile ? listOpenMobile : listOpenDesktop
   const setListOpen = isMobile ? setListOpenMobile : setListOpenDesktop
   const [viewColumns, setViewColumns] = useState<1 | 2>(1)
+  const [hideAbility, setHideAbility] = useState(() => isMobile)
   const [browseMode, setBrowseMode] = useState<'list' | 'masonry'>('list')
   const [noteOpen, setNoteOpen] = useState(false)
   const noteRef = useRef<HTMLTextAreaElement | null>(null)
@@ -227,6 +230,15 @@ export function ScriptsTab({
                 <ToggleButton value={1}><ViewListIcon fontSize="small" /></ToggleButton>
                 <ToggleButton value={2}><ViewModuleIcon fontSize="small" /></ToggleButton>
               </ToggleButtonGroup>
+              <Tooltip title={hideAbility
+                ? (zh ? '显示能力描述' : 'Show ability text')
+                : (zh ? '隐藏能力描述' : 'Hide ability text')}>
+                <IconButton size="small"
+                  onClick={() => setHideAbility((v) => !v)}
+                  color={hideAbility ? 'primary' : 'default'}>
+                  {hideAbility ? <SortIcon fontSize="small" /> : <SubjectIcon fontSize="small" />}
+                </IconButton>
+              </Tooltip>
               {saveStatus && <Typography variant="body2" color="text.secondary">{saveStatus}</Typography>}
               <Box sx={{ flex: 1 }} />
               <FormControl size="small" sx={{ minWidth: 72, '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' }, '& .MuiInputLabel-root': { fontSize: '0.8rem' } }}>
@@ -343,6 +355,7 @@ export function ScriptsTab({
                 sheetDensityClass={sheetDensityClass}
                 showWakeOrder={false}
                 viewColumns={viewColumns}
+                hideAbility={hideAbility}
               />
             )}
 

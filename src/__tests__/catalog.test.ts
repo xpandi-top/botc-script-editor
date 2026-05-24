@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { slugify, toTitleCase, parseScriptFromData } from '../catalog'
+import { slugify, toTitleCase, parseScriptFromData, createScriptPayload } from '../catalog'
+import type { EditableScript } from '../types'
 
 // ── slugify ──────────────────────────────────────────────────────────────────
 
@@ -144,5 +145,73 @@ describe('parseScriptFromData — object format (legacy)', () => {
     const data = { title: 'Custom', edition: 'custom', characters: [] }
     const result = parseScriptFromData(data, 'edition-test.json')
     expect(result.edition).toBe('custom')
+  })
+})
+
+// ── Tags round-trip (feature: download + import preserve tags) ────────────────
+
+function makeScript(overrides: Partial<EditableScript> = {}): EditableScript {
+  return {
+    slug: 'test-script',
+    title: 'Test Script',
+    titleZh: 'Test Script',
+    author: 'Tester',
+    edition: 'custom',
+    characters: ['imp'],
+    meta: { id: '_meta', name: 'Test Script' },
+    customCharacters: [],
+    sourceFile: 'test-script.json',
+    ...overrides,
+  }
+}
+
+describe('createScriptPayload — tags', () => {
+  it('includes tags in _meta when script has tags', () => {
+    const script = makeScript({ tags: ['wip', 'balanced'] })
+    const payload = createScriptPayload(script)
+    const meta = payload[0] as Record<string, unknown>
+    expect(meta.tags).toEqual(['wip', 'balanced'])
+  })
+
+  it('omits tags key from _meta when script has no tags', () => {
+    const script = makeScript({ tags: undefined })
+    const payload = createScriptPayload(script)
+    const meta = payload[0] as Record<string, unknown>
+    expect(meta.tags).toBeUndefined()
+  })
+
+  it('omits tags key from _meta when tags is empty array', () => {
+    const script = makeScript({ tags: [] })
+    const payload = createScriptPayload(script)
+    const meta = payload[0] as Record<string, unknown>
+    expect(meta.tags).toBeUndefined()
+  })
+})
+
+describe('parseScriptFromData — tags round-trip', () => {
+  it('restores tags when imported JSON contains tags in _meta', () => {
+    const data = [
+      { id: '_meta', name: 'Tagged Script', tags: ['wip', 'experimental'] },
+      { id: 'imp' },
+    ]
+    const result = parseScriptFromData(data, 'tagged-unique-xyz.json')
+    expect(result.tags).toEqual(['wip', 'experimental'])
+  })
+
+  it('has no tags field when _meta has no tags', () => {
+    const data = [
+      { id: '_meta', name: 'Plain Script' },
+      { id: 'imp' },
+    ]
+    const result = parseScriptFromData(data, 'plain-unique-xyz.json')
+    expect(result.tags).toBeUndefined()
+  })
+
+  it('full round-trip: createScriptPayload → parseScriptFromData preserves tags', () => {
+    const original = makeScript({ tags: ['balanced', 'community'] })
+    const payload = createScriptPayload(original)
+    // Simulate re-importing the downloaded JSON
+    const reimported = parseScriptFromData(payload, 'test-script-reimport-xyz.json')
+    expect(reimported.tags).toEqual(['balanced', 'community'])
   })
 })
