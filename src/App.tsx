@@ -196,6 +196,7 @@ export default function App() {
     sharedAnalyticsRecords, shareDecodeError, clearSharedRecords,
     dealSessionId, dealHostToken,
     initialScriptSlug, sharedScript, sharedScriptError, clearSharedScript,
+    scriptLinkPending,
   } = useShareParam()
 
   const [showChangelog, setShowChangelog] = useState(false)
@@ -251,13 +252,14 @@ export default function App() {
 
   // ── URL sync: keep ?t= and ?s= in sync with active tab/script ────────────────
   useEffect(() => {
-    if (dealSessionId) return  // deal page owns the URL
+    if (dealSessionId) return       // deal page owns the URL
+    if (scriptLinkPending) return   // ?ss= still resolving — don't overwrite it
     const isBuiltIn = initialSlugs.has(activeSlug)
     updateUrlParams({
       t: activeTab,
       s: (activeTab === 'scripts' && isBuiltIn) ? activeSlug : null,
     })
-  }, [activeTab, activeSlug, initialSlugs, dealSessionId])
+  }, [activeTab, activeSlug, initialSlugs, dealSessionId, scriptLinkPending])
 
   // ── Handle shared custom script from ?ss= short link ─────────────────────────
   useEffect(() => {

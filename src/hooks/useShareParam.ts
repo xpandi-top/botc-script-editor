@@ -42,10 +42,12 @@ export interface ShareParamState {
   dealHostToken: string | null
   /** ?s=<slug> — slug of built-in script to open on load */
   initialScriptSlug: string | null
-  /** Decoded custom script from ?ss= short link */
+  /** Decoded custom script from ?ss= short/encoded link */
   sharedScript: EditableScript | null
   sharedScriptError: string | null
   clearSharedScript: () => void
+  /** True while ?ss= is still being resolved — suppress URL sync */
+  scriptLinkPending: boolean
 }
 
 /** Update URL without navigation, preserving unrelated params. */
@@ -99,6 +101,11 @@ export function useShareParam(): ShareParamState {
   const [shareDecodeError, setShareDecodeError] = useState<string | null>(null)
   const [sharedScript, setSharedScript] = useState<EditableScript | null>(null)
   const [sharedScriptError, setSharedScriptError] = useState<string | null>(null)
+  // True while ?ss= is resolving — lets App.tsx suppress URL sync so ?ss= isn't overwritten
+  const [scriptLinkPending, setScriptLinkPending] = useState<boolean>(() => {
+    const params = new URLSearchParams(window.location.search)
+    return params.has('ss') || !!sessionStorage.getItem(PENDING_SS_KEY)
+  })
 
   // Persist active tab to localStorage
   const setActiveTab = (tab: TabKey) => {
@@ -141,33 +148,52 @@ export function useShareParam(): ShareParamState {
         })
     }
 
-    // ── ?ss= custom script short link ─────────────────────────────────────────
+    // ── ?ss= custom script — short ID (≤20 chars) or raw encoded (fallback) ───
     const ssFromUrl = params.get('ss')
     const ssPending = ssFromUrl ?? sessionStorage.getItem(PENDING_SS_KEY)
     if (ssPending) {
       sessionStorage.setItem(PENDING_SS_KEY, ssPending)
       if (ssFromUrl) cleanUrl('ss')
-      resolveShortLink(ssPending)
-        .then(async (encoded) => {
-          if (!encoded) {
-            setSharedScriptError('Script share link expired or not found.')
+
+      const isShortId = ssPending.length <= 20   // Firebase IDs are 7 chars; encoded data is 100+
+
+      async function resolveScript(encoded: string) {
+        const script = await decodeShareParam<EditableScript>(encoded)
+        if (!script || typeof script.slug !== 'string') throw new Error('Invalid script data')
+        setSharedScript(script)
+        setScriptLinkPending(false)
+        sessionStorage.removeItem(PENDING_SS_KEY)
+      }
+
+      if (isShortId) {
+        // Normal path: Firebase short link
+        resolveShortLink(ssPending)
+          .then(async (encoded) => {
+            if (!encoded) {
+              setSharedScriptError('Script share link expired or not found.')
+              setScriptLinkPending(false)
+              sessionStorage.removeItem(PENDING_SS_KEY)
+              return
+            }
+            resolveScript(encoded).catch((e: unknown) => {
+              setSharedScriptError(e instanceof Error ? e.message : String(e))
+              setScriptLinkPending(false)
+              sessionStorage.removeItem(PENDING_SS_KEY)
+            })
+          })
+          .catch((e: unknown) => {
+            setSharedScriptError(`Failed to load script link: ${e instanceof Error ? e.message : String(e)}`)
+            setScriptLinkPending(false)
             sessionStorage.removeItem(PENDING_SS_KEY)
-            return
-          }
-          try {
-            const script = await decodeShareParam<EditableScript>(encoded)
-            if (!script || typeof script.slug !== 'string') throw new Error('Invalid script data')
-            setSharedScript(script)
-          } catch (e: unknown) {
-            setSharedScriptError(e instanceof Error ? e.message : String(e))
-          }
+          })
+      } else {
+        // Fallback path: raw encoded data in URL (localhost dev or Firebase unavailable)
+        resolveScript(ssPending).catch((e: unknown) => {
+          setSharedScriptError(e instanceof Error ? e.message : String(e))
+          setScriptLinkPending(false)
           sessionStorage.removeItem(PENDING_SS_KEY)
         })
-        .catch((e: unknown) => {
-          const msg = e instanceof Error ? e.message : String(e)
-          setSharedScriptError(`Failed to load script link: ${msg}`)
-          sessionStorage.removeItem(PENDING_SS_KEY)
-        })
+      }
       return  // processed, skip analytics params below
     }
 
@@ -228,5 +254,6 @@ export function useShareParam(): ShareParamState {
     sharedScript,
     sharedScriptError,
     clearSharedScript,
+    scriptLinkPending,
   }
 }

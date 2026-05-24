@@ -14,7 +14,7 @@ import ViewListIcon from '@mui/icons-material/ViewList'
 import ViewModuleIcon from '@mui/icons-material/ViewModule'
 import SubjectIcon from '@mui/icons-material/Subject'
 import SortIcon from '@mui/icons-material/Sort'
-import { encodeShareParam, buildShareUrl, isLocalhost } from '../../lib/shareUrl'
+import { encodeShareParam, buildShareUrl } from '../../lib/shareUrl'
 import { createShortLink } from '../../lib/firebaseShortUrl'
 import { useBreakpoint } from '../../hooks/useBreakpoint'
 import { SheetArticle } from '../SheetArticle'
@@ -149,19 +149,16 @@ export function ScriptsTab({
       }
       setShareLoading(false)
     } else {
-      // Custom script: encode full script + create Firebase short link (7 days)
+      // Custom script: encode full script + create Firebase short link
       encodeShareParam(activeScript)
         .then(async (encoded) => {
           try {
-            if (!isLocalhost()) {
-              const shortId = await createShortLink(encoded)
-              setShareUrl(buildShareUrl('ss', shortId))
-            } else {
-              // localhost: fall back to ?ss= with long encoded inline (for dev only)
-              setShareUrl(buildShareUrl('ss', encoded))
-            }
+            const shortId = await createShortLink(encoded)
+            setShareUrl(buildShareUrl('ss', shortId))
           } catch {
-            setShareError('Failed to create short link. Copy the long URL instead.')
+            // Firebase unavailable — fall back to raw encoded in URL
+            // (loadable via the direct-decode path in useShareParam)
+            setShareError(zh ? '无法创建短链接，已生成长链接。' : 'Short link failed — using direct link instead.')
             setShareUrl(buildShareUrl('ss', encoded))
           }
           setShareLoading(false)
