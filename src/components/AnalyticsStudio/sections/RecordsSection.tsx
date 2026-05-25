@@ -21,9 +21,11 @@ import { getDisplayName, getIconForCharacter } from '../../../catalog'
 import { exportGameFile } from '../../../lib/exportGame'
 import { useBreakpoint } from '../../../hooks/useBreakpoint'
 import { StarRating } from '../../ui/StarRating'
+import { MicroChip } from '../../ui'
 import type { GameRecord } from '../../StorytellerSub/types'
 import type { Language } from '../../../types'
 import { useT } from '../../../context/I18nContext'
+import { TYPE_SCALE, WEIGHT } from '../../../theme/tokens'
 
 // RecordFormDialog is imported from AnalyticsTab for reuse — but to keep
 // the section self-contained we inline a lightweight version. The full form
@@ -423,8 +425,8 @@ export function RecordsSection({ records, filteredRecords, onRecordsChange, lang
     else setSelected(new Set(sorted.map((r) => r.id)))
   }
 
-  const thSx = { py: 0.75, px: 1, fontSize: '0.72rem', fontWeight: 700, whiteSpace: 'nowrap' }
-  const tdSx = { py: 0.75, px: 1, fontSize: '0.8rem' }
+  const thSx = { py: 0.75, px: 1, fontSize: TYPE_SCALE.sm, fontWeight: WEIGHT.bold, whiteSpace: 'nowrap' }
+  const tdSx = { py: 0.75, px: 1, fontSize: TYPE_SCALE.md }
 
   return (
     <Box>
@@ -524,7 +526,7 @@ export function RecordsSection({ records, filteredRecords, onRecordsChange, lang
                     <TableCell sx={{ ...tdSx, width: { xs: 60, sm: 90 } }} align="center">
                       {r.winner ? (
                         <Tooltip title={zh ? (WINNER_LABEL[r.winner]?.zh ?? r.winner) : (WINNER_LABEL[r.winner]?.en ?? r.winner)}>
-                          <Chip size="small"
+                          <MicroChip
                             label={<>
                               <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
                                 {zh ? (WINNER_LABEL[r.winner]?.zh ?? r.winner) : (WINNER_LABEL[r.winner]?.en ?? r.winner)}
@@ -534,10 +536,10 @@ export function RecordsSection({ records, filteredRecords, onRecordsChange, lang
                               </Box>
                             </>}
                             color={WINNER_COLOR[r.winner] ?? 'default'}
-                            sx={{ fontSize: '0.62rem', height: 20 }} />
+                          />
                         </Tooltip>
                       ) : (
-                        <Chip size="small" label="?" sx={{ fontSize: '0.62rem', height: 20 }} />
+                        <MicroChip label="?" />
                       )}
                     </TableCell>
                     <TableCell sx={{ ...tdSx, display: { xs: 'none', sm: 'table-cell' } }} align="center">{r.days?.length ?? '—'}</TableCell>
@@ -614,10 +616,12 @@ export function RecordsSection({ records, filteredRecords, onRecordsChange, lang
                   </Typography>
                 </Box>
                 {mobileDetail.winner && (
-                  <Chip size="small"
+                  <MicroChip
                     label={zh ? (WINNER_LABEL[mobileDetail.winner]?.zh ?? mobileDetail.winner) : (WINNER_LABEL[mobileDetail.winner]?.en ?? mobileDetail.winner)}
                     color={WINNER_COLOR[mobileDetail.winner] ?? 'default'}
-                    sx={{ fontSize: '0.7rem', height: 22, flexShrink: 0 }} />
+                    h={22}
+                    sx={{ flexShrink: 0 }}
+                  />
                 )}
                 <IconButton size="small" onClick={() => setMobileDetail(null)} sx={{ flexShrink: 0 }}>
                   <CloseIcon fontSize="small" />

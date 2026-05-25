@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Box, Chip, Collapse, IconButton, Paper, Table, TableBody, TableCell, TableHead, TableRow, TableSortLabel, Tooltip, Typography } from '@mui/material'
+import { Box, Collapse, IconButton, Paper, Table, TableBody, TableCell, TableHead, TableRow, TableSortLabel, Tooltip, Typography } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows'
@@ -7,10 +7,12 @@ import EmojiEventsIcon from '@mui/icons-material/EmojiEvents'
 import PersonIcon from '@mui/icons-material/Person'
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord'
 import { getDisplayName, getIconForCharacter } from '../../../catalog'
+import { MicroChip } from '../../ui'
 import type { PlayerStat } from '../useStats'
 import type { GameRecord } from '../../StorytellerSub/types'
 import type { Language } from '../../../types'
 import { useT } from '../../../context/I18nContext'
+import { TYPE_SCALE, WEIGHT } from '../../../theme/tokens'
 
 type SortKey = 'name' | 'total' | 'winRate' | 'goodWinRate' | 'evilWinRate' | 'evilRate' | 'mvpCount' | 'stGameCount'
 
@@ -127,8 +129,8 @@ function PlayerDetail({ player, language }: { player: PlayerStat; language: Lang
                   </Box>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                     {goodTm.map(([name, count]) => (
-                      <Chip key={name} size="small" label={`${name} ×${count}`}
-                        sx={{ fontSize: '0.65rem', height: 18, bgcolor: 'rgba(21,101,192,0.1)', borderColor: 'primary.light', border: '1px solid' }} />
+                      <MicroChip key={name} label={`${name} ×${count}`} h={18}
+                        sx={{ bgcolor: 'rgba(21,101,192,0.1)', borderColor: 'primary.light', border: '1px solid' }} />
                     ))}
                   </Box>
                 </Box>
@@ -149,8 +151,8 @@ function PlayerDetail({ player, language }: { player: PlayerStat; language: Lang
                   </Box>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                     {evilTm.map(([name, count]) => (
-                      <Chip key={name} size="small" label={`${name} ×${count}`}
-                        sx={{ fontSize: '0.65rem', height: 18, bgcolor: 'rgba(183,28,28,0.1)', borderColor: 'error.light', border: '1px solid' }} />
+                      <MicroChip key={name} label={`${name} ×${count}`} h={18}
+                        sx={{ bgcolor: 'rgba(183,28,28,0.1)', borderColor: 'error.light', border: '1px solid' }} />
                     ))}
                   </Box>
                 </Box>
@@ -161,7 +163,7 @@ function PlayerDetail({ player, language }: { player: PlayerStat; language: Lang
             {player.teammatesGood.size === 0 && player.teammatesEvil.size === 0 && (
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                 {teammates.map(([name, count]) => (
-                  <Chip key={name} size="small" label={`${name} ×${count}`} sx={{ fontSize: '0.68rem', height: 20 }} />
+                  <MicroChip key={name} label={`${name} ×${count}`} />
                 ))}
               </Box>
             )}
@@ -269,8 +271,8 @@ export function PlayersSection({ playerStats, language, records }: Props) {
   const pA = playerStats.find((p) => p.name === compA)
   const pB = playerStats.find((p) => p.name === compB)
 
-  const thSx = { py: 0.75, px: 1, fontSize: '0.72rem', fontWeight: 700, whiteSpace: 'nowrap' }
-  const tdSx = { py: 0.75, px: 1, fontSize: '0.8rem' }
+  const thSx = { py: 0.75, px: 1, fontSize: TYPE_SCALE.sm, fontWeight: WEIGHT.bold, whiteSpace: 'nowrap' }
+  const tdSx = { py: 0.75, px: 1, fontSize: TYPE_SCALE.md }
 
   return (
     <Box>

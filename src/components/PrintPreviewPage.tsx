@@ -18,6 +18,7 @@ import type { PrintOptions, PageSize, LanguageLayout, WakeOrderMode, TitleAlign,
 import type { EditableScript, Language, ResolvedScriptCharacter, ResolvedScriptCharacterGroup } from '../types'
 import { printOrShare, isNativePlatform } from '../lib/nativePrint'
 import { useT } from '../context/I18nContext'
+import { FieldLabel, SectionLabel } from './ui'
 
 type Props = {
   activeScript: EditableScript
@@ -68,12 +69,6 @@ export function PrintPreviewPage({
 
   const previewW = PAGE_PREVIEW_WIDTH_PX[opts.pageSize]
   const previewH = PAGE_PREVIEW_HEIGHT_PX[opts.pageSize]
-
-  const sectionLabel = (text: string) => (
-    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.75, textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: 600 }}>
-      {text}
-    </Typography>
-  )
 
   const fontSelect = (labelStr: string, key: 'fontKeyEn' | 'fontKeyZh') => (
     <FormControl size="small" fullWidth sx={{ mb: 1 }}>
@@ -152,10 +147,10 @@ export function PrintPreviewPage({
 
           {/* 1 ── Output — biggest decisions first */}
           <Box>
-            {sectionLabel(t('output'))}
+            <SectionLabel>{t('output')}</SectionLabel>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
               <Box>
-                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>{t('language')}</Typography>
+                <FieldLabel>{t('language')}</FieldLabel>
                 <ToggleButtonGroup value={opts.languageLayout} exclusive size="small"
                   onChange={(_, v) => { if (v) set('languageLayout', v as LanguageLayout) }}
                   sx={{ flexWrap: 'wrap' }}
@@ -176,7 +171,7 @@ export function PrintPreviewPage({
 
           {/* 2 ── Page */}
           <Box>
-            {sectionLabel(t('page'))}
+            <SectionLabel>{t('page')}</SectionLabel>
             <FormControl size="small" fullWidth sx={{ mb: 0.5 }}>
               <InputLabel>{t('page_size')}</InputLabel>
               <Select value={opts.pageSize} label={t('page_size')}
@@ -196,10 +191,10 @@ export function PrintPreviewPage({
 
           {/* 3 ── Layout */}
           <Box>
-            {sectionLabel(t('layout'))}
+            <SectionLabel>{t('layout')}</SectionLabel>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
               <Box>
-                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>{t('columns')}</Typography>
+                <FieldLabel>{t('columns')}</FieldLabel>
                 <ToggleButtonGroup value={opts.columns} exclusive size="small" onChange={(_, v) => { if (v) set('columns', v) }}>
                   <ToggleButton value={1}>{t('1_col')}</ToggleButton>
                   <ToggleButton value={2}>{t('2_col')}</ToggleButton>
@@ -212,10 +207,10 @@ export function PrintPreviewPage({
 
           {/* 4 ── Title */}
           <Box>
-            {sectionLabel(t('title'))}
+            <SectionLabel>{t('title')}</SectionLabel>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
               <Box>
-                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>{t('alignment')}</Typography>
+                <FieldLabel>{t('alignment')}</FieldLabel>
                 <ToggleButtonGroup value={opts.titleAlign ?? 'left'} exclusive size="small"
                   onChange={(_, v) => { if (v) set('titleAlign', v as TitleAlign) }}>
                   <ToggleButton value="left">{t('left')}</ToggleButton>
@@ -234,7 +229,7 @@ export function PrintPreviewPage({
 
           {/* 5 ── Typography */}
           <Box>
-            {sectionLabel(t('typography'))}
+            <SectionLabel>{t('typography')}</SectionLabel>
             {fontSelect(t('english_font'), 'fontKeyEn')}
             {fontSelect(t('chinese_font'), 'fontKeyZh')}
             {ptSlider(t('body'), 'fontSize', 7, 14)}
@@ -257,7 +252,7 @@ export function PrintPreviewPage({
 
           {/* 6 ── Spacing */}
           <Box>
-            {sectionLabel(t('spacing'))}
+            <SectionLabel>{t('spacing')}</SectionLabel>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
               <ToggleButtonGroup value={opts.padding} exclusive size="small" onChange={(_, v) => { if (v) set('padding', v) }} sx={{ flexWrap: 'wrap' }}>
                 <ToggleButton value="compact"  sx={{ fontSize: '0.72rem' }}>{t('compact')}</ToggleButton>
@@ -271,7 +266,7 @@ export function PrintPreviewPage({
 
           {/* 7 ── Section style */}
           <Box>
-            {sectionLabel(t('section_style'))}
+            <SectionLabel>{t('section_style')}</SectionLabel>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
               <ToggleButtonGroup value={opts.sectionStyle ?? 'inline'} exclusive size="small"
                 onChange={(_, v) => { if (v) set('sectionStyle', v as SectionStyle) }} sx={{ flexWrap: 'wrap' }}>
@@ -286,10 +281,10 @@ export function PrintPreviewPage({
 
           {/* 8 ── Icons (size + style merged) */}
           <Box>
-            {sectionLabel(t('icons'))}
+            <SectionLabel>{t('icons')}</SectionLabel>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
               <Box>
-                <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>{tpl('card_icon_px', opts.iconSize)}</Typography>
+                <FieldLabel mb={0}>{tpl('card_icon_px', opts.iconSize)}</FieldLabel>
                 <Slider value={opts.iconSize} min={16} max={80} step={4}
                   onChange={(_, v) => set('iconSize', v as number)}
                   marks={[{ value: 16, label: '16' }, { value: 48, label: '48' }, { value: 80, label: '80' }]}
@@ -311,7 +306,7 @@ export function PrintPreviewPage({
 
           {/* 9 ── Wake order */}
           <Box>
-            {sectionLabel(t('wake_order'))}
+            <SectionLabel>{t('wake_order')}</SectionLabel>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
               <ToggleButtonGroup value={opts.wakeOrder ?? 'side'} exclusive size="small"
                 onChange={(_, v) => { if (v) set('wakeOrder', v as WakeOrderMode) }} sx={{ flexWrap: 'wrap' }}>
@@ -321,7 +316,7 @@ export function PrintPreviewPage({
               </ToggleButtonGroup>
               {(opts.wakeOrder ?? 'side') !== 'none' && (
                 <Box>
-                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>{tpl('wake_icon_px', opts.wakeIconSize)}</Typography>
+                  <FieldLabel mb={0}>{tpl('wake_icon_px', opts.wakeIconSize)}</FieldLabel>
                   <Slider value={opts.wakeIconSize} min={12} max={48} step={2}
                     onChange={(_, v) => set('wakeIconSize', v as number)}
                     marks={[{ value: 12, label: '12' }, { value: 28, label: '28' }, { value: 48, label: '48' }]}
@@ -344,9 +339,9 @@ export function PrintPreviewPage({
           {opts.languageLayout === 'bilingual-separate' ? (
             ([language, t('zh')] as Language[]).map((lang, i) => (
               <Box key={lang} sx={{ width: previewW, maxWidth: '100%', mb: 4 }}>
-                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5, opacity: 0.7 }}>
+                <FieldLabel sx={{ opacity: 0.7 }}>
                   {tpl('section_n', i + 1)} — {lang === 'zh' ? t('chinese') : t('english')}
-                </Typography>
+                </FieldLabel>
                 <Box sx={{ position: 'relative' }}>
                   <Box sx={{ position: 'absolute', top: previewH, left: 0, right: 0, height: '2px', bgcolor: 'error.light', opacity: 0.6, zIndex: 10,
                     '&::after': { content: `"${t('page_1_end')}"`, position: 'absolute', right: 8, top: 2, fontSize: '0.65rem', color: 'error.main' },

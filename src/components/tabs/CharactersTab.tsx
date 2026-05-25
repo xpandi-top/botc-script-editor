@@ -4,7 +4,7 @@ import SyncAltIcon from '@mui/icons-material/SyncAlt'
 import { NightOrderManager } from '../NightOrderManager'
 import { JinxManager } from '../JinxManager'
 import {
-  Box, Button, Checkbox, Chip, Collapse, Dialog, DialogActions, DialogContent, DialogTitle, Divider, FormControl,
+  Box, Button, Checkbox, Collapse, Dialog, DialogActions, DialogContent, DialogTitle, Divider, FormControl,
   IconButton, InputLabel, Paper, Select, MenuItem, Snackbar, TextField, Tooltip, Typography,
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
@@ -48,6 +48,7 @@ function getPackOverrideIds(): Set<string> {
 import type { CharacterFileEntry } from '../../types'
 import type { CharacterEntry, CustomCharacter, Language, Team } from '../../types'
 import { useT } from '../../context/I18nContext'
+import { CompactButton, MicroChip } from '../ui'
 
 type Props = {
   uiText: Record<string, string>
@@ -268,10 +269,10 @@ function PackImportDialog({ open, onClose, pack, language, knownIds, existingCus
       </DialogTitle>
 
       <Box sx={{ px: 2, pb: 1, display: 'flex', gap: 0.75, flexWrap: 'wrap', alignItems: 'center' }}>
-        <Button size="small" onClick={selectAll}  sx={{ textTransform: 'none', fontSize: '0.72rem', py: 0 }}>{t('all')}</Button>
-        <Button size="small" onClick={selectNone} sx={{ textTransform: 'none', fontSize: '0.72rem', py: 0 }}>{t('none')}</Button>
-        {newCount  > 0 && <Chip size="small" label={tpl('n_new_chars', newCount)}       color="success" sx={{ fontSize: '0.7rem', height: 20 }} />}
-        {overCount > 0 && <Chip size="small" label={tpl('n_overrides_count', overCount)} color="warning" sx={{ fontSize: '0.7rem', height: 20 }} />}
+        <CompactButton size="small" onClick={selectAll}>{t('all')}</CompactButton>
+        <CompactButton size="small" onClick={selectNone}>{t('none')}</CompactButton>
+        {newCount  > 0 && <MicroChip label={tpl('n_new_chars', newCount)}       color="success" />}
+        {overCount > 0 && <MicroChip label={tpl('n_overrides_count', overCount)} color="warning" />}
       </Box>
 
       <Divider />
@@ -330,15 +331,13 @@ function PackImportDialog({ open, onClose, pack, language, knownIds, existingCus
                 <Box sx={{ flex: 1, minWidth: 0 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, flexWrap: 'wrap' }}>
                     <Typography sx={{ fontWeight: 600, fontSize: '0.88rem', lineHeight: 1.3 }}>{displayName}</Typography>
-                    <Chip size="small"
+                    <MicroChip
                       label={effIsNew ? (t('new')) : (t('update'))}
-                      color={effIsNew ? 'success' : 'warning'} variant="outlined"
-                      sx={{ fontSize: '0.62rem', height: 18, '& .MuiChip-label': { px: 0.5 } }} />
-                    <Chip size="small" label={teamVal} variant="outlined"
-                      sx={{ fontSize: '0.62rem', height: 18, '& .MuiChip-label': { px: 0.5 }, textTransform: 'capitalize' }} />
+                      color={effIsNew ? 'success' : 'warning'} variant="outlined" h={18} />
+                    <MicroChip label={teamVal} variant="outlined" h={18}
+                      sx={{ textTransform: 'capitalize' }} />
                     {idDirty && (
-                      <Chip size="small" label={t('dirty_id')} color="error" variant="outlined"
-                        sx={{ fontSize: '0.62rem', height: 18, '& .MuiChip-label': { px: 0.5 } }} />
+                      <MicroChip label={t('dirty_id')} color="error" variant="outlined" h={18} />
                     )}
                     <Typography variant="caption" color="text.disabled" sx={{ fontSize: '0.65rem' }}>{finalId}</Typography>
                   </Box>
@@ -386,10 +385,9 @@ function PackImportDialog({ open, onClose, pack, language, knownIds, existingCus
                             const raw = e.id ?? c.id
                             const clean = slugify(raw)
                             return (raw !== clean && clean) ? (
-                              <Button size="small" onClick={() => patchEdit(c.id, { id: clean })}
-                                sx={{ textTransform: 'none', fontSize: '0.7rem', px: 0.75, py: 0, minWidth: 0 }}>
+                              <CompactButton size="small" onClick={() => patchEdit(c.id, { id: clean })}>
                                 {t('apply')}
-                              </Button>
+                              </CompactButton>
                             ) : null
                           })() as React.ReactNode,
                         },
@@ -933,12 +931,11 @@ export function CharactersTab({
               </Button>
 
               {hasPackOverrides && (
-                <Chip
-                  size="small"
+                <MicroChip
                   label={t('pack_active')}
                   color="secondary"
                   onDelete={handleClearOverrides}
-                  sx={{ fontSize: '0.7rem', height: 22 }}
+                  h={22}
                 />
               )}
             </Box>

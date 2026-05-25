@@ -1,4 +1,4 @@
-import { Box, Chip, Paper, Tooltip, Typography } from '@mui/material'
+import { Box, Paper, Tooltip, Typography } from '@mui/material'
 import PersonIcon from '@mui/icons-material/Person'
 import BalanceIcon from '@mui/icons-material/Balance'
 import TrendingUpIcon from '@mui/icons-material/TrendingUp'
@@ -14,6 +14,7 @@ import type { GameRecord } from '../../StorytellerSub/types'
 import type { Language } from '../../../types'
 import { useT } from '../../../context/I18nContext'
 import { makeT, makeTpl } from '../../../lib/t'
+import { MicroChip } from '../../ui'
 
 // ── Win Balance Meter ─────────────────────────────────────────────
 
@@ -256,12 +257,12 @@ function InsightCard({ insight }: { insight: Insight }) {
         <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1.3 }}>{insight.detail}</Typography>
       </Box>
       {insight.value && (
-        <Chip
+        <MicroChip
           label={insight.value}
-          size="small"
           icon={insight.valueIcon === 'star' ? <StarIcon sx={{ fontSize: '0.7rem !important', color: '#fff !important' }} /> : undefined}
-          sx={{ fontSize: '0.68rem', height: 20, fontWeight: 700, bgcolor: SEV_BORDER[insight.severity], color: '#fff', flexShrink: 0,
-            '& .MuiChip-icon': { ml: '4px' } }} />
+          sx={{ fontWeight: 700, bgcolor: SEV_BORDER[insight.severity], color: '#fff', flexShrink: 0,
+            '& .MuiChip-icon': { ml: '4px' } }}
+        />
       )}
     </Box>
   )
@@ -432,7 +433,7 @@ export function OverviewSection({ kpi, scriptStats, playerStats, charStats, stor
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 1.25 }}>
               <TrendingUpIcon sx={{ fontSize: '1rem', color: 'primary.main' }} />
               <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>{t('insights')}</Typography>
-              <Chip label={insights.length} size="small" sx={{ height: 16, fontSize: '0.62rem', ml: 'auto', '& .MuiChip-label': { px: '5px' } }} />
+              <MicroChip label={insights.length} h={16} sx={{ ml: 'auto' }} />
             </Box>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
               {insights.map((ins) => <InsightCard key={ins.id} insight={ins} />)}

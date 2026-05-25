@@ -3,7 +3,7 @@ export { makeTheme } from './makeTheme'
 export type { ThemeMode } from './makeTheme'
 
 import { createTheme, alpha } from '@mui/material/styles'
-import { BG, INK, BORDER, STATE, FONT, WEIGHT, SHADOW, MOTION, PALETTE } from './tokens'
+import { BG, INK, BORDER, STATE, FONT, WEIGHT, SHADOW, MOTION, PALETTE, TYPE_SCALE } from './tokens'
 
 declare module '@mui/material/styles' {
   interface Palette {
@@ -13,6 +13,23 @@ declare module '@mui/material/styles' {
   interface PaletteOptions {
     surface?: { main: string; raised: string; sunken: string }
     ink?: { primary: string; secondary: string; muted: string; inverse: string }
+  }
+  interface TypographyVariants {
+    label:         React.CSSProperties
+    sectionHeader: React.CSSProperties
+    tableHeader:   React.CSSProperties
+  }
+  interface TypographyVariantsOptions {
+    label?:         React.CSSProperties
+    sectionHeader?: React.CSSProperties
+    tableHeader?:   React.CSSProperties
+  }
+}
+declare module '@mui/material/Typography' {
+  interface TypographyPropsVariantOverrides {
+    label:         true
+    sectionHeader: true
+    tableHeader:   true
   }
 }
 
@@ -95,10 +112,23 @@ export const theme = createTheme({
 
     caption: {
       fontWeight:    WEIGHT.medium,
-      fontSize:      '0.82rem',
+      fontSize:      TYPE_SCALE.body,
       letterSpacing: '0.03em',
       lineHeight:    1.4,
       color:         INK.secondary,
+    },
+    label: {
+      fontSize: TYPE_SCALE.body, fontWeight: WEIGHT.medium, display: 'block',
+      letterSpacing: '0.03em', lineHeight: 1.4, color: INK.secondary,
+    },
+    sectionHeader: {
+      fontSize: TYPE_SCALE.xs, fontWeight: WEIGHT.semibold, display: 'block',
+      textTransform: 'uppercase' as const, letterSpacing: '0.08em',
+      lineHeight: 1.4, color: INK.secondary,
+    },
+    tableHeader: {
+      fontSize: TYPE_SCALE.sm, fontWeight: WEIGHT.bold,
+      letterSpacing: '0.04em', lineHeight: 1.3,
     },
     overline: {
       fontWeight:    WEIGHT.semibold,

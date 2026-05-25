@@ -3,6 +3,7 @@ import type { StorytellerContext } from '../useStoryteller'
 import React from 'react'
 import { Box, Typography, Button, Select, MenuItem, FormControl, InputLabel, Accordion, AccordionSummary, AccordionDetails, Chip } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import { MonoText } from '../../../components/ui'
 
 export function RightConsoleGame({ ctx, toggleConsoleSection }: { ctx: StorytellerContext, toggleConsoleSection: any }) {
   const { language, onSelectScript, scriptOptions, activeScriptSlug, text, activeConsoleSections, setDialogState, openNewGamePanel, exportGameJson, setShowExportModal } = ctx;
@@ -31,9 +32,9 @@ export function RightConsoleGame({ ctx, toggleConsoleSection }: { ctx: Storytell
                 <MenuItem key={s.slug} value={s.slug}>
                   {language === 'zh' ? (s.titleZh || s.title) : s.title}
                   {s.version && (
-                    <Typography component="span" variant="caption" sx={{ ml: 0.75, color: 'text.secondary', fontFamily: 'monospace' }}>
+                    <MonoText component="span" sx={{ ml: 0.75, color: 'text.secondary' }}>
                       v{s.version}
-                    </Typography>
+                    </MonoText>
                   )}
                 </MenuItem>
               ))}

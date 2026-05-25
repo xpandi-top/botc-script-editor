@@ -60,6 +60,22 @@ export const FONT = {
   serif:   'var(--font-en-display), var(--font-zh), Georgia, serif',
   zhSans:  'var(--font-zh), "PingFang SC", "Noto Sans SC", serif',
   zhSerif: 'var(--font-zh), "STKaiti", "KaiTi", serif',
+  mono:    '"JetBrains Mono", "Fira Code", "Cascadia Code", ui-monospace, monospace',
+} as const
+
+/**
+ * TYPE_SCALE — single source of truth for all rem font sizes.
+ * No component hardcodes a rem string directly; import this instead.
+ */
+export const TYPE_SCALE = {
+  micro: '0.62rem',  // densest data-grid labels
+  tiny:  '0.65rem',  // badge / chip / tag text
+  xs:    '0.7rem',   // small label, disabled menu item
+  sm:    '0.72rem',  // table header, compact toggle label
+  base:  '0.75rem',  // compact button, secondary body
+  md:    '0.8rem',   // dense list body, form input hint
+  body:  '0.82rem',  // caption / field label (matches theme caption)
+  ui:    '0.9rem',   // near-normal UI text
 } as const
 
 // Weight scale — keep intentional, not decorative

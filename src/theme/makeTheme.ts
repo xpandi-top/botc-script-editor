@@ -1,6 +1,27 @@
 import { createTheme, alpha } from '@mui/material/styles'
-import { PALETTE, BG, INK, BORDER, STATE, FONT, WEIGHT, SHADOW, MOTION } from './tokens'
+import { PALETTE, BG, INK, BORDER, STATE, FONT, WEIGHT, SHADOW, MOTION, TYPE_SCALE } from './tokens'
 import { DARK_PALETTE, DARK_BG, DARK_INK, DARK_BORDER, DARK_STATE } from './darkTokens'
+
+// ── Custom Typography variant declarations ─────────────────────────────────
+declare module '@mui/material/styles' {
+  interface TypographyVariants {
+    label:         React.CSSProperties
+    sectionHeader: React.CSSProperties
+    tableHeader:   React.CSSProperties
+  }
+  interface TypographyVariantsOptions {
+    label?:         React.CSSProperties
+    sectionHeader?: React.CSSProperties
+    tableHeader?:   React.CSSProperties
+  }
+}
+declare module '@mui/material/Typography' {
+  interface TypographyPropsVariantOverrides {
+    label:         true
+    sectionHeader: true
+    tableHeader:   true
+  }
+}
 
 const R = {
   btn:    10,
@@ -100,9 +121,26 @@ export function makeTheme(mode: ThemeMode) {
       subtitle2: { fontWeight: WEIGHT.semibold, fontSize: '0.95rem',   lineHeight: 1.5,  letterSpacing: '0.01em'  },
       body1:     { fontWeight: WEIGHT.regular,  fontSize: '1.0625rem', lineHeight: 1.6 },
       body2:     { fontWeight: WEIGHT.regular,  fontSize: '1rem',      lineHeight: 1.55 },
-      caption:  { fontWeight: WEIGHT.medium,  fontSize: '0.82rem', letterSpacing: '0.03em', lineHeight: 1.4, color: ink.secondary },
-      overline: { fontWeight: WEIGHT.semibold, fontSize: '0.78rem', letterSpacing: '0.1em',  lineHeight: 1.4, color: ink.secondary },
-      button:   { fontWeight: WEIGHT.semibold, fontSize: '0.95rem', letterSpacing: '0.01em', textTransform: 'none' as const },
+      caption:  { fontWeight: WEIGHT.medium,  fontSize: TYPE_SCALE.body, letterSpacing: '0.03em', lineHeight: 1.4, color: ink.secondary },
+      overline: { fontWeight: WEIGHT.semibold, fontSize: '0.78rem',      letterSpacing: '0.1em',  lineHeight: 1.4, color: ink.secondary },
+      button:   { fontWeight: WEIGHT.semibold, fontSize: '0.95rem',      letterSpacing: '0.01em', textTransform: 'none' as const },
+      // ── Custom variants ──────────────────────────────────────────────────────
+      // Field label: above inputs/controls — display:block, secondary color
+      label: {
+        fontSize: TYPE_SCALE.body, fontWeight: WEIGHT.medium, display: 'block',
+        letterSpacing: '0.03em', lineHeight: 1.4, color: ink.secondary,
+      },
+      // Section header: ALL-CAPS category divider
+      sectionHeader: {
+        fontSize: TYPE_SCALE.xs, fontWeight: WEIGHT.semibold, display: 'block',
+        textTransform: 'uppercase' as const, letterSpacing: '0.08em',
+        lineHeight: 1.4, color: ink.secondary,
+      },
+      // Table header: compact data-table column heading
+      tableHeader: {
+        fontSize: TYPE_SCALE.sm, fontWeight: WEIGHT.bold,
+        letterSpacing: '0.04em', lineHeight: 1.3,
+      },
     },
 
     shape:   { borderRadius: R.btn },

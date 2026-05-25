@@ -7,6 +7,7 @@ import CloseIcon from '@mui/icons-material/Close'
 import MenuBookIcon from '@mui/icons-material/MenuBook'
 import { getEffectiveNightOrderFromRegistry, getDisplayName, getIconForCharacter, getAbilityTextForScript, characterById } from '../../catalog'
 import { Divider } from '@mui/material'
+import { MonoText } from '../../components/ui'
 
 const TEAM_ORDER = ['townsfolk', 'outsider', 'minion', 'demon', 'traveler'] as const
 const TEAM_LABELS: Record<string, { light: string; dark: string }> = {
@@ -86,7 +87,7 @@ export function LeftScriptPanel({ ctx, inlineMode = false }: { ctx: StorytellerC
     <>
       <Box sx={{ p: 1.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid', borderBottomColor: 'divider', flexShrink: 0 }}>
         <Typography variant="h6" sx={{ fontSize: '0.9rem', fontWeight: 700, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          {activeScriptTitle || (t('script'))}{activeScriptVersion && <Typography component="span" variant="caption" sx={{ ml: 0.75, color: 'text.secondary', fontFamily: 'monospace' }}>v{activeScriptVersion}</Typography>}
+          {activeScriptTitle || (t('script'))}{activeScriptVersion && <MonoText component="span" sx={{ ml: 0.75, color: 'text.secondary' }}>v{activeScriptVersion}</MonoText>}
         </Typography>
         {!inlineMode && (
           <Button size="small" variant="outlined" onClick={() => setShowScriptPanel(false)} startIcon={<CloseIcon fontSize="small" />}>

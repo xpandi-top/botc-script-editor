@@ -14,6 +14,7 @@ import { makeT, makeTpl } from '../../../lib/t'
 import { CHARACTER_DISTRIBUTION } from '../constants'
 import { CharSelect, TeamDot, DistRow } from './ModalsNewGameHelpers'
 import { createDealSession, shuffleDealCards, HOST_TOKEN_KEY, ACTIVE_HOST_DEAL_KEY } from '../../../lib/firebaseDeal'
+import { MonoText } from '../../../components/ui'
 
 const TEAM_ORDER = ['townsfolk', 'outsider', 'minion', 'demon'] as const
 const TEAM_COLORS: Record<string, any> = { townsfolk: 'primary', outsider: 'info', minion: 'error', demon: 'error' }
@@ -239,9 +240,9 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
             <MenuItem key={s.slug} value={s.slug}>
               {zh ? (s.titleZh || s.title) : s.title}
               {s.version && (
-                <Typography component="span" variant="caption" sx={{ ml: 0.75, color: 'text.secondary', fontFamily: 'monospace' }}>
+                <MonoText component="span" sx={{ ml: 0.75, color: 'text.secondary' }}>
                   v{s.version}
-                </Typography>
+                </MonoText>
               )}
             </MenuItem>
           ))}

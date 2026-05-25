@@ -6,6 +6,7 @@ import { Box, Typography, Button, Tabs, Tab, Paper, List, ListItem, ListItemIcon
 import CloseIcon from '@mui/icons-material/Close'
 import MenuBookIcon from '@mui/icons-material/MenuBook'
 import { useT } from '../../../context/I18nContext'
+import { MonoText } from '../../../components/ui'
 
 type ScriptView = 'characters' | 'firstNight' | 'otherNight'
 
@@ -86,7 +87,7 @@ export function RightPopupScript({ ctx }: { ctx: StorytellerContext }) {
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, borderBottom: '1px solid', borderColor: 'divider' }}>
         <Typography variant="h6" sx={{ fontWeight: 600 }}>
-          {activeScriptTitle}{activeScriptVersion && <Typography component="span" variant="caption" sx={{ ml: 0.75, color: 'text.secondary', fontFamily: 'monospace', fontWeight: 400 }}>v{activeScriptVersion}</Typography>}
+          {activeScriptTitle}{activeScriptVersion && <MonoText component="span" sx={{ ml: 0.75, color: 'text.secondary' }}>v{activeScriptVersion}</MonoText>}
         </Typography>
         <IconButton size="small" onClick={() => setActiveRightPopup(null)}>
           <CloseIcon />

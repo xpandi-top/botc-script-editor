@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Box, Button, Checkbox, Chip, Dialog, DialogContent, DialogTitle, Divider, FormControlLabel, Grid, IconButton, Paper, TextField, Tooltip, Typography } from '@mui/material'
+import { CompactButton, FieldLabel } from './ui'
 import AddIcon from '@mui/icons-material/Add'
 import CloseIcon from '@mui/icons-material/Close'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -270,22 +271,20 @@ export function CharacterRevisionPanel({
       {isCustom && (onEditCustom || onDeleteCustom) && customChar && (
         <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
           {onEditCustom && (
-            <Button
+            <CompactButton
               size="small" variant="outlined" startIcon={<EditIcon fontSize="small" />}
               onClick={() => onEditCustom(customChar)}
-              sx={{ textTransform: 'none', fontSize: '0.75rem' }}
             >
               {t('edit')}
-            </Button>
+            </CompactButton>
           )}
           {onDeleteCustom && (
-            <Button
+            <CompactButton
               size="small" variant="outlined" color="error" startIcon={<DeleteIcon fontSize="small" />}
               onClick={() => onDeleteCustom(character.id)}
-              sx={{ textTransform: 'none', fontSize: '0.75rem' }}
             >
               {t('delete')}
-            </Button>
+            </CompactButton>
           )}
         </Box>
       )}
@@ -303,9 +302,9 @@ export function CharacterRevisionPanel({
       <Box>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
           <Typography variant="subtitle2">{revisionHistoryLabel}</Typography>
-          <Button size="small" startIcon={<AddIcon fontSize="small" />} onClick={openAdd} sx={{ textTransform: 'none', fontSize: '0.75rem' }}>
+          <CompactButton size="small" startIcon={<AddIcon fontSize="small" />} onClick={openAdd}>
             {t('add_revision')}
-          </Button>
+          </CompactButton>
         </Box>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
           {revisionIds.map((revision) => (
@@ -386,17 +385,15 @@ export function CharacterRevisionPanel({
             {t('reminder_tokens_2')}
           </Typography>
           {!isCustom && !reminderEditOpen && (
-            <Button size="small" startIcon={<EditIcon fontSize="small" />} onClick={openRemindersEdit}
-              sx={{ textTransform: 'none', fontSize: '0.75rem' }}>
+            <CompactButton size="small" startIcon={<EditIcon fontSize="small" />} onClick={openRemindersEdit}>
               {t('edit')}
-            </Button>
+            </CompactButton>
           )}
           {isCustom && onEditCustom && customChar && (
-            <Button size="small" startIcon={<EditIcon fontSize="small" />}
-              onClick={() => onEditCustom(customChar)}
-              sx={{ textTransform: 'none', fontSize: '0.75rem' }}>
+            <CompactButton size="small" startIcon={<EditIcon fontSize="small" />}
+              onClick={() => onEditCustom(customChar)}>
               {t('edit')}
-            </Button>
+            </CompactButton>
           )}
         </Box>
 
@@ -404,9 +401,7 @@ export function CharacterRevisionPanel({
         {!reminderEditOpen && (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
             <Box>
-              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-                {t('otherseat_tokens')}
-              </Typography>
+              <FieldLabel>{t('otherseat_tokens')}</FieldLabel>
               {currentReminders.length > 0
                 ? <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                     {currentReminders.map((r) => <Chip key={r} label={r} size="small" variant="outlined" />)}
@@ -415,9 +410,7 @@ export function CharacterRevisionPanel({
               }
             </Box>
             <Box>
-              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-                {t('global_tokens_all_seats')}
-              </Typography>
+              <FieldLabel>{t('global_tokens_all_seats')}</FieldLabel>
               {currentRemindersGlobal.length > 0
                 ? <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                     {currentRemindersGlobal.map((r) => <Chip key={r} label={r} size="small" variant="outlined" color="secondary" />)}
@@ -474,17 +467,15 @@ export function CharacterRevisionPanel({
                 {t('night_reminders')}
               </Typography>
               {!isCustomChar && !nightEditOpen && (
-                <Button size="small" startIcon={<EditIcon fontSize="small" />} onClick={openNightReminderEdit}
-                  sx={{ textTransform: 'none', fontSize: '0.75rem' }}>
+                <CompactButton size="small" startIcon={<EditIcon fontSize="small" />} onClick={openNightReminderEdit}>
                   {t('edit')}
-                </Button>
+                </CompactButton>
               )}
               {isCustomChar && onEditCustom && customChar && (
-                <Button size="small" startIcon={<EditIcon fontSize="small" />}
-                  onClick={() => onEditCustom(customChar)}
-                  sx={{ textTransform: 'none', fontSize: '0.75rem' }}>
+                <CompactButton size="small" startIcon={<EditIcon fontSize="small" />}
+                  onClick={() => onEditCustom(customChar)}>
                   {t('edit')}
-                </Button>
+                </CompactButton>
               )}
             </Box>
 
@@ -600,11 +591,6 @@ export function CharacterRevisionPanel({
                   label={tpl('other_nights_pos', otherNightPos)}
                   sx={{ color: 'warning.main', borderColor: 'warning.main' }}
                 />
-              )}
-              {firstNightPos == null && otherNightPos == null && (
-                <Typography variant="caption" color="text.disabled" sx={{ fontStyle: 'italic', alignSelf: 'center' }}>
-                  {t('no_night_wake')}
-                </Typography>
               )}
             </Box>
           </Box>
