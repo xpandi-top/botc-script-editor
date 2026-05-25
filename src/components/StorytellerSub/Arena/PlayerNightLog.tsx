@@ -41,7 +41,7 @@ export function PlayerNightLog({ open, onClose, seat, days, language, isNight }:
   }
 
   const kindLabel = (kind: string) => {
-    if (kind === 'vote') return t('vote_2')
+    if (kind === 'vote') return t('vote_label')
     if (kind === 'skill') return t('skill')
     if (kind === 'tagChange') return t('tag')
     if (kind === 'stateChange') return t('state')

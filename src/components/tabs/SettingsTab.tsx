@@ -86,7 +86,7 @@ export function SettingsTab({ language, onLanguageChange, fontSettings, cloudSyn
       <Box>
         <Typography variant="h5" gutterBottom>{t('theme')}</Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          {t('switch_between_the_warm_parchment_light_theme_and_the_dark_c')}
+          {t('settings_theme_desc')}
         </Typography>
         <ToggleButtonGroup value={mode} exclusive onChange={(_, v) => { if (v) setMode(v) }}>
           <ToggleButton value="light" sx={{ px: 3, py: 1, gap: 1 }}>
@@ -198,7 +198,7 @@ export function SettingsTab({ language, onLanguageChange, fontSettings, cloudSyn
 
       {/* ── Note ── */}
       <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-        {t('font_settings_are_saved_locally_and_persist_across_reloads_g')}
+        {t('settings_font_persist_note')}
       </Typography>
 
       <Divider />
@@ -211,7 +211,7 @@ export function SettingsTab({ language, onLanguageChange, fontSettings, cloudSyn
       <Box>
         <Typography variant="h5" gutterBottom>{t('backup_import')}</Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2, maxWidth: 480 }}>
-          {t('export_a_full_backup_containing_scripts_custom_characters_re')}
+          {t('backup_export_desc')}
         </Typography>
 
         <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>

@@ -128,7 +128,7 @@ export function PrintPreviewPage({
         </FormControl>
         <Tooltip title={t('toggle_language')}>
           <IconButton size="small" onClick={() => onLanguageChange(zh ? 'en' : 'zh')}>
-            <Typography variant="caption" sx={{ fontWeight: 700, fontSize: '0.7rem' }}>{t('str_en')}</Typography>
+            <Typography variant="caption" sx={{ fontWeight: 700, fontSize: '0.7rem' }}>{t('lang_switch')}</Typography>
           </IconButton>
         </Tooltip>
         <Tooltip title={panelOpen ? (t('hide_menu')) : (t('show_menu'))}>

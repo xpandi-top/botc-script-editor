@@ -79,7 +79,7 @@ function PerDayStats({ records, scriptKey }: { records: GameRecord[]; scriptKey:
         {t('perday_averages')}
       </Typography>
       <Box sx={{ display: 'grid', gridTemplateColumns: 'auto 1fr 1fr 1fr 1fr', gap: '2px 8px', alignItems: 'center' }}>
-        {[t('day'), t('votes'), t('noms'), t('skills'), t('exec')].map((h, i) => (
+        {[t('day'), t('votes'), t('noms'), t('abilities'), t('exec')].map((h, i) => (
           <Typography key={i} variant="caption" color="text.secondary" sx={{ fontWeight: 700, fontSize: '0.68rem' }}>{h}</Typography>
         ))}
         {dayData.map((d) => [

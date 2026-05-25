@@ -45,7 +45,7 @@ export function ModalsExport({ ctx }: { ctx: StorytellerContext }) {
   const checkOptions = [
     { key: 'includeSeats', label: t('seat_info') },
     { key: 'includeVotes', label: t('vote_history') },
-    { key: 'includeSkills', label: t('skill_history') },
+    { key: 'includeSkills', label: t('ability_history') },
     { key: 'includeEvents', label: t('event_log') },
     { key: 'includeStNotes', label: t('st_private_notes') },
   ]

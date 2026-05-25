@@ -432,7 +432,7 @@ export function CharacterRevisionPanel({
             />
             <ReminderTokenEditor
               label={t('reminder_tokens_global')}
-              hint={t('tokens_available_on_every_seat_regardless_of_assignment')}
+              hint={t('tokens_all_seats_note')}
               tokens={remindersGlobalEdit ?? []}
               onChange={setRemindersGlobalEdit}
             />

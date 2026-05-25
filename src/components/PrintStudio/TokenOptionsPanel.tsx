@@ -181,7 +181,7 @@ export function TokenOptionsPanel({ opts, onChange, scriptCharacters, language, 
           
           {/* Search */}
           <TextField
-            fullWidth size="small" placeholder={t('search_idnamedescription')}
+            fullWidth size="small" placeholder={t('search_id_name_desc')}
             value={search} onChange={(e) => setSearch(e.target.value)}
             slotProps={{ input: { startAdornment: <SearchIcon sx={{ fontSize: 18, mr: 0.5, color: 'text.secondary' }} /> } }}
             sx={{ mb: 1 }}

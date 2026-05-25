@@ -94,7 +94,7 @@ export function SkillsTab({ context, loading, handleSend, language }: Props) {
   return (
     <Box sx={{ flex: 1, overflowY: 'auto', p: 1.25, display: 'flex', flexDirection: 'column', gap: 0.75 }}>
       <Typography variant="caption" color="text.secondary">
-        {t('click_a_skill_card_to_run_it')}
+        {t('ai_run_skill')}
       </Typography>
 
       {available.map((skill) => (
@@ -130,7 +130,7 @@ export function SkillsTab({ context, loading, handleSend, language }: Props) {
         <>
           <Divider sx={{ my: 0.25 }} />
           <Typography variant="caption" color="text.disabled">
-            {t('skills_for_other_contexts')}
+            {t('ai_skills_context')}
           </Typography>
           {disabled.map((skill) => (
             <Paper key={skill.id} variant="outlined" sx={{ p: 1, borderRadius: 1.25, opacity: 0.4 }}>

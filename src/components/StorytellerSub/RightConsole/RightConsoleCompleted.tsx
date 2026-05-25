@@ -11,7 +11,7 @@ export function RightConsoleCompleted({ ctx, toggleConsoleSection }: { ctx: Stor
   return (
     <Box sx={{ mt: 1 }}>
       <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
-        {t('saved_games')}
+        {t('game_records_saved')}
       </Typography>
       <Box sx={{ maxHeight: 300, overflow: 'auto' }}>
         {gameRecords.length ? gameRecords.map((r) => (

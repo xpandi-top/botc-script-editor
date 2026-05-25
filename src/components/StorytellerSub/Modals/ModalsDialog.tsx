@@ -36,7 +36,7 @@ export function ModalsDialog({ ctx }: { ctx: StorytellerContext }) {
         </DialogTitle>
         <DialogContent>
           <DialogContentText>
-            {t('all_data_for_this_day_events_votes_skill_log_will_be_permane')}
+            {t('delete_day_confirm')}
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>

@@ -335,7 +335,7 @@ export function OverviewSection({ kpi, scriptStats, playerStats, charStats, stor
     return (
       <Box sx={{ py: 6, textAlign: 'center' }}>
         <Typography color="text.secondary">
-          {t('no_records_yet_complete_a_game_or_add_records_manually_to_se')}
+          {t('analytics_no_records_hint')}
         </Typography>
       </Box>
     )

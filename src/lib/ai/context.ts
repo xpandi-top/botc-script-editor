@@ -112,7 +112,7 @@ function serializeCharacterForPrompt(input: CharacterInput, language: Language):
 
   if (input.isNew) {
     lines.push('')
-    lines.push(t('note_this_is_a_new_character_not_yet_saved_to_the_database'))
+    lines.push(t('char_unsaved_note'))
   }
 
   return lines.join('\n')
@@ -346,7 +346,7 @@ function serializeGameLog(input: GameLogInput): string {
     }
 
     if (day.skillHistory.length) {
-      lines.push(t('skills_used'))
+      lines.push(t('abilities_used'))
       for (const sk of day.skillHistory) {
         const actor  = sk.actor !== null ? seatName(sk.actor, day) : '?'
         const role   = roleName(sk.roleId, language)

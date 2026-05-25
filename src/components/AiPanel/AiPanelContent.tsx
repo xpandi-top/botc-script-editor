@@ -114,7 +114,7 @@ export function AiPanelContent({ open, onClose, context, callbacks, variant = 's
         >
           <Tab value="chat"   label={t('chat')}
             sx={{ minHeight: 32, py: 0, fontSize: '0.72rem', textTransform: 'none', flex: 1 }} />
-          <Tab value="skills" label={t('skills')}
+          <Tab value="skills" label={t('ai_skills')}
             sx={{ minHeight: 32, py: 0, fontSize: '0.72rem', textTransform: 'none', flex: 1 }} />
           <Tab value="log"    label={tpl('log_tab_n', fillLog.length)}
             sx={{ minHeight: 32, py: 0, fontSize: '0.72rem', textTransform: 'none', flex: 1 }} />

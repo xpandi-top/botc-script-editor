@@ -410,7 +410,7 @@ export function ScriptsMasonryGrid({
                   {/* Empty state */}
                   {diyByFolder.byFolder.length === 0 && diyByFolder.unfoldered.length === 0 && (
                     <Typography sx={{ fontSize: '0.78rem', color: 'text.disabled', fontStyle: 'italic' }}>
-                      {t('no_custom_scripts_yet_use_the_buttons_above_to_get_started')}
+                      {t('scripts_empty_hint')}
                     </Typography>
                   )}
                 </Box>

@@ -59,7 +59,7 @@ export function ArenaCenter({ ctx }: { ctx: StorytellerContext }) {
             ))}
           </Select>
         </FormControl>
-        <IconButton size="large" onClick={(e) => { e.stopPropagation(); goToNextDay() }} title={t('next_day_2')}>
+        <IconButton size="large" onClick={(e) => { e.stopPropagation(); goToNextDay() }} title={t('next_day_label')}>
           <ArrowForwardIcon />
         </IconButton>
       </Box>

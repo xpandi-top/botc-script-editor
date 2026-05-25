@@ -233,7 +233,7 @@ export function CharactersSection({ charStats, language, records }: Props) {
   if (charStats.length === 0) {
     return (
       <Box sx={{ py: 4, textAlign: 'center' }}>
-        <Typography color="text.secondary">{t('no_character_data_add_character_assignments_to_records')}</Typography>
+        <Typography color="text.secondary">{t('analytics_no_char_data')}</Typography>
       </Box>
     )
   }

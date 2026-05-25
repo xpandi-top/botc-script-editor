@@ -51,7 +51,7 @@ export function CloudSyncSection({ cloud, language }: {
           {cloud.errorMessage}
           {cloud.errorMessage.includes('redirect_uri_mismatch') && (
             <Box sx={{ mt: 0.5 }}>
-              {t('ensure_this_exact_redirect_uri_is_registered_in_cloud_consol')}
+              {t('gdrive_redirect_note')}
               {' '}<code style={{ fontSize: '0.75rem' }}>{getRedirectUri()}</code>
             </Box>
           )}
@@ -62,7 +62,7 @@ export function CloudSyncSection({ cloud, language }: {
       {!cloud.connected && (
         <Box sx={{ mb: 2, p: 1.5, bgcolor: 'action.hover', borderRadius: 1.5, maxWidth: 520 }}>
           <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-            {t('add_this_uri_to_google_cloud_console_authorized_redirect_uri')}
+            {t('gdrive_add_uri_note')}
           </Typography>
           <Box component="code" sx={{ fontSize: '0.8rem', wordBreak: 'break-all', color: 'text.primary', fontWeight: 600 }}>
             {getRedirectUri()}
@@ -74,7 +74,7 @@ export function CloudSyncSection({ cloud, language }: {
       {!cloud.connected && (
         isPreConfigured ? (
           <Alert severity="success" sx={{ mb: 2, maxWidth: 520 }}>
-            {t('oauth_credentials_are_preconfigured_just_click_connect_googl')}
+            {t('gdrive_preconfigured_note')}
           </Alert>
         ) : (
           <Box sx={{ mb: 2, p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 2, maxWidth: 520 }}>
@@ -214,13 +214,13 @@ export function CloudSyncSection({ cloud, language }: {
           </Stack>
 
           <Typography variant="caption" color="text.secondary" sx={{ maxWidth: 480 }}>
-            {t('data_stored_in_your_private_google_drive_appdatafolder_only_')}
+            {t('gdrive_appdatafolder_note')}
           </Typography>
         </Box>
       ) : (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
           <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 480 }}>
-            {t('connect_google_drive_to_automatically_sync_scripts_custom_ch')}
+            {t('gdrive_connect_desc')}
           </Typography>
           <Button variant="contained" startIcon={<CloudIcon />}
             onClick={() => void cloud.connect()}

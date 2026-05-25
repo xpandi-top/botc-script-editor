@@ -63,7 +63,7 @@ function IconBar({
       <Box sx={{ flex: 1 }} />
       {[
         { key: 'settings', icon: <SettingsIcon fontSize="inherit" />, label: t('settings') },
-        { key: 'records',  icon: <HistoryIcon fontSize="inherit" />,  label: t('records') },
+        { key: 'records',  icon: <HistoryIcon fontSize="inherit" />,  label: t('game_records_label') },
       ].map(({ key, icon, label }) => (
         <IconButton
           key={key}

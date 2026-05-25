@@ -60,7 +60,7 @@ export function ChatTab({
                 : t('general_ai_assistant')}
             </Typography>
             <Typography variant="caption" align="center" sx={{ opacity: 0.8, px: 3 }}>
-              {t('use_skill_chips_above_or_type_a_message')}
+              {t('ai_type_hint')}
             </Typography>
           </Box>
         )}

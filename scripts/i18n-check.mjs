@@ -61,28 +61,11 @@ const ZH_ENGLISH_EXCEPTIONS = new Set([
 ])
 
 /**
- * Deprecated long/truncated keys that now have semantic aliases.
- * Suppress the truncated-key warning — migration path exists.
- * Remove from this set once the component is updated to use the semantic key.
+ * Keys known to be intentionally long (no truncation, no semantic alias needed).
+ * These are long but self-explanatory enough that renaming isn't worthwhile.
  */
-const DEPRECATED_LONG_KEYS = new Set([
-  'switch_between_the_warm_parchment_light_theme_and_the_dark_c', // → settings_theme_desc
-  'font_settings_are_saved_locally_and_persist_across_reloads_g', // → settings_font_persist_note
-  'export_a_full_backup_containing_scripts_custom_characters_re',  // → backup_export_desc
-  'this_link_opens_this_script_directly_link_never_expires',       // → share_link_permanent_note
-  'this_link_contains_a_full_copy_of_the_script_valid_for_24_ho', // → share_link_24h_note
-  'ensure_this_exact_redirect_uri_is_registered_in_cloud_consol', // → gdrive_redirect_note
-  'add_this_uri_to_google_cloud_console_authorized_redirect_uri', // → gdrive_add_uri_note
-  'oauth_credentials_are_preconfigured_just_click_connect_googl', // → gdrive_preconfigured_note
-  'data_stored_in_your_private_google_drive_appdatafolder_only_', // → gdrive_appdatafolder_note
-  'connect_google_drive_to_automatically_sync_scripts_custom_ch', // → gdrive_connect_desc
-  'character_team_used_in_analytics_blank_names_autouse_seat_nu', // → analytics_char_team_hint
-  'no_custom_scripts_yet_use_the_buttons_above_to_get_started',   // → scripts_empty_hint
-  'all_data_for_this_day_events_votes_skill_log_will_be_permane', // → delete_day_confirm
-  'no_character_data_add_character_assignments_to_records',       // → analytics_no_char_data
-  'no_records_yet_complete_a_game_or_add_records_manually_to_se', // → analytics_no_records_hint
-  'note_this_is_a_new_character_not_yet_saved_to_the_database',   // → char_unsaved_note
-  'tokens_available_on_every_seat_regardless_of_assignment',      // → tokens_all_seats_note
+const ACCEPTABLE_LONG_KEYS = new Set([
+  'tokens_available_on_all_seats',  // short enough, kept
 ])
 
 // ── Load ──────────────────────────────────────────────────────────────────────
@@ -201,21 +184,18 @@ const TRUNCATED_PATTERN = /[a-z]$/ // ends with lowercase (not a natural word bo
 let truncatedCount = 0
 for (const k of enKeys) {
   if (k.length > 50) {
-    if (DEPRECATED_LONG_KEYS.has(k)) {
-      // Known deprecated key with semantic alias — skip
-      continue
-    }
+    if (ACCEPTABLE_LONG_KEYS.has(k)) continue
     // Check if it ends mid-word (likely auto-truncated)
     const lastWord = k.split('_').pop() ?? ''
     if (lastWord.length < 3 || (lastWord.endsWith('c') && k.endsWith('_c'))) {
-      warn(`Key "${k}" looks auto-truncated (${k.length} chars)`)
+      warn(`Key "${k}" looks auto-truncated (${k.length} chars) — add a shorter semantic alias`)
     } else {
       warn(`Key "${k}" is very long (${k.length} chars) — consider a shorter semantic key`)
     }
     truncatedCount++
   }
 }
-if (truncatedCount === 0) console.log(`  ✓ No new long keys (${DEPRECATED_LONG_KEYS.size} deprecated keys have semantic aliases — migrate when ready)`)
+if (truncatedCount === 0) console.log('  ✓ No overly long or truncated keys')
 
 // ── Check 6: Skill/RPG wording in EN values ───────────────────────────────────
 

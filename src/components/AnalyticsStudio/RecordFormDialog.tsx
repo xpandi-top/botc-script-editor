@@ -315,7 +315,7 @@ export function RecordFormDialog({ existing, zh, language, onSave, onClose }: {
               <IconButton size="small" onClick={() => setPlayerCount_(playerCount + 1)}><AddIcon fontSize="small" /></IconButton>
             </Box>
             <Typography variant="caption" color="text.secondary">
-              {t('character_team_used_in_analytics_blank_names_autouse_seat_nu')}
+              {t('analytics_char_team_hint')}
             </Typography>
             <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '28px 1fr 72px', sm: '32px 1fr 1fr 80px' }, gap: 0.5, alignItems: 'center', px: 0.5 }}>
               <Typography variant="caption" color="text.secondary">#</Typography>

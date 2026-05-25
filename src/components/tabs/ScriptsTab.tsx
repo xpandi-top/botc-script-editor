@@ -558,11 +558,11 @@ export function ScriptsTab({
             <Box sx={{ mt: 1 }}>
               {isCurrentBuiltIn ? (
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                  {t('this_link_opens_this_script_directly_link_never_expires')}
+                  {t('share_link_permanent_note')}
                 </Typography>
               ) : (
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                  {t('this_link_contains_a_full_copy_of_the_script_valid_for_24_ho')}
+                  {t('share_link_24h_note')}
                 </Typography>
               )}
               <TextField
