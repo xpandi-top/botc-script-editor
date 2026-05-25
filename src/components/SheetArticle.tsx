@@ -15,7 +15,6 @@ import DOMPurify from 'dompurify'
 import { Box, Typography, Paper, Grid, IconButton, Chip, Divider, Dialog, DialogTitle, DialogContent, Tooltip, useTheme } from '@mui/material'
 import {
   editionLabels,
-  getAbilityText,
   getAbilityTextForScript,
   getDisplayName,
   getActiveJinxesForScript,
@@ -496,8 +495,8 @@ export function SheetArticle({
   const popupChar = popupId ? activeScriptCharacters.find((c) => c.id === popupId) : null
   const popupName = popupId ? getDisplayName(popupId, language) : ''
   const popupNameAlt = popupId ? getDisplayName(popupId, language === 'zh' ? 'en' : 'zh') : ''
-  const popupAbility = popupId ? getAbilityText(popupId, language) : ''
-  const popupAbilityAlt = popupId ? getAbilityText(popupId, language === 'zh' ? 'en' : 'zh') : ''
+  const popupAbility = popupId ? getAbilityTextForScript(popupId, language, activeScript.pinnedRevisions) : ''
+  const popupAbilityAlt = popupId ? getAbilityTextForScript(popupId, language === 'zh' ? 'en' : 'zh', activeScript.pinnedRevisions) : ''
   const popupIcon = popupId ? getIconForCharacter(popupId) : null
 
   return (

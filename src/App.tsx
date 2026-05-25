@@ -494,10 +494,14 @@ export default function App() {
     return ''
   }, [activeScriptCharacters.length])
 
-  // Keep registry in sync with React state before any memos read from it.
-  // useEffect fires after render — too late for useMemo. Calling here is safe
-  // because registerCustomCharacters is idempotent and has no DOM side-effects.
-  registerCustomCharacters(customChars)
+  // Keep registry in sync before dependent useMemo calls read from it.
+  // useEffect is too late (post-render). useRef guard: only calls when customChars
+  // identity changes — safe in concurrent mode (idempotent, no DOM side-effects).
+  const _prevCustomCharsRef = useRef(customChars)
+  if (_prevCustomCharsRef.current !== customChars) {
+    _prevCustomCharsRef.current = customChars
+    registerCustomCharacters(customChars)
+  }
 
   const availableEditions = useMemo(
     () => Array.from(new Set(getEffectiveAllCharacters().map((c) => c.edition))).sort(

@@ -7,7 +7,7 @@ import CheckIcon from '@mui/icons-material/Check'
 import CloseIcon from '@mui/icons-material/Close'
 import { ArenaSeatPlayerModal } from './ArenaSeatPlayerModal'
 import { CharacterCircle } from './CharacterCircle'
-import { getDisplayName, getIconForCharacter, getEffectiveNightOrderFromRegistry, getAbilityText, getNightReminder } from '../../../catalog'
+import { getDisplayName, getIconForCharacter, getEffectiveNightOrderFromRegistry, getAbilityTextForScript, getNightReminder } from '../../../catalog'
 import { getSeatPosition } from '../../../utils/seats'
 import { VoteButtonGroup, RoundRobinIndicator, TagChip, StatusBadge, translateStTag } from './ArenaSeatComponents'
 
@@ -69,7 +69,10 @@ function ArenaSeatInner({ ctx, seat, index, isPortrait }: { ctx: StorytellerCont
     nightShowCharacter, nightShowWakeOrder, skillOverlay,
     characterPopoutSeat, setCharacterPopoutSeat, toggleNightVisitedSeat,
     playerModalSeat, setPlayerModalSeat, setPlayerModalTab, days,
+    activeScriptSlug, scriptOptions,
   } = ctx
+
+  const pinnedRevisions = scriptOptions?.find((s: any) => s.slug === activeScriptSlug)?.pinnedRevisions
 
   const { left, top } = getSeatPosition(index, currentDay.seats.length, isPortrait)
 
@@ -112,7 +115,7 @@ function ArenaSeatInner({ ctx, seat, index, isPortrait }: { ctx: StorytellerCont
   const actualCharId = seat.characterId
   const charIcon = actualCharId ? getIconForCharacter(actualCharId) : null
   const actualCharName = actualCharId ? getDisplayName(actualCharId, language) : ''
-  const actualCharAbility = actualCharId ? getAbilityText(actualCharId, language) : ''
+  const actualCharAbility = actualCharId ? getAbilityTextForScript(actualCharId, language, pinnedRevisions) : ''
 
   // Drunk/poisoned derived from stTags — always visible to ST
   const stTagLabels: string[] = (seat.stTags || []).map((t: string) => {
@@ -332,5 +335,7 @@ export const ArenaSeat = React.memo(ArenaSeatInner, (prev, next) =>
   prev.ctx.nightShowWakeOrder === next.ctx.nightShowWakeOrder &&
   prev.ctx.skillOverlay === next.ctx.skillOverlay &&
   prev.ctx.characterPopoutSeat === next.ctx.characterPopoutSeat &&
-  prev.ctx.playerModalSeat === next.ctx.playerModalSeat,
+  prev.ctx.playerModalSeat === next.ctx.playerModalSeat &&
+  prev.ctx.activeScriptSlug === next.ctx.activeScriptSlug &&
+  prev.ctx.scriptOptions === next.ctx.scriptOptions,
 )

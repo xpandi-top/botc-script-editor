@@ -18,7 +18,7 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import ListIcon from '@mui/icons-material/List'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'
-import { getDisplayName, getIconForCharacter, getAbilityText, allCharacters, characterById } from '../../../catalog'
+import { getDisplayName, getIconForCharacter, getAbilityTextForScript, allCharacters, characterById } from '../../../catalog'
 import { buildPlayerLogEntries, filterPlayerLogByCurrentPhase } from '../../../utils/playerLog'
 import { logPhrase } from '../../../utils/logI18n'
 import { LogDetailText } from '../LogDetailText'
@@ -63,8 +63,10 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
     customTagPool, updateSeatWithLog, updateCurrentDay, appendEvent,
     addCustomTag, playerModalSeat, setPlayerModalSeat,
     editLogEntry, removeLogEntry, addQuickEvent,
-    nightShowCharacter,
+    nightShowCharacter, activeScriptSlug, scriptOptions,
   } = ctx
+
+  const pinnedRevisions = scriptOptions?.find((s: any) => s.slug === activeScriptSlug)?.pinnedRevisions
 
   const zh = language === 'zh'
   const t = makeT(language)
@@ -379,13 +381,13 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
             <Typography variant="caption" color="text.secondary">{t('actual_short')}</Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
               <Typography variant="body2" fontWeight={600} sx={{ lineHeight: 1.2 }}>{actualCharId ? getDisplayName(actualCharId, language) : t('none_assigned')}</Typography>
-              {actualCharId && getAbilityText(actualCharId, language) && (
+              {actualCharId && getAbilityTextForScript(actualCharId, language, pinnedRevisions) && (
                 <IconButton size="small" sx={{ p: 0.25, ml: 0.25 }} onClick={(e) => { e.stopPropagation(); setAbilityModalCharId(actualCharId) }}>
                   <InfoOutlinedIcon sx={{ fontSize: '0.9rem', color: 'text.secondary' }} />
                 </IconButton>
               )}
             </Box>
-            {actualCharId && <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem', display: 'block', lineHeight: 1.4 }}>{getAbilityText(actualCharId, language)?.slice(0, 60)}{(getAbilityText(actualCharId, language)?.length ?? 0) > 60 ? '…' : ''}</Typography>}
+            {actualCharId && (() => { const ab = getAbilityTextForScript(actualCharId, language, pinnedRevisions); return ab ? <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem', display: 'block', lineHeight: 1.4 }}>{ab.slice(0, 60)}{ab.length > 60 ? '…' : ''}</Typography> : null })()}
           </Box>
         </Box>
         {/* Perceived (if different) */}
@@ -396,13 +398,13 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
               <Typography variant="caption" color="warning.main">{t('perceived_character')}</Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
                 <Typography variant="body2" fontWeight={600} sx={{ lineHeight: 1.2 }}>{perceivedCharId ? getDisplayName(perceivedCharId, language) : '—'}</Typography>
-                {perceivedCharId && getAbilityText(perceivedCharId, language) && (
+                {perceivedCharId && getAbilityTextForScript(perceivedCharId, language, pinnedRevisions) && (
                   <IconButton size="small" sx={{ p: 0.25, ml: 0.25 }} onClick={(e) => { e.stopPropagation(); setAbilityModalCharId(perceivedCharId) }}>
                     <InfoOutlinedIcon sx={{ fontSize: '0.9rem', color: 'text.secondary' }} />
                   </IconButton>
                 )}
               </Box>
-              {perceivedCharId && <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem', display: 'block', lineHeight: 1.4 }}>{getAbilityText(perceivedCharId, language)?.slice(0, 60)}{(getAbilityText(perceivedCharId, language)?.length ?? 0) > 60 ? '…' : ''}</Typography>}
+              {perceivedCharId && (() => { const ab = getAbilityTextForScript(perceivedCharId, language, pinnedRevisions); return ab ? <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem', display: 'block', lineHeight: 1.4 }}>{ab.slice(0, 60)}{ab.length > 60 ? '…' : ''}</Typography> : null })()}
             </Box>
           </Box>
         )}
@@ -1283,7 +1285,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
     const charId = abilityModalCharId
     const icon = getIconForCharacter(charId)
     const name = getDisplayName(charId, language)
-    const ability = getAbilityText(charId, language) ?? getAbilityText(charId, 'en') ?? ''
+    const ability = getAbilityTextForScript(charId, language, pinnedRevisions) || getAbilityTextForScript(charId, 'en', pinnedRevisions) || ''
     return (
       <Dialog open onClose={() => setAbilityModalCharId(null)} maxWidth="xs" fullWidth>
         <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1, pb: 1 }}>

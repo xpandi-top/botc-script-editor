@@ -818,11 +818,13 @@ export function createCharacterRevision(
     throw new Error(`Revision already exists for ${id}: ${normalizedRevision}`)
   }
 
-  character.revisions = [
-    ...existingRevisions,
-    { id: normalizedRevision, note: note.trim() },
-  ]
-  character.current_revision = normalizedRevision
+  // Build new object instead of mutating the exported characterById entry.
+  // Mutation would leave stale references in callers that cached characterById[id].
+  characterById[id] = {
+    ...character,
+    revisions: [...existingRevisions, { id: normalizedRevision, note: note.trim() }],
+    current_revision: normalizedRevision,
+  }
 
   ;(['en', 'zh'] as Language[]).forEach((language) => {
     if (!_charLocale[language][id]) {
@@ -929,6 +931,33 @@ function extractScriptNightPositions(
   return Object.keys(result).length > 0 ? result : undefined
 }
 
+// ── Shared script-parsing helpers ────────────────────────────────────────────
+
+/** Normalize the _meta entry from an array-format script (handles jinx overrides). */
+function normalizeScriptMetaEntry(data: ScriptFileEntry[]) {
+  const meta = data.find(isScriptMetaEntry)
+  if (!meta) return undefined
+  return {
+    ...meta,
+    jinxes: Array.isArray(meta.jinxes)
+      ? meta.jinxes
+          .map(normalizeScriptJinxOverride)
+          .filter((e): e is NonNullable<ReturnType<typeof normalizeScriptJinxOverride>> => e !== null)
+      : undefined,
+  }
+}
+
+/** Extract character id list + raw ScriptCharacterItem list from array-format data. */
+function extractScriptCharacters(data: ScriptFileEntry[]) {
+  const scriptCharacterItems = data.filter(isScriptCharacterItem)
+  const characters = data
+    .filter((e): e is string | ScriptCharacterItem => typeof e === 'string' || isScriptCharacterItem(e))
+    .map((e) => (typeof e === 'string' ? e : e.id))
+  return { scriptCharacterItems, characters }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 function loadScripts() {
   return Object.entries(scriptFiles)
     .map(([path, data]) => {
@@ -936,30 +965,8 @@ function loadScripts() {
       const fallbackSlug = sourceFile.replace('.json', '')
 
       if (Array.isArray(data)) {
-        const meta = (data as ScriptFileEntry[]).find(isScriptMetaEntry)
-        const normalizedMeta = meta
-          ? {
-              ...meta,
-              jinxes: Array.isArray(meta.jinxes)
-                ? meta.jinxes
-                    .map(normalizeScriptJinxOverride)
-                    .filter(
-                      (
-                        entry,
-                      ): entry is NonNullable<ReturnType<typeof normalizeScriptJinxOverride>> =>
-                        entry !== null,
-                    )
-                : undefined,
-            }
-          : undefined
-        const scriptCharacterItems = data.filter(isScriptCharacterItem)
-        const characters = data
-          .filter(
-            (entry): entry is string | ScriptCharacterItem =>
-              typeof entry === 'string' || isScriptCharacterItem(entry),
-          )
-          .map((entry) => (typeof entry === 'string' ? entry : entry.id))
-
+        const normalizedMeta = normalizeScriptMetaEntry(data as ScriptFileEntry[])
+        const { scriptCharacterItems, characters } = extractScriptCharacters(data as ScriptFileEntry[])
         const nightPositions = extractScriptNightPositions(scriptCharacterItems)
         return {
           slug: fallbackSlug,
@@ -968,7 +975,7 @@ function loadScripts() {
           author: normalizedMeta?.author ?? '',
           meta: normalizedMeta ?? { id: '_meta', name: toTitleCase(fallbackSlug) },
           customCharacters: scriptCharacterItems.filter(
-            (entry) => typeof entry.name === 'string' || typeof entry.ability === 'string',
+            (e) => typeof e.name === 'string' || typeof e.ability === 'string',
           ),
           edition: inferEditionFromSlug(fallbackSlug),
           characters,
@@ -1028,30 +1035,20 @@ export function parseScriptFromData(data: unknown, filename: string): import('./
   const sourceFile = filename
   const fallbackSlug = filename.replace(/\.json$/i, '').replace(/\s+/g, '-').toLowerCase()
 
-  if (Array.isArray(data)) {
-    const meta = (data as ScriptFileEntry[]).find(isScriptMetaEntry)
-    const normalizedMeta = meta
-      ? {
-          ...meta,
-          jinxes: Array.isArray(meta.jinxes)
-            ? meta.jinxes
-                .map(normalizeScriptJinxOverride)
-                .filter((e): e is NonNullable<ReturnType<typeof normalizeScriptJinxOverride>> => e !== null)
-            : undefined,
-        }
-      : undefined
-    const scriptCharacterItems = data.filter(isScriptCharacterItem)
-    const characters = data
-      .filter((e): e is string | ScriptCharacterItem => typeof e === 'string' || isScriptCharacterItem(e))
-      .map((e) => (typeof e === 'string' ? e : e.id))
-
-    let slug = fallbackSlug
+  // Deduplicate slug against built-in scripts.
+  const dedupeSlug = (base: string) => {
+    let slug = base
     let counter = 2
-    while (initialScripts.some((s) => s.slug === slug)) { slug = `${fallbackSlug}-${counter}`; counter++ }
+    while (initialScripts.some((s) => s.slug === slug)) { slug = `${base}-${counter}`; counter++ }
+    return slug
+  }
 
+  if (Array.isArray(data)) {
+    const normalizedMeta = normalizeScriptMetaEntry(data as ScriptFileEntry[])
+    const { scriptCharacterItems, characters } = extractScriptCharacters(data as ScriptFileEntry[])
     const nightPositions = extractScriptNightPositions(scriptCharacterItems)
     return {
-      slug,
+      slug: dedupeSlug(fallbackSlug),
       title: normalizedMeta?.name ?? toTitleCase(fallbackSlug),
       titleZh: normalizedMeta?.name_zh ?? normalizedMeta?.name ?? toTitleCase(fallbackSlug),
       author: normalizedMeta?.author ?? '',
@@ -1069,11 +1066,8 @@ export function parseScriptFromData(data: unknown, filename: string): import('./
   }
 
   const d = data as any
-  let slug = fallbackSlug
-  let counter = 2
-  while (initialScripts.some((s) => s.slug === slug)) { slug = `${fallbackSlug}-${counter}`; counter++ }
   return {
-    slug,
+    slug: dedupeSlug(fallbackSlug),
     title: d.title ?? toTitleCase(fallbackSlug),
     titleZh: d.title ?? toTitleCase(fallbackSlug),
     author: '',

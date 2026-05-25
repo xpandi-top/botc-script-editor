@@ -3,7 +3,7 @@
  * No React imports here.
  */
 
-import { getDisplayName, getAbilityText, getCharacterById, teamOrder, teamLabels } from '../../catalog'
+import { getDisplayName, getAbilityTextForScript, getCharacterById, teamOrder, teamLabels } from '../../catalog'
 import type { Language, Team } from '../../types'
 import type {
   AiContext, AiField,
@@ -193,7 +193,7 @@ function serializeScriptForPrompt(input: ScriptInput): string {
     lines.push(`── ${label} (${ids.length}) ──`)
     for (const id of ids) {
       const name    = getDisplayName(id, language)
-      const ability = getAbilityText(id, language)
+      const ability = getAbilityTextForScript(id, language, script.pinnedRevisions)
       lines.push(`  ${name}: ${ability}`)
     }
   }

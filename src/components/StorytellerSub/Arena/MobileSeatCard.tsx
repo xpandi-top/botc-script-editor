@@ -8,7 +8,7 @@ import CloseIcon from '@mui/icons-material/Close'
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked'
 import { ArenaSeatPlayerModal } from './ArenaSeatPlayerModal'
 import { CharacterCircle } from './CharacterCircle'
-import { getDisplayName, getIconForCharacter, getEffectiveNightOrderFromRegistry, getAbilityText } from '../../../catalog'
+import { getDisplayName, getIconForCharacter, getEffectiveNightOrderFromRegistry, getAbilityTextForScript } from '../../../catalog'
 import { VoteButtonGroup, TagChip, StatusBadge, translateStTag } from './ArenaSeatComponents'
 
 
@@ -22,8 +22,10 @@ function MobileSeatCardInner({ ctx, seat, side = 'left' }: { ctx: StorytellerCon
     nightShowCharacter, nightShowWakeOrder,
     characterPopoutSeat, setCharacterPopoutSeat, toggleNightVisitedSeat,
     playerModalSeat, setPlayerModalSeat, setPlayerModalTab,
-    days,
+    days, activeScriptSlug, scriptOptions,
   } = ctx
+
+  const pinnedRevisions = scriptOptions?.find((s: any) => s.slug === activeScriptSlug)?.pinnedRevisions
 
   const muiTheme = useTheme()
   const isDark = muiTheme.palette.mode === 'dark'
@@ -50,7 +52,7 @@ function MobileSeatCardInner({ ctx, seat, side = 'left' }: { ctx: StorytellerCon
   const perceivedCharId = seat.userCharacterId || seat.characterId
   const charIcon = actualCharId ? getIconForCharacter(actualCharId) : null
   const actualCharName = actualCharId ? getDisplayName(actualCharId, language) : ''
-  const actualCharAbility = actualCharId ? getAbilityText(actualCharId, language) : ''
+  const actualCharAbility = actualCharId ? getAbilityTextForScript(actualCharId, language, pinnedRevisions) : ''
 
   const stTagLabels: string[] = (seat.stTags || []).map((t: string) => {
     const body = t.startsWith('📝') ? t.slice(2) : t
@@ -257,5 +259,7 @@ export const MobileSeatCard = React.memo(MobileSeatCardInner, (prev, next) =>
   prev.ctx.nightShowCharacter === next.ctx.nightShowCharacter &&
   prev.ctx.nightShowWakeOrder === next.ctx.nightShowWakeOrder &&
   prev.ctx.characterPopoutSeat === next.ctx.characterPopoutSeat &&
-  prev.ctx.playerModalSeat === next.ctx.playerModalSeat,
+  prev.ctx.playerModalSeat === next.ctx.playerModalSeat &&
+  prev.ctx.activeScriptSlug === next.ctx.activeScriptSlug &&
+  prev.ctx.scriptOptions === next.ctx.scriptOptions,
 )
