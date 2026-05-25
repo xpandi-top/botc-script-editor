@@ -62,7 +62,7 @@ function WakeOrderBadge({ wakeOrder, isVisited, reminder, onToggle }: { wakeOrde
   )
 }
 
-export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: StorytellerContext, seat: any, index: number, isPortrait: boolean }) {
+function ArenaSeatInner({ ctx, seat, index, isPortrait }: { ctx: StorytellerContext, seat: any, index: number, isPortrait: boolean }) {
   const {
     language, pickerMode, currentDay, updateCurrentDay, currentVoterSeat,
     selectedSeat, text, handleSeatClick, handleVoteYes, handleVoteNo,
@@ -315,3 +315,22 @@ export function ArenaSeat({ ctx, seat, index, isPortrait }: { ctx: StorytellerCo
     </>
   )
 }
+
+// Memo comparator: only re-render when seat-relevant ctx fields change.
+// Timer ticks update currentTimerSeconds (separate state) but NOT currentDay,
+// so all 15 seats correctly bail out on every timer tick.
+export const ArenaSeat = React.memo(ArenaSeatInner, (prev, next) =>
+  prev.seat === next.seat &&
+  prev.index === next.index &&
+  prev.isPortrait === next.isPortrait &&
+  prev.ctx.language === next.ctx.language &&
+  prev.ctx.pickerMode === next.ctx.pickerMode &&
+  prev.ctx.currentDay === next.ctx.currentDay &&
+  prev.ctx.currentVoterSeat === next.ctx.currentVoterSeat &&
+  prev.ctx.selectedSeat === next.ctx.selectedSeat &&
+  prev.ctx.nightShowCharacter === next.ctx.nightShowCharacter &&
+  prev.ctx.nightShowWakeOrder === next.ctx.nightShowWakeOrder &&
+  prev.ctx.skillOverlay === next.ctx.skillOverlay &&
+  prev.ctx.characterPopoutSeat === next.ctx.characterPopoutSeat &&
+  prev.ctx.playerModalSeat === next.ctx.playerModalSeat,
+)

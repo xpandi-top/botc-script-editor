@@ -1,4 +1,6 @@
 import {
+  lazy,
+  Suspense,
   useEffect,
   useMemo,
   useRef,
@@ -48,14 +50,14 @@ import { TUTORIAL_KEY } from './components/Tutorial/tutorialSteps'
 import { PrintPreviewPage } from './components/PrintPreviewPage'
 import { DEFAULT_PRINT_OPTIONS } from './components/PrintOptionsDialog'
 import type { PrintOptions } from './components/PrintOptionsDialog'
-import { PrintStudioPage } from './components/PrintStudio/PrintStudioPage'
 import { DEFAULT_TOKEN_OPTIONS } from './components/PrintStudio/types'
 import type { TokenPrintOptions } from './components/PrintStudio/types'
 import { ScriptsTab } from './components/tabs/ScriptsTab'
-import { CharactersTab } from './components/tabs/CharactersTab'
-import { AnalyticsTab } from './components/tabs/AnalyticsTab'
 import { SettingsTab } from './components/tabs/SettingsTab'
-import { StorytellerHelper } from './components/StorytellerHelper'
+const PrintStudioPage  = lazy(() => import('./components/PrintStudio/PrintStudioPage').then(m => ({ default: m.PrintStudioPage })))
+const CharactersTab    = lazy(() => import('./components/tabs/CharactersTab').then(m => ({ default: m.CharactersTab })))
+const AnalyticsTab     = lazy(() => import('./components/tabs/AnalyticsTab').then(m => ({ default: m.AnalyticsTab })))
+const StorytellerHelper = lazy(() => import('./components/StorytellerHelper').then(m => ({ default: m.StorytellerHelper })))
 import { DealGuestPage } from './components/DealGuestPage'
 import { DealHostPage } from './components/DealHostPage'
 import { HOST_TOKEN_KEY } from './lib/firebaseDeal'
@@ -936,54 +938,60 @@ export default function App() {
 
 
       {activeTab === 'characters' && (
-        <CharactersTab
-          uiText={uiText}
-          uiLanguage={uiLanguage}
-          onLanguageChange={setUiLanguage}
-          filteredCharacters={filteredCharacters}
-          availableEditions={availableEditions}
-          selectedTeams={selectedTeams}
-          selectedEditions={selectedEditions}
-          selectedCharacter={selectedCharacter}
-          characterQuery={characterQuery}
-          setCharacterQuery={setCharacterQuery}
-          setSelectedCharacterId={setSelectedCharacterId}
-          toggleTeam={(team) => setSelectedTeams((cur) => cur.includes(team) ? cur.filter((t) => t !== team) : [...cur, team])}
-          toggleEdition={(edition) => setSelectedEditions((cur) => cur.includes(edition) ? cur.filter((e) => e !== edition) : [...cur, edition])}
-          customChars={customChars}
-          setCustomChars={setCustomChars}
-          initialNewCharId={pendingCustomCharId}
-          onInitialNewCharConsumed={() => setPendingCustomCharId(null)}
-          onAiContextChange={setAiContext}
-          aiFillRef={aiFillRef}
-        />
+        <Suspense fallback={<Box sx={{ p: 4, textAlign: 'center' }}><CircularProgress /></Box>}>
+          <CharactersTab
+            uiText={uiText}
+            uiLanguage={uiLanguage}
+            onLanguageChange={setUiLanguage}
+            filteredCharacters={filteredCharacters}
+            availableEditions={availableEditions}
+            selectedTeams={selectedTeams}
+            selectedEditions={selectedEditions}
+            selectedCharacter={selectedCharacter}
+            characterQuery={characterQuery}
+            setCharacterQuery={setCharacterQuery}
+            setSelectedCharacterId={setSelectedCharacterId}
+            toggleTeam={(team) => setSelectedTeams((cur) => cur.includes(team) ? cur.filter((t) => t !== team) : [...cur, team])}
+            toggleEdition={(edition) => setSelectedEditions((cur) => cur.includes(edition) ? cur.filter((e) => e !== edition) : [...cur, edition])}
+            customChars={customChars}
+            setCustomChars={setCustomChars}
+            initialNewCharId={pendingCustomCharId}
+            onInitialNewCharConsumed={() => setPendingCustomCharId(null)}
+            onAiContextChange={setAiContext}
+            aiFillRef={aiFillRef}
+          />
+        </Suspense>
       )}
 
       {activeTab === 'printstudio' && (
-        <PrintStudioPage
-          opts={tokenPrintOptions}
-          onOptionsChange={setTokenPrintOptions}
-          onClose={() => setActiveTab('scripts')}
-          onOpenPrintPreview={() => { setActiveTab('scripts'); setPrintPreviewOpen(true) }}
-          scriptCharacters={activeScriptCharacters}
-          language={uiLanguage}
-          onLanguageChange={setUiLanguage}
-          scripts={scripts}
-          activeSlug={activeSlug}
-          onScriptChange={setActiveSlug}
-          getScriptTitle={getScriptTitle}
-        />
+        <Suspense fallback={<Box sx={{ p: 4, textAlign: 'center' }}><CircularProgress /></Box>}>
+          <PrintStudioPage
+            opts={tokenPrintOptions}
+            onOptionsChange={setTokenPrintOptions}
+            onClose={() => setActiveTab('scripts')}
+            onOpenPrintPreview={() => { setActiveTab('scripts'); setPrintPreviewOpen(true) }}
+            scriptCharacters={activeScriptCharacters}
+            language={uiLanguage}
+            onLanguageChange={setUiLanguage}
+            scripts={scripts}
+            activeSlug={activeSlug}
+            onScriptChange={setActiveSlug}
+            getScriptTitle={getScriptTitle}
+          />
+        </Suspense>
       )}
 
       {(activeTab === 'analytics' || mountedTabs.has('analytics')) && (
         <Box sx={{ display: activeTab === 'analytics' ? undefined : 'none' }}>
-          <AnalyticsTab
-            language={uiLanguage}
-            onLanguageChange={setUiLanguage}
-            sharedRecords={sharedAnalyticsRecords}
-            shareDecodeError={shareDecodeError}
-            onClearSharedRecords={clearSharedRecords}
-          />
+          <Suspense fallback={<Box sx={{ p: 4, textAlign: 'center' }}><CircularProgress /></Box>}>
+            <AnalyticsTab
+              language={uiLanguage}
+              onLanguageChange={setUiLanguage}
+              sharedRecords={sharedAnalyticsRecords}
+              shareDecodeError={shareDecodeError}
+              onClearSharedRecords={clearSharedRecords}
+            />
+          </Suspense>
         </Box>
       )}
 
@@ -993,16 +1001,18 @@ export default function App() {
 
       {(activeTab === 'storyteller' || mountedTabs.has('storyteller')) && (
         <Box sx={{ display: activeTab === 'storyteller' ? undefined : 'none' }}>
-          <StorytellerHelper
-            activeScriptSlug={stActiveSlug}
-            activeScriptTitle={getScriptTitle(scripts.find((s) => s.slug === stActiveSlug) ?? scripts[0])}
-            language={uiLanguage}
-            onLanguageChange={setUiLanguage}
-            onSelectScript={setStActiveSlug}
-            scriptOptions={scripts.map((s) => ({ slug: s.slug, title: s.title, titleZh: s.titleZh || s.title, version: s.version, characters: s.characters, pinnedRevisions: s.pinnedRevisions }))}
-            onSwitchTab={(tab) => setActiveTab(tab as Parameters<typeof setActiveTab>[0])}
-            onAiContextChange={setStAiContext}
-          />
+          <Suspense fallback={<Box sx={{ p: 4, textAlign: 'center' }}><CircularProgress /></Box>}>
+            <StorytellerHelper
+              activeScriptSlug={stActiveSlug}
+              activeScriptTitle={getScriptTitle(scripts.find((s) => s.slug === stActiveSlug) ?? scripts[0])}
+              language={uiLanguage}
+              onLanguageChange={setUiLanguage}
+              onSelectScript={setStActiveSlug}
+              scriptOptions={scripts.map((s) => ({ slug: s.slug, title: s.title, titleZh: s.titleZh || s.title, version: s.version, characters: s.characters, pinnedRevisions: s.pinnedRevisions }))}
+              onSwitchTab={(tab) => setActiveTab(tab as Parameters<typeof setActiveTab>[0])}
+              onAiContextChange={setStAiContext}
+            />
+          </Suspense>
         </Box>
       )}
       {/* ── Mobile bottom navigation ── */}

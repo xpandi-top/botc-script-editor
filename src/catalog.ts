@@ -285,6 +285,14 @@ const iconFiles = import.meta.glob('../assets/icons/*.{png,jpg,jpeg,webp,svg}', 
   import: 'default',
 }) as Record<string, string>
 
+// Pre-built map: character id → asset URL. Built once at module init, O(1) lookup.
+const _iconMap = new Map<string, string>()
+for (const [path, url] of Object.entries(iconFiles)) {
+  const filename = path.split('/').pop() ?? ''
+  const id = filename.replace(/\.[^.]+$/, '') // strip extension
+  _iconMap.set(id, url)
+}
+
 export const locales: Record<Language, LocaleData> = {
   en: enLocale,
   zh: zhLocale,
@@ -833,15 +841,7 @@ export function createCharacterRevision(
 export function getIconForCharacter(id: string): string | undefined {
   const custom = _customCharRegistry.get(id)
   if (custom?.icon) return custom.icon
-
-  const entry = Object.entries(iconFiles).find(([path]) =>
-    path.endsWith(`/${id}.png`) ||
-    path.endsWith(`/${id}.jpg`) ||
-    path.endsWith(`/${id}.jpeg`) ||
-    path.endsWith(`/${id}.webp`) ||
-    path.endsWith(`/${id}.svg`),
-  )
-  return entry?.[1]
+  return _iconMap.get(id)
 }
 
 function loadCharacterCatalog() {

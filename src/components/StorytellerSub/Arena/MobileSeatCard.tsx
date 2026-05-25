@@ -15,7 +15,7 @@ import { VoteButtonGroup, TagChip, StatusBadge, translateStTag } from './ArenaSe
 const CIRCLE_SIZE = 72
 const CIRCLE_OVERLAP = CIRCLE_SIZE / 2  // how much circle sticks into card
 
-export function MobileSeatCard({ ctx, seat, side = 'left' }: { ctx: StorytellerContext; seat: any; side?: 'left' | 'right' }) {
+function MobileSeatCardInner({ ctx, seat, side = 'left' }: { ctx: StorytellerContext; seat: any; side?: 'left' | 'right' }) {
   const {
     language, pickerMode, currentDay, updateCurrentDay, currentVoterSeat,
     selectedSeat, text, handleSeatClick, handleVoteYes, handleVoteNo,
@@ -245,3 +245,17 @@ export function MobileSeatCard({ ctx, seat, side = 'left' }: { ctx: StorytellerC
     </>
   )
 }
+
+export const MobileSeatCard = React.memo(MobileSeatCardInner, (prev, next) =>
+  prev.seat === next.seat &&
+  prev.side === next.side &&
+  prev.ctx.language === next.ctx.language &&
+  prev.ctx.pickerMode === next.ctx.pickerMode &&
+  prev.ctx.currentDay === next.ctx.currentDay &&
+  prev.ctx.currentVoterSeat === next.ctx.currentVoterSeat &&
+  prev.ctx.selectedSeat === next.ctx.selectedSeat &&
+  prev.ctx.nightShowCharacter === next.ctx.nightShowCharacter &&
+  prev.ctx.nightShowWakeOrder === next.ctx.nightShowWakeOrder &&
+  prev.ctx.characterPopoutSeat === next.ctx.characterPopoutSeat &&
+  prev.ctx.playerModalSeat === next.ctx.playerModalSeat,
+)
