@@ -49,9 +49,11 @@ export function Header({ variant, showSettings, setShowSettings, hasMessages, on
         </IconButton>
       </Tooltip>
       <Tooltip title={t('clear_chat')}>
-        <IconButton size="small" onClick={onClear} disabled={!hasMessages} sx={{ p: 0.3 }}>
-          <DeleteForeverIcon sx={{ fontSize: 15 }} />
-        </IconButton>
+        <span>
+          <IconButton size="small" onClick={onClear} disabled={!hasMessages} sx={{ p: 0.3 }}>
+            <DeleteForeverIcon sx={{ fontSize: 15 }} />
+          </IconButton>
+        </span>
       </Tooltip>
       {onClose && (
         <IconButton size="small" onClick={onClose} sx={{ p: 0.3 }}>

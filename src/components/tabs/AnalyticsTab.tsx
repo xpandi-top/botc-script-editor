@@ -380,10 +380,12 @@ export function AnalyticsTab({ language, onLanguageChange, sharedRecords: shared
         )}
         {/* Export dropdown */}
         <Tooltip title={t('export')}>
-          <IconButton size="small" disabled={total === 0}
-            onClick={(e) => setExportMenuAnchor(e.currentTarget)}>
-            <FileDownloadIcon fontSize="small" />
-          </IconButton>
+          <span>
+            <IconButton size="small" disabled={total === 0}
+              onClick={(e) => setExportMenuAnchor(e.currentTarget)}>
+              <FileDownloadIcon fontSize="small" />
+            </IconButton>
+          </span>
         </Tooltip>
         <IconButton size="small" disabled={total === 0}
           onClick={(e) => setExportMenuAnchor(e.currentTarget)}
@@ -404,11 +406,13 @@ export function AnalyticsTab({ language, onLanguageChange, sharedRecords: shared
 
         {/* Share dropdown */}
         <Tooltip title={t('share')}>
-          <IconButton size="small"
-            disabled={total === 0 || sharing}
-            onClick={(e) => setShareMenuAnchor(e.currentTarget)}>
-            {sharing ? <CircularProgress size={16} color="inherit" /> : <ShareIcon fontSize="small" />}
-          </IconButton>
+          <span>
+            <IconButton size="small"
+              disabled={total === 0 || sharing}
+              onClick={(e) => setShareMenuAnchor(e.currentTarget)}>
+              {sharing ? <CircularProgress size={16} color="inherit" /> : <ShareIcon fontSize="small" />}
+            </IconButton>
+          </span>
         </Tooltip>
         <IconButton size="small" disabled={total === 0 || sharing}
           onClick={(e) => setShareMenuAnchor(e.currentTarget)}>

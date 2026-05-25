@@ -221,9 +221,11 @@ export function DealHostPage({ sessionId, hostToken, language, onApplyToGame, on
         </Tooltip>
         {session?.status === 'open' && (
           <Tooltip title={t('close_deal_no_more_claims')}>
-            <Button size="small" color="warning" startIcon={<LockIcon />} onClick={handleClose} disabled={closing}>
-              {t('close')}
-            </Button>
+            <span>
+              <Button size="small" color="warning" startIcon={<LockIcon />} onClick={handleClose} disabled={closing}>
+                {t('close')}
+              </Button>
+            </span>
           </Tooltip>
         )}
       </Paper>
