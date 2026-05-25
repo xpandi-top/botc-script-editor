@@ -41,6 +41,8 @@ export function PrintStudioPage({ opts, onOptionsChange, onClose, onOpenPrintPre
     ? allCharacters.map(c => ({ id: c.id, team: c.team, edition: c.edition }))
     : givenCharacters
 
+  const pinnedRevisions = scripts.find(s => s.slug === activeSlug)?.pinnedRevisions
+
   const handlePrint = async () => {
     if (isNativePlatform && previewRef.current) {
       const title = scripts.find(s => s.slug === activeSlug)
@@ -140,6 +142,7 @@ export function PrintStudioPage({ opts, onOptionsChange, onClose, onOpenPrintPre
             onChange={onOptionsChange}
             scriptCharacters={scriptCharacters}
             language={language}
+            pinnedRevisions={pinnedRevisions}
           />
         </Box>}
 
@@ -164,7 +167,7 @@ export function PrintStudioPage({ opts, onOptionsChange, onClose, onOpenPrintPre
               </Typography>
             </Box>
           ) : (
-            <TokenPageGrid opts={opts} />
+            <TokenPageGrid opts={opts} pinnedRevisions={pinnedRevisions} />
           )}
         </Box>
       </Box>
@@ -172,7 +175,7 @@ export function PrintStudioPage({ opts, onOptionsChange, onClose, onOpenPrintPre
       {/* Print portal */}
       {createPortal(
         <div className="token-print-portal" aria-hidden="true">
-          <TokenPrintPortal opts={opts} />
+          <TokenPrintPortal opts={opts} pinnedRevisions={pinnedRevisions} />
         </div>,
         document.body,
       )}

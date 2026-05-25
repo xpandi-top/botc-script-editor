@@ -11,7 +11,7 @@ import { FONT_DEFINITIONS, PAGE_SIZE_DEFS } from '../PrintOptionsDialog'
 import type { PageSize } from '../PrintOptionsDialog'
 import type { TokenPrintOptions, TokenShape, NameDisplay, AbilityDisplay, MarkerDef } from './types'
 import type { ResolvedScriptCharacter, Team } from '../../types'
-import { getDisplayName, getAbilityText } from '../../catalog'
+import { getDisplayName, getAbilityTextForScript } from '../../catalog'
 import type { Language } from '../../types'
 import { useT } from '../../context/I18nContext'
 import { makeTpl } from '../../lib/t'
@@ -23,6 +23,7 @@ interface Props {
   onChange: (opts: TokenPrintOptions) => void
   scriptCharacters: ResolvedScriptCharacter[]
   language: Language
+  pinnedRevisions?: Record<string, string>
 }
 
 const TEAM_FILTERS: { value: TeamFilter; en: string; zh: string }[] = [
@@ -37,7 +38,7 @@ const TEAM_FILTERS: { value: TeamFilter; en: string; zh: string }[] = [
   { value: 'loric', en: 'Loric', zh: '奇遇' },
 ]
 
-export function TokenOptionsPanel({ opts, onChange, scriptCharacters, language }: Props) {
+export function TokenOptionsPanel({ opts, onChange, scriptCharacters, language, pinnedRevisions }: Props) {
   const zh = language === 'zh'
   const { t } = useT()
   const tpl = makeTpl(language)
@@ -85,8 +86,8 @@ export function TokenOptionsPanel({ opts, onChange, scriptCharacters, language }
       const q = search.toLowerCase()
       const nameEn = getDisplayName(c.id, 'en').toLowerCase()
       const nameZh = getDisplayName(c.id, 'zh').toLowerCase()
-      const abilityEn = getAbilityText(c.id, 'en').toLowerCase()
-      const abilityZh = getAbilityText(c.id, 'zh').toLowerCase()
+      const abilityEn = getAbilityTextForScript(c.id, 'en', pinnedRevisions).toLowerCase()
+      const abilityZh = getAbilityTextForScript(c.id, 'zh', pinnedRevisions).toLowerCase()
       if (!c.id.toLowerCase().includes(q) &&
           !nameEn.includes(q) && !nameZh.includes(q) &&
           !abilityEn.includes(q) && !abilityZh.includes(q)) {

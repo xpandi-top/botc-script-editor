@@ -5,7 +5,7 @@ import { MM_TO_PX, type TokenPrintOptions, type MarkerDef } from './types'
 import { PAGE_SIZE_DEFS } from '../PrintOptionsDialog'
 import {
   getDisplayName,
-  getAbilityText,
+  getAbilityTextForScript,
   getIconForCharacter,
 } from '../../catalog'
 
@@ -22,15 +22,16 @@ interface TokenPageGridProps {
   opts: TokenPrintOptions
   forPrint?: boolean
   language?: 'en' | 'zh'
+  pinnedRevisions?: Record<string, string>
 }
 
-function buildCharacterTokens(ids: string[]): CharacterToken[] {
+function buildCharacterTokens(ids: string[], pinnedRevisions?: Record<string, string>): CharacterToken[] {
   return ids.map((id) => ({
     id,
     nameEn: getDisplayName(id, 'en'),
     nameZh: getDisplayName(id, 'zh'),
-    abilityEn: getAbilityText(id, 'en'),
-    abilityZh: getAbilityText(id, 'zh'),
+    abilityEn: getAbilityTextForScript(id, 'en', pinnedRevisions),
+    abilityZh: getAbilityTextForScript(id, 'zh', pinnedRevisions),
     iconSrc: getIconForCharacter(id) ?? undefined,
   }))
 }
@@ -257,7 +258,7 @@ function renderMarkerToken(marker: MarkerDef, _idx: number, opts: TokenPrintOpti
 // ── Main component ────────────────────────────────────────────────
 
 export function TokenPageGrid(props: TokenPageGridProps) {
-  const { opts, forPrint = false } = props
+  const { opts, forPrint = false, pinnedRevisions } = props
   const { w, h } = PAGE_SIZE_DEFS[opts.pageSize]
   const marginMm = opts.marginMm
   const marginPx = marginMm * MM_TO_PX
@@ -280,7 +281,7 @@ export function TokenPageGrid(props: TokenPageGridProps) {
 
   // ── Characters ──────────────────────────────────────────────────
   if (opts.mode === 'characters') {
-    const tokens = buildCharacterTokens(opts.selectedCharacterIds)
+    const tokens = buildCharacterTokens(opts.selectedCharacterIds, pinnedRevisions)
     if (tokens.length === 0) return null
     const pages = splitIntoPages(tokens, itemsPerPage)
 
@@ -388,10 +389,10 @@ export function TokenPageGrid(props: TokenPageGridProps) {
 }
 
 // For actual print
-export function TokenPrintPortal({ opts }: { opts: TokenPrintOptions }) {
+export function TokenPrintPortal({ opts, pinnedRevisions }: { opts: TokenPrintOptions; pinnedRevisions?: Record<string, string> }) {
   return (
     <div className="token-print-portal" aria-hidden="true">
-      <TokenPageGrid opts={opts} forPrint />
+      <TokenPageGrid opts={opts} forPrint pinnedRevisions={pinnedRevisions} />
     </div>
   )
 }
