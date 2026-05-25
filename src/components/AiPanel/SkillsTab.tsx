@@ -5,20 +5,32 @@
 
 import React from 'react'
 import { Box, Divider, Paper, Typography, alpha } from '@mui/material'
-import TranslateIcon     from '@mui/icons-material/Translate'
-import LightbulbIcon     from '@mui/icons-material/Lightbulb'
-import AbcIcon           from '@mui/icons-material/Abc'
-import AutoFixHighIcon   from '@mui/icons-material/AutoFixHigh'
-import NightsStayIcon    from '@mui/icons-material/NightsStay'
-import InfoOutlinedIcon  from '@mui/icons-material/InfoOutlined'
-import ArticleIcon       from '@mui/icons-material/Article'
-import TimelineIcon      from '@mui/icons-material/Timeline'
-import BarChartIcon      from '@mui/icons-material/BarChart'
-import ReviewsIcon       from '@mui/icons-material/Reviews'
-import MenuBookIcon      from '@mui/icons-material/MenuBook'
-import AnalyticsIcon     from '@mui/icons-material/Analytics'
-import DescriptionIcon   from '@mui/icons-material/Description'
-import QuestionMarkIcon  from '@mui/icons-material/QuestionMark'
+import TranslateIcon         from '@mui/icons-material/Translate'
+import LightbulbIcon         from '@mui/icons-material/Lightbulb'
+import AbcIcon               from '@mui/icons-material/Abc'
+import AutoFixHighIcon       from '@mui/icons-material/AutoFixHigh'
+import NightsStayIcon        from '@mui/icons-material/NightsStay'
+import InfoOutlinedIcon      from '@mui/icons-material/InfoOutlined'
+import ArticleIcon           from '@mui/icons-material/Article'
+import TimelineIcon          from '@mui/icons-material/Timeline'
+import BarChartIcon          from '@mui/icons-material/BarChart'
+import ReviewsIcon           from '@mui/icons-material/Reviews'
+import MenuBookIcon          from '@mui/icons-material/MenuBook'
+import AnalyticsIcon         from '@mui/icons-material/Analytics'
+import DescriptionIcon       from '@mui/icons-material/Description'
+import QuestionMarkIcon      from '@mui/icons-material/QuestionMark'
+import RateReviewIcon        from '@mui/icons-material/RateReview'
+import CompareIcon           from '@mui/icons-material/Compare'
+import GavelIcon             from '@mui/icons-material/Gavel'
+import PsychologyIcon        from '@mui/icons-material/Psychology'
+import SignalCellularAltIcon from '@mui/icons-material/SignalCellularAlt'
+import SupportAgentIcon      from '@mui/icons-material/SupportAgent'
+import VisibilityIcon        from '@mui/icons-material/Visibility'
+import SummarizeIcon         from '@mui/icons-material/Summarize'
+import TodayIcon             from '@mui/icons-material/Today'
+import InsightsIcon          from '@mui/icons-material/Insights'
+import HelpOutlineIcon       from '@mui/icons-material/HelpOutline'
+import TuneIcon              from '@mui/icons-material/Tune'
 import { SKILLS } from '../../lib/ai/skills'
 import type { AiContext } from '../../lib/ai/types'
 import type { Language } from '../../types'
@@ -27,20 +39,34 @@ import { useT } from '../../context/I18nContext'
 // ── Icon map ──────────────────────────────────────────────────────────────────
 
 const ICON_MAP: Record<string, React.ReactNode> = {
-  translate:  <TranslateIcon fontSize="small" />,
-  lightbulb:  <LightbulbIcon fontSize="small" />,
-  abc:        <AbcIcon fontSize="small" />,
-  autofix:    <AutoFixHighIcon fontSize="small" />,
-  nights:     <NightsStayIcon fontSize="small" />,
-  info:       <InfoOutlinedIcon fontSize="small" />,
-  article:    <ArticleIcon fontSize="small" />,
-  timeline:   <TimelineIcon fontSize="small" />,
-  barchart:   <BarChartIcon fontSize="small" />,
-  reviews:    <ReviewsIcon fontSize="small" />,
-  menu_book:  <MenuBookIcon fontSize="small" />,
-  analytics:  <AnalyticsIcon fontSize="small" />,
-  description: <DescriptionIcon fontSize="small" />,
-  question:   <QuestionMarkIcon fontSize="small" />,
+  translate:           <TranslateIcon fontSize="small" />,
+  lightbulb:           <LightbulbIcon fontSize="small" />,
+  abc:                 <AbcIcon fontSize="small" />,
+  autofix:             <AutoFixHighIcon fontSize="small" />,
+  nights:              <NightsStayIcon fontSize="small" />,
+  info:                <InfoOutlinedIcon fontSize="small" />,
+  article:             <ArticleIcon fontSize="small" />,
+  timeline:            <TimelineIcon fontSize="small" />,
+  barchart:            <BarChartIcon fontSize="small" />,
+  bar_chart:           <BarChartIcon fontSize="small" />,
+  reviews:             <ReviewsIcon fontSize="small" />,
+  menu_book:           <MenuBookIcon fontSize="small" />,
+  analytics:           <AnalyticsIcon fontSize="small" />,
+  description:         <DescriptionIcon fontSize="small" />,
+  question:            <QuestionMarkIcon fontSize="small" />,
+  // New icons for added/updated skills
+  rate_review:         <RateReviewIcon fontSize="small" />,
+  compare:             <CompareIcon fontSize="small" />,
+  gavel:               <GavelIcon fontSize="small" />,
+  psychology:          <PsychologyIcon fontSize="small" />,
+  signal_cellular_alt: <SignalCellularAltIcon fontSize="small" />,
+  support_agent:       <SupportAgentIcon fontSize="small" />,
+  visibility:          <VisibilityIcon fontSize="small" />,
+  summarize:           <SummarizeIcon fontSize="small" />,
+  after_today:         <TodayIcon fontSize="small" />,
+  insights:            <InsightsIcon fontSize="small" />,
+  help:                <HelpOutlineIcon fontSize="small" />,
+  tune:                <TuneIcon fontSize="small" />,
 }
 
 function getIcon(name: string): React.ReactNode {
