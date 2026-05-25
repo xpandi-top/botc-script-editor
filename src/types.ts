@@ -44,8 +44,10 @@ export type CharacterGroup = {
   characters: CharacterEntry[]
 }
 
+/** @deprecated Unused — prefer CharacterEntry */
 export type CharacterSource = Partial<CharacterEntry>
 
+/** @deprecated Unused — prefer Record<string, CharacterEntry> */
 export type CharacterMap = Record<string, CharacterSource>
 
 export type LegacyScriptFileSource = {

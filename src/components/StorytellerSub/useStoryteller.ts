@@ -125,8 +125,6 @@ export function useStoryteller(props: StorytellerHelperProps) {
   const exileRequiredVotes = exileThreshold(currentDay.seats)
   const effectiveRequiredVotes = currentDay.voteDraft.isExile ? exileRequiredVotes : requiredVotes
   const eligibleVoterSeats = useMemo(() => eligibleVoters(currentDay.seats), [currentDay.seats])
-  const nonVoters = useMemo(() => eligibleVoterSeats.filter((s) => !currentDay.voteDraft.voters.includes(s)), [currentDay.voteDraft.voters, eligibleVoterSeats])
-  void nonVoters
   // votingYesCount must be defined before draftPassedBySystem
   const votingYesCount = computeYesCount(currentDay.voteDraft, currentDay.votingState)
   const draftPassedBySystem = votingYesCount >= effectiveRequiredVotes
@@ -319,7 +317,7 @@ export function useStoryteller(props: StorytellerHelperProps) {
     logFilter, setLogFilter,
     lastCountdownRef, text,
     selectedDayIndex, currentDay, updateCurrentDay, currentTimerSeconds,
-    currentScriptCharacters, livingNonTravelerSeats, requiredVotes, exileRequiredVotes, effectiveRequiredVotes, eligibleVoterSeats, nonVoters,
+    currentScriptCharacters, livingNonTravelerSeats, requiredVotes, exileRequiredVotes, effectiveRequiredVotes, eligibleVoterSeats,
     draftPassedBySystem, draftPassed, isVotingComplete, currentVoterSeat, pointerSeat,
     selectedSeat, selectedSeatTags, dialogTitle, aliveCount, totalCount,
     highestVoteThisDay, nominatorsThisDay, nomineesThisDay, leadingCandidates,

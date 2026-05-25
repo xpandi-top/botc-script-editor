@@ -24,7 +24,6 @@ import {
   useTheme,
 } from '@mui/material'
 import DescriptionIcon from '@mui/icons-material/Description'
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import MenuBookIcon from '@mui/icons-material/MenuBook'
 import TheaterComedyIcon from '@mui/icons-material/TheaterComedy'
 import QueryStatsIcon from '@mui/icons-material/QueryStats'
@@ -726,12 +725,15 @@ export default function App() {
   const stgTabLabel = uiLanguage === 'zh' ? '设置' : 'Settings'
 
   return (
-    <Container maxWidth="xl" sx={{ py: { xs: 0, sm: 3 }, px: { xs: 0, sm: 3 }, minHeight: '100vh', pb: { xs: '56px', sm: 0 } }}>
+    <Container maxWidth="xl" sx={{ pt: 0, pb: { xs: '56px', sm: 3 }, px: { xs: 0, sm: 3 }, minHeight: '100vh' }}>
       {/* Hide header on mobile storyteller — MobileTopBar is the header there.
           Height: 100dvh in StorytellerHelper needs the viewport to start at y=0. */}
-      <Paper elevation={1} sx={{
+      <Paper elevation={2} sx={{
+        position: 'sticky',
+        top: 0,
+        zIndex: 1100,
         mb: { xs: 0, sm: 2 },
-        borderRadius: { xs: 0, sm: 2 },
+        borderRadius: 0,
         overflow: 'hidden',
         borderBottom: '1px solid',
         borderColor: 'divider',
@@ -790,30 +792,7 @@ export default function App() {
             <Tab icon={<TuneIcon fontSize="small" />} value="settings" aria-label={stgTabLabel} title={stgTabLabel} data-tutorial="tab-settings" />
           </Tabs>
 
-          {/* Mobile: active tab name with icon — hidden now (bottom nav replaces) */}
-          <Box
-            sx={{ display: 'none', flex: 1, alignItems: 'center', gap: 0.5, cursor: 'pointer', userSelect: 'none' }}
-            onClick={(e) => setTabMenuAnchor(e.currentTarget as HTMLElement)}
-          >
-            {activeTab === 'scripts' ? <DescriptionIcon fontSize="small" sx={{ color: 'primary.dark' }} />
-              : activeTab === 'characters' ? <TheaterComedyIcon fontSize="small" sx={{ color: 'primary.dark' }} />
-              : activeTab === 'storyteller' ? <MenuBookIcon fontSize="small" sx={{ color: 'primary.dark' }} />
-              : activeTab === 'analytics' ? <QueryStatsIcon fontSize="small" sx={{ color: 'primary.dark' }} />
-              : activeTab === 'printstudio' ? <PrintIcon fontSize="small" sx={{ color: 'primary.dark' }} />
-              : <TuneIcon fontSize="small" sx={{ color: 'primary.dark' }} />}
-            <Typography component="span"
-              sx={{ fontWeight: 600, fontSize: '0.9rem', color: 'primary.dark' }}>
-              {activeTab === 'scripts' ? uiText.scriptSheet
-                : activeTab === 'characters' ? uiText.allCharacters
-                : activeTab === 'storyteller' ? stTabLabel
-                : activeTab === 'printstudio' ? psTabLabel
-                : activeTab === 'analytics' ? anTabLabel
-                : stgTabLabel}
-            </Typography>
-            <ExpandMoreIcon fontSize="small" sx={{ color: 'primary.dark' }} />
-          </Box>
-
-          <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0 }}>
+<Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0 }}>
 
             {/* ── Cloud sync status badge — always visible ── */}
             <CloudSyncBadge
