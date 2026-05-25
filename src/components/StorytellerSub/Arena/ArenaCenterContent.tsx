@@ -9,7 +9,6 @@ import CheckIcon from '@mui/icons-material/Check'
 import CloseIcon from '@mui/icons-material/Close'
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive'
 import ViewTimelineIcon from '@mui/icons-material/ViewTimeline'
-import AutoStoriesIcon from '@mui/icons-material/AutoStories'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered'
 import PersonAddIcon from '@mui/icons-material/PersonAdd'
@@ -54,8 +53,8 @@ export function ArenaCenterContent({ ctx }: { ctx: StorytellerContext }) {
     showNominationSheet, setShowNominationSheet,
     enterNomination, moveToNextSpeaker, goToNextDay, setPhase,
     alarmActive, setAlarmActive, nightShowCharacter, setNightShowCharacter,
-    nightShowWakeOrder, setNightShowWakeOrder, setShowEditPlayersModal,
-    setShowAggLogModal, setShowStSetupModal, stFabledIds,
+    nightShowWakeOrder, setNightShowWakeOrder, openCharacterEditor,
+    setShowAggLogModal,
   } = ctx
   const [timerEditing, setTimerEditing] = useState(false)
   const [timerInput, setTimerInput] = useState('')
@@ -121,8 +120,8 @@ export function ArenaCenterContent({ ctx }: { ctx: StorytellerContext }) {
             <FormatListNumberedIcon />
           </IconButton>
         </Tooltip>
-        <Tooltip title={language === 'zh' ? '编辑游戏角色' : 'Edit Game Characters'}>
-          <IconButton size="large" onClick={() => setShowEditPlayersModal(true)}><ManageAccountsIcon /></IconButton>
+        <Tooltip title={language === 'zh' ? '编辑角色' : 'Edit Characters'}>
+          <IconButton size="large" onClick={openCharacterEditor}><ManageAccountsIcon /></IconButton>
         </Tooltip>
       </Box>
     </>
@@ -171,15 +170,8 @@ export function ArenaCenterContent({ ctx }: { ctx: StorytellerContext }) {
         <MenuItem value="free">{text.freeSpeech}</MenuItem>
         <MenuItem value="roundRobin">{text.roundRobinMode}</MenuItem>
       </Select>}
-      <Tooltip title={language === 'zh' ? '说书人设置' : 'ST Setup'}>
-        <IconButton size="large" onClick={() => setShowStSetupModal(true)} sx={stFabledIds?.length > 0 ? { position: 'relative' } : {}}>
-          <AutoStoriesIcon />
-          {stFabledIds?.length > 0 && (
-            <Box component="span" sx={{ position: 'absolute', top: 4, right: 4, bgcolor: 'primary.main', color: 'white', fontSize: '0.6rem', fontWeight: 700, borderRadius: '50%', width: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              {stFabledIds.length}
-            </Box>
-          )}
-        </IconButton>
+      <Tooltip title={language === 'zh' ? '编辑角色' : 'Edit Characters'}>
+        <IconButton size="large" onClick={openCharacterEditor}><ManageAccountsIcon /></IconButton>
       </Tooltip>
       <Tooltip title={language === 'zh' ? '日志' : 'Log'}>
         <IconButton size="large" onClick={() => setShowAggLogModal(true)}><ViewTimelineIcon /></IconButton>

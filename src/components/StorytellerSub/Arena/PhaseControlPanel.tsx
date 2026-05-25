@@ -79,7 +79,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
     showNominationSheet, setShowNominationSheet,
     enterNomination, moveToNextSpeaker, setPhase,
     alarmActive, setAlarmActive, nightShowCharacter, setNightShowCharacter,
-    nightShowWakeOrder, setNightShowWakeOrder, setShowEditPlayersModal,
+    nightShowWakeOrder, setNightShowWakeOrder, openCharacterEditor,
     openNewGamePanel, openEndGamePanel,
     showAggLogModal, setShowAggLogModal, setShowStSetupModal, stFabledIds,
   } = ctx
@@ -261,20 +261,14 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
               </Select>
             )}
 
-            {/* Labeled icon button helper */}
-            {/* ST Setup */}
+            {/* Edit Characters */}
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.25 }}>
-              <Tooltip title={language === 'zh' ? '说书人设置' : 'ST Setup'}>
-                <IconButton sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75, position: 'relative' }} onClick={() => setShowStSetupModal(true)}>
-                  <AutoStoriesIcon />
-                  {stFabledIds?.length > 0 && (
-                    <Box component="span" sx={{ position: 'absolute', top: 2, right: 2, bgcolor: 'warning.main', color: 'black', fontSize: '0.55rem', fontWeight: 700, borderRadius: '50%', width: 14, height: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}>
-                      {stFabledIds.length}
-                    </Box>
-                  )}
+              <Tooltip title={language === 'zh' ? '编辑角色' : 'Edit Characters'}>
+                <IconButton sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={openCharacterEditor}>
+                  <ManageAccountsIcon />
                 </IconButton>
               </Tooltip>
-              <Typography sx={{ fontSize: '0.58rem', color: mutedColor, lineHeight: 1, userSelect: 'none' }}>{language === 'zh' ? '设置' : 'Setup'}</Typography>
+              <Typography sx={{ fontSize: '0.58rem', color: mutedColor, lineHeight: 1, userSelect: 'none' }}>{language === 'zh' ? '角色' : 'Characters'}</Typography>
             </Box>
 
             {/* Log */}
@@ -422,8 +416,8 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
                     <FormatListNumberedIcon />
                   </IconButton>
                 </Tooltip>
-                <Tooltip title={language === 'zh' ? '编辑游戏角色' : 'Edit Game Characters'}>
-                  <IconButton sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={() => setShowEditPlayersModal(true)}>
+                <Tooltip title={language === 'zh' ? '编辑角色' : 'Edit Characters'}>
+                  <IconButton sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={openCharacterEditor}>
                     <ManageAccountsIcon />
                   </IconButton>
                 </Tooltip>
