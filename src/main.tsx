@@ -37,28 +37,6 @@ function ThemeGlobalStyles() {
   )
 }
 
-// ── MUI 9 aria-hidden → inert patch ──────────────────────────────────────────
-// MUI 9.0.0 hides modal siblings via aria-hidden on body-level elements.
-// Chrome 130+ warns when aria-hidden is applied to an element whose descendant
-// holds focus. The W3C replacement is the `inert` attribute (all modern browsers).
-// Only intercept direct body children — leaves aria-hidden in the React tree intact.
-;(function patchMuiAriaHiddenToInert() {
-  const origSet    = HTMLElement.prototype.setAttribute
-  const origRemove = HTMLElement.prototype.removeAttribute
-  ;(HTMLElement.prototype as any).setAttribute = function(name: string, value: string) {
-    if (name === 'aria-hidden' && value === 'true' && this.parentElement === document.body) {
-      return origSet.call(this, 'inert', '')
-    }
-    return origSet.call(this, name, value)
-  }
-  ;(HTMLElement.prototype as any).removeAttribute = function(name: string) {
-    if (name === 'aria-hidden' && this.parentElement === document.body) {
-      origRemove.call(this, 'inert')
-    }
-    return origRemove.call(this, name)
-  }
-})()
-
 // On native: await initNative so the Preferences sync-cache is populated
 // before React's synchronous useState initialisers run.
 // On web: initNative returns immediately (no-op), so no delay.
