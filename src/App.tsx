@@ -82,6 +82,7 @@ import {
   toTitleCase,
 } from './catalog'
 import { STORAGE_KEY, USER_SCRIPTS_KEY, SCRIPT_META_KEY, RECORDS_CHANGED_EVENT } from './components/StorytellerSub/constants'
+import type { GameRecord } from './components/StorytellerSub/types'
 import { BOTC_SCRIPT_FOLDERS_KEY } from './components/tabs/ScriptsTab.constants'
 import { useCloudSync } from './hooks/useCloudSync'
 import { getClientId } from './lib/googleAuth'
@@ -354,9 +355,18 @@ export default function App() {
   // Pending custom char ID from ScriptEditor's "Create custom" action
   const [pendingCustomCharId, setPendingCustomCharId] = useState<string | null>(null)
 
+  // Track game records for AI context (Analytics tab) — read from storage, stay in sync
+  const readRecords = (): GameRecord[] => {
+    try {
+      const raw = storageSync.getItem(STORAGE_KEY)
+      return raw ? (JSON.parse(raw).gameRecords ?? []) : []
+    } catch { return [] }
+  }
+  const [analyticsRecords, setAnalyticsRecords] = useState<GameRecord[]>(readRecords)
+
   // Sync when game records change (written directly by Analytics/Storyteller, not via React state)
   useEffect(() => {
-    const handler = () => scheduleSync()
+    const handler = () => { scheduleSync(); setAnalyticsRecords(readRecords()) }
     window.addEventListener(RECORDS_CHANGED_EVENT, handler)
     return () => window.removeEventListener(RECORDS_CHANGED_EVENT, handler)
   }, [scheduleSync])
@@ -399,10 +409,10 @@ export default function App() {
       case 'scripts':     return scriptAiContext
       case 'storyteller': return stAiContext ?? buildGeneralContext(uiLanguage)
       case 'characters':  return aiContext ?? buildGeneralContext(uiLanguage)
-      case 'analytics':   return buildAnalysisContext({ language: uiLanguage })
+      case 'analytics':   return buildAnalysisContext({ language: uiLanguage, records: analyticsRecords })
       default:            return buildGeneralContext(uiLanguage)
     }
-  }, [activeTab, scriptAiContext, stAiContext, aiContext, uiLanguage])
+  }, [activeTab, scriptAiContext, stAiContext, aiContext, uiLanguage, analyticsRecords])
 
   const uiText = useMemo(() => {
     const ui = locales[uiLanguage].ui

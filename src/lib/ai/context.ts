@@ -400,19 +400,146 @@ export function buildGameLogContext(input: GameLogInput): AiContext {
 
 // ── buildAnalysisContext ──────────────────────────────────────────────────────
 
+function serializeAnalysis(records: import('./types').AnalysisInput['records'], language: Language): string {
+  const zh = language === 'zh'
+  const recs = records ?? []
+  const lines: string[] = []
+
+  lines.push(zh ? `=== 游戏数据分析 ===` : `=== Game Analytics ===`)
+  lines.push((zh ? '总局数: ' : 'Total games: ') + recs.length)
+
+  if (recs.length === 0) {
+    lines.push(zh ? '暂无游戏记录。' : 'No game records yet.')
+    return lines.join('\n')
+  }
+
+  // ── Win/loss summary ──────────────────────────────────────────────────────
+  const withWinner = recs.filter((r) => r.winner)
+  const goodWins   = withWinner.filter((r) => r.winner === 'good').length
+  const evilWins   = withWinner.filter((r) => r.winner === 'evil').length
+  const stWins     = withWinner.filter((r) => r.winner === 'storyteller').length
+  if (withWinner.length > 0) {
+    lines.push('')
+    lines.push(zh ? '── 胜负统计 ──' : '── Win/Loss ──')
+    lines.push((zh ? '好人获胜: ' : 'Good wins: ') + `${goodWins} (${Math.round(goodWins / withWinner.length * 100)}%)`)
+    lines.push((zh ? '邪恶获胜: ' : 'Evil wins: ') + `${evilWins} (${Math.round(evilWins / withWinner.length * 100)}%)`)
+    if (stWins > 0) lines.push((zh ? '说书人判定: ' : 'Storyteller wins: ') + stWins)
+  }
+
+  // ── Script breakdown ──────────────────────────────────────────────────────
+  const scriptCount: Record<string, { total: number; good: number; evil: number }> = {}
+  for (const r of recs) {
+    const key = r.scriptTitle || (zh ? '未命名' : 'Unnamed')
+    if (!scriptCount[key]) scriptCount[key] = { total: 0, good: 0, evil: 0 }
+    scriptCount[key].total++
+    if (r.winner === 'good') scriptCount[key].good++
+    if (r.winner === 'evil') scriptCount[key].evil++
+  }
+  const topScripts = Object.entries(scriptCount).sort((a, b) => b[1].total - a[1].total).slice(0, 10)
+  if (topScripts.length) {
+    lines.push('')
+    lines.push(zh ? '── 剧本使用 ──' : '── Scripts Played ──')
+    for (const [name, s] of topScripts) {
+      const winStr = s.total > 0 ? ` (${zh ? '好人' : 'good'}:${s.good} ${zh ? '邪恶' : 'evil'}:${s.evil})` : ''
+      lines.push(`  ${name}: ${s.total}${winStr}`)
+    }
+  }
+
+  // ── Character usage (from setup.assignments) ──────────────────────────────
+  const charUsage: Record<string, { total: number; goodWin: number; evilWin: number; team?: string }> = {}
+  for (const r of recs) {
+    if (!r.setup?.assignments) continue
+    for (const [, charId] of Object.entries(r.setup.assignments)) {
+      if (!charId) continue
+      if (!charUsage[charId]) charUsage[charId] = { total: 0, goodWin: 0, evilWin: 0 }
+      charUsage[charId].total++
+      if (r.winner === 'good') charUsage[charId].goodWin++
+      if (r.winner === 'evil') charUsage[charId].evilWin++
+    }
+  }
+  const topChars = Object.entries(charUsage).sort((a, b) => b[1].total - a[1].total).slice(0, 15)
+  if (topChars.length) {
+    lines.push('')
+    lines.push(zh ? '── 角色使用频率（Top 15）──' : '── Most Played Characters (Top 15) ──')
+    for (const [id, u] of topChars) {
+      const name = getDisplayName(id, language)
+      const winStr = u.total > 0 ? ` (${zh ? '好人胜' : 'good win'}:${u.goodWin} ${zh ? '邪恶胜' : 'evil win'}:${u.evilWin})` : ''
+      lines.push(`  ${name}: ${u.total}x${winStr}`)
+    }
+  }
+
+  // ── Ratings average ───────────────────────────────────────────────────────
+  const withBalanced = recs.filter((r) => r.balanced != null)
+  const withFunGood  = recs.filter((r) => r.funGood != null)
+  const withFunEvil  = recs.filter((r) => r.funEvil != null)
+  if (withBalanced.length || withFunGood.length || withFunEvil.length) {
+    const avg = (arr: typeof recs, key: keyof typeof recs[0]) =>
+      arr.length ? (arr.reduce((s, r) => s + ((r[key] as number) ?? 0), 0) / arr.length).toFixed(1) : 'N/A'
+    lines.push('')
+    lines.push(zh ? '── 平均评分（1–5）──' : '── Average Ratings (1–5) ──')
+    if (withBalanced.length) lines.push((zh ? '  游戏平衡性: ' : '  Balance: ') + avg(withBalanced, 'balanced'))
+    if (withFunGood.length)  lines.push((zh ? '  好人趣味性: ' : '  Fun (Good side): ') + avg(withFunGood, 'funGood'))
+    if (withFunEvil.length)  lines.push((zh ? '  邪恶趣味性: ' : '  Fun (Evil side): ') + avg(withFunEvil, 'funEvil'))
+  }
+
+  // ── Player size distribution ──────────────────────────────────────────────
+  const playerCounts: Record<number, number> = {}
+  for (const r of recs) {
+    const n = r.setup?.playerCount
+    if (n) playerCounts[n] = (playerCounts[n] ?? 0) + 1
+  }
+  const pcEntries = Object.entries(playerCounts).sort((a, b) => Number(b[1]) - Number(a[1]))
+  if (pcEntries.length) {
+    lines.push('')
+    lines.push(zh ? '── 玩家人数分布 ──' : '── Player Count Distribution ──')
+    lines.push('  ' + pcEntries.map(([n, c]) => `${n}p: ${c}x`).join(', '))
+  }
+
+  // ── Recent 8 games ────────────────────────────────────────────────────────
+  const recent = [...recs].sort((a, b) => (b.endedAt ?? 0) - (a.endedAt ?? 0)).slice(0, 8)
+  lines.push('')
+  lines.push(zh ? `── 最近 ${recent.length} 局 ──` : `── Recent ${recent.length} Games ──`)
+  for (const r of recent) {
+    const date   = r.endedAt ? new Date(r.endedAt).toLocaleDateString() : '?'
+    const script = r.scriptTitle || (zh ? '未命名' : 'Unnamed')
+    const result = r.winner
+      ? (r.winner === 'good' ? (zh ? '好人胜' : 'Good win') : r.winner === 'evil' ? (zh ? '邪恶胜' : 'Evil win') : (zh ? '说书人判定' : 'ST win'))
+      : (zh ? '结果未记录' : 'no result')
+    const players = r.setup?.playerCount ? `${r.setup.playerCount}p` : ''
+    const name = r.recordName ? ` "${r.recordName}"` : ''
+    lines.push(`  ${date} ${script}${name} ${players} — ${result}`)
+  }
+
+  return lines.join('\n')
+}
+
 export function buildAnalysisContext(input: AnalysisInput): AiContext {
-  const { language, recordCount, recentScripts } = input
+  const { language, records = [] } = input
   const t = makeT(language)
+  const withWinner = records.filter((r) => r.winner)
+  const goodWins   = withWinner.filter((r) => r.winner === 'good').length
+  const evilWins   = withWinner.filter((r) => r.winner === 'evil').length
+
+  const scriptCounts: Record<string, number> = {}
+  for (const r of records) {
+    const k = r.scriptTitle || ''
+    if (k) scriptCounts[k] = (scriptCounts[k] ?? 0) + 1
+  }
+  const topScripts = Object.entries(scriptCounts).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([k]) => k)
+
   const fields: AiField[] = [
-    { key: 'recordCount', label: t('game_records'), value: recordCount ?? 0 },
-    { key: 'recentScripts', label: t('recent_scripts'), value: recentScripts?.join(', ') ?? '' },
+    { key: 'recordCount',   label: t('game_records'),    value: records.length },
+    { key: 'goodWins',      label: t('good_wins'),       value: goodWins },
+    { key: 'evilWins',      label: t('evil_wins'),       value: evilWins },
+    { key: 'recentScripts', label: t('recent_scripts'),  value: topScripts.join(', ') },
   ]
+  const serialized = serializeAnalysis(records, language)
   return {
     type: 'analysis',
     title: t('game_analytics'),
     language,
     fields,
-    serialized: serializeContext({ type: 'analysis', title: t('game_analytics'), language, fields }),
+    serialized,
   }
 }
 

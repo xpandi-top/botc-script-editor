@@ -3,7 +3,7 @@
  */
 
 import type { Language, Team } from '../../types'
-import type { DayState } from '../../components/StorytellerSub/types'
+import type { DayState, GameRecord } from '../../components/StorytellerSub/types'
 import type { EditableScript } from '../../types'
 
 // ── Context ───────────────────────────────────────────────────────────────────
@@ -86,6 +86,5 @@ export type ScriptInput = {
 
 export type AnalysisInput = {
   language: Language
-  recordCount?: number
-  recentScripts?: string[]
+  records?: GameRecord[]
 }
