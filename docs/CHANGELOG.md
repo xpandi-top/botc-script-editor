@@ -4,7 +4,28 @@ Release timeline for BOTC Companion — features, fixes, and improvements.
 
 ---
 
-## 2026-05-23 (latest)
+## 2026-05-24 (latest)
+
+### Added
+- **Edit Players in-game** — Storyteller toolbar now wires "Edit Players" action to `openCharacterEditor`; replaces the stale `AutoStories` icon with the correct edit icon; no more dead button during active game
+- **TYPE_SCALE tokens + 6 UI wrapper components** — `src/theme/tokens.ts` exports a `TYPE_SCALE` map (`micro` → `ui`) and `WEIGHT` constants; six purpose-built wrappers in `src/components/ui/` (`FieldLabel`, `SectionLabel`, `StatValue`, `MonoText`, `MicroChip`, `CompactButton`) replace ad-hoc inline `sx` typography throughout the codebase
+
+### Changed
+- **Full i18n migration** — all remaining hardcoded strings and zh ternaries replaced with `t()`/`tpl()` calls; locale files (`en.json`, `zh.json`) are now the single source of truth for every UI label
+- **Sticky app header** — app header fixed at top; dead components and deprecated legacy types removed; unused code pruned
+- **O(1) icon lookup, memoized arena seats, lazy-loaded heavy tabs** — `catalog.ts` switches to Map-based icon lookup; Arena component wraps seat calculations in `useMemo`; CharactersTab and AnalyticsStudio loaded lazily to cut initial bundle
+- **Pinned revision propagation across UI** — `getAbilityTextForScript` used consistently in all display paths; immutable catalog update helpers extracted; pinned revision now respected in script viewer, PDF preview, and token studio
+
+### Fixed
+- **Token Print Studio ignores pinned revisions** — `TokenPageGrid` and `TokenOptionsPanel` now call `getAbilityTextForScript(id, lang, pinnedRevisions)` instead of `getAbilityText`; custom character abilities and per-script pinned revision overrides render correctly in both the live preview and the print portal
+
+### Chore
+- Outdated source files archived to `docs/archive/`
+- Dead components, stale imports, and legacy type aliases removed across codebase
+
+---
+
+## 2026-05-23
 
 ### Added
 - **Script share links** — Share button (📤) in Scripts tab toolbar generates shareable URLs:
