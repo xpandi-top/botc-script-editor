@@ -156,12 +156,18 @@ export function AggregatedLogModal({ ctx }: { ctx: StorytellerContext }) {
   const [shareCopied, setShareCopied] = useState(false)
   const [aiOpen, setAiOpen] = useState(false)
 
-  const gameLogCtx = useMemo(() => buildGameLogContext({
-    scriptName: ctx.activeScriptTitle || 'Unknown Script',
-    stName: ctx.stName || undefined,
-    days: ctx.days,
-    language: ctx.language,
-  }), [ctx.days, ctx.activeScriptTitle, ctx.stName, ctx.language])
+  const gameLogCtx = useMemo(() => {
+    const activeScript = ctx.scriptOptions?.find((s) => s.slug === ctx.activeScriptSlug)
+    return buildGameLogContext({
+      scriptName: ctx.activeScriptTitle || 'Unknown Script',
+      stName: ctx.stName || undefined,
+      days: ctx.days,
+      language: ctx.language,
+      scriptCharacters: ctx.currentScriptCharacters,
+      pinnedRevisions: activeScript?.pinnedRevisions,
+    })
+  }, [ctx.days, ctx.activeScriptTitle, ctx.stName, ctx.language,
+      ctx.currentScriptCharacters, ctx.activeScriptSlug, ctx.scriptOptions])
 
   const effectiveVisFilter = isNight ? visFilter : (visFilter === 'all' ? 'public' : visFilter)
 

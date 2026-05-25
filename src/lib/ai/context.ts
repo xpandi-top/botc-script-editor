@@ -3,7 +3,10 @@
  * No React imports here.
  */
 
-import { getDisplayName, getAbilityTextForScript, getCharacterById, teamOrder, teamLabels } from '../../catalog'
+import {
+  getDisplayName, getAbilityTextForScript, getCharacterById,
+  teamOrder, teamLabels, getEffectiveNightOrderFromRegistry, getNightReminder,
+} from '../../catalog'
 import { makeT } from '../t'
 import type { Language, Team } from '../../types'
 import type {
@@ -248,49 +251,194 @@ export function buildScriptContext(input: ScriptInput): AiContext {
 
 // ── buildStorytellerContext ───────────────────────────────────────────────────
 
+function serializeStorytellerForPrompt(input: StorytellerInput): string {
+  const { scriptName, stName, currentDay, days, language,
+          scriptCharacters = [], pinnedRevisions, stFabledIds = [], stCustomRules } = input
+  const t   = makeT(language)
+  const zh  = language === 'zh'
+  const lines: string[] = []
+
+  lines.push(zh ? `=== 说书人游戏状态: ${scriptName} ===` : `=== Storyteller Game: ${scriptName} ===`)
+  if (stName) lines.push((zh ? '说书人: ' : 'Storyteller: ') + stName)
+  lines.push((zh ? '当前: 第' : 'Current: Day ') + `${currentDay.day}` + (zh ? '天' : '') + ` [${currentDay.phase}]`)
+  lines.push((zh ? '总天数: ' : 'Total days played: ') + days.length)
+
+  // ── Seat assignments ────────────────────────────────────────────────────────
+  lines.push('')
+  lines.push(zh ? '── 座位分配 ──' : '── Seat Assignments ──')
+  for (const s of currentDay.seats) {
+    const name   = s.name || `#${s.seat}`
+    const char   = s.characterId ? getDisplayName(s.characterId, language) : (zh ? '未分配' : 'unassigned')
+    const status = s.alive ? (zh ? '存活' : 'alive') : (zh ? '死亡' : 'dead')
+    const tags   = [...(s.customTags ?? []), ...(s.stTags ?? [])].filter(Boolean)
+    const tagStr = tags.length ? ` [${tags.join(', ')}]` : ''
+    const noteStr = s.note ? ` note:"${s.note}"` : ''
+    const traveler = s.isTraveler ? (zh ? ' (旅行者)' : ' (traveler)') : ''
+    lines.push(`  #${s.seat} ${name}: ${char}${traveler} — ${status}${tagStr}${noteStr}`)
+  }
+
+  // ── Script roster: abilities + night reminders ──────────────────────────────
+  const assignedCharIds = [...new Set(
+    currentDay.seats.map((s) => s.characterId).filter(Boolean) as string[]
+  )]
+  // Include all script chars + fabled for full reference
+  const rosterIds = [...new Set([...scriptCharacters, ...assignedCharIds, ...stFabledIds])]
+
+  if (rosterIds.length) {
+    lines.push('')
+    lines.push(zh ? '── 角色能力参考 ──' : '── Character Abilities ──')
+    for (const id of rosterIds) {
+      const name    = getDisplayName(id, language)
+      const ability = getAbilityTextForScript(id, language, pinnedRevisions)
+      const entry   = getCharacterById(id)
+      const team    = entry?.team ?? ''
+      const teamStr = team ? ` (${zh ? teamLabels.zh[team as Team] ?? team : teamLabels.en[team as Team] ?? team})` : ''
+      const firstR  = getNightReminder(id, language, 'first')
+      const otherR  = getNightReminder(id, language, 'other')
+      lines.push(`  ${name}${teamStr}: ${ability}`)
+      if (firstR) lines.push(`    ${zh ? '第一夜提示' : '1st night reminder'}: ${firstR}`)
+      if (otherR) lines.push(`    ${zh ? '其他夜提示' : 'Other nights reminder'}: ${otherR}`)
+    }
+  }
+
+  // ── Night wake-up order (filtered to chars in this game) ───────────────────
+  const nightOrderData = getEffectiveNightOrderFromRegistry()
+  const gameCharSet    = new Set([...assignedCharIds, ...stFabledIds])
+
+  const firstNightInGame = (nightOrderData.first_night ?? []).filter((id) => gameCharSet.has(id))
+  const otherNightInGame = (nightOrderData.other_nights ?? []).filter((id) => gameCharSet.has(id))
+
+  if (firstNightInGame.length || otherNightInGame.length) {
+    lines.push('')
+    lines.push(zh ? '── 夜间唤醒顺序 ──' : '── Night Wake-Up Order ──')
+    if (firstNightInGame.length) {
+      lines.push(zh ? '  第一夜:' : '  First Night:')
+      firstNightInGame.forEach((id, i) => {
+        const name   = getDisplayName(id, language)
+        const remind = getNightReminder(id, language, 'first')
+        lines.push(`    ${i + 1}. ${name}${remind ? ` — ${remind}` : ''}`)
+      })
+    }
+    if (otherNightInGame.length) {
+      lines.push(zh ? '  其他夜晚:' : '  Other Nights:')
+      otherNightInGame.forEach((id, i) => {
+        const name   = getDisplayName(id, language)
+        const remind = getNightReminder(id, language, 'other')
+        lines.push(`    ${i + 1}. ${name}${remind ? ` — ${remind}` : ''}`)
+      })
+    }
+  }
+
+  // ── Demon bluffs ───────────────────────────────────────────────────────────
+  if (currentDay.demonBluffs?.length) {
+    lines.push('')
+    lines.push(zh ? '── 恶魔虚张声势 ──' : '── Demon Bluffs ──')
+    lines.push('  ' + currentDay.demonBluffs.map((id) => getDisplayName(id, language)).join(', '))
+  }
+
+  // ── Fabled + custom rules ─────────────────────────────────────────────────
+  if (stFabledIds.length) {
+    lines.push('')
+    lines.push(zh ? '── 传说角色 ──' : '── Fabled in Play ──')
+    for (const id of stFabledIds) {
+      const name    = getDisplayName(id, language)
+      const ability = getAbilityTextForScript(id, language, pinnedRevisions)
+      lines.push(`  ${name}: ${ability}`)
+    }
+  }
+  if (stCustomRules?.trim()) {
+    lines.push('')
+    lines.push((zh ? '── 自定义规则 ──\n  ' : '── Custom Rules ──\n  ') + stCustomRules.trim())
+  }
+
+  // ── All days history ──────────────────────────────────────────────────────
+  for (const day of days) {
+    const isCurrent = day.day === currentDay.day
+    lines.push('')
+    lines.push(isCurrent
+      ? (zh ? `── 第 ${day.day} 天（当前）──` : `── Day ${day.day} (current) ──`)
+      : (zh ? `── 第 ${day.day} 天 ──` : `── Day ${day.day} ──`))
+
+    // Alive list
+    const alive = day.seats.filter((s) => s.alive !== false).map((s) => s.name || `#${s.seat}`)
+    const dead  = day.seats.filter((s) => s.alive === false).map((s) => s.name || `#${s.seat}`)
+    lines.push(`  ${zh ? '存活' : 'Alive'}: ${alive.join(', ') || t('none')}`)
+    if (dead.length) lines.push(`  ${zh ? '死亡' : 'Dead'}: ${dead.join(', ')}`)
+
+    // Votes
+    if (day.voteHistory.length) {
+      lines.push(`  ${zh ? '提名/投票' : 'Nominations/Votes'}:`)
+      for (const v of day.voteHistory) {
+        const nom = day.seats.find((s) => s.seat === v.actor)?.name || `#${v.actor}`
+        const tgt = day.seats.find((s) => s.seat === v.target)?.name || `#${v.target}`
+        const res = v.passed ? (zh ? '通过' : 'PASSED') : (zh ? '失败' : 'failed')
+        const exile = v.isExile ? (zh ? ' [放逐]' : ' [exile]') : ''
+        const note = v.note ? ` (${v.note})` : ''
+        lines.push(`    ${nom} → ${tgt}: ${v.voteCount}/${v.requiredVotes} ${res}${exile}${note}`)
+      }
+    }
+
+    // Abilities used
+    if (day.skillHistory.length) {
+      lines.push(`  ${zh ? '能力使用' : 'Abilities used'}:`)
+      for (const sk of day.skillHistory) {
+        const actor  = sk.actor !== null ? (day.seats.find((s) => s.seat === sk.actor)?.name || `#${sk.actor}`) : '?'
+        const role   = getDisplayName(sk.roleId, language)
+        const targets = sk.targets.length
+          ? sk.targets.map((t) => day.seats.find((s) => s.seat === t)?.name || `#${t}`).join(', ')
+          : ''
+        const result  = sk.result ? ` [${sk.result}]` : ''
+        const stmt    = sk.statement ? ` "${stripIconTokens(sk.statement)}"` : ''
+        const note    = sk.note ? ` (${sk.note})` : ''
+        const vis     = sk.visibility === 'st-only' ? (zh ? ' [仅ST]' : ' [ST-only]') : ''
+        lines.push(`    ${role}(${actor})${targets ? ` → ${targets}` : ''}${result}${stmt}${note}${vis}`)
+      }
+    }
+
+    // Event log (meaningful entries only)
+    const events = day.eventLog.filter((e) =>
+      e.kind !== 'phaseTransition' || /execut|死|win|胜|exile|放逐/i.test(e.detail)
+    )
+    if (events.length) {
+      lines.push(`  ${zh ? '事件' : 'Events'}:`)
+      for (const ev of events) {
+        const vis = ev.visibility === 'st-only' ? (zh ? '[仅ST] ' : '[ST] ') : ''
+        lines.push(`    [${ev.phase}] ${vis}${stripIconTokens(ev.detail)}`)
+      }
+    }
+  }
+
+  return lines.join('\n')
+}
+
 export function buildStorytellerContext(input: StorytellerInput): AiContext {
   const { scriptName, stName, currentDay, days, language } = input
-  const t = makeT(language)
+  const t  = makeT(language)
   const zh = language === 'zh'
 
   const alive = currentDay.seats.filter((s) => s.alive !== false)
   const dead  = currentDay.seats.filter((s) => s.alive === false)
-
-  const aliveStr = alive
-    .map((s) => `${s.name || `#${s.seat}`} (${roleName(s.characterId ?? undefined, language)})`)
-    .join(', ') || (t('none'))
-  const deadStr = dead
-    .map((s) => `${s.name || `#${s.seat}`} (${roleName(s.characterId ?? undefined, language)})`)
-    .join(', ') || (t('none'))
-
-  const recentVotes = currentDay.voteHistory
-    .slice(-5)
-    .map((v) => {
-      const nom = currentDay.seats.find((s) => s.seat === v.actor)?.name || `#${v.actor}`
-      const tgt = currentDay.seats.find((s) => s.seat === v.target)?.name || `#${v.target}`
-      return `${nom}→${tgt} ${v.voteCount}/${v.requiredVotes} ${v.passed ? (t('passed')) : (t('failed'))}`
-    })
-    .join('; ')
+  const aliveStr = alive.map((s) => `${s.name || `#${s.seat}`} (${roleName(s.characterId ?? undefined, language)})`).join(', ') || t('none')
+  const deadStr  = dead.map((s) => `${s.name || `#${s.seat}`} (${roleName(s.characterId ?? undefined, language)})`).join(', ') || t('none')
 
   const fields: AiField[] = [
-    { key: 'scriptName', label: t('script'), value: scriptName },
-    { key: 'stName', label: t('storyteller'), value: stName || '' },
-    { key: 'currentDay', label: t('current_day'), value: currentDay.day },
-    { key: 'totalDays', label: t('total_days'), value: days.length },
-    { key: 'phase', label: t('phase'), value: currentDay.phase },
-    { key: 'alive', label: t('alive_players'), value: aliveStr },
-    { key: 'dead', label: t('dead_players'), value: deadStr },
-    { key: 'recentVotes', label: t('recent_votes'), value: recentVotes || (t('none')) },
+    { key: 'scriptName',  label: t('script'),       value: scriptName },
+    { key: 'stName',      label: t('storyteller'),   value: stName || '' },
+    { key: 'currentDay',  label: t('current_day'),   value: currentDay.day },
+    { key: 'totalDays',   label: t('total_days'),    value: days.length },
+    { key: 'phase',       label: t('phase'),          value: currentDay.phase },
+    { key: 'alive',       label: t('alive_players'), value: aliveStr },
+    { key: 'dead',        label: t('dead_players'),  value: deadStr },
+    { key: 'playerCount', label: t('player_count'),  value: currentDay.seats.length },
   ]
 
-  const ctx: AiContext = {
+  return {
     type: 'storyteller',
-    title: `${scriptName} — ${t('day')} ${currentDay.day} ${zh ? '天' : ''}`,
+    title: `${scriptName} — ${t('day')} ${currentDay.day}${zh ? '天' : ''}`,
     language,
     fields,
+    serialized: serializeStorytellerForPrompt(input),
   }
-  ctx.serialized = serializeContext(ctx)
-  return ctx
 }
 
 // ── buildGameLogContext ───────────────────────────────────────────────────────
@@ -301,8 +449,8 @@ function seatName(seat: number, day: import('../../components/StorytellerSub/typ
 }
 
 function serializeGameLog(input: GameLogInput): string {
-  const { scriptName, stName, days, language } = input
-  const t = makeT(language)
+  const { scriptName, stName, days, language, scriptCharacters = [], pinnedRevisions } = input
+  const t  = makeT(language)
   const zh = language === 'zh'
   const lines: string[] = []
 
@@ -316,16 +464,27 @@ function serializeGameLog(input: GameLogInput): string {
     const deadSeats  = lastDay.seats.filter((s) => s.alive === false)
     lines.push('')
     lines.push(t('final_alive'))
-    lines.push(
-      aliveSeats.map((s) => `${s.name || `#${s.seat}`} (${roleName(s.characterId ?? undefined, language)})`).join(', ') || (t('none')),
-    )
+    lines.push(aliveSeats.map((s) => `${s.name || `#${s.seat}`} (${roleName(s.characterId ?? undefined, language)})`).join(', ') || t('none'))
     lines.push(t('dead_2'))
-    lines.push(
-      deadSeats.map((s) => `${s.name || `#${s.seat}`} (${roleName(s.characterId ?? undefined, language)})`).join(', ') || (t('none')),
-    )
+    lines.push(deadSeats.map((s) => `${s.name || `#${s.seat}`} (${roleName(s.characterId ?? undefined, language)})`).join(', ') || t('none'))
     if (lastDay.demonBluffs?.length) {
       lines.push(t('demon_bluffs_2'))
       lines.push(lastDay.demonBluffs.map((id) => roleName(id, language)).join(', '))
+    }
+  }
+
+  // ── Character abilities reference (assigned + script chars) ───────────────
+  const assignedIds = [...new Set(
+    days.flatMap((d) => d.seats.map((s) => s.characterId)).filter(Boolean) as string[]
+  )]
+  const rosterIds = [...new Set([...scriptCharacters, ...assignedIds])]
+  if (rosterIds.length) {
+    lines.push('')
+    lines.push(zh ? '── 角色能力参考 ──' : '── Character Abilities ──')
+    for (const id of rosterIds) {
+      const name    = getDisplayName(id, language)
+      const ability = getAbilityTextForScript(id, language, pinnedRevisions)
+      lines.push(`  ${name}: ${ability}`)
     }
   }
 
@@ -340,8 +499,9 @@ function serializeGameLog(input: GameLogInput): string {
       for (const v of day.voteHistory) {
         const nominator = seatName(v.actor, day)
         const target    = seatName(v.target, day)
-        const result    = v.passed ? (t('passed')) : (t('failed'))
-        lines.push(`  ${nominator} → ${target}: ${v.voteCount}/${v.requiredVotes} ${result}${v.note ? ` (${v.note})` : ''}`)
+        const result    = v.passed ? t('passed') : t('failed')
+        const exile     = v.isExile ? (zh ? ' [放逐]' : ' [exile]') : ''
+        lines.push(`  ${nominator} → ${target}: ${v.voteCount}/${v.requiredVotes} ${result}${exile}${v.note ? ` (${v.note})` : ''}`)
       }
     }
 
@@ -349,26 +509,21 @@ function serializeGameLog(input: GameLogInput): string {
       lines.push(t('abilities_used'))
       for (const sk of day.skillHistory) {
         const actor  = sk.actor !== null ? seatName(sk.actor, day) : '?'
-        const role   = roleName(sk.roleId, language)
-        const target = sk.targets.length
-          ? sk.targets.map((t) => seatName(t, day)).join(', ')
-          : ''
+        const role   = getDisplayName(sk.roleId, language)
+        const target = sk.targets.length ? sk.targets.map((t) => seatName(t, day)).join(', ') : ''
         const result = sk.result ? ` [${sk.result}]` : ''
         const stmt   = sk.statement ? ` "${stripIconTokens(sk.statement)}"` : ''
-        lines.push(`  ${role}(${actor})${target ? ` → ${target}` : ''}${result}${stmt}`)
+        const note   = sk.note ? ` (${sk.note})` : ''
+        lines.push(`  ${role}(${actor})${target ? ` → ${target}` : ''}${result}${stmt}${note}`)
       }
     }
 
     const meaningful = day.eventLog.filter((e) =>
-      e.kind !== 'phaseTransition' ||
-      e.detail.toLowerCase().includes('execut') ||
-      e.detail.toLowerCase().includes('死') ||
-      e.detail.toLowerCase().includes('win') ||
-      e.detail.toLowerCase().includes('胜'),
+      e.kind !== 'phaseTransition' || /execut|死|win|胜|exile|放逐/i.test(e.detail)
     )
     if (meaningful.length) {
       lines.push(t('events'))
-      for (const ev of meaningful.slice(0, 8)) {
+      for (const ev of meaningful) {
         lines.push(`  [${ev.phase}] ${stripIconTokens(ev.detail)}`)
       }
     }

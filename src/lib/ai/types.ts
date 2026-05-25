@@ -70,6 +70,11 @@ export type StorytellerInput = {
   currentDay: DayState
   days: DayState[]
   language: Language
+  /** Character IDs in the active script (for night order + abilities) */
+  scriptCharacters?: string[]
+  pinnedRevisions?: Record<string, string>
+  stFabledIds?: string[]
+  stCustomRules?: string
 }
 
 export type GameLogInput = {
@@ -77,6 +82,8 @@ export type GameLogInput = {
   stName?: string
   days: DayState[]
   language: Language
+  scriptCharacters?: string[]
+  pinnedRevisions?: Record<string, string>
 }
 
 export type ScriptInput = {

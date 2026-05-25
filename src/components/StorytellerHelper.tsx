@@ -20,15 +20,21 @@ export function StorytellerHelper(props: StorytellerHelperProps) {
   // Emit storyteller AI context whenever game state changes
   useEffect(() => {
     if (!props.onAiContextChange) return
+    const activeScript = props.scriptOptions?.find((s) => s.slug === ctx.activeScriptSlug)
     props.onAiContextChange(buildStorytellerContext({
       scriptName: ctx.activeScriptTitle || 'Game',
       stName: ctx.stName || undefined,
       currentDay: ctx.currentDay,
       days: ctx.days,
       language: ctx.language,
+      scriptCharacters: ctx.currentScriptCharacters,
+      pinnedRevisions: activeScript?.pinnedRevisions,
+      stFabledIds: ctx.stFabledIds,
+      stCustomRules: ctx.stCustomRules || undefined,
     }))
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ctx.currentDay, ctx.days, ctx.activeScriptTitle, ctx.stName, ctx.language])
+  }, [ctx.currentDay, ctx.days, ctx.activeScriptTitle, ctx.stName, ctx.language,
+      ctx.currentScriptCharacters, ctx.stFabledIds, ctx.stCustomRules, ctx.activeScriptSlug])
 
   // Body overflow is managed by App.tsx (which knows the active tab).
   // Do NOT set document.body.style.overflow here — StorytellerHelper is now
