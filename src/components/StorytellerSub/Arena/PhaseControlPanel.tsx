@@ -38,6 +38,7 @@ import { ArenaCenterNominationSheet } from './ArenaCenterNominationSheet'
 import { AggregatedLogModal } from './AggregatedLogModal'
 import { StorytellerSetupModal } from './StorytellerSetupModal'
 import type { Phase, PublicMode } from '../types'
+import { useT } from '../../../context/I18nContext'
 
 const PHASES: Phase[] = ['night', 'private', 'public', 'nomination']
 
@@ -463,8 +464,6 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
               }
             </Box>
           )}
-
-      <ArenaCenterNominationSheet ctx={ctx} />
 
         </Box>
       </Box>
