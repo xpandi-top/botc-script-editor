@@ -36,7 +36,7 @@ export function LogTab({ fillLog, undoFill, downloadLog }: Props) {
 
       {fillLog.length === 0 && (
         <Typography variant="caption" color="text.disabled">
-          {t('no_fills_applied_yet')}
+          {t('ai_no_fills')}
         </Typography>
       )}
 
