@@ -13,6 +13,7 @@ import { useBreakpoint } from '../../../hooks/useBreakpoint'
 import { NominationTimer } from './NominationTimer'
 import { NominationHistory } from './NominationHistory'
 import { NominationVoteList } from './NominationVoteList'
+import { useT } from '../../../context/I18nContext'
 
 export function ArenaCenterNominationSheet({ ctx }: { ctx: StorytellerContext }) {
   const {
@@ -23,6 +24,7 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: StorytellerContext })
     appendEvent,
   } = ctx
 
+  const { t } = useT()
   const [historyFilter, setHistoryFilter] = useState<'all' | 'exile' | 'nomination'>('all')
   const [showNominationTimer, setShowNominationTimer] = useState(true)
   const [selectedTimer, setSelectedTimer] = useState<'nominator' | 'nominee'>('nominator')
@@ -134,10 +136,10 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: StorytellerContext })
   const content = (
     <Dialog open={showNominationSheet} onClose={() => {}} maxWidth="sm" fullWidth fullScreen={isMobile} slotProps={{ backdrop: { onClick: () => {} }, paper: { 'data-nomination-popup': true, sx: { p: 2, width: isMobile ? '100%' : 420, borderRadius: isMobile ? 0 : 2, overflowY: 'auto' } } }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
-        <Typography variant="h6" sx={{ fontWeight: 700 }}>{language === 'zh' ? '提名' : 'Nominate'}</Typography>
+        <Typography variant="h6" sx={{ fontWeight: 700 }}>{t('nominate')}</Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
           <Button size="small" onClick={() => { setShowNominationSheet(false); setPickerMode('none') }}>
-            {language === 'zh' ? '隐藏' : 'Hide'}
+            {t('jinx_status_inactive')}
           </Button>
         </Box>
       </Box>
@@ -159,7 +161,7 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: StorytellerContext })
         <FormControl size="small" fullWidth>
           <InputLabel>{text.actor}</InputLabel>
           <Select value={voteDraft?.actor ?? ''} label={text.actor} onChange={handleActorChange}>
-            <MenuItem value="">{language === 'zh' ? '— 选择 —' : '— Select —'}</MenuItem>
+            <MenuItem value="">{t('select')}</MenuItem>
             {seats.map((s: any) => (
               <MenuItem key={s.seat} value={s.seat}>#{s.seat} {s.name}</MenuItem>
             ))}
@@ -167,26 +169,26 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: StorytellerContext })
         </FormControl>
         {pickerMode === 'nominator' && (
           <Typography variant="caption" color="primary">
-            {language === 'zh' ? '← 点击圆桌上的座位进行选择' : '← Click a seat on the table to select'}
+            {t('click_a_seat_on_the_table_to_select')}
           </Typography>
         )}
 
         <FormControl size="small" fullWidth>
           <InputLabel>{text.target}</InputLabel>
           <Select value={voteDraft?.target ?? ''} label={text.target} onChange={handleTargetChange}>
-            <MenuItem value="">{language === 'zh' ? '— 选择 —' : '— Select —'}</MenuItem>
+            <MenuItem value="">{t('select')}</MenuItem>
             <MenuItem value={0} sx={{ gap: 0.75 }}>
               <AutoStoriesIcon sx={{ fontSize: '1rem', color: 'text.secondary' }} />
-              {language === 'zh' ? '说书人' : 'Storyteller'}
+              {t('storyteller')}
             </MenuItem>
             {seats.map((s: any) => (
-              <MenuItem key={s.seat} value={s.seat}>#{s.seat} {s.name}{s.isTraveler ? ` (${language === 'zh' ? '旅行者' : 'Traveler'})` : ''}</MenuItem>
+              <MenuItem key={s.seat} value={s.seat}>#{s.seat} {s.name}{s.isTraveler ? ` (${t('traveler_2')})` : ''}</MenuItem>
             ))}
           </Select>
         </FormControl>
         {pickerMode === 'nominee' && (
           <Typography variant="caption" color="primary">
-            {language === 'zh' ? '← 点击圆桌上的座位进行选择' : '← Click a seat on the table to select'}
+            {t('click_a_seat_on_the_table_to_select')}
           </Typography>
         )}
 
@@ -199,7 +201,7 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: StorytellerContext })
           }
           label={
             <Box>
-              {language === 'zh' ? '放逐模式' : 'Exile'}
+              {t('exile_2')}
               <Typography component="span" variant="caption" color="text.secondary">
                 {voteDraft?.isExile ? ` (≥${exileRequiredVotes}/${seats.length})` : ` (≥${requiredVotes})`}
               </Typography>
@@ -208,14 +210,14 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: StorytellerContext })
         />
 
         <FormControl size="small" fullWidth>
-          <InputLabel>{language === 'zh' ? '结果' : 'Result'}</InputLabel>
+          <InputLabel>{t('result')}</InputLabel>
           <Select
             value={voteDraft?.nominationResult ?? ''}
-            label={language === 'zh' ? '结果' : 'Result'}
+            label={t('result')}
             onChange={(e) => updateCurrentDay((d: any) => ({ ...d, voteDraft: { ...d.voteDraft, nominationResult: e.target.value } }))}
           >
-            <MenuItem value="succeed">{language === 'zh' ? <><CheckIcon sx={{ fontSize: '0.9rem', mr: 0.5 }} /> 提名成功</> : <><CheckIcon sx={{ fontSize: '0.9rem', mr: 0.5 }} /> Succeed</>}</MenuItem>
-            <MenuItem value="fail">{language === 'zh' ? <><CloseIcon sx={{ fontSize: '0.9rem', mr: 0.5 }} /> 提名失败</> : <><CloseIcon sx={{ fontSize: '0.9rem', mr: 0.5 }} /> Failed</>}</MenuItem>
+            <MenuItem value="succeed"><><CheckIcon sx={{ fontSize: '0.9rem', mr: 0.5 }} /> {t('nomination_succeed')}</></MenuItem>
+            <MenuItem value="fail"><><CloseIcon sx={{ fontSize: '0.9rem', mr: 0.5 }} /> {t('nomination_failed')}</></MenuItem>
           </Select>
         </FormControl>
 
@@ -237,23 +239,23 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: StorytellerContext })
         <TextField
           size="small"
           fullWidth
-          label={language === 'zh' ? '备注' : 'Note'}
-          placeholder={language === 'zh' ? '可选备注…' : 'Optional note…'}
+          label={t('revision_note')}
+          placeholder={t('optional_note')}
           value={voteDraft?.note ?? ''}
           onChange={(e) => updateCurrentDay((d: any) => ({ ...d, voteDraft: { ...d.voteDraft, note: e.target.value } }))}
         />
 
         {voteDraft?.nominationResult === 'succeed' && (
           <FormControl size="small" fullWidth>
-            <InputLabel>{language === 'zh' ? '覆盖' : 'Override'}</InputLabel>
+            <InputLabel>{t('override')}</InputLabel>
             <Select
               value={voteDraft?.manualPassed === true ? 'agree' : voteDraft?.manualPassed === false ? 'disagree' : 'auto'}
-              label={language === 'zh' ? '覆盖' : 'Override'}
+              label={t('override')}
               onChange={(e) => handleManualOverride(e.target.value)}
             >
-              <MenuItem value="auto">{language === 'zh' ? '自动判定' : 'Auto'}</MenuItem>
-              <MenuItem value="agree">{language === 'zh' ? <><CheckIcon sx={{ fontSize: '0.9rem', mr: 0.5 }} /> 强制通过</> : <><CheckIcon sx={{ fontSize: '0.9rem', mr: 0.5 }} /> Override Pass</>}</MenuItem>
-              <MenuItem value="disagree">{language === 'zh' ? <><CloseIcon sx={{ fontSize: '0.9rem', mr: 0.5 }} /> 强制失败</> : <><CloseIcon sx={{ fontSize: '0.9rem', mr: 0.5 }} /> Override Fail</>}</MenuItem>
+              <MenuItem value="auto">{t('auto')}</MenuItem>
+              <MenuItem value="agree"><><CheckIcon sx={{ fontSize: '0.9rem', mr: 0.5 }} /> {t('system_override_pass')}</></MenuItem>
+              <MenuItem value="disagree"><><CloseIcon sx={{ fontSize: '0.9rem', mr: 0.5 }} /> {t('system_override_fail')}</></MenuItem>
             </Select>
           </FormControl>
         )}
@@ -266,10 +268,10 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: StorytellerContext })
             onClick={() => voteDraft?.nominationResult === 'fail' ? rejectNomination() : recordVote()}
             startIcon={<EditNoteIcon fontSize="small" />}
           >
-            {language === 'zh' ? '记录' : 'Record'}
+            {t('record')}
           </Button>
           <Button size="small" onClick={handleClear} startIcon={<ReplayIcon fontSize="small" />}>
-            {language === 'zh' ? '清空' : 'Clear'}
+            {t('clear')}
           </Button>
         </Box>
       </Box>

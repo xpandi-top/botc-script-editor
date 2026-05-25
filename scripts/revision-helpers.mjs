@@ -154,7 +154,9 @@ export function loadJinxDefinitions() {
 export function validateLocaleFile(language, filePath, revisionMap, jinxMap) {
   const locale = readJson(filePath)
   const characters = locale.characters ?? {}
-  const localeJinxes = locale.jinxes ?? {}
+  // Jinx text may live in a separate <lang>.jinxes.json sidecar file
+  const jinxSidecar = filePath.replace('.json', '.jinxes.json')
+  const localeJinxes = (locale.jinxes ?? (fs.existsSync(jinxSidecar) ? readJson(jinxSidecar) : {}))
 
   for (const [id, definition] of revisionMap.entries()) {
     const copy = characters[id]

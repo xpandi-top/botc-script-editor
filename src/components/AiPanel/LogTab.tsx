@@ -7,6 +7,7 @@ import DownloadIcon from '@mui/icons-material/Download'
 import UndoIcon     from '@mui/icons-material/Undo'
 import type { FillLogEntry } from '../../lib/fillLog'
 import type { Language } from '../../types'
+import { useT } from '../../context/I18nContext'
 
 type Props = {
   fillLog: FillLogEntry[]
@@ -15,17 +16,17 @@ type Props = {
   language: Language
 }
 
-export function LogTab({ fillLog, undoFill, downloadLog, language }: Props) {
-  const zh = language === 'zh'
+export function LogTab({ fillLog, undoFill, downloadLog }: Props) {
+  const { t, tpl } = useT()
 
   return (
     <Box sx={{ flex: 1, overflowY: 'auto', p: 1.25, display: 'flex', flexDirection: 'column', gap: 0.4 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.25 }}>
         <Typography variant="caption" color="text.secondary" sx={{ flex: 1, fontWeight: 600 }}>
-          {zh ? `填充记录 (${fillLog.length})` : `Fill Log (${fillLog.length})`}
+          {tpl('fill_log_n', fillLog.length)}
         </Typography>
         {fillLog.length > 0 && (
-          <Tooltip title={zh ? '导出 Markdown' : 'Export Markdown'}>
+          <Tooltip title={t('export_markdown')}>
             <IconButton size="small" onClick={downloadLog} sx={{ p: 0.3 }}>
               <DownloadIcon sx={{ fontSize: 14 }} />
             </IconButton>
@@ -35,7 +36,7 @@ export function LogTab({ fillLog, undoFill, downloadLog, language }: Props) {
 
       {fillLog.length === 0 && (
         <Typography variant="caption" color="text.disabled">
-          {zh ? '暂无记录' : 'No fills applied yet'}
+          {t('no_fills_applied_yet')}
         </Typography>
       )}
 
@@ -61,7 +62,7 @@ export function LogTab({ fillLog, undoFill, downloadLog, language }: Props) {
               {new Date(entry.timestamp).toLocaleTimeString()}
             </Typography>
             {!entry.undone && (
-              <Tooltip title={zh ? '撤销' : 'Undo'}>
+              <Tooltip title={t('undo')}>
                 <IconButton size="small" onClick={() => undoFill(entry)} sx={{ p: 0.1 }}>
                   <UndoIcon sx={{ fontSize: 11 }} />
                 </IconButton>

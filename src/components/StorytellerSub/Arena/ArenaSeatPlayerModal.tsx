@@ -22,7 +22,7 @@ import { getDisplayName, getIconForCharacter, getAbilityTextForScript, allCharac
 import { buildPlayerLogEntries, filterPlayerLogByCurrentPhase } from '../../../utils/playerLog'
 import { logPhrase } from '../../../utils/logI18n'
 import { LogDetailText } from '../LogDetailText'
-import { makeT, makeTpl } from '../../../lib/t'
+import { useT } from '../../../context/I18nContext'
 import { translateStTag } from './ArenaSeatComponents'
 
 const TRAVELER_CHAR_IDS = allCharacters.filter((c) => c.team === 'traveler').map((c) => c.id)
@@ -68,9 +68,8 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
 
   const pinnedRevisions = scriptOptions?.find((s: any) => s.slug === activeScriptSlug)?.pinnedRevisions
 
+  const { t, tpl } = useT()
   const zh = language === 'zh'
-  const t = makeT(language)
-  const tpl = makeTpl(language)
   const isOpen = playerModalSeat === seat?.seat
   const [abilityModalCharId, setAbilityModalCharId] = React.useState<string | null>(null)
   const muiTheme = useTheme()
@@ -508,7 +507,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
                     {getDisplayName(selectedPublicChar, language)}
                   </Typography>
                   <Typography variant="caption" color="text.secondary" sx={{ ml: 0.5 }}>
-                    {zh ? '— 输入自定义文字或选提醒' : '— type custom or pick reminder'}
+                    {t('type_custom_or_pick_reminder')}
                   </Typography>
                 </Box>
                 {charEntry.reminders.length > 0 && (
@@ -541,13 +540,13 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
         })()}
         <TextField size="small" fullWidth
           placeholder={selectedPublicChar && charPublicPickerOpen
-            ? (zh ? `添加 ${getDisplayName(selectedPublicChar, language)} 标记` : `Tag for ${getDisplayName(selectedPublicChar, language)}`)
+            ? tpl('tag_for_char', getDisplayName(selectedPublicChar, language))
             : (text.addTag || t('add_public_tag'))}
           value={publicTagInput}
           onChange={(e) => setPublicTagInput(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddPublicTag(undefined, selectedPublicChar) } }}
           />
-        <Tooltip title={charPublicPickerOpen ? (zh ? '关闭角色提醒' : 'Close char picker') : (zh ? '按角色选提醒' : 'Pick by character')} placement="top">
+        <Tooltip title={charPublicPickerOpen ? (t('close_char_picker')) : (t('pick_by_character'))} placement="top">
           <IconButton size="small"
             color={charPublicPickerOpen ? 'primary' : 'default'}
             onClick={() => { setCharPublicPickerOpen(v => !v); setSelectedPublicChar(null) }}>
@@ -703,7 +702,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
                     {getDisplayName(selectedReminderChar, language)}
                   </Typography>
                   <Typography variant="caption" color="text.secondary" sx={{ ml: 0.5 }}>
-                    {zh ? '— 输入自定义文字或选提醒' : '— type custom or pick reminder'}
+                    {t('type_custom_or_pick_reminder')}
                   </Typography>
                 </Box>
                 {charEntry.reminders.length > 0 && (
@@ -748,12 +747,12 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
         })()}
         <TextField size="small" fullWidth
           placeholder={selectedReminderChar && charReminderPickerOpen
-            ? (zh ? `添加 ${getDisplayName(selectedReminderChar, language)} 标记` : `Tag for ${getDisplayName(selectedReminderChar, language)}`)
+            ? tpl('tag_for_char', getDisplayName(selectedReminderChar, language))
             : t('add_st_tag')}
           value={stTagInput}
           onChange={(e) => setStTagInput(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addStTag(stTagInput, selectedReminderChar) } }} />
-        <Tooltip title={charReminderPickerOpen ? (zh ? '关闭角色提醒' : 'Close char picker') : (zh ? '按角色选提醒' : 'Pick by character')} placement="top">
+        <Tooltip title={charReminderPickerOpen ? (t('close_char_picker')) : (t('pick_by_character'))} placement="top">
           <IconButton size="small"
             color={charReminderPickerOpen ? 'warning' : 'default'}
             onClick={() => { setCharReminderPickerOpen(v => !v); setSelectedReminderChar(null) }}>
@@ -879,7 +878,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
 
   const abilitySection = (
     <Box sx={{ mb: 1.5 }}>
-      <SectionLabel label={isNight ? (zh ? '夜间技能' : 'Night Ability') : t('day_ability')} />
+      <SectionLabel label={isNight ? (t('night_ability')) : t('day_ability')} />
       {skillOverlay ? (
         // Active skillOverlay form (from openSeatSkill)
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
@@ -958,7 +957,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
           {/* Skill type toggle row */}
           <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
             {(['know', 'guess', 'change', 'changeStatus'] as const).map((skillKey) => {
-              const labels: Record<string, string> = { know: zh ? '得知' : 'Know', guess: zh ? '猜测' : 'Guess', change: zh ? '变更' : 'Change', changeStatus: t('change_status') }
+              const labels: Record<string, string> = { know: t('know'), guess: t('guess'), change: t('change'), changeStatus: t('change_status') }
               return (
                 <Button key={skillKey} size="small" variant={skillType === skillKey ? 'contained' : 'outlined'}
                   onClick={() => { setSkillType(skillType === skillKey ? '' : skillKey); setTargets(new Set()); setRemoveTagVal('') }}>
@@ -980,7 +979,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
                   { key: 'characters', label: t('characters_section') },
                   { key: 'demonBluffs', label: t('demon_bluffs') },
                   { key: 'team', label: t('team_label') },
-                  { key: 'type', label: zh ? '类型' : 'Type' },
+                  { key: 'type', label: t('type') },
                   { key: 'sameTeam', label: t('same_team') },
                   { key: 'diffTeam', label: t('diff_team') },
                   { key: 'sameType', label: t('same_type') },
@@ -1017,7 +1016,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
                 <Box sx={{ display: 'flex', gap: 0.5 }}>
                   {(['good', 'evil'] as const).map((teamKey) => (
                     <Button key={teamKey} size="small" variant={knowTeam === teamKey ? 'contained' : 'outlined'} onClick={() => setKnowTeam(teamKey)}>
-                      {teamKey === 'good' ? (zh ? '善良' : 'Good') : (zh ? '邪恶' : 'Evil')}
+                      {teamKey === 'good' ? (t('good')) : (t('evil'))}
                     </Button>
                   ))}
                 </Box>
@@ -1066,7 +1065,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
                 <Box sx={{ display: 'flex', gap: 0.5 }}>
                   {(['good', 'evil'] as const).map((teamKey) => (
                     <Button key={teamKey} size="small" variant={changeToTeam === teamKey ? 'contained' : 'outlined'} onClick={() => setChangeToTeam(teamKey)}>
-                      {teamKey === 'good' ? (zh ? '善良' : 'Good') : (zh ? '邪恶' : 'Evil')}
+                      {teamKey === 'good' ? (t('good')) : (t('evil'))}
                     </Button>
                   ))}
                 </Box>
@@ -1161,7 +1160,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <FormControlLabel
                   control={<Switch checked={isSuccess} onChange={(e) => setIsSuccess(e.target.checked)} size="small" />}
-                  label={<Typography variant="caption">{isSuccess ? (zh ? '成功' : 'Success') : t('false_label')}</Typography>} />
+                  label={<Typography variant="caption">{isSuccess ? (t('success')) : t('false_label')}</Typography>} />
                 <Button size="small" variant="contained" disabled={!canSaveSkill} onClick={handleSaveSkill}>{t('save')}</Button>
               </Box>
             </>

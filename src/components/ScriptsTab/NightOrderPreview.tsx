@@ -12,6 +12,7 @@ import {
   getNightReminder,
 } from '../../catalog'
 import type { EditableScript, Language } from '../../types'
+import { useT } from '../../context/I18nContext'
 
 // Placeholder token labels
 const PLACEHOLDER_LABELS: Record<string, { en: string; zh: string }> = {
@@ -165,6 +166,7 @@ type Props = {
 
 export function NightOrderPreview({ script, language, open, onToggle }: Props) {
   const zh = language === 'zh'
+  const { t } = useT()
   const [showReminders, setShowReminders] = useState(false)
 
   // Build lookup: id → {name, nameEn, icon} from the script's own character objects.
@@ -263,7 +265,7 @@ export function NightOrderPreview({ script, language, open, onToggle }: Props) {
       >
         <NightsStayIcon sx={{ fontSize: 15, color: FIRST_NIGHT_COLOR }} />
         <Typography sx={{ fontSize: '0.85rem', fontWeight: 600, flex: 1, color: 'text.primary' }}>
-          {zh ? '夜间顺序' : 'Night Order'}
+          {t('night_order')}
         </Typography>
         <Typography sx={{ fontSize: '0.75rem', color: 'text.disabled' }}>
           {zh
@@ -272,7 +274,7 @@ export function NightOrderPreview({ script, language, open, onToggle }: Props) {
           }
         </Typography>
         {open && (
-          <Tooltip title={showReminders ? (zh ? '隐藏提示' : 'Hide reminders') : (zh ? '显示提示' : 'Show reminders')} placement="top">
+          <Tooltip title={showReminders ? (t('hide_reminders')) : (t('show_reminders'))} placement="top">
             <IconButton size="small" onClick={(e) => { e.stopPropagation(); setShowReminders(v => !v) }}
               sx={{ p: 0.25, color: showReminders ? 'primary.main' : 'text.disabled' }}>
               <MenuBookIcon sx={{ fontSize: 15 }} />
@@ -295,7 +297,7 @@ export function NightOrderPreview({ script, language, open, onToggle }: Props) {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.75 }}>
               <NightsStayIcon sx={{ fontSize: 14, color: FIRST_NIGHT_COLOR }} />
               <Typography sx={{ fontSize: '0.8rem', fontWeight: 700, color: FIRST_NIGHT_COLOR }}>
-                {zh ? '第一夜' : 'First Night'}
+                {t('first_night')}
               </Typography>
               <Typography sx={{ fontSize: '0.75rem', color: 'text.disabled', ml: 'auto' }}>
                 {firstNight.length}
@@ -315,7 +317,7 @@ export function NightOrderPreview({ script, language, open, onToggle }: Props) {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.75 }}>
               <WbSunnyIcon sx={{ fontSize: 14, color: OTHER_NIGHT_COLOR }} />
               <Typography sx={{ fontSize: '0.8rem', fontWeight: 700, color: OTHER_NIGHT_COLOR }}>
-                {zh ? '其他夜晚' : 'Other Nights'}
+                {t('other_nights')}
               </Typography>
               <Typography sx={{ fontSize: '0.75rem', color: 'text.disabled', ml: 'auto' }}>
                 {otherNights.length}

@@ -12,16 +12,19 @@ import { getDisplayName, getIconForCharacter } from '../../../catalog'
 import type { KpiSummary, ScriptStat, PlayerStat, CharStat, StorytellerStat } from '../useStats'
 import type { GameRecord } from '../../StorytellerSub/types'
 import type { Language } from '../../../types'
+import { useT } from '../../../context/I18nContext'
+import { makeT, makeTpl } from '../../../lib/t'
 
 // ── Win Balance Meter ─────────────────────────────────────────────
 
-function WinBalanceMeter({ kpi, zh }: { kpi: KpiSummary; zh: boolean }) {
+function WinBalanceMeter({ kpi }: { kpi: KpiSummary }) {
+  const { t, tpl } = useT()
   if (kpi.total === 0) return null
   return (
     <Box sx={{ mb: 0.5 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
         <Typography variant="caption" color="error.main" sx={{ fontWeight: 700 }}>
-          {zh ? `邪恶 ${kpi.evilPct}%` : `Evil ${kpi.evilPct}%`}
+          {tpl('evil_pct_label', kpi.evilPct)}
         </Typography>
         {kpi.stWins > 0 && (
           <Typography variant="caption" color="info.main" sx={{ fontWeight: 700 }}>
@@ -29,7 +32,7 @@ function WinBalanceMeter({ kpi, zh }: { kpi: KpiSummary; zh: boolean }) {
           </Typography>
         )}
         <Typography variant="caption" color="success.main" sx={{ fontWeight: 700 }}>
-          {zh ? `善良 ${kpi.goodPct}%` : `Good ${kpi.goodPct}%`}
+          {tpl('good_pct_label', kpi.goodPct)}
         </Typography>
       </Box>
       <Box sx={{ display: 'flex', height: 14, borderRadius: 2, overflow: 'hidden', gap: '2px' }}>
@@ -47,8 +50,8 @@ function WinBalanceMeter({ kpi, zh }: { kpi: KpiSummary; zh: boolean }) {
         )}
       </Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.5 }}>
-        <Typography variant="caption" color="text.disabled">{kpi.evilWins}{zh ? '场' : 'g'}</Typography>
-        <Typography variant="caption" color="text.disabled">{kpi.goodWins}{zh ? '场' : 'g'}</Typography>
+        <Typography variant="caption" color="text.disabled">{kpi.evilWins}{t('g')}</Typography>
+        <Typography variant="caption" color="text.disabled">{kpi.goodWins}{t('g')}</Typography>
       </Box>
     </Box>
   )
@@ -97,6 +100,8 @@ function buildInsights(
   records: GameRecord[],
   zh: boolean,
 ): Insight[] {
+  const t = makeT(zh ? 'zh' : 'en')
+  const tpl = makeTpl(zh ? 'zh' : 'en')
   const out: Insight[] = []
   if (kpi.total === 0) return out
 
@@ -105,18 +110,18 @@ function buildInsights(
   if (kpi.total >= 5) {
     if (diff <= 8) {
       out.push({ id: 'balance-ok', severity: 'good',
-        label: zh ? '胜率均衡' : 'Balanced win rates',
-        detail: zh ? `邪恶 ${kpi.evilPct}% vs 善良 ${kpi.goodPct}%` : `Evil ${kpi.evilPct}% vs Good ${kpi.goodPct}%`,
+        label: t('balanced_win_rates'),
+        detail: tpl('evil_vs_good_pct', kpi.evilPct, kpi.goodPct),
         value: `±${diff}%` })
     } else if (kpi.evilPct > kpi.goodPct + 15) {
       out.push({ id: 'balance-evil', severity: 'warning',
-        label: zh ? '邪恶明显领先' : 'Evil-dominant',
-        detail: zh ? '考虑选择对善良更友好的剧本' : 'Consider more good-favoured scripts',
+        label: t('evildominant'),
+        detail: t('consider_more_goodfavoured_scripts'),
         value: `${kpi.evilPct}% E` })
     } else if (kpi.goodPct > kpi.evilPct + 15) {
       out.push({ id: 'balance-good', severity: 'warning',
-        label: zh ? '善良明显领先' : 'Good-dominant',
-        detail: zh ? '考虑提升邪恶角色或增加难度' : 'Consider harder evil roles',
+        label: t('gooddominant'),
+        detail: t('consider_harder_evil_roles'),
         value: `${kpi.goodPct}% G` })
     }
   }
@@ -131,10 +136,10 @@ function buildInsights(
     else break
   }
   if (streak >= 3) {
-    const side = streakSide === 'evil' ? (zh ? '邪恶' : 'Evil') : (zh ? '善良' : 'Good')
+    const side = streakSide === 'evil' ? (t('evil')) : (t('good'))
     out.push({ id: 'streak', severity: streakSide === 'evil' ? 'warning' : 'good',
-      label: zh ? `${side}连胜 ${streak} 局` : `${streak}-game ${side} streak`,
-      detail: zh ? '最近连续结果' : 'Most recent consecutive results',
+      label: tpl('streak_n_side', streak, side),
+      detail: t('most_recent_consecutive_results'),
       value: `×${streak}` })
   }
 
@@ -145,16 +150,16 @@ function buildInsights(
     const ePct = Math.round((mostEvil.evil / mostEvil.total) * 100)
     if (ePct >= 65) {
       out.push({ id: 'script-evil', severity: 'warning',
-        label: zh ? `《${mostEvil.title}》邪恶强势` : `"${mostEvil.title}" evil-heavy`,
-        detail: zh ? `邪恶胜率 ${ePct}%，共 ${mostEvil.total} 局` : `Evil wins ${ePct}% of ${mostEvil.total} games`,
+        label: tpl('evil_heavy_label', mostEvil.title),
+        detail: tpl('evil_wins_pct_of_n', ePct, mostEvil.total),
         value: `${ePct}%` })
     }
     const mostGood = qualified.reduce((a, b) => (b.good / b.total > a.good / a.total ? b : a))
     const gPct = Math.round((mostGood.good / mostGood.total) * 100)
     if (gPct >= 65 && mostGood.key !== mostEvil.key) {
       out.push({ id: 'script-good', severity: 'info',
-        label: zh ? `《${mostGood.title}》善良友好` : `"${mostGood.title}" good-friendly`,
-        detail: zh ? `善良胜率 ${gPct}%，共 ${mostGood.total} 局` : `Good wins ${gPct}% of ${mostGood.total} games`,
+        label: tpl('good_friendly_label', mostGood.title),
+        detail: tpl('good_wins_pct_of_n', gPct, mostGood.total),
         value: `${gPct}%` })
     }
     // Highest-rated script
@@ -167,8 +172,8 @@ function buildInsights(
       })
       const score = (((topRated.avgBalanced ?? 0) + (topRated.avgReplay ?? 0)) / 2).toFixed(1)
       out.push({ id: 'script-toprated', severity: 'highlight',
-        label: zh ? `《${topRated.title}》评分最高` : `"${topRated.title}" top-rated`,
-        detail: zh ? `平衡+重玩均值 ${score}/5` : `Avg balance+replay ${score}/5`,
+        label: tpl('top_rated_label', topRated.title),
+        detail: tpl('avg_balance_replay', score),
         value: score, valueIcon: 'star' as const })
     }
   }
@@ -178,15 +183,15 @@ function buildInsights(
   if (qualPlayers.length > 0) {
     const best = qualPlayers.reduce((a, b) => b.winRate > a.winRate ? b : a)
     out.push({ id: 'player-top', severity: 'highlight',
-      label: zh ? `${best.name} 胜率最高` : `${best.name} leads win rate`,
-      detail: zh ? `${best.total}局 · 善良${best.goodWinRate ?? '—'}% 邪恶${best.evilWinRate ?? '—'}%` : `${best.total}g · Good ${best.goodWinRate ?? '—'}% Evil ${best.evilWinRate ?? '—'}%`,
+      label: tpl('player_leads_winrate', best.name),
+      detail: tpl('player_stats_detail', best.total, best.goodWinRate ?? '—', best.evilWinRate ?? '—'),
       value: `${best.winRate}%` })
     // Lowest (struggling) player with enough games
     const worst = qualPlayers.reduce((a, b) => b.winRate < a.winRate ? b : a)
     if (worst.name !== best.name && worst.winRate < 40) {
       out.push({ id: 'player-low', severity: 'info',
-        label: zh ? `${worst.name} 胜率偏低` : `${worst.name} low win rate`,
-        detail: zh ? `${worst.total} 局，可考虑角色分配优化` : `${worst.total} games — check role assignments`,
+        label: tpl('player_low_winrate', worst.name),
+        detail: tpl('player_check_roles', worst.total),
         value: `${worst.winRate}%` })
     }
   }
@@ -196,8 +201,8 @@ function buildInsights(
     const top = charStats[0]
     const charName = getDisplayName(top.charId, zh ? 'zh' : 'en')
     out.push({ id: 'char-top', severity: 'info',
-      label: zh ? `${charName} 出场最多` : `${charName} most played`,
-      detail: zh ? `${top.total} 次出场，胜率 ${top.winRate}%` : `${top.total}× played · ${top.winRate}% win rate`,
+      label: tpl('char_most_played_label', charName),
+      detail: tpl('char_played_winrate', top.total, top.winRate),
       value: `${top.total}×` })
   }
 
@@ -206,8 +211,8 @@ function buildInsights(
   if (mvpPlayers.length > 0) {
     const topMvp = mvpPlayers.reduce((a, b) => b.mvpCount > a.mvpCount ? b : a)
     out.push({ id: 'mvp-top', severity: 'highlight',
-      label: zh ? `${topMvp.name} MVP 最多` : `${topMvp.name} top MVP`,
-      detail: zh ? `获得 MVP ${topMvp.mvpCount} 次` : `${topMvp.mvpCount} MVP awards`,
+      label: tpl('player_top_mvp_label', topMvp.name),
+      detail: tpl('player_mvp_count', topMvp.mvpCount),
       value: `×${topMvp.mvpCount}` })
   }
 
@@ -215,10 +220,8 @@ function buildInsights(
   if (storytellerStats.length > 0) {
     const mostActive = storytellerStats[0]
     out.push({ id: 'st-active', severity: 'info',
-      label: zh ? `${mostActive.name} 说书最多` : `${mostActive.name} most active ST`,
-      detail: zh
-        ? `主持 ${mostActive.total} 局，${mostActive.scripts.size} 个剧本`
-        : `${mostActive.total} games, ${mostActive.scripts.size} scripts`,
+      label: tpl('player_most_active_st', mostActive.name),
+      detail: tpl('st_detail_n_games_scripts', mostActive.total, mostActive.scripts.size),
       value: `${mostActive.total}g` })
   }
 
@@ -226,10 +229,10 @@ function buildInsights(
   if (kpi.avgDurationMin != null) {
     const sev: InsightSeverity = kpi.avgDurationMin > 180 ? 'warning' : 'info'
     out.push({ id: 'duration', severity: sev,
-      label: zh ? `平均时长 ${kpi.avgDurationMin} 分钟` : `Avg ${kpi.avgDurationMin} min/game`,
+      label: tpl('avg_duration_min', kpi.avgDurationMin),
       detail: kpi.avgDurationMin > 180
-        ? (zh ? '游戏时间偏长' : 'Games running long')
-        : (zh ? '游戏节奏健康' : 'Healthy game pace'),
+        ? (t('games_running_long'))
+        : (t('healthy_game_pace')),
       value: `${kpi.avgDurationMin}m` })
   }
 
@@ -266,13 +269,14 @@ function InsightCard({ insight }: { insight: Insight }) {
 
 // ── Timeline mini-sparkline ───────────────────────────────────────
 
-function RecentStreak({ records, zh }: { records: GameRecord[]; zh: boolean }) {
+function RecentStreak({ records }: { records: GameRecord[] }) {
+  const { t } = useT()
   const recent = [...records].sort((a, b) => b.endedAt - a.endedAt).slice(0, 10).reverse()
   if (recent.length < 3) return null
   return (
     <Box>
       <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.75 }}>
-        {zh ? '最近10场结果' : 'Last 10 games'}
+        {t('last_10_games')}
       </Typography>
       <Box sx={{ display: 'flex', gap: 0.5 }}>
         {recent.map((r, i) => {
@@ -321,14 +325,16 @@ interface Props {
 }
 
 export function OverviewSection({ kpi, scriptStats, playerStats, charStats, storytellerStats, language, records }: Props) {
+  const { t } = useT()
   const zh = language === 'zh'
+  const tpl = makeTpl(language)
   const insights = buildInsights(kpi, scriptStats, playerStats, charStats, storytellerStats, records, zh)
 
   if (kpi.total === 0) {
     return (
       <Box sx={{ py: 6, textAlign: 'center' }}>
         <Typography color="text.secondary">
-          {zh ? '暂无记录。完成游戏或手动添加记录后，数据将显示在此。' : 'No records yet. Complete a game or add records manually to see analytics.'}
+          {t('no_records_yet_complete_a_game_or_add_records_manually_to_se')}
         </Typography>
       </Box>
     )
@@ -341,38 +347,38 @@ export function OverviewSection({ kpi, scriptStats, playerStats, charStats, stor
       <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
         <Paper sx={{ p: 2, flex: '1 1 100px', textAlign: 'center', minWidth: 90 }} elevation={2}>
           <Typography variant="h4" sx={{ fontWeight: 700 }}>{kpi.total}</Typography>
-          <Typography variant="caption" color="text.secondary">{zh ? '总局数' : 'Total Games'}</Typography>
+          <Typography variant="caption" color="text.secondary">{t('total_games')}</Typography>
         </Paper>
         <Paper sx={{ p: 2, flex: '1 1 100px', textAlign: 'center', bgcolor: '#7a2e24', color: '#f5ede8', minWidth: 90 }} elevation={2}>
           <Typography variant="h4" sx={{ fontWeight: 700, color: '#f5ede8' }}>{kpi.evilPct}%</Typography>
-          <Typography variant="caption" sx={{ color: '#d4b0a8' }}>{zh ? `邪恶胜 (${kpi.evilWins})` : `Evil Wins (${kpi.evilWins})`}</Typography>
+          <Typography variant="caption" sx={{ color: '#d4b0a8' }}>{tpl('evil_wins_n', kpi.evilWins)}</Typography>
         </Paper>
         <Paper sx={{ p: 2, flex: '1 1 100px', textAlign: 'center', bgcolor: '#2e5e3a', color: '#e8f2eb', minWidth: 90 }} elevation={2}>
           <Typography variant="h4" sx={{ fontWeight: 700, color: '#e8f2eb' }}>{kpi.goodPct}%</Typography>
-          <Typography variant="caption" sx={{ color: '#a8ccb4' }}>{zh ? `善良胜 (${kpi.goodWins})` : `Good Wins (${kpi.goodWins})`}</Typography>
+          <Typography variant="caption" sx={{ color: '#a8ccb4' }}>{tpl('good_wins_n', kpi.goodWins)}</Typography>
         </Paper>
         {kpi.stWins > 0 && (
           <Paper sx={{ p: 2, flex: '1 1 100px', textAlign: 'center', minWidth: 90 }} elevation={2}>
             <Typography variant="h4" sx={{ fontWeight: 700 }}>{kpi.stPct}%</Typography>
-            <Typography variant="caption" color="text.secondary">{zh ? `说书人胜 (${kpi.stWins})` : `ST Win (${kpi.stWins})`}</Typography>
+            <Typography variant="caption" color="text.secondary">{tpl('st_wins_n', kpi.stWins)}</Typography>
           </Paper>
         )}
         {kpi.avgDays !== null && (
           <Paper sx={{ p: 2, flex: '1 1 100px', textAlign: 'center', minWidth: 90 }} elevation={1}>
             <Typography variant="h4" sx={{ fontWeight: 700 }}>{kpi.avgDays}</Typography>
-            <Typography variant="caption" color="text.secondary">{zh ? '平均天数' : 'Avg Days'}</Typography>
+            <Typography variant="caption" color="text.secondary">{t('avg_days')}</Typography>
           </Paper>
         )}
         {kpi.avgDurationMin !== null && (
           <Paper sx={{ p: 2, flex: '1 1 100px', textAlign: 'center', minWidth: 90 }} elevation={1}>
             <Typography variant="h4" sx={{ fontWeight: 700 }}>{kpi.avgDurationMin}</Typography>
-            <Typography variant="caption" color="text.secondary">{zh ? '平均分钟' : 'Avg Min'}</Typography>
+            <Typography variant="caption" color="text.secondary">{t('avg_min')}</Typography>
           </Paper>
         )}
         {kpi.avgPlayers !== null && (
           <Paper sx={{ p: 2, flex: '1 1 100px', textAlign: 'center', minWidth: 90 }} elevation={1}>
             <Typography variant="h4" sx={{ fontWeight: 700 }}>{kpi.avgPlayers}</Typography>
-            <Typography variant="caption" color="text.secondary">{zh ? '平均人数' : 'Avg Players'}</Typography>
+            <Typography variant="caption" color="text.secondary">{t('avg_players')}</Typography>
           </Paper>
         )}
       </Box>
@@ -382,30 +388,30 @@ export function OverviewSection({ kpi, scriptStats, playerStats, charStats, stor
         <Paper sx={{ p: 2 }} elevation={1}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 1.5 }}>
             <BalanceIcon sx={{ fontSize: '1rem', color: 'warning.main' }} />
-            <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>{zh ? '平均评分' : 'Avg Ratings'}</Typography>
+            <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>{t('avg_ratings')}</Typography>
           </Box>
           <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1 }}>
             {kpi.avgBalanced != null && (
               <Box>
-                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.25 }}>{zh ? '平衡性' : 'Balanced'}</Typography>
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.25 }}>{t('balanced')}</Typography>
                 <RatingBar value={kpi.avgBalanced} />
               </Box>
             )}
             {kpi.avgFunEvil != null && (
               <Box>
-                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.25 }}>{zh ? 'Evil乐趣' : 'Fun (Evil)'}</Typography>
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.25 }}>{t('fun_evil')}</Typography>
                 <RatingBar value={kpi.avgFunEvil} />
               </Box>
             )}
             {kpi.avgFunGood != null && (
               <Box>
-                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.25 }}>{zh ? '善良乐趣' : 'Fun (Good)'}</Typography>
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.25 }}>{t('fun_good')}</Typography>
                 <RatingBar value={kpi.avgFunGood} />
               </Box>
             )}
             {kpi.avgReplay != null && (
               <Box>
-                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.25 }}>{zh ? '重玩意愿' : 'Replay'}</Typography>
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.25 }}>{t('replay')}</Typography>
                 <RatingBar value={kpi.avgReplay} />
               </Box>
             )}
@@ -415,8 +421,8 @@ export function OverviewSection({ kpi, scriptStats, playerStats, charStats, stor
 
       {/* ── Win Balance Meter ── */}
       <Paper sx={{ p: 2 }} elevation={1}>
-        <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1.5 }}>{zh ? '胜负天平' : 'Win Balance'}</Typography>
-        <WinBalanceMeter kpi={kpi} zh={zh} />
+        <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1.5 }}>{t('win_balance')}</Typography>
+        <WinBalanceMeter kpi={kpi} />
       </Paper>
 
       <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
@@ -425,7 +431,7 @@ export function OverviewSection({ kpi, scriptStats, playerStats, charStats, stor
           <Paper sx={{ p: 2, flex: '2 1 260px' }} elevation={1}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 1.25 }}>
               <TrendingUpIcon sx={{ fontSize: '1rem', color: 'primary.main' }} />
-              <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>{zh ? '数据洞察' : 'Insights'}</Typography>
+              <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>{t('insights')}</Typography>
               <Chip label={insights.length} size="small" sx={{ height: 16, fontSize: '0.62rem', ml: 'auto', '& .MuiChip-label': { px: '5px' } }} />
             </Box>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
@@ -436,14 +442,14 @@ export function OverviewSection({ kpi, scriptStats, playerStats, charStats, stor
 
         {/* ── Recent streak ── */}
         <Paper sx={{ p: 2, flex: '1 1 200px' }} elevation={1}>
-          <RecentStreak records={records} zh={zh} />
+          <RecentStreak records={records} />
         </Paper>
       </Box>
 
       {/* ── Script mini-summary ── */}
       {scriptStats.length > 0 && (
         <Paper sx={{ p: 2 }} elevation={1}>
-          <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1.5 }}>{zh ? '各剧本概览' : 'Script Summary'}</Typography>
+          <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1.5 }}>{t('script_summary')}</Typography>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}>
             {scriptStats.slice(0, 5).map((s) => {
               const stWin = s.total - s.evil - s.good
@@ -452,7 +458,7 @@ export function OverviewSection({ kpi, scriptStats, playerStats, charStats, stor
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.25 }}>
                     <Typography variant="body2" sx={{ fontWeight: 600 }}>{s.title}</Typography>
                     <Typography variant="caption" color="text.secondary">
-                      {s.total}{zh ? '局' : 'g'} · E:{s.evil} G:{s.good}{stWin > 0 ? ` ST:${stWin}` : ''}
+                      {s.total}{t('g')} · E:{s.evil} G:{s.good}{stWin > 0 ? ` ST:${stWin}` : ''}
                     </Typography>
                   </Box>
                   <Box sx={{ display: 'flex', height: 6, borderRadius: 1, overflow: 'hidden', gap: '1px' }}>
@@ -465,7 +471,7 @@ export function OverviewSection({ kpi, scriptStats, playerStats, charStats, stor
             })}
             {scriptStats.length > 5 && (
               <Typography variant="caption" color="text.secondary">
-                {zh ? `+${scriptStats.length - 5} 个剧本（在剧本栏查看全部）` : `+${scriptStats.length - 5} more in Scripts tab`}
+                {tpl('more_n_scripts_tab', scriptStats.length - 5)}
               </Typography>
             )}
           </Box>
@@ -475,14 +481,14 @@ export function OverviewSection({ kpi, scriptStats, playerStats, charStats, stor
       {/* ── Top players strip ── */}
       {playerStats.length > 0 && (
         <Paper sx={{ p: 2 }} elevation={1}>
-          <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1.5 }}>{zh ? '玩家排名 Top 5' : 'Top 5 Players'}</Typography>
+          <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1.5 }}>{t('top_5_players')}</Typography>
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
             {playerStats.slice(0, 5).map((p, idx) => (
               <Box key={p.name} sx={{ display: 'flex', alignItems: 'center', gap: 0.75, p: 0.75, borderRadius: 1.5, bgcolor: 'action.hover', minWidth: 130 }}>
                 <Typography sx={{ fontWeight: 700, color: 'text.secondary', fontSize: '0.8rem', width: 18, flexShrink: 0 }}>#{idx + 1}</Typography>
                 <Box>
                   <Typography variant="body2" sx={{ fontWeight: 700, lineHeight: 1.2 }}>{p.name}</Typography>
-                  <Typography variant="caption" color="text.secondary">{p.winRate}%{zh ? '胜' : 'W'} · {p.total}{zh ? '局' : 'g'}</Typography>
+                  <Typography variant="caption" color="text.secondary">{p.winRate}%{t('win_short')} · {p.total}{t('g')}</Typography>
                 </Box>
               </Box>
             ))}
@@ -495,7 +501,7 @@ export function OverviewSection({ kpi, scriptStats, playerStats, charStats, stor
         <Paper sx={{ p: 2 }} elevation={1}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 1.5 }}>
             <PersonIcon sx={{ fontSize: '1rem', color: 'text.secondary' }} />
-            <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>{zh ? '说书人排行' : 'Storytellers'}</Typography>
+            <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>{t('storytellers')}</Typography>
           </Box>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
             {storytellerStats.slice(0, 5).map((st, idx) => {
@@ -508,7 +514,7 @@ export function OverviewSection({ kpi, scriptStats, playerStats, charStats, stor
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.25 }}>
                       <Typography variant="body2" sx={{ fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{st.name}</Typography>
                       <Typography variant="caption" color="text.secondary" sx={{ flexShrink: 0, ml: 1 }}>
-                        {st.total}{zh ? '局' : 'g'} · {st.scripts.size}{zh ? '剧本' : 'scripts'}
+                        {st.total}{t('g')} · {st.scripts.size}{t('scripts')}
                       </Typography>
                     </Box>
                     <Tooltip title={`E:${st.evil} G:${st.good}${st.st > 0 ? ` ST:${st.st}` : ''}`}>
@@ -542,7 +548,7 @@ export function OverviewSection({ kpi, scriptStats, playerStats, charStats, stor
             })}
             {storytellerStats.length > 5 && (
               <Typography variant="caption" color="text.secondary">
-                {zh ? `+${storytellerStats.length - 5} 位说书人` : `+${storytellerStats.length - 5} more storytellers`}
+                {tpl('more_n_storytellers', storytellerStats.length - 5)}
               </Typography>
             )}
           </Box>
@@ -552,7 +558,7 @@ export function OverviewSection({ kpi, scriptStats, playerStats, charStats, stor
       {/* ── Top chars strip ── */}
       {charStats.length > 0 && (
         <Paper sx={{ p: 2 }} elevation={1}>
-          <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1.5 }}>{zh ? '出场最多角色' : 'Most Played Characters'}</Typography>
+          <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1.5 }}>{t('most_played_characters')}</Typography>
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5 }}>
             {charStats.slice(0, 8).map((c) => {
               const icon = getIconForCharacter(c.charId)

@@ -2,21 +2,23 @@
 import type { StorytellerContext } from '../useStoryteller'
 import React from 'react'
 import { Box, Typography, Paper, Chip } from '@mui/material'
+import { useT } from '../../../context/I18nContext'
 
 export function RightConsoleCompleted({ ctx, toggleConsoleSection }: { ctx: StorytellerContext, toggleConsoleSection: any }) {
+  const { t } = useT()
   const { language, gameRecords, loadGameRecord, text } = ctx
 
   return (
     <Box sx={{ mt: 1 }}>
       <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
-        {language === 'zh' ? '已保存的游戏' : 'Saved Games'}
+        {t('saved_games')}
       </Typography>
       <Box sx={{ maxHeight: 300, overflow: 'auto' }}>
         {gameRecords.length ? gameRecords.map((r) => (
           <Paper
             key={r.id}
             onClick={() => r.savedDays ? loadGameRecord(r) : undefined}
-            title={r.savedDays ? (language === 'zh' ? '点击加载此游戏' : 'Click to load this game') : ''}
+            title={r.savedDays ? (t('click_to_load_this_game')) : ''}
             sx={{
               p: 1.5,
               mb: 1,
@@ -32,7 +34,7 @@ export function RightConsoleCompleted({ ctx, toggleConsoleSection }: { ctx: Stor
               </Typography>
               <Chip
                 size="small"
-                label={r.winner ? (language === 'zh' ? '已结束' : 'Ended') : (language === 'zh' ? '已保存' : 'Saved')}
+                label={r.winner ? (t('ended')) : (t('saved'))}
                 color={r.winner ? 'error' : 'default'}
                 sx={{ height: 20, fontSize: '0.7rem' }}
               />
@@ -49,12 +51,12 @@ export function RightConsoleCompleted({ ctx, toggleConsoleSection }: { ctx: Stor
               </Typography>
             )}
             <Typography variant="caption" color="primary" sx={{ display: 'block', mt: 0.5 }}>
-              {language === 'zh' ? '↻ 点击加载' : '↻ Click to load'}
+              {t('click_to_load')}
             </Typography>
           </Paper>
         )) : (
           <Typography variant="body2" color="text.secondary">
-            {language === 'zh' ? '暂无保存的游戏' : 'No saved games'}
+            {t('no_saved_games')}
           </Typography>
         )}
       </Box>

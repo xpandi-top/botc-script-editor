@@ -2,6 +2,7 @@ import type { DayState } from '../components/StorytellerSub/types'
 import type { Language } from '../types'
 import { getDisplayName } from '../catalog'
 import { logDetail } from './logI18n'
+import { makeT } from '../lib/t'
 
 export type PlayerLogEntry = {
   id: string
@@ -38,6 +39,7 @@ export function eventMentionsSeat(detail: string, seatNum: number): boolean {
  * @returns         Days with entries, sorted newest-day-first; empty days excluded
  */
 export function buildPlayerLogEntries(days: DayState[], seatNum: number, language: Language = 'zh'): PlayerLogDay[] {
+  const t = makeT(language)
   const sortedDays = [...days].sort((a, b) => b.day - a.day)
 
   return sortedDays.map((day) => {
@@ -68,7 +70,7 @@ export function buildPlayerLogEntries(days: DayState[], seatNum: number, languag
 
       const voterList =
         v.voters.length > 0 ? ` [${v.voters.map((n) => `#${n}`).join(', ')}]` : ''
-      const exileTag = v.isExile ? (language === 'zh' ? ' [放逐]' : ' [exile]') : ''
+      const exileTag = v.isExile ? (t('exile_2')) : ''
       const base = `${logDetail.voteResult(language, v.actor, v.target, v.passed, v.voteCount, v.requiredVotes)}${exileTag}${voterList}`
       const text = v.note ? `${base} · ${v.note}` : base
 

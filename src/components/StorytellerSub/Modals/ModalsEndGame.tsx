@@ -8,6 +8,7 @@ import SaveIcon from '@mui/icons-material/Save'
 import CloseIcon from '@mui/icons-material/Close'
 import PersonIcon from '@mui/icons-material/Person'
 import { StarRating } from '../../ui/StarRating'
+import { useT } from '../../../context/I18nContext'
 
 export function ModalsEndGame({ ctx }: { ctx: StorytellerContext }) {
   const {
@@ -21,6 +22,7 @@ export function ModalsEndGame({ ctx }: { ctx: StorytellerContext }) {
   const today = new Date().toISOString().split('T')[0]
   const defaultName = activeScriptTitle ? `${activeScriptTitle.replace(/\s+/g, '_')}_${playerCount}p_${today}` : `Game_${today}`
 
+  const { t } = useT()
   const [recordName, setRecordName] = useState(currentRecordName || defaultName)
   const [markOption, setMarkOption] = useState(currentDay.gameEnded ? 'markDone' : 'unmark')
   const [isVisible, setIsVisible] = useState(false)
@@ -88,24 +90,24 @@ export function ModalsEndGame({ ctx }: { ctx: StorytellerContext }) {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      <Typography variant="h6">{language === 'zh' ? '结算与调查' : 'Game End & Survey'}</Typography>
+      <Typography variant="h6">{t('game_end_survey')}</Typography>
 
       <Box>
-        <Typography variant="subtitle2" sx={{ mb: 1 }}>{language === 'zh' ? '获胜方' : 'Winner'}</Typography>
+        <Typography variant="subtitle2" sx={{ mb: 1 }}>{t('winner')}</Typography>
         <RadioGroup row value={egr.winner || ''} onChange={(e) => setEndGameResult((c: any) => c ? { ...c, winner: e.target.value || null } : c)}>
           <FormControlLabel value="good" control={<Radio />} label={text.good || 'Good'} />
           <FormControlLabel value="evil" control={<Radio />} label={text.evil || 'Evil'} />
-          <FormControlLabel value="storyteller" control={<Radio />} label={language === 'zh' ? '说书人' : 'ST'} />
+          <FormControlLabel value="storyteller" control={<Radio />} label={t('st')} />
         </RadioGroup>
       </Box>
 
       <FormControl size="small" fullWidth>
-        <InputLabel>{language === 'zh' ? 'MVP' : 'MVP'}</InputLabel>
-        <Select value={egr.mvp ?? ''} onChange={(e) => setEndGameResult((c: any) => c ? { ...c, mvp: e.target.value || null } : c)} label={language === 'zh' ? 'MVP' : 'MVP'}>
-          <MenuItem value="">{language === 'zh' ? '选择玩家' : 'Select player'}</MenuItem>
+        <InputLabel>{t('mvp')}</InputLabel>
+        <Select value={egr.mvp ?? ''} onChange={(e) => setEndGameResult((c: any) => c ? { ...c, mvp: e.target.value || null } : c)} label={t('mvp')}>
+          <MenuItem value="">{t('select_player')}</MenuItem>
           <MenuItem value="storyteller" sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
             <PersonIcon sx={{ fontSize: '0.9rem', color: 'purple' }} />
-            <Box component="span" sx={{ fontStyle: 'italic' }}>{language === 'zh' ? '说书人' : 'Storyteller'}</Box>
+            <Box component="span" sx={{ fontStyle: 'italic' }}>{t('storyteller')}</Box>
           </MenuItem>
           {regularSeats.map((s: any) => (
             <MenuItem key={s.seat} value={s.seat}>{s.seat}. {s.name || `Player ${s.seat}`}</MenuItem>
@@ -113,24 +115,24 @@ export function ModalsEndGame({ ctx }: { ctx: StorytellerContext }) {
         </Select>
       </FormControl>
 
-      <StarRating label={language === 'zh' ? '平衡性' : 'Is it balanced'} value={egr.balanced} onChange={(n) => setEndGameResult((c: any) => c ? { ...c, balanced: n } : c)} />
-      <StarRating label={language === 'zh' ? 'evil方乐趣' : 'Fun for evil'} value={egr.funEvil} onChange={(n) => setEndGameResult((c: any) => c ? { ...c, funEvil: n } : c)} />
-      <StarRating label={language === 'zh' ? '正义方乐趣' : 'Fun for good'} value={egr.funGood} onChange={(n) => setEndGameResult((c: any) => c ? { ...c, funGood: n } : c)} />
-      <StarRating label={language === 'zh' ? '重玩愿望' : 'Replay this script'} value={egr.replay} onChange={(n) => setEndGameResult((c: any) => c ? { ...c, replay: n } : c)} />
+      <StarRating label={t('is_it_balanced')} value={egr.balanced} onChange={(n) => setEndGameResult((c: any) => c ? { ...c, balanced: n } : c)} />
+      <StarRating label={t('fun_for_evil')} value={egr.funEvil} onChange={(n) => setEndGameResult((c: any) => c ? { ...c, funEvil: n } : c)} />
+      <StarRating label={t('fun_for_good')} value={egr.funGood} onChange={(n) => setEndGameResult((c: any) => c ? { ...c, funGood: n } : c)} />
+      <StarRating label={t('replay_this_script')} value={egr.replay} onChange={(n) => setEndGameResult((c: any) => c ? { ...c, replay: n } : c)} />
 
       <TextField
         size="small"
         multiline
         rows={2}
         fullWidth
-        label={language === 'zh' ? '其他备注' : 'Other notes'}
+        label={t('other_notes')}
         value={egr.otherNote || ''}
         onChange={(e) => setEndGameResult((c: any) => c ? { ...c, otherNote: e.target.value } : c)}
       />
 
       <Box>
         <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', userSelect: 'none' }} onClick={() => setTeamsExpanded((v) => !v)}>
-          <Typography variant="subtitle2" sx={{ flex: 1 }}>{language === 'zh' ? '阵营' : 'Teams'}</Typography>
+          <Typography variant="subtitle2" sx={{ flex: 1 }}>{t('teams')}</Typography>
           <IconButton size="small" tabIndex={-1}>
             {teamsExpanded ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
           </IconButton>
@@ -158,22 +160,22 @@ export function ModalsEndGame({ ctx }: { ctx: StorytellerContext }) {
         <TextField
           size="small"
           fullWidth
-          label={language === 'zh' ? '文件名' : 'File name'}
+          label={t('file_name')}
           value={recordName}
           onChange={(e) => setRecordName(e.target.value)}
         />
         <FormControl size="small" sx={{ minWidth: 120 }}>
-          <InputLabel>{language === 'zh' ? '状态' : 'Status'}</InputLabel>
-          <Select value={markOption} onChange={handleMarkChange} label={language === 'zh' ? '状态' : 'Status'}>
-            <MenuItem value="unmark">{language === 'zh' ? '未结束' : 'Not Finished'}</MenuItem>
-            <MenuItem value="markDone">{language === 'zh' ? '已结束' : 'Finished'}</MenuItem>
+          <InputLabel>{t('jinx_status')}</InputLabel>
+          <Select value={markOption} onChange={handleMarkChange} label={t('jinx_status')}>
+            <MenuItem value="unmark">{t('not_finished')}</MenuItem>
+            <MenuItem value="markDone">{t('finished')}</MenuItem>
           </Select>
         </FormControl>
       </Box>
 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, pt: 1, borderTop: '1px solid', borderColor: 'divider' }}>
-        <Button variant="outlined" startIcon={<CloseIcon />} onClick={handleCancel}>{language === 'zh' ? '取消' : 'Cancel'}</Button>
-        <Button variant="contained" startIcon={<SaveIcon />} onClick={handleSave}>{language === 'zh' ? '保存' : 'Save'}</Button>
+        <Button variant="outlined" startIcon={<CloseIcon />} onClick={handleCancel}>{t('cancel')}</Button>
+        <Button variant="contained" startIcon={<SaveIcon />} onClick={handleSave}>{t('save')}</Button>
       </Box>
     </Box>
   )

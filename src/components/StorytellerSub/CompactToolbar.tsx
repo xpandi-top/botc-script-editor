@@ -5,6 +5,7 @@ import MenuOpenIcon from '@mui/icons-material/MenuOpen'
 import { CHARACTER_DISTRIBUTION } from './constants'
 import { GameActionsBar } from './GameActionsBar'
 import { BgmBar } from './BgmBar'
+import { useT } from '../../context/I18nContext'
 
 export function CompactToolbar({ ctx }: { ctx: StorytellerContext }) {
   const {
@@ -16,6 +17,7 @@ export function CompactToolbar({ ctx }: { ctx: StorytellerContext }) {
     text, undo, canUndo, bgmVolume, setBgmVolume,
   } = ctx
 
+  const { t } = useT()
   const nonTravelerCount = currentDay.seats.filter((s: any) => !s.isTraveler).length
   const dist = CHARACTER_DISTRIBUTION[nonTravelerCount]
   const travelerCount = currentDay.seats.filter((s: any) => s.isTraveler).length
@@ -77,13 +79,13 @@ export function CompactToolbar({ ctx }: { ctx: StorytellerContext }) {
           language={language}
           variant="toolbar"
         />
-        <IconButton size="medium" onClick={undo} disabled={!canUndo} title={language === 'zh' ? '撤销' : 'Undo'}>
+        <IconButton size="medium" onClick={undo} disabled={!canUndo} title={t('undo')}>
           <UndoIcon />
         </IconButton>
         {onLanguageChange && (
           <FormControl size="small" sx={{ minWidth: 72, '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' }, '& .MuiInputLabel-root': { fontSize: '0.8rem' } }}>
-            <InputLabel>{language === 'zh' ? '语言' : 'Lang'}</InputLabel>
-            <Select value={language} label={language === 'zh' ? '语言' : 'Lang'} onChange={(e) => onLanguageChange(e.target.value)}>
+            <InputLabel>{t('lang')}</InputLabel>
+            <Select value={language} label={t('lang')} onChange={(e) => onLanguageChange(e.target.value)}>
               <MenuItem value="en">EN</MenuItem>
               <MenuItem value="zh">中文</MenuItem>
             </Select>

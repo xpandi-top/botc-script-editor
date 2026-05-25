@@ -21,6 +21,7 @@ import { AggregatedLogModal } from './AggregatedLogModal'
 import { StorytellerSetupModal } from './StorytellerSetupModal'
 import { BgmBar } from '../BgmBar'
 import type { Phase, PublicMode } from '../types'
+import { useT } from '../../../context/I18nContext'
 
 const PHASES: Phase[] = ['night', 'private', 'public', 'nomination']
 const TIMER_CONTROL_SX = { bgcolor: 'rgba(133,63,34,0.15)', border: '1px solid', borderColor: 'primary.main' }
@@ -56,6 +57,7 @@ export function ArenaCenterContent({ ctx }: { ctx: StorytellerContext }) {
     nightShowWakeOrder, setNightShowWakeOrder, openCharacterEditor,
     setShowAggLogModal,
   } = ctx
+  const { t } = useT()
   const [timerEditing, setTimerEditing] = useState(false)
   const [timerInput, setTimerInput] = useState('')
 
@@ -110,17 +112,17 @@ export function ArenaCenterContent({ ctx }: { ctx: StorytellerContext }) {
         activeButtonSx={{ ...TIMER_CONTROL_SX }}
       />
       <Box sx={{ display: 'flex', gap: 0.5 }}>
-        <Tooltip title={nightShowCharacter ? (language === 'zh' ? '隐藏角色' : 'Hide Characters') : (language === 'zh' ? '显示角色' : 'Show Characters')}>
+        <Tooltip title={nightShowCharacter ? (t('hide_characters')) : (t('show_characters'))}>
           <IconButton size="large" onClick={() => setNightShowCharacter((v: boolean) => !v)} sx={nightShowCharacter ? TIMER_CONTROL_SX : TIMER_IDLE_SX}>
             <VisibilityIcon />
           </IconButton>
         </Tooltip>
-        <Tooltip title={nightShowWakeOrder ? (language === 'zh' ? '隐藏唤醒顺序' : 'Hide Wake Order') : (language === 'zh' ? '显示唤醒顺序' : 'Show Wake Order')}>
+        <Tooltip title={nightShowWakeOrder ? (t('hide_wake_order')) : (t('show_wake_order'))}>
           <IconButton size="large" onClick={() => setNightShowWakeOrder((v: boolean) => !v)} sx={nightShowWakeOrder ? TIMER_CONTROL_SX : TIMER_IDLE_SX}>
             <FormatListNumberedIcon />
           </IconButton>
         </Tooltip>
-        <Tooltip title={language === 'zh' ? '编辑角色' : 'Edit Characters'}>
+        <Tooltip title={t('edit_characters')}>
           <IconButton size="large" onClick={openCharacterEditor}><ManageAccountsIcon /></IconButton>
         </Tooltip>
       </Box>
@@ -170,20 +172,20 @@ export function ArenaCenterContent({ ctx }: { ctx: StorytellerContext }) {
         <MenuItem value="free">{text.freeSpeech}</MenuItem>
         <MenuItem value="roundRobin">{text.roundRobinMode}</MenuItem>
       </Select>}
-      <Tooltip title={language === 'zh' ? '编辑角色' : 'Edit Characters'}>
+      <Tooltip title={t('edit_characters')}>
         <IconButton size="large" onClick={openCharacterEditor}><ManageAccountsIcon /></IconButton>
       </Tooltip>
-      <Tooltip title={language === 'zh' ? '日志' : 'Log'}>
+      <Tooltip title={t('log')}>
         <IconButton size="large" onClick={() => setShowAggLogModal(true)}><ViewTimelineIcon /></IconButton>
       </Tooltip>
       {phase === 'nomination' && (
         <>
-          <Tooltip title={language === 'zh' ? '提名' : 'Nominate'}>
+          <Tooltip title={t('nominate')}>
             <IconButton size="large" onClick={() => setShowNominationSheet((v: boolean) => !v)} sx={showNominationSheet ? TIMER_CONTROL_SX : TIMER_IDLE_SX}>
               <HowToVoteIcon />
             </IconButton>
           </Tooltip>
-          <Tooltip title={language === 'zh' ? '下一天' : 'Next Day'}>
+          <Tooltip title={t('next_day')}>
             <IconButton size="large" onClick={(e) => { e.stopPropagation(); goToNextDay() }}><ArrowForwardIosIcon /></IconButton>
           </Tooltip>
         </>

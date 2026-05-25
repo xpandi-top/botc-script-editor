@@ -2,6 +2,13 @@
   "ui": {
     "app_title": "染·钟楼谜团助手",
     "app_lead": "编辑独立 JSON 剧本文件、预览剧本，并导出 PDF。",
+    "disclaimer": "本网站仅供社区使用，非商业用途。",
+    "tab_desc_scripts": "浏览、编辑和导出 BOTC 剧本 PDF。选择角色并自定义你的游戏卡片。",
+    "tab_desc_characters": "完整的角色目录，支持搜索和筛选。查看所有官方和自定义角色能力。",
+    "tab_desc_storyteller": "说书人游戏管理工具。管理夜晚阶段、提名、投票和游戏历史记录。",
+    "tab_desc_analytics": "追踪和分析你的 BOTC 游戏统计数据。查看趋势并导出游戏记录。",
+    "tab_desc_printstudio": "高级打印布局设计器。创建自定义角色令牌和打印材料。",
+    "tab_desc_settings": "自定义字体和外观。设置全局生效并在会话间持久保存。",
     "print": "导出 PDF",
     "script_sheet": "剧本",
     "settings": "设置",
@@ -236,6 +243,7 @@
     "remove_st_tag": "移除 ST 标签",
     "remove_public_tag": "移除公开标签",
     "event_log": "事件日志",
+    "seat_event_log": "{0} 事件记录",
     "game_log": "详细日志",
     "game_records": "历史记录",
     "new_game": "新游戏",
@@ -331,925 +339,799 @@
     "poisoned_tag": "中毒",
     "protected_tag": "受保护",
     "used_tag": "已使用",
-    "red_herring": "干扰项"
-  },
-  "jinxes": {
-    "alchemist::boffin": {
-      "revision": "v1",
-      "reason": "如果炼金术士拥有科学怪人能力，则炼金术士不会得知恶魔拥有什么能力。",
-      "revisions": {
-        "v1": "如果炼金术士拥有科学怪人能力，则炼金术士不会得知恶魔拥有什么能力。"
-      }
-    },
-    "alchemist::marionette": {
-      "revision": "v1",
-      "reason": "炼金术士-提线木偶没有提线木偶能力，且场上有提线木偶。",
-      "revisions": {
-        "v1": "炼金术士-提线木偶没有提线木偶能力，且场上有提线木偶。"
-      }
-    },
-    "alchemist::mastermind": {
-      "revision": "v1",
-      "reason": "炼金术士-主谋没有主谋能力，且主谋不在场。",
-      "revisions": {
-        "v1": "炼金术士-主谋没有主谋能力，且主谋不在场。"
-      }
-    },
-    "alchemist::organ_grinder": {
-      "revision": "v1",
-      "reason": "如果炼金术士拥有街头风琴手能力，则场上有街头风琴手。若二者都未醉酒，则二者都醉酒。",
-      "revisions": {
-        "v1": "如果炼金术士拥有街头风琴手能力，则场上有街头风琴手。若二者都未醉酒，则二者都醉酒。"
-      }
-    },
-    "alchemist::spy": {
-      "revision": "v1",
-      "reason": "炼金术士-间谍没有间谍能力，且场上有一名间谍。 每次处决后，存活的炼金术士-间谍可以公开猜测一名存活玩家是间谍。若猜对，恶魔今夜必须选择间谍。",
-      "revisions": {
-        "v1": "炼金术士-间谍没有间谍能力，且场上有一名间谍。 每次处决后，存活的炼金术士-间谍可以公开猜测一名存活玩家是间谍。若猜对，恶魔今夜必须选择间谍。"
-      }
-    },
-    "alchemist::summoner": {
-      "revision": "v1",
-      "reason": "炼金术士-召唤师不会获得恶魔伪装，并选择哪种恶魔而不是哪位玩家。若其在此之前死亡，则邪恶阵营获胜。【无恶魔】",
-      "revisions": {
-        "v1": "炼金术士-召唤师不会获得恶魔伪装，并选择哪种恶魔而不是哪位玩家。若其在此之前死亡，则邪恶阵营获胜。【无恶魔】"
-      }
-    },
-    "alchemist::widow": {
-      "revision": "v1",
-      "reason": "炼金术士-寡妇没有寡妇能力，且场上有一名寡妇。 每次处决后，存活的炼金术士-寡妇可以公开猜测一名存活玩家是寡妇。若猜对，恶魔今夜必须选择寡妇。",
-      "revisions": {
-        "v1": "炼金术士-寡妇没有寡妇能力，且场上有一名寡妇。 每次处决后，存活的炼金术士-寡妇可以公开猜测一名存活玩家是寡妇。若猜对，恶魔今夜必须选择寡妇。"
-      }
-    },
-    "alchemist::wraith": {
-      "revision": "v1",
-      "reason": "炼金术士-怨灵没有怨灵能力，且场上有一名怨灵。每次处决后，存活的炼金术士-怨灵可以公开猜测一名存活玩家是怨灵。若猜对，恶魔今夜必须选择怨灵。",
-      "revisions": {
-        "v1": "炼金术士-怨灵没有怨灵能力，且场上有一名怨灵。每次处决后，存活的炼金术士-怨灵可以公开猜测一名存活玩家是怨灵。若猜对，恶魔今夜必须选择怨灵。"
-      }
-    },
-    "alhadikhia::mastermind": {
-      "revision": "v1",
-      "reason": "如果哈迪寂亚因处决而死亡，且主谋存活，则哈迪寂亚今夜选择3名善良玩家：若3人都选择存活，邪恶阵营获胜；否则善良阵营获胜。",
-      "revisions": {
-        "v1": "如果哈迪寂亚因处决而死亡，且主谋存活，则哈迪寂亚今夜选择3名善良玩家：若3人都选择存活，邪恶阵营获胜；否则善良阵营获胜。"
-      }
-    },
-    "alhadikhia::princess": {
-      "revision": "v1",
-      "reason": "如果公主在其第一个白天提名并处决了一名玩家，则今夜不会有人死于哈迪寂亚。",
-      "revisions": {
-        "v1": "如果公主在其第一个白天提名并处决了一名玩家，则今夜不会有人死于哈迪寂亚。"
-      }
-    },
-    "boffin::cultleader": {
-      "revision": "v1",
-      "reason": "如果恶魔拥有异教领袖能力，则其不能因该能力转为善良。",
-      "revisions": {
-        "v1": "如果恶魔拥有异教领袖能力，则其不能因该能力转为善良。"
-      }
-    },
-    "boffin::drunk": {
-      "revision": "v1",
-      "reason": "恶魔不能获得酒鬼能力。",
-      "revisions": {
-        "v1": "恶魔不能获得酒鬼能力。"
-      }
-    },
-    "boffin::goon": {
-      "revision": "v1",
-      "reason": "如果恶魔拥有莽夫能力，则其不能因该能力转为善良。",
-      "revisions": {
-        "v1": "如果恶魔拥有莽夫能力，则其不能因该能力转为善良。"
-      }
-    },
-    "boffin::heretic": {
-      "revision": "v1",
-      "reason": "恶魔不能获得异端分子能力。",
-      "revisions": {
-        "v1": "恶魔不能获得异端分子能力。"
-      }
-    },
-    "boffin::ogre": {
-      "revision": "v1",
-      "reason": "恶魔不能获得食人魔能力。",
-      "revisions": {
-        "v1": "恶魔不能获得食人魔能力。"
-      }
-    },
-    "boffin::politician": {
-      "revision": "v1",
-      "reason": "恶魔不能获得政客能力。",
-      "revisions": {
-        "v1": "恶魔不能获得政客能力。"
-      }
-    },
-    "boffin::village_idiot": {
-      "revision": "v1",
-      "reason": "如果有备用标记，科学怪人可以赋予恶魔村夫能力。",
-      "revisions": {
-        "v1": "如果有备用标记，科学怪人可以赋予恶魔村夫能力。"
-      }
-    },
-    "bountyhunter::kazali": {
-      "revision": "v1",
-      "reason": "如果卡扎力把赏金猎人变成爪牙，则不会额外产生邪恶镇民。",
-      "revisions": {
-        "v1": "如果卡扎力把赏金猎人变成爪牙，则不会额外产生邪恶镇民。"
-      }
-    },
-    "bountyhunter::philosopher": {
-      "revision": "v1",
-      "reason": "如果哲学家获得赏金猎人能力，则一名镇民可能转为邪恶。",
-      "revisions": {
-        "v1": "如果哲学家获得赏金猎人能力，则一名镇民可能转为邪恶。"
-      }
-    },
-    "butler::organ_grinder": {
-      "revision": "v1",
-      "reason": "如果街头风琴手导致闭眼投票，则管家可以举手投票，但只有其主人也投票时该票才计入。",
-      "revisions": {
-        "v1": "如果街头风琴手导致闭眼投票，则管家可以举手投票，但只有其主人也投票时该票才计入。"
-      }
-    },
-    "butler::cannibal": {
-      "revision": "v1",
-      "reason": "如果食人族获得管家能力，则食人族会知晓此事。",
-      "revisions": {
-        "v1": "如果食人族获得管家能力，则食人族会知晓此事。"
-      }
-    },
-    "cannibal::juggler": {
-      "revision": "v1",
-      "reason": "如果杂耍艺人在其首个白天猜测后因处决而死亡，则今夜存活的食人族会得知杂耍艺人猜对了几个。",
-      "revisions": {
-        "v1": "如果杂耍艺人在其首个白天猜测后因处决而死亡，则今夜存活的食人族会得知杂耍艺人猜对了几个。"
-      }
-    },
-    "cannibal::princess": {
-      "revision": "v1",
-      "reason": "如果食人族今天提名、处决并杀死了公主，则恶魔今夜不杀人。",
-      "revisions": {
-        "v1": "如果食人族今天提名、处决并杀死了公主，则恶魔今夜不杀人。"
-      }
-    },
-    "cannibal::zealot": {
-      "revision": "v1",
-      "reason": "如果食人族获得狂热者能力，则食人族会知晓此事。",
-      "revisions": {
-        "v1": "如果食人族获得狂热者能力，则食人族会知晓此事。"
-      }
-    },
-    "cerenovus::goblin": {
-      "revision": "v1",
-      "reason": "洗脑师可以选择让一名玩家疯狂地声称自己是哥布林。",
-      "revisions": {
-        "v1": "洗脑师可以选择让一名玩家疯狂地声称自己是哥布林。"
-      }
-    },
-    "baron::heretic": {
-      "revision": "v1",
-      "reason": "这些禁配角色中至多只有1个可以在场。",
-      "revisions": {
-        "v1": "这些禁配角色中至多只有1个可以在场。"
-      }
-    },
-    "godfather::heretic": {
-      "revision": "v1",
-      "reason": "这些禁配角色中至多只有1个可以在场。",
-      "revisions": {
-        "v1": "这些禁配角色中至多只有1个可以在场。"
-      }
-    },
-    "heretic::lleech": {
-      "revision": "v1",
-      "reason": "这些禁配角色中至多只有1个可以在场。",
-      "revisions": {
-        "v1": "这些禁配角色中至多只有1个可以在场。"
-      }
-    },
-    "heretic::pithag": {
-      "revision": "v1",
-      "reason": "这些禁配角色中至多只有1个可以在场。",
-      "revisions": {
-        "v1": "这些禁配角色中至多只有1个可以在场。"
-      }
-    },
-    "heretic::spy": {
-      "revision": "v1",
-      "reason": "这些禁配角色中至多只有1个可以在场。",
-      "revisions": {
-        "v1": "这些禁配角色中至多只有1个可以在场。"
-      }
-    },
-    "heretic::widow": {
-      "revision": "v1",
-      "reason": "这些禁配角色中至多只有1个可以在场。",
-      "revisions": {
-        "v1": "这些禁配角色中至多只有1个可以在场。"
-      }
-    },
-    "engineer::legion": {
-      "revision": "v1",
-      "reason": "如果产生军团，所有邪恶玩家都变为军团。如果场上有军团，则工程师开局知晓此事但没有能力。",
-      "revisions": {
-        "v1": "如果产生军团，所有邪恶玩家都变为军团。如果场上有军团，则工程师开局知晓此事但没有能力。"
-      }
-    },
-    "hatter::legion": {
-      "revision": "v1",
-      "reason": "如果产生军团，所有邪恶玩家都变为军团。如果场上有军团，则帽匠没有能力。",
-      "revisions": {
-        "v1": "如果产生军团，所有邪恶玩家都变为军团。如果场上有军团，则帽匠没有能力。"
-      }
-    },
-    "legion::minstrel": {
-      "revision": "v1",
-      "reason": "如果军团今天因处决而死亡，则军团保留其能力，但吟游诗人可能会得知他们是军团。",
-      "revisions": {
-        "v1": "如果军团今天因处决而死亡，则军团保留其能力，但吟游诗人可能会得知他们是军团。"
-      }
-    },
-    "legion::politician": {
-      "revision": "v1",
-      "reason": "政客对军团而言可能呈现为邪恶。",
-      "revisions": {
-        "v1": "政客对军团而言可能呈现为邪恶。"
-      }
-    },
-    "legion::preacher": {
-      "revision": "v1",
-      "reason": "如果传教士选择军团，则军团保留其能力，但传教士可能会得知他们是军团。",
-      "revisions": {
-        "v1": "如果传教士选择军团，则军团保留其能力，但传教士可能会得知他们是军团。"
-      }
-    },
-    "legion::summoner": {
-      "revision": "v1",
-      "reason": "如果召唤出军团，所有邪恶玩家都变为军团。",
-      "revisions": {
-        "v1": "如果召唤出军团，所有邪恶玩家都变为军团。"
-      }
-    },
-    "legion::zealot": {
-      "revision": "v1",
-      "reason": "狂热者对军团而言可能呈现为邪恶。",
-      "revisions": {
-        "v1": "狂热者对军团而言可能呈现为邪恶。"
-      }
-    },
-    "banshee::leviathan": {
-      "revision": "v1",
-      "reason": "每个夜晚*，利维坦选择一名与前几夜不同的存活善良玩家：若选中报丧女妖，则报丧女妖死亡并获得其能力。",
-      "revisions": {
-        "v1": "每个夜晚*，利维坦选择一名与前几夜不同的存活善良玩家：若选中报丧女妖，则报丧女妖死亡并获得其能力。"
-      }
-    },
-    "exorcist::leviathan": {
-      "revision": "v1",
-      "reason": "如果利维坦提名并处决了驱魔人所选的玩家，则善良阵营获胜。",
-      "revisions": {
-        "v1": "如果利维坦提名并处决了驱魔人所选的玩家，则善良阵营获胜。"
-      }
-    },
-    "farmer::leviathan": {
-      "revision": "v1",
-      "reason": "每个夜晚*，利维坦选择一名与前几夜不同的存活善良玩家：若选中农夫，则农夫发动其能力但不会死亡。",
-      "revisions": {
-        "v1": "每个夜晚*，利维坦选择一名与前几夜不同的存活善良玩家：若选中农夫，则农夫发动其能力但不会死亡。"
-      }
-    },
-    "grandmother::leviathan": {
-      "revision": "v1",
-      "reason": "如果场上有利维坦且孙儿因处决而死亡，则邪恶阵营获胜。",
-      "revisions": {
-        "v1": "如果场上有利维坦且孙儿因处决而死亡，则邪恶阵营获胜。"
-      }
-    },
-    "hatter::leviathan": {
-      "revision": "v1",
-      "reason": "利维坦在第5天后不能进入游戏。",
-      "revisions": {
-        "v1": "利维坦在第5天后不能进入游戏。"
-      }
-    },
-    "innkeeper::leviathan": {
-      "revision": "v1",
-      "reason": "如果利维坦提名并处决了受旅店老板保护的玩家，则善良阵营获胜。",
-      "revisions": {
-        "v1": "如果利维坦提名并处决了受旅店老板保护的玩家，则善良阵营获胜。"
-      }
-    },
-    "king::leviathan": {
-      "revision": "v1",
-      "reason": "如果场上有利维坦且至少有1名玩家死亡，则国王每晚会得知一个存活角色。",
-      "revisions": {
-        "v1": "如果场上有利维坦且至少有1名玩家死亡，则国王每晚会得知一个存活角色。"
-      }
-    },
-    "leviathan::mayor": {
-      "revision": "v1",
-      "reason": "如果利维坦与镇长在第5天都存活且当天无人被处决，则善良阵营获胜。",
-      "revisions": {
-        "v1": "如果利维坦与镇长在第5天都存活且当天无人被处决，则善良阵营获胜。"
-      }
-    },
-    "leviathan::monk": {
-      "revision": "v1",
-      "reason": "如果利维坦提名并处决了受僧侣保护的玩家，则善良阵营获胜。",
-      "revisions": {
-        "v1": "如果利维坦提名并处决了受僧侣保护的玩家，则善良阵营获胜。"
-      }
-    },
-    "leviathan::pithag": {
-      "revision": "v1",
-      "reason": "利维坦在第5天后不能进入游戏。",
-      "revisions": {
-        "v1": "利维坦在第5天后不能进入游戏。"
-      }
-    },
-    "leviathan::ravenkeeper": {
-      "revision": "v1",
-      "reason": "每个夜晚*，利维坦选择一名与前几夜不同的存活玩家：若选中守鸦人，则守鸦人发动其能力但不会死亡。",
-      "revisions": {
-        "v1": "每个夜晚*，利维坦选择一名与前几夜不同的存活玩家：若选中守鸦人，则守鸦人发动其能力但不会死亡。"
-      }
-    },
-    "leviathan::sage": {
-      "revision": "v1",
-      "reason": "每个夜晚*，利维坦选择一名与前几夜不同的存活善良玩家：若选中贤者，则贤者发动其能力但不会死亡。",
-      "revisions": {
-        "v1": "每个夜晚*，利维坦选择一名与前几夜不同的存活善良玩家：若选中贤者，则贤者发动其能力但不会死亡。"
-      }
-    },
-    "leviathan::soldier": {
-      "revision": "v1",
-      "reason": "如果利维坦提名并处决了士兵，则善良阵营获胜。",
-      "revisions": {
-        "v1": "如果利维坦提名并处决了士兵，则善良阵营获胜。"
-      }
-    },
-    "hatter::lilmonsta": {
-      "revision": "v1",
-      "reason": "如果帽匠死亡且恶魔选择成为小怪宝，则他们还要选择一名要变成的爪牙。",
-      "revisions": {
-        "v1": "如果帽匠死亡且恶魔选择成为小怪宝，则他们还要选择一名要变成的爪牙。"
-      }
-    },
-    "lilmonsta::magician": {
-      "revision": "v1",
-      "reason": "如果魔术师存活，则由说书人决定哪名爪牙照看小怪宝。",
-      "revisions": {
-        "v1": "如果魔术师存活，则由说书人决定哪名爪牙照看小怪宝。"
-      }
-    },
-    "lilmonsta::poppygrower": {
-      "revision": "v1",
-      "reason": "如果小怪宝与罂粟种植者都存活，爪牙会依次单独醒来，直到其中一人选择拿走小怪宝标记。",
-      "revisions": {
-        "v1": "如果小怪宝与罂粟种植者都存活，爪牙会依次单独醒来，直到其中一人选择拿走小怪宝标记。"
-      }
-    },
-    "lilmonsta::psychopath": {
-      "revision": "v1",
-      "reason": "如果精神病患者正在照看小怪宝，则其被处决时会死亡。",
-      "revisions": {
-        "v1": "如果精神病患者正在照看小怪宝，则其被处决时会死亡。"
-      }
-    },
-    "lilmonsta::scarletwoman": {
-      "revision": "v1",
-      "reason": "如果小怪宝死亡时场上仍有至少5名玩家存活，则红唇女郎在本局余下时间照看小怪宝。",
-      "revisions": {
-        "v1": "如果小怪宝死亡时场上仍有至少5名玩家存活，则红唇女郎在本局余下时间照看小怪宝。"
-      }
-    },
-    "lilmonsta::vizier": {
-      "revision": "v1",
-      "reason": "如果维齐尔正在照看小怪宝，则其被处决时会死亡。",
-      "revisions": {
-        "v1": "如果维齐尔正在照看小怪宝，则其被处决时会死亡。"
-      }
-    },
-    "lleech::mastermind": {
-      "revision": "v1",
-      "reason": "如果主谋存活且痢蛭宿主因处决而死亡，则痢蛭存活但失去其能力。",
-      "revisions": {
-        "v1": "如果主谋存活且痢蛭宿主因处决而死亡，则痢蛭存活但失去其能力。"
-      }
-    },
-    "lleech::slayer": {
-      "revision": "v1",
-      "reason": "如果猎手射杀痢蛭宿主，则宿主死亡。",
-      "revisions": {
-        "v1": "如果猎手射杀痢蛭宿主，则宿主死亡。"
-      }
-    },
-    "legion::magician": {
-      "revision": "v1",
-      "reason": "魔术师会与军团一同醒来，并且可能呈现为邪恶。军团会知道场上是否有魔术师，但不知道是谁。",
-      "revisions": {
-        "v1": "魔术师会与军团一同醒来，并且可能呈现为邪恶。军团会知道场上是否有魔术师，但不知道是谁。"
-      }
-    },
-    "magician::marionette": {
-      "revision": "v1",
-      "reason": "如果魔术师存活，则恶魔不知道哪位邻座是提线木偶。",
-      "revisions": {
-        "v1": "如果魔术师存活，则恶魔不知道哪位邻座是提线木偶。"
-      }
-    },
-    "magician::spy": {
-      "revision": "v1",
-      "reason": "当间谍查看魔典时，恶魔与魔术师的角色标记会被移除。",
-      "revisions": {
-        "v1": "当间谍查看魔典时，恶魔与魔术师的角色标记会被移除。"
-      }
-    },
-    "magician::vizier": {
-      "revision": "v1",
-      "reason": "如果场上有维齐尔，则魔术师没有能力，但免疫维齐尔的能力。",
-      "revisions": {
-        "v1": "如果场上有维齐尔，则魔术师没有能力，但免疫维齐尔的能力。"
-      }
-    },
-    "magician::widow": {
-      "revision": "v1",
-      "reason": "当寡妇查看魔典时，恶魔与魔术师的角色标记会被移除。",
-      "revisions": {
-        "v1": "当寡妇查看魔典时，恶魔与魔术师的角色标记会被移除。"
-      }
-    },
-    "magician::wraith": {
-      "revision": "v1",
-      "reason": "每次处决后，存活的魔术师可以公开猜测一名存活玩家是怨灵。若猜对，恶魔今夜必须选择怨灵。",
-      "revisions": {
-        "v1": "每次处决后，存活的魔术师可以公开猜测一名存活玩家是怨灵。若猜对，恶魔今夜必须选择怨灵。"
-      }
-    },
-    "balloonist::marionette": {
-      "revision": "v1",
-      "reason": "如果提线木偶认为自己是气球驾驶员，则准备阶段可能额外加入了一名外来者。",
-      "revisions": {
-        "v1": "如果提线木偶认为自己是气球驾驶员，则准备阶段可能额外加入了一名外来者。"
-      }
-    },
-    "huntsman::marionette": {
-      "revision": "v1",
-      "reason": "如果提线木偶认为自己是巡山人，则落难少女是在准备阶段加入的。",
-      "revisions": {
-        "v1": "如果提线木偶认为自己是巡山人，则落难少女是在准备阶段加入的。"
-      }
-    },
-    "kazali::marionette": {
-      "revision": "v1",
-      "reason": "如果将有提线木偶在场，则其在恶魔之后入场，且必须从恶魔的邻座开始。",
-      "revisions": {
-        "v1": "如果将有提线木偶在场，则其在恶魔之后入场，且必须从恶魔的邻座开始。"
-      }
-    },
-    "lilmonsta::marionette": {
-      "revision": "v1",
-      "reason": "如果将有提线木偶在场，则其在恶魔之后入场，且必须从恶魔的邻座开始。",
-      "revisions": {
-        "v1": "如果将有提线木偶在场，则其在恶魔之后入场，且必须从恶魔的邻座开始。"
-      }
-    },
-    "marionette::summoner": {
-      "revision": "v1",
-      "reason": "如果将有提线木偶在场，则其在恶魔之后入场，且必须从恶魔的邻座开始。",
-      "revisions": {
-        "v1": "如果将有提线木偶在场，则其在恶魔之后入场，且必须从恶魔的邻座开始。"
-      }
-    },
-    "mastermind::vigormortis": {
-      "revision": "v1",
-      "reason": "拥有该能力的主谋在亡骨魔死亡后仍保留该能力。",
-      "revisions": {
-        "v1": "拥有该能力的主谋在亡骨魔死亡后仍保留该能力。"
-      }
-    },
-    "chambermaid::mathematician": {
-      "revision": "v1",
-      "reason": "侍女可以侦测数学家今晚是否会醒来。",
-      "revisions": {
-        "v1": "侍女可以侦测数学家今晚是否会醒来。"
-      }
-    },
-    "drunk::mathematician": {
-      "revision": "v1",
-      "reason": "数学家可能会得知酒鬼的能力给出了错误信息或未正常生效。",
-      "revisions": {
-        "v1": "数学家可能会得知酒鬼的能力给出了错误信息或未正常生效。"
-      }
-    },
-    "lunatic::mathematician": {
-      "revision": "v1",
-      "reason": "数学家可能会得知疯子攻击的玩家与真正恶魔攻击的玩家不同。",
-      "revisions": {
-        "v1": "数学家可能会得知疯子攻击的玩家与真正恶魔攻击的玩家不同。"
-      }
-    },
-    "marionette::mathematician": {
-      "revision": "v1",
-      "reason": "数学家可能会得知提线木偶的能力给出了错误信息或未正常生效。",
-      "revisions": {
-        "v1": "数学家可能会得知提线木偶的能力给出了错误信息或未正常生效。"
-      }
-    },
-    "cultleader::pithag": {
-      "revision": "v1",
-      "reason": "如果麻脸巫婆把一名邪恶玩家变成异教领袖，则其不能因自身能力转为善良。",
-      "revisions": {
-        "v1": "如果麻脸巫婆把一名邪恶玩家变成异教领袖，则其不能因自身能力转为善良。"
-      }
-    },
-    "damsel::pithag": {
-      "revision": "v1",
-      "reason": "如果麻脸巫婆创造出落难少女，则由说书人决定是哪位玩家。",
-      "revisions": {
-        "v1": "如果麻脸巫婆创造出落难少女，则由说书人决定是哪位玩家。"
-      }
-    },
-    "goon::pithag": {
-      "revision": "v1",
-      "reason": "如果麻脸巫婆把一名邪恶玩家变成莽夫，则其不能因自身能力转为善良。",
-      "revisions": {
-        "v1": "如果麻脸巫婆把一名邪恶玩家变成莽夫，则其不能因自身能力转为善良。"
-      }
-    },
-    "ogre::pithag": {
-      "revision": "v1",
-      "reason": "如果麻脸巫婆把一名邪恶玩家变成食人魔，则其不能因自身能力转为善良。",
-      "revisions": {
-        "v1": "如果麻脸巫婆把一名邪恶玩家变成食人魔，则其不能因自身能力转为善良。"
-      }
-    },
-    "pithag::politician": {
-      "revision": "v1",
-      "reason": "如果麻脸巫婆把一名邪恶玩家变成政客，则其不能因自身能力转为善良。",
-      "revisions": {
-        "v1": "如果麻脸巫婆把一名邪恶玩家变成政客，则其不能因自身能力转为善良。"
-      }
-    },
-    "pithag::village_idiot": {
-      "revision": "v1",
-      "reason": "如果有备用标记，麻脸巫婆可以额外创造一名村夫。若如此，醉酒的村夫可能改变。",
-      "revisions": {
-        "v1": "如果有备用标记，麻脸巫婆可以额外创造一名村夫。若如此，醉酒的村夫可能改变。"
-      }
-    },
-    "baron::plague_doctor": {
-      "revision": "v1",
-      "reason": "如果说书人将获得男爵能力，则至多两名玩家变为外来者。",
-      "revisions": {
-        "v1": "如果说书人将获得男爵能力，则至多两名玩家变为外来者。"
-      }
-    },
-    "boomdandy::plague_doctor": {
-      "revision": "v1",
-      "reason": "如果说书人将获得炸弹人能力，则一名玩家变成炸弹人。",
-      "revisions": {
-        "v1": "如果说书人将获得炸弹人能力，则一名玩家变成炸弹人。"
-      }
-    },
-    "eviltwin::plague_doctor": {
-      "revision": "v1",
-      "reason": "如果说书人将获得镜像双子能力，则一名玩家变成镜像双子。",
-      "revisions": {
-        "v1": "如果说书人将获得镜像双子能力，则一名玩家变成镜像双子。"
-      }
-    },
-    "fearmonger::plague_doctor": {
-      "revision": "v1",
-      "reason": "如果说书人将获得恐惧之灵能力，则一名爪牙获得该能力，并知晓此事。",
-      "revisions": {
-        "v1": "如果说书人将获得恐惧之灵能力，则一名爪牙获得该能力，并知晓此事。"
-      }
-    },
-    "goblin::plague_doctor": {
-      "revision": "v1",
-      "reason": "如果说书人将获得哥布林能力，则一名爪牙获得该能力，并知晓此事。",
-      "revisions": {
-        "v1": "如果说书人将获得哥布林能力，则一名爪牙获得该能力，并知晓此事。"
-      }
-    },
-    "marionette::plague_doctor": {
-      "revision": "v1",
-      "reason": "如果说书人将获得提线木偶能力，则恶魔的一名善良邻座变成提线木偶。",
-      "revisions": {
-        "v1": "如果说书人将获得提线木偶能力，则恶魔的一名善良邻座变成提线木偶。"
-      }
-    },
-    "plague_doctor::scarletwoman": {
-      "revision": "v1",
-      "reason": "如果说书人将获得红唇女郎能力，则一名爪牙获得该能力，并知晓此事。",
-      "revisions": {
-        "v1": "如果说书人将获得红唇女郎能力，则一名爪牙获得该能力，并知晓此事。"
-      }
-    },
-    "plague_doctor::spy": {
-      "revision": "v1",
-      "reason": "如果说书人将获得间谍能力，则一名爪牙获得该能力，并知晓此事。",
-      "revisions": {
-        "v1": "如果说书人将获得间谍能力，则一名爪牙获得该能力，并知晓此事。"
-      }
-    },
-    "plague_doctor::wraith": {
-      "revision": "v1",
-      "reason": "如果说书人将获得怨灵能力，则一名爪牙获得该能力，并知晓此事。",
-      "revisions": {
-        "v1": "如果说书人将获得怨灵能力，则一名爪牙获得该能力，并知晓此事。"
-      }
-    },
-    "ogre::recluse": {
-      "revision": "v1",
-      "reason": "如果陌客对食人魔而言呈现为邪恶，则食人魔会得知自己是邪恶的。",
-      "revisions": {
-        "v1": "如果陌客对食人魔而言呈现为邪恶，则食人魔会得知自己是邪恶的。"
-      }
-    },
-    "recluse::sage": {
-      "revision": "v1",
-      "reason": "陌客对贤者而言可能呈现为恶魔。",
-      "revisions": {
-        "v1": "陌客对贤者而言可能呈现为恶魔。"
-      }
-    },
-    "atheist::riot": {
-      "revision": "v1",
-      "reason": "在暴动期间，如果说书人被提名，玩家照常投票。若说书人“将要死亡”，游戏结束；否则由说书人再次发起提名。",
-      "revisions": {
-        "v1": "在暴动期间，如果说书人被提名，玩家照常投票。若说书人“将要死亡”，游戏结束；否则由说书人再次发起提名。"
-      }
-    },
-    "banshee::riot": {
-      "revision": "v1",
-      "reason": "每个夜晚*，暴乱选择一名与前几夜不同的存活善良玩家：若选中报丧女妖，则报丧女妖死亡并获得其能力。",
-      "revisions": {
-        "v1": "每个夜晚*，暴乱选择一名与前几夜不同的存活善良玩家：若选中报丧女妖，则报丧女妖死亡并获得其能力。"
-      }
-    },
-    "exorcist::riot": {
-      "revision": "v1",
-      "reason": "如果暴乱提名并处决了驱魔人所选的玩家，则善良阵营获胜。",
-      "revisions": {
-        "v1": "如果暴乱提名并处决了驱魔人所选的玩家，则善良阵营获胜。"
-      }
-    },
-    "farmer::riot": {
-      "revision": "v1",
-      "reason": "每个夜晚*，暴乱选择一名与前几夜不同的存活善良玩家：若选中农夫，则农夫发动其能力但不会死亡。",
-      "revisions": {
-        "v1": "每个夜晚*，暴乱选择一名与前几夜不同的存活善良玩家：若选中农夫，则农夫发动其能力但不会死亡。"
-      }
-    },
-    "grandmother::riot": {
-      "revision": "v1",
-      "reason": "如果场上有暴乱且孙儿因处决而死亡，则邪恶阵营获胜。",
-      "revisions": {
-        "v1": "如果场上有暴乱且孙儿因处决而死亡，则邪恶阵营获胜。"
-      }
-    },
-    "innkeeper::riot": {
-      "revision": "v1",
-      "reason": "如果暴乱提名并处决了受旅店老板保护的玩家，则善良阵营获胜。",
-      "revisions": {
-        "v1": "如果暴乱提名并处决了受旅店老板保护的玩家，则善良阵营获胜。"
-      }
-    },
-    "king::riot": {
-      "revision": "v1",
-      "reason": "如果场上有暴乱且至少有1名玩家死亡，则国王每晚会得知一个存活角色。",
-      "revisions": {
-        "v1": "如果场上有暴乱且至少有1名玩家死亡，则国王每晚会得知一个存活角色。"
-      }
-    },
-    "mayor::riot": {
-      "revision": "v1",
-      "reason": "镇长可以选择阻止暴动。若其在仅剩1名暴乱存活时这样做，则善良阵营获胜；否则邪恶阵营获胜。",
-      "revisions": {
-        "v1": "镇长可以选择阻止暴动。若其在仅剩1名暴乱存活时这样做，则善良阵营获胜；否则邪恶阵营获胜。"
-      }
-    },
-    "monk::riot": {
-      "revision": "v1",
-      "reason": "如果暴乱提名并处决了受僧侣保护的玩家，则善良阵营获胜。",
-      "revisions": {
-        "v1": "如果暴乱提名并处决了受僧侣保护的玩家，则善良阵营获胜。"
-      }
-    },
-    "ravenkeeper::riot": {
-      "revision": "v1",
-      "reason": "每个夜晚*，暴乱选择一名与前几夜不同的存活善良玩家：若选中守鸦人，则守鸦人发动其能力但不会死亡。",
-      "revisions": {
-        "v1": "每个夜晚*，暴乱选择一名与前几夜不同的存活善良玩家：若选中守鸦人，则守鸦人发动其能力但不会死亡。"
-      }
-    },
-    "riot::sage": {
-      "revision": "v1",
-      "reason": "每个夜晚*，暴乱选择一名与前几夜不同的存活善良玩家：若选中贤者，则贤者发动其能力但不会死亡。",
-      "revisions": {
-        "v1": "每个夜晚*，暴乱选择一名与前几夜不同的存活善良玩家：若选中贤者，则贤者发动其能力但不会死亡。"
-      }
-    },
-    "riot::soldier": {
-      "revision": "v1",
-      "reason": "如果暴乱提名并处决了士兵，则善良阵营获胜。",
-      "revisions": {
-        "v1": "如果暴乱提名并处决了士兵，则善良阵营获胜。"
-      }
-    },
-    "alhadikhia::scarletwoman": {
-      "revision": "v1",
-      "reason": "如果场上将会有两名恶魔，其中一名是红唇女郎，则红唇女郎再次成为红唇女郎。",
-      "revisions": {
-        "v1": "如果场上将会有两名恶魔，其中一名是红唇女郎，则红唇女郎再次成为红唇女郎。"
-      }
-    },
-    "fanggu::scarletwoman": {
-      "revision": "v1",
-      "reason": "如果场上将会有两名恶魔，其中一名是红唇女郎，则红唇女郎仍然是红唇女郎。",
-      "revisions": {
-        "v1": "如果场上将会有两名恶魔，其中一名是红唇女郎，则红唇女郎仍然是红唇女郎。"
-      }
-    },
-    "damsel::spy": {
-      "revision": "v1",
-      "reason": "如果 间谍在场（或曾在场），则落难少女中毒。",
-      "revisions": {
-        "v1": "如果 间谍在场（或曾在场），则落难少女中毒。"
-      }
-    },
-    "ogre::spy": {
-      "revision": "v1",
-      "reason": "间谍对食人魔而言呈现为邪恶。",
-      "revisions": {
-        "v1": "间谍对食人魔而言呈现为邪恶。"
-      }
-    },
-    "poppygrower::spy": {
-      "revision": "v1",
-      "reason": "如果罂粟种植者拥有其能力，则间谍不会查看魔典。",
-      "revisions": {
-        "v1": "如果罂粟种植者拥有其能力，则间谍不会查看魔典。"
-      }
-    },
-    "clockmaker::summoner": {
-      "revision": "v1",
-      "reason": "召唤师对钟表匠而言呈现为恶魔。",
-      "revisions": {
-        "v1": "召唤师对钟表匠而言呈现为恶魔。"
-      }
-    },
-    "courtier::summoner": {
-      "revision": "v1",
-      "reason": "如果存活的召唤师没有能力，则由说书人拥有召唤师能力。",
-      "revisions": {
-        "v1": "如果存活的召唤师没有能力，则由说书人拥有召唤师能力。"
-      }
-    },
-    "engineer::summoner": {
-      "revision": "v1",
-      "reason": "如果存活的召唤师离场，则由说书人拥有召唤师能力。",
-      "revisions": {
-        "v1": "如果存活的召唤师离场，则由说书人拥有召唤师能力。"
-      }
-    },
-    "hatter::summoner": {
-      "revision": "v1",
-      "reason": "如果召唤师创造出第二名存活恶魔，则今夜的死亡由说书人任意决定。",
-      "revisions": {
-        "v1": "如果召唤师创造出第二名存活恶魔，则今夜的死亡由说书人任意决定。"
-      }
-    },
-    "kazali::summoner": {
-      "revision": "v1",
-      "reason": "如果召唤师创造出第二名存活恶魔，则今夜的死亡由说书人任意决定。",
-      "revisions": {
-        "v1": "如果召唤师创造出第二名存活恶魔，则今夜的死亡由说书人任意决定。"
-      }
-    },
-    "lord_of_typhon::summoner": {
-      "revision": "v1",
-      "reason": "如果召唤出堤丰之首，则其必须与一名爪牙相邻，且其另一侧邻座变为邪恶爪牙。",
-      "revisions": {
-        "v1": "如果召唤出堤丰之首，则其必须与一名爪牙相邻，且其另一侧邻座变为邪恶爪牙。"
-      }
-    },
-    "pithag::summoner": {
-      "revision": "v1",
-      "reason": "如果召唤师创造出第二名存活恶魔，则今夜的死亡由说书人任意决定。",
-      "revisions": {
-        "v1": "如果召唤师创造出第二名存活恶魔，则今夜的死亡由说书人任意决定。"
-      }
-    },
-    "poppygrower::summoner": {
-      "revision": "v1",
-      "reason": "如果罂粟种植者在第3夜存活，则召唤师选择哪种恶魔而不是哪位玩家。",
-      "revisions": {
-        "v1": "如果罂粟种植者在第3夜存活，则召唤师选择哪种恶魔而不是哪位玩家。"
-      }
-    },
-    "preacher::summoner": {
-      "revision": "v1",
-      "reason": "如果存活的召唤师没有能力，则由说书人拥有召唤师能力。",
-      "revisions": {
-        "v1": "如果存活的召唤师没有能力，则由说书人拥有召唤师能力。"
-      }
-    },
-    "pukka::summoner": {
-      "revision": "v1",
-      "reason": "召唤师可以在第2夜而不是第3夜召唤普卡。",
-      "revisions": {
-        "v1": "召唤师可以在第2夜而不是第3夜召唤普卡。"
-      }
-    },
-    "summoner::zombuul": {
-      "revision": "v1",
-      "reason": "如果召唤师把一名死亡玩家召唤成僵怖，则僵怖视为已经“死过一次”。",
-      "revisions": {
-        "v1": "如果召唤师把一名死亡玩家召唤成僵怖，则僵怖视为已经“死过一次”。"
-      }
-    },
-    "alsaahir::vizier": {
-      "revision": "v1",
-      "reason": "说书人不会宣布维齐尔在场。",
-      "revisions": {
-        "v1": "说书人不会宣布维齐尔在场。"
-      }
-    },
-    "courtier::vizier": {
-      "revision": "v1",
-      "reason": "如果维齐尔失去其能力，他们会知晓此事，且白天不能死亡。",
-      "revisions": {
-        "v1": "如果维齐尔失去其能力，他们会知晓此事，且白天不能死亡。"
-      }
-    },
-    "fearmonger::vizier": {
-      "revision": "v1",
-      "reason": "维齐尔会与恐惧之灵一同醒来，得知其选择了谁，且不能选择立即处决该玩家。",
-      "revisions": {
-        "v1": "维齐尔会与恐惧之灵一同醒来，得知其选择了谁，且不能选择立即处决该玩家。"
-      }
-    },
-    "investigator::vizier": {
-      "revision": "v1",
-      "reason": "说书人不会宣布维齐尔在场。",
-      "revisions": {
-        "v1": "说书人不会宣布维齐尔在场。"
-      }
-    },
-    "politician::vizier": {
-      "revision": "v1",
-      "reason": "政客对 维齐尔而言可能呈现为邪恶。",
-      "revisions": {
-        "v1": "政客对 维齐尔而言可能呈现为邪恶。"
-      }
-    },
-    "preacher::vizier": {
-      "revision": "v1",
-      "reason": "如果维齐尔失去其能力，他们会知晓此事，且白天不能死亡。",
-      "revisions": {
-        "v1": "如果维齐尔失去其能力，他们会知晓此事，且白天不能死亡。"
-      }
-    },
-    "vizier::zealot": {
-      "revision": "v1",
-      "reason": "狂热者对 维齐尔而言可能呈现为邪恶。",
-      "revisions": {
-        "v1": "狂热者对 维齐尔而言可能呈现为邪恶。"
-      }
-    },
-    "banshee::vortox": {
-      "revision": "v1",
-      "reason": "如果涡流杀死了报丧女妖，所有玩家都会得知报丧女妖已死亡。",
-      "revisions": {
-        "v1": "如果涡流杀死了报丧女妖，所有玩家都会得知报丧女妖已死亡。"
-      }
-    },
-    "damsel::widow": {
-      "revision": "v1",
-      "reason": "如果 寡妇在场（或曾在场），则落难少女中毒。",
-      "revisions": {
-        "v1": "如果 寡妇在场（或曾在场），则落难少女中毒。"
-      }
-    },
-    "poppygrower::widow": {
-      "revision": "v1",
-      "reason": "如果罂粟种植者拥有其能力，则寡妇不会查看魔典。",
-      "revisions": {
-        "v1": "如果罂粟种植者拥有其能力，则寡妇不会查看魔典。"
-      }
-    },
-    "exorcist::yaggababble": {
-      "revision": "v1",
-      "reason": "如果驱魔人选择了牙噶巴卜，则牙噶巴卜今夜不杀人。",
-      "revisions": {
-        "v1": "如果驱魔人选择了牙噶巴卜，则牙噶巴卜今夜不杀人。"
-      }
-    }
+    "red_herring": "干扰项",
+    "eyebrow": "说书人工作台",
+    "player_count": "玩家人数",
+    "control_console": "控制台",
+    "game_actions": "操作",
+    "private_chat": "私聊",
+    "public_chat": "公聊",
+    "free_speech": "自由发言",
+    "round_robin_mode": "轮流发言",
+    "choose_speaker": "指定首位",
+    "random_speaker": "随机首位",
+    "next_speaker": "下一位",
+    "start": "开始/暂停",
+    "reset_timer": "恢复默认",
+    "end_now": "结束",
+    "alarm_sound": "提示音",
+    "add_tag": "加标签",
+    "start_nomination": "进入提名",
+    "continue_public": "继续公聊",
+    "record_done": "记录完成",
+    "actor": "提名者",
+    "target": "被提名者",
+    "voters": "赞同票",
+    "non_voters": "未投票",
+    "note": "备注",
+    "statement": "声明",
+    "skill_actor": "技能发动者",
+    "skill_role": "声明技能角色",
+    "skill_target": "技能目标",
+    "success": "成功",
+    "failure": "失败",
+    "alive_tag": "死亡",
+    "executed_tag": "处决",
+    "no_vote_tag": "无投票权",
+    "tag_pool": "标签池",
+    "clear_unused_tags": "清空未使用标签",
+    "open_settings": "设置",
+    "close_settings": "收起设置",
+    "selected_player": "当前玩家",
+    "reset_names": "重置姓名",
+    "restart_game": "重开一局",
+    "end_game": "保存游戏",
+    "private_default": "私聊默认时间",
+    "public_free_default": "公聊-自由时间",
+    "public_round_robin_default": "公聊-轮流/人",
+    "seat_hint": "点击座位选择发言者、提名者、被提名者或技能目标。",
+    "vote_trail": "投票轨迹",
+    "skill_trail": "技能记录",
+    "session_log": "本局记录",
+    "completed_games": "已结束对局",
+    "no_completed_games": "还没有已结束的对局。",
+    "system_override_pass": "Override 通过",
+    "system_override_fail": "Override 失败",
+    "clear_override": "清除 Override",
+    "pass": "通过",
+    "fail": "未通过",
+    "confirm": "确认",
+    "restart_title": "确认重开一局？",
+    "end_game_title": "确认结束本局？",
+    "vote_title": "确认覆盖投票结果？",
+    "waiting_for_nomination": "等待提名...",
+    "actor_speaking": "提名者发言",
+    "target_speaking": "被提名者发言",
+    "ready_to_vote": "准备投票",
+    "voting": "投票中",
+    "voting_done": "投票完成",
+    "vote_yes": "赞同",
+    "start_voting": "开始投票",
+    "pick_nominator": "选择提名者",
+    "pick_nominee": "选择被提名者",
+    "use_skill": "发动技能",
+    "save_skill": "保存",
+    "cancel_skill": "取消",
+    "target_note": "目标备注",
+    "bgm": "背景音乐",
+    "play": "播放",
+    "pause": "暂停",
+    "loop": "循环",
+    "nomination_gate": "距提名开放",
+    "nomination_available": "可以提名",
+    "nomination_delay_default": "公聊开始后多久接受提名(分钟)",
+    "nomination_wait_default": "提名等待时间",
+    "actor_speech_default": "提名者发言时间",
+    "target_speech_default": "被提名者发言时间",
+    "vote_default": "投票时间/人",
+    "record_vote": "记录投票",
+    "current_voter": "当前投票",
+    "nomination_succeed": "提名成功",
+    "nomination_failed": "提名失败",
+    "skip_voting": "跳过投票",
+    "continue_nomination": "继续提名",
+    "phase_before_private": "私聊前",
+    "phase_during_private": "私聊中",
+    "phase_before_public": "公聊前",
+    "phase_during_public": "公聊中",
+    "phase_during_nomination": "提名中",
+    "game_section": "游戏",
+    "day_section": "回合",
+    "player_section": "玩家",
+    "bgm_section": "音乐",
+    "save_before_new_game_title": "开始新游戏？",
+    "save_before_new_game_body": "当前有进行中的游戏。开始新游戏前是否保存记录？",
+    "save_and_new": "保存并新建",
+    "discard_and_new": "放弃并新建",
+    "start_new_game": "开始新游戏",
+    "confirm_end": "确认结束",
+    "distribution": "角色分配",
+    "random_assign": "随机分配",
+    "show_assign": "显示分配",
+    "hide_assign": "隐藏分配",
+    "winner": "获胜方",
+    "evil": "邪恶",
+    "good": "善良",
+    "player_team": "玩家阵营",
+    "player_notes": "玩家备注",
+    "review_mode_label": "回顾模式",
+    "edit_mode": "编辑模式",
+    "add_traveler": "添加旅行者",
+    "player_pool": "名字池",
+    "load_fake_names": "加载假名",
+    "assign_name": "分配名字",
+    "single_loop": "单曲循环",
+    "loop_all": "列表循环",
+    "aggregated_log": "综合日志",
+    "filter_vote": "投票",
+    "filter_skill": "技能",
+    "filter_event": "事件",
+    "sort_asc": "正序",
+    "sort_desc": "倒序",
+    "export_json": "导出 JSON",
+    "import_game": "导入游戏",
+    "cancel_new_game": "取消",
+    "show_log": "显示日志",
+    "hide_log": "隐藏日志",
+    "show_panel": "显示面板",
+    "hide_panel": "隐藏面板",
+    "alive_count": "存活",
+    "total_count": "总人数",
+    "highest_vote": "最高票数",
+    "leading_candidate": "当前最高票",
+    "quick_nomination": "快速提名",
+    "quick_skill": "使用技能",
+    "next_day": "下一天",
+    "seat_assignment": "座位分配",
+    "unassigned": "未分配",
+    "click_to_assign": "点击名字分配到下一个空位",
+    "load_local_file": "加载本地文件",
+    "remove_from_seat": "移除",
+    "load_preset": "加载预设",
+    "tag_settings": "标签设置",
+    "default_tags": "默认标签",
+    "load_predefined_tags": "加载预设标签",
+    "add_tag_label": "+标签",
+    "travelers_count": "旅行者",
+    "load_custom_alarm": "加载自定义",
+    "share_log": "分享日志",
+    "share_log_copied": "已复制！",
+    "quick_add_log": "快速添加日志…",
+    "game_log_title": "游戏日志",
+    "chinese_2": "中文",
+    "print_preview": "打印预览",
+    "toggle_language": "切换语言",
+    "zh": "en",
+    "str_en": "EN",
+    "hide_menu": "隐藏菜单",
+    "show_menu": "显示菜单",
+    "exporting": "生成中…",
+    "output": "输出",
+    "mixed": "中英混合",
+    "separate": "中英分页",
+    "black_white": "黑白打印",
+    "page": "纸张",
+    "page_size": "纸张",
+    "layout": "布局",
+    "columns": "列数",
+    "1_col": "单列",
+    "2_col": "双列",
+    "alignment": "对齐",
+    "left": "左",
+    "center": "居中",
+    "right": "右",
+    "show_author": "显示作者",
+    "typography": "字体",
+    "english_font": "英文字体",
+    "body": "正文字号",
+    "name": "玩家名",
+    "section": "区域标题字号",
+    "spacing": "间距",
+    "compact": "紧凑",
+    "normal": "正常",
+    "spacious": "宽松",
+    "section_style": "区域样式",
+    "inline": "内联线",
+    "chip": "标签",
+    "line": "分割线",
+    "icons": "图标",
+    "icon_outer_circle": "显示图标外圈",
+    "card_outline": "显示卡片边框",
+    "wake_order": "夜晚顺序",
+    "side": "侧列",
+    "bottom": "底部",
+    "none": "无",
+    "preview_actual_print_may_differ_slightly": "以下为预览（实际打印可能有细微差异）",
+    "page_1_end": "↑ 第1页结束",
+    "no_wakeup": "不唤醒",
+    "1_wake_first": "第 1 位（最先唤醒）",
+    "search_characters_2": "搜索角色…",
+    "wake_first": "↑ 最先唤醒",
+    "no_night_wakeup": "不在夜间唤醒",
+    "deal_dashboard": "发牌控制台",
+    "claimed": "已认领",
+    "closed": "已关闭",
+    "copy_player_link": "复制玩家链接",
+    "copied": "已复制",
+    "copy_link": "复制链接",
+    "hide_characters": "隐藏角色",
+    "show_characters": "显示角色",
+    "close_deal_no_more_claims": "关闭发牌（玩家将无法再认领）",
+    "anon": "匿名",
+    "anonymous": "匿名",
+    "unclaimed": "未认领",
+    "seat": "座位号",
+    "player_name": "玩家名",
+    "set_unclaimed": "设为未认领",
+    "set_claimed": "设为已认领",
+    "apply_start_game": "应用并开始游戏",
+    "changelog": "更新日志",
+    "that_card_was_already_claimed_pick_another_card": "这张牌已被认领，请选择另一张。",
+    "could_not_claim_that_card_please_try_again": "认领失败，请再试一次。",
+    "loading": "加载中…",
+    "error": "出错了",
+    "retry": "重试",
+    "link_expired": "链接已过期",
+    "ask_the_storyteller_for_a_new_link": "请联系说书人获取新链接",
+    "dealing_closed": "发牌已结束",
+    "the_storyteller_has_closed_this_deal_session": "说书人已关闭此发牌环节",
+    "your_character": "你的角色",
+    "saved_keep_your_character_secret": "✓ 已保存，请勿告诉其他玩家",
+    "blood_on_the_clocktower_deal": "血染钟楼 — 发牌",
+    "your_name_optional": "你的名字（可选）",
+    "seat_optional": "座位号（可选）",
+    "view_cards": "查看牌面",
+    "pick_your_character_card": "选择你的角色牌",
+    "tap_one_card_to_flip_it_others_will_lock": "点击一张翻开，其余将被锁定",
+    "tap_to_flip": "点击翻牌",
+    "insert_character_after_this": "在此后插入角色",
+    "search_character": "搜索角色…",
+    "reminder_tokens_2": "提示标记",
+    "otherseat_tokens": "其他座位标记",
+    "global_tokens_all_seats": "全局标记（所有座位）",
+    "tokens_this_character_places_on_other_players": "此角色放置在其他玩家座位上的提示标记",
+    "tokens_available_on_every_seat_regardless_of_assignment": "在所有座位上均可使用的标记",
+    "night_reminders": "夜间提示",
+    "first_night_en": "第一夜 (EN)",
+    "first_night_zh": "第一夜 (ZH)",
+    "other_nights_en": "其他夜晚 (EN)",
+    "other_nights_zh": "其他夜晚 (ZH)",
+    "no_night_reminders_for_this_character": "（此角色无夜间提示）",
+    "first_night_reminder_en": "第一夜提示 (EN)",
+    "first_night_reminder_zh": "第一夜提示 (ZH)",
+    "other_nights_reminder_en": "其他夜晚提示 (EN)",
+    "other_nights_reminder_zh": "其他夜晚提示 (ZH)",
+    "attributes": "属性",
+    "no_night_wake": "无夜间唤醒",
+    "import_character_pack": "导入角色包预览",
+    "all": "全部",
+    "new": "新游戏",
+    "update": "覆盖",
+    "dirty_id": "ID需清理",
+    "character_id_unique_key": "角色 ID（唯一标识）",
+    "only_lowercase_letters_digits": "只允许小写字母、数字、-、_",
+    "duplicate_id_within_this_pack": "⚠ 与包内另一角色 ID 重复",
+    "custom_character_with_this_id_already_exists": "⚠ 已存在同名自定义角色",
+    "suggested": "建议: ",
+    "apply": "应用",
+    "name_zh": "中文名",
+    "ability_en": "能力（英文）",
+    "ability_zh": "能力（中文）",
+    "edition": "版本: ",
+    "setup": "影响setup",
+    "other_night": "其他夜顺序",
+    "leave_empty_imported": "（留空则显示\"Imported\"）",
+    "reminder_tokens_commaseparated": "提示标记（逗号分隔）",
+    "eg_wrong_drunk": "例如: Wrong, Drunk",
+    "tokens_placed_on_other_players": "放置在其他玩家座位上的标记",
+    "global_reminder_tokens_commaseparated": "全局提示标记（逗号分隔）",
+    "eg_no_ability": "例如: No Ability",
+    "tokens_available_on_all_seats": "所有座位均可使用的标记",
+    "icon_image_url": "角色图片 URL",
+    "preview_on_right": "预览见右侧",
+    "leave_empty_for_placeholder": "留空使用默认占位符",
+    "switch_between_the_warm_parchment_light_theme_and_the_dark_c": "在明亮的羊皮纸风格与黑暗血腥风格之间切换。",
+    "light": "明亮",
+    "parchment": "羊皮纸风格",
+    "dark": "黑暗",
+    "crimson": "血腥猩红",
+    "scales_all_ui_text_spacing_and_controls_uniformly": "调整整体界面文字大小。\"大\"和\"特大\"会放大所有文字、间距和控件。",
+    "chinese_font_applies_to_both_body_text_and_titles": "中文字体同时用于正文和标题。",
+    "font_settings_are_saved_locally_and_persist_across_reloads_g": "字体设置保存在本地，刷新后依然有效。Google Fonts 字体需要网络连接。界面大小设置会立即生效。",
+    "export_a_full_backup_containing_scripts_custom_characters_re": "导出包含脚本、自定义角色、版本覆盖和脚本元数据的完整备份文件。可分享给他人或在新设备导入。",
+    "import_successful_reload_the_page_to_apply": "导入成功，请刷新页面。",
+    "short_link_failed_using_direct_link_instead": "无法创建短链接，已生成长链接。",
+    "en": "zh",
+    "back_to_card_view": "返回卡片视图",
+    "copy_share_link": "复制分享链接",
+    "hide_night_order": "隐藏夜间顺序",
+    "show_night_order": "显示夜间顺序",
+    "single_column": "单列视图",
+    "two_columns": "双列视图",
+    "show_ability_text": "显示能力描述",
+    "hide_ability_text": "隐藏能力描述",
+    "lang": "语言",
+    "print_pdf": "导出 PDF",
+    "custom_tag": "自定义标签…",
+    "collapse": "收起",
+    "add_note": "添加备注",
+    "script_notes_for_your_own_reference": "在此记录剧本备注（仅作者可见）…",
+    "share_script": "分享剧本",
+    "generating_link": "生成链接…",
+    "this_link_opens_this_script_directly_link_never_expires": "此链接会直接打开此剧本。链接永久有效。",
+    "this_link_contains_a_full_copy_of_the_script_valid_for_24_ho": "此链接包含剧本的完整副本，24小时后失效。",
+    "export_records_json": "导出记录 (JSON)",
+    "export_analysis_json": "导出分析 (JSON)",
+    "export_stats_csv": "导出统计 (CSV)",
+    "share": "分享",
+    "copy_share_link_interactive": "复制分享链接（互动查看）",
+    "share_as_png": "分享为 PNG 图片",
+    "share_as_pdf": "分享为 PDF",
+    "import_json": "导入 JSON",
+    "import_error": "导入失败: ",
+    "connection_failed": "连接失败",
+    "ensure_this_exact_redirect_uri_is_registered_in_cloud_consol": "请确认在 Google Cloud Console 中添加了完整的 Redirect URI：",
+    "add_this_uri_to_google_cloud_console_authorized_redirect_uri": "在 Google Cloud Console → Authorized redirect URIs 中添加此地址：",
+    "oauth_credentials_are_preconfigured_just_click_connect_googl": "OAuth 凭据已由应用内置，无需手动配置。直接点击\"连接 Google Drive\"即可。",
+    "configure_your_own_google_oauth2_credentials": "需要自行配置 Google OAuth2 凭据。",
+    "open_cloud_console": "打开 Cloud Console →",
+    "saved_register_this_redirect_uri_in_cloud_console": "已保存。请在 Cloud Console 中添加 Redirect URI：",
+    "check_network_or_reconnect": "请检查网络或重新授权",
+    "data_stored_privately_in_your_google_drive": "数据安全存储在您的 Google Drive 中",
+    "data_stored_in_your_private_google_drive_appdatafolder_only_": "数据存储在您的私有 Google Drive appDataFolder 中，仅本应用可见。本地更改会在 2 秒后自动同步。",
+    "connect_google_drive_to_automatically_sync_scripts_custom_ch": "连接 Google Drive 后，脚本、自定义角色和版本覆盖将自动跨设备同步。数据完全私有，存储在您的 Drive 中。",
+    "save_both_client_id_and_client_secret_above_first": "请先保存 Client ID 和 Client Secret。",
+    "english_body": "英文正文",
+    "english_title": "英文标题",
+    "chinese_body": "中文正文",
+    "tutorial": "教程",
+    "skip": "跳过",
+    "back": "返回",
+    "done": "完成",
+    "next": "下一天",
+    "print_studio": "打印工坊",
+    "tokens": "个标记",
+    "switch_to_script_print_preview": "切换到剧本预览",
+    "script_pdf": "剧本预览",
+    "select_characters_on_the_left": "请在左侧选择角色",
+    "configure_tags_to_see_preview": "配置标签后预览将显示",
+    "mode": "模式",
+    "character_markers": "角色标记",
+    "custom_tags": "自定义标签",
+    "characters": " 个角色",
+    "search_idnamedescription": "搜索ID/名字/描述",
+    "chars": "角色",
+    "tag_type": "标签类型",
+    "numbers": "编号",
+    "markers": "状态标记",
+    "from": "从",
+    "to": "至",
+    "label_optional": "底部标签（可选）",
+    "number_size": "数字字号",
+    "bg_color": "背景色",
+    "icon": "图标",
+    "label": "标签",
+    "qty": "数量",
+    "add_marker": "添加标记",
+    "shape_size": "形状与大小",
+    "shape": "形状",
+    "circle": "圆形",
+    "hex": "六边形",
+    "square": "方形",
+    "text": "文字",
+    "both": "双语",
+    "ability": "能力文字",
+    "style": "排列方式",
+    "arc": "弧形",
+    "straight": "直排",
+    "name_size": "角色名字号",
+    "ability_size": "能力文字字号",
+    "icon_size": "图标大小",
+    "en_font": "英文字体",
+    "zh_font": "中文字体",
+    "background": "背景",
+    "color": "颜色",
+    "image": "图片",
+    "change_image": "更换图片",
+    "upload_image": "上传图片",
+    "fit": "填充方式",
+    "cover": "填充",
+    "contain": "适应",
+    "stretch": "拉伸",
+    "border": "边框",
+    "wake_order_indicators": "显示唤醒顺序标记",
+    "setup_indicators": "显示设置标记",
+    "watermark_optional": "水印（可选）",
+    "enable_watermark": "启用水印",
+    "watermark_text": "水印文字",
+    "change": "变更",
+    "position": "位置",
+    "bright": "右下",
+    "scripts": "剧本",
+    "players": "玩家人数",
+    "reset_filters": "重置筛选",
+    "filtered": "已筛选",
+    "edit_game_record": "编辑游戏记录",
+    "new_game_record": "新建游戏记录",
+    "survey_st": "调查 & 说书人",
+    "autogenerated_from_script_date_if_blank": "留空则自动使用剧本名+日期",
+    "date": "日期",
+    "days": "天",
+    "evil_win": "邪恶胜",
+    "good_win": "善良胜",
+    "st_win": "说书人胜",
+    "player_list": "玩家列表",
+    "character_team_used_in_analytics_blank_names_autouse_seat_nu": "角色和阵营用于统计分析。名字为空时自动用座位编号。",
+    "character": "选择角色",
+    "storyteller": "说书人: ",
+    "who_ran_this_game": "游戏说书人的名字",
+    "custom_rules_settings": "自定义规则 / 设置备注",
+    "eg_custom_rules_script_variants_house_rules": "例：使用了哪些自定义规则或剧本变体",
+    "game_survey": "游戏评分",
+    "balanced": "平衡性",
+    "fun_evil": "Evil乐趣",
+    "fun_good": "善良乐趣",
+    "replay": "重玩意愿",
+    "other_notes": "其他备注",
+    "create_record": "创建记录",
+    "minion_info": "——爪牙信息——",
+    "demon_info": "——恶魔信息——",
+    "first": "第一夜",
+    "other": "其他夜",
+    "hide_abilities": "隐藏能力",
+    "show_abilities": "显示能力",
+    "st": "说书人: ",
+    "undo": "撤销",
+    "empty_folder": "空文件夹",
+    "more": "更多…",
+    "delete_folder": "删除文件夹",
+    "search_scripts_author_characters": "搜索剧本、作者、角色…",
+    "switch_to_list_view": "切换列表视图",
+    "no_matches": "无结果",
+    "official": "官方",
+    "community": "社区",
+    "no_community_scripts": "暂无社区剧本",
+    "diy": "自制",
+    "uncategorized": "未分类",
+    "no_custom_scripts_yet_use_the_buttons_above_to_get_started": "暂无自制剧本，点击上方按钮新建",
+    "new_folder": "新建文件夹",
+    "folder_name": "文件夹名称…",
+    "create": "创建",
+    "add_folder": "新建文件夹",
+    "add_script": "新建剧本",
+    "copy_to_diy": "复制到自制",
+    "remove_from_folder": "移出文件夹",
+    "move_to_folder": "移动到文件夹",
+    "switch_to_card_view": "切换卡片视图",
+    "search_title_author_character": "搜索剧本、作者、角色…",
+    "default": "默认顺序",
+    "name_az": "按名称",
+    "author_2": "作者: ",
+    "char_count": "按角色数",
+    "copy_a_script_above_to_start": "点击复制图标添加剧本",
+    "hide_reminders": "隐藏提示",
+    "show_reminders": "显示提示",
+    "click_to_rename": "双击重命名",
+    "rename_folder": "重命名文件夹",
+    "exp": "实验性",
+    "export_markdown": "导出 Markdown",
+    "no_fills_applied_yet": "暂无记录",
+    "chat": "对话",
+    "skills": "技能",
+    "general_ai_assistant": "通用 AI 助手",
+    "use_skill_chips_above_or_type_a_message": "使用上方技能按钮或直接输入",
+    "thinking": "思考中…",
+    "autoapply_fills": "自动应用填充",
+    "type_a_message_enter_to_send": "输入消息… (Enter 发送)",
+    "ai_assistant": "AI 助手",
+    "clear_chat": "清除对话",
+    "click_a_skill_card_to_run_it": "点击技能卡片运行",
+    "skills_for_other_contexts": "其他上下文的技能",
+    "eg_dimo": "例如：小明",
+    "fabled_loric": "传说 / 奇遇角色",
+    "none_selected": "未选择",
+    "search": "搜索…",
+    "special_note": "特殊备注",
+    "apply_changes": "应用更改",
+    "all_data_for_this_day_events_votes_skill_log_will_be_permane": "此天的所有数据（事件、投票、技能记录）将被永久删除，且不可恢复。",
+    "deal_assigned_characters_to_players_new_tab": "将已分配角色发给玩家（新标签页）",
+    "deal_cards": "发牌",
+    "open_active_deal_dashboard": "打开当前发牌控制台",
+    "game_end_survey": "结算与调查",
+    "mvp": "MVP次数",
+    "select_player": "选择玩家",
+    "is_it_balanced": "平衡性",
+    "fun_for_evil": "evil方乐趣",
+    "fun_for_good": "正义方乐趣",
+    "replay_this_script": "重玩愿望",
+    "teams": "阵营",
+    "file_name": "文件名",
+    "not_finished": "未结束",
+    "finished": "已结束",
+    "batch_load": "批量加载",
+    "alice_bob_charlie": "张三, 李四, 王五...",
+    "update_saved_records": "更新历史记录？",
+    "this_game_only": "仅本局",
+    "update_all": "全部更新",
+    "charactersseatsteams": "角色·座位·阵营",
+    "paste_names_separated_by_commas": "用逗号分隔快速填入名字，如：Alice, Bob, Carol",
+    "fill": "填入",
+    "random": "随机",
+    "empty": "(未填写)",
+    "nominate": "提名",
+    "select": "— 选择 —",
+    "click_a_seat_on_the_table_to_select": "← 点击圆桌上的座位进行选择",
+    "traveler_2": "旅行者",
+    "exile_2": " [放逐]",
+    "optional_note": "可选备注…",
+    "override": "覆盖",
+    "auto": "自动判定",
+    "record": "记录",
+    "expand": "展开",
+    "delete_this_day": "删除此天",
+    "edit_characters": "编辑角色",
+    "log": "日志",
+    "save_record": "保存记录",
+    "vote_2": "投票",
+    "hide_wake_order": "隐藏唤醒顺序",
+    "show_wake_order": "显示唤醒顺序",
+    "no_entries": "（无记录）",
+    "pub": "公开",
+    "storyteller_setup": "说书人设置",
+    "your_name_as_storyteller": "输入你的ST名称",
+    "custom_rules": "自定义规则",
+    "enter_custom_rules": "输入自定义规则…",
+    "click_to_add_custom_rules": "点击添加自定义规则…",
+    "previous_day": "上一天",
+    "next_day_2": "下一天",
+    "skill": "技能",
+    "tag": "标签",
+    "state": "状态",
+    "phase": "阶段",
+    "no_events_found_for_this_player": "暂无记录",
+    "remove_novote": "移除无票权",
+    "about_to_die_2": "⚡ 即将处决",
+    "assign": "+角色",
+    "type_custom_or_pick_reminder": "— 输入自定义文字或选提醒",
+    "close_char_picker": "关闭角色提醒",
+    "pick_by_character": "按角色选提醒",
+    "night_ability": "夜间技能",
+    "know": "得知",
+    "guess": "猜测",
+    "type": "类型",
+    "today_nominators": "今日提名者",
+    "today_nominees": "今日被提名者",
+    "nominations": "提名记录",
+    "none_yet": "暂无记录",
+    "failed": "失败",
+    "records": "记录",
+    "saved_games": "已保存的游戏",
+    "click_to_load_this_game": "点击加载此游戏",
+    "ended": "已结束",
+    "saved": "已保存",
+    "click_to_load": "↻ 点击加载",
+    "no_saved_games": "暂无保存的游戏",
+    "games": "总局数",
+    "g": "善%",
+    "countdown_settings": "倒计时设置",
+    "upload_custom_sound": "上传自定义音效",
+    "default_bgm": "背景音乐默认",
+    "default_track": "默认曲目",
+    "upload_local_bgm": "上传本地BGM",
+    "phase_switch_sound": "切换阶段时提示音",
+    "commaseparated_tags": "逗号分隔标签...",
+    "script_reminders": "剧本提醒标记",
+    "add_all": "全部加入",
+    "players_who_played_this": "扮演过的玩家",
+    "in_scripts": "出现剧本",
+    "used_as_demon_bluff": "用作恶魔虚张声势",
+    "recent_appearances": "近期出现记录",
+    "e": "邪%",
+    "times_used_as_demon_bluff": "用作恶魔虚张声势次数",
+    "outsider_2": "外来者",
+    "minion_2": "爪牙",
+    "demon_2": "恶魔",
+    "no_character_data_add_character_assignments_to_records": "无角色数据 — 在记录中添加角色分配后显示",
+    "most_played": "出场最多",
+    "win_rate": "胜率",
+    "alphabetical": "字母顺序",
+    "balanced_win_rates": "胜率均衡",
+    "evildominant": "邪恶明显领先",
+    "consider_more_goodfavoured_scripts": "考虑选择对善良更友好的剧本",
+    "gooddominant": "善良明显领先",
+    "consider_harder_evil_roles": "考虑提升邪恶角色或增加难度",
+    "most_recent_consecutive_results": "最近连续结果",
+    "games_running_long": "游戏时间偏长",
+    "healthy_game_pace": "游戏节奏健康",
+    "last_10_games": "最近10场结果",
+    "no_records_yet_complete_a_game_or_add_records_manually_to_se": "暂无记录。完成游戏或手动添加记录后，数据将显示在此。",
+    "total_games": "总局数",
+    "avg_days": "平均天数",
+    "avg_min": "平均分钟",
+    "avg_players": "平均人数",
+    "avg_ratings": "平均评分",
+    "win_balance": "胜负天平",
+    "insights": "数据洞察",
+    "script_summary": "各剧本概览",
+    "top_5_players": "玩家排名 Top 5",
+    "storytellers": "说书人排行",
+    "most_played_characters": "出场最多角色",
+    "games_ended_on_day": "结束天数分布",
+    "perday_averages": "逐天统计（均值）",
+    "day": "第",
+    "noms": "提名",
+    "exec": "处决率",
+    "common_characters": "常见角色",
+    "active_players": "活跃玩家",
+    "no_script_data": "无剧本数据",
+    "all_scripts": "所有剧本",
+    "team_breakdown": "阵营分布",
+    "st_games": "说书场",
+    "characters_played": "扮演角色",
+    "frequent_teammates": "常见队友",
+    "good_games": "善良场",
+    "good_w": "善良胜率",
+    "evil_games": "邪恶场",
+    "evil_w": "邪恶胜率",
+    "evil_rate": "邪恶率",
+    "unique_chars": "角色数",
+    "player_comparison": "玩家对比",
+    "no_player_data_add_player_names_to_game_records": "无玩家数据",
+    "w": "胜%",
+    "evil_rate_of_games_played_as_evil": "邪恶率：出任邪恶阵营的比例",
+    "evil_2": "邪率",
+    "mvp_count": "MVP次数",
+    "st_games_run": "说书场次",
+    "compare": "对比",
+    "quick_edit": "快速编辑",
+    "st_name": "说书人名字",
+    "house_rules_variants": "自定义规则或备注",
+    "notes": "备注",
+    "min": " 分钟",
+    "n": "提",
+    "s": "技",
+    "bluffs": "恶魔虚张声势：",
+    "selected": " 已选",
+    "export_selected": "导出所选",
+    "delete_selected": "删除所选",
+    "new_record": "新建记录",
+    "no_records_match_the_current_filter": "无匹配记录",
+    "p": "人",
+    "delete_this_record": "确定删除此记录？",
+    "confirm_delete": "确认删除",
+    "new_character": "新角色",
+    "team_role": "阵营角色说明: ",
+    "current_fields": "── 当前字段 ──",
+    "night_info": "── 夜间信息 ──",
+    "first_night_order": "第一夜顺序",
+    "first_night_reminder_2": "第一夜提示",
+    "other_night_order": "其余夜晚顺序",
+    "other_night_reminder_2": "其余夜晚提示",
+    "note_this_is_a_new_character_not_yet_saved_to_the_database": "注意: 这是一个新角色，尚未保存到数据库。",
+    "total_characters": "角色总数: ",
+    "script_title": "剧本名",
+    "character_count": "角色数量",
+    "passed": "通过",
+    "current_day": "当前天数",
+    "total_days": "总天数",
+    "alive_players": "存活玩家",
+    "dead_players": "死亡玩家",
+    "recent_votes": "最近投票",
+    "days_played": "天数: ",
+    "final_alive": "== 最终存活 ==",
+    "dead_2": "== 已死亡 ==",
+    "demon_bluffs_2": "恶魔虚张: ",
+    "alive_2": "存活: ",
+    "skills_used": "能力使用:",
+    "events": "事件:",
+    "full_log": "完整日志",
+    "recent_scripts": "近期剧本",
+    "game_analytics": "游戏统计",
+    "general": "通用助手",
+    "cloud_sync_not_configured": "云同步未配置",
+    "cloud_sync_enter_client_id": "在设置中输入 Google Client ID",
+    "not_connected_google_drive": "未连接 Google Drive",
+    "click_to_go_to_settings": "点击前往设置",
+    "sync_error": "同步出错",
+    "unknown_error": "未知错误",
+    "syncing": "正在同步…",
+    "not_yet_synced": "尚未同步",
+    "storyteller_helper": "主持助手",
+    "feedback": "反馈建议",
+    "hide_description": "隐藏说明",
+    "show_description": "显示说明",
+    "tab_st_short": "主持",
+    "tab_stats_short": "统计",
+    "tab_print_short": "打印",
+    "ai_assistant_experimental": "AI 助手（实验功能）",
+    "exp_short": "实验",
+    "leave_blank_autogenerate": "留空则自动生成",
+    "author_prefix": "作者：",
+    "characters_suffix": "个角色",
+    "sheet_first_night": "首夜顺序",
+    "sheet_other_nights": "其他夜顺序",
+    "last_synced_time": "上次同步：{0}",
+    "section_n": "第{0}部分",
+    "preview_px_mm": "预览: {0}px ≈ {1}mm",
+    "line_height_val": "行高: {0}",
+    "card_icon_px": "角色卡图标: {0}px",
+    "wake_icon_px": "夜晚顺序图标: {0}px",
+    "pos_after": "第 {0} 位（{1} 后）",
+    "insert_after": "在此之后插入（第 {0} 位）",
+    "player_entered_seat": "玩家填写座位 #{0}",
+    "seat_n": "座位 #{0}",
+    "n_new_chars": "新增 {0}",
+    "n_overrides_count": "覆盖 {0}",
+    "import_n": "导入 {0} 个",
+    "avg_days_n": "均{0}天",
+    "avg_votes_n": "均{0}票",
+    "avg_noms_n": "均{0}次提名",
+    "exec_rate_n": "处决率{0}%",
+    "showing_n_games_of_m": "显示 {0} / {1} 局",
+    "ratings_n": "评分({0})局:",
+    "apply_names_to_all_n_days": "将玩家姓名同步到全部 {0} 天",
+    "rename_player_in_n_records": "将 {2} 条历史记录中的「{0}」改为「{1}」？",
+    "n_cards_tap_one": "共 {0} 张牌。点击一张翻开，只能翻一张！",
+    "seats_ready_n_of_m": "可应用 {0}/{1} 座位",
+    "first_night_pick_position": "选择首夜唤醒位置",
+    "other_nights_pick_position": "选择其他夜唤醒位置",
+    "pack_n_chars_selected": "共 {0} 个角色 · 已选 {1}",
+    "view_note": "查看备注",
+    "day_compact": "第{0}天",
+    "records_n": "游戏记录 ({0})",
+    "confirm_delete_n_records": "确定删除所选的 {0} 条记录？此操作不可撤销。",
+    "good_n_games": "善良({0}局)",
+    "evil_n_games": "邪恶({0}局)",
+    "player_selected_compare": "已选择「{0}」，点击另一玩家行末的对比按钮进行对比",
+    "version": "版本",
+    "new_badge": "新",
+    "pack_badge": "已覆盖",
+    "yes_short": "是",
+    "no_short": "否",
+    "setup_label": "设置影响: {0}",
+    "first_night_pos": "第一夜 #{0}",
+    "other_nights_pos": "其他夜晚 #{0}",
+    "diameter_mm": "直径: {0}mm",
+    "gap_mm": "间距: {0}mm",
+    "margin_mm": "页边距: {0}mm",
+    "border_width_px": "宽度: {0}px",
+    "watermark_size_pt": "字号: {0}pt",
+    "watermark_opacity_pct": "透明度: {0}%",
+    "evil_pct_label": "邪恶 {0}%",
+    "good_pct_label": "善良 {0}%",
+    "evil_vs_good_pct": "邪恶 {0}% vs 善良 {1}%",
+    "evil_wins_n": "邪恶胜 ({0})",
+    "good_wins_n": "善良胜 ({0})",
+    "st_wins_n": "说书人胜 ({0})",
+    "streak_n_side": "{1}连胜 {0} 局",
+    "evil_heavy_label": "《{0}》邪恶强势",
+    "evil_wins_pct_of_n": "邪恶胜率 {0}%，共 {1} 局",
+    "good_friendly_label": "《{0}》善良友好",
+    "good_wins_pct_of_n": "善良胜率 {0}%，共 {1} 局",
+    "top_rated_label": "《{0}》评分最高",
+    "avg_balance_replay": "平衡+重玩均值 {0}/5",
+    "player_leads_winrate": "{0} 胜率最高",
+    "player_stats_detail": "{0}局 · 善良{1}% 邪恶{2}%",
+    "player_low_winrate": "{0} 胜率偏低",
+    "player_check_roles": "{0} 局，可考虑角色分配优化",
+    "char_most_played_label": "{0} 出场最多",
+    "char_played_winrate": "{0} 次出场，胜率 {1}%",
+    "player_top_mvp_label": "{0} MVP 最多",
+    "player_mvp_count": "获得 MVP {0} 次",
+    "player_most_active_st": "{0} 说书最多",
+    "avg_duration_min": "平均时长 {0} 分钟",
+    "more_n_scripts_tab": "+{0} 个剧本（在剧本栏查看全部）",
+    "more_n_storytellers": "+{0} 位说书人",
+    "open_session": "打开 {0}",
+    "script_chars_short": "{0}角",
+    "log_tab_n": "日志 ({0})",
+    "fill_log_n": "填充记录 ({0})",
+    "context_editing": "正在编辑「{0}」",
+    "tag_for_char": "添加 {0} 标记",
+    "st_detail_n_games_scripts": "主持 {0} 局，{1} 个剧本",
+    "arena_st_setup": "说书人设置",
+    "arena_nominations": "提名列表",
+    "arena_edit_roles": "编辑角色",
+    "arena_tap_seat": "点击座位 → 玩家详情、角色与状态修改"
   }
 }

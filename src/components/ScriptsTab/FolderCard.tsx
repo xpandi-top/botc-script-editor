@@ -10,6 +10,7 @@ import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutli
 import FolderOpenIcon from '@mui/icons-material/FolderOpen'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import type { EditableScript, Language, ScriptFolder } from '../../types'
+import { useT } from '../../context/I18nContext'
 
 type Props = {
   folder: ScriptFolder
@@ -22,6 +23,7 @@ type Props = {
 
 export function FolderCard({ folder, scripts, language, onOpen, onRename, onDelete }: Props) {
   const zh = language === 'zh'
+  const { t } = useT()
   const preview = scripts.slice(0, 5)
   const [hovered, setHovered] = useState(false)
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null)
@@ -148,7 +150,7 @@ export function FolderCard({ folder, scripts, language, onOpen, onRename, onDele
         <Box sx={{ px: 1.5, py: 1.1, flex: 1 }}>
           {scripts.length === 0 ? (
             <Typography sx={{ fontSize: '0.72rem', color: 'text.disabled', fontStyle: 'italic' }}>
-              {zh ? '（空文件夹）' : '(empty folder)'}
+              {t('empty_folder')}
             </Typography>
           ) : (
             <>
@@ -165,7 +167,7 @@ export function FolderCard({ folder, scripts, language, onOpen, onRename, onDele
               ))}
               {scripts.length > 5 && (
                 <Typography sx={{ fontSize: '0.65rem', color: 'text.disabled', mt: 0.5, fontStyle: 'italic' }}>
-                  +{scripts.length - 5} {zh ? '更多…' : 'more…'}
+                  +{scripts.length - 5} {t('more')}
                 </Typography>
               )}
             </>
@@ -194,14 +196,14 @@ export function FolderCard({ folder, scripts, language, onOpen, onRename, onDele
         <MenuItem dense onClick={startRename}>
           <ListItemIcon><DriveFileRenameOutlineIcon sx={{ fontSize: 15 }} /></ListItemIcon>
           <ListItemText slotProps={{ primary: { sx: { fontSize: '0.82rem' } } }}>
-            {zh ? '重命名' : 'Rename'}
+            {t('rename')}
           </ListItemText>
         </MenuItem>
         <Divider />
         <MenuItem dense onClick={() => { onDelete(); closeMenu() }} sx={{ color: 'error.main' }}>
           <ListItemIcon><DeleteIcon sx={{ fontSize: 15, color: 'error.main' }} /></ListItemIcon>
           <ListItemText slotProps={{ primary: { sx: { fontSize: '0.82rem' } } }}>
-            {zh ? '删除文件夹' : 'Delete folder'}
+            {t('delete_folder')}
           </ListItemText>
         </MenuItem>
       </Menu>

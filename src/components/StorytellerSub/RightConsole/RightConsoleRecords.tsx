@@ -117,7 +117,7 @@ export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: Storyt
           {liveStats && (
             <Paper variant="outlined" sx={{ p: 1 }}>
               <Typography variant="caption" sx={{ fontWeight: 700, display: 'block', mb: 0.5 }}>
-                {liveStats.scriptTitle ? `${liveStats.scriptTitle} — ` : ''}{liveStats.total}{zh ? '局历史' : ' games'}
+                {liveStats.scriptTitle ? `${liveStats.scriptTitle} — ` : ''}{liveStats.total}{t('games')}
               </Typography>
               <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mb: 0.5 }}>
                 <Chip size="small" label={`${t('evil_short')}:${liveStats.evilWins}`} sx={{ bgcolor: 'rgba(183,28,28,0.12)', fontSize: '0.68rem', height: 20 }} />
@@ -131,7 +131,7 @@ export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: Storyt
                       <Box key={p.name} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Typography variant="caption" sx={{ fontSize: '0.72rem' }}>{p.name}</Typography>
                         <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.72rem' }}>
-                          {p.total}{zh ? '局' : 'g'} · {p.winRate}%{t('win_short')}
+                          {p.total}{t('g')} · {p.winRate}%{t('win_short')}
                         </Typography>
                       </Box>
                     ))}

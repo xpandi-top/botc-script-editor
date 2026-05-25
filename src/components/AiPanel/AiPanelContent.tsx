@@ -23,6 +23,7 @@ import { LogTab }        from './LogTab'
 import { useAiPanel }    from './useAiPanel'
 import { getChipSkills } from '../../lib/ai/skills'
 import type { AiPanelContentProps, PanelTab } from './types'
+import { useT } from '../../context/I18nContext'
 
 // Icon map for chip skills (subset)
 const CHIP_ICON_MAP: Record<string, ReactElement> = {
@@ -39,6 +40,7 @@ const CHIP_ICON_MAP: Record<string, ReactElement> = {
 }
 
 export function AiPanelContent({ open, onClose, context, callbacks, variant = 'side' }: AiPanelContentProps) {
+  const { t, tpl } = useT()
   const panel = useAiPanel({ open, context, callbacks, variant })
   const {
     settings, patchSettings, showSettings, setShowSettings,
@@ -110,11 +112,11 @@ export function AiPanelContent({ open, onClose, context, callbacks, variant = 's
           onChange={(_: unknown, v: unknown) => setActiveTab(v as PanelTab)}
           sx={{ minHeight: 32, '& .MuiTabs-indicator': { height: 2 } }}
         >
-          <Tab value="chat"   label={zh ? '对话' : 'Chat'}
+          <Tab value="chat"   label={t('chat')}
             sx={{ minHeight: 32, py: 0, fontSize: '0.72rem', textTransform: 'none', flex: 1 }} />
-          <Tab value="skills" label={zh ? '技能' : 'Skills'}
+          <Tab value="skills" label={t('skills')}
             sx={{ minHeight: 32, py: 0, fontSize: '0.72rem', textTransform: 'none', flex: 1 }} />
-          <Tab value="log"    label={zh ? `日志 (${fillLog.length})` : `Log (${fillLog.length})`}
+          <Tab value="log"    label={tpl('log_tab_n', fillLog.length)}
             sx={{ minHeight: 32, py: 0, fontSize: '0.72rem', textTransform: 'none', flex: 1 }} />
         </Tabs>
       </Box>

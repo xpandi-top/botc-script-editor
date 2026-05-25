@@ -13,6 +13,7 @@ import { PhaseControlPanel } from './PhaseControlPanel'
 import { useBreakpoint } from '../../../hooks/useBreakpoint'
 import { BASE_URL } from '../constants'
 import type { Phase } from '../types'
+import { makeT } from '../../../lib/t'
 
 // Phase atmosphere: CSS filter + base tint color applied to a separate background layer
 // so text/content is NOT affected by the filter
@@ -69,6 +70,7 @@ function AtmosphereBackground({
 export function Arena({ ctx }: { ctx: StorytellerContext }) {
   const muiTheme = useTheme()
   const isDark = muiTheme.palette.mode === 'dark'
+  const t = makeT(ctx.language)
 
   const [windowPortrait, setWindowPortrait] = React.useState(
     typeof window !== 'undefined' ? window.innerHeight > window.innerWidth : false
@@ -182,16 +184,16 @@ export function Arena({ ctx }: { ctx: StorytellerContext }) {
         {/* ── UI Legend ── */}
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, justifyContent: 'center', position: 'relative', zIndex: 1, mt: 0.5, px: 1 }}>
           {([
-            { icon: <AutoStoriesIcon sx={{ fontSize: '0.85rem' }} />, en: 'ST Setup', zh: '说书人设置' },
-            { icon: <ViewTimelineIcon sx={{ fontSize: '0.85rem' }} />, en: 'Game Log', zh: '游戏日志' },
-            { icon: <HowToVoteIcon sx={{ fontSize: '0.85rem' }} />, en: 'Nominations', zh: '提名列表' },
-            { icon: <ManageAccountsIcon sx={{ fontSize: '0.85rem' }} />, en: 'Edit Roles', zh: '编辑角色' },
-            { icon: <TouchAppIcon sx={{ fontSize: '0.85rem' }} />, en: 'Tap seat → player details, role & tag changes', zh: '点击座位 → 玩家详情、角色与状态修改' },
-          ] as { icon: React.ReactNode; en: string; zh: string }[]).map(({ icon, en, zh }) => (
-            <Box key={en} sx={{ display: 'flex', alignItems: 'center', gap: 0.3 }}>
+            { icon: <AutoStoriesIcon sx={{ fontSize: '0.85rem' }} />, key: 'arena_st_setup' },
+            { icon: <ViewTimelineIcon sx={{ fontSize: '0.85rem' }} />, key: 'game_log_title' },
+            { icon: <HowToVoteIcon sx={{ fontSize: '0.85rem' }} />, key: 'arena_nominations' },
+            { icon: <ManageAccountsIcon sx={{ fontSize: '0.85rem' }} />, key: 'arena_edit_roles' },
+            { icon: <TouchAppIcon sx={{ fontSize: '0.85rem' }} />, key: 'arena_tap_seat' },
+          ] as { icon: React.ReactNode; key: string }[]).map(({ icon, key }) => (
+            <Box key={key} sx={{ display: 'flex', alignItems: 'center', gap: 0.3 }}>
               <Box sx={{ color: 'text.disabled', display: 'flex', alignItems: 'center' }}>{icon}</Box>
               <Typography variant="caption" color="text.disabled" sx={{ fontSize: '0.66rem', lineHeight: 1.2 }}>
-                {ctx.language === 'zh' ? zh : en}
+                {t(key as Parameters<typeof t>[0])}
               </Typography>
             </Box>
           ))}

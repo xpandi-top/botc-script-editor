@@ -36,9 +36,7 @@ export function ModalsDialog({ ctx }: { ctx: StorytellerContext }) {
         </DialogTitle>
         <DialogContent>
           <DialogContentText>
-            {zh
-              ? '此天的所有数据（事件、投票、技能记录）将被永久删除，且不可恢复。'
-              : 'All data for this day (events, votes, skill log) will be permanently removed.'}
+            {t('all_data_for_this_day_events_votes_skill_log_will_be_permane')}
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>

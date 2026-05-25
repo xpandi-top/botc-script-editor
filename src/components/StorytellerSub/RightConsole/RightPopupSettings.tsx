@@ -5,8 +5,10 @@ import { Box, Button, TextField, Typography, Paper, Select, MenuItem, FormContro
 import CloseIcon from '@mui/icons-material/Close'
 import { uniqueStrings, INITIAL_AUDIO_TRACKS } from '../constants'
 import { BASE_URL } from '../constants'
+import { useT } from '../../../context/I18nContext'
 
 export function RightPopupSettings({ ctx }: { ctx: StorytellerContext }) {
+  const { t } = useT()
   const {
     language, timerDefaults, setTimerDefaults, customTagPool, setCustomTagPool,
     playerNamePool, setPlayerNamePool, currentDay, updateSeat, resetSeatNames,
@@ -43,7 +45,7 @@ export function RightPopupSettings({ ctx }: { ctx: StorytellerContext }) {
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         <Paper variant="outlined" sx={{ p: 1.5 }}>
-          <Typography variant="subtitle2" sx={{ mb: 1 }}>{language === 'zh' ? '倒计时设置' : 'Countdown Settings'}</Typography>
+          <Typography variant="subtitle2" sx={{ mb: 1 }}>{t('countdown_settings')}</Typography>
           <Grid container spacing={1}>
             {timerFields.map((f) => (
               <Grid key={f.key} size={{ xs: 6 }}>
@@ -63,10 +65,10 @@ export function RightPopupSettings({ ctx }: { ctx: StorytellerContext }) {
         <Paper variant="outlined" sx={{ p: 1.5 }}>
           <Typography variant="subtitle2" sx={{ mb: 1 }}>{text.alarmSound}</Typography>
           <FormControl size="small" fullWidth sx={{ mb: 1 }}>
-            <InputLabel>{language === 'zh' ? '闹钟声音' : 'Alarm Sound'}</InputLabel>
+            <InputLabel>{t('alarm_sound')}</InputLabel>
             <Select
               value={timerDefaults?.alarmSound ?? ''}
-              label={language === 'zh' ? '闹钟声音' : 'Alarm Sound'}
+              label={t('alarm_sound')}
               onChange={(e) => handleChange('alarmSound', e.target.value)}
             >
               <MenuItem value="">Default Beep</MenuItem>
@@ -77,7 +79,7 @@ export function RightPopupSettings({ ctx }: { ctx: StorytellerContext }) {
             </Select>
           </FormControl>
           <Button variant="outlined" component="label" size="small" fullWidth>
-            {language === 'zh' ? '上传自定义音效' : 'Upload Custom Sound'}
+            {t('upload_custom_sound')}
             <input type="file" accept=".mp3,.wav,.ogg" hidden onChange={(e) => {
               const file = e.target.files?.[0]
               if (file) {
@@ -89,12 +91,12 @@ export function RightPopupSettings({ ctx }: { ctx: StorytellerContext }) {
         </Paper>
 
         <Paper variant="outlined" sx={{ p: 1.5 }}>
-          <Typography variant="subtitle2" sx={{ mb: 1 }}>{language === 'zh' ? '背景音乐默认' : 'Default BGM'}</Typography>
+          <Typography variant="subtitle2" sx={{ mb: 1 }}>{t('default_bgm')}</Typography>
           <FormControl size="small" fullWidth sx={{ mb: 1 }}>
-            <InputLabel>{language === 'zh' ? '默认曲目' : 'Default Track'}</InputLabel>
+            <InputLabel>{t('default_track')}</InputLabel>
             <Select
               value={timerDefaults?.defaultBgmSrc ?? ''}
-              label={language === 'zh' ? '默认曲目' : 'Default Track'}
+              label={t('default_track')}
               onChange={(e) => {
                 handleChange('defaultBgmSrc', e.target.value)
                 setSelectedAudioSrc(e.target.value)
@@ -106,7 +108,7 @@ export function RightPopupSettings({ ctx }: { ctx: StorytellerContext }) {
             </Select>
           </FormControl>
           <Button variant="outlined" component="label" size="small" fullWidth sx={{ mb: 1 }}>
-            {language === 'zh' ? '上传本地BGM' : 'Upload Local BGM'}
+            {t('upload_local_bgm')}
             <input type="file" accept=".mp3,.wav,.ogg" hidden onChange={(e) => {
               const file = e.target.files?.[0]
               if (file) {
@@ -129,7 +131,7 @@ export function RightPopupSettings({ ctx }: { ctx: StorytellerContext }) {
                 onChange={(e) => handleChange('phaseSwitchSoundEnabled', e.target.checked)}
               />
             }
-            label={<Typography variant="body2">{language === 'zh' ? '切换阶段时提示音' : 'Phase switch sound'}</Typography>}
+            label={<Typography variant="body2">{t('phase_switch_sound')}</Typography>}
           />
         </Paper>
 
@@ -148,7 +150,7 @@ export function RightPopupSettings({ ctx }: { ctx: StorytellerContext }) {
             fullWidth
             multiline
             rows={2}
-            placeholder={language === 'zh' ? '逗号分隔标签...' : 'Comma-separated tags...'}
+            placeholder={t('commaseparated_tags')}
             value={loadTagsPreset ?? ''}
             onChange={(e) => setLoadTagsPreset(e.target.value)}
           />

@@ -4,6 +4,7 @@
 import { Box, Paper, Typography } from '@mui/material'
 import type { FontOption } from '../../hooks/useFontSettings'
 import type { Language } from '../../types'
+import { useT } from '../../context/I18nContext'
 
 // ── FontPicker ────────────────────────────────────────────────────────────────
 
@@ -67,39 +68,39 @@ export function FontPicker({
 // ── LivePreview ───────────────────────────────────────────────────────────────
 
 export function LivePreview({
-  language, enBodyCss, enDisplayCss, zhCss,
+  enBodyCss, enDisplayCss, zhCss,
 }: {
   language: Language
   enBodyCss: string
   enDisplayCss: string
   zhCss: string
 }) {
-  const zh = language === 'zh'
+  const { t } = useT()
 
   const previewCards = [
     {
-      key: 'en-body', label: zh ? '英文正文' : 'English Body',
+      key: 'en-body', label: t('english_body'),
       fontFamily: `${enBodyCss}, Georgia, serif`,
       title: 'The Storyteller speaks in shadow.',
       body: 'Tonight, the Demon strikes again. Trust no one. Nominations are open — required votes: 7.',
       isLarge: false,
     },
     {
-      key: 'en-display', label: zh ? '英文标题' : 'English Title',
+      key: 'en-display', label: t('english_title'),
       fontFamily: `${enDisplayCss}, Georgia, serif`,
       title: 'Blood on the Clocktower',
       body: 'Trouble Brewing · Sects & Violets',
       isLarge: true,
     },
     {
-      key: 'zh-body', label: zh ? '中文正文' : 'Chinese Body',
+      key: 'zh-body', label: t('chinese_body'),
       fontFamily: `${zhCss}, "PingFang SC", sans-serif`,
       title: '说书人在黑暗中低语。',
       body: '今晚，恶魔再度出击。提名现已开放，所需票数为七票。',
       isLarge: false,
     },
     {
-      key: 'zh-display', label: zh ? '中文标题' : 'Chinese Title',
+      key: 'zh-display', label: t('chinese_title'),
       fontFamily: `${zhCss}, "PingFang SC", sans-serif`,
       title: '染·钟楼谜团',
       body: '暗流涌动 · 梦陨春宵',

@@ -1,5 +1,6 @@
 import type { StorytellerContext } from '../useStoryteller'
 import { Box, Drawer, IconButton, Paper, Typography, useTheme, useMediaQuery } from '@mui/material'
+import { useT } from '../../../context/I18nContext'
 import SettingsIcon from '@mui/icons-material/Settings'
 import HistoryIcon from '@mui/icons-material/History'
 import DownloadIcon from '@mui/icons-material/Download'
@@ -33,6 +34,7 @@ function IconBar({
   setShowExportModal: (v: boolean) => void
   sx?: object
 }) {
+  const { t } = useT()
   return (
     <Box sx={{ width: barWidth, display: 'flex', flexDirection: 'column', alignItems: 'center', py: 1, gap: 0.5, borderLeft: '1px solid', borderLeftColor: 'divider', bgcolor: 'background.paper', flexShrink: 0, ...sx }}>
       <GameActionsBar
@@ -55,13 +57,13 @@ function IconBar({
       >
         <Box sx={{ fontSize: '1.5rem', lineHeight: 1, display: 'flex' }}><DownloadIcon fontSize="inherit" /></Box>
         <Typography variant="caption" sx={{ fontSize: '0.62rem', fontWeight: 600, letterSpacing: '0.02em', lineHeight: 1.2, color: 'inherit' }}>
-          {language === 'zh' ? '导出' : 'Export'}
+          {t('export')}
         </Typography>
       </IconButton>
       <Box sx={{ flex: 1 }} />
       {[
-        { key: 'settings', icon: <SettingsIcon fontSize="inherit" />, label: language === 'zh' ? '设置' : 'Settings' },
-        { key: 'records',  icon: <HistoryIcon fontSize="inherit" />,  label: language === 'zh' ? '记录' : 'Records' },
+        { key: 'settings', icon: <SettingsIcon fontSize="inherit" />, label: t('settings') },
+        { key: 'records',  icon: <HistoryIcon fontSize="inherit" />,  label: t('records') },
       ].map(({ key, icon, label }) => (
         <IconButton
           key={key}

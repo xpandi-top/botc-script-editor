@@ -7,6 +7,7 @@ import StopIcon from '@mui/icons-material/Stop'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import CheckIcon from '@mui/icons-material/Check'
 import CloseIcon from '@mui/icons-material/Close'
+import { useT } from '../../../context/I18nContext'
 
 interface NominationTimerProps {
   selectedTimer: 'nominator' | 'nominee'
@@ -29,6 +30,7 @@ export function NominationTimer({
   timerDefaults,
   language,
 }: NominationTimerProps) {
+  const { t } = useT()
   const [timerEditing, setTimerEditing] = useState(false)
   const [timerInput, setTimerInput] = useState('')
 
@@ -81,8 +83,8 @@ export function NominationTimer({
         onChange={(e) => setSelectedTimer(e.target.value as 'nominator' | 'nominee')}
         sx={{ minWidth: 100, fontSize: '0.85rem' }}
       >
-        <MenuItem value="nominator">{language === 'zh' ? '提名者' : 'Nominator'}</MenuItem>
-        <MenuItem value="nominee">{language === 'zh' ? '被提名者' : 'Nominee'}</MenuItem>
+        <MenuItem value="nominator">{t('actor')}</MenuItem>
+        <MenuItem value="nominee">{t('target')}</MenuItem>
       </Select>
       {timerEditing ? (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>

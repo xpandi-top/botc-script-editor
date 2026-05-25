@@ -10,6 +10,7 @@ import CloseIcon from '@mui/icons-material/Close'
 import type { DayState } from '../types'
 import { buildPlayerLogEntries, filterPlayerLogByCurrentPhase } from '../../../utils/playerLog'
 import { LogDetailText } from '../LogDetailText'
+import { makeT, makeTpl } from '../../../lib/t'
 
 interface PlayerNightLogProps {
   open: boolean
@@ -23,6 +24,8 @@ interface PlayerNightLogProps {
 export function PlayerNightLog({ open, onClose, seat, days, language, isNight }: PlayerNightLogProps) {
   if (!seat) return null
 
+  const t = makeT(language as any)
+  const tpl = makeTpl(language as any)
   const seatNum = seat.seat
   const seatLabel = seat.name ? `${seatNum}. ${seat.name}` : `#${seatNum}`
 
@@ -38,11 +41,11 @@ export function PlayerNightLog({ open, onClose, seat, days, language, isNight }:
   }
 
   const kindLabel = (kind: string) => {
-    if (kind === 'vote') return language === 'zh' ? '投票' : 'vote'
-    if (kind === 'skill') return language === 'zh' ? '技能' : 'skill'
-    if (kind === 'tagChange') return language === 'zh' ? '标签' : 'tag'
-    if (kind === 'stateChange') return language === 'zh' ? '状态' : 'state'
-    if (kind === 'phaseTransition') return language === 'zh' ? '阶段' : 'phase'
+    if (kind === 'vote') return t('vote_2')
+    if (kind === 'skill') return t('skill')
+    if (kind === 'tagChange') return t('tag')
+    if (kind === 'stateChange') return t('state')
+    if (kind === 'phaseTransition') return t('phase')
     return kind
   }
 
@@ -56,7 +59,7 @@ export function PlayerNightLog({ open, onClose, seat, days, language, isNight }:
     >
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 1 }}>
         <Typography variant="h6" fontWeight={700}>
-          {language === 'zh' ? `${seatLabel} 事件记录` : `${seatLabel} — Event Log`}
+          {tpl('seat_event_log', seatLabel)}
         </Typography>
         <IconButton size="small" onClick={onClose}><CloseIcon fontSize="small" /></IconButton>
       </DialogTitle>
@@ -64,13 +67,13 @@ export function PlayerNightLog({ open, onClose, seat, days, language, isNight }:
       <DialogContent sx={{ pt: 0 }}>
         {dayEntries.length === 0 ? (
           <Typography variant="body2" color="text.secondary" sx={{ py: 2 }}>
-            {language === 'zh' ? '暂无记录' : 'No events found for this player.'}
+            {t('no_events_found_for_this_player')}
           </Typography>
         ) : (
           dayEntries.map(({ day, entries }) => (
             <Box key={day} sx={{ mb: 2 }}>
               <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 0.5, color: 'primary.main' }}>
-                {language === 'zh' ? `第 ${day} 天` : `Day ${day}`}
+                {tpl('day_n', day)}
               </Typography>
               <Divider sx={{ mb: 1 }} />
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
@@ -84,7 +87,7 @@ export function PlayerNightLog({ open, onClose, seat, days, language, isNight }:
                     />
                     {e.visibility === 'st-only' && (
                       <Chip
-                        label={language === 'zh' ? 'ST' : 'ST'}
+                        label={t('st')}
                         size="small"
                         color="warning"
                         sx={{ fontSize: '0.65rem', height: 18, flexShrink: 0, mt: 0.1, '& .MuiChip-label': { px: 0.5 } }}

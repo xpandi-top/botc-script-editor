@@ -6,6 +6,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { uniqueStrings } from '../constants'
 import { characterById } from '../../../catalog'
+import { useT } from '../../../context/I18nContext'
 
 export function RightConsoleTags({ ctx, toggleConsoleSection }: { ctx: StorytellerContext, toggleConsoleSection: any }) {
   const {
@@ -16,6 +17,7 @@ export function RightConsoleTags({ ctx, toggleConsoleSection }: { ctx: Storytell
   const isOpen = activeConsoleSections?.has('tags')
 
   // ── Script-derived reminder tags ─────────────────────────────────────────
+  const { t } = useT()
   const scriptReminderTags = useMemo(() => {
     const inPlayIds = (currentDay?.seats ?? []).map((s: any) => s.characterId).filter(Boolean)
     const ids = new Set<string>([...(currentScriptCharacters ?? []), ...inPlayIds])
@@ -57,11 +59,11 @@ export function RightConsoleTags({ ctx, toggleConsoleSection }: { ctx: Storytell
             <Box>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.25 }}>
                 <Typography variant="caption" color="text.secondary">
-                  {zh ? '剧本提醒标记' : 'Script reminders'}
+                  {t('script_reminders')}
                 </Typography>
                 <Button size="small" sx={{ fontSize: '0.65rem', py: 0, minWidth: 0 }}
                   onClick={() => setCustomTagPool((cur: string[]) => uniqueStrings([...cur, ...scriptReminderTags]))}>
-                  {zh ? '全部加入' : 'Add all'}
+                  {t('add_all')}
                 </Button>
               </Box>
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
@@ -86,7 +88,7 @@ export function RightConsoleTags({ ctx, toggleConsoleSection }: { ctx: Storytell
             <Typography variant="caption" color="text.secondary">{text.loadPredefinedTags}</Typography>
             <TextField
               size="small" fullWidth multiline rows={2}
-              placeholder={zh ? '逗号分隔标签...' : 'Comma-separated tags...'}
+              placeholder={t('commaseparated_tags')}
               value={loadTagsPreset ?? ''}
               onChange={(e) => setLoadTagsPreset(e.target.value)}
             />

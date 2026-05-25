@@ -29,7 +29,7 @@ import {
 } from '../catalog'
 import { ReminderTokenEditor } from './ReminderTokenEditor'
 import type { CharacterEntry, CharacterFileEntry, CustomCharacter, Language, RevisionOverrides } from '../types'
-import { makeT, makeTpl } from '../lib/t'
+import { useT } from '../context/I18nContext'
 
 type CharacterRevisionPanelProps = {
   character?: CharacterEntry
@@ -77,8 +77,7 @@ export function CharacterRevisionPanel({
   // Night reminder editing state (catalog chars only)
   type NightReminderDraft = { firstEn: string; firstZh: string; otherEn: string; otherZh: string }
   const [nightReminderEdit, setNightReminderEdit] = useState<NightReminderDraft | null>(null)
-  const t = makeT(language)
-  const tpl = makeTpl(language)
+  const { t, tpl } = useT()
 
   const openAdd = () => {
     if (!character) return
@@ -384,7 +383,7 @@ export function CharacterRevisionPanel({
         <Divider sx={{ mb: 2 }} />
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
           <Typography variant="subtitle2">
-            {language === 'zh' ? '提示标记' : 'Reminder Tokens'}
+            {t('reminder_tokens_2')}
           </Typography>
           {!isCustom && !reminderEditOpen && (
             <Button size="small" startIcon={<EditIcon fontSize="small" />} onClick={openRemindersEdit}
@@ -406,7 +405,7 @@ export function CharacterRevisionPanel({
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
             <Box>
               <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-                {language === 'zh' ? '其他座位标记' : 'Other-seat tokens'}
+                {t('otherseat_tokens')}
               </Typography>
               {currentReminders.length > 0
                 ? <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
@@ -417,7 +416,7 @@ export function CharacterRevisionPanel({
             </Box>
             <Box>
               <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-                {language === 'zh' ? '全局标记（所有座位）' : 'Global tokens (all seats)'}
+                {t('global_tokens_all_seats')}
               </Typography>
               {currentRemindersGlobal.length > 0
                 ? <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
@@ -433,14 +432,14 @@ export function CharacterRevisionPanel({
         {reminderEditOpen && (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <ReminderTokenEditor
-              label={language === 'zh' ? '提示标记（放置于其他座位）' : 'Reminder tokens (placed on other seats)'}
-              hint={language === 'zh' ? '此角色放置在其他玩家座位上的标记' : 'Tokens this character places on other players\' seats'}
+              label={t('reminder_tokens')}
+              hint={t('tokens_this_character_places_on_other_players')}
               tokens={remindersEdit ?? []}
               onChange={setRemindersEdit}
             />
             <ReminderTokenEditor
-              label={language === 'zh' ? '全局提示标记（所有座位）' : 'Global reminder tokens (all seats)'}
-              hint={language === 'zh' ? '在所有座位上均可使用的标记' : 'Tokens available on every seat regardless of assignment'}
+              label={t('reminder_tokens_global')}
+              hint={t('tokens_available_on_every_seat_regardless_of_assignment')}
               tokens={remindersGlobalEdit ?? []}
               onChange={setRemindersGlobalEdit}
             />
@@ -472,7 +471,7 @@ export function CharacterRevisionPanel({
             {/* Night Reminders header */}
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
               <Typography variant="subtitle2">
-                {language === 'zh' ? '夜间提示' : 'Night Reminders'}
+                {t('night_reminders')}
               </Typography>
               {!isCustomChar && !nightEditOpen && (
                 <Button size="small" startIcon={<EditIcon fontSize="small" />} onClick={openNightReminderEdit}
@@ -495,7 +494,7 @@ export function CharacterRevisionPanel({
                 {/* First Night */}
                 <Box>
                   <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.25 }}>
-                    {language === 'zh' ? '第一夜 (EN)' : 'First Night (EN)'}
+                    {t('first_night_en')}
                     {firstNightPos != null && (
                       <Box component="span" sx={{ ml: 1, color: 'primary.main', fontWeight: 600 }}>
                         #{firstNightPos}
@@ -509,7 +508,7 @@ export function CharacterRevisionPanel({
                 </Box>
                 <Box>
                   <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.25 }}>
-                    {language === 'zh' ? '第一夜 (ZH)' : 'First Night (ZH)'}
+                    {t('first_night_zh')}
                   </Typography>
                   {firstZh
                     ? <Typography variant="body2" sx={{ fontSize: '0.8rem', lineHeight: 1.5 }}>{firstZh}</Typography>
@@ -519,7 +518,7 @@ export function CharacterRevisionPanel({
                 {/* Other Nights */}
                 <Box>
                   <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.25 }}>
-                    {language === 'zh' ? '其他夜晚 (EN)' : 'Other Nights (EN)'}
+                    {t('other_nights_en')}
                     {otherNightPos != null && (
                       <Box component="span" sx={{ ml: 1, color: 'warning.main', fontWeight: 600 }}>
                         #{otherNightPos}
@@ -533,7 +532,7 @@ export function CharacterRevisionPanel({
                 </Box>
                 <Box>
                   <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.25 }}>
-                    {language === 'zh' ? '其他夜晚 (ZH)' : 'Other Nights (ZH)'}
+                    {t('other_nights_zh')}
                   </Typography>
                   {otherZh
                     ? <Typography variant="body2" sx={{ fontSize: '0.8rem', lineHeight: 1.5 }}>{otherZh}</Typography>
@@ -542,7 +541,7 @@ export function CharacterRevisionPanel({
                 </Box>
                 {!hasAny && (
                   <Typography variant="caption" color="text.disabled" sx={{ fontStyle: 'italic' }}>
-                    {language === 'zh' ? '（此角色无夜间提示）' : '(no night reminders for this character)'}
+                    {t('no_night_reminders_for_this_character')}
                   </Typography>
                 )}
               </Box>
@@ -552,22 +551,22 @@ export function CharacterRevisionPanel({
             {nightEditOpen && nightReminderEdit && (
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
                 <TextField size="small" multiline minRows={2}
-                  label={language === 'zh' ? '第一夜提示 (EN)' : 'First Night Reminder (EN)'}
+                  label={t('first_night_reminder_en')}
                   value={nightReminderEdit.firstEn}
                   onChange={(e) => setNightReminderEdit({ ...nightReminderEdit, firstEn: e.target.value })}
                 />
                 <TextField size="small" multiline minRows={2}
-                  label={language === 'zh' ? '第一夜提示 (ZH)' : 'First Night Reminder (ZH)'}
+                  label={t('first_night_reminder_zh')}
                   value={nightReminderEdit.firstZh}
                   onChange={(e) => setNightReminderEdit({ ...nightReminderEdit, firstZh: e.target.value })}
                 />
                 <TextField size="small" multiline minRows={2}
-                  label={language === 'zh' ? '其他夜晚提示 (EN)' : 'Other Nights Reminder (EN)'}
+                  label={t('other_nights_reminder_en')}
                   value={nightReminderEdit.otherEn}
                   onChange={(e) => setNightReminderEdit({ ...nightReminderEdit, otherEn: e.target.value })}
                 />
                 <TextField size="small" multiline minRows={2}
-                  label={language === 'zh' ? '其他夜晚提示 (ZH)' : 'Other Nights Reminder (ZH)'}
+                  label={t('other_nights_reminder_zh')}
                   value={nightReminderEdit.otherZh}
                   onChange={(e) => setNightReminderEdit({ ...nightReminderEdit, otherZh: e.target.value })}
                 />
@@ -581,30 +580,30 @@ export function CharacterRevisionPanel({
             {/* ── Attributes (setup, night positions) ── */}
             <Divider sx={{ my: 2 }} />
             <Typography variant="subtitle2" sx={{ mb: 1 }}>
-              {language === 'zh' ? '属性' : 'Attributes'}
+              {t('attributes')}
             </Typography>
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
               <Chip
                 size="small"
-                label={language === 'zh' ? `设置影响: ${setup ? '是' : '否'}` : `Setup: ${setup ? 'yes' : 'no'}`}
+                label={tpl('setup_label', setup ? t('yes_short') : t('no_short'))}
                 color={setup ? 'warning' : 'default'}
                 variant={setup ? 'filled' : 'outlined'}
               />
               {firstNightPos != null && (
                 <Chip size="small" variant="outlined"
-                  label={language === 'zh' ? `第一夜 #${firstNightPos}` : `First night #${firstNightPos}`}
+                  label={tpl('first_night_pos', firstNightPos)}
                   sx={{ color: 'primary.main', borderColor: 'primary.main' }}
                 />
               )}
               {otherNightPos != null && (
                 <Chip size="small" variant="outlined"
-                  label={language === 'zh' ? `其他夜晚 #${otherNightPos}` : `Other nights #${otherNightPos}`}
+                  label={tpl('other_nights_pos', otherNightPos)}
                   sx={{ color: 'warning.main', borderColor: 'warning.main' }}
                 />
               )}
               {firstNightPos == null && otherNightPos == null && (
                 <Typography variant="caption" color="text.disabled" sx={{ fontStyle: 'italic', alignSelf: 'center' }}>
-                  {language === 'zh' ? '无夜间唤醒' : 'no night wake'}
+                  {t('no_night_wake')}
                 </Typography>
               )}
             </Box>

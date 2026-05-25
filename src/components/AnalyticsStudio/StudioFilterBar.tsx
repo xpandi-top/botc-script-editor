@@ -3,6 +3,7 @@ import FilterListIcon from '@mui/icons-material/FilterList'
 import CloseIcon from '@mui/icons-material/Close'
 import type { FilterState } from './useAnalyticsFilter'
 import type { Language } from '../../types'
+import { useT } from '../../context/I18nContext'
 
 interface Props {
   filter: FilterState
@@ -14,8 +15,9 @@ interface Props {
   language: Language
 }
 
-export function StudioFilterBar({ filter, setFilter, resetFilter, activeCount, scriptOptions, playerOptions, language }: Props) {
-  const zh = language === 'zh'
+export function StudioFilterBar({ filter, setFilter, resetFilter, activeCount, scriptOptions, playerOptions }: Props) {
+
+const { t } = useT()
 
   return (
     <Box sx={{
@@ -32,18 +34,18 @@ export function StudioFilterBar({ filter, setFilter, resetFilter, activeCount, s
       {/* Script filter */}
       {scriptOptions.length > 0 && (
         <FormControl size="small" sx={{ minWidth: 140, maxWidth: 220 }}>
-          <InputLabel sx={{ fontSize: '0.8rem' }}>{zh ? '剧本' : 'Script'}</InputLabel>
+          <InputLabel sx={{ fontSize: '0.8rem' }}>{t('script')}</InputLabel>
           <Select
             multiple
             value={filter.scriptSlugs}
             onChange={(e) => setFilter((f) => ({ ...f, scriptSlugs: e.target.value as string[] }))}
-            input={<OutlinedInput label={zh ? '剧本' : 'Script'} />}
+            input={<OutlinedInput label={t('script')} />}
             renderValue={(selected) =>
               selected.length === 0
                 ? ''
                 : selected.length === 1
                   ? (scriptOptions.find((s) => s.key === selected[0])?.label ?? selected[0])
-                  : `${selected.length} ${zh ? '个剧本' : 'scripts'}`
+                  : `${selected.length} ${t('scripts')}`
             }
             sx={{ fontSize: '0.8rem', '& .MuiSelect-select': { py: '4px' } }}
           >
@@ -60,7 +62,7 @@ export function StudioFilterBar({ filter, setFilter, resetFilter, activeCount, s
       <TextField
         type="date"
         size="small"
-        label={zh ? '从' : 'From'}
+        label={t('from')}
         value={filter.dateFrom}
         onChange={(e) => setFilter((f) => ({ ...f, dateFrom: e.target.value }))}
         slotProps={{ inputLabel: { shrink: true } }}
@@ -69,7 +71,7 @@ export function StudioFilterBar({ filter, setFilter, resetFilter, activeCount, s
       <TextField
         type="date"
         size="small"
-        label={zh ? '至' : 'To'}
+        label={t('to')}
         value={filter.dateTo}
         onChange={(e) => setFilter((f) => ({ ...f, dateTo: e.target.value }))}
         slotProps={{ inputLabel: { shrink: true } }}
@@ -83,26 +85,26 @@ export function StudioFilterBar({ filter, setFilter, resetFilter, activeCount, s
         onChange={(_, v) => setFilter((f) => ({ ...f, winners: v }))}
         sx={{ '& .MuiToggleButton-root': { py: '3px', px: '8px', fontSize: '0.72rem' } }}
       >
-        <ToggleButton value="evil" sx={{ color: 'error.main' }}>{zh ? '邪恶' : 'Evil'}</ToggleButton>
-        <ToggleButton value="good" sx={{ color: 'success.main' }}>{zh ? '善良' : 'Good'}</ToggleButton>
+        <ToggleButton value="evil" sx={{ color: 'error.main' }}>{t('evil')}</ToggleButton>
+        <ToggleButton value="good" sx={{ color: 'success.main' }}>{t('good')}</ToggleButton>
         <ToggleButton value="storyteller" sx={{ color: 'info.main' }}>ST</ToggleButton>
       </ToggleButtonGroup>
 
       {/* Player filter */}
       {playerOptions.length > 0 && (
         <FormControl size="small" sx={{ minWidth: 120, maxWidth: 200 }}>
-          <InputLabel sx={{ fontSize: '0.8rem' }}>{zh ? '玩家' : 'Player'}</InputLabel>
+          <InputLabel sx={{ fontSize: '0.8rem' }}>{t('player_section')}</InputLabel>
           <Select
             multiple
             value={filter.playerNames}
             onChange={(e) => setFilter((f) => ({ ...f, playerNames: e.target.value as string[] }))}
-            input={<OutlinedInput label={zh ? '玩家' : 'Player'} />}
+            input={<OutlinedInput label={t('player_section')} />}
             renderValue={(selected) =>
               selected.length === 0
                 ? ''
                 : selected.length === 1
                   ? selected[0]
-                  : `${selected.length} ${zh ? '位玩家' : 'players'}`
+                  : `${selected.length} ${t('players')}`
             }
             sx={{ fontSize: '0.8rem', '& .MuiSelect-select': { py: '4px' } }}
           >
@@ -121,7 +123,7 @@ export function StudioFilterBar({ filter, setFilter, resetFilter, activeCount, s
       {filter.scriptSlugs.length > 0 && (
         <Chip
           size="small"
-          label={`${filter.scriptSlugs.length} ${zh ? '剧本' : 'script(s)'}`}
+          label={`${filter.scriptSlugs.length} ${t('scripts')}`}
           onDelete={() => setFilter((f) => ({ ...f, scriptSlugs: [] }))}
           sx={{ fontSize: '0.7rem', height: 22 }}
         />
@@ -145,14 +147,14 @@ export function StudioFilterBar({ filter, setFilter, resetFilter, activeCount, s
       {filter.playerNames.length > 0 && (
         <Chip
           size="small"
-          label={filter.playerNames.length === 1 ? filter.playerNames[0] : `${filter.playerNames.length} ${zh ? '玩家' : 'players'}`}
+          label={filter.playerNames.length === 1 ? filter.playerNames[0] : `${filter.playerNames.length} ${t('players')}`}
           onDelete={() => setFilter((f) => ({ ...f, playerNames: [] }))}
           sx={{ fontSize: '0.7rem', height: 22 }}
         />
       )}
 
       {activeCount > 0 && (
-        <Tooltip title={zh ? '重置筛选' : 'Reset filters'}>
+        <Tooltip title={t('reset_filters')}>
           <IconButton size="small" onClick={resetFilter}>
             <CloseIcon sx={{ fontSize: '0.9rem' }} />
           </IconButton>
@@ -161,7 +163,7 @@ export function StudioFilterBar({ filter, setFilter, resetFilter, activeCount, s
 
       {activeCount > 0 && (
         <Typography variant="caption" color="primary" sx={{ fontWeight: 700, fontSize: '0.72rem', whiteSpace: 'nowrap' }}>
-          {zh ? '已筛选' : 'Filtered'}
+          {t('filtered')}
         </Typography>
       )}
     </Box>

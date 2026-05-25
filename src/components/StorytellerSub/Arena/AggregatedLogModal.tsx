@@ -23,6 +23,8 @@ import ShareIcon from '@mui/icons-material/Share'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
+import { makeT, makeTpl } from '../../../lib/t'
+import { useT } from '../../../context/I18nContext'
 
 const ENTRY_COLORS: Record<string, 'primary' | 'secondary' | 'success' | 'error' | 'warning'> = {
   vote: 'primary',
@@ -52,12 +54,14 @@ function buildShareText(
   visFilter: 'all' | 'public' | 'st-only',
   typeFilters: Set<string>,
 ): string {
-  const title = language === 'zh' ? '游戏日志' : 'Game Log'
+  const t = makeT(language as any)
+  const tpl = makeTpl(language as any)
+  const title = t('game_log_title')
   const lines: string[] = [title, '']
   const sortedDays = [...days].sort((a, b) => a.day - b.day)
 
   for (const day of sortedDays) {
-    const dayLabel = language === 'zh' ? `第 ${day.day} 天` : `Day ${day.day}`
+    const dayLabel = tpl('day_n', day.day)
     lines.push(`=== ${dayLabel} ===`)
 
     // ── Collect all entries with their phase ─────────────────────────────────
@@ -120,13 +124,14 @@ function buildShareText(
       for (const e of phaseEntries) lines.push(e.line)
     }
 
-    if (!hasContent) lines.push(language === 'zh' ? '（无记录）' : '(no entries)')
+    if (!hasContent) lines.push(t('no_entries'))
     lines.push('')
   }
   return lines.join('\n').trim()
 }
 
 export function AggregatedLogModal({ ctx }: { ctx: StorytellerContext }) {
+  const { t } = useT()
   const {
     language, text, days, showAggLogModal, setShowAggLogModal,
     editLogEntry, removeLogEntry, addQuickEvent, swapLogEntries, currentDay,
@@ -259,7 +264,7 @@ export function AggregatedLogModal({ ctx }: { ctx: StorytellerContext }) {
       maxWidth={aiOpen ? 'lg' : 'sm'} fullWidth
       slotProps={{ paper: { sx: { height: '82vh', display: 'flex', flexDirection: 'column', transition: 'max-width 0.2s ease' } } }}>
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 0 }}>
-        <Typography fontWeight={700}>{text.gameLogTitle || (language === 'zh' ? '游戏日志' : 'Game Log')}</Typography>
+        <Typography fontWeight={700}>{text.gameLogTitle || (t('game_log_title'))}</Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
           <Tooltip title={shareCopied ? (text.shareLogCopied || 'Copied!') : (text.shareLog || 'Share Log')}>
             <IconButton size="small" color={shareCopied ? 'success' : 'default'} onClick={handleShare}>
@@ -278,16 +283,16 @@ export function AggregatedLogModal({ ctx }: { ctx: StorytellerContext }) {
         {/* Quick add */}
         <Box sx={{ display: 'flex', gap: 0.75, alignItems: 'center' }}>
           <TextField size="small" fullWidth
-            placeholder={text.quickAddLog || (language === 'zh' ? '快速添加日志…' : 'Quick add log…')}
+            placeholder={text.quickAddLog || (t('quick_add_log'))}
             value={quickText}
             onChange={(e) => setQuickText(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddQuick() } }}
           />
           <ToggleButtonGroup size="small" value={quickVis} exclusive onChange={(_, v) => v && setQuickVis(v)}>
-            <ToggleButton value="public" sx={{ fontSize: '0.7rem', px: 1 }}>{language === 'zh' ? '公开' : 'Pub'}</ToggleButton>
+            <ToggleButton value="public" sx={{ fontSize: '0.7rem', px: 1 }}>{t('pub')}</ToggleButton>
             <ToggleButton value="st-only" sx={{ fontSize: '0.7rem', px: 1 }}>ST</ToggleButton>
           </ToggleButtonGroup>
-          <Tooltip title={language === 'zh' ? '添加' : 'Add'}>
+          <Tooltip title={t('add')}>
             <IconButton size="small" color="primary" onClick={handleAddQuick} sx={{ border: '1px solid', borderColor: 'primary.main' }}>
               <AddIcon fontSize="small" />
             </IconButton>
@@ -306,8 +311,8 @@ export function AggregatedLogModal({ ctx }: { ctx: StorytellerContext }) {
           <Box sx={{ flex: 1 }} />
           <ToggleButtonGroup size="small" value={isNight ? visFilter : effectiveVisFilter} exclusive
             onChange={(_, v) => v && setVisFilter(v)}>
-            <ToggleButton value="all" sx={{ fontSize: '0.7rem', px: 1 }}>{language === 'zh' ? '全部' : 'All'}</ToggleButton>
-            <ToggleButton value="public" sx={{ fontSize: '0.7rem', px: 1 }}>{language === 'zh' ? '公开' : 'Public'}</ToggleButton>
+            <ToggleButton value="all" sx={{ fontSize: '0.7rem', px: 1 }}>{t('all')}</ToggleButton>
+            <ToggleButton value="public" sx={{ fontSize: '0.7rem', px: 1 }}>{t('public')}</ToggleButton>
             {isNight && <ToggleButton value="st-only" sx={{ fontSize: '0.7rem', px: 1 }}>ST</ToggleButton>}
           </ToggleButtonGroup>
         </Box>

@@ -22,6 +22,7 @@ import QuestionMarkIcon  from '@mui/icons-material/QuestionMark'
 import { SKILLS } from '../../lib/ai/skills'
 import type { AiContext } from '../../lib/ai/types'
 import type { Language } from '../../types'
+import { useT } from '../../context/I18nContext'
 
 // ── Icon map ──────────────────────────────────────────────────────────────────
 
@@ -55,6 +56,7 @@ type Props = {
 
 export function SkillsTab({ context, loading, handleSend, language }: Props) {
   const zh = language === 'zh'
+  const { t } = useT()
 
   const available = SKILLS.filter((s) => s.forContexts.includes(context.type))
   const allContextTypes = ['character', 'script', 'storyteller', 'gamelog', 'analysis', 'general'] as const
@@ -66,7 +68,7 @@ export function SkillsTab({ context, loading, handleSend, language }: Props) {
   return (
     <Box sx={{ flex: 1, overflowY: 'auto', p: 1.25, display: 'flex', flexDirection: 'column', gap: 0.75 }}>
       <Typography variant="caption" color="text.secondary">
-        {zh ? '点击技能卡片运行' : 'Click a skill card to run it'}
+        {t('click_a_skill_card_to_run_it')}
       </Typography>
 
       {available.map((skill) => (
@@ -102,7 +104,7 @@ export function SkillsTab({ context, loading, handleSend, language }: Props) {
         <>
           <Divider sx={{ my: 0.25 }} />
           <Typography variant="caption" color="text.disabled">
-            {zh ? '其他上下文的技能' : 'Skills for other contexts'}
+            {t('skills_for_other_contexts')}
           </Typography>
           {disabled.map((skill) => (
             <Paper key={skill.id} variant="outlined" sx={{ p: 1, borderRadius: 1.25, opacity: 0.4 }}>

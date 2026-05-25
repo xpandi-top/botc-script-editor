@@ -16,6 +16,7 @@ import { PlayersTab } from './ModalsNewGamePlayersTab'
 import { CharactersTab } from './ModalsNewGameCharactersTab'
 import { DEFAULT_ST_NAME_KEY } from '../constants'
 import { allCharacters, getDisplayName, getAbilityText, getIconForCharacter } from '../../../catalog'
+import { useT } from '../../../context/I18nContext'
 
 const FABLED_AND_LORIC = allCharacters.filter((c) => c.team === 'fabled' || c.edition === 'loric')
 
@@ -27,6 +28,7 @@ export function ModalsNewGame({ ctx }: { ctx: StorytellerContext }) {
   } = ctx
 
   // All hooks MUST be declared before any early return
+  const { t, tpl } = useT()
   const [activeTab, setActiveTab] = useState<'settings' | 'players' | 'characters'>('players')
   const [showFabledPicker, setShowFabledPicker] = useState(false)
   const [fabledSearch, setFabledSearch] = useState('')
@@ -54,9 +56,9 @@ export function ModalsNewGame({ ctx }: { ctx: StorytellerContext }) {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       <Tabs value={activeTab} onChange={(_, v) => setActiveTab(v)} variant="fullWidth">
-        <Tab label={language === 'zh' ? '玩家' : 'Players'} value="players" />
-        <Tab label={language === 'zh' ? '角色' : 'Characters'} value="characters" />
-        <Tab label={language === 'zh' ? '设置' : 'Settings'} value="settings" />
+        <Tab label={t('edit_players')} value="players" />
+        <Tab label={t('characters_section')} value="characters" />
+        <Tab label={t('settings')} value="settings" />
       </Tabs>
 
       <Box sx={{ minHeight: 300 }}>
@@ -69,20 +71,20 @@ export function ModalsNewGame({ ctx }: { ctx: StorytellerContext }) {
             <TextField
               size="small"
               fullWidth
-              label={language === 'zh' ? '说书人名称' : 'Storyteller Name'}
+              label={t('storyteller_name')}
               value={stName ?? ''}
               onChange={(e) => {
                 setStName(e.target.value)
                 try { localStorage.setItem(DEFAULT_ST_NAME_KEY, e.target.value) } catch {}
               }}
-              placeholder={language === 'zh' ? '例如：小明' : 'e.g. Dimo'}
+              placeholder={t('eg_dimo')}
             />
 
             {/* Fabled / Loric */}
             <Box>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.75 }}>
                 <Typography variant="subtitle2" fontWeight={700}>
-                  {language === 'zh' ? '传说 / 奇遇角色' : 'Fabled / Loric'}
+                  {t('fabled_loric')}
                   {fabledIds.length > 0 && (
                     <Typography component="span" variant="caption" sx={{ ml: 0.75, color: 'warning.main', fontWeight: 700 }}>
                       ({fabledIds.length})
@@ -93,7 +95,7 @@ export function ModalsNewGame({ ctx }: { ctx: StorytellerContext }) {
                   endIcon={showFabledPicker ? <ExpandLessIcon /> : <ExpandMoreIcon />}
                   onClick={() => setShowFabledPicker((v) => !v)}
                 >
-                  {language === 'zh' ? '添加' : 'Add'}
+                  {t('add')}
                 </Button>
               </Box>
 
@@ -125,7 +127,7 @@ export function ModalsNewGame({ ctx }: { ctx: StorytellerContext }) {
                 </Box>
               ) : (
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 1, fontStyle: 'italic' }}>
-                  {language === 'zh' ? '未选择' : 'None selected'}
+                  {t('none_selected')}
                 </Typography>
               )}
 
@@ -134,7 +136,7 @@ export function ModalsNewGame({ ctx }: { ctx: StorytellerContext }) {
                 <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1.5, overflow: 'hidden' }}>
                   <Box sx={{ p: 1 }}>
                     <TextField size="small" fullWidth
-                      placeholder={language === 'zh' ? '搜索…' : 'Search…'}
+                      placeholder={t('search')}
                       value={fabledSearch}
                       onChange={(e) => setFabledSearch(e.target.value)}
                       slotProps={{ input: { startAdornment: <InputAdornment position="start">🔍</InputAdornment> } }}
@@ -191,7 +193,7 @@ export function ModalsNewGame({ ctx }: { ctx: StorytellerContext }) {
               multiline
               rows={2}
               fullWidth
-              label={language === 'zh' ? '特殊备注' : 'Special Note'}
+              label={t('special_note')}
               value={newGamePanel.specialNote || ''}
               onChange={(e) => updateConfig({ specialNote: e.target.value })}
             />
@@ -242,9 +244,7 @@ export function ModalsNewGame({ ctx }: { ctx: StorytellerContext }) {
           }
           label={
             <Typography variant="caption">
-              {language === 'zh'
-                ? `将玩家姓名同步到全部 ${days.length} 天`
-                : `Apply player names to all ${days.length} days`}
+              {tpl('apply_names_to_all_n_days', days.length)}
             </Typography>
           }
         />
@@ -252,7 +252,7 @@ export function ModalsNewGame({ ctx }: { ctx: StorytellerContext }) {
 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1 }}>
         <Button variant="outlined" onClick={() => setShowNewGamePanel(false)}>
-          {editMode ? (language === 'zh' ? '关闭' : 'Close') : text.cancelNewGame}
+          {editMode ? (t('close')) : text.cancelNewGame}
         </Button>
         {!editMode && (
           <Button variant="contained" onClick={() => startNewGame(newGamePanel)} startIcon={<PlayArrowIcon fontSize="small" />}>
@@ -261,7 +261,7 @@ export function ModalsNewGame({ ctx }: { ctx: StorytellerContext }) {
         )}
         {editMode && (
           <Button variant="contained" onClick={() => applyGameChanges(newGamePanel)} startIcon={<PlayArrowIcon fontSize="small" />}>
-            {language === 'zh' ? '应用更改' : 'Apply Changes'}
+            {t('apply_changes')}
           </Button>
         )}
       </Box>

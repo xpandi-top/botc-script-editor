@@ -5,6 +5,7 @@
 import { Box, IconButton, Tooltip } from '@mui/material'
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
 import type { Language } from '../../types'
+import { useT } from '../../context/I18nContext'
 
 type Props = {
   open: boolean
@@ -14,6 +15,7 @@ type Props = {
 
 export function AiToggleButton({ open, onToggle, language = 'en' }: Props) {
   const zh = language === 'zh'
+  const { t } = useT()
   return (
     <Tooltip
       title={zh
@@ -41,7 +43,7 @@ export function AiToggleButton({ open, onToggle, language = 'en' }: Props) {
             fontSize: '0.48rem', fontWeight: 700, px: 0.35, py: 0.05,
             borderRadius: 0.5, lineHeight: 1.5, pointerEvents: 'none',
           }}>
-            {zh ? '实验' : 'EXP'}
+            {t('exp')}
           </Box>
         )}
       </Box>

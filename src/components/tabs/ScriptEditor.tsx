@@ -450,7 +450,7 @@ export function ScriptEditor({
           <TextField label={uiText.title} value={activeScript.title} onChange={(e) => updateActiveScript((s) => ({ ...s, title: e.target.value }))} size="small" />
           <TextField label={uiText.chineseTitle} value={activeScript.titleZh} onChange={(e) => updateActiveScript((s) => ({ ...s, titleZh: e.target.value }))} size="small" />
           <TextField label={uiText.author} value={activeScript.author} onChange={(e) => updateActiveScript((s) => ({ ...s, author: e.target.value }))} size="small" />
-          <TextField label={uiLanguage === 'zh' ? '版本' : 'Version'} value={activeScript.version ?? ''} onChange={(e) => updateActiveScript((s) => ({ ...s, version: e.target.value }))} size="small" placeholder="1.0" />
+          <TextField label={t('version')} value={activeScript.version ?? ''} onChange={(e) => updateActiveScript((s) => ({ ...s, version: e.target.value }))} size="small" placeholder="1.0" />
         </Box>
       </SectionAccordion>
 

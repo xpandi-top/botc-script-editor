@@ -58,7 +58,7 @@ export function ModalsExport({ ctx }: { ctx: StorytellerContext }) {
         <Paper variant="outlined" sx={{ flex: 1, p: 1.5, cursor: 'pointer' }} onClick={handleExportSetup}>
           <Typography variant="h4">🎭</Typography>
           <Typography variant="subtitle2">{t('game_setup')}</Typography>
-          <Typography variant="caption" color="text.secondary">{zh ? '角色·座位·阵营' : 'Characters·Seats·Teams'}</Typography>
+          <Typography variant="caption" color="text.secondary">{t('charactersseatsteams')}</Typography>
         </Paper>
         <Paper 
           variant="outlined" 

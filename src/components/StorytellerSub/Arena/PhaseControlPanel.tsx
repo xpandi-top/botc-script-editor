@@ -84,6 +84,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
     showAggLogModal, setShowAggLogModal, setShowStSetupModal, stFabledIds,
   } = ctx
 
+  const { t } = useT()
   const muiTheme = useTheme()
   const isDark = muiTheme.palette.mode === 'dark'
 
@@ -159,7 +160,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
         {alarmActive && <NotificationsActiveIcon sx={{ fontSize: '1rem', color: 'warning.light' }} />}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25, color: mutedColor }}>
           <UnfoldMoreIcon sx={{ fontSize: '1rem' }} />
-          <Typography sx={{ color: mutedColor, fontSize: '0.72rem' }}>{language === 'zh' ? '展开' : 'Expand'}</Typography>
+          <Typography sx={{ color: mutedColor, fontSize: '0.72rem' }}>{t('expand')}</Typography>
         </Box>
       </Box>
     )
@@ -208,7 +209,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
                 <MenuItem key={d.id} value={d.id} sx={{ fontSize: '0.95rem', display: 'flex', justifyContent: 'space-between', gap: 1, pr: 0.5 }}>
                   <span style={{ flex: 1 }}>Day {d.day}</span>
                   {days.length > 1 && (
-                    <Tooltip title={language === 'zh' ? '删除此天' : 'Delete this day'}>
+                    <Tooltip title={t('delete_this_day')}>
                       <IconButton
                         size="small"
                         onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); setDialogState({ kind: 'deleteDay', dayId: d.id, dayNum: d.day }) }}
@@ -263,61 +264,61 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
 
             {/* Edit Characters */}
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.25 }}>
-              <Tooltip title={language === 'zh' ? '编辑角色' : 'Edit Characters'}>
+              <Tooltip title={t('edit_characters')}>
                 <IconButton sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={openCharacterEditor}>
                   <ManageAccountsIcon />
                 </IconButton>
               </Tooltip>
-              <Typography sx={{ fontSize: '0.58rem', color: mutedColor, lineHeight: 1, userSelect: 'none' }}>{language === 'zh' ? '角色' : 'Characters'}</Typography>
+              <Typography sx={{ fontSize: '0.58rem', color: mutedColor, lineHeight: 1, userSelect: 'none' }}>{t('characters_section')}</Typography>
             </Box>
 
             {/* Log */}
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.25 }}>
-              <Tooltip title={language === 'zh' ? '日志' : 'Log'}>
+              <Tooltip title={t('log')}>
                 <IconButton sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={() => setShowAggLogModal(true)}>
                   <ViewTimelineIcon />
                 </IconButton>
               </Tooltip>
-              <Typography sx={{ fontSize: '0.58rem', color: mutedColor, lineHeight: 1, userSelect: 'none' }}>{language === 'zh' ? '日志' : 'Log'}</Typography>
+              <Typography sx={{ fontSize: '0.58rem', color: mutedColor, lineHeight: 1, userSelect: 'none' }}>{t('log')}</Typography>
             </Box>
 
             {/* New Game */}
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.25 }}>
-              <Tooltip title={language === 'zh' ? '新游戏' : 'New Game'}>
+              <Tooltip title={t('new_game')}>
                 <IconButton data-tutorial="st-new-game-btn" sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={openNewGamePanel}>
                   <AddCircleOutlinedIcon />
                 </IconButton>
               </Tooltip>
-              <Typography sx={{ fontSize: '0.58rem', color: mutedColor, lineHeight: 1, userSelect: 'none' }}>{language === 'zh' ? '新游戏' : 'New'}</Typography>
+              <Typography sx={{ fontSize: '0.58rem', color: mutedColor, lineHeight: 1, userSelect: 'none' }}>{t('new')}</Typography>
             </Box>
 
             {/* Save Record */}
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.25 }}>
-              <Tooltip title={language === 'zh' ? '保存记录' : 'Save Record'}>
+              <Tooltip title={t('save_record')}>
                 <IconButton data-tutorial="st-save-btn" sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={openEndGamePanel}>
                   <SaveIcon />
                 </IconButton>
               </Tooltip>
-              <Typography sx={{ fontSize: '0.58rem', color: mutedColor, lineHeight: 1, userSelect: 'none' }}>{language === 'zh' ? '保存' : 'Save'}</Typography>
+              <Typography sx={{ fontSize: '0.58rem', color: mutedColor, lineHeight: 1, userSelect: 'none' }}>{t('save')}</Typography>
             </Box>
 
             {phase === 'nomination' && (
               <>
                 <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.25 }}>
-                  <Tooltip title={language === 'zh' ? '提名' : 'Nominate'}>
+                  <Tooltip title={t('nominate')}>
                     <IconButton sx={{ ...iconBtnSx, ...(showNominationSheet ? TIMER_ACTIVE_SX : TIMER_IDLE_SX), p: 0.75 }} onClick={() => setShowNominationSheet((v: boolean) => !v)}>
                       <HowToVoteIcon />
                     </IconButton>
                   </Tooltip>
-                  <Typography sx={{ fontSize: '0.58rem', color: mutedColor, lineHeight: 1, userSelect: 'none' }}>{language === 'zh' ? '提名' : 'Vote'}</Typography>
+                  <Typography sx={{ fontSize: '0.58rem', color: mutedColor, lineHeight: 1, userSelect: 'none' }}>{t('vote_2')}</Typography>
                 </Box>
                 <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.25 }}>
-                  <Tooltip title={language === 'zh' ? '下一天' : 'Next Day'}>
+                  <Tooltip title={t('next_day')}>
                     <IconButton sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={goToNextDay}>
                       <ArrowForwardIosIcon />
                     </IconButton>
                   </Tooltip>
-                  <Typography sx={{ fontSize: '0.58rem', color: mutedColor, lineHeight: 1, userSelect: 'none' }}>{language === 'zh' ? '下一天' : 'Next'}</Typography>
+                  <Typography sx={{ fontSize: '0.58rem', color: mutedColor, lineHeight: 1, userSelect: 'none' }}>{t('next')}</Typography>
                 </Box>
               </>
             )}
@@ -406,17 +407,17 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
                 sliderSx={{ color: textColor }}
               />
               <Box sx={{ gap: 1, display: 'flex' }}>
-                <Tooltip title={nightShowCharacter ? (language === 'zh' ? '隐藏角色' : 'Hide Characters') : (language === 'zh' ? '显示角色' : 'Show Characters')}>
+                <Tooltip title={nightShowCharacter ? (t('hide_characters')) : (t('show_characters'))}>
                   <IconButton sx={{ ...iconBtnSx, ...(nightShowCharacter ? TIMER_ACTIVE_SX : TIMER_IDLE_SX), p: 0.75 }} onClick={() => setNightShowCharacter((v: boolean) => !v)}>
                     {nightShowCharacter ? <VisibilityIcon /> : <VisibilityOffIcon />}
                   </IconButton>
                 </Tooltip>
-                <Tooltip title={nightShowWakeOrder ? (language === 'zh' ? '隐藏唤醒顺序' : 'Hide Wake Order') : (language === 'zh' ? '显示唤醒顺序' : 'Show Wake Order')}>
+                <Tooltip title={nightShowWakeOrder ? (t('hide_wake_order')) : (t('show_wake_order'))}>
                   <IconButton sx={{ ...iconBtnSx, ...(nightShowWakeOrder ? TIMER_ACTIVE_SX : TIMER_IDLE_SX), p: 0.75 }} onClick={() => setNightShowWakeOrder((v: boolean) => !v)}>
                     <FormatListNumberedIcon />
                   </IconButton>
                 </Tooltip>
-                <Tooltip title={language === 'zh' ? '编辑角色' : 'Edit Characters'}>
+                <Tooltip title={t('edit_characters')}>
                   <IconButton sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={openCharacterEditor}>
                     <ManageAccountsIcon />
                   </IconButton>

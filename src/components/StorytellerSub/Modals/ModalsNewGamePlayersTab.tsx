@@ -1,6 +1,7 @@
 // @ts-nocheck
 import React, { useState, useRef } from 'react'
 import { Box, Button, TextField, IconButton, Chip, Typography, Grid } from '@mui/material'
+import { makeT } from '../../../lib/t'
 import AddIcon from '@mui/icons-material/Add'
 import RemoveIcon from '@mui/icons-material/Remove'
 import ReplayIcon from '@mui/icons-material/Replay'
@@ -20,6 +21,7 @@ type Props = {
 }
 
 export function PlayersTab({ newGamePanel, playerNamePool, language, seats, updateConfig, setPlayerNamePool }: Props) {
+  const t = makeT(language as any)
   const [showNamePool, setShowNamePool] = useState(false)
   const [quickFill, setQuickFill] = useState('')
   // useRef (not useState) — read synchronously in handlePoolNameClick before blur clears it
@@ -71,7 +73,7 @@ export function PlayersTab({ newGamePanel, playerNamePool, language, seats, upda
         <TextField
           size="small"
           fullWidth
-          placeholder={language === 'zh' ? '用逗号分隔快速填入名字，如：Alice, Bob, Carol' : 'Paste names separated by commas'}
+          placeholder={t('paste_names_separated_by_commas')}
           value={quickFill}
           onChange={(e) => setQuickFill(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter') handleQuickFill() }}
@@ -84,19 +86,19 @@ export function PlayersTab({ newGamePanel, playerNamePool, language, seats, upda
           startIcon={<DownloadDoneIcon fontSize="small" />}
           sx={{ flexShrink: 0, height: 40 }}
         >
-          {language === 'zh' ? '填入' : 'Fill'}
+          {t('fill')}
         </Button>
       </Box>
 
       <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
         <Button size="small" variant="outlined" onClick={handleRandomPlayers} startIcon={<CasinoIcon fontSize="small" />}>
-          {language === 'zh' ? '随机' : 'Random'}
+          {t('random')}
         </Button>
         <Button size="small" variant="outlined" onClick={handleResetNames} startIcon={<ReplayIcon fontSize="small" />}>
-          {language === 'zh' ? '重置' : 'Reset'}
+          {t('reset')}
         </Button>
         <Button size="small" variant={showNamePool ? 'contained' : 'outlined'} onClick={() => setShowNamePool((v) => !v)} endIcon={showNamePool ? <ExpandMoreIcon fontSize="small" /> : <ChevronRightIcon fontSize="small" />}>
-          {language === 'zh' ? '名字池' : 'Name Pool'}
+          {t('player_pool')}
         </Button>
       </Box>
 
@@ -107,7 +109,7 @@ export function PlayersTab({ newGamePanel, playerNamePool, language, seats, upda
         >
           {playerNamePool.length === 0 ? (
             <Typography variant="caption" color="text.secondary">
-              {language === 'zh' ? '（空）' : '(empty)'}
+              {t('empty')}
             </Typography>
           ) : playerNamePool.map((name: string) => (
             <Chip
@@ -123,14 +125,14 @@ export function PlayersTab({ newGamePanel, playerNamePool, language, seats, upda
       )}
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-        <Typography variant="body2">{language === 'zh' ? '玩家' : 'Players'}: {newGamePanel.playerCount}</Typography>
+        <Typography variant="body2">{t('edit_players')}: {newGamePanel.playerCount}</Typography>
         <IconButton size="small" onClick={() => updateConfig({ playerCount: Math.max(5, newGamePanel.playerCount - 1) })}>
           <RemoveIcon />
         </IconButton>
         <IconButton size="small" onClick={() => updateConfig({ playerCount: Math.min(15, newGamePanel.playerCount + 1) })}>
           <AddIcon />
         </IconButton>
-        <Typography variant="body2" sx={{ ml: 1 }}>{language === 'zh' ? '旅行者' : 'Travelers'}: {newGamePanel.travelerCount}</Typography>
+        <Typography variant="body2" sx={{ ml: 1 }}>{t('traveler')}: {newGamePanel.travelerCount}</Typography>
         <IconButton size="small" onClick={() => updateConfig({ travelerCount: Math.max(0, newGamePanel.travelerCount - 1) })}>
           <RemoveIcon />
         </IconButton>

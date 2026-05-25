@@ -21,6 +21,8 @@ import {
   getIconForCharacter,
 } from '../catalog'
 import type { Language } from '../types'
+import { useT } from '../context/I18nContext'
+import { makeTpl } from '../lib/t'
 
 type Props = {
   /** Current 1-based position, or undefined = not in night order */
@@ -79,7 +81,8 @@ function InsertDivider({ pos, label, onInsert }: { pos: number; label: string; o
 export function NightOrderPicker({ value, onChange, nightType, language }: Props) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
-  const zh = language === 'zh'
+  const { t } = useT()
+  const tpl = makeTpl(language)
 
   const nightOrder = getEffectiveNightOrderFromRegistry()
   const rawList = nightType === 'first' ? (nightOrder.first_night ?? []) : (nightOrder.other_nights ?? [])
@@ -88,13 +91,13 @@ export function NightOrderPicker({ value, onChange, nightType, language }: Props
   // pos=1 → before rawList[0] (wake first); pos=N → after rawList[N-2]
   let buttonLabel: string
   if (value == null) {
-    buttonLabel = zh ? '不唤醒' : 'No wake-up'
+    buttonLabel = t('no_wakeup')
   } else if (value === 1) {
-    buttonLabel = zh ? '第 1 位（最先唤醒）' : '#1 (wake first)'
+    buttonLabel = t('1_wake_first')
   } else {
     const charBefore = rawList[value - 2]
     const nameBefore = charBefore ? getDisplayName(charBefore, language) : `#${value - 1}`
-    buttonLabel = zh ? `第 ${value} 位（${nameBefore} 后）` : `#${value} (after ${nameBefore})`
+    buttonLabel = tpl('pos_after', value, nameBefore)
   }
 
   const handleInsert = (pos: number) => {
@@ -124,7 +127,7 @@ export function NightOrderPicker({ value, onChange, nightType, language }: Props
           {buttonLabel}
         </Button>
         {value != null && (
-          <Tooltip title={zh ? '清除' : 'Clear'}>
+          <Tooltip title={t('clear')}>
             <IconButton size="small" onClick={handleClear}><ClearIcon fontSize="small" /></IconButton>
           </Tooltip>
         )}
@@ -134,16 +137,14 @@ export function NightOrderPicker({ value, onChange, nightType, language }: Props
         slotProps={{ paper: { sx: { maxHeight: '80vh' } } }}>
         <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 1 }}>
           <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-            {zh
-              ? (nightType === 'first' ? '选择首夜唤醒位置' : '选择其他夜唤醒位置')
-              : (nightType === 'first' ? 'First Night — pick position' : 'Other Nights — pick position')}
+            {nightType === 'first' ? t('first_night_pick_position') : t('other_nights_pick_position')}
           </Typography>
           <IconButton size="small" onClick={() => { setOpen(false); setSearch('') }}><CloseIcon /></IconButton>
         </DialogTitle>
         <Box sx={{ px: 2, pb: 1 }}>
           <TextField
             size="small" fullWidth autoFocus
-            placeholder={zh ? '搜索角色…' : 'Search characters…'}
+            placeholder={t('search_characters_2')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             slotProps={{
@@ -162,7 +163,7 @@ export function NightOrderPicker({ value, onChange, nightType, language }: Props
           {!sq && (
             <InsertDivider
               pos={1}
-              label={zh ? '↑ 最先唤醒' : '↑ Wake first'}
+              label={t('wake_first')}
               onInsert={handleInsert}
             />
           )}
@@ -179,7 +180,7 @@ export function NightOrderPicker({ value, onChange, nightType, language }: Props
                 {(!sq || matchesSearch) && (
                   <InsertDivider
                     pos={insertPos}
-                    label={zh ? `在此之后插入（第 ${insertPos} 位）` : `Insert here — pos ${insertPos}`}
+                    label={tpl('insert_after', insertPos)}
                     onInsert={handleInsert}
                   />
                 )}
@@ -194,7 +195,7 @@ export function NightOrderPicker({ value, onChange, nightType, language }: Props
               sx={{ color: 'text.secondary', fontSize: '0.75rem' }}
               onClick={() => { onChange(undefined); setOpen(false); setSearch('') }}
             >
-              {zh ? '不在夜间唤醒' : 'No night wake-up'}
+              {t('no_night_wakeup')}
             </Button>
           </Box>
         </DialogContent>

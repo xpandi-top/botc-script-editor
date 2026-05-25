@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React from 'react'
 import { logDetail } from '../../../utils/logI18n'
-import { makeT } from '../../../lib/t'
+import { makeT, makeTpl } from '../../../lib/t'
 import { Box, Typography, IconButton, Button, Tooltip } from '@mui/material'
 import ReplayIcon from '@mui/icons-material/Replay'
 import HeartBrokenIcon from '@mui/icons-material/HeartBroken'
@@ -34,8 +34,8 @@ export function NominationVoteList({
   appendEvent,
   language,
 }: NominationVoteListProps) {
-  const zh = language === 'zh'
   const t = makeT(language)
+  const tpl = makeTpl(language)
 
   // ── Reorder: start from seat after nominee, wrap, nominee last ──
   const targetSeat = voteDraft?.target ?? null
@@ -163,7 +163,7 @@ export function NominationVoteList({
               </Tooltip>
 
               {/* ── NoVote toggle ── */}
-              <Tooltip title={hasNoVote ? (zh ? '移除无票权' : 'Remove no-vote') : t('set_no_vote')} placement="top" arrow>
+              <Tooltip title={hasNoVote ? (t('remove_novote')) : t('set_no_vote')} placement="top" arrow>
                 <IconButton
                   size="small"
                   onClick={() => toggleNoVote(s.seat)}
@@ -210,9 +210,7 @@ export function NominationVoteList({
             borderColor: yesCount >= effectiveRequiredVotes ? 'error.main' : 'divider',
             transition: 'all 0.15s ease',
           }}>
-            {language === 'zh'
-              ? `需 ${effectiveRequiredVotes} 票`
-              : `Need ${effectiveRequiredVotes}`}
+            {tpl('required_votes', effectiveRequiredVotes)}
           </Box>
 
           {/* Current count */}
@@ -234,7 +232,7 @@ export function NominationVoteList({
                 '50%': { opacity: 0.65 },
               },
             }}>
-              {language === 'zh' ? '⚡ 即将处决' : '⚡ About to die'}
+              {t('about_to_die')}
             </Box>
           )}
 

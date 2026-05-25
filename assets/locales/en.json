@@ -2,7 +2,14 @@
   "ui": {
     "app_title": "BOTC Companion",
     "app_lead": "Edit scripts from dedicated JSON files, preview the sheet, and export it to PDF.",
-    "print": "Print / Save as PDF",
+    "disclaimer": "This website is for community use only, not for commercial purposes.",
+    "tab_desc_scripts": "Browse, edit, and export BOTC script PDFs. Select characters and customize your game sheet.",
+    "tab_desc_characters": "Complete character catalog with search and filter. View all official and custom character abilities.",
+    "tab_desc_storyteller": "Game orchestration tool for storytellers. Manage night phases, nominations, votes, and game history.",
+    "tab_desc_analytics": "Track and analyze your BOTC game statistics. View trends and export game records.",
+    "tab_desc_printstudio": "Advanced print layout designer. Create custom character tokens and print materials.",
+    "tab_desc_settings": "Customize fonts and appearance. Changes apply globally and persist across sessions.",
+    "print": "Print",
     "script_sheet": "Scripts",
     "settings": "Settings",
     "all_characters": "All Characters",
@@ -236,6 +243,7 @@
     "remove_st_tag": "Remove ST Tag",
     "remove_public_tag": "Remove Public Tag",
     "event_log": "Event Log",
+    "seat_event_log": "{0} — Event Log",
     "game_log": "Game Log",
     "game_records": "Game Records",
     "new_game": "New Game",
@@ -331,925 +339,799 @@
     "poisoned_tag": "Poisoned",
     "protected_tag": "Protected",
     "used_tag": "Used",
-    "red_herring": "Red Herring"
-  },
-  "jinxes": {
-    "alchemist::boffin": {
-      "revision": "v1",
-      "reason": "If the Alchemist has the Boffin ability, the Alchemist does not learn what ability the Demon has.",
-      "revisions": {
-        "v1": "If the Alchemist has the Boffin ability, the Alchemist does not learn what ability the Demon has."
-      }
-    },
-    "alchemist::marionette": {
-      "revision": "v1",
-      "reason": "An Alchemist-Marionette has no Marionette ability & the Marionette is in play.",
-      "revisions": {
-        "v1": "An Alchemist-Marionette has no Marionette ability & the Marionette is in play."
-      }
-    },
-    "alchemist::mastermind": {
-      "revision": "v1",
-      "reason": "An Alchemist-Mastermind has no Mastermind ability & the Mastermind is not-in-play.",
-      "revisions": {
-        "v1": "An Alchemist-Mastermind has no Mastermind ability & the Mastermind is not-in-play."
-      }
-    },
-    "alchemist::organ_grinder": {
-      "revision": "v1",
-      "reason": "If the Alchemist has the Organ Grinder ability, the Organ Grinder is in play. If both are sober, both are drunk.",
-      "revisions": {
-        "v1": "If the Alchemist has the Organ Grinder ability, the Organ Grinder is in play. If both are sober, both are drunk."
-      }
-    },
-    "alchemist::spy": {
-      "revision": "v1",
-      "reason": "An Alchemist-Spy has no Spy ability & a Spy is in play. After each execution, a living Alchemist-Spy may publicly guess a living player as the Spy. If correct, the Demon must choose the Spy tonight.",
-      "revisions": {
-        "v1": "An Alchemist-Spy has no Spy ability & a Spy is in play. After each execution, a living Alchemist-Spy may publicly guess a living player as the Spy. If correct, the Demon must choose the Spy tonight."
-      }
-    },
-    "alchemist::summoner": {
-      "revision": "v1",
-      "reason": "The Alchemist-Summoner does not get bluffs, and chooses which Demon but not which player. If they die before this happens, evil wins. [No Demon]",
-      "revisions": {
-        "v1": "The Alchemist-Summoner does not get bluffs, and chooses which Demon but not which player. If they die before this happens, evil wins. [No Demon]"
-      }
-    },
-    "alchemist::widow": {
-      "revision": "v1",
-      "reason": "An Alchemist-Widow has no Widow ability & a Widow is in play. After each execution, a living Alchemist-Widow may publicly guess a living player as the Widow. If correct, the Demon must choose the Widow tonight.",
-      "revisions": {
-        "v1": "An Alchemist-Widow has no Widow ability & a Widow is in play. After each execution, a living Alchemist-Widow may publicly guess a living player as the Widow. If correct, the Demon must choose the Widow tonight."
-      }
-    },
-    "alchemist::wraith": {
-      "revision": "v1",
-      "reason": "An Alchemist-Wraith has no Wraith ability & a Wraith is in play. After each execution, a living Alchemist-Wraith may publicly guess a living player as the Wraith. If correct, the Demon must choose the Wraith tonight.",
-      "revisions": {
-        "v1": "An Alchemist-Wraith has no Wraith ability & a Wraith is in play. After each execution, a living Alchemist-Wraith may publicly guess a living player as the Wraith. If correct, the Demon must choose the Wraith tonight."
-      }
-    },
-    "alhadikhia::mastermind": {
-      "revision": "v1",
-      "reason": "If the Al-Hadikhia dies by execution, and the Mastermind is alive, the Al-Hadikhia chooses 3 good players tonight: if all 3 choose to live, evil wins. Otherwise, good wins.",
-      "revisions": {
-        "v1": "If the Al-Hadikhia dies by execution, and the Mastermind is alive, the Al-Hadikhia chooses 3 good players tonight: if all 3 choose to live, evil wins. Otherwise, good wins."
-      }
-    },
-    "alhadikhia::princess": {
-      "revision": "v1",
-      "reason": "If the Princess nominated & executed a player on their 1st day, no one dies to the Al-Hadikhia tonight.",
-      "revisions": {
-        "v1": "If the Princess nominated & executed a player on their 1st day, no one dies to the Al-Hadikhia tonight."
-      }
-    },
-    "boffin::cultleader": {
-      "revision": "v1",
-      "reason": "If the Demon has the Cult Leader ability, they can’t turn good due to this ability.",
-      "revisions": {
-        "v1": "If the Demon has the Cult Leader ability, they can’t turn good due to this ability."
-      }
-    },
-    "boffin::drunk": {
-      "revision": "v1",
-      "reason": "The Demon cannot have the Drunk ability.",
-      "revisions": {
-        "v1": "The Demon cannot have the Drunk ability."
-      }
-    },
-    "boffin::goon": {
-      "revision": "v1",
-      "reason": "If the Demon has the Goon ability, they can’t turn good due to this ability.",
-      "revisions": {
-        "v1": "If the Demon has the Goon ability, they can’t turn good due to this ability."
-      }
-    },
-    "boffin::heretic": {
-      "revision": "v1",
-      "reason": "The Demon cannot have the Heretic ability.",
-      "revisions": {
-        "v1": "The Demon cannot have the Heretic ability."
-      }
-    },
-    "boffin::ogre": {
-      "revision": "v1",
-      "reason": "The Demon cannot have the Ogre ability.",
-      "revisions": {
-        "v1": "The Demon cannot have the Ogre ability."
-      }
-    },
-    "boffin::politician": {
-      "revision": "v1",
-      "reason": "The Demon cannot have the Politician ability.",
-      "revisions": {
-        "v1": "The Demon cannot have the Politician ability."
-      }
-    },
-    "boffin::village_idiot": {
-      "revision": "v1",
-      "reason": "If there is a spare token, the Boffin can give the Demon the Village Idiot ability.",
-      "revisions": {
-        "v1": "If there is a spare token, the Boffin can give the Demon the Village Idiot ability."
-      }
-    },
-    "bountyhunter::kazali": {
-      "revision": "v1",
-      "reason": "If the Kazali turns the Bounty Hunter into a Minion, an evil Townsfolk is not created.",
-      "revisions": {
-        "v1": "If the Kazali turns the Bounty Hunter into a Minion, an evil Townsfolk is not created."
-      }
-    },
-    "bountyhunter::philosopher": {
-      "revision": "v1",
-      "reason": "If the Philosopher gains the Bounty Hunter ability, a Townsfolk might turn evil.",
-      "revisions": {
-        "v1": "If the Philosopher gains the Bounty Hunter ability, a Townsfolk might turn evil."
-      }
-    },
-    "butler::organ_grinder": {
-      "revision": "v1",
-      "reason": "If the Organ Grinder is causing eyes closed voting, the Butler may raise their hand to vote but their vote is only counted if their master voted too.",
-      "revisions": {
-        "v1": "If the Organ Grinder is causing eyes closed voting, the Butler may raise their hand to vote but their vote is only counted if their master voted too."
-      }
-    },
-    "butler::cannibal": {
-      "revision": "v1",
-      "reason": "If the Cannibal gains the Butler ability, the Cannibal learns this.",
-      "revisions": {
-        "v1": "If the Cannibal gains the Butler ability, the Cannibal learns this."
-      }
-    },
-    "cannibal::juggler": {
-      "revision": "v1",
-      "reason": "If the Juggler guesses on their first day and dies by execution, tonight the living Cannibal learns how many guesses the Juggler got correct.",
-      "revisions": {
-        "v1": "If the Juggler guesses on their first day and dies by execution, tonight the living Cannibal learns how many guesses the Juggler got correct."
-      }
-    },
-    "cannibal::princess": {
-      "revision": "v1",
-      "reason": "If the Cannibal nominated, executed, & killed the Princess today, the Demon doesn’t kill tonight.",
-      "revisions": {
-        "v1": "If the Cannibal nominated, executed, & killed the Princess today, the Demon doesn’t kill tonight."
-      }
-    },
-    "cannibal::zealot": {
-      "revision": "v1",
-      "reason": "If the Cannibal gains the Zealot ability, the Cannibal learns this.",
-      "revisions": {
-        "v1": "If the Cannibal gains the Zealot ability, the Cannibal learns this."
-      }
-    },
-    "cerenovus::goblin": {
-      "revision": "v1",
-      "reason": "The Cerenovus may choose to make a player mad that they are the Goblin.",
-      "revisions": {
-        "v1": "The Cerenovus may choose to make a player mad that they are the Goblin."
-      }
-    },
-    "baron::heretic": {
-      "revision": "v1",
-      "reason": "Only 1 jinxed character can be in play.",
-      "revisions": {
-        "v1": "Only 1 jinxed character can be in play."
-      }
-    },
-    "godfather::heretic": {
-      "revision": "v1",
-      "reason": "Only 1 jinxed character can be in play.",
-      "revisions": {
-        "v1": "Only 1 jinxed character can be in play."
-      }
-    },
-    "heretic::lleech": {
-      "revision": "v1",
-      "reason": "Only 1 jinxed character can be in play.",
-      "revisions": {
-        "v1": "Only 1 jinxed character can be in play."
-      }
-    },
-    "heretic::pithag": {
-      "revision": "v1",
-      "reason": "Only 1 jinxed character can be in play.",
-      "revisions": {
-        "v1": "Only 1 jinxed character can be in play."
-      }
-    },
-    "heretic::spy": {
-      "revision": "v1",
-      "reason": "Only 1 jinxed character can be in play.",
-      "revisions": {
-        "v1": "Only 1 jinxed character can be in play."
-      }
-    },
-    "heretic::widow": {
-      "revision": "v1",
-      "reason": "Only 1 jinxed character can be in play.",
-      "revisions": {
-        "v1": "Only 1 jinxed character can be in play."
-      }
-    },
-    "engineer::legion": {
-      "revision": "v1",
-      "reason": "If Legion is created, all evil players become Legion. If Legion is in play, the Engineer starts knowing this but has no ability.",
-      "revisions": {
-        "v1": "If Legion is created, all evil players become Legion. If Legion is in play, the Engineer starts knowing this but has no ability."
-      }
-    },
-    "hatter::legion": {
-      "revision": "v1",
-      "reason": "If Legion is created, all evil players become Legion. If Legion is in play, the Hatter has no ability.",
-      "revisions": {
-        "v1": "If Legion is created, all evil players become Legion. If Legion is in play, the Hatter has no ability."
-      }
-    },
-    "legion::minstrel": {
-      "revision": "v1",
-      "reason": "If Legion died by execution today, Legion keeps their ability, but the Minstrel might learn they are Legion.",
-      "revisions": {
-        "v1": "If Legion died by execution today, Legion keeps their ability, but the Minstrel might learn they are Legion."
-      }
-    },
-    "legion::politician": {
-      "revision": "v1",
-      "reason": "The Politician might register as evil to Legion.",
-      "revisions": {
-        "v1": "The Politician might register as evil to Legion."
-      }
-    },
-    "legion::preacher": {
-      "revision": "v1",
-      "reason": "If the Preacher chooses Legion, Legion keeps their ability, but the Preacher might learn they are Legion.",
-      "revisions": {
-        "v1": "If the Preacher chooses Legion, Legion keeps their ability, but the Preacher might learn they are Legion."
-      }
-    },
-    "legion::summoner": {
-      "revision": "v1",
-      "reason": "If Legion is summoned, all evil players become Legion.",
-      "revisions": {
-        "v1": "If Legion is summoned, all evil players become Legion."
-      }
-    },
-    "legion::zealot": {
-      "revision": "v1",
-      "reason": "The Zealot might register as evil to Legion.",
-      "revisions": {
-        "v1": "The Zealot might register as evil to Legion."
-      }
-    },
-    "banshee::leviathan": {
-      "revision": "v1",
-      "reason": "Each night*, the Leviathan chooses an alive good player (different to previous nights): a chosen Banshee dies & gains their ability.",
-      "revisions": {
-        "v1": "Each night*, the Leviathan chooses an alive good player (different to previous nights): a chosen Banshee dies & gains their ability."
-      }
-    },
-    "exorcist::leviathan": {
-      "revision": "v1",
-      "reason": "If the Leviathan nominates and executes the Exorcist-chosen player, good wins.",
-      "revisions": {
-        "v1": "If the Leviathan nominates and executes the Exorcist-chosen player, good wins."
-      }
-    },
-    "farmer::leviathan": {
-      "revision": "v1",
-      "reason": "Each night*, the Leviathan chooses an alive good player (different to previous nights): a chosen Farmer uses their ability but does not die.",
-      "revisions": {
-        "v1": "Each night*, the Leviathan chooses an alive good player (different to previous nights): a chosen Farmer uses their ability but does not die."
-      }
-    },
-    "grandmother::leviathan": {
-      "revision": "v1",
-      "reason": "If the Leviathan is in play and the Grandchild dies by execution, evil wins.",
-      "revisions": {
-        "v1": "If the Leviathan is in play and the Grandchild dies by execution, evil wins."
-      }
-    },
-    "hatter::leviathan": {
-      "revision": "v1",
-      "reason": "The Leviathan cannot enter play after day 5.",
-      "revisions": {
-        "v1": "The Leviathan cannot enter play after day 5."
-      }
-    },
-    "innkeeper::leviathan": {
-      "revision": "v1",
-      "reason": "If the Leviathan nominates and executes an Innkeeper-protected player, good wins.",
-      "revisions": {
-        "v1": "If the Leviathan nominates and executes an Innkeeper-protected player, good wins."
-      }
-    },
-    "king::leviathan": {
-      "revision": "v1",
-      "reason": "If the Leviathan is in play, and at least 1 player is dead, the King learns an alive character each night.",
-      "revisions": {
-        "v1": "If the Leviathan is in play, and at least 1 player is dead, the King learns an alive character each night."
-      }
-    },
-    "leviathan::mayor": {
-      "revision": "v1",
-      "reason": "If the Leviathan and the Mayor are alive on day 5 & no execution occurs, good wins.",
-      "revisions": {
-        "v1": "If the Leviathan and the Mayor are alive on day 5 & no execution occurs, good wins."
-      }
-    },
-    "leviathan::monk": {
-      "revision": "v1",
-      "reason": "If the Leviathan nominates and executes the Monk-protected player, good wins.",
-      "revisions": {
-        "v1": "If the Leviathan nominates and executes the Monk-protected player, good wins."
-      }
-    },
-    "leviathan::pithag": {
-      "revision": "v1",
-      "reason": "The Leviathan cannot enter play after day 5.",
-      "revisions": {
-        "v1": "The Leviathan cannot enter play after day 5."
-      }
-    },
-    "leviathan::ravenkeeper": {
-      "revision": "v1",
-      "reason": "Each night*, the Leviathan chooses an alive player (different to previous nights): a chosen Ravenkeeper uses their ability but does not die.",
-      "revisions": {
-        "v1": "Each night*, the Leviathan chooses an alive player (different to previous nights): a chosen Ravenkeeper uses their ability but does not die."
-      }
-    },
-    "leviathan::sage": {
-      "revision": "v1",
-      "reason": "Each night*, the Leviathan chooses an alive good player (different to previous nights): a chosen Sage uses their ability but does not die.",
-      "revisions": {
-        "v1": "Each night*, the Leviathan chooses an alive good player (different to previous nights): a chosen Sage uses their ability but does not die."
-      }
-    },
-    "leviathan::soldier": {
-      "revision": "v1",
-      "reason": "If the Leviathan nominates and executes the Soldier, good wins.",
-      "revisions": {
-        "v1": "If the Leviathan nominates and executes the Soldier, good wins."
-      }
-    },
-    "hatter::lilmonsta": {
-      "revision": "v1",
-      "reason": "If the Hatter dies & the Demon chooses Lil' Monsta, they also choose a Minion to become.",
-      "revisions": {
-        "v1": "If the Hatter dies & the Demon chooses Lil' Monsta, they also choose a Minion to become."
-      }
-    },
-    "lilmonsta::magician": {
-      "revision": "v1",
-      "reason": "If the Magician is alive, the Storyteller chooses which Minion babysits Lil' Monsta.",
-      "revisions": {
-        "v1": "If the Magician is alive, the Storyteller chooses which Minion babysits Lil' Monsta."
-      }
-    },
-    "lilmonsta::poppygrower": {
-      "revision": "v1",
-      "reason": "If Lil' Monsta & the Poppy Grower are alive, Minions wake one by one, until one of them chooses to take the Lil' Monsta token.",
-      "revisions": {
-        "v1": "If Lil' Monsta & the Poppy Grower are alive, Minions wake one by one, until one of them chooses to take the Lil' Monsta token."
-      }
-    },
-    "lilmonsta::psychopath": {
-      "revision": "v1",
-      "reason": "If the Psychopath is babysitting Lil' Monsta, they die when executed.",
-      "revisions": {
-        "v1": "If the Psychopath is babysitting Lil' Monsta, they die when executed."
-      }
-    },
-    "lilmonsta::scarletwoman": {
-      "revision": "v1",
-      "reason": "If Lil' Monsta dies with 5 or more players alive, the Scarlet Woman babysits Lil' Monsta for the rest of the game.",
-      "revisions": {
-        "v1": "If Lil' Monsta dies with 5 or more players alive, the Scarlet Woman babysits Lil' Monsta for the rest of the game."
-      }
-    },
-    "lilmonsta::vizier": {
-      "revision": "v1",
-      "reason": "If the Vizier is babysitting Lil' Monsta, they die when executed.",
-      "revisions": {
-        "v1": "If the Vizier is babysitting Lil' Monsta, they die when executed."
-      }
-    },
-    "lleech::mastermind": {
-      "revision": "v1",
-      "reason": "If the Mastermind is alive and the Lleech host dies by execution, the Lleech lives but loses their ability.",
-      "revisions": {
-        "v1": "If the Mastermind is alive and the Lleech host dies by execution, the Lleech lives but loses their ability."
-      }
-    },
-    "lleech::slayer": {
-      "revision": "v1",
-      "reason": "If the Slayer slays the Lleech host, the host dies.",
-      "revisions": {
-        "v1": "If the Slayer slays the Lleech host, the host dies."
-      }
-    },
-    "legion::magician": {
-      "revision": "v1",
-      "reason": "The Magician wakes with Legion and might register as evil. Legion knows if a Magician is in play, but not which player it is.",
-      "revisions": {
-        "v1": "The Magician wakes with Legion and might register as evil. Legion knows if a Magician is in play, but not which player it is."
-      }
-    },
-    "magician::marionette": {
-      "revision": "v1",
-      "reason": "If the Magician is alive, the Demon doesn't know which neighbor is the Marionette.",
-      "revisions": {
-        "v1": "If the Magician is alive, the Demon doesn't know which neighbor is the Marionette."
-      }
-    },
-    "magician::spy": {
-      "revision": "v1",
-      "reason": "When the Spy sees the Grimoire, the Demon and Magician's character tokens are removed.",
-      "revisions": {
-        "v1": "When the Spy sees the Grimoire, the Demon and Magician's character tokens are removed."
-      }
-    },
-    "magician::vizier": {
-      "revision": "v1",
-      "reason": "If the Vizier is in play, the Magician has no ability but is immune to the Vizier's ability.",
-      "revisions": {
-        "v1": "If the Vizier is in play, the Magician has no ability but is immune to the Vizier's ability."
-      }
-    },
-    "magician::widow": {
-      "revision": "v1",
-      "reason": "When the Widow sees the Grimoire, the Demon and Magician's character tokens are removed.",
-      "revisions": {
-        "v1": "When the Widow sees the Grimoire, the Demon and Magician's character tokens are removed."
-      }
-    },
-    "magician::wraith": {
-      "revision": "v1",
-      "reason": "After each execution, the living Magician may publicly guess a living player as the Wraith. If correct, the Demon must choose the Wraith tonight.",
-      "revisions": {
-        "v1": "After each execution, the living Magician may publicly guess a living player as the Wraith. If correct, the Demon must choose the Wraith tonight."
-      }
-    },
-    "balloonist::marionette": {
-      "revision": "v1",
-      "reason": "If the Marionette thinks that they are the Balloonist, an Outsider might have been added during setup.",
-      "revisions": {
-        "v1": "If the Marionette thinks that they are the Balloonist, an Outsider might have been added during setup."
-      }
-    },
-    "huntsman::marionette": {
-      "revision": "v1",
-      "reason": "If the Marionette thinks that they are the Huntsman, the Damsel was added during setup.",
-      "revisions": {
-        "v1": "If the Marionette thinks that they are the Huntsman, the Damsel was added during setup."
-      }
-    },
-    "kazali::marionette": {
-      "revision": "v1",
-      "reason": "If there would be a Marionette in play, they enter play after the Demon & must start as their neighbor.",
-      "revisions": {
-        "v1": "If there would be a Marionette in play, they enter play after the Demon & must start as their neighbor."
-      }
-    },
-    "lilmonsta::marionette": {
-      "revision": "v1",
-      "reason": "If there would be a Marionette in play, they enter play after the Demon & must start as their neighbor.",
-      "revisions": {
-        "v1": "If there would be a Marionette in play, they enter play after the Demon & must start as their neighbor."
-      }
-    },
-    "marionette::summoner": {
-      "revision": "v1",
-      "reason": "If there would be a Marionette in play, they enter play after the Demon & must start as their neighbor.",
-      "revisions": {
-        "v1": "If there would be a Marionette in play, they enter play after the Demon & must start as their neighbor."
-      }
-    },
-    "mastermind::vigormortis": {
-      "revision": "v1",
-      "reason": "A Mastermind that has their ability keeps it if the Vigormortis dies.",
-      "revisions": {
-        "v1": "A Mastermind that has their ability keeps it if the Vigormortis dies."
-      }
-    },
-    "chambermaid::mathematician": {
-      "revision": "v1",
-      "reason": "The Chambermaid can detect if the Mathematician will wake tonight.",
-      "revisions": {
-        "v1": "The Chambermaid can detect if the Mathematician will wake tonight."
-      }
-    },
-    "drunk::mathematician": {
-      "revision": "v1",
-      "reason": "The Mathematician might learn if the Drunk's ability yielded false info or failed to work properly.",
-      "revisions": {
-        "v1": "The Mathematician might learn if the Drunk's ability yielded false info or failed to work properly."
-      }
-    },
-    "lunatic::mathematician": {
-      "revision": "v1",
-      "reason": "The Mathematician might learn if the Lunatic attacks a different player than the real Demon attacked.",
-      "revisions": {
-        "v1": "The Mathematician might learn if the Lunatic attacks a different player than the real Demon attacked."
-      }
-    },
-    "marionette::mathematician": {
-      "revision": "v1",
-      "reason": "The Mathematician might learn if the Marionette's ability yielded false info or failed to work properly.",
-      "revisions": {
-        "v1": "The Mathematician might learn if the Marionette's ability yielded false info or failed to work properly."
-      }
-    },
-    "cultleader::pithag": {
-      "revision": "v1",
-      "reason": "If the Pit-Hag turns an evil player into the Cult Leader, they can't turn good due to their own ability.",
-      "revisions": {
-        "v1": "If the Pit-Hag turns an evil player into the Cult Leader, they can't turn good due to their own ability."
-      }
-    },
-    "damsel::pithag": {
-      "revision": "v1",
-      "reason": "If a Pit-Hag creates a Damsel, the Storyteller chooses which player it is.",
-      "revisions": {
-        "v1": "If a Pit-Hag creates a Damsel, the Storyteller chooses which player it is."
-      }
-    },
-    "goon::pithag": {
-      "revision": "v1",
-      "reason": "If the Pit-Hag turns an evil player into the Goon, they can't turn good due to their own ability.",
-      "revisions": {
-        "v1": "If the Pit-Hag turns an evil player into the Goon, they can't turn good due to their own ability."
-      }
-    },
-    "ogre::pithag": {
-      "revision": "v1",
-      "reason": "If the Pit-Hag turns an evil player into the Ogre, they can't turn good due to their own ability.",
-      "revisions": {
-        "v1": "If the Pit-Hag turns an evil player into the Ogre, they can't turn good due to their own ability."
-      }
-    },
-    "pithag::politician": {
-      "revision": "v1",
-      "reason": "If the Pit-Hag turns an evil player into the Politician, they can't turn good due to their own ability.",
-      "revisions": {
-        "v1": "If the Pit-Hag turns an evil player into the Politician, they can't turn good due to their own ability."
-      }
-    },
-    "pithag::village_idiot": {
-      "revision": "v1",
-      "reason": "If there is a spare token, the Pit-Hag can create an extra Village Idiot. If so, the drunk Village Idiot might change.",
-      "revisions": {
-        "v1": "If there is a spare token, the Pit-Hag can create an extra Village Idiot. If so, the drunk Village Idiot might change."
-      }
-    },
-    "baron::plague_doctor": {
-      "revision": "v1",
-      "reason": "If the Storyteller would gain the Baron ability, up to two players become Outsiders.",
-      "revisions": {
-        "v1": "If the Storyteller would gain the Baron ability, up to two players become Outsiders."
-      }
-    },
-    "boomdandy::plague_doctor": {
-      "revision": "v1",
-      "reason": "If the Storyteller would gain the Boomdandy ability, a player becomes the Boomdandy.",
-      "revisions": {
-        "v1": "If the Storyteller would gain the Boomdandy ability, a player becomes the Boomdandy."
-      }
-    },
-    "eviltwin::plague_doctor": {
-      "revision": "v1",
-      "reason": "If the Storyteller would gain the Evil Twin ability, a player becomes the Evil Twin.",
-      "revisions": {
-        "v1": "If the Storyteller would gain the Evil Twin ability, a player becomes the Evil Twin."
-      }
-    },
-    "fearmonger::plague_doctor": {
-      "revision": "v1",
-      "reason": "If the Storyteller would gain the Fearmonger ability, a Minion gains it, and learns this.",
-      "revisions": {
-        "v1": "If the Storyteller would gain the Fearmonger ability, a Minion gains it, and learns this."
-      }
-    },
-    "goblin::plague_doctor": {
-      "revision": "v1",
-      "reason": "If the Storyteller would gain the Goblin ability, a Minion gains it, and learns this.",
-      "revisions": {
-        "v1": "If the Storyteller would gain the Goblin ability, a Minion gains it, and learns this."
-      }
-    },
-    "marionette::plague_doctor": {
-      "revision": "v1",
-      "reason": "If the Storyteller would gain the Marionette ability, one of the Demon's good neighbors becomes the Marionette.",
-      "revisions": {
-        "v1": "If the Storyteller would gain the Marionette ability, one of the Demon's good neighbors becomes the Marionette."
-      }
-    },
-    "plague_doctor::scarletwoman": {
-      "revision": "v1",
-      "reason": "If the Storyteller would gain the Scarlet Woman ability, a Minion gains it, and learns this.",
-      "revisions": {
-        "v1": "If the Storyteller would gain the Scarlet Woman ability, a Minion gains it, and learns this."
-      }
-    },
-    "plague_doctor::spy": {
-      "revision": "v1",
-      "reason": "If the Storyteller would gain the Spy ability, a Minion gains it, and learns this.",
-      "revisions": {
-        "v1": "If the Storyteller would gain the Spy ability, a Minion gains it, and learns this."
-      }
-    },
-    "plague_doctor::wraith": {
-      "revision": "v1",
-      "reason": "If the Storyteller would gain the Wraith ability, a Minion gains it, and learns this.",
-      "revisions": {
-        "v1": "If the Storyteller would gain the Wraith ability, a Minion gains it, and learns this."
-      }
-    },
-    "ogre::recluse": {
-      "revision": "v1",
-      "reason": "If the Recluse registers as evil to the Ogre, the Ogre learns that they are evil.",
-      "revisions": {
-        "v1": "If the Recluse registers as evil to the Ogre, the Ogre learns that they are evil."
-      }
-    },
-    "recluse::sage": {
-      "revision": "v1",
-      "reason": "The Recluse might register as the Demon to the Sage.",
-      "revisions": {
-        "v1": "The Recluse might register as the Demon to the Sage."
-      }
-    },
-    "atheist::riot": {
-      "revision": "v1",
-      "reason": "During a riot, if the Storyteller is nominated, players vote. If they are \"about to die\", the game ends. If not, they nominate again.",
-      "revisions": {
-        "v1": "During a riot, if the Storyteller is nominated, players vote. If they are \"about to die\", the game ends. If not, they nominate again."
-      }
-    },
-    "banshee::riot": {
-      "revision": "v1",
-      "reason": "Each night*, Riot chooses an alive good player (different to previous nights): a chosen Banshee dies & gains their ability.",
-      "revisions": {
-        "v1": "Each night*, Riot chooses an alive good player (different to previous nights): a chosen Banshee dies & gains their ability."
-      }
-    },
-    "exorcist::riot": {
-      "revision": "v1",
-      "reason": "If Riot nominates and executes the Exorcist-chosen player, good wins.",
-      "revisions": {
-        "v1": "If Riot nominates and executes the Exorcist-chosen player, good wins."
-      }
-    },
-    "farmer::riot": {
-      "revision": "v1",
-      "reason": "Each night*, Riot chooses an alive good player (different to previous nights): a chosen Farmer uses their ability but does not die.",
-      "revisions": {
-        "v1": "Each night*, Riot chooses an alive good player (different to previous nights): a chosen Farmer uses their ability but does not die."
-      }
-    },
-    "grandmother::riot": {
-      "revision": "v1",
-      "reason": "If Riot is in play and the Grandchild dies by execution, evil wins.",
-      "revisions": {
-        "v1": "If Riot is in play and the Grandchild dies by execution, evil wins."
-      }
-    },
-    "innkeeper::riot": {
-      "revision": "v1",
-      "reason": "If Riot nominates and executes an Innkeeper-protected player, good wins.",
-      "revisions": {
-        "v1": "If Riot nominates and executes an Innkeeper-protected player, good wins."
-      }
-    },
-    "king::riot": {
-      "revision": "v1",
-      "reason": "If Riot is in play, and at least 1 player is dead, the King learns an alive character each night.",
-      "revisions": {
-        "v1": "If Riot is in play, and at least 1 player is dead, the King learns an alive character each night."
-      }
-    },
-    "mayor::riot": {
-      "revision": "v1",
-      "reason": "The Mayor may choose to stop the riot. If they do so when only 1 Riot is alive, good wins. Otherwise, evil wins.",
-      "revisions": {
-        "v1": "The Mayor may choose to stop the riot. If they do so when only 1 Riot is alive, good wins. Otherwise, evil wins."
-      }
-    },
-    "monk::riot": {
-      "revision": "v1",
-      "reason": "If Riot nominates and executes the Monk-protected player, good wins.",
-      "revisions": {
-        "v1": "If Riot nominates and executes the Monk-protected player, good wins."
-      }
-    },
-    "ravenkeeper::riot": {
-      "revision": "v1",
-      "reason": "Each night*, Riot chooses an alive good player (different to previous nights): a chosen Ravenkeeper uses their ability but does not die.",
-      "revisions": {
-        "v1": "Each night*, Riot chooses an alive good player (different to previous nights): a chosen Ravenkeeper uses their ability but does not die."
-      }
-    },
-    "riot::sage": {
-      "revision": "v1",
-      "reason": "Each night*, Riot chooses an alive good player (different to previous nights): a chosen Sage uses their ability but does not die.",
-      "revisions": {
-        "v1": "Each night*, Riot chooses an alive good player (different to previous nights): a chosen Sage uses their ability but does not die."
-      }
-    },
-    "riot::soldier": {
-      "revision": "v1",
-      "reason": "If Riot nominates and executes the Soldier, good wins.",
-      "revisions": {
-        "v1": "If Riot nominates and executes the Soldier, good wins."
-      }
-    },
-    "alhadikhia::scarletwoman": {
-      "revision": "v1",
-      "reason": "If there would be two Demons, one of which was the Scarlet Woman, the Scarlet Woman becomes the Scarlet Woman again.",
-      "revisions": {
-        "v1": "If there would be two Demons, one of which was the Scarlet Woman, the Scarlet Woman becomes the Scarlet Woman again."
-      }
-    },
-    "fanggu::scarletwoman": {
-      "revision": "v1",
-      "reason": "If there would be two Demons, one of which was the Scarlet Woman, the Scarlet Woman remains the Scarlet Woman.",
-      "revisions": {
-        "v1": "If there would be two Demons, one of which was the Scarlet Woman, the Scarlet Woman remains the Scarlet Woman."
-      }
-    },
-    "damsel::spy": {
-      "revision": "v1",
-      "reason": "If the Spy is (or has been) in play, the Damsel is poisoned.",
-      "revisions": {
-        "v1": "If the Spy is (or has been) in play, the Damsel is poisoned."
-      }
-    },
-    "ogre::spy": {
-      "revision": "v1",
-      "reason": "The Spy registers as evil to the Ogre.",
-      "revisions": {
-        "v1": "The Spy registers as evil to the Ogre."
-      }
-    },
-    "poppygrower::spy": {
-      "revision": "v1",
-      "reason": "If the Poppy Grower has their ability, the Spy does not see the Grimoire.",
-      "revisions": {
-        "v1": "If the Poppy Grower has their ability, the Spy does not see the Grimoire."
-      }
-    },
-    "clockmaker::summoner": {
-      "revision": "v1",
-      "reason": "The Summoner registers as the Demon to the Clockmaker.",
-      "revisions": {
-        "v1": "The Summoner registers as the Demon to the Clockmaker."
-      }
-    },
-    "courtier::summoner": {
-      "revision": "v1",
-      "reason": "If the living Summoner has no ability, the Storyteller has the Summoner ability.",
-      "revisions": {
-        "v1": "If the living Summoner has no ability, the Storyteller has the Summoner ability."
-      }
-    },
-    "engineer::summoner": {
-      "revision": "v1",
-      "reason": "If the living Summoner is removed from play, the Storyteller has the Summoner ability.",
-      "revisions": {
-        "v1": "If the living Summoner is removed from play, the Storyteller has the Summoner ability."
-      }
-    },
-    "hatter::summoner": {
-      "revision": "v1",
-      "reason": "If the Summoner creates a second living Demon, deaths tonight are arbitrary.",
-      "revisions": {
-        "v1": "If the Summoner creates a second living Demon, deaths tonight are arbitrary."
-      }
-    },
-    "kazali::summoner": {
-      "revision": "v1",
-      "reason": "If the Summoner creates a second living Demon, deaths tonight are arbitrary.",
-      "revisions": {
-        "v1": "If the Summoner creates a second living Demon, deaths tonight are arbitrary."
-      }
-    },
-    "lord_of_typhon::summoner": {
-      "revision": "v1",
-      "reason": "If a Lord of Typhon is summoned, they must neighbor a Minion & their other neighbor becomes an evil Minion.",
-      "revisions": {
-        "v1": "If a Lord of Typhon is summoned, they must neighbor a Minion & their other neighbor becomes an evil Minion."
-      }
-    },
-    "pithag::summoner": {
-      "revision": "v1",
-      "reason": "If the Summoner creates a second living Demon, deaths tonight are arbitrary.",
-      "revisions": {
-        "v1": "If the Summoner creates a second living Demon, deaths tonight are arbitrary."
-      }
-    },
-    "poppygrower::summoner": {
-      "revision": "v1",
-      "reason": "If the Poppy Grower is alive on the 3rd night, the Summoner chooses which Demon but not which player.",
-      "revisions": {
-        "v1": "If the Poppy Grower is alive on the 3rd night, the Summoner chooses which Demon but not which player."
-      }
-    },
-    "preacher::summoner": {
-      "revision": "v1",
-      "reason": "If the living Summoner has no ability, the Storyteller has the Summoner ability.",
-      "revisions": {
-        "v1": "If the living Summoner has no ability, the Storyteller has the Summoner ability."
-      }
-    },
-    "pukka::summoner": {
-      "revision": "v1",
-      "reason": "The Summoner may summon a Pukka on the 2nd night instead of the 3rd.",
-      "revisions": {
-        "v1": "The Summoner may summon a Pukka on the 2nd night instead of the 3rd."
-      }
-    },
-    "summoner::zombuul": {
-      "revision": "v1",
-      "reason": "If the Summoner summons a dead player into the Zombuul, the Zombuul has already \"died once\".",
-      "revisions": {
-        "v1": "If the Summoner summons a dead player into the Zombuul, the Zombuul has already \"died once\"."
-      }
-    },
-    "alsaahir::vizier": {
-      "revision": "v1",
-      "reason": "The Storyteller doesn't declare the Vizier is in play.",
-      "revisions": {
-        "v1": "The Storyteller doesn't declare the Vizier is in play."
-      }
-    },
-    "courtier::vizier": {
-      "revision": "v1",
-      "reason": "If the Vizier loses their ability, they learn this, and cannot die during the day.",
-      "revisions": {
-        "v1": "If the Vizier loses their ability, they learn this, and cannot die during the day."
-      }
-    },
-    "fearmonger::vizier": {
-      "revision": "v1",
-      "reason": "The Vizier wakes with the Fearmonger, learns who they choose and cannot choose to immediately execute that player.",
-      "revisions": {
-        "v1": "The Vizier wakes with the Fearmonger, learns who they choose and cannot choose to immediately execute that player."
-      }
-    },
-    "investigator::vizier": {
-      "revision": "v1",
-      "reason": "The Storyteller doesn't declare the Vizier is in play.",
-      "revisions": {
-        "v1": "The Storyteller doesn't declare the Vizier is in play."
-      }
-    },
-    "politician::vizier": {
-      "revision": "v1",
-      "reason": "The Politician might register as evil to the Vizier.",
-      "revisions": {
-        "v1": "The Politician might register as evil to the Vizier."
-      }
-    },
-    "preacher::vizier": {
-      "revision": "v1",
-      "reason": "If the Vizier loses their ability, they learn this, and cannot die during the day.",
-      "revisions": {
-        "v1": "If the Vizier loses their ability, they learn this, and cannot die during the day."
-      }
-    },
-    "vizier::zealot": {
-      "revision": "v1",
-      "reason": "The Zealot might register as evil to the Vizier.",
-      "revisions": {
-        "v1": "The Zealot might register as evil to the Vizier."
-      }
-    },
-    "banshee::vortox": {
-      "revision": "v1",
-      "reason": "If the Vortox kills the Banshee, all players learn that the Banshee has died.",
-      "revisions": {
-        "v1": "If the Vortox kills the Banshee, all players learn that the Banshee has died."
-      }
-    },
-    "damsel::widow": {
-      "revision": "v1",
-      "reason": "If the Widow is (or has been) in play, the Damsel is poisoned.",
-      "revisions": {
-        "v1": "If the Widow is (or has been) in play, the Damsel is poisoned."
-      }
-    },
-    "poppygrower::widow": {
-      "revision": "v1",
-      "reason": "If the Poppy Grower has their ability, the Widow does not see the Grimoire.",
-      "revisions": {
-        "v1": "If the Poppy Grower has their ability, the Widow does not see the Grimoire."
-      }
-    },
-    "exorcist::yaggababble": {
-      "revision": "v1",
-      "reason": "If the Exorcist chooses the Yaggababble, the Yaggababble does not kill tonight.",
-      "revisions": {
-        "v1": "If the Exorcist chooses the Yaggababble, the Yaggababble does not kill tonight."
-      }
-    }
+    "red_herring": "Red Herring",
+    "eyebrow": "Storyteller Workbench",
+    "player_count": "Player count",
+    "control_console": "Control Console",
+    "game_actions": "Actions",
+    "private_chat": "Private",
+    "public_chat": "Public",
+    "free_speech": "Free speech",
+    "round_robin_mode": "Round robin",
+    "choose_speaker": "Pick first",
+    "random_speaker": "Random first",
+    "next_speaker": "Next",
+    "start": "Start/Pause",
+    "reset_timer": "Reset",
+    "end_now": "End",
+    "alarm_sound": "Alarm Sound",
+    "add_tag": "Add tag",
+    "start_nomination": "Start nomination",
+    "continue_public": "Resume public",
+    "record_done": "Record",
+    "actor": "Nominator",
+    "target": "Nominee",
+    "voters": "Yes votes",
+    "non_voters": "Non-voters",
+    "note": "Note",
+    "statement": "Statement",
+    "skill_actor": "Skill user",
+    "skill_role": "Claimed role",
+    "skill_target": "Skill target",
+    "success": "Success",
+    "failure": "Failure",
+    "alive_tag": "Dead",
+    "executed_tag": "Executed",
+    "no_vote_tag": "No vote",
+    "tag_pool": "Tag pool",
+    "clear_unused_tags": "Clear unused tags",
+    "open_settings": "Settings",
+    "close_settings": "Hide settings",
+    "selected_player": "Selected player",
+    "reset_names": "Reset names",
+    "restart_game": "Restart game",
+    "end_game": "Save Game",
+    "private_default": "Private default",
+    "public_free_default": "Public free time",
+    "public_round_robin_default": "Round robin / player",
+    "seat_hint": "Click seats to pick speaker, nominator, nominee, or skill targets.",
+    "vote_trail": "Vote trail",
+    "skill_trail": "Skill trail",
+    "session_log": "Session log",
+    "completed_games": "Completed games",
+    "no_completed_games": "No completed games yet.",
+    "system_override_pass": "Override pass",
+    "system_override_fail": "Override fail",
+    "clear_override": "Clear override",
+    "pass": "Pass",
+    "fail": "Fail",
+    "confirm": "Confirm",
+    "restart_title": "Restart this game?",
+    "end_game_title": "End this game?",
+    "vote_title": "Confirm vote override?",
+    "waiting_for_nomination": "Waiting for nomination...",
+    "actor_speaking": "Nominator speaking",
+    "target_speaking": "Nominee speaking",
+    "ready_to_vote": "Ready to vote",
+    "voting": "Voting",
+    "voting_done": "Voting complete",
+    "vote_yes": "Vote",
+    "start_voting": "Start voting",
+    "pick_nominator": "Pick nominator",
+    "pick_nominee": "Pick nominee",
+    "use_skill": "Use skill",
+    "save_skill": "Save",
+    "cancel_skill": "Cancel",
+    "target_note": "Target note",
+    "bgm": "BGM",
+    "play": "Play",
+    "pause": "Pause",
+    "loop": "Loop",
+    "nomination_gate": "Until nominations",
+    "nomination_available": "Can nominate",
+    "nomination_delay_default": "Nomination delay (min)",
+    "nomination_wait_default": "Nomination wait",
+    "actor_speech_default": "Actor speech",
+    "target_speech_default": "Nominee speech",
+    "vote_default": "Vote time / player",
+    "record_vote": "Record vote",
+    "current_voter": "Current voter",
+    "nomination_succeed": "Nomination Succeed",
+    "nomination_failed": "Nomination Failed",
+    "skip_voting": "Skip Voting",
+    "continue_nomination": "Next nomination",
+    "phase_before_private": "Before private",
+    "phase_during_private": "During private",
+    "phase_before_public": "Before public",
+    "phase_during_public": "During public",
+    "phase_during_nomination": "During nomination",
+    "game_section": "Game",
+    "day_section": "Day",
+    "player_section": "Player",
+    "bgm_section": "BGM",
+    "save_before_new_game_title": "Start a new game?",
+    "save_before_new_game_body": "You have an active game. Save it to Records before starting a new one?",
+    "save_and_new": "Save & New",
+    "discard_and_new": "Discard & New",
+    "start_new_game": "Start New Game",
+    "confirm_end": "Confirm End",
+    "distribution": "Distribution",
+    "random_assign": "Random Assign",
+    "show_assign": "Show Assign",
+    "hide_assign": "Hide Assign",
+    "winner": "Winner",
+    "evil": "Evil",
+    "good": "Good",
+    "player_team": "Team",
+    "player_notes": "Notes",
+    "review_mode_label": "Review Mode",
+    "edit_mode": "Edit Mode",
+    "add_traveler": "Add Traveler",
+    "player_pool": "Name Pool",
+    "load_fake_names": "Load Fake Names",
+    "assign_name": "Assign Name",
+    "single_loop": "Single Loop",
+    "loop_all": "Loop All",
+    "aggregated_log": "Aggregated Log",
+    "filter_vote": "Vote",
+    "filter_skill": "Skill",
+    "filter_event": "Event",
+    "sort_asc": "Ascending",
+    "sort_desc": "Descending",
+    "export_json": "Export JSON",
+    "import_game": "Import Game",
+    "cancel_new_game": "Cancel",
+    "show_log": "Show Log",
+    "hide_log": "Hide Log",
+    "show_panel": "Show Panel",
+    "hide_panel": "Hide Panel",
+    "alive_count": "Alive",
+    "total_count": "Total",
+    "highest_vote": "Highest Votes",
+    "leading_candidate": "Leading",
+    "quick_nomination": "Nomination",
+    "quick_skill": "Ability",
+    "next_day": "Next Day",
+    "seat_assignment": "Seat Assignment",
+    "unassigned": "Unassigned",
+    "click_to_assign": "Click a name to assign to the next empty seat",
+    "load_local_file": "Load local file",
+    "remove_from_seat": "Remove",
+    "load_preset": "Load",
+    "tag_settings": "Tag Settings",
+    "default_tags": "Default Tags",
+    "load_predefined_tags": "Load predefined tags",
+    "add_tag_label": "+Tag",
+    "travelers_count": "Travelers",
+    "load_custom_alarm": "Load Custom",
+    "share_log": "Share Log",
+    "share_log_copied": "Copied!",
+    "quick_add_log": "Quick add log…",
+    "game_log_title": "Game Log",
+    "chinese_2": "Chinese",
+    "print_preview": "Print Preview",
+    "toggle_language": "Toggle language",
+    "zh": "zh",
+    "str_en": "中",
+    "hide_menu": "Hide menu",
+    "show_menu": "Show menu",
+    "exporting": "Exporting…",
+    "output": "Output",
+    "mixed": "Mixed",
+    "separate": "Separate",
+    "black_white": "Black & white",
+    "page": "Page",
+    "page_size": "Page size",
+    "layout": "Layout",
+    "columns": "Columns",
+    "1_col": "1 Col",
+    "2_col": "2 Col",
+    "alignment": "Alignment",
+    "left": "Left",
+    "center": "Center",
+    "right": "Right",
+    "show_author": "Show author",
+    "typography": "Typography",
+    "english_font": "English Font",
+    "body": "Body",
+    "name": "Name",
+    "section": "Section",
+    "spacing": "Spacing",
+    "compact": "Compact",
+    "normal": "Normal",
+    "spacious": "Spacious",
+    "section_style": "Section Style",
+    "inline": "Inline",
+    "chip": "Chip",
+    "line": "Line",
+    "icons": "Icons",
+    "icon_outer_circle": "Icon outer circle",
+    "card_outline": "Card outline",
+    "wake_order": "Wake Order",
+    "side": "Side",
+    "bottom": "Bottom",
+    "none": "none",
+    "preview_actual_print_may_differ_slightly": "Preview — actual print may differ slightly",
+    "page_1_end": "↑ page 1 end",
+    "no_wakeup": "No wake-up",
+    "1_wake_first": "#1 (wake first)",
+    "search_characters_2": "Search characters…",
+    "wake_first": "↑ Wake first",
+    "no_night_wakeup": "No night wake-up",
+    "deal_dashboard": "Deal Dashboard",
+    "claimed": "claimed",
+    "closed": "Closed",
+    "copy_player_link": "Copy player link",
+    "copied": "Copied",
+    "copy_link": "Copy Link",
+    "hide_characters": "Hide Characters",
+    "show_characters": "Show Characters",
+    "close_deal_no_more_claims": "Close deal (no more claims)",
+    "anon": "Anon",
+    "anonymous": "Anonymous",
+    "unclaimed": "Unclaimed",
+    "seat": "Seat #",
+    "player_name": "Player name",
+    "set_unclaimed": "Set Unclaimed",
+    "set_claimed": "Set Claimed",
+    "apply_start_game": "Apply & Start Game",
+    "changelog": "Changelog",
+    "that_card_was_already_claimed_pick_another_card": "That card was already claimed. Pick another card.",
+    "could_not_claim_that_card_please_try_again": "Could not claim that card. Please try again.",
+    "loading": "Loading…",
+    "error": "Error",
+    "retry": "Retry",
+    "link_expired": "Link Expired",
+    "ask_the_storyteller_for_a_new_link": "Ask the Storyteller for a new link",
+    "dealing_closed": "Dealing Closed",
+    "the_storyteller_has_closed_this_deal_session": "The Storyteller has closed this deal session",
+    "your_character": "Your Character",
+    "saved_keep_your_character_secret": "✓ Saved — keep your character secret!",
+    "blood_on_the_clocktower_deal": "Blood on the Clocktower — Deal",
+    "your_name_optional": "Your name (optional)",
+    "seat_optional": "Seat # (optional)",
+    "view_cards": "View Cards",
+    "pick_your_character_card": "Pick Your Character Card",
+    "tap_one_card_to_flip_it_others_will_lock": "Tap one card to flip it — others will lock",
+    "tap_to_flip": "Tap to flip",
+    "insert_character_after_this": "Insert character after this",
+    "search_character": "Search character…",
+    "reminder_tokens_2": "Reminder Tokens",
+    "otherseat_tokens": "Other-seat tokens",
+    "global_tokens_all_seats": "Global tokens (all seats)",
+    "tokens_this_character_places_on_other_players": "Tokens this character places on other players' seats",
+    "tokens_available_on_every_seat_regardless_of_assignment": "Tokens available on every seat regardless of assignment",
+    "night_reminders": "Night Reminders",
+    "first_night_en": "First Night (EN)",
+    "first_night_zh": "First Night (ZH)",
+    "other_nights_en": "Other Nights (EN)",
+    "other_nights_zh": "Other Nights (ZH)",
+    "no_night_reminders_for_this_character": "(no night reminders for this character)",
+    "first_night_reminder_en": "First Night Reminder (EN)",
+    "first_night_reminder_zh": "First Night Reminder (ZH)",
+    "other_nights_reminder_en": "Other Nights Reminder (EN)",
+    "other_nights_reminder_zh": "Other Nights Reminder (ZH)",
+    "attributes": "Attributes",
+    "no_night_wake": "no night wake",
+    "import_character_pack": "Import Character Pack",
+    "all": "All",
+    "new": "New",
+    "update": "UPDATE",
+    "dirty_id": "dirty ID",
+    "character_id_unique_key": "Character ID (unique key)",
+    "only_lowercase_letters_digits": "Only lowercase letters, digits, - _",
+    "duplicate_id_within_this_pack": "⚠ Duplicate ID within this pack",
+    "custom_character_with_this_id_already_exists": "⚠ Custom character with this ID already exists",
+    "suggested": "Suggested: ",
+    "apply": "Apply",
+    "name_zh": "Name (ZH)",
+    "ability_en": "Ability (EN)",
+    "ability_zh": "Ability (ZH)",
+    "edition": "Edition: ",
+    "setup": "Setup",
+    "other_night": "Other Night #",
+    "leave_empty_imported": "Leave empty → \"Imported\"",
+    "reminder_tokens_commaseparated": "Reminder tokens (comma-separated)",
+    "eg_wrong_drunk": "e.g. Wrong, Drunk",
+    "tokens_placed_on_other_players": "Tokens placed on other players' seats",
+    "global_reminder_tokens_commaseparated": "Global reminder tokens (comma-separated)",
+    "eg_no_ability": "e.g. No Ability",
+    "tokens_available_on_all_seats": "Tokens available on all seats",
+    "icon_image_url": "Icon Image URL",
+    "preview_on_right": "Preview on right",
+    "leave_empty_for_placeholder": "Leave empty for placeholder",
+    "switch_between_the_warm_parchment_light_theme_and_the_dark_c": "Switch between the warm parchment light theme and the dark crimson theme.",
+    "light": "Light",
+    "parchment": "Parchment",
+    "dark": "Dark",
+    "crimson": "Crimson",
+    "scales_all_ui_text_spacing_and_controls_uniformly": "Scales all UI text, spacing, and controls uniformly.",
+    "chinese_font_applies_to_both_body_text_and_titles": "Chinese font applies to both body text and titles.",
+    "font_settings_are_saved_locally_and_persist_across_reloads_g": "Font settings are saved locally and persist across reloads. Google Fonts require a network connection. Size changes apply instantly.",
+    "export_a_full_backup_containing_scripts_custom_characters_re": "Export a full backup containing scripts, custom characters, revision overrides, and script metadata. Share with others or import on a new device.",
+    "import_successful_reload_the_page_to_apply": "Import successful — reload the page to apply.",
+    "short_link_failed_using_direct_link_instead": "Short link failed — using direct link instead.",
+    "en": "en",
+    "back_to_card_view": "Back to card view",
+    "copy_share_link": "Copy share link",
+    "hide_night_order": "Hide night order",
+    "show_night_order": "Show night order",
+    "single_column": "Single column",
+    "two_columns": "Two columns",
+    "show_ability_text": "Show ability text",
+    "hide_ability_text": "Hide ability text",
+    "lang": "Lang",
+    "print_pdf": "Print PDF",
+    "custom_tag": "Custom tag…",
+    "collapse": "Collapse",
+    "add_note": "Add note",
+    "script_notes_for_your_own_reference": "Script notes — for your own reference…",
+    "share_script": "Share Script",
+    "generating_link": "Generating link…",
+    "this_link_opens_this_script_directly_link_never_expires": "This link opens this script directly. Link never expires.",
+    "this_link_contains_a_full_copy_of_the_script_valid_for_24_ho": "This link contains a full copy of the script. Valid for 24 hours.",
+    "export_records_json": "Export Records (JSON)",
+    "export_analysis_json": "Export Analysis (JSON)",
+    "export_stats_csv": "Export Stats (CSV)",
+    "share": "Share",
+    "copy_share_link_interactive": "Copy share link (interactive)",
+    "share_as_png": "Share as PNG",
+    "share_as_pdf": "Share as PDF",
+    "import_json": "Import JSON",
+    "import_error": "Import error: ",
+    "connection_failed": "Connection failed",
+    "ensure_this_exact_redirect_uri_is_registered_in_cloud_consol": "Ensure this exact Redirect URI is registered in Cloud Console:",
+    "add_this_uri_to_google_cloud_console_authorized_redirect_uri": "Add this URI to Google Cloud Console → Authorized redirect URIs:",
+    "oauth_credentials_are_preconfigured_just_click_connect_googl": "OAuth credentials are pre-configured. Just click Connect Google Drive below.",
+    "configure_your_own_google_oauth2_credentials": "Configure your own Google OAuth2 credentials.",
+    "open_cloud_console": "Open Cloud Console →",
+    "saved_register_this_redirect_uri_in_cloud_console": "Saved. Register this Redirect URI in Cloud Console:",
+    "check_network_or_reconnect": "Check network or reconnect",
+    "data_stored_privately_in_your_google_drive": "Data stored privately in your Google Drive",
+    "data_stored_in_your_private_google_drive_appdatafolder_only_": "Data stored in your private Google Drive appDataFolder — only visible to this app. Local changes auto-sync after 2 s.",
+    "connect_google_drive_to_automatically_sync_scripts_custom_ch": "Connect Google Drive to automatically sync scripts, custom characters, and revision overrides across devices. Data stays fully private in your own Drive.",
+    "save_both_client_id_and_client_secret_above_first": "Save both Client ID and Client Secret above first.",
+    "english_body": "English Body",
+    "english_title": "English Title",
+    "chinese_body": "Chinese Body",
+    "tutorial": "Tutorial",
+    "skip": "Skip",
+    "back": "Back",
+    "done": "Done",
+    "next": "Next",
+    "print_studio": "Print Studio",
+    "tokens": "tokens",
+    "switch_to_script_print_preview": "Switch to Script Print Preview",
+    "script_pdf": "Script PDF",
+    "select_characters_on_the_left": "Select characters on the left",
+    "configure_tags_to_see_preview": "Configure tags to see preview",
+    "mode": "Mode",
+    "character_markers": "Character Markers",
+    "custom_tags": "Custom Tags",
+    "characters": " characters",
+    "search_idnamedescription": "Search ID/Name/Description",
+    "chars": "Chars",
+    "tag_type": "Tag Type",
+    "numbers": "Numbers",
+    "markers": "Markers",
+    "from": "From",
+    "to": "To",
+    "label_optional": "Label (optional)",
+    "number_size": "Number size",
+    "bg_color": "BG color",
+    "icon": "Icon",
+    "label": "Label",
+    "qty": "Qty",
+    "add_marker": "Add marker",
+    "shape_size": "Shape & Size",
+    "shape": "Shape",
+    "circle": "Circle",
+    "hex": "Hex",
+    "square": "Square",
+    "text": "Text",
+    "both": "Both",
+    "ability": "Ability",
+    "style": "Style",
+    "arc": "Arc",
+    "straight": "Straight",
+    "name_size": "Name size",
+    "ability_size": "Ability size",
+    "icon_size": "Icon size",
+    "en_font": "EN Font",
+    "zh_font": "ZH Font",
+    "background": "Background",
+    "color": "Color",
+    "image": "Image",
+    "change_image": "Change image",
+    "upload_image": "Upload image",
+    "fit": "Fit",
+    "cover": "Cover",
+    "contain": "Contain",
+    "stretch": "Stretch",
+    "border": "Border",
+    "wake_order_indicators": "Wake order indicators",
+    "setup_indicators": "Setup indicators",
+    "watermark_optional": "Watermark (optional)",
+    "enable_watermark": "Enable watermark",
+    "watermark_text": "Watermark text",
+    "change": "Change",
+    "position": "Position",
+    "bright": "B-Right",
+    "scripts": "scripts",
+    "players": "Players",
+    "reset_filters": "Reset filters",
+    "filtered": "Filtered",
+    "edit_game_record": "Edit Game Record",
+    "new_game_record": "New Game Record",
+    "survey_st": "Survey & ST",
+    "autogenerated_from_script_date_if_blank": "Auto-generated from script + date if blank",
+    "date": "Date",
+    "days": "Days",
+    "evil_win": "Evil Win",
+    "good_win": "Good Win",
+    "st_win": "ST Win",
+    "player_list": "Player List",
+    "character_team_used_in_analytics_blank_names_autouse_seat_nu": "Character + team used in analytics. Blank names auto-use seat number.",
+    "character": "Character",
+    "storyteller": "Storyteller: ",
+    "who_ran_this_game": "Who ran this game?",
+    "custom_rules_settings": "Custom rules / settings",
+    "eg_custom_rules_script_variants_house_rules": "e.g. custom rules, script variants, house rules",
+    "game_survey": "Game Survey",
+    "balanced": "Balanced",
+    "fun_evil": "Fun (Evil)",
+    "fun_good": "Fun (Good)",
+    "replay": "Replay",
+    "other_notes": "Other notes",
+    "create_record": "Create Record",
+    "minion_info": "— Minion Info —",
+    "demon_info": "— Demon Info —",
+    "first": "First",
+    "other": "Other",
+    "hide_abilities": "Hide Abilities",
+    "show_abilities": "Show Abilities",
+    "st": "ST: ",
+    "undo": "Undo",
+    "empty_folder": "Empty folder",
+    "more": "more…",
+    "delete_folder": "Delete folder",
+    "search_scripts_author_characters": "Search scripts, author, characters…",
+    "switch_to_list_view": "Switch to list view",
+    "no_matches": "No matches",
+    "official": "Official",
+    "community": "Community",
+    "no_community_scripts": "No community scripts.",
+    "diy": "DIY",
+    "uncategorized": "Uncategorized",
+    "no_custom_scripts_yet_use_the_buttons_above_to_get_started": "No custom scripts yet — use the buttons above to get started.",
+    "new_folder": "New folder",
+    "folder_name": "Folder name…",
+    "create": "Create",
+    "add_folder": "Add folder",
+    "add_script": "Add script",
+    "copy_to_diy": "Copy to DIY",
+    "remove_from_folder": "Remove from folder",
+    "move_to_folder": "Move to folder",
+    "switch_to_card_view": "Switch to card view",
+    "search_title_author_character": "Search title, author, character…",
+    "default": "Default",
+    "name_az": "Name A–Z",
+    "author_2": "Author: ",
+    "char_count": "Char count",
+    "copy_a_script_above_to_start": "Copy a script above to start",
+    "hide_reminders": "Hide reminders",
+    "show_reminders": "Show reminders",
+    "click_to_rename": "Click to rename",
+    "rename_folder": "Rename folder",
+    "exp": "EXP",
+    "export_markdown": "Export Markdown",
+    "no_fills_applied_yet": "No fills applied yet",
+    "chat": "Chat",
+    "skills": "Skills",
+    "general_ai_assistant": "General AI Assistant",
+    "use_skill_chips_above_or_type_a_message": "Use skill chips above or type a message",
+    "thinking": "Thinking…",
+    "autoapply_fills": "Auto-apply fills",
+    "type_a_message_enter_to_send": "Type a message… (Enter to send)",
+    "ai_assistant": "AI Assistant",
+    "clear_chat": "Clear chat",
+    "click_a_skill_card_to_run_it": "Click a skill card to run it",
+    "skills_for_other_contexts": "Skills for other contexts",
+    "eg_dimo": "e.g. Dimo",
+    "fabled_loric": "Fabled / Loric",
+    "none_selected": "None selected",
+    "search": "Search…",
+    "special_note": "Special Note",
+    "apply_changes": "Apply Changes",
+    "all_data_for_this_day_events_votes_skill_log_will_be_permane": "All data for this day (events, votes, skill log) will be permanently removed.",
+    "deal_assigned_characters_to_players_new_tab": "Deal assigned characters to players (new tab)",
+    "deal_cards": "Deal Cards",
+    "open_active_deal_dashboard": "Open active deal dashboard",
+    "game_end_survey": "Game End & Survey",
+    "mvp": "MVP",
+    "select_player": "Select player",
+    "is_it_balanced": "Is it balanced",
+    "fun_for_evil": "Fun for evil",
+    "fun_for_good": "Fun for good",
+    "replay_this_script": "Replay this script",
+    "teams": "Teams",
+    "file_name": "File name",
+    "not_finished": "Not Finished",
+    "finished": "Finished",
+    "batch_load": "Batch Load",
+    "alice_bob_charlie": "Alice, Bob, Charlie...",
+    "update_saved_records": "Update saved records?",
+    "this_game_only": "This game only",
+    "update_all": "Update all",
+    "charactersseatsteams": "Characters·Seats·Teams",
+    "paste_names_separated_by_commas": "Paste names separated by commas",
+    "fill": "Fill",
+    "random": "Random",
+    "empty": "(empty)",
+    "nominate": "Nominate",
+    "select": "— Select —",
+    "click_a_seat_on_the_table_to_select": "← Click a seat on the table to select",
+    "traveler_2": "Traveler",
+    "exile_2": " [exile]",
+    "optional_note": "Optional note…",
+    "override": "Override",
+    "auto": "Auto",
+    "record": "Record",
+    "expand": "Expand",
+    "delete_this_day": "Delete this day",
+    "edit_characters": "Edit Characters",
+    "log": "Log",
+    "save_record": "Save Record",
+    "vote_2": "vote",
+    "hide_wake_order": "Hide Wake Order",
+    "show_wake_order": "Show Wake Order",
+    "no_entries": "(no entries)",
+    "pub": "Pub",
+    "storyteller_setup": "Storyteller Setup",
+    "your_name_as_storyteller": "Your name as Storyteller",
+    "custom_rules": "Custom rules",
+    "enter_custom_rules": "Enter custom rules…",
+    "click_to_add_custom_rules": "Click to add custom rules…",
+    "previous_day": "Previous day",
+    "next_day_2": "Next day",
+    "skill": "skill",
+    "tag": "tag",
+    "state": "state",
+    "phase": "Phase",
+    "no_events_found_for_this_player": "No events found for this player.",
+    "remove_novote": "Remove no-vote",
+    "about_to_die_2": "⚡ About to die",
+    "assign": "+Assign",
+    "type_custom_or_pick_reminder": "— type custom or pick reminder",
+    "close_char_picker": "Close char picker",
+    "pick_by_character": "Pick by character",
+    "night_ability": "Night Ability",
+    "know": "Know",
+    "guess": "Guess",
+    "type": "Type",
+    "today_nominators": "Today Nominators",
+    "today_nominees": "Today Nominees",
+    "nominations": "Nominations",
+    "none_yet": "None yet",
+    "failed": "Failed",
+    "records": "Records",
+    "saved_games": "Saved Games",
+    "click_to_load_this_game": "Click to load this game",
+    "ended": "Ended",
+    "saved": "Saved",
+    "click_to_load": "↻ Click to load",
+    "no_saved_games": "No saved games",
+    "games": "Games",
+    "g": "G%",
+    "countdown_settings": "Countdown Settings",
+    "upload_custom_sound": "Upload Custom Sound",
+    "default_bgm": "Default BGM",
+    "default_track": "Default Track",
+    "upload_local_bgm": "Upload Local BGM",
+    "phase_switch_sound": "Phase switch sound",
+    "commaseparated_tags": "Comma-separated tags...",
+    "script_reminders": "Script reminders",
+    "add_all": "Add all",
+    "players_who_played_this": "Players who played this",
+    "in_scripts": "In scripts",
+    "used_as_demon_bluff": "Used as demon bluff",
+    "recent_appearances": "Recent appearances",
+    "e": "E%",
+    "times_used_as_demon_bluff": "Times used as demon bluff",
+    "outsider_2": "Outsider",
+    "minion_2": "Minion",
+    "demon_2": "Demon",
+    "no_character_data_add_character_assignments_to_records": "No character data — add character assignments to records",
+    "most_played": "Most Played",
+    "win_rate": "Win Rate",
+    "alphabetical": "Alphabetical",
+    "balanced_win_rates": "Balanced win rates",
+    "evildominant": "Evil-dominant",
+    "consider_more_goodfavoured_scripts": "Consider more good-favoured scripts",
+    "gooddominant": "Good-dominant",
+    "consider_harder_evil_roles": "Consider harder evil roles",
+    "most_recent_consecutive_results": "Most recent consecutive results",
+    "games_running_long": "Games running long",
+    "healthy_game_pace": "Healthy game pace",
+    "last_10_games": "Last 10 games",
+    "no_records_yet_complete_a_game_or_add_records_manually_to_se": "No records yet. Complete a game or add records manually to see analytics.",
+    "total_games": "Total Games",
+    "avg_days": "Avg Days",
+    "avg_min": "Avg Min",
+    "avg_players": "Avg Players",
+    "avg_ratings": "Avg Ratings",
+    "win_balance": "Win Balance",
+    "insights": "Insights",
+    "script_summary": "Script Summary",
+    "top_5_players": "Top 5 Players",
+    "storytellers": "Storytellers",
+    "most_played_characters": "Most Played Characters",
+    "games_ended_on_day": "Games ended on day…",
+    "perday_averages": "Per-day averages",
+    "day": "Day",
+    "noms": "Noms",
+    "exec": "Exec%",
+    "common_characters": "Common characters",
+    "active_players": "Active players",
+    "no_script_data": "No script data",
+    "all_scripts": "All Scripts",
+    "team_breakdown": "Team Breakdown",
+    "st_games": "ST games",
+    "characters_played": "Characters played",
+    "frequent_teammates": "Frequent teammates",
+    "good_games": "Good games",
+    "good_w": "Good W%",
+    "evil_games": "Evil games",
+    "evil_w": "Evil W%",
+    "evil_rate": "Evil rate",
+    "unique_chars": "Unique Chars",
+    "player_comparison": "Player Comparison",
+    "no_player_data_add_player_names_to_game_records": "No player data — add player names to game records",
+    "w": "W%",
+    "evil_rate_of_games_played_as_evil": "Evil rate: % of games played as evil",
+    "evil_2": "Evil↑",
+    "mvp_count": "MVP count",
+    "st_games_run": "ST games run",
+    "compare": "Compare",
+    "quick_edit": "Quick Edit",
+    "st_name": "ST name",
+    "house_rules_variants": "House rules, variants…",
+    "notes": "Notes",
+    "min": " min",
+    "n": "n",
+    "s": "s",
+    "bluffs": "Bluffs: ",
+    "selected": " selected",
+    "export_selected": "Export selected",
+    "delete_selected": "Delete selected",
+    "new_record": "New Record",
+    "no_records_match_the_current_filter": "No records match the current filter",
+    "p": "P",
+    "delete_this_record": "Delete this record?",
+    "confirm_delete": "Confirm delete",
+    "new_character": "New Character",
+    "team_role": "Team role: ",
+    "current_fields": "── Current Fields ──",
+    "night_info": "── Night Info ──",
+    "first_night_order": "First Night Order",
+    "first_night_reminder_2": "First Night Reminder",
+    "other_night_order": "Other Night Order",
+    "other_night_reminder_2": "Other Night Reminder",
+    "note_this_is_a_new_character_not_yet_saved_to_the_database": "Note: This is a new character, not yet saved to the database.",
+    "total_characters": "Total characters: ",
+    "script_title": "Script Title",
+    "character_count": "Character Count",
+    "passed": "PASSED",
+    "current_day": "Current Day",
+    "total_days": "Total Days",
+    "alive_players": "Alive Players",
+    "dead_players": "Dead Players",
+    "recent_votes": "Recent Votes",
+    "days_played": "Days played: ",
+    "final_alive": "== Final Alive ==",
+    "dead_2": "== Dead ==",
+    "demon_bluffs_2": "Demon bluffs: ",
+    "alive_2": "Alive: ",
+    "skills_used": "Skills used:",
+    "events": "Events:",
+    "full_log": "Full log",
+    "recent_scripts": "Recent Scripts",
+    "game_analytics": "Game Analytics",
+    "general": "General",
+    "cloud_sync_not_configured": "Cloud sync not configured",
+    "cloud_sync_enter_client_id": "Enter Google Client ID in Settings",
+    "not_connected_google_drive": "Not connected to Google Drive",
+    "click_to_go_to_settings": "Click to go to Settings",
+    "sync_error": "Sync error",
+    "unknown_error": "Unknown error",
+    "syncing": "Syncing…",
+    "not_yet_synced": "Not yet synced",
+    "storyteller_helper": "Storyteller Helper",
+    "feedback": "Feedback",
+    "hide_description": "Hide description",
+    "show_description": "Show description",
+    "tab_st_short": "ST",
+    "tab_stats_short": "Stats",
+    "tab_print_short": "Print",
+    "ai_assistant_experimental": "AI Assistant (Experimental)",
+    "exp_short": "EXP",
+    "leave_blank_autogenerate": "Leave blank to auto-generate",
+    "author_prefix": "by ",
+    "characters_suffix": "characters",
+    "sheet_first_night": "First Night",
+    "sheet_other_nights": "Other Nights",
+    "last_synced_time": "Last synced: {0}",
+    "section_n": "Section {0}",
+    "preview_px_mm": "Preview: {0}px ≈ {1}mm",
+    "line_height_val": "Line height: {0}",
+    "card_icon_px": "Card icon: {0}px",
+    "wake_icon_px": "Wake icon: {0}px",
+    "pos_after": "#{0} (after {1})",
+    "insert_after": "Insert here — pos {0}",
+    "player_entered_seat": "Player entered seat #{0}",
+    "seat_n": "Seat #{0}",
+    "n_new_chars": "{0} new",
+    "n_overrides_count": "{0} overrides",
+    "import_n": "Import {0}",
+    "avg_days_n": "avg {0}d",
+    "avg_votes_n": "avg {0} votes",
+    "avg_noms_n": "avg {0} noms",
+    "exec_rate_n": "exec rate {0}%",
+    "showing_n_games_of_m": "Showing {0} of {1} games",
+    "ratings_n": "ratings ({0}):",
+    "apply_names_to_all_n_days": "Apply player names to all {0} days",
+    "rename_player_in_n_records": "Rename \"{0}\" → \"{1}\" in {2} saved record(s)?",
+    "n_cards_tap_one": "{0} cards. Tap one to flip — you only get one!",
+    "seats_ready_n_of_m": "{0}/{1} seats ready",
+    "first_night_pick_position": "First Night — pick position",
+    "other_nights_pick_position": "Other Nights — pick position",
+    "pack_n_chars_selected": "{0} characters · {1} selected",
+    "view_note": "View note",
+    "day_compact": "D{0}",
+    "records_n": "Records ({0})",
+    "confirm_delete_n_records": "Delete {0} selected record(s)? This cannot be undone.",
+    "good_n_games": "Good ({0}g)",
+    "evil_n_games": "Evil ({0}g)",
+    "player_selected_compare": "\"{0}\" selected — click ⇄ on another player to compare",
+    "version": "Version",
+    "new_badge": "NEW",
+    "pack_badge": "PACK",
+    "yes_short": "yes",
+    "no_short": "no",
+    "setup_label": "Setup: {0}",
+    "first_night_pos": "First night #{0}",
+    "other_nights_pos": "Other nights #{0}",
+    "diameter_mm": "Diameter: {0}mm",
+    "gap_mm": "Gap: {0}mm",
+    "margin_mm": "Margin: {0}mm",
+    "border_width_px": "Width: {0}px",
+    "watermark_size_pt": "Size: {0}pt",
+    "watermark_opacity_pct": "Opacity: {0}%",
+    "evil_pct_label": "Evil {0}%",
+    "good_pct_label": "Good {0}%",
+    "evil_vs_good_pct": "Evil {0}% vs Good {1}%",
+    "evil_wins_n": "Evil Wins ({0})",
+    "good_wins_n": "Good Wins ({0})",
+    "st_wins_n": "ST Win ({0})",
+    "streak_n_side": "{0}-game {1} streak",
+    "evil_heavy_label": "\"{0}\" evil-heavy",
+    "evil_wins_pct_of_n": "Evil wins {0}% of {1} games",
+    "good_friendly_label": "\"{0}\" good-friendly",
+    "good_wins_pct_of_n": "Good wins {0}% of {1} games",
+    "top_rated_label": "\"{0}\" top-rated",
+    "avg_balance_replay": "Avg balance+replay {0}/5",
+    "player_leads_winrate": "{0} leads win rate",
+    "player_stats_detail": "{0}g · Good {1}% Evil {2}%",
+    "player_low_winrate": "{0} low win rate",
+    "player_check_roles": "{0} games — check role assignments",
+    "char_most_played_label": "{0} most played",
+    "char_played_winrate": "{0}× played · {1}% win rate",
+    "player_top_mvp_label": "{0} top MVP",
+    "player_mvp_count": "{0} MVP awards",
+    "player_most_active_st": "{0} most active ST",
+    "avg_duration_min": "Avg {0} min/game",
+    "more_n_scripts_tab": "+{0} more in Scripts tab",
+    "more_n_storytellers": "+{0} more storytellers",
+    "open_session": "Open {0}",
+    "script_chars_short": "{0}c",
+    "log_tab_n": "Log ({0})",
+    "fill_log_n": "Fill Log ({0})",
+    "context_editing": "Context: \"{0}\"",
+    "tag_for_char": "Tag for {0}",
+    "st_detail_n_games_scripts": "{0} games, {1} scripts",
+    "arena_st_setup": "ST Setup",
+    "arena_nominations": "Nominations",
+    "arena_edit_roles": "Edit Roles",
+    "arena_tap_seat": "Tap seat → player details, role & tag changes"
   }
 }

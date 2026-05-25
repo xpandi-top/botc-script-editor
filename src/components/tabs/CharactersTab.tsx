@@ -47,7 +47,7 @@ function getPackOverrideIds(): Set<string> {
 }
 import type { CharacterFileEntry } from '../../types'
 import type { CharacterEntry, CustomCharacter, Language, Team } from '../../types'
-import { makeT, makeTpl } from '../../lib/t'
+import { useT } from '../../context/I18nContext'
 
 type Props = {
   uiText: Record<string, string>
@@ -156,10 +156,12 @@ type PackImportDialogProps = {
 }
 
 function PackImportDialog({ open, onClose, pack, language, knownIds, existingCustomIds, onConfirm }: PackImportDialogProps) {
+  const { t, tpl } = useT()
+  const zh = language === 'zh'
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
   const [edits, setEdits] = useState<Record<string, PackEdit>>({})
-  const zh = language === 'zh'
+
 
   React.useEffect(() => {
     if (open) {
@@ -256,22 +258,20 @@ function PackImportDialog({ open, onClose, pack, language, knownIds, existingCus
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 1 }}>
         <Box>
           <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-            {zh ? '导入角色包预览' : 'Import Character Pack'}
+            {t('import_character_pack')}
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            {zh
-              ? `共 ${pack.length} 个角色 · 已选 ${selected.size}`
-              : `${pack.length} characters · ${selected.size} selected`}
+            {tpl('pack_n_chars_selected', pack.length, selected.size)}
           </Typography>
         </Box>
         <IconButton size="small" onClick={onClose}><CloseIcon /></IconButton>
       </DialogTitle>
 
       <Box sx={{ px: 2, pb: 1, display: 'flex', gap: 0.75, flexWrap: 'wrap', alignItems: 'center' }}>
-        <Button size="small" onClick={selectAll}  sx={{ textTransform: 'none', fontSize: '0.72rem', py: 0 }}>{zh ? '全选' : 'All'}</Button>
-        <Button size="small" onClick={selectNone} sx={{ textTransform: 'none', fontSize: '0.72rem', py: 0 }}>{zh ? '取消全选' : 'None'}</Button>
-        {newCount  > 0 && <Chip size="small" label={zh ? `新增 ${newCount}`  : `${newCount} new`}       color="success" sx={{ fontSize: '0.7rem', height: 20 }} />}
-        {overCount > 0 && <Chip size="small" label={zh ? `覆盖 ${overCount}` : `${overCount} overrides`} color="warning" sx={{ fontSize: '0.7rem', height: 20 }} />}
+        <Button size="small" onClick={selectAll}  sx={{ textTransform: 'none', fontSize: '0.72rem', py: 0 }}>{t('all')}</Button>
+        <Button size="small" onClick={selectNone} sx={{ textTransform: 'none', fontSize: '0.72rem', py: 0 }}>{t('none')}</Button>
+        {newCount  > 0 && <Chip size="small" label={tpl('n_new_chars', newCount)}       color="success" sx={{ fontSize: '0.7rem', height: 20 }} />}
+        {overCount > 0 && <Chip size="small" label={tpl('n_overrides_count', overCount)} color="warning" sx={{ fontSize: '0.7rem', height: 20 }} />}
       </Box>
 
       <Divider />
@@ -331,13 +331,13 @@ function PackImportDialog({ open, onClose, pack, language, knownIds, existingCus
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, flexWrap: 'wrap' }}>
                     <Typography sx={{ fontWeight: 600, fontSize: '0.88rem', lineHeight: 1.3 }}>{displayName}</Typography>
                     <Chip size="small"
-                      label={effIsNew ? (zh ? '新增' : 'NEW') : (zh ? '覆盖' : 'UPDATE')}
+                      label={effIsNew ? (t('new')) : (t('update'))}
                       color={effIsNew ? 'success' : 'warning'} variant="outlined"
                       sx={{ fontSize: '0.62rem', height: 18, '& .MuiChip-label': { px: 0.5 } }} />
                     <Chip size="small" label={teamVal} variant="outlined"
                       sx={{ fontSize: '0.62rem', height: 18, '& .MuiChip-label': { px: 0.5 }, textTransform: 'capitalize' }} />
                     {idDirty && (
-                      <Chip size="small" label={zh ? 'ID需清理' : 'dirty ID'} color="error" variant="outlined"
+                      <Chip size="small" label={t('dirty_id')} color="error" variant="outlined"
                         sx={{ fontSize: '0.62rem', height: 18, '& .MuiChip-label': { px: 0.5 } }} />
                     )}
                     <Typography variant="caption" color="text.disabled" sx={{ fontSize: '0.65rem' }}>{finalId}</Typography>
@@ -360,7 +360,7 @@ function PackImportDialog({ open, onClose, pack, language, knownIds, existingCus
                   {/* ID row with clean suggestion + duplicate check */}
                   <Box>
                     <TextField size="small" fullWidth
-                      label={zh ? '角色 ID（唯一标识）' : 'Character ID (unique key)'}
+                      label={t('character_id_unique_key')}
                       value={e.id ?? c.id}
                       onChange={(ev) => patchEdit(c.id, { id: ev.target.value })}
                       error={(() => {
@@ -373,11 +373,11 @@ function PackImportDialog({ open, onClose, pack, language, knownIds, existingCus
                       helperText={(() => {
                         const raw = e.id ?? c.id
                         const clean = slugify(raw)
-                        if (!/^[a-z0-9_-]+$/.test(raw)) return zh ? '只允许小写字母、数字、-、_' : 'Only lowercase letters, digits, - _'
+                        if (!/^[a-z0-9_-]+$/.test(raw)) return t('only_lowercase_letters_digits')
                         const otherPack = pack.some((p) => p.id !== c.id && (edits[p.id]?.id?.trim() || p.id) === raw)
-                        if (otherPack) return zh ? '⚠ 与包内另一角色 ID 重复' : '⚠ Duplicate ID within this pack'
-                        if (existingCustomIds.has(raw)) return zh ? '⚠ 已存在同名自定义角色' : '⚠ Custom character with this ID already exists'
-                        if (raw !== clean && clean) return (zh ? '建议: ' : 'Suggested: ') + clean
+                        if (otherPack) return t('duplicate_id_within_this_pack')
+                        if (existingCustomIds.has(raw)) return t('custom_character_with_this_id_already_exists')
+                        if (raw !== clean && clean) return (t('suggested')) + clean
                         return ''
                       })()}
                       slotProps={{
@@ -388,7 +388,7 @@ function PackImportDialog({ open, onClose, pack, language, knownIds, existingCus
                             return (raw !== clean && clean) ? (
                               <Button size="small" onClick={() => patchEdit(c.id, { id: clean })}
                                 sx={{ textTransform: 'none', fontSize: '0.7rem', px: 0.75, py: 0, minWidth: 0 }}>
-                                {zh ? '应用' : 'Apply'}
+                                {t('apply')}
                               </Button>
                             ) : null
                           })() as React.ReactNode,
@@ -399,30 +399,30 @@ function PackImportDialog({ open, onClose, pack, language, knownIds, existingCus
 
                   {/* Names row */}
                   <Box sx={{ display: 'flex', gap: 1 }}>
-                    <TextField size="small" fullWidth label={zh ? '英文名' : 'Name (EN)'}
+                    <TextField size="small" fullWidth label={t('name_en')}
                       value={nameEn}
                       onChange={(ev) => patchEditLocale(c.id, 'en', 'name', ev.target.value)} />
-                    <TextField size="small" fullWidth label={zh ? '中文名' : 'Name (ZH)'}
+                    <TextField size="small" fullWidth label={t('name_zh')}
                       value={nameZh}
                       onChange={(ev) => patchEditLocale(c.id, 'zh', 'name', ev.target.value)} />
                   </Box>
 
                   {/* Ability rows */}
                   <TextField size="small" fullWidth multiline minRows={2}
-                    label={zh ? '能力文本 (EN)' : 'Ability (EN)'}
+                    label={t('ability_en')}
                     value={abilityEn}
                     onChange={(ev) => patchEditLocale(c.id, 'en', 'ability', ev.target.value)} />
                   <TextField size="small" fullWidth multiline minRows={2}
-                    label={zh ? '能力文本 (ZH)' : 'Ability (ZH)'}
+                    label={t('ability_zh')}
                     value={abilityZh}
                     onChange={(ev) => patchEditLocale(c.id, 'zh', 'ability', ev.target.value)} />
 
                   {/* Team / Edition / Setup row */}
                   <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'flex-start' }}>
                     <FormControl size="small" sx={{ minWidth: 110 }}>
-                      <InputLabel sx={{ fontSize: '0.8rem' }}>{zh ? '阵营' : 'Team'}</InputLabel>
+                      <InputLabel sx={{ fontSize: '0.8rem' }}>{t('team_label')}</InputLabel>
                       <Select
-                        value={teamVal} label={zh ? '阵营' : 'Team'}
+                        value={teamVal} label={t('team_label')}
                         onChange={(ev) => patchEdit(c.id, { team: ev.target.value as Team })}
                         sx={{ fontSize: '0.8rem' }}
                       >
@@ -431,61 +431,61 @@ function PackImportDialog({ open, onClose, pack, language, knownIds, existingCus
                         ))}
                       </Select>
                     </FormControl>
-                    <TextField size="small" label={zh ? '版本/来源' : 'Edition'}
+                    <TextField size="small" label={t('edition')}
                       value={editionVal}
                       onChange={(ev) => patchEdit(c.id, { edition: ev.target.value })}
                       sx={{ width: 100 }} />
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, pt: 0.5 }}>
                       <Checkbox size="small" checked={setupVal} sx={{ p: 0.25 }}
                         onChange={(ev) => patchEdit(c.id, { setup: ev.target.checked })} />
-                      <Typography variant="caption" color="text.secondary">{zh ? '影响setup' : 'Setup'}</Typography>
+                      <Typography variant="caption" color="text.secondary">{t('setup')}</Typography>
                     </Box>
                   </Box>
 
                   {/* Night order positions */}
                   <Box sx={{ display: 'flex', gap: 1 }}>
                     <TextField size="small" sx={{ width: 130 }}
-                      label={zh ? '第一夜顺序' : 'First Night #'}
+                      label={t('first_night')}
                       value={fnVal} type="number" slotProps={{ htmlInput: { min: 0 } }}
                       onChange={(ev) => patchEdit(c.id, { firstNight: ev.target.value })} />
                     <TextField size="small" sx={{ width: 130 }}
-                      label={zh ? '其他夜顺序' : 'Other Night #'}
+                      label={t('other_night')}
                       value={onVal} type="number" slotProps={{ htmlInput: { min: 0 } }}
                       onChange={(ev) => patchEdit(c.id, { otherNight: ev.target.value })} />
                   </Box>
 
                   {/* Author */}
                   <TextField size="small" fullWidth
-                    label={zh ? '作者' : 'Author'}
+                    label={t('author')}
                     value={authorVal}
-                    placeholder={zh ? '（留空则显示"Imported"）' : 'Leave empty → "Imported"'}
+                    placeholder={t('leave_empty_imported')}
                     onChange={(ev) => patchEdit(c.id, { author: ev.target.value })}
                   />
 
                   {/* Reminder tokens */}
                   <TextField size="small" fullWidth
-                    label={zh ? '提示标记（逗号分隔）' : 'Reminder tokens (comma-separated)'}
+                    label={t('reminder_tokens_commaseparated')}
                     value={remindersVal}
-                    placeholder={zh ? '例如: Wrong, Drunk' : 'e.g. Wrong, Drunk'}
-                    helperText={zh ? '放置于其他玩家座位上的标记' : 'Tokens placed on other players\' seats'}
+                    placeholder={t('eg_wrong_drunk')}
+                    helperText={t('tokens_placed_on_other_players')}
                     onChange={(ev) => patchEdit(c.id, { reminders: ev.target.value })}
                   />
                   <TextField size="small" fullWidth
-                    label={zh ? '全局提示标记（逗号分隔）' : 'Global reminder tokens (comma-separated)'}
+                    label={t('global_reminder_tokens_commaseparated')}
                     value={remindersGlobalVal}
-                    placeholder={zh ? '例如: No Ability' : 'e.g. No Ability'}
-                    helperText={zh ? '所有座位均可使用的标记' : 'Tokens available on all seats'}
+                    placeholder={t('eg_no_ability')}
+                    helperText={t('tokens_available_on_all_seats')}
                     onChange={(ev) => patchEdit(c.id, { remindersGlobal: ev.target.value })}
                   />
 
                   {/* Image URL with live preview */}
                   <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start' }}>
                     <TextField size="small" fullWidth
-                      label={zh ? '角色图片 URL' : 'Icon Image URL'}
+                      label={t('icon_image_url')}
                       value={imageVal}
                       placeholder="https://..."
                       onChange={(ev) => patchEdit(c.id, { image: ev.target.value })}
-                      helperText={imageUrl ? (zh ? '预览见右侧' : 'Preview on right') : (zh ? '留空使用默认占位符' : 'Leave empty for placeholder')}
+                      helperText={imageUrl ? (t('preview_on_right')) : (t('leave_empty_for_placeholder'))}
                     />
                     {/* Live preview circle */}
                     {imageUrl ? (
@@ -512,9 +512,9 @@ function PackImportDialog({ open, onClose, pack, language, knownIds, existingCus
       </DialogContent>
       <Divider />
       <DialogActions sx={{ px: 2, py: 1 }}>
-        <Button onClick={onClose} sx={{ textTransform: 'none' }}>{zh ? '取消' : 'Cancel'}</Button>
+        <Button onClick={onClose} sx={{ textTransform: 'none' }}>{t('cancel')}</Button>
         <Button variant="contained" disabled={selected.size === 0} onClick={handleConfirm} sx={{ textTransform: 'none' }}>
-          {zh ? `导入 ${selected.size} 个` : `Import ${selected.size}`}
+          {tpl('import_n', selected.size)}
         </Button>
       </DialogActions>
     </Dialog>
@@ -558,8 +558,7 @@ export function CharactersTab({
   const [importPreviewOpen, setImportPreviewOpen] = useState(false)
   const importInputRef = useRef<HTMLInputElement>(null)
   const addCharInputRef = useRef<HTMLInputElement>(null)
-  const t = makeT(uiLanguage)
-  const tpl = makeTpl(uiLanguage)
+  const { t, tpl } = useT()
 
   // ── Download pack ─────────────────────────────────────────────────────────────
   const downloadPack = (edition: string) => {
@@ -833,8 +832,8 @@ export function CharactersTab({
                   }}
                 />
                 <FormControl size="small" sx={{ minWidth: 72, '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' }, '& .MuiInputLabel-root': { fontSize: '0.8rem' } }}>
-                  <InputLabel>{uiLanguage === 'zh' ? '语言' : 'Lang'}</InputLabel>
-                  <Select value={uiLanguage} label={uiLanguage === 'zh' ? '语言' : 'Lang'} onChange={(e) => onLanguageChange(e.target.value as Language)}>
+                  <InputLabel>{t('lang')}</InputLabel>
+                  <Select value={uiLanguage} label={t('lang')} onChange={(e) => onLanguageChange(e.target.value as Language)}>
                     <MenuItem value="en">EN</MenuItem>
                     <MenuItem value="zh">中文</MenuItem>
                   </Select>
@@ -989,7 +988,7 @@ export function CharactersTab({
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0 }}>
                           {isNewlyImported && (
                             <Typography variant="caption" sx={{ fontSize: '0.6rem', bgcolor: 'success.main', color: 'success.contrastText', px: 0.5, borderRadius: 0.5 }}>
-                              {uiLanguage === 'zh' ? '新' : 'NEW'}
+                              {t('new_badge')}
                             </Typography>
                           )}
                           {isCustom && !isNewlyImported && (
@@ -999,7 +998,7 @@ export function CharactersTab({
                           )}
                           {hasPackOverride && (
                             <Typography variant="caption" sx={{ fontSize: '0.6rem', bgcolor: 'warning.main', color: 'warning.contrastText', px: 0.5, borderRadius: 0.5 }}>
-                              {uiLanguage === 'zh' ? '已覆盖' : 'PACK'}
+                              {t('pack_badge')}
                             </Typography>
                           )}
                           <Typography variant="caption" color="text.secondary">{team}</Typography>

@@ -32,6 +32,7 @@ import type {
 } from '../types'
 import type { PrintOptions } from './PrintOptionsDialog'
 import { PADDING_MAP, FONT_CSS } from './PrintOptionsDialog'
+import { makeT } from '../lib/t'
 
 // Restrict DOMPurify to inline formatting only — no hrefs, no event attrs
 const PURIFY_OPTS: Parameters<typeof DOMPurify.sanitize>[1] = {
@@ -186,13 +187,13 @@ export function SheetArticle({
               ml: '0.5em',
               verticalAlign: 'middle',
             }}>
-              {lang === 'zh' ? '作者：' : 'by '}{author}
+              {makeT(lang)('author_prefix')}{author}
             </Box>
           )}
         </Typography>
         {showCharacterCount && (
           <Typography variant="body2" color="text.secondary" sx={{ ...(fontSize && { fontSize }) }}>
-            {activeScriptCharacters.length} {lang === 'zh' ? '个角色' : 'characters'}
+            {activeScriptCharacters.length} {makeT(lang)('characters_suffix')}
           </Typography>
         )}
       </Box>
@@ -297,8 +298,8 @@ export function SheetArticle({
     )
     return (
       <Box sx={{ mt: 1.5, pt: 1, borderTop: '1px solid', borderColor: 'divider' }}>
-        {renderRow(firstIds, lang === 'zh' ? '首夜顺序' : 'First Night')}
-        {renderRow(otherIds, lang === 'zh' ? '其他夜顺序' : 'Other Nights')}
+        {renderRow(firstIds, makeT(lang)('sheet_first_night'))}
+        {renderRow(otherIds, makeT(lang)('sheet_other_nights'))}
       </Box>
     )
   }
@@ -494,9 +495,9 @@ export function SheetArticle({
 
   const popupChar = popupId ? activeScriptCharacters.find((c) => c.id === popupId) : null
   const popupName = popupId ? getDisplayName(popupId, language) : ''
-  const popupNameAlt = popupId ? getDisplayName(popupId, language === 'zh' ? 'en' : 'zh') : ''
+  const popupNameAlt = popupId ? getDisplayName(popupId, 'zh') : ''
   const popupAbility = popupId ? getAbilityTextForScript(popupId, language, activeScript.pinnedRevisions) : ''
-  const popupAbilityAlt = popupId ? getAbilityTextForScript(popupId, language === 'zh' ? 'en' : 'zh', activeScript.pinnedRevisions) : ''
+  const popupAbilityAlt = popupId ? getAbilityTextForScript(popupId, 'zh', activeScript.pinnedRevisions) : ''
   const popupIcon = popupId ? getIconForCharacter(popupId) : null
 
   return (
@@ -506,7 +507,7 @@ export function SheetArticle({
           <>
             {renderPage(language, false)}
             <Box sx={{ pageBreakBefore: 'always', breakBefore: 'page' }} />
-            {renderPage(language === 'zh' ? 'en' : 'zh', false)}
+            {renderPage('zh', false)}
           </>
         ) : (
           renderPage(language, isMixed)

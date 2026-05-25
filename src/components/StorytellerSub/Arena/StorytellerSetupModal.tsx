@@ -15,6 +15,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import AutoStoriesIcon from '@mui/icons-material/AutoStories'
 import { allCharacters, getDisplayName, getAbilityText, getIconForCharacter } from '../../../catalog'
+import { useT } from '../../../context/I18nContext'
 
 const FABLED_CHARS = allCharacters.filter((c) => c.team === 'fabled')
 const LORIC_CHARS = allCharacters.filter((c) => c.edition === 'loric')
@@ -26,6 +27,7 @@ export function StorytellerSetupModal({ ctx }: { ctx: StorytellerContext }) {
     stName, setStName,
   } = ctx
 
+  const { t } = useT()
   const [editMode, setEditMode] = useState(false)
   const [rulesValue, setRulesValue] = useState(stCustomRules)
   const [showPicker, setShowPicker] = useState(false)
@@ -64,7 +66,7 @@ export function StorytellerSetupModal({ ctx }: { ctx: StorytellerContext }) {
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 0.5 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <AutoStoriesIcon sx={{ fontSize: '1.4rem', color: 'primary.main' }} />
-          <Typography fontWeight={700}>{language === 'zh' ? '说书人设置' : 'Storyteller Setup'}</Typography>
+          <Typography fontWeight={700}>{t('storyteller_setup')}</Typography>
         </Box>
         <IconButton size="small" onClick={handleClose}><CloseIcon fontSize="small" /></IconButton>
       </DialogTitle>
@@ -75,8 +77,8 @@ export function StorytellerSetupModal({ ctx }: { ctx: StorytellerContext }) {
           <TextField
             size="small"
             fullWidth
-            label={language === 'zh' ? '主持人名称' : 'Storyteller Name'}
-            placeholder={language === 'zh' ? '输入你的ST名称' : 'Your name as Storyteller'}
+            label={t('storyteller_name')}
+            placeholder={t('your_name_as_storyteller')}
             value={stName ?? ''}
             onChange={(e) => setStName(e.target.value)}
           />
@@ -86,12 +88,12 @@ export function StorytellerSetupModal({ ctx }: { ctx: StorytellerContext }) {
         <Box sx={{ mb: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
             <Typography variant="subtitle2" fontWeight={700}>
-              {language === 'zh' ? '传说 / 奇遇角色' : 'Fabled / Loric'}
+              {t('fabled_loric')}
             </Typography>
             <Button size="small" startIcon={<AddIcon />}
               onClick={() => setShowPicker((v) => !v)}
               endIcon={showPicker ? <ExpandLessIcon /> : <ExpandMoreIcon />}>
-              {language === 'zh' ? '添加' : 'Add'}
+              {t('add')}
             </Button>
           </Box>
 
@@ -120,7 +122,7 @@ export function StorytellerSetupModal({ ctx }: { ctx: StorytellerContext }) {
             </Box>
           ) : (
             <Typography variant="body2" color="text.secondary" sx={{ mb: 1, fontStyle: 'italic' }}>
-              {language === 'zh' ? '未选择' : 'None selected'}
+              {t('none_selected')}
             </Typography>
           )}
 
@@ -128,7 +130,7 @@ export function StorytellerSetupModal({ ctx }: { ctx: StorytellerContext }) {
           <Collapse in={showPicker}>
             <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1.5, overflow: 'hidden' }}>
               <Box sx={{ p: 1 }}>
-                <TextField size="small" fullWidth placeholder={language === 'zh' ? '搜索…' : 'Search…'}
+                <TextField size="small" fullWidth placeholder={t('search')}
                   value={search} onChange={(e) => setSearch(e.target.value)}
                   slotProps={{ input: { startAdornment: <InputAdornment position="start">🔍</InputAdornment> } }} />
               </Box>
@@ -189,7 +191,7 @@ export function StorytellerSetupModal({ ctx }: { ctx: StorytellerContext }) {
         <Box>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.75 }}>
             <Typography variant="subtitle2" fontWeight={700}>
-              {language === 'zh' ? '自定义规则' : 'Custom Rules'}
+              {t('custom_rules')}
             </Typography>
             {editMode ? (
               <Box sx={{ display: 'flex', gap: 0.5 }}>
@@ -206,7 +208,7 @@ export function StorytellerSetupModal({ ctx }: { ctx: StorytellerContext }) {
               multiline rows={5} fullWidth autoFocus
               value={rulesValue}
               onChange={(e) => setRulesValue(e.target.value)}
-              placeholder={language === 'zh' ? '输入自定义规则…' : 'Enter custom rules…'}
+              placeholder={t('enter_custom_rules')}
             />
           ) : stCustomRules ? (
             <Box sx={{ p: 1.5, borderRadius: 1, bgcolor: 'action.hover', whiteSpace: 'pre-wrap', cursor: 'text' }}
@@ -217,7 +219,7 @@ export function StorytellerSetupModal({ ctx }: { ctx: StorytellerContext }) {
             <Box sx={{ p: 1.5, borderRadius: 1, border: '1px dashed', borderColor: 'divider', cursor: 'text' }}
               onClick={handleEnterEdit}>
               <Typography variant="body2" color="text.secondary" fontStyle="italic">
-                {language === 'zh' ? '点击添加自定义规则…' : 'Click to add custom rules…'}
+                {t('click_to_add_custom_rules')}
               </Typography>
             </Box>
           )}

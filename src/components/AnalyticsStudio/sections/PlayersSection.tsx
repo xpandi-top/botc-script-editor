@@ -10,12 +10,14 @@ import { getDisplayName, getIconForCharacter } from '../../../catalog'
 import type { PlayerStat } from '../useStats'
 import type { GameRecord } from '../../StorytellerSub/types'
 import type { Language } from '../../../types'
+import { useT } from '../../../context/I18nContext'
 
 type SortKey = 'name' | 'total' | 'winRate' | 'goodWinRate' | 'evilWinRate' | 'evilRate' | 'mvpCount' | 'stGameCount'
 
 // ── Inline player detail ──────────────────────────────────────────
 
-function PlayerDetail({ player, language, zh }: { player: PlayerStat; language: Language; records: GameRecord[]; zh: boolean }) {
+function PlayerDetail({ player, language }: { player: PlayerStat; language: Language; records: GameRecord[] }) {
+  const { t, tpl } = useT()
   // Per-character stats for this player
   const charEntries = [...player.charMap.entries()]
     .map(([charId, e]) => ({
@@ -38,19 +40,19 @@ function PlayerDetail({ player, language, zh }: { player: PlayerStat; language: 
         {/* Stat breakdown */}
         <Box sx={{ flex: '1 1 160px' }}>
           <Typography variant="caption" sx={{ fontWeight: 700, display: 'block', mb: 0.75 }}>
-            {zh ? '阵营分析' : 'Team breakdown'}
+            {t('team_breakdown')}
           </Typography>
           <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
             {player.goodGames > 0 && (
               <Box sx={{ p: 1, borderRadius: 1.5, bgcolor: 'rgba(46,125,50,0.1)', minWidth: 70, textAlign: 'center' }}>
                 <Typography sx={{ fontWeight: 700, color: 'success.dark' }}>{player.goodWinRate ?? '—'}%</Typography>
-                <Typography variant="caption" color="text.secondary">{zh ? `善良(${player.goodGames}局)` : `Good (${player.goodGames}g)`}</Typography>
+                <Typography variant="caption" color="text.secondary">{tpl('good_n_games', player.goodGames)}</Typography>
               </Box>
             )}
             {player.evilGames > 0 && (
               <Box sx={{ p: 1, borderRadius: 1.5, bgcolor: 'rgba(185,28,28,0.1)', minWidth: 70, textAlign: 'center' }}>
                 <Typography sx={{ fontWeight: 700, color: 'error.dark' }}>{player.evilWinRate ?? '—'}%</Typography>
-                <Typography variant="caption" color="text.secondary">{zh ? `邪恶(${player.evilGames}局)` : `Evil (${player.evilGames}g)`}</Typography>
+                <Typography variant="caption" color="text.secondary">{tpl('evil_n_games', player.evilGames)}</Typography>
               </Box>
             )}
             {player.mvpCount > 0 && (
@@ -59,7 +61,7 @@ function PlayerDetail({ player, language, zh }: { player: PlayerStat; language: 
                   <EmojiEventsIcon sx={{ fontSize: '1rem', color: 'warning.dark' }} />
                   <Typography sx={{ fontWeight: 700, color: 'warning.dark' }}>{player.mvpCount}</Typography>
                 </Box>
-                <Typography variant="caption" color="text.secondary">{zh ? 'MVP次数' : 'MVP'}</Typography>
+                <Typography variant="caption" color="text.secondary">{t('mvp')}</Typography>
               </Box>
             )}
             {player.stGameCount > 0 && (
@@ -68,7 +70,7 @@ function PlayerDetail({ player, language, zh }: { player: PlayerStat; language: 
                   <PersonIcon sx={{ fontSize: '1rem', color: 'purple' }} />
                   <Typography sx={{ fontWeight: 700, color: 'purple' }}>{player.stGameCount}</Typography>
                 </Box>
-                <Typography variant="caption" color="text.secondary">{zh ? '说书场次' : 'ST games'}</Typography>
+                <Typography variant="caption" color="text.secondary">{t('st_games')}</Typography>
               </Box>
             )}
           </Box>
@@ -78,7 +80,7 @@ function PlayerDetail({ player, language, zh }: { player: PlayerStat; language: 
         {charEntries.length > 0 && (
           <Box sx={{ flex: '2 1 220px' }}>
             <Typography variant="caption" sx={{ fontWeight: 700, display: 'block', mb: 0.75 }}>
-              {zh ? '扮演角色' : 'Characters played'}
+              {t('characters_played')}
             </Typography>
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
               {charEntries.slice(0, 8).map((e) => {
@@ -108,7 +110,7 @@ function PlayerDetail({ player, language, zh }: { player: PlayerStat; language: 
         {teammates.length > 0 && (
           <Box sx={{ flex: '1 1 140px' }}>
             <Typography variant="caption" sx={{ fontWeight: 700, display: 'block', mb: 0.75 }}>
-              {zh ? '常见队友' : 'Frequent teammates'}
+              {t('frequent_teammates')}
             </Typography>
 
             {/* Good teammates */}
@@ -120,7 +122,7 @@ function PlayerDetail({ player, language, zh }: { player: PlayerStat; language: 
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25, mb: 0.25 }}>
                     <FiberManualRecordIcon sx={{ fontSize: '0.6rem', color: 'primary.main' }} />
                     <Typography variant="caption" color="primary.main" sx={{ fontSize: '0.62rem', fontWeight: 700 }}>
-                      {zh ? '善良' : 'Good'}
+                      {t('good')}
                     </Typography>
                   </Box>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
@@ -142,7 +144,7 @@ function PlayerDetail({ player, language, zh }: { player: PlayerStat; language: 
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25, mb: 0.25 }}>
                     <FiberManualRecordIcon sx={{ fontSize: '0.6rem', color: 'error.main' }} />
                     <Typography variant="caption" color="error.dark" sx={{ fontSize: '0.62rem', fontWeight: 700 }}>
-                      {zh ? '邪恶' : 'Evil'}
+                      {t('evil')}
                     </Typography>
                   </Box>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
@@ -172,26 +174,27 @@ function PlayerDetail({ player, language, zh }: { player: PlayerStat; language: 
 
 // ── Compare panel ─────────────────────────────────────────────────
 
-function ComparePanel({ a, b, zh }: { a: PlayerStat; b: PlayerStat; language: Language; zh: boolean }) {
+function ComparePanel({ a, b }: { a: PlayerStat; b: PlayerStat; language: Language }) {
+  const { t } = useT()
   const fmt = (n: number | null, suffix = '%') => n != null ? `${n}${suffix}` : '—'
   const rows = [
-    { label: zh ? '总局数' : 'Games',        aVal: a.total,                            bVal: b.total },
-    { label: zh ? '胜率' : 'Win Rate',       aVal: `${a.winRate}%`,                    bVal: `${b.winRate}%` },
-    { label: zh ? '善良场' : 'Good games',   aVal: a.goodGames || '—',                 bVal: b.goodGames || '—' },
-    { label: zh ? '善良胜率' : 'Good W%',    aVal: fmt(a.goodWinRate),                 bVal: fmt(b.goodWinRate) },
-    { label: zh ? '邪恶场' : 'Evil games',   aVal: a.evilGames || '—',                 bVal: b.evilGames || '—' },
-    { label: zh ? '邪恶胜率' : 'Evil W%',    aVal: fmt(a.evilWinRate),                 bVal: fmt(b.evilWinRate) },
-    { label: zh ? '邪恶率' : 'Evil rate',    aVal: fmt(a.evilRate),                    bVal: fmt(b.evilRate) },
-    { label: zh ? '角色数' : 'Unique Chars', aVal: a.charSet.size,                     bVal: b.charSet.size },
-    { label: zh ? 'MVP' : 'MVP',             aVal: a.mvpCount || '—',                  bVal: b.mvpCount || '—' },
-    { label: zh ? '说书场' : 'ST games',     aVal: a.stGameCount || '—',               bVal: b.stGameCount || '—' },
+    { label: t('games'),        aVal: a.total,                            bVal: b.total },
+    { label: t('win_rate'),       aVal: `${a.winRate}%`,                    bVal: `${b.winRate}%` },
+    { label: t('good_games'),   aVal: a.goodGames || '—',                 bVal: b.goodGames || '—' },
+    { label: t('good_w'),    aVal: fmt(a.goodWinRate),                 bVal: fmt(b.goodWinRate) },
+    { label: t('evil_games'),   aVal: a.evilGames || '—',                 bVal: b.evilGames || '—' },
+    { label: t('evil_w'),    aVal: fmt(a.evilWinRate),                 bVal: fmt(b.evilWinRate) },
+    { label: t('evil_rate'),    aVal: fmt(a.evilRate),                    bVal: fmt(b.evilRate) },
+    { label: t('unique_chars'), aVal: a.charSet.size,                     bVal: b.charSet.size },
+    { label: t('mvp'),             aVal: a.mvpCount || '—',                  bVal: b.mvpCount || '—' },
+    { label: t('st_games'),     aVal: a.stGameCount || '—',               bVal: b.stGameCount || '—' },
   ]
 
   return (
     <Paper sx={{ p: 2, mb: 2 }} elevation={1}>
       <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1.5, display: 'flex', alignItems: 'center', gap: 0.5 }}>
         <CompareArrowsIcon sx={{ fontSize: '1rem' }} />
-        {zh ? '玩家对比' : 'Player Comparison'}
+        {t('player_comparison')}
       </Typography>
       <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 1, textAlign: 'center' }}>
         <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700 }}>{a.name}</Typography>
@@ -216,7 +219,7 @@ interface Props {
 }
 
 export function PlayersSection({ playerStats, language, records }: Props) {
-  const zh = language === 'zh'
+  const { t, tpl } = useT()
   const [sortKey, setSortKey] = useState<SortKey>('total')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
   const [expandedName, setExpandedName] = useState<string | null>(null)
@@ -257,7 +260,7 @@ export function PlayersSection({ playerStats, language, records }: Props) {
   if (playerStats.length === 0) {
     return (
       <Box sx={{ py: 4, textAlign: 'center' }}>
-        <Typography color="text.secondary">{zh ? '无玩家数据' : 'No player data — add player names to game records'}</Typography>
+        <Typography color="text.secondary">{t('no_player_data_add_player_names_to_game_records')}</Typography>
       </Box>
     )
   }
@@ -271,12 +274,12 @@ export function PlayersSection({ playerStats, language, records }: Props) {
 
   return (
     <Box>
-      {pA && pB && <ComparePanel a={pA} b={pB} language={language} zh={zh} />}
+      {pA && pB && <ComparePanel a={pA} b={pB} language={language} />}
 
       {compareNames && !pB && (
         <Paper sx={{ p: 1.5, mb: 2, bgcolor: 'action.selected' }} elevation={0}>
           <Typography variant="caption" color="primary">
-            {zh ? `已选择 "${compA}"，点击另一玩家行末的对比按钮进行对比` : `"${compA}" selected — click ⇄ on another player to compare`}
+            {tpl('player_selected_compare', compA)}
           </Typography>
         </Paper>
       )}
@@ -288,45 +291,45 @@ export function PlayersSection({ playerStats, language, records }: Props) {
               <TableCell sx={{ ...thSx, width: 24 }}>#</TableCell>
               <TableCell sx={thSx}>
                 <TableSortLabel active={sortKey === 'name'} direction={sortKey === 'name' ? sortDir : 'desc'} onClick={() => handleSort('name')}>
-                  {zh ? '玩家' : 'Player'}
+                  {t('player_section')}
                 </TableSortLabel>
               </TableCell>
               <TableCell sx={{ ...thSx, width: 60, display: { xs: 'none', sm: 'table-cell' } }} align="center">
                 <TableSortLabel active={sortKey === 'total'} direction={sortKey === 'total' ? sortDir : 'desc'} onClick={() => handleSort('total')}>
-                  {zh ? '局' : 'G'}
+                  {t('g')}
                 </TableSortLabel>
               </TableCell>
               <TableCell sx={{ ...thSx, width: 70 }} align="center">
                 <TableSortLabel active={sortKey === 'winRate'} direction={sortKey === 'winRate' ? sortDir : 'desc'} onClick={() => handleSort('winRate')}>
-                  {zh ? '胜%' : 'W%'}
+                  {t('w')}
                 </TableSortLabel>
               </TableCell>
               <TableCell sx={{ ...thSx, width: 70, display: { xs: 'none', sm: 'table-cell' } }} align="center">
                 <TableSortLabel active={sortKey === 'goodWinRate'} direction={sortKey === 'goodWinRate' ? sortDir : 'desc'} onClick={() => handleSort('goodWinRate')}>
-                  {zh ? '善%' : 'G%'}
+                  {t('g')}
                 </TableSortLabel>
               </TableCell>
               <TableCell sx={{ ...thSx, width: 70, display: { xs: 'none', sm: 'table-cell' } }} align="center">
                 <TableSortLabel active={sortKey === 'evilWinRate'} direction={sortKey === 'evilWinRate' ? sortDir : 'desc'} onClick={() => handleSort('evilWinRate')}>
-                  {zh ? '邪%' : 'E%'}
+                  {t('e')}
                 </TableSortLabel>
               </TableCell>
               <TableCell sx={{ ...thSx, width: 70, display: { xs: 'none', sm: 'table-cell' } }} align="center">
-                <Tooltip title={zh ? '邪恶率：出任邪恶阵营的比例' : 'Evil rate: % of games played as evil'}>
+                <Tooltip title={t('evil_rate_of_games_played_as_evil')}>
                   <TableSortLabel active={sortKey === 'evilRate'} direction={sortKey === 'evilRate' ? sortDir : 'desc'} onClick={() => handleSort('evilRate')}>
-                    {zh ? '邪率' : 'Evil↑'}
+                    {t('evil_2')}
                   </TableSortLabel>
                 </Tooltip>
               </TableCell>
               <TableCell sx={{ ...thSx, width: 44, display: { xs: 'none', md: 'table-cell' } }} align="center">
-                <Tooltip title={zh ? 'MVP次数' : 'MVP count'}>
+                <Tooltip title={t('mvp_count')}>
                   <TableSortLabel active={sortKey === 'mvpCount'} direction={sortKey === 'mvpCount' ? sortDir : 'desc'} onClick={() => handleSort('mvpCount')}>
                     MVP
                   </TableSortLabel>
                 </Tooltip>
               </TableCell>
               <TableCell sx={{ ...thSx, width: 40, display: { xs: 'none', md: 'table-cell' } }} align="center">
-                <Tooltip title={zh ? '说书场次' : 'ST games run'}>
+                <Tooltip title={t('st_games_run')}>
                   <TableSortLabel active={sortKey === 'stGameCount'} direction={sortKey === 'stGameCount' ? sortDir : 'desc'} onClick={() => handleSort('stGameCount')}>
                     ST
                   </TableSortLabel>
@@ -366,7 +369,7 @@ export function PlayersSection({ playerStats, language, records }: Props) {
                           </Typography>
                           {/* game count embedded on xs when 局 column is hidden */}
                           <Typography component="span" sx={{ display: { xs: 'inline', sm: 'none' }, fontSize: '0.7rem', color: 'text.secondary', flexShrink: 0 }}>
-                            {p.total}{zh ? '局' : 'g'}
+                            {p.total}{t('g')}
                           </Typography>
                           {p.mvpCount > 0 && (
                             <Tooltip title={`MVP ×${p.mvpCount}`}>
@@ -401,7 +404,7 @@ export function PlayersSection({ playerStats, language, records }: Props) {
                   </TableCell>
                   <TableCell sx={tdSx} align="center">
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0 }}>
-                      <Tooltip title={zh ? '对比' : 'Compare'}>
+                      <Tooltip title={t('compare')}>
                         <IconButton size="small" onClick={(e) => { e.stopPropagation(); toggleCompare(p.name) }}
                           sx={{ p: 0.25, color: isCompareSelected ? 'primary.main' : 'text.disabled' }}>
                           <CompareArrowsIcon sx={{ fontSize: '0.9rem' }} />
@@ -416,7 +419,7 @@ export function PlayersSection({ playerStats, language, records }: Props) {
                 <TableRow key={`${p.name}-detail`} sx={{ '& td': { p: 0 } }}>
                   <TableCell colSpan={9} sx={{ p: 0, border: isExpanded ? undefined : 'none' }}>
                     <Collapse in={isExpanded}>
-                      <PlayerDetail player={p} language={language} records={records} zh={zh} />
+                      <PlayerDetail player={p} language={language} records={records} />
                     </Collapse>
                   </TableCell>
                 </TableRow>,

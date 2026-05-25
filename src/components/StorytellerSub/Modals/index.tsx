@@ -1,5 +1,6 @@
 import type { StorytellerContext } from '../useStoryteller'
 import { Dialog, DialogTitle, DialogContent, IconButton, useMediaQuery, useTheme } from '@mui/material'
+import { useT } from '../../../context/I18nContext'
 import CloseIcon from '@mui/icons-material/Close'
 import { ModalsEditPlayers } from './ModalsEditPlayers'
 import { ModalsNewGame } from './ModalsNewGame'
@@ -19,6 +20,7 @@ export function Modals({ ctx }: { ctx: StorytellerContext }) {
     startNewGame,
   } = ctx
 
+  const { t } = useT()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'lg'))
@@ -79,7 +81,7 @@ export function Modals({ ctx }: { ctx: StorytellerContext }) {
         slotProps={{ paper: { sx: { bgcolor: 'background.default' } } }}
       >
         <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
-          {language === 'zh' ? '发牌控制台' : 'Deal Dashboard'}
+          {t('deal_dashboard')}
           <IconButton onClick={() => setActiveDealSession(null)} size="small"><CloseIcon /></IconButton>
         </DialogTitle>
         <DialogContent sx={{ p: 0 }}>

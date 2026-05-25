@@ -1,6 +1,8 @@
 import enLocale from '../assets/locales/en.json'
+import enJinxLocale from '../assets/locales/en.jinxes.json'
 import jinxData from '../assets/jinxes.json'
 import zhLocale from '../assets/locales/zh.json'
+import zhJinxLocale from '../assets/locales/zh.jinxes.json'
 import nightOrderData from '../assets/characters/night-order.json'
 import type {
   CharacterEntry,
@@ -294,8 +296,8 @@ for (const [path, url] of Object.entries(iconFiles)) {
 }
 
 export const locales: Record<Language, LocaleData> = {
-  en: enLocale,
-  zh: zhLocale,
+  en: { ...enLocale, jinxes: enJinxLocale },
+  zh: { ...zhLocale, jinxes: zhJinxLocale },
 }
 
 export const jinxes: Record<string, JinxEntry> = jinxData as unknown as Record<string, JinxEntry>

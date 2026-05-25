@@ -2,8 +2,10 @@
 import type { StorytellerContext } from '../useStoryteller'
 import React from 'react'
 import { Box, Button, ToggleButton, ToggleButtonGroup } from '@mui/material'
+import { useT } from '../../../context/I18nContext'
 
 export function ArenaQuickStrip({ ctx }: { ctx: StorytellerContext }) {
+  const { t } = useT()
   const { 
     activeRightPopup, setActiveRightPopup, 
     showRightPanel, setShowRightPanel, 
@@ -18,7 +20,7 @@ export function ArenaQuickStrip({ ctx }: { ctx: StorytellerContext }) {
         variant={activeRightPopup === 'log' ? 'contained' : 'outlined'}
         onClick={() => setActiveRightPopup((p) => p === 'log' ? null : 'log')}
       >
-        {language === 'zh' ? '日志' : 'Log'}
+        {t('log')}
       </Button>
 
       {currentDay?.phase === 'nomination' && (

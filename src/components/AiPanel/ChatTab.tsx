@@ -13,6 +13,7 @@ import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
 import type { AiMessage, AiChatCallbacks } from './types'
 import type { AiContext, FillAction } from '../../lib/ai/types'
 import type { Language } from '../../types'
+import { useT } from '../../context/I18nContext'
 
 type Props = {
   messages: AiMessage[]
@@ -35,9 +36,9 @@ type Props = {
 export function ChatTab({
   messages, loading, input, setInput, autoApply, setAutoApply,
   handleSend, doApplyFill, setMessages, context,
-  apiKey, bottomRef, inputRef, language,
+  apiKey, bottomRef, inputRef,
 }: Props) {
-  const zh = language === 'zh'
+  const { t, tpl } = useT()
 
   return (
     <>
@@ -55,11 +56,11 @@ export function ChatTab({
             <AutoAwesomeIcon sx={{ fontSize: 28 }} />
             <Typography variant="body2" align="center" sx={{ px: 2, fontSize: '0.8rem' }}>
               {context && context.type !== 'general'
-                ? (zh ? `正在编辑 "${context.title}"` : `Context: "${context.title}"`)
-                : (zh ? '通用 AI 助手' : 'General AI Assistant')}
+                ? tpl('context_editing', context.title)
+                : t('general_ai_assistant')}
             </Typography>
             <Typography variant="caption" align="center" sx={{ opacity: 0.8, px: 3 }}>
-              {zh ? '使用上方技能按钮或直接输入' : 'Use skill chips above or type a message'}
+              {t('use_skill_chips_above_or_type_a_message')}
             </Typography>
           </Box>
         )}
@@ -109,7 +110,7 @@ export function ChatTab({
                             sx={{ py: 0, minHeight: 0, fontSize: '0.65rem', lineHeight: 1.5 }}
                             onClick={() => doApplyFill(m.id, fill, ctxField?.value)}
                           >
-                            {zh ? '应用' : 'Apply'}
+                            {t('apply')}
                           </Button>
                           <Button
                             size="small" variant="text"
@@ -122,7 +123,7 @@ export function ChatTab({
                               ),
                             )}
                           >
-                            {zh ? '跳过' : 'Skip'}
+                            {t('skip')}
                           </Button>
                         </Box>
                       )}
@@ -153,7 +154,7 @@ export function ChatTab({
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
             <CircularProgress size={12} />
             <Typography variant="caption" color="text.secondary">
-              {zh ? '思考中…' : 'Thinking…'}
+              {t('thinking')}
             </Typography>
           </Box>
         )}
@@ -171,7 +172,7 @@ export function ChatTab({
           }
           label={
             <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.68rem' }}>
-              {zh ? '自动应用填充' : 'Auto-apply fills'}
+              {t('autoapply_fills')}
             </Typography>
           }
           sx={{ m: 0 }}
@@ -180,7 +181,7 @@ export function ChatTab({
           <TextField
             inputRef={inputRef}
             size="small" fullWidth multiline maxRows={4}
-            placeholder={zh ? '输入消息… (Enter 发送)' : 'Type a message… (Enter to send)'}
+            placeholder={t('type_a_message_enter_to_send')}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {

@@ -8,16 +8,18 @@ import { getDisplayName, getIconForCharacter } from '../../../catalog'
 import type { ScriptStat } from '../useStats'
 import type { GameRecord } from '../../StorytellerSub/types'
 import type { Language } from '../../../types'
+import { useT } from '../../../context/I18nContext'
 
 // ── Day histogram bar ─────────────────────────────────────────────
 
-function DayHistogram({ histogram, zh }: { histogram: number[]; zh: boolean }) {
+function DayHistogram({ histogram }: { histogram: number[] }) {
+  const { t } = useT()
   if (!histogram.length) return null
   const max = Math.max(...histogram, 1)
   return (
     <Box>
       <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-        {zh ? '结束天数分布' : 'Games ended on day…'}
+        {t('games_ended_on_day')}
       </Typography>
       <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'flex-end', height: 40 }}>
         {histogram.map((count, i) => (
@@ -39,7 +41,8 @@ function DayHistogram({ histogram, zh }: { histogram: number[]; zh: boolean }) {
 
 // ── Per-day stat table ────────────────────────────────────────────
 
-function PerDayStats({ records, scriptKey, zh }: { records: GameRecord[]; scriptKey: string; zh: boolean }) {
+function PerDayStats({ records, scriptKey }: { records: GameRecord[]; scriptKey: string }) {
+  const { t } = useT()
   const scriptRecs = useMemo(
     () => records.filter((r) => (r.scriptSlug || r.scriptTitle || 'unknown') === scriptKey),
     [records, scriptKey],
@@ -73,10 +76,10 @@ function PerDayStats({ records, scriptKey, zh }: { records: GameRecord[]; script
   return (
     <Box>
       <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-        {zh ? '逐天统计（均值）' : 'Per-day averages'}
+        {t('perday_averages')}
       </Typography>
       <Box sx={{ display: 'grid', gridTemplateColumns: 'auto 1fr 1fr 1fr 1fr', gap: '2px 8px', alignItems: 'center' }}>
-        {[zh ? '天' : 'Day', zh ? '票' : 'Votes', zh ? '提名' : 'Noms', zh ? '技能' : 'Skills', zh ? '处决率' : 'Exec%'].map((h, i) => (
+        {[t('day'), t('votes'), t('noms'), t('skills'), t('exec')].map((h, i) => (
           <Typography key={i} variant="caption" color="text.secondary" sx={{ fontWeight: 700, fontSize: '0.68rem' }}>{h}</Typography>
         ))}
         {dayData.map((d) => [
@@ -93,7 +96,8 @@ function PerDayStats({ records, scriptKey, zh }: { records: GameRecord[]; script
 
 // ── Top characters for a script ───────────────────────────────────
 
-function ScriptTopChars({ records, scriptKey, language, zh }: { records: GameRecord[]; scriptKey: string; language: Language; zh: boolean }) {
+function ScriptTopChars({ records, scriptKey, language }: { records: GameRecord[]; scriptKey: string; language: Language }) {
+  const { t } = useT()
   const scriptRecs = useMemo(
     () => records.filter((r) => (r.scriptSlug || r.scriptTitle || 'unknown') === scriptKey),
     [records, scriptKey],
@@ -113,7 +117,7 @@ function ScriptTopChars({ records, scriptKey, language, zh }: { records: GameRec
   return (
     <Box>
       <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.75 }}>
-        {zh ? '常见角色' : 'Common characters'}
+        {t('common_characters')}
       </Typography>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
         {charCounts.map(([charId, count]) => {
@@ -136,7 +140,8 @@ function ScriptTopChars({ records, scriptKey, language, zh }: { records: GameRec
 
 // ── Top players for a script ──────────────────────────────────────
 
-function ScriptTopPlayers({ records, scriptKey, zh }: { records: GameRecord[]; scriptKey: string; zh: boolean }) {
+function ScriptTopPlayers({ records, scriptKey }: { records: GameRecord[]; scriptKey: string }) {
+  const { t } = useT()
   const players = useMemo(() => {
     const map = new Map<string, { total: number; wins: number }>()
     const scriptRecs = records.filter((r) => (r.scriptSlug || r.scriptTitle || 'unknown') === scriptKey)
@@ -163,7 +168,7 @@ function ScriptTopPlayers({ records, scriptKey, zh }: { records: GameRecord[]; s
   return (
     <Box>
       <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-        {zh ? '活跃玩家' : 'Active players'}
+        {t('active_players')}
       </Typography>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
         {players.map((p) => (
@@ -178,7 +183,8 @@ function ScriptTopPlayers({ records, scriptKey, zh }: { records: GameRecord[]; s
 
 // ── Script detail card ────────────────────────────────────────────
 
-function ScriptCard({ stat, records, language, zh }: { stat: ScriptStat; records: GameRecord[]; language: Language; zh: boolean }) {
+function ScriptCard({ stat, records, language }: { stat: ScriptStat; records: GameRecord[]; language: Language }) {
+  const { t, tpl } = useT()
   const stWin = stat.total - stat.evil - stat.good
   return (
     <Paper sx={{ p: 2, mb: 2 }} elevation={2}>
@@ -186,7 +192,7 @@ function ScriptCard({ stat, records, language, zh }: { stat: ScriptStat; records
       <Box sx={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 0.5, mb: 1 }}>
         <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>{stat.title}</Typography>
         <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
-          <Chip size="small" label={`${stat.total}${zh ? '局' : 'g'}`} />
+          <Chip size="small" label={`${stat.total}${t('g')}`} />
           <Chip size="small" label={`E:${stat.evil}`} sx={{ bgcolor: 'rgba(185,28,28,0.12)', color: 'error.dark' }} />
           <Chip size="small" label={`G:${stat.good}`} sx={{ bgcolor: 'rgba(46,125,50,0.12)', color: 'success.dark' }} />
           {stWin > 0 && <Chip size="small" label={`ST:${stWin}`} sx={{ bgcolor: 'rgba(106,27,154,0.12)', color: 'purple' }} />}
@@ -202,10 +208,10 @@ function ScriptCard({ stat, records, language, zh }: { stat: ScriptStat; records
 
       {/* Stat pills */}
       <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', mb: 1 }}>
-        <Typography variant="caption" color="text.secondary">{zh ? `均${stat.avgDays}天` : `avg ${stat.avgDays}d`}</Typography>
-        <Typography variant="caption" color="text.secondary">{zh ? `均${stat.avgVotes}票` : `avg ${stat.avgVotes} votes`}</Typography>
-        <Typography variant="caption" color="text.secondary">{zh ? `均${stat.avgNominations}次提名` : `avg ${stat.avgNominations} noms`}</Typography>
-        {stat.votePassRate !== null && <Typography variant="caption" color="text.secondary">{zh ? `处决率${stat.votePassRate}%` : `exec rate ${stat.votePassRate}%`}</Typography>}
+        <Typography variant="caption" color="text.secondary">{tpl('avg_days_n', stat.avgDays)}</Typography>
+        <Typography variant="caption" color="text.secondary">{tpl('avg_votes_n', stat.avgVotes)}</Typography>
+        <Typography variant="caption" color="text.secondary">{tpl('avg_noms_n', stat.avgNominations)}</Typography>
+        {stat.votePassRate !== null && <Typography variant="caption" color="text.secondary">{tpl('exec_rate_n', stat.votePassRate)}</Typography>}
         {stat.avgDurationMin !== null && <Typography variant="caption" color="text.secondary">{stat.avgDurationMin}min</Typography>}
       </Box>
 
@@ -213,7 +219,7 @@ function ScriptCard({ stat, records, language, zh }: { stat: ScriptStat; records
       {stat.ratingCount > 0 && (
         <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', mb: 1.5, alignItems: 'center' }}>
           <Typography variant="caption" color="text.disabled" sx={{ fontSize: '0.68rem' }}>
-            {zh ? `评分(${stat.ratingCount}局):` : `ratings (${stat.ratingCount}):`}
+            {tpl('ratings_n', stat.ratingCount)}
           </Typography>
           {stat.avgBalanced !== null && (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
@@ -244,10 +250,10 @@ function ScriptCard({ stat, records, language, zh }: { stat: ScriptStat; records
 
       <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
         <Box sx={{ flex: '1 1 160px' }}>
-          <DayHistogram histogram={stat.dayHistogram} zh={zh} />
+          <DayHistogram histogram={stat.dayHistogram} />
         </Box>
         <Box sx={{ flex: '1 1 160px' }}>
-          <PerDayStats records={records} scriptKey={stat.key} zh={zh} />
+          <PerDayStats records={records} scriptKey={stat.key} />
         </Box>
       </Box>
 
@@ -255,10 +261,10 @@ function ScriptCard({ stat, records, language, zh }: { stat: ScriptStat; records
 
       <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
         <Box sx={{ flex: '1 1 160px' }}>
-          <ScriptTopChars records={records} scriptKey={stat.key} language={language} zh={zh} />
+          <ScriptTopChars records={records} scriptKey={stat.key} language={language} />
         </Box>
         <Box sx={{ flex: '1 1 120px' }}>
-          <ScriptTopPlayers records={records} scriptKey={stat.key} zh={zh} />
+          <ScriptTopPlayers records={records} scriptKey={stat.key} />
         </Box>
       </Box>
     </Paper>
@@ -274,7 +280,7 @@ interface Props {
 }
 
 export function ScriptsSection({ scriptStats, language, records }: Props) {
-  const zh = language === 'zh'
+  const { t } = useT()
   const [selectedKey, setSelectedKey] = useState<string>('__all__')
 
   const shown = selectedKey === '__all__' ? scriptStats : scriptStats.filter((s) => s.key === selectedKey)
@@ -282,7 +288,7 @@ export function ScriptsSection({ scriptStats, language, records }: Props) {
   if (scriptStats.length === 0) {
     return (
       <Box sx={{ py: 4, textAlign: 'center' }}>
-        <Typography color="text.secondary">{zh ? '无剧本数据' : 'No script data'}</Typography>
+        <Typography color="text.secondary">{t('no_script_data')}</Typography>
       </Box>
     )
   }
@@ -297,7 +303,7 @@ export function ScriptsSection({ scriptStats, language, records }: Props) {
           onChange={(e) => setSelectedKey(e.target.value as string)}
           sx={{ minWidth: 180, fontSize: '0.85rem' }}
         >
-          <MenuItem value="__all__">{zh ? '所有剧本' : 'All Scripts'}</MenuItem>
+          <MenuItem value="__all__">{t('all_scripts')}</MenuItem>
           {scriptStats.map((s) => (
             <MenuItem key={s.key} value={s.key}>{s.title} ({s.total})</MenuItem>
           ))}
@@ -305,7 +311,7 @@ export function ScriptsSection({ scriptStats, language, records }: Props) {
       </Box>
 
       {shown.map((s) => (
-        <ScriptCard key={s.key} stat={s} records={records} language={language} zh={zh} />
+        <ScriptCard key={s.key} stat={s} records={records} language={language} />
       ))}
     </Box>
   )

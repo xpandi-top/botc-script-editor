@@ -12,6 +12,7 @@ import { PAGE_SIZE_DEFS } from '../PrintOptionsDialog'
 import type { TokenPrintOptions } from './types'
 import type { EditableScript, Language, ResolvedScriptCharacter } from '../../types'
 import { allCharacters } from '../../catalog'
+import { useT } from '../../context/I18nContext'
 
 interface Props {
   opts: TokenPrintOptions
@@ -28,7 +29,7 @@ interface Props {
 }
 
 export function PrintStudioPage({ opts, onOptionsChange, onClose, onOpenPrintPreview, scriptCharacters: givenCharacters, language, onLanguageChange, scripts, activeSlug, onScriptChange, getScriptTitle }: Props) {
-  const zh = language === 'zh'
+  const { t } = useT()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const [panelOpen, setPanelOpen] = useState(true)
@@ -77,7 +78,7 @@ export function PrintStudioPage({ opts, onOptionsChange, onClose, onOpenPrintPre
       <Paper elevation={2} sx={{ px: { xs: 1, sm: 2 }, py: 1, display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1 }, borderRadius: 0, zIndex: 1, flexShrink: 0 }}>
         <IconButton size="small" onClick={onClose}><ArrowBackIcon fontSize="small" /></IconButton>
         <Typography variant="subtitle1" sx={{ fontWeight: 700, flexShrink: 0, display: { xs: 'none', sm: 'block' } }}>
-          {zh ? '打印工坊' : 'Print Studio'}
+          {t('print_studio')}
         </Typography>
         <FormControl size="small" sx={{ flex: 1, mx: { xs: 0.5, sm: 1 }, maxWidth: { xs: 140, sm: 260 } }}>
           <Select
@@ -91,36 +92,36 @@ export function PrintStudioPage({ opts, onOptionsChange, onClose, onOpenPrintPre
             }}
             displayEmpty
           >
-            <MenuItem value="__all__">{zh ? '所有角色' : 'All Characters'}</MenuItem>
+            <MenuItem value="__all__">{t('all_characters')}</MenuItem>
             {scripts.map((s) => (
               <MenuItem key={s.slug} value={s.slug}>{getScriptTitle(s)}</MenuItem>
             ))}
           </Select>
         </FormControl>
         <Typography variant="body2" color="text.secondary" sx={{ flexShrink: 0, display: { xs: 'none', sm: 'block' } }}>
-          {selectedCount} {zh ? '个标记' : 'tokens'}
+          {selectedCount} {t('tokens')}
         </Typography>
         <FormControl size="small" sx={{ minWidth: 72, flexShrink: 0, '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' }, '& .MuiInputLabel-root': { fontSize: '0.8rem' } }}>
-          <InputLabel>{zh ? '语言' : 'Lang'}</InputLabel>
-          <Select value={language} label={zh ? '语言' : 'Lang'} onChange={(e) => onLanguageChange(e.target.value as Language)}>
+          <InputLabel>{t('lang')}</InputLabel>
+          <Select value={language} label={t('lang')} onChange={(e) => onLanguageChange(e.target.value as Language)}>
             <MenuItem value="en">EN</MenuItem>
             <MenuItem value="zh">中文</MenuItem>
           </Select>
         </FormControl>
         {onOpenPrintPreview && (
-          <Tooltip title={zh ? '切换到剧本预览' : 'Switch to Script Print Preview'}>
+          <Tooltip title={t('switch_to_script_print_preview')}>
             <Button size="small" variant="outlined" startIcon={<PrintIcon />} onClick={onOpenPrintPreview} sx={{ flexShrink: 0, display: { xs: 'none', sm: 'flex' } }}>
-              {zh ? '剧本预览' : 'Script PDF'}
+              {t('script_pdf')}
             </Button>
           </Tooltip>
         )}
-        <Tooltip title={panelOpen ? (zh ? '隐藏菜单' : 'Hide menu') : (zh ? '显示菜单' : 'Show menu')}>
+        <Tooltip title={panelOpen ? (t('hide_menu')) : (t('show_menu'))}>
           <IconButton size="small" onClick={() => setPanelOpen(v => !v)}>
             {panelOpen ? <MenuOpenIcon fontSize="small" /> : <MenuIcon fontSize="small" />}
           </IconButton>
         </Tooltip>
         <Button variant="contained" size="small" startIcon={printing ? <CircularProgress size={14} color="inherit" /> : <PrintIcon />} onClick={handlePrint} disabled={selectedCount === 0 || printing}>
-          {printing ? (zh ? '生成中…' : 'Exporting…') : (zh ? '打印' : 'Print')}
+          {printing ? (t('exporting')) : (t('print'))}
         </Button>
       </Paper>
 
@@ -158,8 +159,8 @@ export function PrintStudioPage({ opts, onOptionsChange, onClose, onOpenPrintPre
             <Box sx={{ bgcolor: 'white', boxShadow: '0 4px 24px rgba(0,0,0,0.18)', borderRadius: 1, p: `${Math.max(0, opts.marginMm)}mm`, minHeight: 200 }}>
               <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
                 {opts.mode === 'characters'
-                  ? (zh ? '请在左侧选择角色' : 'Select characters on the left')
-                  : (zh ? '配置标签后预览将显示' : 'Configure tags to see preview')}
+                  ? (t('select_characters_on_the_left'))
+                  : (t('configure_tags_to_see_preview'))}
               </Typography>
             </Box>
           ) : (

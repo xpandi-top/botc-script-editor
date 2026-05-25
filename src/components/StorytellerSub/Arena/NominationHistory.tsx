@@ -3,6 +3,7 @@ import React from 'react'
 import { Box, Typography, Select, MenuItem, IconButton, useTheme } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import AutoStoriesIcon from '@mui/icons-material/AutoStories'
+import { makeT } from '../../../lib/t'
 
 interface NominationHistoryProps {
   voteHistory: any[]
@@ -19,6 +20,7 @@ export function NominationHistory({
   language,
   updateCurrentDay,
 }: NominationHistoryProps) {
+  const t = makeT(language as any)
   const muiTheme = useTheme()
   const isDark = muiTheme.palette.mode === 'dark'
 
@@ -47,7 +49,7 @@ export function NominationHistory({
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mb: 1 }}>
         <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center', flexWrap: 'wrap' }}>
           <Typography variant="caption" color="text.secondary">
-            {language === 'zh' ? '今日提名者' : 'Today Nominators'}:
+            {t('today_nominators')}:
           </Typography>
           {nominatorsToday.length === 0 ? (
             <Typography variant="caption">—</Typography>
@@ -61,7 +63,7 @@ export function NominationHistory({
         </Box>
         <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center', flexWrap: 'wrap' }}>
           <Typography variant="caption" color="text.secondary">
-            {language === 'zh' ? '今日被提名者' : 'Today Nominees'}:
+            {t('today_nominees')}:
           </Typography>
           {nomineesToday.length === 0 ? (
             <Typography variant="caption">—</Typography>
@@ -77,22 +79,22 @@ export function NominationHistory({
 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
         <Typography variant="caption" color="text.secondary">
-          {language === 'zh' ? '提名记录' : 'Nominations'}
+          {t('nominations')}
         </Typography>
         <Select size="small" value={historyFilter} onChange={(e) => setHistoryFilter(e.target.value as 'all' | 'exile' | 'nomination')} sx={{ minWidth: 90, fontSize: '0.75rem' }}>
-          <MenuItem value="all">{language === 'zh' ? '全部' : 'All'}</MenuItem>
-          <MenuItem value="exile">{language === 'zh' ? '放逐' : 'Exile'}</MenuItem>
-          <MenuItem value="nomination">{language === 'zh' ? '提名' : 'Nomination'}</MenuItem>
+          <MenuItem value="all">{t('all')}</MenuItem>
+          <MenuItem value="exile">{t('exile')}</MenuItem>
+          <MenuItem value="nomination">{t('nomination')}</MenuItem>
         </Select>
       </Box>
 
       {filteredHistory.length === 0 ? (
-        <Typography variant="body2" color="text.secondary">{language === 'zh' ? '暂无记录' : 'None yet'}</Typography>
+        <Typography variant="body2" color="text.secondary">{t('none_yet')}</Typography>
       ) : (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mt: 0.5, maxHeight: 150, overflow: 'auto' }}>
           {filteredHistory.map((record: any) => {
             const passed = !record.failed && record.passed
-            const actionTag = record.isExile ? (language === 'zh' ? '放逐' : '提名') : (language === 'zh' ? '提名' : '提名')
+            const actionTag = record.isExile ? t('exile') : t('nomination')
             const voterList = record.voters && record.voters.length > 0
               ? `(${record.voters.map((v: number) => `#${v}`).join(',')})`
               : ''
@@ -111,10 +113,10 @@ export function NominationHistory({
               }}>
                 <Typography variant="body2" sx={{ fontWeight: 600, whiteSpace: 'nowrap', flex: 1, color: passed ? passedText : failedText }}>
                   #{record.actor} {actionTag} {record.target === 0
-                    ? <><AutoStoriesIcon sx={{ fontSize: '0.9rem', verticalAlign: 'middle', mr: 0.25 }} />{language === 'zh' ? '说书人' : 'ST'}</>
+                    ? <><AutoStoriesIcon sx={{ fontSize: '0.9rem', verticalAlign: 'middle', mr: 0.25 }} />{t('st')}</>
                     : `#${record.target}`}{' '}
                   {record.failed
-                    ? (language === 'zh' ? '失败' : 'Failed')
+                    ? (t('failed'))
                     : `${record.voteCount}/${record.requiredVotes}`
                   }{voterList}
                 </Typography>

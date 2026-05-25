@@ -316,7 +316,7 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
         <Button size="small" variant="outlined" onClick={() => updateConfig({ assignments: {}, userAssignments: {}, demonBluffs: [] })} startIcon={<ReplayIcon fontSize="small" />}>
           {t('reset')}
         </Button>
-        <Tooltip title={zh ? '将已分配角色发给玩家（新标签页）' : 'Deal assigned characters to players (new tab)'}>
+        <Tooltip title={t('deal_assigned_characters_to_players_new_tab')}>
           <span>
             <Button
               size="small"
@@ -326,12 +326,12 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
               disabled={dealing || Object.values(newGamePanel?.assignments ?? {}).filter(Boolean).length < 2}
               startIcon={dealing ? <CircularProgress size={14} color="inherit" /> : <StyleIcon fontSize="small" />}
             >
-              {zh ? '发牌' : 'Deal Cards'}
+              {t('deal_cards')}
             </Button>
           </span>
         </Tooltip>
         {existingDealSession && (
-          <Tooltip title={zh ? '打开当前发牌控制台' : 'Open active deal dashboard'}>
+          <Tooltip title={t('open_active_deal_dashboard')}>
             <Button
               size="small"
               variant="outlined"
@@ -340,7 +340,7 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
               startIcon={<OpenInNewIcon fontSize="small" />}
               sx={{ fontFamily: 'monospace', fontWeight: 700 }}
             >
-              {zh ? `打开 ${existingDealSession.sessionId}` : `Open ${existingDealSession.sessionId}`}
+              {tpl('open_session', existingDealSession.sessionId)}
             </Button>
           </Tooltip>
         )}

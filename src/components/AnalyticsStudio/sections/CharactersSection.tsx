@@ -5,6 +5,7 @@ import { allCharacters, getDisplayName, getIconForCharacter } from '../../../cat
 import type { CharStat } from '../useStats'
 import type { GameRecord } from '../../StorytellerSub/types'
 import type { Language } from '../../../types'
+import { useT } from '../../../context/I18nContext'
 
 type TeamFilter = 'all' | 'townsfolk' | 'outsider' | 'minion' | 'demon'
 type SortMode = 'played' | 'winRate' | 'alpha'
@@ -29,7 +30,8 @@ function getCharTeam(charId: string) {
 
 // ── Character detail ──────────────────────────────────────────────
 
-function CharDetail({ stat, records, zh }: { stat: CharStat; records: GameRecord[]; language: Language; zh: boolean }) {
+function CharDetail({ stat, records }: { stat: CharStat; records: GameRecord[]; language?: Language; zh?: boolean }) {
+  const { t } = useT()
   // Per-player breakdown
   const playerEntries = [...stat.players.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8)
 
@@ -53,7 +55,7 @@ function CharDetail({ stat, records, zh }: { stat: CharStat; records: GameRecord
         {playerEntries.length > 0 && (
           <Box sx={{ flex: '1 1 140px' }}>
             <Typography variant="caption" sx={{ fontWeight: 700, display: 'block', mb: 0.75 }}>
-              {zh ? '扮演过的玩家' : 'Players who played this'}
+              {t('players_who_played_this')}
             </Typography>
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
               {playerEntries.map(([name, count]) => (
@@ -67,7 +69,7 @@ function CharDetail({ stat, records, zh }: { stat: CharStat; records: GameRecord
         {scriptLabels.length > 0 && (
           <Box sx={{ flex: '1 1 140px' }}>
             <Typography variant="caption" sx={{ fontWeight: 700, display: 'block', mb: 0.75 }}>
-              {zh ? '出现剧本' : 'In scripts'}
+              {t('in_scripts')}
             </Typography>
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
               {scriptLabels.map((s) => (
@@ -81,7 +83,7 @@ function CharDetail({ stat, records, zh }: { stat: CharStat; records: GameRecord
         {stat.bluffCount > 0 && (
           <Box sx={{ flex: '0 0 auto' }}>
             <Typography variant="caption" sx={{ fontWeight: 700, display: 'block', mb: 0.5 }}>
-              {zh ? '用作恶魔虚张声势' : 'Used as demon bluff'}
+              {t('used_as_demon_bluff')}
             </Typography>
             <Chip size="small" icon={<FlashOnIcon sx={{ fontSize: '0.75rem !important' }} />} label={`×${stat.bluffCount}`} color="warning" sx={{ fontSize: '0.7rem', height: 22 }} />
           </Box>
@@ -92,7 +94,7 @@ function CharDetail({ stat, records, zh }: { stat: CharStat; records: GameRecord
       {charRecords.length > 0 && (
         <Box sx={{ mt: 1.5 }}>
           <Typography variant="caption" sx={{ fontWeight: 700, display: 'block', mb: 0.5 }}>
-            {zh ? '近期出现记录' : 'Recent appearances'}
+            {t('recent_appearances')}
           </Typography>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
             {charRecords.map((r) => {
@@ -104,7 +106,7 @@ function CharDetail({ stat, records, zh }: { stat: CharStat; records: GameRecord
                   <Typography variant="caption" sx={{ flex: 1 }}>{r.recordName || r.scriptTitle || '?'}</Typography>
                   {playerName && <Typography variant="caption" color="text.secondary">{playerName}</Typography>}
                   <Chip size="small"
-                    label={r.winner === 'evil' ? (zh ? '邪胜' : 'E') : r.winner === 'good' ? (zh ? '善胜' : 'G') : r.winner === 'storyteller' ? 'ST' : '?'}
+                    label={r.winner === 'evil' ? (t('e')) : r.winner === 'good' ? (t('g')) : r.winner === 'storyteller' ? 'ST' : '?'}
                     color={r.winner === 'evil' ? 'error' : r.winner === 'good' ? 'success' : r.winner === 'storyteller' ? 'info' : 'default'}
                     sx={{ fontSize: '0.6rem', height: 18 }} />
                   <Typography variant="caption" color="text.disabled">{new Date(r.endedAt).toLocaleDateString()}</Typography>
@@ -121,6 +123,7 @@ function CharDetail({ stat, records, zh }: { stat: CharStat; records: GameRecord
 // ── Character card ────────────────────────────────────────────────
 
 function CharCard({ stat, language, records, zh }: { stat: CharStat; language: Language; records: GameRecord[]; zh: boolean }) {
+  const { t } = useT()
   const [expanded, setExpanded] = useState(false)
   const muiTheme = useTheme()
   const isDark = muiTheme.palette.mode === 'dark'
@@ -166,7 +169,7 @@ function CharCard({ stat, language, records, zh }: { stat: CharStat; language: L
             </Typography>
           </Box>
           <Typography variant="caption" color="text.secondary">
-            {stat.total}{zh ? '局' : 'g'} · {stat.winRate}%{zh ? '胜' : 'W'}
+            {stat.total}{t('g')} · {stat.winRate}%{t('win_short')}
             {isEvil ? (stat.evilGames > 0 ? ` · E:${stat.evilGames}` : '') : (stat.goodGames > 0 ? ` · G:${stat.goodGames}` : '')}
           </Typography>
           {/* Win bar */}
@@ -176,7 +179,7 @@ function CharCard({ stat, language, records, zh }: { stat: CharStat; language: L
         </Box>
 
         {stat.bluffCount > 0 && (
-          <Tooltip title={zh ? '用作恶魔虚张声势次数' : 'Times used as demon bluff'}>
+          <Tooltip title={t('times_used_as_demon_bluff')}>
             <Chip size="small"
               icon={<FlashOnIcon sx={{ fontSize: '0.7rem !important' }} />}
               label={`×${stat.bluffCount}`}
@@ -202,16 +205,17 @@ interface Props {
 }
 
 export function CharactersSection({ charStats, language, records }: Props) {
+  const { t } = useT()
   const zh = language === 'zh'
   const [teamFilter, setTeamFilter] = useState<TeamFilter>('all')
   const [sortMode, setSortMode] = useState<SortMode>('played')
 
   const teamLabels: Record<TeamFilter, string> = {
-    all: zh ? '全部' : 'All',
-    townsfolk: zh ? '镇民' : 'Townsfolk',
-    outsider: zh ? '外来者' : 'Outsider',
-    minion: zh ? '爪牙' : 'Minion',
-    demon: zh ? '恶魔' : 'Demon',
+    all: t('all'),
+    townsfolk: t('townsfolk'),
+    outsider: t('outsider_2'),
+    minion: t('minion_2'),
+    demon: t('demon_2'),
   }
 
   const filtered = useMemo(() => {
@@ -229,7 +233,7 @@ export function CharactersSection({ charStats, language, records }: Props) {
   if (charStats.length === 0) {
     return (
       <Box sx={{ py: 4, textAlign: 'center' }}>
-        <Typography color="text.secondary">{zh ? '无角色数据 — 在记录中添加角色分配后显示' : 'No character data — add character assignments to records'}</Typography>
+        <Typography color="text.secondary">{t('no_character_data_add_character_assignments_to_records')}</Typography>
       </Box>
     )
   }
@@ -261,15 +265,15 @@ export function CharactersSection({ charStats, language, records }: Props) {
           onChange={(e) => setSortMode(e.target.value as SortMode)}
           sx={{ fontSize: '0.8rem', '& .MuiSelect-select': { py: '4px' }, minWidth: 120 }}
         >
-          <MenuItem value="played">{zh ? '出场最多' : 'Most Played'}</MenuItem>
-          <MenuItem value="winRate">{zh ? '胜率最高' : 'Win Rate'}</MenuItem>
-          <MenuItem value="alpha">{zh ? '字母顺序' : 'Alphabetical'}</MenuItem>
+          <MenuItem value="played">{t('most_played')}</MenuItem>
+          <MenuItem value="winRate">{t('win_rate')}</MenuItem>
+          <MenuItem value="alpha">{t('alphabetical')}</MenuItem>
         </Select>
       </Box>
 
       {/* Count badge */}
       <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
-        {filtered.length}{zh ? ' 个角色' : ' characters'}
+        {filtered.length}{t('characters')}
       </Typography>
 
       {/* Card grid */}

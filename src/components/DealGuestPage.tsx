@@ -24,6 +24,8 @@ import {
   type DealCard,
 } from '../lib/firebaseDeal'
 import { getDisplayName, getAbilityText, getIconForCharacter } from '../catalog'
+import { useT } from '../context/I18nContext'
+import { makeTpl } from '../lib/t'
 
 interface Props {
   sessionId: string
@@ -43,7 +45,8 @@ export function DealGuestPage({ sessionId, language }: Props) {
   const [state, setState] = useState<PageState>({ kind: 'loading' })
   const [displayName, setDisplayName] = useState('')
   const [claimedSeat, setClaimedSeat] = useState('')
-  const zh = language === 'zh'
+  const { t } = useT()
+  const tpl = makeTpl(language)
 
   const load = useCallback(async () => {
     setState({ kind: 'loading' })
@@ -96,7 +99,7 @@ export function DealGuestPage({ sessionId, language }: Props) {
           session: currentGrid.session,
           cards,
           claiming: null,
-          message: zh ? '这张牌已被认领，请选择另一张。' : 'That card was already claimed. Pick another card.',
+          message: t('that_card_was_already_claimed_pick_another_card'),
         })
       } catch {
         setState({
@@ -104,7 +107,7 @@ export function DealGuestPage({ sessionId, language }: Props) {
           session: currentGrid.session,
           cards: currentGrid.cards,
           claiming: null,
-          message: zh ? '认领失败，请再试一次。' : 'Could not claim that card. Please try again.',
+          message: t('could_not_claim_that_card_please_try_again'),
         })
       }
     }
@@ -117,7 +120,7 @@ export function DealGuestPage({ sessionId, language }: Props) {
       <CenteredBox>
         <CircularProgress />
         <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-          {zh ? '加载中…' : 'Loading…'}
+          {t('loading')}
         </Typography>
       </CenteredBox>
     )
@@ -126,9 +129,9 @@ export function DealGuestPage({ sessionId, language }: Props) {
   if (state.kind === 'error') {
     return (
       <CenteredBox>
-        <Typography color="error">{zh ? '出错了' : 'Error'}</Typography>
+        <Typography color="error">{t('error')}</Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>{state.message}</Typography>
-        <Button sx={{ mt: 2 }} onClick={load}>{zh ? '重试' : 'Retry'}</Button>
+        <Button sx={{ mt: 2 }} onClick={load}>{t('retry')}</Button>
       </CenteredBox>
     )
   }
@@ -137,9 +140,9 @@ export function DealGuestPage({ sessionId, language }: Props) {
     return (
       <CenteredBox>
         <AutoStoriesIcon sx={{ fontSize: 48, color: 'text.disabled', mb: 2 }} />
-        <Typography variant="h6">{zh ? '链接已过期' : 'Link Expired'}</Typography>
+        <Typography variant="h6">{t('link_expired')}</Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-          {zh ? '请联系说书人获取新链接' : 'Ask the Storyteller for a new link'}
+          {t('ask_the_storyteller_for_a_new_link')}
         </Typography>
       </CenteredBox>
     )
@@ -149,9 +152,9 @@ export function DealGuestPage({ sessionId, language }: Props) {
     return (
       <CenteredBox>
         <LockIcon sx={{ fontSize: 48, color: 'text.disabled', mb: 2 }} />
-        <Typography variant="h6">{zh ? '发牌已结束' : 'Dealing Closed'}</Typography>
+        <Typography variant="h6">{t('dealing_closed')}</Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-          {zh ? '说书人已关闭此发牌环节' : 'The Storyteller has closed this deal session'}
+          {t('the_storyteller_has_closed_this_deal_session')}
         </Typography>
       </CenteredBox>
     )
@@ -163,7 +166,7 @@ export function DealGuestPage({ sessionId, language }: Props) {
     return (
       <CenteredBox>
         <Typography variant="h5" sx={{ mb: 2, fontWeight: 700 }}>
-          {zh ? '你的角色' : 'Your Character'}
+          {t('your_character')}
         </Typography>
         <Paper elevation={4} sx={{ p: 3, borderRadius: 3, maxWidth: 300, width: '100%', textAlign: 'center' }}>
           {icon && (
@@ -176,7 +179,7 @@ export function DealGuestPage({ sessionId, language }: Props) {
           </Typography>
           {card.claimedBySeat != null && (
             <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
-              {zh ? `座位 #${card.claimedBySeat}` : `Seat #${card.claimedBySeat}`}
+              {tpl('seat_n', card.claimedBySeat)}
             </Typography>
           )}
           {language !== 'en' && (
@@ -189,7 +192,7 @@ export function DealGuestPage({ sessionId, language }: Props) {
           </Typography>
         </Paper>
         <Typography variant="caption" color="success.main" sx={{ mt: 2 }}>
-          {zh ? '✓ 已保存，请勿告诉其他玩家' : '✓ Saved — keep your character secret!'}
+          {t('saved_keep_your_character_secret')}
         </Typography>
       </CenteredBox>
     )
@@ -200,17 +203,15 @@ export function DealGuestPage({ sessionId, language }: Props) {
       <CenteredBox>
         <AutoStoriesIcon sx={{ fontSize: 48, color: 'primary.main', mb: 2 }} />
         <Typography variant="h5" sx={{ mb: 1, fontWeight: 700 }}>
-          {zh ? '血染钟楼 — 发牌' : 'Blood on the Clocktower — Deal'}
+          {t('blood_on_the_clocktower_deal')}
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-          {zh
-            ? `共 ${state.session.cardCount} 张牌。点击一张翻开，只能翻一张！`
-            : `${state.session.cardCount} cards. Tap one to flip — you only get one!`}
+          {tpl('n_cards_tap_one', state.session.cardCount)}
         </Typography>
         <TextField
           size="small"
           fullWidth
-          label={zh ? '你的名字（可选）' : 'Your name (optional)'}
+          label={t('your_name_optional')}
           value={displayName}
           onChange={e => setDisplayName(e.target.value)}
           onKeyDown={e => { if (e.key === 'Enter') handleStartPicking() }}
@@ -219,7 +220,7 @@ export function DealGuestPage({ sessionId, language }: Props) {
         <TextField
           size="small"
           fullWidth
-          label={zh ? '座位号（可选）' : 'Seat # (optional)'}
+          label={t('seat_optional')}
           value={claimedSeat}
           onChange={e => setClaimedSeat(e.target.value.replace(/\D/g, ''))}
           onKeyDown={e => { if (e.key === 'Enter') handleStartPicking() }}
@@ -227,7 +228,7 @@ export function DealGuestPage({ sessionId, language }: Props) {
           slotProps={{ htmlInput: { inputMode: 'numeric', pattern: '[0-9]*' } }}
         />
         <Button variant="contained" size="large" onClick={handleStartPicking}>
-          {zh ? '查看牌面' : 'View Cards'}
+          {t('view_cards')}
         </Button>
       </CenteredBox>
     )
@@ -238,10 +239,10 @@ export function DealGuestPage({ sessionId, language }: Props) {
   return (
     <Box sx={{ p: 2, maxWidth: 600, mx: 'auto' }}>
       <Typography variant="h6" sx={{ mb: 0.5, textAlign: 'center', fontWeight: 700 }}>
-        {zh ? '选择你的角色牌' : 'Pick Your Character Card'}
+        {t('pick_your_character_card')}
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2, textAlign: 'center' }}>
-        {zh ? '点击一张翻开，其余将被锁定' : 'Tap one card to flip it — others will lock'}
+        {t('tap_one_card_to_flip_it_others_will_lock')}
       </Typography>
       {message && (
         <Typography variant="body2" color="warning.main" sx={{ mb: 2, textAlign: 'center' }}>
@@ -292,7 +293,7 @@ export function DealGuestPage({ sessionId, language }: Props) {
                 <>
                   <AutoStoriesIcon sx={{ fontSize: 36, color: 'primary.light' }} />
                   <Typography variant="caption" color="text.secondary">
-                    {zh ? '点击翻牌' : 'Tap to flip'}
+                    {t('tap_to_flip')}
                   </Typography>
                 </>
               )}

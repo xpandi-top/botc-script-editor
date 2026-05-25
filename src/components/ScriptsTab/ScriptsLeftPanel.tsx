@@ -21,6 +21,7 @@ import { allCharacters, getDisplayName } from '../../catalog'
 import { ScriptCard } from './ScriptCard'
 import { SCRIPT_TAG_META, SCRIPT_TAGS } from '../tabs/ScriptsTab.constants'
 import type { EditableScript, Language, ScriptFolder } from '../../types'
+import { useT } from '../../context/I18nContext'
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -44,7 +45,7 @@ type RowProps = {
 }
 
 function ScriptRow({ script, isActive, deletable, canFolder, language, folders, onSelect, duplicateScript, deleteScript, moveScriptToFolder }: RowProps) {
-  const zh = language === 'zh'
+  const { t } = useT()
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null)
 
   return (
@@ -60,7 +61,7 @@ function ScriptRow({ script, isActive, deletable, canFolder, language, folders, 
       </Box>
       {/* Copy-to-DIY: official + community */}
       {!deletable && (
-        <Tooltip title={zh ? '复制到自制' : 'Copy to DIY'}>
+        <Tooltip title={t('copy_to_diy')}>
           <IconButton size="small" onClick={() => duplicateScript(script.slug)}
             sx={{ flexShrink: 0, opacity: 0.35, '&:hover': { opacity: 1 } }}>
             <ContentCopyIcon sx={{ fontSize: 13 }} />
@@ -70,7 +71,7 @@ function ScriptRow({ script, isActive, deletable, canFolder, language, folders, 
       {/* Move-to-folder: DIY + community */}
       {canFolder && folders.length > 0 && (
         <>
-          <Tooltip title={zh ? '移动到文件夹' : 'Move to folder'}>
+          <Tooltip title={t('move_to_folder')}>
             <IconButton size="small" onClick={(e) => setMenuAnchor(e.currentTarget)}
               sx={{ flexShrink: 0, opacity: 0.35, '&:hover': { opacity: 1 } }}>
               <DriveFileMoveIcon sx={{ fontSize: 13 }} />
@@ -82,7 +83,7 @@ function ScriptRow({ script, isActive, deletable, canFolder, language, folders, 
               <MenuItem dense onClick={() => { moveScriptToFolder(script.slug, undefined); setMenuAnchor(null) }}>
                 <ListItemIcon><FolderOffIcon sx={{ fontSize: 16 }} /></ListItemIcon>
                 <ListItemText slotProps={{ primary: { sx: { fontSize: '0.8rem' } } }}>
-                  {zh ? '移出文件夹' : 'Remove from folder'}
+                  {t('remove_from_folder')}
                 </ListItemText>
               </MenuItem>
             )}
@@ -97,7 +98,7 @@ function ScriptRow({ script, isActive, deletable, canFolder, language, folders, 
       )}
       {/* Delete: DIY only */}
       {deletable && (
-        <Tooltip title={zh ? '删除' : 'Delete'}>
+        <Tooltip title={t('delete')}>
           <IconButton size="small" color="error" onClick={() => deleteScript(script.slug)}
             sx={{ flexShrink: 0, opacity: 0.45, '&:hover': { opacity: 1 } }}>
             <DeleteIcon sx={{ fontSize: 14 }} />
@@ -155,8 +156,9 @@ export function ScriptsLeftPanel({
   toggleFolderCollapsed,
   moveScriptToFolder,
 }: Props) {
-  const zh = language === 'zh'
 
+  const { t } = useT()
+  const zh = language === 'zh'
   const [officialOpen, setOfficialOpen]   = useState(true)
   const [communityOpen, setCommunityOpen] = useState(true)
   const [diyOpen, setDiyOpen]             = useState(true)
@@ -254,21 +256,21 @@ export function ScriptsLeftPanel({
       {/* ── Toolbar ── */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0 }}>
         <Typography variant="subtitle2" sx={{ flex: 1, fontWeight: 700, fontSize: '0.85rem' }}>
-          {zh ? '剧本' : 'Scripts'}
+          {t('script_sheet')}
           <Typography component="span" variant="caption" color="text.secondary" sx={{ ml: 0.75 }}>
             ({official.length + community.length + diy.length})
           </Typography>
         </Typography>
-        <Tooltip title={zh ? '切换卡片视图' : 'Switch to card view'}>
+        <Tooltip title={t('switch_to_card_view')}>
           <IconButton size="small" onClick={() => onBrowseModeChange('masonry')}
             sx={{ opacity: 0.7, '&:hover': { opacity: 1 } }}>
             <DashboardIcon sx={{ fontSize: 15 }} />
           </IconButton>
         </Tooltip>
-        <Tooltip title={zh ? '新建剧本' : 'New Script'}>
+        <Tooltip title={t('new_script')}>
           <IconButton size="small" onClick={createNewScript}><AddIcon sx={{ fontSize: 16 }} /></IconButton>
         </Tooltip>
-        <Tooltip title={zh ? '导入 JSON' : 'Import JSON'}>
+        <Tooltip title={t('import_json')}>
           <IconButton size="small" component="label">
             <FileOpenIcon sx={{ fontSize: 16 }} />
             <input type="file" accept=".json" hidden onChange={(e) => {
@@ -286,7 +288,7 @@ export function ScriptsLeftPanel({
       <Box sx={{ display: 'flex', gap: 0.5, flexShrink: 0 }}>
         <TextField
           size="small" fullWidth
-          placeholder={zh ? '搜索剧本、作者、角色…' : 'Search title, author, character…'}
+          placeholder={t('search_title_author_character')}
           value={scriptSearch}
           onChange={(e) => setScriptSearch(e.target.value)}
           slotProps={{ input: { sx: { fontSize: '0.78rem', pr: 0.5 } }, htmlInput: { 'data-tutorial': 'script-search' } }}
@@ -302,17 +304,17 @@ export function ScriptsLeftPanel({
             '& .MuiSelect-icon': { display: 'none' },
           }}
         >
-          <MenuItem value="default" sx={{ fontSize: '0.8rem' }}>{zh ? '默认顺序' : 'Default'}</MenuItem>
-          <MenuItem value="name"    sx={{ fontSize: '0.8rem' }}>{zh ? '按名称'   : 'Name A–Z'}</MenuItem>
-          <MenuItem value="author"  sx={{ fontSize: '0.8rem' }}>{zh ? '按作者'   : 'Author'}</MenuItem>
-          <MenuItem value="chars"   sx={{ fontSize: '0.8rem' }}>{zh ? '按角色数' : 'Char count'}</MenuItem>
+          <MenuItem value="default" sx={{ fontSize: '0.8rem' }}>{t('default')}</MenuItem>
+          <MenuItem value="name"    sx={{ fontSize: '0.8rem' }}>{t('name_az')}</MenuItem>
+          <MenuItem value="author"  sx={{ fontSize: '0.8rem' }}>{t('author_2')}</MenuItem>
+          <MenuItem value="chars"   sx={{ fontSize: '0.8rem' }}>{t('char_count')}</MenuItem>
         </Select>
       </Box>
 
       {/* ── Tag filter chips ── */}
       {filterTags.length > 0 && (
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.4, flexShrink: 0 }}>
-          <Chip size="small" label={zh ? '全部' : 'All'}
+          <Chip size="small" label={t('all')}
             variant={tagFilter === null ? 'filled' : 'outlined'}
             color={tagFilter === null ? 'primary' : 'default'}
             onClick={() => setTagFilter(null)} sx={chipSx} />
@@ -334,7 +336,7 @@ export function ScriptsLeftPanel({
 
       {isFiltering && (
         <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem', flexShrink: 0 }}>
-          {official.length + community.length + diy.length} {zh ? '个结果' : 'results'}
+          {official.length + community.length + diy.length} {t('results_suffix')}
         </Typography>
       )}
 
@@ -344,7 +346,7 @@ export function ScriptsLeftPanel({
           // Flat scrollable list when filtering
           official.length + community.length + diy.length === 0 ? (
             <Typography variant="caption" color="text.secondary" sx={{ pl: 0.5 }}>
-              {zh ? '无结果' : 'No matches'}
+              {t('no_matches')}
             </Typography>
           ) : (
             <>
@@ -356,7 +358,7 @@ export function ScriptsLeftPanel({
         ) : (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
             {/* Official */}
-            <SectionHeader label={zh ? '官方' : 'Official'} count={official.length}
+            <SectionHeader label={t('official')} count={official.length}
               open={officialOpen} onToggle={() => setOfficialOpen((v) => !v)} />
             <Collapse in={officialOpen}>
               <Box sx={{ maxHeight: SECTION_MAX_H, overflow: 'auto' }}>
@@ -369,7 +371,7 @@ export function ScriptsLeftPanel({
             {/* Community */}
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <Box sx={{ flex: 1 }}>
-                <SectionHeader label={zh ? '社区' : 'Community'} count={community.length}
+                <SectionHeader label={t('community')} count={community.length}
                   open={communityOpen} onToggle={() => setCommunityOpen((v) => !v)} />
               </Box>
               <NewFolderButton language={language} onCreate={(name) => createFolder(name, 'community')} />
@@ -397,7 +399,7 @@ export function ScriptsLeftPanel({
             {/* DIY */}
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <Box sx={{ flex: 1 }}>
-                <SectionHeader label={zh ? '自制' : 'DIY'} count={diy.length}
+                <SectionHeader label={t('diy')} count={diy.length}
                   open={diyOpen} onToggle={() => setDiyOpen((v) => !v)} />
               </Box>
               <NewFolderButton language={language} onCreate={(name) => createFolder(name, 'diy')} />
@@ -407,7 +409,7 @@ export function ScriptsLeftPanel({
                 {diy.length === 0 ? (
                   <Typography variant="caption" color="text.secondary"
                     sx={{ pl: 0.5, fontStyle: 'italic', fontSize: '0.75rem' }}>
-                    {zh ? '点击复制图标添加剧本' : 'Copy a script above to start'}
+                    {t('copy_a_script_above_to_start')}
                   </Typography>
                 ) : (
                   <ScriptTree

@@ -13,6 +13,8 @@ import type { TokenPrintOptions, TokenShape, NameDisplay, AbilityDisplay, Marker
 import type { ResolvedScriptCharacter, Team } from '../../types'
 import { getDisplayName, getAbilityText } from '../../catalog'
 import type { Language } from '../../types'
+import { useT } from '../../context/I18nContext'
+import { makeTpl } from '../../lib/t'
 
 type TeamFilter = 'all' | Team | 'traveler' | 'fabled' | 'experimental' | 'loric'
 
@@ -37,6 +39,8 @@ const TEAM_FILTERS: { value: TeamFilter; en: string; zh: string }[] = [
 
 export function TokenOptionsPanel({ opts, onChange, scriptCharacters, language }: Props) {
   const zh = language === 'zh'
+  const { t } = useT()
+  const tpl = makeTpl(language)
   const set = <K extends keyof TokenPrintOptions>(key: K, val: TokenPrintOptions[K]) =>
     onChange({ ...opts, [key]: val })
 
@@ -159,11 +163,11 @@ export function TokenOptionsPanel({ opts, onChange, scriptCharacters, language }
 
       {/* Mode */}
       <Box>
-        {label(zh ? '模式' : 'Mode')}
+        {label(t('mode'))}
         <ToggleButtonGroup value={opts.mode} exclusive size="small"
           onChange={(_, v) => { if (v) set('mode', v) }}>
-          <ToggleButton value="characters">{zh ? '角色标记' : 'Character Markers'}</ToggleButton>
-          <ToggleButton value="custom-tags">{zh ? '自定义标签' : 'Custom Tags'}</ToggleButton>
+          <ToggleButton value="characters">{t('character_markers')}</ToggleButton>
+          <ToggleButton value="custom-tags">{t('custom_tags')}</ToggleButton>
         </ToggleButtonGroup>
       </Box>
 
@@ -172,11 +176,11 @@ export function TokenOptionsPanel({ opts, onChange, scriptCharacters, language }
 {/* ── Character selection ── */}
       {opts.mode === 'characters' && (
         <Box>
-          {label(zh ? '选择角色' : 'Characters')}
+          {label(t('characters'))}
           
           {/* Search */}
           <TextField
-            fullWidth size="small" placeholder={zh ? '搜索ID/名字/描述' : 'Search ID/Name/Description'}
+            fullWidth size="small" placeholder={t('search_idnamedescription')}
             value={search} onChange={(e) => setSearch(e.target.value)}
             slotProps={{ input: { startAdornment: <SearchIcon sx={{ fontSize: 18, mr: 0.5, color: 'text.secondary' }} /> } }}
             sx={{ mb: 1 }}
@@ -199,14 +203,14 @@ export function TokenOptionsPanel({ opts, onChange, scriptCharacters, language }
           <Box sx={{ display: 'flex', gap: 0.5, mb: 0.5 }}>
             <Button size="small" variant="text" sx={{ fontSize: '0.7rem', py: 0 }}
               onClick={() => set('selectedCharacterIds', filteredIds)}>
-              {zh ? '全选' : 'All'}
+              {t('all')}
             </Button>
             <Button size="small" variant="text" sx={{ fontSize: '0.7rem', py: 0 }}
               onClick={() => set('selectedCharacterIds', [])}>
-              {zh ? '清空' : 'None'}
+              {t('none')}
             </Button>
             <Typography variant="caption" color="text.secondary" sx={{ ml: 'auto', alignSelf: 'center' }}>
-              {filteredCharacters.length} {zh ? '个角色' : 'chars'}
+              {filteredCharacters.length} {t('chars')}
             </Typography>
           </Box>
           
@@ -241,29 +245,29 @@ export function TokenOptionsPanel({ opts, onChange, scriptCharacters, language }
       {/* ── Custom Tags ── */}
       {opts.mode === 'custom-tags' && (
         <Box>
-          {label(zh ? '标签类型' : 'Tag Type')}
+          {label(t('tag_type'))}
           <ToggleButtonGroup value={opts.tagMode} exclusive size="small"
             onChange={(_, v) => { if (v) set('tagMode', v) }} sx={{ mb: 1.5 }}>
-            <ToggleButton value="numbers">{zh ? '编号' : 'Numbers'}</ToggleButton>
-            <ToggleButton value="markers">{zh ? '状态标记' : 'Markers'}</ToggleButton>
+            <ToggleButton value="numbers">{t('numbers')}</ToggleButton>
+            <ToggleButton value="markers">{t('markers')}</ToggleButton>
           </ToggleButtonGroup>
 
           {opts.tagMode === 'numbers' && (
             <Box>
               <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
-                <TextField size="small" type="number" label={zh ? '起始' : 'From'}
+                <TextField size="small" type="number" label={t('from')}
                   value={opts.numberFrom} sx={{ width: 80 }}
                   onChange={(e) => set('numberFrom', Number(e.target.value))} />
-                <TextField size="small" type="number" label={zh ? '结束' : 'To'}
+                <TextField size="small" type="number" label={t('to')}
                   value={opts.numberTo} sx={{ width: 80 }}
                   onChange={(e) => set('numberTo', Number(e.target.value))} />
               </Box>
-              <TextField size="small" fullWidth label={zh ? '底部标签（可选）' : 'Label (optional)'}
+              <TextField size="small" fullWidth label={t('label_optional')}
                 value={opts.numberLabel} sx={{ mb: 1 }}
                 onChange={(e) => set('numberLabel', e.target.value)} />
-              {ptSlider(zh ? '数字字号' : 'Number size', 'numberFontSize', 10, 48)}
+              {ptSlider(t('number_size'), 'numberFontSize', 10, 48)}
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Typography variant="caption" color="text.secondary">{zh ? '背景色' : 'BG color'}</Typography>
+                <Typography variant="caption" color="text.secondary">{t('bg_color')}</Typography>
                 <input type="color" value={opts.numberBgColor}
                   onChange={(e) => set('numberBgColor', e.target.value)}
                   style={{ width: 32, height: 24, border: 'none', padding: 0, cursor: 'pointer' }} />
@@ -275,14 +279,14 @@ export function TokenOptionsPanel({ opts, onChange, scriptCharacters, language }
             <Box>
               {opts.markers.map((m) => (
                 <Box key={m.id} sx={{ display: 'flex', gap: 0.5, alignItems: 'center', mb: 0.75, flexWrap: 'wrap' }}>
-                  <TextField size="small" label={zh ? '图标' : 'Icon'} value={m.icon}
+                  <TextField size="small" label={t('icon')} value={m.icon}
                     sx={{ width: 54 }}
                     slotProps={{ htmlInput: { style: { fontSize: '1.1rem', textAlign: 'center' } } }}
                     onChange={(e) => updateMarker(m.id, { icon: e.target.value })} />
-                  <TextField size="small" label={zh ? '标签' : 'Label'} value={m.label}
+                  <TextField size="small" label={t('label')} value={m.label}
                     sx={{ flex: 1, minWidth: 80 }}
                     onChange={(e) => updateMarker(m.id, { label: e.target.value })} />
-                  <TextField size="small" type="number" label={zh ? '数量' : 'Qty'} value={m.quantity}
+                  <TextField size="small" type="number" label={t('qty')} value={m.quantity}
                     sx={{ width: 54 }}
                     onChange={(e) => updateMarker(m.id, { quantity: Math.max(1, Number(e.target.value)) })} />
                   <input type="color" value={m.bgColor}
@@ -294,7 +298,7 @@ export function TokenOptionsPanel({ opts, onChange, scriptCharacters, language }
                 </Box>
               ))}
               <Button size="small" startIcon={<AddIcon />} onClick={addMarker}>
-                {zh ? '添加标记' : 'Add marker'}
+                {t('add_marker')}
               </Button>
             </Box>
           )}
@@ -305,19 +309,19 @@ export function TokenOptionsPanel({ opts, onChange, scriptCharacters, language }
 
       {/* Token shape + size */}
       <Box>
-        {label(zh ? '形状与大小' : 'Shape & Size')}
+        {label(t('shape_size'))}
         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-          {zh ? '形状' : 'Shape'}
+          {t('shape')}
         </Typography>
         <ToggleButtonGroup value={opts.shape} exclusive size="small"
           onChange={(_, v) => { if (v) set('shape', v as TokenShape) }} sx={{ mb: 1 }}>
-          <ToggleButton value="circle">{zh ? '圆形' : 'Circle'}</ToggleButton>
-          <ToggleButton value="hexagon">{zh ? '六边形' : 'Hex'}</ToggleButton>
-          <ToggleButton value="square">{zh ? '方形' : 'Square'}</ToggleButton>
+          <ToggleButton value="circle">{t('circle')}</ToggleButton>
+          <ToggleButton value="hexagon">{t('hex')}</ToggleButton>
+          <ToggleButton value="square">{t('square')}</ToggleButton>
         </ToggleButtonGroup>
         <Box sx={{ mb: 1 }}>
           <Typography variant="caption" color="text.secondary">
-            {zh ? `直径: ${opts.diameterMm}mm` : `Diameter: ${opts.diameterMm}mm`}
+            {tpl('diameter_mm', opts.diameterMm)}
           </Typography>
           <Slider value={opts.diameterMm} min={10} max={80} step={1}
             onChange={(_, v) => set('diameterMm', v as number)}
@@ -326,7 +330,7 @@ export function TokenOptionsPanel({ opts, onChange, scriptCharacters, language }
         </Box>
         <Box>
           <Typography variant="caption" color="text.secondary">
-            {zh ? `间距: ${opts.gapMm}mm` : `Gap: ${opts.gapMm}mm`}
+            {tpl('gap_mm', opts.gapMm)}
           </Typography>
           <Slider value={opts.gapMm} min={0} max={10} step={0.5}
             onChange={(_, v) => set('gapMm', v as number)}
@@ -335,7 +339,7 @@ export function TokenOptionsPanel({ opts, onChange, scriptCharacters, language }
         </Box>
         <Box>
           <Typography variant="caption" color="text.secondary">
-            {zh ? `页边距: ${opts.marginMm}mm` : `Margin: ${opts.marginMm}mm`}
+            {tpl('margin_mm', opts.marginMm)}
           </Typography>
           <Slider value={opts.marginMm} min={0} max={30} step={1}
             onChange={(_, v) => set('marginMm', v as number)}
@@ -350,42 +354,42 @@ export function TokenOptionsPanel({ opts, onChange, scriptCharacters, language }
       {opts.mode === 'characters' && (
         <>
           <Box>
-            {label(zh ? '文字' : 'Text')}
+            {label(t('text'))}
             <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-              {zh ? '角色名' : 'Name'}
+              {t('name')}
             </Typography>
             <ToggleButtonGroup value={opts.nameDisplay} exclusive size="small"
               onChange={(_, v) => { if (v) set('nameDisplay', v as NameDisplay) }} sx={{ mb: 1 }}>
               <ToggleButton value="en">EN</ToggleButton>
               <ToggleButton value="zh">中文</ToggleButton>
-              <ToggleButton value="both">{zh ? '双语' : 'Both'}</ToggleButton>
+              <ToggleButton value="both">{t('both')}</ToggleButton>
             </ToggleButtonGroup>
             <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-              {zh ? '能力文字' : 'Ability'}
+              {t('ability')}
             </Typography>
             <ToggleButtonGroup value={opts.abilityDisplay} exclusive size="small"
               onChange={(_, v) => { if (v) set('abilityDisplay', v as AbilityDisplay) }} sx={{ mb: 0.5, flexWrap: 'wrap' }}>
               <ToggleButton value="en">EN</ToggleButton>
               <ToggleButton value="zh">中文</ToggleButton>
-              <ToggleButton value="both">{zh ? '双语' : 'Both'}</ToggleButton>
-              <ToggleButton value="hidden">{zh ? '隐藏' : 'Hide'}</ToggleButton>
+              <ToggleButton value="both">{t('both')}</ToggleButton>
+              <ToggleButton value="hidden">{t('jinx_status_inactive')}</ToggleButton>
             </ToggleButtonGroup>
             {opts.abilityDisplay !== 'hidden' && (
               <>
                 <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5, mt: 0.5 }}>
-                  {zh ? '排列方式' : 'Style'}
+                  {t('style')}
                 </Typography>
                 <ToggleButtonGroup value={opts.abilityStyle} exclusive size="small"
                   onChange={(_, v) => { if (v) set('abilityStyle', v as 'arc' | 'straight') }} sx={{ mb: 1 }}>
-                  <ToggleButton value="arc">{zh ? '弧形' : 'Arc'}</ToggleButton>
-                  <ToggleButton value="straight">{zh ? '直排' : 'Straight'}</ToggleButton>
+                  <ToggleButton value="arc">{t('arc')}</ToggleButton>
+                  <ToggleButton value="straight">{t('straight')}</ToggleButton>
                 </ToggleButtonGroup>
               </>
             )}
-            {ptSlider(zh ? '角色名字号' : 'Name size', 'nameFontSize', 5, 16)}
-            {opts.abilityDisplay !== 'hidden' && ptSlider(zh ? '能力文字字号' : 'Ability size', 'abilityFontSize', 3, 10)}
+            {ptSlider(t('name_size'), 'nameFontSize', 5, 16)}
+            {opts.abilityDisplay !== 'hidden' && ptSlider(t('ability_size'), 'abilityFontSize', 3, 10)}
             <Box sx={{ mb: 1 }}>
-              <Typography variant="caption" color="text.secondary">{zh ? '图标大小' : 'Icon size'}: {Math.round(opts.iconSizeRatio * 100)}%</Typography>
+              <Typography variant="caption" color="text.secondary">{t('icon_size')}: {Math.round(opts.iconSizeRatio * 100)}%</Typography>
               <Slider value={opts.iconSizeRatio} min={0.4} max={2.0} step={0.05}
                 onChange={(_, v) => set('iconSizeRatio', v as number)}
                 marks={[{ value: 0.5, label: '50%' }, { value: 1.0, label: '100%' }, { value: 1.5, label: '150%' }, { value: 2.0, label: '200%' }]}
@@ -394,8 +398,8 @@ export function TokenOptionsPanel({ opts, onChange, scriptCharacters, language }
           </Box>
 
           <Box>
-            {fontSelect(zh ? '英文字体' : 'EN Font', 'fontKeyEn')}
-            {fontSelect(zh ? '中文字体' : 'ZH Font', 'fontKeyZh')}
+            {fontSelect(t('en_font'), 'fontKeyEn')}
+            {fontSelect(t('zh_font'), 'fontKeyZh')}
           </Box>
 
           <Divider />
@@ -404,17 +408,17 @@ export function TokenOptionsPanel({ opts, onChange, scriptCharacters, language }
 
       {/* Background */}
       <Box>
-        {label(zh ? '背景' : 'Background')}
+        {label(t('background'))}
         <ToggleButtonGroup value={opts.bgType} exclusive size="small"
           onChange={(_, v) => { if (v) set('bgType', v as TokenPrintOptions['bgType']) }} sx={{ mb: 1 }}>
-          <ToggleButton value="none">{zh ? '无' : 'None'}</ToggleButton>
-          <ToggleButton value="color">{zh ? '纯色' : 'Color'}</ToggleButton>
-          <ToggleButton value="image">{zh ? '图片' : 'Image'}</ToggleButton>
+          <ToggleButton value="none">{t('none')}</ToggleButton>
+          <ToggleButton value="color">{t('color')}</ToggleButton>
+          <ToggleButton value="image">{t('image')}</ToggleButton>
         </ToggleButtonGroup>
 
         {opts.bgType === 'color' && (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Typography variant="caption" color="text.secondary">{zh ? '颜色' : 'Color'}</Typography>
+            <Typography variant="caption" color="text.secondary">{t('color')}</Typography>
             <input type="color" value={opts.bgColor}
               onChange={(e) => set('bgColor', e.target.value)}
               style={{ width: 40, height: 28, border: 'none', padding: 0, cursor: 'pointer' }} />
@@ -425,18 +429,18 @@ export function TokenOptionsPanel({ opts, onChange, scriptCharacters, language }
           <Box>
             <input ref={bgImgRef} type="file" accept="image/*" hidden onChange={handleBgImageUpload} />
             <Button size="small" variant="outlined" onClick={() => bgImgRef.current?.click()} sx={{ mb: 0.5 }}>
-              {opts.bgImage ? (zh ? '更换图片' : 'Change image') : (zh ? '上传图片' : 'Upload image')}
+              {opts.bgImage ? (t('change_image')) : (t('upload_image'))}
             </Button>
             {opts.bgImage && (
               <>
                 <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5, mb: 0.5 }}>
-                  {zh ? '填充方式' : 'Fit'}
+                  {t('fit')}
                 </Typography>
                 <ToggleButtonGroup value={opts.bgFit} exclusive size="small"
                   onChange={(_, v) => { if (v) set('bgFit', v as TokenPrintOptions['bgFit']) }}>
-                  <ToggleButton value="cover">{zh ? '填充' : 'Cover'}</ToggleButton>
-                  <ToggleButton value="contain">{zh ? '适应' : 'Contain'}</ToggleButton>
-                  <ToggleButton value="stretch">{zh ? '拉伸' : 'Stretch'}</ToggleButton>
+                  <ToggleButton value="cover">{t('cover')}</ToggleButton>
+                  <ToggleButton value="contain">{t('contain')}</ToggleButton>
+                  <ToggleButton value="stretch">{t('stretch')}</ToggleButton>
                 </ToggleButtonGroup>
               </>
             )}
@@ -448,10 +452,10 @@ export function TokenOptionsPanel({ opts, onChange, scriptCharacters, language }
 
       {/* Border */}
       <Box>
-        {label(zh ? '边框' : 'Border')}
+        {label(t('border'))}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
           <Typography variant="caption" color="text.secondary">
-            {zh ? `宽度: ${opts.borderWidth}px` : `Width: ${opts.borderWidth}px`}
+            {tpl('border_width_px', opts.borderWidth)}
           </Typography>
           <input type="color" value={opts.borderColor}
             onChange={(e) => set('borderColor', e.target.value)}
@@ -466,10 +470,10 @@ export function TokenOptionsPanel({ opts, onChange, scriptCharacters, language }
 
       {/* Output */}
       <Box>
-        {label(zh ? '输出' : 'Output')}
+        {label(t('output'))}
         <FormControl size="small" fullWidth sx={{ mb: 1 }}>
-          <InputLabel>{zh ? '纸张' : 'Page size'}</InputLabel>
-          <Select value={opts.pageSize} label={zh ? '纸张' : 'Page size'}
+          <InputLabel>{t('page_size')}</InputLabel>
+          <Select value={opts.pageSize} label={t('page_size')}
             onChange={(e) => set('pageSize', e.target.value as PageSize)}>
             {(Object.entries(PAGE_SIZE_DEFS) as [PageSize, { label: string }][]).map(([k, d]) => (
               <MenuItem key={k} value={k}>{d.label}</MenuItem>
@@ -479,17 +483,17 @@ export function TokenOptionsPanel({ opts, onChange, scriptCharacters, language }
         <FormControlLabel
           control={<Switch checked={opts.showWakeIndicators} size="small"
             onChange={(e) => set('showWakeIndicators', e.target.checked)} />}
-          label={<Typography variant="body2">{zh ? '显示唤醒顺序标记' : 'Wake order indicators'}</Typography>}
+          label={<Typography variant="body2">{t('wake_order_indicators')}</Typography>}
         />
         <FormControlLabel
           control={<Switch checked={opts.showSetupIndicators} size="small"
             onChange={(e) => set('showSetupIndicators', e.target.checked)} />}
-          label={<Typography variant="body2">{zh ? '显示设置标记' : 'Setup indicators'}</Typography>}
+          label={<Typography variant="body2">{t('setup_indicators')}</Typography>}
         />
         <FormControlLabel
           control={<Switch checked={opts.blackAndWhite} size="small"
             onChange={(e) => set('blackAndWhite', e.target.checked)} />}
-          label={<Typography variant="body2">{zh ? '黑白打印' : 'Black & white'}</Typography>}
+          label={<Typography variant="body2">{t('black_white')}</Typography>}
         />
       </Box>
 
@@ -497,11 +501,11 @@ export function TokenOptionsPanel({ opts, onChange, scriptCharacters, language }
 
       {/* Watermark */}
       <Box>
-        {label(zh ? '水印（可选）' : 'Watermark (optional)')}
+        {label(t('watermark_optional'))}
         <FormControlLabel
           control={<Switch checked={opts.watermarkEnabled} size="small"
             onChange={(e) => set('watermarkEnabled', e.target.checked)} />}
-          label={<Typography variant="body2">{zh ? '启用水印' : 'Enable watermark'}</Typography>}
+          label={<Typography variant="body2">{t('enable_watermark')}</Typography>}
         />
 
         {opts.watermarkEnabled && (
@@ -509,23 +513,23 @@ export function TokenOptionsPanel({ opts, onChange, scriptCharacters, language }
             <ToggleButtonGroup value={opts.watermark.type} exclusive size="small"
               onChange={(_, v) => { if (v) onChange({ ...opts, watermark: { ...opts.watermark, type: v } }) }}
               sx={{ mb: 1 }}>
-              <ToggleButton value="text">{zh ? '文字' : 'Text'}</ToggleButton>
-              <ToggleButton value="image">{zh ? '图片' : 'Image'}</ToggleButton>
+              <ToggleButton value="text">{t('text')}</ToggleButton>
+              <ToggleButton value="image">{t('image')}</ToggleButton>
             </ToggleButtonGroup>
 
             {opts.watermark.type === 'text' ? (
               <Box>
-                <TextField size="small" fullWidth label={zh ? '水印文字' : 'Watermark text'}
+                <TextField size="small" fullWidth label={t('watermark_text')}
                   value={opts.watermark.text} sx={{ mb: 1 }}
                   onChange={(e) => onChange({ ...opts, watermark: { ...opts.watermark, text: e.target.value } })} />
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                  <Typography variant="caption" color="text.secondary">{zh ? '颜色' : 'Color'}</Typography>
+                  <Typography variant="caption" color="text.secondary">{t('color')}</Typography>
                   <input type="color" value={opts.watermark.color}
                     onChange={(e) => onChange({ ...opts, watermark: { ...opts.watermark, color: e.target.value } })}
                     style={{ width: 32, height: 24, border: 'none', padding: 0, cursor: 'pointer' }} />
                 </Box>
                 <Box sx={{ mb: 1 }}>
-                  <Typography variant="caption" color="text.secondary">{zh ? `字号: ${opts.watermark.fontSize}pt` : `Size: ${opts.watermark.fontSize}pt`}</Typography>
+                  <Typography variant="caption" color="text.secondary">{tpl('watermark_size_pt', opts.watermark.fontSize)}</Typography>
                   <Slider value={opts.watermark.fontSize} min={4} max={16} step={0.5} size="small"
                     onChange={(_, v) => onChange({ ...opts, watermark: { ...opts.watermark, fontSize: v as number } })}
                     sx={{ mt: 0.5, mb: 0 }} />
@@ -535,25 +539,25 @@ export function TokenOptionsPanel({ opts, onChange, scriptCharacters, language }
               <Box sx={{ mb: 1 }}>
                 <input ref={wmImgRef} type="file" accept="image/*" hidden onChange={handleWmImageUpload} />
                 <Button size="small" variant="outlined" onClick={() => wmImgRef.current?.click()}>
-                  {opts.watermark.imageData ? (zh ? '更换图片' : 'Change') : (zh ? '上传图片' : 'Upload')}
+                  {opts.watermark.imageData ? (t('change')) : (t('upload'))}
                 </Button>
               </Box>
             )}
 
             <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-              {zh ? '位置' : 'Position'}
+              {t('position')}
             </Typography>
             <ToggleButtonGroup value={opts.watermark.position} exclusive size="small"
               onChange={(_, v) => { if (v) onChange({ ...opts, watermark: { ...opts.watermark, position: v } }) }}
               sx={{ mb: 1 }}>
-              <ToggleButton value="center" sx={{ fontSize: '0.7rem' }}>{zh ? '居中' : 'Center'}</ToggleButton>
-              <ToggleButton value="bottom-center" sx={{ fontSize: '0.7rem' }}>{zh ? '底部' : 'Bottom'}</ToggleButton>
-              <ToggleButton value="bottom-right" sx={{ fontSize: '0.7rem' }}>{zh ? '右下' : 'B-Right'}</ToggleButton>
+              <ToggleButton value="center" sx={{ fontSize: '0.7rem' }}>{t('center')}</ToggleButton>
+              <ToggleButton value="bottom-center" sx={{ fontSize: '0.7rem' }}>{t('bottom')}</ToggleButton>
+              <ToggleButton value="bottom-right" sx={{ fontSize: '0.7rem' }}>{t('bright')}</ToggleButton>
             </ToggleButtonGroup>
 
             <Box>
               <Typography variant="caption" color="text.secondary">
-                {zh ? `透明度: ${Math.round(opts.watermark.opacity * 100)}%` : `Opacity: ${Math.round(opts.watermark.opacity * 100)}%`}
+                {tpl('watermark_opacity_pct', Math.round(opts.watermark.opacity * 100))}
               </Typography>
               <Slider value={opts.watermark.opacity} min={0.05} max={0.8} step={0.05} size="small"
                 onChange={(_, v) => onChange({ ...opts, watermark: { ...opts.watermark, opacity: v as number } })}

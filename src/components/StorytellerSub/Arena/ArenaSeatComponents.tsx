@@ -9,6 +9,7 @@ import ScienceIcon from '@mui/icons-material/Science'
 import type { UiKey } from '../../../lib/t'
 import { makeT } from '../../../lib/t'
 import { translateReminderZh } from '../../../lib/reminderTranslations'
+import { useT } from '../../../context/I18nContext'
 
 // ── ST tag label → locale key map ──────────────────────────────────────────
 export const ST_TAG_KEY_MAP: Partial<Record<string, UiKey>> = {
@@ -29,6 +30,7 @@ export function translateStTag(label: string, language: string): string {
 
 // ── TagChip: readable chip with click-to-popover ──
 export function TagChip({ label, icon, chipSx, language }: { label: string; icon?: string | null; chipSx?: any; language?: string }) {
+  const { t } = useT()
   const [anchor, setAnchor] = useState<HTMLElement | null>(null)
   const displayLabel = language ? translateStTag(label, language) : label
   return (
@@ -234,7 +236,7 @@ export function NightActionGroup({
         </Box>
       ) : (
         <Button size="medium" variant="outlined" onClick={handleCharacterClick} sx={{ minWidth: 0, px: 0.5 }}>
-          {language === 'zh' ? '+角色' : '+Assign'}
+          {t('assign')}
         </Button>
       )}
 

@@ -8,6 +8,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import FolderIcon from '@mui/icons-material/Folder'
 import FolderOpenIcon from '@mui/icons-material/FolderOpen'
 import type { Language, ScriptFolder } from '../../types'
+import { useT } from '../../context/I18nContext'
 
 type Props = {
   folder: ScriptFolder
@@ -19,8 +20,8 @@ type Props = {
   children: React.ReactNode
 }
 
-export function ScriptFolderRow({ folder, count, language, onToggle, onRename, onDelete, children }: Props) {
-  const zh = language === 'zh'
+export function ScriptFolderRow({ folder, count, onToggle, onRename, onDelete, children }: Props) {
+  const { t } = useT()
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState(folder.name)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -80,7 +81,7 @@ export function ScriptFolderRow({ folder, count, language, onToggle, onRename, o
               flex: 1, fontSize: '0.6rem', lineHeight: 1, cursor: 'text',
               color: 'text.secondary', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
             }}
-            title={zh ? '双击重命名' : 'Click to rename'}
+            title={t('click_to_rename')}
           >
             {folder.name} ({count})
           </Typography>
@@ -88,13 +89,13 @@ export function ScriptFolderRow({ folder, count, language, onToggle, onRename, o
 
         {/* Action buttons — hidden until hover */}
         <Box className="folder-actions" sx={{ display: 'flex', gap: 0, opacity: 0, transition: 'opacity 0.1s', flexShrink: 0 }}>
-          <Tooltip title={zh ? '重命名文件夹' : 'Rename folder'}>
+          <Tooltip title={t('rename_folder')}>
             <IconButton size="small" sx={{ p: '2px' }}
               onClick={() => { setEditing(true); setDraft(folder.name) }}>
               <DriveFileRenameOutlineIcon sx={{ fontSize: 12 }} />
             </IconButton>
           </Tooltip>
-          <Tooltip title={zh ? '删除文件夹' : 'Delete folder'}>
+          <Tooltip title={t('delete_folder')}>
             <IconButton size="small" color="error" sx={{ p: '2px', opacity: 0.6, '&:hover': { opacity: 1 } }}
               onClick={onDelete}>
               <DeleteIcon sx={{ fontSize: 12 }} />
@@ -109,7 +110,7 @@ export function ScriptFolderRow({ folder, count, language, onToggle, onRename, o
           {count > 0 ? children : (
             <Typography variant="caption" color="text.disabled"
               sx={{ pl: 0.5, fontStyle: 'italic', fontSize: '0.72rem' }}>
-              {zh ? '空文件夹' : 'Empty folder'}
+              {t('empty_folder')}
             </Typography>
           )}
         </Box>
@@ -125,8 +126,8 @@ type NewFolderButtonProps = {
   onCreate: (name: string) => void
 }
 
-export function NewFolderButton({ language, onCreate }: NewFolderButtonProps) {
-  const zh = language === 'zh'
+export function NewFolderButton({ onCreate }: NewFolderButtonProps) {
+  const { t } = useT()
   const [adding, setAdding] = useState(false)
   const [name, setName] = useState('')
 
@@ -139,7 +140,7 @@ export function NewFolderButton({ language, onCreate }: NewFolderButtonProps) {
 
   if (!adding) {
     return (
-      <Tooltip title={zh ? '新建文件夹' : 'New folder'}>
+      <Tooltip title={t('new_folder')}>
         <IconButton size="small" onClick={() => setAdding(true)}
           sx={{ opacity: 0.45, '&:hover': { opacity: 1 } }}>
           <AddIcon sx={{ fontSize: 14 }} />
@@ -152,7 +153,7 @@ export function NewFolderButton({ language, onCreate }: NewFolderButtonProps) {
     <TextField
       size="small"
       autoFocus
-      placeholder={zh ? '文件夹名称…' : 'Folder name…'}
+      placeholder={t('folder_name')}
       value={name}
       onChange={(e) => setName(e.target.value)}
       onBlur={() => { if (name.trim()) commit(); else setAdding(false) }}

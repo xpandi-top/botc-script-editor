@@ -59,8 +59,10 @@ const PHRASES: Record<string, { en: string; zh: string }> = {
   // Phases
   night:            { en: 'Night',                zh: '夜晚'       },
   private:          { en: 'Private',              zh: '私聊'       },
-  public:           { en: 'Public',               zh: '公众议事'   },
+  public:           { en: 'Public',               zh: '公聊'   },
   nomination:       { en: 'Nomination',           zh: '提名'       },
+  // Targets
+  stTarget:         { en: '[ST]',                 zh: '[说书人]'   },
 }
 
 type LogKey = keyof typeof PHRASES
@@ -87,12 +89,12 @@ export const logDetail = {
   seatUnNoVote:     (lang: Language, seat: number) => `#${seat} ${logPhrase(lang, 'unNoVote')}`,
 
   nominationFailed: (lang: Language, actor: number | string, target: number | string) => {
-    const targetLabel = target === 0 || target === '0' ? (lang === 'zh' ? '[说书人]' : '[ST]') : `#${target}`
+    const targetLabel = target === 0 || target === '0' ? logPhrase(lang, 'stTarget') : `#${target}`
     return `${logPhrase(lang, 'nominationFailed')}: #${actor} → ${targetLabel}`
   },
 
   voteResult: (lang: Language, actor: number | string, target: number | string, passed: boolean, voteCount: number, required: number) => {
-    const targetLabel = target === 0 || target === '0' ? (lang === 'zh' ? '[说书人]' : '[ST]') : `#${target}`
+    const targetLabel = target === 0 || target === '0' ? logPhrase(lang, 'stTarget') : `#${target}`
     return `#${actor} ${logPhrase(lang, 'nominated')} ${targetLabel} — ${logPhrase(lang, passed ? 'pass' : 'fail')} (${voteCount}/${required})`
   },
 

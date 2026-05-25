@@ -44,7 +44,8 @@ import {
   saveNightOrderOverrides,
 } from '../catalog'
 import type { Language } from '../types'
-import { makeT, makeTpl } from '../lib/t'
+import { makeT } from '../lib/t'
+import { useT } from '../context/I18nContext'
 
 type Props = {
   open: boolean
@@ -86,6 +87,7 @@ function SortableCharRow({
   onInsertConfirm: (charId: string) => void
   onInsertCancel: () => void
 }) {
+  const { t } = useT()
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: `${id}__${index}` })
   const [insertValue, setInsertValue] = useState<string | null>(null)
   const [insertInput, setInsertInput] = useState('')
@@ -156,7 +158,7 @@ function SortableCharRow({
         </Typography>
 
         {/* Insert-after trigger */}
-        <Tooltip title={language === 'zh' ? '在此后插入角色' : 'Insert character after this'}>
+        <Tooltip title={t('insert_character_after_this')}>
           <IconButton
             className="insert-btn"
             size="small"
@@ -210,7 +212,7 @@ function SortableCharRow({
                 {...params}
                 autoFocus
                 size="small"
-                placeholder={language === 'zh' ? '搜索角色…' : 'Search character…'}
+                placeholder={t('search_character')}
                 onKeyDown={(e) => { if (e.key === 'Escape') onInsertCancel() }}
               />
             )}
@@ -228,8 +230,7 @@ function SortableCharRow({
 
 // ── Main component ────────────────────────────────────────────────────────────
 export function NightOrderManager({ open, onClose, language }: Props) {
-  const t = makeT(language)
-  const tpl = makeTpl(language)
+  const { t, tpl } = useT()
 
   const [tab, setTab] = useState<'first' | 'other'>('first')
   const [firstNight, setFirstNight] = useState<string[]>([])

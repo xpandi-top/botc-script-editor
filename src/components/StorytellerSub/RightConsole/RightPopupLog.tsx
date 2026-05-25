@@ -4,6 +4,7 @@ import React from 'react'
 import { Box, Typography, Paper, Button, Chip, Select, MenuItem } from '@mui/material'
 import { LogDetailText } from '../LogDetailText'
 import CloseIcon from '@mui/icons-material/Close'
+import { useT } from '../../../context/I18nContext'
 
 function phaseLabel(phase: string, text: any): string {
   if (phase === 'night') return text.nightPhase
@@ -20,6 +21,7 @@ const ENTRY_COLORS: Record<string, 'primary' | 'secondary' | 'success' | 'error'
 }
 
 export function RightPopupLog({ ctx }: { ctx: StorytellerContext }) {
+  const { t } = useT()
   const { days, logFilter, setLogFilter, aggregatedLog, setActiveRightPopup, toggleLogFilterType, text, language } = ctx
 
   const grouped = React.useMemo(() => {
@@ -69,7 +71,7 @@ export function RightPopupLog({ ctx }: { ctx: StorytellerContext }) {
       </Box>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, p: 1, borderBottom: '1px solid', borderColor: 'divider' }}>
         <Chip
-          label={language === 'zh' ? '全部' : 'All'}
+          label={t('all')}
           size="small"
           color={logFilter.visibility === 'all' ? 'primary' : 'default'}
           variant={logFilter.visibility === 'all' ? 'filled' : 'outlined'}
@@ -77,7 +79,7 @@ export function RightPopupLog({ ctx }: { ctx: StorytellerContext }) {
           sx={{ cursor: 'pointer' }}
         />
         <Chip
-          label={language === 'zh' ? '公开' : 'Public'}
+          label={t('public')}
           size="small"
           color={logFilter.visibility === 'public' ? 'primary' : 'default'}
           variant={logFilter.visibility === 'public' ? 'filled' : 'outlined'}
@@ -85,7 +87,7 @@ export function RightPopupLog({ ctx }: { ctx: StorytellerContext }) {
           sx={{ cursor: 'pointer' }}
         />
         <Chip
-          label={language === 'zh' ? '仅ST' : 'ST'}
+          label={t('st')}
           size="small"
           color={logFilter.visibility === 'st-only' ? 'primary' : 'default'}
           variant={logFilter.visibility === 'st-only' ? 'filled' : 'outlined'}

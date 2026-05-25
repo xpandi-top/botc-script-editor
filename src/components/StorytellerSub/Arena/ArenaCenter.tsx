@@ -5,11 +5,13 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { ArenaCenterContent } from './ArenaCenterContent'
 import { ArenaCenterNominationSheet } from './ArenaCenterNominationSheet'
+import { useT } from '../../../context/I18nContext'
 
 export function ArenaCenter({ ctx }: { ctx: StorytellerContext }) {
+  const { t } = useT()
   const {
     days, currentDay, goToNextDay, goToPreviousDay, setSelectedDayId,
-    language, setDialogState,
+    setDialogState,
   } = ctx
 
   return (
@@ -29,7 +31,7 @@ export function ArenaCenter({ ctx }: { ctx: StorytellerContext }) {
       }}
     >
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5, pb: 0.5, borderBottom: '1px solid', borderBottomColor: 'divider', flexShrink: 0 }}>
-        <IconButton size="large" onClick={(e) => { e.stopPropagation(); goToPreviousDay() }} title={language === 'zh' ? '上一天' : 'Previous day'}>
+        <IconButton size="large" onClick={(e) => { e.stopPropagation(); goToPreviousDay() }} title={t('previous_day')}>
           <ArrowBackIcon />
         </IconButton>
         <FormControl size="medium" >
@@ -43,7 +45,7 @@ export function ArenaCenter({ ctx }: { ctx: StorytellerContext }) {
               <MenuItem key={d.id} value={d.id} sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, pr: 0.5 }}>
                 <span style={{ flex: 1 }}>Day {d.day}</span>
                 {days.length > 1 && (
-                  <Tooltip title={language === 'zh' ? '删除此天' : 'Delete this day'}>
+                  <Tooltip title={t('delete_this_day')}>
                     <IconButton
                       size="small"
                       onMouseDown={(e) => { e.stopPropagation(); e.preventDefault(); setDialogState({ kind: 'deleteDay', dayId: d.id, dayNum: d.day }) }}
@@ -57,7 +59,7 @@ export function ArenaCenter({ ctx }: { ctx: StorytellerContext }) {
             ))}
           </Select>
         </FormControl>
-        <IconButton size="large" onClick={(e) => { e.stopPropagation(); goToNextDay() }} title={language === 'zh' ? '下一天' : 'Next day'}>
+        <IconButton size="large" onClick={(e) => { e.stopPropagation(); goToNextDay() }} title={t('next_day_2')}>
           <ArrowForwardIcon />
         </IconButton>
       </Box>

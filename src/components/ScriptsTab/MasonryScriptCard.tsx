@@ -12,6 +12,8 @@ import MoreVertIcon from '@mui/icons-material/MoreVert'
 import { getIconForCharacter } from '../../catalog'
 import { SCRIPT_TAG_META } from '../tabs/ScriptsTab.constants'
 import type { EditableScript, Language, ScriptFolder } from '../../types'
+import { useT } from '../../context/I18nContext'
+import { makeTpl } from '../../lib/t'
 
 // ── Per-slug deterministic dark gradient ───────────────────────────────────────
 
@@ -99,6 +101,8 @@ export function MasonryScriptCard({
   onMoveToFolder,
 }: Props) {
   const zh = language === 'zh'
+  const { t } = useT()
+  const tpl = makeTpl(language)
   const [imgErr, setImgErr] = useState(false)
   const [hovered, setHovered] = useState(false)
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null)
@@ -262,7 +266,7 @@ export function MasonryScriptCard({
               )}
               {script.characters.length > 0 && (
                 <Typography sx={{ fontSize: '0.7rem', color: 'text.disabled' }}>
-                  {zh ? `${script.characters.length}角` : `${script.characters.length}c`}
+                  {tpl('script_chars_short', script.characters.length)}
                 </Typography>
               )}
             </Box>
@@ -299,7 +303,7 @@ export function MasonryScriptCard({
           <MenuItem dense onClick={() => { onDuplicate(); closeMenu() }}>
             <ListItemIcon><ContentCopyIcon sx={{ fontSize: 15 }} /></ListItemIcon>
             <ListItemText slotProps={{ primary: { sx: { fontSize: '0.82rem' } } }}>
-              {zh ? '复制到自制' : 'Copy to DIY'}
+              {t('copy_to_diy')}
             </ListItemText>
           </MenuItem>
         )}
@@ -312,7 +316,7 @@ export function MasonryScriptCard({
               <MenuItem dense onClick={() => { onMoveToFolder(undefined); closeMenu() }}>
                 <ListItemIcon><FolderOffIcon sx={{ fontSize: 15 }} /></ListItemIcon>
                 <ListItemText slotProps={{ primary: { sx: { fontSize: '0.82rem' } } }}>
-                  {zh ? '移出文件夹' : 'Remove from folder'}
+                  {t('remove_from_folder')}
                 </ListItemText>
               </MenuItem>
             )}
@@ -321,7 +325,7 @@ export function MasonryScriptCard({
               <MenuItem dense onClick={(e) => setFolderMenuAnchor(e.currentTarget)}>
                 <ListItemIcon><DriveFileMoveIcon sx={{ fontSize: 15 }} /></ListItemIcon>
                 <ListItemText slotProps={{ primary: { sx: { fontSize: '0.82rem' } } }}>
-                  {zh ? '移到文件夹' : 'Move to folder'}
+                  {t('move_to_folder')}
                 </ListItemText>
               </MenuItem>
             )}
@@ -336,7 +340,7 @@ export function MasonryScriptCard({
               sx={{ color: 'error.main' }}>
               <ListItemIcon><DeleteIcon sx={{ fontSize: 15, color: 'error.main' }} /></ListItemIcon>
               <ListItemText slotProps={{ primary: { sx: { fontSize: '0.82rem' } } }}>
-                {zh ? '删除' : 'Delete'}
+                {t('delete')}
               </ListItemText>
             </MenuItem>
           </>

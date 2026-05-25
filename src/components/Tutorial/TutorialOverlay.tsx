@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Box, Button, Fade, Paper, Typography } from '@mui/material'
 import { DESKTOP_STEPS, MOBILE_STEPS, TUTORIAL_KEY, type TutorialStep } from './tutorialSteps'
 import type { Language } from '../../types'
+import { useT } from '../../context/I18nContext'
 
 interface SpotlightRect {
   top: number
@@ -200,7 +201,7 @@ export function TutorialOverlay({ language, onClose, onTabChange }: Props) {
 
   const tooltipPos = getTooltipPos(spotRect, currentStep.tooltipPlacement, vw, vh)
   const isLast = stepIndex === steps.length - 1
-  const zh = language === 'zh'
+  const { t } = useT()
 
   const SPOT_PAD = 6
 
@@ -212,7 +213,7 @@ export function TutorialOverlay({ language, onClose, onTabChange }: Props) {
         zIndex: 1500,
         pointerEvents: 'none',
       }}
-      aria-label={zh ? '教程' : 'Tutorial'}
+      aria-label={t('tutorial')}
     >
       {/* Backdrop — blocks clicks on the page but does NOT close on click */}
       <Box
@@ -276,19 +277,19 @@ export function TutorialOverlay({ language, onClose, onTabChange }: Props) {
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
                 <Icon sx={{ fontSize: '1.5rem', color: 'primary.main' }} />
                 <Typography variant="subtitle1" sx={{ fontWeight: 700, lineHeight: 1.3 }}>
-                  {currentStep.title[zh ? 'zh' : 'en']}
+                  {currentStep.title[language]}
                 </Typography>
               </Box>
             ) : (
               <Typography variant="subtitle1" sx={{ fontWeight: 700, lineHeight: 1.3 }}>
-                {currentStep.title[zh ? 'zh' : 'en']}
+                {currentStep.title[language]}
               </Typography>
             )
           })()}
 
           {/* Body */}
           <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.5 }}>
-            {currentStep.body[zh ? 'zh' : 'en']}
+            {currentStep.body[language]}
           </Typography>
 
           {/* Buttons */}
@@ -300,7 +301,7 @@ export function TutorialOverlay({ language, onClose, onTabChange }: Props) {
               onClick={handleSkip}
               sx={{ color: 'text.disabled', fontSize: '0.75rem', minWidth: 0, px: 1 }}
             >
-              {zh ? '跳过' : 'Skip'}
+              {t('skip')}
             </Button>
             <Box sx={{ flex: 1 }} />
             {stepIndex > 0 && (
@@ -310,7 +311,7 @@ export function TutorialOverlay({ language, onClose, onTabChange }: Props) {
                 onClick={handleBack}
                 sx={{ fontSize: '0.8rem', minWidth: 60 }}
               >
-                {zh ? '上一步' : 'Back'}
+                {t('back')}
               </Button>
             )}
             <Button
@@ -319,7 +320,7 @@ export function TutorialOverlay({ language, onClose, onTabChange }: Props) {
               onClick={handleNext}
               sx={{ fontSize: '0.8rem', minWidth: 70 }}
             >
-              {isLast ? (zh ? '完成' : 'Done') : (zh ? '下一步 →' : 'Next →')}
+              {isLast ? (t('done')) : (t('next'))}
             </Button>
           </Box>
         </Paper>

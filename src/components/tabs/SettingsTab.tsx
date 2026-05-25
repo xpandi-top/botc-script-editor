@@ -18,7 +18,7 @@ import type { Language } from '../../types'
 import { useThemeMode } from '../../context/ThemeMode'
 import { FontPicker, LivePreview } from '../settings/FontSection'
 import { CloudSyncSection } from '../settings/CloudSyncSection'
-import { makeT } from '../../lib/t'
+import { useT } from '../../context/I18nContext'
 
 // ── SettingsTab ───────────────────────────────────────────────────────────────
 interface SettingsTabProps {
@@ -29,7 +29,7 @@ interface SettingsTabProps {
 }
 
 export function SettingsTab({ language, onLanguageChange, fontSettings, cloudSync: cloud }: SettingsTabProps) {
-  const t = makeT(language)
+  const { t } = useT()
   const { mode, setMode } = useThemeMode()
   const [importDialog, setImportDialog] = useState(false)
   const [importMode, setImportMode] = useState<'replace' | 'merge'>('merge')
@@ -86,21 +86,21 @@ export function SettingsTab({ language, onLanguageChange, fontSettings, cloudSyn
       <Box>
         <Typography variant="h5" gutterBottom>{t('theme')}</Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          {zh ? '在明亮的羊皮纸风格与黑暗血腥风格之间切换。' : 'Switch between the warm parchment light theme and the dark crimson theme.'}
+          {t('switch_between_the_warm_parchment_light_theme_and_the_dark_c')}
         </Typography>
         <ToggleButtonGroup value={mode} exclusive onChange={(_, v) => { if (v) setMode(v) }}>
           <ToggleButton value="light" sx={{ px: 3, py: 1, gap: 1 }}>
             <LightModeIcon fontSize="small" />
             <Box sx={{ textAlign: 'left' }}>
-              <Typography sx={{ fontSize: '0.9rem', fontWeight: 600, lineHeight: 1.2 }}>{zh ? '明亮' : 'Light'}</Typography>
-              <Typography sx={{ fontSize: '0.65rem', opacity: 0.7 }}>{zh ? '羊皮纸风格' : 'Parchment'}</Typography>
+              <Typography sx={{ fontSize: '0.9rem', fontWeight: 600, lineHeight: 1.2 }}>{t('light')}</Typography>
+              <Typography sx={{ fontSize: '0.65rem', opacity: 0.7 }}>{t('parchment')}</Typography>
             </Box>
           </ToggleButton>
           <ToggleButton value="dark" sx={{ px: 3, py: 1, gap: 1 }}>
             <DarkModeIcon fontSize="small" />
             <Box sx={{ textAlign: 'left' }}>
-              <Typography sx={{ fontSize: '0.9rem', fontWeight: 600, lineHeight: 1.2 }}>{zh ? '黑暗' : 'Dark'}</Typography>
-              <Typography sx={{ fontSize: '0.65rem', opacity: 0.7 }}>{zh ? '血腥猩红' : 'Crimson'}</Typography>
+              <Typography sx={{ fontSize: '0.9rem', fontWeight: 600, lineHeight: 1.2 }}>{t('dark')}</Typography>
+              <Typography sx={{ fontSize: '0.65rem', opacity: 0.7 }}>{t('crimson')}</Typography>
             </Box>
           </ToggleButton>
           <ToggleButton value="system" sx={{ px: 3, py: 1, gap: 1 }}>
@@ -132,9 +132,7 @@ export function SettingsTab({ language, onLanguageChange, fontSettings, cloudSyn
       <Box>
         <Typography variant="h5" gutterBottom>{t('interface_size')}</Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          {zh
-            ? '调整整体界面文字大小。"大"和"特大"会放大所有文字、间距和控件。'
-            : 'Scales all UI text, spacing, and controls uniformly.'}
+          {t('scales_all_ui_text_spacing_and_controls_uniformly')}
         </Typography>
         <ToggleButtonGroup value={uiScale} exclusive onChange={(_, v) => { if (v) setUiScale(v as UiScale) }}>
           {UI_SCALE_OPTIONS.map((opt) => (
@@ -183,9 +181,7 @@ export function SettingsTab({ language, onLanguageChange, fontSettings, cloudSyn
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
         <Typography variant="h5">{t('chinese_font')}</Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mt: -2 }}>
-          {zh
-            ? '中文字体同时用于正文和标题。'
-            : 'Chinese font applies to both body text and titles.'}
+          {t('chinese_font_applies_to_both_body_text_and_titles')}
         </Typography>
 
         <FontPicker
@@ -202,9 +198,7 @@ export function SettingsTab({ language, onLanguageChange, fontSettings, cloudSyn
 
       {/* ── Note ── */}
       <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-        {zh
-          ? '字体设置保存在本地，刷新后依然有效。Google Fonts 字体需要网络连接。界面大小设置会立即生效。'
-          : 'Font settings are saved locally and persist across reloads. Google Fonts require a network connection. Size changes apply instantly.'}
+        {t('font_settings_are_saved_locally_and_persist_across_reloads_g')}
       </Typography>
 
       <Divider />
@@ -217,9 +211,7 @@ export function SettingsTab({ language, onLanguageChange, fontSettings, cloudSyn
       <Box>
         <Typography variant="h5" gutterBottom>{t('backup_import')}</Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2, maxWidth: 480 }}>
-          {zh
-            ? '导出包含脚本、自定义角色、版本覆盖和脚本元数据的完整备份文件。可分享给他人或在新设备导入。'
-            : 'Export a full backup containing scripts, custom characters, revision overrides, and script metadata. Share with others or import on a new device.'}
+          {t('export_a_full_backup_containing_scripts_custom_characters_re')}
         </Typography>
 
         <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
@@ -265,7 +257,7 @@ export function SettingsTab({ language, onLanguageChange, fontSettings, cloudSyn
 
           {importStatus === 'ok' && (
             <Alert severity="success">
-              {zh ? '导入成功，请刷新页面。' : 'Import successful — reload the page to apply.'}
+              {t('import_successful_reload_the_page_to_apply')}
             </Alert>
           )}
           {importStatus === 'error' && (

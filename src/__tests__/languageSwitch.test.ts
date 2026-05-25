@@ -72,7 +72,7 @@ describe('logPhrase — ZH', () => {
   it('phase labels', () => {
     expect(logPhrase(lang, 'night')).toBe('夜晚')
     expect(logPhrase(lang, 'nomination')).toBe('提名')
-    expect(logPhrase(lang, 'public')).toBe('公众议事')
+    expect(logPhrase(lang, 'public')).toBe('公聊')
   })
 })
 

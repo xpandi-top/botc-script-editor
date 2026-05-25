@@ -23,6 +23,7 @@ import { useBreakpoint } from '../../../hooks/useBreakpoint'
 import { StarRating } from '../../ui/StarRating'
 import type { GameRecord } from '../../StorytellerSub/types'
 import type { Language } from '../../../types'
+import { useT } from '../../../context/I18nContext'
 
 // RecordFormDialog is imported from AnalyticsTab for reuse — but to keep
 // the section self-contained we inline a lightweight version. The full form
@@ -51,9 +52,10 @@ interface Props {
 
 // ── Quick Edit panel ─────────────────────────────────────────────
 
-const QuickEditPanel = memo(function QuickEditPanel({ record, zh, onSave }: {
-  record: GameRecord; language: Language; zh: boolean; onSave: (updated: GameRecord) => void
+const QuickEditPanel = memo(function QuickEditPanel({ record, onSave }: {
+  record: GameRecord; language: Language; onSave: (updated: GameRecord) => void
 }) {
+  const { t } = useT()
   const [winner, setWinner] = useState<string>(record.winner ?? '')
   const [mvp, setMvp] = useState<number | 'storyteller' | ''>(
     record.mvp === 'storyteller' ? 'storyteller' : (record.mvp ?? '')
@@ -100,12 +102,12 @@ const QuickEditPanel = memo(function QuickEditPanel({ record, zh, onSave }: {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
           <FlashOnIcon sx={{ fontSize: '0.8rem', color: 'warning.main' }} />
           <Typography variant="caption" sx={{ fontWeight: 700, color: 'warning.main', fontSize: '0.72rem' }}>
-            {zh ? '快速编辑' : 'Quick Edit'}
+            {t('quick_edit')}
           </Typography>
         </Box>
         <Button size="small" variant="contained" disabled={!dirty} onClick={handleSave}
           sx={{ fontSize: '0.72rem', py: '2px', px: 1.5, minWidth: 0 }}>
-          {zh ? '保存' : 'Save'}
+          {t('save')}
         </Button>
       </Box>
 
@@ -118,16 +120,16 @@ const QuickEditPanel = memo(function QuickEditPanel({ record, zh, onSave }: {
           {/* Result */}
           <Box>
             <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.4, fontSize: '0.68rem' }}>
-              {zh ? '结果' : 'Result'}
+              {t('result')}
             </Typography>
             <ToggleButtonGroup value={winner} exclusive size="small"
               onChange={(_, v) => { if (v !== null) { setWinner(v); setDirty(true) } }}
               sx={{ '& .MuiToggleButton-root': { fontSize: '0.7rem', py: '2px', px: '8px' } }}>
               <ToggleButton value="evil" sx={{ color: 'error.main', '&.Mui-selected': { bgcolor: 'error.main', color: '#fff' } }}>
-                {zh ? '邪恶' : 'Evil'}
+                {t('evil')}
               </ToggleButton>
               <ToggleButton value="good" sx={{ color: 'success.main', '&.Mui-selected': { bgcolor: 'success.main', color: '#fff' } }}>
-                {zh ? '善良' : 'Good'}
+                {t('good')}
               </ToggleButton>
               <ToggleButton value="storyteller" sx={{ color: 'info.main', '&.Mui-selected': { bgcolor: 'info.main', color: '#fff' } }}>
                 ST
@@ -137,14 +139,14 @@ const QuickEditPanel = memo(function QuickEditPanel({ record, zh, onSave }: {
 
           {/* MVP */}
           <FormControl size="small" sx={inputSx}>
-            <InputLabel>{zh ? 'MVP' : 'MVP'}</InputLabel>
+            <InputLabel>{t('mvp')}</InputLabel>
             <Select value={mvp} label="MVP"
               onChange={(e) => { setMvp(e.target.value as number | 'storyteller' | ''); setDirty(true) }}
               sx={{ fontSize: '0.78rem' }}>
-              <MenuItem value=""><em>{zh ? '无' : 'None'}</em></MenuItem>
+              <MenuItem value=""><em>{t('none')}</em></MenuItem>
               <MenuItem value="storyteller" sx={{ fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: 0.75 }}>
                 <PersonIcon sx={{ fontSize: '0.85rem', color: 'purple' }} />
-                <Box component="span" sx={{ fontStyle: 'italic' }}>{zh ? '说书人' : 'Storyteller'}</Box>
+                <Box component="span" sx={{ fontStyle: 'italic' }}>{t('storyteller')}</Box>
               </MenuItem>
               {seats.map((s) => (
                 <MenuItem key={s.seat} value={s.seat} sx={{ fontSize: '0.78rem' }}>
@@ -155,28 +157,28 @@ const QuickEditPanel = memo(function QuickEditPanel({ record, zh, onSave }: {
           </FormControl>
 
           {/* ST Name */}
-          <TextField size="small" label={zh ? '说书人' : 'Storyteller'}
+          <TextField size="small" label={t('storyteller')}
             value={stName} onChange={markStr(setStName)}
-            placeholder={zh ? '说书人名字' : 'ST name'}
+            placeholder={t('st_name')}
             sx={inputSx} />
 
           {/* ST Rules */}
-          <TextField size="small" label={zh ? '自定义规则' : 'Custom rules'}
+          <TextField size="small" label={t('custom_rules')}
             value={stCustomRules} onChange={markStr(setStCustomRules)}
             multiline rows={2}
-            placeholder={zh ? '自定义规则或备注' : 'House rules, variants…'}
+            placeholder={t('house_rules_variants')}
             sx={{ ...inputSx, '& .MuiInputBase-input': { fontSize: '0.78rem' } }} />
         </Box>
 
         {/* ── Right col: ratings + notes ── */}
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
           <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0.5 }}>
-            <StarRating label={zh ? '平衡性' : 'Balanced'} value={balanced} onChange={mark(setBalanced)} />
-            <StarRating label={zh ? 'Evil乐趣' : 'Fun (Evil)'} value={funEvil} onChange={mark(setFunEvil)} />
-            <StarRating label={zh ? '善良乐趣' : 'Fun (Good)'} value={funGood} onChange={mark(setFunGood)} />
-            <StarRating label={zh ? '重玩意愿' : 'Replay'} value={replay} onChange={mark(setReplay)} />
+            <StarRating label={t('balanced')} value={balanced} onChange={mark(setBalanced)} />
+            <StarRating label={t('fun_evil')} value={funEvil} onChange={mark(setFunEvil)} />
+            <StarRating label={t('fun_good')} value={funGood} onChange={mark(setFunGood)} />
+            <StarRating label={t('replay')} value={replay} onChange={mark(setReplay)} />
           </Box>
-          <TextField size="small" label={zh ? '其他备注' : 'Notes'}
+          <TextField size="small" label={t('notes')}
             value={otherNote} onChange={markStr(setOtherNote)}
             multiline rows={3} fullWidth
             sx={{ ...inputSx, '& .MuiInputBase-input': { fontSize: '0.78rem' } }} />
@@ -189,11 +191,11 @@ const QuickEditPanel = memo(function QuickEditPanel({ record, zh, onSave }: {
 
 // ── Row detail (inline expand) ────────────────────────────────────
 
-const RATING_LABELS = {
-  balanced: { en: 'Balanced', zh: '平衡性' },
-  funEvil: { en: 'Fun (Evil)', zh: 'Evil乐趣' },
-  funGood: { en: 'Fun (Good)', zh: '善良乐趣' },
-  replay: { en: 'Replay', zh: '重玩' },
+const RATING_KEYS: Record<string, 'balanced' | 'fun_evil' | 'fun_good' | 'replay'> = {
+  balanced: 'balanced',
+  funEvil: 'fun_evil',
+  funGood: 'fun_good',
+  replay: 'replay',
 }
 
 function StarDots({ value }: { value: number | null | undefined }) {
@@ -209,11 +211,12 @@ function StarDots({ value }: { value: number | null | undefined }) {
   )
 }
 
-const RecordRowDetail = memo(function RecordRowDetail({ record, language, zh }: { record: GameRecord; language: Language; zh: boolean }) {
+const RecordRowDetail = memo(function RecordRowDetail({ record, language }: { record: GameRecord; language: Language }) {
+  const { t, tpl } = useT()
   const assignments = record.setup?.assignments ?? {}
   const hasRatings = record.balanced != null || record.funEvil != null || record.funGood != null || record.replay != null
   const mvpName = record.mvp === 'storyteller'
-    ? (record.stName?.trim() || (zh ? '说书人' : 'Storyteller'))
+    ? (record.stName?.trim() || (t('storyteller')))
     : record.mvp != null
       ? (() => { const ps = record.playerSummaries?.find((p) => p.seat === record.mvp); return ps ? `${ps.seat}. ${ps.name}` : `#${record.mvp}` })()
       : null
@@ -229,14 +232,14 @@ const RecordRowDetail = memo(function RecordRowDetail({ record, language, zh }: 
           {record.stName && (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.4 }}>
               <PersonIcon sx={{ fontSize: '0.8rem', color: 'text.primary', opacity: 0.6 }} />
-              <Typography variant="caption" color="text.primary" sx={{ opacity: 0.7 }}>{zh ? '说书人: ' : 'ST: '}</Typography>
+              <Typography variant="caption" color="text.primary" sx={{ opacity: 0.7 }}>{t('st')}</Typography>
               <Typography variant="caption" sx={{ fontWeight: 600 }}>{record.stName}</Typography>
             </Box>
           )}
           {durationMin && (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.4 }}>
               <TimerIcon sx={{ fontSize: '0.8rem', color: 'text.primary', opacity: 0.6 }} />
-              <Typography variant="caption" color="text.primary" sx={{ opacity: 0.75 }}>{durationMin}{zh ? ' 分钟' : ' min'}</Typography>
+              <Typography variant="caption" color="text.primary" sx={{ opacity: 0.75 }}>{durationMin}{t('min')}</Typography>
             </Box>
           )}
           {mvpName && (
@@ -296,9 +299,9 @@ const RecordRowDetail = memo(function RecordRowDetail({ record, language, zh }: 
         <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', mb: hasRatings || record.setup?.demonBluffs?.length ? 0.75 : 0 }}>
           {record.days.map((d) => (
             <Box key={d.day} sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
-              <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.primary' }}>{zh ? `第${d.day}天` : `D${d.day}`}</Typography>
+              <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.primary' }}>{tpl('day_compact', d.day)}</Typography>
               <Typography variant="caption" color="text.primary" sx={{ opacity: 0.75 }}>
-                {d.votes}{zh ? '票' : 'v'} {d.nominations}{zh ? '提' : 'n'} {d.skills}{zh ? '技' : 's'}
+                {d.votes}{t('vote_short')} {d.nominations}{t('n')} {d.skills}{t('s')}
               </Typography>
             </Box>
           ))}
@@ -308,7 +311,7 @@ const RecordRowDetail = memo(function RecordRowDetail({ record, language, zh }: 
       {/* ── Bluffs ── */}
       {record.setup?.demonBluffs && record.setup.demonBluffs.length > 0 && (
         <Box sx={{ mt: 0.5, display: 'flex', gap: 0.5, alignItems: 'center' }}>
-          <Typography variant="caption" color="text.secondary">{zh ? '恶魔虚张声势：' : 'Bluffs: '}</Typography>
+          <Typography variant="caption" color="text.secondary">{t('bluffs')}</Typography>
           {record.setup.demonBluffs.map((charId) => {
             const icon = getIconForCharacter(charId)
             return icon
@@ -327,7 +330,7 @@ const RecordRowDetail = memo(function RecordRowDetail({ record, language, zh }: 
             return (
               <Box key={k} sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
                 <Typography variant="caption" color="text.primary" sx={{ fontSize: '0.66rem', opacity: 0.75 }}>
-                  {zh ? RATING_LABELS[k].zh : RATING_LABELS[k].en}
+                  {t(RATING_KEYS[k])}
                 </Typography>
                 <StarDots value={v} />
                 <Typography variant="caption" sx={{ fontSize: '0.66rem', color: 'text.primary', opacity: 0.75 }}>{v}/5</Typography>
@@ -341,7 +344,7 @@ const RecordRowDetail = memo(function RecordRowDetail({ record, language, zh }: 
       {record.stCustomRules && (
         <Box sx={{ mt: 0.75, p: 0.75, borderRadius: 1, bgcolor: 'rgba(0,0,0,0.04)', borderLeft: '3px solid', borderColor: 'info.light' }}>
           <Typography variant="caption" sx={{ fontWeight: 700, color: 'info.main', display: 'block', mb: 0.25, fontSize: '0.66rem' }}>
-            {zh ? '自定义规则' : 'Custom rules'}
+            {t('custom_rules')}
           </Typography>
           <Typography variant="caption" sx={{ fontSize: '0.72rem', whiteSpace: 'pre-wrap' }}>{record.stCustomRules}</Typography>
         </Box>
@@ -360,6 +363,7 @@ const RecordRowDetail = memo(function RecordRowDetail({ record, language, zh }: 
 // ── Main ──────────────────────────────────────────────────────────
 
 export function RecordsSection({ records, filteredRecords, onRecordsChange, language, onCreateRecord, onEditRecord }: Props) {
+  const { t, tpl } = useT()
   const zh = language === 'zh'
   const { isMobile } = useBreakpoint()
   const [sortKey, setSortKey] = useState<SortKey>('date')
@@ -427,27 +431,27 @@ export function RecordsSection({ records, filteredRecords, onRecordsChange, lang
       {/* Toolbar */}
       <Box sx={{ display: 'flex', gap: 1, mb: 2, alignItems: 'center', flexWrap: 'wrap' }}>
         <Typography variant="subtitle2" sx={{ fontWeight: 700, flex: 1 }}>
-          {zh ? `游戏记录 (${filteredRecords.length})` : `Records (${filteredRecords.length})`}
+          {tpl('records_n', filteredRecords.length)}
         </Typography>
         {selected.size > 0 && (
           <>
-            <Typography variant="caption" color="text.secondary">{selected.size}{zh ? ' 已选' : ' selected'}</Typography>
-            <Tooltip title={zh ? '导出所选' : 'Export selected'}>
+            <Typography variant="caption" color="text.secondary">{selected.size}{t('selected')}</Typography>
+            <Tooltip title={t('export_selected')}>
               <IconButton size="small" onClick={exportBulk}><FileDownloadIcon sx={{ fontSize: '1rem' }} /></IconButton>
             </Tooltip>
-            <Tooltip title={zh ? '删除所选' : 'Delete selected'}>
+            <Tooltip title={t('delete_selected')}>
               <IconButton size="small" color="error" onClick={() => setConfirmBulkDelete(true)}><DeleteIcon sx={{ fontSize: '1rem' }} /></IconButton>
             </Tooltip>
           </>
         )}
-        <Tooltip title={zh ? '新建记录' : 'New Record'}>
+        <Tooltip title={t('new_record')}>
           <IconButton data-tutorial="an-add-record" size="small" onClick={onCreateRecord}><AddIcon sx={{ fontSize: '1rem' }} /></IconButton>
         </Tooltip>
       </Box>
 
       {sorted.length === 0 ? (
         <Box sx={{ py: 4, textAlign: 'center' }}>
-          <Typography color="text.secondary">{zh ? '无匹配记录' : 'No records match the current filter'}</Typography>
+          <Typography color="text.secondary">{t('no_records_match_the_current_filter')}</Typography>
         </Box>
       ) : (
         <Paper data-tutorial="an-records-table" elevation={2} sx={{ overflow: 'hidden' }}>
@@ -460,27 +464,27 @@ export function RecordsSection({ records, filteredRecords, onRecordsChange, lang
                 </TableCell>
                 <TableCell sx={{ ...thSx, pl: 1.5 }}>
                   <TableSortLabel active={sortKey === 'script'} direction={sortKey === 'script' ? sortDir : 'desc'} onClick={() => handleSort('script')}>
-                    {zh ? '记录' : 'Record'}
+                    {t('record')}
                   </TableSortLabel>
                 </TableCell>
                 <TableCell sx={{ ...thSx, width: 90 }} align="center">
                   <TableSortLabel active={sortKey === 'winner'} direction={sortKey === 'winner' ? sortDir : 'desc'} onClick={() => handleSort('winner')}>
-                    {zh ? '结果' : 'Result'}
+                    {t('result')}
                   </TableSortLabel>
                 </TableCell>
                 <TableCell sx={{ ...thSx, width: 50, display: { xs: 'none', sm: 'table-cell' } }} align="center">
                   <TableSortLabel active={sortKey === 'days'} direction={sortKey === 'days' ? sortDir : 'desc'} onClick={() => handleSort('days')}>
-                    {zh ? '天' : 'Days'}
+                    {t('days')}
                   </TableSortLabel>
                 </TableCell>
                 <TableCell sx={{ ...thSx, width: 50, display: { xs: 'none', sm: 'table-cell' } }} align="center">
                   <TableSortLabel active={sortKey === 'players'} direction={sortKey === 'players' ? sortDir : 'desc'} onClick={() => handleSort('players')}>
-                    {zh ? '人' : 'P'}
+                    {t('p')}
                   </TableSortLabel>
                 </TableCell>
                 <TableCell sx={{ ...thSx, width: 90, display: { xs: 'none', sm: 'table-cell' } }}>
                   <TableSortLabel active={sortKey === 'date'} direction={sortKey === 'date' ? sortDir : 'desc'} onClick={() => handleSort('date')}>
-                    {zh ? '日期' : 'Date'}
+                    {t('date')}
                   </TableSortLabel>
                 </TableCell>
                 <TableCell sx={{ ...thSx, width: { xs: 36, sm: 80 } }} align="center" />
@@ -526,7 +530,7 @@ export function RecordsSection({ records, filteredRecords, onRecordsChange, lang
                                 {zh ? (WINNER_LABEL[r.winner]?.zh ?? r.winner) : (WINNER_LABEL[r.winner]?.en ?? r.winner)}
                               </Box>
                               <Box component="span" sx={{ display: { xs: 'inline', sm: 'none' } }}>
-                                {r.winner === 'evil' ? (zh ? '邪' : 'E') : r.winner === 'good' ? (zh ? '善' : 'G') : 'ST'}
+                                {r.winner === 'evil' ? (t('evil_short')) : r.winner === 'good' ? (t('good_short')) : 'ST'}
                               </Box>
                             </>}
                             color={WINNER_COLOR[r.winner] ?? 'default'}
@@ -552,7 +556,7 @@ export function RecordsSection({ records, filteredRecords, onRecordsChange, lang
                           <FileDownloadIcon sx={{ fontSize: '0.9rem' }} />
                         </IconButton>
                         <IconButton size="small" color="error" onClick={() => {
-                          if (confirm(zh ? '确定删除此记录？' : 'Delete this record?')) deleteRecord(r.id)
+                          if (confirm(t('delete_this_record'))) deleteRecord(r.id)
                         }} sx={{ p: 0.25, display: { xs: 'none', sm: 'inline-flex' } }}>
                           <DeleteIcon sx={{ fontSize: '0.9rem' }} />
                         </IconButton>
@@ -566,11 +570,10 @@ export function RecordsSection({ records, filteredRecords, onRecordsChange, lang
                     <TableCell colSpan={7} sx={{ p: 0, border: isExpanded ? undefined : 'none' }}>
                       <Collapse in={isExpanded} timeout={150} unmountOnExit>
                         <Box sx={{ maxHeight: { xs: '60vh', sm: 'none' }, overflowY: { xs: 'auto', sm: 'visible' } }}>
-                          <RecordRowDetail record={r} language={language} zh={zh} />
+                          <RecordRowDetail record={r} language={language} />
                           <QuickEditPanel
                             record={r}
                             language={language}
-                            zh={zh}
                             onSave={(updated) => onRecordsChange(records.map((x) => x.id === updated.id ? updated : x))}
                           />
                         </Box>
@@ -622,11 +625,10 @@ export function RecordsSection({ records, filteredRecords, onRecordsChange, lang
               </Box>
             </DialogTitle>
             <DialogContent dividers sx={{ p: 0, overflowY: 'auto', flex: 1 }}>
-              <RecordRowDetail record={mobileDetail} language={language} zh={zh} />
+              <RecordRowDetail record={mobileDetail} language={language} />
               <QuickEditPanel
                 record={mobileDetail}
                 language={language}
-                zh={zh}
                 onSave={(updated) => {
                   onRecordsChange(records.map((x) => x.id === updated.id ? updated : x))
                   setMobileDetail(updated)
@@ -644,7 +646,7 @@ export function RecordsSection({ records, filteredRecords, onRecordsChange, lang
                 </IconButton>
               )}
               <IconButton size="small" color="error" onClick={() => {
-                if (confirm(zh ? '确定删除此记录？' : 'Delete this record?')) {
+                if (confirm(t('delete_this_record'))) {
                   deleteRecord(mobileDetail.id)
                   setMobileDetail(null)
                 }
@@ -652,7 +654,7 @@ export function RecordsSection({ records, filteredRecords, onRecordsChange, lang
                 <DeleteIcon fontSize="small" />
               </IconButton>
               <Button size="small" onClick={() => setMobileDetail(null)}>
-                {zh ? '关闭' : 'Close'}
+                {t('close')}
               </Button>
             </DialogActions>
           </>
@@ -661,13 +663,13 @@ export function RecordsSection({ records, filteredRecords, onRecordsChange, lang
 
       {/* Bulk delete confirm */}
       <Dialog open={confirmBulkDelete} onClose={() => setConfirmBulkDelete(false)} maxWidth="xs">
-        <DialogTitle>{zh ? '确认删除' : 'Confirm delete'}</DialogTitle>
+        <DialogTitle>{t('confirm_delete')}</DialogTitle>
         <DialogContent>
-          <Typography>{zh ? `确定删除所选的 ${selected.size} 条记录？此操作不可撤销。` : `Delete ${selected.size} selected record(s)? This cannot be undone.`}</Typography>
+          <Typography>{tpl('confirm_delete_n_records', selected.size)}</Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setConfirmBulkDelete(false)}>{zh ? '取消' : 'Cancel'}</Button>
-          <Button color="error" variant="contained" onClick={deleteBulk}>{zh ? '删除' : 'Delete'}</Button>
+          <Button onClick={() => setConfirmBulkDelete(false)}>{t('cancel')}</Button>
+          <Button color="error" variant="contained" onClick={deleteBulk}>{t('delete')}</Button>
         </DialogActions>
       </Dialog>
     </Box>

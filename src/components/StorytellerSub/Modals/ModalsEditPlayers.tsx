@@ -6,6 +6,7 @@ import { Box, Button, TextField, IconButton, Typography, Paper, List, ListItem, 
 import AddIcon from '@mui/icons-material/Add'
 import RemoveIcon from '@mui/icons-material/Remove'
 import { uniqueStrings } from '../constants'
+import { useT } from '../../../context/I18nContext'
 
 export function ModalsEditPlayers({ ctx }: { ctx: StorytellerContext }) {
   const {
@@ -17,6 +18,7 @@ export function ModalsEditPlayers({ ctx }: { ctx: StorytellerContext }) {
   } = ctx
 
   // Pending rename confirmation: { seatNum, oldName, newName }
+  const { t, tpl } = useT()
   const [pendingRename, setPendingRename] = useState<{ seatNum: number; oldName: string; newName: string } | null>(null)
 
   const regularSeats = currentDay.seats.filter((s: any) => !s.isTraveler)
@@ -76,13 +78,13 @@ export function ModalsEditPlayers({ ctx }: { ctx: StorytellerContext }) {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       <Paper variant="outlined" sx={{ p: 1.5 }}>
-        <Typography variant="subtitle2" sx={{ mb: 1 }}>{language === 'zh' ? '批量加载' : 'Batch Load'}</Typography>
+        <Typography variant="subtitle2" sx={{ mb: 1 }}>{t('batch_load')}</Typography>
         <TextField
           size="small"
           fullWidth
           multiline
           rows={2}
-          placeholder={language === 'zh' ? '张三, 李四, 王五...' : 'Alice, Bob, Charlie...'}
+          placeholder={t('alice_bob_charlie')}
           value={editPlayersPreset}
           onChange={(e) => setEditPlayersPreset(e.target.value)}
         />
@@ -91,7 +93,7 @@ export function ModalsEditPlayers({ ctx }: { ctx: StorytellerContext }) {
 
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Typography variant="subtitle2">
-          {language === 'zh' ? '玩家人数' : 'Players'}: {regularSeats.length}
+          {t('players')}: {regularSeats.length}
         </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
           <IconButton size="small" onClick={removeLastPlayerSeat} disabled={regularSeats.length <= 5}>
@@ -124,7 +126,7 @@ export function ModalsEditPlayers({ ctx }: { ctx: StorytellerContext }) {
 
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 1 }}>
         <Typography variant="subtitle2">
-          {language === 'zh' ? '旅行者' : 'Travelers'}: {travelerSeats.length}
+          {t('traveler')}: {travelerSeats.length}
         </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
           <IconButton size="small" onClick={removeLastTraveler} disabled={travelerSeats.length === 0}>
@@ -164,27 +166,29 @@ export function ModalsEditPlayers({ ctx }: { ctx: StorytellerContext }) {
       <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, mt: 1 }}>
         <Button variant="outlined" onClick={resetSeatNames}>{text.resetNames}</Button>
         <Button variant="contained" onClick={() => setShowEditPlayersModal(false)}>
-          {language === 'zh' ? '完成' : 'Done'}
+          {t('done')}
         </Button>
       </Box>
 
       {/* Rename propagation dialog */}
       <Dialog open={!!pendingRename} onClose={() => setPendingRename(null)} maxWidth="xs" fullWidth>
-        <DialogTitle>{language === 'zh' ? '更新历史记录？' : 'Update saved records?'}</DialogTitle>
+        <DialogTitle>{t('update_saved_records')}</DialogTitle>
         <DialogContent>
           <Typography variant="body2">
-            {language === 'zh'
-              ? `将 ${gameRecords?.filter((r: any) => r.playerSummaries?.some((ps: any) => ps.name === pendingRename?.oldName)).length ?? 0} 条历史记录中的「${pendingRename?.oldName}」改为「${pendingRename?.newName}」？`
-              : `Rename "${pendingRename?.oldName}" → "${pendingRename?.newName}" in ${gameRecords?.filter((r: any) => r.playerSummaries?.some((ps: any) => ps.name === pendingRename?.oldName)).length ?? 0} saved record(s)?`
-            }
+            {tpl(
+              'rename_player_in_n_records',
+              pendingRename?.oldName ?? '',
+              pendingRename?.newName ?? '',
+              gameRecords?.filter((r: any) => r.playerSummaries?.some((ps: any) => ps.name === pendingRename?.oldName)).length ?? 0
+            )}
           </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setPendingRename(null)}>
-            {language === 'zh' ? '仅本局' : 'This game only'}
+            {t('this_game_only')}
           </Button>
           <Button variant="contained" onClick={applyRenameToRecords}>
-            {language === 'zh' ? '全部更新' : 'Update all'}
+            {t('update_all')}
           </Button>
         </DialogActions>
       </Dialog>

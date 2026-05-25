@@ -104,6 +104,8 @@ import type {
   Team,
 } from './types'
 import { useThemeMode } from './context/ThemeMode'
+import { I18nProvider } from './context/I18nContext'
+import { makeT, makeTpl } from './lib/t'
 
 // ── Cloud sync header badge ────────────────────────────────────────────────────
 
@@ -117,7 +119,8 @@ interface CloudSyncBadgeProps {
 }
 
 function CloudSyncBadge({ connected, status, lastSynced, errorMessage, language, onPress }: CloudSyncBadgeProps) {
-  const isZh = language === 'zh'
+  const t = makeT(language)
+  const tpl = makeTpl(language)
   const isBusy = status === 'syncing' || status === 'pulling' || status === 'pushing'
   const isError = status === 'error'
   const isConfigured = !!getClientId()
@@ -129,35 +132,33 @@ function CloudSyncBadge({ connected, status, lastSynced, errorMessage, language,
   if (!isConfigured) {
     icon = <CloudOffIcon fontSize="small" sx={{ color: 'text.disabled' }} />
     dotColor = 'transparent'
-    tooltipLines = [isZh ? '云同步未配置' : 'Cloud sync not configured', isZh ? '在设置中输入 Google Client ID' : 'Enter Google Client ID in Settings']
+    tooltipLines = [t('cloud_sync_not_configured'), t('cloud_sync_enter_client_id')]
   } else if (!connected) {
     icon = <CloudOffIcon fontSize="small" sx={{ color: 'text.secondary' }} />
     dotColor = 'grey.400'
-    tooltipLines = [isZh ? '未连接 Google Drive' : 'Not connected to Google Drive', isZh ? '点击前往设置' : 'Click to go to Settings']
+    tooltipLines = [t('not_connected_google_drive'), t('click_to_go_to_settings')]
   } else if (isError) {
     icon = <SyncProblemIcon fontSize="small" sx={{ color: 'error.main' }} />
     dotColor = 'error.main'
     tooltipLines = [
-      isZh ? '同步出错' : 'Sync error',
-      errorMessage ?? (isZh ? '未知错误' : 'Unknown error'),
+      t('sync_error'),
+      errorMessage ?? t('unknown_error'),
     ]
   } else if (isBusy) {
     icon = <CloudSyncIcon fontSize="small" sx={{ color: 'primary.main' }} />
     dotColor = 'primary.main'
     tooltipLines = [
-      status === 'pulling' ? (isZh ? '正在拉取数据…' : 'Pulling from Drive…')
-        : status === 'pushing' ? (isZh ? '正在推送数据…' : 'Pushing to Drive…')
-        : (isZh ? '正在同步…' : 'Syncing…'),
+      status === 'pulling' ? t('pulling_from_drive')
+        : status === 'pushing' ? t('pushing_to_drive')
+        : t('syncing'),
     ]
   } else {
     // connected + idle
     icon = <CloudDoneIcon fontSize="small" sx={{ color: 'success.main' }} />
     dotColor = 'success.main'
     tooltipLines = [
-      isZh ? '已连接 Google Drive' : 'Connected to Google Drive',
-      lastSynced
-        ? (isZh ? `上次同步: ${lastSynced.toLocaleTimeString()}` : `Last synced: ${lastSynced.toLocaleTimeString()}`)
-        : (isZh ? '尚未同步' : 'Not yet synced'),
+      t('connected_google_drive'),
+      lastSynced ? tpl('last_synced_time', lastSynced.toLocaleTimeString()) : t('not_yet_synced'),
     ]
   }
 
@@ -511,38 +512,19 @@ export default function App() {
     [uiLanguage, customChars],
   )
 
-  const tabDescriptions: Record<TabKey, { en: string; zh: string }> = {
-    scripts: {
-      en: 'Browse, edit, and export BOTC script PDFs. Select characters and customize your game sheet.',
-      zh: '浏览、编辑和导出 BOTC 剧本 PDF。选择角色并自定义你的游戏卡片。',
-    },
-    characters: {
-      en: 'Complete character catalog with search and filter. View all official and custom character abilities.',
-      zh: '完整的角色目录，支持搜索和筛选。查看所有官方和自定义角色能力。',
-    },
-    storyteller: {
-      en: 'Game orchestration tool for storytellers. Manage night phases, nominations, votes, and game history.',
-      zh: '说书人游戏管理工具。管理夜晚阶段、提名、投票和游戏历史记录。',
-    },
-    analytics: {
-      en: 'Track and analyze your BOTC game statistics. View trends and export game records.',
-      zh: '追踪和分析你的 BOTC 游戏统计数据。查看趋势并导出游戏记录。',
-    },
-    printstudio: {
-      en: 'Advanced print layout designer. Create custom character tokens and print materials.',
-      zh: '高级打印布局设计器。创建自定义角色令牌和打印材料。',
-    },
-    settings: {
-      en: 'Customize fonts and appearance. Changes apply globally and persist across sessions.',
-      zh: '自定义字体和外观。设置全局生效并在会话间持久保存。',
-    },
+  const t = makeT(uiLanguage)
+  const tabDescriptions: Record<TabKey, string> = {
+    scripts: t('tab_desc_scripts'),
+    characters: t('tab_desc_characters'),
+    storyteller: t('tab_desc_storyteller'),
+    analytics: t('tab_desc_analytics'),
+    printstudio: t('tab_desc_printstudio'),
+    settings: t('tab_desc_settings'),
   }
 
-  const disclaimerText = uiLanguage === 'zh'
-    ? '本网站仅供社区使用，非商业用途。'
-    : 'This website is for community use only, not for commercial purposes.'
+  const disclaimerText = t('disclaimer')
 
-  const currentDescription = tabDescriptions[activeTab]?.[uiLanguage === 'zh' ? 'zh' : 'en'] ?? ''
+  const currentDescription = tabDescriptions[activeTab] ?? ''
 
   const filteredCharacters = useMemo(() => {
     const tokens = characterQuery.trim().toLowerCase().split(/\s+/).filter(Boolean)
@@ -725,12 +707,13 @@ export default function App() {
     return () => { document.body.style.overflow = '' }
   }, [activeTab, isMobileView])
 
-  const stTabLabel = uiLanguage === 'zh' ? '主持助手' : 'Storyteller Helper'
-  const psTabLabel = uiLanguage === 'zh' ? '打印工坊' : 'Print Studio'
-  const anTabLabel = uiLanguage === 'zh' ? '数据统计' : 'Analytics'
-  const stgTabLabel = uiLanguage === 'zh' ? '设置' : 'Settings'
+  const stTabLabel = t('storyteller_helper')
+  const psTabLabel = t('print_studio')
+  const anTabLabel = t('analytics_title')
+  const stgTabLabel = t('settings')
 
   return (
+    <I18nProvider language={uiLanguage}>
     <Container maxWidth="xl" sx={{ pt: 0, pb: { xs: '56px', sm: 3 }, px: { xs: 0, sm: 3 }, minHeight: '100vh' }}>
       {/* Hide header on mobile storyteller — MobileTopBar is the header there.
           Height: 100dvh in StorytellerHelper needs the viewport to start at y=0. */}
@@ -810,7 +793,7 @@ export default function App() {
               onPress={() => setActiveTab('settings')}
             />
 
-            <Tooltip title={uiLanguage === 'zh' ? '反馈建议' : 'Feedback'}>
+            <Tooltip title={t('feedback')}>
               <IconButton
                 size="small"
                 href="https://forms.gle/3Bk1hkr4pLFhhSPx7"
@@ -820,7 +803,7 @@ export default function App() {
                 <BugReportIcon />
               </IconButton>
             </Tooltip>
-            <Tooltip title={showDescription ? (uiLanguage === 'zh' ? '隐藏说明' : 'Hide description') : (uiLanguage === 'zh' ? '显示说明' : 'Show description')}>
+            <Tooltip title={showDescription ? t('hide_description') : t('show_description')}>
               <IconButton
                 size="small"
                 onClick={() => setShowDescription(v => !v)}
@@ -844,7 +827,7 @@ export default function App() {
             >
               <HistoryIcon sx={{ fontSize: '0.9rem' }} />
               <Typography variant="caption" sx={{ color: 'inherit' }}>
-                {uiLanguage === 'zh' ? '更新日志' : 'Changelog'}
+                {t('changelog')}
               </Typography>
             </Box>
             <Box
@@ -854,7 +837,7 @@ export default function App() {
             >
               <SchoolIcon sx={{ fontSize: '0.9rem' }} />
               <Typography variant="caption" sx={{ color: 'inherit' }}>
-                {uiLanguage === 'zh' ? '新手教程' : 'Tutorial'}
+                {t('tutorial')}
               </Typography>
             </Box>
           </Box>
@@ -1027,12 +1010,12 @@ export default function App() {
             onChange={(_, v) => setActiveTab(v)}
             sx={{ height: 56 }}
           >
-            <BottomNavigationAction value="scripts"     label={uiLanguage === 'zh' ? '剧本' : 'Scripts'}     icon={<DescriptionIcon />}     sx={{ minWidth: 0, px: 0.5, '& .MuiBottomNavigationAction-label': { fontSize: '0.65rem' } }} />
-            <BottomNavigationAction value="characters"  label={uiLanguage === 'zh' ? '角色' : 'Chars'}        icon={<TheaterComedyIcon />}  sx={{ minWidth: 0, px: 0.5, '& .MuiBottomNavigationAction-label': { fontSize: '0.65rem' } }} />
-            <BottomNavigationAction value="storyteller" label={uiLanguage === 'zh' ? '主持' : 'ST'}           icon={<MenuBookIcon />}        sx={{ minWidth: 0, px: 0.5, '& .MuiBottomNavigationAction-label': { fontSize: '0.65rem' } }} />
-            <BottomNavigationAction value="analytics"   label={uiLanguage === 'zh' ? '统计' : 'Stats'}        icon={<QueryStatsIcon />}      sx={{ minWidth: 0, px: 0.5, '& .MuiBottomNavigationAction-label': { fontSize: '0.65rem' } }} />
-            <BottomNavigationAction value="printstudio" label={uiLanguage === 'zh' ? '打印' : 'Print'}        icon={<PrintIcon />}           sx={{ minWidth: 0, px: 0.5, '& .MuiBottomNavigationAction-label': { fontSize: '0.65rem' } }} />
-            <BottomNavigationAction value="settings"    label={uiLanguage === 'zh' ? '设置' : 'Settings'}     icon={<TuneIcon />}            sx={{ minWidth: 0, px: 0.5, '& .MuiBottomNavigationAction-label': { fontSize: '0.65rem' } }} />
+            <BottomNavigationAction value="scripts"     label={t('script_sheet')}     icon={<DescriptionIcon />}     sx={{ minWidth: 0, px: 0.5, '& .MuiBottomNavigationAction-label': { fontSize: '0.65rem' } }} />
+            <BottomNavigationAction value="characters"  label={t('chars')}             icon={<TheaterComedyIcon />}  sx={{ minWidth: 0, px: 0.5, '& .MuiBottomNavigationAction-label': { fontSize: '0.65rem' } }} />
+            <BottomNavigationAction value="storyteller" label={t('tab_st_short')}      icon={<MenuBookIcon />}        sx={{ minWidth: 0, px: 0.5, '& .MuiBottomNavigationAction-label': { fontSize: '0.65rem' } }} />
+            <BottomNavigationAction value="analytics"   label={t('tab_stats_short')}   icon={<QueryStatsIcon />}      sx={{ minWidth: 0, px: 0.5, '& .MuiBottomNavigationAction-label': { fontSize: '0.65rem' } }} />
+            <BottomNavigationAction value="printstudio" label={t('tab_print_short')}   icon={<PrintIcon />}           sx={{ minWidth: 0, px: 0.5, '& .MuiBottomNavigationAction-label': { fontSize: '0.65rem' } }} />
+            <BottomNavigationAction value="settings"    label={t('settings')}          icon={<TuneIcon />}            sx={{ minWidth: 0, px: 0.5, '& .MuiBottomNavigationAction-label': { fontSize: '0.65rem' } }} />
           </BottomNavigation>
         </Paper>
       )}
@@ -1051,7 +1034,7 @@ export default function App() {
 
       {/* AI chat FAB — always shown (runtime key config), hidden on storyteller mobile */}
       {!(activeTab === 'storyteller' && isMobileView) && (
-        <Tooltip title={uiLanguage === 'zh' ? 'AI 助手（实验功能）' : 'AI Assistant (Experimental)'} placement="left">
+        <Tooltip title={t('ai_assistant_experimental')} placement="left">
           <Box sx={{ position: 'fixed', bottom: { xs: 68, sm: 24 }, right: { xs: 12, sm: 24 }, zIndex: 1200 }}>
             <Fab
               size="small"
@@ -1073,7 +1056,7 @@ export default function App() {
               borderRadius: 0.75, lineHeight: 1.4, pointerEvents: 'none',
               letterSpacing: '0.02em',
             }}>
-              {uiLanguage === 'zh' ? '实验' : 'EXP'}
+              {t('exp_short')}
             </Box>
           </Box>
         </Tooltip>
@@ -1087,5 +1070,6 @@ export default function App() {
         callbacks={aiCallbacks}
       />
     </Container>
+    </I18nProvider>
   )
 }

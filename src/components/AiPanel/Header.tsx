@@ -9,6 +9,7 @@ import SettingsIcon      from '@mui/icons-material/Settings'
 import AutoAwesomeIcon   from '@mui/icons-material/AutoAwesome'
 import type { AiPanelVariant } from './types'
 import type { Language } from '../../types'
+import { useT } from '../../context/I18nContext'
 
 type Props = {
   variant: AiPanelVariant
@@ -20,8 +21,8 @@ type Props = {
   language: Language
 }
 
-export function Header({ variant, showSettings, setShowSettings, hasMessages, onClear, onClose, language }: Props) {
-  const zh = language === 'zh'
+export function Header({ variant, showSettings, setShowSettings, hasMessages, onClear, onClose }: Props) {
+  const { t } = useT()
   return (
     <Box sx={{
       px: 1.5, py: 0.75, display: 'flex', alignItems: 'center', gap: 0.5,
@@ -30,14 +31,14 @@ export function Header({ variant, showSettings, setShowSettings, hasMessages, on
     }}>
       <AutoAwesomeIcon sx={{ color: 'primary.main', fontSize: 16, flexShrink: 0 }} />
       <Typography sx={{ flex: 1, fontSize: '0.82rem', fontWeight: 700 }}>
-        {zh ? 'AI 助手' : 'AI Assistant'}
+        {t('ai_assistant')}
       </Typography>
       <Chip
-        label={zh ? '实验性' : 'EXP'}
+        label={t('exp')}
         size="small" color="warning" variant="outlined"
         sx={{ fontSize: '0.55rem', height: 15, '& .MuiChip-label': { px: 0.5 } }}
       />
-      <Tooltip title={zh ? '设置' : 'Settings'}>
+      <Tooltip title={t('settings')}>
         <IconButton
           size="small"
           onClick={() => setShowSettings((v) => !v)}
@@ -47,7 +48,7 @@ export function Header({ variant, showSettings, setShowSettings, hasMessages, on
           <SettingsIcon sx={{ fontSize: 15 }} />
         </IconButton>
       </Tooltip>
-      <Tooltip title={zh ? '清除对话' : 'Clear chat'}>
+      <Tooltip title={t('clear_chat')}>
         <IconButton size="small" onClick={onClear} disabled={!hasMessages} sx={{ p: 0.3 }}>
           <DeleteForeverIcon sx={{ fontSize: 15 }} />
         </IconButton>

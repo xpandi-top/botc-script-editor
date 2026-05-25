@@ -1,24 +1,27 @@
 import type { StorytellerContext } from './useStoryteller'
 import React from 'react'
 import { Drawer, Box, Typography, Button, Tabs, Tab, List, ListItem, ListItemButton, Tooltip, IconButton, useTheme } from '@mui/material'
+import { useT } from '../../context/I18nContext'
+import type { UiKey } from '../../lib/t'
 import CloseIcon from '@mui/icons-material/Close'
 import MenuBookIcon from '@mui/icons-material/MenuBook'
 import { getEffectiveNightOrderFromRegistry, getDisplayName, getIconForCharacter, getAbilityTextForScript, characterById } from '../../catalog'
 import { Divider } from '@mui/material'
 
 const TEAM_ORDER = ['townsfolk', 'outsider', 'minion', 'demon', 'traveler'] as const
-const TEAM_LABELS: Record<string, { en: string; zh: string; light: string; dark: string }> = {
-  townsfolk: { en: 'Townsfolk', zh: '镇民',   light: '#1565c0', dark: '#90caf9' },
-  outsider:  { en: 'Outsider',  zh: '外来者', light: '#0277bd', dark: '#80deea' },
-  minion:    { en: 'Minion',    zh: '爪牙',   light: '#b71c1c', dark: '#ef9a9a' },
-  demon:     { en: 'Demon',     zh: '恶魔',   light: '#7b1fa2', dark: '#ce93d8' },
-  traveler:  { en: 'Traveler',  zh: '旅行者', light: '#2e7d32', dark: '#a5d6a7' },
+const TEAM_LABELS: Record<string, { light: string; dark: string }> = {
+  townsfolk: { light: '#1565c0', dark: '#90caf9' },
+  outsider:  { light: '#0277bd', dark: '#80deea' },
+  minion:    { light: '#b71c1c', dark: '#ef9a9a' },
+  demon:     { light: '#7b1fa2', dark: '#ce93d8' },
+  traveler:  { light: '#2e7d32', dark: '#a5d6a7' },
 }
 
 type ScriptView = 'characters' | 'firstNight' | 'otherNight'
 
 export function LeftScriptPanel({ ctx, inlineMode = false }: { ctx: StorytellerContext; inlineMode?: boolean }) {
   const { language, currentScriptCharacters, activeScriptTitle, activeScriptVersion, setShowScriptPanel, showScriptPanel, scriptOptions, activeScriptSlug } = ctx
+  const { t } = useT()
   const muiTheme = useTheme()
   const isDark = muiTheme.palette.mode === 'dark'
   const pinnedRevisions = scriptOptions?.find((s) => s.slug === activeScriptSlug)?.pinnedRevisions
@@ -52,8 +55,8 @@ export function LeftScriptPanel({ ctx, inlineMode = false }: { ctx: StorytellerC
   const renderNightList = (ids: string[]) => {
     if (!ids.length) return <ListItem sx={{ justifyContent: 'center' }}><Typography variant="body2">—</Typography></ListItem>
     return ids.map((id, i) => {
-      if (id === 'MINION_INFO') return <ListItem key="minion-info" sx={{ justifyContent: 'center' }}><Typography variant="caption" sx={{ fontWeight: 700, color: isDark ? TEAM_LABELS.minion.dark : TEAM_LABELS.minion.light }}>{language === 'zh' ? '—爪牙信息—' : '— Minion Info —'}</Typography></ListItem>
-      if (id === 'DEMON_INFO') return <ListItem key="demon-info" sx={{ justifyContent: 'center' }}><Typography variant="caption" sx={{ fontWeight: 700, color: isDark ? TEAM_LABELS.demon.dark : TEAM_LABELS.demon.light }}>{language === 'zh' ? '—恶魔信息—' : '— Demon Info —'}</Typography></ListItem>
+      if (id === 'MINION_INFO') return <ListItem key="minion-info" sx={{ justifyContent: 'center' }}><Typography variant="caption" sx={{ fontWeight: 700, color: isDark ? TEAM_LABELS.minion.dark : TEAM_LABELS.minion.light }}>{t('minion_info')}</Typography></ListItem>
+      if (id === 'DEMON_INFO') return <ListItem key="demon-info" sx={{ justifyContent: 'center' }}><Typography variant="caption" sx={{ fontWeight: 700, color: isDark ? TEAM_LABELS.demon.dark : TEAM_LABELS.demon.light }}>{t('demon_info')}</Typography></ListItem>
       const icon = getIconForCharacter(id)
       const name = getDisplayName(id, language)
       const isSelected = selectedCharId === id
@@ -83,11 +86,11 @@ export function LeftScriptPanel({ ctx, inlineMode = false }: { ctx: StorytellerC
     <>
       <Box sx={{ p: 1.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid', borderBottomColor: 'divider', flexShrink: 0 }}>
         <Typography variant="h6" sx={{ fontSize: '0.9rem', fontWeight: 700, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          {activeScriptTitle || (language === 'zh' ? '剧本' : 'Script')}{activeScriptVersion && <Typography component="span" variant="caption" sx={{ ml: 0.75, color: 'text.secondary', fontFamily: 'monospace' }}>v{activeScriptVersion}</Typography>}
+          {activeScriptTitle || (t('script'))}{activeScriptVersion && <Typography component="span" variant="caption" sx={{ ml: 0.75, color: 'text.secondary', fontFamily: 'monospace' }}>v{activeScriptVersion}</Typography>}
         </Typography>
         {!inlineMode && (
           <Button size="small" variant="outlined" onClick={() => setShowScriptPanel(false)} startIcon={<CloseIcon fontSize="small" />}>
-            {language === 'zh' ? '关闭' : 'Close'}
+            {t('close')}
           </Button>
         )}
       </Box>
@@ -95,11 +98,11 @@ export function LeftScriptPanel({ ctx, inlineMode = false }: { ctx: StorytellerC
       <Box sx={{ display: 'flex', alignItems: 'center', px: 1, borderBottom: '1px solid', borderBottomColor: 'divider', flexShrink: 0 }}>
         <Tabs value={view} onChange={(_, v) => setView(v)} sx={{ flex: 1 }} variant="fullWidth">
 
-          <Tab label={language === 'zh' ? '角色' : 'Chars'} value="characters" sx={{ fontSize: '0.78rem', minWidth: 0, px: 0.5 }} />
-          <Tab label={language === 'zh' ? '第一夜' : 'First'} value="firstNight" sx={{ fontSize: '0.78rem', minWidth: 0, px: 0.5 }} />
-          <Tab label={language === 'zh' ? '其他夜' : 'Other'} value="otherNight" sx={{ fontSize: '0.78rem', minWidth: 0, px: 0.5 }} />
+          <Tab label={t('chars')} value="characters" sx={{ fontSize: '0.78rem', minWidth: 0, px: 0.5 }} />
+          <Tab label={t('first')} value="firstNight" sx={{ fontSize: '0.78rem', minWidth: 0, px: 0.5 }} />
+          <Tab label={t('other')} value="otherNight" sx={{ fontSize: '0.78rem', minWidth: 0, px: 0.5 }} />
         </Tabs>
-        <Tooltip title={showAbilities ? (language === 'zh' ? '隐藏能力' : 'Hide Abilities') : (language === 'zh' ? '显示能力' : 'Show Abilities')}>
+        <Tooltip title={showAbilities ? (t('hide_abilities')) : (t('show_abilities'))}>
           <IconButton size="small" onClick={() => setShowAbilities((v) => !v)}
             sx={{ ml: 0.5, color: showAbilities ? 'primary.main' : 'text.secondary',
               bgcolor: showAbilities ? 'action.selected' : 'transparent' }}>
@@ -126,7 +129,7 @@ export function LeftScriptPanel({ ctx, inlineMode = false }: { ctx: StorytellerC
                     <Box key={team}>
                       {si > 0 && <Divider sx={{ my: 0.75 }} />}
                       <Typography variant="caption" sx={{ display: 'block', fontWeight: 700, px: 1, py: 0.5, color: isDark ? info.dark : info.light, letterSpacing: '0.06em', textTransform: 'uppercase', fontSize: '0.7rem' }}>
-                        {language === 'zh' ? info.zh : info.en} ({byTeam[team].length})
+                        {t(team as UiKey)} ({byTeam[team].length})
                       </Typography>
                       <List dense sx={{ py: 0 }}>
                         {byTeam[team].map((id) => {

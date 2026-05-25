@@ -3,6 +3,7 @@ import CloseIcon from '@mui/icons-material/Close'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 // @ts-ignore — Vite ?raw import
 import raw from '../../docs/CHANGELOG.md?raw'
+import { useT } from '../context/I18nContext'
 
 interface Props {
   onClose: () => void
@@ -120,7 +121,8 @@ function ChangelogContent() {
 
 // ── Page component ────────────────────────────────────────────────────────────
 
-export function ChangelogPage({ onClose, language }: Props) {
+export function ChangelogPage({ onClose }: Props) {
+  const { t } = useT()
   return (
     <Box sx={{
       position: 'fixed', inset: 0, zIndex: 1400,
@@ -134,7 +136,7 @@ export function ChangelogPage({ onClose, language }: Props) {
           <ArrowBackIcon fontSize="small" />
         </IconButton>
         <Typography variant="subtitle1" sx={{ fontWeight: 700, flex: 1 }}>
-          {language === 'zh' ? '更新日志' : 'Changelog'}
+          {t('changelog')}
         </Typography>
         <IconButton size="small" onClick={onClose}>
           <CloseIcon fontSize="small" />

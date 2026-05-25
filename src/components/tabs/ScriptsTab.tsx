@@ -34,6 +34,7 @@ import type {
   ScriptFolder,
 } from '../../types'
 import type { PrintOptions } from '../PrintOptionsDialog'
+import { useT } from '../../context/I18nContext'
 
 type Props = {
   scripts: EditableScript[]
@@ -118,6 +119,7 @@ export function ScriptsTab({
   isCurrentBuiltIn,
   customChars,
 }: Props) {
+  const { t } = useT()
   const { isMobile } = useBreakpoint()
   const [listOpenDesktop, setListOpenDesktop] = useState(true)
   const [listOpenMobile, setListOpenMobile] = useState(false)
@@ -197,7 +199,7 @@ export function ScriptsTab({
           } catch {
             // Firebase unavailable — fall back to raw encoded in URL
             // (loadable via the direct-decode path in useShareParam)
-            setShareError(zh ? '无法创建短链接，已生成长链接。' : 'Short link failed — using direct link instead.')
+            setShareError(t('short_link_failed_using_direct_link_instead'))
             setShareUrl(buildShareUrl('ss', encoded))
           }
           setShareLoading(false)
@@ -213,9 +215,10 @@ export function ScriptsTab({
   const noteRef = useRef<HTMLTextAreaElement | null>(null)
   const [customTagInput, setCustomTagInput] = useState('')
 
-  const zh = uiLanguage === 'zh'
-  const tagLabel = (key: string): string =>
-    SCRIPT_TAG_META[key]?.[zh ? 'zh' : 'en'] ?? key
+  const tagLabel = (key: string): string => {
+    const meta = SCRIPT_TAG_META[key]
+    return meta ? (uiLanguage === 'zh' ? meta.zh : meta.en) : key
+  }
   const tagIcon = (key: string): React.ElementType | null =>
     SCRIPT_TAG_META[key]?.Icon ?? null
 
@@ -315,7 +318,7 @@ export function ScriptsTab({
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2, flexWrap: 'wrap' }}>
               {browseMode === 'masonry' ? (
                 /* Back to card gallery */
-                <Tooltip title={zh ? '返回卡片视图' : 'Back to card view'}>
+                <Tooltip title={t('back_to_card_view')}>
                   <IconButton size="small" onClick={() => setMasonryDetailOpen(false)}>
                     <ArrowBackIcon fontSize="small" />
                   </IconButton>
@@ -337,14 +340,14 @@ export function ScriptsTab({
                   <DownloadIcon fontSize="small" />
                 </IconButton>
               </Tooltip>
-              <Tooltip title={zh ? '复制分享链接' : 'Copy share link'}>
+              <Tooltip title={t('copy_share_link')}>
                 <IconButton size="small" onClick={openShareDialog}>
                   <ShareIcon fontSize="small" />
                 </IconButton>
               </Tooltip>
               <Tooltip title={showWakeOrderPreview
-                ? (zh ? '隐藏夜间顺序' : 'Hide night order')
-                : (zh ? '显示夜间顺序' : 'Show night order')}>
+                ? (t('hide_night_order'))
+                : (t('show_night_order'))}>
                 <IconButton size="small"
                   onClick={() => setShowWakeOrderPreview((c) => !c)}
                   color={showWakeOrderPreview ? 'primary' : 'default'}>
@@ -352,8 +355,8 @@ export function ScriptsTab({
                 </IconButton>
               </Tooltip>
               <Tooltip title={viewColumns === 2
-                ? (zh ? '单列视图' : 'Single column')
-                : (zh ? '双列视图' : 'Two columns')}>
+                ? (t('single_column'))
+                : (t('two_columns'))}>
                 <IconButton size="small" onClick={() => setViewColumns((v) => (v === 1 ? 2 : 1))}>
                   {viewColumns === 2
                     ? <ViewListIcon fontSize="small" />
@@ -361,8 +364,8 @@ export function ScriptsTab({
                 </IconButton>
               </Tooltip>
               <Tooltip title={hideAbility
-                ? (zh ? '显示能力描述' : 'Show ability text')
-                : (zh ? '隐藏能力描述' : 'Hide ability text')}>
+                ? (t('show_ability_text'))
+                : (t('hide_ability_text'))}>
                 <IconButton size="small"
                   onClick={() => setHideAbility((v) => !v)}
                   color={hideAbility ? 'primary' : 'default'}>
@@ -372,14 +375,14 @@ export function ScriptsTab({
               {saveStatus && <Typography variant="body2" color="text.secondary">{saveStatus}</Typography>}
               <Box sx={{ flex: 1 }} />
               <FormControl size="small" sx={{ minWidth: 72, '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' }, '& .MuiInputLabel-root': { fontSize: '0.8rem' } }}>
-                <InputLabel>{zh ? '语言' : 'Lang'}</InputLabel>
-                <Select value={uiLanguage} label={zh ? '语言' : 'Lang'}
+                <InputLabel>{t('lang')}</InputLabel>
+                <Select value={uiLanguage} label={t('lang')}
                   onChange={(e) => onLanguageChange(e.target.value as Language)}>
                   <MenuItem value="en">EN</MenuItem>
                   <MenuItem value="zh">中文</MenuItem>
                 </Select>
               </FormControl>
-              <Tooltip title={zh ? '导出 PDF' : 'Print PDF'}>
+              <Tooltip title={t('print_pdf')}>
                 <IconButton size="small" onClick={onPrintClick}>
                   <PrintIcon fontSize="small" />
                 </IconButton>
@@ -413,7 +416,7 @@ export function ScriptsTab({
                       )
                     })}
                     <Box component="input"
-                      placeholder={zh ? '自定义标签…' : 'Custom tag…'}
+                      placeholder={t('custom_tag')}
                       value={customTagInput}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCustomTagInput(e.target.value)}
                       onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -428,12 +431,12 @@ export function ScriptsTab({
                         '&:focus': { opacity: 1, borderColor: 'primary.main', borderStyle: 'solid' },
                         '&::placeholder': { color: 'text.disabled' },
                       }} />
-                    <Tooltip title={zh ? (hasNote ? '查看备注' : '添加备注') : (hasNote ? 'View note' : 'Add note')}>
+                    <Tooltip title={hasNote ? t('view_note') : t('add_note')}>
                       <Chip
                         icon={<NoteAltIcon sx={{ fontSize: '0.85rem !important' }} />}
                         label={hasNote
-                          ? (noteOpen ? (zh ? '收起' : 'Collapse') : note.split('\n')[0].slice(0, 40) + (note.length > 40 ? '…' : ''))
-                          : (zh ? '添加备注' : 'Add note')}
+                          ? (noteOpen ? (t('collapse')) : note.split('\n')[0].slice(0, 40) + (note.length > 40 ? '…' : ''))
+                          : (t('add_note'))}
                         size="small"
                         variant={hasNote ? 'filled' : 'outlined'}
                         color={hasNote ? 'info' : 'default'}
@@ -444,14 +447,14 @@ export function ScriptsTab({
                   <Collapse in={noteOpen} onEntered={() => noteRef.current?.focus()}>
                     <Box sx={{ border: '1px solid', borderColor: 'info.main', borderRadius: 1.5, p: 1, bgcolor: 'background.paper' }}>
                       <TextField inputRef={noteRef} fullWidth multiline minRows={2} maxRows={8} size="small"
-                        placeholder={zh ? '在此记录剧本备注（仅作者可见）…' : 'Script notes — for your own reference…'}
+                        placeholder={t('script_notes_for_your_own_reference')}
                         value={note}
                         onChange={(e) => updateActiveScript((s) => ({ ...s, notes: e.target.value }))}
                         variant="standard"
                         slotProps={{ input: { disableUnderline: true, sx: { fontSize: '0.82rem' } } }} />
                       <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0.5 }}>
                         <Button size="small" onClick={() => setNoteOpen(false)} sx={{ textTransform: 'none', fontSize: '0.72rem' }}>
-                          {zh ? '收起' : 'Close'}
+                          {t('close')}
                         </Button>
                       </Box>
                     </Box>
@@ -542,12 +545,12 @@ export function ScriptsTab({
 
       {/* ── Script share dialog ── */}
       <Dialog open={shareDialogOpen} onClose={() => setShareDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>{zh ? '分享剧本' : 'Share Script'}</DialogTitle>
+        <DialogTitle>{t('share_script')}</DialogTitle>
         <DialogContent>
           {shareLoading && (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 1 }}>
               <CircularProgress size={20} />
-              <Typography variant="body2">{zh ? '生成链接…' : 'Generating link…'}</Typography>
+              <Typography variant="body2">{t('generating_link')}</Typography>
             </Box>
           )}
           {shareError && <Alert severity="warning" sx={{ mb: 1 }}>{shareError}</Alert>}
@@ -555,11 +558,11 @@ export function ScriptsTab({
             <Box sx={{ mt: 1 }}>
               {isCurrentBuiltIn ? (
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                  {zh ? '此链接会直接打开此剧本。链接永久有效。' : 'This link opens this script directly. Link never expires.'}
+                  {t('this_link_opens_this_script_directly_link_never_expires')}
                 </Typography>
               ) : (
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                  {zh ? '此链接包含剧本的完整副本，24小时后失效。' : 'This link contains a full copy of the script. Valid for 24 hours.'}
+                  {t('this_link_contains_a_full_copy_of_the_script_valid_for_24_ho')}
                 </Typography>
               )}
               <TextField
@@ -581,11 +584,11 @@ export function ScriptsTab({
                   .catch(() => { setShareCopied(true); setTimeout(() => { setShareCopied(false); setShareDialogOpen(false) }, 1800) })
               }}
             >
-              {shareCopied ? (zh ? '已复制！' : 'Copied!') : (zh ? '复制链接' : 'Copy Link')}
+              {shareCopied ? (t('share_log_copied')) : (t('copy_link'))}
             </Button>
           )}
           <Button onClick={() => setShareDialogOpen(false)}>
-            {zh ? '关闭' : 'Close'}
+            {t('close')}
           </Button>
         </DialogActions>
       </Dialog>

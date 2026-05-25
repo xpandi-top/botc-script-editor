@@ -16,6 +16,7 @@ import { MasonryScriptCard } from './MasonryScriptCard'
 import { FolderCard } from './FolderCard'
 import { SCRIPT_TAG_META, SCRIPT_TAGS } from '../tabs/ScriptsTab.constants'
 import type { EditableScript, Language, ScriptFolder } from '../../types'
+import { useT } from '../../context/I18nContext'
 
 const OFFICIAL = new Set(['tb', 'bmr', 'snv'])
 
@@ -64,6 +65,7 @@ export function ScriptsMasonryGrid({
   deleteFolder,
   moveScriptToFolder,
 }: Props) {
+  const { t } = useT()
   const zh = language === 'zh'
   const [query, setQuery]               = useState('')
   const [tagFilter, setTagFilter]       = useState<string | null>(null)
@@ -179,7 +181,7 @@ export function ScriptsMasonryGrid({
         bgcolor: 'background.paper',
       }}>
         {activeFolder && (
-          <Tooltip title={zh ? '返回' : 'Back'}>
+          <Tooltip title={t('back')}>
             <IconButton size="small" onClick={() => setFolderFilter(null)}>
               <ArrowBackIcon fontSize="small" />
             </IconButton>
@@ -188,7 +190,7 @@ export function ScriptsMasonryGrid({
 
         <TextField
           size="small"
-          placeholder={zh ? '搜索剧本、作者、角色…' : 'Search scripts, author, characters…'}
+          placeholder={t('search_scripts_author_characters')}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           sx={{ flex: 1, maxWidth: 520, '& .MuiInputBase-root': { borderRadius: 6 } }}
@@ -217,18 +219,18 @@ export function ScriptsMasonryGrid({
         )}
         {isFilteringNow && !activeFolder && (
           <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap' }}>
-            {total} {zh ? '个结果' : 'results'}
+            {total} {t('results_suffix')}
           </Typography>
         )}
 
         <Box sx={{ flex: 1 }} />
 
-        <Tooltip title={zh ? '切换列表视图' : 'Switch to list view'}>
+        <Tooltip title={t('switch_to_list_view')}>
           <IconButton size="small" onClick={() => onBrowseModeChange('list')}>
             <ViewListIcon fontSize="small" />
           </IconButton>
         </Tooltip>
-        <Tooltip title={zh ? '导入 JSON' : 'Import JSON'}>
+        <Tooltip title={t('import_json')}>
           <IconButton size="small" component="label">
             <FileOpenIcon fontSize="small" />
             <input type="file" accept=".json" hidden onChange={(e) => {
@@ -246,7 +248,7 @@ export function ScriptsMasonryGrid({
           borderBottom: '1px solid', borderColor: 'divider', flexShrink: 0,
           bgcolor: 'background.paper',
         }}>
-          <Chip size="small" label={zh ? '全部' : 'All'}
+          <Chip size="small" label={t('all')}
             variant={tagFilter === null ? 'filled' : 'outlined'}
             color={tagFilter === null ? 'primary' : 'default'}
             onClick={() => setTagFilter(null)} sx={chipSx} />
@@ -271,7 +273,7 @@ export function ScriptsMasonryGrid({
         {total === 0 && !(!isFilteringNow && scriptFolders.length > 0) ? (
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 140 }}>
             <Typography color="text.secondary">
-              {zh ? '无结果' : 'No matches'}
+              {t('no_matches')}
             </Typography>
           </Box>
         ) : isFilteringNow || folderFilter ? (
@@ -300,7 +302,7 @@ export function ScriptsMasonryGrid({
 
             {/* Official */}
             {official.length > 0 && (
-              <GridSection label={zh ? '官方' : 'Official'} count={official.length}>
+              <GridSection label={t('official')} count={official.length}>
                 <Box sx={GRID_SX}>
                   {official.map((s) => (
                     <MasonryScriptCard key={s.slug} script={s}
@@ -317,8 +319,8 @@ export function ScriptsMasonryGrid({
 
             {/* Community — folders + scripts; community scripts can move to community folders */}
             {communityByFolder && (community.length > 0 || communityByFolder.byFolder.length > 0) && (
-              <GridSection label={zh ? '社区' : 'Community'} count={community.length}
-                zh={zh} onAddFolder={() => handleCreateFolder('community')}>
+              <GridSection label={t('community')} count={community.length}
+                onAddFolder={() => handleCreateFolder('community')}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                   {communityByFolder.byFolder.length > 0 && (
                     <Box sx={GRID_SX}>
@@ -348,7 +350,7 @@ export function ScriptsMasonryGrid({
                   )}
                   {communityByFolder.byFolder.length === 0 && communityByFolder.unfoldered.length === 0 && community.length === 0 && (
                     <Typography sx={{ fontSize: '0.78rem', color: 'text.disabled', fontStyle: 'italic' }}>
-                      {zh ? '暂无社区剧本' : 'No community scripts.'}
+                      {t('no_community_scripts')}
                     </Typography>
                   )}
                 </Box>
@@ -357,8 +359,8 @@ export function ScriptsMasonryGrid({
 
             {/* DIY: folder tiles + unfoldered scripts — always shown so add buttons are accessible */}
             {diyByFolder && (
-              <GridSection label={zh ? '自制' : 'DIY'} count={diy.length}
-                zh={zh} onAddFolder={() => handleCreateFolder('diy')} onAddScript={createNewScript}>
+              <GridSection label={t('diy')} count={diy.length}
+                onAddFolder={() => handleCreateFolder('diy')} onAddScript={createNewScript}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
 
                   {/* Folder tiles */}
@@ -386,7 +388,7 @@ export function ScriptsMasonryGrid({
                           color: 'text.disabled', fontWeight: 600,
                           textTransform: 'uppercase', letterSpacing: '0.07em', fontSize: '0.65rem',
                         }}>
-                          {zh ? '未分类' : 'Uncategorized'}
+                          {t('uncategorized')}
                         </Typography>
                       )}
                       <Box sx={GRID_SX}>
@@ -408,7 +410,7 @@ export function ScriptsMasonryGrid({
                   {/* Empty state */}
                   {diyByFolder.byFolder.length === 0 && diyByFolder.unfoldered.length === 0 && (
                     <Typography sx={{ fontSize: '0.78rem', color: 'text.disabled', fontStyle: 'italic' }}>
-                      {zh ? '暂无自制剧本，点击上方按钮新建' : 'No custom scripts yet — use the buttons above to get started.'}
+                      {t('no_custom_scripts_yet_use_the_buttons_above_to_get_started')}
                     </Typography>
                   )}
                 </Box>
@@ -426,14 +428,14 @@ export function ScriptsMasonryGrid({
         fullWidth
       >
         <DialogTitle sx={{ fontSize: '1rem', pb: 1 }}>
-          {zh ? '新建文件夹' : 'New folder'}
+          {t('new_folder')}
         </DialogTitle>
         <DialogContent sx={{ pt: '8px !important' }}>
           <TextField
             autoFocus
             fullWidth
             size="small"
-            placeholder={zh ? '文件夹名称…' : 'Folder name…'}
+            placeholder={t('folder_name')}
             value={newFolderName}
             onChange={(e) => setNewFolderName(e.target.value)}
             onKeyDown={(e) => {
@@ -444,11 +446,11 @@ export function ScriptsMasonryGrid({
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setNewFolderOpen(false)} size="small">
-            {zh ? '取消' : 'Cancel'}
+            {t('cancel')}
           </Button>
           <Button onClick={commitNewFolder} size="small" variant="contained"
             disabled={!newFolderName.trim()}>
-            {zh ? '创建' : 'Create'}
+            {t('create')}
           </Button>
         </DialogActions>
       </Dialog>
@@ -458,10 +460,11 @@ export function ScriptsMasonryGrid({
 
 // ── Section header ─────────────────────────────────────────────────────────────
 
-function GridSection({ label, count, children, onAddFolder, onAddScript, zh }: {
+function GridSection({ label, count, children, onAddFolder, onAddScript }: {
   label: string; count: number; children: React.ReactNode
-  onAddFolder?: () => void; onAddScript?: () => void; zh?: boolean
+  onAddFolder?: () => void; onAddScript?: () => void
 }) {
+  const { t } = useT()
   return (
     <Box>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
@@ -478,14 +481,14 @@ function GridSection({ label, count, children, onAddFolder, onAddScript, zh }: {
           <Button size="small" startIcon={<CreateNewFolderIcon sx={{ fontSize: '0.9rem !important' }} />}
             onClick={onAddFolder}
             sx={{ fontSize: '0.7rem', py: '2px', px: 1, minWidth: 0, textTransform: 'none', color: 'text.secondary', '&:hover': { color: 'primary.main' } }}>
-            {zh ? '新建文件夹' : 'Add folder'}
+            {t('add_folder')}
           </Button>
         )}
         {onAddScript && (
           <Button size="small" startIcon={<AddIcon sx={{ fontSize: '0.9rem !important' }} />}
             onClick={onAddScript}
             sx={{ fontSize: '0.7rem', py: '2px', px: 1, minWidth: 0, textTransform: 'none', color: 'text.secondary', '&:hover': { color: 'primary.main' } }}>
-            {zh ? '新建剧本' : 'Add script'}
+            {t('add_script')}
           </Button>
         )}
       </Box>

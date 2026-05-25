@@ -5,10 +5,12 @@ import { getEffectiveNightOrderFromRegistry, getDisplayName, getIconForCharacter
 import { Box, Typography, Button, Tabs, Tab, Paper, List, ListItem, ListItemIcon, ListItemText, IconButton, Tooltip } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import MenuBookIcon from '@mui/icons-material/MenuBook'
+import { useT } from '../../../context/I18nContext'
 
 type ScriptView = 'characters' | 'firstNight' | 'otherNight'
 
 export function RightPopupScript({ ctx }: { ctx: StorytellerContext }) {
+  const { t } = useT()
   const {
     language, currentScriptCharacters, activeScriptTitle, activeScriptVersion, days,
     setActiveRightPopup, text, scriptOptions, activeScriptSlug,
@@ -45,7 +47,7 @@ export function RightPopupScript({ ctx }: { ctx: StorytellerContext }) {
       if (id === 'MINION_INFO') return (
         <ListItem key="minion-info" sx={{ py: 0.5 }}>
           <ListItemText
-            primary={language === 'zh' ? '——爪牙信息——' : '— Minion Info —'}
+            primary={t('minion_info')}
             primaryTypographyProps={{ variant: 'caption', color: 'warning.main', fontWeight: 600, textAlign: 'center' }}
           />
         </ListItem>
@@ -53,7 +55,7 @@ export function RightPopupScript({ ctx }: { ctx: StorytellerContext }) {
       if (id === 'DEMON_INFO') return (
         <ListItem key="demon-info" sx={{ py: 0.5 }}>
           <ListItemText
-            primary={language === 'zh' ? '——恶魔信息——' : '— Demon Info —'}
+            primary={t('demon_info')}
             primaryTypographyProps={{ variant: 'caption', color: 'error', fontWeight: 600, textAlign: 'center' }}
           />
         </ListItem>
@@ -98,11 +100,11 @@ export function RightPopupScript({ ctx }: { ctx: StorytellerContext }) {
           variant="fullWidth"
           sx={{ flex: 1, minHeight: 36, '& .MuiTab-root': { minHeight: 36, fontSize: '0.75rem' } }}
         >
-          <Tab label={language === 'zh' ? '角色列表' : 'Characters'} value="characters" />
-          <Tab label={language === 'zh' ? '第一夜顺序' : 'First Night'} value="firstNight" />
-          <Tab label={language === 'zh' ? '其他夜晚顺序' : 'Other Nights'} value="otherNight" />
+          <Tab label={t('characters')} value="characters" />
+          <Tab label={t('first_night')} value="firstNight" />
+          <Tab label={t('other_nights')} value="otherNight" />
         </Tabs>
-        <Tooltip title={showAbilities ? (language === 'zh' ? '隐藏能力' : 'Hide Abilities') : (language === 'zh' ? '显示能力' : 'Show Abilities')}>
+        <Tooltip title={showAbilities ? (t('hide_abilities')) : (t('show_abilities'))}>
           <IconButton size="small" onClick={() => setShowAbilities((v) => !v)}
             sx={{ mx: 0.5, color: showAbilities ? 'primary.main' : 'text.secondary',
               bgcolor: showAbilities ? 'action.selected' : 'transparent' }}>

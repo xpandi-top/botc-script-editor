@@ -194,13 +194,13 @@ export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSav
         {/* ID field — new chars only */}
         {!editingChar && (
           <TextField size="small" fullWidth
-            label={uiLanguage === 'zh' ? '角色 ID（唯一标识）' : 'Character ID'}
+            label={t('character_id_unique_key')}
             value={draftId}
             onChange={(e) => { idManuallyEdited.current = true; setDraftId(e.target.value) }}
             error={Boolean(draftId) && !/^[a-z0-9_-]+$/.test(draftId)}
             helperText={(() => {
-              if (!draftId) return uiLanguage === 'zh' ? '留空则自动生成' : 'Leave blank to auto-generate'
-              if (!/^[a-z0-9_-]+$/.test(draftId)) return uiLanguage === 'zh' ? '只允许小写字母、数字、-、_' : 'Only lowercase letters, digits, - _'
+              if (!draftId) return t('leave_blank_autogenerate')
+              if (!/^[a-z0-9_-]+$/.test(draftId)) return t('only_lowercase_letters_digits')
               return ''
             })()}
           />

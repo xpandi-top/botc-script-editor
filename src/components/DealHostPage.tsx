@@ -36,6 +36,8 @@ import {
 } from '../lib/firebaseDeal'
 import { getDisplayName, getIconForCharacter } from '../catalog'
 import type { NewGameConfig } from './StorytellerSub/types'
+import { useT } from '../context/I18nContext'
+import { makeTpl } from '../lib/t'
 
 interface Props {
   sessionId: string
@@ -60,7 +62,8 @@ export function DealHostPage({ sessionId, hostToken, language, onApplyToGame, on
   const [copied, setCopied] = useState(false)
   const [closing, setClosing] = useState(false)
 
-  const zh = language === 'zh'
+  const { t } = useT()
+  const tpl = makeTpl(language)
 
   // Load session metadata once
   useEffect(() => {
@@ -188,7 +191,7 @@ export function DealHostPage({ sessionId, hostToken, language, onApplyToGame, on
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
         <AutoStoriesIcon color="primary" />
         <Typography variant="h6" sx={{ flex: 1, fontWeight: 700 }}>
-          {zh ? '发牌控制台' : 'Deal Dashboard'}
+          {t('deal_dashboard')}
         </Typography>
         {onClose && (
           <IconButton size="small" onClick={onClose}><CloseIcon /></IconButton>
@@ -199,27 +202,27 @@ export function DealHostPage({ sessionId, hostToken, language, onApplyToGame, on
       <Paper variant="outlined" sx={{ p: 1.5, borderRadius: 2, display: 'flex', flexWrap: 'wrap', gap: 1, alignItems: 'center' }}>
         <Chip
           size="small"
-          label={`${claimedCount}/${totalCount} ${zh ? '已认领' : 'claimed'}`}
+          label={`${claimedCount}/${totalCount} ${t('claimed')}`}
           color={claimedCount === totalCount ? 'success' : 'default'}
         />
         {session?.status === 'closed' && (
-          <Chip size="small" label={zh ? '已关闭' : 'Closed'} color="warning" />
+          <Chip size="small" label={t('closed')} color="warning" />
         )}
         <Box sx={{ flex: 1 }} />
-        <Tooltip title={copied ? (zh ? '已复制！' : 'Copied!') : (zh ? '复制玩家链接' : 'Copy player link')}>
+        <Tooltip title={copied ? (t('share_log_copied')) : (t('copy_player_link'))}>
           <Button size="small" startIcon={<ContentCopyIcon />} onClick={handleCopyLink} variant="outlined">
-            {copied ? (zh ? '已复制' : 'Copied') : (zh ? '复制链接' : 'Copy Link')}
+            {copied ? (t('copied')) : (t('copy_link'))}
           </Button>
         </Tooltip>
-        <Tooltip title={showFaceUp ? (zh ? '隐藏角色' : 'Hide characters') : (zh ? '显示角色' : 'Show characters')}>
+        <Tooltip title={showFaceUp ? (t('hide_characters')) : (t('show_characters'))}>
           <IconButton size="small" onClick={() => setShowFaceUp(v => !v)}>
             {showFaceUp ? <VisibilityOffIcon /> : <VisibilityIcon />}
           </IconButton>
         </Tooltip>
         {session?.status === 'open' && (
-          <Tooltip title={zh ? '关闭发牌（玩家将无法再认领）' : 'Close deal (no more claims)'}>
+          <Tooltip title={t('close_deal_no_more_claims')}>
             <Button size="small" color="warning" startIcon={<LockIcon />} onClick={handleClose} disabled={closing}>
-              {zh ? '关闭' : 'Close'}
+              {t('close')}
             </Button>
           </Tooltip>
         )}
@@ -266,7 +269,7 @@ export function DealHostPage({ sessionId, hostToken, language, onApplyToGame, on
               )}
               {claimed && (
                 <Typography variant="caption" sx={{ fontSize: '0.6rem', lineHeight: 1.2, textAlign: 'center', maxWidth: 80, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {card.assignedName ?? card.claimedByName ?? (zh ? '匿名' : 'Anon')}
+                  {card.assignedName ?? card.claimedByName ?? (t('anon'))}
                 </Typography>
               )}
               {card.assignedSeat != null && (
@@ -302,12 +305,12 @@ export function DealHostPage({ sessionId, hostToken, language, onApplyToGame, on
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
                   {selectedCard.claimedByToken
-                    ? `${zh ? '玩家' : 'Player'}: ${selectedCard.claimedByName ?? (zh ? '匿名' : 'Anonymous')}`
-                    : (zh ? '未认领' : 'Unclaimed')}
+                    ? `${t('player_section')}: ${selectedCard.claimedByName ?? (t('anonymous'))}`
+                    : (t('unclaimed'))}
                 </Typography>
                 {selectedCard.claimedBySeat != null && (
                   <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-                    {zh ? `玩家填写座位 #${selectedCard.claimedBySeat}` : `Player entered seat #${selectedCard.claimedBySeat}`}
+                    {tpl('player_entered_seat', selectedCard.claimedBySeat)}
                   </Typography>
                 )}
               </Box>
@@ -316,7 +319,7 @@ export function DealHostPage({ sessionId, hostToken, language, onApplyToGame, on
             <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-end', flexWrap: 'wrap' }}>
               <TextField
                 size="small"
-                label={zh ? '座位号' : 'Seat #'}
+                label={t('seat')}
                 value={editSeat}
                 onChange={e => setEditSeat(e.target.value.replace(/\D/g, ''))}
                 sx={{ width: 90 }}
@@ -324,7 +327,7 @@ export function DealHostPage({ sessionId, hostToken, language, onApplyToGame, on
               />
               <TextField
                 size="small"
-                label={zh ? '玩家名' : 'Player name'}
+                label={t('player_name')}
                 value={editName}
                 onChange={e => setEditName(e.target.value)}
                 sx={{ flex: 1, minWidth: 120 }}
@@ -337,7 +340,7 @@ export function DealHostPage({ sessionId, hostToken, language, onApplyToGame, on
                 disabled={saving}
                 startIcon={saving ? <CircularProgress size={14} /> : <CheckIcon />}
               >
-                {zh ? '保存' : 'Save'}
+                {t('save')}
               </Button>
               {selectedCard.claimedByToken ? (
                 <Button
@@ -348,7 +351,7 @@ export function DealHostPage({ sessionId, hostToken, language, onApplyToGame, on
                   disabled={saving}
                   startIcon={<PersonOffIcon fontSize="small" />}
                 >
-                  {zh ? '设为未认领' : 'Set Unclaimed'}
+                  {t('set_unclaimed')}
                 </Button>
               ) : (
                 <Button
@@ -359,7 +362,7 @@ export function DealHostPage({ sessionId, hostToken, language, onApplyToGame, on
                   disabled={saving}
                   startIcon={<PersonAddIcon fontSize="small" />}
                 >
-                  {zh ? '设为已认领' : 'Set Claimed'}
+                  {t('set_claimed')}
                 </Button>
               )}
             </Box>
@@ -373,9 +376,7 @@ export function DealHostPage({ sessionId, hostToken, language, onApplyToGame, on
           <Divider />
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
             <Typography variant="caption" color="text.secondary">
-              {zh
-                ? `可应用 ${cards.filter(c => (c.assignedSeat ?? c.claimedBySeat) != null).length}/${totalCount} 座位`
-                : `${cards.filter(c => (c.assignedSeat ?? c.claimedBySeat) != null).length}/${totalCount} seats ready`}
+              {tpl('seats_ready_n_of_m', cards.filter(c => (c.assignedSeat ?? c.claimedBySeat) != null).length, totalCount)}
             </Typography>
             <Button
               variant="contained"
@@ -383,7 +384,7 @@ export function DealHostPage({ sessionId, hostToken, language, onApplyToGame, on
               onClick={handleApplyToGame}
               disabled={cards.filter(c => (c.assignedSeat ?? c.claimedBySeat) != null).length === 0}
             >
-              {zh ? '应用并开始游戏' : 'Apply & Start Game'}
+              {t('apply_start_game')}
             </Button>
           </Box>
         </>

@@ -22,7 +22,7 @@ import type { GameRecord } from '../StorytellerSub/types'
 import type { Language } from '../../types'
 import { StudioShell } from '../AnalyticsStudio/StudioShell'
 import { RecordFormDialog } from '../AnalyticsStudio/RecordFormDialog'
-import { makeT } from '../../lib/t'
+import { useT } from '../../context/I18nContext'
 
 // ── Storage helpers ───────────────────────────────────────────────
 
@@ -57,7 +57,7 @@ export function AnalyticsTab({ language, onLanguageChange, sharedRecords: shared
   onClearSharedRecords?: () => void
 }) {
   const zh = language === 'zh'
-  const t = makeT(language)
+  const { t } = useT()
 
   const [records, setRecords] = useState<GameRecord[]>(() => readStorage().records)
   const [editingRecord, setEditingRecord] = useState<GameRecord | null>(null)
@@ -371,8 +371,8 @@ export function AnalyticsTab({ language, onLanguageChange, sharedRecords: shared
         </Tooltip>
         {onLanguageChange && (
           <FormControl size="small" sx={{ minWidth: 72, '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' }, '& .MuiInputLabel-root': { fontSize: '0.8rem' } }}>
-            <InputLabel>{zh ? '语言' : 'Lang'}</InputLabel>
-            <Select value={language} label={zh ? '语言' : 'Lang'} onChange={(e) => onLanguageChange(e.target.value as Language)}>
+            <InputLabel>{t('lang')}</InputLabel>
+            <Select value={language} label={t('lang')} onChange={(e) => onLanguageChange(e.target.value as Language)}>
               <MenuItem value="en">EN</MenuItem>
               <MenuItem value="zh">中文</MenuItem>
             </Select>
@@ -392,18 +392,18 @@ export function AnalyticsTab({ language, onLanguageChange, sharedRecords: shared
         </IconButton>
         <Menu anchorEl={exportMenuAnchor} open={Boolean(exportMenuAnchor)} onClose={() => setExportMenuAnchor(null)}>
           <MenuItem onClick={() => { exportRecords(); setExportMenuAnchor(null) }}>
-            {zh ? '导出记录 (JSON)' : 'Export Records (JSON)'}
+            {t('export_records_json')}
           </MenuItem>
           <MenuItem onClick={() => { exportAnalysis(); setExportMenuAnchor(null) }}>
-            {zh ? '导出分析 (JSON)' : 'Export Analysis (JSON)'}
+            {t('export_analysis_json')}
           </MenuItem>
           <MenuItem onClick={() => { exportCsv(); setExportMenuAnchor(null) }}>
-            {zh ? '导出统计 (CSV)' : 'Export Stats (CSV)'}
+            {t('export_stats_csv')}
           </MenuItem>
         </Menu>
 
         {/* Share dropdown */}
-        <Tooltip title={zh ? '分享' : 'Share'}>
+        <Tooltip title={t('share')}>
           <IconButton size="small"
             disabled={total === 0 || sharing}
             onClick={(e) => setShareMenuAnchor(e.currentTarget)}>
@@ -417,19 +417,19 @@ export function AnalyticsTab({ language, onLanguageChange, sharedRecords: shared
         <Menu anchorEl={shareMenuAnchor} open={Boolean(shareMenuAnchor)} onClose={() => setShareMenuAnchor(null)}>
           <MenuItem onClick={() => { void copyShareLink(); setShareMenuAnchor(null) }}>
             <LinkIcon fontSize="small" sx={{ mr: 1 }} />
-            {zh ? '复制分享链接（互动查看）' : 'Copy share link (interactive)'}
+            {t('copy_share_link_interactive')}
           </MenuItem>
           <Divider />
           <MenuItem onClick={() => { shareAnalysisImage('png'); setShareMenuAnchor(null) }}>
-            {zh ? '分享为 PNG 图片' : 'Share as PNG'}
+            {t('share_as_png')}
           </MenuItem>
           <MenuItem onClick={() => { shareAnalysisImage('pdf'); setShareMenuAnchor(null) }}>
-            {zh ? '分享为 PDF' : 'Share as PDF'}
+            {t('share_as_pdf')}
           </MenuItem>
         </Menu>
 
         {/* Import */}
-        <Tooltip title={zh ? '导入JSON' : 'Import JSON'}>
+        <Tooltip title={t('import_json')}>
           <IconButton size="small" component="label">
             <FileOpenIcon fontSize="small" />
             <input type="file" accept=".json" hidden onChange={handleImport} />
@@ -438,7 +438,7 @@ export function AnalyticsTab({ language, onLanguageChange, sharedRecords: shared
       </Box>
       {importError && (
         <Typography variant="caption" color="error" sx={{ display: 'block', mb: 1 }}>
-          {zh ? '导入失败: ' : 'Import error: '}{importError}
+          {t('import_error')}{importError}
         </Typography>
       )}
 

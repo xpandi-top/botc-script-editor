@@ -15,14 +15,15 @@ import {
   getRedirectUri,
 } from '../../lib/googleAuth'
 import type { Language } from '../../types'
-import { makeT } from '../../lib/t'
+import { useT } from '../../context/I18nContext'
+import { makeTpl } from '../../lib/t'
 
 export function CloudSyncSection({ cloud, language }: {
   cloud: CloudSyncState
   language: Language
 }) {
-  const t = makeT(language)
-  const zh = language === 'zh'
+  const { t } = useT()
+  const tpl = makeTpl(language)
   const [clientIdInput, setClientIdInput] = useState(() => getClientId())
   const [clientSecretInput, setClientSecretInput] = useState(() => getClientSecret())
   const [clientIdSaved, setClientIdSaved] = useState(false)
@@ -46,11 +47,11 @@ export function CloudSyncSection({ cloud, language }: {
       {/* Auth error */}
       {!cloud.connected && cloud.status === 'error' && cloud.errorMessage && (
         <Alert severity="error" sx={{ mb: 2, maxWidth: 520 }}>
-          <strong>{zh ? '连接失败' : 'Connection failed'}:</strong>{' '}
+          <strong>{t('connection_failed')}:</strong>{' '}
           {cloud.errorMessage}
           {cloud.errorMessage.includes('redirect_uri_mismatch') && (
             <Box sx={{ mt: 0.5 }}>
-              {zh ? '请确认在 Google Cloud Console 中添加了完整的 Redirect URI：' : 'Ensure this exact Redirect URI is registered in Cloud Console:'}
+              {t('ensure_this_exact_redirect_uri_is_registered_in_cloud_consol')}
               {' '}<code style={{ fontSize: '0.75rem' }}>{getRedirectUri()}</code>
             </Box>
           )}
@@ -61,9 +62,7 @@ export function CloudSyncSection({ cloud, language }: {
       {!cloud.connected && (
         <Box sx={{ mb: 2, p: 1.5, bgcolor: 'action.hover', borderRadius: 1.5, maxWidth: 520 }}>
           <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-            {zh
-              ? '在 Google Cloud Console → Authorized redirect URIs 中添加此地址：'
-              : 'Add this URI to Google Cloud Console → Authorized redirect URIs:'}
+            {t('add_this_uri_to_google_cloud_console_authorized_redirect_uri')}
           </Typography>
           <Box component="code" sx={{ fontSize: '0.8rem', wordBreak: 'break-all', color: 'text.primary', fontWeight: 600 }}>
             {getRedirectUri()}
@@ -75,20 +74,18 @@ export function CloudSyncSection({ cloud, language }: {
       {!cloud.connected && (
         isPreConfigured ? (
           <Alert severity="success" sx={{ mb: 2, maxWidth: 520 }}>
-            {zh
-              ? 'OAuth 凭据已由应用内置，无需手动配置。直接点击"连接 Google Drive"即可。'
-              : 'OAuth credentials are pre-configured. Just click Connect Google Drive below.'}
+            {t('oauth_credentials_are_preconfigured_just_click_connect_googl')}
           </Alert>
         ) : (
           <Box sx={{ mb: 2, p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 2, maxWidth: 520 }}>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
-              {zh ? '需要自行配置 Google OAuth2 凭据。' : 'Configure your own Google OAuth2 credentials.'}
+              {t('configure_your_own_google_oauth2_credentials')}
               {' '}
               <Box component="a"
                 href="https://console.cloud.google.com/apis/credentials"
                 target="_blank" rel="noopener noreferrer"
                 sx={{ color: 'info.main', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}>
-                {zh ? '打开 Cloud Console →' : 'Open Cloud Console →'}
+                {t('open_cloud_console')}
               </Box>
             </Typography>
 
@@ -151,7 +148,7 @@ export function CloudSyncSection({ cloud, language }: {
 
             {clientIdSaved && (
               <Typography variant="caption" color="success.main" sx={{ mt: 0.5, display: 'block' }}>
-                {zh ? '已保存。请在 Cloud Console 中添加 Redirect URI：' : 'Saved. Register this Redirect URI in Cloud Console:'}
+                {t('saved_register_this_redirect_uri_in_cloud_console')}
                 {' '}
                 <Box component="code" sx={{ fontSize: '0.75rem', wordBreak: 'break-all' }}>
                   {getRedirectUri()}
@@ -197,10 +194,10 @@ export function CloudSyncSection({ cloud, language }: {
               )}
               <Typography variant="body2" sx={{ color: isError ? 'error.dark' : isBusy ? 'primary.light' : 'success.dark', opacity: 0.85 }}>
                 {isError
-                  ? (cloud.errorMessage ?? (zh ? '请检查网络或重新授权' : 'Check network or reconnect'))
+                  ? (cloud.errorMessage ?? (t('check_network_or_reconnect')))
                   : cloud.lastSynced
-                    ? (zh ? `上次同步：${cloud.lastSynced.toLocaleString()}` : `Last synced: ${cloud.lastSynced.toLocaleString()}`)
-                    : (zh ? '数据安全存储在您的 Google Drive 中' : 'Data stored privately in your Google Drive')}
+                    ? tpl('last_synced_time', cloud.lastSynced.toLocaleString())
+                    : (t('data_stored_privately_in_your_google_drive'))}
               </Typography>
             </Box>
           </Box>
@@ -217,17 +214,13 @@ export function CloudSyncSection({ cloud, language }: {
           </Stack>
 
           <Typography variant="caption" color="text.secondary" sx={{ maxWidth: 480 }}>
-            {zh
-              ? '数据存储在您的私有 Google Drive appDataFolder 中，仅本应用可见。本地更改会在 2 秒后自动同步。'
-              : 'Data stored in your private Google Drive appDataFolder — only visible to this app. Local changes auto-sync after 2 s.'}
+            {t('data_stored_in_your_private_google_drive_appdatafolder_only_')}
           </Typography>
         </Box>
       ) : (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
           <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 480 }}>
-            {zh
-              ? '连接 Google Drive 后，脚本、自定义角色和版本覆盖将自动跨设备同步。数据完全私有，存储在您的 Drive 中。'
-              : 'Connect Google Drive to automatically sync scripts, custom characters, and revision overrides across devices. Data stays fully private in your own Drive.'}
+            {t('connect_google_drive_to_automatically_sync_scripts_custom_ch')}
           </Typography>
           <Button variant="contained" startIcon={<CloudIcon />}
             onClick={() => void cloud.connect()}
@@ -237,7 +230,7 @@ export function CloudSyncSection({ cloud, language }: {
           </Button>
           {!isPreConfigured && (!hasClientId || !getClientSecret()) && (
             <Typography variant="caption" color="text.secondary">
-              {zh ? '请先保存 Client ID 和 Client Secret。' : 'Save both Client ID and Client Secret above first.'}
+              {t('save_both_client_id_and_client_secret_above_first')}
             </Typography>
           )}
         </Box>

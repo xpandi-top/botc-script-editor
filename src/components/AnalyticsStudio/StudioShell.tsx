@@ -15,6 +15,7 @@ import { CharactersSection } from './sections/CharactersSection'
 import { RecordsSection } from './sections/RecordsSection'
 import type { GameRecord } from '../StorytellerSub/types'
 import type { Language } from '../../types'
+import { makeTpl } from '../../lib/t'
 
 interface Props {
   records: GameRecord[]
@@ -28,7 +29,7 @@ const TABS = ['overview', 'scripts', 'players', 'characters', 'records'] as cons
 type StudioTab = typeof TABS[number]
 
 export function StudioShell({ records, onRecordsChange, language, onCreateRecord, onEditRecord }: Props) {
-  const zh = language === 'zh'
+  const tpl = makeTpl(language)
   const [activeTab, setActiveTab] = useState<StudioTab>('overview')
   const { filter, setFilter, filtered, activeCount, resetFilter, allScriptOptions, allPlayerOptions } = useAnalyticsFilter(records)
 
@@ -62,7 +63,7 @@ export function StudioShell({ records, onRecordsChange, language, onCreateRecord
       {/* Filtered count badge */}
       {activeCount > 0 && (
         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1, textAlign: 'right' }}>
-          {zh ? `显示 ${filtered.length} / ${records.length} 局` : `Showing ${filtered.length} of ${records.length} games`}
+          {tpl('showing_n_games_of_m', filtered.length, records.length)}
         </Typography>
       )}
 
@@ -81,7 +82,7 @@ export function StudioShell({ records, onRecordsChange, language, onCreateRecord
             <Tab
               key={t.key}
               value={t.key}
-              label={zh ? t.labelZh : t.label}
+              label={language === 'zh' ? t.labelZh : t.label}
               icon={t.icon as React.ReactElement}
               iconPosition="start"
             />
