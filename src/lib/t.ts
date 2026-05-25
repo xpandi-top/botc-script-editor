@@ -258,6 +258,29 @@ export type UiKey =
   | 'version' | 'new_badge' | 'pack_badge' | 'yes_short' | 'no_short'
   // Arena UI legend
   | 'arena_st_setup' | 'arena_nominations' | 'arena_edit_roles' | 'arena_tap_seat'
+  // ── Language toggle semantic aliases (old: str_en, zh, en) ────────────────
+  | 'lang_switch'    // the toggle button label (EN locale: "中", ZH locale: "EN")
+  | 'lang_current'   // current language label ("English" | "中文")
+  // ── BOTC terminology namespace (term_* prefix) ─────────────────────────────
+  | 'term_townsfolk' | 'term_outsider' | 'term_minion' | 'term_demon'
+  | 'term_traveler'  | 'term_fabled'   | 'term_storyteller' | 'term_ability'
+  | 'term_nomination' | 'term_execution' | 'term_drunk' | 'term_poisoned'
+  | 'term_alive'     | 'term_dead'     | 'term_first_night' | 'term_other_nights'
+  | 'term_register_as' | 'term_grimoire'
+  // ── AI namespace (ai_* prefix) ────────────────────────────────────────────
+  | 'ai_chat' | 'ai_skills' | 'ai_log' | 'ai_settings'
+  | 'ai_thinking' | 'ai_clear_chat' | 'ai_auto_apply'
+  | 'ai_local_model' | 'ai_api_key_mode' | 'ai_provider' | 'ai_model'
+  | 'ai_context' | 'ai_no_fills' | 'ai_run_skill' | 'ai_type_hint'
+  // ── Semantic aliases for truncated/long keys (migrate components to these) ─
+  | 'settings_theme_desc' | 'settings_font_persist_note'
+  | 'backup_export_desc'
+  | 'share_link_permanent_note' | 'share_link_24h_note'
+  | 'gdrive_redirect_note' | 'gdrive_add_uri_note'
+  | 'gdrive_preconfigured_note' | 'gdrive_appdatafolder_note' | 'gdrive_connect_desc'
+  | 'analytics_char_team_hint' | 'analytics_no_char_data' | 'analytics_no_records_hint'
+  | 'scripts_empty_hint' | 'delete_day_confirm'
+  | 'char_unsaved_note' | 'search_id_name_desc' | 'tokens_all_seats_note'
 
 export type TplKey =
   | 'showing_n_of_m'
