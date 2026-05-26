@@ -123,6 +123,7 @@ function MobileSeatCardInner({ ctx, seat, side = 'left' }: { ctx: StorytellerCon
         display: 'flex',
         alignItems: 'center',
         flexDirection: side === 'right' ? 'row-reverse' : 'row',
+        touchAction: 'pan-y',
       }}>
         {/* Circle — pulled into card by negative margin on the card-facing side */}
         <Tooltip
@@ -171,6 +172,7 @@ function MobileSeatCardInner({ ctx, seat, side = 'left' }: { ctx: StorytellerCon
             cursor: pickerMode !== 'none' ? 'pointer' : 'default',
             transition: 'all 0.15s ease',
             position: 'relative', zIndex: 2,
+            touchAction: 'pan-y',
             '&:hover': { boxShadow: 3 },
           }}
         >
