@@ -1,37 +1,34 @@
 /**
- * Google OAuth2 PKCE flow for static web apps.
- * Works on any static host (GitHub Pages, Netlify, etc.).
+ * Google OAuth2 PKCE flow — web and Android native.
  *
- * Google Cloud Console setup:
- *  1. Create project → Enable "Google Drive API"
- *  2. Credentials → Create → OAuth client ID → Web Application
- *  3. Authorized redirect URIs: your deployed origin + trailing slash
- *     (e.g. https://you.github.io/botc_webapp/ and http://localhost:5173/)
- *  4. Paste Client ID *and* Client Secret into Settings → Cloud Sync
+ * Web flow (GitHub Pages / any static host):
+ *  1. Google Cloud Console → Credentials → OAuth client ID → Web Application
+ *  2. Authorized redirect URIs: your deployed origin + trailing slash
+ *  3. Paste Client ID + Client Secret into Settings → Cloud Sync
+ *  Note: Web Application clients require client_secret even with PKCE (Google limitation).
  *
- * Security notes:
+ * Android native flow (@byteowls/capacitor-oauth2):
+ *  1. Google Cloud Console → Credentials → OAuth client ID → Android
+ *  2. Package: com.hyp.botcstoryteller  SHA-1: <debug keystore SHA-1>
+ *  3. Set VITE_GOOGLE_ANDROID_CLIENT_ID in .env.local
+ *  4. No client_secret needed — Android clients verified by APK signature.
  *
- * client_secret in browser (B1/B2):
- *   Google Web Application OAuth clients require client_secret for token exchange
- *   even with PKCE. This is a known limitation of client-side-only OAuth.
- *   Mitigations in this app:
- *   - drive.appdata scope: knowing the secret doesn't expose other users' files;
- *     per-user OAuth consent is still required.
- *   - The secret is only useful for token exchanges on whitelisted redirect URIs.
- *   - Ideal fix: route token exchange through a backend proxy (e.g. Cloudflare Worker)
- *     so the browser never sees the secret.
- *
- * Tokens in localStorage (B3):
- *   Both access_token and refresh_token are stored in localStorage so they
- *   survive page reloads and Drive-triggered window.location.reload() calls.
- *   sessionStorage would log users out on every reload — unacceptable UX.
- *   Mitigations: tokens are scoped to drive.appdata only; refresh token is
- *   revocable from Google Account settings. XSS on the origin is the primary
- *   threat vector — keep dependencies audited.
+ * Tokens in localStorage / Capacitor Preferences (via storage.ts shim):
+ *   Scoped to drive.appdata + drive.file; revocable from Google Account settings.
  */
+
+import { Capacitor } from '@capacitor/core'
 
 export const CLIENT_ID_STORAGE_KEY = 'BOTC_GOOGLE_CLIENT_ID'
 export const CLIENT_SECRET_STORAGE_KEY = 'BOTC_GOOGLE_CLIENT_SECRET'
+
+/**
+ * Android OAuth client ID — registered in Google Cloud Console as "Android" type.
+ * Safe to expose: Google verifies requests by APK SHA-1 signature, not a secret.
+ * Set via VITE_GOOGLE_ANDROID_CLIENT_ID in .env.local (not committed).
+ */
+const ANDROID_CLIENT_ID: string =
+  (import.meta.env.VITE_GOOGLE_ANDROID_CLIENT_ID as string | undefined) ?? ''
 
 /** Read client ID — localStorage overrides build-time env var. */
 export function getClientId(): string {
@@ -146,15 +143,71 @@ export function getRedirectUri(): string {
   return origin + pathname.replace(/\/$/, '') + '/'
 }
 
+// ── Native OAuth (Android — no client_secret) ────────────────────────────────
+
+/**
+ * Android PKCE flow via @byteowls/capacitor-oauth2.
+ * Uses Chrome Custom Tabs; Google verifies by APK SHA-1, no secret required.
+ * Redirect scheme: com.googleusercontent.apps.{reversed-client-id}
+ */
+async function startNativeOAuthFlow(): Promise<void> {
+  const { OAuth2Client } = await import('@byteowls/capacitor-oauth2')
+  const clientId = ANDROID_CLIENT_ID || getClientId()
+  if (!clientId) throw new Error('Google Client ID not configured — enter it in Settings → Cloud Sync')
+
+  // Reversed client ID scheme required for Android OAuth loopback
+  const reversedClientId = clientId.split('.').reverse().join('.')
+  const redirectUrl = `${reversedClientId}:/oauth2redirect`
+
+  const result = await OAuth2Client.authenticate({
+    appId: clientId,
+    authorizationBaseUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
+    accessTokenEndpoint: 'https://oauth2.googleapis.com/token',
+    scope: SCOPES,
+    pkceEnabled: true,
+    responseType: 'code',
+    redirectUrl,
+    logsEnabled: false,
+    android: {
+      customHandlerClass: '',
+      handleResultOnNewIntent: true,
+    },
+    additionalParameters: {
+      access_type: 'offline',
+      prompt: 'consent',
+    },
+  })
+
+  const tokenResponse = result?.access_token_response as {
+    access_token?: string
+    refresh_token?: string
+    expires_in?: number
+  } | null
+
+  if (!tokenResponse?.access_token) throw new Error('Native OAuth: no access_token in response')
+
+  const tokens: GoogleTokens = {
+    access_token: tokenResponse.access_token,
+    refresh_token: tokenResponse.refresh_token ?? '',
+    expires_at: Date.now() + (tokenResponse.expires_in ?? 3600) * 1000,
+  }
+  storeTokens(tokens)
+}
+
 // ── Start flow ────────────────────────────────────────────────────────────────
 
 /**
  * Kick off PKCE OAuth2.
- * Stores verifier in localStorage, then navigates to Google consent.
- * After consent, Google redirects back with `?code=...&state=...`.
- * Call `handleOAuthCallback()` to complete.
+ * On Android native: uses Chrome Custom Tabs via @byteowls/capacitor-oauth2 (no secret).
+ * On web: stores verifier in localStorage, navigates to Google consent page.
+ * After web consent, Google redirects back with `?code=...&state=...`.
+ * Call `handleOAuthCallback()` to complete the web flow.
  */
 export async function startOAuthFlow(): Promise<void> {
+  if (Capacitor.isNativePlatform()) {
+    return startNativeOAuthFlow()
+  }
+
   const clientId = getClientId()
   if (!clientId) throw new Error('Google Client ID not configured — enter it in Settings → Cloud Sync')
 
