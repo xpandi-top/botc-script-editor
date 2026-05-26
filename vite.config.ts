@@ -81,11 +81,18 @@ export default defineConfig(({ command, mode }) => {
       rollupOptions: {
         output: {
           manualChunks(id) {
-            if (id.includes('node_modules/@mui/') || id.includes('node_modules/@emotion/')) {
-              return 'vendor-mui'
-            }
-            if (id.includes('node_modules/react') || id.includes('node_modules/react-dom') || id.includes('node_modules/scheduler')) {
-              return 'vendor-react'
+            // React + MUI/Emotion MUST be in the same chunk.
+            // Splitting them causes a module-init race: vendor-mui's top-level
+            // code accesses React internals (e.g. AsyncMode) before vendor-react
+            // has finished setting them up → "Cannot set properties of undefined".
+            if (
+              id.includes('node_modules/react') ||
+              id.includes('node_modules/react-dom') ||
+              id.includes('node_modules/scheduler') ||
+              id.includes('node_modules/@mui/') ||
+              id.includes('node_modules/@emotion/')
+            ) {
+              return 'vendor'
             }
           },
         },
