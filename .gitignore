@@ -2,7 +2,12 @@ node_modules
 dist
 dist-native
 ios
-android
+# Android: ignore build outputs, commit source
+android/build/
+android/.gradle/
+android/app/build/
+android/.idea/
+android/local.properties
 .DS_Store
 *.tsbuildinfo
 coverage

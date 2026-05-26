@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">BOTC Storyteller</string>
+    <string name="title_activity_main">BOTC Storyteller</string>
+    <string name="package_name">com.hyp.botcstoryteller</string>
+    <string name="custom_url_scheme">com.hyp.botcstoryteller</string>
+</resources>
