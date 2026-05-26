@@ -107,6 +107,7 @@ import type {
 import { useThemeMode } from './context/ThemeMode'
 import { I18nProvider } from './context/I18nContext'
 import { makeT, makeTpl } from './lib/t'
+import { ErrorBoundary } from './components/ErrorBoundary'
 
 // ── Cloud sync header badge ────────────────────────────────────────────────────
 
@@ -872,6 +873,7 @@ export default function App() {
       </Paper>
 
       {activeTab === 'scripts' && (
+        <ErrorBoundary name="Scripts">
         <ScriptsTab
           scripts={scripts}
           activeScript={activeScript}
@@ -912,6 +914,7 @@ export default function App() {
           isCurrentBuiltIn={!!(activeScript && initialSlugs.has(activeScript.slug))}
           customChars={customChars}
         />
+        </ErrorBoundary>
       )}
 
       {printPreviewOpen && activeScript && (
@@ -935,6 +938,7 @@ export default function App() {
 
 
       {activeTab === 'characters' && (
+        <ErrorBoundary name="Characters">
         <Suspense fallback={<Box sx={{ p: 4, textAlign: 'center' }}><CircularProgress /></Box>}>
           <CharactersTab
             uiText={uiText}
@@ -958,6 +962,7 @@ export default function App() {
             aiFillRef={aiFillRef}
           />
         </Suspense>
+        </ErrorBoundary>
       )}
 
       {activeTab === 'printstudio' && (
@@ -980,6 +985,7 @@ export default function App() {
 
       {(activeTab === 'analytics' || mountedTabs.has('analytics')) && (
         <Box sx={{ display: activeTab === 'analytics' ? undefined : 'none' }}>
+          <ErrorBoundary name="Analytics">
           <Suspense fallback={<Box sx={{ p: 4, textAlign: 'center' }}><CircularProgress /></Box>}>
             <AnalyticsTab
               language={uiLanguage}
@@ -989,6 +995,7 @@ export default function App() {
               onClearSharedRecords={clearSharedRecords}
             />
           </Suspense>
+          </ErrorBoundary>
         </Box>
       )}
 
@@ -998,6 +1005,7 @@ export default function App() {
 
       {(activeTab === 'storyteller' || mountedTabs.has('storyteller')) && (
         <Box sx={{ display: activeTab === 'storyteller' ? undefined : 'none' }}>
+          <ErrorBoundary name="Storyteller">
           <Suspense fallback={<Box sx={{ p: 4, textAlign: 'center' }}><CircularProgress /></Box>}>
             <StorytellerHelper
               activeScriptSlug={stActiveSlug}
@@ -1010,6 +1018,7 @@ export default function App() {
               onAiContextChange={setStAiContext}
             />
           </Suspense>
+          </ErrorBoundary>
         </Box>
       )}
       {/* ── Mobile bottom navigation ── */}
