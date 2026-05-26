@@ -90,6 +90,29 @@ function releaseExists(tag) {
   }
 }
 
+function uploadWithRetry(tag, asset, retries = 3) {
+  const name = asset.split('/').pop()
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      console.log(`⬆️   Uploading ${name}${attempt > 1 ? ` (attempt ${attempt}/${retries})` : ''}...`)
+      run(`gh release upload ${tag} ${JSON.stringify(asset)} --clobber`)
+      console.log(`✅  ${name}`)
+      return true
+    } catch {
+      if (attempt < retries) {
+        const wait = attempt * 3
+        console.warn(`⚠️   Upload failed — retrying in ${wait}s...`)
+        // Synchronous sleep via busy-wait (keeps script simple, uploads are slow anyway)
+        const end = Date.now() + wait * 1000
+        while (Date.now() < end) { /* wait */ }
+      }
+    }
+  }
+  console.error(`❌  Failed after ${retries} attempts: ${name}`)
+  console.error('    Retry manually:', `gh release upload ${tag} "${asset}" --clobber`)
+  return false
+}
+
 // ── Main ──────────────────────────────────────────────────────────────────────
 
 checkGh()
@@ -119,17 +142,9 @@ if (!releaseExists(TAG)) {
   console.log(`✅  Release ${TAG} exists — uploading assets...`)
 }
 
-// Upload assets — always use --clobber to overwrite stale assets
+// Upload assets — retry up to 3× on network errors (TLS drops on large files)
 for (const asset of ASSETS) {
-  const name = asset.split('/').pop()
-  console.log(`⬆️   Uploading ${name}...`)
-  try {
-    run(`gh release upload ${TAG} ${JSON.stringify(asset)} --clobber`)
-    console.log(`✅  ${name}`)
-  } catch (err) {
-    console.error(`❌  Failed: ${name}`)
-    console.error('    Retry manually:', `gh release upload ${TAG} "${asset}" --clobber`)
-  }
+  uploadWithRetry(TAG, asset)
 }
 
 console.log(`\n🎉  Done! View release at:`)
