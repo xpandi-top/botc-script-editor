@@ -259,7 +259,13 @@ export function useCloudSync(): CloudSyncState {
   // ── Public API ─────────────────────────────────────────────────────────────
 
   const connect = useCallback(async () => {
-    await startOAuthFlow() // navigates away
+    try {
+      setStatus('idle')
+      setErrorMessage(null)
+      await startOAuthFlow() // web: navigates away; native: awaits in-app flow
+    } catch (e) {
+      handleError(e)
+    }
   }, [])
 
   const disconnect = useCallback(() => {
