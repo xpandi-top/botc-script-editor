@@ -1,7 +1,7 @@
 {
   "id": "hermit",
   "team": "outsider",
-  "edition": "carousel",
+  "edition": "experimental",
   "current_revision": "v1",
   "setup": true,
   "reminders": [
@@ -24,10 +24,10 @@
     "flavor": "In the lost and forgotten places of the earth, the soul’s light beckons."
   },
   "zh": {
-    "name": "Hermit",
-    "ability": "You have all Outsider abilities. [-0 or -1 Outsider]",
+    "name": "隐士",
+    "ability": "你拥有所有外来者能力。[-0~1外来者]",
     "revisions": {
-      "v1": "You have all Outsider abilities. [-0 or -1 Outsider]"
+      "v1": "你拥有所有外来者能力。[-0~1外来者]"
     }
   }
 }
