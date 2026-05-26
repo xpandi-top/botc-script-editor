@@ -7,5 +7,5 @@
     <!-- Replace with reversed Android OAuth client ID from Google Cloud Console.
          Format: com.googleusercontent.apps.{CLIENT_ID_PREFIX}
          e.g.   com.googleusercontent.apps.123456789-abcdefghij -->
-    <string name="google_oauth_redirect_scheme">com.googleusercontent.apps.REPLACE_ME</string>
+    <string name="google_oauth_redirect_scheme">com.googleusercontent.apps.401513017527-5ok0fl62q0te6njps6u5r0sqvfto02ln</string>
 </resources>
