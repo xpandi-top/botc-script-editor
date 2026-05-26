@@ -36,8 +36,7 @@ const ANDROID_CLIENT_ID: string =
  * client_secret is NOT truly secret for desktop apps (Google acknowledges it can be extracted
  * from binaries). Set via build-time env vars in .env.local.
  *
- * In Google Cloud Console → Credentials → Desktop client → Authorized redirect URIs:
- *   add http://127.0.0.1  (Google accepts any port on loopback for Desktop clients)
+ * Registered redirect URI: http://localhost  (Desktop clients accept any port on loopback)
  */
 const ELECTRON_CLIENT_ID: string =
   (import.meta.env.VITE_GOOGLE_ELECTRON_CLIENT_ID as string | undefined) ?? ''
@@ -249,7 +248,7 @@ async function startElectronOAuthFlow(): Promise<void> {
   if (!clientId) throw new Error('Google Client ID not configured — set VITE_GOOGLE_ELECTRON_CLIENT_ID')
 
   const port = await bridge.startOAuthServer()
-  const redirectUri = `http://127.0.0.1:${port}/`
+  const redirectUri = `http://localhost:${port}/`
 
   const verifier = randomBase64Url(96)
   const challenge = await sha256Base64Url(verifier)
