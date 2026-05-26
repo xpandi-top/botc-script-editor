@@ -24,11 +24,12 @@ export const CLIENT_SECRET_STORAGE_KEY = 'BOTC_GOOGLE_CLIENT_SECRET'
 
 /**
  * Android OAuth client ID — registered in Google Cloud Console as "Android" type.
- * Safe to expose: Google verifies requests by APK SHA-1 signature, not a secret.
- * Set via VITE_GOOGLE_ANDROID_CLIENT_ID in .env.local (not committed).
+ * Safe to hardcode: Google verifies requests by APK SHA-1 signature, not a secret.
+ * env var overrides for development if needed.
  */
 const ANDROID_CLIENT_ID: string =
-  (import.meta.env.VITE_GOOGLE_ANDROID_CLIENT_ID as string | undefined) ?? ''
+  (import.meta.env.VITE_GOOGLE_ANDROID_CLIENT_ID as string | undefined) ||
+  '401513017527-5ok0fl62q0te6njps6u5r0sqvfto02ln.apps.googleusercontent.com'
 
 /** Read client ID — localStorage overrides build-time env var. */
 export function getClientId(): string {
