@@ -73,8 +73,8 @@ export default defineConfig(({ command, mode }) => {
         },
       })] : []),
     ],
-    // Web build: scoped base path; native build: root path (file:// protocol)
-    base: isNative ? '/' : (command === 'build' ? '/botc-script-editor/' : '/'),
+    // Web build: scoped base path; native/electron build: relative paths (file:// protocol)
+    base: isNative ? './' : (command === 'build' ? '/botc-script-editor/' : '/'),
     build: isNative ? {
       outDir: 'dist-native',
     } : {
