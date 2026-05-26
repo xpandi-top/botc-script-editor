@@ -19,16 +19,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-            <!-- OAuth redirect — required for @byteowls/capacitor-oauth2
-                 handleResultOnNewIntent:true. The Chrome Custom Tab sends the
-                 redirect intent back to MainActivity (launchMode=singleTask)
-                 which the plugin intercepts via onNewIntent. -->
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="@string/google_oauth_redirect_scheme" />
-            </intent-filter>
+            <!-- OAuth redirect intent-filter NOT here.
+                 AppAuth's RedirectUriReceiverActivity (registered via appAuthRedirectScheme
+                 in build.gradle) handles the com.googleusercontent.apps.* redirect and
+                 returns it as ActivityResult to the plugin's @ActivityCallback handler.
+                 Adding it here too causes an Android chooser and intercepts the intent
+                 before AppAuth can process it. -->
         </activity>
 
         <provider

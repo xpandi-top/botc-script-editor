@@ -193,10 +193,11 @@ async function startNativeOAuthFlow(): Promise<void> {
     pkceEnabled: true,
     responseType: 'code',
     redirectUrl,
-    logsEnabled: false,
+    logsEnabled: true,
     android: {
-      customHandlerClass: '',
-      handleResultOnNewIntent: true,
+      // Chrome Custom Tab returns via onActivityResult — handleResultOnActivityResult is required.
+      // handleResultOnNewIntent is ONLY called when app was KILLED during auth (per plugin docs).
+      handleResultOnActivityResult: true,
     },
     additionalParameters: {
       access_type: 'offline',
