@@ -9,7 +9,7 @@
  *
  * Android native flow (@byteowls/capacitor-oauth2):
  *  1. Google Cloud Console → Credentials → OAuth client ID → Android
- *  2. Package: com.hyp.botcstoryteller  SHA-1: <debug keystore SHA-1>
+ *  2. Package: top.xpandi.botcstoryteller  SHA-1: <debug keystore SHA-1>
  *  3. Set VITE_GOOGLE_ANDROID_CLIENT_ID in .env.local
  *  4. No client_secret needed — Android clients verified by APK signature.
  *

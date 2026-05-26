@@ -1,4 +1,4 @@
-package com.hyp.botcstoryteller;
+package top.xpandi.botcstoryteller;
 
 import com.getcapacitor.BridgeActivity;
 

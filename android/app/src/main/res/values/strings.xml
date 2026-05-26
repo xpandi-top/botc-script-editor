@@ -2,8 +2,8 @@
 <resources>
     <string name="app_name">BOTC Storyteller</string>
     <string name="title_activity_main">BOTC Storyteller</string>
-    <string name="package_name">com.hyp.botcstoryteller</string>
-    <string name="custom_url_scheme">com.hyp.botcstoryteller</string>
+    <string name="package_name">top.xpandi.botcstoryteller</string>
+    <string name="custom_url_scheme">top.xpandi.botcstoryteller</string>
     <!-- Replace with reversed Android OAuth client ID from Google Cloud Console.
          Format: com.googleusercontent.apps.{CLIENT_ID_PREFIX}
          e.g.   com.googleusercontent.apps.123456789-abcdefghij -->

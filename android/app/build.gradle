@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace = "com.hyp.botcstoryteller"
+    namespace = "top.xpandi.botcstoryteller"
     compileSdk = rootProject.ext.compileSdkVersion
     signingConfigs {
         release {
@@ -12,7 +12,7 @@ android {
         }
     }
     defaultConfig {
-        applicationId "com.hyp.botcstoryteller"
+        applicationId "top.xpandi.botcstoryteller"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

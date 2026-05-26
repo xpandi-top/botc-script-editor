@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli'
 
 const config: CapacitorConfig = {
-  appId: 'com.hyp.botcstoryteller',
+  appId: 'top.xpandi.botcstoryteller',
   appName: 'BOTC Storyteller',
   webDir: 'dist-native',
   plugins: {

@@ -5,7 +5,7 @@
 
 /** @type {import('electron-builder').Configuration} */
 module.exports = {
-  appId: 'com.hyp.botcstoryteller',
+  appId: 'top.xpandi.botcstoryteller',
   productName: 'BOTC Storyteller',
 
   // Source: Electron main entry + the built web assets
