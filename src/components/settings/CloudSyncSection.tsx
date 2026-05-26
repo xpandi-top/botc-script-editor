@@ -8,6 +8,7 @@ import {
 import CloudIcon from '@mui/icons-material/Cloud'
 import CloudOffIcon from '@mui/icons-material/CloudOff'
 import CloudSyncIcon from '@mui/icons-material/CloudSync'
+import { Capacitor } from '@capacitor/core'
 import type { CloudSyncState } from '../../hooks/useCloudSync'
 import {
   getClientId, saveClientId, clearClientId,
@@ -28,8 +29,9 @@ export function CloudSyncSection({ cloud, language }: {
   const [clientSecretInput, setClientSecretInput] = useState(() => getClientSecret())
   const [clientIdSaved, setClientIdSaved] = useState(false)
 
-  const hasClientId = !!getClientId()
-  const isPreConfigured = !!(
+  const isNative = Capacitor.isNativePlatform()
+  const hasClientId = isNative || !!getClientId()
+  const isPreConfigured = isNative || !!(
     (import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined)?.trim() &&
     (import.meta.env.VITE_GOOGLE_CLIENT_SECRET as string | undefined)?.trim()
   )
@@ -49,7 +51,7 @@ export function CloudSyncSection({ cloud, language }: {
         <Alert severity="error" sx={{ mb: 2, maxWidth: 520 }}>
           <strong>{t('connection_failed')}:</strong>{' '}
           {cloud.errorMessage}
-          {cloud.errorMessage.includes('redirect_uri_mismatch') && (
+          {!isNative && cloud.errorMessage.includes('redirect_uri_mismatch') && (
             <Box sx={{ mt: 0.5 }}>
               {t('gdrive_redirect_note')}
               {' '}<code style={{ fontSize: '0.75rem' }}>{getRedirectUri()}</code>
@@ -58,8 +60,8 @@ export function CloudSyncSection({ cloud, language }: {
         </Alert>
       )}
 
-      {/* Redirect URI display */}
-      {!cloud.connected && (
+      {/* Redirect URI display — web only */}
+      {!cloud.connected && !isNative && (
         <Box sx={{ mb: 2, p: 1.5, bgcolor: 'action.hover', borderRadius: 1.5, maxWidth: 520 }}>
           <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
             {t('gdrive_add_uri_note')}
@@ -70,8 +72,8 @@ export function CloudSyncSection({ cloud, language }: {
         </Box>
       )}
 
-      {/* Credentials */}
-      {!cloud.connected && (
+      {/* Credentials — web only; Android uses hardcoded client ID verified by APK SHA-1 */}
+      {!cloud.connected && !isNative && (
         isPreConfigured ? (
           <Alert severity="success" sx={{ mb: 2, maxWidth: 520 }}>
             {t('gdrive_preconfigured_note')}
@@ -224,11 +226,11 @@ export function CloudSyncSection({ cloud, language }: {
           </Typography>
           <Button variant="contained" startIcon={<CloudIcon />}
             onClick={() => void cloud.connect()}
-            disabled={!isPreConfigured && (!hasClientId || !getClientSecret())}
+            disabled={!isNative && !isPreConfigured && (!hasClientId || !getClientSecret())}
             sx={{ alignSelf: 'flex-start' }}>
             {t('connect_google_drive')}
           </Button>
-          {!isPreConfigured && (!hasClientId || !getClientSecret()) && (
+          {!isNative && !isPreConfigured && (!hasClientId || !getClientSecret()) && (
             <Typography variant="caption" color="text.secondary">
               {t('save_both_client_id_and_client_secret_above_first')}
             </Typography>
