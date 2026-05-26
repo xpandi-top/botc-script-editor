@@ -19,11 +19,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-            <!-- OAuth redirect intent-filter intentionally omitted here.
-                 @byteowls/capacitor-oauth2 registers its own activity for the
-                 com.googleusercontent.apps.* scheme via appAuthRedirectScheme
-                 manifestPlaceholder in build.gradle. Adding it here too causes
-                 Android to show a chooser and breaks the plugin's callback. -->
+            <!-- OAuth redirect — required for @byteowls/capacitor-oauth2
+                 handleResultOnNewIntent:true. The Chrome Custom Tab sends the
+                 redirect intent back to MainActivity (launchMode=singleTask)
+                 which the plugin intercepts via onNewIntent. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="@string/google_oauth_redirect_scheme" />
+            </intent-filter>
         </activity>
 
         <provider

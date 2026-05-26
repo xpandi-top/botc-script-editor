@@ -18,7 +18,11 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        manifestPlaceholders = [appAuthRedirectScheme: "com.googleusercontent.apps.401513017527-5ok0fl62q0te6njps6u5r0sqvfto02ln"]
+        // Set to app package scheme (not the OAuth redirect scheme) so AppAuth's
+        // RedirectUriReceiverActivity doesn't also claim com.googleusercontent.apps.*
+        // and cause an Android chooser. MainActivity handles the OAuth redirect via
+        // its own intent-filter + handleResultOnNewIntent:true.
+        manifestPlaceholders = [appAuthRedirectScheme: "top.xpandi.botcstoryteller"]
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
              // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
