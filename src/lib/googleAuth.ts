@@ -50,7 +50,12 @@ export function isElectron(): boolean {
     navigator.userAgent.toLowerCase().includes('electron')
 }
 
-/** Read client ID — Electron/localStorage override build-time env var. */
+/** True when Electron AND Desktop client ID is baked in — fully pre-configured. */
+export function isElectronConfigured(): boolean {
+  return isElectron() && !!ELECTRON_CLIENT_ID
+}
+
+/** Read client ID — Electron env var > localStorage > web env var. */
 export function getClientId(): string {
   if (isElectron() && ELECTRON_CLIENT_ID) return ELECTRON_CLIENT_ID
   try {
@@ -60,7 +65,7 @@ export function getClientId(): string {
   return (import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined) ?? ''
 }
 
-/** Read client secret — Electron/localStorage override build-time env var. */
+/** Read client secret — Electron env var > localStorage > web env var. */
 export function getClientSecret(): string {
   if (isElectron() && ELECTRON_CLIENT_SECRET) return ELECTRON_CLIENT_SECRET
   try {

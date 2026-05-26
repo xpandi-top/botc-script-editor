@@ -13,7 +13,7 @@ import type { CloudSyncState } from '../../hooks/useCloudSync'
 import {
   getClientId, saveClientId, clearClientId,
   getClientSecret, saveClientSecret, clearClientSecret,
-  getRedirectUri, isElectron,
+  getRedirectUri, isElectronConfigured,
 } from '../../lib/googleAuth'
 import type { Language } from '../../types'
 import { useT } from '../../context/I18nContext'
@@ -29,7 +29,10 @@ export function CloudSyncSection({ cloud, language }: {
   const [clientSecretInput, setClientSecretInput] = useState(() => getClientSecret())
   const [clientIdSaved, setClientIdSaved] = useState(false)
 
-  const isNative = Capacitor.isNativePlatform() || isElectron()
+  // Android: always pre-configured (SHA-1 verified, no secret needed)
+  // Electron: pre-configured only when ELECTRON_CLIENT_ID baked into build
+  // Web: user must enter credentials
+  const isNative = Capacitor.isNativePlatform() || isElectronConfigured()
   const hasClientId = isNative || !!getClientId()
   const isPreConfigured = isNative || !!(
     (import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined)?.trim() &&

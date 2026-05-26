@@ -17,7 +17,7 @@ import {
   getValidToken,
   handleOAuthCallback,
   isConnected,
-  isElectron,
+  isElectronConfigured,
   startOAuthFlow,
   type GoogleUserInfo,
 } from '../lib/googleAuth'
@@ -265,9 +265,9 @@ export function useCloudSync(): CloudSyncState {
       setStatus('idle')
       setErrorMessage(null)
       await startOAuthFlow() // web: navigates away; native/electron: completes inline
-      // On native (Android) and Electron, startOAuthFlow() returns with tokens stored.
-      // On web it navigates away — code below never runs.
-      if ((Capacitor.isNativePlatform() || isElectron()) && isConnected()) {
+      // Android + configured Electron: startOAuthFlow() returns inline with tokens stored.
+      // Web / unconfigured Electron: navigates away — code below never runs.
+      if ((Capacitor.isNativePlatform() || isElectronConfigured()) && isConnected()) {
         setConnected(true)
         await doSync()
       }
