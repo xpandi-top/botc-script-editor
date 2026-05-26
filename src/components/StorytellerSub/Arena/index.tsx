@@ -114,17 +114,26 @@ export function Arena({ ctx }: { ctx: StorytellerContext }) {
   if (useListLayout) {
     return (
       <Box sx={{
-        flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0,
+        flex: 1, minHeight: 0,
         position: 'relative', overflow: 'hidden',
       }}>
         {/* Filtered background layer — does NOT affect content */}
         <AtmosphereBackground bgSrc={bgSrc} phase={phase} isDark={isDark} position="center top" />
 
-        {/* Content above the filtered background */}
-        <Box sx={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, overflow: 'hidden' }}>
+        {/* Scroll container — absolute fill gives it a concrete height Android WebView can use */}
+        <Box sx={{
+          position: 'absolute',
+          inset: 0,
+          zIndex: 1,
+          overflowY: 'scroll',
+          WebkitOverflowScrolling: 'touch',
+          touchAction: 'pan-y',
+        }}>
           <PlayerSeatGrid ctx={ctx} panelCollapsed={panelCollapsed} />
-          <PhaseControlPanel ctx={ctx} collapsed={panelCollapsed} setCollapsed={setPanelCollapsed} />
         </Box>
+
+        {/* Phase panel floats above the scroll area */}
+        <PhaseControlPanel ctx={ctx} collapsed={panelCollapsed} setCollapsed={setPanelCollapsed} />
       </Box>
     )
   }
