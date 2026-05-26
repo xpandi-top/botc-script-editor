@@ -27,8 +27,7 @@
     "android:build": "npm run build:native && npx cap sync android && cd android && ./gradlew assembleDebug",
     "android:apk": "cd android && ./gradlew assembleDebug",
     "release": "node scripts/github-release.mjs",
-    "release:create": "node scripts/github-release.mjs --create",
-    "release:update": "node scripts/github-release.mjs --clobber"
+    "release:create": "node scripts/github-release.mjs --create"
   },
   "dependencies": {
     "@byteowls/capacitor-oauth2": "^5.0.0",

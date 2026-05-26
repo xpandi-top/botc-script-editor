@@ -68,7 +68,8 @@ const RELEASE_NOTES = `## BOTC Storyteller ${TAG}
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function run(cmd, opts = {}) {
-  return execSync(cmd, { encoding: 'utf8', stdio: opts.silent ? 'pipe' : 'inherit', ...opts }).trim()
+  const out = execSync(cmd, { encoding: 'utf8', stdio: opts.silent ? 'pipe' : 'inherit', ...opts })
+  return (out ?? '').trim()
 }
 
 function checkGh() {
@@ -118,19 +119,23 @@ if (!releaseExists(TAG)) {
   console.log(`✅  Release ${TAG} exists — uploading assets...`)
 }
 
-// Upload assets
-const clobberFlag = CLOBBER ? ' --clobber' : ''
+// Upload assets — always use --clobber to overwrite stale assets
 for (const asset of ASSETS) {
   const name = asset.split('/').pop()
   console.log(`⬆️   Uploading ${name}...`)
   try {
-    run(`gh release upload ${TAG} ${JSON.stringify(asset)}${clobberFlag}`)
+    run(`gh release upload ${TAG} ${JSON.stringify(asset)} --clobber`)
     console.log(`✅  ${name}`)
   } catch (err) {
     console.error(`❌  Failed: ${name}`)
-    console.error('    Retry manually:', `gh release upload ${TAG} "${asset}"${clobberFlag}`)
+    console.error('    Retry manually:', `gh release upload ${TAG} "${asset}" --clobber`)
   }
 }
 
 console.log(`\n🎉  Done! View release at:`)
-run(`gh release view ${TAG} --json url --jq '.url'`, { silent: false })
+try {
+  const url = run(`gh release view ${TAG} --json url --jq '.url'`, { silent: true })
+  console.log(' ', url)
+} catch {
+  console.log(`  https://github.com/${run('gh repo view --json nameWithOwner --jq .nameWithOwner', { silent: true })}/releases/tag/${TAG}`)
+}
