@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli'
 
 const config: CapacitorConfig = {
   appId: 'top.xpandi.botcstoryteller',
-  appName: 'BOTC Storyteller',
+  appName: 'BOTC Companion',
   webDir: 'dist-native',
   plugins: {
     StatusBar: {

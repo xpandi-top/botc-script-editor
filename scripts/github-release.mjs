@@ -39,26 +39,26 @@ const CREATE  = hasFlag('--create')
 const CLOBBER = hasFlag('--clobber')
 
 const ASSETS = [
-  resolve(ROOT, `release/BOTC Storyteller-${VERSION}-arm64.dmg`),
-  resolve(ROOT, `release/BOTC Storyteller-${VERSION}.dmg`),
+  resolve(ROOT, `release/BOTC Companion-${VERSION}-arm64.dmg`),
+  resolve(ROOT, `release/BOTC Companion-${VERSION}.dmg`),
   resolve(ROOT, 'android/app/build/outputs/apk/debug/app-debug.apk'),
 ]
 
-const RELEASE_NOTES = `## BOTC Storyteller ${TAG}
+const RELEASE_NOTES = `## BOTC Companion ${TAG}
 
 ### Download
 
 | Platform | File | Notes |
 |----------|------|-------|
-| macOS Apple Silicon | \`BOTC Storyteller-${VERSION}-arm64.dmg\` | Right-click → Open on first launch |
-| macOS Intel | \`BOTC Storyteller-${VERSION}.dmg\` | Right-click → Open on first launch |
+| macOS Apple Silicon | \`BOTC Companion-${VERSION}-arm64.dmg\` | Right-click → Open on first launch |
+| macOS Intel | \`BOTC Companion-${VERSION}.dmg\` | Right-click → Open on first launch |
 | Android | \`app-debug.apk\` | Enable "Install unknown apps" in Settings first |
 
 ### macOS install
 1. Download DMG for your chip (arm64 = Apple Silicon M1/M2/M3/M4, x64 = Intel)
 2. Open DMG → drag app to Applications
 3. First launch: right-click → Open (bypasses Gatekeeper for unsigned app)
-   Or run: \`xattr -cr "/Applications/BOTC Storyteller.app"\`
+   Or run: \`xattr -cr "/Applications/BOTC Companion.app"\`
 
 ### Android install
 1. Download \`app-debug.apk\` to your device
@@ -114,7 +114,7 @@ if (!releaseExists(TAG)) {
     process.exit(1)
   }
   console.log(`📝  Creating release ${TAG}...`)
-  run(`gh release create ${TAG} --title "BOTC Storyteller ${TAG}" --notes ${JSON.stringify(RELEASE_NOTES)}`)
+  run(`gh release create ${TAG} --title "BOTC Companion ${TAG}" --notes ${JSON.stringify(RELEASE_NOTES)}`)
 } else {
   console.log(`✅  Release ${TAG} exists — uploading assets...`)
 }

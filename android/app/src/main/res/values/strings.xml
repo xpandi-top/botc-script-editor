@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">BOTC Storyteller</string>
-    <string name="title_activity_main">BOTC Storyteller</string>
+    <string name="app_name">BOTC Companion</string>
+    <string name="title_activity_main">BOTC Companion</string>
     <string name="package_name">top.xpandi.botcstoryteller</string>
     <string name="custom_url_scheme">top.xpandi.botcstoryteller</string>
     <!-- Replace with reversed Android OAuth client ID from Google Cloud Console.

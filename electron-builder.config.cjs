@@ -1,12 +1,12 @@
 /**
- * electron-builder configuration — BOTC Storyteller Companion
+ * electron-builder configuration — BOTC Companion Companion
  * Produces unsigned macOS DMG for direct download and testing.
  */
 
 /** @type {import('electron-builder').Configuration} */
 module.exports = {
   appId: 'top.xpandi.botcstoryteller',
-  productName: 'BOTC Storyteller',
+  productName: 'BOTC Companion',
 
   // Source: Electron main entry + the built web assets
   directories: {
@@ -30,13 +30,13 @@ module.exports = {
     // Ad-hoc signing ("-") — free, no Apple Developer account needed.
     // Prevents "damaged and can't be opened" Gatekeeper error on download.
     // Users still see "unidentified developer" on first launch — bypass with
-    // right-click → Open, or: xattr -cr "/Applications/BOTC Storyteller.app"
+    // right-click → Open, or: xattr -cr "/Applications/BOTC Companion.app"
     identity: '-',
     notarize: false,
   },
 
   dmg: {
-    title: 'BOTC Storyteller ${version}',
+    title: 'BOTC Companion ${version}',
     // Window size/layout for the DMG installer window
     window: { width: 540, height: 380 },
     contents: [
