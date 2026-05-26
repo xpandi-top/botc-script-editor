@@ -9,6 +9,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { Capacitor } from '@capacitor/core'
 import {
   clearTokens,
   fetchGoogleUserInfo,
@@ -262,11 +263,17 @@ export function useCloudSync(): CloudSyncState {
     try {
       setStatus('idle')
       setErrorMessage(null)
-      await startOAuthFlow() // web: navigates away; native: awaits in-app flow
+      await startOAuthFlow() // web: navigates away; native: completes inline
+      // On native, startOAuthFlow() returns with tokens already stored.
+      // On web it navigates away so code below never runs.
+      if (Capacitor.isNativePlatform() && isConnected()) {
+        setConnected(true)
+        await doSync()
+      }
     } catch (e) {
       handleError(e)
     }
-  }, [])
+  }, [doSync])
 
   const disconnect = useCallback(() => {
     clearTokens()

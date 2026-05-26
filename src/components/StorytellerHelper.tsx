@@ -105,7 +105,7 @@ export function StorytellerHelper(props: StorytellerHelperProps) {
         <Box sx={{ display: 'flex', flexDirection: 'column', height: '100dvh', overflow: 'hidden', mx: { xs: 0, sm: -3 }, mt: { xs: 0, sm: -3 } }}>
           <MobileTopBar ctx={ctx} />
           <LeftScriptPanel ctx={ctx} />
-          <Box sx={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+          <Box sx={{ flex: 1, overflow: 'visible', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
             <Arena ctx={ctx} />
           </Box>
           <RightConsole ctx={ctx} />

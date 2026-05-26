@@ -115,15 +115,19 @@ export function Arena({ ctx }: { ctx: StorytellerContext }) {
     return (
       <Box sx={{
         flex: 1, minHeight: 0,
-        position: 'relative', overflow: 'hidden',
+        position: 'relative',
+        overflow: 'hidden',
+        // Note: 'clip' would be ideal (clips without forming scroll container) but
+        // older Android WebViews may not support it; 'hidden' is fine here since
+        // the inner scroll box is absolutely sized.
       }}>
         {/* Filtered background layer — does NOT affect content */}
         <AtmosphereBackground bgSrc={bgSrc} phase={phase} isDark={isDark} position="center top" />
 
-        {/* Scroll container — absolute fill gives it a concrete height Android WebView can use */}
+        {/* Scroll container — explicit top/left/right/bottom (inset shorthand unsupported on older Android WebView) */}
         <Box sx={{
           position: 'absolute',
-          inset: 0,
+          top: 0, left: 0, right: 0, bottom: 0,
           zIndex: 1,
           overflowY: 'scroll',
           WebkitOverflowScrolling: 'touch',
