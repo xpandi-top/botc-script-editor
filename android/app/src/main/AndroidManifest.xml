@@ -19,18 +19,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-            <!-- Google OAuth redirect — scheme = reversed Android client ID
-                 Format: com.googleusercontent.apps.{YOUR_ANDROID_CLIENT_ID_PREFIX}
-                 Get client ID from Google Cloud Console → Credentials → Android OAuth client
-                 Example: if client ID = "123456789-abc.apps.googleusercontent.com"
-                          scheme = "com.googleusercontent.apps.123456789-abc"
-            -->
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="@string/google_oauth_redirect_scheme" />
-            </intent-filter>
+            <!-- OAuth redirect intent-filter intentionally omitted here.
+                 @byteowls/capacitor-oauth2 registers its own activity for the
+                 com.googleusercontent.apps.* scheme via appAuthRedirectScheme
+                 manifestPlaceholder in build.gradle. Adding it here too causes
+                 Android to show a chooser and breaks the plugin's callback. -->
         </activity>
 
         <provider
