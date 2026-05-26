@@ -121,7 +121,7 @@ export function Arena({ ctx }: { ctx: StorytellerContext }) {
         <AtmosphereBackground bgSrc={bgSrc} phase={phase} isDark={isDark} position="center top" />
 
         {/* Content above the filtered background */}
-        <Box sx={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
+        <Box sx={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, overflow: 'hidden' }}>
           <PlayerSeatGrid ctx={ctx} panelCollapsed={panelCollapsed} />
           <PhaseControlPanel ctx={ctx} collapsed={panelCollapsed} setCollapsed={setPanelCollapsed} />
         </Box>

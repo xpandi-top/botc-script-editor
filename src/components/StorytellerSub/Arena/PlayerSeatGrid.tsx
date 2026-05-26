@@ -35,8 +35,13 @@ export function PlayerSeatGrid({ ctx, panelCollapsed }: { ctx: StorytellerContex
         width: '100%',
         pb: panelCollapsed ? PANEL_COLLAPSED_CLEARANCE : PANEL_OPEN_CLEARANCE,
         transition: 'padding-bottom 0.25s ease',
-        overflowY: 'auto',
+        // Android WebView: needs 'scroll' not 'auto', minHeight:0 to bound flex child,
+        // touch-action:pan-y so WebView passes vertical gestures to scroll not to parent
+        overflowY: 'scroll',
         flex: 1,
+        minHeight: 0,
+        touchAction: 'pan-y',
+        WebkitOverflowScrolling: 'touch',
       }}
     >
       {(() => {
