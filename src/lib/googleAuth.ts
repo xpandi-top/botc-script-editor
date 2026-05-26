@@ -31,8 +31,28 @@ const ANDROID_CLIENT_ID: string =
   (import.meta.env.VITE_GOOGLE_ANDROID_CLIENT_ID as string | undefined) ||
   '401513017527-5ok0fl62q0te6njps6u5r0sqvfto02ln.apps.googleusercontent.com'
 
-/** Read client ID — localStorage overrides build-time env var. */
+/**
+ * Desktop (Electron) OAuth client ID + secret — "Desktop app" type in Google Cloud Console.
+ * client_secret is NOT truly secret for desktop apps (Google acknowledges it can be extracted
+ * from binaries). Set via build-time env vars in .env.local.
+ *
+ * In Google Cloud Console → Credentials → Desktop client → Authorized redirect URIs:
+ *   add http://127.0.0.1  (Google accepts any port on loopback for Desktop clients)
+ */
+const ELECTRON_CLIENT_ID: string =
+  (import.meta.env.VITE_GOOGLE_ELECTRON_CLIENT_ID as string | undefined) ?? ''
+const ELECTRON_CLIENT_SECRET: string =
+  (import.meta.env.VITE_GOOGLE_ELECTRON_CLIENT_SECRET as string | undefined) ?? ''
+
+/** True when running inside Electron. */
+export function isElectron(): boolean {
+  return typeof navigator !== 'undefined' &&
+    navigator.userAgent.toLowerCase().includes('electron')
+}
+
+/** Read client ID — Electron/localStorage override build-time env var. */
 export function getClientId(): string {
+  if (isElectron() && ELECTRON_CLIENT_ID) return ELECTRON_CLIENT_ID
   try {
     const stored = localStorage.getItem(CLIENT_ID_STORAGE_KEY)
     if (stored?.trim()) return stored.trim()
@@ -40,8 +60,9 @@ export function getClientId(): string {
   return (import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined) ?? ''
 }
 
-/** Read client secret — localStorage overrides build-time env var. */
+/** Read client secret — Electron/localStorage override build-time env var. */
 export function getClientSecret(): string {
+  if (isElectron() && ELECTRON_CLIENT_SECRET) return ELECTRON_CLIENT_SECRET
   try {
     const stored = localStorage.getItem(CLIENT_SECRET_STORAGE_KEY)
     if (stored?.trim()) return stored.trim()
@@ -195,11 +216,119 @@ async function startNativeOAuthFlow(): Promise<void> {
   storeTokens(tokens)
 }
 
+// ── Electron loopback OAuth flow ──────────────────────────────────────────────
+
+declare global {
+  interface Window {
+    electronBridge?: {
+      startOAuthServer: () => Promise<number>
+      stopOAuthServer: () => Promise<void>
+      onOAuthCallback: (cb: (params: { code?: string; state?: string; error?: string }) => void) => void
+      removeOAuthCallback: () => void
+      openExternal: (url: string) => Promise<void>
+    }
+  }
+}
+
+/**
+ * Electron PKCE flow via loopback HTTP server.
+ * Opens Google consent in system browser; receives code on http://127.0.0.1:{port}/.
+ * Desktop-type OAuth clients allow any loopback port (no exact match needed).
+ */
+async function startElectronOAuthFlow(): Promise<void> {
+  const bridge = window.electronBridge
+  if (!bridge) throw new Error('Electron bridge not available')
+
+  const clientId = getClientId()
+  const clientSecret = getClientSecret()
+  if (!clientId) throw new Error('Google Client ID not configured — set VITE_GOOGLE_ELECTRON_CLIENT_ID')
+
+  const port = await bridge.startOAuthServer()
+  const redirectUri = `http://127.0.0.1:${port}/`
+
+  const verifier = randomBase64Url(96)
+  const challenge = await sha256Base64Url(verifier)
+  const state = randomBase64Url(16)
+
+  // Store PKCE state — persisted across external browser round-trip
+  localStorage.setItem(VERIFIER_KEY, verifier)
+  localStorage.setItem(STATE_KEY, state)
+
+  const params = new URLSearchParams({
+    client_id: clientId,
+    redirect_uri: redirectUri,
+    response_type: 'code',
+    scope: SCOPES,
+    code_challenge: challenge,
+    code_challenge_method: 'S256',
+    state,
+    access_type: 'offline',
+    prompt: 'consent',
+  })
+
+  // Open in system browser (Electron intercepts all HTTP/HTTPS navigations)
+  await bridge.openExternal(`https://accounts.google.com/o/oauth2/v2/auth?${params}`)
+
+  // Wait for callback from loopback server
+  await new Promise<void>((resolve, reject) => {
+    bridge.onOAuthCallback(async ({ code, state: retState, error }) => {
+      bridge.removeOAuthCallback()
+      try {
+        if (error) throw new Error(`Google OAuth error: ${error}`)
+        if (!code) throw new Error('No code in OAuth callback')
+
+        const storedState = localStorage.getItem(STATE_KEY)
+        if (retState !== storedState) throw new Error('OAuth state mismatch — possible CSRF')
+
+        const storedVerifier = localStorage.getItem(VERIFIER_KEY)
+        if (!storedVerifier) throw new Error('PKCE verifier missing')
+
+        const body = new URLSearchParams({
+          client_id: clientId,
+          redirect_uri: redirectUri,
+          grant_type: 'authorization_code',
+          code,
+          code_verifier: storedVerifier,
+        })
+        if (clientSecret) body.set('client_secret', clientSecret)
+
+        const res = await fetch('https://oauth2.googleapis.com/token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: body.toString(),
+        })
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}))
+          throw new Error(`Token exchange failed: ${(err as { error?: string }).error ?? res.status}`)
+        }
+
+        const data = await res.json() as {
+          access_token: string
+          refresh_token: string
+          expires_in: number
+        }
+        storeTokens({
+          access_token: data.access_token,
+          refresh_token: data.refresh_token,
+          expires_at: Date.now() + data.expires_in * 1000,
+        })
+
+        localStorage.removeItem(VERIFIER_KEY)
+        localStorage.removeItem(STATE_KEY)
+        resolve()
+      } catch (e) {
+        reject(e)
+      }
+    })
+  })
+}
+
 // ── Start flow ────────────────────────────────────────────────────────────────
 
 /**
  * Kick off PKCE OAuth2.
  * On Android native: uses Chrome Custom Tabs via @byteowls/capacitor-oauth2 (no secret).
+ * On Electron: opens system browser + loopback HTTP server receives code.
  * On web: stores verifier in localStorage, navigates to Google consent page.
  * After web consent, Google redirects back with `?code=...&state=...`.
  * Call `handleOAuthCallback()` to complete the web flow.
@@ -207,6 +336,9 @@ async function startNativeOAuthFlow(): Promise<void> {
 export async function startOAuthFlow(): Promise<void> {
   if (Capacitor.isNativePlatform()) {
     return startNativeOAuthFlow()
+  }
+  if (isElectron()) {
+    return startElectronOAuthFlow()
   }
 
   const clientId = getClientId()

@@ -17,6 +17,7 @@ module.exports = {
   // Include only what the app needs at runtime
   files: [
     'electron/main.cjs',
+    'electron/preload.cjs',
     'dist-native/**/*',
     'public/icons/**/*',
     '!node_modules',

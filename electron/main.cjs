@@ -5,9 +5,10 @@
  * No server needed; all assets are local.
  */
 
-const { app, BrowserWindow, shell, Menu, nativeTheme } = require('electron')
+const { app, BrowserWindow, shell, Menu, ipcMain } = require('electron')
 const path = require('path')
 const fs   = require('fs')
+const http = require('http')
 
 // ── Paths ─────────────────────────────────────────────────────────────────────
 
@@ -24,6 +25,56 @@ function getIndexPath() {
   return candidates[0]
 }
 
+// ── OAuth loopback server ─────────────────────────────────────────────────────
+
+let oauthServer = null
+
+function startOAuthLoopbackServer() {
+  return new Promise((resolve, reject) => {
+    if (oauthServer) {
+      oauthServer.close()
+      oauthServer = null
+    }
+    const server = http.createServer((req, res) => {
+      const url = new URL(req.url, 'http://127.0.0.1')
+      const code  = url.searchParams.get('code')
+      const state = url.searchParams.get('state')
+      const error = url.searchParams.get('error')
+
+      // Respond with a simple close-the-tab page
+      const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
+        <title>BOTC Companion — Auth</title>
+        <style>body{font-family:sans-serif;text-align:center;padding:60px;background:#f6f1e7}</style>
+        </head><body>
+        <h2>${error ? '❌ Auth failed' : '✅ Connected!'}</h2>
+        <p>${error ? error : 'Return to BOTC Companion.'}</p>
+        <script>window.close()</script>
+        </body></html>`
+      res.writeHead(200, { 'Content-Type': 'text/html' })
+      res.end(html)
+
+      // Send code to renderer
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send('oauth-callback', { code, state, error })
+      }
+      server.close()
+      oauthServer = null
+    })
+
+    server.listen(0, '127.0.0.1', () => {
+      oauthServer = server
+      resolve(server.address().port)
+    })
+    server.on('error', reject)
+  })
+}
+
+ipcMain.handle('oauth-server-start', () => startOAuthLoopbackServer())
+ipcMain.handle('oauth-server-stop', () => {
+  if (oauthServer) { oauthServer.close(); oauthServer = null }
+})
+ipcMain.handle('open-external', (_event, url) => shell.openExternal(url))
+
 // ── Window ────────────────────────────────────────────────────────────────────
 
 let mainWindow = null
@@ -39,8 +90,8 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      // Allow localStorage / IndexedDB (needed for game state persistence)
       webSecurity: true,
+      preload: path.join(__dirname, 'preload.cjs'),
     },
     // macOS: use native traffic lights
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
