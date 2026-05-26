@@ -27,8 +27,11 @@ module.exports = {
     target: [{ target: 'dmg', arch: ['x64', 'arm64'] }],
     icon: 'public/icons/icon-256.png',
     category: 'public.app-category.games',
-    // No code signing for test builds — users bypass with right-click → Open
-    identity: null,
+    // Ad-hoc signing ("-") — free, no Apple Developer account needed.
+    // Prevents "damaged and can't be opened" Gatekeeper error on download.
+    // Users still see "unidentified developer" on first launch — bypass with
+    // right-click → Open, or: xattr -cr "/Applications/BOTC Storyteller.app"
+    identity: '-',
     notarize: false,
   },
 
