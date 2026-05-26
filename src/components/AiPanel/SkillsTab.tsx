@@ -76,7 +76,7 @@ function getIcon(name: string): React.ReactNode {
 type Props = {
   context: AiContext
   loading: boolean
-  handleSend: (override?: string) => void
+  handleSend: (override?: string, displayLabel?: string) => void
   language: Language
 }
 
@@ -110,7 +110,7 @@ export function SkillsTab({ context, loading, handleSend, language }: Props) {
               bgcolor: (t) => alpha(t.palette.primary.main, 0.04),
             },
           }}
-          onClick={() => !loading && handleSend(skill.prompt(context))}
+          onClick={() => !loading && handleSend(skill.prompt(context), zh ? skill.labelZh : skill.label)}
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.25 }}>
             <Box sx={{ color: 'primary.main', display: 'flex', flexShrink: 0 }}>

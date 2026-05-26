@@ -2,10 +2,10 @@
  * ChatTab — message list, fill cards, and input area.
  */
 
-import { RefObject } from 'react'
+import { RefObject, memo } from 'react'
 import {
   Box, Button, CircularProgress, FormControlLabel, Paper,
-  Switch, TextField, Typography, Chip, alpha,
+  Switch, TextField, Typography, Chip, alpha, Divider,
 } from '@mui/material'
 import SendIcon   from '@mui/icons-material/Send'
 import CheckIcon  from '@mui/icons-material/Check'
@@ -15,6 +15,90 @@ import type { AiContext, FillAction } from '../../lib/ai/types'
 import type { Language } from '../../types'
 import { useT } from '../../context/I18nContext'
 
+// ── Simple markdown renderer (no external dep) ─────────────────────────────
+// Handles: ## headings, **bold**, *italic*, `code`, bullet lists, line breaks
+const MdText = memo(function MdText({ text }: { text: string }) {
+  const lines = text.split('\n')
+  const nodes: React.ReactNode[] = []
+  let i = 0
+  while (i < lines.length) {
+    const line = lines[i]
+    // h2
+    if (line.startsWith('## ')) {
+      nodes.push(
+        <Typography key={i} variant="subtitle2"
+          sx={{ fontWeight: 700, mt: nodes.length ? 1.2 : 0, mb: 0.2, lineHeight: 1.4 }}>
+          {inlineFormat(line.slice(3))}
+        </Typography>
+      )
+    // h3
+    } else if (line.startsWith('### ')) {
+      nodes.push(
+        <Typography key={i} variant="caption"
+          sx={{ fontWeight: 700, display: 'block', mt: 0.8, mb: 0.15, lineHeight: 1.4 }}>
+          {inlineFormat(line.slice(4))}
+        </Typography>
+      )
+    // horizontal rule
+    } else if (/^---+$/.test(line.trim())) {
+      nodes.push(<Divider key={i} sx={{ my: 0.75 }} />)
+    // bullet
+    } else if (/^[-*•]\s/.test(line)) {
+      nodes.push(
+        <Box key={i} component="div" sx={{ display: 'flex', gap: 0.5, ml: 1, lineHeight: 1.5 }}>
+          <Box component="span" sx={{ flexShrink: 0, mt: '2px' }}>•</Box>
+          <Typography variant="inherit" component="span" sx={{ fontSize: 'inherit', lineHeight: 1.5 }}>
+            {inlineFormat(line.replace(/^[-*•]\s/, ''))}
+          </Typography>
+        </Box>
+      )
+    // numbered list
+    } else if (/^\d+\.\s/.test(line)) {
+      const num = line.match(/^(\d+)\.\s/)![1]
+      nodes.push(
+        <Box key={i} component="div" sx={{ display: 'flex', gap: 0.5, ml: 1, lineHeight: 1.5 }}>
+          <Box component="span" sx={{ flexShrink: 0, minWidth: 16 }}>{num}.</Box>
+          <Typography variant="inherit" component="span" sx={{ fontSize: 'inherit', lineHeight: 1.5 }}>
+            {inlineFormat(line.replace(/^\d+\.\s/, ''))}
+          </Typography>
+        </Box>
+      )
+    // empty line → spacer
+    } else if (!line.trim()) {
+      nodes.push(<Box key={i} component="div" sx={{ height: '0.35em' }} />)
+    // normal paragraph text
+    } else {
+      nodes.push(
+        <Typography key={i} variant="inherit" component="div" sx={{ fontSize: 'inherit', lineHeight: 1.5 }}>
+          {inlineFormat(line)}
+        </Typography>
+      )
+    }
+    i++
+  }
+  return <>{nodes}</>
+})
+
+/** Render inline markdown: **bold**, *italic*, `code` */
+function inlineFormat(text: string): React.ReactNode {
+  // Split on **...**, *...*, `...`
+  const parts = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`)/g)
+  return parts.map((part, idx) => {
+    if (part.startsWith('**') && part.endsWith('**'))
+      return <strong key={idx}>{part.slice(2, -2)}</strong>
+    if (part.startsWith('*') && part.endsWith('*'))
+      return <em key={idx}>{part.slice(1, -1)}</em>
+    if (part.startsWith('`') && part.endsWith('`'))
+      return (
+        <Box key={idx} component="code" sx={{
+          fontFamily: 'monospace', fontSize: '0.75em',
+          bgcolor: 'action.hover', px: 0.4, borderRadius: 0.5,
+        }}>{part.slice(1, -1)}</Box>
+      )
+    return part
+  })
+}
+
 type Props = {
   messages: AiMessage[]
   loading: boolean
@@ -22,7 +106,7 @@ type Props = {
   setInput: (v: string) => void
   autoApply: boolean
   setAutoApply: (v: boolean) => void
-  handleSend: (override?: string) => void
+  handleSend: (override?: string, displayLabel?: string) => void
   doApplyFill: (msgId: string, fill: FillAction, oldValue: unknown) => void
   setMessages: React.Dispatch<React.SetStateAction<AiMessage[]>>
   context?: AiContext
@@ -69,7 +153,7 @@ export function ChatTab({
           <Box key={m.id}>
             <Box sx={{ display: 'flex', justifyContent: m.role === 'user' ? 'flex-end' : 'flex-start' }}>
               <Paper elevation={0} sx={{
-                px: 1.25, py: 0.65, maxWidth: '90%',
+                px: 1.25, py: 0.65, maxWidth: '92%',
                 bgcolor:
                   m.role === 'user' ? 'primary.main'
                   : m.role === 'error' ? 'error.light'
@@ -79,9 +163,18 @@ export function ChatTab({
                   : m.role === 'error' ? 'error.contrastText'
                   : 'text.primary',
                 borderRadius: m.role === 'user' ? '10px 10px 3px 10px' : '10px 10px 10px 3px',
-                whiteSpace: 'pre-wrap', fontSize: '0.8rem', lineHeight: 1.5,
+                fontSize: '0.8rem', lineHeight: 1.5,
               }}>
-                {m.content}
+                {m.role === 'user'
+                  // User messages: show short displayContent label if set, else plain text
+                  ? (m.displayContent
+                      ? <Typography variant="inherit" sx={{ fontSize: 'inherit', fontStyle: 'italic', opacity: 0.92 }}>
+                          {m.displayContent}
+                        </Typography>
+                      : <Box sx={{ whiteSpace: 'pre-wrap' }}>{m.content}</Box>)
+                  // Assistant messages: render markdown
+                  : <MdText text={m.content} />
+                }
               </Paper>
             </Box>
 

@@ -93,7 +93,7 @@ export function AiPanelContent({ open, onClose, context, callbacks, variant = 's
               icon={CHIP_ICON_MAP[skill.icon]}
               label={zh ? skill.labelZh : skill.label}
               size="small" variant="outlined"
-              onClick={() => handleSend(skill.prompt(effectiveCtx))}
+              onClick={() => handleSend(skill.prompt(effectiveCtx), zh ? skill.labelZh : skill.label)}
               disabled={loading}
               sx={{
                 fontSize: '0.65rem', height: 22, cursor: 'pointer',

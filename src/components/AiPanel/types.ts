@@ -16,6 +16,8 @@ export type AiMessage = {
   id: string
   role: 'user' | 'assistant' | 'error'
   content: string
+  /** Short label shown in the chat bubble instead of full content (for skill prompts) */
+  displayContent?: string
   fills?: FillAction[]
   appliedFills?: string[]
 }

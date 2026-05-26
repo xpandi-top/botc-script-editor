@@ -95,10 +95,16 @@ export function useAiPanel({ open, context, callbacks }: UseAiPanelOptions) {
     setFillLog((prev) => prev.map((e) => e.id === entry.id ? { ...e, undone: true } : e))
   }, [callbacks])
 
-  const handleSend = useCallback(async (overrideText?: string) => {
+  const handleSend = useCallback(async (overrideText?: string, displayLabel?: string) => {
     const text = (overrideText ?? input).trim()
     if (!text || loading) return
-    const userMsg: AiMessage = { id: crypto.randomUUID(), role: 'user', content: text }
+    const userMsg: AiMessage = {
+      id: crypto.randomUUID(),
+      role: 'user',
+      content: text,
+      // Skill chip prompts are long & technical — show only the short label in UI
+      displayContent: displayLabel,
+    }
     setMessages((m) => [...m, userMsg])
     if (!overrideText) setInput('')
     setActiveTab('chat')

@@ -410,6 +410,55 @@ Do not invent official rulings. Only evaluate the ability text as written.`
       const title   = strField(ctx, 'title', 'this script')
       const teamBkd = strField(ctx, 'teamBreakdown')
       const count   = strField(ctx, 'characterCount')
+      const zh      = ctx.language === 'zh'
+
+      // Guard: empty script
+      const charCount = parseInt(count, 10)
+      if (!charCount || charCount < 2) {
+        return zh
+          ? `该剧本没有足够的角色（当前：${charCount || 0} 个）。请先在剧本中添加角色，再进行分析。`
+          : `This script has no characters yet (count: ${charCount || 0}). Please add characters before analyzing.`
+      }
+
+      if (zh) {
+        return `分析这个血染钟楼剧本。仅返回 \`message\`，包含以下章节。
+
+剧本：「${title}」${count ? `（${count} 个角色）` : ''}${teamBkd ? `\n阵营构成：${teamBkd}` : ''}
+
+使用以下章节（## 标题），用中文作答：
+
+## 信息密度
+哪些角色产生信息？可靠性如何？邪恶阵营能否中毒/污染关键信息来源？
+
+## 邪恶虚张空间
+爪牙/恶魔可以安全伪装成哪些角色？虚张牌池有多大？邪恶阵营是否有足够的掩护？
+
+## 中毒/醉酒压力
+剧本中有哪些能令人醉酒或中毒的角色？这对信息可信度有何影响？
+
+## 处决压力
+什么驱使好人阵营处决？什么让好人犹豫不决？邪恶阵营拖延处决有多容易？
+
+## 死亡来源
+除恶魔夜杀外还有什么能导致死亡？是否存在处决陷阱？每局约死几人？
+
+## 确认链
+哪些角色可以互相确认？好人阵营能形成可靠的确认链吗？
+
+## 说书人难度
+该剧本最复杂的裁定是什么？说书人需要记录哪些内容？
+
+## 好人获胜条件
+好人阵营需要做什么才能获胜？哪些信息是关键的？
+
+## 邪恶获胜条件
+邪恶阵营需要做什么？如何撑到游戏结束？
+
+## 总评
+一句话：剧本平衡性评价和难度评级（入门 / 进阶 / 高难）。
+
+仅根据上下文中提供的角色列表进行分析。不得引用不在该剧本中的角色。`
+      }
 
       return `Analyze this BOTC script. Return only a \`message\` with structured sections.
 
