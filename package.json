@@ -25,7 +25,10 @@
     "dist:mac:x64": "npm run build:native && electron-builder --mac --x64 --config electron-builder.config.cjs",
     "dist:mac:arm64": "npm run build:native && electron-builder --mac --arm64 --config electron-builder.config.cjs",
     "android:build": "npm run build:native && npx cap sync android && cd android && ./gradlew assembleDebug",
-    "android:apk": "cd android && ./gradlew assembleDebug"
+    "android:apk": "cd android && ./gradlew assembleDebug",
+    "release": "node scripts/github-release.mjs",
+    "release:create": "node scripts/github-release.mjs --create",
+    "release:update": "node scripts/github-release.mjs --clobber"
   },
   "dependencies": {
     "@byteowls/capacitor-oauth2": "^5.0.0",
