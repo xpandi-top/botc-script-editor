@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Box, Tab, Tabs, Typography } from '@mui/material'
+import { useBreakpoint } from '../../hooks/useBreakpoint'
 import BarChartIcon from '@mui/icons-material/BarChart'
 import AutoStoriesIcon from '@mui/icons-material/AutoStories'
 import GroupIcon from '@mui/icons-material/Group'
@@ -31,6 +32,7 @@ type StudioTab = typeof TABS[number]
 export function StudioShell({ records, onRecordsChange, language, onCreateRecord, onEditRecord }: Props) {
   const tpl = makeTpl(language)
   const [activeTab, setActiveTab] = useState<StudioTab>('overview')
+  const { isMobile } = useBreakpoint()
   const { filter, setFilter, filtered, activeCount, resetFilter, allScriptOptions, allPlayerOptions } = useAnalyticsFilter(records)
 
   const kpi = useKpiSummary(filtered)
@@ -75,14 +77,24 @@ export function StudioShell({ records, onRecordsChange, language, onCreateRecord
           variant="scrollable"
           scrollButtons="auto"
           sx={{
-            '& .MuiTab-root': { minHeight: 40, py: 0.75, fontSize: { xs: '0.7rem', sm: '0.8rem' }, fontWeight: 600, textTransform: 'none' },
+            '& .MuiTab-root': {
+              minHeight: { xs: 36, sm: 40 },
+              py: { xs: 0.5, sm: 0.75 },
+              px: { xs: 1, sm: 1.5 },
+              minWidth: { xs: 44, sm: 'auto' },
+              fontSize: { xs: '0.7rem', sm: '0.8rem' },
+              fontWeight: 600,
+              textTransform: 'none',
+            },
           }}
         >
           {tabDefs.map((t) => (
             <Tab
               key={t.key}
               value={t.key}
-              label={language === 'zh' ? t.labelZh : t.label}
+              label={
+                isMobile ? undefined : (language === 'zh' ? t.labelZh : t.label)
+              }
               icon={t.icon as React.ReactElement}
               iconPosition="start"
             />
