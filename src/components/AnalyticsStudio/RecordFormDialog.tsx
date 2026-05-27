@@ -318,15 +318,31 @@ export function RecordFormDialog({ existing, zh, language, onSave, onClose }: {
               {t('analytics_char_team_hint')}
             </Typography>
             {/* Header row */}
-            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '32px 1fr auto', sm: '32px 1fr 1fr 80px' }, gap: 0.5, alignItems: 'center', px: 0.5 }}>
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '22px 1fr 1fr auto', sm: '32px 1fr 1fr 80px' }, gap: { xs: 0.375, sm: 0.5 }, alignItems: 'center', px: 0.5 }}>
               <Typography variant="caption" color="text.secondary">#</Typography>
               <Typography variant="caption" color="text.secondary">{t('name')}</Typography>
-              <Typography variant="caption" color="text.secondary" sx={{ display: { xs: 'none', sm: 'block' } }}>{t('character')}</Typography>
+              <Typography variant="caption" color="text.secondary">{t('character')}</Typography>
               <Typography variant="caption" color="text.secondary">{t('team_label')}</Typography>
             </Box>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75, maxHeight: { xs: 480, sm: 360 }, overflowY: 'auto', pr: 0.5 }}>
-              {players.map((p, i) => {
-                const charAutocomplete = (
+
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: { xs: 0.375, sm: 0.5 }, maxHeight: { xs: 500, sm: 360 }, overflowY: 'auto', pr: 0.5 }}>
+              {players.map((p, i) => (
+                <Box key={i} sx={{
+                  display: 'grid',
+                  gridTemplateColumns: { xs: '22px 1fr 1fr auto', sm: '32px 1fr 1fr 80px' },
+                  gap: { xs: 0.375, sm: 0.5 },
+                  alignItems: 'center',
+                }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'center', fontWeight: 600, fontSize: { xs: '0.68rem', sm: '0.75rem' } }}>
+                    {i + 1}
+                  </Typography>
+                  <TextField
+                    size="small"
+                    placeholder={`${t('player_section')} ${i + 1}`}
+                    value={p.name}
+                    onChange={(e) => updatePlayer(i, { name: e.target.value })}
+                    sx={{ minWidth: 0, '& .MuiInputBase-input': { py: { xs: '3px', sm: '4px' }, fontSize: { xs: '0.72rem', sm: '0.8rem' } } }}
+                  />
                   <Autocomplete
                     options={charOptions}
                     groupBy={(o) => groupLabel(o.team)}
@@ -344,43 +360,20 @@ export function RecordFormDialog({ existing, zh, language, onSave, onClose }: {
                     )}
                     renderInput={(params) => (
                       <TextField {...params} size="small" placeholder={t('character')}
-                        sx={{ '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' } }} />
+                        sx={{ '& .MuiInputBase-input': { py: { xs: '3px', sm: '4px' }, fontSize: { xs: '0.72rem', sm: '0.75rem' } } }} />
                     )}
                     slotProps={{ popper: { style: { zIndex: 1400 } } }}
                     clearOnEscape
-                    sx={{ flex: 1 }}
+                    sx={{ minWidth: 0 }}
                   />
-                )
-                return (
-                  <Box key={i} sx={{ display: 'flex', flexDirection: 'column', gap: 0.375 }}>
-                    {/* Main row: # | name | [character sm+] | team */}
-                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '32px 1fr auto', sm: '32px 1fr 1fr 80px' }, gap: 0.5, alignItems: 'center' }}>
-                      <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'center' }}>{i + 1}</Typography>
-                      <TextField
-                        size="small"
-                        placeholder={`${t('player_section')} ${i + 1}`}
-                        value={p.name}
-                        onChange={(e) => updatePlayer(i, { name: e.target.value })}
-                        sx={{ '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' } }}
-                      />
-                      {/* Character select — desktop grid column */}
-                      <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
-                        {charAutocomplete}
-                      </Box>
-                      <ToggleButtonGroup value={p.team} exclusive size="small"
-                        onChange={(_, v) => { if (v !== null) updatePlayer(i, { team: v as 'evil' | 'good' | '' }) }}
-                        sx={{ '& .MuiToggleButton-root': { py: { xs: '1px', sm: '2px' }, px: { xs: '4px', sm: '6px' }, fontSize: '0.7rem' } }}>
-                        <ToggleButton value="evil" sx={{ color: 'error.main' }}>{t('evil_short')}</ToggleButton>
-                        <ToggleButton value="good" sx={{ color: 'success.main' }}>{t('good_short')}</ToggleButton>
-                      </ToggleButtonGroup>
-                    </Box>
-                    {/* Character select — mobile second row */}
-                    <Box sx={{ display: { xs: 'block', sm: 'none' }, ml: '36px' }}>
-                      {charAutocomplete}
-                    </Box>
-                  </Box>
-                )
-              })}
+                  <ToggleButtonGroup value={p.team} exclusive size="small"
+                    onChange={(_, v) => { if (v !== null) updatePlayer(i, { team: v as 'evil' | 'good' | '' }) }}
+                    sx={{ '& .MuiToggleButton-root': { py: { xs: '1px', sm: '2px' }, px: { xs: '3px', sm: '6px' }, fontSize: { xs: '0.62rem', sm: '0.7rem' } } }}>
+                    <ToggleButton value="evil" sx={{ color: 'error.main' }}>{t('evil_short')}</ToggleButton>
+                    <ToggleButton value="good" sx={{ color: 'success.main' }}>{t('good_short')}</ToggleButton>
+                  </ToggleButtonGroup>
+                </Box>
+              ))}
             </Box>
           </Box>
         )}

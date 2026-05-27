@@ -260,6 +260,7 @@ export const MobileSeatCard = React.memo(MobileSeatCardInner, (prev, next) =>
   prev.ctx.selectedSeat === next.ctx.selectedSeat &&
   prev.ctx.nightShowCharacter === next.ctx.nightShowCharacter &&
   prev.ctx.nightShowWakeOrder === next.ctx.nightShowWakeOrder &&
+  prev.ctx.skillOverlay === next.ctx.skillOverlay &&
   prev.ctx.characterPopoutSeat === next.ctx.characterPopoutSeat &&
   prev.ctx.playerModalSeat === next.ctx.playerModalSeat &&
   prev.ctx.activeScriptSlug === next.ctx.activeScriptSlug &&
