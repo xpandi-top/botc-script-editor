@@ -19,12 +19,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-            <!-- OAuth redirect intent-filter NOT here.
-                 AppAuth's RedirectUriReceiverActivity (registered via appAuthRedirectScheme
-                 in build.gradle) handles the com.googleusercontent.apps.* redirect and
-                 returns it as ActivityResult to the plugin's @ActivityCallback handler.
-                 Adding it here too causes an Android chooser and intercepts the intent
-                 before AppAuth can process it. -->
+            <!-- OAuth deep-link redirect for @capacitor/app appUrlOpen listener.
+                 When Google redirects to com.googleusercontent.apps.xxx:/oauth2redirect,
+                 Android routes it here. @capacitor/app fires appUrlOpen in JS with the URL.
+                 Single handler — no app chooser. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="@string/google_oauth_redirect_scheme" />
+            </intent-filter>
         </activity>
 
         <provider

@@ -85,7 +85,8 @@ import { STORAGE_KEY, USER_SCRIPTS_KEY, SCRIPT_META_KEY, RECORDS_CHANGED_EVENT }
 import type { GameRecord } from './components/StorytellerSub/types'
 import { BOTC_SCRIPT_FOLDERS_KEY } from './components/tabs/ScriptsTab.constants'
 import { useCloudSync } from './hooks/useCloudSync'
-import { getClientId } from './lib/googleAuth'
+import { getClientId, isElectron } from './lib/googleAuth'
+import { Capacitor } from '@capacitor/core'
 import type { SyncStatus } from './hooks/useCloudSync'
 import { useShareParam, updateUrlParams } from './hooks/useShareParam'
 import type { TabKey } from './hooks/useShareParam'
@@ -125,7 +126,9 @@ function CloudSyncBadge({ connected, status, lastSynced, errorMessage, language,
   const tpl = makeTpl(language)
   const isBusy = status === 'syncing' || status === 'pulling' || status === 'pushing'
   const isError = status === 'error'
-  const isConfigured = !!getClientId()
+  // Android always has ANDROID_CLIENT_ID hardcoded; Electron has its own client.
+  // Both are "configured" even if getClientId() (web client) returns empty.
+  const isConfigured = Capacitor.isNativePlatform() || isElectron() || !!getClientId()
 
   let icon: React.ReactNode
   let dotColor: string

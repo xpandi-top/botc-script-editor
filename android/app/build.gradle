@@ -18,11 +18,10 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        // AppAuth's RedirectUriReceiverActivity must claim this scheme so it can
-        // receive the OAuth redirect and return it as ActivityResult back to the
-        // plugin's handleIntentResult @ActivityCallback. Do NOT also add this scheme
-        // to MainActivity's intent-filter — that causes a chooser and breaks the flow.
-        manifestPlaceholders = [appAuthRedirectScheme: "com.googleusercontent.apps.401513017527-5ok0fl62q0te6njps6u5r0sqvfto02ln"]
+        // appAuthRedirectScheme set to app package (not the OAuth scheme) so AppAuth's
+        // RedirectUriReceiverActivity doesn't register for com.googleusercontent.apps.*
+        // and compete with our MainActivity intent-filter / appUrlOpen approach.
+        manifestPlaceholders = [appAuthRedirectScheme: "top.xpandi.botcstoryteller"]
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
              // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61

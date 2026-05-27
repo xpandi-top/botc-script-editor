@@ -17,7 +17,7 @@ import {
   getValidToken,
   handleOAuthCallback,
   isConnected,
-  isElectronConfigured,
+  isElectron,
   startOAuthFlow,
   type GoogleUserInfo,
 } from '../lib/googleAuth'
@@ -79,6 +79,7 @@ export function useCloudSync(): CloudSyncState {
 
   const handleError = (e: unknown) => {
     const msg = e instanceof Error ? e.message : String(e)
+    console.error('[CloudSync] error:', msg, e)
     setStatus('error')
     setErrorMessage(msg)
     isSyncing.current = false
@@ -265,9 +266,9 @@ export function useCloudSync(): CloudSyncState {
       setStatus('idle')
       setErrorMessage(null)
       await startOAuthFlow() // web: navigates away; native/electron: completes inline
-      // Android + configured Electron: startOAuthFlow() returns inline with tokens stored.
-      // Web / unconfigured Electron: navigates away — code below never runs.
-      if ((Capacitor.isNativePlatform() || isElectronConfigured()) && isConnected()) {
+      // Android + Electron: startOAuthFlow() returns inline with tokens stored.
+      // Web: navigates away — code below never runs.
+      if ((Capacitor.isNativePlatform() || isElectron()) && isConnected()) {
         setConnected(true)
         await doSync()
       }

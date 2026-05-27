@@ -169,56 +169,123 @@ export function getRedirectUri(): string {
   return origin + pathname.replace(/\/$/, '') + '/'
 }
 
-// ── Native OAuth (Android — no client_secret) ────────────────────────────────
+// ── Native OAuth (Android — @capacitor/browser + appUrlOpen) ─────────────────
 
 /**
- * Android PKCE flow via @byteowls/capacitor-oauth2.
- * Uses Chrome Custom Tabs; Google verifies by APK SHA-1, no secret required.
- * Redirect scheme: com.googleusercontent.apps.{reversed-client-id}
+ * Android PKCE flow via @capacitor/browser + @capacitor/app.
+ *
+ * Why not @byteowls/capacitor-oauth2:
+ *   The plugin wraps AppAuth which registers its own RedirectUriReceiverActivity.
+ *   If another app also claims the redirect scheme, Android shows a chooser.
+ *   When the user picks the wrong entry, AppAuth's ActivityResult never fires
+ *   and OAuth2Client.authenticate() hangs forever with no error.
+ *
+ * This flow instead:
+ *   1. Opens Google consent via Browser.open() (Chrome Custom Tab)
+ *   2. Listens for App.appUrlOpen — fires when Android routes the redirect URI
+ *      to our MainActivity intent-filter (single handler, no chooser)
+ *   3. Extracts code, exchanges for tokens via fetch() directly
+ *   4. No AppAuth middleman, no ActivityResult chain
  */
 async function startNativeOAuthFlow(): Promise<void> {
-  const { OAuth2Client } = await import('@byteowls/capacitor-oauth2')
+  const { Browser } = await import('@capacitor/browser')
+  const { App } = await import('@capacitor/app')
+
   const clientId = ANDROID_CLIENT_ID || getClientId()
   if (!clientId) throw new Error('Google Client ID not configured — enter it in Settings → Cloud Sync')
 
-  // Reversed client ID scheme required for Android OAuth loopback
   const reversedClientId = clientId.split('.').reverse().join('.')
-  const redirectUrl = `${reversedClientId}:/oauth2redirect`
+  const redirectUri = `${reversedClientId}:/oauth2redirect`
 
-  const result = await OAuth2Client.authenticate({
-    appId: clientId,
-    authorizationBaseUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
-    accessTokenEndpoint: 'https://oauth2.googleapis.com/token',
+  const verifier = randomBase64Url(96)
+  const challenge = await sha256Base64Url(verifier)
+  const state = randomBase64Url(16)
+
+  localStorage.setItem(VERIFIER_KEY, verifier)
+  localStorage.setItem(STATE_KEY, state)
+
+  const params = new URLSearchParams({
+    client_id: clientId,
+    redirect_uri: redirectUri,
+    response_type: 'code',
     scope: SCOPES,
-    pkceEnabled: true,
-    responseType: 'code',
-    redirectUrl,
-    logsEnabled: true,
-    android: {
-      // Chrome Custom Tab returns via onActivityResult — handleResultOnActivityResult is required.
-      // handleResultOnNewIntent is ONLY called when app was KILLED during auth (per plugin docs).
-      handleResultOnActivityResult: true,
-    },
-    additionalParameters: {
-      access_type: 'offline',
-      prompt: 'consent',
-    },
+    code_challenge: challenge,
+    code_challenge_method: 'S256',
+    state,
+    access_type: 'offline',
+    prompt: 'consent',
   })
 
-  const tokenResponse = result?.access_token_response as {
-    access_token?: string
-    refresh_token?: string
-    expires_in?: number
-  } | null
+  await new Promise<void>((resolve, reject) => {
+    let handled = false
 
-  if (!tokenResponse?.access_token) throw new Error('Native OAuth: no access_token in response')
+    const listener = App.addListener('appUrlOpen', async (event: { url: string }) => {
+      if (handled) return
+      if (!event.url.startsWith(reversedClientId + ':')) return
+      handled = true
+      ;(await listener).remove()
+      void Browser.close().catch(() => {})
 
-  const tokens: GoogleTokens = {
-    access_token: tokenResponse.access_token,
-    refresh_token: tokenResponse.refresh_token ?? '',
-    expires_at: Date.now() + (tokenResponse.expires_in ?? 3600) * 1000,
-  }
-  storeTokens(tokens)
+      try {
+        const url = new URL(event.url.replace(/^([a-z.]+):\//, '$1://'))
+        const code = url.searchParams.get('code')
+        const returnedState = url.searchParams.get('state')
+        const error = url.searchParams.get('error')
+
+        if (error) throw new Error(`Google OAuth error: ${error}`)
+        if (!code) throw new Error('No code in OAuth callback')
+
+        const storedState = localStorage.getItem(STATE_KEY)
+        if (returnedState !== storedState) throw new Error('OAuth state mismatch — possible CSRF')
+
+        const storedVerifier = localStorage.getItem(VERIFIER_KEY)
+        if (!storedVerifier) throw new Error('PKCE verifier missing')
+
+        const body = new URLSearchParams({
+          client_id: clientId,
+          redirect_uri: redirectUri,
+          grant_type: 'authorization_code',
+          code,
+          code_verifier: storedVerifier,
+        })
+
+        const res = await fetch('https://oauth2.googleapis.com/token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: body.toString(),
+        })
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}))
+          throw new Error(`Token exchange failed: ${(err as { error?: string }).error ?? res.status}`)
+        }
+
+        const data = await res.json() as {
+          access_token: string
+          refresh_token: string
+          expires_in: number
+        }
+
+        storeTokens({
+          access_token: data.access_token,
+          refresh_token: data.refresh_token ?? '',
+          expires_at: Date.now() + (data.expires_in ?? 3600) * 1000,
+        })
+
+        localStorage.removeItem(VERIFIER_KEY)
+        localStorage.removeItem(STATE_KEY)
+        resolve()
+      } catch (e) {
+        reject(e)
+      }
+    })
+
+    // Open consent page in Chrome Custom Tab
+    Browser.open({
+      url: `https://accounts.google.com/o/oauth2/v2/auth?${params}`,
+      presentationStyle: 'popover',
+    }).catch(reject)
+  })
 }
 
 // ── Electron loopback OAuth flow ──────────────────────────────────────────────
@@ -332,7 +399,7 @@ async function startElectronOAuthFlow(): Promise<void> {
 
 /**
  * Kick off PKCE OAuth2.
- * On Android native: uses Chrome Custom Tabs via @byteowls/capacitor-oauth2 (no secret).
+ * On Android native: uses Chrome Custom Tabs via @capacitor/browser + appUrlOpen (no secret).
  * On Electron: opens system browser + loopback HTTP server receives code.
  * On web: stores verifier in localStorage, navigates to Google consent page.
  * After web consent, Google redirects back with `?code=...&state=...`.

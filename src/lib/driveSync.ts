@@ -40,10 +40,16 @@ export async function listDriveFiles(token: string): Promise<DriveFileMeta[]> {
     fields: 'files(id,name,modifiedTime)',
     pageSize: '20',
   })
+  console.log('[Drive] listDriveFiles — token prefix:', token.slice(0, 20))
   const res = await fetch(`${DRIVE_API}/files?${params}`, {
     headers: authHeader(token),
   })
-  if (!res.ok) throw new Error(`Drive list failed: ${res.status}`)
+  console.log('[Drive] listDriveFiles response:', res.status)
+  if (!res.ok) {
+    const errBody = await res.text().catch(() => '')
+    console.error('[Drive] listDriveFiles error body:', errBody)
+    throw new Error(`Drive list failed: ${res.status} ${errBody.slice(0, 200)}`)
+  }
   const data = await res.json() as { files: DriveFileMeta[] }
   return data.files
 }
