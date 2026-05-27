@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Box, Chip, Collapse, FormControl, InputLabel, MenuItem, OutlinedInput, Select, TextField, ToggleButton, ToggleButtonGroup, Tooltip, IconButton, Typography, Badge } from '@mui/material'
 import FilterListIcon from '@mui/icons-material/FilterList'
 import CloseIcon from '@mui/icons-material/Close'
@@ -8,6 +8,7 @@ import type { FilterState } from './useAnalyticsFilter'
 import type { Language } from '../../types'
 import { useT } from '../../context/I18nContext'
 import { useBreakpoint } from '../../hooks/useBreakpoint'
+import { useDebounce } from '../../hooks/useDebounce'
 
 interface Props {
   filter: FilterState
@@ -23,6 +24,31 @@ export function StudioFilterBar({ filter, setFilter, resetFilter, activeCount, s
   const { t } = useT()
   const { isMobile } = useBreakpoint()
   const [mobileOpen, setMobileOpen] = useState(false)
+
+  // Local state for date fields — debounced 300ms before committing to filter
+  // Prevents expensive re-filter on every keystroke when typing dates
+  const [localDateFrom, setLocalDateFrom] = useState(filter.dateFrom)
+  const [localDateTo, setLocalDateTo] = useState(filter.dateTo)
+  const debouncedDateFrom = useDebounce(localDateFrom, 300)
+  const debouncedDateTo = useDebounce(localDateTo, 300)
+
+  // Sync debounced date values into filter state
+  useEffect(() => {
+    setFilter((f) => f.dateFrom !== debouncedDateFrom ? { ...f, dateFrom: debouncedDateFrom } : f)
+  }, [debouncedDateFrom, setFilter])
+  useEffect(() => {
+    setFilter((f) => f.dateTo !== debouncedDateTo ? { ...f, dateTo: debouncedDateTo } : f)
+  }, [debouncedDateTo, setFilter])
+
+  // Keep local date in sync if external reset clears filter
+  useEffect(() => {
+    if (filter.dateFrom !== localDateFrom && filter.dateFrom === '') setLocalDateFrom('')
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filter.dateFrom])
+  useEffect(() => {
+    if (filter.dateTo !== localDateTo && filter.dateTo === '') setLocalDateTo('')
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filter.dateTo])
 
   // Shared filter controls — rendered either inline (desktop) or inside Collapse (mobile)
   const filterControls = (
@@ -60,8 +86,8 @@ export function StudioFilterBar({ filter, setFilter, resetFilter, activeCount, s
           type="date"
           size="small"
           label={t('from')}
-          value={filter.dateFrom}
-          onChange={(e) => setFilter((f) => ({ ...f, dateFrom: e.target.value }))}
+          value={localDateFrom}
+          onChange={(e) => setLocalDateFrom(e.target.value)}
           slotProps={{ inputLabel: { shrink: true } }}
           sx={{ flex: { xs: 1, sm: 'none' }, width: { xs: 'auto', sm: 140 }, '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' } }}
         />
@@ -69,8 +95,8 @@ export function StudioFilterBar({ filter, setFilter, resetFilter, activeCount, s
           type="date"
           size="small"
           label={t('to')}
-          value={filter.dateTo}
-          onChange={(e) => setFilter((f) => ({ ...f, dateTo: e.target.value }))}
+          value={localDateTo}
+          onChange={(e) => setLocalDateTo(e.target.value)}
           slotProps={{ inputLabel: { shrink: true } }}
           sx={{ flex: { xs: 1, sm: 'none' }, width: { xs: 'auto', sm: 140 }, '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' } }}
         />
