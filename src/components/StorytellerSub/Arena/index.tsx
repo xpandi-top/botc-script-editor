@@ -111,22 +111,6 @@ export function Arena({ ctx }: { ctx: StorytellerContext }) {
     document.documentElement.style.setProperty('--center-zone', `${centerZone}%`)
   }, [seatCount, isPortrait])
 
-  // Debug log — layout state + pixel dimensions of key elements
-  React.useEffect(() => {
-    console.log('[Arena] isMobile:', isMobile, 'isTablet:', isTablet, 'isPortrait:', isPortrait,
-      'windowPortrait:', windowPortrait, 'portraitOverride:', portraitOverride,
-      'useListLayout:', useListLayout, 'seats.length:', seats.length, 'phase:', phase)
-    // Measure actual pixel heights to diagnose height collapse
-    const outer = document.querySelector('[data-arena-outer]') as HTMLElement | null
-    const scroll = document.querySelector('[data-arena-scroll]') as HTMLElement | null
-    const grid = document.querySelector('[data-arena-grid]') as HTMLElement | null
-    if (outer) console.log('[Arena-SIZE] outer:', outer.offsetWidth, 'x', outer.offsetHeight)
-    if (scroll) console.log('[Arena-SIZE] scroll:', scroll.offsetWidth, 'x', scroll.offsetHeight)
-    if (grid) console.log('[Arena-SIZE] grid:', grid.offsetWidth, 'x', grid.offsetHeight)
-    const mobileOuter = document.querySelector('[data-mobile-outer]') as HTMLElement | null
-    if (mobileOuter) console.log('[Arena-SIZE] mobileOuter:', mobileOuter.offsetWidth, 'x', mobileOuter.offsetHeight)
-  })
-
   // Mobile / tablet-portrait: scrollable seat grid + fixed phase panel at bottom
   if (useListLayout) {
     const hasSeats = seats.length > 0
