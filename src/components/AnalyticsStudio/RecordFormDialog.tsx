@@ -3,11 +3,12 @@
  * Extracted from AnalyticsTab to keep that file manageable.
  */
 
-import { useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import {
   Autocomplete, Box, Button, Chip,
   DialogTitle, Divider, FormControl, IconButton, InputLabel, MenuItem,
   Select, Tab, Tabs, TextField, ToggleButton, ToggleButtonGroup, Typography,
+  createFilterOptions,
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import PersonIcon from '@mui/icons-material/Person'
@@ -23,23 +24,137 @@ import { ResponsiveDialog, ResponsiveDialogActions, ResponsiveDialogContent } fr
 
 // ── Types ─────────────────────────────────────────────────────────
 
-type PlayerRow = { name: string; charId: string; team: 'evil' | 'good' | '' }
+type PlayerData = { name: string; charId: string; team: 'evil' | 'good' | '' }
+/** @deprecated use PlayerData */
+type PlayerRow = PlayerData
 
-const makeRows = (n: number): PlayerRow[] =>
+type CharOption = { id: string; label: string; team: string; icon: string | null; sortKey: number }
+
+const makeRows = (n: number): PlayerData[] =>
   Array.from({ length: n }, () => ({ name: '', charId: '', team: '' }))
 
-// ── Helpers ───────────────────────────────────────────────────────
+// ── Module-level constants (computed once at startup) ─────────────
 
 const EVIL_TEAMS = new Set(['minion', 'demon'])
 const GOOD_TEAMS = new Set(['townsfolk', 'outsider'])
+const TEAM_ORDER = ['townsfolk', 'outsider', 'minion', 'demon', 'traveler']
+
+// Map for O(1) team lookup (replaces allCharacters.find on every change)
+const CHAR_TEAM_MAP = new Map<string, 'evil' | 'good' | ''>(
+  allCharacters.map((c) => [
+    c.id,
+    EVIL_TEAMS.has(c.team) ? 'evil' : GOOD_TEAMS.has(c.team) ? 'good' : '',
+  ])
+)
+
+// Base char options without labels (labels depend on language, added per-render)
+const BASE_CHAR_INFO = allCharacters
+  .filter((c) => !['fabled', 'loric'].includes(c.team))
+  .map((c) => ({
+    id: c.id,
+    team: c.team,
+    icon: getIconForCharacter(c.id) as string | null,
+    sortKey: TEAM_ORDER.indexOf(c.team),
+  }))
 
 function teamFromChar(charId: string): 'evil' | 'good' | '' {
-  const c = allCharacters.find((x) => x.id === charId)
-  if (!c) return ''
-  if (EVIL_TEAMS.has(c.team)) return 'evil'
-  if (GOOD_TEAMS.has(c.team)) return 'good'
-  return ''
+  return CHAR_TEAM_MAP.get(charId) ?? ''
 }
+
+// Cap dropdown to 80 items when input is empty — avoids rendering 238 DOM nodes on open.
+// When user types, all matching results are shown.
+const _defaultFilter = createFilterOptions<CharOption>()
+const filterCharOptions: typeof _defaultFilter = (options, state) => {
+  const filtered = _defaultFilter(options, state)
+  return state.inputValue === '' ? filtered.slice(0, 80) : filtered
+}
+
+// ── PlayerRowItem (memoized to prevent cascading re-renders) ──────
+
+interface PlayerRowItemProps {
+  player: PlayerData
+  index: number
+  charOptions: CharOption[]
+  charById: Map<string, CharOption>
+  groupBy: (o: CharOption) => string
+  onUpdate: (i: number, patch: Partial<PlayerData>) => void
+  playerLabel: string
+  charLabel: string
+  evilShort: string
+  goodShort: string
+}
+
+const PlayerRowItem = React.memo(function PlayerRowItem({
+  player, index, charOptions, charById, groupBy, onUpdate,
+  playerLabel, charLabel, evilShort, goodShort,
+}: PlayerRowItemProps) {
+  const handleNameChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => onUpdate(index, { name: e.target.value }),
+    [onUpdate, index],
+  )
+  const handleCharChange = useCallback(
+    (_: unknown, v: CharOption | null) => {
+      const charId = v?.id ?? ''
+      onUpdate(index, { charId, team: charId ? teamFromChar(charId) : '' })
+    },
+    [onUpdate, index],
+  )
+  const handleTeamChange = useCallback(
+    (_: unknown, v: 'evil' | 'good' | '' | null) => { if (v !== null) onUpdate(index, { team: v }) },
+    [onUpdate, index],
+  )
+
+  return (
+    <Box sx={{
+      display: 'grid',
+      gridTemplateColumns: { xs: '22px 1fr 1fr auto', sm: '32px 1fr 1fr 80px' },
+      gap: { xs: 0.375, sm: 0.5 },
+      alignItems: 'center',
+    }}>
+      <Typography variant="caption" color="text.secondary"
+        sx={{ textAlign: 'center', fontWeight: 600, fontSize: { xs: '0.68rem', sm: '0.75rem' } }}>
+        {index + 1}
+      </Typography>
+      <TextField
+        size="small"
+        placeholder={`${playerLabel} ${index + 1}`}
+        value={player.name}
+        onChange={handleNameChange}
+        sx={{ minWidth: 0, '& .MuiInputBase-input': { py: { xs: '3px', sm: '4px' }, fontSize: { xs: '0.72rem', sm: '0.8rem' } } }}
+      />
+      <Autocomplete<CharOption>
+        options={charOptions}
+        groupBy={groupBy}
+        getOptionLabel={(o) => o.label}
+        value={charById.get(player.charId) ?? null}
+        onChange={handleCharChange}
+        filterOptions={filterCharOptions}
+        renderOption={(props, o) => {
+          const { key, ...rest } = props as typeof props & { key: string }
+          return (
+            <Box component="li" key={key} {...rest} sx={{ gap: 0.75, py: '2px !important' }}>
+              {o.icon && <Box component="img" src={o.icon} sx={{ width: 20, height: 20, borderRadius: '50%', flexShrink: 0 }} />}
+              <Typography variant="caption">{o.label}</Typography>
+            </Box>
+          )
+        }}
+        renderInput={(params) => (
+          <TextField {...params} size="small" placeholder={charLabel}
+            sx={{ '& .MuiInputBase-input': { py: { xs: '3px', sm: '4px' }, fontSize: { xs: '0.72rem', sm: '0.75rem' } } }} />
+        )}
+        slotProps={{ popper: { style: { zIndex: 1400 } } }}
+        clearOnEscape
+        sx={{ minWidth: 0 }}
+      />
+      <ToggleButtonGroup value={player.team} exclusive size="small"
+        onChange={handleTeamChange}
+        sx={{ '& .MuiToggleButton-root': { py: { xs: '1px', sm: '2px' }, px: { xs: '3px', sm: '6px' }, fontSize: { xs: '0.62rem', sm: '0.7rem' } } }}>
+        <ToggleButton value="evil" sx={{ color: 'error.main' }}>{evilShort}</ToggleButton>
+        <ToggleButton value="good" sx={{ color: 'success.main' }}>{goodShort}</ToggleButton>
+      </ToggleButtonGroup>
+    </Box>
+  )
+})
 
 function getScriptLabel(s: { slug: string; title: string; titleZh?: string }, language: Language) {
   return (language === 'zh' && s.titleZh) ? s.titleZh : (s.title || s.slug)
@@ -111,29 +226,24 @@ export function RecordFormDialog({ existing, zh, language, onSave, onClose }: {
 
   const scriptOptions = useMemo(() => loadAllScripts(language), [language])
 
-  const charOptions = useMemo(() =>
-    allCharacters
-      .filter((c) => !['fabled', 'loric'].includes(c.team))
-      .map((c) => ({
-        id: c.id,
-        label: getDisplayName(c.id, language),
-        team: c.team,
-        icon: getIconForCharacter(c.id) as string | null,
-      }))
-      .sort((a, b) => {
-        const order = ['townsfolk', 'outsider', 'minion', 'demon', 'traveler']
-        const ai = order.indexOf(a.team), bi = order.indexOf(b.team)
-        return ai !== bi ? ai - bi : a.label.localeCompare(b.label)
-      }),
+  // Add labels to base info (language-dependent) — sortKey already set at module level
+  const charOptions = useMemo<CharOption[]>(() =>
+    BASE_CHAR_INFO
+      .map((c) => ({ ...c, label: getDisplayName(c.id, language) }))
+      .sort((a, b) => a.sortKey !== b.sortKey ? a.sortKey - b.sortKey : a.label.localeCompare(b.label)),
   [language])
 
-  const groupLabel = (team: string) => {
+  // O(1) lookup map — avoids charOptions.find() × N rows per render
+  const charById = useMemo(() => new Map(charOptions.map((c) => [c.id, c])), [charOptions])
+
+  // Stable groupBy — prevents MUI from recalculating groups on every render
+  const groupBy = useCallback((o: CharOption) => {
     if (zh) {
       const m: Record<string, string> = { townsfolk: '镇民', outsider: '外来者', minion: '爪牙', demon: '恶魔', traveler: '旅行者' }
-      return m[team] ?? team
+      return m[o.team] ?? o.team
     }
-    return team.charAt(0).toUpperCase() + team.slice(1)
-  }
+    return o.team.charAt(0).toUpperCase() + o.team.slice(1)
+  }, [zh])
 
   const setPlayerCount_ = (n: number) => {
     const clamped = Math.max(1, Math.min(20, n))
@@ -144,9 +254,10 @@ export function RecordFormDialog({ existing, zh, language, onSave, onClose }: {
     })
   }
 
-  const updatePlayer = (i: number, patch: Partial<PlayerRow>) => {
+  // Stable reference — so PlayerRowItem memo doesn't invalidate on every render
+  const updatePlayer = useCallback((i: number, patch: Partial<PlayerData>) => {
     setPlayers((prev) => prev.map((p, idx) => idx === i ? { ...p, ...patch } : p))
-  }
+  }, [])
 
   const hasPlayers = players.some((p) => p.name || p.charId)
   const hasSurvey = balanced != null || funEvil != null || funGood != null || replay != null || mvp !== '' || stName || stCustomRules
@@ -327,52 +438,19 @@ export function RecordFormDialog({ existing, zh, language, onSave, onClose }: {
 
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: { xs: 0.375, sm: 0.5 }, maxHeight: { xs: 500, sm: 360 }, overflowY: 'auto', pr: 0.5 }}>
               {players.map((p, i) => (
-                <Box key={i} sx={{
-                  display: 'grid',
-                  gridTemplateColumns: { xs: '22px 1fr 1fr auto', sm: '32px 1fr 1fr 80px' },
-                  gap: { xs: 0.375, sm: 0.5 },
-                  alignItems: 'center',
-                }}>
-                  <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'center', fontWeight: 600, fontSize: { xs: '0.68rem', sm: '0.75rem' } }}>
-                    {i + 1}
-                  </Typography>
-                  <TextField
-                    size="small"
-                    placeholder={`${t('player_section')} ${i + 1}`}
-                    value={p.name}
-                    onChange={(e) => updatePlayer(i, { name: e.target.value })}
-                    sx={{ minWidth: 0, '& .MuiInputBase-input': { py: { xs: '3px', sm: '4px' }, fontSize: { xs: '0.72rem', sm: '0.8rem' } } }}
-                  />
-                  <Autocomplete
-                    options={charOptions}
-                    groupBy={(o) => groupLabel(o.team)}
-                    getOptionLabel={(o) => o.label}
-                    value={charOptions.find((c) => c.id === p.charId) ?? null}
-                    onChange={(_, v) => {
-                      const charId = v?.id ?? ''
-                      updatePlayer(i, { charId, team: charId ? teamFromChar(charId) : '' })
-                    }}
-                    renderOption={(props, o) => (
-                      <Box component="li" {...props} sx={{ gap: 0.75, py: '2px !important' }}>
-                        {o.icon && <Box component="img" src={o.icon} sx={{ width: 20, height: 20, borderRadius: '50%', flexShrink: 0 }} />}
-                        <Typography variant="caption">{o.label}</Typography>
-                      </Box>
-                    )}
-                    renderInput={(params) => (
-                      <TextField {...params} size="small" placeholder={t('character')}
-                        sx={{ '& .MuiInputBase-input': { py: { xs: '3px', sm: '4px' }, fontSize: { xs: '0.72rem', sm: '0.75rem' } } }} />
-                    )}
-                    slotProps={{ popper: { style: { zIndex: 1400 } } }}
-                    clearOnEscape
-                    sx={{ minWidth: 0 }}
-                  />
-                  <ToggleButtonGroup value={p.team} exclusive size="small"
-                    onChange={(_, v) => { if (v !== null) updatePlayer(i, { team: v as 'evil' | 'good' | '' }) }}
-                    sx={{ '& .MuiToggleButton-root': { py: { xs: '1px', sm: '2px' }, px: { xs: '3px', sm: '6px' }, fontSize: { xs: '0.62rem', sm: '0.7rem' } } }}>
-                    <ToggleButton value="evil" sx={{ color: 'error.main' }}>{t('evil_short')}</ToggleButton>
-                    <ToggleButton value="good" sx={{ color: 'success.main' }}>{t('good_short')}</ToggleButton>
-                  </ToggleButtonGroup>
-                </Box>
+                <PlayerRowItem
+                  key={i}
+                  player={p}
+                  index={i}
+                  charOptions={charOptions}
+                  charById={charById}
+                  groupBy={groupBy}
+                  onUpdate={updatePlayer}
+                  playerLabel={t('player_section')}
+                  charLabel={t('character')}
+                  evilShort={t('evil_short')}
+                  goodShort={t('good_short')}
+                />
               ))}
             </Box>
           </Box>
