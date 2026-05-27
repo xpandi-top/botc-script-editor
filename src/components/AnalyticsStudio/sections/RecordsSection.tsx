@@ -596,7 +596,7 @@ export function RecordsSection({ records, filteredRecords, onRecordsChange, lang
         onClose={() => setMobileDetail(null)}
         fullWidth
         maxWidth="sm"
-        slotProps={{ paper: { sx: { m: 1, maxHeight: '92dvh', display: 'flex', flexDirection: 'column' } } }}
+        slotProps={{ paper: { sx: { m: 1, maxHeight: '92vh', display: 'flex', flexDirection: 'column' } } }}
       >
         {mobileDetail && (
           <>

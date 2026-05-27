@@ -48,7 +48,7 @@ export function StudioShell({ records, onRecordsChange, language, onCreateRecord
   ]
 
   return (
-    <Box>
+    <Box sx={{ minWidth: 0, overflowX: 'hidden' }}>
       {/* Filter bar */}
       <StudioFilterBar
         filter={filter}

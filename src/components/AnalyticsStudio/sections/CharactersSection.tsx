@@ -247,7 +247,7 @@ export function CharactersSection({ charStats, language, records }: Props) {
           value={teamFilter}
           exclusive
           onChange={(_, v) => { if (v) setTeamFilter(v) }}
-          sx={{ '& .MuiToggleButton-root': { py: '3px', px: '8px', fontSize: '0.72rem' } }}
+          sx={{ flexWrap: 'wrap', '& .MuiToggleButton-root': { py: '3px', px: '8px', fontSize: '0.72rem' } }}
         >
           {(['all', 'townsfolk', 'outsider', 'minion', 'demon'] as TeamFilter[]).map((t) => (
             <ToggleButton key={t} value={t}

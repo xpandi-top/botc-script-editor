@@ -287,6 +287,7 @@ export function PlayersSection({ playerStats, language, records }: Props) {
       )}
 
       <Paper elevation={2} sx={{ overflow: 'hidden' }}>
+        <Box sx={{ overflowX: 'auto' }}>
         <Table size="small">
           <TableHead>
             <TableRow sx={{ bgcolor: 'rgba(0,0,0,0.04)' }}>
@@ -429,6 +430,7 @@ export function PlayersSection({ playerStats, language, records }: Props) {
             })}
           </TableBody>
         </Table>
+        </Box>
       </Paper>
     </Box>
   )

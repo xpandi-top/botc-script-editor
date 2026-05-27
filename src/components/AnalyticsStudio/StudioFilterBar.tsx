@@ -66,7 +66,7 @@ const { t } = useT()
         value={filter.dateFrom}
         onChange={(e) => setFilter((f) => ({ ...f, dateFrom: e.target.value }))}
         slotProps={{ inputLabel: { shrink: true } }}
-        sx={{ width: 140, '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' } }}
+        sx={{ width: { xs: 130, sm: 140 }, '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' } }}
       />
       <TextField
         type="date"
@@ -75,7 +75,7 @@ const { t } = useT()
         value={filter.dateTo}
         onChange={(e) => setFilter((f) => ({ ...f, dateTo: e.target.value }))}
         slotProps={{ inputLabel: { shrink: true } }}
-        sx={{ width: 140, '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' } }}
+        sx={{ width: { xs: 130, sm: 140 }, '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' } }}
       />
 
       {/* Winner filter */}
