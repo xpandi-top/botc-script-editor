@@ -85,7 +85,7 @@ export function Arena({ ctx }: { ctx: StorytellerContext }) {
   const [panelCollapsed, setPanelCollapsed] = React.useState(false)
 
   const { currentDay, setSelectedSeatNumber, setTagPopoutSeat, portraitOverride } = ctx
-  const isPortrait = portraitOverride !== null ? portraitOverride : windowPortrait
+  const isPortrait = portraitOverride !== null && portraitOverride !== undefined ? portraitOverride : windowPortrait
   const seats = currentDay.seats
   const phase = currentDay.phase as Phase
   const seatCount = seats.length || 1
@@ -110,12 +110,22 @@ export function Arena({ ctx }: { ctx: StorytellerContext }) {
     document.documentElement.style.setProperty('--center-zone', `${centerZone}%`)
   }, [seatCount, isPortrait])
 
+  // Debug log for diagnosing Android rendering issues
+  React.useEffect(() => {
+    console.log('[Arena] isMobile:', isMobile, 'isTablet:', isTablet, 'isPortrait:', isPortrait,
+      'windowPortrait:', windowPortrait, 'portraitOverride:', portraitOverride,
+      'useListLayout:', useListLayout, 'seats.length:', seats.length, 'phase:', phase)
+  })
+
   // Mobile / tablet-portrait: scrollable seat grid + fixed phase panel at bottom
   if (useListLayout) {
     const hasSeats = seats.length > 0
     return (
       <Box sx={{
-        flex: 1, minHeight: 0,
+        // height:100% fills the absolutely-positioned parent in StorytellerHelper,
+        // giving a concrete pixel height that Android WebView can use.
+        // (flex:1 + minHeight:0 unreliable on older Android WebViews)
+        height: '100%',
         position: 'relative',
         overflow: 'hidden',
       }}>

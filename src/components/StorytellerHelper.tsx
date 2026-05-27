@@ -121,8 +121,13 @@ export function StorytellerHelper(props: StorytellerHelperProps) {
         <Box sx={{ display: 'flex', flexDirection: 'column', height, overflow: 'hidden', mx: { xs: 0, sm: -3 }, mt: { xs: 0, sm: -3 } }}>
           <MobileTopBar ctx={ctx} />
           <LeftScriptPanel ctx={ctx} />
-          <Box sx={{ flex: 1, overflow: 'visible', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-            <Arena ctx={ctx} />
+          {/* Wrapper gives Arena a concrete pixel height via absolute fill.
+              flex:1 + minHeight:0 is unreliable on older Android WebViews;
+              position:absolute with explicit edges always has a real height. */}
+          <Box sx={{ flex: 1, position: 'relative', minHeight: 0 }}>
+            <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
+              <Arena ctx={ctx} />
+            </Box>
           </Box>
           <RightConsole ctx={ctx} />
           <Modals ctx={ctx} />
