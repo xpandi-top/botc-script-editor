@@ -142,7 +142,9 @@ export function PrintPreviewPage({
           </IconButton>
         </Tooltip>
         <Button variant="contained" size="small" startIcon={printing ? <CircularProgress size={14} color="inherit" /> : <PrintIcon />} onClick={handlePrint} disabled={printing}>
-          {printing ? (t('exporting')) : (t('print'))}
+          <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
+            {printing ? (t('exporting')) : (t('print'))}
+          </Box>
         </Button>
       </Paper>
 

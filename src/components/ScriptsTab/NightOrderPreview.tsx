@@ -289,11 +289,11 @@ export function NightOrderPreview({ script, language, open, onToggle }: Props) {
       {/* ── Two-column body ── */}
       <Collapse in={open}>
         <Box sx={{
-          display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0,
+          display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 0,
           borderTop: '1px solid', borderColor: 'divider',
         }}>
           {/* First Night */}
-          <Box sx={{ p: 1.5, borderRight: '1px solid', borderColor: 'divider' }}>
+          <Box sx={{ p: 1.5, borderRight: { xs: 0, sm: '1px solid' }, borderBottom: { xs: '1px solid', sm: 0 }, borderColor: 'divider' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.75 }}>
               <NightsStayIcon sx={{ fontSize: 14, color: FIRST_NIGHT_COLOR }} />
               <Typography sx={{ fontSize: '0.8rem', fontWeight: 700, color: FIRST_NIGHT_COLOR }}>

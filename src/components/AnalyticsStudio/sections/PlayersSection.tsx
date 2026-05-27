@@ -36,7 +36,16 @@ function PlayerDetail({ player, language }: { player: PlayerStat; language: Lang
     .slice(0, 5)
 
   return (
-    <Box sx={{ px: 2, pb: 2, pt: 1, bgcolor: 'rgba(0,0,0,0.02)', borderTop: '1px solid', borderColor: 'divider' }}>
+    <Box sx={{
+      px: 2,
+      pb: 2,
+      pt: 1,
+      bgcolor: 'rgba(0,0,0,0.02)',
+      borderTop: '1px solid',
+      borderColor: 'divider',
+      maxHeight: { xs: '50vh', sm: 'none' },
+      overflowY: { xs: 'auto', sm: 'visible' },
+    }}>
       <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
 
         {/* Stat breakdown */}
@@ -198,10 +207,10 @@ function ComparePanel({ a, b }: { a: PlayerStat; b: PlayerStat; language: Langua
         <CompareArrowsIcon sx={{ fontSize: '1rem' }} />
         {t('player_comparison')}
       </Typography>
-      <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 1, textAlign: 'center' }}>
-        <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700 }}>{a.name}</Typography>
+      <Box sx={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr)', gap: 1, textAlign: 'center' }}>
+        <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 }}>{a.name}</Typography>
         <Typography variant="caption" color="text.secondary" />
-        <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700 }}>{b.name}</Typography>
+        <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 }}>{b.name}</Typography>
         {rows.map(({ label, aVal, bVal }) => [
           <Typography key={`a-${label}`} variant="body2" sx={{ fontWeight: 700 }}>{aVal}</Typography>,
           <Typography key={`l-${label}`} variant="caption" color="text.secondary">{label}</Typography>,

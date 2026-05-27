@@ -15,9 +15,10 @@ export function StarRating({ label, value, onChange }: StarRatingProps) {
         exclusive
         onChange={(_, v) => v && onChange(v)}
         size="small"
+        sx={{ flexWrap: 'wrap' }}
       >
         {[1, 2, 3, 4, 5].map((num) => (
-          <ToggleButton key={num} value={num} sx={{ borderRadius: 999, px: 2 }}>
+          <ToggleButton key={num} value={num} sx={{ borderRadius: 999, px: { xs: 1.5, sm: 2 } }}>
             {num}
           </ToggleButton>
         ))}

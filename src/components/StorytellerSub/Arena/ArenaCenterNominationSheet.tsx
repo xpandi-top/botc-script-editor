@@ -2,7 +2,7 @@
 import type { StorytellerContext } from '../useStoryteller'
 import React, { useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Box, Button, Typography, TextField, Select, MenuItem, FormControl, InputLabel, FormControlLabel, Checkbox, Dialog } from '@mui/material'
+import { Box, Button, Typography, TextField, Select, MenuItem, FormControl, InputLabel, FormControlLabel, Checkbox } from '@mui/material'
 import CheckIcon from '@mui/icons-material/Check'
 import CloseIcon from '@mui/icons-material/Close'
 import EditNoteIcon from '@mui/icons-material/EditNote'
@@ -14,6 +14,7 @@ import { NominationTimer } from './NominationTimer'
 import { NominationHistory } from './NominationHistory'
 import { NominationVoteList } from './NominationVoteList'
 import { useT } from '../../../context/I18nContext'
+import { ResponsiveDialog } from '../../ui'
 
 export function ArenaCenterNominationSheet({ ctx }: { ctx: StorytellerContext }) {
   const {
@@ -134,7 +135,7 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: StorytellerContext })
   const yesCount = Object.values(currentDay?.votingState?.votes ?? {}).filter(Boolean).length || voteDraft?.voters?.length || 0
 
   const content = (
-    <Dialog open={showNominationSheet} onClose={() => {}} maxWidth="sm" fullWidth fullScreen={isMobile} slotProps={{ backdrop: { onClick: () => {} }, paper: { 'data-nomination-popup': true, sx: { p: 2, width: isMobile ? '100%' : 420, borderRadius: isMobile ? 0 : 2, overflowY: 'auto' } } }}>
+    <ResponsiveDialog open={showNominationSheet} onClose={() => {}} maxWidth="sm" fullWidth slotProps={{ backdrop: { onClick: () => {} }, paper: { 'data-nomination-popup': true } }} paperSx={{ p: 2, width: isMobile ? '100%' : 420, overflowY: 'auto' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
         <Typography variant="h6" sx={{ fontWeight: 700 }}>{t('nominate')}</Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
@@ -283,7 +284,7 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: StorytellerContext })
         language={language}
         updateCurrentDay={updateCurrentDay}
       />
-    </Dialog>
+    </ResponsiveDialog>
   )
 
   return createPortal(content, document.body)

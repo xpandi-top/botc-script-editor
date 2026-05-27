@@ -8,6 +8,7 @@ import { ModalsEndGame } from './ModalsEndGame'
 import { ModalsDialog } from './ModalsDialog'
 import { ModalsExport } from './ModalsExport'
 import { DealHostPage } from '../../DealHostPage'
+import { ResponsiveDialog, ResponsiveDialogContent } from '../../ui'
 
 export function Modals({ ctx }: { ctx: StorytellerContext }) {
   const {
@@ -31,45 +32,45 @@ export function Modals({ ctx }: { ctx: StorytellerContext }) {
 
   return (
     <>
-      <Dialog open={showEditPlayersModal} onClose={() => setShowEditPlayersModal(false)} maxWidth={dialogMaxWidth} fullWidth fullScreen={isMobile} slotProps={{ paper: { sx: paperSx } }}>
+      <ResponsiveDialog open={showEditPlayersModal} onClose={() => setShowEditPlayersModal(false)} maxWidth={dialogMaxWidth} paperSx={paperSx}>
         <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
           {text.editPlayers}
           <IconButton onClick={() => setShowEditPlayersModal(false)} size="small"><CloseIcon /></IconButton>
         </DialogTitle>
-        <DialogContent>
+        <ResponsiveDialogContent>
           <ModalsEditPlayers ctx={ctx} />
-        </DialogContent>
-      </Dialog>
+        </ResponsiveDialogContent>
+      </ResponsiveDialog>
 
-      <Dialog open={showNewGamePanel && !!newGamePanel} onClose={() => setShowNewGamePanel(false)} maxWidth={dialogMaxWidth} fullWidth fullScreen={isMobile} slotProps={{ paper: { sx: paperSx } }}>
+      <ResponsiveDialog open={showNewGamePanel && !!newGamePanel} onClose={() => setShowNewGamePanel(false)} maxWidth={dialogMaxWidth} paperSx={paperSx}>
         <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
           {text.newGame}
           <IconButton onClick={() => setShowNewGamePanel(false)} size="small"><CloseIcon /></IconButton>
         </DialogTitle>
-        <DialogContent>
+        <ResponsiveDialogContent>
           <ModalsNewGame ctx={ctx} />
-        </DialogContent>
-      </Dialog>
+        </ResponsiveDialogContent>
+      </ResponsiveDialog>
 
-      <Dialog open={!!showEndGameModal} onClose={() => setShowEndGameModal(false)} maxWidth={dialogMaxWidth} fullWidth fullScreen={isMobile} slotProps={{ paper: { sx: paperSx } }}>
+      <ResponsiveDialog open={!!showEndGameModal} onClose={() => setShowEndGameModal(false)} maxWidth={dialogMaxWidth} paperSx={paperSx}>
         <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
           {text.endGame}
           <IconButton onClick={() => setShowEndGameModal(false)} size="small"><CloseIcon /></IconButton>
         </DialogTitle>
-        <DialogContent>
+        <ResponsiveDialogContent>
           <ModalsEndGame ctx={ctx} />
-        </DialogContent>
-      </Dialog>
+        </ResponsiveDialogContent>
+      </ResponsiveDialog>
 
-      <Dialog open={showExportModal} onClose={() => setShowExportModal(false)} maxWidth={dialogMaxWidth} fullWidth fullScreen={isMobile} slotProps={{ paper: { sx: paperSx } }}>
+      <ResponsiveDialog open={showExportModal} onClose={() => setShowExportModal(false)} maxWidth={dialogMaxWidth} paperSx={paperSx}>
         <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
           {text.exportJson}
           <IconButton onClick={() => setShowExportModal(false)} size="small"><CloseIcon /></IconButton>
         </DialogTitle>
-        <DialogContent>
+        <ResponsiveDialogContent>
           <ModalsExport ctx={ctx} />
-        </DialogContent>
-      </Dialog>
+        </ResponsiveDialogContent>
+      </ResponsiveDialog>
 
       <ModalsDialog ctx={ctx} />
 

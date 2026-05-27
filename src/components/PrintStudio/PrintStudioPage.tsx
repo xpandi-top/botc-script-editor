@@ -116,7 +116,7 @@ export function PrintStudioPage({ opts, onOptionsChange, onClose, onOpenPrintPre
         {onOpenPrintPreview && (
           <Tooltip title={t('switch_to_script_print_preview')}>
             <Button size="small" variant="outlined" startIcon={<PrintIcon />} onClick={onOpenPrintPreview} sx={{ flexShrink: 0 }}>
-              {t('script_pdf')}
+              <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>{t('script_pdf')}</Box>
             </Button>
           </Tooltip>
         )}
@@ -126,7 +126,9 @@ export function PrintStudioPage({ opts, onOptionsChange, onClose, onOpenPrintPre
           </IconButton>
         </Tooltip>
         <Button variant="contained" size="small" startIcon={printing ? <CircularProgress size={14} color="inherit" /> : <PrintIcon />} onClick={handlePrint} disabled={selectedCount === 0 || printing}>
-          {printing ? (t('exporting')) : (t('print'))}
+          <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
+            {printing ? (t('exporting')) : (t('print'))}
+          </Box>
         </Button>
       </Paper>
 

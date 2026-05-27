@@ -12,7 +12,7 @@ function measureTextPx(text: string, fontCss: string): number {
   }
 }
 import DOMPurify from 'dompurify'
-import { Box, Typography, Paper, Grid, IconButton, Chip, Divider, Dialog, DialogTitle, DialogContent, Tooltip, useTheme } from '@mui/material'
+import { Box, Typography, Paper, Grid, IconButton, Chip, Divider, DialogTitle, Tooltip, useTheme } from '@mui/material'
 import {
   editionLabels,
   getAbilityTextForScript,
@@ -32,6 +32,7 @@ import type {
 } from '../types'
 import type { PrintOptions } from './PrintOptionsDialog'
 import { PADDING_MAP, FONT_CSS } from './PrintOptionsDialog'
+import { ResponsiveDialog, ResponsiveDialogContent } from './ui'
 import { makeT } from '../lib/t'
 
 // Restrict DOMPurify to inline formatting only — no hrefs, no event attrs
@@ -514,7 +515,7 @@ export function SheetArticle({
         )}
       </Paper>
 
-      <Dialog open={!!popupId} onClose={() => setPopupId(null)} maxWidth="xs" fullWidth>
+      <ResponsiveDialog open={!!popupId} onClose={() => setPopupId(null)} maxWidth="xs" mobile="compact">
         <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1.5, pb: 1 }}>
           {popupIcon && <Box component="img" src={popupIcon} sx={{ width: 40, height: 40 }} />}
           <Box>
@@ -528,15 +529,15 @@ export function SheetArticle({
             )}
           </Box>
         </DialogTitle>
-        <DialogContent sx={{ pt: 0 }}>
+        <ResponsiveDialogContent sx={{ pt: 0 }}>
           <Typography variant="body2" sx={{ mb: popupAbilityAlt && popupAbilityAlt !== popupAbility ? 1 : 0 }}>
             {popupAbility}
           </Typography>
           {popupAbilityAlt && popupAbilityAlt !== popupAbility && (
             <Typography variant="body2" color="text.secondary">{popupAbilityAlt}</Typography>
           )}
-        </DialogContent>
-      </Dialog>
+        </ResponsiveDialogContent>
+      </ResponsiveDialog>
     </>
   )
 }

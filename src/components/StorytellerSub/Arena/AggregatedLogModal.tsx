@@ -10,7 +10,7 @@ import { AiPanelContent, AiToggleButton } from '../../AiPanel'
 import { buildGameLogContext } from '../../../lib/ai'
 import {
   Accordion, AccordionDetails, AccordionSummary,
-  Box, Button, Chip, Dialog, DialogContent, DialogTitle,
+  Box, Button, Chip, DialogTitle,
   IconButton, TextField, ToggleButton, ToggleButtonGroup, Tooltip, Typography, useTheme,
 } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
@@ -25,6 +25,8 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import { makeT, makeTpl } from '../../../lib/t'
 import { useT } from '../../../context/I18nContext'
+import { useBreakpoint } from '../../../hooks/useBreakpoint'
+import { ResponsiveDialog, ResponsiveDialogContent } from '../../ui'
 
 const ENTRY_COLORS: Record<string, 'primary' | 'secondary' | 'success' | 'error' | 'warning'> = {
   vote: 'primary',
@@ -139,6 +141,7 @@ export function AggregatedLogModal({ ctx }: { ctx: StorytellerContext }) {
 
   const isNight = currentDay.phase === 'night'
   const muiTheme = useTheme()
+  const { isMobile } = useBreakpoint()
   const isDark = muiTheme.palette.mode === 'dark'
 
   // ST-only card colors — readable in both themes
@@ -266,9 +269,9 @@ export function AggregatedLogModal({ ctx }: { ctx: StorytellerContext }) {
   if (!showAggLogModal) return null
 
   const modal = (
-    <Dialog open={showAggLogModal} onClose={() => setShowAggLogModal(false)}
-      maxWidth={aiOpen ? 'lg' : 'sm'} fullWidth
-      slotProps={{ paper: { sx: { height: '82vh', display: 'flex', flexDirection: 'column', transition: 'max-width 0.2s ease' } } }}>
+    <ResponsiveDialog open={showAggLogModal} onClose={() => setShowAggLogModal(false)}
+      maxWidth={aiOpen && !isMobile ? 'lg' : 'sm'}
+      paperSx={{ height: { xs: '100dvh', sm: '82vh' }, transition: 'max-width 0.2s ease' }}>
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 0 }}>
         <Typography fontWeight={700}>{text.gameLogTitle || (t('game_log_title'))}</Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
@@ -284,6 +287,7 @@ export function AggregatedLogModal({ ctx }: { ctx: StorytellerContext }) {
 
       {/* Split layout: log content (left) + AI panel (right when open) */}
       <Box sx={{ display: 'flex', flex: 1, minHeight: 0, overflow: 'hidden' }}>
+      {(!isMobile || !aiOpen) && (
       <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0, overflow: 'hidden' }}>
       <Box sx={{ px: 3, pt: 1.5, pb: 0.5, display: 'flex', flexDirection: 'column', gap: 1, flexShrink: 0 }}>
         {/* Quick add */}
@@ -324,7 +328,7 @@ export function AggregatedLogModal({ ctx }: { ctx: StorytellerContext }) {
         </Box>
       </Box>
 
-      <DialogContent sx={{ pt: 1, flex: 1, overflow: 'auto' }}>
+      <ResponsiveDialogContent sx={{ pt: 1, flex: 1, overflow: 'auto' }}>
         {grouped.length === 0 ? (
           <Typography variant="body2" color="text.secondary" sx={{ py: 2, textAlign: 'center' }}>—</Typography>
         ) : grouped.map(([day, dayEntries]) => {
@@ -412,13 +416,14 @@ export function AggregatedLogModal({ ctx }: { ctx: StorytellerContext }) {
           </Accordion>
           )
         })}
-      </DialogContent>
-      </Box>{/* end log column */}
+      </ResponsiveDialogContent>
+      </Box>
+      )}
 
       {/* AI panel — right column */}
       {aiOpen && (
         <Box sx={{
-          width: 340, flexShrink: 0, borderLeft: '1px solid', borderColor: 'divider',
+          width: { xs: '100%', sm: 340 }, flexShrink: 0, borderLeft: { xs: 0, sm: '1px solid' }, borderColor: 'divider',
           display: 'flex', flexDirection: 'column', overflow: 'hidden',
         }}>
           <AiPanelContent
@@ -430,7 +435,7 @@ export function AggregatedLogModal({ ctx }: { ctx: StorytellerContext }) {
         </Box>
       )}
       </Box>{/* end split layout */}
-    </Dialog>
+    </ResponsiveDialog>
   )
 
   return createPortal(modal, document.body)

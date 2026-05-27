@@ -4,7 +4,7 @@ import SyncAltIcon from '@mui/icons-material/SyncAlt'
 import { NightOrderManager } from '../NightOrderManager'
 import { JinxManager } from '../JinxManager'
 import {
-  Box, Button, Checkbox, Collapse, Dialog, DialogActions, DialogContent, DialogTitle, Divider, FormControl,
+  Box, Button, Checkbox, Collapse, DialogTitle, Divider, FormControl,
   IconButton, InputLabel, Paper, Select, MenuItem, Snackbar, TextField, Tooltip, Typography,
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
@@ -48,7 +48,7 @@ function getPackOverrideIds(): Set<string> {
 import type { CharacterFileEntry } from '../../types'
 import type { CharacterEntry, CustomCharacter, Language, Team } from '../../types'
 import { useT } from '../../context/I18nContext'
-import { CompactButton, MicroChip } from '../ui'
+import { CompactButton, MicroChip, ResponsiveDialog, ResponsiveDialogActions, ResponsiveDialogContent } from '../ui'
 
 type Props = {
   uiText: Record<string, string>
@@ -255,7 +255,7 @@ function PackImportDialog({ open, onClose, pack, language, knownIds, existingCus
   const isIdDirty = (id: string) => { const s = slugify(id); return s !== id && s.length > 0 }
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth scroll="paper">
+    <ResponsiveDialog open={open} onClose={onClose} maxWidth="sm" scroll="paper">
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 1 }}>
         <Box>
           <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
@@ -276,7 +276,7 @@ function PackImportDialog({ open, onClose, pack, language, knownIds, existingCus
       </Box>
 
       <Divider />
-      <DialogContent sx={{ p: 0 }}>
+      <ResponsiveDialogContent sx={{ p: 0 }}>
         {pack.map((c, i) => {
           const e        = edits[c.id] ?? {}
           const finalId  = e.id?.trim() || c.id
@@ -396,7 +396,7 @@ function PackImportDialog({ open, onClose, pack, language, knownIds, existingCus
                   </Box>
 
                   {/* Names row */}
-                  <Box sx={{ display: 'flex', gap: 1 }}>
+                  <Box sx={{ display: 'flex', gap: 1, flexDirection: { xs: 'column', sm: 'row' } }}>
                     <TextField size="small" fullWidth label={t('name_en')}
                       value={nameEn}
                       onChange={(ev) => patchEditLocale(c.id, 'en', 'name', ev.target.value)} />
@@ -441,12 +441,12 @@ function PackImportDialog({ open, onClose, pack, language, knownIds, existingCus
                   </Box>
 
                   {/* Night order positions */}
-                  <Box sx={{ display: 'flex', gap: 1 }}>
-                    <TextField size="small" sx={{ width: 130 }}
+                  <Box sx={{ display: 'flex', gap: 1, flexDirection: { xs: 'column', sm: 'row' } }}>
+                    <TextField size="small" sx={{ width: { xs: '100%', sm: 130 } }}
                       label={t('first_night')}
                       value={fnVal} type="number" slotProps={{ htmlInput: { min: 0 } }}
                       onChange={(ev) => patchEdit(c.id, { firstNight: ev.target.value })} />
-                    <TextField size="small" sx={{ width: 130 }}
+                    <TextField size="small" sx={{ width: { xs: '100%', sm: 130 } }}
                       label={t('other_night')}
                       value={onVal} type="number" slotProps={{ htmlInput: { min: 0 } }}
                       onChange={(ev) => patchEdit(c.id, { otherNight: ev.target.value })} />
@@ -477,7 +477,7 @@ function PackImportDialog({ open, onClose, pack, language, knownIds, existingCus
                   />
 
                   {/* Image URL with live preview */}
-                  <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start' }}>
+                  <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start', flexDirection: { xs: 'column', sm: 'row' } }}>
                     <TextField size="small" fullWidth
                       label={t('icon_image_url')}
                       value={imageVal}
@@ -507,15 +507,15 @@ function PackImportDialog({ open, onClose, pack, language, knownIds, existingCus
             </Box>
           )
         })}
-      </DialogContent>
+      </ResponsiveDialogContent>
       <Divider />
-      <DialogActions sx={{ px: 2, py: 1 }}>
+      <ResponsiveDialogActions sx={{ px: 2, py: 1 }}>
         <Button onClick={onClose} sx={{ textTransform: 'none' }}>{t('cancel')}</Button>
         <Button variant="contained" disabled={selected.size === 0} onClick={handleConfirm} sx={{ textTransform: 'none' }}>
           {tpl('import_n', selected.size)}
         </Button>
-      </DialogActions>
-    </Dialog>
+      </ResponsiveDialogActions>
+    </ResponsiveDialog>
   )
 }
 
@@ -1025,10 +1025,9 @@ export function CharactersTab({
       </Box>
 
       {/* ── Mobile: detail popup ── */}
-      <Dialog
+      <ResponsiveDialog
         open={mobileDetailOpen}
         onClose={() => setMobileDetailOpen(false)}
-        fullScreen
         sx={{ display: { lg: 'none' } }}
       >
         <DialogTitle sx={{ display: 'flex', alignItems: 'center', pr: 1 }}>
@@ -1041,13 +1040,13 @@ export function CharactersTab({
           </Box>
           <IconButton onClick={() => setMobileDetailOpen(false)}><CloseIcon /></IconButton>
         </DialogTitle>
-        <DialogContent sx={{ p: 0 }}>
+        <ResponsiveDialogContent sx={{ p: 0 }}>
           <CharacterRevisionPanel
             character={selectedCharacter}
             {...revisionPanelProps}
           />
-        </DialogContent>
-      </Dialog>
+        </ResponsiveDialogContent>
+      </ResponsiveDialog>
 
       {/* ── Pack Import Preview ── */}
       <PackImportDialog

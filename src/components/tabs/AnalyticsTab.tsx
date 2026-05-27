@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Alert,
-  Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle,
+  Box, Button, CircularProgress, DialogTitle,
   Divider, FormControl, IconButton, InputLabel, Menu, MenuItem, Select, Snackbar,
   TextField, Tooltip, Typography,
 } from '@mui/material'
@@ -23,6 +23,7 @@ import type { Language } from '../../types'
 import { StudioShell } from '../AnalyticsStudio/StudioShell'
 import { RecordFormDialog } from '../AnalyticsStudio/RecordFormDialog'
 import { useT } from '../../context/I18nContext'
+import { ResponsiveDialog, ResponsiveDialogActions, ResponsiveDialogContent } from '../ui'
 
 // ── Storage helpers ───────────────────────────────────────────────
 
@@ -501,9 +502,9 @@ export function AnalyticsTab({ language, onLanguageChange, sharedRecords: shared
       )}
 
       {/* Share URL Dialog */}
-      <Dialog open={shareUrlDialogOpen} onClose={() => setShareUrlDialogOpen(false)} maxWidth="sm" fullWidth>
+      <ResponsiveDialog open={shareUrlDialogOpen} onClose={() => setShareUrlDialogOpen(false)} maxWidth="sm" mobile="compact">
         <DialogTitle>{t('share_link')}</DialogTitle>
-        <DialogContent>
+        <ResponsiveDialogContent>
           {shareUrlLoading && <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 1 }}><CircularProgress size={20} /><Typography variant="body2">{t('generating')}</Typography></Box>}
           {shareUrlError && <Alert severity="error" sx={{ mb: 1 }}>{shareUrlError}</Alert>}
           {!shareUrlLoading && !shareUrlError && precomputedShareUrl && (
@@ -516,8 +517,8 @@ export function AnalyticsTab({ language, onLanguageChange, sharedRecords: shared
               sx={{ mt: 1 }}
             />
           )}
-        </DialogContent>
-        <DialogActions>
+        </ResponsiveDialogContent>
+        <ResponsiveDialogActions>
           {precomputedShareUrl && !shareUrlLoading && (
             <Button onClick={() => {
               navigator.clipboard.writeText(precomputedShareUrl)
@@ -528,8 +529,8 @@ export function AnalyticsTab({ language, onLanguageChange, sharedRecords: shared
             </Button>
           )}
           <Button onClick={() => setShareUrlDialogOpen(false)}>{t('close')}</Button>
-        </DialogActions>
-      </Dialog>
+        </ResponsiveDialogActions>
+      </ResponsiveDialog>
     </Box>
   )
 }

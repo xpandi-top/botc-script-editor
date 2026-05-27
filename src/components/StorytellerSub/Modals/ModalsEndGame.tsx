@@ -156,7 +156,7 @@ export function ModalsEndGame({ ctx }: { ctx: StorytellerContext }) {
         </Collapse>
       </Box>
 
-      <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+      <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexDirection: { xs: 'column', sm: 'row' } }}>
         <TextField
           size="small"
           fullWidth
@@ -164,7 +164,7 @@ export function ModalsEndGame({ ctx }: { ctx: StorytellerContext }) {
           value={recordName}
           onChange={(e) => setRecordName(e.target.value)}
         />
-        <FormControl size="small" sx={{ minWidth: 120 }}>
+        <FormControl size="small" sx={{ minWidth: { xs: '100%', sm: 120 } }}>
           <InputLabel>{t('jinx_status')}</InputLabel>
           <Select value={markOption} onChange={handleMarkChange} label={t('jinx_status')}>
             <MenuItem value="unmark">{t('not_finished')}</MenuItem>
@@ -173,7 +173,7 @@ export function ModalsEndGame({ ctx }: { ctx: StorytellerContext }) {
         </FormControl>
       </Box>
 
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, pt: 1, borderTop: '1px solid', borderColor: 'divider' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, pt: 1, borderTop: '1px solid', borderColor: 'divider', flexWrap: 'wrap' }}>
         <Button variant="outlined" startIcon={<CloseIcon />} onClick={handleCancel}>{t('cancel')}</Button>
         <Button variant="contained" startIcon={<SaveIcon />} onClick={handleSave}>{t('save')}</Button>
       </Box>

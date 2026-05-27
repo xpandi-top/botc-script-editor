@@ -343,7 +343,7 @@ function JinxPairRow({
       )}
 
       {/* Override reason fields */}
-      <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 }}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1 }}>
         <TextField
           size="small" multiline maxRows={3}
           label={t('override_reason_en')}

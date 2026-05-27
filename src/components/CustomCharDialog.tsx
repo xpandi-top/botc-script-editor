@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import {
-  Autocomplete, Box, Button, Dialog, DialogContent, DialogTitle, Divider,
+  Autocomplete, Box, Button, DialogTitle, Divider,
   FormControl, FormControlLabel, IconButton, InputLabel, MenuItem,
   Radio, RadioGroup, Select, TextField, Typography,
 } from '@mui/material'
@@ -14,6 +14,8 @@ import { AiPanelContent, AiToggleButton, type AiChatCallbacks } from './AiPanel'
 import type { AiContext } from '../lib/ai'
 import type { CustomCharacter, Language, Team } from '../types'
 import { makeT, makeTpl } from '../lib/t'
+import { useBreakpoint } from '../hooks/useBreakpoint'
+import { ResponsiveDialog, ResponsiveDialogContent } from './ui'
 
 type Draft = Omit<CustomCharacter, 'id' | 'createdAt' | 'updatedAt'>
 
@@ -56,6 +58,7 @@ export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSav
   const [iconError, setIconError] = useState('')
   const [iconMode, setIconMode] = useState<'url' | 'upload'>('url')
   const [aiOpen, setAiOpen] = useState(false)
+  const { isMobile } = useBreakpoint()
   const t = makeT(uiLanguage)
   const tpl = makeTpl(uiLanguage)
 
@@ -162,8 +165,8 @@ export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSav
   }, uiLanguage)
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth={aiOpen ? 'lg' : 'sm'} fullWidth
-      slotProps={{ paper: { sx: { height: aiOpen ? '90vh' : undefined, transition: 'max-width 0.2s ease' } } }}>
+    <ResponsiveDialog open={open} onClose={onClose} maxWidth={aiOpen && !isMobile ? 'lg' : 'sm'}
+      paperSx={{ height: aiOpen && !isMobile ? '90vh' : undefined, transition: 'max-width 0.2s ease' }}>
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1.25 }}>
         <Box sx={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', mr: 1 }}>
           {editingChar ? tpl('edit_char_title', draft.nameEn) : t('new_custom_char')}
@@ -175,9 +178,10 @@ export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSav
       </DialogTitle>
       {/* Split layout: form (left) + AI panel (right when open) */}
       <Box sx={{ display: 'flex', flex: 1, minHeight: 0, overflow: 'hidden' }}>
-      <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '8px !important', flex: 1, overflowY: 'auto' }}>
+      {(!isMobile || !aiOpen) && (
+      <ResponsiveDialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '8px !important', flex: 1, overflowY: 'auto' }}>
         {/* Basic identity */}
-        <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1 }}>
           <TextField size="small" required label={t('name_en')}
             value={draft.nameEn}
             onChange={(e) => {
@@ -207,7 +211,7 @@ export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSav
         )}
         <TextField size="small" required label={t('author')}
           value={draft.author} onChange={(e) => setDraft((d) => ({ ...d, author: e.target.value }))} />
-        <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1 }}>
           <Autocomplete
             freeSolo size="small"
             options={Object.keys(editionLabels[uiLanguage]).filter((k) => k !== 'night-order')}
@@ -282,7 +286,7 @@ export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSav
             onChange={(pos) => setDraft((d) => ({ ...d, otherNight: pos }))}
             nightType="other" language={uiLanguage} />
         </Box>
-        <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1 }}>
           <TextField size="small" label={t('first_night_reminder')}
             value={draft.firstNightReminder ?? ''}
             onChange={(e) => setDraft((d) => ({ ...d, firstNightReminder: e.target.value }))} />
@@ -312,12 +316,13 @@ export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSav
             {t('save')}
           </Button>
         </Box>
-      </DialogContent>
+      </ResponsiveDialogContent>
+      )}
 
       {/* Embedded AI panel — right column, only when aiOpen */}
       {aiOpen && (
         <Box sx={{
-          width: 340, flexShrink: 0, borderLeft: '1px solid', borderColor: 'divider',
+          width: { xs: '100%', sm: 340 }, flexShrink: 0, borderLeft: { xs: 0, sm: '1px solid' }, borderColor: 'divider',
           display: 'flex', flexDirection: 'column', overflow: 'hidden',
         }}>
           <AiPanelContent
@@ -330,6 +335,6 @@ export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSav
         </Box>
       )}
       </Box>
-    </Dialog>
+    </ResponsiveDialog>
   )
 }

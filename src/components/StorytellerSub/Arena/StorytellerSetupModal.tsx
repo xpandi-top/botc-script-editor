@@ -3,7 +3,7 @@ import type { StorytellerContext } from '../useStoryteller'
 import React, { useState, useMemo } from 'react'
 import { createPortal } from 'react-dom'
 import {
-  Box, Button, Chip, Collapse, Dialog, DialogContent, DialogTitle,
+  Box, Button, Chip, Collapse, DialogTitle,
   IconButton, InputAdornment, List, ListItem, ListItemAvatar, ListItemButton,
   ListItemText, TextField, Typography,
 } from '@mui/material'
@@ -16,6 +16,7 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import AutoStoriesIcon from '@mui/icons-material/AutoStories'
 import { allCharacters, getDisplayName, getAbilityText, getIconForCharacter } from '../../../catalog'
 import { useT } from '../../../context/I18nContext'
+import { ResponsiveDialog, ResponsiveDialogContent } from '../../ui'
 
 const FABLED_CHARS = allCharacters.filter((c) => c.team === 'fabled')
 const LORIC_CHARS = allCharacters.filter((c) => c.edition === 'loric')
@@ -61,8 +62,7 @@ export function StorytellerSetupModal({ ctx }: { ctx: StorytellerContext }) {
     .map((id: string) => ({ id, name: getDisplayName(id, language), icon: getIconForCharacter(id) }))
 
   const modal = (
-    <Dialog open={showStSetupModal} onClose={handleClose} maxWidth="sm" fullWidth
-      slotProps={{ paper: { sx: { borderRadius: 2 } } }}>
+    <ResponsiveDialog open={showStSetupModal} onClose={handleClose} maxWidth="sm">
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 0.5 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <AutoStoriesIcon sx={{ fontSize: '1.4rem', color: 'primary.main' }} />
@@ -71,7 +71,7 @@ export function StorytellerSetupModal({ ctx }: { ctx: StorytellerContext }) {
         <IconButton size="small" onClick={handleClose}><CloseIcon fontSize="small" /></IconButton>
       </DialogTitle>
 
-      <DialogContent sx={{ pt: 1 }}>
+      <ResponsiveDialogContent sx={{ pt: 1 }}>
         {/* ST Name */}
         <Box sx={{ mb: 2 }}>
           <TextField
@@ -224,8 +224,8 @@ export function StorytellerSetupModal({ ctx }: { ctx: StorytellerContext }) {
             </Box>
           )}
         </Box>
-      </DialogContent>
-    </Dialog>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   )
 
   return createPortal(modal, document.body)

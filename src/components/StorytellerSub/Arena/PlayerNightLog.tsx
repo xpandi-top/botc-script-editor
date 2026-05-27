@@ -3,7 +3,7 @@ import type { StorytellerSeat } from '../types'
 import React from 'react'
 import { createPortal } from 'react-dom'
 import {
-  Box, Dialog, DialogTitle, DialogContent, IconButton,
+  Box, DialogTitle, IconButton,
   Typography, Divider, Chip,
 } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
@@ -11,6 +11,7 @@ import type { DayState } from '../types'
 import { buildPlayerLogEntries, filterPlayerLogByCurrentPhase } from '../../../utils/playerLog'
 import { LogDetailText } from '../LogDetailText'
 import { makeT, makeTpl } from '../../../lib/t'
+import { ResponsiveDialog, ResponsiveDialogContent } from '../../ui'
 
 interface PlayerNightLogProps {
   open: boolean
@@ -50,12 +51,11 @@ export function PlayerNightLog({ open, onClose, seat, days, language, isNight }:
   }
 
   const content = (
-    <Dialog
+    <ResponsiveDialog
       open={open}
       onClose={onClose}
       maxWidth="sm"
-      fullWidth
-      slotProps={{ paper: { sx: { borderRadius: 2, maxHeight: '80vh' } } }}
+      mobile="compact"
     >
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 1 }}>
         <Typography variant="h6" fontWeight={700}>
@@ -64,7 +64,7 @@ export function PlayerNightLog({ open, onClose, seat, days, language, isNight }:
         <IconButton size="small" onClick={onClose}><CloseIcon fontSize="small" /></IconButton>
       </DialogTitle>
 
-      <DialogContent sx={{ pt: 0 }}>
+      <ResponsiveDialogContent sx={{ pt: 0 }}>
         {dayEntries.length === 0 ? (
           <Typography variant="body2" color="text.secondary" sx={{ py: 2 }}>
             {t('no_events_found_for_this_player')}
@@ -100,8 +100,8 @@ export function PlayerNightLog({ open, onClose, seat, days, language, isNight }:
             </Box>
           ))
         )}
-      </DialogContent>
-    </Dialog>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   )
 
   return createPortal(content, document.body)

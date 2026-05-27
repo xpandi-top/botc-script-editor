@@ -1,6 +1,6 @@
 import { memo, useMemo, useState } from 'react'
 import {
-  Box, Button, Checkbox, Chip, Collapse, Dialog, DialogActions, DialogContent, DialogTitle,
+  Box, Button, Checkbox, Chip, Collapse, DialogTitle,
   FormControl, IconButton, InputLabel, MenuItem, Paper, Select, Table, TableBody, TableCell,
   TableHead, TableRow, TableSortLabel, TextField, ToggleButton, ToggleButtonGroup, Tooltip, Typography,
 } from '@mui/material'
@@ -21,7 +21,7 @@ import { getDisplayName, getIconForCharacter } from '../../../catalog'
 import { exportGameFile } from '../../../lib/exportGame'
 import { useBreakpoint } from '../../../hooks/useBreakpoint'
 import { StarRating } from '../../ui/StarRating'
-import { MicroChip } from '../../ui'
+import { MicroChip, ResponsiveDialog, ResponsiveDialogActions, ResponsiveDialogContent } from '../../ui'
 import type { GameRecord } from '../../StorytellerSub/types'
 import type { Language } from '../../../types'
 import { useT } from '../../../context/I18nContext'
@@ -174,7 +174,7 @@ const QuickEditPanel = memo(function QuickEditPanel({ record, onSave }: {
 
         {/* ── Right col: ratings + notes ── */}
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
-          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0.5 }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 0.5 }}>
             <StarRating label={t('balanced')} value={balanced} onChange={mark(setBalanced)} />
             <StarRating label={t('fun_evil')} value={funEvil} onChange={mark(setFunEvil)} />
             <StarRating label={t('fun_good')} value={funGood} onChange={mark(setFunGood)} />
@@ -591,12 +591,10 @@ export function RecordsSection({ records, filteredRecords, onRecordsChange, lang
       )}
 
       {/* ── Mobile record detail dialog ── */}
-      <Dialog
+      <ResponsiveDialog
         open={!!mobileDetail}
         onClose={() => setMobileDetail(null)}
-        fullWidth
         maxWidth="sm"
-        slotProps={{ paper: { sx: { m: 1, maxHeight: '92vh', display: 'flex', flexDirection: 'column' } } }}
       >
         {mobileDetail && (
           <>
@@ -628,7 +626,7 @@ export function RecordsSection({ records, filteredRecords, onRecordsChange, lang
                 </IconButton>
               </Box>
             </DialogTitle>
-            <DialogContent dividers sx={{ p: 0, overflowY: 'auto', flex: 1 }}>
+            <ResponsiveDialogContent dividers sx={{ p: 0, overflowY: 'auto', flex: 1 }}>
               <RecordRowDetail record={mobileDetail} language={language} />
               <QuickEditPanel
                 record={mobileDetail}
@@ -638,8 +636,8 @@ export function RecordsSection({ records, filteredRecords, onRecordsChange, lang
                   setMobileDetail(updated)
                 }}
               />
-            </DialogContent>
-            <DialogActions sx={{ gap: 0.5, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+            </ResponsiveDialogContent>
+            <ResponsiveDialogActions sx={{ gap: 0.5, justifyContent: 'flex-end' }}>
               <IconButton size="small"
                 onClick={() => exportGameFile(JSON.stringify(mobileDetail, null, 2), `record-${mobileDetail.id.slice(0, 8)}.json`)}>
                 <FileDownloadIcon fontSize="small" />
@@ -660,22 +658,22 @@ export function RecordsSection({ records, filteredRecords, onRecordsChange, lang
               <Button size="small" onClick={() => setMobileDetail(null)}>
                 {t('close')}
               </Button>
-            </DialogActions>
+            </ResponsiveDialogActions>
           </>
         )}
-      </Dialog>
+      </ResponsiveDialog>
 
       {/* Bulk delete confirm */}
-      <Dialog open={confirmBulkDelete} onClose={() => setConfirmBulkDelete(false)} maxWidth="xs">
+      <ResponsiveDialog open={confirmBulkDelete} onClose={() => setConfirmBulkDelete(false)} maxWidth="xs" mobile="compact">
         <DialogTitle>{t('confirm_delete')}</DialogTitle>
-        <DialogContent>
+        <ResponsiveDialogContent>
           <Typography>{tpl('confirm_delete_n_records', selected.size)}</Typography>
-        </DialogContent>
-        <DialogActions>
+        </ResponsiveDialogContent>
+        <ResponsiveDialogActions>
           <Button onClick={() => setConfirmBulkDelete(false)}>{t('cancel')}</Button>
           <Button color="error" variant="contained" onClick={deleteBulk}>{t('delete')}</Button>
-        </DialogActions>
-      </Dialog>
+        </ResponsiveDialogActions>
+      </ResponsiveDialog>
     </Box>
   )
 }

@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Alert, Box, Button, Chip, CircularProgress, Collapse, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, IconButton, InputLabel, MenuItem, Paper, Select, TextField, Tooltip, Typography } from '@mui/material'
+import { Alert, Box, Button, Chip, CircularProgress, Collapse, DialogTitle, FormControl, IconButton, InputLabel, MenuItem, Paper, Select, TextField, Tooltip, Typography } from '@mui/material'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import PrintIcon from '@mui/icons-material/Print'
 import DownloadIcon from '@mui/icons-material/Download'
@@ -35,6 +35,7 @@ import type {
 } from '../../types'
 import type { PrintOptions } from '../PrintOptionsDialog'
 import { useT } from '../../context/I18nContext'
+import { ResponsiveDialog, ResponsiveDialogActions, ResponsiveDialogContent } from '../ui'
 
 type Props = {
   scripts: EditableScript[]
@@ -544,9 +545,9 @@ export function ScriptsTab({
       )}
 
       {/* ── Script share dialog ── */}
-      <Dialog open={shareDialogOpen} onClose={() => setShareDialogOpen(false)} maxWidth="sm" fullWidth>
+      <ResponsiveDialog open={shareDialogOpen} onClose={() => setShareDialogOpen(false)} maxWidth="sm" mobile="compact">
         <DialogTitle>{t('share_script')}</DialogTitle>
-        <DialogContent>
+        <ResponsiveDialogContent>
           {shareLoading && (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 1 }}>
               <CircularProgress size={20} />
@@ -572,8 +573,8 @@ export function ScriptsTab({
               />
             </Box>
           )}
-        </DialogContent>
-        <DialogActions>
+        </ResponsiveDialogContent>
+        <ResponsiveDialogActions>
           {!shareLoading && shareUrl && (
             <Button
               startIcon={shareCopied ? <CheckIcon /> : <ContentCopyIcon />}
@@ -590,8 +591,8 @@ export function ScriptsTab({
           <Button onClick={() => setShareDialogOpen(false)}>
             {t('close')}
           </Button>
-        </DialogActions>
-      </Dialog>
+        </ResponsiveDialogActions>
+      </ResponsiveDialog>
     </Box>
   )
 }

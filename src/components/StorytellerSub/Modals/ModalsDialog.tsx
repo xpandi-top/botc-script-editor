@@ -2,11 +2,12 @@
 import type { StorytellerContext } from '../useStoryteller'
 import React from 'react'
 import {
-  Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
+  Button, DialogContentText, DialogTitle,
 } from '@mui/material'
 import SaveIcon from '@mui/icons-material/Save'
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
 import { makeT, makeTpl } from '../../../lib/t'
+import { ResponsiveDialog, ResponsiveDialogActions, ResponsiveDialogContent } from '../../ui'
 
 export function ModalsDialog({ ctx }: { ctx: StorytellerContext }) {
   const {
@@ -25,21 +26,21 @@ export function ModalsDialog({ ctx }: { ctx: StorytellerContext }) {
   return (
     <>
       {/* ── Delete day confirmation ── */}
-      <Dialog
+      <ResponsiveDialog
         open={!!deleteDayState}
         onClose={() => setDialogState(null)}
         maxWidth="xs"
-        fullWidth
+        mobile="compact"
       >
         <DialogTitle sx={{ fontWeight: 700 }}>
           {tpl('delete_day_n', deleteDayState?.dayNum)}
         </DialogTitle>
-        <DialogContent>
+        <ResponsiveDialogContent>
           <DialogContentText>
             {t('delete_day_confirm')}
           </DialogContentText>
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
+        </ResponsiveDialogContent>
+        <ResponsiveDialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
           <Button variant="outlined" size="small" onClick={() => setDialogState(null)} sx={{ mr: 'auto' }}>
             {t('cancel')}
           </Button>
@@ -52,25 +53,25 @@ export function ModalsDialog({ ctx }: { ctx: StorytellerContext }) {
           >
             {t('delete')}
           </Button>
-        </DialogActions>
-      </Dialog>
+        </ResponsiveDialogActions>
+      </ResponsiveDialog>
 
       {/* ── Save-before-new-game prompt ── */}
-      <Dialog
+      <ResponsiveDialog
         open={!!showSaveBeforeNewGame}
         onClose={() => setShowSaveBeforeNewGame(false)}
         maxWidth="xs"
-        fullWidth
+        mobile="compact"
       >
         <DialogTitle sx={{ fontWeight: 700 }}>
           {text.saveBeforeNewGameTitle}
         </DialogTitle>
-        <DialogContent>
+        <ResponsiveDialogContent>
           <DialogContentText>
             {text.saveBeforeNewGameBody}
           </DialogContentText>
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
+        </ResponsiveDialogContent>
+        <ResponsiveDialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
           <Button
             variant="outlined"
             size="small"
@@ -96,8 +97,8 @@ export function ModalsDialog({ ctx }: { ctx: StorytellerContext }) {
           >
             {text.saveAndNew}
           </Button>
-        </DialogActions>
-      </Dialog>
+        </ResponsiveDialogActions>
+      </ResponsiveDialog>
 
     </>
   )

@@ -54,7 +54,7 @@ export function ModalsExport({ ctx }: { ctx: StorytellerContext }) {
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       <Typography variant="h6">{t('export')}</Typography>
 
-      <Box sx={{ display: 'flex', gap: 1 }}>
+      <Box sx={{ display: 'flex', gap: 1, flexDirection: { xs: 'column', sm: 'row' } }}>
         <Paper variant="outlined" sx={{ flex: 1, p: 1.5, cursor: 'pointer' }} onClick={handleExportSetup}>
           <Typography variant="h4">🎭</Typography>
           <Typography variant="subtitle2">{t('game_setup')}</Typography>

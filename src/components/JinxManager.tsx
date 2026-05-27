@@ -4,8 +4,6 @@ import {
   Box,
   Button,
   Chip,
-  Dialog,
-  DialogContent,
   DialogTitle,
   Divider,
   IconButton,
@@ -39,6 +37,7 @@ import {
 } from '../catalog'
 import type { Language } from '../types'
 import { makeT, makeTpl } from '../lib/t'
+import { ResponsiveDialog, ResponsiveDialogContent } from './ui'
 
 type JinxManagerProps = {
   open: boolean
@@ -222,7 +221,7 @@ export function JinxManager({ open, onClose, language }: JinxManagerProps) {
   const isNewJinx = (id: string) => !jinxes[id]
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+    <ResponsiveDialog open={open} onClose={onClose} maxWidth="md">
       <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pb: 1 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Typography variant="h6">{t('jinx_manager')}</Typography>
@@ -254,15 +253,15 @@ export function JinxManager({ open, onClose, language }: JinxManagerProps) {
         </Box>
       </DialogTitle>
 
-      <DialogContent sx={{ p: 0, display: 'flex', flexDirection: 'column', height: '75vh' }}>
+      <ResponsiveDialogContent sx={{ p: 0, display: 'flex', flexDirection: 'column', height: { xs: '100%', sm: '75vh' } }}>
         {/* Toolbar */}
-        <Box sx={{ px: 2, py: 1.5, borderBottom: '1px solid', borderColor: 'divider', display: 'flex', gap: 1, alignItems: 'center', flexShrink: 0 }}>
+        <Box sx={{ px: 2, py: 1.5, borderBottom: '1px solid', borderColor: 'divider', display: 'flex', gap: 1, alignItems: 'center', flexShrink: 0, flexWrap: { xs: 'wrap', sm: 'nowrap' } }}>
           <TextField
             size="small"
             placeholder={t('search_characters')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            sx={{ flex: 1 }}
+            sx={{ flex: { xs: '1 1 100%', sm: 1 } }}
             slotProps={{
               input: {
                 startAdornment: (
@@ -278,7 +277,7 @@ export function JinxManager({ open, onClose, language }: JinxManagerProps) {
             variant="contained"
             startIcon={<AddIcon fontSize="small" />}
             onClick={openAdd}
-            sx={{ textTransform: 'none', fontSize: '0.75rem', whiteSpace: 'nowrap' }}
+            sx={{ textTransform: 'none', fontSize: '0.75rem', whiteSpace: 'nowrap', flex: { xs: 1, sm: '0 0 auto' } }}
           >
             {t('add_jinx')}
           </Button>
@@ -301,8 +300,9 @@ export function JinxManager({ open, onClose, language }: JinxManagerProps) {
                 onChange={(_, v) => setDraft((d) => ({ ...d, char0: v ?? '' }))}
                 getOptionLabel={(id) => getDisplayName(id, language)}
                 renderInput={(params) => (
-                  <TextField {...params} label={t('character_a')} sx={{ width: 180 }} />
+                  <TextField {...params} label={t('character_a')} sx={{ width: { xs: '100%', sm: 180 } }} />
                 )}
+                sx={{ width: { xs: '100%', sm: 180 } }}
               />
               <Autocomplete
                 size="small"
@@ -311,8 +311,9 @@ export function JinxManager({ open, onClose, language }: JinxManagerProps) {
                 onChange={(_, v) => setDraft((d) => ({ ...d, char1: v ?? '' }))}
                 getOptionLabel={(id) => getDisplayName(id, language)}
                 renderInput={(params) => (
-                  <TextField {...params} label={t('character_b')} sx={{ width: 180 }} />
+                  <TextField {...params} label={t('character_b')} sx={{ width: { xs: '100%', sm: 180 } }} />
                 )}
+                sx={{ width: { xs: '100%', sm: 180 } }}
               />
             </Box>
             <Box sx={{ display: 'flex', gap: 1, flexDirection: 'column', mb: 1 }}>
@@ -480,7 +481,7 @@ export function JinxManager({ open, onClose, language }: JinxManagerProps) {
             {t('export_jinxes_json')}
           </Button>
         </Box>
-      </DialogContent>
-    </Dialog>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   )
 }

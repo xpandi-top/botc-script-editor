@@ -2,11 +2,12 @@
 import type { StorytellerSeat } from '../types'
 import type { StorytellerContext } from '../useStoryteller'
 import React, { useState } from 'react'
-import { Box, Button, TextField, IconButton, Typography, Paper, List, ListItem, Chip, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material'
+import { Box, Button, TextField, IconButton, Typography, Paper, List, ListItem, Chip, DialogTitle } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import RemoveIcon from '@mui/icons-material/Remove'
 import { uniqueStrings } from '../constants'
 import { useT } from '../../../context/I18nContext'
+import { ResponsiveDialog, ResponsiveDialogActions, ResponsiveDialogContent } from '../../ui'
 
 export function ModalsEditPlayers({ ctx }: { ctx: StorytellerContext }) {
   const {
@@ -171,9 +172,9 @@ export function ModalsEditPlayers({ ctx }: { ctx: StorytellerContext }) {
       </Box>
 
       {/* Rename propagation dialog */}
-      <Dialog open={!!pendingRename} onClose={() => setPendingRename(null)} maxWidth="xs" fullWidth>
+      <ResponsiveDialog open={!!pendingRename} onClose={() => setPendingRename(null)} maxWidth="xs" mobile="compact">
         <DialogTitle>{t('update_saved_records')}</DialogTitle>
-        <DialogContent>
+        <ResponsiveDialogContent>
           <Typography variant="body2">
             {tpl(
               'rename_player_in_n_records',
@@ -182,16 +183,16 @@ export function ModalsEditPlayers({ ctx }: { ctx: StorytellerContext }) {
               gameRecords?.filter((r: any) => r.playerSummaries?.some((ps: any) => ps.name === pendingRename?.oldName)).length ?? 0
             )}
           </Typography>
-        </DialogContent>
-        <DialogActions>
+        </ResponsiveDialogContent>
+        <ResponsiveDialogActions>
           <Button onClick={() => setPendingRename(null)}>
             {t('this_game_only')}
           </Button>
           <Button variant="contained" onClick={applyRenameToRecords}>
             {t('update_all')}
           </Button>
-        </DialogActions>
-      </Dialog>
+        </ResponsiveDialogActions>
+      </ResponsiveDialog>
     </Box>
   )
 }

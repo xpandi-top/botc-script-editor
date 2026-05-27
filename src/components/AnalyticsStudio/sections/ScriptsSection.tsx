@@ -78,17 +78,19 @@ function PerDayStats({ records, scriptKey }: { records: GameRecord[]; scriptKey:
       <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
         {t('perday_averages')}
       </Typography>
-      <Box sx={{ display: 'grid', gridTemplateColumns: 'auto 1fr 1fr 1fr 1fr', gap: '2px 8px', alignItems: 'center' }}>
-        {[t('day'), t('votes'), t('noms'), t('abilities'), t('exec')].map((h, i) => (
-          <Typography key={i} variant="caption" color="text.secondary" sx={{ fontWeight: 700, fontSize: '0.68rem' }}>{h}</Typography>
-        ))}
-        {dayData.map((d) => [
-          <Typography key={`d${d.day}`} variant="caption" sx={{ fontWeight: 700, color: 'primary.main', fontSize: '0.72rem' }}>{d.day}</Typography>,
-          <Typography key={`v${d.day}`} variant="caption" sx={{ fontSize: '0.72rem' }}>{d.avgVotes}</Typography>,
-          <Typography key={`n${d.day}`} variant="caption" sx={{ fontSize: '0.72rem' }}>{d.avgNominations}</Typography>,
-          <Typography key={`s${d.day}`} variant="caption" sx={{ fontSize: '0.72rem' }}>{d.avgSkills}</Typography>,
-          <Typography key={`e${d.day}`} variant="caption" sx={{ fontSize: '0.72rem' }}>{d.execRate !== null ? `${d.execRate}%` : '—'}</Typography>,
-        ])}
+      <Box sx={{ overflowX: 'auto' }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'auto 1fr 1fr 1fr 1fr', gap: '2px 8px', alignItems: 'center', minWidth: 220 }}>
+          {[t('day'), t('votes'), t('noms'), t('abilities'), t('exec')].map((h, i) => (
+            <Typography key={i} variant="caption" color="text.secondary" sx={{ fontWeight: 700, fontSize: '0.68rem' }}>{h}</Typography>
+          ))}
+          {dayData.map((d) => [
+            <Typography key={`d${d.day}`} variant="caption" sx={{ fontWeight: 700, color: 'primary.main', fontSize: '0.72rem' }}>{d.day}</Typography>,
+            <Typography key={`v${d.day}`} variant="caption" sx={{ fontSize: '0.72rem' }}>{d.avgVotes}</Typography>,
+            <Typography key={`n${d.day}`} variant="caption" sx={{ fontSize: '0.72rem' }}>{d.avgNominations}</Typography>,
+            <Typography key={`s${d.day}`} variant="caption" sx={{ fontSize: '0.72rem' }}>{d.avgSkills}</Typography>,
+            <Typography key={`e${d.day}`} variant="caption" sx={{ fontSize: '0.72rem' }}>{d.execRate !== null ? `${d.execRate}%` : '—'}</Typography>,
+          ])}
+        </Box>
       </Box>
     </Box>
   )
@@ -301,7 +303,7 @@ export function ScriptsSection({ scriptStats, language, records }: Props) {
           size="small"
           value={selectedKey}
           onChange={(e) => setSelectedKey(e.target.value as string)}
-          sx={{ minWidth: 180, fontSize: '0.85rem' }}
+          sx={{ minWidth: { xs: 140, sm: 180 }, fontSize: '0.85rem' }}
         >
           <MenuItem value="__all__">{t('all_scripts')}</MenuItem>
           {scriptStats.map((s) => (

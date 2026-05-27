@@ -69,7 +69,7 @@ export function PlayersTab({ newGamePanel, playerNamePool, language, seats, upda
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-      <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'flex-start' }}>
+      <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'flex-start', flexDirection: { xs: 'column', sm: 'row' } }}>
         <TextField
           size="small"
           fullWidth
@@ -84,7 +84,7 @@ export function PlayersTab({ newGamePanel, playerNamePool, language, seats, upda
           onClick={handleQuickFill}
           disabled={!quickFill.trim()}
           startIcon={<DownloadDoneIcon fontSize="small" />}
-          sx={{ flexShrink: 0, height: 40 }}
+          sx={{ flexShrink: 0, height: 40, width: { xs: '100%', sm: 'auto' } }}
         >
           {t('fill')}
         </Button>
@@ -124,7 +124,7 @@ export function PlayersTab({ newGamePanel, playerNamePool, language, seats, upda
         </Box>
       )}
 
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
         <Typography variant="body2">{t('edit_players')}: {newGamePanel.playerCount}</Typography>
         <IconButton size="small" onClick={() => updateConfig({ playerCount: Math.max(5, newGamePanel.playerCount - 1) })}>
           <RemoveIcon />

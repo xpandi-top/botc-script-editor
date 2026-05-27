@@ -9,7 +9,7 @@
 
 import { useState } from 'react'
 import {
-  Box, Button, Dialog, DialogContent, DialogTitle,
+  Box, Button, DialogTitle,
   IconButton, InputAdornment, TextField, Tooltip, Typography,
 } from '@mui/material'
 import AddAlarmIcon from '@mui/icons-material/AddAlarm'
@@ -23,6 +23,7 @@ import {
 import type { Language } from '../types'
 import { useT } from '../context/I18nContext'
 import { makeTpl } from '../lib/t'
+import { ResponsiveDialog, ResponsiveDialogContent } from './ui'
 
 type Props = {
   /** Current 1-based position, or undefined = not in night order */
@@ -133,8 +134,7 @@ export function NightOrderPicker({ value, onChange, nightType, language }: Props
         )}
       </Box>
 
-      <Dialog open={open} onClose={() => { setOpen(false); setSearch('') }} maxWidth="xs" fullWidth
-        slotProps={{ paper: { sx: { maxHeight: '80vh' } } }}>
+      <ResponsiveDialog open={open} onClose={() => { setOpen(false); setSearch('') }} maxWidth="xs">
         <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 1 }}>
           <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
             {nightType === 'first' ? t('first_night_pick_position') : t('other_nights_pick_position')}
@@ -158,7 +158,7 @@ export function NightOrderPicker({ value, onChange, nightType, language }: Props
             }}
           />
         </Box>
-        <DialogContent sx={{ p: 0, overflowY: 'auto' }}>
+        <ResponsiveDialogContent sx={{ p: 0, overflowY: 'auto' }}>
           {/* Insert at beginning */}
           {!sq && (
             <InsertDivider
@@ -198,8 +198,8 @@ export function NightOrderPicker({ value, onChange, nightType, language }: Props
               {t('no_night_wakeup')}
             </Button>
           </Box>
-        </DialogContent>
-      </Dialog>
+        </ResponsiveDialogContent>
+      </ResponsiveDialog>
     </>
   )
 }

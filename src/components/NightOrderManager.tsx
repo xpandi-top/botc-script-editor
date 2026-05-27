@@ -3,9 +3,6 @@ import {
   Autocomplete,
   Box,
   Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
   DialogTitle,
   IconButton,
   Tab,
@@ -46,6 +43,7 @@ import {
 import type { Language } from '../types'
 import { makeT } from '../lib/t'
 import { useT } from '../context/I18nContext'
+import { ResponsiveDialog, ResponsiveDialogActions, ResponsiveDialogContent } from './ui'
 
 type Props = {
   open: boolean
@@ -317,7 +315,7 @@ export function NightOrderManager({ open, onClose, language }: Props) {
   const sortableIds = currentList.map((id, i) => `${id}__${i}`)
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <ResponsiveDialog open={open} onClose={onClose} maxWidth="sm">
       <DialogTitle sx={{ display: 'flex', alignItems: 'center', pr: 1 }}>
         <Typography variant="h6" sx={{ flex: 1 }}>
           {t('night_order')}
@@ -327,7 +325,7 @@ export function NightOrderManager({ open, onClose, language }: Props) {
         </IconButton>
       </DialogTitle>
 
-      <DialogContent sx={{ p: 0 }}>
+      <ResponsiveDialogContent sx={{ p: 0, display: 'flex', flexDirection: 'column' }}>
         <Tabs
           value={tab}
           onChange={(_, v) => { setTab(v as 'first' | 'other'); setInsertAfterIndex(null) }}
@@ -345,7 +343,7 @@ export function NightOrderManager({ open, onClose, language }: Props) {
         </Box>
 
         {/* Sortable list */}
-        <Box sx={{ maxHeight: '50vh', overflowY: 'auto', px: 1, pb: 1 }}>
+        <Box sx={{ flex: 1, minHeight: 0, maxHeight: { xs: 'none', sm: '50vh' }, overflowY: 'auto', px: 1, pb: 1 }}>
           {currentList.length === 0 && (
             <Typography variant="body2" color="text.secondary" sx={{ p: 2, textAlign: 'center' }}>
               {t('list_is_empty')}
@@ -404,10 +402,10 @@ export function NightOrderManager({ open, onClose, language }: Props) {
             )}
           />
         </Box>
-      </DialogContent>
+      </ResponsiveDialogContent>
 
-      <DialogActions sx={{ px: 2, pb: 2, justifyContent: 'space-between' }}>
-        <Box sx={{ display: 'flex', gap: 1 }}>
+      <ResponsiveDialogActions sx={{ justifyContent: 'space-between' }}>
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
           <Button variant="outlined" size="small" onClick={handleReset} sx={{ textTransform: 'none' }}>
             {t('reset_to_default')}
           </Button>
@@ -417,7 +415,7 @@ export function NightOrderManager({ open, onClose, language }: Props) {
             </Button>
           </Tooltip>
         </Box>
-        <Box sx={{ display: 'flex', gap: 1 }}>
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', ml: 'auto' }}>
           <Button size="small" onClick={onClose} sx={{ textTransform: 'none' }}>
             {t('cancel')}
           </Button>
@@ -425,7 +423,7 @@ export function NightOrderManager({ open, onClose, language }: Props) {
             {t('save')}
           </Button>
         </Box>
-      </DialogActions>
-    </Dialog>
+      </ResponsiveDialogActions>
+    </ResponsiveDialog>
   )
 }

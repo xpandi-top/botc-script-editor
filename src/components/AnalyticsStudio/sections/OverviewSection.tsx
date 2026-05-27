@@ -246,7 +246,7 @@ function InsightCard({ insight }: { insight: Insight }) {
   return (
     <Box sx={{
       display: 'flex', alignItems: 'center', gap: 1.25,
-      p: 1.25, borderRadius: 1.5,
+      p: { xs: 1, sm: 1.25 }, borderRadius: 1.5,
       bgcolor: SEV_COLOR[insight.severity],
       borderLeft: '3px solid',
       borderColor: SEV_BORDER[insight.severity],
@@ -345,39 +345,39 @@ export function OverviewSection({ kpi, scriptStats, playerStats, charStats, stor
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
 
       {/* ── KPI Cards ── */}
-      <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
-        <Paper sx={{ p: 2, flex: '1 1 100px', textAlign: 'center', minWidth: 90 }} elevation={2}>
+      <Box sx={{ display: 'flex', gap: { xs: 1, sm: 1.5 }, flexWrap: 'wrap' }}>
+        <Paper sx={{ p: { xs: 1.5, sm: 2 }, flex: '1 1 100px', textAlign: 'center', minWidth: 90 }} elevation={2}>
           <Typography variant="h4" sx={{ fontWeight: 700 }}>{kpi.total}</Typography>
           <Typography variant="caption" color="text.secondary">{t('total_games')}</Typography>
         </Paper>
-        <Paper sx={{ p: 2, flex: '1 1 100px', textAlign: 'center', bgcolor: '#7a2e24', color: '#f5ede8', minWidth: 90 }} elevation={2}>
+        <Paper sx={{ p: { xs: 1.5, sm: 2 }, flex: '1 1 100px', textAlign: 'center', bgcolor: '#7a2e24', color: '#f5ede8', minWidth: 90 }} elevation={2}>
           <Typography variant="h4" sx={{ fontWeight: 700, color: '#f5ede8' }}>{kpi.evilPct}%</Typography>
           <Typography variant="caption" sx={{ color: '#d4b0a8' }}>{tpl('evil_wins_n', kpi.evilWins)}</Typography>
         </Paper>
-        <Paper sx={{ p: 2, flex: '1 1 100px', textAlign: 'center', bgcolor: '#2e5e3a', color: '#e8f2eb', minWidth: 90 }} elevation={2}>
+        <Paper sx={{ p: { xs: 1.5, sm: 2 }, flex: '1 1 100px', textAlign: 'center', bgcolor: '#2e5e3a', color: '#e8f2eb', minWidth: 90 }} elevation={2}>
           <Typography variant="h4" sx={{ fontWeight: 700, color: '#e8f2eb' }}>{kpi.goodPct}%</Typography>
           <Typography variant="caption" sx={{ color: '#a8ccb4' }}>{tpl('good_wins_n', kpi.goodWins)}</Typography>
         </Paper>
         {kpi.stWins > 0 && (
-          <Paper sx={{ p: 2, flex: '1 1 100px', textAlign: 'center', minWidth: 90 }} elevation={2}>
+          <Paper sx={{ p: { xs: 1.5, sm: 2 }, flex: '1 1 100px', textAlign: 'center', minWidth: 90 }} elevation={2}>
             <Typography variant="h4" sx={{ fontWeight: 700 }}>{kpi.stPct}%</Typography>
             <Typography variant="caption" color="text.secondary">{tpl('st_wins_n', kpi.stWins)}</Typography>
           </Paper>
         )}
         {kpi.avgDays !== null && (
-          <Paper sx={{ p: 2, flex: '1 1 100px', textAlign: 'center', minWidth: 90 }} elevation={1}>
+          <Paper sx={{ p: { xs: 1.5, sm: 2 }, flex: '1 1 100px', textAlign: 'center', minWidth: 90 }} elevation={1}>
             <Typography variant="h4" sx={{ fontWeight: 700 }}>{kpi.avgDays}</Typography>
             <Typography variant="caption" color="text.secondary">{t('avg_days')}</Typography>
           </Paper>
         )}
         {kpi.avgDurationMin !== null && (
-          <Paper sx={{ p: 2, flex: '1 1 100px', textAlign: 'center', minWidth: 90 }} elevation={1}>
+          <Paper sx={{ p: { xs: 1.5, sm: 2 }, flex: '1 1 100px', textAlign: 'center', minWidth: 90 }} elevation={1}>
             <Typography variant="h4" sx={{ fontWeight: 700 }}>{kpi.avgDurationMin}</Typography>
             <Typography variant="caption" color="text.secondary">{t('avg_min')}</Typography>
           </Paper>
         )}
         {kpi.avgPlayers !== null && (
-          <Paper sx={{ p: 2, flex: '1 1 100px', textAlign: 'center', minWidth: 90 }} elevation={1}>
+          <Paper sx={{ p: { xs: 1.5, sm: 2 }, flex: '1 1 100px', textAlign: 'center', minWidth: 90 }} elevation={1}>
             <Typography variant="h4" sx={{ fontWeight: 700 }}>{kpi.avgPlayers}</Typography>
             <Typography variant="caption" color="text.secondary">{t('avg_players')}</Typography>
           </Paper>
@@ -485,7 +485,7 @@ export function OverviewSection({ kpi, scriptStats, playerStats, charStats, stor
           <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1.5 }}>{t('top_5_players')}</Typography>
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
             {playerStats.slice(0, 5).map((p, idx) => (
-              <Box key={p.name} sx={{ display: 'flex', alignItems: 'center', gap: 0.75, p: 0.75, borderRadius: 1.5, bgcolor: 'action.hover', minWidth: 130 }}>
+              <Box key={p.name} sx={{ display: 'flex', alignItems: 'center', gap: 0.75, p: 0.75, borderRadius: 1.5, bgcolor: 'action.hover', minWidth: { xs: 110, sm: 130 } }}>
                 <Typography sx={{ fontWeight: 700, color: 'text.secondary', fontSize: '0.8rem', width: 18, flexShrink: 0 }}>#{idx + 1}</Typography>
                 <Box>
                   <Typography variant="body2" sx={{ fontWeight: 700, lineHeight: 1.2 }}>{p.name}</Typography>
@@ -564,7 +564,7 @@ export function OverviewSection({ kpi, scriptStats, playerStats, charStats, stor
             {charStats.slice(0, 8).map((c) => {
               const icon = getIconForCharacter(c.charId)
               return (
-                <Box key={c.charId} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5, width: 56 }}>
+                <Box key={c.charId} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5, width: { xs: 44, sm: 56 } }}>
                   {icon ? (
                     <Box component="img" src={icon as string} sx={{ width: 40, height: 40, borderRadius: '50%', bgcolor: '#f2ebdf' }} />
                   ) : (

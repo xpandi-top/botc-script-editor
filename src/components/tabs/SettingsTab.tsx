@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import {
-  Alert, Box, Button, Dialog, DialogActions,
-  DialogContent, DialogContentText, DialogTitle, Divider,
+  Alert, Box, Button,
+  DialogContentText, DialogTitle, Divider,
   FormControlLabel, Radio, RadioGroup, Stack,
   ToggleButton, ToggleButtonGroup, Typography,
 } from '@mui/material'
@@ -19,6 +19,7 @@ import { useThemeMode } from '../../context/ThemeMode'
 import { FontPicker, LivePreview } from '../settings/FontSection'
 import { CloudSyncSection } from '../settings/CloudSyncSection'
 import { useT } from '../../context/I18nContext'
+import { ResponsiveDialog, ResponsiveDialogActions, ResponsiveDialogContent } from '../ui'
 
 // ── SettingsTab ───────────────────────────────────────────────────────────────
 interface SettingsTabProps {
@@ -231,9 +232,9 @@ export function SettingsTab({ language, onLanguageChange, fontSettings, cloudSyn
       </Box>
 
       {/* ── Import Dialog ── */}
-      <Dialog open={importDialog} onClose={() => setImportDialog(false)} maxWidth="xs" fullWidth>
+      <ResponsiveDialog open={importDialog} onClose={() => setImportDialog(false)} maxWidth="xs" mobile="compact">
         <DialogTitle>{t('import_bundle')}</DialogTitle>
-        <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '8px !important' }}>
+        <ResponsiveDialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '8px !important' }}>
           <Button variant="outlined" component="label" startIcon={<UploadIcon />}>
             {importFile ? importFile.name : t('choose_json_file')}
             <input type="file" accept=".json" hidden onChange={(e) => {
@@ -263,8 +264,8 @@ export function SettingsTab({ language, onLanguageChange, fontSettings, cloudSyn
           {importStatus === 'error' && (
             <Alert severity="error">{importError}</Alert>
           )}
-        </DialogContent>
-        <DialogActions>
+        </ResponsiveDialogContent>
+        <ResponsiveDialogActions>
           <Button onClick={() => setImportDialog(false)}>{t('cancel')}</Button>
           <Button
             variant="contained"
@@ -283,8 +284,8 @@ export function SettingsTab({ language, onLanguageChange, fontSettings, cloudSyn
           >
             {t('import_bundle')}
           </Button>
-        </DialogActions>
-      </Dialog>
+        </ResponsiveDialogActions>
+      </ResponsiveDialog>
     </Box>
   )
 }

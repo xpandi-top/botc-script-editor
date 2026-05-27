@@ -5,7 +5,7 @@ import React, { useState, useEffect, useMemo } from 'react'
 import { createPortal } from 'react-dom'
 import {
   Accordion, AccordionDetails, AccordionSummary,
-  Box, Button, Chip, Dialog, DialogContent, DialogTitle,
+  Box, Button, Chip, DialogTitle,
   Divider, FormControl, FormControlLabel, IconButton, InputLabel,
   MenuItem, Select, Switch, TextField, Tooltip, Typography, useTheme,
 } from '@mui/material'
@@ -24,6 +24,7 @@ import { logPhrase } from '../../../utils/logI18n'
 import { LogDetailText } from '../LogDetailText'
 import { useT } from '../../../context/I18nContext'
 import { translateStTag } from './ArenaSeatComponents'
+import { ResponsiveDialog, ResponsiveDialogContent } from '../../ui'
 
 const TRAVELER_CHAR_IDS = allCharacters.filter((c) => c.team === 'traveler').map((c) => c.id)
 
@@ -1240,13 +1241,12 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
   )
 
   const modal = (
-    <Dialog open={isOpen} onClose={handleClose} maxWidth="sm" fullWidth
-      slotProps={{ paper: { sx: { maxHeight: '92vh', m: 1 } } }}>
+    <ResponsiveDialog open={isOpen} onClose={handleClose} maxWidth="sm">
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 0.5, pt: 1.5, px: 2 }}>
         <Typography fontWeight={700}>#{seat.seat} {seat.name}</Typography>
         <IconButton size="small" onClick={handleClose}><CloseIcon fontSize="small" /></IconButton>
       </DialogTitle>
-      <DialogContent sx={{ pt: 1.5, px: 2 }}>
+      <ResponsiveDialogContent sx={{ pt: 1.5, px: 2 }}>
         {isNight ? (
           <>
             <Divider sx={{ mb: 1.5 }} />
@@ -1276,8 +1276,8 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
             {logSection}
           </>
         )}
-      </DialogContent>
-    </Dialog>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   )
 
   const abilityDetailModal = abilityModalCharId ? (() => {
@@ -1286,16 +1286,16 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
     const name = getDisplayName(charId, language)
     const ability = getAbilityTextForScript(charId, language, pinnedRevisions) || getAbilityTextForScript(charId, 'en', pinnedRevisions) || ''
     return (
-      <Dialog open onClose={() => setAbilityModalCharId(null)} maxWidth="xs" fullWidth>
+      <ResponsiveDialog open onClose={() => setAbilityModalCharId(null)} maxWidth="xs" mobile="compact">
         <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1, pb: 1 }}>
           {icon && <Box component="img" src={icon as string} sx={{ width: 32, height: 32, borderRadius: '50%', flexShrink: 0 }} />}
           <Typography fontWeight={700} sx={{ flex: 1 }}>{name}</Typography>
           <IconButton size="small" onClick={() => setAbilityModalCharId(null)}><CloseIcon fontSize="small" /></IconButton>
         </DialogTitle>
-        <DialogContent sx={{ pt: 0.5 }}>
+        <ResponsiveDialogContent sx={{ pt: 0.5 }}>
           <Typography variant="body2" sx={{ lineHeight: 1.7, color: 'text.primary' }}>{ability}</Typography>
-        </DialogContent>
-      </Dialog>
+        </ResponsiveDialogContent>
+      </ResponsiveDialog>
     )
   })() : null
 

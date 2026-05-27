@@ -5,7 +5,7 @@
 
 import { useMemo, useState } from 'react'
 import {
-  Autocomplete, Box, Button, Chip, Dialog, DialogActions, DialogContent,
+  Autocomplete, Box, Button, Chip,
   DialogTitle, Divider, FormControl, IconButton, InputLabel, MenuItem,
   Select, Tab, Tabs, TextField, ToggleButton, ToggleButtonGroup, Typography,
 } from '@mui/material'
@@ -19,6 +19,7 @@ import { StarRating } from '../ui/StarRating'
 import type { GameRecord } from '../StorytellerSub/types'
 import type { Language } from '../../types'
 import { useT } from '../../context/I18nContext'
+import { ResponsiveDialog, ResponsiveDialogActions, ResponsiveDialogContent } from '../ui'
 
 // ── Types ─────────────────────────────────────────────────────────
 
@@ -202,8 +203,7 @@ export function RecordFormDialog({ existing, zh, language, onSave, onClose }: {
   }
 
   return (
-    <Dialog open onClose={onClose} maxWidth="md" fullWidth
-      slotProps={{ paper: { sx: { maxHeight: '90vh', display: 'flex', flexDirection: 'column' } } }}>
+    <ResponsiveDialog open onClose={onClose} maxWidth="md">
       <DialogTitle sx={{ pb: 0 }}>
         {existing ? (t('edit_game_record')) : (t('new_game_record'))}
       </DialogTitle>
@@ -226,7 +226,7 @@ export function RecordFormDialog({ existing, zh, language, onSave, onClose }: {
         } sx={{ minHeight: 40, fontSize: '0.8rem', textTransform: 'none', py: 0 }} />
       </Tabs>
 
-      <DialogContent sx={{ flex: 1, overflowY: 'auto', pt: 2, pb: 1 }}>
+      <ResponsiveDialogContent sx={{ flex: 1, overflowY: 'auto', pt: 2, pb: 1 }}>
 
         {/* ── Tab 0: Info ── */}
         {tab === 0 && (
@@ -317,7 +317,7 @@ export function RecordFormDialog({ existing, zh, language, onSave, onClose }: {
             <Typography variant="caption" color="text.secondary">
               {t('analytics_char_team_hint')}
             </Typography>
-            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '28px 1fr 72px', sm: '32px 1fr 1fr 80px' }, gap: 0.5, alignItems: 'center', px: 0.5 }}>
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '32px 1fr auto', sm: '32px 1fr 1fr 80px' }, gap: 0.5, alignItems: 'center', px: 0.5 }}>
               <Typography variant="caption" color="text.secondary">#</Typography>
               <Typography variant="caption" color="text.secondary">{t('name')}</Typography>
               <Typography variant="caption" color="text.secondary" sx={{ display: { xs: 'none', sm: 'block' } }}>{t('character')}</Typography>
@@ -325,7 +325,7 @@ export function RecordFormDialog({ existing, zh, language, onSave, onClose }: {
             </Box>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75, maxHeight: 360, overflowY: 'auto', pr: 0.5 }}>
               {players.map((p, i) => (
-                <Box key={i} sx={{ display: 'grid', gridTemplateColumns: { xs: '28px 1fr 72px', sm: '32px 1fr 1fr 80px' }, gap: 0.5, alignItems: 'center' }}>
+                <Box key={i} sx={{ display: 'grid', gridTemplateColumns: { xs: '32px 1fr auto', sm: '32px 1fr 1fr 80px' }, gap: 0.5, alignItems: 'center' }}>
                   <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'center' }}>{i + 1}</Typography>
                   <TextField
                     size="small"
@@ -361,7 +361,7 @@ export function RecordFormDialog({ existing, zh, language, onSave, onClose }: {
                   </Box>
                   <ToggleButtonGroup value={p.team} exclusive size="small"
                     onChange={(_, v) => { if (v !== null) updatePlayer(i, { team: v as 'evil' | 'good' | '' }) }}
-                    sx={{ '& .MuiToggleButton-root': { py: '2px', px: '6px', fontSize: '0.7rem' } }}>
+                    sx={{ '& .MuiToggleButton-root': { py: { xs: '1px', sm: '2px' }, px: { xs: '4px', sm: '6px' }, fontSize: '0.7rem' } }}>
                     <ToggleButton value="evil" sx={{ color: 'error.main' }}>{t('evil_short')}</ToggleButton>
                     <ToggleButton value="good" sx={{ color: 'success.main' }}>{t('good_short')}</ToggleButton>
                   </ToggleButtonGroup>
@@ -422,8 +422,8 @@ export function RecordFormDialog({ existing, zh, language, onSave, onClose }: {
           </Box>
         )}
 
-      </DialogContent>
-      <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
+      </ResponsiveDialogContent>
+      <ResponsiveDialogActions>
         <Box sx={{ flex: 1, display: 'flex', gap: 0.5 }}>
           {tab > 0 && (
             <Button size="small" onClick={() => setTab((t) => t - 1)} sx={{ fontSize: '0.75rem' }}>
@@ -440,7 +440,7 @@ export function RecordFormDialog({ existing, zh, language, onSave, onClose }: {
         <Button variant="contained" onClick={handleSave}>
           {existing ? (t('save')) : (t('create_record'))}
         </Button>
-      </DialogActions>
-    </Dialog>
+      </ResponsiveDialogActions>
+    </ResponsiveDialog>
   )
 }

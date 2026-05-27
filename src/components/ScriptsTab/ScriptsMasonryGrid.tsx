@@ -1,6 +1,6 @@
 import React, { useDeferredValue, useMemo, useState } from 'react'
 import {
-  Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle,
+  Box, Button, Chip, DialogTitle,
   Divider, IconButton, InputAdornment,
   TextField, Tooltip, Typography,
 } from '@mui/material'
@@ -17,6 +17,7 @@ import { FolderCard } from './FolderCard'
 import { SCRIPT_TAG_META, SCRIPT_TAGS } from '../tabs/ScriptsTab.constants'
 import type { EditableScript, Language, ScriptFolder } from '../../types'
 import { useT } from '../../context/I18nContext'
+import { ResponsiveDialog, ResponsiveDialogActions, ResponsiveDialogContent } from '../ui'
 
 const OFFICIAL = new Set(['tb', 'bmr', 'snv'])
 
@@ -421,16 +422,16 @@ export function ScriptsMasonryGrid({
       </Box>
 
       {/* ── New folder dialog ── */}
-      <Dialog
+      <ResponsiveDialog
         open={newFolderOpen}
         onClose={() => setNewFolderOpen(false)}
         maxWidth="xs"
-        fullWidth
+        mobile="compact"
       >
         <DialogTitle sx={{ fontSize: '1rem', pb: 1 }}>
           {t('new_folder')}
         </DialogTitle>
-        <DialogContent sx={{ pt: '8px !important' }}>
+        <ResponsiveDialogContent sx={{ pt: '8px !important' }}>
           <TextField
             autoFocus
             fullWidth
@@ -443,8 +444,8 @@ export function ScriptsMasonryGrid({
               if (e.key === 'Escape') setNewFolderOpen(false)
             }}
           />
-        </DialogContent>
-        <DialogActions>
+        </ResponsiveDialogContent>
+        <ResponsiveDialogActions>
           <Button onClick={() => setNewFolderOpen(false)} size="small">
             {t('cancel')}
           </Button>
@@ -452,8 +453,8 @@ export function ScriptsMasonryGrid({
             disabled={!newFolderName.trim()}>
             {t('create')}
           </Button>
-        </DialogActions>
-      </Dialog>
+        </ResponsiveDialogActions>
+      </ResponsiveDialog>
     </Box>
   )
 }

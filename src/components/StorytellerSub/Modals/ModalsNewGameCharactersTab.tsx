@@ -358,7 +358,7 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
           const hasUserOverride = userCid !== undefined && userCid !== null
 
           return (
-            <Box key={sNum} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box key={sNum} sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: { xs: 'wrap', sm: 'nowrap' } }}>
               {/* Seat number only — no player name text */}
               <Typography variant="body2" sx={{ width: 32, flexShrink: 0, fontWeight: 700, color: 'text.secondary' }}>
                 #{sNum}
@@ -384,7 +384,7 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
                 placeholder={t('note_placeholder')}
                 value={newGamePanel?.seatNotes?.[sNum] ?? ''}
                 onChange={(e) => updateConfig({ seatNotes: { ...newGamePanel?.seatNotes, [sNum]: e.target.value } })}
-                sx={{ flex: 1 }}
+                sx={{ flex: { xs: '1 1 100%', sm: 1 } }}
               />
             </Box>
           )
@@ -401,7 +401,7 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
             </IconButton>
           </Tooltip>
         </Box>
-        <Box sx={{ display: 'flex', gap: 1 }}>
+        <Box sx={{ display: 'flex', gap: 1, flexDirection: { xs: 'column', sm: 'row' } }}>
           {[0, 1, 2].map((idx) => (
             <CharSelect key={idx} value={newGamePanel.demonBluffs?.[idx] ?? ''} options={bluffSlotOptions[idx]} language={language} placeholder={t('select_pick')} onChange={(id) => setBluff(idx, id)} />
           ))}
@@ -417,7 +417,7 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
             const tcid = newGamePanel.travelerAssignments?.[sNum] ?? ''
             const tch = getCharacterById(tcid)
             return (
-              <Box key={sNum} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Box key={sNum} sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: { xs: 'wrap', sm: 'nowrap' } }}>
                 <Typography variant="body2" sx={{ width: 40, flexShrink: 0, fontWeight: 700, color: 'text.secondary' }}>
                   ✈#{sNum}
                 </Typography>
@@ -435,6 +435,7 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
                   placeholder={t('traveler_note')}
                   value={newGamePanel.seatNotes[sNum] ?? ''}
                   onChange={(e) => updateConfig({ seatNotes: { ...newGamePanel.seatNotes, [sNum]: e.target.value } })}
+                  sx={{ flex: { xs: '1 1 100%', sm: 1 } }}
                 />
               </Box>
             )

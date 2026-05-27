@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { Box, Button, Checkbox, Chip, Dialog, DialogContent, DialogTitle, Divider, FormControlLabel, Grid, IconButton, Paper, TextField, Tooltip, Typography } from '@mui/material'
-import { CompactButton, FieldLabel } from './ui'
+import { Box, Button, Checkbox, Chip, DialogTitle, Divider, FormControlLabel, Grid, IconButton, Paper, TextField, Tooltip, Typography } from '@mui/material'
+import { CompactButton, FieldLabel, ResponsiveDialog, ResponsiveDialogContent } from './ui'
 import AddIcon from '@mui/icons-material/Add'
 import CloseIcon from '@mui/icons-material/Close'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -598,12 +598,12 @@ export function CharacterRevisionPanel({
       })()}
 
       {/* ── Add Revision Dialog ── */}
-      <Dialog open={addOpen} onClose={() => setAddOpen(false)} maxWidth="sm" fullWidth>
+      <ResponsiveDialog open={addOpen} onClose={() => setAddOpen(false)} maxWidth="sm">
         <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           {tpl('add_revision_for', getDisplayName(character.id, language))}
           <IconButton size="small" onClick={() => setAddOpen(false)}><CloseIcon /></IconButton>
         </DialogTitle>
-        <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '8px !important' }}>
+        <ResponsiveDialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '8px !important' }}>
           <TextField
             size="small" label={t('revision_id')}
             value={revId} onChange={(e) => setRevId(e.target.value)}
@@ -633,8 +633,8 @@ export function CharacterRevisionPanel({
             <Button variant="outlined" onClick={() => setAddOpen(false)}>{t('cancel')}</Button>
             <Button variant="contained" onClick={saveRevision} disabled={!revId.trim()}>{t('save')}</Button>
           </Box>
-        </DialogContent>
-      </Dialog>
+        </ResponsiveDialogContent>
+      </ResponsiveDialog>
     </Paper>
   )
 }
