@@ -875,7 +875,8 @@ export default function App() {
         </Menu>
       </Paper>
 
-      {activeTab === 'scripts' && (
+      {(activeTab === 'scripts' || mountedTabs.has('scripts')) && (
+        <Box sx={{ display: activeTab === 'scripts' ? undefined : 'none' }}>
         <ErrorBoundary name="Scripts">
         <ScriptsTab
           scripts={scripts}
@@ -918,6 +919,7 @@ export default function App() {
           customChars={customChars}
         />
         </ErrorBoundary>
+        </Box>
       )}
 
       {printPreviewOpen && activeScript && (
@@ -940,7 +942,8 @@ export default function App() {
       )}
 
 
-      {activeTab === 'characters' && (
+      {(activeTab === 'characters' || mountedTabs.has('characters')) && (
+        <Box sx={{ display: activeTab === 'characters' ? undefined : 'none' }}>
         <ErrorBoundary name="Characters">
         <Suspense fallback={<Box sx={{ p: 4, textAlign: 'center' }}><CircularProgress /></Box>}>
           <CharactersTab
@@ -966,6 +969,7 @@ export default function App() {
           />
         </Suspense>
         </ErrorBoundary>
+        </Box>
       )}
 
       {activeTab === 'printstudio' && (
