@@ -507,7 +507,7 @@ export function SheetArticle({
           <>
             {renderPage(language, false)}
             <Box sx={{ pageBreakBefore: 'always', breakBefore: 'page' }} />
-            {renderPage('zh', false)}
+            {renderPage(language === 'zh' ? 'en' : 'zh', false)}
           </>
         ) : (
           renderPage(language, isMixed)

@@ -132,22 +132,27 @@ export function Arena({ ctx }: { ctx: StorytellerContext }) {
     const hasSeats = seats.length > 0
     return (
       <Box data-arena-outer sx={{
-        // height:100% fills the absolutely-positioned parent in StorytellerHelper,
-        // giving a concrete pixel height that Android WebView can use.
-        // (flex:1 + minHeight:0 unreliable on older Android WebViews)
         height: '100%',
+        // Explicit width:100% prevents the box from expanding beyond its grid-row
+        // cell on older Android WebViews where auto-width can over-report.
+        width: '100%',
+        maxWidth: '100%',
         position: 'relative',
         overflow: 'hidden',
       }}>
         {/* Filtered background layer — does NOT affect content */}
         <AtmosphereBackground bgSrc={bgSrc} phase={phase} isDark={isDark} position="center top" />
 
-        {/* Scroll container — explicit top/left/right/bottom (inset shorthand unsupported on older Android WebView) */}
+        {/* Scroll container — explicit top/left/right/bottom (inset shorthand unsupported on older Android WebView).
+            overflowY:auto (not scroll) → overlay scrollbar on mobile (no width taken),
+            no permanent scrollbar on desktop. overflowX:hidden clips any child that
+            accidentally forces the grid wider than the container. */}
         <Box data-arena-scroll sx={{
           position: 'absolute',
           top: 0, left: 0, right: 0, bottom: 0,
           zIndex: 1,
-          overflowY: 'scroll',
+          overflowY: 'auto',
+          overflowX: 'hidden',
           WebkitOverflowScrolling: 'touch',
           touchAction: 'pan-y',
         }}>

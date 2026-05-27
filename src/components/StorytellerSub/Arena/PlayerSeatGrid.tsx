@@ -30,10 +30,12 @@ export function PlayerSeatGrid({ ctx, panelCollapsed }: { ctx: StorytellerContex
         display: 'grid',
         gridTemplateColumns: 'repeat(2, 1fr)',
         gap: 1,
-        // px must be ≥ CIRCLE_OVERLAP (36px) so circles don't overflow the scroll container.
-        // overflowY:scroll implicitly sets overflowX:auto which clips horizontal overflow.
-        px: '40px',
+        // px:1 (8px) gives circles 8px clearance from scroll container edges.
+        // overflow:hidden prevents any child (e.g. wide nomination buttons) from
+        // forcing the grid wider than width:100% of its container.
+        px: 1,
         py: 1,
+        overflow: 'hidden',
         maxWidth: 600,
         mx: 'auto',
         width: '100%',
