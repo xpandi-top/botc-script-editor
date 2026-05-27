@@ -735,6 +735,7 @@
     "bright": "右下",
     "scripts": "剧本",
     "players": "玩家人数",
+    "filter": "筛选",
     "reset_filters": "重置筛选",
     "filtered": "已筛选",
     "edit_game_record": "编辑游戏记录",

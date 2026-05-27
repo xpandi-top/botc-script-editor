@@ -1,9 +1,13 @@
-import { Box, Chip, FormControl, InputLabel, MenuItem, OutlinedInput, Select, TextField, ToggleButton, ToggleButtonGroup, Tooltip, IconButton, Typography } from '@mui/material'
+import React, { useState } from 'react'
+import { Box, Chip, Collapse, FormControl, InputLabel, MenuItem, OutlinedInput, Select, TextField, ToggleButton, ToggleButtonGroup, Tooltip, IconButton, Typography, Badge } from '@mui/material'
 import FilterListIcon from '@mui/icons-material/FilterList'
 import CloseIcon from '@mui/icons-material/Close'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import type { FilterState } from './useAnalyticsFilter'
 import type { Language } from '../../types'
 import { useT } from '../../context/I18nContext'
+import { useBreakpoint } from '../../hooks/useBreakpoint'
 
 interface Props {
   filter: FilterState
@@ -16,24 +20,16 @@ interface Props {
 }
 
 export function StudioFilterBar({ filter, setFilter, resetFilter, activeCount, scriptOptions, playerOptions }: Props) {
+  const { t } = useT()
+  const { isMobile } = useBreakpoint()
+  const [mobileOpen, setMobileOpen] = useState(false)
 
-const { t } = useT()
-
-  return (
-    <Box sx={{
-      display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap',
-      px: 1.5, py: 1,
-      bgcolor: 'rgba(23,32,42,0.04)',
-      border: '1px solid',
-      borderColor: activeCount > 0 ? 'primary.main' : 'divider',
-      borderRadius: 2,
-      mb: 2,
-    }}>
-      <FilterListIcon sx={{ fontSize: '1rem', color: activeCount > 0 ? 'primary.main' : 'text.secondary', flexShrink: 0 }} />
-
+  // Shared filter controls — rendered either inline (desktop) or inside Collapse (mobile)
+  const filterControls = (
+    <>
       {/* Script filter */}
       {scriptOptions.length > 0 && (
-        <FormControl size="small" sx={{ minWidth: 140, maxWidth: 220 }}>
+        <FormControl size="small" sx={{ minWidth: { xs: '100%', sm: 140 }, maxWidth: { xs: '100%', sm: 220 } }}>
           <InputLabel sx={{ fontSize: '0.8rem' }}>{t('script')}</InputLabel>
           <Select
             multiple
@@ -59,24 +55,26 @@ const { t } = useT()
       )}
 
       {/* Date range */}
-      <TextField
-        type="date"
-        size="small"
-        label={t('from')}
-        value={filter.dateFrom}
-        onChange={(e) => setFilter((f) => ({ ...f, dateFrom: e.target.value }))}
-        slotProps={{ inputLabel: { shrink: true } }}
-        sx={{ width: { xs: 130, sm: 140 }, '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' } }}
-      />
-      <TextField
-        type="date"
-        size="small"
-        label={t('to')}
-        value={filter.dateTo}
-        onChange={(e) => setFilter((f) => ({ ...f, dateTo: e.target.value }))}
-        slotProps={{ inputLabel: { shrink: true } }}
-        sx={{ width: { xs: 130, sm: 140 }, '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' } }}
-      />
+      <Box sx={{ display: 'flex', gap: 1, width: { xs: '100%', sm: 'auto' } }}>
+        <TextField
+          type="date"
+          size="small"
+          label={t('from')}
+          value={filter.dateFrom}
+          onChange={(e) => setFilter((f) => ({ ...f, dateFrom: e.target.value }))}
+          slotProps={{ inputLabel: { shrink: true } }}
+          sx={{ flex: { xs: 1, sm: 'none' }, width: { xs: 'auto', sm: 140 }, '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' } }}
+        />
+        <TextField
+          type="date"
+          size="small"
+          label={t('to')}
+          value={filter.dateTo}
+          onChange={(e) => setFilter((f) => ({ ...f, dateTo: e.target.value }))}
+          slotProps={{ inputLabel: { shrink: true } }}
+          sx={{ flex: { xs: 1, sm: 'none' }, width: { xs: 'auto', sm: 140 }, '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' } }}
+        />
+      </Box>
 
       {/* Winner filter */}
       <ToggleButtonGroup
@@ -92,7 +90,7 @@ const { t } = useT()
 
       {/* Player filter */}
       {playerOptions.length > 0 && (
-        <FormControl size="small" sx={{ minWidth: 120, maxWidth: 200 }}>
+        <FormControl size="small" sx={{ minWidth: { xs: '100%', sm: 120 }, maxWidth: { xs: '100%', sm: 200 } }}>
           <InputLabel sx={{ fontSize: '0.8rem' }}>{t('player_section')}</InputLabel>
           <Select
             multiple
@@ -116,42 +114,130 @@ const { t } = useT()
           </Select>
         </FormControl>
       )}
+    </>
+  )
+
+  // ── Active filter chips (shared between mobile + desktop) ──────────────────
+  const activeChips = (
+    <>
+      {filter.scriptSlugs.length > 0 && (
+        <Chip size="small" label={`${filter.scriptSlugs.length} ${t('scripts')}`}
+          onDelete={() => setFilter((f) => ({ ...f, scriptSlugs: [] }))}
+          sx={{ fontSize: '0.7rem', height: 22 }} />
+      )}
+      {(filter.dateFrom || filter.dateTo) && (
+        <Chip size="small"
+          label={`${filter.dateFrom || '…'} → ${filter.dateTo || '…'}`}
+          onDelete={() => setFilter((f) => ({ ...f, dateFrom: '', dateTo: '' }))}
+          sx={{ fontSize: '0.7rem', height: 22 }} />
+      )}
+      {filter.winners.length > 0 && (
+        <Chip size="small" label={filter.winners.join(' / ')}
+          onDelete={() => setFilter((f) => ({ ...f, winners: [] }))}
+          sx={{ fontSize: '0.7rem', height: 22 }} />
+      )}
+      {filter.playerNames.length > 0 && (
+        <Chip size="small"
+          label={filter.playerNames.length === 1 ? filter.playerNames[0] : `${filter.playerNames.length} ${t('players')}`}
+          onDelete={() => setFilter((f) => ({ ...f, playerNames: [] }))}
+          sx={{ fontSize: '0.7rem', height: 22 }} />
+      )}
+    </>
+  )
+
+  // ── Mobile layout: compact toggle row + collapsible panel ─────────────────
+  if (isMobile) {
+    return (
+      <Box sx={{
+        bgcolor: 'rgba(23,32,42,0.04)',
+        border: '1px solid',
+        borderColor: activeCount > 0 ? 'primary.main' : 'divider',
+        borderRadius: 2,
+        mb: 2,
+        overflow: 'hidden',
+      }}>
+        {/* Toggle row */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, px: 1.5, py: 0.75 }}>
+          <Badge badgeContent={activeCount} color="primary" invisible={activeCount === 0}
+            sx={{ '& .MuiBadge-badge': { fontSize: '0.6rem', minWidth: 16, height: 16, padding: '0 4px' } }}>
+            <IconButton size="small" onClick={() => setMobileOpen((v) => !v)}
+              sx={{ color: activeCount > 0 ? 'primary.main' : 'text.secondary', p: 0.5 }}>
+              <FilterListIcon sx={{ fontSize: '1rem' }} />
+            </IconButton>
+          </Badge>
+          <Typography
+            variant="caption"
+            onClick={() => setMobileOpen((v) => !v)}
+            sx={{ fontWeight: 600, fontSize: '0.75rem', cursor: 'pointer',
+              color: activeCount > 0 ? 'primary.main' : 'text.secondary' }}>
+            {t('filter')}
+            {activeCount > 0 ? ` (${activeCount})` : ''}
+          </Typography>
+
+          {/* Active chips summary — visible when panel is closed */}
+          {!mobileOpen && (
+            <Box sx={{ display: 'flex', gap: 0.5, flex: 1, flexWrap: 'nowrap', overflow: 'hidden', minWidth: 0 }}>
+              {activeChips}
+            </Box>
+          )}
+
+          <Box sx={{ flex: 1 }} />
+
+          {activeCount > 0 && (
+            <Tooltip title={t('reset_filters')}>
+              <IconButton size="small" onClick={resetFilter} sx={{ p: 0.5 }}>
+                <CloseIcon sx={{ fontSize: '0.85rem' }} />
+              </IconButton>
+            </Tooltip>
+          )}
+
+          <IconButton size="small" onClick={() => setMobileOpen((v) => !v)} sx={{ p: 0.5, color: 'text.secondary' }}>
+            {mobileOpen
+              ? <ExpandLessIcon sx={{ fontSize: '1rem' }} />
+              : <ExpandMoreIcon sx={{ fontSize: '1rem' }} />}
+          </IconButton>
+        </Box>
+
+        {/* Collapsible filter controls */}
+        <Collapse in={mobileOpen}>
+          <Box sx={{
+            display: 'flex', flexDirection: 'column', gap: 1.5,
+            px: 1.5, pb: 1.5,
+            borderTop: '1px solid', borderColor: 'divider',
+            pt: 1.25,
+          }}>
+            {filterControls}
+
+            {/* Active chips inside panel */}
+            {activeCount > 0 && (
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                {activeChips}
+              </Box>
+            )}
+          </Box>
+        </Collapse>
+      </Box>
+    )
+  }
+
+  // ── Desktop layout: always-visible row ────────────────────────────────────
+  return (
+    <Box sx={{
+      display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap',
+      px: 1.5, py: 1,
+      bgcolor: 'rgba(23,32,42,0.04)',
+      border: '1px solid',
+      borderColor: activeCount > 0 ? 'primary.main' : 'divider',
+      borderRadius: 2,
+      mb: 2,
+    }}>
+      <FilterListIcon sx={{ fontSize: '1rem', color: activeCount > 0 ? 'primary.main' : 'text.secondary', flexShrink: 0 }} />
+
+      {filterControls}
 
       <Box sx={{ flex: 1 }} />
 
-      {/* Active filter chips */}
-      {filter.scriptSlugs.length > 0 && (
-        <Chip
-          size="small"
-          label={`${filter.scriptSlugs.length} ${t('scripts')}`}
-          onDelete={() => setFilter((f) => ({ ...f, scriptSlugs: [] }))}
-          sx={{ fontSize: '0.7rem', height: 22 }}
-        />
-      )}
-      {(filter.dateFrom || filter.dateTo) && (
-        <Chip
-          size="small"
-          label={`${filter.dateFrom || '…'} → ${filter.dateTo || '…'}`}
-          onDelete={() => setFilter((f) => ({ ...f, dateFrom: '', dateTo: '' }))}
-          sx={{ fontSize: '0.7rem', height: 22 }}
-        />
-      )}
-      {filter.winners.length > 0 && (
-        <Chip
-          size="small"
-          label={filter.winners.join(' / ')}
-          onDelete={() => setFilter((f) => ({ ...f, winners: [] }))}
-          sx={{ fontSize: '0.7rem', height: 22 }}
-        />
-      )}
-      {filter.playerNames.length > 0 && (
-        <Chip
-          size="small"
-          label={filter.playerNames.length === 1 ? filter.playerNames[0] : `${filter.playerNames.length} ${t('players')}`}
-          onDelete={() => setFilter((f) => ({ ...f, playerNames: [] }))}
-          sx={{ fontSize: '0.7rem', height: 22 }}
-        />
-      )}
+      {activeChips}
 
       {activeCount > 0 && (
         <Tooltip title={t('reset_filters')}>

@@ -735,6 +735,7 @@
     "bright": "B-Right",
     "scripts": "scripts",
     "players": "Players",
+    "filter": "Filter",
     "reset_filters": "Reset filters",
     "filtered": "Filtered",
     "edit_game_record": "Edit Game Record",
