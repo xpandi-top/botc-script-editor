@@ -1,7 +1,7 @@
 // @ts-nocheck
 import type { StorytellerSeat } from '../types'
 import type { StorytellerContext } from '../useStoryteller'
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import {
   Accordion, AccordionDetails, AccordionSummary,
@@ -73,6 +73,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
   const zh = language === 'zh'
   const isOpen = playerModalSeat === seat?.seat
   const [abilityModalCharId, setAbilityModalCharId] = React.useState<string | null>(null)
+  const abilitySectionRef = useRef<HTMLDivElement>(null)
   const muiTheme = useTheme()
   const isDark = muiTheme.palette.mode === 'dark'
   const stBg     = isDark ? 'rgba(210, 140, 0, 0.13)' : 'rgba(255, 200, 0, 0.22)'
@@ -137,6 +138,19 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
       setQuickAddText('')
     }
   }, [isOpen])
+
+  // ── Scroll ability section into view when skillOverlay opens on day phase ──
+  // On mobile the dialog is full-screen and the ability section is mid-content.
+  // After clicking "Use Day Ability" the form replaces the button but may be below fold.
+  useEffect(() => {
+    if (skillOverlay && isOpen && abilitySectionRef.current) {
+      // Small delay so layout completes before scroll
+      const id = setTimeout(() => {
+        abilitySectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+      }, 80)
+      return () => clearTimeout(id)
+    }
+  }, [skillOverlay, isOpen])
 
   // ── Character helpers (safe even when seat is null) ──
   const actualCharId = seat?.characterId ?? null
@@ -878,7 +892,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
   )
 
   const abilitySection = (
-    <Box sx={{ mb: 1.5 }}>
+    <Box ref={abilitySectionRef} sx={{ mb: 1.5 }}>
       <SectionLabel label={isNight ? (t('night_ability')) : t('day_ability')} />
       {skillOverlay ? (
         // Active skillOverlay form (from openSeatSkill)
