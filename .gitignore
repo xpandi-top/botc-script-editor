@@ -18,3 +18,8 @@ assets/pdfs/
 # Electron build output
 release/
 build-resources/
+
+# Playwright E2E
+test-results/
+playwright-report/
+.playwright/
