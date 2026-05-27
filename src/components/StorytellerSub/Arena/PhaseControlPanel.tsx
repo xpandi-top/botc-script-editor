@@ -195,8 +195,8 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
         </Box>
 
         <Box sx={{ overflowY: 'auto', maxHeight: '38dvh', px: 1.5, pb: 1.5 }}>
-          {/* Day nav + phase selector */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.75, overflowX: 'auto', pb: 0.5 }}>
+          {/* Row 1: Day navigation */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
             <IconButton sx={iconBtnSx} onClick={() => goToPreviousDay()}>
               <ArrowBackIcon />
             </IconButton>
@@ -226,16 +226,19 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
             <IconButton sx={iconBtnSx} onClick={() => goToNextDay()}>
               <ArrowForwardIcon />
             </IconButton>
+          </Box>
 
+          {/* Row 2: Phase selector buttons */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.75 }}>
             <ToggleButtonGroup
               value={phase} exclusive
               onChange={(_, v) => v && setPhase(v)}
               sx={{
-                gap: 1, 
+                gap: 1,
                 '& .MuiToggleButton-root': {
                   color: textColor,
                   borderColor: btnBorder,
-                  px: 1, py: 0.5, minHeight: 38, minWidth: 40,
+                  px: 1.5, py: 0.5, minHeight: 38, minWidth: 48,
                   bgcolor: btnOverlay,
                   '&:hover': { bgcolor: btnOverlayHover },
                   '&.Mui-selected': { color: textColor, bgcolor: useDarkInk ? 'rgba(0,0,0,0.22)' : 'rgba(255,255,255,0.25)' },

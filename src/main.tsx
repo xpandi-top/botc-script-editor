@@ -2,6 +2,12 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { CssBaseline, GlobalStyles, useTheme } from '@mui/material'
 import App from './App'
+import VConsole from 'vconsole'
+
+// Floating in-app DevTools for Android debugging — remove before production release
+const vc = new VConsole({ theme: 'dark' })
+// Move button above bottom nav bar
+vc.setSwitchPosition(20, 100)
 import { ThemeModeProvider } from './context/ThemeMode'
 import { initNative } from './lib/nativeInit'
 import { migrateAiSettings } from './lib/aiSettings'

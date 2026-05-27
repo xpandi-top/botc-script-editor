@@ -51,7 +51,8 @@ function AtmosphereBackground({
       aria-hidden
       sx={{
         position: 'absolute',
-        inset: 0,
+        // inset shorthand unsupported on older Android WebViews — use explicit edges
+        top: 0, left: 0, right: 0, bottom: 0,
         zIndex: 0,
         pointerEvents: 'none',
         overflow: 'hidden',
@@ -110,18 +111,27 @@ export function Arena({ ctx }: { ctx: StorytellerContext }) {
     document.documentElement.style.setProperty('--center-zone', `${centerZone}%`)
   }, [seatCount, isPortrait])
 
-  // Debug log for diagnosing Android rendering issues
+  // Debug log — layout state + pixel dimensions of key elements
   React.useEffect(() => {
     console.log('[Arena] isMobile:', isMobile, 'isTablet:', isTablet, 'isPortrait:', isPortrait,
       'windowPortrait:', windowPortrait, 'portraitOverride:', portraitOverride,
       'useListLayout:', useListLayout, 'seats.length:', seats.length, 'phase:', phase)
+    // Measure actual pixel heights to diagnose height collapse
+    const outer = document.querySelector('[data-arena-outer]') as HTMLElement | null
+    const scroll = document.querySelector('[data-arena-scroll]') as HTMLElement | null
+    const grid = document.querySelector('[data-arena-grid]') as HTMLElement | null
+    if (outer) console.log('[Arena-SIZE] outer:', outer.offsetWidth, 'x', outer.offsetHeight)
+    if (scroll) console.log('[Arena-SIZE] scroll:', scroll.offsetWidth, 'x', scroll.offsetHeight)
+    if (grid) console.log('[Arena-SIZE] grid:', grid.offsetWidth, 'x', grid.offsetHeight)
+    const mobileOuter = document.querySelector('[data-mobile-outer]') as HTMLElement | null
+    if (mobileOuter) console.log('[Arena-SIZE] mobileOuter:', mobileOuter.offsetWidth, 'x', mobileOuter.offsetHeight)
   })
 
   // Mobile / tablet-portrait: scrollable seat grid + fixed phase panel at bottom
   if (useListLayout) {
     const hasSeats = seats.length > 0
     return (
-      <Box sx={{
+      <Box data-arena-outer sx={{
         // height:100% fills the absolutely-positioned parent in StorytellerHelper,
         // giving a concrete pixel height that Android WebView can use.
         // (flex:1 + minHeight:0 unreliable on older Android WebViews)
@@ -133,7 +143,7 @@ export function Arena({ ctx }: { ctx: StorytellerContext }) {
         <AtmosphereBackground bgSrc={bgSrc} phase={phase} isDark={isDark} position="center top" />
 
         {/* Scroll container — explicit top/left/right/bottom (inset shorthand unsupported on older Android WebView) */}
-        <Box sx={{
+        <Box data-arena-scroll sx={{
           position: 'absolute',
           top: 0, left: 0, right: 0, bottom: 0,
           zIndex: 1,

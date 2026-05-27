@@ -44,15 +44,18 @@ export function PrintStudioPage({ opts, onOptionsChange, onClose, onOpenPrintPre
   const pinnedRevisions = scripts.find(s => s.slug === activeSlug)?.pinnedRevisions
 
   const handlePrint = async () => {
-    if (isNativePlatform && previewRef.current) {
+    if (isNativePlatform) {
       const title = scripts.find(s => s.slug === activeSlug)
         ? getScriptTitle(scripts.find(s => s.slug === activeSlug)!)
         : 'tokens'
+      // Capture the print portal (.token-print-portal) which always has the
+      // full print-optimised layout — not the mobile preview which may be hidden.
       await printOrShare(
-        previewRef.current,
+        previewRef.current!,
         title,
         () => setPrinting(true),
         () => setPrinting(false),
+        { portalSelector: '.token-print-portal' },
       )
       return
     }
@@ -112,7 +115,7 @@ export function PrintStudioPage({ opts, onOptionsChange, onClose, onOpenPrintPre
         </FormControl>
         {onOpenPrintPreview && (
           <Tooltip title={t('switch_to_script_print_preview')}>
-            <Button size="small" variant="outlined" startIcon={<PrintIcon />} onClick={onOpenPrintPreview} sx={{ flexShrink: 0, display: { xs: 'none', sm: 'flex' } }}>
+            <Button size="small" variant="outlined" startIcon={<PrintIcon />} onClick={onOpenPrintPreview} sx={{ flexShrink: 0 }}>
               {t('script_pdf')}
             </Button>
           </Tooltip>

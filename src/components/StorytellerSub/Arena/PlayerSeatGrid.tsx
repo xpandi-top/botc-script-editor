@@ -13,6 +13,7 @@ export function PlayerSeatGrid({ ctx, panelCollapsed }: { ctx: StorytellerContex
 
   return (
     <Box
+      data-arena-grid
       onClick={(e) => {
         const target = e.target as Element
         if (
@@ -29,7 +30,10 @@ export function PlayerSeatGrid({ ctx, panelCollapsed }: { ctx: StorytellerContex
         display: 'grid',
         gridTemplateColumns: 'repeat(2, 1fr)',
         gap: 1,
-        p: 1,
+        // px must be ≥ CIRCLE_OVERLAP (36px) so circles don't overflow the scroll container.
+        // overflowY:scroll implicitly sets overflowX:auto which clips horizontal overflow.
+        px: '40px',
+        py: 1,
         maxWidth: 600,
         mx: 'auto',
         width: '100%',

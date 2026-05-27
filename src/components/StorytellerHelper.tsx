@@ -112,26 +112,41 @@ export function StorytellerHelper(props: StorytellerHelperProps) {
   // On phone (isMobile): Tabs bar hidden in App.tsx → full 100dvh available.
   // On tablet portrait: Tabs bar (~48px) is visible → subtract it.
   if (useMobileLayout) {
-    const height = isMobile ? '100dvh' : 'calc(100dvh - 48px)'
+    // dvh may not be supported on older Android WebViews — use vh as fallback.
+    // In Capacitor (no browser URL bar) vh === dvh so there's no visual difference.
+    const height = isMobile ? '100vh' : 'calc(100vh - 48px)'
     return (
       <>
         <audio ref={ctx.audioRef} />
         {ytIframe}
         {iosYtMiniPlayer}
-        <Box sx={{ display: 'flex', flexDirection: 'column', height, overflow: 'hidden', mx: { xs: 0, sm: -3 }, mt: { xs: 0, sm: -3 } }}>
-          <MobileTopBar ctx={ctx} />
-          <LeftScriptPanel ctx={ctx} />
-          {/* Wrapper gives Arena a concrete pixel height via absolute fill.
-              flex:1 + minHeight:0 is unreliable on older Android WebViews;
-              position:absolute with explicit edges always has a real height. */}
-          <Box sx={{ flex: 1, position: 'relative', minHeight: 0 }}>
-            <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
-              <Arena ctx={ctx} />
-            </Box>
+        {/* CSS grid with explicit rows: topbar auto-sizes, Arena gets all remaining space.
+            grid 1fr row is more reliable than flex:1 on older Android WebViews. */}
+        <Box
+          data-mobile-outer
+          sx={{
+            display: 'grid',
+            gridTemplateRows: 'auto 1fr',
+            height,
+            overflow: 'hidden',
+            mx: { xs: 0, sm: -3 },
+            mt: { xs: 0, sm: -3 },
+          }}
+        >
+          {/* Row 1: topbar (auto height) */}
+          <Box>
+            <MobileTopBar ctx={ctx} />
+            <LeftScriptPanel ctx={ctx} />
           </Box>
-          <RightConsole ctx={ctx} />
-          <Modals ctx={ctx} />
+          {/* Row 2: Arena fills remaining 1fr.
+              overflow:visible so circle overlaps (negative margins) aren't clipped;
+              Arena itself has overflow:hidden internally. */}
+          <Box sx={{ position: 'relative', overflow: 'visible', minHeight: 0 }}>
+            <Arena ctx={ctx} />
+          </Box>
         </Box>
+        <RightConsole ctx={ctx} />
+        <Modals ctx={ctx} />
       </>
     )
   }

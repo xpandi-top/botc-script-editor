@@ -54,12 +54,17 @@ export function PrintPreviewPage({
     onOptionsChange({ ...opts, [key]: val })
 
   const handlePrint = async () => {
-    if (isNativePlatform && previewRef.current) {
+    if (isNativePlatform) {
+      // Apply page/margin options to the portal before capture (same as web path)
+      applyPrintOptionsToPortal(opts)
+      // Capture the print portal (.print-portal) — it has the full print layout,
+      // not the mobile-scaled preview which may be hidden or wrongly sized.
       await printOrShare(
-        previewRef.current,
+        previewRef.current!,
         getScriptTitle(activeScript) || 'script',
         () => setPrinting(true),
         () => setPrinting(false),
+        { portalSelector: '.print-portal' },
       )
       return
     }
