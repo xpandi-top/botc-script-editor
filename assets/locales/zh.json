@@ -1164,6 +1164,8 @@
     "game_records_label": "记录",
     "game_records_saved": "已保存的游戏",
     "vote_label": "投票",
-    "next_day_label": "下一天"
+    "next_day_label": "下一天",
+    "no_game_active": "当前没有进行中的游戏",
+    "tap_menu_to_start": "点击 ☰ 开始新游戏"
   }
 }

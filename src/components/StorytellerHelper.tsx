@@ -14,8 +14,21 @@ import type { StorytellerHelperProps } from './StorytellerSub/types'
 
 export function StorytellerHelper(props: StorytellerHelperProps) {
   const ctx = useStoryteller(props)
-  const { isMobile } = useBreakpoint()
+  const { isMobile, isTablet } = useBreakpoint()
   const { showScriptPanel } = ctx
+
+  // Mirror Arena's portrait detection so StorytellerHelper uses the same
+  // layout breakpoint: mobile OR (tablet + portrait) → full-screen mobile layout
+  const [isPortrait, setIsPortrait] = React.useState(
+    typeof window !== 'undefined' ? window.innerHeight > window.innerWidth : true
+  )
+  React.useEffect(() => {
+    const handler = () => setIsPortrait(window.innerHeight > window.innerWidth)
+    window.addEventListener('resize', handler)
+    return () => window.removeEventListener('resize', handler)
+  }, [])
+
+  const useMobileLayout = isMobile || (isTablet && isPortrait)
 
   // Emit storyteller AI context whenever game state changes
   useEffect(() => {
@@ -95,17 +108,20 @@ export function StorytellerHelper(props: StorytellerHelperProps) {
     </Box>
   ) : null
 
-  // ── Mobile layout ─────────────────────────────────────────────
-  if (isMobile) {
+  // ── Mobile / tablet-portrait layout ──────────────────────────
+  // On phone (isMobile): Tabs bar hidden in App.tsx → full 100dvh available.
+  // On tablet portrait: Tabs bar (~48px) is visible → subtract it.
+  if (useMobileLayout) {
+    const height = isMobile ? '100dvh' : 'calc(100dvh - 48px)'
     return (
       <>
         <audio ref={ctx.audioRef} />
         {ytIframe}
         {iosYtMiniPlayer}
-        <Box sx={{ display: 'flex', flexDirection: 'column', height: '100dvh', overflow: 'hidden', mx: { xs: 0, sm: -3 }, mt: { xs: 0, sm: -3 } }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', height, overflow: 'hidden', mx: { xs: 0, sm: -3 }, mt: { xs: 0, sm: -3 } }}>
           <MobileTopBar ctx={ctx} />
           <LeftScriptPanel ctx={ctx} />
-          <Box sx={{ flex: 1, overflow: 'visible', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+          <Box sx={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
             <Arena ctx={ctx} />
           </Box>
           <RightConsole ctx={ctx} />

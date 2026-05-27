@@ -112,14 +112,12 @@ export function Arena({ ctx }: { ctx: StorytellerContext }) {
 
   // Mobile / tablet-portrait: scrollable seat grid + fixed phase panel at bottom
   if (useListLayout) {
+    const hasSeats = seats.length > 0
     return (
       <Box sx={{
         flex: 1, minHeight: 0,
         position: 'relative',
         overflow: 'hidden',
-        // Note: 'clip' would be ideal (clips without forming scroll container) but
-        // older Android WebViews may not support it; 'hidden' is fine here since
-        // the inner scroll box is absolutely sized.
       }}>
         {/* Filtered background layer — does NOT affect content */}
         <AtmosphereBackground bgSrc={bgSrc} phase={phase} isDark={isDark} position="center top" />
@@ -133,7 +131,28 @@ export function Arena({ ctx }: { ctx: StorytellerContext }) {
           WebkitOverflowScrolling: 'touch',
           touchAction: 'pan-y',
         }}>
-          <PlayerSeatGrid ctx={ctx} panelCollapsed={panelCollapsed} />
+          {hasSeats ? (
+            <PlayerSeatGrid ctx={ctx} panelCollapsed={panelCollapsed} />
+          ) : (
+            // Empty state — no game started yet
+            <Box sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '100%',
+              gap: 2,
+              p: 3,
+              textAlign: 'center',
+            }}>
+              <Typography variant="h6" sx={{ color: 'text.secondary', opacity: 0.8 }}>
+                {t('no_game_active')}
+              </Typography>
+              <Typography variant="body2" sx={{ color: 'text.secondary', opacity: 0.6 }}>
+                {t('tap_menu_to_start')}
+              </Typography>
+            </Box>
+          )}
         </Box>
 
         {/* Phase panel floats above the scroll area */}
@@ -144,7 +163,7 @@ export function Arena({ ctx }: { ctx: StorytellerContext }) {
 
   // Desktop / tablet-landscape: circular arena layout
   return (
-    <Box sx={{ display: 'grid', gap: 1, flex: 1, minHeight: 400, overflow: 'visible', width: '100%', height: '100dvh' }}>
+    <Box sx={{ display: 'grid', gap: 1, flex: 1, minHeight: 400, overflow: 'visible', width: '100%' }}>
       <Paper
         data-tutorial="st-arena"
         elevation={0}

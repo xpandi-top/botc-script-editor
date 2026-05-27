@@ -270,6 +270,8 @@ export type UiKey =
   | 'game_records_saved'  // replaces saved_games
   | 'vote_label'          // replaces vote_2 (lowercase event type label)
   | 'next_day_label'      // replaces next_day_2
+  | 'no_game_active'      // empty state: no game in progress
+  | 'tap_menu_to_start'   // empty state: hint to open menu
   // ── Semantic aliases for truncated/long keys ──────────────────────────────
   | 'settings_theme_desc' | 'settings_font_persist_note'
   | 'backup_export_desc'
