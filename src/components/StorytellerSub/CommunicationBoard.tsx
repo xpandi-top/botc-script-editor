@@ -365,6 +365,7 @@ export function CommunicationBoard({ open, onClose, scriptCharacters, language }
                   getOptionLabel={(o) => o.label}
                   size="small"
                   sx={{ minWidth: 160, flex: 1 }}
+                  slotProps={{ popper: { sx: { zIndex: 1500 } } }}
                   renderOption={(props, option) => (
                     <Box component="li" {...props} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       {option.icon && <Box component="img" src={option.icon} sx={{ width: 20, height: 20, borderRadius: '50%' }} />}
@@ -389,6 +390,7 @@ export function CommunicationBoard({ open, onClose, scriptCharacters, language }
                   getOptionLabel={(o) => o.label}
                   size="small"
                   value={charOptions.filter(o => selectedChars.includes(o.id))}
+                  slotProps={{ popper: { sx: { zIndex: 1500 } } }}
                   renderOption={(props, option) => (
                     <Box component="li" {...props} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       {option.icon && <Box component="img" src={option.icon} sx={{ width: 20, height: 20, borderRadius: '50%' }} />}
