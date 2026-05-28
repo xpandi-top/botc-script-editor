@@ -122,7 +122,7 @@ describe('makeT — key locale strings', () => {
     expect(t('vote')).toBe('投票')
     expect(t('drunk')).toBe('醉酒')
     expect(t('poisoned')).toBe('中毒')
-    expect(t('demon_bluffs')).toBe('恶魔虚张')
+    expect(t('demon_bluffs')).toBe('恶魔伪装')
   })
 
   it('EN: ST tag keys', () => {

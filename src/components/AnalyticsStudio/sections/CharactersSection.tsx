@@ -273,7 +273,7 @@ export function CharactersSection({ charStats, language, records }: Props) {
 
       {/* Count badge */}
       <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
-        {filtered.length}{t('characters')}
+        {filtered.length} {t('characters_suffix')}
       </Typography>
 
       {/* Card grid */}
