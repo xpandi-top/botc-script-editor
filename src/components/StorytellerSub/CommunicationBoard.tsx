@@ -17,7 +17,7 @@ import { getDisplayName, getIconForCharacter } from '../../catalog'
 
 // ── Types ─────────────────────────────────────────────────────────
 
-type PhraseKind = 'plain' | 'number' | 'character'
+type PhraseKind = 'plain' | 'number' | 'character' | 'multi-character'
 
 interface PhraseTemplate {
   key: string
@@ -33,7 +33,7 @@ const PHRASES: PhraseTemplate[] = [
   { key: 'meet-minions',     en: 'Meet Your Fellow Minions',                  zh: '与同伴爪牙相认',                    kind: 'plain' },
   { key: 'you-good',         en: 'You are Good',                              zh: '你是好人',                         kind: 'plain' },
   { key: 'you-evil',         en: 'You are Evil',                              zh: '你是邪恶方',                       kind: 'plain' },
-  { key: 'char-in-play',     en: 'This Character is in play',                 zh: '此角色在游戏中',                    kind: 'plain' },
+  { key: 'char-in-play',     en: '[Characters] are in play',                  zh: '[角色们] 在游戏中',                  kind: 'multi-character' },
   { key: 'mistake',          en: 'I made a mistake — this is my correction',  zh: '我犯了错误——这是纠正',              kind: 'plain' },
   { key: 'eyes-open',        en: '(Keep your eyes open)',                     zh: '（保持睁眼）',                      kind: 'plain' },
   { key: 'wake-up',          en: 'Wake up',                                   zh: '睁眼',                             kind: 'plain' },
@@ -174,8 +174,10 @@ export function CommunicationBoard({ open, onClose, scriptCharacters, language }
   const [customInput, setCustomInput] = useState('')
   const [pendingN, setPendingN] = useState<PhraseTemplate | null>(null)
   const [pendingChar, setPendingChar] = useState<PhraseTemplate | null>(null)
+  const [pendingMultiChar, setPendingMultiChar] = useState<PhraseTemplate | null>(null)
   const [nValue, setNValue] = useState(1)
   const [selectedChar, setSelectedChar] = useState<string | null>(null)
+  const [selectedChars, setSelectedChars] = useState<string[]>([])
 
   // draw state
   const [drawState, setDrawState] = useState<DrawState>({ color: '#000000', size: 4, tool: 'pen' })
@@ -198,11 +200,18 @@ export function CommunicationBoard({ open, onClose, scriptCharacters, language }
     } else if (phrase.kind === 'number') {
       setPendingN(phrase)
       setPendingChar(null)
+      setPendingMultiChar(null)
       setNValue(1)
     } else if (phrase.kind === 'character') {
       setPendingChar(phrase)
       setPendingN(null)
+      setPendingMultiChar(null)
       setSelectedChar(null)
+    } else if (phrase.kind === 'multi-character') {
+      setPendingMultiChar(phrase)
+      setPendingN(null)
+      setPendingChar(null)
+      setSelectedChars([])
     }
   }
 
@@ -220,6 +229,18 @@ export function CommunicationBoard({ open, onClose, scriptCharacters, language }
     appendText(raw.replace('[Character]', charName).replace('[角色]', charName))
     setPendingChar(null)
     setSelectedChar(null)
+  }
+
+  const applyMultiCharPhrase = () => {
+    if (!pendingMultiChar || selectedChars.length === 0) return
+    const names = selectedChars.map(id => getDisplayName(id, language))
+    const joined = names.length === 1 ? names[0]
+      : names.length === 2 ? names.join(zh ? '、' : ' and ')
+      : names.slice(0, -1).join(zh ? '、' : ', ') + (zh ? '、' : ', and ') + names[names.length - 1]
+    const raw = zh ? pendingMultiChar.zh : pendingMultiChar.en
+    appendText(raw.replace('[Characters]', joined).replace('[角色们]', joined))
+    setPendingMultiChar(null)
+    setSelectedChars([])
   }
 
   // auto font size based on text length
@@ -362,6 +383,37 @@ export function CommunicationBoard({ open, onClose, scriptCharacters, language }
               </Box>
             )}
 
+            {/* Pending multi-character-phrase config */}
+            {pendingMultiChar && (
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, p: 1.5, bgcolor: 'action.hover', borderRadius: 1.5, flexShrink: 0 }}>
+                <Typography variant="body2">
+                  {zh ? pendingMultiChar.zh : pendingMultiChar.en}
+                </Typography>
+                <Autocomplete
+                  multiple
+                  options={charOptions}
+                  getOptionLabel={(o) => o.label}
+                  size="small"
+                  value={charOptions.filter(o => selectedChars.includes(o.id))}
+                  renderOption={(props, option) => (
+                    <Box component="li" {...props} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      {option.icon && <Box component="img" src={option.icon} sx={{ width: 20, height: 20, borderRadius: '50%' }} />}
+                      <Typography variant="body2">{option.label}</Typography>
+                    </Box>
+                  )}
+                  renderInput={(params) => (
+                    <TextField {...params} label={zh ? '选择角色（可多选）' : 'Select characters (multi)'} />
+                  )}
+                  onChange={(_, vals) => setSelectedChars(vals.map(v => v.id))}
+                />
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <Chip label={zh ? '添加' : 'Add'} color="primary" size="small"
+                    disabled={selectedChars.length === 0} onClick={applyMultiCharPhrase} />
+                  <Chip label={zh ? '取消' : 'Cancel'} size="small" onClick={() => setPendingMultiChar(null)} />
+                </Box>
+              </Box>
+            )}
+
             {/* Phrase chips */}
             <Box sx={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
               <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.75, textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: 600 }}>
@@ -380,12 +432,12 @@ export function CommunicationBoard({ open, onClose, scriptCharacters, language }
                       onClick={() => handlePhrase(phrase)}
                       size="small"
                       variant={
-                        (pendingN?.key === phrase.key || pendingChar?.key === phrase.key)
+                        (pendingN?.key === phrase.key || pendingChar?.key === phrase.key || pendingMultiChar?.key === phrase.key)
                           ? 'filled'
                           : 'outlined'
                       }
                       color={
-                        (pendingN?.key === phrase.key || pendingChar?.key === phrase.key)
+                        (pendingN?.key === phrase.key || pendingChar?.key === phrase.key || pendingMultiChar?.key === phrase.key)
                           ? 'primary'
                           : 'default'
                       }
@@ -544,7 +596,8 @@ export function CommunicationBoardFab({ scriptCharacters, language }: Communicat
           size="medium"
           sx={{
             position: 'fixed',
-            bottom: { xs: 72, sm: 24 },
+            // Stack above AI chat button (bottom:{xs:68,sm:24}) — 48px button + 8px gap = 56px offset
+            bottom: { xs: 68 + 56, sm: 24 + 56 },
             right: { xs: 12, sm: 24 },
             zIndex: 1200,
             bgcolor: 'primary.main',
