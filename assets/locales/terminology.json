@@ -1,0 +1,146 @@
+{
+  "approvedTerms": [
+    {
+      "concept": "Role ability",
+      "en": "ability",
+      "zh": "能力",
+      "notes": "Use ability for BOTC character powers. Reserve skill for AI tool skills or internal type names."
+    },
+    {
+      "concept": "Demon Bluffs",
+      "en": "Demon Bluffs",
+      "zh": "恶魔伪装",
+      "notes": "Use this for the three out-of-play roles shown to the demon."
+    },
+    {
+      "concept": "Script",
+      "en": "script",
+      "zh": "剧本",
+      "notes": "Use script/剧本 for BOTC script sheets and script data. Avoid 脚本 in user-facing copy."
+    },
+    {
+      "concept": "Storyteller",
+      "en": "Storyteller",
+      "zh": "说书人",
+      "notes": "Use Storyteller/说书人 for the game runner."
+    },
+    {
+      "concept": "Nomination passed",
+      "en": "Nomination Passed",
+      "zh": "提名通过",
+      "notes": "Use passed/通过 when a nomination has enough votes. Avoid succeed/success for vote threshold results."
+    },
+    {
+      "concept": "Jinx",
+      "en": "jinx",
+      "zh": "相克规则",
+      "notes": "Use jinx/相克规则 for special interactions between characters."
+    },
+    {
+      "concept": "Traveler",
+      "en": "Traveler",
+      "zh": "旅行者",
+      "notes": "Use for the BOTC player type and character team."
+    }
+  ],
+  "deprecatedTerms": [
+    {
+      "language": "zh",
+      "term": "恶魔虚张",
+      "preferred": "恶魔伪装",
+      "reason": "Use the current project term for Demon Bluffs."
+    },
+    {
+      "language": "zh",
+      "term": "虚张声势",
+      "preferred": "伪装",
+      "reason": "Avoid literal bluff wording in UI copy."
+    },
+    {
+      "language": "zh",
+      "term": "脚本信息",
+      "preferred": "剧本信息",
+      "reason": "BOTC scripts should be called 剧本, not 脚本, in UI labels."
+    },
+    {
+      "language": "zh",
+      "term": "影响setup",
+      "preferred": "设置影响",
+      "reason": "Avoid raw English in Chinese UI copy."
+    },
+    {
+      "language": "en",
+      "term": "Nomination Succeed",
+      "preferred": "Nomination Passed",
+      "reason": "Passed better matches the vote-threshold result."
+    }
+  ],
+  "allowedSkillKeys": [
+    "skills",
+    "skills_for_other_contexts",
+    "click_a_skill_card_to_run_it",
+    "use_skill_chips_above_or_type_a_message"
+  ],
+  "allowedLegacySuffixKeys": [
+    "about_to_die_2",
+    "alive_2",
+    "author_2",
+    "chinese_2",
+    "dead_2",
+    "demon_2",
+    "demon_bluffs_2",
+    "evil_2",
+    "exile_2",
+    "first_night_reminder_2",
+    "minion_2",
+    "other_night_reminder_2",
+    "outsider_2",
+    "reminder_tokens_2",
+    "search_characters_2",
+    "traveler_2"
+  ],
+  "duplicateValueRules": [
+    {
+      "language": "en",
+      "value": "Save",
+      "canonicalKey": "save",
+      "allowedKeys": ["save_skill"]
+    },
+    {
+      "language": "en",
+      "value": "Cancel",
+      "canonicalKey": "cancel",
+      "allowedKeys": ["cancel_skill", "cancel_new_game"]
+    },
+    {
+      "language": "en",
+      "value": "Characters",
+      "canonicalKey": "characters",
+      "allowedKeys": ["characters_section"]
+    },
+    {
+      "language": "zh",
+      "value": "保存",
+      "canonicalKey": "save",
+      "allowedKeys": ["save_skill"]
+    },
+    {
+      "language": "zh",
+      "value": "取消",
+      "canonicalKey": "cancel",
+      "allowedKeys": ["cancel_skill", "cancel_new_game"]
+    },
+    {
+      "language": "zh",
+      "value": "角色",
+      "canonicalKey": "characters",
+      "allowedKeys": ["characters_section", "chars", "character"]
+    },
+    {
+      "language": "zh",
+      "value": "能力",
+      "canonicalKey": "term_ability",
+      "allowedKeys": ["filter_skill", "skill", "ai_skills", "abilities"]
+    }
+  ]
+}
