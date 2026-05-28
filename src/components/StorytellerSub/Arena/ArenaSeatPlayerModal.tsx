@@ -23,7 +23,7 @@ import { buildPlayerLogEntries, filterPlayerLogByCurrentPhase } from '../../../u
 import { logPhrase } from '../../../utils/logI18n'
 import { LogDetailText } from '../LogDetailText'
 import { useT } from '../../../context/I18nContext'
-import { translateStTag } from './ArenaSeatComponents'
+import { translateStTag, resolveTagDisplay } from './ArenaSeatComponents'
 import { ResponsiveDialog, ResponsiveDialogContent } from '../../ui'
 
 const TRAVELER_CHAR_IDS = allCharacters.filter((c) => c.team === 'traveler').map((c) => c.id)
@@ -920,9 +920,17 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
                     </Typography>
                     {publicTags.length > 0 && (
                       <Box sx={{ display: 'flex', gap: 0.25, flexWrap: 'wrap' }}>
-                        {publicTags.map((t: string) => (
-                          <Box key={t} component="span" sx={{ fontSize: '0.65rem', px: 0.5, py: 0.1, bgcolor: 'action.selected', borderRadius: 0.5, color: 'text.secondary' }}>{t}</Box>
-                        ))}
+                        {publicTags.map((tag: string) => {
+                          const { displayLabel, srcId, isCharTag } = resolveTagDisplay(tag, language)
+                          const icon = isCharTag ? getIconForCharacter(srcId!) : srcId ? getIconForCharacter(srcId) : null
+                          const label = isCharTag ? getDisplayName(srcId!, language) : displayLabel
+                          return (
+                            <Box key={tag} component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.25, fontSize: '0.65rem', px: 0.5, py: 0.1, bgcolor: 'action.selected', borderRadius: 0.5, color: 'text.secondary' }}>
+                              {icon && <Box component="img" src={icon} sx={{ width: 12, height: 12, borderRadius: '50%', flexShrink: 0 }} />}
+                              {label}
+                            </Box>
+                          )
+                        })}
                       </Box>
                     )}
                   </Box>
