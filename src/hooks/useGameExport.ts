@@ -20,7 +20,7 @@ export interface ExportDeps {
   stName?: string
 }
 
-function autoGameName(scriptTitle: string | undefined, gameId: string | undefined, savedAt: number): string {
+export function autoGameName(scriptTitle: string | undefined, gameId: string | undefined, savedAt: number): string {
   const title = (scriptTitle ?? 'Game').replace(/[^a-zA-Z0-9一-鿿]+/g, '_').replace(/^_+|_+$/g, '') || 'Game'
   const date = new Date(savedAt).toISOString().slice(0, 10).replace(/-/g, '_')
   return gameId ? `${title}_${date}_${gameId}` : `${title}_${date}`

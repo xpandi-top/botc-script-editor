@@ -91,7 +91,8 @@ describe('buildGameExport', () => {
       saveGame()
       const updater = setGameRecords.mock.calls[0][0]
       const result = updater([])
-      expect(result[0].recordName).toMatch(/Game/)
+      // Auto-name is now Title_YYYY_MM_DD format
+      expect(result[0].recordName).toMatch(/My_Script_\d{4}_\d{2}_\d{2}/)
     })
 
     it('stores savedDays in record', () => {

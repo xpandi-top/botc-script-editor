@@ -4,7 +4,29 @@ Release timeline for BOTC Companion — features, fixes, and improvements.
 
 ---
 
-## 2026-05-24 (latest)
+## 2026-05-28 (latest)
+
+### Added
+- **Card Deal — QR code for share link** — host dashboard now shows a QR code dialog for the deal share URL; supports Copy link and Download PNG buttons
+- **Card Deal — game-ID linkage** — each game gets a stable `gameId` (16-char random token) generated when the setup panel opens; deal sessions are stored under `botc-deal-game-<gameId>` so each game has its own deal slot — editing game 1 shows its deal, opening new game 2 shows none; backward-compatible (old installs fall back to global key)
+- **Save checkpoint MUI dialog** — replaced browser-native `window.prompt` with a styled MUI `Dialog` + `TextField` for checkpoint name input; auto-generates name on empty submit
+
+### Changed
+- **Phase switch buttons show icon + label** — `PhaseControlPanel` and `ArenaCenterContent` toggle buttons now display icon (1.5 rem) above text label; layout: `flexDirection: column`
+- **Mobile seat card tag rendering** — extracted `resolveTagDisplay` pure function shared by desktop `ArenaSeat` and mobile `MobileSeatCard`; fixes raw `📝Wrong::librarian` string shown on mobile while desktop rendered correctly
+- **Share links on native/DMG builds** — `buildShareUrl` now rejects `capacitor:`, `file:`, `app:`, and `localhost` origins; uses `VITE_APP_URL` from `.env.native`; eliminates `localhost` links on Android/DMG
+- **Save game filename** — auto-generated record names and JSON export filenames now follow `<ScriptTitle>_YYYY_MM_DD_<gameId>` format (underscores throughout, no slashes)
+- **Save checkpoint upsert** — "Save current progress" always overwrites the same record (keyed `game-<gameId>`) instead of creating a new one each click
+
+### Fixed
+- **Deal card show/hide toggle** — fixed: toggle was gated on `(showFaceUp || claimed)`; now correctly uses `showFaceUp` alone
+- **Deal card set-unclaimed Firestore error** — `markCardUnclaimedByHost` changed from `null` to `deleteField()` for all claim fields; Firestore Rule 3 added to allow clearing all 6 fields in one write
+- **Stale card display after unclaim** — `claimed` check changed from `!== null` to `!= null`; `deleteField()` produces `undefined` in snapshot, which `!== null` incorrectly treated as claimed
+- **Claimed card count** — `claimedCount` filter corrected from `!== null` to `!= null`
+
+---
+
+## 2026-05-24
 
 ### Added
 - **Edit Players in-game** — Storyteller toolbar now wires "Edit Players" action to `openCharacterEditor`; replaces the stale `AutoStories` icon with the correct edit icon; no more dead button during active game
