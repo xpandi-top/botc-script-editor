@@ -14,30 +14,43 @@ test.beforeEach(async ({ page }) => {
 })
 
 test.describe('StudioFilterBar — mobile', () => {
-  test('filter panel collapsed by default', async ({ page }) => {
-    // On mobile, filter bar shows a toggle button but not the full controls
-    // The date inputs should NOT be visible (inside Collapse)
-    const dateInput = page.locator('input[type="date"]').first()
-    // Either not visible or not present in viewport
-    const count = await page.locator('input[type="date"]').count()
-    if (count > 0) {
-      // If exists in DOM, it should be hidden (inside Collapse)
-      const box = await dateInput.boundingBox()
-      // Collapsed = zero height or off-screen
-      if (box) {
-        expect(box.height).toBeLessThanOrEqual(1)
-      }
+  test('filter panel collapsed by default — Collapse height is 0', async ({ page }) => {
+    // StudioFilterBar mobile layout wraps controls in <Collapse data-testid="filter-collapse">.
+    // When collapsed, offsetHeight === 0. Desktop has no Collapse — test skips gracefully.
+    const collapseEl = page.locator('[data-testid="filter-collapse"]')
+    if (await collapseEl.count() === 0) {
+      // Desktop: no Collapse present — filter bar always expanded inline, test N/A
+      test.skip()
+      return
     }
-    // At minimum — no crash and page visible
+    const collapseHeight = await collapseEl.evaluate((el) => (el as HTMLElement).offsetHeight)
+    expect(collapseHeight).toBe(0)
     await expect(page.locator('body')).toBeVisible()
   })
 
   test('filter panel expands on toggle tap', async ({ page }) => {
-    // Tap the filter toggle (FilterListIcon button)
-    const filterToggle = page.getByRole('button').first()
-    await filterToggle.click()
-    await page.waitForTimeout(300)
-    // After expand, date inputs should become visible
+    // Find the filter bar Collapse via data-testid. Skip if desktop layout (no Collapse).
+    const collapseEl = page.locator('[data-testid="filter-collapse"]')
+    if (await collapseEl.count() === 0) {
+      test.skip()
+      return
+    }
+    const before = await collapseEl.evaluate((el) => (el as HTMLElement).offsetHeight)
+    if (before !== 0) {
+      // Already expanded (unlikely but safe)
+      test.skip()
+      return
+    }
+
+    // Click the expand/collapse toggle button (data-testid="filter-expand-btn").
+    // Use force:true — the button is inside a box with overflow:hidden which can cause
+    // Playwright's visibility check to fail even though the button is interactable.
+    const expandBtn = page.locator('[data-testid="filter-expand-btn"]')
+    await expandBtn.click({ force: true })
+    await page.waitForTimeout(400) // MUI Collapse transition ~300ms
+
+    const after = await collapseEl.evaluate((el) => (el as HTMLElement).offsetHeight)
+    expect(after).toBeGreaterThan(0)
     await expect(page.locator('body')).toBeVisible()
   })
 

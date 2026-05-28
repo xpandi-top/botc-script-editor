@@ -217,7 +217,8 @@ export function StudioFilterBar({ filter, setFilter, resetFilter, activeCount, s
             </Tooltip>
           )}
 
-          <IconButton size="small" onClick={() => setMobileOpen((v) => !v)} sx={{ p: 0.5, color: 'text.secondary' }}>
+          <IconButton size="small" onClick={() => setMobileOpen((v) => !v)} sx={{ p: 0.5, color: 'text.secondary' }}
+            data-testid="filter-expand-btn">
             {mobileOpen
               ? <ExpandLessIcon sx={{ fontSize: '1rem' }} />
               : <ExpandMoreIcon sx={{ fontSize: '1rem' }} />}
@@ -225,7 +226,7 @@ export function StudioFilterBar({ filter, setFilter, resetFilter, activeCount, s
         </Box>
 
         {/* Collapsible filter controls */}
-        <Collapse in={mobileOpen}>
+        <Collapse in={mobileOpen} data-testid="filter-collapse">
           <Box sx={{
             display: 'flex', flexDirection: 'column', gap: 1.5,
             px: 1.5, pb: 1.5,
