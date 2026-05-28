@@ -9,7 +9,7 @@ import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked'
 import { ArenaSeatPlayerModal } from './ArenaSeatPlayerModal'
 import { CharacterCircle } from './CharacterCircle'
 import { getDisplayName, getIconForCharacter, getEffectiveNightOrderFromRegistry, getAbilityTextForScript } from '../../../catalog'
-import { VoteButtonGroup, TagChip, StatusBadge, translateStTag } from './ArenaSeatComponents'
+import { VoteButtonGroup, TagChip, StatusBadge, translateStTag, resolveTagDisplay } from './ArenaSeatComponents'
 
 
 const CIRCLE_SIZE = 72
@@ -222,11 +222,12 @@ function MobileSeatCardInner({ ctx, seat, side = 'left' }: { ctx: StorytellerCon
           {tagDefs.length > 0 && (
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.25, mb: 0.5 }}>
               {tagDefs.map(({ label, chipSx }) => {
-                const isChar = label.startsWith('💀')
-                const charId = isChar ? [...label].slice(1).join('') : ''
-                const icon = isChar ? getIconForCharacter(charId) : null
-                const displayLabel = isChar ? getDisplayName(charId, language) : label
-                return <TagChip key={`${seat.seat}-${label}`} label={displayLabel} icon={icon as string} chipSx={chipSx} />
+                const { displayLabel, srcId, isCharTag } = resolveTagDisplay(label, language)
+                const icon = isCharTag
+                  ? getIconForCharacter(srcId!)
+                  : srcId ? getIconForCharacter(srcId) : null
+                const finalLabel = isCharTag ? getDisplayName(srcId!, language) : displayLabel
+                return <TagChip key={`${seat.seat}-${label}`} label={finalLabel} icon={icon as string} chipSx={chipSx} />
               })}
             </Box>
           )}

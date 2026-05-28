@@ -28,6 +28,34 @@ export function translateStTag(label: string, language: string): string {
   return label
 }
 
+/**
+ * Parse a tagDef label string into display parts.
+ * Handles all three tag formats used in both ArenaSeat (desktop) and MobileSeatCard (mobile):
+ *   - '💀<charId>'          → character tag: displayLabel = char name, srcId = charId
+ *   - '📝<label>::<srcId>'  → linked ST tag: displayLabel = translated label, srcId = source char
+ *   - '📝<label>'           → ST tag no source: displayLabel = translated label, srcId = null
+ *   - '<plain>'             → plain tag: displayLabel = translated label, srcId = null
+ *
+ * Pure function — no side effects, no React, testable in isolation.
+ */
+export function resolveTagDisplay(
+  label: string,
+  language: string
+): { displayLabel: string; srcId: string | null; isCharTag: boolean } {
+  if (label.startsWith('💀')) {
+    const charId = [...label].slice(1).join('')
+    return { displayLabel: charId, srcId: charId, isCharTag: true }
+  }
+  if (label.startsWith('📝')) {
+    const body = label.slice(2)
+    const sep = body.indexOf('::')
+    const rawLabel = sep === -1 ? body : body.slice(0, sep)
+    const srcId = sep === -1 ? null : body.slice(sep + 2) || null
+    return { displayLabel: translateStTag(rawLabel, language), srcId, isCharTag: false }
+  }
+  return { displayLabel: translateStTag(label, language), srcId: null, isCharTag: false }
+}
+
 // ── TagChip: readable chip with click-to-popover ──
 export function TagChip({ label, icon, chipSx, language }: { label: string; icon?: string | null; chipSx?: any; language?: string }) {
   const { t } = useT()

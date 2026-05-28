@@ -1,5 +1,5 @@
 import type { StorytellerContext } from '../useStoryteller'
-import { useState, useMemo } from 'react'
+import React, { useState, useMemo } from 'react'
 import { Box, Button, TextField, Select, MenuItem, IconButton, Typography, ToggleButton, ToggleButtonGroup, Tooltip } from '@mui/material'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import PauseIcon from '@mui/icons-material/Pause'
@@ -15,6 +15,9 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd'
 import CasinoIcon from '@mui/icons-material/Casino'
 import HowToVoteIcon from '@mui/icons-material/HowToVote'
 import WbSunnyIcon from '@mui/icons-material/WbSunny'
+import BedtimeIcon from '@mui/icons-material/Bedtime'
+import LockIcon from '@mui/icons-material/Lock'
+import GavelIcon from '@mui/icons-material/Gavel'
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts'
 import { AggregatedLogModal } from './AggregatedLogModal'
@@ -24,6 +27,12 @@ import type { Phase, PublicMode } from '../types'
 import { useT } from '../../../context/I18nContext'
 
 const PHASES: Phase[] = ['night', 'private', 'public', 'nomination']
+const PHASE_ICONS: Record<string, React.ReactNode> = {
+  night:      <BedtimeIcon sx={{ fontSize: '1.5rem' }} />,
+  private:    <LockIcon sx={{ fontSize: '1.5rem' }} />,
+  public:     <WbSunnyIcon sx={{ fontSize: '1.5rem' }} />,
+  nomination: <GavelIcon sx={{ fontSize: '1.5rem' }} />,
+}
 const TIMER_CONTROL_SX = { bgcolor: 'rgba(133,63,34,0.15)', border: '1px solid', borderColor: 'primary.main' }
 const TIMER_IDLE_SX = { bgcolor: 'transparent', border: '1px solid', borderColor: 'divider' }
 
@@ -164,8 +173,16 @@ export function ArenaCenterContent({ ctx }: { ctx: StorytellerContext }) {
     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'safe center', gap: 0.5, p: 1, flex: 1, minWidth: 0, flexGrow: 1 }}>
       
       
-      <ToggleButtonGroup value={phase} exclusive onChange={(_, v) => v && setPhase(v)} size="large">
-        {PHASES.map(p => <ToggleButton key={p} value={p}>{getPhaseLabel(p, text)}</ToggleButton>)}
+      <ToggleButtonGroup
+        value={phase} exclusive onChange={(_, v) => v && setPhase(v)} size="large"
+        sx={{ '& .MuiToggleButton-root': { flexDirection: 'column', gap: 0.25, px: 2, py: 0.75, minWidth: 72, textTransform: 'none' } }}
+      >
+        {PHASES.map(p => (
+          <ToggleButton key={p} value={p}>
+            {PHASE_ICONS[p]}
+            <Typography sx={{ fontSize: '0.7rem', lineHeight: 1, color: 'inherit' }}>{getPhaseLabel(p, text)}</Typography>
+          </ToggleButton>
+        ))}
       </ToggleButtonGroup>
       <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
       {phase === 'public' && <Select size="small" value={publicMode} onChange={(e) => updateCurrentDay((d: any) => ({ ...d, publicMode: e.target.value as PublicMode }))} sx={{ fontSize: '0.85rem', minWidth: 100 }}>

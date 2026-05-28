@@ -1,9 +1,15 @@
 /**
- * Tests: StatusBadge, translateStTag, TagChip localization.
+ * Tests: StatusBadge, translateStTag, TagChip localization, resolveTagDisplay.
+ *
+ * resolveTagDisplay is the shared tag-parsing function used by both:
+ *   - ArenaSeat (desktop seat card)
+ *   - MobileSeatCard (mobile seat card)
+ * Tests here cover all three tag formats and catch the mobile regression where
+ * '📝Wrong::librarian' was rendered raw instead of parsed.
  */
 import { describe, it, expect } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import { translateStTag, StatusBadge, TagChip } from '../components/StorytellerSub/Arena/ArenaSeatComponents'
+import { translateStTag, StatusBadge, TagChip, resolveTagDisplay } from '../components/StorytellerSub/Arena/ArenaSeatComponents'
 
 // ── translateStTag ───────────────────────────────────────────────────────────
 
@@ -101,5 +107,103 @@ describe('StatusBadge', () => {
     // Both render chips — presence check
     expect(lightContainer.querySelector('.MuiChip-root')).toBeTruthy()
     expect(darkContainer.querySelector('.MuiChip-root')).toBeTruthy()
+  })
+})
+
+// ── resolveTagDisplay — shared by desktop (ArenaSeat) + mobile (MobileSeatCard) ──
+//
+// This function was extracted to ensure both views parse tag labels identically.
+// The original mobile bug: '📝Wrong::librarian' was rendered as the raw string
+// because MobileSeatCard only handled the '💀' case, falling through to label as-is.
+
+describe('resolveTagDisplay — plain text tags', () => {
+  it('known tag translated EN', () => {
+    const r = resolveTagDisplay('drunk', 'en')
+    expect(r.displayLabel).toBe('Drunk')
+    expect(r.srcId).toBeNull()
+    expect(r.isCharTag).toBe(false)
+  })
+
+  it('known tag translated ZH', () => {
+    const r = resolveTagDisplay('poisoned', 'zh')
+    expect(r.displayLabel).toBe('中毒')
+    expect(r.srcId).toBeNull()
+    expect(r.isCharTag).toBe(false)
+  })
+
+  it('unknown custom tag falls back to raw label', () => {
+    const r = resolveTagDisplay('my note', 'en')
+    expect(r.displayLabel).toBe('my note')
+    expect(r.srcId).toBeNull()
+    expect(r.isCharTag).toBe(false)
+  })
+})
+
+describe('resolveTagDisplay — 📝 linked ST tags (regression: mobile rendered raw)', () => {
+  it('parses label from 📝label::srcId', () => {
+    // This was the exact bug: mobile showed '📝Wrong::librarian' verbatim
+    const r = resolveTagDisplay('📝Wrong::librarian', 'en')
+    expect(r.displayLabel).toBe('Wrong')       // not '📝Wrong::librarian'
+    expect(r.srcId).toBe('librarian')
+    expect(r.isCharTag).toBe(false)
+  })
+
+  it('translates known label from 📝poisoned::poisoner EN', () => {
+    const r = resolveTagDisplay('📝poisoned::poisoner', 'en')
+    expect(r.displayLabel).toBe('Poisoned')
+    expect(r.srcId).toBe('poisoner')
+    expect(r.isCharTag).toBe(false)
+  })
+
+  it('translates known label from 📝drunk::washerwoman ZH', () => {
+    const r = resolveTagDisplay('📝drunk::washerwoman', 'zh')
+    expect(r.displayLabel).toBe('醉酒')
+    expect(r.srcId).toBe('washerwoman')
+    expect(r.isCharTag).toBe(false)
+  })
+
+  it('handles 📝label with no source', () => {
+    const r = resolveTagDisplay('📝protected', 'en')
+    expect(r.displayLabel).toBe('Protected')
+    expect(r.srcId).toBeNull()
+    expect(r.isCharTag).toBe(false)
+  })
+
+  it('handles 📝label:: (empty source) → srcId null', () => {
+    const r = resolveTagDisplay('📝used::', 'en')
+    expect(r.displayLabel).toBe('Used')
+    expect(r.srcId).toBeNull()
+    expect(r.isCharTag).toBe(false)
+  })
+
+  it('does NOT return raw emoji+label string for any 📝 tag', () => {
+    // Regression guard: none of these should leak the raw string
+    const cases = [
+      '📝Wrong::librarian',
+      '📝drunk::washerwoman',
+      '📝poisoned::poisoner',
+      '📝protected',
+      '📝used::',
+    ]
+    for (const tag of cases) {
+      const { displayLabel } = resolveTagDisplay(tag, 'en')
+      expect(displayLabel).not.toContain('📝')
+      expect(displayLabel).not.toContain('::')
+    }
+  })
+})
+
+describe('resolveTagDisplay — 💀 character tags', () => {
+  it('isCharTag=true and srcId=charId for 💀charId', () => {
+    const r = resolveTagDisplay('💀librarian', 'en')
+    expect(r.isCharTag).toBe(true)
+    expect(r.srcId).toBe('librarian')
+    // displayLabel is charId (caller replaces with getDisplayName)
+  })
+
+  it('isCharTag=true works for multi-char id', () => {
+    const r = resolveTagDisplay('💀scarlet_woman', 'en')
+    expect(r.isCharTag).toBe(true)
+    expect(r.srcId).toBe('scarlet_woman')
   })
 })

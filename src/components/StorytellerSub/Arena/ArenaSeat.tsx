@@ -9,7 +9,7 @@ import { ArenaSeatPlayerModal } from './ArenaSeatPlayerModal'
 import { CharacterCircle } from './CharacterCircle'
 import { getDisplayName, getIconForCharacter, getEffectiveNightOrderFromRegistry, getAbilityTextForScript, getNightReminder } from '../../../catalog'
 import { getSeatPosition } from '../../../utils/seats'
-import { VoteButtonGroup, RoundRobinIndicator, TagChip, StatusBadge, translateStTag } from './ArenaSeatComponents'
+import { VoteButtonGroup, RoundRobinIndicator, TagChip, StatusBadge, translateStTag, resolveTagDisplay } from './ArenaSeatComponents'
 
 function WakeOrderBadge({ wakeOrder, isVisited, reminder, onToggle }: { wakeOrder: number; isVisited: boolean; reminder?: string; onToggle: (e: React.MouseEvent) => void }) {
   const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null)
@@ -260,24 +260,12 @@ function ArenaSeatInner({ ctx, seat, index, isPortrait }: { ctx: StorytellerCont
           {tagDefs.length > 0 && (
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.375, justifyContent: 'center', mt: 0.5 }}>
               {tagDefs.map(({ label, chipSx }) => {
-                const isCharTag = label.startsWith('💀')
-                const isLinked = !isCharTag && label.startsWith('📝')
-                let icon = null, displayLabel = label
-                if (isCharTag) {
-                  const charId = [...label].slice(1).join('')
-                  icon = getIconForCharacter(charId)
-                  displayLabel = getDisplayName(charId, language)
-                } else if (isLinked) {
-                  const body = label.slice(2)
-                  const sep = body.indexOf('::')
-                  const rawLabel = sep === -1 ? body : body.slice(0, sep)
-                  displayLabel = translateStTag(rawLabel, language)
-                  const srcId = sep === -1 ? '' : body.slice(sep + 2)
-                  icon = srcId ? getIconForCharacter(srcId) : null
-                } else {
-                  displayLabel = translateStTag(label, language)
-                }
-                return <TagChip key={`${seat.seat}-${label}`} label={displayLabel} icon={icon as string} chipSx={chipSx} />
+                const { displayLabel, srcId, isCharTag } = resolveTagDisplay(label, language)
+                const icon = isCharTag
+                  ? getIconForCharacter(srcId!)
+                  : srcId ? getIconForCharacter(srcId) : null
+                const finalLabel = isCharTag ? getDisplayName(srcId!, language) : displayLabel
+                return <TagChip key={`${seat.seat}-${label}`} label={finalLabel} icon={icon as string} chipSx={chipSx} />
               })}
             </Box>
           )}

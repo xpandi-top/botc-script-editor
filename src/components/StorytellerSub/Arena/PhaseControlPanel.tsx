@@ -61,10 +61,10 @@ const fmt = (s: number) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${Str
 
 
 const PHASE_ICONS: Record<string, React.ReactNode> = {
-  night: <BedtimeIcon sx={{ fontSize: '1rem' }} />,
-  private: <LockIcon sx={{ fontSize: '1rem' }} />,
-  public: <WbSunnyIcon sx={{ fontSize: '1rem' }} />,
-  nomination: <GavelIcon sx={{ fontSize: '1rem' }} />,
+  night: <BedtimeIcon sx={{ fontSize: '1.5rem' }} />,
+  private: <LockIcon sx={{ fontSize: '1.5rem' }} />,
+  public: <WbSunnyIcon sx={{ fontSize: '1.5rem' }} />,
+  nomination: <GavelIcon sx={{ fontSize: '1.5rem' }} />,
 }
 
 export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: StorytellerContext; collapsed: boolean; setCollapsed: (v: boolean) => void }) {
@@ -238,17 +238,23 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
                 '& .MuiToggleButton-root': {
                   color: textColor,
                   borderColor: btnBorder,
-                  px: 1.5, py: 0.5, minHeight: 38, minWidth: 48,
+                  px: 1.25, py: 0.5, minHeight: 56, minWidth: 60,
                   bgcolor: btnOverlay,
+                  flexDirection: 'column',
+                  gap: 0.25,
+                  textTransform: 'none',
                   '&:hover': { bgcolor: btnOverlayHover },
                   '&.Mui-selected': { color: textColor, bgcolor: useDarkInk ? 'rgba(0,0,0,0.22)' : 'rgba(255,255,255,0.25)' },
                 },
               }}
             >
               {PHASES.map(p => (
-                <Tooltip key={p} title={getPhaseLabel(p)} placement="top">
-                  <ToggleButton value={p}>{PHASE_ICONS[p]}</ToggleButton>
-                </Tooltip>
+                <ToggleButton key={p} value={p}>
+                  {PHASE_ICONS[p]}
+                  <Typography sx={{ fontSize: '0.62rem', lineHeight: 1, color: 'inherit', userSelect: 'none' }}>
+                    {getPhaseLabel(p)}
+                  </Typography>
+                </ToggleButton>
               ))}
             </ToggleButtonGroup>
           </Box>
