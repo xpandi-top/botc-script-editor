@@ -148,7 +148,7 @@ export function buildGameExport(deps: ExportDeps) {
     if (!survey) return
     const savedAt = Date.now()
     const id = gameId ? `${savedAt}-${gameId}` : `${savedAt}`
-    const finalName = recordName || `Game ${new Date(savedAt).toLocaleDateString()}${gameId ? ` [${gameId}]` : ''}`
+    const finalName = recordName || `Game ${new Date(savedAt).toLocaleDateString()}`
     const mergedDays = days.map((d) =>
       d.id === currentDay.id ? { ...d, gameEnded: currentDay.gameEnded } : d
     )
@@ -161,7 +161,7 @@ export function buildGameExport(deps: ExportDeps) {
   function saveGame(name?: string, existingId?: string, surveyData?: any) {
     const savedAt = Date.now()
     const id = existingId || (gameId ? `save-${savedAt}-${gameId}` : `save-${savedAt}`)
-    const finalName = name || `Game ${new Date(savedAt).toLocaleDateString()}${gameId ? ` [${gameId}]` : ''}`
+    const finalName = name || `Game ${new Date(savedAt).toLocaleDateString()}`
     const survey: EndGameResult | null = surveyData || endGameResult
     const record = buildRecord({ id, recordName: finalName, survey })
     if (existingId) setGameRecords((cur) => cur.map((r) => r.id === existingId ? record : r))
