@@ -334,6 +334,7 @@ export function useStoryteller(props: StorytellerHelperProps) {
     clearUnusedCustomTags, toggleLogFilterType, confirmDialog,
     editLogEntry, removeLogEntry, addQuickEvent, swapLogEntries,
     stFabledIds, setStFabledIds, stCustomRules, setStCustomRules, stName, setStName,
+    gameId,
     ...lifecycle,
     stopNight,
     toggleNightVisitedSeat,

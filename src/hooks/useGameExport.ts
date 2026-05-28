@@ -20,6 +20,12 @@ export interface ExportDeps {
   stName?: string
 }
 
+function autoGameName(scriptTitle: string | undefined, gameId: string | undefined, savedAt: number): string {
+  const title = (scriptTitle ?? 'Game').replace(/[^a-zA-Z0-9一-鿿]+/g, '_').replace(/^_+|_+$/g, '') || 'Game'
+  const date = new Date(savedAt).toISOString().slice(0, 10).replace(/-/g, '_')
+  return gameId ? `${title}_${date}_${gameId}` : `${title}_${date}`
+}
+
 function downloadJson(data: unknown, filename: string) {
   exportGameFile(JSON.stringify(data, null, 2), filename).catch(() => {
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
@@ -50,7 +56,8 @@ export function buildGameExport(deps: ExportDeps) {
       if (cfg.includeEvents) entry.eventLog = cfg.includeStNotes ? d.eventLog : d.eventLog.filter((e) => e.kind === 'stateChange' || e.kind === 'phaseTransition')
       return entry
     })
-    downloadJson({ exportedAt: new Date().toISOString(), scriptTitle: activeScriptTitle, scriptSlug: activeScriptSlug, days: exportDays }, `botc-gamelog-${Date.now()}${gameId ? `-${gameId}` : ''}.json`)
+    const now = Date.now()
+    downloadJson({ exportedAt: new Date().toISOString(), scriptTitle: activeScriptTitle, scriptSlug: activeScriptSlug, days: exportDays }, `${autoGameName(activeScriptTitle, gameId, now)}.json`)
   }
 
   function exportGameSetup() {
@@ -148,7 +155,7 @@ export function buildGameExport(deps: ExportDeps) {
     if (!survey) return
     const savedAt = Date.now()
     const id = gameId ? `${savedAt}-${gameId}` : `${savedAt}`
-    const finalName = recordName || `Game ${new Date(savedAt).toLocaleDateString()}${gameId ? ` [${gameId}]` : ''}`
+    const finalName = recordName || autoGameName(activeScriptTitle, gameId, savedAt)
     const mergedDays = days.map((d) =>
       d.id === currentDay.id ? { ...d, gameEnded: currentDay.gameEnded } : d
     )
@@ -160,12 +167,18 @@ export function buildGameExport(deps: ExportDeps) {
   // ── saveGame — manual save / checkpoint ──────────────────────────
   function saveGame(name?: string, existingId?: string, surveyData?: any) {
     const savedAt = Date.now()
-    const id = existingId || (gameId ? `save-${savedAt}-${gameId}` : `save-${savedAt}`)
-    const finalName = name || `Game ${new Date(savedAt).toLocaleDateString()}${gameId ? ` [${gameId}]` : ''}`
+    // Use a stable gameId-based ID so repeated "save checkpoint" overwrites the same record
+    const stableId = gameId ? `game-${gameId}` : null
+    const id = existingId || stableId || `save-${savedAt}`
+    const finalName = name || autoGameName(activeScriptTitle, gameId, savedAt)
     const survey: EndGameResult | null = surveyData || endGameResult
     const record = buildRecord({ id, recordName: finalName, survey })
-    if (existingId) setGameRecords((cur) => cur.map((r) => r.id === existingId ? record : r))
-    else setGameRecords((cur) => [record, ...cur])
+    // Upsert: update existing record if same ID exists, otherwise prepend
+    setGameRecords((cur) => {
+      const idx = cur.findIndex((r) => r.id === id)
+      if (idx !== -1) return cur.map((r) => r.id === id ? record : r)
+      return [record, ...cur]
+    })
     if (setCurrentRecordName) setCurrentRecordName(finalName)
   }
 
