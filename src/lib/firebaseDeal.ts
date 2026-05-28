@@ -18,17 +18,23 @@
  *     match /cards/{position} {
  *       allow read: if true;
  *       allow create: if true;
- *       allow update: if resource.data.claimedByToken == null
+ *
+ *       // Rule 1 — player claims an unclaimed card
+ *       allow update: if resource.data.get('claimedByToken', null) == null
  *                     && request.resource.data.claimedByToken is string
  *                     && request.resource.data.claimedByToken.size() > 0
  *                     && request.resource.data.diff(resource.data).affectedKeys()
- *                          .hasOnly(['claimedByToken','claimedByName','claimedBySeat','claimedAt'])
- *                     && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['claimedBySeat'])
- *                         || request.resource.data.claimedBySeat is int)
- *                  || request.resource.data.diff(resource.data).affectedKeys()
- *                          .hasOnly(['assignedSeat','assignedName'])
- *                  || request.resource.data.diff(resource.data).affectedKeys()
+ *                          .hasOnly(['claimedByToken','claimedByName','claimedBySeat','claimedAt']);
+ *
+ *       // Rule 2 — ST updates seat/name only
+ *       allow update: if request.resource.data.diff(resource.data).affectedKeys()
+ *                          .hasOnly(['assignedSeat','assignedName']);
+ *
+ *       // Rule 3 — ST claims or UNCLEARS a card (deleteField removes keys; affectedKeys
+ *       //           still lists them). Permits any write touching only these 6 fields.
+ *       allow update: if request.resource.data.diff(resource.data).affectedKeys()
  *                          .hasOnly(['claimedByToken','claimedByName','claimedBySeat','claimedAt','assignedSeat','assignedName']);
+ *
  *       allow delete: if false;
  *     }
  *   }
@@ -48,6 +54,7 @@ import {
   collection,
   onSnapshot,
   deleteDoc,
+  deleteField,
   Timestamp,
   serverTimestamp,
   type Unsubscribe,
@@ -68,12 +75,13 @@ export type DealSession = {
 export type DealCard = {
   position: number          // 0-indexed slot
   characterId: string       // visible only to claimant (enforced app-layer)
-  claimedByToken: string | null
-  claimedByName: string | null
-  claimedBySeat: number | null  // guest-suggested seat; ST can override
-  claimedAt: Timestamp | null
-  assignedSeat: number | null   // ST-confirmed seat (overrides claimedBySeat)
-  assignedName: string | null
+  // Fields below are undefined when absent (deleteField() removes key from Firestore snapshot)
+  claimedByToken?: string | null
+  claimedByName?: string | null
+  claimedBySeat?: number | null  // guest-suggested seat; ST can override
+  claimedAt?: Timestamp | null
+  assignedSeat?: number | null   // ST-confirmed seat (overrides claimedBySeat)
+  assignedName?: string | null
 }
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -299,13 +307,15 @@ export async function markCardUnclaimedByHost(
   sessionId: string,
   position: number,
 ): Promise<void> {
+  // Use deleteField() for token/timestamp fields so Firestore's affectedKeys()
+  // correctly reflects the change (null→null wouldn't appear in the diff).
   await updateDoc(cardRef(sessionId, position), {
-    claimedByToken: null,
-    claimedByName: null,
-    claimedBySeat: null,
-    claimedAt: null,
-    assignedSeat: null,
-    assignedName: null,
+    claimedByToken: deleteField(),
+    claimedByName: deleteField(),
+    claimedBySeat: deleteField(),
+    claimedAt: deleteField(),
+    assignedSeat: deleteField(),
+    assignedName: deleteField(),
   })
 }
 

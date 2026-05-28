@@ -10,8 +10,9 @@
  */
 import { useEffect, useState, useCallback, useRef } from 'react'
 import {
-  Box, Button, Chip, CircularProgress, Divider, Dialog, DialogTitle,
-  DialogContent, IconButton, Paper, TextField, Tooltip, Typography,
+  Alert, Box, Button, Chip, CircularProgress, Collapse, Divider,
+  Dialog, DialogTitle, DialogContent, IconButton, Paper, TextField,
+  Tooltip, Typography,
 } from '@mui/material'
 import CheckIcon from '@mui/icons-material/Check'
 import CloseIcon from '@mui/icons-material/Close'
@@ -62,6 +63,7 @@ export function DealHostPage({ sessionId, hostToken, language, onApplyToGame, on
   const [editSeat, setEditSeat] = useState('')
   const [editName, setEditName] = useState('')
   const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
   const [closing, setClosing] = useState(false)
   const [qrOpen, setQrOpen] = useState(false)
@@ -95,7 +97,7 @@ export function DealHostPage({ sessionId, hostToken, language, onApplyToGame, on
     setEditName(card.assignedName ?? card.claimedByName ?? '')
   }, [selectedPos, cards])
 
-  const claimedCount = cards.filter(c => c.claimedByToken !== null).length
+  const claimedCount = cards.filter(c => c.claimedByToken != null).length
   const totalCount   = session?.cardCount ?? cards.length
 
   const shareUrl = buildShareUrl('deal', sessionId)
@@ -136,10 +138,12 @@ export function DealHostPage({ sessionId, hostToken, language, onApplyToGame, on
 
   const handleSaveAssignment = useCallback(async () => {
     if (selectedPos === null) return
-    setSaving(true)
+    setSaving(true); setSaveError(null)
     const seat = parseInt(editSeat, 10)
     try {
       await updateCardAssignment(sessionId, selectedPos, Number.isNaN(seat) ? null : seat, editName)
+    } catch (e: unknown) {
+      setSaveError(e instanceof Error ? e.message : String(e))
     } finally {
       setSaving(false)
     }
@@ -147,10 +151,12 @@ export function DealHostPage({ sessionId, hostToken, language, onApplyToGame, on
 
   const handleMarkClaimed = useCallback(async () => {
     if (selectedPos === null) return
-    setSaving(true)
+    setSaving(true); setSaveError(null)
     const seat = parseInt(editSeat, 10)
     try {
       await markCardClaimedByHost(sessionId, selectedPos, editName, Number.isNaN(seat) ? null : seat)
+    } catch (e: unknown) {
+      setSaveError(e instanceof Error ? e.message : String(e))
     } finally {
       setSaving(false)
     }
@@ -158,9 +164,11 @@ export function DealHostPage({ sessionId, hostToken, language, onApplyToGame, on
 
   const handleMarkUnclaimed = useCallback(async () => {
     if (selectedPos === null) return
-    setSaving(true)
+    setSaving(true); setSaveError(null)
     try {
       await markCardUnclaimedByHost(sessionId, selectedPos)
+    } catch (e: unknown) {
+      setSaveError(e instanceof Error ? e.message : String(e))
     } finally {
       setSaving(false)
     }
@@ -271,7 +279,7 @@ export function DealHostPage({ sessionId, hostToken, language, onApplyToGame, on
         gap: 1,
       }}>
         {cards.map((card) => {
-          const claimed = card.claimedByToken !== null
+          const claimed = card.claimedByToken != null   // != catches undefined (deleteField removes key)
           const icon = getIconForCharacter(card.characterId)
           const isSelected = selectedPos === card.position
           return (
@@ -296,7 +304,7 @@ export function DealHostPage({ sessionId, hostToken, language, onApplyToGame, on
                 '&:hover': { borderColor: 'primary.light' },
               }}
             >
-              {(showFaceUp || claimed) && icon ? (
+              {showFaceUp && icon ? (
                 <Box component="img" src={icon}
                   sx={{ width: 36, height: 36, objectFit: 'contain', opacity: claimed ? 1 : 0.5 }}
                 />
@@ -351,6 +359,12 @@ export function DealHostPage({ sessionId, hostToken, language, onApplyToGame, on
                 )}
               </Box>
             </Box>
+
+            <Collapse in={!!saveError}>
+              <Alert severity="error" sx={{ mb: 1 }} onClose={() => setSaveError(null)}>
+                {saveError}
+              </Alert>
+            </Collapse>
 
             <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-end', flexWrap: 'wrap' }}>
               <TextField
