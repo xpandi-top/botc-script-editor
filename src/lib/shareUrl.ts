@@ -115,7 +115,10 @@ export function buildShareUrl(paramName: string, encoded: string, hash?: string)
   // native builds via .env.native).
   let base: string
   if (appUrl) {
-    base = appUrl + window.location.pathname
+    // VITE_APP_URL is the complete canonical web base — never append
+    // window.location.pathname, which on DMG/Electron is a local filesystem
+    // path like /Applications/BOTC Companion.app/…/dist-native/index.html.
+    base = appUrl
   } else if (origin && origin !== 'null' && !isNativeOrigin()) {
     base = origin + window.location.pathname
   } else {

@@ -687,27 +687,31 @@ export default function App() {
 
     if (resolvedHostToken) {
       return (
-        <DealHostPage
-          sessionId={dealSessionId}
-          hostToken={resolvedHostToken}
-          language={uiLanguage}
-          onClose={() => {
-            // Strip ?deal= + ?host= and reload as normal app
-            const clean = new URL(window.location.href)
-            clean.searchParams.delete('deal')
-            clean.searchParams.delete('host')
-            window.history.replaceState({}, '', clean.toString())
-            window.location.reload()
-          }}
-        />
+        <I18nProvider language={uiLanguage}>
+          <DealHostPage
+            sessionId={dealSessionId}
+            hostToken={resolvedHostToken}
+            language={uiLanguage}
+            onClose={() => {
+              // Strip ?deal= + ?host= and reload as normal app
+              const clean = new URL(window.location.href)
+              clean.searchParams.delete('deal')
+              clean.searchParams.delete('host')
+              window.history.replaceState({}, '', clean.toString())
+              window.location.reload()
+            }}
+          />
+        </I18nProvider>
       )
     }
 
     return (
-      <DealGuestPage
-        sessionId={dealSessionId}
-        language={uiLanguage}
-      />
+      <I18nProvider language={uiLanguage}>
+        <DealGuestPage
+          sessionId={dealSessionId}
+          language={uiLanguage}
+        />
+      </I18nProvider>
     )
   }
 
