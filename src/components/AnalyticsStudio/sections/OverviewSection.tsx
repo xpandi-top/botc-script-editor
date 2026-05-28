@@ -23,18 +23,36 @@ function WinBalanceMeter({ kpi }: { kpi: KpiSummary }) {
   if (kpi.total === 0) return null
   return (
     <Box sx={{ mb: 0.5 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-        <Typography variant="caption" color="error.main" sx={{ fontWeight: 700 }}>
-          {tpl('evil_pct_label', kpi.evilPct)}
-        </Typography>
-        {kpi.stWins > 0 && (
-          <Typography variant="caption" color="info.main" sx={{ fontWeight: 700 }}>
-            ST {kpi.stPct}%
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mb: 0.5 }}>
+        {/* Evil */}
+        <Box>
+          <Typography variant="caption" color="error.main" sx={{ fontWeight: 700, display: 'block', lineHeight: 1.2 }}>
+            {tpl('evil_pct_label', kpi.evilPct)}
           </Typography>
+          <Typography variant="caption" color="text.disabled" sx={{ lineHeight: 1 }}>
+            {kpi.evilWins}{t('games_g')}
+          </Typography>
+        </Box>
+        {/* ST (only if present) */}
+        {kpi.stWins > 0 && (
+          <Box sx={{ textAlign: 'center' }}>
+            <Typography variant="caption" color="secondary.main" sx={{ fontWeight: 700, display: 'block', lineHeight: 1.2 }}>
+              ST {kpi.stPct}%
+            </Typography>
+            <Typography variant="caption" color="text.disabled" sx={{ lineHeight: 1 }}>
+              {kpi.stWins}{t('games_g')}
+            </Typography>
+          </Box>
         )}
-        <Typography variant="caption" color="success.main" sx={{ fontWeight: 700 }}>
-          {tpl('good_pct_label', kpi.goodPct)}
-        </Typography>
+        {/* Good */}
+        <Box sx={{ textAlign: 'right' }}>
+          <Typography variant="caption" color="success.main" sx={{ fontWeight: 700, display: 'block', lineHeight: 1.2 }}>
+            {tpl('good_pct_label', kpi.goodPct)}
+          </Typography>
+          <Typography variant="caption" color="text.disabled" sx={{ lineHeight: 1 }}>
+            {kpi.goodWins}{t('games_g')}
+          </Typography>
+        </Box>
       </Box>
       <Box sx={{ display: 'flex', height: 14, borderRadius: 2, overflow: 'hidden', gap: '2px' }}>
         {kpi.evilWins > 0 && (
@@ -49,10 +67,6 @@ function WinBalanceMeter({ kpi }: { kpi: KpiSummary }) {
         {kpi.total - kpi.evilWins - kpi.goodWins - kpi.stWins > 0 && (
           <Box sx={{ flex: kpi.total - kpi.evilWins - kpi.goodWins - kpi.stWins, bgcolor: 'grey.300' }} />
         )}
-      </Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.5 }}>
-        <Typography variant="caption" color="text.disabled">{kpi.evilWins}{t('games_g')}</Typography>
-        <Typography variant="caption" color="text.disabled">{kpi.goodWins}{t('games_g')}</Typography>
       </Box>
     </Box>
   )
