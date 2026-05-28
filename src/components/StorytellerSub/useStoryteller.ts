@@ -38,7 +38,12 @@ export function useStoryteller(props: StorytellerHelperProps) {
     try { return localStorage.getItem(DEFAULT_ST_NAME_KEY) ?? '' } catch { return '' }
   })
   const [gameStartedAt, setGameStartedAt] = useState<number | undefined>(initial.gameStartedAt)
-  const [gameId, setGameId] = useState<string | undefined>(initial.gameId)
+  const [gameId, setGameId] = useState<string>(() => {
+    if (initial.gameId) return initial.gameId
+    // Existing games (pre-feature) get a stable ID generated once on first load
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789'
+    return Array.from({ length: 16 }, () => chars[Math.floor(Math.random() * chars.length)]).join('')
+  })
 
   // ── Runtime state ──
   const [pickerMode, setPickerMode] = useState<PickerMode>('none')

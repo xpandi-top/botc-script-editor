@@ -49,7 +49,7 @@ interface LifecycleDeps {
   setStName?: (v: string) => void
   gameStartedAt?: number
   setGameStartedAt?: (v: number | undefined) => void
-  gameId?: string
+  gameId?: string  // always defined at runtime; optional for test stubs
   setGameId?: (v: string) => void
   setShowSaveBeforeNewGame?: (v: boolean) => void
   setPendingNewGameAfterSave?: (v: boolean) => void

@@ -264,7 +264,7 @@ export type PersistedState = {
   stCustomRules?: string
   stName?: string
   gameStartedAt?: number
-  gameId?: string  // stable ID linking current game to its deal session
+  gameId?: string  // stable ID; always present after first save of this feature
 }
 
 export type DialogState =
