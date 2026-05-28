@@ -63,7 +63,7 @@ function _genGameId(): string {
 export function buildGameLifecycle(deps: LifecycleDeps) {
   const { days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, activeScriptVersion, endGameResult, scriptOptions, onSelectScript, setDays, setDaysWithUndo, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay, setNewGamePanel, setShowNewGamePanel, setEndGameResult, setGameRecords, setAudioPlaying, language, appendEvent, customTagPool = [], playerNamePool = [], setCurrentRecordName, setTimerDefaults, setCustomTagPool, setPlayerNamePool, setShowEndGameModal, setNightShowCharacter, setNightShowWakeOrder, stFabledIds = [], stCustomRules = '', setStFabledIds, setStCustomRules, stName, setStName, gameStartedAt, setGameStartedAt, gameId, setGameId, setShowSaveBeforeNewGame, setPendingNewGameAfterSave } = deps
 
-  const exportActions = buildGameExport({ days, currentDay, activeScriptSlug, activeScriptTitle, activeScriptVersion, endGameResult, timerDefaults, customTagPool, playerNamePool, stFabledIds, stCustomRules, setGameRecords, setCurrentRecordName, gameStartedAt, stName })
+  const exportActions = buildGameExport({ days, currentDay, activeScriptSlug, activeScriptTitle, activeScriptVersion, endGameResult, timerDefaults, customTagPool, playerNamePool, stFabledIds, stCustomRules, setGameRecords, setCurrentRecordName, gameStartedAt, gameId, stName })
 
   function goToNextDay() {
     setNightShowCharacter?.(false)

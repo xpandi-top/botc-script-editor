@@ -16,6 +16,7 @@ export interface ExportDeps {
   setGameRecords: React.Dispatch<React.SetStateAction<GameRecord[]>>
   setCurrentRecordName?: (name: string | null) => void
   gameStartedAt?: number
+  gameId?: string
   stName?: string
 }
 
@@ -35,7 +36,7 @@ export function buildGameExport(deps: ExportDeps) {
     days, currentDay, activeScriptSlug, activeScriptTitle, activeScriptVersion,
     endGameResult, timerDefaults, customTagPool = [], playerNamePool = [],
     stFabledIds = [], stCustomRules = '', setGameRecords, setCurrentRecordName,
-    gameStartedAt, stName,
+    gameStartedAt, gameId, stName,
   } = deps
 
   function exportGameJson(config?: ExportConfig) {
@@ -49,7 +50,7 @@ export function buildGameExport(deps: ExportDeps) {
       if (cfg.includeEvents) entry.eventLog = cfg.includeStNotes ? d.eventLog : d.eventLog.filter((e) => e.kind === 'stateChange' || e.kind === 'phaseTransition')
       return entry
     })
-    downloadJson({ exportedAt: new Date().toISOString(), scriptTitle: activeScriptTitle, scriptSlug: activeScriptSlug, days: exportDays }, `botc-gamelog-${Date.now()}.json`)
+    downloadJson({ exportedAt: new Date().toISOString(), scriptTitle: activeScriptTitle, scriptSlug: activeScriptSlug, days: exportDays }, `botc-gamelog-${Date.now()}${gameId ? `-${gameId}` : ''}.json`)
   }
 
   function exportGameSetup() {
@@ -146,8 +147,8 @@ export function buildGameExport(deps: ExportDeps) {
     const survey: EndGameResult | null = surveyData || endGameResult
     if (!survey) return
     const savedAt = Date.now()
-    const id = `${savedAt}`
-    const finalName = recordName || `Game ${new Date(savedAt).toLocaleDateString()}`
+    const id = gameId ? `${savedAt}-${gameId}` : `${savedAt}`
+    const finalName = recordName || `Game ${new Date(savedAt).toLocaleDateString()}${gameId ? ` [${gameId}]` : ''}`
     const mergedDays = days.map((d) =>
       d.id === currentDay.id ? { ...d, gameEnded: currentDay.gameEnded } : d
     )
@@ -159,8 +160,8 @@ export function buildGameExport(deps: ExportDeps) {
   // ── saveGame — manual save / checkpoint ──────────────────────────
   function saveGame(name?: string, existingId?: string, surveyData?: any) {
     const savedAt = Date.now()
-    const id = existingId || `save-${savedAt}`
-    const finalName = name || `Game ${new Date(savedAt).toLocaleDateString()}`
+    const id = existingId || (gameId ? `save-${savedAt}-${gameId}` : `save-${savedAt}`)
+    const finalName = name || `Game ${new Date(savedAt).toLocaleDateString()}${gameId ? ` [${gameId}]` : ''}`
     const survey: EndGameResult | null = surveyData || endGameResult
     const record = buildRecord({ id, recordName: finalName, survey })
     if (existingId) setGameRecords((cur) => cur.map((r) => r.id === existingId ? record : r))
