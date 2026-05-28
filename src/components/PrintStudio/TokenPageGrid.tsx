@@ -41,14 +41,15 @@ function buildCharacterTokens(ids: string[], pinnedRevisions?: Record<string, st
 function calculateGridTokensPerPage(
   pageWidthMm: number,
   pageHeightMm: number,
-  diamMm: number,
+  tokenWidthMm: number,
+  tokenHeightMm: number,
   gapMm: number,
   marginMm: number,
 ): number {
   const usableW = pageWidthMm - marginMm * 2
   const usableH = pageHeightMm - marginMm * 2
-  const cols = usableW < diamMm ? 1 : 1 + Math.floor((usableW - diamMm) / (diamMm + gapMm))
-  const rows = usableH < diamMm ? 1 : 1 + Math.floor((usableH - diamMm) / (diamMm + gapMm))
+  const cols = usableW < tokenWidthMm  ? 1 : 1 + Math.floor((usableW - tokenWidthMm)  / (tokenWidthMm  + gapMm))
+  const rows = usableH < tokenHeightMm ? 1 : 1 + Math.floor((usableH - tokenHeightMm) / (tokenHeightMm + gapMm))
   return cols * rows
 }
 
@@ -206,51 +207,39 @@ function StaggeredPage({
 
 // ── Token renderers ───────────────────────────────────────────────
 
-function renderCharToken(t: CharacterToken, opts: TokenPrintOptions, diamPx: number) {
+interface RenderOpts { opts: TokenPrintOptions; diamPx: number; rectWidthPx?: number; rectHeightPx?: number }
+
+function renderCharToken(t: CharacterToken, ro: RenderOpts) {
   return (
     <SingleToken
-      nameEn={t.nameEn}
-      nameZh={t.nameZh}
-      abilityEn={t.abilityEn}
-      abilityZh={t.abilityZh}
-      iconSrc={t.iconSrc}
-      opts={opts}
-      diamPx={diamPx}
+      nameEn={t.nameEn} nameZh={t.nameZh} abilityEn={t.abilityEn} abilityZh={t.abilityZh}
+      iconSrc={t.iconSrc} opts={ro.opts} diamPx={ro.diamPx}
+      rectWidthPx={ro.rectWidthPx} rectHeightPx={ro.rectHeightPx}
       characterId={t.id}
     />
   )
 }
 
-function renderNumberToken(n: number, opts: TokenPrintOptions, diamPx: number) {
-  const numFontPx = opts.numberFontSize * (96 / 72)
+function renderNumberToken(n: number, ro: RenderOpts) {
+  const numFontPx = ro.opts.numberFontSize * (96 / 72)
   return (
     <SingleToken
-      nameEn={opts.numberLabel}
-      nameZh={opts.numberLabel}
-      abilityEn=""
-      abilityZh=""
-      opts={{ ...opts, abilityDisplay: 'hidden', bgType: 'color', bgColor: opts.numberBgColor }}
-      diamPx={diamPx}
-      overrideLabel={opts.numberLabel}
-      overrideBgColor={opts.numberBgColor}
-      centerText={String(n)}
-      centerFontPx={numFontPx}
+      nameEn={ro.opts.numberLabel} nameZh={ro.opts.numberLabel} abilityEn="" abilityZh=""
+      opts={{ ...ro.opts, abilityDisplay: 'hidden', bgType: 'color', bgColor: ro.opts.numberBgColor }}
+      diamPx={ro.diamPx} rectWidthPx={ro.rectWidthPx} rectHeightPx={ro.rectHeightPx}
+      overrideLabel={ro.opts.numberLabel} overrideBgColor={ro.opts.numberBgColor}
+      centerText={String(n)} centerFontPx={numFontPx}
     />
   )
 }
 
-function renderMarkerToken(marker: MarkerDef, _idx: number, opts: TokenPrintOptions, diamPx: number) {
+function renderMarkerToken(marker: MarkerDef, _idx: number, ro: RenderOpts) {
   return (
     <SingleToken
-      nameEn={marker.label}
-      nameZh={marker.label}
-      abilityEn=""
-      abilityZh=""
-      opts={{ ...opts, abilityDisplay: 'hidden', nameDisplay: 'en', bgType: 'color' }}
-      diamPx={diamPx}
-      overrideLabel={marker.label}
-      overrideIcon={marker.icon}
-      overrideBgColor={marker.bgColor}
+      nameEn={marker.label} nameZh={marker.label} abilityEn="" abilityZh=""
+      opts={{ ...ro.opts, abilityDisplay: 'hidden', nameDisplay: 'en', bgType: 'color' }}
+      diamPx={ro.diamPx} rectWidthPx={ro.rectWidthPx} rectHeightPx={ro.rectHeightPx}
+      overrideLabel={marker.label} overrideIcon={marker.icon} overrideBgColor={marker.bgColor}
     />
   )
 }
@@ -262,7 +251,10 @@ export function TokenPageGrid(props: TokenPageGridProps) {
   const { w, h } = PAGE_SIZE_DEFS[opts.pageSize]
   const marginMm = opts.marginMm
   const marginPx = marginMm * MM_TO_PX
+  const isRect = opts.shape === 'rectangle'
   const diamPx = opts.diameterMm * MM_TO_PX
+  const rectWidthPx  = opts.rectWidthMm  * MM_TO_PX
+  const rectHeightPx = opts.rectHeightMm * MM_TO_PX
   const gapPx = opts.gapMm * MM_TO_PX
   const useStaggered = opts.shape === 'circle' || opts.shape === 'hexagon'
 
@@ -277,7 +269,16 @@ export function TokenPageGrid(props: TokenPageGridProps) {
     : []
   const itemsPerPage = useStaggered
     ? Math.max(1, staggeredPositions.length)
-    : Math.max(1, calculateGridTokensPerPage(w, h, opts.diameterMm, opts.gapMm, marginMm))
+    : isRect
+      ? Math.max(1, calculateGridTokensPerPage(w, h, opts.rectWidthMm, opts.rectHeightMm, opts.gapMm, marginMm))
+      : Math.max(1, calculateGridTokensPerPage(w, h, opts.diameterMm, opts.diameterMm, opts.gapMm, marginMm))
+
+  const ro: RenderOpts = {
+    opts,
+    diamPx,
+    rectWidthPx:  isRect ? rectWidthPx  : undefined,
+    rectHeightPx: isRect ? rectHeightPx : undefined,
+  }
 
   // ── Characters ──────────────────────────────────────────────────
   if (opts.mode === 'characters') {
@@ -296,16 +297,13 @@ export function TokenPageGrid(props: TokenPageGridProps) {
             )}
             {useStaggered ? (
               <StaggeredPage
-                items={pageTokens.map((t) => renderCharToken(t, opts, diamPx))}
+                items={pageTokens.map((t) => renderCharToken(t, ro))}
                 positions={staggeredPositions}
-                opts={opts}
-                diamPx={diamPx}
-                marginPx={marginPx}
-                showBorder={!forPrint}
+                opts={opts} diamPx={diamPx} marginPx={marginPx} showBorder={!forPrint}
               />
             ) : (
               <GridPage opts={opts} gapPx={gapPx} marginMm={marginMm} showBorder={!forPrint}>
-                {pageTokens.map((t, i) => <React.Fragment key={i}>{renderCharToken(t, opts, diamPx)}</React.Fragment>)}
+                {pageTokens.map((t, i) => <React.Fragment key={i}>{renderCharToken(t, ro)}</React.Fragment>)}
               </GridPage>
             )}
           </Box>
@@ -332,16 +330,13 @@ export function TokenPageGrid(props: TokenPageGridProps) {
             )}
             {useStaggered ? (
               <StaggeredPage
-                items={pageNums.map((n) => renderNumberToken(n, opts, diamPx))}
+                items={pageNums.map((n) => renderNumberToken(n, ro))}
                 positions={staggeredPositions}
-                opts={opts}
-                diamPx={diamPx}
-                marginPx={marginPx}
-                showBorder={!forPrint}
+                opts={opts} diamPx={diamPx} marginPx={marginPx} showBorder={!forPrint}
               />
             ) : (
               <GridPage opts={opts} gapPx={gapPx} marginMm={marginMm} showBorder={!forPrint}>
-                {pageNums.map((n, i) => <React.Fragment key={i}>{renderNumberToken(n, opts, diamPx)}</React.Fragment>)}
+                {pageNums.map((n, i) => <React.Fragment key={i}>{renderNumberToken(n, ro)}</React.Fragment>)}
               </GridPage>
             )}
           </Box>
@@ -370,16 +365,13 @@ export function TokenPageGrid(props: TokenPageGridProps) {
           )}
           {useStaggered ? (
             <StaggeredPage
-              items={pageMarkers.map(({ marker, idx }) => renderMarkerToken(marker, idx, opts, diamPx))}
+              items={pageMarkers.map(({ marker, idx }) => renderMarkerToken(marker, idx, ro))}
               positions={staggeredPositions}
-              opts={opts}
-              diamPx={diamPx}
-              marginPx={marginPx}
-              showBorder={!forPrint}
+              opts={opts} diamPx={diamPx} marginPx={marginPx} showBorder={!forPrint}
             />
           ) : (
             <GridPage opts={opts} gapPx={gapPx} marginMm={marginMm} showBorder={!forPrint}>
-              {pageMarkers.map(({ marker, idx: mIdx }, i) => <React.Fragment key={i}>{renderMarkerToken(marker, mIdx, opts, diamPx)}</React.Fragment>)}
+              {pageMarkers.map(({ marker, idx: mIdx }, i) => <React.Fragment key={i}>{renderMarkerToken(marker, mIdx, ro)}</React.Fragment>)}
             </GridPage>
           )}
         </Box>

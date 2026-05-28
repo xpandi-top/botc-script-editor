@@ -1,6 +1,6 @@
 import type { PageSize, FontKey } from '../PrintOptionsDialog'
 
-export type TokenShape = 'circle' | 'hexagon' | 'square'
+export type TokenShape = 'circle' | 'hexagon' | 'square' | 'rectangle'
 export type NameDisplay = 'en' | 'zh' | 'both'
 export type AbilityDisplay = 'en' | 'zh' | 'both' | 'hidden'
 export type BgFit = 'cover' | 'contain' | 'stretch'
@@ -33,6 +33,10 @@ export type TokenPrintOptions = {
   shape: TokenShape
   diameterMm: number
   gapMm: number
+  // rectangle-specific
+  rectWidthMm: number
+  rectHeightMm: number
+  rectIconPosition: 'left' | 'right'
   marginMm: number        // page margin in mm (default 10)
   borderWidth: number
   borderColor: string
@@ -85,6 +89,9 @@ export const DEFAULT_TOKEN_OPTIONS: TokenPrintOptions = {
   shape: 'circle',
   diameterMm: 45,
   gapMm: 0,
+  rectWidthMm: 80,
+  rectHeightMm: 30,
+  rectIconPosition: 'left',
   marginMm: 0,
   borderWidth: 2,
   borderColor: '#333333',

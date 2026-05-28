@@ -315,20 +315,55 @@ export function TokenOptionsPanel({ opts, onChange, scriptCharacters, language, 
           {t('shape')}
         </Typography>
         <ToggleButtonGroup value={opts.shape} exclusive size="small"
-          onChange={(_, v) => { if (v) set('shape', v as TokenShape) }} sx={{ mb: 1 }}>
+          onChange={(_, v) => { if (v) set('shape', v as TokenShape) }} sx={{ mb: 1, flexWrap: 'wrap' }}>
           <ToggleButton value="circle">{t('circle')}</ToggleButton>
           <ToggleButton value="hexagon">{t('hex')}</ToggleButton>
           <ToggleButton value="square">{t('square')}</ToggleButton>
+          <ToggleButton value="rectangle">{zh ? '矩形' : 'Rect'}</ToggleButton>
         </ToggleButtonGroup>
-        <Box sx={{ mb: 1 }}>
-          <Typography variant="caption" color="text.secondary">
-            {tpl('diameter_mm', opts.diameterMm)}
-          </Typography>
-          <Slider value={opts.diameterMm} min={10} max={80} step={1}
-            onChange={(_, v) => set('diameterMm', v as number)}
-            marks={[{ value: 25, label: '25' }, { value: 50, label: '50' }, { value: 80, label: '80' }]}
-            size="small" sx={{ mt: 0.5, mb: 0 }} />
-        </Box>
+
+        {opts.shape !== 'rectangle' && (
+          <Box sx={{ mb: 1 }}>
+            <Typography variant="caption" color="text.secondary">
+              {tpl('diameter_mm', opts.diameterMm)}
+            </Typography>
+            <Slider value={opts.diameterMm} min={10} max={80} step={1}
+              onChange={(_, v) => set('diameterMm', v as number)}
+              marks={[{ value: 25, label: '25' }, { value: 50, label: '50' }, { value: 80, label: '80' }]}
+              size="small" sx={{ mt: 0.5, mb: 0 }} />
+          </Box>
+        )}
+
+        {opts.shape === 'rectangle' && (
+          <Box>
+            <Box sx={{ mb: 1 }}>
+              <Typography variant="caption" color="text.secondary">
+                {zh ? `宽度: ${opts.rectWidthMm}mm` : `Width: ${opts.rectWidthMm}mm`}
+              </Typography>
+              <Slider value={opts.rectWidthMm} min={40} max={150} step={1}
+                onChange={(_, v) => set('rectWidthMm', v as number)}
+                marks={[{ value: 60, label: '60' }, { value: 100, label: '100' }, { value: 150, label: '150' }]}
+                size="small" sx={{ mt: 0.5, mb: 0 }} />
+            </Box>
+            <Box sx={{ mb: 1 }}>
+              <Typography variant="caption" color="text.secondary">
+                {zh ? `高度: ${opts.rectHeightMm}mm` : `Height: ${opts.rectHeightMm}mm`}
+              </Typography>
+              <Slider value={opts.rectHeightMm} min={15} max={80} step={1}
+                onChange={(_, v) => set('rectHeightMm', v as number)}
+                marks={[{ value: 25, label: '25' }, { value: 45, label: '45' }, { value: 80, label: '80' }]}
+                size="small" sx={{ mt: 0.5, mb: 0 }} />
+            </Box>
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+              {zh ? '图标位置' : 'Icon Position'}
+            </Typography>
+            <ToggleButtonGroup value={opts.rectIconPosition} exclusive size="small"
+              onChange={(_, v) => { if (v) set('rectIconPosition', v as 'left' | 'right') }} sx={{ mb: 1 }}>
+              <ToggleButton value="left">{zh ? '左' : 'Left'}</ToggleButton>
+              <ToggleButton value="right">{zh ? '右' : 'Right'}</ToggleButton>
+            </ToggleButtonGroup>
+          </Box>
+        )}
         <Box>
           <Typography variant="caption" color="text.secondary">
             {tpl('gap_mm', opts.gapMm)}
