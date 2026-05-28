@@ -16,7 +16,7 @@ import AutoStoriesIcon from '@mui/icons-material/AutoStories'
 import LockIcon from '@mui/icons-material/Lock'
 import {
   getDealSession,
-  getDealCards,
+  getGuestCards,
   findClaimedCard,
   claimCard,
   getGuestToken,
@@ -32,13 +32,15 @@ interface Props {
   language: 'en' | 'zh'
 }
 
+type GuestCard = Omit<DealCard, 'characterId'>
+
 type PageState =
   | { kind: 'loading' }
   | { kind: 'error'; message: string }
   | { kind: 'expired' }
   | { kind: 'closed' }
-  | { kind: 'name'; session: DealSession; cards: DealCard[]; alreadyClaimed: DealCard | null }
-  | { kind: 'grid'; session: DealSession; cards: DealCard[]; claiming: number | null; message?: string }
+  | { kind: 'name'; session: DealSession; cards: GuestCard[] }
+  | { kind: 'grid'; session: DealSession; cards: GuestCard[]; claiming: number | null; message?: string }
   | { kind: 'claimed'; card: DealCard }
 
 export function DealGuestPage({ sessionId, language }: Props) {
@@ -56,7 +58,7 @@ export function DealGuestPage({ sessionId, language }: Props) {
       if (!session) { setState({ kind: 'expired' }); return }
       if (session.status === 'closed') { setState({ kind: 'closed' }); return }
 
-      const cards = await getDealCards(sessionId)
+      const cards = await getGuestCards(sessionId)
       const guestToken = getGuestToken()
       const alreadyClaimed = await findClaimedCard(sessionId, guestToken)
 
@@ -65,7 +67,7 @@ export function DealGuestPage({ sessionId, language }: Props) {
         return
       }
 
-      setState({ kind: 'name', session, cards, alreadyClaimed: null })
+      setState({ kind: 'name', session, cards })
     } catch (e: unknown) {
       setState({ kind: 'error', message: e instanceof Error ? e.message : String(e) })
     }
@@ -91,8 +93,13 @@ export function DealGuestPage({ sessionId, language }: Props) {
       setState({ kind: 'claimed', card: claimed })
     } catch {
       try {
-        const cards = await getDealCards(sessionId)
-        const alreadyClaimed = await findClaimedCard(sessionId, getGuestToken())
+        // Re-fetch stripped cards (no characterId) for the grid view,
+        // then check if this guest somehow claimed a card despite the error
+        // (e.g. network flake where write succeeded but we lost the response).
+        const [cards, alreadyClaimed] = await Promise.all([
+          getGuestCards(sessionId),
+          findClaimedCard(sessionId, getGuestToken()),
+        ])
         if (alreadyClaimed) {
           setState({ kind: 'claimed', card: alreadyClaimed })
           return

@@ -30,10 +30,14 @@
  *       allow update: if request.resource.data.diff(resource.data).affectedKeys()
  *                          .hasOnly(['assignedSeat','assignedName']);
  *
- *       // Rule 3 — ST claims or UNCLEARS a card (deleteField removes keys; affectedKeys
- *       //           still lists them). Permits any write touching only these 6 fields.
+ *       // Rule 3 — ST force-claims or unclears a card. Must touch at least one
+ *       //           ST-only field (assignedSeat/assignedName) to distinguish from a
+ *       //           plain guest claim. Prevents guests from overwriting existing claims
+ *       //           via this rule. Full enforcement requires Cloud Functions.
  *       allow update: if request.resource.data.diff(resource.data).affectedKeys()
- *                          .hasOnly(['claimedByToken','claimedByName','claimedBySeat','claimedAt','assignedSeat','assignedName']);
+ *                          .hasOnly(['claimedByToken','claimedByName','claimedBySeat','claimedAt','assignedSeat','assignedName'])
+ *                     && request.resource.data.diff(resource.data).affectedKeys()
+ *                          .hasAny(['assignedSeat','assignedName']);
  *
  *       allow delete: if false;
  *     }
@@ -207,6 +211,23 @@ export async function getDealCards(sessionId: string): Promise<DealCard[]> {
     .sort((a, b) => a.position - b.position)
 }
 
+/**
+ * Fetch all cards for the guest grid view — characterId is OMITTED for all
+ * cards so it is never present in client state before a successful claim.
+ * Only the claimed card (returned by claimCard / findClaimedCard) contains
+ * characterId; that data path verifies ownership first.
+ */
+export async function getGuestCards(sessionId: string): Promise<Omit<DealCard, 'characterId'>[]> {
+  const { getDocs } = await import('firebase/firestore')
+  const snap = await getDocs(cardsRef(sessionId))
+  return snap.docs
+    .map(d => {
+      const { characterId: _stripped, ...rest } = d.data() as DealCard
+      return rest
+    })
+    .sort((a, b) => a.position - b.position)
+}
+
 // ── Real-time subscription ────────────────────────────────────────────────────
 
 /**
@@ -230,8 +251,11 @@ export function subscribeCards(
 /**
  * Atomically claim a card.
  * Firestore rule rejects the write if claimedByToken is already set.
- * Returns the full card (including characterId) after a successful claim.
- * Throws if already claimed (Firestore permission-denied).
+ * Returns the full card (including characterId) ONLY if the post-write
+ * snapshot confirms claimedByToken === guestToken — guards against the race
+ * where two guests write simultaneously and one wins the Firestore rule check
+ * but both proceed to read.
+ * Throws if already claimed by another user.
  */
 export async function claimCard(
   sessionId: string,
@@ -250,6 +274,8 @@ export async function claimCard(
   try {
     await updateDoc(ref, claimPayload)
   } catch (e) {
+    // Retry without optional seat field in case Firestore rule affectedKeys check
+    // rejects a payload that includes claimedBySeat but the rule only lists 4 fields.
     if (claimedSeat == null) throw e
     await updateDoc(ref, {
       claimedByToken: guestToken,
@@ -257,8 +283,15 @@ export async function claimCard(
       claimedAt:      serverTimestamp(),
     })
   }
+  // Verify ownership — read back and confirm this token won the race.
+  // Without this check, a second user whose Firestore write was mis-allowed
+  // (e.g. via the overly-permissive Rule 3) could still see the characterId.
   const snap = await getDoc(ref)
-  return snap.data() as DealCard
+  const data = snap.data() as DealCard
+  if (data.claimedByToken !== guestToken) {
+    throw new Error('card_already_claimed')
+  }
+  return data
 }
 
 /**
