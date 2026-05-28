@@ -6,7 +6,6 @@ import { MobileTopBar } from './StorytellerSub/MobileTopBar'
 import { Arena } from './StorytellerSub/Arena'
 import { RightConsole } from './StorytellerSub/RightConsole'
 import { Modals } from './StorytellerSub/Modals'
-import { CommunicationBoardFab } from './StorytellerSub/CommunicationBoard'
 import { useStoryteller } from './StorytellerSub/useStoryteller'
 import { useBreakpoint } from '../hooks/useBreakpoint'
 import { isIOSSafari } from '../hooks/useAudioState'
@@ -166,7 +165,6 @@ export function StorytellerHelper(props: StorytellerHelperProps) {
         </Box>
         <RightConsole ctx={ctx} />
         <Modals ctx={ctx} />
-        <CommunicationBoardFab scriptCharacters={ctx.currentScriptCharacters} language={ctx.language} />
       </>
     )
   }
@@ -248,7 +246,6 @@ export function StorytellerHelper(props: StorytellerHelperProps) {
         <RightConsole ctx={ctx} />
         <Modals ctx={ctx} />
       </Box>
-      <CommunicationBoardFab scriptCharacters={ctx.currentScriptCharacters} language={ctx.language} />
     </>
   )
 }

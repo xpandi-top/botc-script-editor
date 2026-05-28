@@ -34,6 +34,9 @@ const PHRASES: PhraseTemplate[] = [
   { key: 'you-good',         en: 'You are Good',                              zh: '你是好人',                         kind: 'plain' },
   { key: 'you-evil',         en: 'You are Evil',                              zh: '你是邪恶方',                       kind: 'plain' },
   { key: 'char-in-play',     en: '[Characters] are in play',                  zh: '[角色们] 在游戏中',                  kind: 'multi-character' },
+  { key: 'char-not-in-play', en: '[Characters] are NOT in play',              zh: '[角色们] 不在游戏中',                 kind: 'multi-character' },
+  { key: 'same-team',        en: 'Same Alignment / Team',                     zh: '相同阵营',                          kind: 'plain' },
+  { key: 'diff-team',        en: 'Different Alignment / Team',                zh: '不同阵营',                          kind: 'plain' },
   { key: 'mistake',          en: 'I made a mistake — this is my correction',  zh: '我犯了错误——这是纠正',              kind: 'plain' },
   { key: 'eyes-open',        en: '(Keep your eyes open)',                     zh: '（保持睁眼）',                      kind: 'plain' },
   { key: 'wake-up',          en: 'Wake up',                                   zh: '睁眼',                             kind: 'plain' },
@@ -260,9 +263,8 @@ export function CommunicationBoard({ open, onClose, scriptCharacters, language }
     <Dialog
       open={open}
       onClose={onClose}
-      fullWidth
-      maxWidth="md"
-      slotProps={{ paper: { sx: { height: '92dvh', maxHeight: '92dvh', display: 'flex', flexDirection: 'column', m: { xs: 0.5, sm: 2 } } } }}
+      fullScreen
+      sx={{ zIndex: 1400 }}
     >
       {/* Header */}
       <DialogTitle sx={{ pb: 0, display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0 }}>
@@ -284,17 +286,16 @@ export function CommunicationBoard({ open, onClose, scriptCharacters, language }
         <IconButton size="small" onClick={onClose}><CloseIcon /></IconButton>
       </DialogTitle>
 
-      <DialogContent sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 1.5, pt: 1.5, overflow: 'hidden' }}>
+      <DialogContent sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 1, pt: 1.5, overflow: 'hidden', pb: 1.5 }}>
 
         {/* ── TEXT BOARD ── */}
         {tab === 'text' && (
           <>
-            {/* White board display */}
+            {/* ── White board — grows to fill space ── */}
             <Box
               sx={{
-                flex: '0 0 auto',
-                minHeight: 160,
-                maxHeight: '35vh',
+                flex: 1,
+                minHeight: 120,
                 bgcolor: '#ffffff',
                 border: '2px solid',
                 borderColor: 'divider',
@@ -305,7 +306,6 @@ export function CommunicationBoard({ open, onClose, scriptCharacters, language }
                 p: 3,
                 position: 'relative',
                 overflow: 'auto',
-                cursor: 'default',
                 boxShadow: 'inset 0 1px 8px rgba(0,0,0,0.06)',
               }}
             >
@@ -326,7 +326,7 @@ export function CommunicationBoard({ open, onClose, scriptCharacters, language }
                   {boardText}
                 </Typography>
               ) : (
-                <Typography sx={{ color: '#ccc', fontSize: 22, fontStyle: 'italic' }}>
+                <Typography sx={{ color: '#ccc', fontSize: 18, fontStyle: 'italic', textAlign: 'center' }}>
                   {zh ? '点击下方短语，或输入自定义文字…' : 'Tap a phrase below, or type custom text…'}
                 </Typography>
               )}
@@ -341,31 +341,30 @@ export function CommunicationBoard({ open, onClose, scriptCharacters, language }
               )}
             </Box>
 
-            {/* Pending N-phrase config */}
+            {/* ── Pending configs (appear between board and phrase bar) ── */}
             {pendingN && (
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, bgcolor: 'action.hover', borderRadius: 1.5, flexShrink: 0 }}>
-                <Typography variant="body2" sx={{ flex: 1 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 1, bgcolor: 'action.hover', borderRadius: 1.5, flexShrink: 0, flexWrap: 'wrap' }}>
+                <Typography variant="body2" sx={{ flex: 1, minWidth: 120 }}>
                   {(zh ? pendingN.zh : pendingN.en).replace('[N]', `[${nValue}]`)}
                 </Typography>
                 <IconButton size="small" onClick={() => setNValue(v => Math.max(1, v - 1))}><RemoveIcon fontSize="small" /></IconButton>
-                <Typography sx={{ fontWeight: 700, minWidth: 24, textAlign: 'center' }}>{nValue}</Typography>
+                <Typography sx={{ fontWeight: 700, minWidth: 20, textAlign: 'center' }}>{nValue}</Typography>
                 <IconButton size="small" onClick={() => setNValue(v => Math.min(20, v + 1))}><AddIcon fontSize="small" /></IconButton>
-                <Chip label={zh ? '添加' : 'Add'} color="primary" size="small" onClick={applyNPhrase} sx={{ ml: 1 }} />
+                <Chip label={zh ? '添加' : 'Add'} color="primary" size="small" onClick={applyNPhrase} />
                 <Chip label={zh ? '取消' : 'Cancel'} size="small" onClick={() => setPendingN(null)} />
               </Box>
             )}
 
-            {/* Pending character-phrase config */}
             {pendingChar && (
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, bgcolor: 'action.hover', borderRadius: 1.5, flexShrink: 0, flexWrap: 'wrap' }}>
-                <Typography variant="body2" sx={{ flexShrink: 0 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 1, bgcolor: 'action.hover', borderRadius: 1.5, flexShrink: 0, flexWrap: 'wrap' }}>
+                <Typography variant="body2" sx={{ flexShrink: 0, mr: 0.5 }}>
                   {zh ? pendingChar.zh : pendingChar.en}
                 </Typography>
                 <Autocomplete
                   options={charOptions}
                   getOptionLabel={(o) => o.label}
                   size="small"
-                  sx={{ minWidth: 180, flex: 1 }}
+                  sx={{ minWidth: 160, flex: 1 }}
                   renderOption={(props, option) => (
                     <Box component="li" {...props} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       {option.icon && <Box component="img" src={option.icon} sx={{ width: 20, height: 20, borderRadius: '50%' }} />}
@@ -377,18 +376,13 @@ export function CommunicationBoard({ open, onClose, scriptCharacters, language }
                   )}
                   onChange={(_, val) => setSelectedChar(val?.id ?? null)}
                 />
-                <Chip label={zh ? '添加' : 'Add'} color="primary" size="small"
-                  disabled={!selectedChar} onClick={applyCharPhrase} />
+                <Chip label={zh ? '添加' : 'Add'} color="primary" size="small" disabled={!selectedChar} onClick={applyCharPhrase} />
                 <Chip label={zh ? '取消' : 'Cancel'} size="small" onClick={() => setPendingChar(null)} />
               </Box>
             )}
 
-            {/* Pending multi-character-phrase config */}
             {pendingMultiChar && (
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, p: 1.5, bgcolor: 'action.hover', borderRadius: 1.5, flexShrink: 0 }}>
-                <Typography variant="body2">
-                  {zh ? pendingMultiChar.zh : pendingMultiChar.en}
-                </Typography>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75, p: 1, bgcolor: 'action.hover', borderRadius: 1.5, flexShrink: 0 }}>
                 <Autocomplete
                   multiple
                   options={charOptions}
@@ -402,11 +396,14 @@ export function CommunicationBoard({ open, onClose, scriptCharacters, language }
                     </Box>
                   )}
                   renderInput={(params) => (
-                    <TextField {...params} label={zh ? '选择角色（可多选）' : 'Select characters (multi)'} />
+                    <TextField {...params} label={zh
+                      ? `${zh ? pendingMultiChar.zh : pendingMultiChar.en} — 可多选`
+                      : `${pendingMultiChar.en} — multi-select`}
+                    />
                   )}
                   onChange={(_, vals) => setSelectedChars(vals.map(v => v.id))}
                 />
-                <Box sx={{ display: 'flex', gap: 1 }}>
+                <Box sx={{ display: 'flex', gap: 0.75 }}>
                   <Chip label={zh ? '添加' : 'Add'} color="primary" size="small"
                     disabled={selectedChars.length === 0} onClick={applyMultiCharPhrase} />
                   <Chip label={zh ? '取消' : 'Cancel'} size="small" onClick={() => setPendingMultiChar(null)} />
@@ -414,48 +411,33 @@ export function CommunicationBoard({ open, onClose, scriptCharacters, language }
               </Box>
             )}
 
-            {/* Phrase chips */}
-            <Box sx={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
-              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.75, textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: 600 }}>
-                {zh ? '预设短语' : 'Predefined Phrases'}
-              </Typography>
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
-                {PHRASES.map(phrase => (
-                  <Tooltip
-                    key={phrase.key}
-                    title={language === 'en' ? phrase.zh : phrase.en}
-                    placement="top"
-                    arrow
-                  >
-                    <Chip
-                      label={zh ? phrase.zh : phrase.en}
-                      onClick={() => handlePhrase(phrase)}
-                      size="small"
-                      variant={
-                        (pendingN?.key === phrase.key || pendingChar?.key === phrase.key || pendingMultiChar?.key === phrase.key)
-                          ? 'filled'
-                          : 'outlined'
-                      }
-                      color={
-                        (pendingN?.key === phrase.key || pendingChar?.key === phrase.key || pendingMultiChar?.key === phrase.key)
-                          ? 'primary'
-                          : 'default'
-                      }
-                      sx={{
-                        fontWeight: phrase.kind !== 'plain' ? 600 : 400,
-                        borderStyle: phrase.kind !== 'plain' ? 'dashed' : 'solid',
-                        cursor: 'pointer',
-                      }}
-                    />
-                  </Tooltip>
-                ))}
+            {/* ── Phrases + custom input — fixed at bottom ── */}
+            <Box sx={{ flexShrink: 0, borderTop: '1px solid', borderColor: 'divider', pt: 1 }}>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.6, mb: 1 }}>
+                {PHRASES.map(phrase => {
+                  const isActive = pendingN?.key === phrase.key || pendingChar?.key === phrase.key || pendingMultiChar?.key === phrase.key
+                  return (
+                    <Tooltip key={phrase.key} title={language === 'en' ? phrase.zh : phrase.en} placement="top" arrow>
+                      <Chip
+                        label={zh ? phrase.zh : phrase.en}
+                        onClick={() => handlePhrase(phrase)}
+                        size="small"
+                        variant={isActive ? 'filled' : 'outlined'}
+                        color={isActive ? 'primary' : 'default'}
+                        sx={{
+                          fontWeight: phrase.kind !== 'plain' ? 600 : 400,
+                          borderStyle: phrase.kind !== 'plain' ? 'dashed' : 'solid',
+                          cursor: 'pointer',
+                          fontSize: '0.72rem',
+                        }}
+                      />
+                    </Tooltip>
+                  )
+                })}
               </Box>
-
-              {/* Custom text input */}
-              <Box sx={{ display: 'flex', gap: 1, mt: 1.5, alignItems: 'center' }}>
+              <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
                 <TextField
-                  fullWidth
-                  size="small"
+                  fullWidth size="small"
                   label={zh ? '自定义文字' : 'Custom text'}
                   value={customInput}
                   onChange={(e) => setCustomInput(e.target.value)}
@@ -472,10 +454,7 @@ export function CommunicationBoard({ open, onClose, scriptCharacters, language }
                   color="primary"
                   disabled={!customInput.trim()}
                   onClick={() => {
-                    if (customInput.trim()) {
-                      appendText(customInput.trim())
-                      setCustomInput('')
-                    }
+                    if (customInput.trim()) { appendText(customInput.trim()); setCustomInput('') }
                   }}
                 />
               </Box>
@@ -577,47 +556,3 @@ export function CommunicationBoard({ open, onClose, scriptCharacters, language }
   )
 }
 
-// ── Trigger FAB ───────────────────────────────────────────────────
-
-interface CommunicationBoardFabProps {
-  scriptCharacters: string[]
-  language: Language
-}
-
-export function CommunicationBoardFab({ scriptCharacters, language }: CommunicationBoardFabProps) {
-  const [open, setOpen] = useState(false)
-  const zh = language === 'zh'
-
-  return (
-    <>
-      <Tooltip title={zh ? '沟通板' : 'Communication Board'} placement="left">
-        <IconButton
-          onClick={() => setOpen(true)}
-          size="medium"
-          sx={{
-            position: 'fixed',
-            // Stack above AI chat button (bottom:{xs:68,sm:24}) — 48px button + 8px gap = 56px offset
-            bottom: { xs: 68 + 56, sm: 24 + 56 },
-            right: { xs: 12, sm: 24 },
-            zIndex: 1200,
-            bgcolor: 'primary.main',
-            color: 'primary.contrastText',
-            boxShadow: 4,
-            width: 48,
-            height: 48,
-            '&:hover': { bgcolor: 'primary.dark', transform: 'scale(1.08)' },
-            transition: 'transform 0.15s, bgcolor 0.15s',
-          }}
-        >
-          <ForumIcon />
-        </IconButton>
-      </Tooltip>
-      <CommunicationBoard
-        open={open}
-        onClose={() => setOpen(false)}
-        scriptCharacters={scriptCharacters}
-        language={language}
-      />
-    </>
-  )
-}

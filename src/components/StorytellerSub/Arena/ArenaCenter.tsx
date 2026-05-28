@@ -1,17 +1,21 @@
 import type { StorytellerContext } from '../useStoryteller'
+import { useState } from 'react'
 import { Box, IconButton, Select, MenuItem, FormControl, Tooltip } from '@mui/material'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import DeleteIcon from '@mui/icons-material/Delete'
+import ForumIcon from '@mui/icons-material/Forum'
 import { ArenaCenterContent } from './ArenaCenterContent'
 import { ArenaCenterNominationSheet } from './ArenaCenterNominationSheet'
+import { CommunicationBoard } from '../CommunicationBoard'
 import { useT } from '../../../context/I18nContext'
 
 export function ArenaCenter({ ctx }: { ctx: StorytellerContext }) {
   const { t } = useT()
+  const [commOpen, setCommOpen] = useState(false)
   const {
     days, currentDay, goToNextDay, goToPreviousDay, setSelectedDayId,
-    setDialogState,
+    setDialogState, currentScriptCharacters, language,
   } = ctx
 
   return (
@@ -31,9 +35,11 @@ export function ArenaCenter({ ctx }: { ctx: StorytellerContext }) {
       }}
     >
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5, pb: 0.5, borderBottom: '1px solid', borderBottomColor: 'divider', flexShrink: 0 }}>
-        <IconButton size="large" onClick={(e) => { e.stopPropagation(); goToPreviousDay() }} title={t('previous_day')}>
-          <ArrowBackIcon />
-        </IconButton>
+        <Tooltip title={t('previous_day')}>
+          <IconButton size="large" onClick={(e) => { e.stopPropagation(); goToPreviousDay() }}>
+            <ArrowBackIcon />
+          </IconButton>
+        </Tooltip>
         <FormControl size="medium" >
           <Select
             value={currentDay.id}
@@ -59,10 +65,24 @@ export function ArenaCenter({ ctx }: { ctx: StorytellerContext }) {
             ))}
           </Select>
         </FormControl>
-        <IconButton size="large" onClick={(e) => { e.stopPropagation(); goToNextDay() }} title={t('next_day_label')}>
-          <ArrowForwardIcon />
-        </IconButton>
+        <Tooltip title={t('next_day_label')}>
+          <IconButton size="large" onClick={(e) => { e.stopPropagation(); goToNextDay() }}>
+            <ArrowForwardIcon />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title={language === 'zh' ? '沟通板' : 'Communication Board'}>
+          <IconButton size="medium" onClick={(e) => { e.stopPropagation(); setCommOpen(true) }}
+            sx={{ color: 'primary.main' }}>
+            <ForumIcon />
+          </IconButton>
+        </Tooltip>
       </Box>
+      <CommunicationBoard
+        open={commOpen}
+        onClose={() => setCommOpen(false)}
+        scriptCharacters={currentScriptCharacters}
+        language={language}
+      />
       <Box sx={{ 
         maxHeight: '80%',
         maxWidth: '80%',

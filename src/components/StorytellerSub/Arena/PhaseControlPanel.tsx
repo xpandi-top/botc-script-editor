@@ -14,6 +14,7 @@ import { BgmBar } from '../BgmBar'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
+import ForumIcon from '@mui/icons-material/Forum'
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import CloseIcon from '@mui/icons-material/Close'
 import CheckIcon from '@mui/icons-material/Check'
@@ -37,6 +38,7 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import { ArenaCenterNominationSheet } from './ArenaCenterNominationSheet'
 import { AggregatedLogModal } from './AggregatedLogModal'
 import { StorytellerSetupModal } from './StorytellerSetupModal'
+import { CommunicationBoard } from '../CommunicationBoard'
 import type { Phase, PublicMode } from '../types'
 import { useT } from '../../../context/I18nContext'
 
@@ -83,6 +85,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
     nightShowWakeOrder, setNightShowWakeOrder, openCharacterEditor,
     openNewGamePanel, openEndGamePanel,
     showAggLogModal, setShowAggLogModal, setShowStSetupModal, stFabledIds,
+    currentScriptCharacters,
   } = ctx
 
   const { t } = useT()
@@ -91,6 +94,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
 
   const [timerEditing, setTimerEditing] = useState(false)
   const [timerInput, setTimerInput] = useState('')
+  const [commOpen, setCommOpen] = useState(false)
 
   const phase = currentDay.phase
   const publicMode = currentDay.publicMode
@@ -226,6 +230,11 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
             <IconButton sx={iconBtnSx} onClick={() => goToNextDay()}>
               <ArrowForwardIcon />
             </IconButton>
+            <Tooltip title={language === 'zh' ? '沟通板' : 'Communication Board'}>
+              <IconButton sx={{ ...iconBtnSx, color: 'primary.main' }} onClick={() => setCommOpen(true)}>
+                <ForumIcon />
+              </IconButton>
+            </Tooltip>
           </Box>
 
           {/* Row 2: Phase selector buttons */}
@@ -479,6 +488,12 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
       <ArenaCenterNominationSheet ctx={ctx} />
       <AggregatedLogModal ctx={ctx} />
       <StorytellerSetupModal ctx={ctx} />
+      <CommunicationBoard
+        open={commOpen}
+        onClose={() => setCommOpen(false)}
+        scriptCharacters={currentScriptCharacters}
+        language={language}
+      />
     </>
   )
 }
