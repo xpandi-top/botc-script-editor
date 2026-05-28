@@ -1,7 +1,7 @@
 // @ts-nocheck
 import type { StorytellerContext } from '../useStoryteller'
 import React, { useState, useMemo } from 'react'
-import { Box, Button, Divider, Typography, Paper, Chip, IconButton, TextField, ToggleButtonGroup, ToggleButton, Collapse, Tooltip } from '@mui/material'
+import { Box, Button, Divider, Typography, Paper, Chip, IconButton, TextField, ToggleButtonGroup, ToggleButton, Collapse, Tooltip, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -41,6 +41,11 @@ export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: Storyt
   const [search, setSearch] = useState('')
   const [winnerFilter, setWinnerFilter] = useState<string | null>(null)
   const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [checkpointDialogOpen, setCheckpointDialogOpen] = useState(false)
+  const [checkpointName, setCheckpointName] = useState('')
+
+  const handleOpenCheckpoint = () => { setCheckpointName(''); setCheckpointDialogOpen(true) }
+  const handleSaveCheckpoint = () => { saveGame(checkpointName.trim() || undefined); setCheckpointDialogOpen(false) }
 
   // ── Live stats for current script & players ──────────────────────
   const liveStats = useMemo(() => {
@@ -103,15 +108,35 @@ export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: Storyt
           <Tooltip title={t('save_checkpoint_hint')}>
             <Button
               size="small" variant="outlined" startIcon={<SaveIcon fontSize="small" />}
-              onClick={() => {
-                const name = window.prompt(t('checkpoint_name_prompt'), '') ?? ''
-                saveGame(name || undefined)
-              }}
+              onClick={handleOpenCheckpoint}
               fullWidth sx={{ textTransform: 'none', fontSize: '0.8rem' }}
             >
               {t('save_checkpoint')}
             </Button>
           </Tooltip>
+
+          {/* ── Checkpoint name dialog ── */}
+          <Dialog open={checkpointDialogOpen} onClose={() => setCheckpointDialogOpen(false)} maxWidth="xs" fullWidth>
+            <DialogTitle sx={{ pb: 1, fontSize: '1rem', fontWeight: 700 }}>{t('save_checkpoint')}</DialogTitle>
+            <DialogContent sx={{ pt: '8px !important' }}>
+              <TextField
+                autoFocus
+                fullWidth
+                size="small"
+                label={t('checkpoint_name_prompt')}
+                placeholder={zh ? '留空自动生成' : 'Leave blank to auto-generate'}
+                value={checkpointName}
+                onChange={(e) => setCheckpointName(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') handleSaveCheckpoint() }}
+              />
+            </DialogContent>
+            <DialogActions sx={{ px: 2, pb: 2 }}>
+              <Button onClick={() => setCheckpointDialogOpen(false)}>{zh ? '取消' : 'Cancel'}</Button>
+              <Button variant="contained" onClick={handleSaveCheckpoint} startIcon={<SaveIcon fontSize="small" />}>
+                {zh ? '保存' : 'Save'}
+              </Button>
+            </DialogActions>
+          </Dialog>
 
           {/* ── Live stats ── */}
           {liveStats && (
