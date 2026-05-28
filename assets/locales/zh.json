@@ -889,6 +889,7 @@
     "no_saved_games": "暂无保存的游戏",
     "games": "总局数",
     "g": "善%",
+    "games_g": "局",
     "countdown_settings": "倒计时设置",
     "upload_custom_sound": "上传自定义音效",
     "default_bgm": "背景音乐默认",

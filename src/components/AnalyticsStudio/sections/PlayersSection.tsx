@@ -307,9 +307,11 @@ export function PlayersSection({ playerStats, language, records }: Props) {
                 </TableSortLabel>
               </TableCell>
               <TableCell sx={{ ...thSx, width: 60, display: { xs: 'none', sm: 'table-cell' } }} align="center">
-                <TableSortLabel active={sortKey === 'total'} direction={sortKey === 'total' ? sortDir : 'desc'} onClick={() => handleSort('total')}>
-                  {t('g')}
-                </TableSortLabel>
+                <Tooltip title={t('games')}>
+                  <TableSortLabel active={sortKey === 'total'} direction={sortKey === 'total' ? sortDir : 'desc'} onClick={() => handleSort('total')}>
+                    {t('games_g')}
+                  </TableSortLabel>
+                </Tooltip>
               </TableCell>
               <TableCell sx={{ ...thSx, width: 70 }} align="center">
                 <TableSortLabel active={sortKey === 'winRate'} direction={sortKey === 'winRate' ? sortDir : 'desc'} onClick={() => handleSort('winRate')}>
