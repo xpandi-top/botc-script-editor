@@ -194,7 +194,7 @@ function ScriptCard({ stat, records, language }: { stat: ScriptStat; records: Ga
       <Box sx={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 0.5, mb: 1 }}>
         <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>{stat.title}</Typography>
         <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
-          <Chip size="small" label={`${stat.total}${t('g')}`} />
+          <Chip size="small" label={`${stat.total}${t('games_g')}`} />
           <Chip size="small" label={`E:${stat.evil}`} sx={{ bgcolor: 'rgba(185,28,28,0.12)', color: 'error.dark' }} />
           <Chip size="small" label={`G:${stat.good}`} sx={{ bgcolor: 'rgba(46,125,50,0.12)', color: 'success.dark' }} />
           {stWin > 0 && <Chip size="small" label={`ST:${stWin}`} sx={{ bgcolor: 'rgba(106,27,154,0.12)', color: 'purple' }} />}

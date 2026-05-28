@@ -383,7 +383,7 @@ export function PlayersSection({ playerStats, language, records }: Props) {
                           </Typography>
                           {/* game count embedded on xs when 局 column is hidden */}
                           <Typography component="span" sx={{ display: { xs: 'inline', sm: 'none' }, fontSize: '0.7rem', color: 'text.secondary', flexShrink: 0 }}>
-                            {p.total}{t('g')}
+                            {p.total}{t('games_g')}
                           </Typography>
                           {p.mvpCount > 0 && (
                             <Tooltip title={`MVP ×${p.mvpCount}`}>

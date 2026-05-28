@@ -890,6 +890,8 @@
     "games": "总局数",
     "g": "善%",
     "games_g": "局",
+    "good_abbrev": "善",
+    "evil_abbrev": "邪",
     "countdown_settings": "倒计时设置",
     "upload_custom_sound": "上传自定义音效",
     "default_bgm": "背景音乐默认",

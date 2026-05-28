@@ -51,8 +51,8 @@ function WinBalanceMeter({ kpi }: { kpi: KpiSummary }) {
         )}
       </Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.5 }}>
-        <Typography variant="caption" color="text.disabled">{kpi.evilWins}{t('g')}</Typography>
-        <Typography variant="caption" color="text.disabled">{kpi.goodWins}{t('g')}</Typography>
+        <Typography variant="caption" color="text.disabled">{kpi.evilWins}{t('games_g')}</Typography>
+        <Typography variant="caption" color="text.disabled">{kpi.goodWins}{t('games_g')}</Typography>
       </Box>
     </Box>
   )
@@ -459,7 +459,7 @@ export function OverviewSection({ kpi, scriptStats, playerStats, charStats, stor
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.25 }}>
                     <Typography variant="body2" sx={{ fontWeight: 600 }}>{s.title}</Typography>
                     <Typography variant="caption" color="text.secondary">
-                      {s.total}{t('g')} · E:{s.evil} G:{s.good}{stWin > 0 ? ` ST:${stWin}` : ''}
+                      {s.total}{t('games_g')} · E:{s.evil} G:{s.good}{stWin > 0 ? ` ST:${stWin}` : ''}
                     </Typography>
                   </Box>
                   <Box sx={{ display: 'flex', height: 6, borderRadius: 1, overflow: 'hidden', gap: '1px' }}>
@@ -489,7 +489,7 @@ export function OverviewSection({ kpi, scriptStats, playerStats, charStats, stor
                 <Typography sx={{ fontWeight: 700, color: 'text.secondary', fontSize: '0.8rem', width: 18, flexShrink: 0 }}>#{idx + 1}</Typography>
                 <Box>
                   <Typography variant="body2" sx={{ fontWeight: 700, lineHeight: 1.2 }}>{p.name}</Typography>
-                  <Typography variant="caption" color="text.secondary">{p.winRate}%{t('win_short')} · {p.total}{t('g')}</Typography>
+                  <Typography variant="caption" color="text.secondary">{p.winRate}%{t('win_short')} · {p.total}{t('games_g')}</Typography>
                 </Box>
               </Box>
             ))}
@@ -515,7 +515,7 @@ export function OverviewSection({ kpi, scriptStats, playerStats, charStats, stor
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.25 }}>
                       <Typography variant="body2" sx={{ fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{st.name}</Typography>
                       <Typography variant="caption" color="text.secondary" sx={{ flexShrink: 0, ml: 1 }}>
-                        {st.total}{t('g')} · {st.scripts.size}{t('scripts')}
+                        {st.total}{t('games_g')} · {st.scripts.size}{t('scripts')}
                       </Typography>
                     </Box>
                     <Tooltip title={`E:${st.evil} G:${st.good}${st.st > 0 ? ` ST:${st.st}` : ''}`}>

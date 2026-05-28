@@ -106,7 +106,7 @@ function CharDetail({ stat, records }: { stat: CharStat; records: GameRecord[]; 
                   <Typography variant="caption" sx={{ flex: 1 }}>{r.recordName || r.scriptTitle || '?'}</Typography>
                   {playerName && <Typography variant="caption" color="text.secondary">{playerName}</Typography>}
                   <Chip size="small"
-                    label={r.winner === 'evil' ? (t('e')) : r.winner === 'good' ? (t('g')) : r.winner === 'storyteller' ? 'ST' : '?'}
+                    label={r.winner === 'evil' ? (t('evil_abbrev')) : r.winner === 'good' ? (t('good_abbrev')) : r.winner === 'storyteller' ? 'ST' : '?'}
                     color={r.winner === 'evil' ? 'error' : r.winner === 'good' ? 'success' : r.winner === 'storyteller' ? 'info' : 'default'}
                     sx={{ fontSize: '0.6rem', height: 18 }} />
                   <Typography variant="caption" color="text.disabled">{new Date(r.endedAt).toLocaleDateString()}</Typography>
@@ -169,7 +169,7 @@ function CharCard({ stat, language, records, zh }: { stat: CharStat; language: L
             </Typography>
           </Box>
           <Typography variant="caption" color="text.secondary">
-            {stat.total}{t('g')} · {stat.winRate}%{t('win_short')}
+            {stat.total}{t('games_g')} · {stat.winRate}%{t('win_short')}
             {isEvil ? (stat.evilGames > 0 ? ` · E:${stat.evilGames}` : '') : (stat.goodGames > 0 ? ` · G:${stat.goodGames}` : '')}
           </Typography>
           {/* Win bar */}

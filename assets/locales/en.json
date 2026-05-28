@@ -890,6 +890,8 @@
     "games": "Games",
     "g": "G%",
     "games_g": "G",
+    "good_abbrev": "G",
+    "evil_abbrev": "E",
     "countdown_settings": "Countdown Settings",
     "upload_custom_sound": "Upload Custom Sound",
     "default_bgm": "Default BGM",
