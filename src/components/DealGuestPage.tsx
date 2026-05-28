@@ -45,6 +45,7 @@ export function DealGuestPage({ sessionId, language }: Props) {
   const [state, setState] = useState<PageState>({ kind: 'loading' })
   const [displayName, setDisplayName] = useState('')
   const [claimedSeat, setClaimedSeat] = useState('')
+  const [submitted, setSubmitted] = useState(false)
   const { t } = useT()
   const tpl = makeTpl(language)
 
@@ -74,6 +75,8 @@ export function DealGuestPage({ sessionId, language }: Props) {
 
   const handleStartPicking = () => {
     if (state.kind !== 'name') return
+    setSubmitted(true)
+    if (!displayName.trim() || !claimedSeat.trim()) return
     setState({ kind: 'grid', session: state.session, cards: state.cards, claiming: null })
   }
 
@@ -211,19 +214,25 @@ export function DealGuestPage({ sessionId, language }: Props) {
         <TextField
           size="small"
           fullWidth
-          label={t('your_name_optional')}
+          required
+          label={t('player_name')}
           value={displayName}
-          onChange={e => setDisplayName(e.target.value)}
+          onChange={e => { setDisplayName(e.target.value); setSubmitted(false) }}
           onKeyDown={e => { if (e.key === 'Enter') handleStartPicking() }}
+          error={submitted && !displayName.trim()}
+          helperText={submitted && !displayName.trim() ? t('field_required') : undefined}
           sx={{ maxWidth: 300, mb: 1.5 }}
         />
         <TextField
           size="small"
           fullWidth
-          label={t('seat_optional')}
+          required
+          label={t('seat')}
           value={claimedSeat}
-          onChange={e => setClaimedSeat(e.target.value.replace(/\D/g, ''))}
+          onChange={e => { setClaimedSeat(e.target.value.replace(/\D/g, '')); setSubmitted(false) }}
           onKeyDown={e => { if (e.key === 'Enter') handleStartPicking() }}
+          error={submitted && !claimedSeat.trim()}
+          helperText={submitted && !claimedSeat.trim() ? t('field_required') : undefined}
           sx={{ maxWidth: 300, mb: 2 }}
           slotProps={{ htmlInput: { inputMode: 'numeric', pattern: '[0-9]*' } }}
         />

@@ -1167,6 +1167,7 @@
     "vote_label": "vote",
     "next_day_label": "Next day",
     "no_game_active": "No game in progress",
-    "tap_menu_to_start": "Tap ☰ to start a new game"
+    "tap_menu_to_start": "Tap ☰ to start a new game",
+    "field_required": "Required"
   }
 }
