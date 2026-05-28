@@ -45,6 +45,7 @@ export type NewGameConfig = {
   fabledIds?: string[] // fabled + loric character IDs active for this game
   editMode?: boolean // true when editing existing game setup
   applyNamesToAllDays?: boolean // propagate seatNames changes to all days
+  gameId?: string  // stable ID linking this setup to a deal session
 }
 
 export type EndGameResult = {
@@ -263,6 +264,7 @@ export type PersistedState = {
   stCustomRules?: string
   stName?: string
   gameStartedAt?: number
+  gameId?: string  // stable ID linking current game to its deal session
 }
 
 export type DialogState =

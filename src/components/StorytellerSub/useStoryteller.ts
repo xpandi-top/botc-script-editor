@@ -38,6 +38,7 @@ export function useStoryteller(props: StorytellerHelperProps) {
     try { return localStorage.getItem(DEFAULT_ST_NAME_KEY) ?? '' } catch { return '' }
   })
   const [gameStartedAt, setGameStartedAt] = useState<number | undefined>(initial.gameStartedAt)
+  const [gameId, setGameId] = useState<string | undefined>(initial.gameId)
 
   // ── Runtime state ──
   const [pickerMode, setPickerMode] = useState<PickerMode>('none')
@@ -165,9 +166,9 @@ export function useStoryteller(props: StorytellerHelperProps) {
 
   // ── Effects ──
   useEffect(() => {
-    const toSave = { selectedDayId, timerDefaults, days, customTagPool, gameRecords, playerNamePool, activeScriptSlug, activeScriptTitle, stFabledIds, stCustomRules, stName, gameStartedAt }
+    const toSave = { selectedDayId, timerDefaults, days, customTagPool, gameRecords, playerNamePool, activeScriptSlug, activeScriptTitle, stFabledIds, stCustomRules, stName, gameStartedAt, gameId }
     storageSync.setItem(STORAGE_KEY, JSON.stringify(toSave satisfies PersistedState))
-  }, [customTagPool, days, gameRecords, playerNamePool, selectedDayId, timerDefaults, activeScriptSlug, activeScriptTitle, stFabledIds, stCustomRules, stName, gameStartedAt])
+  }, [customTagPool, days, gameRecords, playerNamePool, selectedDayId, timerDefaults, activeScriptSlug, activeScriptTitle, stFabledIds, stCustomRules, stName, gameStartedAt, gameId])
 
   // Sync records mutated by the Analytics tab (different React tree, same localStorage)
   useEffect(() => {
@@ -203,7 +204,7 @@ export function useStoryteller(props: StorytellerHelperProps) {
   // ── Domain actions ──
   const gameActions = buildGameActions({ currentDay, timerDefaults, requiredVotes: effectiveRequiredVotes, draftPassed, isTimerRunning, skillOverlay, seatTagDrafts, updateCurrentDay, updateCurrentDayWithUndo, appendEvent, setPickerMode, setIsTimerRunning, setSkillOverlay, setSkillPopoutSeat: ui.setSkillPopoutSeat, setTagPopoutSeat: ui.setTagPopoutSeat, setSkillRoleDropdownOpen: ui.setSkillRoleDropdownOpen, setShowNominationSheet: ui.setShowNominationSheet, setCustomTagPool, setSeatTagDrafts, text, language })
 
-  const lifecycle = buildGameLifecycle({ days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, activeScriptVersion, endGameResult, scriptOptions, onSelectScript, setDays, setDaysWithUndo, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay: (v) => setSkillOverlay(v), setNewGamePanel, setShowNewGamePanel, setEndGameResult, setGameRecords, setSelectedAudioSrc: audio.setSelectedAudioSrc, setAudioPlaying: audio.setAudioPlaying, nightBgmSrc: NIGHT_BGM_SRC, language, appendEvent, customTagPool, playerNamePool, setCurrentRecordName, setTimerDefaults, setCustomTagPool, setPlayerNamePool, setShowEndGameModal, setNightShowCharacter: ui.setNightShowCharacter, setNightShowWakeOrder: ui.setNightShowWakeOrder, stFabledIds, stCustomRules, setStFabledIds, setStCustomRules, stName, setStName, gameStartedAt, setGameStartedAt, setShowSaveBeforeNewGame, setPendingNewGameAfterSave })
+  const lifecycle = buildGameLifecycle({ days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, activeScriptVersion, endGameResult, scriptOptions, onSelectScript, setDays, setDaysWithUndo, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay: (v) => setSkillOverlay(v), setNewGamePanel, setShowNewGamePanel, setEndGameResult, setGameRecords, setSelectedAudioSrc: audio.setSelectedAudioSrc, setAudioPlaying: audio.setAudioPlaying, nightBgmSrc: NIGHT_BGM_SRC, language, appendEvent, customTagPool, playerNamePool, setCurrentRecordName, setTimerDefaults, setCustomTagPool, setPlayerNamePool, setShowEndGameModal, setNightShowCharacter: ui.setNightShowCharacter, setNightShowWakeOrder: ui.setNightShowWakeOrder, stFabledIds, stCustomRules, setStFabledIds, setStCustomRules, stName, setStName, gameStartedAt, setGameStartedAt, gameId, setGameId, setShowSaveBeforeNewGame, setPendingNewGameAfterSave })
 
   function clearUnusedCustomTags() {
     const usedTags = new Set(days.flatMap((d) => d.seats.flatMap((s) => s.customTags)))

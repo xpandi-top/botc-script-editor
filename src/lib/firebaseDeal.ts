@@ -97,6 +97,9 @@ export const HOST_TOKEN_KEY = (id: string) => `botc-deal-host-${id}`
 // localStorage key for the ST's most recently created host dashboard session
 export const ACTIVE_HOST_DEAL_KEY = 'botc-deal-active-host'
 
+// localStorage key for deal session linked to a specific game instance
+export const GAME_DEAL_KEY = (gameId: string) => `botc-deal-game-${gameId}`
+
 // sessionStorage key for the guest's browser token
 export const GUEST_TOKEN_KEY = 'botc-deal-guest-token'
 

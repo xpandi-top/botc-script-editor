@@ -49,12 +49,19 @@ interface LifecycleDeps {
   setStName?: (v: string) => void
   gameStartedAt?: number
   setGameStartedAt?: (v: number | undefined) => void
+  gameId?: string
+  setGameId?: (v: string) => void
   setShowSaveBeforeNewGame?: (v: boolean) => void
   setPendingNewGameAfterSave?: (v: boolean) => void
 }
 
+const _CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789'
+function _genGameId(): string {
+  return Array.from({ length: 16 }, () => _CHARS[Math.floor(Math.random() * _CHARS.length)]).join('')
+}
+
 export function buildGameLifecycle(deps: LifecycleDeps) {
-  const { days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, activeScriptVersion, endGameResult, scriptOptions, onSelectScript, setDays, setDaysWithUndo, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay, setNewGamePanel, setShowNewGamePanel, setEndGameResult, setGameRecords, setAudioPlaying, language, appendEvent, customTagPool = [], playerNamePool = [], setCurrentRecordName, setTimerDefaults, setCustomTagPool, setPlayerNamePool, setShowEndGameModal, setNightShowCharacter, setNightShowWakeOrder, stFabledIds = [], stCustomRules = '', setStFabledIds, setStCustomRules, stName, setStName, gameStartedAt, setGameStartedAt, setShowSaveBeforeNewGame, setPendingNewGameAfterSave } = deps
+  const { days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, activeScriptVersion, endGameResult, scriptOptions, onSelectScript, setDays, setDaysWithUndo, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay, setNewGamePanel, setShowNewGamePanel, setEndGameResult, setGameRecords, setAudioPlaying, language, appendEvent, customTagPool = [], playerNamePool = [], setCurrentRecordName, setTimerDefaults, setCustomTagPool, setPlayerNamePool, setShowEndGameModal, setNightShowCharacter, setNightShowWakeOrder, stFabledIds = [], stCustomRules = '', setStFabledIds, setStCustomRules, stName, setStName, gameStartedAt, setGameStartedAt, gameId, setGameId, setShowSaveBeforeNewGame, setPendingNewGameAfterSave } = deps
 
   const exportActions = buildGameExport({ days, currentDay, activeScriptSlug, activeScriptTitle, activeScriptVersion, endGameResult, timerDefaults, customTagPool, playerNamePool, stFabledIds, stCustomRules, setGameRecords, setCurrentRecordName, gameStartedAt, stName })
 
@@ -180,7 +187,7 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     }
     const currentPlayerCount = currentDay?.seats ? currentDay.seats.filter((s) => !s.isTraveler).length : 9
     const currentTravelerCount = currentDay?.seats ? currentDay.seats.filter((s) => s.isTraveler).length : 0
-    const freshConfig: NewGameConfig = { playerCount: currentPlayerCount || 9, travelerCount: currentTravelerCount, scriptSlug: slug, seatNames: inheritedNames, assignments: {}, userAssignments: {}, travelerAssignments: {}, seatNotes: {}, specialNote: '', demonBluffs: [], charPool: [], fabledIds: [...(stFabledIds ?? [])] }
+    const freshConfig: NewGameConfig = { playerCount: currentPlayerCount || 9, travelerCount: currentTravelerCount, scriptSlug: slug, seatNames: inheritedNames, assignments: {}, userAssignments: {}, travelerAssignments: {}, seatNotes: {}, specialNote: '', demonBluffs: [], charPool: [], fabledIds: [...(stFabledIds ?? [])], gameId: _genGameId() }
     // Preserve existing draft so close → reopen restores in-progress config
     setNewGamePanel((prev) => prev ?? freshConfig)
     setShowNewGamePanel?.(true)
@@ -204,6 +211,7 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
       charPool: [],
       fabledIds: [...(stFabledIds ?? [])],
       editMode: true,
+      gameId,  // carry current game's ID so deal session lookup works in CharactersTab
     })
     setShowNewGamePanel?.(true)
   }
@@ -286,6 +294,7 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     setStFabledIds?.(newGamePanel.fabledIds ?? [])
     setStCustomRules?.('')
     setGameStartedAt?.(Date.now())
+    if (newGamePanel.gameId) setGameId?.(newGamePanel.gameId)
   }
 
   function applyGameChanges(newGamePanel: NewGameConfig) {

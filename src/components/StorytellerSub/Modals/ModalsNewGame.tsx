@@ -222,6 +222,7 @@ export function ModalsNewGame({ ctx }: { ctx: StorytellerContext }) {
             randomAssignCharacters={randomAssignCharacters}
             activeDealSession={activeDealSession}
             lastDealSession={lastDealSession}
+            gameId={newGamePanel?.gameId}
             onDealCreated={(sessionId, hostToken) => {
               const session = { sessionId, hostToken }
               setLastDealSession(session)

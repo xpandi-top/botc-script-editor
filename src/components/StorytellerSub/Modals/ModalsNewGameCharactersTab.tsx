@@ -13,7 +13,7 @@ import { characterById, getCharacterById, allCharacters, getDisplayName, getIcon
 import { makeT, makeTpl } from '../../../lib/t'
 import { CHARACTER_DISTRIBUTION } from '../constants'
 import { CharSelect, TeamDot, DistRow } from './ModalsNewGameHelpers'
-import { createDealSession, shuffleDealCards, HOST_TOKEN_KEY, ACTIVE_HOST_DEAL_KEY } from '../../../lib/firebaseDeal'
+import { createDealSession, shuffleDealCards, HOST_TOKEN_KEY, ACTIVE_HOST_DEAL_KEY, GAME_DEAL_KEY } from '../../../lib/firebaseDeal'
 import { MonoText } from '../../../components/ui'
 
 const TEAM_ORDER = ['townsfolk', 'outsider', 'minion', 'demon'] as const
@@ -27,6 +27,7 @@ type Props = {
   randomAssignCharacters: (config: any) => Record<number, string>
   activeDealSession?: { sessionId: string; hostToken: string } | null
   lastDealSession?: { sessionId: string; hostToken: string } | null
+  gameId?: string
   onDealCreated?: (sessionId: string, hostToken: string) => void
   onDealOpen?: (sessionId: string, hostToken: string) => void
 }
@@ -108,12 +109,15 @@ function CharPoolPicker({ scriptChars, selected, onChange, language }: {
 const TRAVELER_CHARS = allCharacters.filter((c) => c.team === 'traveler').map((c) => c.id)
 
 // ── Main tab ──────────────────────────────────────────────────────────────────
-export function CharactersTab({ newGamePanel, scriptOptions = [], language, updateConfig, randomAssignCharacters, activeDealSession, lastDealSession, onDealCreated, onDealOpen }: Props) {
+export function CharactersTab({ newGamePanel, scriptOptions = [], language, updateConfig, randomAssignCharacters, activeDealSession, lastDealSession, gameId: gameIdProp, onDealCreated, onDealOpen }: Props) {
   const zh = language === 'zh'
   const t = makeT(language)
   const tpl = makeTpl(language)
   const [poolOpen, setPoolOpen] = useState(false)
   const [dealing, setDealing] = useState(false)
+
+  // Resolve gameId from prop or newGamePanel (edit-mode carries it in newGamePanel.gameId)
+  const gameId = gameIdProp ?? newGamePanel?.gameId ?? null
 
   const handleDealCards = async () => {
     // Collect assigned character IDs (may be partial — just deal what's assigned)
@@ -126,6 +130,11 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
       const { sessionId, hostToken } = await createDealSession(shuffled)
       // Persist host token so deal page can verify without ?host= param
       try { localStorage.setItem(HOST_TOKEN_KEY(sessionId), hostToken) } catch {}
+      // Save deal keyed to this specific game so other games don't see it
+      if (gameId) {
+        try { localStorage.setItem(GAME_DEAL_KEY(gameId), JSON.stringify({ sessionId, hostToken })) } catch {}
+      }
+      // Also save to global key for backward compat with old installs
       try { localStorage.setItem(ACTIVE_HOST_DEAL_KEY, JSON.stringify({ sessionId, hostToken })) } catch {}
       updateConfig({ activeDealSession: { sessionId, hostToken } })
       // Hand off to parent — shown as overlay dialog (no new tab, no state loss)
@@ -142,7 +151,20 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
 
   const calcDist = CHARACTER_DISTRIBUTION[newGamePanel?.playerCount] ?? { townsfolk: 0, outsider: 0, minion: 0, demon: 0 }
   const charPool: string[] = newGamePanel?.charPool ?? []
-  const existingDealSession = lastDealSession ?? activeDealSession ?? newGamePanel?.activeDealSession ?? null
+
+  // Per-game deal lookup: if gameId known, only show deals belonging to THIS game.
+  // Falls back to lastDealSession (global key) for backward compat with old installs.
+  const storedGameDeal = useMemo(() => {
+    if (gameId) {
+      try {
+        const raw = localStorage.getItem(GAME_DEAL_KEY(gameId))
+        if (raw) return JSON.parse(raw) as { sessionId: string; hostToken: string }
+      } catch {}
+    }
+    return null
+  }, [gameId])
+
+  const existingDealSession = storedGameDeal ?? activeDealSession ?? (gameId ? null : lastDealSession) ?? newGamePanel?.activeDealSession ?? null
 
   const actCounts = useMemo(() => {
     const c = { townsfolk: 0, outsider: 0, minion: 0, demon: 0 }
