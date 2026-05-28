@@ -4,7 +4,34 @@ Release timeline for BOTC Companion — features, fixes, and improvements.
 
 ---
 
-## 2026-05-28 (latest)
+## 2026-05-28 — Communication Board + Rectangle Token (latest)
+
+### Added
+- **Communication Board** — new fullscreen dialog accessible from the day-navigation controls (← Day N → 💬); designed for silent ST-to-player communication during night phases
+  - **Text board** — whiteboard-style large-text display; auto-scales font (56 px → 24 px) based on content length
+  - **Draw board** — freehand canvas with pen / eraser tools, 8 color swatches + custom color picker, stroke-size slider, 20-step undo, clear button; DPR-aware for crisp Retina / mobile rendering
+  - **19 predefined phrase chips** (EN + ZH): _Use Your Ability Tonight?_, _Meet Your Fellow Minions_, _You are Good / Evil_, _Same / Different Alignment_, _Characters are in play / NOT in play_, _Choose N Players / Characters_, _You are [Character]_, _This Character is [Character]_, _I made a mistake_, _Wake up_, _Go to sleep_, _Shake your head Yes / No_, and more
+  - **Parameterized phrases** — number phrases show ±1 stepper (1–20); character phrases show single-select Autocomplete; multi-character phrases show multi-select Autocomplete with icon thumbnails
+  - **Custom text input** — Enter key or Add button appends freeform text to board
+  - Dialog renders at `zIndex: 1400` (fullscreen, covers ST board entirely); Autocomplete poppers at `zIndex: 1500` to stay visible above dialog
+- **Print Studio — Rectangle token shape** — new `rectangle` shape option alongside circle / hexagon / square
+  - Configurable card width (40–150 mm) and height (15–80 mm) via sliders
+  - Icon occupies a square region equal to card height; positioned left or right (toggle)
+  - Remaining space shows character name + ability text in a `foreignObject` text area
+  - All existing options (background, border, watermark, name/ability display, B&W, wake indicators) work identically to other shapes
+  - Grid layout recalculates per-page token count using card dimensions
+
+### Fixed
+- **Communication Board — Autocomplete dropdown invisible** — popper `zIndex` raised to 1500; previously the MUI default (1300) rendered the dropdown behind the fullscreen dialog (1400)
+
+### Tests
+- **62 new render tests** across two new test files:
+  - `communicationBoard.test.tsx` — 35 tests: import sanity, closed state, desktop + mobile (EN + ZH), phrase interactions (plain / number / character / multi-char), custom input, draw tab canvas, close button
+  - `rectangleToken.test.tsx` — 27 tests: `SingleToken` SVG output for all rect configs (icon position, name modes, ability modes, sizes, overrideLabel), `TokenOptionsPanel` shows Width/Height sliders for rectangle and Diameter slider for circle, desktop + mobile viewports
+
+---
+
+## 2026-05-28
 
 ### Added
 - **Card Deal — QR code for share link** — host dashboard now shows a QR code dialog for the deal share URL; supports Copy link and Download PNG buttons
