@@ -8,14 +8,16 @@
  * - "Apply to Game" → patches NewGameConfig with seatNames + assignments
  * - Copy share link + close session
  */
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import {
-  Box, Button, Chip, CircularProgress, Divider, IconButton,
-  Paper, TextField, Tooltip, Typography,
+  Box, Button, Chip, CircularProgress, Divider, Dialog, DialogTitle,
+  DialogContent, IconButton, Paper, TextField, Tooltip, Typography,
 } from '@mui/material'
 import CheckIcon from '@mui/icons-material/Check'
 import CloseIcon from '@mui/icons-material/Close'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
+import QrCode2Icon from '@mui/icons-material/QrCode2'
+import DownloadIcon from '@mui/icons-material/Download'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
@@ -38,6 +40,7 @@ import { getDisplayName, getIconForCharacter } from '../catalog'
 import type { NewGameConfig } from './StorytellerSub/types'
 import { useT } from '../context/I18nContext'
 import { makeTpl } from '../lib/t'
+import { buildShareUrl } from '../lib/shareUrl'
 
 interface Props {
   sessionId: string
@@ -61,6 +64,8 @@ export function DealHostPage({ sessionId, hostToken, language, onApplyToGame, on
   const [saving, setSaving] = useState(false)
   const [copied, setCopied] = useState(false)
   const [closing, setClosing] = useState(false)
+  const [qrOpen, setQrOpen] = useState(false)
+  const qrCanvasRef = useRef<HTMLCanvasElement>(null)
 
   const { t } = useT()
   const tpl = makeTpl(language)
@@ -93,7 +98,7 @@ export function DealHostPage({ sessionId, hostToken, language, onApplyToGame, on
   const claimedCount = cards.filter(c => c.claimedByToken !== null).length
   const totalCount   = session?.cardCount ?? cards.length
 
-  const shareUrl = `${window.location.origin}${window.location.pathname}?deal=${sessionId}`
+  const shareUrl = buildShareUrl('deal', sessionId)
 
   const handleCopyLink = async () => {
     try {
@@ -103,6 +108,30 @@ export function DealHostPage({ sessionId, hostToken, language, onApplyToGame, on
     } catch {
       // fallback — select text from a temp input
     }
+  }
+
+  // Generate QR code onto canvas whenever dialog opens
+  useEffect(() => {
+    if (!qrOpen) return
+    let cancelled = false
+    import('qrcode').then(({ default: QRCode }) => {
+      if (cancelled || !qrCanvasRef.current) return
+      QRCode.toCanvas(qrCanvasRef.current, shareUrl, {
+        width: 280,
+        margin: 2,
+        color: { dark: '#1a1008', light: '#f6f1e7' },
+      })
+    })
+    return () => { cancelled = true }
+  }, [qrOpen, shareUrl])
+
+  const handleDownloadQr = () => {
+    const canvas = qrCanvasRef.current
+    if (!canvas) return
+    const a = document.createElement('a')
+    a.href = canvas.toDataURL('image/png')
+    a.download = `deal-${sessionId}.png`
+    a.click()
   }
 
   const handleSaveAssignment = useCallback(async () => {
@@ -213,6 +242,11 @@ export function DealHostPage({ sessionId, hostToken, language, onApplyToGame, on
           <Button size="small" startIcon={<ContentCopyIcon />} onClick={handleCopyLink} variant="outlined">
             {copied ? (t('copied')) : (t('copy_link'))}
           </Button>
+        </Tooltip>
+        <Tooltip title="QR Code">
+          <IconButton size="small" onClick={() => setQrOpen(true)}>
+            <QrCode2Icon />
+          </IconButton>
         </Tooltip>
         <Tooltip title={showFaceUp ? (t('hide_characters')) : (t('show_characters'))}>
           <IconButton size="small" onClick={() => setShowFaceUp(v => !v)}>
@@ -391,6 +425,29 @@ export function DealHostPage({ sessionId, hostToken, language, onApplyToGame, on
           </Box>
         </>
       )}
+      {/* QR Code dialog */}
+      <Dialog open={qrOpen} onClose={() => setQrOpen(false)} maxWidth="xs" fullWidth>
+        <DialogTitle>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Typography sx={{ fontWeight: 700 }}>QR Code</Typography>
+            <IconButton size="small" onClick={() => setQrOpen(false)}><CloseIcon /></IconButton>
+          </Box>
+        </DialogTitle>
+        <DialogContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, pb: 3 }}>
+          <canvas ref={qrCanvasRef} style={{ borderRadius: 8, maxWidth: '100%' }} />
+          <Typography variant="caption" sx={{ color: 'text.secondary', wordBreak: 'break-all', textAlign: 'center' }}>
+            {shareUrl}
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Button size="small" variant="outlined" startIcon={<ContentCopyIcon />} onClick={handleCopyLink}>
+              {copied ? t('copied') : t('copy_link')}
+            </Button>
+            <Button size="small" variant="contained" startIcon={<DownloadIcon />} onClick={handleDownloadQr}>
+              Download
+            </Button>
+          </Box>
+        </DialogContent>
+      </Dialog>
     </Box>
   )
 }

@@ -80,25 +80,50 @@ export async function decodeShareParam<T>(param: string): Promise<T> {
 }
 
 /**
- * True when running on localhost / loopback — short links are useless here
- * because recipients can't reach the local dev server.
+ * True when running on localhost / loopback or a non-web native origin
+ * (capacitor://, file://) — share links built from these origins won't work
+ * for recipients unless VITE_APP_URL is set.
  */
 export function isLocalhost(): boolean {
   const h = window.location.hostname
   return h === 'localhost' || h === '127.0.0.1' || h === '::1' || h === ''
 }
 
+/** True when running inside a Capacitor or Electron native shell. */
+function isNativeOrigin(): boolean {
+  const proto = window.location.protocol
+  const h = window.location.hostname
+  // capacitor:// (Android/iOS), file:// (Electron), app:// (some Electron setups)
+  return proto === 'capacitor:' || proto === 'file:' || proto === 'app:' || h === 'localhost'
+}
+
 /**
  * Build a full shareable URL pointing at the app with the given param.
- * Uses VITE_APP_URL if set (preferred for production short links),
- * otherwise falls back to window.location.origin.
+ * Priority:
+ *   1. VITE_APP_URL env var (set in .env.production and .env.native)
+ *   2. window.location.origin if it's a real https/http host
+ *   3. Falls back to a relative-path URL (avoids leaking localhost/capacitor)
  */
 export function buildShareUrl(paramName: string, encoded: string, hash?: string): string {
   const appUrl = (import.meta.env.VITE_APP_URL as string | undefined)?.replace(/\/$/, '')
-  // window.location.origin can be "null" for file:// or capacitor:// origins.
-  // In that case fall back to a relative URL so the function never throws.
-  const rawBase = appUrl ?? window.location.origin
-  const base = rawBase === 'null' || !rawBase ? window.location.href.split('?')[0] : rawBase + window.location.pathname
+  const origin = window.location.origin  // can be "null" for file:// origins
+
+  // Resolve base: prefer explicit VITE_APP_URL, then real web origin.
+  // If on a native shell with no VITE_APP_URL set, origin is unusable for
+  // recipients (localhost / capacitor://localhost / "null") — fall back to
+  // relative path only (best-effort; VITE_APP_URL should always be set for
+  // native builds via .env.native).
+  let base: string
+  if (appUrl) {
+    base = appUrl + window.location.pathname
+  } else if (origin && origin !== 'null' && !isNativeOrigin()) {
+    base = origin + window.location.pathname
+  } else {
+    // Last resort: relative URL (won't be shareable externally, but won't produce
+    // a visibly wrong "localhost" link either)
+    base = window.location.href.split('?')[0]
+  }
+
   const url = new URL(base)
   url.searchParams.set(paramName, encoded)
   return url.toString() + (hash ? '#' + hash : '')
