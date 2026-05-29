@@ -8,7 +8,7 @@ This plan is intentionally behavior-preserving. Each item should land behind exi
 
 - Source size is concentrated in a few large modules: `ArenaSeatPlayerModal.tsx` (1325 lines), `catalog.ts` (1124), `App.tsx` (1105), `CharactersTab.tsx` (1098), `lib/ai/skills.ts` (918).
 - Production build passes, but warns about large chunks. Current notable chunks: main `index` 1228.62 kB min / 337.34 kB gzip, `vendor` 643.88 kB / 197.79 kB, `jspdf` 390.65 kB / 127.33 kB, `html2canvas` 202.38 kB / 47.71 kB.
-- PWA precache currently includes 291 entries / 43.7 MiB. Large static assets include 4 MB Chinese fonts, 4-7 MB SVG backgrounds, duplicated audio under `audio/` and `public/audio/`, and several large PDFs under ignored `assets/pdfs/`.
+- PWA precache currently includes 291 entries / 43.7 MiB. Large static assets include 4 MB Chinese fonts, 4-7 MB SVG backgrounds, audio under `public/audio/`, and several large PDFs under ignored `assets/pdfs/`.
 - Security posture is partially hardened: DOMPurify is used for ability HTML; Electron has `nodeIntegration: false`, `contextIsolation: true`, and external-link handling. Remaining risks are client-side secrets, token storage, broad localStorage usage, and Electron URL validation.
 - Test coverage exists across unit/render/e2e, including mobile analytics E2E. Multi-platform build scripts exist for web, native, Android, and Electron.
 - `i18n` now has terminology guardrails via `assets/locales/terminology.json` and `npm run i18n:check:strict`.
@@ -101,7 +101,7 @@ Acceptance:
 3. Optimize static assets:
    - Replace oversized SVG backgrounds with optimized raster/WebP/AVIF or compressed SVG variants.
    - Subset or lazy-load large Chinese fonts (`xinwei`, `xingkai`) instead of shipping both up front.
-   - Decide whether `audio/` duplicates `public/audio/`; keep one runtime source.
+   - Keep `public/audio/` as the single runtime source for built-in audio.
    - Keep `assets/pdfs/` ignored and out of web/PWA bundles unless a feature explicitly serves them.
 4. Reduce PWA precache size:
    - Precache only shell-critical assets.
@@ -162,7 +162,7 @@ Acceptance:
 3. Remove stale compatibility modules:
    - `src/i18n/index.ts` appears unused after migration to `lib/t.ts`; verify with imports and remove only if no external tooling depends on it.
 4. Consolidate duplicated public assets:
-   - Compare `audio/` and `public/audio/`; remove one source or document why both are required.
+   - `public/audio/` is the runtime source for built-in BGM and alarm sounds.
    - Keep source assets out of `public/` unless the runtime fetches them directly.
 5. Archive policy:
    - Keep `docs/archive/` for historically useful design notes.
