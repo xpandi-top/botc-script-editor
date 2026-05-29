@@ -104,13 +104,13 @@ function serializeCharacterForPrompt(input: CharacterInput, language: Language):
     lines.push('')
     lines.push(t('night_info'))
     if (filled(input.firstNight))
-      lines.push(`${t('first_night_order')}: ${input.firstNight}`)
+      lines.push(`${t('first_night_order_label')}: ${input.firstNight}`)
     if (filled(input.firstNightReminder))
-      lines.push(`${t('first_night_reminder_2')}: ${input.firstNightReminder}`)
+      lines.push(`${t('first_night_reminder_label')}: ${input.firstNightReminder}`)
     if (filled(input.otherNight))
-      lines.push(`${t('other_night_order')}: ${input.otherNight}`)
+      lines.push(`${t('other_night_order_label')}: ${input.otherNight}`)
     if (filled(input.otherNightReminder))
-      lines.push(`${t('other_night_reminder_2')}: ${input.otherNightReminder}`)
+      lines.push(`${t('other_night_reminder_label')}: ${input.otherNightReminder}`)
   }
 
   if (input.isNew) {
@@ -131,10 +131,10 @@ export function buildCharacterContext(input: CharacterInput, language: Language)
     { key: 'team', label: t('team_label'), value: input.team, editable: true },
     { key: 'edition', label: t('edition_label'), value: input.edition, editable: true },
     { key: 'author', label: t('author'), value: input.author, editable: true },
-    { key: 'firstNightReminder', label: t('first_night_reminder_2'), value: input.firstNightReminder ?? '', editable: true },
-    { key: 'otherNightReminder', label: t('other_night_reminder_2'), value: input.otherNightReminder ?? '', editable: true },
-    { key: 'firstNight', label: t('first_night_order'), value: input.firstNight, editable: true },
-    { key: 'otherNight', label: t('other_night_order'), value: input.otherNight, editable: true },
+    { key: 'firstNightReminder', label: t('first_night_reminder_label'), value: input.firstNightReminder ?? '', editable: true },
+    { key: 'otherNightReminder', label: t('other_night_reminder_label'), value: input.otherNightReminder ?? '', editable: true },
+    { key: 'firstNight', label: t('first_night_order_label'), value: input.firstNight, editable: true },
+    { key: 'otherNight', label: t('other_night_order_label'), value: input.otherNight, editable: true },
   ]
   if (input.isNew) {
     fields.unshift({ key: 'id', label: 'ID', value: input.id ?? '', editable: true })
@@ -424,7 +424,7 @@ export function buildStorytellerContext(input: StorytellerInput): AiContext {
   const fields: AiField[] = [
     { key: 'scriptName',  label: t('script'),       value: scriptName },
     { key: 'stName',      label: t('storyteller'),   value: stName || '' },
-    { key: 'currentDay',  label: t('current_day'),   value: currentDay.day },
+    { key: 'currentDay',  label: t('current_day_label'), value: currentDay.day },
     { key: 'totalDays',   label: t('total_days'),    value: days.length },
     { key: 'phase',       label: t('phase'),          value: currentDay.phase },
     { key: 'alive',       label: t('alive_players'), value: aliveStr },

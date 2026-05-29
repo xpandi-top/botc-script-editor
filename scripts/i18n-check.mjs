@@ -32,6 +32,7 @@ const ROOT  = resolve(__dir, '..')
 const EN_PATH = resolve(ROOT, 'assets/locales/en.json')
 const ZH_PATH = resolve(ROOT, 'assets/locales/zh.json')
 const TERMINOLOGY_PATH = resolve(ROOT, 'assets/locales/terminology.json')
+const MIGRATION_MAP_PATH = resolve(ROOT, 'assets/locales/migration-map.json')
 const STRICT  = process.argv.includes('--strict')
 
 /**
@@ -96,6 +97,7 @@ function loadJson(path) {
 const en = loadUi(EN_PATH)
 const zh = loadUi(ZH_PATH)
 const terminology = loadJson(TERMINOLOGY_PATH)
+const migrationMap = loadJson(MIGRATION_MAP_PATH)
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -289,6 +291,25 @@ for (const rule of terminology.duplicateValueRules ?? []) {
   }
 }
 if (duplicateRuleCount === 0) console.log('  ✓ No unmanaged reusable duplicate values found')
+
+// ── Check 10: Migration map targets ──────────────────────────────────────────
+
+console.log('\n── Check 10: Migration map targets ──────────────────────')
+
+let migrationTargetCount = 0
+let lingeringSourceCount = 0
+for (const [oldKey, newKey] of Object.entries(migrationMap)) {
+  if (oldKey.startsWith('_')) continue
+  if (!enKeys.has(newKey)) { error(`Migration target "${newKey}" for "${oldKey}" is missing in EN`) ; migrationTargetCount++ }
+  if (!zhKeys.has(newKey)) { error(`Migration target "${newKey}" for "${oldKey}" is missing in ZH`) ; migrationTargetCount++ }
+  if (enKeys.has(oldKey) || zhKeys.has(oldKey)) {
+    warn(`Migration source key "${oldKey}" is still present in locale files — migrate usages to "${newKey}" then remove it`)
+    lingeringSourceCount++
+  }
+}
+if (migrationTargetCount === 0 && lingeringSourceCount === 0) {
+  console.log('  ✓ Migration aliases point to existing canonical keys; no source keys linger in locales')
+}
 
 // ── Summary ───────────────────────────────────────────────────────────────────
 

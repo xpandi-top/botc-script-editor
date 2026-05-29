@@ -107,7 +107,7 @@ describe('logDetail — ZH', () => {
 describe('makeT — key locale strings', () => {
   it('EN: game terms', () => {
     const t = makeT('en')
-    expect(t('nomination')).toBe('Nomination')
+    expect(t('term_nomination')).toBe('Nomination')
     expect(t('execution')).toBe('Execution')
     expect(t('vote')).toBe('Vote')
     expect(t('drunk')).toBe('Drunk')
@@ -117,7 +117,7 @@ describe('makeT — key locale strings', () => {
 
   it('ZH: game terms', () => {
     const t = makeT('zh')
-    expect(t('nomination')).toBe('提名')
+    expect(t('term_nomination')).toBe('提名')
     expect(t('execution')).toBe('处决')
     expect(t('vote')).toBe('投票')
     expect(t('drunk')).toBe('醉酒')

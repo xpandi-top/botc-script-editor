@@ -230,7 +230,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
             <IconButton sx={iconBtnSx} onClick={() => goToNextDay()}>
               <ArrowForwardIcon />
             </IconButton>
-            <Tooltip title={language === 'zh' ? '沟通板' : 'Communication Board'}>
+            <Tooltip title={t('communication_board')}>
               <IconButton sx={{ ...iconBtnSx, color: 'primary.main' }} onClick={() => setCommOpen(true)}>
                 <ForumIcon />
               </IconButton>

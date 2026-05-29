@@ -299,8 +299,8 @@ export function SheetArticle({
     )
     return (
       <Box sx={{ mt: 1.5, pt: 1, borderTop: '1px solid', borderColor: 'divider' }}>
-        {renderRow(firstIds, makeT(lang)('sheet_first_night'))}
-        {renderRow(otherIds, makeT(lang)('sheet_other_nights'))}
+        {renderRow(firstIds, makeT(lang)('term_first_night'))}
+        {renderRow(otherIds, makeT(lang)('term_other_nights'))}
       </Box>
     )
   }

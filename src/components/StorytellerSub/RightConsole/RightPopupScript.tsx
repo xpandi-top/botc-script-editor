@@ -102,8 +102,8 @@ export function RightPopupScript({ ctx }: { ctx: StorytellerContext }) {
           sx={{ flex: 1, minHeight: 36, '& .MuiTab-root': { minHeight: 36, fontSize: '0.75rem' } }}
         >
           <Tab label={t('characters')} value="characters" />
-          <Tab label={t('first_night')} value="firstNight" />
-          <Tab label={t('other_nights')} value="otherNight" />
+          <Tab label={t('term_first_night')} value="firstNight" />
+          <Tab label={t('term_other_nights')} value="otherNight" />
         </Tabs>
         <Tooltip title={showAbilities ? (t('hide_abilities')) : (t('show_abilities'))}>
           <IconButton size="small" onClick={() => setShowAbilities((v) => !v)}

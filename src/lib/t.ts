@@ -248,6 +248,22 @@ export type UiKey =
   | 'version' | 'new_badge' | 'pack_badge' | 'yes_short' | 'no_short'
   // Arena UI legend
   | 'arena_st_setup' | 'arena_nominations' | 'arena_edit_roles' | 'arena_tap_seat'
+  // Communication board
+  | 'communication_board' | 'communication_text' | 'communication_draw'
+  | 'communication_empty_hint' | 'communication_custom_text' | 'communication_add_hint'
+  | 'communication_select_character' | 'communication_multiselect_suffix'
+  | 'communication_pen' | 'communication_eraser' | 'communication_custom_color'
+  | 'communication_stroke_size' | 'communication_clear_board'
+  | 'communication_phrase_ability_tonight' | 'communication_phrase_chat_tomorrow'
+  | 'communication_phrase_choose_ability' | 'communication_phrase_meet_minions'
+  | 'communication_phrase_you_good' | 'communication_phrase_you_evil'
+  | 'communication_phrase_char_in_play' | 'communication_phrase_char_not_in_play'
+  | 'communication_phrase_same_team' | 'communication_phrase_diff_team'
+  | 'communication_phrase_mistake' | 'communication_phrase_eyes_open'
+  | 'communication_phrase_wake_up' | 'communication_phrase_go_to_sleep'
+  | 'communication_phrase_shake_head' | 'communication_phrase_choose_n_players'
+  | 'communication_phrase_choose_n_chars' | 'communication_phrase_you_are_char'
+  | 'communication_phrase_char_is_char'
   // ── Language toggle semantic aliases (old: str_en, zh, en) ────────────────
   | 'lang_switch'    // the toggle button label (EN locale: "中", ZH locale: "EN")
   | 'lang_current'   // current language label ("English" | "中文")
@@ -257,6 +273,13 @@ export type UiKey =
   | 'term_nomination' | 'term_execution' | 'term_drunk' | 'term_poisoned'
   | 'term_alive'     | 'term_dead'     | 'term_first_night' | 'term_other_nights'
   | 'term_register_as' | 'term_grimoire'
+  // ── Phase labels and phase-state aliases ──────────────────────────────────
+  | 'phase_night' | 'phase_day' | 'phase_private' | 'phase_public' | 'phase_nomination'
+  | 'phase_private_before' | 'phase_private_during'
+  | 'phase_public_before' | 'phase_public_during' | 'phase_nomination_during'
+  | 'first_night_order_label' | 'other_night_order_label'
+  | 'first_night_reminder_label' | 'other_night_reminder_label'
+  | 'current_day_label'
   // ── AI namespace (ai_* prefix) ────────────────────────────────────────────
   | 'ai_chat' | 'ai_skills' | 'ai_log' | 'ai_settings'
   | 'ai_thinking' | 'ai_clear_chat' | 'ai_auto_apply'
@@ -265,10 +288,19 @@ export type UiKey =
   | 'ai_skills_context'
   // ── New keys (replacing deprecated keys removed from JSON) ────────────────
   | 'ability_history'     // replaces skill_history
+  | 'ability_user'        // replaces skill_actor
+  | 'ability_target'      // replaces skill_target
+  | 'ability_log'         // replaces skill_trail
+  | 'use_ability'         // replaces use_skill
+  | 'filter_ability'      // replaces filter_skill
+  | 'quick_ability'       // replaces quick_skill
+  | 'ability_label'       // replaces skill_2
   | 'abilities_used'      // replaces skills_used (AI context serialization)
   | 'abilities'           // replaces skills (stats column header)
+  | 'ai_skills_context_label' // replaces skills_for_other_contexts
   | 'game_records_label'  // replaces records (ST console tab label)
   | 'game_records_saved'  // replaces saved_games
+  | 'demon_bluffs_label'  // replaces demo_bluffs_2
   | 'vote_label'          // replaces vote_2 (lowercase event type label)
   | 'next_day_label'      // replaces next_day_2
   | 'no_game_active'      // empty state: no game in progress

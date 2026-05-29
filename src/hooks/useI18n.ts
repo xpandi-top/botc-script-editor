@@ -32,6 +32,19 @@ export function useI18n(language: Language): TextDict {
       dict[key] = val !== snakeKey ? val : translations[key][language]
     }
 
+    Object.assign(dict, {
+      nightPhase: t('phase_night'),
+      privateChat: t('phase_private'),
+      publicChat: t('phase_public'),
+      nomination: t('phase_nomination'),
+      filterSkill: t('filter_ability'),
+      quickSkill: t('quick_ability'),
+      skillActor: t('ability_user'),
+      skillTarget: t('ability_target'),
+      skillTrail: t('ability_log'),
+      useSkill: t('use_ability'),
+    })
+
     return dict as TextDict
   }, [language])
 }

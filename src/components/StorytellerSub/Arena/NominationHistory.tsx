@@ -84,7 +84,7 @@ export function NominationHistory({
         <Select size="small" value={historyFilter} onChange={(e) => setHistoryFilter(e.target.value as 'all' | 'exile' | 'nomination')} sx={{ minWidth: 90, fontSize: '0.75rem' }}>
           <MenuItem value="all">{t('all')}</MenuItem>
           <MenuItem value="exile">{t('exile')}</MenuItem>
-          <MenuItem value="nomination">{t('nomination')}</MenuItem>
+          <MenuItem value="nomination">{t('term_nomination')}</MenuItem>
         </Select>
       </Box>
 
@@ -94,7 +94,7 @@ export function NominationHistory({
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mt: 0.5, maxHeight: 150, overflow: 'auto' }}>
           {filteredHistory.map((record: any) => {
             const passed = !record.failed && record.passed
-            const actionTag = record.isExile ? t('exile') : t('nomination')
+            const actionTag = record.isExile ? t('exile') : t('term_nomination')
             const voterList = record.voters && record.voters.length > 0
               ? `(${record.voters.map((v: number) => `#${v}`).join(',')})`
               : ''

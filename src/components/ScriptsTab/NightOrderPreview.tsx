@@ -297,7 +297,7 @@ export function NightOrderPreview({ script, language, open, onToggle }: Props) {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.75 }}>
               <NightsStayIcon sx={{ fontSize: 14, color: FIRST_NIGHT_COLOR }} />
               <Typography sx={{ fontSize: '0.8rem', fontWeight: 700, color: FIRST_NIGHT_COLOR }}>
-                {t('first_night')}
+                {t('term_first_night')}
               </Typography>
               <Typography sx={{ fontSize: '0.75rem', color: 'text.disabled', ml: 'auto' }}>
                 {firstNight.length}
@@ -317,7 +317,7 @@ export function NightOrderPreview({ script, language, open, onToggle }: Props) {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.75 }}>
               <WbSunnyIcon sx={{ fontSize: 14, color: OTHER_NIGHT_COLOR }} />
               <Typography sx={{ fontSize: '0.8rem', fontWeight: 700, color: OTHER_NIGHT_COLOR }}>
-                {t('other_nights')}
+                {t('term_other_nights')}
               </Typography>
               <Typography sx={{ fontSize: '0.75rem', color: 'text.disabled', ml: 'auto' }}>
                 {otherNights.length}

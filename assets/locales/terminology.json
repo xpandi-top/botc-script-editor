@@ -140,7 +140,7 @@
       "language": "zh",
       "value": "能力",
       "canonicalKey": "term_ability",
-      "allowedKeys": ["filter_skill", "skill", "ai_skills", "abilities"]
+      "allowedKeys": ["filter_skill", "skill", "ai_skills", "abilities", "filter_ability", "ability_label"]
     }
   ]
 }

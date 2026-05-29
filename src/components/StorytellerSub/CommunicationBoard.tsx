@@ -14,6 +14,7 @@ import RemoveIcon from '@mui/icons-material/Remove'
 import AddIcon from '@mui/icons-material/Add'
 import type { Language } from '../../types'
 import { getDisplayName, getIconForCharacter } from '../../catalog'
+import { makeT, type UiKey } from '../../lib/t'
 
 // ── Types ─────────────────────────────────────────────────────────
 
@@ -21,31 +22,30 @@ type PhraseKind = 'plain' | 'number' | 'character' | 'multi-character'
 
 interface PhraseTemplate {
   key: string
-  en: string
-  zh: string
+  labelKey: UiKey
   kind: PhraseKind
 }
 
 const PHRASES: PhraseTemplate[] = [
-  { key: 'ability-tonight',  en: 'Use Your Ability Tonight?',                 zh: '今晚请使用你的能力？',               kind: 'plain' },
-  { key: 'chat-tomorrow',    en: 'We Should Chat Tomorrow',                   zh: '我们明天聊聊',                      kind: 'plain' },
-  { key: 'choose-ability',   en: 'Choose for your Ability',                   zh: '为你的能力做出选择',                 kind: 'plain' },
-  { key: 'meet-minions',     en: 'Meet Your Fellow Minions',                  zh: '与同伴爪牙相认',                    kind: 'plain' },
-  { key: 'you-good',         en: 'You are Good',                              zh: '你是好人',                         kind: 'plain' },
-  { key: 'you-evil',         en: 'You are Evil',                              zh: '你是邪恶方',                       kind: 'plain' },
-  { key: 'char-in-play',     en: '[Characters] are in play',                  zh: '[角色们] 在游戏中',                  kind: 'multi-character' },
-  { key: 'char-not-in-play', en: '[Characters] are NOT in play',              zh: '[角色们] 不在游戏中',                 kind: 'multi-character' },
-  { key: 'same-team',        en: 'Same Alignment / Team',                     zh: '相同阵营',                          kind: 'plain' },
-  { key: 'diff-team',        en: 'Different Alignment / Team',                zh: '不同阵营',                          kind: 'plain' },
-  { key: 'mistake',          en: 'I made a mistake — this is my correction',  zh: '我犯了错误——这是纠正',              kind: 'plain' },
-  { key: 'eyes-open',        en: '(Keep your eyes open)',                     zh: '（保持睁眼）',                      kind: 'plain' },
-  { key: 'wake-up',          en: 'Wake up',                                   zh: '睁眼',                             kind: 'plain' },
-  { key: 'go-to-sleep',      en: 'Go to sleep',                               zh: '闭眼',                             kind: 'plain' },
-  { key: 'shake-head',       en: 'Shake your head Yes / No',                  zh: '摇头 是 / 否',                     kind: 'plain' },
-  { key: 'choose-n-players', en: 'Choose [N] Players',                        zh: '选择 [N] 名玩家',                   kind: 'number' },
-  { key: 'choose-n-chars',   en: 'Choose [N] Characters',                     zh: '选择 [N] 个角色',                   kind: 'number' },
-  { key: 'you-are-char',     en: 'You are [Character]',                       zh: '你是 [角色]',                      kind: 'character' },
-  { key: 'char-is-char',     en: 'This Character is [Character]',             zh: '此角色是 [角色]',                   kind: 'character' },
+  { key: 'ability-tonight',  labelKey: 'communication_phrase_ability_tonight',  kind: 'plain' },
+  { key: 'chat-tomorrow',    labelKey: 'communication_phrase_chat_tomorrow',    kind: 'plain' },
+  { key: 'choose-ability',   labelKey: 'communication_phrase_choose_ability',   kind: 'plain' },
+  { key: 'meet-minions',     labelKey: 'communication_phrase_meet_minions',     kind: 'plain' },
+  { key: 'you-good',         labelKey: 'communication_phrase_you_good',         kind: 'plain' },
+  { key: 'you-evil',         labelKey: 'communication_phrase_you_evil',         kind: 'plain' },
+  { key: 'char-in-play',     labelKey: 'communication_phrase_char_in_play',     kind: 'multi-character' },
+  { key: 'char-not-in-play', labelKey: 'communication_phrase_char_not_in_play', kind: 'multi-character' },
+  { key: 'same-team',        labelKey: 'communication_phrase_same_team',        kind: 'plain' },
+  { key: 'diff-team',        labelKey: 'communication_phrase_diff_team',        kind: 'plain' },
+  { key: 'mistake',          labelKey: 'communication_phrase_mistake',          kind: 'plain' },
+  { key: 'eyes-open',        labelKey: 'communication_phrase_eyes_open',        kind: 'plain' },
+  { key: 'wake-up',          labelKey: 'communication_phrase_wake_up',          kind: 'plain' },
+  { key: 'go-to-sleep',      labelKey: 'communication_phrase_go_to_sleep',      kind: 'plain' },
+  { key: 'shake-head',       labelKey: 'communication_phrase_shake_head',       kind: 'plain' },
+  { key: 'choose-n-players', labelKey: 'communication_phrase_choose_n_players', kind: 'number' },
+  { key: 'choose-n-chars',   labelKey: 'communication_phrase_choose_n_chars',   kind: 'number' },
+  { key: 'you-are-char',     labelKey: 'communication_phrase_you_are_char',     kind: 'character' },
+  { key: 'char-is-char',     labelKey: 'communication_phrase_char_is_char',     kind: 'character' },
 ]
 
 const DRAW_COLORS = ['#000000', '#1a1a2e', '#e63946', '#2196f3', '#4caf50', '#ff9800', '#9c27b0', '#ffffff']
@@ -170,6 +170,7 @@ interface CommunicationBoardProps {
 
 export function CommunicationBoard({ open, onClose, scriptCharacters, language }: CommunicationBoardProps) {
   const zh = language === 'zh'
+  const t = makeT(language)
 
   // text board state
   const [tab, setTab] = useState<'text' | 'draw'>('text')
@@ -199,7 +200,7 @@ export function CommunicationBoard({ open, onClose, scriptCharacters, language }
 
   const handlePhrase = (phrase: PhraseTemplate) => {
     if (phrase.kind === 'plain') {
-      appendText(zh ? phrase.zh : phrase.en)
+      appendText(t(phrase.labelKey))
     } else if (phrase.kind === 'number') {
       setPendingN(phrase)
       setPendingChar(null)
@@ -220,14 +221,14 @@ export function CommunicationBoard({ open, onClose, scriptCharacters, language }
 
   const applyNPhrase = () => {
     if (!pendingN) return
-    const raw = zh ? pendingN.zh : pendingN.en
+    const raw = t(pendingN.labelKey)
     appendText(raw.replace('[N]', String(nValue)))
     setPendingN(null)
   }
 
   const applyCharPhrase = () => {
     if (!pendingChar || !selectedChar) return
-    const raw = zh ? pendingChar.zh : pendingChar.en
+    const raw = t(pendingChar.labelKey)
     const charName = getDisplayName(selectedChar, language)
     appendText(raw.replace('[Character]', charName).replace('[角色]', charName))
     setPendingChar(null)
@@ -240,7 +241,7 @@ export function CommunicationBoard({ open, onClose, scriptCharacters, language }
     const joined = names.length === 1 ? names[0]
       : names.length === 2 ? names.join(zh ? '、' : ' and ')
       : names.slice(0, -1).join(zh ? '、' : ', ') + (zh ? '、' : ', and ') + names[names.length - 1]
-    const raw = zh ? pendingMultiChar.zh : pendingMultiChar.en
+    const raw = t(pendingMultiChar.labelKey)
     appendText(raw.replace('[Characters]', joined).replace('[角色们]', joined))
     setPendingMultiChar(null)
     setSelectedChars([])
@@ -270,17 +271,17 @@ export function CommunicationBoard({ open, onClose, scriptCharacters, language }
       <DialogTitle sx={{ pb: 0, display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0 }}>
         <ForumIcon sx={{ color: 'primary.main' }} />
         <Typography variant="h6" sx={{ flex: 1 }}>
-          {zh ? '沟通板' : 'Communication Board'}
+          {t('communication_board')}
         </Typography>
         <ToggleButtonGroup value={tab} exclusive size="small"
           onChange={(_, v) => { if (v) setTab(v) }} sx={{ mr: 1 }}>
           <ToggleButton value="text" sx={{ px: 1.5 }}>
             <EditIcon sx={{ fontSize: 16, mr: 0.5 }} />
-            {zh ? '文字' : 'Text'}
+            {t('communication_text')}
           </ToggleButton>
           <ToggleButton value="draw" sx={{ px: 1.5 }}>
             <BrushIcon sx={{ fontSize: 16, mr: 0.5 }} />
-            {zh ? '画板' : 'Draw'}
+            {t('communication_draw')}
           </ToggleButton>
         </ToggleButtonGroup>
         <IconButton size="small" onClick={onClose}><CloseIcon /></IconButton>
@@ -327,7 +328,7 @@ export function CommunicationBoard({ open, onClose, scriptCharacters, language }
                 </Typography>
               ) : (
                 <Typography sx={{ color: '#ccc', fontSize: 18, fontStyle: 'italic', textAlign: 'center' }}>
-                  {zh ? '点击下方短语，或输入自定义文字…' : 'Tap a phrase below, or type custom text…'}
+                  {t('communication_empty_hint')}
                 </Typography>
               )}
               {boardText && (
@@ -345,20 +346,20 @@ export function CommunicationBoard({ open, onClose, scriptCharacters, language }
             {pendingN && (
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 1, bgcolor: 'action.hover', borderRadius: 1.5, flexShrink: 0, flexWrap: 'wrap' }}>
                 <Typography variant="body2" sx={{ flex: 1, minWidth: 120 }}>
-                  {(zh ? pendingN.zh : pendingN.en).replace('[N]', `[${nValue}]`)}
+                  {(t(pendingN.labelKey)).replace('[N]', `[${nValue}]`)}
                 </Typography>
                 <IconButton size="small" onClick={() => setNValue(v => Math.max(1, v - 1))}><RemoveIcon fontSize="small" /></IconButton>
                 <Typography sx={{ fontWeight: 700, minWidth: 20, textAlign: 'center' }}>{nValue}</Typography>
                 <IconButton size="small" onClick={() => setNValue(v => Math.min(20, v + 1))}><AddIcon fontSize="small" /></IconButton>
-                <Chip label={zh ? '添加' : 'Add'} color="primary" size="small" onClick={applyNPhrase} />
-                <Chip label={zh ? '取消' : 'Cancel'} size="small" onClick={() => setPendingN(null)} />
+                <Chip label={t('add')} color="primary" size="small" onClick={applyNPhrase} />
+                <Chip label={t('cancel')} size="small" onClick={() => setPendingN(null)} />
               </Box>
             )}
 
             {pendingChar && (
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 1, bgcolor: 'action.hover', borderRadius: 1.5, flexShrink: 0, flexWrap: 'wrap' }}>
                 <Typography variant="body2" sx={{ flexShrink: 0, mr: 0.5 }}>
-                  {zh ? pendingChar.zh : pendingChar.en}
+                  {t(pendingChar.labelKey)}
                 </Typography>
                 <Autocomplete
                   options={charOptions}
@@ -373,12 +374,12 @@ export function CommunicationBoard({ open, onClose, scriptCharacters, language }
                     </Box>
                   )}
                   renderInput={(params) => (
-                    <TextField {...params} label={zh ? '选择角色' : 'Select character'} />
+                    <TextField {...params} label={t('communication_select_character')} />
                   )}
                   onChange={(_, val) => setSelectedChar(val?.id ?? null)}
                 />
-                <Chip label={zh ? '添加' : 'Add'} color="primary" size="small" disabled={!selectedChar} onClick={applyCharPhrase} />
-                <Chip label={zh ? '取消' : 'Cancel'} size="small" onClick={() => setPendingChar(null)} />
+                <Chip label={t('add')} color="primary" size="small" disabled={!selectedChar} onClick={applyCharPhrase} />
+                <Chip label={t('cancel')} size="small" onClick={() => setPendingChar(null)} />
               </Box>
             )}
 
@@ -398,17 +399,14 @@ export function CommunicationBoard({ open, onClose, scriptCharacters, language }
                     </Box>
                   )}
                   renderInput={(params) => (
-                    <TextField {...params} label={zh
-                      ? `${zh ? pendingMultiChar.zh : pendingMultiChar.en} — 可多选`
-                      : `${pendingMultiChar.en} — multi-select`}
-                    />
+                    <TextField {...params} label={`${t(pendingMultiChar.labelKey)} — ${t('communication_multiselect_suffix')}`} />
                   )}
                   onChange={(_, vals) => setSelectedChars(vals.map(v => v.id))}
                 />
                 <Box sx={{ display: 'flex', gap: 0.75 }}>
-                  <Chip label={zh ? '添加' : 'Add'} color="primary" size="small"
+                  <Chip label={t('add')} color="primary" size="small"
                     disabled={selectedChars.length === 0} onClick={applyMultiCharPhrase} />
-                  <Chip label={zh ? '取消' : 'Cancel'} size="small" onClick={() => setPendingMultiChar(null)} />
+                  <Chip label={t('cancel')} size="small" onClick={() => setPendingMultiChar(null)} />
                 </Box>
               </Box>
             )}
@@ -419,9 +417,9 @@ export function CommunicationBoard({ open, onClose, scriptCharacters, language }
                 {PHRASES.map(phrase => {
                   const isActive = pendingN?.key === phrase.key || pendingChar?.key === phrase.key || pendingMultiChar?.key === phrase.key
                   return (
-                    <Tooltip key={phrase.key} title={language === 'en' ? phrase.zh : phrase.en} placement="top" arrow>
+                    <Tooltip key={phrase.key} title={t(phrase.labelKey)} placement="top" arrow>
                       <Chip
-                        label={zh ? phrase.zh : phrase.en}
+                        label={t(phrase.labelKey)}
                         onClick={() => handlePhrase(phrase)}
                         size="small"
                         variant={isActive ? 'filled' : 'outlined'}
@@ -440,7 +438,7 @@ export function CommunicationBoard({ open, onClose, scriptCharacters, language }
               <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
                 <TextField
                   fullWidth size="small"
-                  label={zh ? '自定义文字' : 'Custom text'}
+                  label={t('communication_custom_text')}
                   value={customInput}
                   onChange={(e) => setCustomInput(e.target.value)}
                   onKeyDown={(e) => {
@@ -449,10 +447,10 @@ export function CommunicationBoard({ open, onClose, scriptCharacters, language }
                       setCustomInput('')
                     }
                   }}
-                  placeholder={zh ? '按 Enter 添加…' : 'Press Enter to add…'}
+                  placeholder={t('communication_add_hint')}
                 />
                 <Chip
-                  label={zh ? '添加' : 'Add'}
+                  label={t('add')}
                   color="primary"
                   disabled={!customInput.trim()}
                   onClick={() => {
@@ -473,10 +471,10 @@ export function CommunicationBoard({ open, onClose, scriptCharacters, language }
               <ToggleButtonGroup value={drawState.tool} exclusive size="small"
                 onChange={(_, v) => { if (v) setDrawState(s => ({ ...s, tool: v })) }}>
                 <ToggleButton value="pen">
-                  <Tooltip title={zh ? '画笔' : 'Pen'}><EditIcon fontSize="small" /></Tooltip>
+                  <Tooltip title={t('communication_pen')}><EditIcon fontSize="small" /></Tooltip>
                 </ToggleButton>
                 <ToggleButton value="eraser">
-                  <Tooltip title={zh ? '橡皮' : 'Eraser'}>
+                  <Tooltip title={t('communication_eraser')}>
                     <Typography sx={{ fontSize: 16, lineHeight: 1 }}>⬜</Typography>
                   </Tooltip>
                 </ToggleButton>
@@ -504,13 +502,13 @@ export function CommunicationBoard({ open, onClose, scriptCharacters, language }
                   value={drawState.color}
                   onChange={e => setDrawState(s => ({ ...s, color: e.target.value, tool: 'pen' }))}
                   style={{ width: 22, height: 22, borderRadius: '50%', border: 'none', padding: 0, cursor: 'pointer' }}
-                  title={zh ? '自定义颜色' : 'Custom color'}
+                  title={t('communication_custom_color')}
                 />
               </Box>
 
               {/* Stroke size */}
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 100 }}>
-                <Typography variant="caption" color="text.secondary">{zh ? '粗细' : 'Size'}</Typography>
+                <Typography variant="caption" color="text.secondary">{t('communication_stroke_size')}</Typography>
                 <Slider
                   value={drawState.size}
                   min={1} max={20} step={1} size="small"
@@ -521,10 +519,10 @@ export function CommunicationBoard({ open, onClose, scriptCharacters, language }
               </Box>
 
               <Box sx={{ ml: 'auto', display: 'flex', gap: 0.5 }}>
-                <Tooltip title={zh ? '撤销' : 'Undo'}>
+                <Tooltip title={t('undo')}>
                   <IconButton size="small" onClick={undo}><UndoIcon fontSize="small" /></IconButton>
                 </Tooltip>
-                <Tooltip title={zh ? '清除画板' : 'Clear'}>
+                <Tooltip title={t('communication_clear_board')}>
                   <IconButton size="small" onClick={clearCanvas} color="error">
                     <DeleteIcon fontSize="small" />
                   </IconButton>
@@ -557,4 +555,3 @@ export function CommunicationBoard({ open, onClose, scriptCharacters, language }
     </Dialog>
   )
 }
-

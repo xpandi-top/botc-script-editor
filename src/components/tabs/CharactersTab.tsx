@@ -443,7 +443,7 @@ function PackImportDialog({ open, onClose, pack, language, knownIds, existingCus
                   {/* Night order positions */}
                   <Box sx={{ display: 'flex', gap: 1, flexDirection: { xs: 'column', sm: 'row' } }}>
                     <TextField size="small" sx={{ width: { xs: '100%', sm: 130 } }}
-                      label={t('first_night')}
+                      label={t('term_first_night')}
                       value={fnVal} type="number" slotProps={{ htmlInput: { min: 0 } }}
                       onChange={(ev) => patchEdit(c.id, { firstNight: ev.target.value })} />
                     <TextField size="small" sx={{ width: { xs: '100%', sm: 130 } }}

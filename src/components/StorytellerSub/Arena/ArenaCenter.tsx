@@ -70,7 +70,7 @@ export function ArenaCenter({ ctx }: { ctx: StorytellerContext }) {
             <ArrowForwardIcon />
           </IconButton>
         </Tooltip>
-        <Tooltip title={language === 'zh' ? '沟通板' : 'Communication Board'}>
+        <Tooltip title={t('communication_board')}>
           <IconButton size="medium" onClick={(e) => { e.stopPropagation(); setCommOpen(true) }}
             sx={{ color: 'primary.main' }}>
             <ForumIcon />
