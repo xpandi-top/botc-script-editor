@@ -143,7 +143,7 @@ export function LeftLogPanel({ ctx }: { ctx: StorytellerContext }) {
                           sx={{ height: 20, fontSize: '0.65rem' }}
                         />
                         {entry.visibility === 'st-only' && (
-                          <Chip label="ST" size="small" color="warning" sx={{ height: 20, fontSize: '0.65rem' }} />
+                          <Chip label={t('st')} size="small" color="warning" sx={{ height: 20, fontSize: '0.65rem' }} />
                         )}
                         {entry.phase && (
                           <Chip label={phaseLabel(entry.phase, text)} size="small" variant="outlined" sx={{ height: 20, fontSize: '0.65rem' }} />

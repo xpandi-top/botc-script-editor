@@ -21,8 +21,8 @@ const ENTRY_COLORS: Record<AggregatedLogEntry['type'], 'primary' | 'secondary' |
 }
 
 export function RightPopupLog({ ctx }: { ctx: StorytellerContext }) {
-  const { t } = useT()
-  const { days, logFilter, setLogFilter, aggregatedLog, setActiveRightPopup, toggleLogFilterType, text, language } = ctx
+  const { t, tpl } = useT()
+  const { days, logFilter, setLogFilter, aggregatedLog, setActiveRightPopup, toggleLogFilterType, text } = ctx
 
   const grouped = React.useMemo(() => {
     const map = new Map<number, AggregatedLogEntry[]>()
@@ -34,7 +34,7 @@ export function RightPopupLog({ ctx }: { ctx: StorytellerContext }) {
     return Array.from(map.entries()).sort((a, b) => logFilter.sortAsc ? a[0] - b[0] : b[0] - a[0])
   }, [aggregatedLog, logFilter.sortAsc])
 
-  const dayLabel = (day: number) => language === 'zh' ? `${t('day')}${day}${t('day_short')}` : `${t('day')} ${day}`
+  const dayLabel = (day: number) => tpl('day_n', day)
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
@@ -136,7 +136,7 @@ export function RightPopupLog({ ctx }: { ctx: StorytellerContext }) {
                         sx={{ height: 20, fontSize: '0.65rem' }}
                       />
                       {entry.visibility === 'st-only' && (
-                        <Chip label="ST" size="small" color="warning" sx={{ height: 20, fontSize: '0.65rem' }} />
+                        <Chip label={t('st')} size="small" color="warning" sx={{ height: 20, fontSize: '0.65rem' }} />
                       )}
                       {entry.phase && (
                         <Chip label={phaseLabel(entry.phase, text)} size="small" variant="outlined" sx={{ height: 20, fontSize: '0.65rem' }} />

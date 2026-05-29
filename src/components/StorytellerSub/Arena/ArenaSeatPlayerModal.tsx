@@ -1234,7 +1234,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
                           label={e.type === 'vote' ? text.filterVote : e.type === 'skill' ? text.filterSkill : text.filterEvent}
                           color={(ENTRY_COLORS[e.type] ?? 'default') as any} />
                         {e.visibility === 'st-only' && (
-                          <Chip label="ST" size="small" color="warning" sx={{ height: 18, fontSize: '0.62rem' }} />
+                          <Chip label={t('st')} size="small" color="warning" sx={{ height: 18, fontSize: '0.62rem' }} />
                         )}
                         {e.phase && <Chip label={phaseLabel(e.phase, text)} size="small" variant="outlined" sx={{ height: 18, fontSize: '0.62rem' }} />}
                         <Box sx={{ flex: 1 }} />
