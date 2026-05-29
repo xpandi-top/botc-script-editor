@@ -1,6 +1,4 @@
-// @ts-nocheck
 import type { StorytellerContext } from '../useStoryteller'
-import React from 'react'
 import {
   Button, DialogContentText, DialogTitle,
 } from '@mui/material'
@@ -17,7 +15,6 @@ export function ModalsDialog({ ctx }: { ctx: StorytellerContext }) {
     dialogState, setDialogState, confirmDialog,
   } = ctx
 
-  const zh = language === 'zh'
   const t = makeT(language)
   const tpl = makeTpl(language)
 
@@ -33,7 +30,7 @@ export function ModalsDialog({ ctx }: { ctx: StorytellerContext }) {
         mobile="compact"
       >
         <DialogTitle sx={{ fontWeight: 700 }}>
-          {tpl('delete_day_n', deleteDayState?.dayNum)}
+          {deleteDayState ? tpl('delete_day_n', deleteDayState.dayNum) : ''}
         </DialogTitle>
         <ResponsiveDialogContent>
           <DialogContentText>
