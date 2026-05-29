@@ -1,6 +1,6 @@
-// @ts-nocheck
 import type { StorytellerContext } from '../useStoryteller'
-import React, { useMemo } from 'react'
+import type { ConsoleSection } from '../types'
+import { useMemo } from 'react'
 import { Box, Button, Typography, TextField, Chip, Paper } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
@@ -8,7 +8,13 @@ import { uniqueStrings } from '../constants'
 import { characterById } from '../../../catalog'
 import { useT } from '../../../context/I18nContext'
 
-export function RightConsoleTags({ ctx, toggleConsoleSection }: { ctx: StorytellerContext, toggleConsoleSection: any }) {
+export function RightConsoleTags({
+  ctx,
+  toggleConsoleSection,
+}: {
+  ctx: StorytellerContext
+  toggleConsoleSection: (section: ConsoleSection) => void
+}) {
   const {
     language, text, activeConsoleSections,
     customTagPool, setCustomTagPool, loadTagsPreset, setLoadTagsPreset,
@@ -19,13 +25,15 @@ export function RightConsoleTags({ ctx, toggleConsoleSection }: { ctx: Storytell
   // ── Script-derived reminder tags ─────────────────────────────────────────
   const { t } = useT()
   const scriptReminderTags = useMemo(() => {
-    const inPlayIds = (currentDay?.seats ?? []).map((s: any) => s.characterId).filter(Boolean)
+    const inPlayIds = (currentDay?.seats ?? [])
+      .map((seat) => seat.characterId)
+      .filter((id): id is string => Boolean(id))
     const ids = new Set<string>([...(currentScriptCharacters ?? []), ...inPlayIds])
     const tags = new Set<string>()
     for (const id of ids) {
       const char = characterById[id]
-      ;(char?.reminders ?? []).forEach((r: string) => tags.add(r))
-      ;(char?.remindersGlobal ?? []).forEach((r: string) => tags.add(r))
+      ;(char?.reminders ?? []).forEach((reminder) => tags.add(reminder))
+      ;(char?.remindersGlobal ?? []).forEach((reminder) => tags.add(reminder))
     }
     return [...tags].sort()
   }, [currentScriptCharacters, currentDay?.seats])
@@ -33,8 +41,6 @@ export function RightConsoleTags({ ctx, toggleConsoleSection }: { ctx: Storytell
   const defaultTags = language === 'zh'
     ? ['死亡', '处决', '旅行者', '无投票权']
     : ['Dead', 'Executed', 'Traveler', 'No vote']
-
-  const zh = language === 'zh'
 
   return (
     <Paper variant="outlined" sx={{ p: 1 }}>
@@ -62,7 +68,7 @@ export function RightConsoleTags({ ctx, toggleConsoleSection }: { ctx: Storytell
                   {t('script_reminders')}
                 </Typography>
                 <Button size="small" sx={{ fontSize: '0.65rem', py: 0, minWidth: 0 }}
-                  onClick={() => setCustomTagPool((cur: string[]) => uniqueStrings([...cur, ...scriptReminderTags]))}>
+                  onClick={() => setCustomTagPool((cur) => uniqueStrings([...cur, ...scriptReminderTags]))}>
                   {t('add_all')}
                 </Button>
               </Box>
@@ -74,8 +80,8 @@ export function RightConsoleTags({ ctx, toggleConsoleSection }: { ctx: Storytell
                       color={inPool ? 'primary' : 'default'}
                       variant={inPool ? 'filled' : 'outlined'}
                       onClick={() => {
-                        if (inPool) setCustomTagPool((cur: string[]) => cur.filter((t: string) => t !== tag))
-                        else setCustomTagPool((cur: string[]) => uniqueStrings([...cur, tag]))
+                        if (inPool) setCustomTagPool((cur) => cur.filter((existingTag) => existingTag !== tag))
+                        else setCustomTagPool((cur) => uniqueStrings([...cur, tag]))
                       }} />
                   )
                 })}
@@ -93,8 +99,8 @@ export function RightConsoleTags({ ctx, toggleConsoleSection }: { ctx: Storytell
               onChange={(e) => setLoadTagsPreset(e.target.value)}
             />
             <Button size="small" onClick={() => {
-              const tags = loadTagsPreset?.split(',').map((t: string) => t.trim()).filter(Boolean) ?? []
-              setCustomTagPool((cur: string[]) => uniqueStrings([...cur, ...tags]))
+              const tags = loadTagsPreset?.split(',').map((tag) => tag.trim()).filter(Boolean) ?? []
+              setCustomTagPool((cur) => uniqueStrings([...cur, ...tags]))
               setLoadTagsPreset('')
             }} sx={{ mt: 0.5 }}>{text.loadPreset}</Button>
           </Box>
@@ -106,12 +112,12 @@ export function RightConsoleTags({ ctx, toggleConsoleSection }: { ctx: Storytell
               <Button size="small" onClick={clearUnusedCustomTags}>{text.clearUnusedTags}</Button>
             </Box>
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-              {(customTagPool ?? []).map((tag: string) => (
+              {(customTagPool ?? []).map((tag) => (
                 <Chip
                   key={`tagpool-${tag}`}
                   label={tag}
                   size="small"
-                  onDelete={() => setCustomTagPool((cur: string[]) => cur.filter((t: string) => t !== tag))}
+                  onDelete={() => setCustomTagPool((cur) => cur.filter((existingTag) => existingTag !== tag))}
                 />
               ))}
             </Box>
