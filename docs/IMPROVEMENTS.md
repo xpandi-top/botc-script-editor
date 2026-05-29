@@ -186,6 +186,7 @@ Acceptance:
    - character pack/revision/jinx overrides
    - cloud sync metadata
    - AI settings and API keys
+   - Current baseline lives in `docs/STORAGE.md`.
 2. Add versioned migration helpers:
    - Validate persisted JSON shape before use.
    - Keep corrupt-data fallbacks from losing existing records.
