@@ -1,6 +1,6 @@
-// @ts-nocheck
+import type { NewGameConfig } from '../types'
 import type { StorytellerContext } from '../useStoryteller'
-import React, { useState, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import {
   Box, Button, Collapse, IconButton, InputAdornment, List,
   ListItem, ListItemAvatar, ListItemButton, ListItemText,
@@ -49,7 +49,7 @@ export function ModalsNewGame({ ctx }: { ctx: StorytellerContext }) {
   const editMode = newGamePanel.editMode ?? false
   const totalSeats = newGamePanel.playerCount + newGamePanel.travelerCount
   const seats = Array.from({ length: totalSeats }, (_, i) => i + 1)
-  const updateConfig = (patch: any) => setNewGamePanel((prev: any) => prev ? { ...prev, ...patch } : prev)
+  const updateConfig = (patch: Partial<NewGameConfig>) => setNewGamePanel((prev) => prev ? { ...prev, ...patch } : prev)
 
   const toggleFabled = (id: string) =>
     updateConfig({ fabledIds: fabledIds.includes(id) ? fabledIds.filter((x) => x !== id) : [...fabledIds, id] })
@@ -84,7 +84,7 @@ export function ModalsNewGame({ ctx }: { ctx: StorytellerContext }) {
             {/* Fabled / Loric */}
             <Box>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.75 }}>
-                <Typography variant="subtitle2" fontWeight={700}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
                   {t('fabled_loric')}
                   {fabledIds.length > 0 && (
                     <Typography component="span" variant="caption" sx={{ ml: 0.75, color: 'warning.main', fontWeight: 700 }}>
@@ -107,10 +107,10 @@ export function ModalsNewGame({ ctx }: { ctx: StorytellerContext }) {
                     const icon = getIconForCharacter(id)
                     return (
                       <Box key={id} sx={{ display: 'flex', alignItems: 'flex-start', gap: 1, p: 0.75, borderRadius: 1, border: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }}>
-                        {icon && <Box component="img" src={icon} sx={{ width: 32, height: 32, objectFit: 'contain', flexShrink: 0, mt: 0.25 }} />}
+                        {icon && <Box component="img" src={icon} alt="" sx={{ width: 32, height: 32, objectFit: 'contain', flexShrink: 0, mt: 0.25 }} />}
                         <Box sx={{ flex: 1, minWidth: 0 }}>
                           <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 0.5, flexWrap: 'wrap' }}>
-                            <Typography variant="body2" fontWeight={700}>{getDisplayName(id, language)}</Typography>
+                            <Typography variant="body2" sx={{ fontWeight: 700 }}>{getDisplayName(id, language)}</Typography>
                             <Typography variant="caption" color="text.secondary">
                               {language !== 'en' ? getDisplayName(id, 'en') : getDisplayName(id, 'zh')}
                             </Typography>
@@ -155,21 +155,21 @@ export function ModalsNewGame({ ctx }: { ctx: StorytellerContext }) {
                           sx={{ py: 0.5, bgcolor: active ? 'action.selected' : undefined }}>
                           {icon && (
                             <ListItemAvatar sx={{ minWidth: 40 }}>
-                              <Box component="img" src={icon} sx={{ width: 32, height: 32, objectFit: 'contain' }} />
+                              <Box component="img" src={icon} alt="" sx={{ width: 32, height: 32, objectFit: 'contain' }} />
                             </ListItemAvatar>
                           )}
                           <ListItemText
                             disableTypography
                             primary={
                               <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 0.75, flexWrap: 'wrap' }}>
-                                <Typography variant="body2" fontWeight={active ? 700 : 600}>
+                                <Typography variant="body2" sx={{ fontWeight: active ? 700 : 600 }}>
                                   {getDisplayName(c.id, language)}
                                 </Typography>
                                 <Typography variant="caption" color="text.secondary">
                                   {language !== 'en' ? getDisplayName(c.id, 'en') : getDisplayName(c.id, 'zh')}
                                 </Typography>
                                 <Typography variant="caption" sx={{ color: c.edition === 'loric' ? 'info.main' : 'warning.main', fontWeight: 600 }}>
-                                  {c.edition === 'loric' ? 'Loric' : 'Fabled'}
+                                  {c.edition === 'loric' ? t('loric') : t('fabled')}
                                 </Typography>
                               </Box>
                             }
