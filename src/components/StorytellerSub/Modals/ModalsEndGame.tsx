@@ -1,7 +1,8 @@
-// @ts-nocheck
+import type { EndGameResult, StorytellerSeat } from '../types'
 import type { StorytellerContext } from '../useStoryteller'
-import React, { useState, useEffect } from 'react'
-import { Box, Button, TextField, Select, MenuItem, FormControl, InputLabel, Chip, Typography, FormControlLabel, Radio, RadioGroup, IconButton, Paper, Collapse } from '@mui/material'
+import { useState, useEffect } from 'react'
+import { Box, Button, TextField, Select, MenuItem, FormControl, InputLabel, Chip, Typography, FormControlLabel, Radio, RadioGroup, IconButton, Collapse } from '@mui/material'
+import type { SelectChangeEvent } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import SaveIcon from '@mui/icons-material/Save'
@@ -13,12 +14,12 @@ import { useT } from '../../../context/I18nContext'
 export function ModalsEndGame({ ctx }: { ctx: StorytellerContext }) {
   const {
     text, endGameResult, setEndGameResult, confirmEndGame, unmarkGameEnded,
-    saveGame, currentDay, language, setDays, currentRecordName, showEndGameModal, setShowEndGameModal,
+    saveGame, currentDay, setDays, currentRecordName, showEndGameModal, setShowEndGameModal,
     activeScriptTitle, gameRecords,
     pendingNewGameAfterSave, setPendingNewGameAfterSave, doOpenNewGamePanel,
   } = ctx
   
-  const playerCount = currentDay.seats.filter((s: any) => !s.isTraveler).length
+  const playerCount = currentDay.seats.filter((s) => !s.isTraveler).length
   const today = new Date().toISOString().split('T')[0]
   const defaultName = activeScriptTitle ? `${activeScriptTitle.replace(/\s+/g, '_')}_${playerCount}p_${today}` : `Game_${today}`
 
@@ -35,7 +36,7 @@ export function ModalsEndGame({ ctx }: { ctx: StorytellerContext }) {
   if (!isVisible || !egr) return null
 
   const togglePlayerTeam = (seat: number, team: 'evil' | 'good') => {
-    setEndGameResult((c: any) => {
+    setEndGameResult((c) => {
       if (!c) return c
       const next = c.playerTeams[seat] === team ? null : team
       return { ...c, playerTeams: { ...c.playerTeams, [seat]: next } }
@@ -44,7 +45,7 @@ export function ModalsEndGame({ ctx }: { ctx: StorytellerContext }) {
 
   const handleSave = () => {
     const existing = gameRecords?.find((r: any) => r.recordName === recordName)
-    const surveyData = {
+    const surveyData: EndGameResult = {
       winner: egr.winner,
       mvp: egr.mvp,
       balanced: egr.balanced,
@@ -77,16 +78,17 @@ export function ModalsEndGame({ ctx }: { ctx: StorytellerContext }) {
     if (!currentRecordName) setTimeout(() => setEndGameResult(null), 100)
   }
 
-  const handleMarkChange = (e: any) => {
-    setMarkOption(e.target.value)
-    if (e.target.value === 'unmark') {
+  const handleMarkChange = (e: SelectChangeEvent) => {
+    const value = e.target.value as 'markDone' | 'unmark'
+    setMarkOption(value)
+    if (value === 'unmark') {
       unmarkGameEnded()
-    } else if (e.target.value === 'markDone') {
-      setDays((d: any) => d.map((day: any) => day.id === currentDay.id ? { ...day, gameEnded: true } : day))
+    } else if (value === 'markDone') {
+      setDays((d) => d.map((day) => day.id === currentDay.id ? { ...day, gameEnded: true } : day))
     }
   }
 
-  const regularSeats = currentDay?.seats?.filter((s: any) => !s.isTraveler) ?? []
+  const regularSeats = currentDay?.seats?.filter((s) => !s.isTraveler) ?? []
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -94,31 +96,35 @@ export function ModalsEndGame({ ctx }: { ctx: StorytellerContext }) {
 
       <Box>
         <Typography variant="subtitle2" sx={{ mb: 1 }}>{t('winner')}</Typography>
-        <RadioGroup row value={egr.winner || ''} onChange={(e) => setEndGameResult((c: any) => c ? { ...c, winner: e.target.value || null } : c)}>
-          <FormControlLabel value="good" control={<Radio />} label={text.good || 'Good'} />
-          <FormControlLabel value="evil" control={<Radio />} label={text.evil || 'Evil'} />
+        <RadioGroup row value={egr.winner || ''} onChange={(e) => setEndGameResult((c) => c ? { ...c, winner: e.target.value as EndGameResult['winner'] } : c)}>
+          <FormControlLabel value="good" control={<Radio />} label={text.good || t('good')} />
+          <FormControlLabel value="evil" control={<Radio />} label={text.evil || t('evil')} />
           <FormControlLabel value="storyteller" control={<Radio />} label={t('st')} />
         </RadioGroup>
       </Box>
 
       <FormControl size="small" fullWidth>
         <InputLabel>{t('mvp')}</InputLabel>
-        <Select value={egr.mvp ?? ''} onChange={(e) => setEndGameResult((c: any) => c ? { ...c, mvp: e.target.value || null } : c)} label={t('mvp')}>
+        <Select value={egr.mvp ?? ''} onChange={(e) => setEndGameResult((c) => {
+          if (!c) return c
+          const value = e.target.value as unknown as EndGameResult['mvp'] | ''
+          return { ...c, mvp: value === '' ? null : value }
+        })} label={t('mvp')}>
           <MenuItem value="">{t('select_player')}</MenuItem>
           <MenuItem value="storyteller" sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
             <PersonIcon sx={{ fontSize: '0.9rem', color: 'purple' }} />
             <Box component="span" sx={{ fontStyle: 'italic' }}>{t('storyteller')}</Box>
           </MenuItem>
-          {regularSeats.map((s: any) => (
-            <MenuItem key={s.seat} value={s.seat}>{s.seat}. {s.name || `Player ${s.seat}`}</MenuItem>
+          {regularSeats.map((s: StorytellerSeat) => (
+            <MenuItem key={s.seat} value={s.seat}>{s.seat}. {s.name || `#${s.seat}`}</MenuItem>
           ))}
         </Select>
       </FormControl>
 
-      <StarRating label={t('is_it_balanced')} value={egr.balanced} onChange={(n) => setEndGameResult((c: any) => c ? { ...c, balanced: n } : c)} />
-      <StarRating label={t('fun_for_evil')} value={egr.funEvil} onChange={(n) => setEndGameResult((c: any) => c ? { ...c, funEvil: n } : c)} />
-      <StarRating label={t('fun_for_good')} value={egr.funGood} onChange={(n) => setEndGameResult((c: any) => c ? { ...c, funGood: n } : c)} />
-      <StarRating label={t('replay_this_script')} value={egr.replay} onChange={(n) => setEndGameResult((c: any) => c ? { ...c, replay: n } : c)} />
+      <StarRating label={t('is_it_balanced')} value={egr.balanced} onChange={(n) => setEndGameResult((c) => c ? { ...c, balanced: n } : c)} />
+      <StarRating label={t('fun_for_evil')} value={egr.funEvil} onChange={(n) => setEndGameResult((c) => c ? { ...c, funEvil: n } : c)} />
+      <StarRating label={t('fun_for_good')} value={egr.funGood} onChange={(n) => setEndGameResult((c) => c ? { ...c, funGood: n } : c)} />
+      <StarRating label={t('replay_this_script')} value={egr.replay} onChange={(n) => setEndGameResult((c) => c ? { ...c, replay: n } : c)} />
 
       <TextField
         size="small"
@@ -127,7 +133,7 @@ export function ModalsEndGame({ ctx }: { ctx: StorytellerContext }) {
         fullWidth
         label={t('other_notes')}
         value={egr.otherNote || ''}
-        onChange={(e) => setEndGameResult((c: any) => c ? { ...c, otherNote: e.target.value } : c)}
+        onChange={(e) => setEndGameResult((c) => c ? { ...c, otherNote: e.target.value } : c)}
       />
 
       <Box>
@@ -139,12 +145,12 @@ export function ModalsEndGame({ ctx }: { ctx: StorytellerContext }) {
         </Box>
         <Collapse in={teamsExpanded}>
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 0.5 }}>
-            {regularSeats.map((s: any) => {
+            {regularSeats.map((s: StorytellerSeat) => {
               const team = egr.playerTeams?.[s.seat]
               return (
                 <Chip
                   key={s.seat}
-                  label={`${s.seat}. ${s.name || `P${s.seat}`} ${team === 'evil' ? '🔴' : team === 'good' ? '🔵' : '⚪'}`}
+                  label={`${s.seat}. ${s.name || `#${s.seat}`} ${team === 'evil' ? '🔴' : team === 'good' ? '🔵' : '⚪'}`}
                   clickable
                   color={team === 'evil' ? 'error' : team === 'good' ? 'primary' : 'default'}
                   variant={team ? 'filled' : 'outlined'}
