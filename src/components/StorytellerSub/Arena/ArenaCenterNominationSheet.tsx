@@ -154,7 +154,6 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: StorytellerContext })
           isTimerRunning={isTimerRunning}
           setIsTimerRunning={setIsTimerRunning}
           timerDefaults={timerDefaults}
-          language={language}
         />
       )}
 

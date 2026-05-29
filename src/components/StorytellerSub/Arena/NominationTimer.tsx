@@ -1,5 +1,4 @@
-// @ts-nocheck
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Box, Select, MenuItem, TextField, IconButton } from '@mui/material'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import PauseIcon from '@mui/icons-material/Pause'
@@ -17,7 +16,6 @@ interface NominationTimerProps {
   isTimerRunning: boolean
   setIsTimerRunning: (v: boolean) => void
   timerDefaults?: { nominationActorSeconds?: number; nominationTargetSeconds?: number }
-  language: string
 }
 
 export function NominationTimer({
@@ -28,7 +26,6 @@ export function NominationTimer({
   isTimerRunning,
   setIsTimerRunning,
   timerDefaults,
-  language,
 }: NominationTimerProps) {
   const { t } = useT()
   const [timerEditing, setTimerEditing] = useState(false)
