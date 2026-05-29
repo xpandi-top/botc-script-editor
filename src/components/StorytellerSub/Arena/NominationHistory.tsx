@@ -1,16 +1,16 @@
-// @ts-nocheck
-import React from 'react'
+import type { DayState, VoteRecord } from '../types'
+import type { Language } from '../../../types'
 import { Box, Typography, Select, MenuItem, IconButton, useTheme } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import AutoStoriesIcon from '@mui/icons-material/AutoStories'
 import { makeT } from '../../../lib/t'
 
 interface NominationHistoryProps {
-  voteHistory: any[]
+  voteHistory: VoteRecord[]
   historyFilter: 'all' | 'exile' | 'nomination'
   setHistoryFilter: (v: 'all' | 'exile' | 'nomination') => void
-  language: string
-  updateCurrentDay: (fn: (d: any) => any) => void
+  language: Language
+  updateCurrentDay: (fn: (day: DayState) => DayState) => void
 }
 
 export function NominationHistory({
@@ -20,7 +20,7 @@ export function NominationHistory({
   language,
   updateCurrentDay,
 }: NominationHistoryProps) {
-  const t = makeT(language as any)
+  const t = makeT(language)
   const muiTheme = useTheme()
   const isDark = muiTheme.palette.mode === 'dark'
 
@@ -29,19 +29,19 @@ export function NominationHistory({
   const failedBg   = isDark ? 'rgba(211,47,47,0.28)'   : 'rgba(255,205,210,1)'
   const failedText = isDark ? '#ef9a9a'                 : 'rgba(183,28,28,0.9)'
 
-  const nominatorsToday = [...new Set(voteHistory.map((r: any) => r.actor))]
-  const nomineesToday = [...new Set(voteHistory.map((r: any) => r.target))]
+  const nominatorsToday = [...new Set(voteHistory.map((record) => record.actor))]
+  const nomineesToday = [...new Set(voteHistory.map((record) => record.target))]
 
   const filteredHistory = voteHistory
-    .filter((r: any) => {
+    .filter((record) => {
       if (historyFilter === 'all') return true
-      if (historyFilter === 'exile') return r.isExile
-      return !r.isExile
+      if (historyFilter === 'exile') return record.isExile
+      return !record.isExile
     })
-    .sort((a: any, b: any) => {
+    .sort((a, b) => {
       const voteDiff = (b.voteCount ?? 0) - (a.voteCount ?? 0)
       if (voteDiff !== 0) return voteDiff
-      return (b.createdAt ?? 0) - (a.createdAt ?? 0)
+      return Number(b.id) - Number(a.id)
     })
 
   return (
@@ -120,9 +120,9 @@ export function NominationHistory({
                     : `${record.voteCount}/${record.requiredVotes}`
                   }{voterList}
                 </Typography>
-                <IconButton size="small" color="error" onClick={() => updateCurrentDay((d: any) => ({
-                  ...d,
-                  voteHistory: d.voteHistory.filter((r: any) => r.id !== record.id),
+                <IconButton size="small" color="error" onClick={() => updateCurrentDay((day) => ({
+                  ...day,
+                  voteHistory: day.voteHistory.filter((voteRecord) => voteRecord.id !== record.id),
                 }))}>
                   <DeleteIcon sx={{ fontSize: '1rem' }} />
                 </IconButton>
