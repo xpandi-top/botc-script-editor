@@ -178,7 +178,7 @@ export function AggregatedLogModal({ ctx }: { ctx: StorytellerContext }) {
     const shareText = buildShareText(days, text, language, effectiveVisFilter, typeFilters)
     try {
       if (navigator.share) {
-        await navigator.share({ title: text.gameLogTitle || 'Game Log', text: shareText })
+        await navigator.share({ title: text.gameLogTitle || t('game_log_title'), text: shareText })
       } else {
         await navigator.clipboard.writeText(shareText)
         setShareCopied(true)
@@ -273,9 +273,9 @@ export function AggregatedLogModal({ ctx }: { ctx: StorytellerContext }) {
       maxWidth={aiOpen && !isMobile ? 'lg' : 'sm'}
       paperSx={{ height: { xs: '100dvh', sm: '82vh' }, transition: 'max-width 0.2s ease' }}>
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 0 }}>
-        <Typography fontWeight={700}>{text.gameLogTitle || (t('game_log_title'))}</Typography>
+        <Typography fontWeight={700}>{text.gameLogTitle || t('game_log_title')}</Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-          <Tooltip title={shareCopied ? (text.shareLogCopied || 'Copied!') : (text.shareLog || 'Share Log')}>
+          <Tooltip title={shareCopied ? (text.shareLogCopied || t('copied')) : (text.shareLog || t('share_log'))}>
             <IconButton size="small" color={shareCopied ? 'success' : 'default'} onClick={handleShare}>
               {shareCopied ? <CheckIcon fontSize="small" /> : <ShareIcon fontSize="small" />}
             </IconButton>
@@ -300,7 +300,7 @@ export function AggregatedLogModal({ ctx }: { ctx: StorytellerContext }) {
           />
           <ToggleButtonGroup size="small" value={quickVis} exclusive onChange={(_, v) => v && setQuickVis(v)}>
             <ToggleButton value="public" sx={{ fontSize: '0.7rem', px: 1 }}>{t('pub')}</ToggleButton>
-            <ToggleButton value="st-only" sx={{ fontSize: '0.7rem', px: 1 }}>ST</ToggleButton>
+            <ToggleButton value="st-only" sx={{ fontSize: '0.7rem', px: 1 }}>{t('st')}</ToggleButton>
           </ToggleButtonGroup>
           <Tooltip title={t('add')}>
             <IconButton size="small" color="primary" onClick={handleAddQuick} sx={{ border: '1px solid', borderColor: 'primary.main' }}>
@@ -323,7 +323,7 @@ export function AggregatedLogModal({ ctx }: { ctx: StorytellerContext }) {
             onChange={(_, v) => v && setVisFilter(v)}>
             <ToggleButton value="all" sx={{ fontSize: '0.7rem', px: 1 }}>{t('all')}</ToggleButton>
             <ToggleButton value="public" sx={{ fontSize: '0.7rem', px: 1 }}>{t('public')}</ToggleButton>
-            {isNight && <ToggleButton value="st-only" sx={{ fontSize: '0.7rem', px: 1 }}>ST</ToggleButton>}
+            {isNight && <ToggleButton value="st-only" sx={{ fontSize: '0.7rem', px: 1 }}>{t('st')}</ToggleButton>}
           </ToggleButtonGroup>
         </Box>
       </Box>
@@ -339,7 +339,7 @@ export function AggregatedLogModal({ ctx }: { ctx: StorytellerContext }) {
             sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, mb: 1, '&:before': { display: 'none' }, '&.Mui-expanded': { mb: 1 } }}>
             <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ minHeight: 36, px: 1.5, '& .MuiAccordionSummary-content': { my: 0.5 } }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
-                <Typography variant="subtitle2" fontWeight={700} color="primary.main">Day {day}</Typography>
+                <Typography variant="subtitle2" fontWeight={700} color="primary.main">{tpl('day_n', day)}</Typography>
                 <Typography variant="caption" color="text.secondary">({dayEntries.length})</Typography>
               </Box>
             </AccordionSummary>
@@ -380,7 +380,7 @@ export function AggregatedLogModal({ ctx }: { ctx: StorytellerContext }) {
                           label={entry.type === 'vote' ? text.filterVote : entry.type === 'skill' ? text.filterSkill : text.filterEvent}
                           color={ENTRY_COLORS[entry.type] || 'default'} />
                         {entry.visibility === 'st-only' && (
-                          <Chip label="ST" size="small" color="warning" sx={{ height: 18, fontSize: '0.62rem' }} />
+                          <Chip label={t('st')} size="small" color="warning" sx={{ height: 18, fontSize: '0.62rem' }} />
                         )}
                         <Chip label={phaseLabel(entry.phase, text)} size="small" variant="outlined" sx={{ height: 18, fontSize: '0.62rem' }} />
                         <Box sx={{ flex: 1 }} />
