@@ -1,7 +1,6 @@
-// @ts-nocheck
-import type { StorytellerSeat } from '../types'
+import type { DayState, Phase, SkillOverlayState, SkillRecord, StorytellerSeat } from '../types'
 import type { StorytellerContext } from '../useStoryteller'
-import React, { useState, useEffect, useMemo, useRef } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import {
   Accordion, AccordionDetails, AccordionSummary,
@@ -45,35 +44,41 @@ function buildStTag(label: string, sourceCharId?: string | null): string {
 }
 
 type SkillType = 'know' | 'guess' | 'change' | 'changeStatus' | ''
+type KnowResult = 'characters' | 'demonBluffs' | 'team' | 'type' | 'sameTeam' | 'diffTeam' | 'sameType' | 'diffType' | 'info' | 'truefalse'
+type TeamValue = 'good' | 'evil'
+type CharacterType = 'townsfolk' | 'outsider' | 'minion' | 'demon'
+type ChangeTo = 'character' | 'team'
+type ChangeStatusSubtype = 'addST' | 'removeST' | 'addPublic' | 'removePublic'
+type ButtonColor = 'primary' | 'secondary' | 'success' | 'error' | 'info' | 'warning'
 
 // ── Log helpers ─────────────────────────────────────────────────
 
-const ENTRY_COLORS: Record<string, 'primary' | 'secondary' | 'success' | 'error' | 'warning'> = {
+const ENTRY_COLORS: Record<string, ButtonColor | 'default'> = {
   vote: 'primary', skill: 'secondary', event: 'success',
 }
 
-function phaseLabel(phase: string, text: any): string {
-  return { night: text.nightPhase, private: text.privateChat, public: text.publicChat, nomination: text.nomination }[phase] ?? phase
+function phaseLabel(phase: string, text: StorytellerContext['text']): string {
+  const labels: Record<Phase, string> = { night: text.nightPhase, private: text.privateChat, public: text.publicChat, nomination: text.nomination }
+  return labels[phase as Phase] ?? phase
 }
 
 // ── Component ────────────────────────────────────────────────────
-export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; seat: any }) {
+export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; seat: StorytellerSeat | null }) {
   const {
     language, text, currentDay, days,
     skillOverlay, setSkillOverlay, closeSkillOverlay, openSeatSkill,
-    currentScriptCharacters, seatTagDrafts, setSeatTagDrafts,
+    currentScriptCharacters, setSeatTagDrafts,
     customTagPool, updateSeatWithLog, updateCurrentDay, appendEvent,
-    addCustomTag, playerModalSeat, setPlayerModalSeat,
+    playerModalSeat, setPlayerModalSeat,
     editLogEntry, removeLogEntry, addQuickEvent,
     nightShowCharacter, activeScriptSlug, scriptOptions,
   } = ctx
 
-  const pinnedRevisions = scriptOptions?.find((s: any) => s.slug === activeScriptSlug)?.pinnedRevisions
+  const pinnedRevisions = scriptOptions?.find((s) => s.slug === activeScriptSlug)?.pinnedRevisions
 
   const { t, tpl } = useT()
-  const zh = language === 'zh'
   const isOpen = playerModalSeat === seat?.seat
-  const [abilityModalCharId, setAbilityModalCharId] = React.useState<string | null>(null)
+  const [abilityModalCharId, setAbilityModalCharId] = useState<string | null>(null)
   const abilitySectionRef = useRef<HTMLDivElement>(null)
   const muiTheme = useTheme()
   const isDark = muiTheme.palette.mode === 'dark'
@@ -94,18 +99,18 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
   const [skillType, setSkillType] = useState<SkillType>('')
   const [targets, setTargets] = useState<Set<number>>(new Set())
   // know/guess sub-state
-  const [knowResult, setKnowResult] = useState('info') // 'characters'|'team'|'type'|'sameTeam'|'diffTeam'|'sameType'|'diffType'|'info'|'truefalse'
+  const [knowResult, setKnowResult] = useState<KnowResult>('info')
   const [knowChars, setKnowChars] = useState<string[]>([])
-  const [knowTeam, setKnowTeam] = useState('good')
-  const [knowType, setKnowType] = useState('townsfolk')
+  const [knowTeam, setKnowTeam] = useState<TeamValue>('good')
+  const [knowType, setKnowType] = useState<CharacterType>('townsfolk')
   const [knowInfo, setKnowInfo] = useState('')
   const [knowTrueFalse, setKnowTrueFalse] = useState(true)
   // change sub-state
-  const [changeTo, setChangeTo] = useState('character')
+  const [changeTo, setChangeTo] = useState<ChangeTo>('character')
   const [changeToChar, setChangeToChar] = useState('')
-  const [changeToTeam, setChangeToTeam] = useState('good')
+  const [changeToTeam, setChangeToTeam] = useState<TeamValue>('good')
   // changeStatus sub-state
-  const [csSubtype, setCsSubtype] = useState('addST') // addST|removeST|addPublic|removePublic
+  const [csSubtype, setCsSubtype] = useState<ChangeStatusSubtype>('addST')
   const [tagInput, setTagInput] = useState('')
   const [removeTagVal, setRemoveTagVal] = useState('')
   const [isSuccess, setIsSuccess] = useState(true)
@@ -156,19 +161,19 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
   // ── Character helpers (safe even when seat is null) ──
   const actualCharId = seat?.characterId ?? null
   const perceivedCharId = seat?.userCharacterId || seat?.characterId || null
-  const allSeats: any[] = currentDay?.seats ?? []
+  const allSeats: StorytellerSeat[] = currentDay?.seats ?? []
   const isNight = (currentDay?.phase ?? 'private') === 'night'
 
   // ── useMemo hooks — must be before any conditional return ──
   const stTagsForTargets = useMemo(() => {
     const s = new Set<string>()
-    for (const n of targets) { const seat = allSeats.find((x: any) => x.seat === n); (seat?.stTags || []).forEach((t: string) => s.add(t)) }
+    for (const n of targets) { const seat = allSeats.find((x) => x.seat === n); (seat?.stTags || []).forEach((tag) => s.add(tag)) }
     return Array.from(s)
   }, [targets, allSeats])
 
   const publicTagsForTargets = useMemo(() => {
     const s = new Set<string>()
-    for (const n of targets) { const seat = allSeats.find((x: any) => x.seat === n); (seat?.customTags || []).forEach((t: string) => s.add(t)) }
+    for (const n of targets) { const seat = allSeats.find((x) => x.seat === n); (seat?.customTags || []).forEach((tag) => s.add(tag)) }
     return Array.from(s)
   }, [targets, allSeats])
 
@@ -177,7 +182,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
   const scriptReminderTags = useMemo(() => {
     const ids = new Set<string>([
       ...(currentScriptCharacters ?? []),
-      ...allSeats.map((s: any) => s.characterId).filter(Boolean),
+      ...allSeats.map((s) => s.characterId).filter((id): id is string => Boolean(id)),
     ])
     const tags = new Set<string>()
     for (const id of ids) {
@@ -194,7 +199,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
   // All script chars with deduplicated reminders (empty array = no reminders)
   // Sorted: in-play first, then alphabetically within each group
   const scriptAllChars = useMemo(() => {
-    const inPlayIds = new Set(allSeats.map((s: any) => s.characterId).filter(Boolean))
+    const inPlayIds = new Set(allSeats.map((s) => s.characterId).filter((id): id is string => Boolean(id)))
     const ids = [...new Set<string>([...(currentScriptCharacters ?? []), ...inPlayIds])]
     return ids
       .map(id => {
@@ -228,7 +233,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
   }, [skillType, knowResult, knowChars, knowInfo, changeTo, changeToChar, csSubtype, tagInput, removeTagVal])
 
   const logDays = useMemo(
-    () => filterPlayerLogByCurrentPhase(buildPlayerLogEntries(days || [currentDay], seat?.seat, language), isNight),
+    () => filterPlayerLogByCurrentPhase(buildPlayerLogEntries(days || [currentDay], seat?.seat ?? -1, language), isNight),
     [days, currentDay, seat?.seat, isNight, language],
   )
 
@@ -245,17 +250,17 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
   const actualIcon = actualCharId ? getIconForCharacter(actualCharId) : null
   const perceivedIcon = perceivedCharId ? getIconForCharacter(perceivedCharId) : null
 
-  const reassignChar = (cid: string) => { updateSeatWithLog(seat.seat, (s: any) => ({ ...s, characterId: cid })); setShowCharPicker(false) }
-  const reassignPerceived = (cid: string) => { updateSeatWithLog(seat.seat, (s: any) => ({ ...s, userCharacterId: cid })); setShowCharPicker(false) }
+  const reassignChar = (cid: string) => { updateSeatWithLog(seat.seat, (s: StorytellerSeat) => ({ ...s, characterId: cid })); setShowCharPicker(false) }
+  const reassignPerceived = (cid: string) => { updateSeatWithLog(seat.seat, (s: StorytellerSeat) => ({ ...s, userCharacterId: cid })); setShowCharPicker(false) }
 
   // ── ST Tag helpers ──
   const stTags: string[] = seat.stTags || []
-  const removeStTag = (tag: string) => updateSeatWithLog(seat.seat, (s: any) => ({ ...s, stTags: (s.stTags || []).filter((t: string) => t !== tag) }))
+  const removeStTag = (tag: string) => updateSeatWithLog(seat.seat, (s: StorytellerSeat) => ({ ...s, stTags: (s.stTags || []).filter((t) => t !== tag) }))
   const addStTag = (label: string, sourceCharId?: string | null) => {
     const clean = label.trim().replace(/^📝+/, '')
     if (!clean) return
     const tag = buildStTag(clean, sourceCharId)
-    updateSeatWithLog(seat.seat, (s: any) => ({ ...s, stTags: [...new Set([...(s.stTags || []), tag])] }))
+    updateSeatWithLog(seat.seat, (s: StorytellerSeat) => ({ ...s, stTags: [...new Set([...(s.stTags || []), tag])] }))
     setStTagInput('')
   }
   const toggleDefaultStTag = (label: string) => {
@@ -269,14 +274,13 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
     const val = (label ?? publicTagInput).trim()
     if (!val) return
     const stored = sourceCharId ? `📝${val}::${sourceCharId}` : val
-    updateSeatWithLog(seat.seat, (s: any) => ({ ...s, customTags: [...new Set([...s.customTags, stored])] }))
-    setSeatTagDrafts?.((c: any) => ({ ...c, [seat.seat]: '' }))
+    updateSeatWithLog(seat.seat, (s: StorytellerSeat) => ({ ...s, customTags: [...new Set([...s.customTags, stored])] }))
+    setSeatTagDrafts?.((c: Record<number, string>) => ({ ...c, [seat.seat]: '' }))
     setPublicTagInput('')
   }
-  const toggleCustomTag = (tag: string) => updateSeatWithLog(seat.seat, (s: any) => ({
-    ...s, customTags: s.customTags.includes(tag) ? s.customTags.filter((v: any) => v !== tag) : [...s.customTags, tag],
+  const toggleCustomTag = (tag: string) => updateSeatWithLog(seat.seat, (s: StorytellerSeat) => ({
+    ...s, customTags: s.customTags.includes(tag) ? s.customTags.filter((v) => v !== tag) : [...s.customTags, tag],
   }))
-  const characterTag = (c: string) => `💀${c}`
   const isCharacterTag = (tag: string) => tag.startsWith('💀')
 
   // ── Night Ability helpers ──
@@ -327,12 +331,12 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
         if (csSubtype === 'addST') {
           const raw = tagInput.trim().replace(/^📝+/, '')
           const tag = buildStTag(raw, actualCharId || null)
-          for (const sn of targetArr) updateSeatWithLog(sn, (s: any) => ({ ...s, stTags: [...new Set([...(s.stTags || []), tag])] }))
+          for (const sn of targetArr) updateSeatWithLog(sn, (s: StorytellerSeat) => ({ ...s, stTags: [...new Set([...(s.stTags || []), tag])] }))
         } else if (csSubtype === 'removeST') {
-          for (const sn of targetArr) updateSeatWithLog(sn, (s: any) => ({ ...s, stTags: (s.stTags || []).filter((t: string) => t !== removeTagVal) }))
+          for (const sn of targetArr) updateSeatWithLog(sn, (s: StorytellerSeat) => ({ ...s, stTags: (s.stTags || []).filter((t) => t !== removeTagVal) }))
         } else if (csSubtype === 'addPublic') {
           const tag = tagInput.trim()
-          for (const sn of targetArr) updateSeatWithLog(sn, (s: any) => {
+          for (const sn of targetArr) updateSeatWithLog(sn, (s: StorytellerSeat) => {
             if (tag === text.aliveTag) return { ...s, alive: false }
             if (tag === text.executedTag) return { ...s, isExecuted: true }
             if (tag === text.traveler) return { ...s, isTraveler: true }
@@ -340,18 +344,18 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
             return { ...s, customTags: [...new Set([...s.customTags, tag])] }
           })
         } else if (csSubtype === 'removePublic') {
-          for (const sn of targetArr) updateSeatWithLog(sn, (s: any) => ({ ...s, customTags: s.customTags.filter((t: string) => t !== removeTagVal) }))
+          for (const sn of targetArr) updateSeatWithLog(sn, (s: StorytellerSeat) => ({ ...s, customTags: s.customTags.filter((t) => t !== removeTagVal) }))
         }
       } else if (skillType === 'change') {
         if (changeTo === 'character' && changeToChar) {
-          for (const sn of targetArr) updateSeatWithLog(sn, (s: any) => ({ ...s, characterId: changeToChar, userCharacterId: changeToChar }))
+          for (const sn of targetArr) updateSeatWithLog(sn, (s: StorytellerSeat) => ({ ...s, characterId: changeToChar, userCharacterId: changeToChar }))
         } else if (changeTo === 'team') {
-          for (const sn of targetArr) updateSeatWithLog(sn, (s: any) => ({ ...s, teamTag: changeToTeam === 'evil' ? 'evil' : 'good' }))
+          for (const sn of targetArr) updateSeatWithLog(sn, (s: StorytellerSeat) => ({ ...s, teamTag: changeToTeam === 'evil' ? 'evil' : 'good' }))
         }
       }
     }
 
-    const sr = {
+    const sr: SkillRecord = {
       id: `${Date.now()}`,
       actor: seat.seat,
       targets: targetArr,
@@ -362,7 +366,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
       result: isSuccess ? 'success' as const : 'failure' as const,
       activatedDuringPhase: currentDay?.phase ?? 'night',
     }
-    updateCurrentDay((d: any) => appendEvent({ ...d, skillHistory: [sr, ...d.skillHistory] }, 'skill', detail))
+    updateCurrentDay((d: DayState) => appendEvent({ ...d, skillHistory: [sr, ...d.skillHistory] }, 'skill', detail))
     setSkillType(''); setTargets(new Set()); setTagInput(''); setRemoveTagVal(''); setSkillNote('')
     setKnowChars([]); setKnowInfo(''); setChangeToChar('')
   }
@@ -389,7 +393,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
           <Box sx={{ minWidth: 0 }}>
             <Typography variant="caption" color="text.secondary">{t('actual_short')}</Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
-              <Typography variant="body2" fontWeight={600} sx={{ lineHeight: 1.2 }}>{actualCharId ? getDisplayName(actualCharId, language) : t('none_assigned')}</Typography>
+              <Typography variant="body2" sx={{ fontWeight: 600, lineHeight: 1.2 }}>{actualCharId ? getDisplayName(actualCharId, language) : t('none_assigned')}</Typography>
               {actualCharId && getAbilityTextForScript(actualCharId, language, pinnedRevisions) && (
                 <IconButton size="small" sx={{ p: 0.25, ml: 0.25 }} onClick={(e) => { e.stopPropagation(); setAbilityModalCharId(actualCharId) }}>
                   <InfoOutlinedIcon sx={{ fontSize: '0.9rem', color: 'text.secondary' }} />
@@ -406,7 +410,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
             <Box sx={{ minWidth: 0 }}>
               <Typography variant="caption" color="warning.main">{t('perceived_character')}</Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
-                <Typography variant="body2" fontWeight={600} sx={{ lineHeight: 1.2 }}>{perceivedCharId ? getDisplayName(perceivedCharId, language) : '—'}</Typography>
+                <Typography variant="body2" sx={{ fontWeight: 600, lineHeight: 1.2 }}>{perceivedCharId ? getDisplayName(perceivedCharId, language) : '—'}</Typography>
                 {perceivedCharId && getAbilityTextForScript(perceivedCharId, language, pinnedRevisions) && (
                   <IconButton size="small" sx={{ p: 0.25, ml: 0.25 }} onClick={(e) => { e.stopPropagation(); setAbilityModalCharId(perceivedCharId) }}>
                     <InfoOutlinedIcon sx={{ fontSize: '0.9rem', color: 'text.secondary' }} />
@@ -459,12 +463,12 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
       {/* Status toggles */}
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 0.75 }}>
         {[
-          { label: text.aliveTag,    active: !seat.alive,      color: 'error',   toggle: (s: any) => ({ ...s, alive: !s.alive }) },
-          { label: text.executedTag, active: seat.isExecuted,  color: 'error',   toggle: (s: any) => ({ ...s, isExecuted: !s.isExecuted }) },
-          { label: text.traveler,    active: seat.isTraveler,  color: 'info',    toggle: (s: any) => ({ ...s, isTraveler: !s.isTraveler }) },
-          { label: text.noVoteTag,   active: seat.hasNoVote,   color: 'warning', toggle: (s: any) => ({ ...s, hasNoVote: !s.hasNoVote }) },
+          { label: text.aliveTag,    active: !seat.alive,      color: 'error' as const,   toggle: (s: StorytellerSeat) => ({ ...s, alive: !s.alive }) },
+          { label: text.executedTag, active: seat.isExecuted,  color: 'error' as const,   toggle: (s: StorytellerSeat) => ({ ...s, isExecuted: !s.isExecuted }) },
+          { label: text.traveler,    active: seat.isTraveler,  color: 'info' as const,    toggle: (s: StorytellerSeat) => ({ ...s, isTraveler: !s.isTraveler }) },
+          { label: text.noVoteTag,   active: seat.hasNoVote,   color: 'warning' as const, toggle: (s: StorytellerSeat) => ({ ...s, hasNoVote: !s.hasNoVote }) },
         ].map(({ label, active, color, toggle }) => (
-          <Button key={label} size="small" variant={active ? 'contained' : 'outlined'} color={active ? color as any : 'primary'}
+          <Button key={label} size="small" variant={active ? 'contained' : 'outlined'} color={active ? color : 'primary'}
             onClick={() => updateSeatWithLog(seat.seat, toggle)}>
             {label}
           </Button>
@@ -513,7 +517,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
               <Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
                   {charIcon && <Box component="img" src={charIcon as string} sx={{ width: 16, height: 16, borderRadius: '50%' }} />}
-                  <Typography variant="caption" color="text.secondary" fontWeight={600}>
+                  <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
                     {getDisplayName(selectedPublicChar, language)}
                   </Typography>
                   <Typography variant="caption" color="text.secondary" sx={{ ml: 0.5 }}>
@@ -566,9 +570,9 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
         <Button variant="contained" onClick={() => handleAddPublicTag(undefined, selectedPublicChar)} sx={{ minWidth: 40, px: 1 }}>+</Button>
       </Box>
       {/* Tag pool chips — when char selected, clicks add linked version */}
-      {customTagPool?.filter((t: string) => !isCharacterTag(t)).length > 0 && (
+      {customTagPool?.filter((tag) => !isCharacterTag(tag)).length > 0 && (
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 0.5 }}>
-          {customTagPool.filter((t: string) => !isCharacterTag(t)).map((tag: string) => {
+          {customTagPool.filter((tag) => !isCharacterTag(tag)).map((tag) => {
             const linkedCharId = charPublicPickerOpen ? selectedPublicChar : null
             const storedLinked = linkedCharId ? `📝${tag}::${linkedCharId}` : tag
             const active = seat.customTags.includes(linkedCharId ? storedLinked : tag)
@@ -708,7 +712,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
               <Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
                   {charIcon && <Box component="img" src={charIcon as string} sx={{ width: 16, height: 16, borderRadius: '50%' }} />}
-                  <Typography variant="caption" color="text.secondary" fontWeight={600}>
+                  <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
                     {getDisplayName(selectedReminderChar, language)}
                   </Typography>
                   <Typography variant="caption" color="text.secondary" sx={{ ml: 0.5 }}>
@@ -775,7 +779,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
   )
 
   // Helper: player tag summary string for target list
-  const seatTagSummary = (s: any) => {
+  const seatTagSummary = (s: StorytellerSeat) => {
     const tags = [
       ...s.customTags,
       ...(s.stTags || []).map((t: string) => parseStTag(t).label),
@@ -790,7 +794,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
     onToggle: (id: string) => void,
     selectedColor: 'primary' | 'secondary',
   ) => {
-    const inPlayIds = new Set((currentDay?.seats ?? []).map((s: any) => s.characterId).filter(Boolean))
+    const inPlayIds = new Set((currentDay?.seats ?? []).map((s) => s.characterId).filter((id): id is string => Boolean(id)))
     const bluffIds = new Set(currentDay?.demonBluffs ?? [])
     const TEAM_ORDER_LIST = ['townsfolk', 'outsider', 'minion', 'demon'] as const
     const TEAM_COLOR_MAP: Record<string, string> = {
@@ -813,7 +817,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
             <Box key={team}>
               {si > 0 && <Divider sx={{ my: 0.5 }} />}
               <Typography variant="caption" sx={{ display: 'block', fontWeight: 700, px: 0.5, py: 0.25, color: teamColor, fontSize: '0.65rem', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-                {t(team as any)}
+                {t(team)}
               </Typography>
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                 {grouped[team].map((c) => {
@@ -846,7 +850,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
 
   const PlayerList = ({ showTags = true }: { showTags?: boolean }) => (
     <Box sx={{ maxHeight: 160, overflow: 'auto', border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 0.5 }}>
-      {allSeats.map((s: any) => {
+      {allSeats.map((s) => {
         const charName = s.characterId ? getDisplayName(s.characterId, language) : ''
         const tagSummary = seatTagSummary(s)
         const char = s.characterId ? characterById[s.characterId] : null
@@ -893,13 +897,13 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
         // Active skillOverlay form (from openSeatSkill)
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
           <Box sx={{ maxHeight: 200, overflow: 'auto', border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 0.5 }}>
-            {(currentDay?.seats ?? []).map((s: any) => {
+            {(currentDay?.seats ?? []).map((s) => {
               const isChecked = skillOverlay.draft?.targets?.includes(s.seat)
               const publicTags = [...(s.customTags ?? []), ...(!s.alive ? [text.aliveTag] : []), ...(s.hasNoVote ? [text.noVoteTag] : [])]
-              const toggleTarget = () => setSkillOverlay((p: any) => {
+              const toggleTarget = () => setSkillOverlay((p: SkillOverlayState | null) => {
                 if (!p) return p
                 const ts = p.draft.targets.includes(s.seat)
-                  ? p.draft.targets.filter((t: number) => t !== s.seat)
+                  ? p.draft.targets.filter((targetSeat) => targetSeat !== s.seat)
                   : [...p.draft.targets, s.seat]
                 const tn = { ...p.draft.targetNotes }
                 if (!ts.includes(s.seat)) delete tn[s.seat]
@@ -935,7 +939,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
                         size="small" fullWidth
                         placeholder={t('player_note')}
                         value={skillOverlay.draft?.targetNotes?.[s.seat] ?? ''}
-                        onChange={(e) => setSkillOverlay((p: any) => p ? { ...p, draft: { ...p.draft, targetNotes: { ...p.draft.targetNotes, [s.seat]: e.target.value } } } : p)}
+                        onChange={(e) => setSkillOverlay((p: SkillOverlayState | null) => p ? { ...p, draft: { ...p.draft, targetNotes: { ...p.draft.targetNotes, [s.seat]: e.target.value } } } : p)}
                         sx={{ '& .MuiInputBase-input': { fontSize: '0.8rem' } }}
                       />
                     </Box>
@@ -945,16 +949,16 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
             })}
           </Box>
           <TextField size="small" fullWidth label={text.statement} value={skillOverlay.draft?.statement ?? ''}
-            onChange={(e) => setSkillOverlay((p: any) => p ? { ...p, draft: { ...p.draft, statement: e.target.value } } : p)} />
+            onChange={(e) => setSkillOverlay((p: SkillOverlayState | null) => p ? { ...p, draft: { ...p.draft, statement: e.target.value } } : p)} />
           <TextField size="small" fullWidth label={text.note} value={skillOverlay.draft?.note ?? ''}
-            onChange={(e) => setSkillOverlay((p: any) => p ? { ...p, draft: { ...p.draft, note: e.target.value } } : p)} />
+            onChange={(e) => setSkillOverlay((p: SkillOverlayState | null) => p ? { ...p, draft: { ...p.draft, note: e.target.value } } : p)} />
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <Box sx={{ display: 'flex', gap: 0.5 }}>
               {(['public', 'st-only'] as const).map((v) => (
                 <Button key={v} size="small"
                   variant={(skillOverlay.visibility ?? 'public') === v ? 'contained' : 'outlined'}
                   color={v === 'st-only' ? 'warning' : 'primary'}
-                  onClick={() => setSkillOverlay((p: any) => p ? { ...p, visibility: v } : p)}
+                  onClick={() => setSkillOverlay((p: SkillOverlayState | null) => p ? { ...p, visibility: v } : p)}
                   sx={{ fontSize: '0.72rem', py: 0.25 }}>
                   {v === 'public' ? t('public') : t('st_only')}
                 </Button>
@@ -993,7 +997,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
               <Typography variant="caption" color="text.secondary">{t('result')}</Typography>
               {/* Result type button group */}
               <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
-                {[
+                {([
                   { key: 'characters', label: t('characters_section') },
                   { key: 'demonBluffs', label: t('demon_bluffs') },
                   { key: 'team', label: t('team_label') },
@@ -1004,7 +1008,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
                   { key: 'diffType', label: t('diff_type') },
                   { key: 'info', label: t('info') },
                   { key: 'truefalse', label: t('true_false') },
-                ].map(({ key, label }) => (
+                ] as Array<{ key: KnowResult; label: string }>).map(({ key, label }) => (
                   <Chip key={key} label={label} size="small" clickable
                     color={knowResult === key ? 'primary' : 'default'}
                     variant={knowResult === key ? 'filled' : 'outlined'}
@@ -1105,7 +1109,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
                   <Button key={key} size="small"
                     variant={csSubtype === key ? 'contained' : 'outlined'}
                     color={key.startsWith('add') ? 'success' : 'error'}
-                    onClick={() => { setCsSubtype(key); setRemoveTagVal(''); setTagInput('') }}>
+                    onClick={() => { setCsSubtype(key as ChangeStatusSubtype); setRemoveTagVal(''); setTagInput('') }}>
                     {label}
                   </Button>
                 ))}
@@ -1135,13 +1139,13 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
                   <TextField size="small" fullWidth placeholder={t('public_tag')} value={tagInput}
                     onChange={(e) => setTagInput(e.target.value)} />
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                    {[text.aliveTag, text.executedTag, text.traveler, text.noVoteTag].filter(Boolean).map((tag: string) => (
+                    {[text.aliveTag, text.executedTag, text.traveler, text.noVoteTag].filter(Boolean).map((tag) => (
                       <Chip key={tag} label={tag} size="small" clickable
                         color={tagInput === tag ? 'primary' : 'default'}
                         variant={tagInput === tag ? 'filled' : 'outlined'}
                         onClick={() => setTagInput(tagInput === tag ? '' : tag)} />
                     ))}
-                    {customTagPool?.filter((tag: string) => !tag.startsWith('💀')).map((tag: string) => (
+                    {customTagPool?.filter((tag) => !tag.startsWith('💀')).map((tag) => (
                       <Chip key={tag} label={tag} size="small" clickable
                         color={tagInput === tag ? 'primary' : 'default'}
                         variant={tagInput === tag ? 'filled' : 'outlined'}
@@ -1191,7 +1195,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
   const logSection = (
     <Accordion expanded={logExpanded} onChange={(_, v) => setLogExpanded(v)} sx={{ boxShadow: 'none', border: '1px solid', borderColor: 'divider', borderRadius: '4px !important', '&:before': { display: 'none' } }}>
       <AccordionSummary expandIcon={<ExpandMoreIcon fontSize="small" />} sx={{ minHeight: 36, '& .MuiAccordionSummary-content': { my: 0.5 } }}>
-        <Typography variant="caption" fontWeight={700} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}><ListIcon fontSize="small" />{t('event_log')}</Typography>
+        <Typography variant="caption" sx={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: 0.5 }}><ListIcon fontSize="small" />{t('event_log')}</Typography>
       </AccordionSummary>
       <AccordionDetails sx={{ pt: 0, pb: 1, px: 1 }}>
         {/* Quick-add */}
@@ -1212,9 +1216,9 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
         ) : (
           logDays.map(({ day, entries }) => (
             <Box key={day} sx={{ mb: 1 }}>
-              <Typography variant="caption" fontWeight={700} color="primary.main">{tpl('day_n', day)}</Typography>
+              <Typography variant="caption" color="primary.main" sx={{ fontWeight: 700 }}>{tpl('day_n', day)}</Typography>
               <Divider sx={{ mb: 0.5, mt: 0.25 }} />
-              {entries.map((e: any) => (
+              {entries.map((e) => (
                 <Box key={e.id} sx={{ mb: 0.5 }}>
                   {editingId === e.id ? (
                     <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
@@ -1231,14 +1235,14 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
                     }}>
                       <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center', flexWrap: 'wrap', mb: 0.25 }}>
                         <Chip size="small" sx={{ height: 18, fontSize: '0.62rem' }}
-                          label={e.type === 'vote' ? text.filterVote : e.type === 'skill' ? text.filterSkill : text.filterEvent}
-                          color={(ENTRY_COLORS[e.type] ?? 'default') as any} />
+                          label={e.kind === 'vote' ? text.filterVote : e.kind === 'skill' ? text.filterSkill : text.filterEvent}
+                          color={ENTRY_COLORS[e.kind] ?? 'default'} />
                         {e.visibility === 'st-only' && (
                           <Chip label={t('st')} size="small" color="warning" sx={{ height: 18, fontSize: '0.62rem' }} />
                         )}
                         {e.phase && <Chip label={phaseLabel(e.phase, text)} size="small" variant="outlined" sx={{ height: 18, fontSize: '0.62rem' }} />}
                         <Box sx={{ flex: 1 }} />
-                        <IconButton size="small" sx={{ p: 0.25 }} onClick={() => handleEdit(e.id, e.editable)}>
+                        <IconButton size="small" sx={{ p: 0.25 }} onClick={() => handleEdit(e.id, e.text)}>
                           <EditIcon sx={{ fontSize: 14 }} />
                         </IconButton>
                         <IconButton size="small" sx={{ p: 0.25 }} color="error" onClick={() => removeLogEntry(e.id)}>
@@ -1260,7 +1264,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
   const modal = (
     <ResponsiveDialog open={isOpen} onClose={handleClose} maxWidth="sm">
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 0.5, pt: 1.5, px: 2 }}>
-        <Typography fontWeight={700}>#{seat.seat} {seat.name}</Typography>
+        <Typography sx={{ fontWeight: 700 }}>#{seat.seat} {seat.name}</Typography>
         <IconButton size="small" onClick={handleClose}><CloseIcon fontSize="small" /></IconButton>
       </DialogTitle>
       <ResponsiveDialogContent sx={{ pt: 1.5, px: 2 }}>
