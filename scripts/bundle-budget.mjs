@@ -42,8 +42,10 @@ function gzipSize(path) {
   return gzipSync(readFileSync(path)).length
 }
 
-function firstMatchingAsset(files, pattern) {
-  return files.find(({ path }) => pattern.test(relative(DIST_DIR, path)))
+function largestMatchingAsset(files, pattern) {
+  return files
+    .filter(({ path }) => pattern.test(relative(DIST_DIR, path)))
+    .sort((a, b) => b.size - a.size)[0]
 }
 
 function readPrecacheEntries(files) {
@@ -63,8 +65,8 @@ if (!existsSync(DIST_DIR)) {
 const files = walk(DIST_DIR)
 const distSize = files.reduce((sum, file) => sum + file.size, 0)
 const largestAsset = files.reduce((largest, file) => file.size > largest.size ? file : largest, files[0])
-const main = firstMatchingAsset(files, /^assets\/index-[^/]+\.js$/)
-const vendor = firstMatchingAsset(files, /^assets\/vendor-[^/]+\.js$/)
+const main = largestMatchingAsset(files, /^assets\/index-[^/]+\.js$/)
+const vendor = largestMatchingAsset(files, /^assets\/vendor-[^/]+\.js$/)
 const precacheEntries = readPrecacheEntries(files)
 const precacheSize = precacheEntries.reduce((sum, file) => sum + file.size, 0)
 
