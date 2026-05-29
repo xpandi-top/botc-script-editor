@@ -124,7 +124,7 @@ describe('CommunicationBoard — desktop (1280px)', () => {
 
   it('clicking number phrase shows pending N UI', () => {
     renderBoard()
-    fireEvent.click(screen.getByText('Choose [N] player(s).'))
+    fireEvent.click(screen.getByText('Choose N players.'))
     // Add + Cancel chips appear
     expect(screen.getAllByText('Add').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Cancel').length).toBeGreaterThan(0)
@@ -132,13 +132,13 @@ describe('CommunicationBoard — desktop (1280px)', () => {
 
   it('clicking character phrase shows autocomplete', () => {
     renderBoard()
-    fireEvent.click(screen.getByText('Your character is [Character].'))
+    fireEvent.click(screen.getByText('You are Character.'))
     expect(screen.getByLabelText(/Select character/i)).toBeInTheDocument()
   })
 
   it('clicking multi-character phrase shows multi autocomplete', () => {
     renderBoard()
-    fireEvent.click(screen.getAllByText('In play: [Characters]')[0])
+    fireEvent.click(screen.getAllByText('In play: Characters')[0])
     // multi-select pending: Add + Cancel chips appear
     expect(screen.getAllByText('Add').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Cancel').length).toBeGreaterThan(0)
@@ -235,7 +235,7 @@ describe('CommunicationBoard — mobile (393px)', () => {
 
   it('number phrase shows pending UI on mobile', () => {
     renderBoard()
-    fireEvent.click(screen.getByText('Choose [N] character(s).'))
+    fireEvent.click(screen.getByText('Choose N characters.'))
     expect(screen.getAllByText('Add').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Cancel').length).toBeGreaterThan(0)
   })
@@ -288,7 +288,7 @@ describe('CommunicationBoard — ZH language', () => {
 
   it('ZH number phrase shows ZH pending UI', () => {
     renderBoard({ language: 'zh' })
-    fireEvent.click(screen.getByText('请选择 [N] 名玩家。'))
+    fireEvent.click(screen.getByText('请选择 N 名玩家。'))
     expect(screen.getAllByText('添加').length).toBeGreaterThan(0)
     expect(screen.getAllByText('取消').length).toBeGreaterThan(0)
   })
@@ -311,7 +311,7 @@ describe('CommunicationBoard — no script characters', () => {
 
   it('character phrase chip still appears but autocomplete has no options', () => {
     renderBoard({ scriptCharacters: [] })
-    fireEvent.click(screen.getByText('Your character is [Character].'))
+    fireEvent.click(screen.getByText('You are Character.'))
     // autocomplete still renders with empty options
     expect(screen.getByLabelText(/Select character/i)).toBeInTheDocument()
   })

@@ -103,9 +103,9 @@ describe('pool click — with focused seat', () => {
     renderTab({}, updateConfig)
 
     // Focus seat 2 input
-    const inputs = screen.getAllByRole('textbox')
-    // inputs[0] = quick-fill; inputs[1..5] = seats 1-5
-    const seat2Input = inputs[2] // index 2 = seat 2
+    const comboboxes = screen.getAllByRole('combobox')
+    // comboboxes[0..4] = seats 1-5
+    const seat2Input = comboboxes[1] // index 1 = seat 2
     fireEvent.focus(seat2Input)
 
     fireEvent.click(screen.getByText('Carol'))
@@ -120,8 +120,8 @@ describe('pool click — with focused seat', () => {
     const updateConfig = vi.fn()
     renderTab({}, updateConfig)
 
-    const inputs = screen.getAllByRole('textbox')
-    const seat3Input = inputs[3] // index 3 = seat 3
+    const comboboxes = screen.getAllByRole('combobox')
+    const seat3Input = comboboxes[2] // index 2 = seat 3
     fireEvent.focus(seat3Input)
 
     fireEvent.click(screen.getByText('Dave'))
@@ -136,8 +136,8 @@ describe('pool click — with focused seat', () => {
     const updateConfig = vi.fn()
     renderTab({ 2: 'OldName' }, updateConfig)
 
-    const inputs = screen.getAllByRole('textbox')
-    fireEvent.focus(inputs[2]) // seat 2
+    const comboboxes = screen.getAllByRole('combobox')
+    fireEvent.focus(comboboxes[1]) // seat 2
 
     fireEvent.click(screen.getByText('Eve'))
 
@@ -149,8 +149,8 @@ describe('pool click — with focused seat', () => {
     const updateConfig = vi.fn()
     renderTab({}, updateConfig)
 
-    const inputs = screen.getAllByRole('textbox')
-    fireEvent.focus(inputs[5]) // seat 5
+    const comboboxes = screen.getAllByRole('combobox')
+    fireEvent.focus(comboboxes[4]) // seat 5
 
     fireEvent.click(screen.getByText('Alice'))
 
@@ -185,8 +185,8 @@ describe('pool click — focus changes between clicks', () => {
       />
     )
     fireEvent.click(screen.getByText('Name Pool'))
-    const inputs = screen.getAllByRole('textbox')
-    fireEvent.focus(inputs[4]) // seat 4
+    const comboboxes = screen.getAllByRole('combobox')
+    fireEvent.focus(comboboxes[3]) // seat 4
     fireEvent.click(screen.getByText('Bob'))
 
     expect(calls[0].seatNames[4]).toBe('Bob')
@@ -207,8 +207,8 @@ describe('pool click — focus changes between clicks', () => {
       />
     )
     fireEvent.click(screen.getByText('Name Pool'))
-    const inputs2 = screen.getAllByRole('textbox')
-    fireEvent.focus(inputs2[2]) // seat 2
+    const comboboxes2 = screen.getAllByRole('combobox')
+    fireEvent.focus(comboboxes2[1]) // seat 2
     fireEvent.click(screen.getByText('Carol'))
 
     expect(calls[0].seatNames[2]).toBe('Carol')
