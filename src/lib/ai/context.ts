@@ -332,7 +332,7 @@ function serializeStorytellerForPrompt(input: StorytellerInput): string {
   // ── Demon bluffs ───────────────────────────────────────────────────────────
   if (currentDay.demonBluffs?.length) {
     lines.push('')
-    lines.push(zh ? '── 恶魔虚张声势 ──' : '── Demon Bluffs ──')
+    lines.push(zh ? '── 恶魔伪装 ──' : '── Demon Bluffs ──')
     lines.push('  ' + currentDay.demonBluffs.map((id) => getDisplayName(id, language)).join(', '))
   }
 
