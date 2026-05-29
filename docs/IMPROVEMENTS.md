@@ -155,12 +155,15 @@ Acceptance:
 1. Remove generated/local noise:
    - Delete existing `.DS_Store` files outside `.git`, `node_modules`, generated outputs, and ignored folders.
    - Keep `.DS_Store`, `dist`, `dist-native`, `coverage`, `ios`, Android build outputs, and local env files ignored.
+   - Verified: no tracked generated/OS files and no `.DS_Store` files outside ignored/generated folders.
 2. Confirm dead files before removal:
    - `ArenaSeatCharacterPopout.tsx`, `ArenaSeatSkillPopout.tsx`, and `ArenaSeatTagPopout.tsx` currently appear unreferenced.
    - Remove only after `rg` confirms no imports and after storyteller render tests pass.
    - Do not remove `SettingsTab.tsx`; it is actively imported by `App` and tested.
+   - Verified: the three popout files are already absent; `SettingsTab.tsx` remains active.
 3. Remove stale compatibility modules:
    - `src/i18n/index.ts` appears unused after migration to `lib/t.ts`; verify with imports and remove only if no external tooling depends on it.
+   - Verified: `src/i18n/index.ts` has already been removed.
 4. Consolidate duplicated public assets:
    - `public/audio/` is the runtime source for built-in BGM and alarm sounds.
    - Keep source assets out of `public/` unless the runtime fetches them directly.
