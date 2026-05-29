@@ -35,7 +35,7 @@ export function useStoryteller(props: StorytellerHelperProps) {
   const [stCustomRules, setStCustomRules] = useState<string>(initial.stCustomRules ?? '')
   const [stName, setStName] = useState<string>(() => {
     if (initial.stName) return initial.stName
-    try { return localStorage.getItem(DEFAULT_ST_NAME_KEY) ?? '' } catch { return '' }
+    try { return storageSync.getItem(DEFAULT_ST_NAME_KEY) ?? '' } catch { return '' }
   })
   const [gameStartedAt, setGameStartedAt] = useState<number | undefined>(initial.gameStartedAt)
   const [gameId, setGameId] = useState<string>(() => {

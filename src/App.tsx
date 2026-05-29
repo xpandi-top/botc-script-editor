@@ -110,6 +110,8 @@ import { I18nProvider } from './context/I18nContext'
 import { makeT, makeTpl } from './lib/t'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
+const UI_LANGUAGE_KEY = 'botc-ui-language'
+
 // ── Cloud sync header badge ────────────────────────────────────────────────────
 
 interface CloudSyncBadgeProps {
@@ -219,10 +221,10 @@ export default function App() {
   }, [activeTab])
 
   const [uiLanguage, setUiLanguage] = useState<Language>(() => {
-    try { return (localStorage.getItem('botc-ui-language') as Language) ?? 'zh' } catch { return 'zh' }
+    try { return (storageSync.getItem(UI_LANGUAGE_KEY) as Language) ?? 'zh' } catch { return 'zh' }
   })
   useEffect(() => {
-    try { localStorage.setItem('botc-ui-language', uiLanguage) } catch {}
+    try { storageSync.setItem(UI_LANGUAGE_KEY, uiLanguage) } catch {}
   }, [uiLanguage])
   const initialSlugs = useMemo(() => new Set(initialScripts.map((s) => s.slug)), [])
   const [scripts, setScripts] = useState<EditableScript[]>(() => {
@@ -232,7 +234,7 @@ export default function App() {
         return stored ? (JSON.parse(stored) as EditableScript[]) : []
       })()
       const meta = (() => {
-        try { return JSON.parse(localStorage.getItem(SCRIPT_META_KEY) ?? '{}') as Record<string, ScriptMeta> } catch { return {} as Record<string, ScriptMeta> }
+        try { return JSON.parse(storageSync.getItem(SCRIPT_META_KEY) ?? '{}') as Record<string, ScriptMeta> } catch { return {} as Record<string, ScriptMeta> }
       })()
       const applyMeta = (s: EditableScript): EditableScript => {
         const m = meta[s.slug]
@@ -307,16 +309,16 @@ export default function App() {
       if (s.folderId) m.folderId = s.folderId
       if (Object.keys(m).length) meta[s.slug] = m
     }
-    try { localStorage.setItem(SCRIPT_META_KEY, JSON.stringify(meta)) } catch {}
+    try { storageSync.setItem(SCRIPT_META_KEY, JSON.stringify(meta)) } catch {}
     scheduleSync()
   }, [scripts, initialSlugs, scheduleSync])
 
   // ── Script folders ────────────────────────────────────────────────────────
   const [scriptFolders, setScriptFolders] = useState<ScriptFolder[]>(() => {
-    try { return JSON.parse(localStorage.getItem(BOTC_SCRIPT_FOLDERS_KEY) ?? '[]') as ScriptFolder[] } catch { return [] }
+    try { return JSON.parse(storageSync.getItem(BOTC_SCRIPT_FOLDERS_KEY) ?? '[]') as ScriptFolder[] } catch { return [] }
   })
   useEffect(() => {
-    try { localStorage.setItem(BOTC_SCRIPT_FOLDERS_KEY, JSON.stringify(scriptFolders)) } catch {}
+    try { storageSync.setItem(BOTC_SCRIPT_FOLDERS_KEY, JSON.stringify(scriptFolders)) } catch {}
   }, [scriptFolders])
 
   function createFolder(name: string, section: 'community' | 'diy' = 'diy'): ScriptFolder {

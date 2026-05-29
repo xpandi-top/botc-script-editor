@@ -17,6 +17,7 @@ import { CharactersTab } from './ModalsNewGameCharactersTab'
 import { DEFAULT_ST_NAME_KEY } from '../constants'
 import { allCharacters, getDisplayName, getAbilityText, getIconForCharacter } from '../../../catalog'
 import { useT } from '../../../context/I18nContext'
+import { storageSync } from '../../../lib/storage'
 
 const FABLED_AND_LORIC = allCharacters.filter((c) => c.team === 'fabled' || c.edition === 'loric')
 
@@ -75,7 +76,7 @@ export function ModalsNewGame({ ctx }: { ctx: StorytellerContext }) {
               value={stName ?? ''}
               onChange={(e) => {
                 setStName(e.target.value)
-                try { localStorage.setItem(DEFAULT_ST_NAME_KEY, e.target.value) } catch {}
+                try { storageSync.setItem(DEFAULT_ST_NAME_KEY, e.target.value) } catch {}
               }}
               placeholder={t('eg_dimo')}
             />

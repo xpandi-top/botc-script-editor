@@ -20,7 +20,7 @@ This document is the source of truth for persisted browser/native keys. Update i
 | `botc-storyteller-companion-v3` | `StorytellerSub` | legacy storyteller state | read fallback only | no | no | remove after a verified migration helper replaces fallback reads |
 | `BOTC_USER_SCRIPTS` | Scripts | editable user scripts | `storageSync` | yes | yes, as `botc-scripts.json` | preserve unknown script fields |
 | `BOTC_SCRIPT_META` | Scripts | script metadata, folders, and per-script UI metadata | `storageSync` | yes | yes, as `botc-script-meta.json` | preserve unknown metadata fields |
-| `BOTC_SCRIPT_FOLDERS` | Scripts | script folder list | `localStorage` | no | no | migrate to `storageSync` before native dependence |
+| `BOTC_SCRIPT_FOLDERS` | Scripts | script folder list | `storageSync` | no | no | current key |
 
 ## Catalog Overrides
 
@@ -75,7 +75,7 @@ Firestore deal sessions expire after 24 hours by app-layer lazy cleanup. Host to
 | `botc-theme-mode` | theme | theme mode | yes | no |
 | `botc-font-settings-v2` | typography | font settings object | yes | no |
 | `botc-bgm-custom-tracks` | audio | custom BGM track list | yes | no |
-| `botc-default-st-name` | game setup | default Storyteller name | no | no |
+| `botc-default-st-name` | game setup | default Storyteller name | yes | no |
 | `botc-tutorial-done` | tutorial | completion flag | no | no |
 
 ## Share Flow Temporaries

@@ -1,7 +1,8 @@
 import { Capacitor } from '@capacitor/core'
 import { StatusBar, Style } from '@capacitor/status-bar'
 import { preloadStorage, migrateLegacyStorage } from './storage'
-import { STORAGE_KEY, USER_SCRIPTS_KEY, SCRIPT_META_KEY } from '../components/StorytellerSub/constants'
+import { STORAGE_KEY, USER_SCRIPTS_KEY, SCRIPT_META_KEY, DEFAULT_ST_NAME_KEY } from '../components/StorytellerSub/constants'
+import { BOTC_SCRIPT_FOLDERS_KEY } from '../components/tabs/ScriptsTab.constants'
 import { CUSTOM_CHARACTERS_KEY, REVISION_OVERRIDES_KEY } from '../catalog'
 import { LAST_SYNC_KEY, USER_INFO_KEY } from '../hooks/useCloudSync'
 import { CLIENT_ID_STORAGE_KEY, CLIENT_SECRET_STORAGE_KEY } from './googleAuth'
@@ -15,6 +16,7 @@ const ALL_STORAGE_KEYS = [
   // Scripts & characters
   USER_SCRIPTS_KEY,
   SCRIPT_META_KEY,
+  BOTC_SCRIPT_FOLDERS_KEY,
   CUSTOM_CHARACTERS_KEY,
   REVISION_OVERRIDES_KEY,
   // Cloud sync
@@ -28,6 +30,7 @@ const ALL_STORAGE_KEYS = [
   'botc-theme-mode',
   'botc-font-settings-v2',
   'botc-bgm-custom-tracks',
+  DEFAULT_ST_NAME_KEY,
 ]
 
 export async function initNative(): Promise<void> {

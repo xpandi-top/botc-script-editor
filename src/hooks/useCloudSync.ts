@@ -114,7 +114,7 @@ export function useCloudSync(): CloudSyncState {
         try { return JSON.parse(localStorage.getItem(REVISION_OVERRIDES_KEY) ?? 'null') } catch { return null }
       })(),
       scriptMeta: (() => {
-        try { return JSON.parse(localStorage.getItem(SCRIPT_META_KEY) ?? 'null') } catch { return null }
+        try { return JSON.parse(storageSync.getItem(SCRIPT_META_KEY) ?? 'null') } catch { return null }
       })(),
       gameRecords,
     }
@@ -130,7 +130,7 @@ export function useCloudSync(): CloudSyncState {
     if (bundle.revisionOverrides != null)
       try { localStorage.setItem(REVISION_OVERRIDES_KEY, JSON.stringify(bundle.revisionOverrides)) } catch {}
     if (bundle.scriptMeta != null)
-      try { localStorage.setItem(SCRIPT_META_KEY, JSON.stringify(bundle.scriptMeta)) } catch {}
+      try { storageSync.setItem(SCRIPT_META_KEY, JSON.stringify(bundle.scriptMeta)) } catch {}
     if (bundle.gameRecords != null) {
       try {
         // Merge into existing storyteller state — preserve active game, just replace gameRecords
