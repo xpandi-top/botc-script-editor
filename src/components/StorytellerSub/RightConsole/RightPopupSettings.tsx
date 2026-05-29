@@ -1,31 +1,37 @@
-// @ts-nocheck
 import type { StorytellerContext } from '../useStoryteller'
-import React from 'react'
+import type { TimerDefaults } from '../types'
 import { Box, Button, TextField, Typography, Paper, Select, MenuItem, FormControl, InputLabel, Chip, Grid, IconButton, Switch, FormControlLabel } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
-import { uniqueStrings, INITIAL_AUDIO_TRACKS } from '../constants'
-import { BASE_URL } from '../constants'
+import { uniqueStrings, DEFAULT_ALARM_SOUNDS, INITIAL_AUDIO_TRACKS } from '../constants'
 import { useT } from '../../../context/I18nContext'
+
+type TimerDefaultNumberKey = Extract<{
+  [K in keyof TimerDefaults]: TimerDefaults[K] extends number ? K : never
+}[keyof TimerDefaults], string>
+
+type TimerField = {
+  key: TimerDefaultNumberKey
+  label: string
+}
 
 export function RightPopupSettings({ ctx }: { ctx: StorytellerContext }) {
   const { t } = useT()
   const {
     language, timerDefaults, setTimerDefaults, customTagPool, setCustomTagPool,
-    playerNamePool, setPlayerNamePool, currentDay, updateSeat, resetSeatNames,
-    seatTagDrafts, setSeatTagDrafts, addCustomTag, clearUnusedCustomTags,
+    clearUnusedCustomTags,
     loadTagsPreset, setLoadTagsPreset, setActiveRightPopup, text,
-    audioTracks, setAudioTracks, selectedAudioSrc, setSelectedAudioSrc, setAudioPlaying,
+    audioTracks, setAudioTracks, setSelectedAudioSrc, setAudioPlaying,
   } = ctx
 
   const defaultTags = language === 'zh'
     ? ['死亡', '处决', '旅行者', '无投票权']
     : ['Dead', 'Executed', 'Traveler', 'No vote']
 
-  const handleChange = (key: string, value: string | number) => {
-    setTimerDefaults((c: any) => ({ ...c, [key]: value }))
+  const handleChange = <K extends keyof TimerDefaults>(key: K, value: TimerDefaults[K]) => {
+    setTimerDefaults((current) => ({ ...current, [key]: value }))
   }
 
-  const timerFields = [
+  const timerFields: TimerField[] = [
     { key: 'privateSeconds', label: text.privateDefault },
     { key: 'publicFreeSeconds', label: text.publicFreeDefault },
     { key: 'publicRoundRobinSeconds', label: text.publicRoundRobinDefault },
@@ -72,10 +78,9 @@ export function RightPopupSettings({ ctx }: { ctx: StorytellerContext }) {
               onChange={(e) => handleChange('alarmSound', e.target.value)}
             >
               <MenuItem value="">Default Beep</MenuItem>
-              <MenuItem value={`${BASE_URL}audio/alarm/Alarm Clock Sound 6402.mp3`}>Alarm Clock</MenuItem>
-              <MenuItem value={`${BASE_URL}audio/alarm/Clock Tower Alarm Sound.mp3`}>Clock Tower</MenuItem>
-              <MenuItem value={`${BASE_URL}audio/alarm/Vintage Clock Sound Effect.mp3`}>Vintage Clock</MenuItem>
-              <MenuItem value={`${BASE_URL}audio/alarm/Old Spring Alarm Clock Sound Effect.mp3`}>Spring Clock</MenuItem>
+              {DEFAULT_ALARM_SOUNDS.map((track) => (
+                <MenuItem key={track.src} value={track.src}>{track.name}</MenuItem>
+              ))}
             </Select>
           </FormControl>
           <Button variant="outlined" component="label" size="small" fullWidth>
@@ -84,7 +89,7 @@ export function RightPopupSettings({ ctx }: { ctx: StorytellerContext }) {
               const file = e.target.files?.[0]
               if (file) {
                 const url = URL.createObjectURL(file)
-                setTimerDefaults((c: any) => ({ ...c, alarmSound: url }))
+                handleChange('alarmSound', url)
               }
             }} />
           </Button>
@@ -102,8 +107,8 @@ export function RightPopupSettings({ ctx }: { ctx: StorytellerContext }) {
                 setSelectedAudioSrc(e.target.value)
               }}
             >
-              {(audioTracks ?? INITIAL_AUDIO_TRACKS).map((t: any) => (
-                <MenuItem key={t.src} value={t.src}>{t.name}</MenuItem>
+              {(audioTracks ?? INITIAL_AUDIO_TRACKS).map((track) => (
+                <MenuItem key={track.src} value={track.src}>{track.name}</MenuItem>
               ))}
             </Select>
           </FormControl>
@@ -113,8 +118,8 @@ export function RightPopupSettings({ ctx }: { ctx: StorytellerContext }) {
               const file = e.target.files?.[0]
               if (file) {
                 const url = URL.createObjectURL(file)
-                setAudioTracks((cur: any[]) => {
-                  if (cur.some((t) => t.src === url)) return cur
+                setAudioTracks((cur) => {
+                  if (cur.some((track) => track.src === url)) return cur
                   return [...cur, { name: file.name, src: url }]
                 })
                 handleChange('defaultBgmSrc', url)
@@ -156,7 +161,7 @@ export function RightPopupSettings({ ctx }: { ctx: StorytellerContext }) {
           />
           <Button size="small" onClick={() => {
             const tags = loadTagsPreset?.split(',').map((t: string) => t.trim()).filter(Boolean) ?? []
-            setCustomTagPool((cur: string[]) => uniqueStrings([...cur, ...tags]))
+            setCustomTagPool((cur) => uniqueStrings([...cur, ...tags]))
             setLoadTagsPreset('')
           }} sx={{ mt: 0.5 }}>{text.loadPreset}</Button>
 
@@ -165,12 +170,12 @@ export function RightPopupSettings({ ctx }: { ctx: StorytellerContext }) {
             <Button size="small" onClick={clearUnusedCustomTags}>{text.clearUnusedTags}</Button>
           </Box>
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-            {(customTagPool ?? []).map((tag: string) => (
+            {(customTagPool ?? []).map((tag) => (
               <Chip
                 key={`tagpool-${tag}`}
                 label={tag}
                 size="small"
-                onDelete={() => setCustomTagPool((cur: string[]) => cur.filter((t) => t !== tag))}
+                onDelete={() => setCustomTagPool((cur) => cur.filter((t) => t !== tag))}
               />
             ))}
           </Box>
