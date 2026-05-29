@@ -275,7 +275,6 @@ describe('RightConsole sub-components — import sanity', () => {
     '../components/StorytellerSub/RightConsole/RightConsolePlayer',
     '../components/StorytellerSub/RightConsole/RightConsoleTags',
     '../components/StorytellerSub/RightConsole/RightConsoleRecords',
-    '../components/StorytellerSub/RightConsole/RightConsoleCompleted',
   ] as const
 
   for (const modPath of rcModules) {
