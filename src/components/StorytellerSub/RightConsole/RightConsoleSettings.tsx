@@ -1,22 +1,35 @@
-// @ts-nocheck
 import type { StorytellerContext } from '../useStoryteller'
-import React from 'react'
+import type { ConsoleSection, TimerDefaults } from '../types'
 import { Box, Button, TextField, Typography, Paper, Grid } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { makeT } from '../../../lib/t'
 
-export function RightConsoleSettings({ ctx, toggleConsoleSection }: { ctx: StorytellerContext, toggleConsoleSection: any }) {
+type TimerDefaultNumberKey = Extract<{
+  [K in keyof TimerDefaults]: TimerDefaults[K] extends number ? K : never
+}[keyof TimerDefaults], string>
+
+type TimerField = {
+  key: TimerDefaultNumberKey
+  label: string
+}
+
+export function RightConsoleSettings({
+  ctx,
+  toggleConsoleSection,
+}: {
+  ctx: StorytellerContext
+  toggleConsoleSection: (section: ConsoleSection) => void
+}) {
   const { language, text, activeConsoleSections, timerDefaults, setTimerDefaults, stName, setStName } = ctx
-  const zh = language === 'zh'
   const t = makeT(language)
   const isOpen = activeConsoleSections?.has('settings')
 
-  const handleChange = (key: string, value: string) => {
-    setTimerDefaults((c: any) => ({ ...c, [key]: Number(value) || 0 }))
+  const handleChange = (key: TimerDefaultNumberKey, value: string) => {
+    setTimerDefaults((current) => ({ ...current, [key]: Number(value) || 0 }))
   }
 
-  const fields = [
+  const fields: TimerField[] = [
     { key: 'privateSeconds', label: text.privateDefault },
     { key: 'publicFreeSeconds', label: text.publicFreeDefault },
     { key: 'publicRoundRobinSeconds', label: text.publicRoundRobinDefault },
