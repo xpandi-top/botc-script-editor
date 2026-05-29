@@ -1,6 +1,6 @@
-// @ts-nocheck
 import type { StorytellerContext } from '../useStoryteller'
-import React, { useState, useMemo } from 'react'
+import type { ConsoleSection, GameRecord } from '../types'
+import { useState, useMemo } from 'react'
 import { Box, Button, Divider, Typography, Paper, Chip, IconButton, TextField, ToggleButtonGroup, ToggleButton, Collapse, Tooltip, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
@@ -14,13 +14,15 @@ import DownloadIcon from '@mui/icons-material/Download'
 import WbSunnyIcon from '@mui/icons-material/WbSunny'
 import SaveIcon from '@mui/icons-material/Save'
 import { getDisplayName, getIconForCharacter } from '../../../catalog'
-import { makeT, makeTpl } from '../../../lib/t'
+import { makeT } from '../../../lib/t'
 
-const WINNER_COLOR: Record<string, string> = { good: '#1565c0', evil: '#b71c1c', storyteller: '#6a1b9a' }
-const WINNER_LABEL: Record<string, { en: string; zh: string }> = {
-  good: { en: 'Good', zh: '好人' },
-  evil: { en: 'Evil', zh: '邪恶' },
-  storyteller: { en: 'ST', zh: '说书人' },
+type Winner = NonNullable<GameRecord['winner']>
+
+const WINNER_COLOR: Record<Winner, string> = { good: '#1565c0', evil: '#b71c1c', storyteller: '#6a1b9a' }
+const WINNER_KEYS: Record<Winner, 'good' | 'evil' | 'storyteller'> = {
+  good: 'good',
+  evil: 'evil',
+  storyteller: 'storyteller',
 }
 
 function fmtDuration(ms?: number) {
@@ -31,15 +33,19 @@ function fmtDuration(ms?: number) {
   return `${m}m`
 }
 
-export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: StorytellerContext, toggleConsoleSection: any }) {
+export function RightConsoleRecords({
+  ctx,
+  toggleConsoleSection,
+}: {
+  ctx: StorytellerContext
+  toggleConsoleSection: (section: ConsoleSection) => void
+}) {
   const { language, text, gameRecords = [], setGameRecords, activeConsoleSections, loadGameRecord, exportRecordJson, saveGame, activeScriptSlug, activeScriptTitle, currentDay } = ctx
   const isOpen = activeConsoleSections?.has('records')
-  const zh = language === 'zh'
   const t = makeT(language)
-  const tpl = makeTpl(language)
 
   const [search, setSearch] = useState('')
-  const [winnerFilter, setWinnerFilter] = useState<string | null>(null)
+  const [winnerFilter, setWinnerFilter] = useState<Winner | null>(null)
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [checkpointDialogOpen, setCheckpointDialogOpen] = useState(false)
   const [checkpointName, setCheckpointName] = useState('')
@@ -51,42 +57,41 @@ export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: Storyt
   const liveStats = useMemo(() => {
     if (!gameRecords.length) return null
     const scriptRecs = activeScriptSlug
-      ? gameRecords.filter((r: any) => r.scriptSlug === activeScriptSlug || r.scriptTitle === activeScriptTitle)
+      ? gameRecords.filter((record) => record.scriptSlug === activeScriptSlug || record.scriptTitle === activeScriptTitle)
       : gameRecords
     if (!scriptRecs.length) return null
 
-    const evilWins = scriptRecs.filter((r: any) => r.winner === 'evil').length
-    const goodWins = scriptRecs.filter((r: any) => r.winner === 'good').length
+    const evilWins = scriptRecs.filter((record) => record.winner === 'evil').length
+    const goodWins = scriptRecs.filter((record) => record.winner === 'good').length
     const total = scriptRecs.length
 
-    // Per player on current seats
     const playerRows = (currentDay?.seats ?? [])
-      .filter((s: any) => !s.isTraveler && s.name)
-      .map((s: any) => {
-        const name = s.name
-        const playerRecs = gameRecords.filter((r: any) =>
-          r.playerSummaries?.some((p: any) => p.name === name)
+      .filter((seat) => !seat.isTraveler && seat.name)
+      .map((seat) => {
+        const name = seat.name
+        const playerRecs = gameRecords.filter((record) =>
+          record.playerSummaries?.some((player) => player.name === name)
         )
         if (!playerRecs.length) return null
-        const wins = playerRecs.filter((r: any) =>
-          r.playerSummaries?.some((p: any) => p.name === name &&
-            ((p.team === 'evil' && r.winner === 'evil') || (p.team === 'good' && r.winner === 'good')))
+        const wins = playerRecs.filter((record) =>
+          record.playerSummaries?.some((player) => player.name === name &&
+            ((player.team === 'evil' && record.winner === 'evil') || (player.team === 'good' && record.winner === 'good')))
         ).length
         return { name, total: playerRecs.length, wins, winRate: Math.round((wins / playerRecs.length) * 100) }
-      }).filter(Boolean)
+      }).filter((row): row is { name: string; total: number; wins: number; winRate: number } => row !== null)
 
     return { scriptTitle: activeScriptTitle, total, evilWins, goodWins, playerRows }
   }, [gameRecords, activeScriptSlug, activeScriptTitle, currentDay?.seats])
 
   const filtered = useMemo(() => {
     let list = gameRecords
-    if (winnerFilter) list = list.filter((r: any) => r.winner === winnerFilter)
+    if (winnerFilter) list = list.filter((record) => record.winner === winnerFilter)
     if (search.trim()) {
       const q = search.trim().toLowerCase()
-      list = list.filter((r: any) =>
-        (r.recordName ?? '').toLowerCase().includes(q) ||
-        (r.scriptTitle ?? '').toLowerCase().includes(q) ||
-        (r.playerSummaries ?? []).some((p: any) => p.name?.toLowerCase().includes(q))
+      list = list.filter((record) =>
+        (record.recordName ?? '').toLowerCase().includes(q) ||
+        (record.scriptTitle ?? '').toLowerCase().includes(q) ||
+        (record.playerSummaries ?? []).some((player) => player.name?.toLowerCase().includes(q))
       )
     }
     return list
@@ -124,16 +129,16 @@ export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: Storyt
                 fullWidth
                 size="small"
                 label={t('checkpoint_name_prompt')}
-                placeholder={zh ? '留空自动生成' : 'Leave blank to auto-generate'}
+                placeholder={t('checkpoint_name_placeholder')}
                 value={checkpointName}
                 onChange={(e) => setCheckpointName(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') handleSaveCheckpoint() }}
               />
             </DialogContent>
             <DialogActions sx={{ px: 2, pb: 2 }}>
-              <Button onClick={() => setCheckpointDialogOpen(false)}>{zh ? '取消' : 'Cancel'}</Button>
+              <Button onClick={() => setCheckpointDialogOpen(false)}>{t('cancel')}</Button>
               <Button variant="contained" onClick={handleSaveCheckpoint} startIcon={<SaveIcon fontSize="small" />}>
-                {zh ? '保存' : 'Save'}
+                {t('save')}
               </Button>
             </DialogActions>
           </Dialog>
@@ -152,11 +157,11 @@ export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: Storyt
                 <>
                   <Divider sx={{ my: 0.5 }} />
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
-                    {liveStats.playerRows.map((p: any) => (
-                      <Box key={p.name} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Typography variant="caption" sx={{ fontSize: '0.72rem' }}>{p.name}</Typography>
+                    {liveStats.playerRows.map((player) => (
+                      <Box key={player.name} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Typography variant="caption" sx={{ fontSize: '0.72rem' }}>{player.name}</Typography>
                         <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.72rem' }}>
-                          {p.total}{t('g')} · {p.winRate}%{t('win_short')}
+                          {player.total}{t('g')} · {player.winRate}%{t('win_short')}
                         </Typography>
                       </Box>
                     ))}
@@ -180,12 +185,12 @@ export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: Storyt
           <ToggleButtonGroup
             size="small" exclusive
             value={winnerFilter}
-            onChange={(_, v) => setWinnerFilter(v)}
+            onChange={(_, value: Winner | null) => setWinnerFilter(value)}
             sx={{ flexWrap: 'wrap' }}
           >
             {(['good', 'evil', 'storyteller'] as const).map((w) => (
               <ToggleButton key={w} value={w} sx={{ fontSize: '0.7rem', px: 1, py: 0.25, color: WINNER_COLOR[w] }}>
-                {zh ? WINNER_LABEL[w].zh : WINNER_LABEL[w].en}
+                {t(WINNER_KEYS[w]).replace(/: $/, '')}
               </ToggleButton>
             ))}
           </ToggleButtonGroup>
@@ -193,13 +198,14 @@ export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: Storyt
           {filtered.length === 0 ? (
             <Typography variant="body2" color="text.secondary">{text.noCompletedGames}</Typography>
           ) : (
-            filtered.map((rec: any) => {
+            filtered.map((rec) => {
               const date = new Date(rec.endedAt).toLocaleDateString()
-              const totalVotes = rec.days?.reduce((s: number, d: any) => s + (d.votes ?? 0), 0) ?? 0
-              const totalSkills = rec.days?.reduce((s: number, d: any) => s + (d.skills ?? 0), 0) ?? 0
+              const totalVotes = rec.days?.reduce((sum, day) => sum + (day.votes ?? 0), 0) ?? 0
+              const totalSkills = rec.days?.reduce((sum, day) => sum + (day.skills ?? 0), 0) ?? 0
               const isExpanded = expandedId === rec.id
               const duration = fmtDuration(rec.durationMs)
               const winnerColor = rec.winner ? WINNER_COLOR[rec.winner] : undefined
+              const playerSummaries = rec.playerSummaries ?? []
 
               return (
                 <Paper key={rec.id} variant="outlined" sx={{ p: 1, borderColor: winnerColor ? `${winnerColor}55` : 'divider' }}>
@@ -212,7 +218,7 @@ export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: Storyt
                       <Typography variant="caption" color="text.secondary">{date}{duration ? ` · ${duration}` : ''}</Typography>
                     </Box>
                     {rec.winner && (
-                      <Chip size="small" label={zh ? WINNER_LABEL[rec.winner]?.zh : WINNER_LABEL[rec.winner]?.en}
+                      <Chip size="small" label={t(WINNER_KEYS[rec.winner]).replace(/: $/, '')}
                         sx={{ bgcolor: winnerColor, color: '#fff', fontSize: '0.65rem', height: 20, flexShrink: 0 }} />
                     )}
                   </Box>
@@ -226,7 +232,7 @@ export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: Storyt
                   </Box>
 
                   {/* Player summary (expand) */}
-                  {rec.playerSummaries?.length > 0 && (
+                  {playerSummaries.length > 0 && (
                     <>
                       <Button size="small" onClick={() => setExpandedId(isExpanded ? null : rec.id)}
                         sx={{ mt: 0.5, py: 0, px: 0.5, fontSize: '0.7rem', textTransform: 'none', minWidth: 0 }}>
@@ -234,21 +240,21 @@ export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: Storyt
                       </Button>
                       <Collapse in={isExpanded}>
                         <Box sx={{ mt: 0.5, display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                          {rec.playerSummaries.map((p: any) => {
-                            const charId = rec.setup?.assignments?.[p.seat]
+                          {playerSummaries.map((player) => {
+                            const charId = rec.setup?.assignments?.[player.seat]
                             const icon = charId ? getIconForCharacter(charId) : null
                             const charName = charId ? getDisplayName(charId, language) : null
                             return (
                               <Chip
-                                key={p.seat}
+                                key={player.seat}
                                 size="small"
                                 avatar={icon ? <Box component="img" src={icon} sx={{ width: 14, height: 14, borderRadius: '50%' }} /> : undefined}
-                                label={`${p.name}${charName ? ` (${charName})` : ''}`}
+                                label={`${player.name}${charName ? ` (${charName})` : ''}`}
                                 sx={{
                                   fontSize: '0.68rem',
-                                  bgcolor: p.team === 'evil' ? 'rgba(183,28,28,0.12)' : p.team === 'good' ? 'rgba(21,101,192,0.12)' : undefined,
+                                  bgcolor: player.team === 'evil' ? 'rgba(183,28,28,0.12)' : player.team === 'good' ? 'rgba(21,101,192,0.12)' : undefined,
                                   border: '1px solid',
-                                  borderColor: p.team === 'evil' ? 'error.light' : p.team === 'good' ? 'primary.light' : 'divider',
+                                  borderColor: player.team === 'evil' ? 'error.light' : player.team === 'good' ? 'primary.light' : 'divider',
                                 }}
                               />
                             )
@@ -282,7 +288,7 @@ export function RightConsoleRecords({ ctx, toggleConsoleSection }: { ctx: Storyt
                     <IconButton size="small" onClick={() => exportRecordJson(rec)} title={t('export')} sx={{ minWidth: 44, minHeight: 44 }}>
                       <DownloadIcon sx={{ fontSize: '1rem' }} />
                     </IconButton>
-                    <IconButton size="small" color="error" onClick={() => setGameRecords((cur: any[]) => cur.filter((r) => r.id !== rec.id))} title={t('delete')} sx={{ minWidth: 44, minHeight: 44 }}>
+                    <IconButton size="small" color="error" onClick={() => setGameRecords((current) => current.filter((record) => record.id !== rec.id))} title={t('delete')} sx={{ minWidth: 44, minHeight: 44 }}>
                       <DeleteIcon sx={{ fontSize: '1rem' }} />
                     </IconButton>
                   </Box>

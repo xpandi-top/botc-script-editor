@@ -84,7 +84,7 @@ export type UiKey =
   | 'add_st_tag' | 'add_public_tag' | 'remove_st_tag' | 'remove_public_tag'
   | 'event_log' | 'game_log' | 'game_records' | 'new_game' | 'game_setup'
   | 'end_game_results' | 'save_checkpoint' | 'checkpoint_name_prompt'
-  | 'save_checkpoint_hint' | 'full_restore' | 'partial_restore'
+  | 'checkpoint_name_placeholder' | 'save_checkpoint_hint' | 'full_restore' | 'partial_restore'
   | 'mark_dead' | 'set_no_vote' | 'change_character' | 'change_status'
   | 'use_day_ability' | 'day_ability' | 'exile' | 'random_pool' | 'clear_pool'
   | 'traveler_assignments' | 'perceived_character' | 'actual_character'

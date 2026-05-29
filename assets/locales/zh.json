@@ -246,6 +246,7 @@
     "end_game_results": "对局结果",
     "save_checkpoint": "保存存档",
     "checkpoint_name_prompt": "存档名称（留空自动生成）：",
+    "checkpoint_name_placeholder": "留空自动生成",
     "save_checkpoint_hint": "保存当前游戏进度",
     "full_restore": "完整加载（含所有天数记录）",
     "partial_restore": "部分加载（玩家/角色/剧本）",

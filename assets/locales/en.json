@@ -246,6 +246,7 @@
     "end_game_results": "End Game Results",
     "save_checkpoint": "Save Checkpoint",
     "checkpoint_name_prompt": "Checkpoint name (leave blank for auto):",
+    "checkpoint_name_placeholder": "Leave blank to auto-generate",
     "save_checkpoint_hint": "Save current game as checkpoint",
     "full_restore": "Full restore — all days & events",
     "partial_restore": "Partial restore — players, roles & script",
