@@ -182,14 +182,14 @@ export function applyBundle(bundle: DataBundle, options: {
 
   if (options.scriptMeta !== false && bundle.scriptMeta != null) {
     if (mode === 'replace') {
-      localStorage.setItem(SCRIPT_META_KEY, JSON.stringify(bundle.scriptMeta))
+      storageSync.setItem(SCRIPT_META_KEY, JSON.stringify(bundle.scriptMeta))
     } else {
       try {
-        const existing = JSON.parse(localStorage.getItem(SCRIPT_META_KEY) ?? '{}') as Record<string, unknown>
+        const existing = JSON.parse(storageSync.getItem(SCRIPT_META_KEY) ?? '{}') as Record<string, unknown>
         const incoming = bundle.scriptMeta as Record<string, unknown>
-        localStorage.setItem(SCRIPT_META_KEY, JSON.stringify({ ...existing, ...incoming }))
+        storageSync.setItem(SCRIPT_META_KEY, JSON.stringify({ ...existing, ...incoming }))
       } catch {
-        localStorage.setItem(SCRIPT_META_KEY, JSON.stringify(bundle.scriptMeta))
+        storageSync.setItem(SCRIPT_META_KEY, JSON.stringify(bundle.scriptMeta))
       }
     }
     result.scriptMetaImported = true
