@@ -14,17 +14,40 @@ import RemoveIcon from '@mui/icons-material/Remove'
 import AddIcon from '@mui/icons-material/Add'
 import type { Language } from '../../types'
 import { getDisplayName, getIconForCharacter } from '../../catalog'
-import { makeT, type UiKey } from '../../lib/t'
+import { makeT, makeTpl, type TplKey, type UiKey } from '../../lib/t'
 
 // ── Types ─────────────────────────────────────────────────────────
 
-type PhraseKind = 'plain' | 'number' | 'character' | 'multi-character'
+type CommunicationPhraseTplKey = Extract<TplKey,
+  | 'communication_phrase_char_in_play'
+  | 'communication_phrase_char_not_in_play'
+  | 'communication_phrase_choose_n_players'
+  | 'communication_phrase_choose_n_chars'
+  | 'communication_phrase_you_are_char'
+  | 'communication_phrase_char_is_char'
+>
 
-interface PhraseTemplate {
+type PlainPhraseTemplate = {
   key: string
   labelKey: UiKey
-  kind: PhraseKind
+  kind: 'plain'
 }
+type NumberPhraseTemplate = {
+  key: string
+  labelKey: CommunicationPhraseTplKey
+  kind: 'number'
+}
+type CharacterPhraseTemplate = {
+  key: string
+  labelKey: CommunicationPhraseTplKey
+  kind: 'character'
+}
+type MultiCharacterPhraseTemplate = {
+  key: string
+  labelKey: CommunicationPhraseTplKey
+  kind: 'multi-character'
+}
+type PhraseTemplate = PlainPhraseTemplate | NumberPhraseTemplate | CharacterPhraseTemplate | MultiCharacterPhraseTemplate
 
 const PHRASES: PhraseTemplate[] = [
   { key: 'ability-tonight',  labelKey: 'communication_phrase_ability_tonight',  kind: 'plain' },
@@ -171,14 +194,15 @@ interface CommunicationBoardProps {
 export function CommunicationBoard({ open, onClose, scriptCharacters, language }: CommunicationBoardProps) {
   const zh = language === 'zh'
   const t = makeT(language)
+  const tpl = makeTpl(language)
 
   // text board state
   const [tab, setTab] = useState<'text' | 'draw'>('text')
   const [boardText, setBoardText] = useState('')
   const [customInput, setCustomInput] = useState('')
-  const [pendingN, setPendingN] = useState<PhraseTemplate | null>(null)
-  const [pendingChar, setPendingChar] = useState<PhraseTemplate | null>(null)
-  const [pendingMultiChar, setPendingMultiChar] = useState<PhraseTemplate | null>(null)
+  const [pendingN, setPendingN] = useState<NumberPhraseTemplate | null>(null)
+  const [pendingChar, setPendingChar] = useState<CharacterPhraseTemplate | null>(null)
+  const [pendingMultiChar, setPendingMultiChar] = useState<MultiCharacterPhraseTemplate | null>(null)
   const [nValue, setNValue] = useState(1)
   const [selectedChar, setSelectedChar] = useState<string | null>(null)
   const [selectedChars, setSelectedChars] = useState<string[]>([])
@@ -221,16 +245,14 @@ export function CommunicationBoard({ open, onClose, scriptCharacters, language }
 
   const applyNPhrase = () => {
     if (!pendingN) return
-    const raw = t(pendingN.labelKey)
-    appendText(raw.replace('[N]', String(nValue)))
+    appendText(tpl(pendingN.labelKey, nValue))
     setPendingN(null)
   }
 
   const applyCharPhrase = () => {
     if (!pendingChar || !selectedChar) return
-    const raw = t(pendingChar.labelKey)
     const charName = getDisplayName(selectedChar, language)
-    appendText(raw.replace('[Character]', charName).replace('[角色]', charName))
+    appendText(tpl(pendingChar.labelKey, charName))
     setPendingChar(null)
     setSelectedChar(null)
   }
@@ -241,10 +263,22 @@ export function CommunicationBoard({ open, onClose, scriptCharacters, language }
     const joined = names.length === 1 ? names[0]
       : names.length === 2 ? names.join(zh ? '、' : ' and ')
       : names.slice(0, -1).join(zh ? '、' : ', ') + (zh ? '、' : ', and ') + names[names.length - 1]
-    const raw = t(pendingMultiChar.labelKey)
-    appendText(raw.replace('[Characters]', joined).replace('[角色们]', joined))
+    appendText(tpl(pendingMultiChar.labelKey, joined))
     setPendingMultiChar(null)
     setSelectedChars([])
+  }
+
+  const phrasePreview = (phrase: PhraseTemplate): string => {
+    switch (phrase.kind) {
+      case 'plain':
+        return t(phrase.labelKey)
+      case 'number':
+        return tpl(phrase.labelKey, 'N')
+      case 'character':
+        return tpl(phrase.labelKey, t('character'))
+      case 'multi-character':
+        return tpl(phrase.labelKey, t('characters'))
+    }
   }
 
   // auto font size based on text length
@@ -346,7 +380,7 @@ export function CommunicationBoard({ open, onClose, scriptCharacters, language }
             {pendingN && (
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 1, bgcolor: 'action.hover', borderRadius: 1.5, flexShrink: 0, flexWrap: 'wrap' }}>
                 <Typography variant="body2" sx={{ flex: 1, minWidth: 120 }}>
-                  {(t(pendingN.labelKey)).replace('[N]', `[${nValue}]`)}
+                  {tpl(pendingN.labelKey, nValue)}
                 </Typography>
                 <IconButton size="small" onClick={() => setNValue(v => Math.max(1, v - 1))}><RemoveIcon fontSize="small" /></IconButton>
                 <Typography sx={{ fontWeight: 700, minWidth: 20, textAlign: 'center' }}>{nValue}</Typography>
@@ -359,7 +393,7 @@ export function CommunicationBoard({ open, onClose, scriptCharacters, language }
             {pendingChar && (
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 1, bgcolor: 'action.hover', borderRadius: 1.5, flexShrink: 0, flexWrap: 'wrap' }}>
                 <Typography variant="body2" sx={{ flexShrink: 0, mr: 0.5 }}>
-                  {t(pendingChar.labelKey)}
+                  {phrasePreview(pendingChar)}
                 </Typography>
                 <Autocomplete
                   options={charOptions}
@@ -399,7 +433,7 @@ export function CommunicationBoard({ open, onClose, scriptCharacters, language }
                     </Box>
                   )}
                   renderInput={(params) => (
-                    <TextField {...params} label={`${t(pendingMultiChar.labelKey)} — ${t('communication_multiselect_suffix')}`} />
+                    <TextField {...params} label={`${phrasePreview(pendingMultiChar)} - ${t('communication_multiselect_suffix')}`} />
                   )}
                   onChange={(_, vals) => setSelectedChars(vals.map(v => v.id))}
                 />
@@ -416,10 +450,11 @@ export function CommunicationBoard({ open, onClose, scriptCharacters, language }
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.6, mb: 1 }}>
                 {PHRASES.map(phrase => {
                   const isActive = pendingN?.key === phrase.key || pendingChar?.key === phrase.key || pendingMultiChar?.key === phrase.key
+                  const label = phrasePreview(phrase)
                   return (
-                    <Tooltip key={phrase.key} title={t(phrase.labelKey)} placement="top" arrow>
+                    <Tooltip key={phrase.key} title={label} placement="top" arrow>
                       <Chip
-                        label={t(phrase.labelKey)}
+                        label={label}
                         onClick={() => handlePhrase(phrase)}
                         size="small"
                         variant={isActive ? 'filled' : 'outlined'}

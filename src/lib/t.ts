@@ -386,6 +386,10 @@ export type TplKey =
   | 'open_session' | 'script_chars_short' | 'log_tab_n' | 'fill_log_n'
   | 'context_editing' | 'tag_for_char'
   | 'st_detail_n_games_scripts'
+  // Communication board templates
+  | 'communication_phrase_char_in_play' | 'communication_phrase_char_not_in_play'
+  | 'communication_phrase_choose_n_players' | 'communication_phrase_choose_n_chars'
+  | 'communication_phrase_you_are_char' | 'communication_phrase_char_is_char'
 
 /**
  * Returns a `t(key)` function bound to the given language.
