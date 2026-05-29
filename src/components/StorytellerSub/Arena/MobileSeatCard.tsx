@@ -1,8 +1,9 @@
-// @ts-nocheck
 import type { StorytellerSeat } from '../types'
 import type { StorytellerContext } from '../useStoryteller'
-import React, { useState } from 'react'
-import { Box, IconButton, Chip, Paper, Tooltip, useTheme } from '@mui/material'
+import type { MouseEvent } from 'react'
+import { memo } from 'react'
+import { Box, IconButton, Paper, Tooltip, useTheme } from '@mui/material'
+import type { SxProps, Theme } from '@mui/material'
 import CheckIcon from '@mui/icons-material/Check'
 import CloseIcon from '@mui/icons-material/Close'
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked'
@@ -15,23 +16,22 @@ import { VoteButtonGroup, TagChip, StatusBadge, translateStTag, resolveTagDispla
 const CIRCLE_SIZE = 72
 const CIRCLE_OVERLAP = CIRCLE_SIZE / 2  // how much circle sticks into card
 
-function MobileSeatCardInner({ ctx, seat, side = 'left' }: { ctx: StorytellerContext; seat: any; side?: 'left' | 'right' }) {
+function MobileSeatCardInner({ ctx, seat, side = 'left' }: { ctx: StorytellerContext; seat: StorytellerSeat; side?: 'left' | 'right' }) {
   const {
     language, pickerMode, currentDay, updateCurrentDay, currentVoterSeat,
     selectedSeat, text, handleSeatClick, handleVoteYes, handleVoteNo,
     nightShowCharacter, nightShowWakeOrder,
-    characterPopoutSeat, setCharacterPopoutSeat, toggleNightVisitedSeat,
-    playerModalSeat, setPlayerModalSeat, setPlayerModalTab,
-    days, activeScriptSlug, scriptOptions,
+    toggleNightVisitedSeat,
+    playerModalSeat, setPlayerModalSeat,
+    activeScriptSlug, scriptOptions,
   } = ctx
 
-  const pinnedRevisions = scriptOptions?.find((s: any) => s.slug === activeScriptSlug)?.pinnedRevisions
+  const pinnedRevisions = scriptOptions?.find((s) => s.slug === activeScriptSlug)?.pinnedRevisions
 
   const muiTheme = useTheme()
   const isDark = muiTheme.palette.mode === 'dark'
 
   const isPlayerModalOpen = playerModalSeat === seat.seat
-  const isCharacterPopoutOpen = characterPopoutSeat === seat.seat
   const isSelected = selectedSeat?.seat === seat.seat
   const isNightPhase = currentDay.phase === 'night'
   const isInNomination = currentDay.phase === 'nomination' && currentDay.nominationStep !== 'waitingForNomination'
@@ -69,8 +69,8 @@ function MobileSeatCardInner({ ctx, seat, side = 'left' }: { ctx: StorytellerCon
   // Dense rank: 32,37,37,52 → 1,2,2,3 (relative within script's seats)
   const rawWakePos = perceivedCharId ? (() => { const idx = nightList.indexOf(perceivedCharId); return idx !== -1 ? idx + 1 : null })() : null
   const allRawPositions = currentDay.seats
-    .map((s: any) => { const cId = s.userCharacterId || s.characterId; if (!cId) return null; const idx = nightList.indexOf(cId); return idx !== -1 ? idx + 1 : null })
-    .filter((p: any): p is number => p !== null)
+    .map((s) => { const cId = s.userCharacterId || s.characterId; if (!cId) return null; const idx = nightList.indexOf(cId); return idx !== -1 ? idx + 1 : null })
+    .filter((p): p is number => p !== null)
   const sortedUnique = [...new Set(allRawPositions)].sort((a, b) => a - b)
   const rankMap = new Map(sortedUnique.map((pos, i) => [pos, i + 1]))
   const playerWakeOrder = rawWakePos !== null ? (rankMap.get(rawWakePos) ?? null) : null
@@ -81,7 +81,7 @@ function MobileSeatCardInner({ ctx, seat, side = 'left' }: { ctx: StorytellerCon
     seat.isTraveler ? { label: text.traveler,    chipSx: { bgcolor: '#1e4a7a', color: '#e0eaf8', border: 'none' } } : null,
     seat.hasNoVote  ? { label: text.noVoteTag,   chipSx: { bgcolor: '#5a4a20', color: '#fdf0d0', border: 'none' } } : null,
     ...seat.customTags.map((t: string) => ({ label: t, chipSx: {} })),
-  ].filter(Boolean) as { label: string; chipSx: object }[]
+  ].filter(Boolean) as { label: string; chipSx: SxProps<Theme> }[]
 
   const getBorderColor = () => {
     if (seat.isExecuted) return 'error.main'
@@ -92,24 +92,30 @@ function MobileSeatCardInner({ ctx, seat, side = 'left' }: { ctx: StorytellerCon
     return 'divider'
   }
 
-  const handleVoteYesClick = (e: React.MouseEvent) => {
+  const handleVoteYesClick = (e: MouseEvent<HTMLElement>) => {
     e.stopPropagation()
     if (isCurrentVoter) { handleVoteYes(seat.seat) }
-    else if (currentDay.votingState) { updateCurrentDay((d: any) => ({ ...d, votingState: d.votingState ? { ...d.votingState, votes: { ...d.votingState.votes, [seat.seat]: true } } : null })) }
-    else { updateCurrentDay((d: any) => ({ ...d, voteDraft: { ...d.voteDraft, voters: [...d.voteDraft.voters, seat.seat], noVoters: d.voteDraft.noVoters.filter((v: number) => v !== seat.seat) } })) }
+    else if (currentDay.votingState) { updateCurrentDay((d) => ({ ...d, votingState: d.votingState ? { ...d.votingState, votes: { ...d.votingState.votes, [seat.seat]: true } } : null })) }
+    else { updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, voters: [...d.voteDraft.voters, seat.seat], noVoters: d.voteDraft.noVoters.filter((v) => v !== seat.seat) } })) }
   }
 
-  const handleVoteNoClick = (e: React.MouseEvent) => {
+  const handleVoteNoClick = (e: MouseEvent<HTMLElement>) => {
     e.stopPropagation()
     if (isCurrentVoter) { handleVoteNo(seat.seat) }
-    else if (currentDay.votingState) { updateCurrentDay((d: any) => ({ ...d, votingState: d.votingState ? { ...d.votingState, votes: { ...d.votingState.votes, [seat.seat]: false } } : null })) }
-    else { updateCurrentDay((d: any) => ({ ...d, voteDraft: { ...d.voteDraft, noVoters: [...d.voteDraft.noVoters, seat.seat], voters: d.voteDraft.voters.filter((v: number) => v !== seat.seat) } })) }
+    else if (currentDay.votingState) { updateCurrentDay((d) => ({ ...d, votingState: d.votingState ? { ...d.votingState, votes: { ...d.votingState.votes, [seat.seat]: false } } : null })) }
+    else { updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, noVoters: [...d.voteDraft.noVoters, seat.seat], voters: d.voteDraft.voters.filter((v) => v !== seat.seat) } })) }
   }
 
-  const handleRemoveVote = (e: React.MouseEvent) => {
+  const handleRemoveVote = (e: MouseEvent<HTMLElement>) => {
     e.stopPropagation()
-    if (cardVotedYes) { updateCurrentDay((d: any) => ({ ...d, voteDraft: { ...d.voteDraft, voters: d.voteDraft.voters.filter((v: number) => v !== seat.seat) } })) }
-    else if (cardVotedNo) { updateCurrentDay((d: any) => ({ ...d, voteDraft: { ...d.voteDraft, noVoters: d.voteDraft.noVoters.filter((v: number) => v !== seat.seat) } })) }
+    if (currentDay.votingState) {
+      updateCurrentDay((d) => {
+        if (!d.votingState) return d
+        const { [seat.seat]: _removed, ...votes } = d.votingState.votes
+        return { ...d, votingState: { ...d.votingState, votes } }
+      })
+    } else if (cardVotedYes) { updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, voters: d.voteDraft.voters.filter((v) => v !== seat.seat) } })) }
+    else if (cardVotedNo) { updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, noVoters: d.voteDraft.noVoters.filter((v) => v !== seat.seat) } })) }
   }
 
   const circleAlpha = seat.alive ? 1 : 0.75
@@ -141,7 +147,7 @@ function MobileSeatCardInner({ ctx, seat, side = 'left' }: { ctx: StorytellerCon
           }}>
             <CharacterCircle
               size={CIRCLE_SIZE}
-              charIcon={charIcon}
+              charIcon={charIcon ?? null}
               charName={actualCharName}
               nightShowCharacter={nightShowCharacter}
               isOpen={isPlayerModalOpen}
@@ -251,7 +257,7 @@ function MobileSeatCardInner({ ctx, seat, side = 'left' }: { ctx: StorytellerCon
   )
 }
 
-export const MobileSeatCard = React.memo(MobileSeatCardInner, (prev, next) =>
+export const MobileSeatCard = memo(MobileSeatCardInner, (prev, next) =>
   prev.seat === next.seat &&
   prev.side === next.side &&
   prev.ctx.language === next.ctx.language &&
