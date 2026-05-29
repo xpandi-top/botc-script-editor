@@ -14,62 +14,15 @@ import RemoveIcon from '@mui/icons-material/Remove'
 import AddIcon from '@mui/icons-material/Add'
 import type { Language } from '../../types'
 import { getDisplayName, getIconForCharacter } from '../../catalog'
-import { makeT, makeTpl, type TplKey, type UiKey } from '../../lib/t'
-
-// ── Types ─────────────────────────────────────────────────────────
-
-type CommunicationPhraseTplKey = Extract<TplKey,
-  | 'communication_phrase_char_in_play'
-  | 'communication_phrase_char_not_in_play'
-  | 'communication_phrase_choose_n_players'
-  | 'communication_phrase_choose_n_chars'
-  | 'communication_phrase_you_are_char'
-  | 'communication_phrase_char_is_char'
->
-
-type PlainPhraseTemplate = {
-  key: string
-  labelKey: UiKey
-  kind: 'plain'
-}
-type NumberPhraseTemplate = {
-  key: string
-  labelKey: CommunicationPhraseTplKey
-  kind: 'number'
-}
-type CharacterPhraseTemplate = {
-  key: string
-  labelKey: CommunicationPhraseTplKey
-  kind: 'character'
-}
-type MultiCharacterPhraseTemplate = {
-  key: string
-  labelKey: CommunicationPhraseTplKey
-  kind: 'multi-character'
-}
-type PhraseTemplate = PlainPhraseTemplate | NumberPhraseTemplate | CharacterPhraseTemplate | MultiCharacterPhraseTemplate
-
-const PHRASES: PhraseTemplate[] = [
-  { key: 'ability-tonight',  labelKey: 'communication_phrase_ability_tonight',  kind: 'plain' },
-  { key: 'chat-tomorrow',    labelKey: 'communication_phrase_chat_tomorrow',    kind: 'plain' },
-  { key: 'choose-ability',   labelKey: 'communication_phrase_choose_ability',   kind: 'plain' },
-  { key: 'meet-minions',     labelKey: 'communication_phrase_meet_minions',     kind: 'plain' },
-  { key: 'you-good',         labelKey: 'communication_phrase_you_good',         kind: 'plain' },
-  { key: 'you-evil',         labelKey: 'communication_phrase_you_evil',         kind: 'plain' },
-  { key: 'char-in-play',     labelKey: 'communication_phrase_char_in_play',     kind: 'multi-character' },
-  { key: 'char-not-in-play', labelKey: 'communication_phrase_char_not_in_play', kind: 'multi-character' },
-  { key: 'same-team',        labelKey: 'communication_phrase_same_team',        kind: 'plain' },
-  { key: 'diff-team',        labelKey: 'communication_phrase_diff_team',        kind: 'plain' },
-  { key: 'mistake',          labelKey: 'communication_phrase_mistake',          kind: 'plain' },
-  { key: 'eyes-open',        labelKey: 'communication_phrase_eyes_open',        kind: 'plain' },
-  { key: 'wake-up',          labelKey: 'communication_phrase_wake_up',          kind: 'plain' },
-  { key: 'go-to-sleep',      labelKey: 'communication_phrase_go_to_sleep',      kind: 'plain' },
-  { key: 'shake-head',       labelKey: 'communication_phrase_shake_head',       kind: 'plain' },
-  { key: 'choose-n-players', labelKey: 'communication_phrase_choose_n_players', kind: 'number' },
-  { key: 'choose-n-chars',   labelKey: 'communication_phrase_choose_n_chars',   kind: 'number' },
-  { key: 'you-are-char',     labelKey: 'communication_phrase_you_are_char',     kind: 'character' },
-  { key: 'char-is-char',     labelKey: 'communication_phrase_char_is_char',     kind: 'character' },
-]
+import { makeT, makeTpl } from '../../lib/t'
+import {
+  COMMUNICATION_PHRASES,
+  joinCharacterNames,
+  type CharacterPhraseTemplate,
+  type MultiCharacterPhraseTemplate,
+  type NumberPhraseTemplate,
+  type PhraseTemplate,
+} from './CommunicationBoardPhrases'
 
 const DRAW_COLORS = ['#000000', '#1a1a2e', '#e63946', '#2196f3', '#4caf50', '#ff9800', '#9c27b0', '#ffffff']
 
@@ -192,7 +145,6 @@ interface CommunicationBoardProps {
 }
 
 export function CommunicationBoard({ open, onClose, scriptCharacters, language }: CommunicationBoardProps) {
-  const zh = language === 'zh'
   const t = makeT(language)
   const tpl = makeTpl(language)
 
@@ -260,9 +212,7 @@ export function CommunicationBoard({ open, onClose, scriptCharacters, language }
   const applyMultiCharPhrase = () => {
     if (!pendingMultiChar || selectedChars.length === 0) return
     const names = selectedChars.map(id => getDisplayName(id, language))
-    const joined = names.length === 1 ? names[0]
-      : names.length === 2 ? names.join(zh ? '、' : ' and ')
-      : names.slice(0, -1).join(zh ? '、' : ', ') + (zh ? '、' : ', and ') + names[names.length - 1]
+    const joined = joinCharacterNames(names, language)
     appendText(tpl(pendingMultiChar.labelKey, joined))
     setPendingMultiChar(null)
     setSelectedChars([])
@@ -448,7 +398,7 @@ export function CommunicationBoard({ open, onClose, scriptCharacters, language }
             {/* ── Phrases + custom input — fixed at bottom ── */}
             <Box sx={{ flexShrink: 0, borderTop: '1px solid', borderColor: 'divider', pt: 1 }}>
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.6, mb: 1 }}>
-                {PHRASES.map(phrase => {
+                {COMMUNICATION_PHRASES.map(phrase => {
                   const isActive = pendingN?.key === phrase.key || pendingChar?.key === phrase.key || pendingMultiChar?.key === phrase.key
                   const label = phrasePreview(phrase)
                   return (
