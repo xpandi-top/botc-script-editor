@@ -1,9 +1,11 @@
-// @ts-nocheck
 import type { StorytellerContext } from '../useStoryteller'
-import React from 'react'
+import type { ExportConfig } from '../types'
 import { Box, Button, Typography, Paper, FormControlLabel, Checkbox, Chip, Divider } from '@mui/material'
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents'
+import DownloadIcon from '@mui/icons-material/Download'
 import { makeT, makeTpl } from '../../../lib/t'
+
+type ExportBooleanKey = keyof Pick<ExportConfig, 'includeSeats' | 'includeVotes' | 'includeSkills' | 'includeEvents' | 'includeStNotes'>
 
 export function ModalsExport({ ctx }: { ctx: StorytellerContext }) {
   const {
@@ -16,15 +18,14 @@ export function ModalsExport({ ctx }: { ctx: StorytellerContext }) {
   if (!showExportModal) return null
 
   const allDayNums = days.map((d: any) => d.day)
-  const selectedDays = exportConfig.dayFilter === 'all' ? allDayNums : exportConfig.dayFilter as number[]
-  const zh = language === 'zh'
+  const selectedDays = exportConfig.dayFilter === 'all' ? allDayNums : exportConfig.dayFilter
   const t = makeT(language)
   const tpl = makeTpl(language)
 
   const toggleDay = (day: number) => {
-    const cur = exportConfig.dayFilter === 'all' ? allDayNums : exportConfig.dayFilter as number[]
+    const cur = exportConfig.dayFilter === 'all' ? allDayNums : exportConfig.dayFilter
     const next = cur.includes(day) ? cur.filter((d: number) => d !== day) : [...cur, day]
-    setExportConfig((c: any) => ({ ...c, dayFilter: next.length === allDayNums.length ? 'all' : next }))
+    setExportConfig((c) => ({ ...c, dayFilter: next.length === allDayNums.length ? 'all' : next }))
   }
 
   const handleExportSetup = () => {
@@ -42,7 +43,7 @@ export function ModalsExport({ ctx }: { ctx: StorytellerContext }) {
     setShowExportModal(false)
   }
 
-  const checkOptions = [
+  const checkOptions: { key: ExportBooleanKey; label: string }[] = [
     { key: 'includeSeats', label: t('seat_info') },
     { key: 'includeVotes', label: t('vote_history') },
     { key: 'includeSkills', label: t('ability_history') },
@@ -82,7 +83,7 @@ export function ModalsExport({ ctx }: { ctx: StorytellerContext }) {
             control={
               <Checkbox
                 checked={exportConfig[key]}
-                onChange={(e) => setExportConfig((c: any) => ({ ...c, [key]: e.target.checked }))}
+                onChange={(e) => setExportConfig((c) => ({ ...c, [key]: e.target.checked }))}
               />
             }
             label={label}
@@ -95,7 +96,7 @@ export function ModalsExport({ ctx }: { ctx: StorytellerContext }) {
           control={
             <Checkbox
               checked={exportConfig.dayFilter === 'all'}
-              onChange={(e) => setExportConfig((c: any) => ({ ...c, dayFilter: e.target.checked ? 'all' : allDayNums }))}
+              onChange={(e) => setExportConfig((c) => ({ ...c, dayFilter: e.target.checked ? 'all' : allDayNums }))}
             />
           }
           label={t('all_days')}
@@ -103,7 +104,7 @@ export function ModalsExport({ ctx }: { ctx: StorytellerContext }) {
         {allDayNums.map((day: number) => (
           <Chip
             key={day}
-            label={`Day ${day}`}
+            label={tpl('day_n', day)}
             size="small"
             onClick={() => toggleDay(day)}
             color={selectedDays.includes(day) ? 'primary' : 'default'}
@@ -113,8 +114,8 @@ export function ModalsExport({ ctx }: { ctx: StorytellerContext }) {
         ))}
       </Box>
 
-      <Button variant="contained" onClick={handleExportLog} fullWidth>
-        ⬇ {t('download_log_json')}
+      <Button variant="contained" onClick={handleExportLog} startIcon={<DownloadIcon />} fullWidth>
+        {t('download_log_json')}
       </Button>
 
       <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
