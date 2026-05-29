@@ -1,7 +1,8 @@
-// @ts-nocheck
-import React, { useState, useRef } from 'react'
-import { Box, Button, TextField, IconButton, Chip, Typography, Grid } from '@mui/material'
+import type { Dispatch, SetStateAction } from 'react'
+import { useState, useRef } from 'react'
+import { Box, Button, TextField, IconButton, Chip, Typography } from '@mui/material'
 import { makeT } from '../../../lib/t'
+import { makeTpl } from '../../../lib/t'
 import AddIcon from '@mui/icons-material/Add'
 import RemoveIcon from '@mui/icons-material/Remove'
 import ReplayIcon from '@mui/icons-material/Replay'
@@ -10,18 +11,21 @@ import DownloadDoneIcon from '@mui/icons-material/DownloadDone'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { shuffleArray, uniqueStrings } from '../constants'
+import type { NewGameConfig } from '../types'
+import type { Language } from '../../../types'
 
 type Props = {
-  newGamePanel: any
+  newGamePanel: NewGameConfig
   playerNamePool: string[]
-  language: string
+  language: Language
   seats: number[]
-  updateConfig: (patch: any) => void
-  setPlayerNamePool: (fn: any) => void
+  updateConfig: (patch: Partial<NewGameConfig>) => void
+  setPlayerNamePool: Dispatch<SetStateAction<string[]>>
 }
 
 export function PlayersTab({ newGamePanel, playerNamePool, language, seats, updateConfig, setPlayerNamePool }: Props) {
-  const t = makeT(language as any)
+  const t = makeT(language)
+  const tpl = makeTpl(language)
   const [showNamePool, setShowNamePool] = useState(false)
   const [quickFill, setQuickFill] = useState('')
   // useRef (not useState) — read synchronously in handlePoolNameClick before blur clears it
@@ -48,7 +52,7 @@ export function PlayersTab({ newGamePanel, playerNamePool, language, seats, upda
     updateConfig({ seatNames: newNames })
     setQuickFill('')
     const fresh = names.filter((n) => !playerNamePool.includes(n) && !/^Player \d+$|^Traveler \d+$/.test(n))
-    if (fresh.length) setPlayerNamePool((p: string[]) => uniqueStrings([...p, ...fresh]))
+    if (fresh.length) setPlayerNamePool((p) => uniqueStrings([...p, ...fresh]))
   }
 
   const handlePoolNameClick = (name: string) => {
@@ -61,10 +65,10 @@ export function PlayersTab({ newGamePanel, playerNamePool, language, seats, upda
     if (target != null) updateConfig({ seatNames: { ...newGamePanel.seatNames, [target]: name } })
   }
 
-  const handleNameBlur = (sNum: number, val: string) => {
+  const handleNameBlur = (val: string) => {
     const trimmed = val.trim()
     if (trimmed && !/^Player \d+$|^Traveler \d+$/.test(trimmed) && !playerNamePool.includes(trimmed))
-      setPlayerNamePool((p: string[]) => uniqueStrings([...p, trimmed]))
+      setPlayerNamePool((p) => uniqueStrings([...p, trimmed]))
   }
 
   return (
@@ -111,14 +115,14 @@ export function PlayersTab({ newGamePanel, playerNamePool, language, seats, upda
             <Typography variant="caption" color="text.secondary">
               {t('empty')}
             </Typography>
-          ) : playerNamePool.map((name: string) => (
+          ) : playerNamePool.map((name) => (
             <Chip
               key={name}
               label={name}
               size="small"
               clickable
               onClick={() => handlePoolNameClick(name)}
-              onDelete={() => setPlayerNamePool((p: string[]) => p.filter((n) => n !== name))}
+              onDelete={() => setPlayerNamePool((p) => p.filter((n) => n !== name))}
             />
           ))}
         </Box>
@@ -150,11 +154,11 @@ export function PlayersTab({ newGamePanel, playerNamePool, language, seats, upda
               <TextField
                 size="small"
                 fullWidth
-                list="ng-name-pool-list"
-                placeholder={isTraveler ? `Traveler ${sNum}` : `Player ${sNum}`}
+                slotProps={{ htmlInput: { list: 'ng-name-pool-list' } }}
+                placeholder={isTraveler ? `${t('traveler')} #${sNum}` : tpl('seat_n', sNum)}
                 value={newGamePanel.seatNames[sNum] ?? ''}
                 onFocus={() => { focusedSeatRef.current = sNum }}
-                onBlur={(e) => { focusedSeatRef.current = null; handleNameBlur(sNum, e.target.value) }}
+                onBlur={(e) => { focusedSeatRef.current = null; handleNameBlur(e.target.value) }}
                 onChange={(e) => updateConfig({ seatNames: { ...newGamePanel.seatNames, [sNum]: e.target.value } })}
               />
             </Box>
@@ -162,7 +166,7 @@ export function PlayersTab({ newGamePanel, playerNamePool, language, seats, upda
         })}
       </Box>
       <datalist id="ng-name-pool-list">
-        {playerNamePool.map((n: string) => <option key={n} value={n} />)}
+        {playerNamePool.map((n) => <option key={n} value={n} />)}
       </datalist>
     </Box>
   )
