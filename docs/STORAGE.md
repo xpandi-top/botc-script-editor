@@ -15,9 +15,9 @@ This document is the source of truth for persisted browser/native keys. Update i
 
 | Key | Owner | Shape | Platform | Export | Cloud Sync | Migration |
 | --- | --- | --- | --- | --- | --- | --- |
-| `botc-storyteller-companion-v5` | `StorytellerSub` | persisted storyteller state, including active game and `gameRecords` | `storageSync` | records can be exported separately; active game is not in bundle export | `gameRecords` only | current key |
-| `botc-storyteller-companion-v4` | `StorytellerSub` | legacy storyteller state | read fallback only | no | no | remove after a verified migration helper replaces fallback reads |
-| `botc-storyteller-companion-v3` | `StorytellerSub` | legacy storyteller state | read fallback only | no | no | remove after a verified migration helper replaces fallback reads |
+| `botc-storyteller-companion-v5` | `StorytellerSub` | persisted storyteller state, including active game and `gameRecords` | `storageSync` | records can be exported separately; active game is not in bundle export | `gameRecords` only | current key; loader validates and normalizes saved JSON |
+| `botc-storyteller-companion-v4` | `StorytellerSub` | legacy storyteller state | read fallback only | no | no | valid legacy state is normalized and copied to v5 when v5 is absent or corrupt |
+| `botc-storyteller-companion-v3` | `StorytellerSub` | legacy storyteller state | read fallback only | no | no | valid legacy state is normalized and copied to v5 when v5/v4 are absent or corrupt |
 | `BOTC_USER_SCRIPTS` | Scripts | editable user scripts | `storageSync` | yes | yes, as `botc-scripts.json` | preserve unknown script fields |
 | `BOTC_SCRIPT_META` | Scripts | script metadata, folders, and per-script UI metadata | `storageSync` | yes | yes, as `botc-script-meta.json` | preserve unknown metadata fields |
 | `BOTC_SCRIPT_FOLDERS` | Scripts | script folder list | `storageSync` | no | no | current key |
