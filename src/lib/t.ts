@@ -94,7 +94,7 @@ export type UiKey =
   | 'record_name_optional' | 'no_votes' | 'good_wins' | 'evil_wins' | 'st_wins'
   | 'diff_type' | 'diff_team' | 'same_type' | 'same_team' | 'search_records'
   | 'storyteller_name' | 'enter_st_name' | 'stop_bgm' | 'play_bgm'
-  | 'add_local_audio' | 'add_url_audio' | 'track_name_placeholder' | 'paste_audio_url'
+  | 'add_local_audio' | 'add_url_audio' | 'track_name_label' | 'track_name_placeholder' | 'paste_audio_url'
   | 'timer_defaults' | 'seat_info'
   // Storyteller extra labels
   | 'info' | 'info_text' | 'true_label' | 'false_label' | 'true_false'

@@ -292,6 +292,7 @@
     "play_bgm": "播放 BGM",
     "add_local_audio": "添加本地文件",
     "add_url_audio": "添加 URL 链接",
+    "track_name_label": "曲目名称",
     "track_name_placeholder": "曲目名称…",
     "paste_audio_url": "粘贴 YouTube 或音频 URL…",
     "timer_defaults": "计时器默认值（秒）",

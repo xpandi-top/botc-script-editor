@@ -1,5 +1,5 @@
-// @ts-nocheck
-import React, { useState } from 'react'
+import type { ChangeEventHandler } from 'react'
+import { useState } from 'react'
 import { Box, IconButton, Select, MenuItem, Slider, Tooltip, TextField, InputAdornment, Typography } from '@mui/material'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import PauseIcon from '@mui/icons-material/Pause'
@@ -11,6 +11,7 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline'
 import { INITIAL_AUDIO_TRACKS } from './constants'
 import { makeT } from '../../lib/t'
+import type { Language } from '../../types'
 
 const INITIAL_SRCS = new Set(INITIAL_AUDIO_TRACKS.map((t) => t.src))
 
@@ -37,14 +38,14 @@ interface BgmBarProps {
   bgmVolume: number
   setBgmVolume: (v: number) => void
   /** Omit to hide the file upload button */
-  handleLocalFileChange?: React.ChangeEventHandler<HTMLInputElement>
+  handleLocalFileChange?: ChangeEventHandler<HTMLInputElement>
   /** Omit to hide the URL button */
   handleUrlTrackAdd?: (url: string, name?: string) => void
   /** Omit to hide delete icons inside the track dropdown */
   deleteTrack?: (src: string) => void
   /** Omit to hide rename icons inside the track dropdown */
   renameTrack?: (src: string, name: string) => void
-  language: string
+  language: Language
   /**
    * 'small'  — compact pill style used in CompactToolbar (default)
    * 'medium' — matches PhaseControlPanel icon row
@@ -80,7 +81,6 @@ export function BgmBar({
   const [urlInputValue, setUrlInputValue] = useState('')
   const [renamingSrc, setRenamingSrc] = useState<string | null>(null)
   const [renameValue, setRenameValue] = useState('')
-  const zh = language === 'zh'
   const t = makeT(language)
 
   // Icon font-size and padding scale with iconSize
@@ -288,7 +288,7 @@ export function BgmBar({
           ) : (
             <>
               <Typography variant="caption" sx={{ flexShrink: 0, color: 'text.secondary', fontSize: '0.7rem' }}>
-                {t('author_label')}
+                {t('track_name_label')}
               </Typography>
               <TextField
                 size="small" autoFocus fullWidth

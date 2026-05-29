@@ -292,6 +292,7 @@
     "play_bgm": "Play BGM",
     "add_local_audio": "Add local file",
     "add_url_audio": "Add URL link",
+    "track_name_label": "Track name",
     "track_name_placeholder": "Track name…",
     "paste_audio_url": "Paste YouTube or audio URL…",
     "timer_defaults": "Timer defaults (seconds)",
