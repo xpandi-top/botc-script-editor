@@ -17,12 +17,12 @@ This plan is intentionally behavior-preserving. Each item should land behind exi
 
 **Goal:** make future cleanup safe and measurable.
 
-1. Add CI gates that run:
+1. Add CI/local gates that run:
    - `npm run i18n:check:strict`
    - `npm test`
    - `npm run build`
-   - `npm run test:e2e -- --project=desktop`
-   - `npm run test:e2e -- --project=mobile-android`
+   - `npm run verify` runs the core local gate.
+   - `npm run verify -- --e2e` also runs desktop and mobile Playwright smoke tests.
 2. Add a bundle-size budget step:
    - Parse Vite output or add a lightweight bundle analyzer.
    - Track main JS gzip, vendor gzip, PWA precache size, and largest static asset.
