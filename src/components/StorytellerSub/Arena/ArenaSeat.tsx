@@ -1,8 +1,9 @@
-// @ts-nocheck
 import type { StorytellerSeat } from '../types'
 import type { StorytellerContext } from '../useStoryteller'
-import React, { useState } from 'react'
-import { Box, Chip, IconButton, Paper, Popover, Tooltip, Typography, useTheme } from '@mui/material'
+import type { MouseEvent } from 'react'
+import { memo, useState } from 'react'
+import { Box, IconButton, Paper, Popover, Tooltip, Typography, useTheme } from '@mui/material'
+import type { SxProps, Theme } from '@mui/material'
 import CheckIcon from '@mui/icons-material/Check'
 import CloseIcon from '@mui/icons-material/Close'
 import { ArenaSeatPlayerModal } from './ArenaSeatPlayerModal'
@@ -11,11 +12,11 @@ import { getDisplayName, getIconForCharacter, getEffectiveNightOrderFromRegistry
 import { getSeatPosition } from '../../../utils/seats'
 import { VoteButtonGroup, RoundRobinIndicator, TagChip, StatusBadge, translateStTag, resolveTagDisplay } from './ArenaSeatComponents'
 
-function WakeOrderBadge({ wakeOrder, isVisited, reminder, onToggle }: { wakeOrder: number; isVisited: boolean; reminder?: string; onToggle: (e: React.MouseEvent) => void }) {
-  const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null)
+function WakeOrderBadge({ wakeOrder, isVisited, reminder, onToggle }: { wakeOrder: number; isVisited: boolean; reminder?: string; onToggle: (e: MouseEvent<HTMLElement>) => void }) {
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
   const open = Boolean(anchorEl)
 
-  const handleNumberClick = (e: React.MouseEvent<HTMLElement>) => {
+  const handleNumberClick = (e: MouseEvent<HTMLElement>) => {
     e.stopPropagation()
     if (!reminder) return
     setAnchorEl(open ? null : e.currentTarget)
@@ -47,7 +48,7 @@ function WakeOrderBadge({ wakeOrder, isVisited, reminder, onToggle }: { wakeOrde
       <Popover
         open={open}
         anchorEl={anchorEl}
-        onClose={(e: any) => { if (e?.stopPropagation) e.stopPropagation(); setAnchorEl(null) }}
+        onClose={() => setAnchorEl(null)}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         transformOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         disableRestoreFocus
@@ -62,22 +63,22 @@ function WakeOrderBadge({ wakeOrder, isVisited, reminder, onToggle }: { wakeOrde
   )
 }
 
-function ArenaSeatInner({ ctx, seat, index, isPortrait }: { ctx: StorytellerContext, seat: any, index: number, isPortrait: boolean }) {
+function ArenaSeatInner({ ctx, seat, index, isPortrait }: { ctx: StorytellerContext, seat: StorytellerSeat, index: number, isPortrait: boolean }) {
   const {
     language, pickerMode, currentDay, updateCurrentDay, currentVoterSeat,
     selectedSeat, text, handleSeatClick, handleVoteYes, handleVoteNo,
     nightShowCharacter, nightShowWakeOrder, skillOverlay,
-    characterPopoutSeat, setCharacterPopoutSeat, toggleNightVisitedSeat,
-    playerModalSeat, setPlayerModalSeat, setPlayerModalTab, days,
+    toggleNightVisitedSeat,
+    playerModalSeat, setPlayerModalSeat,
     activeScriptSlug, scriptOptions,
   } = ctx
 
-  const pinnedRevisions = scriptOptions?.find((s: any) => s.slug === activeScriptSlug)?.pinnedRevisions
+  const pinnedRevisions = scriptOptions?.find((s) => s.slug === activeScriptSlug)?.pinnedRevisions
 
   const { left, top } = getSeatPosition(index, currentDay.seats.length, isPortrait)
 
   // Tag definitions with semantic colors for readability
-  type TagDef = { label: string; chipSx: object }
+  type TagDef = { label: string; chipSx: SxProps<Theme> }
   const tagDefs: TagDef[] = [
     !seat.alive    ? { label: text.aliveTag,    chipSx: { bgcolor: '#3a3530', color: '#e8e4da', border: 'none' } } : null,
     seat.isExecuted ? { label: text.executedTag, chipSx: { bgcolor: '#7a1e1e', color: '#fde8e8', border: 'none' } } : null,
@@ -108,9 +109,7 @@ function ArenaSeatInner({ ctx, seat, index, isPortrait }: { ctx: StorytellerCont
   const muiTheme = useTheme()
   const isDark = muiTheme.palette.mode === 'dark'
 
-  const isSelected = selectedSeat?.seat === seat.seat
   const isPlayerModalOpen = playerModalSeat === seat.seat
-  const isCharacterPopoutOpen = characterPopoutSeat === seat.seat
 
   const actualCharId = seat.characterId
   const charIcon = actualCharId ? getIconForCharacter(actualCharId) : null
@@ -134,8 +133,8 @@ function ArenaSeatInner({ ctx, seat, index, isPortrait }: { ctx: StorytellerCont
   // Dense rank: 32,37,37,52 → 1,2,2,3 (relative within script's seats)
   const rawWakePos = perceivedCharId ? (() => { const idx = nightList.indexOf(perceivedCharId); return idx !== -1 ? idx + 1 : null })() : null
   const allRawPositions = currentDay.seats
-    .map((s: any) => { const cId = s.userCharacterId || s.characterId; if (!cId) return null; const idx = nightList.indexOf(cId); return idx !== -1 ? idx + 1 : null })
-    .filter((p: any): p is number => p !== null)
+    .map((s) => { const cId = s.userCharacterId || s.characterId; if (!cId) return null; const idx = nightList.indexOf(cId); return idx !== -1 ? idx + 1 : null })
+    .filter((p): p is number => p !== null)
   const sortedUnique = [...new Set(allRawPositions)].sort((a, b) => a - b)
   const rankMap = new Map(sortedUnique.map((pos, i) => [pos, i + 1]))
   const playerWakeOrder = rawWakePos !== null ? (rankMap.get(rawWakePos) ?? null) : null
@@ -150,23 +149,29 @@ function ArenaSeatInner({ ctx, seat, index, isPortrait }: { ctx: StorytellerCont
     return 'divider'
   }
 
-  const handleVoteYesClick = (e: React.MouseEvent) => {
+  const handleVoteYesClick = (e: MouseEvent<HTMLElement>) => {
     e.stopPropagation()
     if (isCurrentVoter) { handleVoteYes(seat.seat) }
     else if (currentDay.votingState) { updateCurrentDay((d) => ({ ...d, votingState: d.votingState ? { ...d.votingState, votes: { ...d.votingState.votes, [seat.seat]: true } } : null })) }
     else { updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, voters: [...d.voteDraft.voters, seat.seat], noVoters: d.voteDraft.noVoters.filter((v) => v !== seat.seat) } })) }
   }
 
-  const handleVoteNoClick = (e: React.MouseEvent) => {
+  const handleVoteNoClick = (e: MouseEvent<HTMLElement>) => {
     e.stopPropagation()
     if (isCurrentVoter) { handleVoteNo(seat.seat) }
     else if (currentDay.votingState) { updateCurrentDay((d) => ({ ...d, votingState: d.votingState ? { ...d.votingState, votes: { ...d.votingState.votes, [seat.seat]: false } } : null })) }
     else { updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, noVoters: [...d.voteDraft.noVoters, seat.seat], voters: d.voteDraft.voters.filter((v) => v !== seat.seat) } })) }
   }
 
-  const handleRemoveVote = (e: React.MouseEvent) => {
+  const handleRemoveVote = (e: MouseEvent<HTMLElement>) => {
     e.stopPropagation()
-    if (currentDay.votingState) { updateCurrentDay((d) => ({ ...d, votingState: d.votingState ? { ...d.votingState, votes: { ...d.votingState.votes, [seat.seat]: undefined as unknown as boolean } } : null })) }
+    if (currentDay.votingState) {
+      updateCurrentDay((d) => {
+        if (!d.votingState) return d
+        const { [seat.seat]: _removed, ...votes } = d.votingState.votes
+        return { ...d, votingState: { ...d.votingState, votes } }
+      })
+    }
     else if (cardVotedYes) { updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, voters: d.voteDraft.voters.filter((v) => v !== seat.seat) } })) }
     else if (cardVotedNo) { updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, noVoters: d.voteDraft.noVoters.filter((v) => v !== seat.seat) } })) }
   }
@@ -197,7 +202,7 @@ function ArenaSeatInner({ ctx, seat, index, isPortrait }: { ctx: StorytellerCont
             filter: seat.alive ? 'none' : 'grayscale(85%) brightness(0.85)', opacity: seat.alive ? 1 : 0.75 }}>
             <CharacterCircle
               size={CIRCLE}
-              charIcon={charIcon}
+              charIcon={charIcon ?? null}
               charName={actualCharName}
               nightShowCharacter={nightShowCharacter || seat.isTraveler}
               isOpen={isPlayerModalOpen}
@@ -310,7 +315,7 @@ function ArenaSeatInner({ ctx, seat, index, isPortrait }: { ctx: StorytellerCont
 // Memo comparator: only re-render when seat-relevant ctx fields change.
 // Timer ticks update currentTimerSeconds (separate state) but NOT currentDay,
 // so all 15 seats correctly bail out on every timer tick.
-export const ArenaSeat = React.memo(ArenaSeatInner, (prev, next) =>
+export const ArenaSeat = memo(ArenaSeatInner, (prev, next) =>
   prev.seat === next.seat &&
   prev.index === next.index &&
   prev.isPortrait === next.isPortrait &&
