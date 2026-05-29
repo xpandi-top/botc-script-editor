@@ -1,20 +1,27 @@
-// @ts-nocheck
-import React, { useState, useEffect, useRef } from 'react'
-import { Box, Button, TextField, FormControl, Select, MenuItem, Typography, Chip, IconButton, Paper, InputLabel } from '@mui/material'
+import { useState, useEffect, useRef } from 'react'
+import { Box, Button, Typography, Chip, Paper } from '@mui/material'
+import type { ChipProps } from '@mui/material'
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import { getDisplayName, getIconForCharacter, characterById } from '../../../catalog'
-import { CHARACTER_DISTRIBUTION } from '../constants'
+import type { Language } from '../../../types'
+
+type DistributionCounts = {
+  townsfolk: number
+  outsider: number
+  minion: number
+  demon: number
+}
 
 export function TeamDot({ team }: { team: string | null | undefined }) {
   if (!team) return null
   const color = team === 'minion' || team === 'demon' ? 'error' : team === 'townsfolk' || team === 'outsider' ? 'primary' : 'default'
-  return <Chip size="small" label={team} color={color as any} sx={{ height: 20, fontSize: '0.65rem' }} />
+  return <Chip size="small" label={team} color={color as ChipProps['color']} sx={{ height: 20, fontSize: '0.65rem' }} />
 }
 
 export function DistRow({ label, counts, calc }: {
   label: string
-  counts: { townsfolk: number; outsider: number; minion: number; demon: number }
-  calc?: typeof counts
+  counts: DistributionCounts
+  calc?: DistributionCounts
 }) {
   const match = (k: keyof typeof counts) => calc && counts[k] === calc[k]
   const keys = ['townsfolk', 'outsider', 'minion', 'demon'] as const
@@ -39,7 +46,7 @@ export function DistRow({ label, counts, calc }: {
 export function CharSelect({ value, options, language, onChange, placeholder }: {
   value: string
   options: string[]
-  language: string
+  language: Language
   onChange: (id: string) => void
   placeholder?: string
 }) {
