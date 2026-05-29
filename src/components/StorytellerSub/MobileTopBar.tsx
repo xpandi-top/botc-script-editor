@@ -2,6 +2,7 @@ import type { StorytellerContext } from './useStoryteller'
 import { Box, IconButton, Chip, Typography, Select, MenuItem } from '@mui/material'
 import MenuIcon from '@mui/icons-material/Menu'
 import UndoIcon from '@mui/icons-material/Undo'
+import { useT } from '../../context/I18nContext'
 
 const PHASE_COLORS: Record<string, string> = {
   night: '#17202a',
@@ -11,6 +12,7 @@ const PHASE_COLORS: Record<string, string> = {
 }
 
 export function MobileTopBar({ ctx }: { ctx: StorytellerContext }) {
+  const { t, tpl } = useT()
   const {
     text, currentDay, aliveCount, totalCount,
     activeScriptTitle, activeScriptVersion, showScriptPanel, setShowScriptPanel,
@@ -57,7 +59,7 @@ export function MobileTopBar({ ctx }: { ctx: StorytellerContext }) {
         )}
 
         <Chip
-          label={`Day ${currentDay.day} · ${phaseLabel[currentDay.phase] ?? currentDay.phase}`}
+          label={`${tpl('day_n', currentDay.day)} · ${phaseLabel[currentDay.phase] ?? currentDay.phase}`}
           sx={{
             bgcolor: PHASE_COLORS[currentDay.phase] ?? 'primary.main',
             color: 'white',
@@ -69,7 +71,7 @@ export function MobileTopBar({ ctx }: { ctx: StorytellerContext }) {
         />
       </Box>
 
-      <IconButton onClick={undo} disabled={!canUndo} title="Undo">
+      <IconButton onClick={undo} disabled={!canUndo} title={t('undo')}>
         <UndoIcon />
       </IconButton>
       {onLanguageChange && (
