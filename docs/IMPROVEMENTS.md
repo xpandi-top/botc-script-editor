@@ -24,8 +24,8 @@ This plan is intentionally behavior-preserving. Each item should land behind exi
    - `npm run verify` runs the core local gate.
    - `npm run verify -- --e2e` also runs desktop and mobile Playwright smoke tests.
 2. Add a bundle-size budget step:
-   - Parse Vite output or add a lightweight bundle analyzer.
-   - Track main JS gzip, vendor gzip, PWA precache size, and largest static asset.
+   - `npm run bundle:check` reads `dist/` after a build.
+   - It tracks main JS gzip, vendor gzip, PWA precache size, total `dist/` size, and largest static asset.
    - Set initial warning thresholds from current evidence, then lower over time.
 3. Add a regression checklist for behavior-preserving changes:
    - scripts browse/edit/print

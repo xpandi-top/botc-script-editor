@@ -8,6 +8,7 @@ const steps = [
   ['i18n strict check', 'npm', ['run', 'i18n:check:strict']],
   ['unit tests', 'npm', ['test']],
   ['production build', 'npm', ['run', 'build']],
+  ['bundle budget', 'npm', ['run', 'bundle:check']],
 ]
 
 if (includeE2e) {
