@@ -11,7 +11,6 @@ function measureTextPx(text: string, fontCss: string): number {
     return text.length * 10
   }
 }
-import DOMPurify from 'dompurify'
 import { Box, Typography, Paper, Grid, IconButton, Chip, Divider, DialogTitle, Tooltip, useTheme } from '@mui/material'
 import {
   editionLabels,
@@ -34,12 +33,7 @@ import type { PrintOptions } from './PrintOptionsDialog'
 import { PADDING_MAP, FONT_CSS } from './PrintOptionsDialog'
 import { ResponsiveDialog, ResponsiveDialogContent } from './ui'
 import { makeT } from '../lib/t'
-
-// Restrict DOMPurify to inline formatting only — no hrefs, no event attrs
-const PURIFY_OPTS: Parameters<typeof DOMPurify.sanitize>[1] = {
-  ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'u', 'br', 'span'],
-  ALLOWED_ATTR: [],
-}
+import { sanitizeAbilityHtml } from '../lib/sanitizeAbilityHtml'
 
 type SheetArticleProps = {
   activeScript: EditableScript
@@ -396,12 +390,12 @@ export function SheetArticle({
               <Box sx={{ flex: 1, minWidth: 80, display: 'flex', flexDirection: 'column', justifyContent: 'center', minHeight: iconSize }}>
                 <Typography variant="body2"
                   sx={{ fontFamily: lang === 'zh' ? zhFont : enFont, lineHeight, mb: 0, color: 'text.primary', ...(fontSize && { fontSize }) }}
-                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(ability, PURIFY_OPTS) }}
+                  dangerouslySetInnerHTML={{ __html: sanitizeAbilityHtml(ability) }}
                 />
                 {abilityAlt && abilityAlt !== ability && (
                   <Typography variant="body2"
                     sx={{ fontFamily: lang === 'zh' ? enFont : zhFont, lineHeight, mt: 0.25, mb: 0, color: 'text.primary', ...(fontSize && { fontSize }) }}
-                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(abilityAlt, PURIFY_OPTS) }}
+                    dangerouslySetInnerHTML={{ __html: sanitizeAbilityHtml(abilityAlt) }}
                   />
                 )}
               </Box>

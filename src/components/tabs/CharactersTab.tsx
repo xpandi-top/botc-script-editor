@@ -13,12 +13,6 @@ import DownloadIcon from '@mui/icons-material/Download'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import UploadIcon from '@mui/icons-material/Upload'
-import DOMPurify from 'dompurify'
-
-const PURIFY_OPTS: Parameters<typeof DOMPurify.sanitize>[1] = {
-  ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'u', 'br', 'span'],
-  ALLOWED_ATTR: [],
-}
 import { CharacterRevisionPanel } from '../CharacterRevisionPanel'
 import { CustomCharDialog } from '../CustomCharDialog'
 import { FilterCheckbox } from '../FilterCheckbox'
@@ -40,6 +34,7 @@ import {
   REVISION_OVERRIDES_KEY,
   refreshRevisionOverrides,
 } from '../../catalog'
+import { sanitizeAbilityHtml } from '../../lib/sanitizeAbilityHtml'
 
 // Read pack overrides at render time to know which chars have overrides applied
 function getPackOverrideIds(): Set<string> {
@@ -344,7 +339,7 @@ function PackImportDialog({ open, onClose, pack, language, knownIds, existingCus
                   {!isExp && abilityEn && (
                     <Typography variant="caption" color="text.secondary"
                       sx={{ display: 'block', mt: 0.25, fontSize: '0.75rem', lineHeight: 1.35 }}
-                      dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(zh ? (abilityZh || abilityEn) : abilityEn, PURIFY_OPTS) }} />
+                      dangerouslySetInnerHTML={{ __html: sanitizeAbilityHtml(zh ? (abilityZh || abilityEn) : abilityEn) }} />
                   )}
                 </Box>
                 <IconButton size="small" onClick={() => toggleExpand(c.id)} sx={{ p: 0.25, flexShrink: 0 }}>
@@ -1005,7 +1000,7 @@ export function CharactersTab({
                         {character.id} · {edition} · {currentRevision}
                       </Typography>
                       <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}
-                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(getAbilityText(character.id, uiLanguage), PURIFY_OPTS) }} />
+                        dangerouslySetInnerHTML={{ __html: sanitizeAbilityHtml(getAbilityText(character.id, uiLanguage)) }} />
                     </Box>
                   </Button>
                 )
