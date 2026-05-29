@@ -1,12 +1,12 @@
-// @ts-nocheck
 import type { StorytellerContext } from '../useStoryteller'
+import type { AggregatedLogEntry } from '../types'
 import React from 'react'
 import { Box, Typography, Paper, Button, Chip, Select, MenuItem } from '@mui/material'
 import { LogDetailText } from '../LogDetailText'
 import CloseIcon from '@mui/icons-material/Close'
 import { useT } from '../../../context/I18nContext'
 
-function phaseLabel(phase: string, text: any): string {
+function phaseLabel(phase: string, text: StorytellerContext['text']): string {
   if (phase === 'night') return text.nightPhase
   if (phase === 'private') return text.privateChat
   if (phase === 'public') return text.publicChat
@@ -14,7 +14,7 @@ function phaseLabel(phase: string, text: any): string {
   return phase
 }
 
-const ENTRY_COLORS: Record<string, 'primary' | 'secondary' | 'success' | 'error' | 'warning'> = {
+const ENTRY_COLORS: Record<AggregatedLogEntry['type'], 'primary' | 'secondary' | 'success'> = {
   vote: 'primary',
   skill: 'secondary',
   event: 'success',
@@ -25,7 +25,7 @@ export function RightPopupLog({ ctx }: { ctx: StorytellerContext }) {
   const { days, logFilter, setLogFilter, aggregatedLog, setActiveRightPopup, toggleLogFilterType, text, language } = ctx
 
   const grouped = React.useMemo(() => {
-    const map = new Map()
+    const map = new Map<number, AggregatedLogEntry[]>()
     for (const e of aggregatedLog) {
       const arr = map.get(e.day) ?? []
       arr.push(e)
@@ -33,6 +33,8 @@ export function RightPopupLog({ ctx }: { ctx: StorytellerContext }) {
     }
     return Array.from(map.entries()).sort((a, b) => logFilter.sortAsc ? a[0] - b[0] : b[0] - a[0])
   }, [aggregatedLog, logFilter.sortAsc])
+
+  const dayLabel = (day: number) => language === 'zh' ? `${t('day')}${day}${t('day_short')}` : `${t('day')} ${day}`
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
@@ -75,7 +77,7 @@ export function RightPopupLog({ ctx }: { ctx: StorytellerContext }) {
           size="small"
           color={logFilter.visibility === 'all' ? 'primary' : 'default'}
           variant={logFilter.visibility === 'all' ? 'filled' : 'outlined'}
-          onClick={() => setLogFilter((p: any) => ({ ...p, visibility: 'all' }))}
+          onClick={() => setLogFilter((previous) => ({ ...previous, visibility: 'all' }))}
           sx={{ cursor: 'pointer' }}
         />
         <Chip
@@ -83,7 +85,7 @@ export function RightPopupLog({ ctx }: { ctx: StorytellerContext }) {
           size="small"
           color={logFilter.visibility === 'public' ? 'primary' : 'default'}
           variant={logFilter.visibility === 'public' ? 'filled' : 'outlined'}
-          onClick={() => setLogFilter((p: any) => ({ ...p, visibility: 'public' }))}
+          onClick={() => setLogFilter((previous) => ({ ...previous, visibility: 'public' }))}
           sx={{ cursor: 'pointer' }}
         />
         <Chip
@@ -91,19 +93,19 @@ export function RightPopupLog({ ctx }: { ctx: StorytellerContext }) {
           size="small"
           color={logFilter.visibility === 'st-only' ? 'primary' : 'default'}
           variant={logFilter.visibility === 'st-only' ? 'filled' : 'outlined'}
-          onClick={() => setLogFilter((p: any) => ({ ...p, visibility: 'st-only' }))}
+          onClick={() => setLogFilter((previous) => ({ ...previous, visibility: 'st-only' }))}
           sx={{ cursor: 'pointer' }}
         />
         <Select
           size="small"
           value={logFilter.dayFilter}
-          onChange={(e) => setLogFilter((p: any) => ({ ...p, dayFilter: e.target.value === 'all' ? 'all' : Number(e.target.value) }))}
+          onChange={(e) => setLogFilter((previous) => ({ ...previous, dayFilter: e.target.value === 'all' ? 'all' : Number(e.target.value) }))}
           sx={{ minWidth: 100, fontSize: '0.8rem' }}
         >
           <MenuItem value="all">{text.allDays}</MenuItem>
-          {days.map((d: any) => <MenuItem key={d.id} value={d.day}>Day {d.day}</MenuItem>)}
+          {days.map((day) => <MenuItem key={day.id} value={day.day}>{dayLabel(day.day)}</MenuItem>)}
         </Select>
-        <Button size="small" variant="outlined" onClick={() => setLogFilter((p: any) => ({ ...p, sortAsc: !p.sortAsc }))}>
+        <Button size="small" variant="outlined" onClick={() => setLogFilter((previous) => ({ ...previous, sortAsc: !previous.sortAsc }))}>
           {logFilter.sortAsc ? '↑' : '↓'}
         </Button>
       </Box>
@@ -112,13 +114,13 @@ export function RightPopupLog({ ctx }: { ctx: StorytellerContext }) {
         {grouped.length === 0 ? (
           <Typography variant="body2" color="text.secondary">—</Typography>
         ) : (
-          grouped.map(([day, entries]: [number, any[]]) => (
+          grouped.map(([day, entries]) => (
             <Box key={day} sx={{ mb: 1 }}>
-              <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 0.5, color: 'primary.main' }}>
-                Day {day}
+              <Typography variant="subtitle2" sx={{ mb: 0.5, color: 'primary.main', fontWeight: 600 }}>
+                {dayLabel(day)}
               </Typography>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                {entries.map((entry: any) => (
+                {entries.map((entry) => (
                   <Paper
                     key={entry.id}
                     sx={{
@@ -130,7 +132,7 @@ export function RightPopupLog({ ctx }: { ctx: StorytellerContext }) {
                       <Chip
                         label={entry.type === 'vote' ? text.filterVote : entry.type === 'skill' ? text.filterSkill : text.filterEvent}
                         size="small"
-                        color={ENTRY_COLORS[entry.type] || 'default'}
+                        color={ENTRY_COLORS[entry.type]}
                         sx={{ height: 20, fontSize: '0.65rem' }}
                       />
                       {entry.visibility === 'st-only' && (
