@@ -110,6 +110,16 @@ export function useStoryteller(props: StorytellerHelperProps) {
     })
   }
 
+  function resetSeatNames() {
+    updateCurrentDay((d) => ({
+      ...d,
+      seats: d.seats.map((seat) => ({
+        ...seat,
+        name: `${seat.isTraveler ? 'Traveler' : 'Player'} ${seat.seat}`,
+      })),
+    }))
+  }
+
   const currentTimerSeconds = useMemo(() => {
     const d = currentDay
     if (d.phase === 'private') return d.privateSeconds
@@ -331,7 +341,7 @@ export function useStoryteller(props: StorytellerHelperProps) {
     aggregatedLog, getPhaseContext, setCurrentTimer, syncDayTimers, appendEvent,
     ...gameActions,
     handleSeatClick,
-    clearUnusedCustomTags, toggleLogFilterType, confirmDialog,
+    resetSeatNames, clearUnusedCustomTags, toggleLogFilterType, confirmDialog,
     editLogEntry, removeLogEntry, addQuickEvent, swapLogEntries,
     stFabledIds, setStFabledIds, stCustomRules, setStCustomRules, stName, setStName,
     gameId,

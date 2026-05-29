@@ -11,6 +11,32 @@ export const RECORDS_CHANGED_EVENT = 'botc-records-changed'
 export const DEFAULT_PLAYER_COUNT = 10
 export const BASE_URL = import.meta.env.BASE_URL ?? '/'
 
+export const FAKE_NAMES = [
+  'Alice',
+  'Bob',
+  'Charlie',
+  'Diana',
+  'Eve',
+  'Frank',
+  'Grace',
+  'Heidi',
+  'Ivan',
+  'Judy',
+]
+
+export const FAKE_NAMES_ZH = [
+  '张三',
+  '李四',
+  '王五',
+  '赵六',
+  '钱七',
+  '孙八',
+  '周九',
+  '吴十',
+  '郑十一',
+  '冯十二',
+]
+
 export const CHARACTER_DISTRIBUTION: Record<number, { townsfolk: number; outsider: number; minion: number; demon: number }> = {
   5: { townsfolk: 3, outsider: 0, minion: 1, demon: 1 },
   6: { townsfolk: 3, outsider: 1, minion: 1, demon: 1 },
@@ -147,4 +173,3 @@ export function shuffleArray<T>(arr: T[]): T[] {
   }
   return result
 }
-

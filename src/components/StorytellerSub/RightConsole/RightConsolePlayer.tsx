@@ -1,17 +1,22 @@
-// @ts-nocheck
 import type { StorytellerContext } from '../useStoryteller'
-import React from 'react'
-import { Box, Button, Typography, Paper, Chip, TextField, Grid, IconButton } from '@mui/material'
+import type { ConsoleSection } from '../types'
+import { Box, Button, Typography, Paper, Chip, TextField } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { getDisplayName } from '../../../catalog'
 import { FAKE_NAMES, FAKE_NAMES_ZH } from '../constants'
 
-export function RightConsolePlayer({ ctx, toggleConsoleSection }: { ctx: StorytellerContext, toggleConsoleSection: any }) {
-  const { 
-    language, text, activeConsoleSections, 
-    currentDay, updateSeatWithLog, addCustomTag,
-    playerNamePool, setPlayerNamePool, 
+export function RightConsolePlayer({
+  ctx,
+  toggleConsoleSection,
+}: {
+  ctx: StorytellerContext
+  toggleConsoleSection: (section: ConsoleSection) => void
+}) {
+  const {
+    language, text, activeConsoleSections,
+    currentDay, updateSeat, updateSeatWithLog, addCustomTag,
+    playerNamePool, setPlayerNamePool,
     resetSeatNames, clearUnusedCustomTags,
     selectedSeat, selectedSeatTags, seatTagDrafts, setSeatTagDrafts,
     setShowEditPlayersModal, customTagPool,
@@ -22,11 +27,11 @@ export function RightConsolePlayer({ ctx, toggleConsoleSection }: { ctx: Storyte
   const getCharacterName = (tag: string) => getDisplayName([...tag].slice(1).join(''), language)
   const displayTag = (tag: string) => isCharacterTag(tag) ? getCharacterName(tag) : tag
 
-  const travelerCount = currentDay?.seats?.filter((s: any) => s.isTraveler).length ?? 0
-  const aliveCount = currentDay?.seats?.filter((s: any) => s.alive).length ?? 0
+  const travelerCount = currentDay?.seats?.filter((seat) => seat.isTraveler).length ?? 0
+  const aliveCount = currentDay?.seats?.filter((seat) => seat.alive).length ?? 0
   const totalCount = currentDay?.seats?.length ?? 0
 
-  const tagsNotChar = customTagPool?.filter((t: string) => !isCharacterTag(t)) ?? []
+  const tagsNotChar = customTagPool?.filter((tag) => !isCharacterTag(tag)) ?? []
 
   return (
     <Paper variant="outlined" sx={{ p: 1 }}>
@@ -49,8 +54,8 @@ export function RightConsolePlayer({ ctx, toggleConsoleSection }: { ctx: Storyte
           <Box>
             <Typography variant="caption" color="text.secondary">{text.playerPool}</Typography>
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-              {(playerNamePool ?? []).map((name: string, i: number) => {
-                const isUsed = currentDay?.seats?.some((s: any) => s.name === name)
+              {(playerNamePool ?? []).map((name, i) => {
+                const isUsed = currentDay?.seats?.some((seat) => seat.name === name)
                 return (
                   <Chip
                     key={`${name}-${i}`}
@@ -58,8 +63,8 @@ export function RightConsolePlayer({ ctx, toggleConsoleSection }: { ctx: Storyte
                     size="small"
                     variant={isUsed ? 'filled' : 'outlined'}
                     onClick={() => {
-                      const seat = currentDay?.seats?.find((s: any) => s.name.startsWith('Player '))
-                      if (seat) updateSeat(seat.seat, (s: any) => ({ ...s, name }))
+                      const seat = currentDay?.seats?.find((candidateSeat) => candidateSeat.name.startsWith('Player '))
+                      if (seat) updateSeat(seat.seat, (currentSeat) => ({ ...currentSeat, name }))
                     }}
                   />
                 )
@@ -80,23 +85,23 @@ export function RightConsolePlayer({ ctx, toggleConsoleSection }: { ctx: Storyte
                 {text.selectedPlayer} #{selectedSeat.seat} {selectedSeat.name}
               </Typography>
               <Box sx={{ display: 'flex', gap: 0.5, mt: 0.5, flexWrap: 'wrap' }}>
-                <Button size="small" variant={!selectedSeat.alive ? 'contained' : 'outlined'} onClick={() => updateSeatWithLog(selectedSeat.seat, (s: any) => ({ ...s, alive: !s.alive }))}>
+                <Button size="small" variant={!selectedSeat.alive ? 'contained' : 'outlined'} onClick={() => updateSeatWithLog(selectedSeat.seat, (seat) => ({ ...seat, alive: !seat.alive }))}>
                   {text.aliveTag}
                 </Button>
-                <Button size="small" variant={selectedSeat.isExecuted ? 'contained' : 'outlined'} color="error" onClick={() => updateSeatWithLog(selectedSeat.seat, (s: any) => ({ ...s, isExecuted: !s.isExecuted }))}>
+                <Button size="small" variant={selectedSeat.isExecuted ? 'contained' : 'outlined'} color="error" onClick={() => updateSeatWithLog(selectedSeat.seat, (seat) => ({ ...seat, isExecuted: !seat.isExecuted }))}>
                   {text.executedTag}
                 </Button>
-                <Button size="small" variant={selectedSeat.isTraveler ? 'contained' : 'outlined'} color="info" onClick={() => updateSeatWithLog(selectedSeat.seat, (s: any) => ({ ...s, isTraveler: !s.isTraveler }))}>
+                <Button size="small" variant={selectedSeat.isTraveler ? 'contained' : 'outlined'} color="info" onClick={() => updateSeatWithLog(selectedSeat.seat, (seat) => ({ ...seat, isTraveler: !seat.isTraveler }))}>
                   {text.traveler}
                 </Button>
-                <Button size="small" variant={selectedSeat.hasNoVote ? 'contained' : 'outlined'} color="warning" onClick={() => updateSeatWithLog(selectedSeat.seat, (s: any) => ({ ...s, hasNoVote: !s.hasNoVote }))}>
+                <Button size="small" variant={selectedSeat.hasNoVote ? 'contained' : 'outlined'} color="warning" onClick={() => updateSeatWithLog(selectedSeat.seat, (seat) => ({ ...seat, hasNoVote: !seat.hasNoVote }))}>
                   {text.noVoteTag}
                 </Button>
               </Box>
 
               {(selectedSeatTags ?? []).length > 0 && (
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.25, mt: 0.5 }}>
-                  {(selectedSeatTags ?? []).map((tag: string) => (
+                  {(selectedSeatTags ?? []).map((tag) => (
                     <Chip key={`${selectedSeat.seat}-${tag}`} label={displayTag(tag)} size="small" />
                   ))}
                 </Box>
@@ -108,7 +113,7 @@ export function RightConsolePlayer({ ctx, toggleConsoleSection }: { ctx: Storyte
                   fullWidth
                   label={text.addTag}
                   value={seatTagDrafts?.[selectedSeat.seat] ?? ''}
-                  onChange={(e) => setSeatTagDrafts((c: any) => ({ ...c, [selectedSeat.seat]: e.target.value }))}
+                  onChange={(e) => setSeatTagDrafts((current) => ({ ...current, [selectedSeat.seat]: e.target.value }))}
                   onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCustomTag(selectedSeat.seat); (document.activeElement as HTMLInputElement)?.blur() } }}
                 />
                 <Button size="small" onClick={() => addCustomTag(selectedSeat.seat)} sx={{ mt: 0.5 }}>+</Button>
@@ -121,17 +126,17 @@ export function RightConsolePlayer({ ctx, toggleConsoleSection }: { ctx: Storyte
                     <Button size="small" onClick={clearUnusedCustomTags}>{text.clearUnusedTags}</Button>
                   </Box>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.25 }}>
-                    {tagsNotChar.map((tag: string) => (
+                    {tagsNotChar.map((tag) => (
                       <Chip
                         key={`pool-${tag}`}
                         label={tag}
                         size="small"
                         variant={selectedSeat?.customTags?.includes(tag) ? 'filled' : 'outlined'}
-                        onClick={() => updateSeatWithLog(selectedSeat.seat, (s: any) => ({ 
-                          ...s, 
-                          customTags: s.customTags.includes(tag) 
-                            ? s.customTags.filter((v: string) => v !== tag) 
-                            : [...s.customTags, tag] 
+                        onClick={() => updateSeatWithLog(selectedSeat.seat, (seat) => ({
+                          ...seat,
+                          customTags: seat.customTags.includes(tag)
+                            ? seat.customTags.filter((value) => value !== tag)
+                            : [...seat.customTags, tag]
                         }))}
                       />
                     ))}
