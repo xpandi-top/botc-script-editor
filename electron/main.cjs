@@ -29,6 +29,18 @@ function getIndexPath() {
 
 let oauthServer = null
 
+function isAllowedExternalUrl(rawUrl) {
+  if (typeof rawUrl !== 'string') return false
+  try {
+    const url = new URL(rawUrl)
+    if (url.protocol === 'https:') return true
+    if (url.protocol !== 'http:') return false
+    return ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname)
+  } catch {
+    return false
+  }
+}
+
 function startOAuthLoopbackServer() {
   return new Promise((resolve, reject) => {
     if (oauthServer) {
@@ -73,7 +85,12 @@ ipcMain.handle('oauth-server-start', () => startOAuthLoopbackServer())
 ipcMain.handle('oauth-server-stop', () => {
   if (oauthServer) { oauthServer.close(); oauthServer = null }
 })
-ipcMain.handle('open-external', (_event, url) => shell.openExternal(url))
+ipcMain.handle('open-external', (_event, url) => {
+  if (!isAllowedExternalUrl(url)) {
+    throw new Error('Blocked unsafe external URL')
+  }
+  return shell.openExternal(url)
+})
 
 // ── Window ────────────────────────────────────────────────────────────────────
 
@@ -103,17 +120,19 @@ function createWindow() {
 
   // Open external links in default browser, not Electron window
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    if (url.startsWith('http://') || url.startsWith('https://')) {
+    if (isAllowedExternalUrl(url)) {
       shell.openExternal(url)
       return { action: 'deny' }
     }
-    return { action: 'allow' }
+    return { action: 'deny' }
   })
 
   mainWindow.webContents.on('will-navigate', (event, url) => {
-    if (url.startsWith('http://') || url.startsWith('https://')) {
+    if (isAllowedExternalUrl(url)) {
       event.preventDefault()
       shell.openExternal(url)
+    } else if (/^[a-z][a-z\d+.-]*:/i.test(url) && !url.startsWith('file:')) {
+      event.preventDefault()
     }
   })
 
