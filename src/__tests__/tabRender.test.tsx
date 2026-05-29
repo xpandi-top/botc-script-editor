@@ -271,7 +271,6 @@ describe('RightConsole sub-components — import sanity', () => {
     '../components/StorytellerSub/RightConsole/RightConsoleGame',
     '../components/StorytellerSub/RightConsole/RightConsoleConfig',
     '../components/StorytellerSub/RightConsole/RightConsoleSettings',
-    '../components/StorytellerSub/RightConsole/RightConsoleSeats',
     '../components/StorytellerSub/RightConsole/RightConsolePlayer',
     '../components/StorytellerSub/RightConsole/RightConsoleTags',
     '../components/StorytellerSub/RightConsole/RightConsoleRecords',
