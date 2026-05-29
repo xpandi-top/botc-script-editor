@@ -1,9 +1,8 @@
-// @ts-nocheck
 import type { StorytellerContext } from '../useStoryteller'
-import React, { useState, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { createPortal } from 'react-dom'
 import {
-  Box, Button, Chip, Collapse, DialogTitle,
+  Box, Button, Collapse, DialogTitle,
   IconButton, InputAdornment, List, ListItem, ListItemAvatar, ListItemButton,
   ListItemText, TextField, Typography,
 } from '@mui/material'
@@ -51,7 +50,7 @@ export function StorytellerSetupModal({ ctx }: { ctx: StorytellerContext }) {
   const handleSaveEdit = () => { setStCustomRules(rulesValue); setEditMode(false) }
 
   const handleToggleFabled = (id: string) => {
-    setStFabledIds((prev: string[]) =>
+    setStFabledIds((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     )
   }
@@ -59,14 +58,14 @@ export function StorytellerSetupModal({ ctx }: { ctx: StorytellerContext }) {
   if (!showStSetupModal) return null
 
   const activeChars = stFabledIds
-    .map((id: string) => ({ id, name: getDisplayName(id, language), icon: getIconForCharacter(id) }))
+    .map((id) => ({ id, name: getDisplayName(id, language), icon: getIconForCharacter(id) }))
 
   const modal = (
     <ResponsiveDialog open={showStSetupModal} onClose={handleClose} maxWidth="sm">
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 0.5 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <AutoStoriesIcon sx={{ fontSize: '1.4rem', color: 'primary.main' }} />
-          <Typography fontWeight={700}>{t('storyteller_setup')}</Typography>
+          <Typography sx={{ fontWeight: 700 }}>{t('storyteller_setup')}</Typography>
         </Box>
         <IconButton size="small" onClick={handleClose}><CloseIcon fontSize="small" /></IconButton>
       </DialogTitle>
@@ -87,7 +86,7 @@ export function StorytellerSetupModal({ ctx }: { ctx: StorytellerContext }) {
         {/* Fabled / Loric section */}
         <Box sx={{ mb: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-            <Typography variant="subtitle2" fontWeight={700}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
               {t('fabled_loric')}
             </Typography>
             <Button size="small" startIcon={<AddIcon />}
@@ -102,10 +101,10 @@ export function StorytellerSetupModal({ ctx }: { ctx: StorytellerContext }) {
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75, mb: 1 }}>
               {activeChars.map(({ id, name, icon }) => (
                 <Box key={id} sx={{ display: 'flex', alignItems: 'flex-start', gap: 1, p: 0.75, borderRadius: 1, border: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }}>
-                  {icon && <Box component="img" src={icon} sx={{ width: 32, height: 32, objectFit: 'contain', flexShrink: 0, mt: 0.25 }} />}
+                  {icon && <Box component="img" src={icon} alt={name} sx={{ width: 32, height: 32, objectFit: 'contain', flexShrink: 0, mt: 0.25 }} />}
                   <Box sx={{ flex: 1, minWidth: 0 }}>
                     <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 0.5, flexWrap: 'wrap' }}>
-                      <Typography variant="body2" fontWeight={700}>{getDisplayName(id, language)}</Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 700 }}>{getDisplayName(id, language)}</Typography>
                       <Typography variant="caption" color="text.secondary">
                         {language !== 'en' ? getDisplayName(id, 'en') : getDisplayName(id, 'zh')}
                       </Typography>
@@ -147,14 +146,14 @@ export function StorytellerSetupModal({ ctx }: { ctx: StorytellerContext }) {
                       sx={{ py: 0.5, bgcolor: active ? 'action.selected' : undefined }}>
                       {icon && (
                         <ListItemAvatar sx={{ minWidth: 40 }}>
-                          <Box component="img" src={icon} sx={{ width: 32, height: 32, objectFit: 'contain' }} />
+                          <Box component="img" src={icon} alt={name} sx={{ width: 32, height: 32, objectFit: 'contain' }} />
                         </ListItemAvatar>
                       )}
                       <ListItemText
                         disableTypography
                         primary={
                           <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 0.75, flexWrap: 'wrap' }}>
-                            <Typography variant="body2" fontWeight={active ? 700 : 600}>
+                            <Typography variant="body2" sx={{ fontWeight: active ? 700 : 600 }}>
                               {getDisplayName(c.id, language)}
                             </Typography>
                             {language !== 'en' && (
@@ -168,7 +167,7 @@ export function StorytellerSetupModal({ ctx }: { ctx: StorytellerContext }) {
                               </Typography>
                             )}
                             <Typography variant="caption" sx={{ color: c.edition === 'loric' ? 'info.main' : 'warning.main', fontWeight: 600 }}>
-                              {c.edition === 'loric' ? 'Loric' : 'Fabled'}
+                              {c.edition === 'loric' ? t('loric') : t('fabled')}
                             </Typography>
                           </Box>
                         }
@@ -190,7 +189,7 @@ export function StorytellerSetupModal({ ctx }: { ctx: StorytellerContext }) {
         {/* Custom Rules section */}
         <Box>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.75 }}>
-            <Typography variant="subtitle2" fontWeight={700}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
               {t('custom_rules')}
             </Typography>
             {editMode ? (
@@ -218,7 +217,7 @@ export function StorytellerSetupModal({ ctx }: { ctx: StorytellerContext }) {
           ) : (
             <Box sx={{ p: 1.5, borderRadius: 1, border: '1px dashed', borderColor: 'divider', cursor: 'text' }}
               onClick={handleEnterEdit}>
-              <Typography variant="body2" color="text.secondary" fontStyle="italic">
+              <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
                 {t('click_to_add_custom_rules')}
               </Typography>
             </Box>
