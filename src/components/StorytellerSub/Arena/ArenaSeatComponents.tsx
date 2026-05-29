@@ -1,7 +1,8 @@
-// @ts-nocheck
 import type { StorytellerSeat } from '../types'
-import React, { useState } from 'react'
+import type { ElementType, MouseEvent } from 'react'
+import { useState } from 'react'
 import { Box, IconButton, Button, Chip, Popover, Typography } from '@mui/material'
+import type { SxProps, Theme } from '@mui/material'
 import CheckIcon from '@mui/icons-material/Check'
 import CloseIcon from '@mui/icons-material/Close'
 import LocalBarIcon from '@mui/icons-material/LocalBar'
@@ -10,6 +11,7 @@ import type { UiKey } from '../../../lib/t'
 import { makeT } from '../../../lib/t'
 import { translateReminderZh } from '../../../lib/reminderTranslations'
 import { useT } from '../../../context/I18nContext'
+import type { Language } from '../../../types'
 
 // ── ST tag label → locale key map ──────────────────────────────────────────
 export const ST_TAG_KEY_MAP: Partial<Record<string, UiKey>> = {
@@ -21,7 +23,7 @@ export const ST_TAG_KEY_MAP: Partial<Record<string, UiKey>> = {
 }
 
 /** Translate a stored ST tag label for display. Falls back to raw label. */
-export function translateStTag(label: string, language: string): string {
+export function translateStTag(label: string, language: Language): string {
   const key = ST_TAG_KEY_MAP[label.toLowerCase()]
   if (key) return makeT(language)(key)
   if (language === 'zh') return translateReminderZh(label)
@@ -40,7 +42,7 @@ export function translateStTag(label: string, language: string): string {
  */
 export function resolveTagDisplay(
   label: string,
-  language: string
+  language: Language
 ): { displayLabel: string; srcId: string | null; isCharTag: boolean } {
   if (label.startsWith('💀')) {
     const charId = [...label].slice(1).join('')
@@ -57,8 +59,7 @@ export function resolveTagDisplay(
 }
 
 // ── TagChip: readable chip with click-to-popover ──
-export function TagChip({ label, icon, chipSx, language }: { label: string; icon?: string | null; chipSx?: any; language?: string }) {
-  const { t } = useT()
+export function TagChip({ label, icon, chipSx, language }: { label: string; icon?: string | null; chipSx?: SxProps<Theme>; language?: Language }) {
   const [anchor, setAnchor] = useState<HTMLElement | null>(null)
   const displayLabel = language ? translateStTag(label, language) : label
   return (
@@ -66,7 +67,7 @@ export function TagChip({ label, icon, chipSx, language }: { label: string; icon
       <Chip
         label={displayLabel}
         size="small"
-        icon={icon ? <img src={icon} style={{ width: 14, height: 14, borderRadius: '50%' }} /> : undefined}
+        icon={icon ? <img src={icon} alt="" style={{ width: 14, height: 14, borderRadius: '50%' }} /> : undefined}
         onClick={(e) => { e.stopPropagation(); setAnchor(e.currentTarget) }}
         sx={{
           fontSize: 'clamp(0.62rem, 1.4vw, 0.78rem)',
@@ -81,21 +82,21 @@ export function TagChip({ label, icon, chipSx, language }: { label: string; icon
       <Popover
         open={Boolean(anchor)}
         anchorEl={anchor}
-        onClose={(e: any) => { e?.stopPropagation?.(); setAnchor(null) }}
+        onClose={() => setAnchor(null)}
         onClick={(e) => e.stopPropagation()}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         transformOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         slotProps={{ paper: { sx: { p: 1.5, display: 'flex', alignItems: 'center', gap: 1, borderRadius: 2, boxShadow: 4 } } }}
       >
-        {icon && <Box component="img" src={icon} sx={{ width: 40, height: 40, borderRadius: '50%' }} />}
-        <Typography variant="h6" fontWeight={700}>{displayLabel}</Typography>
+        {icon && <Box component="img" src={icon} alt="" sx={{ width: 40, height: 40, borderRadius: '50%' }} />}
+        <Typography variant="h6" sx={{ fontWeight: 700 }}>{displayLabel}</Typography>
       </Popover>
     </>
   )
 }
 
 // ── StatusBadge: drunk/poisoned status chip with MUI icon + popover ─────────
-const STATUS_META: Record<string, { icon: React.ElementType; bgDark: string; bgLight: string; colorDark: string; colorLight: string; borderDark: string; borderLight: string }> = {
+const STATUS_META: Record<'drunk' | 'poisoned', { icon: ElementType; bgDark: string; bgLight: string; colorDark: string; colorLight: string; borderDark: string; borderLight: string }> = {
   drunk: {
     icon: LocalBarIcon,
     bgDark: '#6b4400', bgLight: '#fff3cd',
@@ -123,7 +124,7 @@ export function StatusBadge({ type, label, isDark, srcIcon }: { type: 'drunk' | 
         size="small"
         icon={
           srcIcon
-            ? <img src={srcIcon} style={{ width: 14, height: 14, borderRadius: '50%' }} />
+            ? <img src={srcIcon} alt="" style={{ width: 14, height: 14, borderRadius: '50%' }} />
             : <IconComp sx={{ fontSize: '0.85rem !important', color: `${color} !important` }} />
         }
         label={label}
@@ -146,33 +147,32 @@ export function StatusBadge({ type, label, isDark, srcIcon }: { type: 'drunk' | 
       <Popover
         open={Boolean(anchor)}
         anchorEl={anchor}
-        onClose={(e: any) => { e?.stopPropagation?.(); setAnchor(null) }}
+        onClose={() => setAnchor(null)}
         onClick={(e) => e.stopPropagation()}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         transformOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         slotProps={{ paper: { sx: { p: 1.5, display: 'flex', alignItems: 'center', gap: 1.5, borderRadius: 2, boxShadow: 4, bgcolor: bg, border: '1.5px solid', borderColor: border } } }}
       >
         {srcIcon
-          ? <Box component="img" src={srcIcon} sx={{ width: 40, height: 40, borderRadius: '50%', border: '2px solid', borderColor: border }} />
+          ? <Box component="img" src={srcIcon} alt="" sx={{ width: 40, height: 40, borderRadius: '50%', border: '2px solid', borderColor: border }} />
           : <IconComp sx={{ fontSize: '2rem', color }} />
         }
-        <Typography variant="h6" fontWeight={700} sx={{ color }}>{label}</Typography>
+        <Typography variant="h6" sx={{ color, fontWeight: 700 }}>{label}</Typography>
       </Popover>
     </>
   )
 }
 
 interface VoteButtonGroupProps {
-  seat: any
+  seat: StorytellerSeat
   cardVotedYes: boolean
   cardVotedNo: boolean
-  handleVoteYesClick: (e: React.MouseEvent) => void
-  handleVoteNoClick: (e: React.MouseEvent) => void
-  handleRemoveVote: (e: React.MouseEvent) => void
+  handleVoteYesClick: (e: MouseEvent<HTMLElement>) => void
+  handleVoteNoClick: (e: MouseEvent<HTMLElement>) => void
+  handleRemoveVote: (e: MouseEvent<HTMLElement>) => void
 }
 
 export function VoteButtonGroup({
-  seat,
   cardVotedYes,
   cardVotedNo,
   handleVoteYesClick,
@@ -206,8 +206,8 @@ export function VoteButtonGroup({
 }
 
 interface NightActionGroupProps {
-  language: string
-  seat: any
+  language: Language
+  seat: StorytellerSeat
   actualCharId: string | null
   isCharacterPopoutOpen: boolean
   charIcon: string | null
@@ -216,7 +216,7 @@ interface NightActionGroupProps {
   showDifferentPerception: boolean
   perceivedIcon: string | null
   perceivedCharName: string
-  handleCharacterClick: (e: React.MouseEvent) => void
+  handleCharacterClick: (e: MouseEvent<HTMLElement>) => void
   toggleNightVisitedSeat: (seatNum: number) => void
   nightShowWakeOrder: boolean
   playerWakeOrder: number | null
@@ -243,6 +243,8 @@ export function NightActionGroup({
   stTags = [],
   nightShowCharacter = false,
 }: NightActionGroupProps) {
+  const { t } = useT()
+
   return (
     <>
       {actualCharId ? (
@@ -253,7 +255,7 @@ export function NightActionGroup({
             onClick={handleCharacterClick}
             sx={{ minWidth: 0, px: 0.75, py: 0.25, fontWeight: 600, display: 'flex', gap: 0.25 }}
           >
-            {charIcon && <Box component="img" src={charIcon as string} sx={{ width: 16, height: 16 }} />}
+            {charIcon && <Box component="img" src={charIcon} alt="" sx={{ width: 16, height: 16 }} />}
             {actualCharName}
           </Button>
           {showDifferentPerception && perceivedIcon && (
