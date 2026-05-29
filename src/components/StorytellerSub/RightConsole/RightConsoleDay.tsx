@@ -1,16 +1,21 @@
-// @ts-nocheck
 import type { StorytellerContext } from '../useStoryteller'
-import React from 'react'
+import type { ConsoleSection } from '../types'
 import { Box, Button, Typography, Paper, TextField, Chip, Grid } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { createDefaultVoteDraft } from '../constants'
 
-export function RightConsoleDay({ ctx, toggleConsoleSection }: { ctx: StorytellerContext, toggleConsoleSection: any }) {
-  const { 
-    language, text, activeConsoleSections, 
+export function RightConsoleDay({
+  ctx,
+  toggleConsoleSection,
+}: {
+  ctx: StorytellerContext
+  toggleConsoleSection: (section: ConsoleSection) => void
+}) {
+  const {
+    text, activeConsoleSections,
     currentDay, updateCurrentDay, timerDefaults,
-    pickerMode, setPickerMode,
+    setPickerMode,
     addTravelerSeat, votingYesCount, requiredVotes,
     isVotingComplete, setDialogState, draftPassedBySystem,
   } = ctx
@@ -66,7 +71,7 @@ export function RightConsoleDay({ ctx, toggleConsoleSection }: { ctx: Storytelle
                 fullWidth
                 label={text.note}
                 value={currentDay?.voteDraft?.note ?? ''}
-                onChange={(e) => updateCurrentDay((d: any) => ({ ...d, voteDraft: { ...d.voteDraft, note: e.target.value } }))}
+                onChange={(e) => updateCurrentDay((day) => ({ ...day, voteDraft: { ...day.voteDraft, note: e.target.value } }))}
               />
 
               {isVotingComplete && (
@@ -77,14 +82,14 @@ export function RightConsoleDay({ ctx, toggleConsoleSection }: { ctx: Storytelle
                   <Button size="small" onClick={() => setDialogState({ kind: 'voteResult', nextValue: false, systemValue: draftPassedBySystem })}>
                     {text.systemOverrideFail}
                   </Button>
-                  <Button size="small" onClick={() => updateCurrentDay((d: any) => ({ ...d, voteDraft: { ...d.voteDraft, manualPassed: null } }))}>
+                  <Button size="small" onClick={() => updateCurrentDay((day) => ({ ...day, voteDraft: { ...day.voteDraft, manualPassed: null } }))}>
                     {text.clearOverride}
                   </Button>
                 </Box>
               )}
 
               <Button size="small" onClick={() => {
-                updateCurrentDay((d: any) => ({ ...d, nominationStep: 'waitingForNomination', nominationWaitSeconds: timerDefaults?.nominationWaitSeconds ?? 0, voteDraft: createDefaultVoteDraft(), votingState: null }))
+                updateCurrentDay((day) => ({ ...day, nominationStep: 'waitingForNomination', nominationWaitSeconds: timerDefaults?.nominationWaitSeconds ?? 0, voteDraft: createDefaultVoteDraft(), votingState: null }))
                 setPickerMode('nominator')
               }}>
                 {text.clear}
