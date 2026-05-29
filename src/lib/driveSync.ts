@@ -32,6 +32,10 @@ function authHeader(token: string): HeadersInit {
   return { Authorization: `Bearer ${token}` }
 }
 
+function debugDrive(message: string, ...args: unknown[]) {
+  if (import.meta.env.DEV) console.debug(message, ...args)
+}
+
 // ── List files in appDataFolder ───────────────────────────────────────────────
 
 export async function listDriveFiles(token: string): Promise<DriveFileMeta[]> {
@@ -40,11 +44,10 @@ export async function listDriveFiles(token: string): Promise<DriveFileMeta[]> {
     fields: 'files(id,name,modifiedTime)',
     pageSize: '20',
   })
-  console.log('[Drive] listDriveFiles — token prefix:', token.slice(0, 20))
   const res = await fetch(`${DRIVE_API}/files?${params}`, {
     headers: authHeader(token),
   })
-  console.log('[Drive] listDriveFiles response:', res.status)
+  debugDrive('[Drive] listDriveFiles response:', res.status)
   if (!res.ok) {
     const errBody = await res.text().catch(() => '')
     console.error('[Drive] listDriveFiles error body:', errBody)
