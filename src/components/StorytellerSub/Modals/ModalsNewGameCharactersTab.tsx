@@ -1,6 +1,6 @@
-// @ts-nocheck
-import React, { useMemo, useState } from 'react'
-import { Box, Button, CircularProgress, TextField, Select, MenuItem, FormControl, InputLabel, Typography, Paper, Divider, Grid, Chip, Collapse, IconButton, Tooltip } from '@mui/material'
+import { useMemo, useState } from 'react'
+import { Box, Button, CircularProgress, TextField, Select, MenuItem, FormControl, InputLabel, Typography, Paper, Divider, Chip, Collapse, IconButton, Tooltip } from '@mui/material'
+import type { ChipProps } from '@mui/material'
 import CasinoIcon from '@mui/icons-material/Casino'
 import ShuffleIcon from '@mui/icons-material/Shuffle'
 import ReplayIcon from '@mui/icons-material/Replay'
@@ -9,24 +9,29 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import ClearAllIcon from '@mui/icons-material/ClearAll'
-import { characterById, getCharacterById, allCharacters, getDisplayName, getIconForCharacter } from '../../../catalog'
+import { getCharacterById, allCharacters, getDisplayName, getIconForCharacter } from '../../../catalog'
 import { makeT, makeTpl } from '../../../lib/t'
 import { CHARACTER_DISTRIBUTION } from '../constants'
 import { CharSelect, TeamDot, DistRow } from './ModalsNewGameHelpers'
 import { createDealSession, shuffleDealCards, HOST_TOKEN_KEY, ACTIVE_HOST_DEAL_KEY, GAME_DEAL_KEY } from '../../../lib/firebaseDeal'
 import { MonoText } from '../../../components/ui'
+import type { Language } from '../../../types'
+import type { NewGameConfig, ScriptOption } from '../types'
 
 const TEAM_ORDER = ['townsfolk', 'outsider', 'minion', 'demon'] as const
-const TEAM_COLORS: Record<string, any> = { townsfolk: 'primary', outsider: 'info', minion: 'error', demon: 'error' }
+type TeamKey = typeof TEAM_ORDER[number]
+type DealSession = { sessionId: string; hostToken: string }
+type NewGamePanelWithDeal = NewGameConfig & { activeDealSession?: DealSession | null }
+const TEAM_COLORS: Record<TeamKey, ChipProps['color']> = { townsfolk: 'primary', outsider: 'info', minion: 'error', demon: 'error' }
 
 type Props = {
-  newGamePanel: any
-  scriptOptions: any[]
-  language: string
-  updateConfig: (patch: any) => void
-  randomAssignCharacters: (config: any) => Record<number, string>
-  activeDealSession?: { sessionId: string; hostToken: string } | null
-  lastDealSession?: { sessionId: string; hostToken: string } | null
+  newGamePanel: NewGamePanelWithDeal
+  scriptOptions: ScriptOption[]
+  language: Language
+  updateConfig: (patch: Partial<NewGamePanelWithDeal>) => void
+  randomAssignCharacters: (config: NewGameConfig) => Record<number, string>
+  activeDealSession?: DealSession | null
+  lastDealSession?: DealSession | null
   gameId?: string
   onDealCreated?: (sessionId: string, hostToken: string) => void
   onDealOpen?: (sessionId: string, hostToken: string) => void
@@ -37,15 +42,14 @@ function CharPoolPicker({ scriptChars, selected, onChange, language }: {
   scriptChars: string[]
   selected: string[]
   onChange: (ids: string[]) => void
-  language: string
+  language: Language
 }) {
-  const zh = language === 'zh'
   const t = makeT(language)
-  const byTeam = useMemo(() => {
-    const map: Record<string, string[]> = { townsfolk: [], outsider: [], minion: [], demon: [] }
+  const byTeam = useMemo((): Record<TeamKey, string[]> => {
+    const map: Record<TeamKey, string[]> = { townsfolk: [], outsider: [], minion: [], demon: [] }
     for (const id of scriptChars) {
       const ch = getCharacterById(id)
-      if (ch && map[ch.team]) map[ch.team].push(id)
+      if (ch && TEAM_ORDER.includes(ch.team as TeamKey)) map[ch.team as TeamKey].push(id)
     }
     return map
   }, [scriptChars])
@@ -53,7 +57,7 @@ function CharPoolPicker({ scriptChars, selected, onChange, language }: {
   const toggle = (id: string) => {
     onChange(selected.includes(id) ? selected.filter((x) => x !== id) : [...selected, id])
   }
-  const toggleTeam = (team: string) => {
+  const toggleTeam = (team: TeamKey) => {
     const ids = byTeam[team] ?? []
     const allOn = ids.every((id) => selected.includes(id))
     if (allOn) onChange(selected.filter((x) => !ids.includes(x)))
@@ -71,7 +75,7 @@ function CharPoolPicker({ scriptChars, selected, onChange, language }: {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
               <Chip
                 size="small"
-                label={t(team as any)}
+                label={t(team)}
                 color={TEAM_COLORS[team]}
                 variant={teamAllOn ? 'filled' : 'outlined'}
                 onClick={() => toggleTeam(team)}
@@ -89,7 +93,7 @@ function CharPoolPicker({ scriptChars, selected, onChange, language }: {
                     key={id}
                     size="small"
                     onClick={() => toggle(id)}
-                    avatar={icon ? <Box component="img" src={icon} sx={{ width: 16, height: 16, borderRadius: '50%' }} /> : undefined}
+                    avatar={icon ? <Box component="img" src={icon} alt="" sx={{ width: 16, height: 16, borderRadius: '50%' }} /> : undefined}
                     label={name}
                     color={TEAM_COLORS[team]}
                     variant={on ? 'filled' : 'outlined'}
@@ -146,7 +150,7 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
     }
   }
 
-  const script = scriptOptions?.find((s: any) => s.slug === newGamePanel?.scriptSlug)
+  const script = scriptOptions?.find((s) => s.slug === newGamePanel?.scriptSlug)
   const scriptChars: string[] = script?.characters ?? []
 
   const calcDist = CHARACTER_DISTRIBUTION[newGamePanel?.playerCount] ?? { townsfolk: 0, outsider: 0, minion: 0, demon: 0 }
@@ -158,7 +162,7 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
     if (gameId) {
       try {
         const raw = localStorage.getItem(GAME_DEAL_KEY(gameId))
-        if (raw) return JSON.parse(raw) as { sessionId: string; hostToken: string }
+        if (raw) return JSON.parse(raw) as DealSession
       } catch {}
     }
     return null
@@ -168,7 +172,7 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
 
   const actCounts = useMemo(() => {
     const c = { townsfolk: 0, outsider: 0, minion: 0, demon: 0 }
-    Object.values(newGamePanel?.assignments ?? {}).forEach((cid: any) => {
+    Object.values(newGamePanel?.assignments ?? {}).forEach((cid) => {
       const ch = getCharacterById(cid); if (ch && c[ch.team as keyof typeof c] !== undefined) c[ch.team as keyof typeof c]++
     })
     return c
@@ -176,7 +180,7 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
 
   const userCounts = useMemo(() => {
     const c = { townsfolk: 0, outsider: 0, minion: 0, demon: 0 }
-    Object.values(newGamePanel?.userAssignments ?? {}).forEach((cid: any) => {
+    Object.values(newGamePanel?.userAssignments ?? {}).forEach((cid) => {
       if (!cid) return; const ch = getCharacterById(cid); if (ch && c[ch.team as keyof typeof c] !== undefined) c[ch.team as keyof typeof c]++
     })
     return c
@@ -258,7 +262,7 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
       <FormControl size="small" fullWidth>
         <InputLabel>{t('script')}</InputLabel>
         <Select value={newGamePanel.scriptSlug || ''} onChange={(e) => handleScriptChange(e.target.value)} label={t('script')}>
-          {scriptOptions.map((s: any) => (
+          {scriptOptions.map((s) => (
             <MenuItem key={s.slug} value={s.slug}>
               {zh ? (s.titleZh || s.title) : s.title}
               {s.version && (
@@ -288,7 +292,7 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
       <Paper variant="outlined" sx={{ p: 1 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            <Typography variant="caption" fontWeight={600}>
+            <Typography variant="caption" sx={{ fontWeight: 600 }}>
               {t('random_pool')}
             </Typography>
             {charPool.length > 0 && (
