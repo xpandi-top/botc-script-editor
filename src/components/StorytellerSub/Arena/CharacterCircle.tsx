@@ -1,4 +1,4 @@
-// @ts-nocheck
+import type { MouseEvent } from 'react'
 import { Box } from '@mui/material'
 
 interface Props {
@@ -6,7 +6,7 @@ interface Props {
   charName: string
   nightShowCharacter: boolean
   isOpen: boolean
-  onClick: (e: React.MouseEvent) => void
+  onClick: (e: MouseEvent<HTMLElement>) => void
   size?: number
   disabled?: boolean
 }
@@ -43,6 +43,7 @@ export function CharacterCircle({ charIcon, charName, nightShowCharacter, isOpen
           <Box
             component="img"
             src={charIcon as string}
+            alt={charName}
             sx={{ width: size * 0.48, height: size * 0.48, objectFit: 'contain', flexShrink: 0 }}
           />
           <Box sx={{
