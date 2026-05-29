@@ -11,8 +11,62 @@
 import { useMemo } from 'react'
 import { makeT } from '../lib/t'
 import type { Language } from '../types'
-import { translations, type TranslationKey } from '../i18n'
 
+const LEGACY_TEXT_KEYS = [
+  'eyebrow', 'title', 'playerCount', 'script', 'currentScript', 'controlConsole',
+  'settings', 'gameActions', 'nightPhase', 'privateChat', 'publicChat', 'nomination',
+  'freeSpeech', 'roundRobinMode', 'chooseSpeaker', 'randomSpeaker', 'nextSpeaker',
+  'start', 'resetTimer', 'endNow', 'alarmSound', 'addTag', 'startNomination',
+  'continuePublic', 'recordDone', 'clear', 'actor', 'target', 'voters', 'nonVoters',
+  'requiredVotes', 'note', 'statement', 'skillActor', 'skillRole', 'skillTarget',
+  'success', 'failure', 'result', 'aliveTag', 'executedTag', 'noVoteTag', 'traveler',
+  'tagPool', 'clearUnusedTags', 'openSettings', 'closeSettings', 'selectedPlayer',
+  'resetNames', 'restartGame', 'endGame', 'privateDefault', 'publicFreeDefault',
+  'publicRoundRobinDefault', 'seatHint', 'voteTrail', 'skillTrail', 'sessionLog',
+  'completedGames', 'noCompletedGames', 'systemOverridePass', 'systemOverrideFail',
+  'clearOverride', 'pass', 'fail', 'confirm', 'cancel', 'restartTitle', 'endGameTitle',
+  'voteTitle', 'waitingForNomination', 'actorSpeaking', 'targetSpeaking', 'readyToVote',
+  'voting', 'votingDone', 'voteYes', 'startVoting', 'pickNominator', 'pickNominee',
+  'useSkill', 'saveSkill', 'cancelSkill', 'targetNote', 'bgm', 'play', 'pause', 'loop',
+  'eventLog', 'nominationGate', 'nominationAvailable', 'nominationDelayDefault',
+  'nominationWaitDefault', 'actorSpeechDefault', 'targetSpeechDefault', 'voteDefault',
+  'recordVote', 'currentVoter', 'nominationSucceed', 'nominationFailed', 'skipVoting',
+  'continueNomination', 'phaseBeforePrivate', 'phaseDuringPrivate', 'phaseBeforePublic',
+  'phaseDuringPublic', 'phaseDuringNomination', 'gameSection', 'daySection',
+  'playerSection', 'bgmSection', 'newGame', 'saveBeforeNewGameTitle',
+  'saveBeforeNewGameBody', 'saveAndNew', 'discardAndNew', 'startNewGame', 'confirmEnd',
+  'distribution', 'townsfolk', 'outsider', 'minion', 'demon', 'randomAssign',
+  'showAssign', 'hideAssign', 'winner', 'evil', 'good', 'playerTeam', 'playerNotes',
+  'reviewModeLabel', 'editMode', 'addTraveler', 'playerPool', 'loadFakeNames',
+  'assignName', 'singleLoop', 'loopAll', 'aggregatedLog', 'filterVote', 'filterSkill',
+  'filterEvent', 'allDays', 'sortAsc', 'sortDesc', 'exportJson', 'importGame',
+  'cancelNewGame', 'showLog', 'hideLog', 'showPanel', 'hidePanel', 'aliveCount',
+  'totalCount', 'highestVote', 'leadingCandidate', 'todayNominators', 'todayNominees',
+  'quickNomination', 'quickSkill', 'nextDay', 'seatAssignment', 'unassigned',
+  'clickToAssign', 'loadLocalFile', 'removeFromSeat', 'editPlayers', 'loadPreset',
+  'tagSettings', 'defaultTags', 'loadPredefinedTags', 'addTagLabel', 'travelersCount',
+  'loadCustomAlarm', 'shareLog', 'shareLogCopied', 'quickAddLog', 'gameLogTitle',
+] as const
+
+const LEGACY_KEY_ALIASES: Partial<Record<TranslationKey, Parameters<ReturnType<typeof makeT>>[0]>> = {
+  nightPhase: 'phase_night',
+  privateChat: 'phase_private',
+  publicChat: 'phase_public',
+  nomination: 'phase_nomination',
+  filterSkill: 'filter_ability',
+  quickSkill: 'quick_ability',
+  skillActor: 'ability_user',
+  skillTarget: 'ability_target',
+  skillTrail: 'ability_log',
+  useSkill: 'use_ability',
+  phaseBeforePrivate: 'phase_private_before',
+  phaseDuringPrivate: 'phase_private_during',
+  phaseBeforePublic: 'phase_public_before',
+  phaseDuringPublic: 'phase_public_during',
+  phaseDuringNomination: 'phase_nomination_during',
+}
+
+export type TranslationKey = typeof LEGACY_TEXT_KEYS[number]
 export type TextDict = Record<TranslationKey, string>
 
 function camelToSnake(s: string): string {
@@ -24,29 +78,11 @@ export function useI18n(language: Language): TextDict {
     const t = makeT(language)
     const dict: Record<string, string> = {}
 
-    for (const key of Object.keys(translations) as TranslationKey[]) {
-      const snakeKey = camelToSnake(key)
-      // makeT falls back to key string when not found — safe to call unconditionally
-      const val = t(snakeKey as Parameters<typeof t>[0])
-      // If makeT returned the key itself (not found), fall back to inline translation
-      dict[key] = val !== snakeKey ? val : translations[key][language]
+    for (const key of LEGACY_TEXT_KEYS) {
+      const localeKey = LEGACY_KEY_ALIASES[key] ?? camelToSnake(key)
+      dict[key] = t(localeKey as Parameters<typeof t>[0])
     }
-
-    Object.assign(dict, {
-      nightPhase: t('phase_night'),
-      privateChat: t('phase_private'),
-      publicChat: t('phase_public'),
-      nomination: t('phase_nomination'),
-      filterSkill: t('filter_ability'),
-      quickSkill: t('quick_ability'),
-      skillActor: t('ability_user'),
-      skillTarget: t('ability_target'),
-      skillTrail: t('ability_log'),
-      useSkill: t('use_ability'),
-    })
 
     return dict as TextDict
   }, [language])
 }
-
-export { translations, type TranslationKey }

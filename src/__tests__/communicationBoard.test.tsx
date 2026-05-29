@@ -9,8 +9,8 @@
  *  - Number phrase click → pending-N inline UI appears
  *  - Character phrase click → pending-char autocomplete appears
  *  - Multi-character phrase click → pending-multi autocomplete appears
- *  - Custom text input → Enter appends to board
- *  - Custom text Add chip click → appends to board
+ *  - Custom message input → Enter appends to board
+ *  - Custom message Add chip click → appends to board
  *  - Draw tab → canvas element rendered
  *  - Clear board button removes text
  *  - Close button fires onClose
@@ -99,32 +99,32 @@ describe('CommunicationBoard — desktop (1280px)', () => {
 
   it('shows placeholder text on empty board', () => {
     renderBoard()
-    expect(screen.getByText(/Tap a phrase below/i)).toBeInTheDocument()
+    expect(screen.getByText(/Choose a phrase below/i)).toBeInTheDocument()
   })
 
   it('renders phrase chips', () => {
     renderBoard()
-    expect(screen.getByText('You are Good')).toBeInTheDocument()
-    expect(screen.getByText('You are Evil')).toBeInTheDocument()
-    expect(screen.getByText('Wake up')).toBeInTheDocument()
+    expect(screen.getByText('You are good.')).toBeInTheDocument()
+    expect(screen.getByText('You are evil.')).toBeInTheDocument()
+    expect(screen.getByText('Wake up.')).toBeInTheDocument()
   })
 
   it('renders custom text input', () => {
     renderBoard()
-    expect(screen.getByLabelText(/Custom text/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/Custom message/i)).toBeInTheDocument()
   })
 
   it('clicking plain phrase sets board text', () => {
     renderBoard()
-    fireEvent.click(screen.getAllByText('You are Good')[0])
+    fireEvent.click(screen.getAllByText('You are good.')[0])
     // After click: chip still present + board text = 2 occurrences, placeholder gone
-    expect(screen.getAllByText('You are Good').length).toBeGreaterThanOrEqual(2)
-    expect(screen.queryByText(/Tap a phrase below/i)).toBeNull()
+    expect(screen.getAllByText('You are good.').length).toBeGreaterThanOrEqual(2)
+    expect(screen.queryByText(/Choose a phrase below/i)).toBeNull()
   })
 
   it('clicking number phrase shows pending N UI', () => {
     renderBoard()
-    fireEvent.click(screen.getByText('Choose [N] Players'))
+    fireEvent.click(screen.getByText('Choose [N] player(s).'))
     // Add + Cancel chips appear
     expect(screen.getAllByText('Add').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Cancel').length).toBeGreaterThan(0)
@@ -132,13 +132,13 @@ describe('CommunicationBoard — desktop (1280px)', () => {
 
   it('clicking character phrase shows autocomplete', () => {
     renderBoard()
-    fireEvent.click(screen.getByText('You are [Character]'))
+    fireEvent.click(screen.getByText('Your character is [Character].'))
     expect(screen.getByLabelText(/Select character/i)).toBeInTheDocument()
   })
 
   it('clicking multi-character phrase shows multi autocomplete', () => {
     renderBoard()
-    fireEvent.click(screen.getAllByText('[Characters] are in play')[0])
+    fireEvent.click(screen.getAllByText('In play: [Characters]')[0])
     // multi-select pending: Add + Cancel chips appear
     expect(screen.getAllByText('Add').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Cancel').length).toBeGreaterThan(0)
@@ -146,7 +146,7 @@ describe('CommunicationBoard — desktop (1280px)', () => {
 
   it('typing in custom input and pressing Enter appends text', () => {
     renderBoard()
-    const input = screen.getByLabelText(/Custom text/i)
+    const input = screen.getByLabelText(/Custom message/i)
     fireEvent.change(input, { target: { value: 'Hello player' } })
     fireEvent.keyDown(input, { key: 'Enter' })
     expect(screen.getByText('Hello player')).toBeInTheDocument()
@@ -154,27 +154,27 @@ describe('CommunicationBoard — desktop (1280px)', () => {
 
   it('typing in custom input and clicking Add appends text', () => {
     renderBoard()
-    const input = screen.getByLabelText(/Custom text/i)
-    fireEvent.change(input, { target: { value: 'Custom message' } })
+    const input = screen.getByLabelText(/Custom message/i)
+    fireEvent.change(input, { target: { value: 'Custom note' } })
     // The Add chip near the custom input
     const addChips = screen.getAllByText('Add')
     fireEvent.click(addChips[addChips.length - 1])
-    expect(screen.getByText('Custom message')).toBeInTheDocument()
+    expect(screen.getByText('Custom note')).toBeInTheDocument()
   })
 
   it('clear button removes board text — placeholder returns', () => {
     renderBoard()
-    fireEvent.click(screen.getAllByText('You are Good')[0])
+    fireEvent.click(screen.getAllByText('You are good.')[0])
     // Board now has text, placeholder gone
-    expect(screen.queryByText(/Tap a phrase below/i)).toBeNull()
+    expect(screen.queryByText(/Choose a phrase below/i)).toBeNull()
     // Delete icon button (absolute positioned top-right of board area)
     const deleteBtn = document.body.querySelector('button svg[data-testid="DeleteIcon"]')?.parentElement
     if (deleteBtn) {
       fireEvent.click(deleteBtn)
-      expect(screen.getByText(/Tap a phrase below/i)).toBeInTheDocument()
+      expect(screen.getByText(/Choose a phrase below/i)).toBeInTheDocument()
     } else {
       // Fallback: board text already proven to appear — test board-state transition
-      expect(screen.getAllByText('You are Good').length).toBeGreaterThanOrEqual(2)
+      expect(screen.getAllByText('You are good.').length).toBeGreaterThanOrEqual(2)
     }
   })
 
@@ -219,23 +219,23 @@ describe('CommunicationBoard — mobile (393px)', () => {
   it('shows all phrase chips on mobile', () => {
     renderBoard()
     // A representative set of plain phrases
-    expect(screen.getByText('You are Good')).toBeInTheDocument()
-    expect(screen.getByText('You are Evil')).toBeInTheDocument()
-    expect(screen.getByText('Wake up')).toBeInTheDocument()
-    expect(screen.getByText('Go to sleep')).toBeInTheDocument()
+    expect(screen.getByText('You are good.')).toBeInTheDocument()
+    expect(screen.getByText('You are evil.')).toBeInTheDocument()
+    expect(screen.getByText('Wake up.')).toBeInTheDocument()
+    expect(screen.getByText('Close your eyes.')).toBeInTheDocument()
   })
 
   it('plain phrase appends to board on mobile', () => {
     renderBoard()
-    fireEvent.click(screen.getAllByText('You are Evil')[0])
+    fireEvent.click(screen.getAllByText('You are evil.')[0])
     // chip + board text both present, placeholder gone
-    expect(screen.getAllByText('You are Evil').length).toBeGreaterThanOrEqual(2)
-    expect(screen.queryByText(/Tap a phrase below/i)).toBeNull()
+    expect(screen.getAllByText('You are evil.').length).toBeGreaterThanOrEqual(2)
+    expect(screen.queryByText(/Choose a phrase below/i)).toBeNull()
   })
 
   it('number phrase shows pending UI on mobile', () => {
     renderBoard()
-    fireEvent.click(screen.getByText('Choose [N] Characters'))
+    fireEvent.click(screen.getByText('Choose [N] character(s).'))
     expect(screen.getAllByText('Add').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Cancel').length).toBeGreaterThan(0)
   })
@@ -274,21 +274,21 @@ describe('CommunicationBoard — ZH language', () => {
 
   it('shows ZH phrase chips', () => {
     renderBoard({ language: 'zh' })
-    expect(screen.getByText('你是好人')).toBeInTheDocument()
-    expect(screen.getByText('你是邪恶方')).toBeInTheDocument()
-    expect(screen.getByText('睁眼')).toBeInTheDocument()
+    expect(screen.getByText('你是善良阵营。')).toBeInTheDocument()
+    expect(screen.getByText('你是邪恶阵营。')).toBeInTheDocument()
+    expect(screen.getByText('请睁眼。')).toBeInTheDocument()
   })
 
   it('ZH plain phrase appends ZH text to board', () => {
     renderBoard({ language: 'zh' })
-    fireEvent.click(screen.getAllByText('你是好人')[0])
+    fireEvent.click(screen.getAllByText('你是善良阵营。')[0])
     // chip + board text = 2 occurrences
-    expect(screen.getAllByText('你是好人').length).toBeGreaterThanOrEqual(2)
+    expect(screen.getAllByText('你是善良阵营。').length).toBeGreaterThanOrEqual(2)
   })
 
   it('ZH number phrase shows ZH pending UI', () => {
     renderBoard({ language: 'zh' })
-    fireEvent.click(screen.getByText('选择 [N] 名玩家'))
+    fireEvent.click(screen.getByText('请选择 [N] 名玩家。'))
     expect(screen.getAllByText('添加').length).toBeGreaterThan(0)
     expect(screen.getAllByText('取消').length).toBeGreaterThan(0)
   })
@@ -311,7 +311,7 @@ describe('CommunicationBoard — no script characters', () => {
 
   it('character phrase chip still appears but autocomplete has no options', () => {
     renderBoard({ scriptCharacters: [] })
-    fireEvent.click(screen.getByText('You are [Character]'))
+    fireEvent.click(screen.getByText('Your character is [Character].'))
     // autocomplete still renders with empty options
     expect(screen.getByLabelText(/Select character/i)).toBeInTheDocument()
   })
