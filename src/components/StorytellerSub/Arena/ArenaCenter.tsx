@@ -11,7 +11,7 @@ import { CommunicationBoard } from '../CommunicationBoard'
 import { useT } from '../../../context/I18nContext'
 
 export function ArenaCenter({ ctx }: { ctx: StorytellerContext }) {
-  const { t } = useT()
+  const { t, tpl } = useT()
   const [commOpen, setCommOpen] = useState(false)
   const {
     days, currentDay, goToNextDay, goToPreviousDay, setSelectedDayId,
@@ -44,12 +44,12 @@ export function ArenaCenter({ ctx }: { ctx: StorytellerContext }) {
           <Select
             value={currentDay.id}
             onChange={(e) => setSelectedDayId(e.target.value)}
-            renderValue={(id) => { const d = days.find((d: any) => d.id === id); return d ? `Day ${d.day}` : '' }}
+            renderValue={(id) => { const d = days.find((day) => day.id === id); return d ? tpl('day_n', d.day) : '' }}
             sx={{ fontSize: '1.25rem', fontWeight: 700, color: 'primary.main', '& .MuiSelect-select': { py: 0.25 } }}
           >
-            {days.map((d: any) => (
+            {days.map((d) => (
               <MenuItem key={d.id} value={d.id} sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, pr: 0.5 }}>
-                <span style={{ flex: 1 }}>Day {d.day}</span>
+                <span style={{ flex: 1 }}>{tpl('day_n', d.day)}</span>
                 {days.length > 1 && (
                   <Tooltip title={t('delete_this_day')}>
                     <IconButton
