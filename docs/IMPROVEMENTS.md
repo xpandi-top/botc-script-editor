@@ -127,6 +127,7 @@ Acceptance:
    - Native: `npm run build:native`
    - Android: `npm run android:apk` or `npm run android:build`
    - Electron: `npm run electron:build`
+   - Combined local gates: `npm run verify`, `npm run verify:e2e`, and `npm run verify:native`.
 2. Add platform smoke checks:
    - App boot
    - language/theme persistence

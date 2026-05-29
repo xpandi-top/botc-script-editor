@@ -12,6 +12,8 @@
     "i18n:check:strict": "node scripts/i18n-check.mjs --strict",
     "bundle:check": "node scripts/bundle-budget.mjs",
     "verify": "node scripts/verify.mjs",
+    "verify:e2e": "node scripts/verify.mjs --e2e",
+    "verify:native": "node scripts/verify.mjs --native",
     "dev": "vite",
     "build": "node scripts/validate-revisions.mjs && tsc -b && vite build",
     "build:native": "node scripts/validate-revisions.mjs && tsc -b && vite build --mode native",
