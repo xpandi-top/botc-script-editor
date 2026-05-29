@@ -1,8 +1,7 @@
-// @ts-nocheck
 import type { StorytellerContext } from '../useStoryteller'
 import React from 'react'
 import { getEffectiveNightOrderFromRegistry, getDisplayName, getIconForCharacter, getAbilityTextForScript } from '../../../catalog'
-import { Box, Typography, Button, Tabs, Tab, Paper, List, ListItem, ListItemIcon, ListItemText, IconButton, Tooltip } from '@mui/material'
+import { Box, Typography, Tabs, Tab, List, ListItem, ListItemIcon, ListItemText, IconButton, Tooltip } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import MenuBookIcon from '@mui/icons-material/MenuBook'
 import { useT } from '../../../context/I18nContext'
@@ -14,7 +13,7 @@ export function RightPopupScript({ ctx }: { ctx: StorytellerContext }) {
   const { t } = useT()
   const {
     language, currentScriptCharacters, activeScriptTitle, activeScriptVersion, days,
-    setActiveRightPopup, text, scriptOptions, activeScriptSlug,
+    setActiveRightPopup, scriptOptions, activeScriptSlug,
   } = ctx
   const pinnedRevisions = scriptOptions?.find((s) => s.slug === activeScriptSlug)?.pinnedRevisions
 
@@ -32,14 +31,13 @@ export function RightPopupScript({ ctx }: { ctx: StorytellerContext }) {
     )
   }
 
-  const characterIds: string[] = currentScriptCharacters?.map((c) =>
-    typeof c === 'string' ? c : c.id
-  ) ?? []
+  const characterIds = currentScriptCharacters ?? []
 
-  const firstNightOrder = (getEffectiveNightOrderFromRegistry().first_night ?? []).filter(
+  const nightOrder = getEffectiveNightOrderFromRegistry()
+  const firstNightOrder = (nightOrder.first_night ?? []).filter(
     (id) => characterIds.includes(id) || id === 'MINION_INFO' || id === 'DEMON_INFO'
   )
-  const otherNightOrder = (nightOrder?.other_night ?? []).filter(
+  const otherNightOrder = (nightOrder.other_nights ?? []).filter(
     (id) => characterIds.includes(id)
   )
 
@@ -49,7 +47,7 @@ export function RightPopupScript({ ctx }: { ctx: StorytellerContext }) {
         <ListItem key="minion-info" sx={{ py: 0.5 }}>
           <ListItemText
             primary={t('minion_info')}
-            primaryTypographyProps={{ variant: 'caption', color: 'warning.main', fontWeight: 600, textAlign: 'center' }}
+            slotProps={{ primary: { variant: 'caption', color: 'warning.main', sx: { fontWeight: 600, textAlign: 'center' } } }}
           />
         </ListItem>
       )
@@ -57,7 +55,7 @@ export function RightPopupScript({ ctx }: { ctx: StorytellerContext }) {
         <ListItem key="demon-info" sx={{ py: 0.5 }}>
           <ListItemText
             primary={t('demon_info')}
-            primaryTypographyProps={{ variant: 'caption', color: 'error', fontWeight: 600, textAlign: 'center' }}
+            slotProps={{ primary: { variant: 'caption', color: 'error', sx: { fontWeight: 600, textAlign: 'center' } } }}
           />
         </ListItem>
       )
@@ -97,7 +95,7 @@ export function RightPopupScript({ ctx }: { ctx: StorytellerContext }) {
       <Box sx={{ display: 'flex', alignItems: 'center', borderBottom: '1px solid', borderColor: 'divider' }}>
         <Tabs
           value={view}
-          onChange={(_, v) => setView(v)}
+          onChange={(_, v: ScriptView) => setView(v)}
           variant="fullWidth"
           sx={{ flex: 1, minHeight: 36, '& .MuiTab-root': { minHeight: 36, fontSize: '0.75rem' } }}
         >
