@@ -24,6 +24,7 @@ import { logPhrase } from '../../../utils/logI18n'
 import { LogDetailText } from '../LogDetailText'
 import { useT } from '../../../context/I18nContext'
 import { translateStTag, resolveTagDisplay } from './ArenaSeatComponents'
+import { AbilityDetailDialog, ModalSectionLabel } from './ArenaSeatPlayerModalParts'
 import { ResponsiveDialog, ResponsiveDialogContent } from '../../ui'
 
 const TRAVELER_CHAR_IDS = allCharacters.filter((c) => c.team === 'traveler').map((c) => c.id)
@@ -378,15 +379,9 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
 
   // ── Section renderers ──
 
-  const SectionLabel = ({ label }: { label: string }) => (
-    <Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ display: 'block', mb: 0.5, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-      {label}
-    </Typography>
-  )
-
   const characterSection = (
     <Box sx={{ mb: 1.5 }}>
-      <SectionLabel label={t('characters_section')} />
+      <ModalSectionLabel label={t('characters_section')} />
       <Box sx={{ display: 'flex', gap: 1, mb: 0.75 }}>
         {/* Actual */}
         <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', gap: 0.75, p: 1, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
@@ -460,7 +455,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
 
   const publicStatusSection = (
     <Box sx={{ mb: 1.5 }}>
-      <SectionLabel label={t('public')} />
+      <ModalSectionLabel label={t('public')} />
       {/* Status toggles */}
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 0.75 }}>
         {[
@@ -624,7 +619,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
 
   const nightStStatusSection = (
     <Box sx={{ mb: 1.5 }}>
-      <SectionLabel label={t('night_st_status')} />
+      <ModalSectionLabel label={t('night_st_status')} />
       {/* Script reminder chips — when char selected, clicks link to that char */}
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 0.75 }}>
         {stTagChips.map((label) => {
@@ -893,7 +888,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
 
   const abilitySection = (
     <Box ref={abilitySectionRef} sx={{ mb: 1.5 }}>
-      <SectionLabel label={isNight ? (t('night_ability')) : t('day_ability')} />
+      <ModalSectionLabel label={isNight ? (t('night_ability')) : t('day_ability')} />
       {skillOverlay ? (
         // Active skillOverlay form (from openSeatSkill)
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
@@ -1302,24 +1297,14 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
     </ResponsiveDialog>
   )
 
-  const abilityDetailModal = abilityModalCharId ? (() => {
-    const charId = abilityModalCharId
-    const icon = getIconForCharacter(charId)
-    const name = getDisplayName(charId, language)
-    const ability = getAbilityTextForScript(charId, language, pinnedRevisions) || getAbilityTextForScript(charId, 'en', pinnedRevisions) || ''
-    return (
-      <ResponsiveDialog open onClose={() => setAbilityModalCharId(null)} maxWidth="xs" mobile="compact">
-        <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1, pb: 1 }}>
-          {icon && <Box component="img" src={icon as string} sx={{ width: 32, height: 32, borderRadius: '50%', flexShrink: 0 }} />}
-          <Typography fontWeight={700} sx={{ flex: 1 }}>{name}</Typography>
-          <IconButton size="small" onClick={() => setAbilityModalCharId(null)}><CloseIcon fontSize="small" /></IconButton>
-        </DialogTitle>
-        <ResponsiveDialogContent sx={{ pt: 0.5 }}>
-          <Typography variant="body2" sx={{ lineHeight: 1.7, color: 'text.primary' }}>{ability}</Typography>
-        </ResponsiveDialogContent>
-      </ResponsiveDialog>
-    )
-  })() : null
+  const abilityDetailModal = (
+    <AbilityDetailDialog
+      charId={abilityModalCharId}
+      language={language}
+      pinnedRevisions={pinnedRevisions}
+      onClose={() => setAbilityModalCharId(null)}
+    />
+  )
 
   return createPortal(<>{modal}{abilityDetailModal}</>, document.body)
 }
