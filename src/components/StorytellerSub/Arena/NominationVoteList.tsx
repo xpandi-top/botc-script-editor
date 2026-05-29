@@ -1,5 +1,5 @@
-// @ts-nocheck
-import React from 'react'
+import type { DayState, EventLogEntry, StorytellerSeat, VoteDraft, VotingState } from '../types'
+import type { Language } from '../../../types'
 import { logDetail } from '../../../utils/logI18n'
 import { makeT, makeTpl } from '../../../lib/t'
 import { Box, Typography, IconButton, Button, Tooltip } from '@mui/material'
@@ -10,16 +10,16 @@ import DoNotDisturbOnIcon from '@mui/icons-material/DoNotDisturbOn'
 import DoNotDisturbOffIcon from '@mui/icons-material/DoNotDisturbOff'
 
 interface NominationVoteListProps {
-  seats: any[]
-  voteDraft: any
-  votingState: any
+  seats: StorytellerSeat[]
+  voteDraft: VoteDraft
+  votingState: VotingState | null
   effectiveRequiredVotes: number
   yesCount: number
   votingYesCount: number
   handleVoteToggle: (seatNum: number) => void
-  updateCurrentDay: (updater: (d: any) => any) => void
-  appendEvent: (d: any, kind: string, detail: string) => any
-  language: string
+  updateCurrentDay: (updater: (day: DayState) => DayState) => void
+  appendEvent: (d: DayState, kind: EventLogEntry['kind'], detail: string) => DayState
+  language: Language
 }
 
 export function NominationVoteList({
@@ -39,9 +39,9 @@ export function NominationVoteList({
 
   // ── Reorder: start from seat after nominee, wrap, nominee last ──
   const targetSeat = voteDraft?.target ?? null
-  const orderedSeats: any[] = (() => {
+  const orderedSeats: StorytellerSeat[] = (() => {
     if (targetSeat === null) return seats
-    const idx = seats.findIndex((s: any) => s.seat === targetSeat)
+    const idx = seats.findIndex((s) => s.seat === targetSeat)
     if (idx === -1) return seats
     const after  = seats.slice(idx + 1)
     const before = seats.slice(0, idx)
@@ -51,26 +51,26 @@ export function NominationVoteList({
 
   // ── Quick seat-property toggles ─────────────────────────────────
   const toggleAlive = (seatNum: number) => {
-    updateCurrentDay((d: any) => {
-      const seat = d.seats.find((s: any) => s.seat === seatNum)
+    updateCurrentDay((d) => {
+      const seat = d.seats.find((s) => s.seat === seatNum)
       const newAlive = !seat?.alive
-      const updated = { ...d, seats: d.seats.map((s: any) => s.seat === seatNum ? { ...s, alive: newAlive } : s) }
+      const updated = { ...d, seats: d.seats.map((s) => s.seat === seatNum ? { ...s, alive: newAlive } : s) }
       return appendEvent(updated, 'stateChange', newAlive ? logDetail.seatAlive(language, seatNum) : logDetail.seatDead(language, seatNum))
     })
   }
 
   const toggleNoVote = (seatNum: number) => {
-    updateCurrentDay((d: any) => {
-      const seat = d.seats.find((s: any) => s.seat === seatNum)
+    updateCurrentDay((d) => {
+      const seat = d.seats.find((s) => s.seat === seatNum)
       const newHasNoVote = !seat?.hasNoVote
-      const updated = { ...d, seats: d.seats.map((s: any) => s.seat === seatNum ? { ...s, hasNoVote: newHasNoVote } : s) }
+      const updated = { ...d, seats: d.seats.map((s) => s.seat === seatNum ? { ...s, hasNoVote: newHasNoVote } : s) }
       return appendEvent(updated, 'stateChange', newHasNoVote ? logDetail.seatNoVote(language, seatNum) : logDetail.seatUnNoVote(language, seatNum))
     })
   }
 
   return (
     <Box>
-      <Typography variant="body1" fontWeight={600} color="text.secondary">
+      <Typography variant="body1" color="text.secondary" sx={{ fontWeight: 600 }}>
         {t('votes')}{' '}
         <Typography component="span" variant="caption" color="text.disabled">
           {t('vote_hint')}
@@ -84,7 +84,7 @@ export function NominationVoteList({
         const half = Math.ceil(orderedSeats.length / 2)
         const rightSeats = orderedSeats.slice(0, half)
         const leftSeats  = [...orderedSeats.slice(half)].reverse()
-        const renderPill = (s: any) => {
+        const renderPill = (s: StorytellerSeat) => {
           const voted    = votingState?.votes?.[s.seat]
           const isVoted  = voted === true || voteDraft?.voters?.includes(s.seat)
           const isDead   = !s.alive
@@ -261,18 +261,18 @@ export function NominationVoteList({
         <Typography variant="caption">{t('vote_count')}</Typography>
         <IconButton size="small" onClick={() => {
           const cur = voteDraft?.voteCountOverride ?? votingYesCount
-          updateCurrentDay((d: any) => ({ ...d, voteDraft: { ...d.voteDraft, voteCountOverride: Math.max(0, cur - 1) } }))
+          updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, voteCountOverride: Math.max(0, cur - 1) } }))
         }}>−</IconButton>
         <Typography variant="body2">
           {votingYesCount}<small> / {effectiveRequiredVotes}</small>
         </Typography>
         <IconButton size="small" onClick={() => {
           const cur = voteDraft?.voteCountOverride ?? votingYesCount
-          updateCurrentDay((d: any) => ({ ...d, voteDraft: { ...d.voteDraft, voteCountOverride: cur + 1 } }))
+          updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, voteCountOverride: cur + 1 } }))
         }}>+</IconButton>
         {voteDraft?.voteCountOverride !== null && (
           <Button size="small"
-            onClick={() => updateCurrentDay((d: any) => ({ ...d, voteDraft: { ...d.voteDraft, voteCountOverride: null } }))}
+            onClick={() => updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, voteCountOverride: null } }))}
             startIcon={<ReplayIcon fontSize="small" />}
           >
             {t('reset')}
