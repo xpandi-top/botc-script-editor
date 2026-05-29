@@ -1,15 +1,13 @@
-// @ts-nocheck
 import type { StorytellerContext } from '../useStoryteller'
-import React from 'react'
-import { Box, Button, ToggleButton, ToggleButtonGroup } from '@mui/material'
+import { Box, Button } from '@mui/material'
 import { useT } from '../../../context/I18nContext'
 
 export function ArenaQuickStrip({ ctx }: { ctx: StorytellerContext }) {
   const { t } = useT()
   const { 
     activeRightPopup, setActiveRightPopup, 
-    showRightPanel, setShowRightPanel, 
-    currentDay, pickerMode, setPickerMode, 
+    showRightPanel, setShowRightPanel,
+    currentDay, setPickerMode,
     openSkillOverlay, goToNextDay, openEndGamePanel, exportGameJson, text 
   } = ctx
 
@@ -60,7 +58,7 @@ export function ArenaQuickStrip({ ctx }: { ctx: StorytellerContext }) {
       <Button
         size="small"
         variant="outlined"
-        onClick={exportGameJson}
+        onClick={() => exportGameJson()}
       >
         {text.exportJson}
       </Button>
