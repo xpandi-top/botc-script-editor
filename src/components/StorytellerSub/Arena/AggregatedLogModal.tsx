@@ -1,6 +1,6 @@
-// @ts-nocheck
+import type { AggregatedLogEntry, DayState } from '../types'
 import type { StorytellerContext } from '../useStoryteller'
-import React, { useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { buildAggregatedEntries } from '../../../utils/logFilter'
 import { logDetail } from '../../../utils/logI18n'
@@ -10,7 +10,7 @@ import { AiPanelContent, AiToggleButton } from '../../AiPanel'
 import { buildGameLogContext } from '../../../lib/ai'
 import {
   Accordion, AccordionDetails, AccordionSummary,
-  Box, Button, Chip, DialogTitle,
+  Box, Chip, DialogTitle,
   IconButton, TextField, ToggleButton, ToggleButtonGroup, Tooltip, Typography, useTheme,
 } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
@@ -20,13 +20,13 @@ import EditIcon from '@mui/icons-material/Edit'
 import CheckIcon from '@mui/icons-material/Check'
 import AddIcon from '@mui/icons-material/Add'
 import ShareIcon from '@mui/icons-material/Share'
-import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import { makeT, makeTpl } from '../../../lib/t'
 import { useT } from '../../../context/I18nContext'
 import { useBreakpoint } from '../../../hooks/useBreakpoint'
 import { ResponsiveDialog, ResponsiveDialogContent } from '../../ui'
+import type { Language } from '../../../types'
 
 const ENTRY_COLORS: Record<string, 'primary' | 'secondary' | 'success' | 'error' | 'warning'> = {
   vote: 'primary',
@@ -36,7 +36,7 @@ const ENTRY_COLORS: Record<string, 'primary' | 'secondary' | 'success' | 'error'
 
 const PHASE_ORDER: Record<string, number> = { night: 0, private: 1, public: 2, nomination: 3 }
 
-function phaseLabel(phase: string, text: any): string {
+function phaseLabel(phase: string, text: StorytellerContext['text']): string {
   return { night: text.nightPhase, private: text.privateChat, public: text.publicChat, nomination: text.nomination }[phase] ?? phase
 }
 
@@ -46,18 +46,25 @@ function stripIconTokens(s: string): string {
 }
 
 const PHASE_SHARE_ORDER = ['night', 'private', 'public', 'nomination']
+type SharePhase = typeof PHASE_SHARE_ORDER[number]
+type LogEntryType = AggregatedLogEntry['type']
+type VisibilityFilter = 'all' | 'public' | 'st-only'
 
-function phaseLabelI18n(language: string, phase: string): string {
-  return logDetail.phase(language as any, phase) || phase
+function isSharePhase(phase: string): phase is SharePhase {
+  return (PHASE_SHARE_ORDER as readonly string[]).includes(phase)
+}
+
+function phaseLabelI18n(language: Language, phase: string): string {
+  return logDetail.phase(language, phase) || phase
 }
 
 function buildShareText(
-  days: any[], text: any, language: string,
-  visFilter: 'all' | 'public' | 'st-only',
-  typeFilters: Set<string>,
+  days: DayState[], text: StorytellerContext['text'], language: Language,
+  visFilter: VisibilityFilter,
+  typeFilters: Set<LogEntryType>,
 ): string {
-  const t = makeT(language as any)
-  const tpl = makeTpl(language as any)
+  const t = makeT(language)
+  const tpl = makeTpl(language)
   const title = t('game_log_title')
   const lines: string[] = [title, '']
   const sortedDays = [...days].sort((a, b) => a.day - b.day)
@@ -75,7 +82,7 @@ function buildShareText(
       for (const v of day.voteHistory) {
         const voterList = v.voters.length > 0 ? ` [${v.voters.map((n: number) => `#${n}`).join(', ')}]` : ''
         const line = `[${text.filterVote}] ${logDetail.voteResult(language, v.actor, v.target, v.passed, v.voteCount, v.requiredVotes)}${voterList}${v.note ? ` · ${v.note}` : ''}`
-        entries.push({ phase: 'nomination', timestamp: v.timestamp ?? 0, line })
+        entries.push({ phase: 'nomination', timestamp: Number(v.id) || 0, line })
       }
     }
 
@@ -87,7 +94,7 @@ function buildShareText(
         const roleName = s.roleId ? getDisplayName(s.roleId, language) : ''
         const resultLabel = logDetail.skillResultLabel(language, s.result ?? null)
         const detail = `#${s.actor} ${roleName}${targetStr}${s.statement ? ` · ${stripIconTokens(s.statement)}` : ''}${resultLabel ? ` ${resultLabel}` : ''}`
-        entries.push({ phase: s.activatedDuringPhase ?? 'night', timestamp: s.timestamp ?? 0, line: `[${text.filterSkill}] ${detail}` })
+        entries.push({ phase: s.activatedDuringPhase ?? 'night', timestamp: Number(s.id) || 0, line: `[${text.filterSkill}] ${detail}` })
       }
     }
 
@@ -109,8 +116,7 @@ function buildShareText(
     // ── Group by phase in order ───────────────────────────────────────────────
     const byPhase = new Map<string, Entry[]>()
     for (const entry of entries) {
-      const p = entry.phase in PHASE_SHARE_ORDER.reduce((a, v) => ({ ...a, [v]: true }), {} as Record<string,boolean>)
-        ? entry.phase : 'night'
+      const p = isSharePhase(entry.phase) ? entry.phase : 'night'
       if (!byPhase.has(p)) byPhase.set(p, [])
       byPhase.get(p)!.push(entry)
     }
@@ -133,7 +139,7 @@ function buildShareText(
 }
 
 export function AggregatedLogModal({ ctx }: { ctx: StorytellerContext }) {
-  const { t } = useT()
+  const { t, tpl } = useT()
   const {
     language, text, days, showAggLogModal, setShowAggLogModal,
     editLogEntry, removeLogEntry, addQuickEvent, swapLogEntries, currentDay,
@@ -149,8 +155,8 @@ export function AggregatedLogModal({ ctx }: { ctx: StorytellerContext }) {
   const stBorder  = isDark ? 'rgba(210, 140, 0, 0.40)' : 'rgba(180, 130, 0, 0.45)'
   const stTextColor = isDark ? '#E8C97A' : 'rgba(80, 50, 0, 0.90)'
 
-  const [visFilter, setVisFilter] = useState<'all' | 'public' | 'st-only'>('all')
-  const [typeFilters, setTypeFilters] = useState<Set<string>>(new Set(['vote', 'skill', 'event']))
+  const [visFilter, setVisFilter] = useState<VisibilityFilter>('all')
+  const [typeFilters, setTypeFilters] = useState<Set<LogEntryType>>(new Set(['vote', 'skill', 'event']))
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editValue, setEditValue] = useState('')
   const [quickText, setQuickText] = useState('')
@@ -227,7 +233,7 @@ export function AggregatedLogModal({ ctx }: { ctx: StorytellerContext }) {
     return Array.from(map.entries()).sort((a, b) => b[0] - a[0])
   }, [entries])
 
-  const handleStartEdit = (entry: any) => {
+  const handleStartEdit = (entry: AggregatedLogEntry) => {
     const prefix = entry.id.split('-')[0]
     if (prefix === 'v') { const idx = entry.detail.lastIndexOf(' · '); setEditValue(idx >= 0 ? entry.detail.slice(idx + 3) : '') }
     else if (prefix === 's') setEditValue(entry.detail.match(/"(.*)"/)?.[1] ?? '')
@@ -243,7 +249,7 @@ export function AggregatedLogModal({ ctx }: { ctx: StorytellerContext }) {
     setQuickText('')
   }
 
-  const toggleType = (t: string) => {
+  const toggleType = (t: LogEntryType) => {
     setTypeFilters((prev) => { const next = new Set(prev); if (next.has(t)) { if (next.size > 1) next.delete(t) } else next.add(t); return next })
   }
 
@@ -273,7 +279,7 @@ export function AggregatedLogModal({ ctx }: { ctx: StorytellerContext }) {
       maxWidth={aiOpen && !isMobile ? 'lg' : 'sm'}
       paperSx={{ height: { xs: '100dvh', sm: '82vh' }, transition: 'max-width 0.2s ease' }}>
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 0 }}>
-        <Typography fontWeight={700}>{text.gameLogTitle || t('game_log_title')}</Typography>
+        <Typography sx={{ fontWeight: 700 }}>{text.gameLogTitle || t('game_log_title')}</Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
           <Tooltip title={shareCopied ? (text.shareLogCopied || t('copied')) : (text.shareLog || t('share_log'))}>
             <IconButton size="small" color={shareCopied ? 'success' : 'default'} onClick={handleShare}>
@@ -339,13 +345,13 @@ export function AggregatedLogModal({ ctx }: { ctx: StorytellerContext }) {
             sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, mb: 1, '&:before': { display: 'none' }, '&.Mui-expanded': { mb: 1 } }}>
             <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ minHeight: 36, px: 1.5, '& .MuiAccordionSummary-content': { my: 0.5 } }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
-                <Typography variant="subtitle2" fontWeight={700} color="primary.main">{tpl('day_n', day)}</Typography>
+                <Typography variant="subtitle2" sx={{ fontWeight: 700 }} color="primary.main">{tpl('day_n', day)}</Typography>
                 <Typography variant="caption" color="text.secondary">({dayEntries.length})</Typography>
               </Box>
             </AccordionSummary>
             <AccordionDetails sx={{ p: 1, pt: 0 }}>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-              {dayEntries.map((entry: any, i: number) => {
+              {dayEntries.map((entry) => {
                 const seq = seqMap[entry.id]
                 const canUp = getNeighbor(entry.id, 'up') !== null
                 const canDown = getNeighbor(entry.id, 'down') !== null
