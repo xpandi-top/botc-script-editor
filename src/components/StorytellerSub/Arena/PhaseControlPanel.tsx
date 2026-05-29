@@ -1,6 +1,6 @@
-// @ts-nocheck
 import type { StorytellerContext } from '../useStoryteller'
-import React, { useState, useMemo } from 'react'
+import type { ReactNode } from 'react'
+import { useState, useMemo } from 'react'
 import {
   Box, Button, IconButton, Tooltip, Typography, ToggleButton, ToggleButtonGroup,
   Select, MenuItem, TextField, useTheme,
@@ -20,7 +20,6 @@ import CloseIcon from '@mui/icons-material/Close'
 import CheckIcon from '@mui/icons-material/Check'
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive'
 import ViewTimelineIcon from '@mui/icons-material/ViewTimeline'
-import AutoStoriesIcon from '@mui/icons-material/AutoStories'
 import HowToVoteIcon from '@mui/icons-material/HowToVote'
 import WbSunnyIcon from '@mui/icons-material/WbSunny'
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts'
@@ -44,13 +43,13 @@ import { useT } from '../../../context/I18nContext'
 
 const PHASES: Phase[] = ['night', 'private', 'public', 'nomination']
 
-const PANEL_COLORS_DARK: Record<string, string> = {
+const PANEL_COLORS_DARK: Record<Phase, string> = {
   night:      'linear-gradient(135deg, rgba(22,28,40,0.20), rgba(40,51,71,0.20))',
   private:    'linear-gradient(135deg, rgba(78,65,52,0.20), rgba(106,88,68,0.20))',
   public:     'linear-gradient(135deg, rgba(36,50,67,0.20), rgba(57,76,97,0.20))',
   nomination: 'linear-gradient(135deg, rgba(74,56,43,0.20), rgba(106,82,61,0.20))',
 }
-const PANEL_COLORS_LIGHT: Record<string, string> = {
+const PANEL_COLORS_LIGHT: Record<Phase, string> = {
   night:      'linear-gradient(135deg, rgba(43,52,71,0.20), rgba(68,80,106,0.20))',
   private:    'linear-gradient(135deg, rgba(245,232,209,0.20), rgba(231,212,178,0.20))',
   public:     'linear-gradient(135deg, rgba(238,246,255,0.20), rgba(220,235,250,0.20))',
@@ -62,7 +61,7 @@ const LIGHT_BG_PHASES = new Set(['private', 'public', 'nomination'])
 const fmt = (s: number) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
 
 
-const PHASE_ICONS: Record<string, React.ReactNode> = {
+const PHASE_ICONS: Record<Phase, ReactNode> = {
   night: <BedtimeIcon sx={{ fontSize: '1.5rem' }} />,
   private: <LockIcon sx={{ fontSize: '1.5rem' }} />,
   public: <WbSunnyIcon sx={{ fontSize: '1.5rem' }} />,
@@ -84,11 +83,11 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
     alarmActive, setAlarmActive, nightShowCharacter, setNightShowCharacter,
     nightShowWakeOrder, setNightShowWakeOrder, openCharacterEditor,
     openNewGamePanel, openEndGamePanel,
-    showAggLogModal, setShowAggLogModal, setShowStSetupModal, stFabledIds,
+    setShowAggLogModal,
     currentScriptCharacters,
   } = ctx
 
-  const { t } = useT()
+  const { t, tpl } = useT()
   const muiTheme = useTheme()
   const isDark = muiTheme.palette.mode === 'dark'
 
@@ -117,7 +116,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
   const TIMER_ACTIVE_SX = { bgcolor: useDarkInk ? 'rgba(0,0,0,0.18)' : 'rgba(255,255,255,0.25)', border: `1px solid ${useDarkInk ? 'rgba(0,0,0,0.40)' : 'rgba(255,255,255,0.5)'}` }
   const TIMER_IDLE_SX   = { bgcolor: useDarkInk ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.05)', border: `1px solid ${useDarkInk ? 'rgba(0,0,0,0.20)' : 'rgba(255,255,255,0.25)'}` }
 
-  const getPhaseLabel = (p: string) => ({ night: text.nightPhase, private: text.privateChat, public: text.publicChat, nomination: text.nomination }[p] ?? p)
+  const getPhaseLabel = (p: Phase) => ({ night: text.nightPhase, private: text.privateChat, public: text.publicChat, nomination: text.nomination }[p])
 
   const handleTimerSave = () => {
     const [m = '0', s = '0'] = timerInput.split(':')
@@ -159,7 +158,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
             },
           }),
         }}>
-          Day {currentDay.day} · {getPhaseLabel(phase)}
+          {tpl('day_n', currentDay.day)} · {getPhaseLabel(phase)}
           {hasTimer && ` · ${fmt(currentTimerSeconds)}`}
         </Typography>
         {alarmActive && <NotificationsActiveIcon sx={{ fontSize: '1rem', color: 'warning.light' }} />}
@@ -207,12 +206,12 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
             <Select
               value={currentDay.id}
               onChange={(e) => setSelectedDayId(e.target.value)}
-              renderValue={(id) => { const d = days.find((d: any) => d.id === id); return d ? `Day ${d.day}` : '' }}
+              renderValue={(id) => { const d = days.find((day) => day.id === id); return d ? tpl('day_n', d.day) : '' }}
               sx={{ color: textColor, fontWeight: 700, fontSize: '1rem', '& .MuiSelect-icon': { color: mutedColor }, '& fieldset': { borderColor: btnBorder }, '& .MuiOutlinedInput-root': { background: 'transparent' }, '& .MuiSelect-select': { color: textColor }, background: 'transparent', minWidth: 100 }}
             >
-              {days.map((d: any) => (
+              {days.map((d) => (
                 <MenuItem key={d.id} value={d.id} sx={{ fontSize: '0.95rem', display: 'flex', justifyContent: 'space-between', gap: 1, pr: 0.5 }}>
-                  <span style={{ flex: 1 }}>Day {d.day}</span>
+                  <span style={{ flex: 1 }}>{tpl('day_n', d.day)}</span>
                   {days.length > 1 && (
                     <Tooltip title={t('delete_this_day')}>
                       <IconButton
@@ -273,7 +272,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
             {phase === 'public' && (
               <Select
                 value={publicMode}
-                onChange={(e) => updateCurrentDay((d: any) => ({ ...d, publicMode: e.target.value as PublicMode }))}
+                onChange={(e) => updateCurrentDay((d) => ({ ...d, publicMode: e.target.value as PublicMode }))}
                 sx={{ color: textColor, fontSize: '0.9rem', '& .MuiSelect-icon': { color: mutedColor }, '& fieldset': { borderColor: btnBorder }, '& .MuiSelect-select': { color: textColor }, background: 'transparent', minWidth: 120 }}
               >
                 <MenuItem value="free" sx={{ fontSize: '0.95rem' }}>{text.freeSpeech}</MenuItem>
@@ -458,9 +457,9 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
               </Tooltip>
               <Tooltip title={text.randomSpeaker}>
                 <IconButton sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={() => {
-                  const all = seats.map((s: any) => s.seat)
+                  const all = seats.map((s) => s.seat)
                   const r = all[Math.floor(Math.random() * Math.max(all.length, 1))]
-                  updateCurrentDay((d: any) => ({ ...d, currentSpeakerSeat: r ?? 1, roundRobinSpokenSeats: [] }))
+                  updateCurrentDay((d) => ({ ...d, currentSpeakerSeat: r ?? 1, roundRobinSpokenSeats: [] }))
                 }}>
                   <ShuffleIcon />
                 </IconButton>
