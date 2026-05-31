@@ -3,12 +3,13 @@ import type { DayState, StorytellerSeat, VoteDraft } from '../types'
 import type { SelectChangeEvent } from '@mui/material'
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Box, Button, Typography, TextField, Select, MenuItem, FormControl, InputLabel, FormControlLabel, Checkbox } from '@mui/material'
+import { Alert, Box, Button, Typography, TextField, Select, MenuItem, FormControl, InputLabel, FormControlLabel, Checkbox } from '@mui/material'
 import CheckIcon from '@mui/icons-material/Check'
 import CloseIcon from '@mui/icons-material/Close'
 import EditNoteIcon from '@mui/icons-material/EditNote'
 import ReplayIcon from '@mui/icons-material/Replay'
 import AutoStoriesIcon from '@mui/icons-material/AutoStories'
+import HowToVoteIcon from '@mui/icons-material/HowToVote'
 import { createDefaultVoteDraft } from '../constants'
 import { useBreakpoint } from '../../../hooks/useBreakpoint'
 import { NominationTimer } from './NominationTimer'
@@ -24,6 +25,8 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: StorytellerContext })
     effectiveRequiredVotes,
     rejectNomination, recordVote, votingYesCount, timerDefaults,
     appendEvent,
+    linkedDealSession, remoteDealVote, remoteDealVoteResponses, remoteDealVoteError,
+    remoteDealVoteStarting, startRemoteDealVote,
   } = ctx
 
   const { t } = useT()
@@ -222,18 +225,41 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: StorytellerContext })
         </FormControl>
 
         {currentDay.nominationStep !== 'waitingForNomination' && voteDraft.nominationResult === 'succeed' && (
-          <NominationVoteList
-            seats={seats}
-            voteDraft={voteDraft}
-            votingState={currentDay.votingState}
-            effectiveRequiredVotes={effectiveRequiredVotes}
-            yesCount={yesCount}
-            votingYesCount={votingYesCount}
-            handleVoteToggle={handleVoteToggle}
-            updateCurrentDay={updateCurrentDay}
-            appendEvent={appendEvent}
-            language={language}
-          />
+          <>
+            {linkedDealSession && (
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    startIcon={<HowToVoteIcon fontSize="small" />}
+                    disabled={remoteDealVoteStarting || !!remoteDealVote || voteDraft.actor === null || voteDraft.target === null}
+                    onClick={startRemoteDealVote}
+                  >
+                    {language === 'zh' ? '开始玩家投票' : 'Start player vote'}
+                  </Button>
+                  {remoteDealVote && (
+                    <Typography variant="caption" color="text.secondary">
+                      {language === 'zh' ? '实时投票中' : 'Live vote active'} · {remoteDealVoteResponses.length}/{remoteDealVote.votingOrder.length}
+                    </Typography>
+                  )}
+                </Box>
+                {remoteDealVoteError && <Alert severity="warning">{remoteDealVoteError}</Alert>}
+              </Box>
+            )}
+            <NominationVoteList
+              seats={seats}
+              voteDraft={voteDraft}
+              votingState={currentDay.votingState}
+              effectiveRequiredVotes={effectiveRequiredVotes}
+              yesCount={yesCount}
+              votingYesCount={votingYesCount}
+              handleVoteToggle={handleVoteToggle}
+              updateCurrentDay={updateCurrentDay}
+              appendEvent={appendEvent}
+              language={language}
+            />
+          </>
         )}
 
         <TextField

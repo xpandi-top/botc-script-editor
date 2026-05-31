@@ -50,7 +50,10 @@ export default defineConfig(({ command, mode }) => {
           ],
         },
         workbox: {
-          globPatterns: ['**/*.{js,css,html,ico,png,woff2}'],
+          // Keep the app shell fast for GitHub Pages/deal links. Character
+          // icons and large fonts are runtime-cached when requested instead of
+          // being mandatory first-install precache entries.
+          globPatterns: ['**/*.{js,css,html,ico,webmanifest}'],
           globIgnores: ['botcCompanion.svg'],
           maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
           runtimeCaching: [

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { computeYesCount, computeVotePassed } from '../utils/votes'
+import { computeYesCount, computeVotePassed, filterNoVoteSeats, formatSeatLabel, getCurrentDealVoter, remoteResponsesToVoteMap, summarizeDealVote, timeoutDealVoteResponse } from '../utils/votes'
+import { buildVotingOrder, createSeats } from '../components/StorytellerSub/constants'
 import type { VoteDraft, VotingState } from '../components/StorytellerSub/types'
 
 function makeDraft(overrides: Partial<VoteDraft> = {}): Pick<VoteDraft, 'voters' | 'voteCountOverride'> {
@@ -96,5 +97,66 @@ describe('vote pass/fail integration', () => {
   it('manualPassed false forces fail even with override above threshold', () => {
     const yes = computeYesCount(makeDraft({ voteCountOverride: 10 }), null)
     expect(computeVotePassed(yes, 5, false)).toBe(false)
+  })
+})
+
+// ── experimental linked deal voting ─────────────────────────────────────────
+
+describe('linked deal voting helpers', () => {
+  it('voting order starts after nominee and wraps nominee last', () => {
+    const seats = createSeats(8)
+    expect(buildVotingOrder(seats, 6)).toEqual([7, 8, 1, 2, 3, 4, 5, 6])
+  })
+
+  it('current voter eligibility excludes no-vote seats', () => {
+    const order = [7, 8, 1, 2, 3, 4, 5, 6]
+    expect(filterNoVoteSeats(order, [8, 3])).toEqual([7, 1, 2, 4, 5, 6])
+  })
+
+  it('timeout defaults to disagree', () => {
+    expect(timeoutDealVoteResponse()).toBe('disagree')
+  })
+
+  it('remote responses map into local votingState vote booleans', () => {
+    expect(remoteResponsesToVoteMap([
+      { seat: 1, response: 'agree' },
+      { seat: 2, response: 'disagree' },
+      { seat: 3, response: 'agree' },
+    ])).toEqual({ 1: true, 2: false, 3: true })
+  })
+
+  it('remote vote count still respects manual override', () => {
+    const state = makeVotingState(remoteResponsesToVoteMap([
+      { seat: 1, response: 'agree' },
+      { seat: 2, response: 'disagree' },
+    ]))
+    const yes = computeYesCount(makeDraft({ voteCountOverride: 7 }), state)
+    expect(yes).toBe(7)
+  })
+
+  it('summarizes agree, disagree, and pending seats with labels', () => {
+    const summary = summarizeDealVote(
+      { votingOrder: [1, 2, 3, 4], seatLabels: { 1: '#1 Ada', 2: '#2 Ben', 3: '#3 Cy', 4: '#4 Di' } },
+      [
+        { seat: 1, response: 'agree' },
+        { seat: 3, response: 'disagree' },
+      ],
+    )
+    expect(summary.agreeSeats).toEqual([1])
+    expect(summary.disagreeSeats).toEqual([3])
+    expect(summary.pendingSeats).toEqual([2, 4])
+    expect(summary.agreeLabels).toEqual(['#1 Ada'])
+    expect(summary.disagreeLabels).toEqual(['#3 Cy'])
+    expect(summary.pendingLabels).toEqual(['#2 Ben', '#4 Di'])
+  })
+
+  it('seat labels fall back to #seat for older vote docs', () => {
+    expect(formatSeatLabel(7, undefined)).toBe('#7')
+    expect(formatSeatLabel(8, { 8: '' })).toBe('#8')
+  })
+
+  it('gets current deal voter from voting index', () => {
+    expect(getCurrentDealVoter({ votingOrder: [7, 8, 1], currentIndex: 1 })).toBe(8)
+    expect(getCurrentDealVoter({ votingOrder: [7, 8, 1], currentIndex: 3 })).toBeNull()
   })
 })

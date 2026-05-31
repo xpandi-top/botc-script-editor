@@ -58,9 +58,6 @@ const PrintStudioPage  = lazy(() => import('./components/PrintStudio/PrintStudio
 const CharactersTab    = lazy(() => import('./components/tabs/CharactersTab').then(m => ({ default: m.CharactersTab })))
 const AnalyticsTab     = lazy(() => import('./components/tabs/AnalyticsTab').then(m => ({ default: m.AnalyticsTab })))
 const StorytellerHelper = lazy(() => import('./components/StorytellerHelper').then(m => ({ default: m.StorytellerHelper })))
-import { DealGuestPage } from './components/DealGuestPage'
-import { DealHostPage } from './components/DealHostPage'
-import { HOST_TOKEN_KEY } from './lib/firebaseDeal'
 import { useFontSettings } from './hooks/useFontSettings'
 import {
   allCharacters,
@@ -203,7 +200,7 @@ export default function App() {
   const {
     activeTab, setActiveTab,
     sharedAnalyticsRecords, shareDecodeError, clearSharedRecords,
-    dealSessionId, dealHostToken,
+    dealSessionId,
     initialScriptSlug, sharedScript, sharedScriptError, clearSharedScript,
     scriptLinkPending,
   } = useShareParam()
@@ -677,45 +674,6 @@ export default function App() {
   const fontSettings = useFontSettings()
   const theme = useTheme()
   const isMobileView = useMediaQuery(theme.breakpoints.down('sm'))
-
-  // ── Deal page full-screen takeover ────────────────────────────────────────────
-  // Must be AFTER all hooks (React rules). When ?deal= is present, render deal
-  // UI and skip the normal app shell entirely.
-  if (dealSessionId) {
-    // Resolve host token: ?host= param takes priority, then localStorage
-    const resolvedHostToken = dealHostToken ?? (() => {
-      try { return localStorage.getItem(HOST_TOKEN_KEY(dealSessionId)) } catch { return null }
-    })()
-
-    if (resolvedHostToken) {
-      return (
-        <I18nProvider language={uiLanguage}>
-          <DealHostPage
-            sessionId={dealSessionId}
-            hostToken={resolvedHostToken}
-            language={uiLanguage}
-            onClose={() => {
-              // Strip ?deal= + ?host= and reload as normal app
-              const clean = new URL(window.location.href)
-              clean.searchParams.delete('deal')
-              clean.searchParams.delete('host')
-              window.history.replaceState({}, '', clean.toString())
-              window.location.reload()
-            }}
-          />
-        </I18nProvider>
-      )
-    }
-
-    return (
-      <I18nProvider language={uiLanguage}>
-        <DealGuestPage
-          sessionId={dealSessionId}
-          language={uiLanguage}
-        />
-      </I18nProvider>
-    )
-  }
 
   // On every tab switch: scroll to top first, then apply overflow lock for ST mobile.
   // Both in one effect so scroll runs before lock — prevents Safari from trapping

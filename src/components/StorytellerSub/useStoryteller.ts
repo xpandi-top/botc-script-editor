@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useI18n } from '../../hooks/useI18n'
 import { useAudioState } from '../../hooks/useAudioState'
 import { useUIState } from '../../hooks/useUIState'
@@ -7,12 +7,22 @@ import { useHistory } from '../../hooks/useHistory'
 import { buildGameActions } from '../../hooks/useGameActions'
 import { buildGameLifecycle } from '../../hooks/useGameLifecycle'
 import { loadInitialState } from './storage'
-import { makeEventId, STORAGE_KEY, RECORDS_CHANGED_EVENT, INITIAL_AUDIO_TRACKS, DEFAULT_ST_NAME_KEY } from './constants'
+import { buildVotingOrder, makeEventId, STORAGE_KEY, RECORDS_CHANGED_EVENT, INITIAL_AUDIO_TRACKS, DEFAULT_ST_NAME_KEY } from './constants'
 import { storageSync } from '../../lib/storage'
 import { livingNonTravelers, eligibleVoters, nominationThreshold, exileThreshold } from '../../utils/seats'
-import { computeYesCount, computeVotePassed } from '../../utils/votes'
+import { computeYesCount, computeVotePassed, filterNoVoteSeats, remoteResponsesToVoteMap, timeoutDealVoteResponse } from '../../utils/votes'
 import { buildAggregatedEntries, filterAndSortLog } from '../../utils/logFilter'
-import { ACTIVE_HOST_DEAL_KEY } from '../../lib/firebaseDeal'
+import {
+  ACTIVE_HOST_DEAL_KEY,
+  GAME_DEAL_KEY,
+  advanceDealVote,
+  closeDealVote,
+  createDealVoteSession,
+  subscribeActiveDealVote,
+  subscribeDealVoteResponses,
+  type DealVoteResponseRecord,
+  type DealVoteSession,
+} from '../../lib/firebaseDeal'
 import type { PickerMode, NewGameConfig, EndGameResult, LogFilterState, AggregatedLogEntry, DialogState, SkillOverlayState, StorytellerHelperProps, DayState, EventLogEntry, PersistedState } from './types'
 
 export function useStoryteller(props: StorytellerHelperProps) {
@@ -69,6 +79,11 @@ export function useStoryteller(props: StorytellerHelperProps) {
   const [showEndGameModal, setShowEndGameModal] = useState(false)
   const [logFilter, setLogFilter] = useState<LogFilterState>({ types: new Set(['vote', 'skill', 'event']), dayFilter: 'all', sortAsc: false, visibility: 'all' })
   const [currentRecordName, setCurrentRecordName] = useState<string | null>(null)
+  const [remoteDealVote, setRemoteDealVote] = useState<DealVoteSession | null>(null)
+  const [remoteDealVoteResponses, setRemoteDealVoteResponses] = useState<DealVoteResponseRecord[]>([])
+  const [remoteDealVoteError, setRemoteDealVoteError] = useState<string | null>(null)
+  const [remoteDealVoteStarting, setRemoteDealVoteStarting] = useState(false)
+  const advancingRemoteVoteRef = useRef<string | null>(null)
 
   // ── Sub-hooks ──
   const text = useI18n(language)
@@ -167,6 +182,14 @@ export function useStoryteller(props: StorytellerHelperProps) {
   const hasTimer = currentDay.phase !== 'night'
   const NIGHT_BGM_SRC = INITIAL_AUDIO_TRACKS.find((t) => t.name === 'Measured Pulse of the Tower')?.src ?? INITIAL_AUDIO_TRACKS[0].src
 
+  const linkedDealSession = useMemo(() => {
+    try {
+      const raw = localStorage.getItem(GAME_DEAL_KEY(gameId))
+      if (raw) return JSON.parse(raw) as { sessionId: string; hostToken: string }
+    } catch {}
+    return null
+  }, [gameId, activeDealSession, lastDealSession])
+
   // ── Aggregated log ──
   const aggregatedLog = useMemo((): AggregatedLogEntry[] => {
     return filterAndSortLog(buildAggregatedEntries(days, language), logFilter)
@@ -210,6 +233,84 @@ export function useStoryteller(props: StorytellerHelperProps) {
   useEffect(() => {
     if (currentDay.phase === 'nomination' && currentDay.nominationStep === 'waitingForNomination' && !currentDay.voteDraft.actor) setPickerMode('nominator')
   }, [currentDay.phase, currentDay.nominationStep, currentDay.voteDraft.actor])
+
+  useEffect(() => {
+    if (!linkedDealSession) {
+      setRemoteDealVote(null)
+      setRemoteDealVoteResponses([])
+      return
+    }
+    return subscribeActiveDealVote(linkedDealSession.sessionId, setRemoteDealVote)
+  }, [linkedDealSession?.sessionId])
+
+  useEffect(() => {
+    if (!linkedDealSession || !remoteDealVote) {
+      setRemoteDealVoteResponses([])
+      return
+    }
+    return subscribeDealVoteResponses(linkedDealSession.sessionId, remoteDealVote.voteId, setRemoteDealVoteResponses)
+  }, [linkedDealSession?.sessionId, remoteDealVote?.voteId])
+
+  useEffect(() => {
+    if (!remoteDealVote) return
+    const remoteVotes = remoteResponsesToVoteMap(remoteDealVoteResponses)
+    const allResponded = remoteDealVote.votingOrder.length > 0 && remoteDealVote.votingOrder.every((seat) => remoteVotes[seat] !== undefined)
+    updateCurrentDay((d) => {
+      if (d.id !== remoteDealVote.dayId) return d
+      const mergedVotes = { ...(d.votingState?.votes ?? {}), ...remoteVotes }
+      const yesVoters = Object.entries(mergedVotes).filter(([, v]) => v).map(([k]) => Number(k))
+      return {
+        ...d,
+        nominationStep: allResponded ? 'votingDone' : 'voting',
+        voteDraft: { ...d.voteDraft, voters: yesVoters },
+        votingState: {
+          votingOrder: remoteDealVote.votingOrder,
+          votingIndex: allResponded ? remoteDealVote.votingOrder.length : remoteDealVote.currentIndex,
+          perPlayerSeconds: allResponded ? 0 : Math.max(0, Math.ceil((remoteDealVote.deadlineAt.toMillis() - Date.now()) / 1000)),
+          votes: mergedVotes,
+        },
+      }
+    })
+  }, [remoteDealVote?.voteId, remoteDealVote?.currentIndex, remoteDealVoteResponses])
+
+  useEffect(() => {
+    if (!linkedDealSession || !remoteDealVote || remoteDealVote.status !== 'active') return
+    const currentSeat = remoteDealVote.votingOrder[remoteDealVote.currentIndex]
+    if (currentSeat == null) return
+    const response = remoteDealVoteResponses.find((r) => r.seat === currentSeat)
+    if (!response) return
+    const key = `${remoteDealVote.voteId}:${remoteDealVote.currentIndex}:response`
+    if (advancingRemoteVoteRef.current === key) return
+    advancingRemoteVoteRef.current = key
+    advanceDealVote(linkedDealSession.sessionId, remoteDealVote)
+      .catch((e: unknown) => setRemoteDealVoteError(e instanceof Error ? e.message : String(e)))
+      .finally(() => {
+        window.setTimeout(() => {
+          if (advancingRemoteVoteRef.current === key) advancingRemoteVoteRef.current = null
+        }, 250)
+      })
+  }, [linkedDealSession?.sessionId, remoteDealVote, remoteDealVoteResponses])
+
+  useEffect(() => {
+    if (!linkedDealSession || !remoteDealVote || remoteDealVote.status !== 'active') return
+    const timer = window.setInterval(() => {
+      const currentSeat = remoteDealVote.votingOrder[remoteDealVote.currentIndex]
+      if (currentSeat == null) return
+      if (remoteDealVoteResponses.some((r) => r.seat === currentSeat)) return
+      if (remoteDealVote.deadlineAt.toMillis() > Date.now()) return
+      const key = `${remoteDealVote.voteId}:${remoteDealVote.currentIndex}:timeout`
+      if (advancingRemoteVoteRef.current === key) return
+      advancingRemoteVoteRef.current = key
+      advanceDealVote(linkedDealSession.sessionId, remoteDealVote, { seat: currentSeat, response: timeoutDealVoteResponse() })
+        .catch((e: unknown) => setRemoteDealVoteError(e instanceof Error ? e.message : String(e)))
+        .finally(() => {
+          window.setTimeout(() => {
+            if (advancingRemoteVoteRef.current === key) advancingRemoteVoteRef.current = null
+          }, 250)
+        })
+    }, 250)
+    return () => window.clearInterval(timer)
+  }, [linkedDealSession?.sessionId, remoteDealVote, remoteDealVoteResponses])
 
   // Apply BGM volume whenever it changes
   useEffect(() => { audio.applyVolume(ui.bgmVolume) }, [ui.bgmVolume])
@@ -312,6 +413,48 @@ export function useStoryteller(props: StorytellerHelperProps) {
     }))
   }
 
+  async function startRemoteDealVote() {
+    if (!linkedDealSession || !currentDay.voteDraft.actor || currentDay.voteDraft.target == null) return
+    setRemoteDealVoteStarting(true)
+    setRemoteDealVoteError(null)
+    try {
+      if (remoteDealVote) await closeDealVote(linkedDealSession.sessionId, remoteDealVote.voteId, 'cancelled')
+      const noVoteSeats = currentDay.seats.filter((s) => s.hasNoVote).map((s) => s.seat)
+      const votingOrder = filterNoVoteSeats(buildVotingOrder(currentDay.seats, currentDay.voteDraft.target), noVoteSeats)
+      const seatLabels = Object.fromEntries(currentDay.seats.map((s) => [
+        String(s.seat),
+        s.name ? `#${s.seat} ${s.name}` : `#${s.seat}`,
+      ]))
+      const vote = await createDealVoteSession(linkedDealSession.sessionId, {
+        actorSeat: currentDay.voteDraft.actor,
+        targetSeat: currentDay.voteDraft.target,
+        requiredVotes: effectiveRequiredVotes,
+        votingOrder,
+        noVoteSeats,
+        seatLabels,
+        perPlayerSeconds: 5,
+        gameId,
+        dayId: currentDay.id,
+      })
+      updateCurrentDay((d) => ({
+        ...d,
+        nominationStep: 'voting',
+        votingState: {
+          votingOrder: vote.votingOrder,
+          votingIndex: vote.currentIndex,
+          perPlayerSeconds: vote.perPlayerSeconds,
+          votes: {},
+        },
+      }))
+      setPickerMode('none')
+      setIsTimerRunning(false)
+    } catch (e: unknown) {
+      setRemoteDealVoteError(e instanceof Error ? e.message : String(e))
+    } finally {
+      setRemoteDealVoteStarting(false)
+    }
+  }
+
   // ── Return (identical shape as before) ──
   return {
     activeScriptSlug, activeScriptTitle, activeScriptVersion, language, onLanguageChange, onSelectScript, scriptOptions, onSwitchTab,
@@ -327,6 +470,7 @@ export function useStoryteller(props: StorytellerHelperProps) {
     ...audio,
     newGamePanel, setNewGamePanel, showNewGamePanel, setShowNewGamePanel,
     activeDealSession, setActiveDealSession, lastDealSession, setLastDealSession,
+    linkedDealSession, remoteDealVote, remoteDealVoteResponses, remoteDealVoteError, remoteDealVoteStarting, startRemoteDealVote,
     showSaveBeforeNewGame, setShowSaveBeforeNewGame,
     pendingNewGameAfterSave, setPendingNewGameAfterSave,
     endGameResult, setEndGameResult, showEndGameModal, setShowEndGameModal,

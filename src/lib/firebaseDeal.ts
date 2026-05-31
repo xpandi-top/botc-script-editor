@@ -41,6 +41,16 @@
  *
  *       allow delete: if false;
  *     }
+ *
+ *     match /votes/{voteId} {
+ *       // Experimental linked voting. Vote docs may include optional
+ *       // seatLabels map for low-latency player display.
+ *       allow read, create, update: if true;
+ *
+ *       match /responses/{seat} {
+ *         allow read, create, update: if true; // app-layer guest token checks
+ *       }
+ *     }
  *   }
  * ─────────────────────────────────────────────────────────────────────
  * ST assignment writes (seat/name) are guarded at the app layer via
@@ -54,6 +64,7 @@ import {
   doc,
   getDoc,
   updateDoc,
+  setDoc,
   writeBatch,
   collection,
   onSnapshot,
@@ -88,6 +99,33 @@ export type DealCard = {
   assignedName?: string | null
 }
 
+export type DealVoteStatus = 'active' | 'closed' | 'cancelled'
+export type DealVoteResponse = 'agree' | 'disagree'
+
+export type DealVoteSession = {
+  voteId: string
+  actorSeat: number
+  targetSeat: number
+  requiredVotes: number
+  votingOrder: number[]
+  currentIndex: number
+  perPlayerSeconds: number
+  noVoteSeats: number[]
+  seatLabels?: Record<string, string>
+  status: DealVoteStatus
+  startedAt: Timestamp
+  deadlineAt: Timestamp
+  gameId?: string | null
+  dayId?: string | null
+}
+
+export type DealVoteResponseRecord = {
+  seat: number
+  response: DealVoteResponse
+  guestToken?: string | null
+  submittedAt?: Timestamp | null
+}
+
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 const COLLECTION = 'dealSessions'
@@ -106,6 +144,11 @@ export const GAME_DEAL_KEY = (gameId: string) => `botc-deal-game-${gameId}`
 
 // sessionStorage key for the guest's browser token
 export const GUEST_TOKEN_KEY = 'botc-deal-guest-token'
+
+// localStorage key marking that this browser/device has already seen its dealt
+// character for a session. The guest link can then be reused for votes/tools
+// without becoming a persistent character lookup page.
+export const CHARACTER_SEEN_KEY = (id: string) => `botc-deal-character-seen-${id}`
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -129,6 +172,22 @@ function cardRef(sessionId: string, position: number) {
   return doc(db(), COLLECTION, sessionId, 'cards', String(position))
 }
 
+function votesRef(sessionId: string) {
+  return collection(db(), COLLECTION, sessionId, 'votes')
+}
+
+function voteRef(sessionId: string, voteId: string) {
+  return doc(db(), COLLECTION, sessionId, 'votes', voteId)
+}
+
+function responsesRef(sessionId: string, voteId: string) {
+  return collection(db(), COLLECTION, sessionId, 'votes', voteId, 'responses')
+}
+
+function responseRef(sessionId: string, voteId: string, seat: number) {
+  return doc(db(), COLLECTION, sessionId, 'votes', voteId, 'responses', String(seat))
+}
+
 /** Get or create the guest's browser token (persisted in sessionStorage). */
 export function getGuestToken(): string {
   try {
@@ -139,6 +198,23 @@ export function getGuestToken(): string {
     return fresh
   } catch {
     return randomId(24)
+  }
+}
+
+export function hasSeenDealCharacter(sessionId: string): boolean {
+  try {
+    return localStorage.getItem(CHARACTER_SEEN_KEY(sessionId)) === '1'
+  } catch {
+    return false
+  }
+}
+
+export function markDealCharacterSeen(sessionId: string): void {
+  try {
+    localStorage.setItem(CHARACTER_SEEN_KEY(sessionId), '1')
+  } catch {
+    // Privacy marker is best-effort; if storage is unavailable the restored
+    // claim path still hides the character.
   }
 }
 
@@ -244,6 +320,128 @@ export function subscribeCards(
       .sort((a, b) => a.position - b.position)
     onChange(cards)
   })
+}
+
+// ── Experimental linked vote sessions ────────────────────────────────────────
+
+export async function createDealVoteSession(
+  sessionId: string,
+  input: {
+    actorSeat: number
+    targetSeat: number
+    requiredVotes: number
+    votingOrder: number[]
+    noVoteSeats?: number[]
+    seatLabels?: Record<string, string>
+    perPlayerSeconds?: number
+    gameId?: string | null
+    dayId?: string | null
+  },
+): Promise<DealVoteSession> {
+  const voteDoc = doc(votesRef(sessionId))
+  const voteId = voteDoc.id
+  const perPlayerSeconds = input.perPlayerSeconds ?? 5
+  const now = Timestamp.now()
+  const deadlineAt = Timestamp.fromMillis(now.toMillis() + perPlayerSeconds * 1000)
+  const payload: DealVoteSession = {
+    voteId,
+    actorSeat: input.actorSeat,
+    targetSeat: input.targetSeat,
+    requiredVotes: input.requiredVotes,
+    votingOrder: input.votingOrder,
+    currentIndex: 0,
+    perPlayerSeconds,
+    noVoteSeats: input.noVoteSeats ?? [],
+    seatLabels: input.seatLabels ?? {},
+    status: 'active',
+    startedAt: now,
+    deadlineAt,
+    gameId: input.gameId ?? null,
+    dayId: input.dayId ?? null,
+  }
+  await setDoc(voteDoc, payload)
+  return payload
+}
+
+export function subscribeActiveDealVote(
+  sessionId: string,
+  onChange: (vote: DealVoteSession | null) => void,
+): Unsubscribe {
+  // Filter client-side to avoid requiring a composite Firestore index for this
+  // experimental layer. Vote documents are tiny and short-lived per deal session.
+  return onSnapshot(votesRef(sessionId), (snap) => {
+    const active = snap.docs
+      .map(d => d.data() as DealVoteSession)
+      .filter(v => v.status === 'active')
+      .sort((a, b) => b.startedAt.toMillis() - a.startedAt.toMillis())[0] ?? null
+    onChange(active)
+  })
+}
+
+export function subscribeDealVoteResponses(
+  sessionId: string,
+  voteId: string,
+  onChange: (responses: DealVoteResponseRecord[]) => void,
+): Unsubscribe {
+  return onSnapshot(responsesRef(sessionId, voteId), (snap) => {
+    onChange(snap.docs
+      .map(d => d.data() as DealVoteResponseRecord)
+      .sort((a, b) => a.seat - b.seat)
+    )
+  })
+}
+
+export async function submitDealVoteResponse(
+  sessionId: string,
+  voteId: string,
+  seat: number,
+  guestToken: string,
+  response: DealVoteResponse,
+): Promise<void> {
+  await setDoc(responseRef(sessionId, voteId, seat), {
+    seat,
+    response,
+    guestToken,
+    submittedAt: serverTimestamp(),
+  })
+}
+
+export async function advanceDealVote(
+  sessionId: string,
+  vote: DealVoteSession,
+  fallbackResponse?: { seat: number; response: DealVoteResponse },
+): Promise<void> {
+  const batch = writeBatch(db())
+  if (fallbackResponse) {
+    batch.set(responseRef(sessionId, vote.voteId, fallbackResponse.seat), {
+      seat: fallbackResponse.seat,
+      response: fallbackResponse.response,
+      guestToken: null,
+      submittedAt: serverTimestamp(),
+    }, { merge: true })
+  }
+  const nextIndex = vote.currentIndex + 1
+  if (nextIndex >= vote.votingOrder.length) {
+    batch.update(voteRef(sessionId, vote.voteId), {
+      currentIndex: nextIndex,
+      status: 'closed',
+      deadlineAt: Timestamp.now(),
+    })
+  } else {
+    batch.update(voteRef(sessionId, vote.voteId), {
+      currentIndex: nextIndex,
+      deadlineAt: Timestamp.fromMillis(Date.now() + vote.perPlayerSeconds * 1000),
+    })
+  }
+  await batch.commit()
+}
+
+export async function closeDealVote(
+  sessionId: string,
+  voteId: string,
+  status: DealVoteStatus = 'closed',
+): Promise<void> {
+  await updateDoc(voteRef(sessionId, voteId), { status, deadlineAt: Timestamp.now() })
 }
 
 // ── Guest actions ─────────────────────────────────────────────────────────────

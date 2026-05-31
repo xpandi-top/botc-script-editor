@@ -17,6 +17,9 @@ import {
   HOST_TOKEN_KEY,
   GUEST_TOKEN_KEY,
   ACTIVE_HOST_DEAL_KEY,
+  CHARACTER_SEEN_KEY,
+  hasSeenDealCharacter,
+  markDealCharacterSeen,
   type DealCard,
 } from '../lib/firebaseDeal'
 
@@ -81,6 +84,12 @@ describe('deal localStorage/sessionStorage key constants', () => {
     expect(typeof ACTIVE_HOST_DEAL_KEY).toBe('string')
     expect(ACTIVE_HOST_DEAL_KEY.length).toBeGreaterThan(0)
   })
+
+  it('CHARACTER_SEEN_KEY includes sessionId', () => {
+    const key = CHARACTER_SEEN_KEY('abc123')
+    expect(key).toContain('abc123')
+    expect(key).toMatch(/botc-deal-character-seen/)
+  })
 })
 
 // ── getGuestToken ─────────────────────────────────────────────────────────────
@@ -113,6 +122,30 @@ describe('getGuestToken', () => {
     const t2 = getGuestToken()
     // Extremely unlikely to collide (24-char random ID)
     expect(t1).not.toBe(t2)
+  })
+})
+
+// ── one-time character reveal marker ─────────────────────────────────────────
+
+describe('deal character seen marker', () => {
+  beforeEach(() => {
+    localStorage.clear()
+  })
+
+  it('is false before character is marked seen', () => {
+    expect(hasSeenDealCharacter('session123')).toBe(false)
+  })
+
+  it('persists seen marker to localStorage', () => {
+    markDealCharacterSeen('session123')
+    expect(hasSeenDealCharacter('session123')).toBe(true)
+    expect(localStorage.getItem(CHARACTER_SEEN_KEY('session123'))).toBe('1')
+  })
+
+  it('is scoped per deal session', () => {
+    markDealCharacterSeen('session-a')
+    expect(hasSeenDealCharacter('session-a')).toBe(true)
+    expect(hasSeenDealCharacter('session-b')).toBe(false)
   })
 })
 
