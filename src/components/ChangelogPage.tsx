@@ -1,9 +1,13 @@
-import { Box, Divider, IconButton, Paper, Typography } from '@mui/material'
+import { useMemo, useState } from 'react'
+import { Box, Collapse, Divider, IconButton, Paper, Typography } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 // @ts-ignore — Vite ?raw import
 import raw from '../../docs/CHANGELOG.md?raw'
 import { useT } from '../context/I18nContext'
+import { parseChangelog, type ChangelogRelease } from '../lib/changelog'
 
 interface Props {
   onClose: () => void
@@ -22,8 +26,7 @@ function renderInline(text: string) {
   )
 }
 
-function ChangelogContent() {
-  const lines = (raw as string).split('\n')
+function MarkdownLines({ lines }: { lines: string[] }) {
   const elements: React.ReactNode[] = []
   let key = 0
   let inList = false
@@ -44,26 +47,6 @@ function ChangelogContent() {
       elements.push(
         <Typography key={key++} variant="h5" sx={{ fontWeight: 800, mb: 0.5, mt: 0 }}>
           {line.slice(2)}
-        </Typography>
-      )
-      continue
-    }
-
-    // H2 — date entry
-    if (line.startsWith('## ')) {
-      inList = false
-      const label = line.slice(3)
-      const isLatest = /latest/i.test(label)
-      elements.push(
-        <Typography key={key++} variant="h6"
-          sx={{ fontWeight: 700, mt: 2.5, mb: 0.5, color: isLatest ? 'primary.main' : 'text.primary', display: 'flex', alignItems: 'center', gap: 1 }}
-        >
-          {label}
-          {isLatest && (
-            <Box component="span" sx={{ fontSize: '0.65rem', fontWeight: 700, px: 0.75, py: '1px', borderRadius: 1, bgcolor: 'primary.main', color: 'primary.contrastText', verticalAlign: 'middle' }}>
-              LATEST
-            </Box>
-          )}
         </Typography>
       )
       continue
@@ -119,10 +102,83 @@ function ChangelogContent() {
   return <>{elements}</>
 }
 
+function ReleasePanel({
+  release,
+  expanded,
+  onToggle,
+}: {
+  release: ChangelogRelease
+  expanded: boolean
+  onToggle: () => void
+}) {
+  const { t } = useT()
+  return (
+    <Paper
+      component="section"
+      variant="outlined"
+      sx={{ mb: 1, overflow: 'hidden', borderColor: expanded ? 'primary.light' : 'divider' }}
+    >
+      <Box
+        component="button"
+        type="button"
+        onClick={onToggle}
+        aria-expanded={expanded}
+        sx={{
+          width: '100%',
+          border: 0,
+          bgcolor: expanded ? 'rgba(133,63,34,0.06)' : 'background.paper',
+          color: 'text.primary',
+          px: { xs: 1.25, sm: 1.5 },
+          py: 1.15,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1,
+          textAlign: 'left',
+          cursor: 'pointer',
+          '&:hover': { bgcolor: 'action.hover' },
+        }}
+      >
+        {expanded ? <ExpandMoreIcon fontSize="small" /> : <ChevronRightIcon fontSize="small" />}
+        <Box sx={{ minWidth: 0, flex: 1 }}>
+          <Typography variant="subtitle2" sx={{ fontWeight: 800, lineHeight: 1.25 }}>
+            {release.date ?? release.label}
+          </Typography>
+          {release.title !== release.date && (
+            <Typography variant="caption" sx={{ display: 'block', color: 'text.secondary', lineHeight: 1.25 }}>
+              {release.title}
+            </Typography>
+          )}
+        </Box>
+        {release.isLatest && (
+          <Box component="span" sx={{ fontSize: '0.65rem', fontWeight: 800, px: 0.75, py: '2px', borderRadius: 1, bgcolor: 'primary.main', color: 'primary.contrastText', flexShrink: 0 }}>
+            {t('latest_release')}
+          </Box>
+        )}
+      </Box>
+      <Collapse in={expanded} timeout="auto" unmountOnExit>
+        <Box component="ul" sx={{ p: 0, m: 0, listStyle: 'none', px: { xs: 1.5, sm: 2 }, py: 1.5 }}>
+          <MarkdownLines lines={release.lines} />
+        </Box>
+      </Collapse>
+    </Paper>
+  )
+}
+
 // ── Page component ────────────────────────────────────────────────────────────
 
 export function ChangelogPage({ onClose }: Props) {
   const { t } = useT()
+  const parsed = useMemo(() => parseChangelog(raw as string), [])
+  const [expanded, setExpanded] = useState<Set<string>>(() => new Set(parsed.releases[0] ? [parsed.releases[0].id] : []))
+  const toggleRelease = (id: string) => {
+    setExpanded((current) => {
+      const next = new Set(current)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
   return (
     <Box sx={{
       position: 'fixed', inset: 0, zIndex: 1400,
@@ -145,9 +201,22 @@ export function ChangelogPage({ onClose }: Props) {
 
       {/* Scrollable content */}
       <Box sx={{ flex: 1, overflowY: 'auto', px: { xs: 2, sm: 4 }, py: 3, maxWidth: 720, mx: 'auto', width: '100%' }}>
-        <Box component="ul" sx={{ p: 0, m: 0, listStyle: 'none' }}>
-          <ChangelogContent />
+        {parsed.title && (
+          <Typography variant="h5" sx={{ fontWeight: 800, mb: 0.5, mt: 0 }}>
+            {parsed.title}
+          </Typography>
+        )}
+        <Box component="ul" sx={{ p: 0, m: 0, listStyle: 'none', mb: 2 }}>
+          <MarkdownLines lines={parsed.introLines} />
         </Box>
+        {parsed.releases.map((release) => (
+          <ReleasePanel
+            key={release.id}
+            release={release}
+            expanded={expanded.has(release.id)}
+            onToggle={() => toggleRelease(release.id)}
+          />
+        ))}
       </Box>
     </Box>
   )

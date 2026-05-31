@@ -40,6 +40,8 @@ import SyncProblemIcon from '@mui/icons-material/SyncProblem'
 import HistoryIcon from '@mui/icons-material/History'
 import SchoolIcon from '@mui/icons-material/School'
 import { ChangelogPage } from './components/ChangelogPage'
+// @ts-ignore — Vite ?raw import
+import changelogRaw from '../docs/CHANGELOG.md?raw'
 import { TutorialOverlay } from './components/Tutorial/TutorialOverlay'
 import { AiChatDialog, type AiChatCallbacks } from './components/AiChatDialog'
 import type { AiContext } from './lib/ai'
@@ -106,8 +108,10 @@ import { useThemeMode } from './context/ThemeMode'
 import { I18nProvider } from './context/I18nContext'
 import { makeT, makeTpl } from './lib/t'
 import { ErrorBoundary } from './components/ErrorBoundary'
+import { CHANGELOG_SEEN_KEY, getLatestChangelogReleaseId } from './lib/changelog'
 
 const UI_LANGUAGE_KEY = 'botc-ui-language'
+const LATEST_CHANGELOG_RELEASE_ID = getLatestChangelogReleaseId(changelogRaw as string)
 
 // ── Cloud sync header badge ────────────────────────────────────────────────────
 
@@ -207,6 +211,18 @@ export default function App() {
 
   const [showChangelog, setShowChangelog] = useState(false)
   const [showTutorial, setShowTutorial] = useState(() => !localStorage.getItem(TUTORIAL_KEY))
+  const [seenChangelogReleaseId, setSeenChangelogReleaseId] = useState<string | null>(() => {
+    try { return localStorage.getItem(CHANGELOG_SEEN_KEY) } catch { return null }
+  })
+  const hasUnreadChangelog = Boolean(LATEST_CHANGELOG_RELEASE_ID && seenChangelogReleaseId !== LATEST_CHANGELOG_RELEASE_ID)
+
+  const openChangelog = () => {
+    if (LATEST_CHANGELOG_RELEASE_ID) {
+      try { localStorage.setItem(CHANGELOG_SEEN_KEY, LATEST_CHANGELOG_RELEASE_ID) } catch {}
+      setSeenChangelogReleaseId(LATEST_CHANGELOG_RELEASE_ID)
+    }
+    setShowChangelog(true)
+  }
 
   // Keep heavy tabs mounted once visited — avoids re-initialization cost on switch
   const [mountedTabs, setMountedTabs] = useState<Set<string>>(() => new Set([activeTab]))
@@ -738,6 +754,32 @@ export default function App() {
               >
                 {uiText.appTitle}
               </Typography>
+              {hasUnreadChangelog && (
+                <Box
+                  component="button"
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); openChangelog() }}
+                  aria-label={t('view_changelog')}
+                  sx={{
+                    border: 0,
+                    borderRadius: 1,
+                    bgcolor: 'warning.main',
+                    color: 'warning.contrastText',
+                    cursor: 'pointer',
+                    fontSize: { xs: '0.62rem', sm: '0.68rem' },
+                    fontWeight: 900,
+                    lineHeight: 1,
+                    px: 0.7,
+                    py: 0.45,
+                    textTransform: 'uppercase',
+                    flexShrink: 0,
+                    boxShadow: '0 1px 4px rgba(0,0,0,0.18)',
+                    '&:hover': { bgcolor: 'warning.dark' },
+                  }}
+                >
+                  {t('new')}
+                </Box>
+              )}
             </Box>
 
           {/* Tabs — desktop */}
@@ -800,7 +842,7 @@ export default function App() {
             <Typography variant="caption" sx={{ color: 'text.secondary', fontStyle: 'italic' }}>{disclaimerText}</Typography>
             <Box
               component="button"
-              onClick={() => setShowChangelog(true)}
+              onClick={openChangelog}
               sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.4, color: 'text.secondary', background: 'none', border: 'none', p: 0, cursor: 'pointer', textDecoration: 'underline', textDecorationColor: 'transparent', '&:hover': { textDecorationColor: 'inherit', color: 'text.primary' }, flexShrink: 0 }}
             >
               <HistoryIcon sx={{ fontSize: '0.9rem' }} />

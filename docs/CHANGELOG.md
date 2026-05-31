@@ -4,7 +4,18 @@ Release timeline for BOTC Companion — features, fixes, and improvements.
 
 ---
 
-## 2026-05-28 — Communication Board + Rectangle Token (latest)
+## 2026-05-30 — Latest Feature Notifications (latest)
+
+### Added
+- **Latest feature notification** — the app header now shows a compact `New` badge when the bundled changelog has an unread latest release; opening the changelog marks it as seen on that browser.
+- **Dated changelog sections** — changelog releases are grouped into collapsible date/title panels, with the latest release expanded by default.
+
+### Tests
+- Added parser and UI coverage for latest-release detection, unread badge behavior, and expandable changelog dates.
+
+---
+
+## 2026-05-28 — Communication Board + Rectangle Token
 
 ### Added
 - **Communication Board** — new fullscreen dialog accessible from the day-navigation controls (← Day N → 💬); designed for silent ST-to-player communication during night phases
