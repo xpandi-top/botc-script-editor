@@ -19,7 +19,9 @@ npm run test:watch      # watch mode
 npm run test:coverage   # coverage report
 ```
 
-See [`docs/TESTING-AUTO.md`](docs/TESTING-AUTO.md) for test architecture and status.
+See [`docs/TESTING-AUTO.md`](docs/TESTING-AUTO.md) for the automated test architecture, and [`docs/TESTING.md`](docs/TESTING.md) / [`docs/TEST-PLAN.md`](docs/TEST-PLAN.md) for the manual passes.
+
+`npm run verify` is the full pre-push gate (i18n strict check + unit tests + production build + bundle budget); add `-- --e2e` for the Playwright smoke tests.
 
 ## Architecture
 
