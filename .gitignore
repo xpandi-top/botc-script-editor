@@ -23,3 +23,6 @@ build-resources/
 test-results/
 playwright-report/
 .playwright/
+
+# Odyssey wiki verification workspace (scripts/odyssey/verify.py)
+.odyssey-verify/

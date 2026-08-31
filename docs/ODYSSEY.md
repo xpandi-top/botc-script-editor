@@ -147,3 +147,8 @@ team/edition 合法、图标存在、`current_revision` 有效、提示标记是
 3. 正文是 lake HTML，图片在 `<card name="image" value="data:{URI编码JSON}">` 里，`src` 就是图标地址。
 4. 能力有变化时**新增 revision**（`v2026-xx`），不要覆盖 `v1` —— 项目的
    `scripts/validate-revisions.mjs` 会强制 `ability === revisions[current_revision]`。
+5. 同步后跑 `python3 scripts/odyssey/verify.py` 校验能力文本（用独立于导入管线的解析路径），
+   再跑 `npm test`。`content_updated_at` 字段可以直接看出哪些页面变过。
+
+已同步的上游改动：
+- **2026-08-31 骚客 Versifier** —「首次有玩家吟诵」→「首次有存活玩家吟诵」，记为 `v2026-08`。

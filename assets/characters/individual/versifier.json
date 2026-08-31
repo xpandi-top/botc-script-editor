@@ -2,12 +2,16 @@
   "id": "versifier",
   "team": "minion",
   "edition": "odyssey",
-  "current_revision": "v1",
+  "current_revision": "v2026-08",
   "setup": false,
   "revisions": [
     {
       "id": "v1",
       "note": ""
+    },
+    {
+      "id": "v2026-08",
+      "note": "Only a living player reciting the verse triggers the execution."
     }
   ],
   "en": {
@@ -15,9 +19,10 @@
   },
   "zh": {
     "name": "骚客",
-    "ability": "每个夜晚，你会得知一个字（均出自同一句诗词）。首次有玩家吟诵这句诗词时，他立即被处决，即使你已死亡。",
+    "ability": "每个夜晚，你会得知一个字（均出自同一句诗词）。首次有存活玩家吟诵这句诗词时，他立即被处决，即使你已死亡。",
     "revisions": {
-      "v1": "每个夜晚，你会得知一个字（均出自同一句诗词）。首次有玩家吟诵这句诗词时，他立即被处决，即使你已死亡。"
+      "v1": "每个夜晚，你会得知一个字（均出自同一句诗词）。首次有玩家吟诵这句诗词时，他立即被处决，即使你已死亡。",
+      "v2026-08": "每个夜晚，你会得知一个字（均出自同一句诗词）。首次有存活玩家吟诵这句诗词时，他立即被处决，即使你已死亡。"
     },
     "firstNightReminder": "唤醒他并向他出示一个字。",
     "otherNightReminder": "唤醒他并向他出示一个字。",
