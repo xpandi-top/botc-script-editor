@@ -16,7 +16,8 @@
 | 相克规则 | `assets/jinxes.json` + `assets/locales/{en,zh}.jinxes.json` | 6 |
 | 剧本 | `assets/scripts/odyssey.json`（全角色包） | 1 |
 | 版本名 | `assets/locales/{en,zh}.json`、`src/catalog.ts`、`src/lib/t.ts` | `odyssey` |
-| 完整百科原文 | `assets/almanac/odyssey.zh.json`（**未打包进前端**） | 119 + 10 术语 |
+| 完整百科原文 | `assets/almanac/odyssey.zh.json`（懒加载，独立 chunk） | 119 + 10 术语 |
+| 授权署名 | `assets/editions.json` + 打印表页脚 + 角色详情面板 | 1 |
 
 角色分布：镇民 51、外来者 21、爪牙 24、恶魔 18、传奇 3（`fabled`）、奇遇 2（`loric`）。
 
@@ -104,6 +105,18 @@
    → 先补齐这两个角色，再加相克。
 3. **中文重名**：奥德赛 `onmyoji`（阴阳师）与华灯初上 `yinyangshi`（阴阳师）显示名相同。
    id 不冲突，但同时出现在一个剧本里会看不出区别。建议在显示名后加版本后缀，或改其中一个译名。
+
+### ~~授权署名~~ ✅ 已解决
+
+`assets/editions.json` 存各角色包的署名信息，`getRequiredAttributions(characterIds)`
+按剧本里实际用到的角色返回需要署名的包。
+剧本打印表（屏幕预览 + PDF 导出同一组件）底部渲染
+`角色来自《奥德赛 Odyssey》· yuque.com/u48069482/taiyi · 太一`；
+角色详情面板显示角色包、作者、来源链接和使用条款。
+**没有开关** —— 署名是使用条件，不是可选项；剧本不含奥德赛角色时一个字都不渲染。
+
+图标要求（「使用奥德赛角色底纹」）本来就满足：我们直接用的是原作者的图，只做了尺寸压缩，
+没有改画面内容。
 
 ### P2 — 数据不变量检查 ✅ 已加
 

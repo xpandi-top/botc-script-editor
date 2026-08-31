@@ -1224,6 +1224,10 @@
     "almanac_bluffing": "伪装成该角色",
     "almanac_flavor": "背景故事",
     "almanac_source": "原文页面",
-    "no_almanac_for_this_character": "该角色暂无魔典内容。"
+    "no_almanac_for_this_character": "该角色暂无魔典内容。",
+    "attribution_line": "角色来自{0} · {1}",
+    "attribution_line_no_source": "角色来自{0}",
+    "pack_source": "角色包",
+    "pack_terms": "使用条款"
   }
 }

@@ -131,6 +131,31 @@ describe('jinxes', () => {
   })
 })
 
+describe('edition credits', () => {
+  const credits = readJson<Record<string, {
+    id: string; name_en?: string; name_zh?: string; source?: string; requiresAttribution?: boolean
+  }>>(path.join(root, 'assets', 'editions.json'))
+
+  it('key each entry by its own id', () => {
+    const mismatched = Object.entries(credits).filter(([key, credit]) => key !== credit.id).map(([key]) => key)
+    expect(mismatched).toEqual([])
+  })
+
+  it('describe an edition that characters actually use', () => {
+    const used = new Set(characterFiles.map(({ entry }) => entry.edition))
+    const orphaned = Object.keys(credits).filter((edition) => !used.has(edition))
+    expect(orphaned).toEqual([])
+  })
+
+  it('give every attribution-required pack a name in both languages and a source', () => {
+    const incomplete = Object.values(credits)
+      .filter((credit) => credit.requiresAttribution)
+      .filter((credit) => !credit.name_en || !credit.name_zh || !credit.source)
+      .map((credit) => credit.id)
+    expect(incomplete).toEqual([])
+  })
+})
+
 // ── Odyssey pack ─────────────────────────────────────────────────────────────
 // Chinese-only for now: names and abilities live in the `zh` block, English has
 // the name only. Re-syncing from the wiki must not regress these.

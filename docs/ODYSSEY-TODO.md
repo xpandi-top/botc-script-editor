@@ -21,7 +21,7 @@
       新组件 `CharacterAlmanacSection` 挂在角色详情面板底部，**展开时才拉数据**。
       构建产物里 `odyssey.zh` 是独立 chunk（652 KB），主包只增加约 0.5 KB。
       没有 almanac 的版本（官方角色）整个区块不渲染。
-- [x] **A7 · 数据不变量检查** — ✅ 已完成，`src/__tests__/characterPack.test.ts`（21 条）。
+- [x] **A7 · 数据不变量检查** — ✅ 已完成，`src/__tests__/characterPack.test.ts`（24 条）。
       比原计划的 setup 检查覆盖更广：文件名 = id、id 唯一、team/edition 合法、图标存在、
       `current_revision` 在 revisions 列表里、提示标记是非空字符串；
       夜晚顺序无未知 id / 无重复；相克规则的两个角色都存在且 id 格式匹配；
@@ -78,10 +78,17 @@
       同时进一个剧本就分不清。要么显示名加版本后缀，要么改一个译名 —— 命名决定，人来定。
 - [ ] **C7 · 两个手工定位的夜序** — `lady_of_the_lake`（前位：公爵夫人）、`chimera`（前位：玩具匠），
       这两个前位角色不在现有夜序表，是按夜序数值放的。**找作者确认一下**。
-- [ ] **C8 · 授权署名展示** — 使用条款要求标注「角色来自《奥德赛 Odyssey》」并使用其角色底纹。
-      现在只写在 `docs/ODYSSEY.md` 里，**应用界面/导出 PDF 里没有署名**。
-      要定：署名放哪、什么形式、导出时是否强制带上。
-      （`odyssey.zh.json` 顶层已存 `source` / `license` 字段，做的时候直接读。）
+- [x] **C8 · 授权署名展示** — ✅ 已完成。
+      新增 `assets/editions.json` 存各角色包的署名信息（名称/作者/来源/使用条款/`requiresAttribution`），
+      `catalog.ts` 提供 `getEditionCredit` / `getEditionCreditName` / `getEditionCreditAuthor` /
+      `getEditionTerms` / `getRequiredAttributions`。
+      - **剧本打印表**（`SheetArticle`，屏幕预览和 PDF 导出同一个组件）：
+        底部加一行小字署名，**由剧本里实际用到的角色决定**，不含奥德赛角色就完全不渲染。
+        中英分页模式下两页都带。
+      - **角色详情面板**：能力上方显示「角色包：《奥德赛 Odyssey》· 太一」+ 来源链接 + 使用条款（两行截断，hover 看全文）。
+      - **不提供开关** —— 署名是奥德赛的使用条件，不是可选项。
+      数据是按「角色包」抽象的，以后加别的需要署名的包只要往 `editions.json` 添一条。
+      测试：`src/__tests__/editionAttribution.test.tsx`（11 条）+ `characterPack.test.ts` 里 3 条数据不变量。
 - [ ] **C9 · 背景故事怎么用** — 119 段散文式背景故事已抓到 almanac，故意没写进 `flavor`
       （直接进会撑爆 PDF 排版）。魔典面板里已经能看到（`almanac_flavor`），
       要不要同时进角色卡/PDF 得先定截断规则。
@@ -93,7 +100,7 @@
 
 ## 建议顺序
 
-1. **C8**（授权署名，合规先做）
+1. ~~**C8**（授权署名，合规先做）~~ ✅ 已完成
 2. **B1**（英文翻译，用户可见缺口最大；A1 已经把管道铺好了）
 3. **B4**（术语速查页，`getAlmanacTerminology` 已就绪，只差界面）
 4. **C1**（投票标记，唯一会算错结果的）

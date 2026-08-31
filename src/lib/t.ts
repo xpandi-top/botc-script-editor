@@ -227,6 +227,7 @@ export type UiKey =
   | 'open_active_deal_dashboard' | 'optional_note' | 'override'
   | 'phase_switch_sound' | 'pick_by_character' | 'random' | 'remove_novote'
   | 'replay_this_script' | 'save_record' | 'saved'
+  | 'pack_source' | 'pack_terms'
   | 'almanac' | 'almanac_summary' | 'almanac_howto' | 'almanac_examples'
   | 'almanac_rules' | 'almanac_reminder_details' | 'almanac_tips'
   | 'almanac_bluffing' | 'almanac_flavor' | 'almanac_source'
@@ -394,6 +395,8 @@ export type TplKey =
   | 'communication_phrase_char_in_play' | 'communication_phrase_char_not_in_play'
   | 'communication_phrase_choose_n_players' | 'communication_phrase_choose_n_chars'
   | 'communication_phrase_you_are_char' | 'communication_phrase_char_is_char'
+  // Edition attribution
+  | 'attribution_line' | 'attribution_line_no_source'
 
 /**
  * Returns a `t(key)` function bound to the given language.

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Box, Button, Checkbox, Chip, DialogTitle, Divider, FormControlLabel, Grid, IconButton, Paper, TextField, Tooltip, Typography } from '@mui/material'
+import { Box, Button, Checkbox, Chip, DialogTitle, Divider, FormControlLabel, Grid, IconButton, Link, Paper, TextField, Tooltip, Typography } from '@mui/material'
 import { CompactButton, FieldLabel, ResponsiveDialog, ResponsiveDialogContent } from './ui'
 import AddIcon from '@mui/icons-material/Add'
 import CloseIcon from '@mui/icons-material/Close'
@@ -16,6 +16,10 @@ import {
   getCurrentRevision,
   getCustomChar,
   getDisplayName,
+  getEditionCredit,
+  getEditionCreditAuthor,
+  getEditionCreditName,
+  getEditionTerms,
   getIconForCharacter,
   getNextRevisionId,
   getRevisionNote,
@@ -289,6 +293,49 @@ export function CharacterRevisionPanel({
           )}
         </Box>
       )}
+
+      {/* ── Pack credit — shown when the pack's terms require attribution ── */}
+      {(() => {
+        const credit = getEditionCredit(character.edition)
+        if (!credit?.requiresAttribution) return null
+        const terms = getEditionTerms(credit, language)
+        const author = getEditionCreditAuthor(credit, language)
+        return (
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+              {t('pack_source')}
+            </Typography>
+            <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>
+              {getEditionCreditName(credit, language)}{author ? ` · ${author}` : ''}
+            </Typography>
+            {credit.source && (
+              <Link
+                href={credit.source}
+                target="_blank"
+                rel="noopener noreferrer"
+                variant="caption"
+                sx={{ display: 'block', mt: 0.25 }}
+              >
+                {credit.source.replace(/^https?:\/\//, '')}
+              </Link>
+            )}
+            {terms && (
+              <Tooltip title={terms}>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{
+                    display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden', mt: 0.5, opacity: 0.75, cursor: 'help',
+                  }}
+                >
+                  {t('pack_terms')}: {terms}
+                </Typography>
+              </Tooltip>
+            )}
+          </Box>
+        )
+      })()}
 
       {/* ── Current revision ── */}
       <Box sx={{ mb: 2 }}>

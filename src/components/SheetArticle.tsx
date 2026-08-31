@@ -19,6 +19,9 @@ import {
   getActiveJinxesForScript,
   getIconForCharacter,
   getEffectiveNightOrderFromRegistry,
+  getEditionCreditAuthor,
+  getEditionCreditName,
+  getRequiredAttributions,
   teamLabels,
   toTitleCase,
   locales,
@@ -32,7 +35,7 @@ import type {
 import type { PrintOptions } from './PrintOptionsDialog'
 import { PADDING_MAP, FONT_CSS } from './PrintOptionsDialog'
 import { ResponsiveDialog, ResponsiveDialogContent } from './ui'
-import { makeT } from '../lib/t'
+import { makeT, makeTpl } from '../lib/t'
 import { sanitizeAbilityHtml } from '../lib/sanitizeAbilityHtml'
 
 type SheetArticleProps = {
@@ -142,6 +145,10 @@ export function SheetArticle({
   )
   const otherNightOrder = otherNightSource.filter((id) => scriptCharacterIds.has(id))
 
+  // Packs whose terms require the sheet to name them. Deliberately not behind a
+  // print option — attribution is a condition of using these characters.
+  const requiredAttributions = getRequiredAttributions(activeScriptCharacters.map((c) => c.id))
+
   const englishBootleggerRules = activeScript.meta.bootlegger?.filter(Boolean) ?? []
   const chineseBootleggerRules = activeScript.meta.bootlegger_zh?.filter(Boolean) ?? []
 
@@ -227,6 +234,32 @@ export function SheetArticle({
             </Box>
           </Box>
         )}
+      </Box>
+    )
+  }
+
+  const renderAttribution = (lang: Language) => {
+    if (requiredAttributions.length === 0) return null
+    const tpl = makeTpl(lang)
+    return (
+      <Box sx={{ mt: 1, pt: 0.75, borderTop: '1px solid', borderColor: 'divider' }}>
+        {requiredAttributions.map((credit) => {
+          const name = getEditionCreditName(credit, lang)
+          const author = getEditionCreditAuthor(credit, lang)
+          const label = credit.source
+            ? tpl('attribution_line', name, credit.source.replace(/^https?:\/\//, ''))
+            : tpl('attribution_line_no_source', name)
+          return (
+            <Typography
+              key={credit.id}
+              variant="caption"
+              color="text.secondary"
+              sx={{ display: 'block', opacity: 0.6, lineHeight: 1.4 }}
+            >
+              {label}{author ? ` · ${author}` : ''}
+            </Typography>
+          )
+        })}
       </Box>
     )
   }
@@ -485,6 +518,7 @@ export function SheetArticle({
       </Box>
       {wakeOrderMode === 'bottom' && renderWakeOrderBottom(firstNightOrder, otherNightOrder, lang)}
       {supplementalPlacement === 'end' ? renderSupplemental(lang) : null}
+      {renderAttribution(lang)}
     </Box>
   )
 

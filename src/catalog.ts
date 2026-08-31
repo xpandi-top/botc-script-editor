@@ -4,6 +4,7 @@ import jinxData from '../assets/jinxes.json'
 import zhLocale from '../assets/locales/zh.json'
 import zhJinxLocale from '../assets/locales/zh.jinxes.json'
 import nightOrderData from '../assets/characters/night-order.json'
+import editionCreditData from '../assets/editions.json'
 import type {
   CharacterEntry,
   CharacterFileEntry,
@@ -864,6 +865,59 @@ export function getIconForCharacter(id: string): string | undefined {
   const custom = _customCharRegistry.get(id)
   if (custom?.icon) return custom.icon
   return _iconMap.get(id)
+}
+
+// ── Edition credits / required attribution ───────────────────────────────────
+//
+// Some character packs are free to use but require the script to name their
+// source. Odyssey's terms are "credit 《奥德赛 Odyssey》 or use the Odyssey
+// character background" — so any sheet built from its characters carries a
+// credit line, and it is deliberately not behind a toggle.
+
+export type EditionCredit = {
+  id: string
+  name_en: string
+  name_zh: string
+  author_en?: string
+  author_zh?: string
+  source?: string
+  requiresAttribution?: boolean
+  terms_en?: string
+  terms_zh?: string
+}
+
+export const editionCredits = editionCreditData as Record<string, EditionCredit>
+
+export function getEditionCredit(edition: string): EditionCredit | undefined {
+  return editionCredits[edition]
+}
+
+/** Localized pack name, e.g. "《奥德赛 Odyssey》" / "Odyssey". */
+export function getEditionCreditName(credit: EditionCredit, language: Language): string {
+  return (language === 'zh' ? credit.name_zh : credit.name_en) || credit.name_en || credit.id
+}
+
+export function getEditionCreditAuthor(credit: EditionCredit, language: Language): string | undefined {
+  return (language === 'zh' ? credit.author_zh : credit.author_en) || credit.author_en
+}
+
+export function getEditionTerms(credit: EditionCredit, language: Language): string | undefined {
+  return (language === 'zh' ? credit.terms_zh : credit.terms_en) || credit.terms_en
+}
+
+/**
+ * Editions among these characters whose terms require attribution, in the order
+ * they are declared in editions.json. Empty when nothing on the sheet needs it.
+ */
+export function getRequiredAttributions(characterIds: Iterable<string>): EditionCredit[] {
+  const editions = new Set<string>()
+  for (const id of characterIds) {
+    const edition = characterById[id]?.edition ?? _customCharRegistry.get(id)?.edition
+    if (edition) editions.add(edition)
+  }
+  return Object.values(editionCredits).filter(
+    (credit) => credit.requiresAttribution && editions.has(credit.id),
+  )
 }
 
 // ── Character almanac (lazy-loaded) ───────────────────────────────────────────
