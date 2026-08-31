@@ -217,6 +217,64 @@ describe('odyssey pack', () => {
     expect(listed.size).toBe(odyssey.length)
   })
 
+  // ── Reminder tokens vs the wiki's own 提示标记 section ────────────────────
+  // The token list was extracted by filtering lines; the almanac keeps the whole
+  // section verbatim. Cross-checking the two catches a re-sync that drops a
+  // token, keeps a prose line, or mis-expands a "name*N" multiplier.
+
+  const almanac = readJson<{ characters: Record<string, { reminder_details?: string }> }>(
+    path.join(root, 'assets', 'almanac', 'odyssey.zh.json'),
+  )
+  const proseFor = (id: string) => almanac.characters[id]?.reminder_details ?? ''
+  const tokensFor = (entry: CharacterFileEntry) => entry.zh?.reminders ?? []
+
+  it('lists every token somewhere in the source section', () => {
+    const missing = odyssey.flatMap((entry) => {
+      const prose = proseFor(entry.id)
+      return [...new Set(tokensFor(entry))]
+        .filter((token) => !prose.includes(token))
+        .map((token) => `${entry.id}: ${token}`)
+    })
+    expect(missing).toEqual([])
+  })
+
+  it('has one token per placement block when the section uses that format', () => {
+    const mismatched = odyssey
+      .map((entry) => {
+        const blocks = (proseFor(entry.id).match(/放置时机/g) ?? []).length
+        const distinct = new Set(tokensFor(entry)).size
+        return { id: entry.id, blocks, distinct }
+      })
+      // Two characters (lethe, titan) list their tokens without placement
+      // blocks; they are covered by the multiplier and membership checks above.
+      .filter(({ blocks }) => blocks > 0)
+      .filter(({ blocks, distinct }) => blocks !== distinct)
+      .map(({ id, blocks, distinct }) => `${id}: ${blocks} blocks vs ${distinct} tokens`)
+    expect(mismatched).toEqual([])
+  })
+
+  it('expands "name*N" multipliers to exactly N copies', () => {
+    const wrong: string[] = []
+    for (const entry of odyssey) {
+      const tokens = tokensFor(entry)
+      for (const [, name, count] of proseFor(entry.id).matchAll(/([^\n／/]{1,10})[*x×](\d+)/g)) {
+        const actual = tokens.filter((token) => token === name.trim()).length
+        if (actual !== Number(count)) {
+          wrong.push(`${entry.id}: ${name.trim()} expected ${count}, got ${actual}`)
+        }
+      }
+    }
+    expect(wrong).toEqual([])
+  })
+
+  it('has no tokens where the source section says there are none', () => {
+    const spurious = odyssey
+      .filter((entry) => ['', '无', '暂无', '/'].includes(proseFor(entry.id).trim()))
+      .filter((entry) => tokensFor(entry).length > 0)
+      .map((entry) => entry.id)
+    expect(spurious).toEqual([])
+  })
+
   it('has an almanac entry for every character', () => {
     const almanac = readJson<{ characters: Record<string, unknown> }>(
       path.join(root, 'assets', 'almanac', 'odyssey.zh.json'),
