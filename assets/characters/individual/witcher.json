@@ -4,10 +4,6 @@
   "edition": "odyssey",
   "current_revision": "v1",
   "setup": false,
-  "reminders": [
-    "死亡",
-    "失去能力"
-  ],
   "revisions": [
     {
       "id": "v1",
@@ -23,6 +19,10 @@
     "revisions": {
       "v1": "每局游戏限一次，在夜晚时*，你可以选择一名玩家：他死亡，且当晚恶魔不能攻击。如果你杀死了恶魔，你和他交换角色和阵营。"
     },
-    "otherNightReminder": "唤醒他并让他选择一名玩家，为他选择的玩家标记“死亡”提示标记。"
+    "otherNightReminder": "唤醒他并让他选择一名玩家，为他选择的玩家标记“死亡”提示标记。",
+    "reminders": [
+      "死亡",
+      "失去能力"
+    ]
   }
 }

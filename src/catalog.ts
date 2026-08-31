@@ -136,20 +136,36 @@ export function refreshCharReminders() {
 
 /**
  * Get effective reminders for any character id.
- * Priority: CustomCharacter fields → BOTC_CHAR_REMINDERS user override → character JSON file.
+ * Priority: CustomCharacter fields → BOTC_CHAR_REMINDERS user override →
+ * character JSON `<language>` block → other language block → top-level `reminders`.
+ *
+ * Official characters keep their tokens in the top-level field (English); packs
+ * that ship localized tokens (e.g. Odyssey) put them under `en`/`zh`. The
+ * cross-language fallback mirrors getAbilityText: showing the other language
+ * beats showing nothing.
  */
-export function getCharacterReminders(id: string): string[] {
+export function getCharacterReminders(id: string, language?: Language): string[] {
   const custom = _customCharRegistry.get(id)
   if (custom) return custom.reminders ?? []
   if (_charReminders[id]?.reminders !== undefined) return _charReminders[id].reminders!
+  if (language) {
+    const fallbackLanguage: Language = language === 'en' ? 'zh' : 'en'
+    const localized = _charLocale[language]?.[id]?.reminders ?? _charLocale[fallbackLanguage]?.[id]?.reminders
+    if (localized) return localized
+  }
   // Fall back to value baked into the character JSON file (loaded at startup via characterById)
   return characterById[id]?.reminders ?? []
 }
 
-export function getCharacterRemindersGlobal(id: string): string[] {
+export function getCharacterRemindersGlobal(id: string, language?: Language): string[] {
   const custom = _customCharRegistry.get(id)
   if (custom) return custom.remindersGlobal ?? []
   if (_charReminders[id]?.remindersGlobal !== undefined) return _charReminders[id].remindersGlobal!
+  if (language) {
+    const fallbackLanguage: Language = language === 'en' ? 'zh' : 'en'
+    const localized = _charLocale[language]?.[id]?.remindersGlobal ?? _charLocale[fallbackLanguage]?.[id]?.remindersGlobal
+    if (localized) return localized
+  }
   return characterById[id]?.remindersGlobal ?? []
 }
 
@@ -261,7 +277,7 @@ const characterFiles = import.meta.glob('../assets/characters/individual/*.json'
 
 // ── Build locale maps from individual character files ─────────────────────────
 
-const _charLocale: Record<Language, Record<string, { name?: string; ability?: string; flavor?: string; revisions?: Record<string, string> }>> = {
+const _charLocale: Record<Language, Record<string, { name?: string; ability?: string; flavor?: string; revisions?: Record<string, string>; reminders?: string[]; remindersGlobal?: string[] }>> = {
   en: {},
   zh: {},
 }
@@ -850,6 +866,110 @@ export function getIconForCharacter(id: string): string | undefined {
   return _iconMap.get(id)
 }
 
+// ── Character almanac (lazy-loaded) ───────────────────────────────────────────
+//
+// Almanac files are large (Odyssey alone is ~650 KB of prose) and only needed
+// when someone opens a character's detail panel, so they are NOT eager-globbed
+// like the character files — each edition is fetched on first use and cached.
+
+export type AlmanacCharacterEntry = {
+  zh_name?: string
+  en_name?: string
+  number?: string
+  source?: string
+  flavor?: string
+  summary?: string
+  ability?: string
+  examples?: string
+  howto?: string
+  reminder_details?: string
+  rules?: string
+  design_notes?: string
+  tips?: string
+  bluffing?: string
+  scripts?: string
+  credits?: { design?: string; concept?: string; art?: string }
+}
+
+export type AlmanacTerm = { title: string; text: string; source?: string }
+
+export type AlmanacFile = {
+  edition: string
+  name_zh?: string
+  name_en?: string
+  source?: string
+  license?: string
+  terminology?: Record<string, AlmanacTerm>
+  characters?: Record<string, AlmanacCharacterEntry>
+}
+
+const almanacFiles = import.meta.glob('../assets/almanac/*.json', {
+  import: 'default',
+}) as Record<string, () => Promise<AlmanacFile>>
+
+const _almanacCache = new Map<string, Promise<AlmanacFile | null>>()
+
+/**
+ * Load the almanac for an edition, preferring the requested language.
+ * Files are named `<edition>.<language>.json`; a different language for the
+ * same edition is used rather than returning nothing.
+ */
+export function loadAlmanacFile(edition: string, language: Language): Promise<AlmanacFile | null> {
+  const cacheKey = `${edition}.${language}`
+  const cached = _almanacCache.get(cacheKey)
+  if (cached) return cached
+
+  const basenameOf = (path: string) => path.split('/').pop() ?? ''
+  const paths = Object.keys(almanacFiles)
+  const match =
+    paths.find((path) => basenameOf(path) === `${edition}.${language}.json`) ??
+    paths.find((path) => basenameOf(path).startsWith(`${edition}.`))
+
+  const pending: Promise<AlmanacFile | null> = match
+    ? almanacFiles[match]().catch(() => null)
+    : Promise.resolve(null)
+
+  _almanacCache.set(cacheKey, pending)
+  return pending
+}
+
+/** Almanac prose for one character, or null when its edition ships no almanac. */
+export async function getAlmanacEntry(
+  id: string,
+  language: Language,
+): Promise<AlmanacCharacterEntry | null> {
+  const edition = characterById[id]?.edition ?? characterFileById[id]?.edition
+  if (!edition) return null
+  const file = await loadAlmanacFile(edition, language)
+  return file?.characters?.[id] ?? null
+}
+
+/** Glossary terms an edition defines (Odyssey's 审判日, 变量X, 延迟, …). */
+export async function getAlmanacTerminology(
+  edition: string,
+  language: Language,
+): Promise<Record<string, AlmanacTerm>> {
+  const file = await loadAlmanacFile(edition, language)
+  return file?.terminology ?? {}
+}
+
+/** Whether any almanac file exists for an edition (sync — no fetch). */
+export function hasAlmanac(edition: string): boolean {
+  return Object.keys(almanacFiles).some((path) =>
+    (path.split('/').pop() ?? '').startsWith(`${edition}.`),
+  )
+}
+
+/** First candidate that is a non-empty array of strings, cleaned of non-strings. */
+function pickStringList(...candidates: Array<unknown>): string[] | undefined {
+  for (const candidate of candidates) {
+    if (!Array.isArray(candidate)) continue
+    const cleaned = candidate.filter((value): value is string => typeof value === 'string')
+    if (cleaned.length > 0) return cleaned
+  }
+  return undefined
+}
+
 function loadCharacterCatalog() {
   const entries = new Map<string, CharacterEntry>()
 
@@ -866,12 +986,11 @@ function loadCharacterCatalog() {
               Boolean(revision?.id && typeof revision.note === 'string'),
           )
         : undefined,
-      reminders: Array.isArray(value.reminders)
-        ? value.reminders.filter((r): r is string => typeof r === 'string')
-        : undefined,
-      remindersGlobal: Array.isArray(value.remindersGlobal)
-        ? value.remindersGlobal.filter((r): r is string => typeof r === 'string')
-        : undefined,
+      // Language-neutral default for consumers that don't know the UI language
+      // (script export, the character editor). Packs that only ship localized
+      // tokens still get a usable list here.
+      reminders: pickStringList(value.reminders, value.en?.reminders, value.zh?.reminders),
+      remindersGlobal: pickStringList(value.remindersGlobal, value.en?.remindersGlobal, value.zh?.remindersGlobal),
       setup: typeof value.setup === 'boolean' ? value.setup : undefined,
       firstNightReminder: value.en?.firstNightReminder ?? (typeof value.firstNightReminder === 'string' && value.firstNightReminder ? value.firstNightReminder : undefined),
       otherNightReminder: value.en?.otherNightReminder ?? (typeof value.otherNightReminder === 'string' && value.otherNightReminder ? value.otherNightReminder : undefined),

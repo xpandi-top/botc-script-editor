@@ -4,10 +4,6 @@
   "edition": "odyssey",
   "current_revision": "v1",
   "setup": false,
-  "reminders": [
-    "死亡",
-    "魅惑"
-  ],
   "revisions": [
     {
       "id": "v1",
@@ -23,6 +19,10 @@
     "revisions": {
       "v1": "每个夜晚*，你要选择一名玩家：他死亡，且你可以让他得知你是色孽。最近一名得知你是色孽的玩家胜负条件与你相同，即使你已死亡。"
     },
-    "otherNightReminder": "让他选择一名玩家。"
+    "otherNightReminder": "让他选择一名玩家。",
+    "reminders": [
+      "死亡",
+      "魅惑"
+    ]
   }
 }

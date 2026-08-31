@@ -4,13 +4,6 @@
   "edition": "odyssey",
   "current_revision": "v1",
   "setup": false,
-  "reminders": [
-    "中毒",
-    "中毒",
-    "中毒",
-    "死亡",
-    "死亡"
-  ],
   "revisions": [
     {
       "id": "v1",
@@ -27,6 +20,13 @@
       "v1": "每局游戏限一次，在你的第X个夜晚，你可以选择任意玩家共X次：他们中毒直到下个黄昏。被多次选择的玩家改为死亡。"
     },
     "firstNightReminder": "当晚是他入场的第几个夜晚，就让他选择几次（玩家）。",
-    "otherNightReminder": "当晚是他入场的第几个夜晚，就让他选择几次（玩家）。"
+    "otherNightReminder": "当晚是他入场的第几个夜晚，就让他选择几次（玩家）。",
+    "reminders": [
+      "中毒",
+      "中毒",
+      "中毒",
+      "死亡",
+      "死亡"
+    ]
   }
 }

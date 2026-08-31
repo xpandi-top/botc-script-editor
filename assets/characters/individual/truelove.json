@@ -4,9 +4,6 @@
   "edition": "odyssey",
   "current_revision": "v1",
   "setup": false,
-  "reminders": [
-    "失去能力"
-  ],
   "revisions": [
     {
       "id": "v1",
@@ -21,6 +18,9 @@
     "ability": "在你的首个白天，你可以邀请说书人见证你与一名玩家互通角色，随后你会私下得知是否有人说谎。",
     "revisions": {
       "v1": "在你的首个白天，你可以邀请说书人见证你与一名玩家互通角色，随后你会私下得知是否有人说谎。"
-    }
+    },
+    "reminders": [
+      "失去能力"
+    ]
   }
 }

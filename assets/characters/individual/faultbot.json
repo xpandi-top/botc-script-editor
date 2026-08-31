@@ -4,9 +4,6 @@
   "edition": "odyssey",
   "current_revision": "v1",
   "setup": false,
-  "reminders": [
-    "报错"
-  ],
   "revisions": [
     {
       "id": "v1",
@@ -23,6 +20,9 @@
       "v1": "每个夜晚，你会得知当天其他镇民玩家的能力是否均正常生效。"
     },
     "firstNightReminder": "唤醒他并告知他是或否。",
-    "otherNightReminder": "唤醒他并告知他是或否。"
+    "otherNightReminder": "唤醒他并告知他是或否。",
+    "reminders": [
+      "报错"
+    ]
   }
 }

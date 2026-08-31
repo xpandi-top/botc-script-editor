@@ -4,9 +4,6 @@
   "edition": "odyssey",
   "current_revision": "v1",
   "setup": false,
-  "reminders": [
-    "醉酒"
-  ],
   "revisions": [
     {
       "id": "v1",
@@ -23,6 +20,9 @@
       "v1": "每个夜晚，你会得知一个在场的角色。当邪恶玩家死亡时，你醉酒。"
     },
     "firstNightReminder": "唤醒她并告知她一个在场角色。",
-    "otherNightReminder": "唤醒她并告知她一个在场角色。"
+    "otherNightReminder": "唤醒她并告知她一个在场角色。",
+    "reminders": [
+      "醉酒"
+    ]
   }
 }

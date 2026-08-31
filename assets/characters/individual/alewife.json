@@ -4,11 +4,6 @@
   "edition": "odyssey",
   "current_revision": "v1",
   "setup": false,
-  "reminders": [
-    "醉酒",
-    "醉酒",
-    "醉酒"
-  ],
   "revisions": [
     {
       "id": "v1",
@@ -23,6 +18,11 @@
     "ability": "爪牙被处决时，不会死亡但会醉酒。",
     "revisions": {
       "v1": "爪牙被处决时，不会死亡但会醉酒。"
-    }
+    },
+    "reminders": [
+      "醉酒",
+      "醉酒",
+      "醉酒"
+    ]
   }
 }

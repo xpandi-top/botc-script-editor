@@ -4,10 +4,6 @@
   "edition": "odyssey",
   "current_revision": "v1",
   "setup": false,
-  "reminders": [
-    "真新闻",
-    "假新闻"
-  ],
   "revisions": [
     {
       "id": "v1",
@@ -23,6 +19,10 @@
     "revisions": {
       "v1": "每个白天，你可以从说书人处获取一条新闻，如果你公开宣读了该新闻，当晚你会得知它是否为事实。"
     },
-    "otherNightReminder": "如果他在白天宣读了新闻，唤醒他并告知他是否为事实。"
+    "otherNightReminder": "如果他在白天宣读了新闻，唤醒他并告知他是否为事实。",
+    "reminders": [
+      "真新闻",
+      "假新闻"
+    ]
   }
 }

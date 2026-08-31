@@ -17,7 +17,7 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import ListIcon from '@mui/icons-material/List'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'
-import { getDisplayName, getIconForCharacter, getAbilityTextForScript, allCharacters, characterById } from '../../../catalog'
+import { getDisplayName, getIconForCharacter, getAbilityTextForScript, allCharacters, characterById, getCharacterReminders, getCharacterRemindersGlobal } from '../../../catalog'
 import { buildPlayerLogEntries, filterPlayerLogByCurrentPhase } from '../../../utils/playerLog'
 import { logPhrase } from '../../../utils/logI18n'
 import { LogDetailText } from '../LogDetailText'
@@ -186,12 +186,11 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
     ])
     const tags = new Set<string>()
     for (const id of ids) {
-      const char = characterById[id]
-      ;(char?.reminders ?? []).forEach((r: string) => tags.add(r))
-      ;(char?.remindersGlobal ?? []).forEach((r: string) => tags.add(r))
+      getCharacterReminders(id, language).forEach((r) => tags.add(r))
+      getCharacterRemindersGlobal(id, language).forEach((r) => tags.add(r))
     }
     return [...tags].sort()
-  }, [currentScriptCharacters, allSeats])
+  }, [currentScriptCharacters, allSeats, language])
 
   // Fall back to DEFAULT_ST_TAGS when no script reminders (e.g. no script loaded)
   const stTagChips = scriptReminderTags.length > 0 ? scriptReminderTags : DEFAULT_ST_TAGS
@@ -203,15 +202,17 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
     const ids = [...new Set<string>([...(currentScriptCharacters ?? []), ...inPlayIds])]
     return ids
       .map(id => {
-        const char = characterById[id]
-        const reminders = [...new Set([...(char?.reminders ?? []), ...(char?.remindersGlobal ?? [])])]
+        const reminders = [...new Set([
+          ...getCharacterReminders(id, language),
+          ...getCharacterRemindersGlobal(id, language),
+        ])]
         return { id, reminders, isInPlay: inPlayIds.has(id) }
       })
       .sort((a, b) => {
         if (b.isInPlay !== a.isInPlay) return (b.isInPlay ? 1 : 0) - (a.isInPlay ? 1 : 0)
         return 0
       })
-  }, [currentScriptCharacters, allSeats])
+  }, [currentScriptCharacters, allSeats, language])
 
   const canSaveSkill = useMemo(() => {
     if (!skillType) return false

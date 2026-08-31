@@ -4,9 +4,6 @@
   "edition": "odyssey",
   "current_revision": "v1",
   "setup": true,
-  "reminders": [
-    "是奇美拉​"
-  ],
   "revisions": [
     {
       "id": "v1",
@@ -22,6 +19,9 @@
     "revisions": {
       "v1": "每个夜晚*，你要选择一个除奇美拉以外的恶魔角色（与前两次的选择均不同）：你获得该角色的能力直到下个黄昏。[-1外来者]"
     },
-    "otherNightReminder": "让他选择一个除奇美拉以外的恶魔角色。"
+    "otherNightReminder": "让他选择一个除奇美拉以外的恶魔角色。",
+    "reminders": [
+      "是奇美拉​"
+    ]
   }
 }

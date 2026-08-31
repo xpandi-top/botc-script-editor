@@ -4,11 +4,6 @@
   "edition": "odyssey",
   "current_revision": "v1",
   "setup": false,
-  "reminders": [
-    "结怨",
-    "结怨",
-    "死亡"
-  ],
   "revisions": [
     {
       "id": "v1",
@@ -24,6 +19,11 @@
     "revisions": {
       "v1": "每个夜晚*，你可以选择一名当天被你提名或提名了你的玩家：他死亡。"
     },
-    "otherNightReminder": "让他选择一名被放置了“结怨”提示标记的玩家。"
+    "otherNightReminder": "让他选择一名被放置了“结怨”提示标记的玩家。",
+    "reminders": [
+      "结怨",
+      "结怨",
+      "死亡"
+    ]
   }
 }

@@ -4,9 +4,6 @@
   "edition": "odyssey",
   "current_revision": "v1",
   "setup": false,
-  "reminders": [
-    "失去能力"
-  ],
   "revisions": [
     {
       "id": "v1",
@@ -23,6 +20,9 @@
       "v1": "每局游戏限一次，在夜晚时，你可以选择一名玩家或一个邪恶角色：他会得知调香师在场。"
     },
     "firstNightReminder": "让她选择一名玩家或一个角色。",
-    "otherNightReminder": "让她选择一名玩家或一个角色。"
+    "otherNightReminder": "让她选择一名玩家或一个角色。",
+    "reminders": [
+      "失去能力"
+    ]
   }
 }

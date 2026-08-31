@@ -4,9 +4,6 @@
   "edition": "odyssey",
   "current_revision": "v1",
   "setup": false,
-  "reminders": [
-    "什么虫"
-  ],
   "revisions": [
     {
       "id": "v1",
@@ -22,6 +19,9 @@
     "revisions": {
       "v1": "如果你提名了一名其他玩家，在当晚你会被唤醒并得知他是否为恶魔。"
     },
-    "otherNightReminder": "如果当天捕虫少年提名了其他玩家，唤醒他并告知他是或否。"
+    "otherNightReminder": "如果当天捕虫少年提名了其他玩家，唤醒他并告知他是或否。",
+    "reminders": [
+      "什么虫"
+    ]
   }
 }

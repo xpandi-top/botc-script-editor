@@ -4,9 +4,6 @@
   "edition": "odyssey",
   "current_revision": "v1",
   "setup": false,
-  "reminders": [
-    "信息必错"
-  ],
   "revisions": [
     {
       "id": "v1",
@@ -21,6 +18,9 @@
     "ability": "如果与你邻座的玩家都是存活的，镇民玩家的能力一定会产生错误信息。",
     "revisions": {
       "v1": "如果与你邻座的玩家都是存活的，镇民玩家的能力一定会产生错误信息。"
-    }
+    },
+    "reminders": [
+      "信息必错"
+    ]
   }
 }

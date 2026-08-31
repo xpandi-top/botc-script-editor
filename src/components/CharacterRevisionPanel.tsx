@@ -28,6 +28,7 @@ import {
   setCharNightOverride,
   teamLabels,
 } from '../catalog'
+import { CharacterAlmanacSection } from './CharacterAlmanacSection'
 import { ReminderTokenEditor } from './ReminderTokenEditor'
 import type { CharacterEntry, CharacterFileEntry, CustomCharacter, Language, RevisionOverrides } from '../types'
 import { useT } from '../context/I18nContext'
@@ -596,6 +597,13 @@ export function CharacterRevisionPanel({
           </Box>
         )
       })()}
+
+      {/* ── Almanac (lazy-loaded prose from the character pack) ── */}
+      <CharacterAlmanacSection
+        characterId={character.id}
+        edition={character.edition}
+        language={language}
+      />
 
       {/* ── Add Revision Dialog ── */}
       <ResponsiveDialog open={addOpen} onClose={() => setAddOpen(false)} maxWidth="sm">

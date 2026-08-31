@@ -4,9 +4,6 @@
   "edition": "odyssey",
   "current_revision": "v1",
   "setup": false,
-  "reminders": [
-    "提问"
-  ],
   "revisions": [
     {
       "id": "v1",
@@ -23,6 +20,9 @@
       "v1": "每个夜晚，你要选择一个角色：下个白天，如果该角色在场，他会被公开询问一个是非问题。没有答对的玩家可能会被处决。"
     },
     "firstNightReminder": "唤醒并让他选择一个角色。",
-    "otherNightReminder": "唤醒并让他选择一个角色。"
+    "otherNightReminder": "唤醒并让他选择一个角色。",
+    "reminders": [
+      "提问"
+    ]
   }
 }

@@ -4,9 +4,6 @@
   "edition": "odyssey",
   "current_revision": "v1",
   "setup": false,
-  "reminders": [
-    "醉酒"
-  ],
   "revisions": [
     {
       "id": "v1",
@@ -22,6 +19,9 @@
     "revisions": {
       "v1": "你死亡的当晚会知所有角色类型的玩家各一名。你死于善良玩家发起的提名处决或能力时，你醉酒。"
     },
-    "otherNightReminder": "如果他死亡，唤醒他并告知他爪牙、恶魔、镇民、外来者玩家各一名。"
+    "otherNightReminder": "如果他死亡，唤醒他并告知他爪牙、恶魔、镇民、外来者玩家各一名。",
+    "reminders": [
+      "醉酒"
+    ]
   }
 }

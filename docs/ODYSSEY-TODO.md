@@ -6,21 +6,42 @@
 
 ## A. 可自动完成（写脚本或改代码即可，无需人判断）
 
-- [ ] **A1 · 提示标记多语言** — `types.ts` 的 `reminders?: string[]` 改成分语言（`en`/`zh` 块内各一份），
-      `catalog.ts` 加 `getReminders(id, language)`，改 `CustomCharDialog`、`CharacterRevisionPanel`。
-      208 个奥德赛标记目前锁死中文。
-- [ ] **A2 · almanac 懒加载 + 展示区** — `CharacterEntry` 加可选 `almanac`，`catalog.ts` 用动态 `import()`
-      读 `assets/almanac/*.json`（650KB，别进主包），角色详情面板加折叠区。数据已全部就位。
-- [ ] **A3 · 旅行者隔绝过滤器** — `utils/seats.ts` 加「排除旅行者」的选人过滤，奥德赛全部能力判定都要用。
-- [ ] **A4 · 夜序数值化** — `night-order.json` 改成 `{ id, order }`，或 `CharacterEntry` 加
-      `firstNight`/`otherNight` 数值（`ScriptCharacterItem` 已有这俩字段），排序改按数值。
+- [x] **A1 · 提示标记多语言** — ✅ 已完成。
+      `CharacterFileEntry` 的 `en`/`zh` 块加了可选 `reminders` / `remindersGlobal`；
+      `getCharacterReminders(id, language)` / `getCharacterRemindersGlobal(id, language)`
+      按 `自定义角色 → 用户覆盖 → 当前语言块 → 另一语言块 → 顶层字段` 解析。
+      奥德赛的 208 个标记已移进 `zh.reminders`，英文翻译到位后填 `en.reminders` 即可，无需再改代码。
+      顺带修了一个 bug：`ArenaSeatPlayerModal` 和 `RightConsoleTags` 之前直接读
+      `characterById[id].reminders`，绕过了 `BOTC_CHAR_REMINDERS` 用户覆盖 —— 现在走统一入口。
+      顶层 `reminders` 仍是语言中立的默认值，由 `loadCharacterCatalog` 从 `en`/`zh` 块回填，
+      剧本导出和角色编辑器这些不知道语言的路径照常工作。
+- [x] **A2 · almanac 懒加载 + 展示区** — ✅ 已完成。
+      `catalog.ts` 用非 eager 的 `import.meta.glob` 读 `assets/almanac/*.json`，
+      提供 `loadAlmanacFile` / `getAlmanacEntry` / `getAlmanacTerminology` / `hasAlmanac`（带缓存）。
+      新组件 `CharacterAlmanacSection` 挂在角色详情面板底部，**展开时才拉数据**。
+      构建产物里 `odyssey.zh` 是独立 chunk（652 KB），主包只增加约 0.5 KB。
+      没有 almanac 的版本（官方角色）整个区块不渲染。
+- [x] **A7 · 数据不变量检查** — ✅ 已完成，`src/__tests__/characterPack.test.ts`（21 条）。
+      比原计划的 setup 检查覆盖更广：文件名 = id、id 唯一、team/edition 合法、图标存在、
+      `current_revision` 在 revisions 列表里、提示标记是非空字符串；
+      夜晚顺序无未知 id / 无重复；相克规则的两个角色都存在且 id 格式匹配；
+      奥德赛专项：中文名+能力齐全、英文名齐全、`zh.ability` 与当前 revision 一致、
+      `setup` 与能力里的 `[...]` 一一对应、标记存在 `zh` 块而非顶层、标记里没有混进说明文字、
+      119 个角色全在 `odyssey.json` 里、全有 almanac 条目。
+      跟着 `npm test` 跑，不进构建流程，不会卡住 build。
+- [ ] **A4 · 夜序数值化** — ⚠️ **被 C4 卡住，不是纯自动**。
+      `night-order.json` 改成 `{ id, order }`（或 `CharacterEntry` 加 `firstNight`/`otherNight` 数值）
+      本身是机械改动，但排序需要**官方角色的夜序数值**，本仓库没有 → 先做 C4。
       奥德赛 119 个角色的夜序数值已在 `assets/almanac/odyssey.zh.json` 里。
-      ⚠️ 官方角色的夜序数值本仓库没有，需先补一份（见 M4）。
-- [ ] **A5 · 重新同步** — 作者改能力后跑 `scripts/odyssey/`。注意能力有变要**新增 revision**，
-      不能覆盖 `v1`，否则 `validate-revisions` 报错。
-- [ ] **A6 · 图标重新生成** — 现在是 400×400 PNG8（约 2.5MB / 119 张）。要换尺寸或画质直接改 `emit.py`。
-- [ ] **A7 · setup 一致性检查脚本** — 现在按能力文本含 `[...]` 推导（17 个角色）。
-      写个 CI 检查，防止以后同步时漏标。
+- [ ] **A5 · 重新同步** — 作者改能力后跑 `scripts/odyssey/`。随时可做，不是待办。
+      注意能力有变要**新增 revision**，不能覆盖 `v1`，否则 `validate-revisions` 报错。
+      同步后跑 `npm test`，`characterPack.test.ts` 会兜住大部分回归。
+- [ ] **A6 · 图标重新生成** — 现在 400×400 PNG8（约 2.5MB / 119 张）。
+      要换尺寸或画质改 `scripts/odyssey/emit.py`。随时可做，不是待办。
+- [x] ~~**A3 · 旅行者隔绝过滤器**~~ — 划掉，归类错了。
+      `utils/seats.ts` 已有 `regularSeats()`（`seats.filter(s => !s.isTraveler)`），
+      工具层不缺东西。真正缺的是**把它接到能力结算上**，而应用里根本没有能力结算代码 ——
+      那是 UX/玩法设计，属于 C 类，见 C10。
 
 ## B. 自动生成 + 人工复核（机器出草稿，人过一遍）
 
@@ -28,14 +49,17 @@
       机翻/LLM 出草稿，但**必须逐条人工校对**：BOTC 能力文本对措辞极敏感（“每个夜晚\*”、
       “你要选择”、“会得知”、“可能”这类词决定规则判定）。
       百科注明有官方英文译者（Dj_Dj_Dj），先去要现成译文，比重翻更靠谱。
-      ⚠️ `src/catalog.ts:1025` / `:1031` 的夜晚提示**不做中英回退** —— 不翻，英文说书人夜晚流程就是空白。
+      落点：角色 JSON 的 `en.ability`、`en.firstNightReminder`、`en.otherNightReminder`、
+      `en.reminders`、`en.revisions.v1`（A1 之后不需要再改代码）。
+      ⚠️ `src/catalog.ts` 的夜晚提示**不做中英回退** —— 不翻，英文说书人夜晚流程就是空白。
 - [ ] **B2 · 能力文本抓取准确性抽查** — 从百科「角色能力」小节直接取的，格式统一。
       建议随机抽 20 个对照原页面，重点看含表格、含图片、含多段的角色。
 - [ ] **B3 · 提示标记数量复核** — 带倍数的已展开（毒尾「中毒\*5」→ 5 个）。
       需要人确认的：`druid` 两个「强制选择」、`titan` 的「爪牙1~4」、
       以及 21 个「无提示标记」的角色是否真的没有。
-- [ ] **B4 · 中文术语落地** — 10 条奥德赛术语原文已存 `odyssey.zh.json` 的 `terminology`。
-      做成应用内规则速查页是自动的，但**哪些术语要暴露给玩家、哪些只给说书人**要人定。
+- [ ] **B4 · 中文术语落地** — 10 条术语原文已存 `odyssey.zh.json` 的 `terminology`，
+      `getAlmanacTerminology(edition, language)` 已经能读出来，但**还没有界面用它**。
+      做成应用内规则速查页是自动的，**哪些术语暴露给玩家、哪些只给说书人**要人定。
 
 ## C. 必须人工（需要决策、外部数据或找作者）
 
@@ -57,16 +81,21 @@
 - [ ] **C8 · 授权署名展示** — 使用条款要求标注「角色来自《奥德赛 Odyssey》」并使用其角色底纹。
       现在只写在 `docs/ODYSSEY.md` 里，**应用界面/导出 PDF 里没有署名**。
       要定：署名放哪、什么形式、导出时是否强制带上。
+      （`odyssey.zh.json` 顶层已存 `source` / `license` 字段，做的时候直接读。）
 - [ ] **C9 · 背景故事怎么用** — 119 段散文式背景故事已抓到 almanac，故意没写进 `flavor`
-      （直接进会撑爆 PDF 排版）。要用得先定截断规则或单独展示区。
+      （直接进会撑爆 PDF 排版）。魔典面板里已经能看到（`almanac_flavor`），
+      要不要同时进角色卡/PDF 得先定截断规则。
+- [ ] **C10 · 旅行者隔绝原则落地**（原 A3）— 奥德赛所有能力判定一律排除旅行者。
+      `regularSeats()` 已经能用，但应用没有能力结算层，无处调用。
+      要么等 C2 的说书人辅助功能一起做，要么在选人 UI 上加一个「排除旅行者」开关。
 
 ---
 
 ## 建议顺序
 
 1. **C8**（授权署名，合规先做）
-2. **B1**（英文翻译，用户可见缺口最大）
-3. **A1 → A2**（提示标记多语言 → almanac 展示，把已有数据放出来）
+2. **B1**（英文翻译，用户可见缺口最大；A1 已经把管道铺好了）
+3. **B4**（术语速查页，`getAlmanacTerminology` 已就绪，只差界面）
 4. **C1**（投票标记，唯一会算错结果的）
 5. **C4 → A4**（夜序数值化，让以后同步不再脆弱）
 6. 其余按需

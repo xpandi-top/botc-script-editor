@@ -1213,6 +1213,17 @@
     "next_day_label": "下一天",
     "no_game_active": "当前没有进行中的游戏",
     "tap_menu_to_start": "点击 ☰ 开始新游戏",
-    "field_required": "必填"
+    "field_required": "必填",
+    "almanac": "魔典",
+    "almanac_summary": "角色简介",
+    "almanac_howto": "运作方式",
+    "almanac_examples": "范例",
+    "almanac_rules": "规则细节",
+    "almanac_reminder_details": "提示标记",
+    "almanac_tips": "游玩与对抗技巧",
+    "almanac_bluffing": "伪装成该角色",
+    "almanac_flavor": "背景故事",
+    "almanac_source": "原文页面",
+    "no_almanac_for_this_character": "该角色暂无魔典内容。"
   }
 }

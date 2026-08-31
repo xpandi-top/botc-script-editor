@@ -4,13 +4,6 @@
   "edition": "odyssey",
   "current_revision": "v1",
   "setup": true,
-  "reminders": [
-    "死亡",
-    "投降",
-    "投降",
-    "投降",
-    "投降"
-  ],
   "revisions": [
     {
       "id": "v1",
@@ -26,6 +19,13 @@
     "revisions": {
       "v1": "每个夜晚*，你要选择一名玩家：他死亡。当你以通常条件获胜时，曾上交投票标记的镇民也会获胜。[+1外来者]"
     },
-    "otherNightReminder": "让他选择一名玩家。"
+    "otherNightReminder": "让他选择一名玩家。",
+    "reminders": [
+      "死亡",
+      "投降",
+      "投降",
+      "投降",
+      "投降"
+    ]
   }
 }

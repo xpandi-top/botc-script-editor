@@ -4,9 +4,6 @@
   "edition": "odyssey",
   "current_revision": "v1",
   "setup": true,
-  "reminders": [
-    "死亡​"
-  ],
   "revisions": [
     {
       "id": "v1",
@@ -22,6 +19,9 @@
     "revisions": {
       "v1": "每个夜晚*，你要选择一名玩家和一个外来者角色：如果该角色不在场，他变成该角色。如果他是该角色，他死亡。[-1或+1外来者]"
     },
-    "otherNightReminder": "让他选择一个角色及一名玩家。"
+    "otherNightReminder": "让他选择一个角色及一名玩家。",
+    "reminders": [
+      "死亡​"
+    ]
   }
 }

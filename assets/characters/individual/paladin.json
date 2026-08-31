@@ -4,10 +4,6 @@
   "edition": "odyssey",
   "current_revision": "v1",
   "setup": false,
-  "reminders": [
-    "不是爪牙",
-    "不是恶魔"
-  ],
   "revisions": [
     {
       "id": "v1",
@@ -24,6 +20,10 @@
       "v1": "每个夜晚，你会得知两名玩家：他们要么都不是爪牙，要么都不是恶魔。两类线索每夜交替。"
     },
     "firstNightReminder": "告知他两名玩家。",
-    "otherNightReminder": "告知他两名玩家。"
+    "otherNightReminder": "告知他两名玩家。",
+    "reminders": [
+      "不是爪牙",
+      "不是恶魔"
+    ]
   }
 }

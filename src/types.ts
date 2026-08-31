@@ -290,6 +290,9 @@ export type CharacterFileEntry = {
     revisions?: Record<string, string>
     firstNightReminder?: string
     otherNightReminder?: string
+    /** Localized reminder tokens. Falls back to the top-level `reminders`. */
+    reminders?: string[]
+    remindersGlobal?: string[]
   }
   zh?: {
     name?: string
@@ -298,6 +301,8 @@ export type CharacterFileEntry = {
     revisions?: Record<string, string>
     firstNightReminder?: string
     otherNightReminder?: string
+    reminders?: string[]
+    remindersGlobal?: string[]
   }
 }
 

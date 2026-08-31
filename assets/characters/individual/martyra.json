@@ -4,10 +4,6 @@
   "edition": "odyssey",
   "current_revision": "v1",
   "setup": false,
-  "reminders": [
-    "死亡",
-    "殉教"
-  ],
   "revisions": [
     {
       "id": "v1",
@@ -23,6 +19,10 @@
     "revisions": {
       "v1": "如果爪牙死于处决，当晚你会死亡，且所有邪恶角色醉酒直到明天黄昏。"
     },
-    "otherNightReminder": "如果“殉教”被放置在场上，让她死亡。"
+    "otherNightReminder": "如果“殉教”被放置在场上，让她死亡。",
+    "reminders": [
+      "死亡",
+      "殉教"
+    ]
   }
 }

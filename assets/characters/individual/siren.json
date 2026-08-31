@@ -4,10 +4,6 @@
   "edition": "odyssey",
   "current_revision": "v1",
   "setup": false,
-  "reminders": [
-    "谢幕",
-    "死亡"
-  ],
   "revisions": [
     {
       "id": "v1",
@@ -23,6 +19,10 @@
     "revisions": {
       "v1": "每个夜晚*，你要选择一名玩家：他死亡，且你要选择是否永久失去你的下一条能力。镇民玩家的能力一定会产生错误信息。"
     },
-    "otherNightReminder": "让她选择一名玩家，然后她要选择是否谢幕。"
+    "otherNightReminder": "让她选择一名玩家，然后她要选择是否谢幕。",
+    "reminders": [
+      "谢幕",
+      "死亡"
+    ]
   }
 }

@@ -4,10 +4,6 @@
   "edition": "odyssey",
   "current_revision": "v1",
   "setup": false,
-  "reminders": [
-    "不会死亡",
-    "不会死亡"
-  ],
   "revisions": [
     {
       "id": "v1",
@@ -23,6 +19,10 @@
     "revisions": {
       "v1": "审判日降临前的每个夜晚*，你要选择：你当晚不会死亡；或与你邻近的两名存活玩家当晚不会死亡。"
     },
-    "otherNightReminder": "让他指向自己或身边的玩家。"
+    "otherNightReminder": "让他指向自己或身边的玩家。",
+    "reminders": [
+      "不会死亡",
+      "不会死亡"
+    ]
   }
 }

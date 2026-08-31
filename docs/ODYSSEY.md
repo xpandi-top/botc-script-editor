@@ -55,27 +55,23 @@
   → 补 `en.ability` / `en.firstNightReminder` / `en.otherNightReminder` 即可，无需改代码。
 - `assets/locales/en.jinxes.json` 的 6 条英文相克已补（构建校验强制要求）。
 
-### P1 — 提示标记没有多语言（需要改代码）
+### ~~P1 — 提示标记没有多语言~~ ✅ 已解决
 
-`types.ts` 的 `reminders?: string[]` 是单语言字符串数组，全项目共用。
-奥德赛的 208 个提示标记目前是中文，切到英文界面仍显示中文。
+`CharacterFileEntry` 的 `en`/`zh` 块加了可选 `reminders` / `remindersGlobal`，
+`getCharacterReminders(id, language)` 按
+`自定义角色 → 用户覆盖 → 当前语言块 → 另一语言块 → 顶层字段` 解析。
+奥德赛的 208 个标记存在 `zh.reminders`；英文翻译填 `en.reminders` 即可，不用再改代码。
+顶层 `reminders` 仍是语言中立的默认值，由 `loadCharacterCatalog` 从 `en`/`zh` 回填。
 
-改法：`reminders` 改为 `{ en: string[]; zh: string[] }`，或在角色 JSON 的 `en`/`zh` 块内各放一份，
-`catalog.ts` 增加 `getReminders(id, language)`，`CustomCharDialog` / `CharacterRevisionPanel` 跟着改。
+### ~~P1 — 缺少「魔典 / almanac」字段~~ ✅ 已解决
 
-### P1 — 缺少「魔典 / almanac」字段（需要改代码）
+`catalog.ts` 懒加载 `assets/almanac/*.json`（`loadAlmanacFile` / `getAlmanacEntry` /
+`getAlmanacTerminology` / `hasAlmanac`，带缓存），组件 `CharacterAlmanacSection`
+挂在角色详情面板底部，展开时才拉数据。`odyssey.zh` 是独立 chunk，主包基本没变大。
+没有 almanac 的版本不渲染该区块。
 
-百科每个角色都有：背景故事、角色简介、范例、运作方式、提示标记放置时机、规则细节、
-设计要点解析、游玩与对抗技巧、伪装成该角色。
-这些全部已抓取到 `assets/almanac/odyssey.zh.json`，但 `CharacterEntry` 没有对应字段，界面无处展示。
-
-改法：
-1. `CharacterEntry` 增加可选 `almanac?: { summary?, howto?, rules?, examples?, tips?, bluffing? }`（分语言）。
-2. `catalog.ts` 懒加载 `assets/almanac/*.json`（动态 `import()`，避免把 650KB 塞进主包）。
-3. 角色详情面板 / 说书人角色卡增加折叠区展示。
-
-> 注：`flavor`（背景故事）刻意没写进角色 JSON —— 奥德赛的背景故事是整段散文，
-> 直接进 `flavor` 会撑爆 PDF 排版。要用的话先做长度截断或单独的展示区。
+背景故事（`flavor`）现在在魔典面板里可见，但仍**没有**写进角色 JSON 的 `flavor` 字段
+—— 奥德赛的背景故事是整段散文，直接进会撑爆 PDF 排版。要进角色卡先定截断规则。
 
 ### P2 — 新术语 / 新机制（需要改说书人助手）
 
@@ -108,6 +104,14 @@
    → 先补齐这两个角色，再加相克。
 3. **中文重名**：奥德赛 `onmyoji`（阴阳师）与华灯初上 `yinyangshi`（阴阳师）显示名相同。
    id 不冲突，但同时出现在一个剧本里会看不出区别。建议在显示名后加版本后缀，或改其中一个译名。
+
+### P2 — 数据不变量检查 ✅ 已加
+
+`src/__tests__/characterPack.test.ts`（21 条）跟着 `npm test` 跑：文件名 = id、id 唯一、
+team/edition 合法、图标存在、`current_revision` 有效、提示标记是非空字符串；
+夜晚顺序无未知 id / 无重复；相克规则两个角色都存在且 id 格式匹配；
+奥德赛专项包括 `setup` 与能力里的 `[...]` 一一对应、`zh.ability` 与当前 revision 一致、
+标记没混进说明文字、119 个角色全在剧本和 almanac 里。重新同步后先跑它。
 
 ### P3 — 夜晚顺序数据结构
 

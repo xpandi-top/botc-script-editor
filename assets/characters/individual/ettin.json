@@ -4,9 +4,6 @@
   "edition": "odyssey",
   "current_revision": "v1",
   "setup": true,
-  "reminders": [
-    "当晚死亡"
-  ],
   "revisions": [
     {
       "id": "v1",
@@ -23,6 +20,9 @@
       "v1": "如果你死亡，其他双头巨人会在当晚死亡。只有所有双头巨人一起投票，他们的投票才有效。[+1双头巨人（你决定谁是）]"
     },
     "firstNightReminder": "让他选择一名玩家。如果选中爪牙或恶魔，让他重新选择。",
-    "otherNightReminder": "如果当天有双头巨人死亡，让其他双头巨人也死亡。"
+    "otherNightReminder": "如果当天有双头巨人死亡，让其他双头巨人也死亡。",
+    "reminders": [
+      "当晚死亡"
+    ]
   }
 }

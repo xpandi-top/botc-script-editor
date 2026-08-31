@@ -4,13 +4,6 @@
   "edition": "odyssey",
   "current_revision": "v1",
   "setup": false,
-  "reminders": [
-    "死亡",
-    "死亡",
-    "是海德拉",
-    "是海德拉",
-    "是海德拉"
-  ],
   "revisions": [
     {
       "id": "v1",
@@ -26,6 +19,13 @@
     "revisions": {
       "v1": "每个夜晚*，你要选择一名玩家：他死亡。如果你在审判日降临前死于处决，一名善良玩家与一名邪恶玩家会变成海德拉。"
     },
-    "otherNightReminder": "让他选择一名玩家。"
+    "otherNightReminder": "让他选择一名玩家。",
+    "reminders": [
+      "死亡",
+      "死亡",
+      "是海德拉",
+      "是海德拉",
+      "是海德拉"
+    ]
   }
 }

@@ -1213,6 +1213,17 @@
     "next_day_label": "Next day",
     "no_game_active": "No game in progress",
     "tap_menu_to_start": "Tap ☰ to start a new game",
-    "field_required": "Required"
+    "field_required": "Required",
+    "almanac": "Almanac",
+    "almanac_summary": "Role summary",
+    "almanac_howto": "How it works",
+    "almanac_examples": "Examples",
+    "almanac_rules": "Rules detail",
+    "almanac_reminder_details": "Reminder token placement",
+    "almanac_tips": "Play & counterplay",
+    "almanac_bluffing": "Bluffing as this character",
+    "almanac_flavor": "Background",
+    "almanac_source": "Source page",
+    "no_almanac_for_this_character": "No almanac entry for this character."
   }
 }

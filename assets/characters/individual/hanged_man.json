@@ -4,9 +4,6 @@
   "edition": "odyssey",
   "current_revision": "v1",
   "setup": false,
-  "reminders": [
-    "对调胜负"
-  ],
   "revisions": [
     {
       "id": "v1",
@@ -21,6 +18,9 @@
     "ability": "当游戏结束时，如果你曾使用投票标记投票，对调胜负结果。",
     "revisions": {
       "v1": "当游戏结束时，如果你曾使用投票标记投票，对调胜负结果。"
-    }
+    },
+    "reminders": [
+      "对调胜负"
+    ]
   }
 }

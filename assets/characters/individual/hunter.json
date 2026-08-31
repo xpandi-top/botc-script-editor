@@ -4,10 +4,6 @@
   "edition": "odyssey",
   "current_revision": "v1",
   "setup": false,
-  "reminders": [
-    "陷阱",
-    "死亡"
-  ],
   "revisions": [
     {
       "id": "v1",
@@ -23,6 +19,10 @@
     "revisions": {
       "v1": "如果被你提名的玩家在当晚死亡，你会被唤醒且要选择一名玩家：他死亡。"
     },
-    "otherNightReminder": "如果当天猎人提名的玩家死亡，唤醒猎人并让他选择一名玩家。"
+    "otherNightReminder": "如果当天猎人提名的玩家死亡，唤醒猎人并让他选择一名玩家。",
+    "reminders": [
+      "陷阱",
+      "死亡"
+    ]
   }
 }

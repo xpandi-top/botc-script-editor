@@ -4,10 +4,6 @@
   "edition": "odyssey",
   "current_revision": "v1",
   "setup": false,
-  "reminders": [
-    "暗杀",
-    "死亡"
-  ],
   "revisions": [
     {
       "id": "v1",
@@ -23,6 +19,10 @@
     "revisions": {
       "v1": "每个白天，如果你是首位或末位发起提名的玩家，且被你提名的玩家是邪恶的，他会在当晚死亡。"
     },
-    "otherNightReminder": "将“暗杀”提示标记替换为“死亡”提示标记。"
+    "otherNightReminder": "将“暗杀”提示标记替换为“死亡”提示标记。",
+    "reminders": [
+      "暗杀",
+      "死亡"
+    ]
   }
 }

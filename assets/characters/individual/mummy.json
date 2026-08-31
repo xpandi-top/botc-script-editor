@@ -4,9 +4,6 @@
   "edition": "odyssey",
   "current_revision": "v1",
   "setup": false,
-  "reminders": [
-    "等待复活"
-  ],
   "revisions": [
     {
       "id": "v1",
@@ -21,6 +18,9 @@
     "ability": "如果你死于邪恶玩家发起的提名处决或能力，审判日降临时，你复活。",
     "revisions": {
       "v1": "如果你死于邪恶玩家发起的提名处决或能力，审判日降临时，你复活。"
-    }
+    },
+    "reminders": [
+      "等待复活"
+    ]
   }
 }

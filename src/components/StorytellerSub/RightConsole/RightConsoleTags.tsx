@@ -5,7 +5,7 @@ import { Box, Button, Typography, TextField, Chip, Paper } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { uniqueStrings } from '../constants'
-import { characterById } from '../../../catalog'
+import { getCharacterReminders, getCharacterRemindersGlobal } from '../../../catalog'
 import { useT } from '../../../context/I18nContext'
 
 export function RightConsoleTags({
@@ -31,12 +31,11 @@ export function RightConsoleTags({
     const ids = new Set<string>([...(currentScriptCharacters ?? []), ...inPlayIds])
     const tags = new Set<string>()
     for (const id of ids) {
-      const char = characterById[id]
-      ;(char?.reminders ?? []).forEach((reminder) => tags.add(reminder))
-      ;(char?.remindersGlobal ?? []).forEach((reminder) => tags.add(reminder))
+      getCharacterReminders(id, language).forEach((reminder) => tags.add(reminder))
+      getCharacterRemindersGlobal(id, language).forEach((reminder) => tags.add(reminder))
     }
     return [...tags].sort()
-  }, [currentScriptCharacters, currentDay?.seats])
+  }, [currentScriptCharacters, currentDay?.seats, language])
 
   const defaultTags = language === 'zh'
     ? ['死亡', '处决', '旅行者', '无投票权']

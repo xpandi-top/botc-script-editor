@@ -4,9 +4,6 @@
   "edition": "odyssey",
   "current_revision": "v1",
   "setup": false,
-  "reminders": [
-    "复仇"
-  ],
   "revisions": [
     {
       "id": "v1",
@@ -21,6 +18,9 @@
     "ability": "如果你在死于处决后，立即公开声明你是百臂巨人，你下一次投票的票数会记作你今天获得的票数。",
     "revisions": {
       "v1": "如果你在死于处决后，立即公开声明你是百臂巨人，你下一次投票的票数会记作你今天获得的票数。"
-    }
+    },
+    "reminders": [
+      "复仇"
+    ]
   }
 }

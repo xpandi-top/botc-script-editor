@@ -4,10 +4,6 @@
   "edition": "odyssey",
   "current_revision": "v1",
   "setup": false,
-  "reminders": [
-    "死亡",
-    "复仇"
-  ],
   "revisions": [
     {
       "id": "v1",
@@ -23,6 +19,10 @@
     "revisions": {
       "v1": "如果与你邻近的存活玩家死亡，当晚你会被唤醒并要选择一名玩家：如果他是爪牙，他死亡。"
     },
-    "otherNightReminder": "如果当天有与游侠邻近的存活玩家死亡，让他选择一名玩家。"
+    "otherNightReminder": "如果当天有与游侠邻近的存活玩家死亡，让他选择一名玩家。",
+    "reminders": [
+      "死亡",
+      "复仇"
+    ]
   }
 }

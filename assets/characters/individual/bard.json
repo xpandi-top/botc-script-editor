@@ -4,13 +4,6 @@
   "edition": "odyssey",
   "current_revision": "v1",
   "setup": false,
-  "reminders": [
-    "醉酒",
-    "醉酒",
-    "醉酒",
-    "醉酒",
-    "醉酒"
-  ],
   "revisions": [
     {
       "id": "v1",
@@ -26,6 +19,13 @@
     "revisions": {
       "v1": "每个白天，你可以公开选择任意名存活玩家：其中的镇民会醉酒直到你再次选择。当晚你会得知正因你醉酒的人数。"
     },
-    "otherNightReminder": "告诉他有多少名玩家正因他的能力而醉酒。"
+    "otherNightReminder": "告诉他有多少名玩家正因他的能力而醉酒。",
+    "reminders": [
+      "醉酒",
+      "醉酒",
+      "醉酒",
+      "醉酒",
+      "醉酒"
+    ]
   }
 }

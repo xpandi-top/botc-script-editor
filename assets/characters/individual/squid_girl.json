@@ -4,10 +4,6 @@
   "edition": "odyssey",
   "current_revision": "v1",
   "setup": false,
-  "reminders": [
-    "镇民醉酒",
-    "失去能力"
-  ],
   "revisions": [
     {
       "id": "v1",
@@ -22,6 +18,10 @@
     "ability": "当你首次即将死亡时，你可能不会死亡，但所有镇民会醉酒直到明天黄昏。",
     "revisions": {
       "v1": "当你首次即将死亡时，你可能不会死亡，但所有镇民会醉酒直到明天黄昏。"
-    }
+    },
+    "reminders": [
+      "镇民醉酒",
+      "失去能力"
+    ]
   }
 }

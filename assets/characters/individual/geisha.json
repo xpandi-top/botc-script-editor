@@ -4,9 +4,6 @@
   "edition": "odyssey",
   "current_revision": "v1",
   "setup": false,
-  "reminders": [
-    "得知"
-  ],
   "revisions": [
     {
       "id": "v1",
@@ -23,6 +20,9 @@
       "v1": "在你存活与死亡的首个夜晚，你会分别得知一名存活玩家：他们的阵营对立。"
     },
     "firstNightReminder": "唤醒她并告知她一名玩家。",
-    "otherNightReminder": "如果她当天死亡，唤醒她并告知她一名玩家。"
+    "otherNightReminder": "如果她当天死亡，唤醒她并告知她一名玩家。",
+    "reminders": [
+      "得知"
+    ]
   }
 }
