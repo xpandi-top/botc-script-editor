@@ -998,6 +998,24 @@ export async function getAlmanacEntry(
   return file?.characters?.[id] ?? null
 }
 
+/** Distinct editions among the given characters, in catalog order. */
+export function getEditionsForCharacters(characterIds: Iterable<string>): string[] {
+  const editions: string[] = []
+  for (const id of characterIds) {
+    const edition = characterById[id]?.edition ?? _customCharRegistry.get(id)?.edition
+    if (edition && !editions.includes(edition)) editions.push(edition)
+  }
+  return editions
+}
+
+/**
+ * Editions on this roster that publish a glossary — the packs whose terms a
+ * storyteller may need mid-game. Sync, so it can gate a tab without a fetch.
+ */
+export function getEditionsWithGlossary(characterIds: Iterable<string>): string[] {
+  return getEditionsForCharacters(characterIds).filter(hasAlmanac)
+}
+
 /** Glossary terms an edition defines (Odyssey's 审判日, 变量X, 延迟, …). */
 export async function getAlmanacTerminology(
   edition: string,

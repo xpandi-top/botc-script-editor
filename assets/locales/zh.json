@@ -1228,6 +1228,8 @@
     "attribution_line": "角色来自{0} · {1}",
     "attribution_line_no_source": "角色来自{0}",
     "pack_source": "角色包",
-    "pack_terms": "使用条款"
+    "pack_terms": "使用条款",
+    "glossary": "术语",
+    "no_glossary_for_this_script": "该剧本没有角色包术语。"
   }
 }

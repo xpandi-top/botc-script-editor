@@ -5,9 +5,10 @@ import { useT } from '../../context/I18nContext'
 import type { UiKey } from '../../lib/t'
 import CloseIcon from '@mui/icons-material/Close'
 import MenuBookIcon from '@mui/icons-material/MenuBook'
-import { getEffectiveNightOrderFromRegistry, getDisplayName, getIconForCharacter, getAbilityTextForScript, characterById } from '../../catalog'
+import { getEffectiveNightOrderFromRegistry, getDisplayName, getIconForCharacter, getAbilityTextForScript, getEditionsWithGlossary, characterById } from '../../catalog'
 import { Divider } from '@mui/material'
 import { MonoText } from '../../components/ui'
+import { EditionGlossary } from '../EditionGlossary'
 
 const TEAM_ORDER = ['townsfolk', 'outsider', 'minion', 'demon', 'traveler'] as const
 const TEAM_LABELS: Record<string, { light: string; dark: string }> = {
@@ -18,7 +19,7 @@ const TEAM_LABELS: Record<string, { light: string; dark: string }> = {
   traveler:  { light: '#2e7d32', dark: '#a5d6a7' },
 }
 
-type ScriptView = 'characters' | 'firstNight' | 'otherNight'
+type ScriptView = 'characters' | 'firstNight' | 'otherNight' | 'glossary'
 
 export function LeftScriptPanel({ ctx, inlineMode = false }: { ctx: StorytellerContext; inlineMode?: boolean }) {
   const { language, currentScriptCharacters, activeScriptTitle, activeScriptVersion, setShowScriptPanel, showScriptPanel, scriptOptions, activeScriptSlug } = ctx
@@ -33,6 +34,10 @@ export function LeftScriptPanel({ ctx, inlineMode = false }: { ctx: StorytellerC
   const [showAbilities, setShowAbilities] = React.useState(false)
 
   const characterIds: string[] = currentScriptCharacters?.map((c: any) => typeof c === 'string' ? c : c.id) ?? []
+
+  // Packs on this roster that publish their own rules vocabulary. Sync check, so
+  // the tab only appears for scripts that actually have terms to look up.
+  const glossaryEditions = getEditionsWithGlossary(characterIds)
 
   const firstNightOrder = (getEffectiveNightOrderFromRegistry().first_night ?? []).filter(
     (id) => characterIds.includes(id) || id === 'MINION_INFO' || id === 'DEMON_INFO'
@@ -102,6 +107,9 @@ export function LeftScriptPanel({ ctx, inlineMode = false }: { ctx: StorytellerC
           <Tab label={t('chars')} value="characters" sx={{ fontSize: '0.78rem', minWidth: 0, px: 0.5 }} />
           <Tab label={t('first')} value="firstNight" sx={{ fontSize: '0.78rem', minWidth: 0, px: 0.5 }} />
           <Tab label={t('other')} value="otherNight" sx={{ fontSize: '0.78rem', minWidth: 0, px: 0.5 }} />
+          {glossaryEditions.length > 0 && (
+            <Tab label={t('glossary')} value="glossary" sx={{ fontSize: '0.78rem', minWidth: 0, px: 0.5 }} />
+          )}
         </Tabs>
         <Tooltip title={showAbilities ? (t('hide_abilities')) : (t('show_abilities'))}>
           <IconButton size="small" onClick={() => setShowAbilities((v) => !v)}
@@ -162,6 +170,7 @@ export function LeftScriptPanel({ ctx, inlineMode = false }: { ctx: StorytellerC
           })()}
           {view === 'firstNight' && <List dense>{renderNightList(firstNightOrder)}</List>}
           {view === 'otherNight' && <List dense>{renderNightList(otherNightOrder)}</List>}
+          {view === 'glossary' && <EditionGlossary editions={glossaryEditions} language={language} />}
         </Box>
       </>
   )

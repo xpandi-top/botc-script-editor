@@ -228,6 +228,7 @@ export type UiKey =
   | 'phase_switch_sound' | 'pick_by_character' | 'random' | 'remove_novote'
   | 'replay_this_script' | 'save_record' | 'saved'
   | 'pack_source' | 'pack_terms'
+  | 'glossary' | 'no_glossary_for_this_script'
   | 'almanac' | 'almanac_summary' | 'almanac_howto' | 'almanac_examples'
   | 'almanac_rules' | 'almanac_reminder_details' | 'almanac_tips'
   | 'almanac_bluffing' | 'almanac_flavor' | 'almanac_source'

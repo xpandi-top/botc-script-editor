@@ -1228,6 +1228,8 @@
     "attribution_line": "Characters from {0} · {1}",
     "attribution_line_no_source": "Characters from {0}",
     "pack_source": "Pack",
-    "pack_terms": "Usage terms"
+    "pack_terms": "Usage terms",
+    "glossary": "Terms",
+    "no_glossary_for_this_script": "No pack glossary for this script."
   }
 }
