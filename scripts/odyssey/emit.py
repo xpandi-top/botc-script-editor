@@ -41,13 +41,27 @@ for key,listkey,prevk,numk in (('first','first_night','fnPrev','fnNum'),('other'
     lst=no[listkey]
     items=[r for r in recs if r[prevk]]
     items.sort(key=lambda r:int(re.sub(r'\D','',r[numk] or '0') or 0))
+    # Several characters can share one "preceding character". Inserting each of
+    # them directly after the anchor reverses the group, so track how many of a
+    # group are already placed and append after those instead.
+    placed_after=collections.defaultdict(int)
     for r in items:
         if r['cid'] in lst: continue
         a=resolve(r[prevk])
         if a is None or a not in lst:
             lst.append(r['cid']); report[key].append((r['cid'],r[prevk],'APPENDED'))
         else:
-            lst.insert(lst.index(a)+1,r['cid'])
+            lst.insert(lst.index(a)+placed_after[a]+1,r['cid'])
+            placed_after[a]+=1
+# Position values (spaced by 10) and the pack's own published night values, so a
+# later sync can place a character by comparison instead of by anchor.
+order={}; source={}
+for listkey,numk in (('first_night','fnNum'),('other_nights','onNum')):
+    order[listkey]={cid:(i+1)*10 for i,cid in enumerate(no[listkey])}
+    byid={r['cid']:r for r in recs}
+    source[listkey]={cid:int(byid[cid][numk]) for cid in no[listkey]
+                     if cid in byid and (byid[cid][numk] or '').isdigit()}
+no['order']=order; no['source_order']=source
 json.dump(no,open(R+'/assets/characters/night-order.json','w'),ensure_ascii=False,indent=2)
 print('night order first',len(no['first_night']),'other',len(no['other_nights']))
 print('fallback appends:',report)

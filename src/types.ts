@@ -221,6 +221,18 @@ export type Language = 'en' | 'zh'
 export type NightOrderData = {
   first_night?: string[]
   other_nights?: string[]
+  /**
+   * Position value per entry, spaced by 10 so a character can be inserted
+   * between two existing ones without renumbering. Derived from the arrays,
+   * which remain the readable order; a test keeps the two in step.
+   */
+  order?: { first_night?: Record<string, number>; other_nights?: Record<string, number> }
+  /**
+   * The night-order value a character pack publishes for its own characters
+   * (Odyssey's 夜序数值). Lets a re-sync place a new character by bisecting on
+   * its published value instead of chasing a "preceding character" anchor.
+   */
+  source_order?: { first_night?: Record<string, number>; other_nights?: Record<string, number> }
 }
 
 // ── Custom characters (Phase 2 — stored in localStorage BOTC_CUSTOM_CHARACTERS) ──

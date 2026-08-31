@@ -127,13 +127,15 @@ team/edition 合法、图标存在、`current_revision` 有效、提示标记是
 奥德赛专项包括 `setup` 与能力里的 `[...]` 一一对应、`zh.ability` 与当前 revision 一致、
 标记没混进说明文字、119 个角色全在剧本和 almanac 里。重新同步后先跑它。
 
-### P3 — 夜晚顺序数据结构
+### ~~P3 — 夜晚顺序数据结构~~ ✅ 已解决
 
-`night-order.json` 是纯数组，没有数值。奥德赛给了标准夜序数值（如 7510 / 11010），
-下次同步或插入新角色只能靠「前位角色」锚点，很脆弱。
+`night-order.json` 在数组之外加了 `order`（位置数值，×10 间隔）和 `source_order`
+（角色包公布的夜序数值）。数组保持不变，所有消费方无需改动；
+`getNightOrderValue` / `getNightSourceValue` / `nightOrderFromValues` 供插入和校验使用。
+`nightOrderValues.test.ts` 保证按值排序能还原原数组，不会悄悄漂移。
 
-改法：`night-order.json` 改为 `{ id, order }` 列表，或在角色 JSON 里存 `firstNight` / `otherNight` 数值
-（`ScriptCharacterItem` 已有这两个字段，`CharacterEntry` 没有），排序改为按数值。
+修这一项时发现并修掉了导入时的排序 bug：同一「前位角色」下的多个角色被各自插到锚点正后方，
+导致整组倒序，其他夜 9 处受影响。`scripts/odyssey/emit.py` 已改为按组累加偏移插入。
 
 ---
 

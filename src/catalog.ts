@@ -413,6 +413,36 @@ export function buildEffectiveNightOrder(customChars: CustomCharacter[]): NightO
   return { first_night: first, other_nights: other }
 }
 
+export type NightPhase = 'first' | 'other'
+
+function nightKey(night: NightPhase): 'first_night' | 'other_nights' {
+  return night === 'first' ? 'first_night' : 'other_nights'
+}
+
+/**
+ * Position value of an entry in the shipped night order, or undefined for an
+ * id that does not wake that night. Values are spaced by 10, so a character
+ * belongs between two existing ones when its value falls between theirs.
+ */
+export function getNightOrderValue(id: string, night: NightPhase): number | undefined {
+  return nightOrder.order?.[nightKey(night)]?.[id]
+}
+
+/**
+ * The value a character's own pack publishes for it (Odyssey's 夜序数值), when
+ * known. Used to place newly imported characters by comparison rather than by
+ * a preceding-character anchor.
+ */
+export function getNightSourceValue(id: string, night: NightPhase): number | undefined {
+  return nightOrder.source_order?.[nightKey(night)]?.[id]
+}
+
+/** Rebuild a night's order from its value map — the arrays' consistency check. */
+export function nightOrderFromValues(night: NightPhase): string[] {
+  const values = nightOrder.order?.[nightKey(night)] ?? {}
+  return Object.keys(values).sort((a, b) => values[a] - values[b])
+}
+
 export const NIGHT_ORDER_OVERRIDES_KEY = 'BOTC_NIGHT_ORDER_OVERRIDES'
 
 function loadNightOrderOverrides(): { first_night: string[]; other_nights: string[] } | null {
