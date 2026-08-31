@@ -20,6 +20,7 @@ import {
   editionLabels,
   getAbilityText,
   getDisplayName,
+  getDisambiguatedName,
   getIconForCharacter,
   getCurrentRevision,
   teamLabels,
@@ -976,7 +977,7 @@ export function CharactersTab({
                     )}
                     <Box sx={{ textAlign: 'left', flex: 1, minWidth: 0 }}>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 1 }}>
-                        <Typography sx={{ fontWeight: 600 }}>{getDisplayName(character.id, uiLanguage)}</Typography>
+                        <Typography sx={{ fontWeight: 600 }}>{getDisambiguatedName(character.id, uiLanguage)}</Typography>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0 }}>
                           {isNewlyImported && (
                             <Typography variant="caption" sx={{ fontSize: '0.6rem', bgcolor: 'success.main', color: 'success.contrastText', px: 0.5, borderRadius: 0.5 }}>

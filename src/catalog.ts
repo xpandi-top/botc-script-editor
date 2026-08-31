@@ -92,6 +92,7 @@ let _charPackOverrides: CharacterPackOverrides = loadCharPackOverrides()
 
 export function refreshCharPackOverrides() {
   _charPackOverrides = loadCharPackOverrides()
+  refreshNameDisambiguation()
 }
 
 /** Apply an uploaded character pack — merges into existing overrides. */
@@ -108,12 +109,14 @@ export function applyCharacterPack(pack: CharacterFileEntry[]) {
   }
   localStorage.setItem(CHAR_PACK_OVERRIDES_KEY, JSON.stringify(current))
   _charPackOverrides = current
+  refreshNameDisambiguation()
 }
 
 /** Clear all character pack overrides. */
 export function clearCharacterPackOverrides() {
   localStorage.removeItem(CHAR_PACK_OVERRIDES_KEY)
   _charPackOverrides = {}
+  refreshNameDisambiguation()
 }
 
 // ── Character reminder token overrides (catalog chars) ────────────────────────
@@ -253,6 +256,7 @@ export function toCharacterEntry(c: CustomCharacter): CharacterEntry {
 export function registerCustomCharacters(chars: CustomCharacter[]) {
   _customCharRegistry = new Map(chars.map((c) => [c.id, c]))
   _customCharEntries = chars.map(toCharacterEntry)
+  refreshNameDisambiguation()
 }
 
 /** Returns catalog characters merged with currently registered custom characters. */
@@ -477,6 +481,66 @@ export function getDisplayName(id: string, language: Language = 'en') {
   const fallback = _charLocale[fallbackLanguage]?.[id]?.name ?? _charPackOverrides[id]?.[fallbackLanguage]?.name
   if (fallback) return fallback
   return toTitleCase(id)
+}
+
+// ── Duplicate display names across packs ─────────────────────────────────────
+//
+// Independent authors reuse names, so two different characters can render
+// identically: Odyssey's 阴阳师 (onmyoji) collides with Hua Deng Chu Shang's
+// 阴阳师 (yinyangshi) in Chinese, and Odyssey's Rascal collides with that same
+// pack's 熊孩子 in English. Renaming either would mean editing another author's
+// pack, so disambiguate at display time instead — and only where it is actually
+// ambiguous, so unaffected characters read normally.
+
+let _ambiguousIds: Partial<Record<Language, Set<string>>> = {}
+
+/** Drop the cached collision sets — call when the character set changes. */
+export function refreshNameDisambiguation() {
+  _ambiguousIds = {}
+}
+
+function ambiguousIdsFor(language: Language): Set<string> {
+  const cached = _ambiguousIds[language]
+  if (cached) return cached
+
+  const idsByName = new Map<string, string[]>()
+  for (const character of getEffectiveAllCharacters()) {
+    const name = getDisplayName(character.id, language)
+    const bucket = idsByName.get(name)
+    if (bucket) bucket.push(character.id)
+    else idsByName.set(name, [character.id])
+  }
+
+  const ambiguous = new Set<string>()
+  for (const ids of idsByName.values()) {
+    if (ids.length > 1) for (const id of ids) ambiguous.add(id)
+  }
+
+  _ambiguousIds[language] = ambiguous
+  return ambiguous
+}
+
+/** True when another character renders under the same name in this language. */
+export function hasAmbiguousName(id: string, language: Language = 'en'): boolean {
+  return ambiguousIdsFor(language).has(id)
+}
+
+/**
+ * Display name, qualified with the pack label when another character shares it
+ * ("阴阳师（奥德赛）"). Identical to getDisplayName for everything else.
+ *
+ * Use in lists and reference views where two characters can sit side by side.
+ * Keep getDisplayName for tokens and single-character views, where the pack is
+ * either obvious or would just be noise.
+ */
+export function getDisambiguatedName(id: string, language: Language = 'en'): string {
+  const name = getDisplayName(id, language)
+  if (!hasAmbiguousName(id, language)) return name
+
+  const edition = getCharacterById(id)?.edition
+  if (!edition) return name
+  const label = editionLabels[language]?.[edition] ?? toTitleCase(edition)
+  return language === 'zh' ? `${name}（${label}）` : `${name} (${label})`
 }
 
 export function getAbilityText(id: string, language: Language = 'en') {

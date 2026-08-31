@@ -16,6 +16,7 @@ import {
   editionLabels,
   getAbilityTextForScript,
   getDisplayName,
+  getDisambiguatedName,
   getActiveJinxesForScript,
   getIconForCharacter,
   getEffectiveNightOrderFromRegistry,
@@ -344,7 +345,7 @@ export function SheetArticle({
     // Prefer catalog (handles revisions); fall back to inline data on the character.
     // character.nameZh / character.abilityZh are populated for shared custom chars
     // that the recipient doesn't have in their local catalog.
-    const catalogName = getDisplayName(character.id, lang)
+    const catalogName = getDisambiguatedName(character.id, lang)
     const inlineName  = lang === 'zh' ? (character.nameZh ?? character.name) : character.name
     const displayName = catalogName !== toTitleCase(character.id)
       ? catalogName
@@ -367,7 +368,7 @@ export function SheetArticle({
             : (character.ability ?? '')
         })()
       : null
-    const nameAltRaw = withBoth ? getDisplayName(character.id, altLang) : null
+    const nameAltRaw = withBoth ? getDisambiguatedName(character.id, altLang) : null
     const nameAlt = withBoth
       ? (nameAltRaw !== toTitleCase(character.id)
           ? nameAltRaw

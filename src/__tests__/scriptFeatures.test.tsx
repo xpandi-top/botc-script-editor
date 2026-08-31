@@ -16,6 +16,7 @@ vi.mock('../catalog', async (importOriginal) => {
     ...actual,
     getIconForCharacter: () => null,
     getDisplayName: (id: string) => id,
+    getDisambiguatedName: (id: string) => id,
     getAbilityTextForScript: (id: string) => `Ability of ${id}.`,
     getActiveJinxesForScript: () => [],
     getEffectiveNightOrderFromRegistry: () => ({ first_night: [], other_nights: [] }),

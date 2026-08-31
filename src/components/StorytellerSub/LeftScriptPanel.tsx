@@ -5,7 +5,7 @@ import { useT } from '../../context/I18nContext'
 import type { UiKey } from '../../lib/t'
 import CloseIcon from '@mui/icons-material/Close'
 import MenuBookIcon from '@mui/icons-material/MenuBook'
-import { getEffectiveNightOrderFromRegistry, getDisplayName, getIconForCharacter, getAbilityTextForScript, getEditionsWithGlossary, characterById } from '../../catalog'
+import { getEffectiveNightOrderFromRegistry, getDisambiguatedName, getIconForCharacter, getAbilityTextForScript, getEditionsWithGlossary, characterById } from '../../catalog'
 import { Divider } from '@mui/material'
 import { MonoText } from '../../components/ui'
 import { EditionGlossary } from '../EditionGlossary'
@@ -64,7 +64,7 @@ export function LeftScriptPanel({ ctx, inlineMode = false }: { ctx: StorytellerC
       if (id === 'MINION_INFO') return <ListItem key="minion-info" sx={{ justifyContent: 'center' }}><Typography variant="caption" sx={{ fontWeight: 700, color: isDark ? TEAM_LABELS.minion.dark : TEAM_LABELS.minion.light }}>{t('minion_info')}</Typography></ListItem>
       if (id === 'DEMON_INFO') return <ListItem key="demon-info" sx={{ justifyContent: 'center' }}><Typography variant="caption" sx={{ fontWeight: 700, color: isDark ? TEAM_LABELS.demon.dark : TEAM_LABELS.demon.light }}>{t('demon_info')}</Typography></ListItem>
       const icon = getIconForCharacter(id)
-      const name = getDisplayName(id, language)
+      const name = getDisambiguatedName(id, language)
       const isSelected = selectedCharId === id
       return (
         <React.Fragment key={`${id}-${i}`}>
@@ -143,7 +143,7 @@ export function LeftScriptPanel({ ctx, inlineMode = false }: { ctx: StorytellerC
                       <List dense sx={{ py: 0 }}>
                         {byTeam[team].map((id) => {
                           const icon = getIconForCharacter(id)
-                          const name = getDisplayName(id, language)
+                          const name = getDisambiguatedName(id, language)
                           const isSelected = selectedCharId === id
                           return (
                             <React.Fragment key={id}>
