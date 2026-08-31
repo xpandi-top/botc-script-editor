@@ -1,0 +1,28 @@
+{
+  "id": "visagiste",
+  "team": "outsider",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "换妆",
+    "换妆"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Visagiste"
+  },
+  "zh": {
+    "name": "化妆师",
+    "ability": "如果你提名的或提名你的玩家是爪牙或恶魔，当晚他可以选择变成不在场的同类型角色，即使你已死亡。",
+    "revisions": {
+      "v1": "如果你提名的或提名你的玩家是爪牙或恶魔，当晚他可以选择变成不在场的同类型角色，即使你已死亡。"
+    },
+    "otherNightReminder": "唤醒被放置“换妆”提示标记的玩家。"
+  }
+}

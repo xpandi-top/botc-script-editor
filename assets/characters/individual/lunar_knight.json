@@ -1,0 +1,28 @@
+{
+  "id": "lunar_knight",
+  "team": "townsfolk",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "死亡",
+    "当晚唤醒"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Lunar Knight"
+  },
+  "zh": {
+    "name": "月光骑士",
+    "ability": "每个夜晚*，如果当天无人死于处决，你会被唤醒并要选择一名玩家：如果他是爪牙，他死亡。",
+    "revisions": {
+      "v1": "每个夜晚*，如果当天无人死于处决，你会被唤醒并要选择一名玩家：如果他是爪牙，他死亡。"
+    },
+    "otherNightReminder": "如果“当晚唤醒”标记被放置，唤醒他让他选择一名玩家，如果选中爪牙，为该爪牙标记“死亡”。"
+  }
+}

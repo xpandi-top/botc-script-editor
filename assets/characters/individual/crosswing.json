@@ -1,0 +1,29 @@
+{
+  "id": "crosswing",
+  "team": "minion",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "中毒",
+    "中毒"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Crosswing"
+  },
+  "zh": {
+    "name": "逆蝶",
+    "ability": "在第X个夜晚，你要选择是否令与你距离为X的玩家中毒直到下个黄昏。",
+    "revisions": {
+      "v1": "在第X个夜晚，你要选择是否令与你距离为X的玩家中毒直到下个黄昏。"
+    },
+    "firstNightReminder": "唤醒逆蝶，他要点头或摇头。",
+    "otherNightReminder": "唤醒逆蝶，他要点头或摇头。"
+  }
+}

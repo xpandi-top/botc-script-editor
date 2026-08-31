@@ -1,0 +1,29 @@
+{
+  "id": "narcotizer",
+  "team": "minion",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "中毒",
+    "得知"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Narcotizer"
+  },
+  "zh": {
+    "name": "麻醉师",
+    "ability": "每个夜晚，你要选择一名玩家：他中毒直到你改变选择。因你中毒的存活玩家恢复健康时，会得知麻醉师在场。",
+    "revisions": {
+      "v1": "每个夜晚，你要选择一名玩家：他中毒直到你改变选择。因你中毒的存活玩家恢复健康时，会得知麻醉师在场。"
+    },
+    "firstNightReminder": "让他选择一名玩家。",
+    "otherNightReminder": "让他选择一名玩家。"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "id": "loverbound",
+  "team": "outsider",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "恋人",
+    "死亡"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Loverbound"
+  },
+  "zh": {
+    "name": "殉情者",
+    "ability": "在你的首个夜晚，你要选择一名其他玩家：你或他死亡之后，另一人随时可能死亡。",
+    "revisions": {
+      "v1": "在你的首个夜晚，你要选择一名其他玩家：你或他死亡之后，另一人随时可能死亡。"
+    },
+    "firstNightReminder": "让他选择一名玩家。"
+  }
+}

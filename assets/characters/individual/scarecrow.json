@@ -1,0 +1,27 @@
+{
+  "id": "scarecrow",
+  "team": "outsider",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "稻草人",
+    "保护"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Scarecrow"
+  },
+  "zh": {
+    "name": "稻草人",
+    "ability": "你以为你是一个镇民角色，但其实你不是。如果你死亡，下次处决不会造成死亡。",
+    "revisions": {
+      "v1": "你以为你是一个镇民角色，但其实你不是。如果你死亡，下次处决不会造成死亡。"
+    }
+  }
+}

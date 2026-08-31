@@ -1,0 +1,30 @@
+{
+  "id": "cowboy",
+  "team": "townsfolk",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "宿敌",
+    "发起提名",
+    "了断"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Cowboy"
+  },
+  "zh": {
+    "name": "牛仔",
+    "ability": "在首个夜晚，一名爪牙会得知牛仔在场。每当他发起提名，你会在当晚被唤醒。你们中首次被对方提名的玩家立即被处决。",
+    "revisions": {
+      "v1": "在首个夜晚，一名爪牙会得知牛仔在场。每当他发起提名，你会在当晚被唤醒。你们中首次被对方提名的玩家立即被处决。"
+    },
+    "firstNightReminder": "唤醒一名爪牙，告知他牛仔在场。",
+    "otherNightReminder": "如果得知牛仔在场的爪牙发起了提名，唤醒牛仔。"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "id": "ronin",
+  "team": "townsfolk",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "弹刀",
+    "失去能力"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Ronin"
+  },
+  "zh": {
+    "name": "浪人",
+    "ability": "每局游戏限一次，在夜晚时*，你可以选择一名玩家：如果当晚他被恶魔攻击，一名邪恶玩家会代替他被攻击，且你重获能力。",
+    "revisions": {
+      "v1": "每局游戏限一次，在夜晚时*，你可以选择一名玩家：如果当晚他被恶魔攻击，一名邪恶玩家会代替他被攻击，且你重获能力。"
+    },
+    "otherNightReminder": "让他选择一名玩家，在该玩家旁放置“弹刀”提示标记。"
+  }
+}

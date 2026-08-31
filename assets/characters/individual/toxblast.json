@@ -1,0 +1,27 @@
+{
+  "id": "toxblast",
+  "team": "minion",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "中毒",
+    "中毒"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Toxblast"
+  },
+  "zh": {
+    "name": "毒爆",
+    "ability": "当有玩家被处决时，与他邻近的两名镇民中毒直到明天黄昏。如果白天没人被处决，所有镇民中毒直到明天黄昏。",
+    "revisions": {
+      "v1": "当有玩家被处决时，与他邻近的两名镇民中毒直到明天黄昏。如果白天没人被处决，所有镇民中毒直到明天黄昏。"
+    }
+  }
+}

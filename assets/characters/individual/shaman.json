@@ -1,0 +1,27 @@
+{
+  "id": "shaman",
+  "team": "minion",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "失去能力"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Shaman"
+  },
+  "zh": {
+    "name": "萨满",
+    "ability": "每局游戏限一次，在夜晚时*，你可以选择四个不同类型的角色：对每个不在场的角色，一名同类型的玩家会变成该角色。",
+    "revisions": {
+      "v1": "每局游戏限一次，在夜晚时*，你可以选择四个不同类型的角色：对每个不在场的角色，一名同类型的玩家会变成该角色。"
+    },
+    "otherNightReminder": "让他选择一个角色。"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "id": "arbiter",
+  "team": "townsfolk",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Arbiter"
+  },
+  "zh": {
+    "name": "仲裁者",
+    "ability": "其他善良玩家不会死于你发起的提名处决。",
+    "revisions": {
+      "v1": "其他善良玩家不会死于你发起的提名处决。"
+    }
+  }
+}

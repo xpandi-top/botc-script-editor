@@ -1,0 +1,28 @@
+{
+  "id": "skipper",
+  "team": "townsfolk",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "祭品",
+    "醉酒"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Skipper"
+  },
+  "zh": {
+    "name": "船长",
+    "ability": "每个夜晚*，你会得知恶魔更接近当天被处决玩家的左侧还是右侧。如果邪恶玩家被处决，你醉酒直到下个黎明。",
+    "revisions": {
+      "v1": "每个夜晚*，你会得知恶魔更接近当天被处决玩家的左侧还是右侧。如果邪恶玩家被处决，你醉酒直到下个黎明。"
+    },
+    "otherNightReminder": "告知他左或右。"
+  }
+}

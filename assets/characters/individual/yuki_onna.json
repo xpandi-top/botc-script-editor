@@ -1,0 +1,29 @@
+{
+  "id": "yuki_onna",
+  "team": "minion",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "生毒",
+    "死毒"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Yuki-onna"
+  },
+  "zh": {
+    "name": "雪女",
+    "ability": "在你存活与死亡的首个夜晚，你要分别选择一名玩家：他中毒。",
+    "revisions": {
+      "v1": "在你存活与死亡的首个夜晚，你要分别选择一名玩家：他中毒。"
+    },
+    "firstNightReminder": "让他选择一名玩家。",
+    "otherNightReminder": "让他选择一名玩家。"
+  }
+}

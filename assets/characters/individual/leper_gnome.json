@@ -1,0 +1,29 @@
+{
+  "id": "leper_gnome",
+  "team": "minion",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "失去能力",
+    "失去能力",
+    "失去能力",
+    "失去能力"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Leper Gnome"
+  },
+  "zh": {
+    "name": "麻风侏儒",
+    "ability": "镇民玩家使用自身能力选择你时，会立即变成麻风侏儒，且你失去所有能力。你的胜负条件与邪恶玩家相同，即使你已死亡。",
+    "revisions": {
+      "v1": "镇民玩家使用自身能力选择你时，会立即变成麻风侏儒，且你失去所有能力。你的胜负条件与邪恶玩家相同，即使你已死亡。"
+    }
+  }
+}

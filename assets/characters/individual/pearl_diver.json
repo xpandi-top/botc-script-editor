@@ -1,0 +1,24 @@
+{
+  "id": "pearl_diver",
+  "team": "townsfolk",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Pearl Diver"
+  },
+  "zh": {
+    "name": "海女",
+    "ability": "在你的首个夜晚，你会得知一名邪恶玩家与你的距离。",
+    "revisions": {
+      "v1": "在你的首个夜晚，你会得知一名邪恶玩家与你的距离。"
+    },
+    "firstNightReminder": "告知她一个距离（数字）。"
+  }
+}

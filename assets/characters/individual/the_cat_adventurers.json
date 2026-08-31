@@ -1,0 +1,31 @@
+{
+  "id": "the_cat_adventurers",
+  "team": "townsfolk",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "探险者",
+    "已探险",
+    "已探险",
+    "已探险",
+    "已探险"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "The Cat Adventurers"
+  },
+  "zh": {
+    "name": "猫猫探险队",
+    "ability": "每个白天，一名未曾探险的玩家可以公开申请探险。在当晚，如果他存活，你会得知一名与他阵营对立的玩家。",
+    "revisions": {
+      "v1": "每个白天，一名未曾探险的玩家可以公开申请探险。在当晚，如果他存活，你会得知一名与他阵营对立的玩家。"
+    },
+    "otherNightReminder": "如果当天的探险者存活，唤他并告知一名与探险者阵营对立的玩家。"
+  }
+}

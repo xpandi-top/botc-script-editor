@@ -1,0 +1,24 @@
+{
+  "id": "psychic",
+  "team": "townsfolk",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Psychic"
+  },
+  "zh": {
+    "name": "通灵师",
+    "ability": "每个夜晚*，你要选择一名玩家：如果他已死亡，你会得知他的阵营。",
+    "revisions": {
+      "v1": "每个夜晚*，你要选择一名玩家：如果他已死亡，你会得知他的阵营。"
+    },
+    "otherNightReminder": "唤醒他并告知他善良或邪恶。"
+  }
+}

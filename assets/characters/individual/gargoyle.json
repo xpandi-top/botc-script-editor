@@ -1,0 +1,27 @@
+{
+  "id": "gargoyle",
+  "team": "outsider",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "失去能力",
+    "原石像鬼"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Gargoyle"
+  },
+  "zh": {
+    "name": "石像鬼",
+    "ability": "当你首次被其他玩家提名时，他死亡。如果你杀死了邪恶玩家，你变成他的角色与阵营。",
+    "revisions": {
+      "v1": "当你首次被其他玩家提名时，他死亡。如果你杀死了邪恶玩家，你变成他的角色与阵营。"
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "id": "valkyrie",
+  "team": "townsfolk",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "死亡"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Valkyrie"
+  },
+  "zh": {
+    "name": "女武神",
+    "ability": "每个夜晚*，死亡延迟到你同意死亡名单之后才会发生。如果你不同意，当晚有且只有你死亡。",
+    "revisions": {
+      "v1": "每个夜晚*，死亡延迟到你同意死亡名单之后才会发生。如果你不同意，当晚有且只有你死亡。"
+    },
+    "otherNightReminder": "告知她所有当晚即将死亡的玩家有哪些，并让她选择是否同意。"
+  }
+}

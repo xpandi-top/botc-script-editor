@@ -1,0 +1,28 @@
+{
+  "id": "notary",
+  "team": "townsfolk",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "受刑人",
+    "指控人"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Notary"
+  },
+  "zh": {
+    "name": "公证人",
+    "ability": "每个夜晚*，你会得知当天死于处决的玩家与提名他的玩家是否为同一阵营。",
+    "revisions": {
+      "v1": "每个夜晚*，你会得知当天死于处决的玩家与提名他的玩家是否为同一阵营。"
+    },
+    "otherNightReminder": "唤醒他并告知他是或否。"
+  }
+}

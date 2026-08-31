@@ -1,0 +1,26 @@
+{
+  "id": "hells_outcast",
+  "team": "outsider",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "罢黜（醉酒）"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Hell's Outcast"
+  },
+  "zh": {
+    "name": "地狱弃子",
+    "ability": "每个白天提名开始前，爪牙可以公开拥立地狱弃子：你立即转变为邪恶并与恶魔交换角色，然后他醉酒。",
+    "revisions": {
+      "v1": "每个白天提名开始前，爪牙可以公开拥立地狱弃子：你立即转变为邪恶并与恶魔交换角色，然后他醉酒。"
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "id": "constable",
+  "team": "townsfolk",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": true,
+  "reminders": [
+    "得知"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Constable"
+  },
+  "zh": {
+    "name": "治安官",
+    "ability": "在你的首个夜晚，你会得知一名玩家。如果你在夜晚死亡，你会得知一名玩家。他们中一人是爪牙，另一人是外来者。[+1外来者]",
+    "revisions": {
+      "v1": "在你的首个夜晚，你会得知一名玩家。如果你在夜晚死亡，你会得知一名玩家。他们中一人是爪牙，另一人是外来者。[+1外来者]"
+    },
+    "firstNightReminder": "告知他被放置“得知”提示标记的玩家。",
+    "otherNightReminder": "如果他在当晚死亡，唤醒他。如果被放置“得知”提示标记的玩家不是外来者，告知他一名外来者玩家。如果被放置“得知”提示标记的玩家不是爪牙，告知他一名爪牙玩家。"
+  }
+}

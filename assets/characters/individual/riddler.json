@@ -1,0 +1,23 @@
+{
+  "id": "riddler",
+  "team": "townsfolk",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Riddler"
+  },
+  "zh": {
+    "name": "谜语人",
+    "ability": "每个白天，你可以从说书人处得知一条谜语。谜语的谜底指向一个在场角色。",
+    "revisions": {
+      "v1": "每个白天，你可以从说书人处得知一条谜语。谜语的谜底指向一个在场角色。"
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "id": "miko",
+  "team": "townsfolk",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Miko"
+  },
+  "zh": {
+    "name": "巫女",
+    "ability": "每个夜晚，你要选择两名邻座的其他玩家：你会得知他们之中是否有爪牙。",
+    "revisions": {
+      "v1": "每个夜晚，你要选择两名邻座的其他玩家：你会得知他们之中是否有爪牙。"
+    },
+    "firstNightReminder": "让她选择除她自己以外的两名相互邻座的玩家。",
+    "otherNightReminder": "让她选择除她自己以外的两名相互邻座的玩家。"
+  }
+}

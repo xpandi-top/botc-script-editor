@@ -1,0 +1,24 @@
+{
+  "id": "wolfboy",
+  "team": "outsider",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": true,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Wolfboy"
+  },
+  "zh": {
+    "name": "狼孩",
+    "ability": "当其他狼孩均死亡时，你变成邪恶的不在场爪牙。[可能有多个外来者是狼孩]",
+    "revisions": {
+      "v1": "当其他狼孩均死亡时，你变成邪恶的不在场爪牙。[可能有多个外来者是狼孩]"
+    },
+    "otherNightReminder": "如果狼孩在白天转变角色，唤醒他并告知他的角色及阵营变化。"
+  }
+}

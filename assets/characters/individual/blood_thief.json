@@ -1,0 +1,26 @@
+{
+  "id": "blood_thief",
+  "team": "outsider",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "是恶魔"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "​Blood Thief"
+  },
+  "zh": {
+    "name": "盗血者",
+    "ability": "审判日降临前，唯一存活的邪恶玩家死亡时，你变成他的角色与阵营。",
+    "revisions": {
+      "v1": "审判日降临前，唯一存活的邪恶玩家死亡时，你变成他的角色与阵营。"
+    }
+  }
+}

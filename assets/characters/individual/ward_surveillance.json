@@ -1,0 +1,23 @@
+{
+  "id": "ward_surveillance",
+  "team": "fabled",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Ward Surveillance"
+  },
+  "zh": {
+    "name": "病房监控",
+    "ability": "说书人可能会把任何关于疯子的信息透露给恶魔或爪牙玩家。疯子可能会得知其他玩家是疯子。",
+    "revisions": {
+      "v1": "说书人可能会把任何关于疯子的信息透露给恶魔或爪牙玩家。疯子可能会得知其他玩家是疯子。"
+    }
+  }
+}

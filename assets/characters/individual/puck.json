@@ -1,0 +1,28 @@
+{
+  "id": "puck",
+  "team": "minion",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "失去能力",
+    "死亡"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Puck"
+  },
+  "zh": {
+    "name": "帕克",
+    "ability": "每局游戏限一次，在夜晚时*，你可以选择一个非恶魔角色：他死亡。如果该角色不在场，你要再选择一名玩家：他变成该角色。",
+    "revisions": {
+      "v1": "每局游戏限一次，在夜晚时*，你可以选择一个非恶魔角色：他死亡。如果该角色不在场，你要再选择一名玩家：他变成该角色。"
+    },
+    "otherNightReminder": "让他选择一个角色。如果这个角色不在场，让他再选择一名玩家。"
+  }
+}

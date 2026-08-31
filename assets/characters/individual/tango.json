@@ -1,0 +1,23 @@
+{
+  "id": "tango",
+  "team": "fabled",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Tango"
+  },
+  "zh": {
+    "name": "探戈",
+    "ability": "在初始设置时，说书人会公开指定一个角色：如果该角色在场，会增加或减少一个外来者。",
+    "revisions": {
+      "v1": "在初始设置时，说书人会公开指定一个角色：如果该角色在场，会增加或减少一个外来者。"
+    }
+  }
+}

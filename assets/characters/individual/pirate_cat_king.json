@@ -1,0 +1,30 @@
+{
+  "id": "pirate_cat_king",
+  "team": "outsider",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "寻宝人",
+    "寻宝人",
+    "寻宝人",
+    "寻宝人",
+    "寻宝人"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Pirate Cat King"
+  },
+  "zh": {
+    "name": "海猫王",
+    "ability": "死亡玩家可以上交投票标记成为寻宝人。审判日降临时，如果你已经死亡，所有寻宝人平分12枚投票标记。",
+    "revisions": {
+      "v1": "死亡玩家可以上交投票标记成为寻宝人。审判日降临时，如果你已经死亡，所有寻宝人平分12枚投票标记。"
+    }
+  }
+}

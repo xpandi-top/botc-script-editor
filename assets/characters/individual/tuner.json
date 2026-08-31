@@ -1,0 +1,24 @@
+{
+  "id": "tuner",
+  "team": "townsfolk",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Tuner"
+  },
+  "zh": {
+    "name": "调音师",
+    "ability": "在你的首个夜晚，你会得知一个外来者角色和一个爪牙角色。其中有且只有一个角色在场。",
+    "revisions": {
+      "v1": "在你的首个夜晚，你会得知一个外来者角色和一个爪牙角色。其中有且只有一个角色在场。"
+    },
+    "firstNightReminder": "告知他一个爪牙角色及一个外来者角色。"
+  }
+}

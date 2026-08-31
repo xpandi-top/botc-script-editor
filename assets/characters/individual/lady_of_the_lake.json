@@ -1,0 +1,25 @@
+{
+  "id": "lady_of_the_lake",
+  "team": "townsfolk",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Lady of the Lake"
+  },
+  "zh": {
+    "name": "湖中仙女",
+    "ability": "每个夜晚，说书人会向你展示两种能力，你可以选择其中一种：它替代你的原能力。",
+    "revisions": {
+      "v1": "每个夜晚，说书人会向你展示两种能力，你可以选择其中一种：它替代你的原能力。"
+    },
+    "firstNightReminder": "唤醒他并向他展示两种能力。",
+    "otherNightReminder": "唤醒他并向他展示两种能力。"
+  }
+}

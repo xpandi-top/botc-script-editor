@@ -1,0 +1,26 @@
+{
+  "id": "bellringer",
+  "team": "townsfolk",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "失去能力"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Bellringer"
+  },
+  "zh": {
+    "name": "敲钟人",
+    "ability": "在你首次发起提名时，你可以公开质问一次被提名的玩家他是否为某个角色：如果他说谎，你立即被处决。",
+    "revisions": {
+      "v1": "在你首次发起提名时，你可以公开质问一次被提名的玩家他是否为某个角色：如果他说谎，你立即被处决。"
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "hanged_man",
+  "team": "townsfolk",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "对调胜负"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Hanged Man"
+  },
+  "zh": {
+    "name": "倒吊人",
+    "ability": "当游戏结束时，如果你曾使用投票标记投票，对调胜负结果。",
+    "revisions": {
+      "v1": "当游戏结束时，如果你曾使用投票标记投票，对调胜负结果。"
+    }
+  }
+}

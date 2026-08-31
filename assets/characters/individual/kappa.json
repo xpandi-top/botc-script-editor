@@ -1,0 +1,23 @@
+{
+  "id": "kappa",
+  "team": "outsider",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": true,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Kappa"
+  },
+  "zh": {
+    "name": "河童",
+    "ability": "在审判日，你可以从说书人处得知外来者玩家的数量。[任意数量外来者]",
+    "revisions": {
+      "v1": "在审判日，你可以从说书人处得知外来者玩家的数量。[任意数量外来者]"
+    }
+  }
+}

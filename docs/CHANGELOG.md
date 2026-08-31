@@ -4,7 +4,26 @@ Release timeline for BOTC Companion — features, fixes, and improvements.
 
 ---
 
-## 2026-05-30 — Latest Feature Notifications (latest)
+## 2026-08-30 — Odyssey Character Pack (latest)
+
+### Added
+- **《奥德赛 Odyssey》 character pack** — 119 custom characters imported from the official wiki as a new `odyssey` edition (51 Townsfolk, 21 Outsiders, 24 Minions, 18 Demons, 3 Fabled, 2 Loric).
+  - Chinese names, ability text, first/other-night storyteller prompts, `setup` flags (17 characters), and 208 reminder tokens.
+  - 119 character icons at 400x400 (PNG8).
+  - Night order positions derived from the wiki's night-order values and preceding-character anchors — 33 first-night and 72 other-night entries.
+- **Odyssey script** — `assets/scripts/odyssey.json` listing the full pack.
+- **6 Odyssey jinxes** (EN + ZH) — Hanged Man x Puck, Ettin x Hell's Outcast, Doll x Snitch, Devil's Advocate x White Knight, Cerberus x Mastermind, Damsel x Sphinx.
+- **Odyssey almanac data** — `assets/almanac/odyssey.zh.json` holds the full wiki text per character (background, summary, examples, how-it-works, rules detail, tips) plus 10 Odyssey glossary terms. Not bundled into the frontend yet; kept for a future almanac view.
+- **Sync tooling + docs** — `scripts/odyssey/` reproduces the import from the source wiki; `docs/ODYSSEY.md` records what landed, what is still missing, and which gaps need app changes.
+
+### Notes
+- Odyssey characters are Chinese-only for now. English name is present; ability text falls back to Chinese. Night prompts do **not** fall back, so the English storyteller flow is blank for these characters until translated.
+- Reminder tokens are single-language project-wide, so Odyssey tokens stay Chinese in the English UI.
+- Odyssey's vote-token rules differ from official (a dead player may hold multiple vote tokens and spend several in one nomination); the vote controller does not model this yet.
+
+---
+
+## 2026-05-30 — Latest Feature Notifications
 
 ### Added
 - **Latest feature notification** — the app header now shows a compact `New` badge when the bundled changelog has an unread latest release; opening the changelog marks it as seen on that browser.

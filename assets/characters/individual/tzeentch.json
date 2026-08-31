@@ -1,0 +1,28 @@
+{
+  "id": "tzeentch",
+  "team": "demon",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "死亡"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Tzeentch"
+  },
+  "zh": {
+    "name": "奸奇",
+    "ability": "每个夜晚*，你要选择一名玩家：他死亡。当你得知恶魔信息时，会有更多的伪装，你要选择其中一个：你获得该角色的能力。",
+    "revisions": {
+      "v1": "每个夜晚*，你要选择一名玩家：他死亡。当你得知恶魔信息时，会有更多的伪装，你要选择其中一个：你获得该角色的能力。"
+    },
+    "firstNightReminder": "让他从三个伪装角色中挑选一个。",
+    "otherNightReminder": "让他选择一名玩家。"
+  }
+}

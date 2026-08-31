@@ -1,0 +1,30 @@
+{
+  "id": "venomtail",
+  "team": "minion",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": true,
+  "reminders": [
+    "中毒",
+    "中毒",
+    "中毒",
+    "中毒",
+    "中毒"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Venomtail"
+  },
+  "zh": {
+    "name": "毒尾",
+    "ability": "你顺时针方向上最近的1+X名镇民中毒。[无外来者在场，X为因你减去的外来者数量]",
+    "revisions": {
+      "v1": "你顺时针方向上最近的1+X名镇民中毒。[无外来者在场，X为因你减去的外来者数量]"
+    }
+  }
+}

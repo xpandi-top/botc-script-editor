@@ -1,0 +1,31 @@
+{
+  "id": "archlich",
+  "team": "demon",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "死亡",
+    "死亡",
+    "已触发",
+    "已触发",
+    "已触发"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Archlich"
+  },
+  "zh": {
+    "name": "大巫妖",
+    "ability": "每个夜晚*，你要选择一名玩家：他死亡。每个死亡玩家首次被大巫妖选择时，该玩家要选择两名玩家：他们死亡。",
+    "revisions": {
+      "v1": "每个夜晚*，你要选择一名玩家：他死亡。每个死亡玩家首次被大巫妖选择时，该玩家要选择两名玩家：他们死亡。"
+    },
+    "otherNightReminder": "让他选择一名玩家。"
+  }
+}

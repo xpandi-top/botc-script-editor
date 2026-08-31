@@ -1,0 +1,26 @@
+{
+  "id": "rascal",
+  "team": "outsider",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "捣蛋"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Rascal"
+  },
+  "zh": {
+    "name": "捣蛋鬼",
+    "ability": "在你的首个夜晚与首个白天，镇民玩家的能力一定会产生错误信息。",
+    "revisions": {
+      "v1": "在你的首个夜晚与首个白天，镇民玩家的能力一定会产生错误信息。"
+    }
+  }
+}

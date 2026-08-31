@@ -1,0 +1,29 @@
+{
+  "id": "myconid",
+  "team": "outsider",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "保留能力",
+    "保留能力",
+    "保留能力",
+    "保留能力"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Myconid"
+  },
+  "zh": {
+    "name": "蘑菇仔",
+    "ability": "你与爪牙会在死于处决后保留能力。",
+    "revisions": {
+      "v1": "你与爪牙会在死于处决后保留能力。"
+    }
+  }
+}

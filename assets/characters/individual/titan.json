@@ -1,0 +1,30 @@
+{
+  "id": "titan",
+  "team": "outsider",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": true,
+  "reminders": [
+    "爪牙1",
+    "爪牙2",
+    "爪牙3",
+    "爪牙4"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Titan"
+  },
+  "zh": {
+    "name": "泰坦",
+    "ability": "在首个夜晚，你转变为邪恶，并获得所有不在场爪牙的能力。[泰坦在配置时被当作爪牙]",
+    "revisions": {
+      "v1": "在首个夜晚，你转变为邪恶，并获得所有不在场爪牙的能力。[泰坦在配置时被当作爪牙]"
+    },
+    "firstNightReminder": "唤醒泰坦并告知他转变为邪恶阵营，并向他展示所有不在场的爪牙角色标记。"
+  }
+}

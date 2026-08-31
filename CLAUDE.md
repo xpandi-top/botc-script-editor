@@ -78,3 +78,7 @@ Two-language (en/zh). Locale files contain UI strings, character abilities, jinx
 ## Issue Tracking
 
 See [`docs/ISSUES.md`](docs/ISSUES.md) for open/fixed bugs and features.
+
+## Character Packs
+
+See [`docs/ODYSSEY.md`](docs/ODYSSEY.md) for the Odyssey (`edition: "odyssey"`) import — what was added, what is still missing (English text, almanac fields, new vote-token/Judgment-Day mechanics), and how to re-sync from the source wiki.

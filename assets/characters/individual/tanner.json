@@ -1,0 +1,24 @@
+{
+  "id": "tanner",
+  "team": "townsfolk",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Tanner"
+  },
+  "zh": {
+    "name": "皮匠",
+    "ability": "在你的首个夜晚，你会得知一个距离你最近的邪恶角色。",
+    "revisions": {
+      "v1": "在你的首个夜晚，你会得知一个距离你最近的邪恶角色。"
+    },
+    "firstNightReminder": "告知他一个邪恶角色。"
+  }
+}

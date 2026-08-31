@@ -1,0 +1,23 @@
+{
+  "id": "lucky_star",
+  "team": "fabled",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": true,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Lucky Star"
+  },
+  "zh": {
+    "name": "幸运星",
+    "ability": "抽到此标记的玩家会得到一些“好处”且要再抽一个标记。[此标记会被额外加入配置]",
+    "revisions": {
+      "v1": "抽到此标记的玩家会得到一些“好处”且要再抽一个标记。[此标记会被额外加入配置]"
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "id": "sensate",
+  "team": "townsfolk",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Sensate"
+  },
+  "zh": {
+    "name": "超感者",
+    "ability": "每个夜晚，恶魔要选择一名除你以外的存活玩家：恶魔和你会得知他是什么角色。",
+    "revisions": {
+      "v1": "每个夜晚，恶魔要选择一名除你以外的存活玩家：恶魔和你会得知他是什么角色。"
+    },
+    "firstNightReminder": "唤醒恶魔让他选择一名玩家，告知恶魔该玩家是什么角色。让恶魔入睡，再唤醒超感者告知该玩家是什么角色。",
+    "otherNightReminder": "唤醒恶魔让他选择一名玩家，告知恶魔该玩家是什么角色。让恶魔入睡,再唤醒超感者告知该玩家是什么角色。"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "id": "hells_roulette",
+  "team": "loric",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Hell's Roulette"
+  },
+  "zh": {
+    "name": "地狱轮盘",
+    "ability": "玩家在发起提名后要掷出一个六面骰：如果掷出的点数已存在，他死亡，并移除所有已掷的骰子。",
+    "revisions": {
+      "v1": "玩家在发起提名后要掷出一个六面骰：如果掷出的点数已存在，他死亡，并移除所有已掷的骰子。"
+    }
+  }
+}

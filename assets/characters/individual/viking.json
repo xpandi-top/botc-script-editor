@@ -1,0 +1,23 @@
+{
+  "id": "viking",
+  "team": "townsfolk",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Viking"
+  },
+  "zh": {
+    "name": "维京人",
+    "ability": "当你在死后首次投票时，当前被提名的玩家立即被处决。",
+    "revisions": {
+      "v1": "当你在死后首次投票时，当前被提名的玩家立即被处决。"
+    }
+  }
+}

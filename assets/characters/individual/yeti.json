@@ -1,0 +1,27 @@
+{
+  "id": "yeti",
+  "team": "outsider",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "已猜测",
+    "被猜中"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Yeti"
+  },
+  "zh": {
+    "name": "雪怪",
+    "ability": "每局游戏限一次，恶魔可以公开猜测你是雪怪，如果猜中，当天他被处决时你会代替他被处决。如果白天没人被处决，你的阵营落败。",
+    "revisions": {
+      "v1": "每局游戏限一次，恶魔可以公开猜测你是雪怪，如果猜中，当天他被处决时你会代替他被处决。如果白天没人被处决，你的阵营落败。"
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "id": "kraken",
+  "team": "demon",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "死亡",
+    "假死"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Kraken"
+  },
+  "zh": {
+    "name": "克拉肯",
+    "ability": "每个夜晚*，你要选择一名玩家：他死亡。如果你在审判日降临前死亡，改为你假死。你假死时只能杀死与你邻近的存活玩家。",
+    "revisions": {
+      "v1": "每个夜晚*，你要选择一名玩家：他死亡。如果你在审判日降临前死亡，改为你假死。你假死时只能杀死与你邻近的存活玩家。"
+    },
+    "otherNightReminder": "让他选择一名玩家。"
+  }
+}

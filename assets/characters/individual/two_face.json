@@ -1,0 +1,24 @@
+{
+  "id": "two_face",
+  "team": "outsider",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Two-Face"
+  },
+  "zh": {
+    "name": "双面人",
+    "ability": "每个夜晚*，你会转变为与上个死于处决的玩家对立的阵营。",
+    "revisions": {
+      "v1": "每个夜晚*，你会转变为与上个死于处决的玩家对立的阵营。"
+    },
+    "otherNightReminder": "如果当天死于处决的玩家阵营与他不同，唤醒他并告知他的新阵营。"
+  }
+}

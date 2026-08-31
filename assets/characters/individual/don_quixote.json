@@ -1,0 +1,26 @@
+{
+  "id": "don_quixote",
+  "team": "outsider",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "风车"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Don Quixote"
+  },
+  "zh": {
+    "name": "堂吉诃德",
+    "ability": "一名玩家会被镇民玩家的能力当做恶魔角色（风车），即使你已死亡。你可以从说书人处得知风车是谁，然后风车会改为另一名玩家。",
+    "revisions": {
+      "v1": "一名玩家会被镇民玩家的能力当做恶魔角色（风车），即使你已死亡。你可以从说书人处得知风车是谁，然后风车会改为另一名玩家。"
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "id": "corruptus",
+  "team": "demon",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": true,
+  "reminders": [
+    "死亡"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Corruptus"
+  },
+  "zh": {
+    "name": "恶堕",
+    "ability": "每个夜晚*，你要选择一名玩家：他必死。死亡外来者的胜负条件与你相同，即使你已死亡。[1名或2名外来者在场]",
+    "revisions": {
+      "v1": "每个夜晚*，你要选择一名玩家：他必死。死亡外来者的胜负条件与你相同，即使你已死亡。[1名或2名外来者在场]"
+    },
+    "otherNightReminder": "让他选择一名玩家。"
+  }
+}

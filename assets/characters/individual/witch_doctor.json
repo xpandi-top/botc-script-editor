@@ -1,0 +1,29 @@
+{
+  "id": "witch_doctor",
+  "team": "minion",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "巫毒",
+    "延迟死亡"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Witch Doctor"
+  },
+  "zh": {
+    "name": "巫医",
+    "ability": "每个夜晚，你要选择一名玩家：他中毒且死亡延迟，直到你改变选择。",
+    "revisions": {
+      "v1": "每个夜晚，你要选择一名玩家：他中毒且死亡延迟，直到你改变选择。"
+    },
+    "firstNightReminder": "让他选择一名玩家。",
+    "otherNightReminder": "让他选择一名玩家。"
+  }
+}

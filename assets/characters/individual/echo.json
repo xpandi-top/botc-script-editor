@@ -1,0 +1,31 @@
+{
+  "id": "echo",
+  "team": "demon",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "死亡",
+    "死亡",
+    "死亡",
+    "死亡",
+    "死亡"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Echo"
+  },
+  "zh": {
+    "name": "回响",
+    "ability": "每个夜晚*，你要选择一个角色：他死亡。如果该角色不在场，下个夜晚你要额外选择一个角色（可叠加）。",
+    "revisions": {
+      "v1": "每个夜晚*，你要选择一个角色：他死亡。如果该角色不在场，下个夜晚你要额外选择一个角色（可叠加）。"
+    },
+    "otherNightReminder": "让他选择一个角色。"
+  }
+}

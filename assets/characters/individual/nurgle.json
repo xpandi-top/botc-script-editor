@@ -1,0 +1,29 @@
+{
+  "id": "nurgle",
+  "team": "demon",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "死亡",
+    "中毒",
+    "中毒"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Nurgle"
+  },
+  "zh": {
+    "name": "纳垢",
+    "ability": "每个夜晚*，你要选择一名玩家：他死亡，且与他邻座的玩家们会中毒直到你下次攻击前。",
+    "revisions": {
+      "v1": "每个夜晚*，你要选择一名玩家：他死亡，且与他邻座的玩家们会中毒直到你下次攻击前。"
+    },
+    "otherNightReminder": "让他选择一名玩家。"
+  }
+}

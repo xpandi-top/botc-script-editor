@@ -32,7 +32,7 @@ export type UiKey =
   | 'no_character_selected' | 'available_characters' | 'selected_characters'
   | 'selected_count' | 'no_characters' | 'revision_created'
   | 'revision_id_required' | 'english_text_required' | 'chinese_text_required'
-  | 'custom' | 'experimental' | 'huadeng' | 'huadengchushang' | 'shanyuyulai'
+  | 'custom' | 'experimental' | 'huadeng' | 'huadengchushang' | 'shanyuyulai' | 'odyssey'
   | 'night_order' | 'tb' | 'snv' | 'bmr'
   | 'townsfolk' | 'outsider' | 'minion' | 'demon' | 'traveler' | 'fabled' | 'loric'
   | 'first_night' | 'other_nights'

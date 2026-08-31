@@ -1,0 +1,26 @@
+{
+  "id": "somnmaid",
+  "team": "townsfolk",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "失去能力"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Somnmaid"
+  },
+  "zh": {
+    "name": "死眠少女",
+    "ability": "当你首次被恶魔攻击时，你不会死亡，并会得知该恶魔的角色。",
+    "revisions": {
+      "v1": "当你首次被恶魔攻击时，你不会死亡，并会得知该恶魔的角色。"
+    }
+  }
+}

@@ -159,6 +159,150 @@
       }
     ]
   },
+  "alhadikhia::scarletwoman": {
+    "id": "alhadikhia::scarletwoman",
+    "characters": [
+      "alhadikhia",
+      "scarletwoman"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "alsaahir::vizier": {
+    "id": "alsaahir::vizier",
+    "characters": [
+      "alsaahir",
+      "vizier"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "atheist::riot": {
+    "id": "atheist::riot",
+    "characters": [
+      "atheist",
+      "riot"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "balloonist::marionette": {
+    "id": "balloonist::marionette",
+    "characters": [
+      "balloonist",
+      "marionette"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "banshee::leviathan": {
+    "id": "banshee::leviathan",
+    "characters": [
+      "banshee",
+      "leviathan"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "banshee::riot": {
+    "id": "banshee::riot",
+    "characters": [
+      "banshee",
+      "riot"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "banshee::vortox": {
+    "id": "banshee::vortox",
+    "characters": [
+      "banshee",
+      "vortox"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "baron::heretic": {
+    "id": "baron::heretic",
+    "characters": [
+      "baron",
+      "heretic"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "baron::plague_doctor": {
+    "id": "baron::plague_doctor",
+    "characters": [
+      "baron",
+      "plague_doctor"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
   "boffin::cultleader": {
     "id": "boffin::cultleader",
     "characters": [
@@ -271,6 +415,22 @@
       }
     ]
   },
+  "boomdandy::plague_doctor": {
+    "id": "boomdandy::plague_doctor",
+    "characters": [
+      "boomdandy",
+      "plague_doctor"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
   "bountyhunter::kazali": {
     "id": "bountyhunter::kazali",
     "characters": [
@@ -303,11 +463,11 @@
       }
     ]
   },
-  "butler::organ_grinder": {
-    "id": "butler::organ_grinder",
+  "butler::cannibal": {
+    "id": "butler::cannibal",
     "characters": [
       "butler",
-      "organ_grinder"
+      "cannibal"
     ],
     "current_revision": "v1",
     "status": "active",
@@ -319,11 +479,11 @@
       }
     ]
   },
-  "butler::cannibal": {
-    "id": "butler::cannibal",
+  "butler::organ_grinder": {
+    "id": "butler::organ_grinder",
     "characters": [
       "butler",
-      "cannibal"
+      "organ_grinder"
     ],
     "current_revision": "v1",
     "status": "active",
@@ -383,6 +543,22 @@
       }
     ]
   },
+  "cerberus::mastermind": {
+    "id": "cerberus::mastermind",
+    "characters": [
+      "cerberus",
+      "mastermind"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
   "cerenovus::goblin": {
     "id": "cerenovus::goblin",
     "characters": [
@@ -399,11 +575,395 @@
       }
     ]
   },
-  "baron::heretic": {
-    "id": "baron::heretic",
+  "chambermaid::mathematician": {
+    "id": "chambermaid::mathematician",
     "characters": [
-      "baron",
-      "heretic"
+      "chambermaid",
+      "mathematician"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "clockmaker::summoner": {
+    "id": "clockmaker::summoner",
+    "characters": [
+      "clockmaker",
+      "summoner"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "courtier::summoner": {
+    "id": "courtier::summoner",
+    "characters": [
+      "courtier",
+      "summoner"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "courtier::vizier": {
+    "id": "courtier::vizier",
+    "characters": [
+      "courtier",
+      "vizier"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "cultleader::pithag": {
+    "id": "cultleader::pithag",
+    "characters": [
+      "cultleader",
+      "pithag"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "damsel::pithag": {
+    "id": "damsel::pithag",
+    "characters": [
+      "damsel",
+      "pithag"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "damsel::sphinx": {
+    "id": "damsel::sphinx",
+    "characters": [
+      "damsel",
+      "sphinx"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "damsel::spy": {
+    "id": "damsel::spy",
+    "characters": [
+      "damsel",
+      "spy"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "damsel::widow": {
+    "id": "damsel::widow",
+    "characters": [
+      "damsel",
+      "widow"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "devilsadvocate::white_knight": {
+    "id": "devilsadvocate::white_knight",
+    "characters": [
+      "devilsadvocate",
+      "white_knight"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "doll::snitch": {
+    "id": "doll::snitch",
+    "characters": [
+      "doll",
+      "snitch"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "drunk::mathematician": {
+    "id": "drunk::mathematician",
+    "characters": [
+      "drunk",
+      "mathematician"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "engineer::legion": {
+    "id": "engineer::legion",
+    "characters": [
+      "engineer",
+      "legion"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "engineer::summoner": {
+    "id": "engineer::summoner",
+    "characters": [
+      "engineer",
+      "summoner"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "ettin::hells_outcast": {
+    "id": "ettin::hells_outcast",
+    "characters": [
+      "ettin",
+      "hells_outcast"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "eviltwin::plague_doctor": {
+    "id": "eviltwin::plague_doctor",
+    "characters": [
+      "eviltwin",
+      "plague_doctor"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "exorcist::leviathan": {
+    "id": "exorcist::leviathan",
+    "characters": [
+      "exorcist",
+      "leviathan"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "exorcist::riot": {
+    "id": "exorcist::riot",
+    "characters": [
+      "exorcist",
+      "riot"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "exorcist::yaggababble": {
+    "id": "exorcist::yaggababble",
+    "characters": [
+      "exorcist",
+      "yaggababble"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "fanggu::scarletwoman": {
+    "id": "fanggu::scarletwoman",
+    "characters": [
+      "fanggu",
+      "scarletwoman"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "farmer::leviathan": {
+    "id": "farmer::leviathan",
+    "characters": [
+      "farmer",
+      "leviathan"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "farmer::riot": {
+    "id": "farmer::riot",
+    "characters": [
+      "farmer",
+      "riot"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "fearmonger::plague_doctor": {
+    "id": "fearmonger::plague_doctor",
+    "characters": [
+      "fearmonger",
+      "plague_doctor"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "fearmonger::vizier": {
+    "id": "fearmonger::vizier",
+    "characters": [
+      "fearmonger",
+      "vizier"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "goblin::plague_doctor": {
+    "id": "goblin::plague_doctor",
+    "characters": [
+      "goblin",
+      "plague_doctor"
     ],
     "current_revision": "v1",
     "status": "active",
@@ -420,6 +980,134 @@
     "characters": [
       "godfather",
       "heretic"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "goon::pithag": {
+    "id": "goon::pithag",
+    "characters": [
+      "goon",
+      "pithag"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "grandmother::leviathan": {
+    "id": "grandmother::leviathan",
+    "characters": [
+      "grandmother",
+      "leviathan"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "grandmother::riot": {
+    "id": "grandmother::riot",
+    "characters": [
+      "grandmother",
+      "riot"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "hanged_man::puck": {
+    "id": "hanged_man::puck",
+    "characters": [
+      "hanged_man",
+      "puck"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "hatter::legion": {
+    "id": "hatter::legion",
+    "characters": [
+      "hatter",
+      "legion"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "hatter::leviathan": {
+    "id": "hatter::leviathan",
+    "characters": [
+      "hatter",
+      "leviathan"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "hatter::lilmonsta": {
+    "id": "hatter::lilmonsta",
+    "characters": [
+      "hatter",
+      "lilmonsta"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "hatter::summoner": {
+    "id": "hatter::summoner",
+    "characters": [
+      "hatter",
+      "summoner"
     ],
     "current_revision": "v1",
     "status": "active",
@@ -495,11 +1183,11 @@
       }
     ]
   },
-  "engineer::legion": {
-    "id": "engineer::legion",
+  "huntsman::marionette": {
+    "id": "huntsman::marionette",
     "characters": [
-      "engineer",
-      "legion"
+      "huntsman",
+      "marionette"
     ],
     "current_revision": "v1",
     "status": "active",
@@ -511,11 +1199,123 @@
       }
     ]
   },
-  "hatter::legion": {
-    "id": "hatter::legion",
+  "innkeeper::leviathan": {
+    "id": "innkeeper::leviathan",
     "characters": [
-      "hatter",
-      "legion"
+      "innkeeper",
+      "leviathan"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "innkeeper::riot": {
+    "id": "innkeeper::riot",
+    "characters": [
+      "innkeeper",
+      "riot"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "investigator::vizier": {
+    "id": "investigator::vizier",
+    "characters": [
+      "investigator",
+      "vizier"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "kazali::marionette": {
+    "id": "kazali::marionette",
+    "characters": [
+      "kazali",
+      "marionette"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "kazali::summoner": {
+    "id": "kazali::summoner",
+    "characters": [
+      "kazali",
+      "summoner"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "king::leviathan": {
+    "id": "king::leviathan",
+    "characters": [
+      "king",
+      "leviathan"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "king::riot": {
+    "id": "king::riot",
+    "characters": [
+      "king",
+      "riot"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "legion::magician": {
+    "id": "legion::magician",
+    "characters": [
+      "legion",
+      "magician"
     ],
     "current_revision": "v1",
     "status": "active",
@@ -596,118 +1396,6 @@
     "characters": [
       "legion",
       "zealot"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "banshee::leviathan": {
-    "id": "banshee::leviathan",
-    "characters": [
-      "banshee",
-      "leviathan"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "exorcist::leviathan": {
-    "id": "exorcist::leviathan",
-    "characters": [
-      "exorcist",
-      "leviathan"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "farmer::leviathan": {
-    "id": "farmer::leviathan",
-    "characters": [
-      "farmer",
-      "leviathan"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "grandmother::leviathan": {
-    "id": "grandmother::leviathan",
-    "characters": [
-      "grandmother",
-      "leviathan"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "hatter::leviathan": {
-    "id": "hatter::leviathan",
-    "characters": [
-      "hatter",
-      "leviathan"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "innkeeper::leviathan": {
-    "id": "innkeeper::leviathan",
-    "characters": [
-      "innkeeper",
-      "leviathan"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "king::leviathan": {
-    "id": "king::leviathan",
-    "characters": [
-      "king",
-      "leviathan"
     ],
     "current_revision": "v1",
     "status": "active",
@@ -815,11 +1503,11 @@
       }
     ]
   },
-  "hatter::lilmonsta": {
-    "id": "hatter::lilmonsta",
+  "lilmonsta::magician": {
+    "id": "lilmonsta::magician",
     "characters": [
-      "hatter",
-      "lilmonsta"
+      "lilmonsta",
+      "magician"
     ],
     "current_revision": "v1",
     "status": "active",
@@ -831,11 +1519,11 @@
       }
     ]
   },
-  "lilmonsta::magician": {
-    "id": "lilmonsta::magician",
+  "lilmonsta::marionette": {
+    "id": "lilmonsta::marionette",
     "characters": [
       "lilmonsta",
-      "magician"
+      "marionette"
     ],
     "current_revision": "v1",
     "status": "active",
@@ -943,11 +1631,27 @@
       }
     ]
   },
-  "legion::magician": {
-    "id": "legion::magician",
+  "lord_of_typhon::summoner": {
+    "id": "lord_of_typhon::summoner",
     "characters": [
-      "legion",
-      "magician"
+      "lord_of_typhon",
+      "summoner"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "lunatic::mathematician": {
+    "id": "lunatic::mathematician",
+    "characters": [
+      "lunatic",
+      "mathematician"
     ],
     "current_revision": "v1",
     "status": "active",
@@ -1039,11 +1743,11 @@
       }
     ]
   },
-  "balloonist::marionette": {
-    "id": "balloonist::marionette",
+  "marionette::mathematician": {
+    "id": "marionette::mathematician",
     "characters": [
-      "balloonist",
-      "marionette"
+      "marionette",
+      "mathematician"
     ],
     "current_revision": "v1",
     "status": "active",
@@ -1055,43 +1759,11 @@
       }
     ]
   },
-  "huntsman::marionette": {
-    "id": "huntsman::marionette",
+  "marionette::plague_doctor": {
+    "id": "marionette::plague_doctor",
     "characters": [
-      "huntsman",
-      "marionette"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "kazali::marionette": {
-    "id": "kazali::marionette",
-    "characters": [
-      "kazali",
-      "marionette"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "lilmonsta::marionette": {
-    "id": "lilmonsta::marionette",
-    "characters": [
-      "lilmonsta",
-      "marionette"
+      "marionette",
+      "plague_doctor"
     ],
     "current_revision": "v1",
     "status": "active",
@@ -1135,11 +1807,11 @@
       }
     ]
   },
-  "chambermaid::mathematician": {
-    "id": "chambermaid::mathematician",
+  "mayor::riot": {
+    "id": "mayor::riot",
     "characters": [
-      "chambermaid",
-      "mathematician"
+      "mayor",
+      "riot"
     ],
     "current_revision": "v1",
     "status": "active",
@@ -1151,91 +1823,11 @@
       }
     ]
   },
-  "drunk::mathematician": {
-    "id": "drunk::mathematician",
+  "monk::riot": {
+    "id": "monk::riot",
     "characters": [
-      "drunk",
-      "mathematician"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "lunatic::mathematician": {
-    "id": "lunatic::mathematician",
-    "characters": [
-      "lunatic",
-      "mathematician"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "marionette::mathematician": {
-    "id": "marionette::mathematician",
-    "characters": [
-      "marionette",
-      "mathematician"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "cultleader::pithag": {
-    "id": "cultleader::pithag",
-    "characters": [
-      "cultleader",
-      "pithag"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "damsel::pithag": {
-    "id": "damsel::pithag",
-    "characters": [
-      "damsel",
-      "pithag"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "goon::pithag": {
-    "id": "goon::pithag",
-    "characters": [
-      "goon",
-      "pithag"
+      "monk",
+      "riot"
     ],
     "current_revision": "v1",
     "status": "active",
@@ -1263,6 +1855,38 @@
       }
     ]
   },
+  "ogre::recluse": {
+    "id": "ogre::recluse",
+    "characters": [
+      "ogre",
+      "recluse"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "ogre::spy": {
+    "id": "ogre::spy",
+    "characters": [
+      "ogre",
+      "spy"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
   "pithag::politician": {
     "id": "pithag::politician",
     "characters": [
@@ -1279,107 +1903,27 @@
       }
     ]
   },
+  "pithag::summoner": {
+    "id": "pithag::summoner",
+    "characters": [
+      "pithag",
+      "summoner"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
   "pithag::village_idiot": {
     "id": "pithag::village_idiot",
     "characters": [
       "pithag",
       "village_idiot"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "baron::plague_doctor": {
-    "id": "baron::plague_doctor",
-    "characters": [
-      "baron",
-      "plague_doctor"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "boomdandy::plague_doctor": {
-    "id": "boomdandy::plague_doctor",
-    "characters": [
-      "boomdandy",
-      "plague_doctor"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "eviltwin::plague_doctor": {
-    "id": "eviltwin::plague_doctor",
-    "characters": [
-      "eviltwin",
-      "plague_doctor"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "fearmonger::plague_doctor": {
-    "id": "fearmonger::plague_doctor",
-    "characters": [
-      "fearmonger",
-      "plague_doctor"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "goblin::plague_doctor": {
-    "id": "goblin::plague_doctor",
-    "characters": [
-      "goblin",
-      "plague_doctor"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "marionette::plague_doctor": {
-    "id": "marionette::plague_doctor",
-    "characters": [
-      "marionette",
-      "plague_doctor"
     ],
     "current_revision": "v1",
     "status": "active",
@@ -1439,11 +1983,11 @@
       }
     ]
   },
-  "ogre::recluse": {
-    "id": "ogre::recluse",
+  "politician::vizier": {
+    "id": "politician::vizier",
     "characters": [
-      "ogre",
-      "recluse"
+      "politician",
+      "vizier"
     ],
     "current_revision": "v1",
     "status": "active",
@@ -1455,11 +1999,11 @@
       }
     ]
   },
-  "recluse::sage": {
-    "id": "recluse::sage",
+  "poppygrower::spy": {
+    "id": "poppygrower::spy",
     "characters": [
-      "recluse",
-      "sage"
+      "poppygrower",
+      "spy"
     ],
     "current_revision": "v1",
     "status": "active",
@@ -1471,11 +2015,11 @@
       }
     ]
   },
-  "atheist::riot": {
-    "id": "atheist::riot",
+  "poppygrower::summoner": {
+    "id": "poppygrower::summoner",
     "characters": [
-      "atheist",
-      "riot"
+      "poppygrower",
+      "summoner"
     ],
     "current_revision": "v1",
     "status": "active",
@@ -1487,11 +2031,11 @@
       }
     ]
   },
-  "banshee::riot": {
-    "id": "banshee::riot",
+  "poppygrower::widow": {
+    "id": "poppygrower::widow",
     "characters": [
-      "banshee",
-      "riot"
+      "poppygrower",
+      "widow"
     ],
     "current_revision": "v1",
     "status": "active",
@@ -1503,11 +2047,11 @@
       }
     ]
   },
-  "exorcist::riot": {
-    "id": "exorcist::riot",
+  "preacher::summoner": {
+    "id": "preacher::summoner",
     "characters": [
-      "exorcist",
-      "riot"
+      "preacher",
+      "summoner"
     ],
     "current_revision": "v1",
     "status": "active",
@@ -1519,11 +2063,11 @@
       }
     ]
   },
-  "farmer::riot": {
-    "id": "farmer::riot",
+  "preacher::vizier": {
+    "id": "preacher::vizier",
     "characters": [
-      "farmer",
-      "riot"
+      "preacher",
+      "vizier"
     ],
     "current_revision": "v1",
     "status": "active",
@@ -1535,75 +2079,11 @@
       }
     ]
   },
-  "grandmother::riot": {
-    "id": "grandmother::riot",
+  "pukka::summoner": {
+    "id": "pukka::summoner",
     "characters": [
-      "grandmother",
-      "riot"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "innkeeper::riot": {
-    "id": "innkeeper::riot",
-    "characters": [
-      "innkeeper",
-      "riot"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "king::riot": {
-    "id": "king::riot",
-    "characters": [
-      "king",
-      "riot"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "mayor::riot": {
-    "id": "mayor::riot",
-    "characters": [
-      "mayor",
-      "riot"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "monk::riot": {
-    "id": "monk::riot",
-    "characters": [
-      "monk",
-      "riot"
+      "pukka",
+      "summoner"
     ],
     "current_revision": "v1",
     "status": "active",
@@ -1620,6 +2100,22 @@
     "characters": [
       "ravenkeeper",
       "riot"
+    ],
+    "current_revision": "v1",
+    "status": "active",
+    "revisions": [
+      {
+        "id": "v1",
+        "note": "",
+        "status": "active"
+      }
+    ]
+  },
+  "recluse::sage": {
+    "id": "recluse::sage",
+    "characters": [
+      "recluse",
+      "sage"
     ],
     "current_revision": "v1",
     "status": "active",
@@ -1663,246 +2159,6 @@
       }
     ]
   },
-  "alhadikhia::scarletwoman": {
-    "id": "alhadikhia::scarletwoman",
-    "characters": [
-      "alhadikhia",
-      "scarletwoman"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "fanggu::scarletwoman": {
-    "id": "fanggu::scarletwoman",
-    "characters": [
-      "fanggu",
-      "scarletwoman"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "damsel::spy": {
-    "id": "damsel::spy",
-    "characters": [
-      "damsel",
-      "spy"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "ogre::spy": {
-    "id": "ogre::spy",
-    "characters": [
-      "ogre",
-      "spy"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "poppygrower::spy": {
-    "id": "poppygrower::spy",
-    "characters": [
-      "poppygrower",
-      "spy"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "clockmaker::summoner": {
-    "id": "clockmaker::summoner",
-    "characters": [
-      "clockmaker",
-      "summoner"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "courtier::summoner": {
-    "id": "courtier::summoner",
-    "characters": [
-      "courtier",
-      "summoner"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "engineer::summoner": {
-    "id": "engineer::summoner",
-    "characters": [
-      "engineer",
-      "summoner"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "hatter::summoner": {
-    "id": "hatter::summoner",
-    "characters": [
-      "hatter",
-      "summoner"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "kazali::summoner": {
-    "id": "kazali::summoner",
-    "characters": [
-      "kazali",
-      "summoner"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "lord_of_typhon::summoner": {
-    "id": "lord_of_typhon::summoner",
-    "characters": [
-      "lord_of_typhon",
-      "summoner"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "pithag::summoner": {
-    "id": "pithag::summoner",
-    "characters": [
-      "pithag",
-      "summoner"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "poppygrower::summoner": {
-    "id": "poppygrower::summoner",
-    "characters": [
-      "poppygrower",
-      "summoner"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "preacher::summoner": {
-    "id": "preacher::summoner",
-    "characters": [
-      "preacher",
-      "summoner"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "pukka::summoner": {
-    "id": "pukka::summoner",
-    "characters": [
-      "pukka",
-      "summoner"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
   "summoner::zombuul": {
     "id": "summoner::zombuul",
     "characters": [
@@ -1919,171 +2175,11 @@
       }
     ]
   },
-  "alsaahir::vizier": {
-    "id": "alsaahir::vizier",
-    "characters": [
-      "alsaahir",
-      "vizier"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "courtier::vizier": {
-    "id": "courtier::vizier",
-    "characters": [
-      "courtier",
-      "vizier"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "fearmonger::vizier": {
-    "id": "fearmonger::vizier",
-    "characters": [
-      "fearmonger",
-      "vizier"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "investigator::vizier": {
-    "id": "investigator::vizier",
-    "characters": [
-      "investigator",
-      "vizier"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "politician::vizier": {
-    "id": "politician::vizier",
-    "characters": [
-      "politician",
-      "vizier"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "preacher::vizier": {
-    "id": "preacher::vizier",
-    "characters": [
-      "preacher",
-      "vizier"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
   "vizier::zealot": {
     "id": "vizier::zealot",
     "characters": [
       "vizier",
       "zealot"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "banshee::vortox": {
-    "id": "banshee::vortox",
-    "characters": [
-      "banshee",
-      "vortox"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "damsel::widow": {
-    "id": "damsel::widow",
-    "characters": [
-      "damsel",
-      "widow"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "poppygrower::widow": {
-    "id": "poppygrower::widow",
-    "characters": [
-      "poppygrower",
-      "widow"
-    ],
-    "current_revision": "v1",
-    "status": "active",
-    "revisions": [
-      {
-        "id": "v1",
-        "note": "",
-        "status": "active"
-      }
-    ]
-  },
-  "exorcist::yaggababble": {
-    "id": "exorcist::yaggababble",
-    "characters": [
-      "exorcist",
-      "yaggababble"
     ],
     "current_revision": "v1",
     "status": "active",

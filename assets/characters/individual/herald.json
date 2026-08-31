@@ -1,0 +1,28 @@
+{
+  "id": "herald",
+  "team": "townsfolk",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": true,
+  "reminders": [
+    "失去能力"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Herald"
+  },
+  "zh": {
+    "name": "纹章官",
+    "ability": "每局游戏限一次，在夜晚时，你可以选择一名其他玩家：你会得知两名玩家。这三名玩家的角色类型各不相同。[+1外来者]",
+    "revisions": {
+      "v1": "每局游戏限一次，在夜晚时，你可以选择一名其他玩家：你会得知两名玩家。这三名玩家的角色类型各不相同。[+1外来者]"
+    },
+    "firstNightReminder": "让他选择一名其他玩家，然后告知他两名玩家。",
+    "otherNightReminder": "让他选择一名其他玩家，然后告知他两名玩家。"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "id": "arthur",
+  "team": "demon",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "死亡",
+    "死亡",
+    "王车易位"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Arthur"
+  },
+  "zh": {
+    "name": "亚瑟",
+    "ability": "每个夜晚*，你要选择一名玩家：他死亡。当亚瑟首次攻击爪牙时，亚瑟会与其交换角色，且两名存活玩家代替其被攻击。",
+    "revisions": {
+      "v1": "每个夜晚*，你要选择一名玩家：他死亡。当亚瑟首次攻击爪牙时，亚瑟会与其交换角色，且两名存活玩家代替其被攻击。"
+    },
+    "otherNightReminder": "让他选择一名玩家。"
+  }
+}

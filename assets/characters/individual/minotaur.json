@@ -1,0 +1,27 @@
+{
+  "id": "minotaur",
+  "team": "demon",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "死亡"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Minotaur"
+  },
+  "zh": {
+    "name": "米诺陶",
+    "ability": "每个夜晚*，你要选择一名存活玩家：他死亡。审判日降临前，如果所有邪恶玩家均死于处决，你的阵营获胜。",
+    "revisions": {
+      "v1": "每个夜晚*，你要选择一名存活玩家：他死亡。审判日降临前，如果所有邪恶玩家均死于处决，你的阵营获胜。"
+    },
+    "otherNightReminder": "让他选择一名存活玩家。"
+  }
+}

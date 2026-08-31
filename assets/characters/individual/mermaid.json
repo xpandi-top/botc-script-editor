@@ -1,0 +1,26 @@
+{
+  "id": "mermaid",
+  "team": "townsfolk",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "免疫邪恶"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Mermaid"
+  },
+  "zh": {
+    "name": "美人鱼",
+    "ability": "每个白天，你可以公开接受一名其他玩家对你的赞美：邪恶角色的能力对他无效，直到你接受了另一名玩家的赞美。",
+    "revisions": {
+      "v1": "每个白天，你可以公开接受一名其他玩家对你的赞美：邪恶角色的能力对他无效，直到你接受了另一名玩家的赞美。"
+    }
+  }
+}

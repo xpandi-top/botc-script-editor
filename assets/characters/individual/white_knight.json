@@ -1,0 +1,26 @@
+{
+  "id": "white_knight",
+  "team": "outsider",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "失去能力"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "White Knight"
+  },
+  "zh": {
+    "name": "白骑士",
+    "ability": "每局游戏限一次，疯狂地想要存活的玩家在被处决时可能不会死亡。",
+    "revisions": {
+      "v1": "每局游戏限一次，疯狂地想要存活的玩家在被处决时可能不会死亡。"
+    }
+  }
+}

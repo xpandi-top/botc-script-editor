@@ -1,0 +1,23 @@
+{
+  "id": "witness",
+  "team": "townsfolk",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Witness"
+  },
+  "zh": {
+    "name": "见闻家",
+    "ability": "每个白天，你可以从说书人处得知一条正确信息（关于某种角色类型）。如果该类型的玩家数量异常，你改为得知错误信息。",
+    "revisions": {
+      "v1": "每个白天，你可以从说书人处得知一条正确信息（关于某种角色类型）。如果该类型的玩家数量异常，你改为得知错误信息。"
+    }
+  }
+}

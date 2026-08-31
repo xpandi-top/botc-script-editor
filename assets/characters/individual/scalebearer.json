@@ -1,0 +1,24 @@
+{
+  "id": "scalebearer",
+  "team": "townsfolk",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Scalebearer"
+  },
+  "zh": {
+    "name": "天平师",
+    "ability": "在你的首个夜晚，你会得知一名玩家：该玩家与他对立阵营的两名玩家距离相等。",
+    "revisions": {
+      "v1": "在你的首个夜晚，你会得知一名玩家：该玩家与他对立阵营的两名玩家距离相等。"
+    },
+    "firstNightReminder": "唤醒他并告知他一名玩家。"
+  }
+}

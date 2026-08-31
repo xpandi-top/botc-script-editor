@@ -1,0 +1,27 @@
+{
+  "id": "druid",
+  "team": "townsfolk",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "强制选择",
+    "强制选择"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Druid"
+  },
+  "zh": {
+    "name": "德鲁伊",
+    "ability": "如果与你邻近的两名存活玩家的阵营相同，恶魔只能攻击他们。",
+    "revisions": {
+      "v1": "如果与你邻近的两名存活玩家的阵营相同，恶魔只能攻击他们。"
+    }
+  }
+}

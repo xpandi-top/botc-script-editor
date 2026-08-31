@@ -1,0 +1,23 @@
+{
+  "id": "marmonk",
+  "team": "townsfolk",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "MarMonk"
+  },
+  "zh": {
+    "name": "武僧",
+    "ability": "当恶魔攻击你时，一名邪恶玩家会替代你被攻击。",
+    "revisions": {
+      "v1": "当恶魔攻击你时，一名邪恶玩家会替代你被攻击。"
+    }
+  }
+}

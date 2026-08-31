@@ -1,0 +1,26 @@
+{
+  "id": "dawnyx",
+  "team": "minion",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "重获能力"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Dawnyx"
+  },
+  "zh": {
+    "name": "晓",
+    "ability": "善良阵营在你存活时无法获胜。死于处决的恶魔会在黎明时重获能力。",
+    "revisions": {
+      "v1": "善良阵营在你存活时无法获胜。死于处决的恶魔会在黎明时重获能力。"
+    }
+  }
+}

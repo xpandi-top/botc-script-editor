@@ -1,0 +1,31 @@
+{
+  "id": "cerberus",
+  "team": "demon",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "死亡",
+    "死亡",
+    "死亡",
+    "超度",
+    "超度"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Cerberus"
+  },
+  "zh": {
+    "name": "刻耳柏洛斯",
+    "ability": "每个夜晚*，你要选择一名玩家，每当你选中邪恶玩家，你要再选一名玩家：他们死亡。被你杀死的爪牙会保留能力。",
+    "revisions": {
+      "v1": "每个夜晚*，你要选择一名玩家，每当你选中邪恶玩家，你要再选一名玩家：他们死亡。被你杀死的爪牙会保留能力。"
+    },
+    "otherNightReminder": "唤醒他并让他选择一名玩家，如果他选中了邪恶玩家，让他继续选择。"
+  }
+}

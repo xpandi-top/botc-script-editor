@@ -1,0 +1,27 @@
+{
+  "id": "twinflower",
+  "team": "minion",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": true,
+  "reminders": [
+    "双生花",
+    "双生花"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Twinflower"
+  },
+  "zh": {
+    "name": "双生花",
+    "ability": "你以为你是一个镇民角色，但其实你不是。[+1双生花，两名双生花邻座]",
+    "revisions": {
+      "v1": "你以为你是一个镇民角色，但其实你不是。[+1双生花，两名双生花邻座]"
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "id": "heiress",
+  "team": "outsider",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "替死",
+    "替死",
+    "失去能力"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Heiress"
+  },
+  "zh": {
+    "name": "大小姐",
+    "ability": "当你首次即将死亡时，可能会有两名存活玩家代替你死亡。",
+    "revisions": {
+      "v1": "当你首次即将死亡时，可能会有两名存活玩家代替你死亡。"
+    }
+  }
+}

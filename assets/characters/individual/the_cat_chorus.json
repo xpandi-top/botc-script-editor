@@ -1,0 +1,27 @@
+{
+  "id": "the_cat_chorus",
+  "team": "outsider",
+  "edition": "odyssey",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "喝大了！",
+    "嗨起来！"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "The Cat Chorus"
+  },
+  "zh": {
+    "name": "猫猫合唱团",
+    "ability": "一名玩家醉酒。在黄昏时，说书人可能会指定一首歌曲：如果玩家们成功合唱，所有镇民不受中毒醉酒影响，直到下个黄昏。",
+    "revisions": {
+      "v1": "一名玩家醉酒。在黄昏时，说书人可能会指定一首歌曲：如果玩家们成功合唱，所有镇民不受中毒醉酒影响，直到下个黄昏。"
+    }
+  }
+}
