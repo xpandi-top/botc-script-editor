@@ -1,6 +1,7 @@
 import type { DayState, EventLogEntry, StorytellerSeat, VoteDraft, VotingState } from '../types'
 import type { Language } from '../../../types'
 import { logDetail } from '../../../utils/logI18n'
+import { maxVoteWeightFor, voteTokensAfterLifeChange, voteTokensOf, voteWeightFor } from '../../../utils/votes'
 import { makeT, makeTpl } from '../../../lib/t'
 import { Box, Typography, IconButton, Button, Tooltip } from '@mui/material'
 import ReplayIcon from '@mui/icons-material/Replay'
@@ -20,6 +21,8 @@ interface NominationVoteListProps {
   updateCurrentDay: (updater: (day: DayState) => DayState) => void
   appendEvent: (d: DayState, kind: EventLogEntry['kind'], detail: string) => DayState
   language: Language
+  /** Odyssey rules: dead players hold vote tokens and may spend several at once. */
+  multiVoteEnabled?: boolean
 }
 
 export function NominationVoteList({
@@ -33,6 +36,7 @@ export function NominationVoteList({
   updateCurrentDay,
   appendEvent,
   language,
+  multiVoteEnabled = false,
 }: NominationVoteListProps) {
   const t = makeT(language)
   const tpl = makeTpl(language)
@@ -54,8 +58,25 @@ export function NominationVoteList({
     updateCurrentDay((d) => {
       const seat = d.seats.find((s) => s.seat === seatNum)
       const newAlive = !seat?.alive
-      const updated = { ...d, seats: d.seats.map((s) => s.seat === seatNum ? { ...s, alive: newAlive } : s) }
+      const updated = {
+        ...d,
+        seats: d.seats.map((s) => {
+          if (s.seat !== seatNum) return s
+          const next = { ...s, alive: newAlive }
+          return { ...next, voteTokens: voteTokensAfterLifeChange(next, s.alive) }
+        }),
+      }
       return appendEvent(updated, 'stateChange', newAlive ? logDetail.seatAlive(language, seatNum) : logDetail.seatDead(language, seatNum))
+    })
+  }
+
+  /** Set how many vote tokens a dead seat spends on this nomination. */
+  const setVoteWeight = (seatNum: number, weight: number) => {
+    updateCurrentDay((d) => {
+      const weights = { ...(d.voteDraft.voteWeights ?? {}) }
+      if (weight <= 1) delete weights[seatNum]
+      else weights[seatNum] = weight
+      return { ...d, voteDraft: { ...d.voteDraft, voteWeights: weights } }
     })
   }
 
@@ -90,6 +111,11 @@ export function NominationVoteList({
           const isDead   = !s.alive
           const hasNoVote = !!s.hasNoVote
           const isNominee = s.seat === targetSeat
+          const tokens = voteTokensOf(s)
+          const weight = voteWeightFor(voteDraft, s.seat)
+          const maxWeight = maxVoteWeightFor(s)
+          // Only dead seats holding more than one token have anything to choose.
+          const showWeight = multiVoteEnabled && isDead && maxWeight > 1
 
           const nameLabel = s.name ? `${s.seat}. ${s.name}` : `#${s.seat}`
 
@@ -135,11 +161,38 @@ export function NominationVoteList({
                   {nameLabel}
                   {isDead && <Box component="span" sx={{ ml: 0.3, fontSize: '0.78rem' }}>†</Box>}
                   {hasNoVote && <Box component="span" sx={{ ml: 0.3, fontSize: '0.72rem', color: isVoted ? 'inherit' : 'warning.dark' }}>∅</Box>}
+                  {multiVoteEnabled && isDead && tokens > 0 && (
+                    <Box component="span" sx={{ ml: 0.4, fontSize: '0.72rem', fontWeight: 700, color: isVoted ? 'inherit' : 'info.dark' }}>
+                      ×{tokens}
+                    </Box>
+                  )}
                 </Typography>
               </Box>
 
               {/* ── Divider ── */}
               <Box sx={{ width: '1px', bgcolor: isVoted ? 'success.main' : 'divider', opacity: 0.5 }} />
+
+              {/* ── Vote tokens spent (Odyssey multi-vote) ── */}
+              {showWeight && (
+                <>
+                  <Tooltip title={tpl('vote_tokens_spent', weight, tokens)} placement="top" arrow>
+                    <Box
+                      onClick={() => setVoteWeight(s.seat, weight >= maxWeight ? 1 : weight + 1)}
+                      role="button"
+                      aria-label={tpl('vote_tokens_spent', weight, tokens)}
+                      sx={{
+                        px: 0.75, display: 'flex', alignItems: 'center', cursor: 'pointer',
+                        fontSize: '0.78rem', fontWeight: 800, minWidth: 30, justifyContent: 'center',
+                        color: weight > 1 ? 'info.dark' : 'text.disabled',
+                        '&:hover': { bgcolor: 'info.light', color: 'info.dark' },
+                      }}
+                    >
+                      {weight}
+                    </Box>
+                  </Tooltip>
+                  <Box sx={{ width: '1px', bgcolor: isVoted ? 'success.main' : 'divider', opacity: 0.5 }} />
+                </>
+              )}
 
               {/* ── Dead toggle ── */}
               <Tooltip title={isDead ? t('restore_alive') : t('mark_dead')} placement="top" arrow>

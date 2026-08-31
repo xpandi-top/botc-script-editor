@@ -398,6 +398,7 @@ export type TplKey =
   | 'communication_phrase_you_are_char' | 'communication_phrase_char_is_char'
   // Edition attribution
   | 'attribution_line' | 'attribution_line_no_source'
+  | 'vote_tokens_spent'
 
 /**
  * Returns a `t(key)` function bound to the given language.

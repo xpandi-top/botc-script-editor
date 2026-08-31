@@ -1230,6 +1230,7 @@
     "pack_source": "Pack",
     "pack_terms": "Usage terms",
     "glossary": "Terms",
-    "no_glossary_for_this_script": "No pack glossary for this script."
+    "no_glossary_for_this_script": "No pack glossary for this script.",
+    "vote_tokens_spent": "Spending {0} of {1} vote tokens — click to change"
   }
 }

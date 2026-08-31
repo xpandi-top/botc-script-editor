@@ -2,6 +2,7 @@ import { createDefaultVoteDraft, createDefaultSkillDraft, buildVotingOrder } fro
 import type { DayState, EventLogEntry, PickerMode, SkillOverlayState, SkillRecord, StorytellerSeat, TimerDefaults, VoteRecord } from '../components/StorytellerSub/types'
 import type { Language } from '../types'
 import { logDetail, logPhrase } from '../utils/logI18n'
+import { spendVoteTokens, voteTokensAfterLifeChange, voteWeightFor } from '../utils/votes'
 import { getDisplayName } from '../catalog'
 import { translateStTag } from '../components/StorytellerSub/Arena/ArenaSeatComponents'
 
@@ -39,7 +40,14 @@ export function buildGameActions(deps: ActionDeps) {
   function updateSeatWithLog(seatNumber: number, updater: (s: StorytellerSeat) => StorytellerSeat) {
     updateCurrentDayWithUndo((d) => {
       const oldSeat = d.seats.find((s) => s.seat === seatNumber)
-      const newSeats = d.seats.map((s) => (s.seat === seatNumber ? updater(s) : s))
+      const newSeats = d.seats.map((s) => {
+        if (s.seat !== seatNumber) return s
+        const next = updater(s)
+        // Dying grants a vote token (Odyssey). Harmless on official rosters —
+        // nothing reads voteTokens there.
+        const voteTokens = voteTokensAfterLifeChange(next, s.alive)
+        return voteTokens === next.voteTokens ? next : { ...next, voteTokens }
+      })
       const newSeat = newSeats.find((s) => s.seat === seatNumber)
       let updated = { ...d, seats: newSeats }
       if (oldSeat && newSeat) {
@@ -182,9 +190,14 @@ export function buildGameActions(deps: ActionDeps) {
   function recordVote() {
     if (!currentDay.voteDraft.actor || currentDay.voteDraft.target === null || currentDay.voteDraft.target === undefined) return
     const vd = currentDay.voteDraft
-    const finalCount = vd.voteCountOverride !== null ? vd.voteCountOverride : vd.voters.length
-    const record: VoteRecord = { id: `${Date.now()}`, actor: vd.actor!, target: vd.target!, voters: [...new Set(vd.voters)], voteCount: finalCount, requiredVotes, passed: draftPassed, note: vd.note.trim(), overridden: vd.manualPassed !== null || vd.voteCountOverride !== null, isExile: vd.isExile }
-    updateCurrentDayWithUndo((d) => appendEvent({ ...d, nominationStep: 'waitingForNomination', nominationWaitSeconds: timerDefaults.nominationWaitSeconds, voteHistory: [record, ...d.voteHistory], voteDraft: createDefaultVoteDraft(), votingState: null }, 'vote', logDetail.voteResult(language, record.actor, record.target, record.passed, record.voteCount, record.requiredVotes)))
+    const yesSeats = [...new Set(vd.voters)]
+    const weightedCount = yesSeats.reduce((total, seat) => total + voteWeightFor(vd, seat), 0)
+    const finalCount = vd.voteCountOverride !== null ? vd.voteCountOverride : weightedCount
+    const spentWeights = Object.fromEntries(
+      yesSeats.map((seat) => [seat, voteWeightFor(vd, seat)]).filter(([, weight]) => weight !== 1),
+    )
+    const record: VoteRecord = { id: `${Date.now()}`, actor: vd.actor!, target: vd.target!, voters: yesSeats, voteCount: finalCount, requiredVotes, passed: draftPassed, note: vd.note.trim(), overridden: vd.manualPassed !== null || vd.voteCountOverride !== null, isExile: vd.isExile, ...(Object.keys(spentWeights).length > 0 && { voteWeights: spentWeights }) }
+    updateCurrentDayWithUndo((d) => appendEvent({ ...d, seats: spendVoteTokens(d.seats, yesSeats, vd), nominationStep: 'waitingForNomination', nominationWaitSeconds: timerDefaults.nominationWaitSeconds, voteHistory: [record, ...d.voteHistory], voteDraft: createDefaultVoteDraft(), votingState: null }, 'vote', logDetail.voteResult(language, record.actor, record.target, record.passed, record.voteCount, record.requiredVotes)))
     setPickerMode('nominator')
     setIsTimerRunning(false)
     // Timer does NOT auto-start — ST manually restarts nomination wait if needed

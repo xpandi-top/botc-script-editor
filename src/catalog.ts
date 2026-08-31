@@ -946,6 +946,8 @@ export type EditionCredit = {
   author_zh?: string
   source?: string
   requiresAttribution?: boolean
+  /** Pack uses Odyssey-style vote tokens: a dead player may hold several and spend any number on one nomination. */
+  multiVoteTokens?: boolean
   terms_en?: string
   terms_zh?: string
 }
@@ -1060,6 +1062,18 @@ export async function getAlmanacEntry(
   if (!edition) return null
   const file = await loadAlmanacFile(edition, language)
   return file?.characters?.[id] ?? null
+}
+
+/**
+ * Whether this roster plays under a pack's multi-vote-token rules.
+ *
+ * Official rules give a dead player one ghost vote. Odyssey instead gives a
+ * token per death, lets a player hold several, and lets them spend any number
+ * on a single nomination — which changes whether a nomination passes, so it is
+ * derived from the script rather than left to the storyteller to remember.
+ */
+export function usesMultiVoteTokens(characterIds: Iterable<string>): boolean {
+  return getEditionsForCharacters(characterIds).some((edition) => editionCredits[edition]?.multiVoteTokens)
 }
 
 /** Distinct editions among the given characters, in catalog order. */

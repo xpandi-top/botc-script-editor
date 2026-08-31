@@ -96,6 +96,11 @@ export type StorytellerSeat = {
   isTraveler: boolean
   isExecuted: boolean
   hasNoVote: boolean
+  /**
+   * Odyssey vote tokens held by this seat. Granted on death, spent to vote.
+   * Undefined on seats from before multi-vote support and on official rosters.
+   */
+  voteTokens?: number
   customTags: string[]
   stTags: string[]
   characterId: string | null
@@ -116,6 +121,11 @@ export type VoteDraft = {
   isExile: boolean
   /** Manual vote count override — null means use voters.length */
   voteCountOverride: number | null
+  /**
+   * Votes cast per seat, for Odyssey multi-vote rosters. A seat absent from the
+   * map counts as one vote; only seats spending several appear here.
+   */
+  voteWeights?: Record<number, number>
 }
 
 export type VoteRecord = {
@@ -130,6 +140,8 @@ export type VoteRecord = {
   overridden: boolean
   failed?: boolean
   isExile?: boolean
+  /** Votes cast per seat when a voter spent more than one vote token. */
+  voteWeights?: Record<number, number>
 }
 
 export type SkillDraft = {

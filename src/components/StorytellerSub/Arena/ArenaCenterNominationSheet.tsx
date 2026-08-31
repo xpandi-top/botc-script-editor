@@ -14,6 +14,7 @@ import { createDefaultVoteDraft } from '../constants'
 import { useBreakpoint } from '../../../hooks/useBreakpoint'
 import { NominationTimer } from './NominationTimer'
 import { NominationHistory } from './NominationHistory'
+import { usesMultiVoteTokens } from '../../../catalog'
 import { NominationVoteList } from './NominationVoteList'
 import { useT } from '../../../context/I18nContext'
 import { ResponsiveDialog } from '../../ui'
@@ -27,6 +28,7 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: StorytellerContext })
     appendEvent,
     linkedDealSession, remoteDealVote, remoteDealVoteResponses, remoteDealVoteError,
     remoteDealVoteStarting, startRemoteDealVote,
+    currentScriptCharacters,
   } = ctx
 
   const { t } = useT()
@@ -258,6 +260,7 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: StorytellerContext })
               updateCurrentDay={updateCurrentDay}
               appendEvent={appendEvent}
               language={language}
+              multiVoteEnabled={usesMultiVoteTokens(currentScriptCharacters ?? [])}
             />
           </>
         )}
