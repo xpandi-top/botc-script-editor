@@ -102,15 +102,3 @@ export const PADDING_MAP: Record<PrintOptions['padding'], { card: number; gridSp
   normal:   { card: 6,  gridSpacing: 0.75, sectionMb: 1,   outerPadding: 12 },
   spacious: { card: 12, gridSpacing: 1.5,  sectionMb: 2,   outerPadding: 16 },
 }
-
-export function applyPrintOptionsToPortal(opts: PrintOptions) {
-  let styleEl = document.getElementById('po-page-style') as HTMLStyleElement | null
-  if (!styleEl) {
-    styleEl = document.createElement('style')
-    styleEl.id = 'po-page-style'
-    document.head.appendChild(styleEl)
-  }
-  const { w, h } = PAGE_SIZE_DEFS[opts.pageSize]
-  const margin = 15
-  styleEl.textContent = `@media print { @page { size: ${w}mm ${h}mm; margin: ${margin}mm; } }`
-}

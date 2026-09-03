@@ -11,12 +11,11 @@ import MenuIcon from '@mui/icons-material/Menu'
 import MenuOpenIcon from '@mui/icons-material/MenuOpen'
 import { SheetArticle } from './SheetArticle'
 import {
-  FONT_DEFINITIONS, PAGE_SIZE_DEFS, PAGE_PREVIEW_WIDTH_PX, PAGE_PREVIEW_HEIGHT_PX,
-  applyPrintOptionsToPortal,
+  FONT_DEFINITIONS, PAGE_SIZE_DEFS, PAGE_PREVIEW_WIDTH_PX,
 } from './PrintOptionsDialog'
 import type { PrintOptions, PageSize, LanguageLayout, WakeOrderMode, TitleAlign, SectionStyle } from './PrintOptionsDialog'
 import type { EditableScript, Language, ResolvedScriptCharacter, ResolvedScriptCharacterGroup } from '../types'
-import { printOrShare, isNativePlatform } from '../lib/nativePrint'
+import { exportSheetPdf } from '../lib/nativePrint'
 import { useT } from '../context/I18nContext'
 import { FieldLabel, SectionLabel } from './ui'
 
@@ -54,26 +53,20 @@ export function PrintPreviewPage({
     onOptionsChange({ ...opts, [key]: val })
 
   const handlePrint = async () => {
-    if (isNativePlatform) {
-      // Apply page/margin options to the portal before capture (same as web path)
-      applyPrintOptionsToPortal(opts)
-      // Capture the print portal (.print-portal) — it has the full print layout,
-      // not the mobile-scaled preview which may be hidden or wrongly sized.
-      await printOrShare(
-        previewRef.current!,
-        getScriptTitle(activeScript) || 'script',
-        () => setPrinting(true),
-        () => setPrinting(false),
-        { portalSelector: '.print-portal' },
-      )
-      return
-    }
-    applyPrintOptionsToPortal(opts)
-    setTimeout(() => window.print(), 80)
+    // Measures the print portal's real DOM geometry and cuts pages at card/section
+    // boundaries instead of relying on the browser's CSS print pagination — see
+    // paginateSheet.ts. Produces a real multi-page PDF: downloaded on web, shared
+    // via the OS sheet on native.
+    await exportSheetPdf(
+      opts,
+      getScriptTitle(activeScript) || 'script',
+      '.print-portal',
+      () => setPrinting(true),
+      () => setPrinting(false),
+    )
   }
 
   const previewW = PAGE_PREVIEW_WIDTH_PX[opts.pageSize]
-  const previewH = PAGE_PREVIEW_HEIGHT_PX[opts.pageSize]
 
   const fontSelect = (labelStr: string, key: 'fontKeyEn' | 'fontKeyZh') => (
     <FormControl size="small" fullWidth sx={{ mb: 1 }}>
@@ -349,55 +342,45 @@ export function PrintPreviewPage({
                 <FieldLabel sx={{ opacity: 0.7 }}>
                   {tpl('section_n', i + 1)} — {lang === 'zh' ? t('chinese') : t('english')}
                 </FieldLabel>
-                <Box sx={{ position: 'relative' }}>
-                  <Box sx={{ position: 'absolute', top: previewH, left: 0, right: 0, height: '2px', bgcolor: 'error.light', opacity: 0.6, zIndex: 10,
-                    '&::after': { content: `"${t('page_1_end')}"`, position: 'absolute', right: 8, top: 2, fontSize: '0.65rem', color: 'error.main' },
-                  }} />
-                  <Box sx={{ bgcolor: 'white', boxShadow: '0 4px 24px rgba(0,0,0,0.18)', borderRadius: 1, overflow: 'visible' }}>
-                    <SheetArticle
-                      activeScript={activeScript}
-                      activeScriptCharacters={activeScriptCharacters}
-                      groupedScriptCharacters={groupedScriptCharacters}
-                      bootleggerRulesLabel={getSheetUiLabel(lang, 'bootlegger_rules')}
-                      jinxesLabel={getSheetUiLabel(lang, 'jinxes')}
-                      isEditMode={false}
-                      language={lang}
-                      onRemoveCharacter={() => {}}
-                      sheetDensityClass={sheetDensityClass}
-                      showWakeOrder={false}
-                      showEdition={false}
-                      showCharacterCount={false}
-                      supplementalPlacement="end"
-                      printOptions={{ ...opts, languageLayout: 'current' }}
-                    />
-                  </Box>
-                </Box>
-              </Box>
-            ))
-          ) : (
-            <Box sx={{ width: previewW, maxWidth: '100%' }}>
-              <Box sx={{ position: 'relative' }}>
-                {<Box sx={{ position: 'absolute', top: previewH, left: 0, right: 0, height: '2px', bgcolor: 'error.light', opacity: 0.6, zIndex: 10,
-                  '&::after': { content: `"${t('page_1_end')}"`, position: 'absolute', right: 8, top: 2, fontSize: '0.65rem', color: 'error.main' },
-                }} />}
                 <Box sx={{ bgcolor: 'white', boxShadow: '0 4px 24px rgba(0,0,0,0.18)', borderRadius: 1, overflow: 'visible' }}>
                   <SheetArticle
                     activeScript={activeScript}
                     activeScriptCharacters={activeScriptCharacters}
                     groupedScriptCharacters={groupedScriptCharacters}
-                    bootleggerRulesLabel={getSheetUiLabel(language, 'bootlegger_rules')}
-                    jinxesLabel={getSheetUiLabel(language, 'jinxes')}
+                    bootleggerRulesLabel={getSheetUiLabel(lang, 'bootlegger_rules')}
+                    jinxesLabel={getSheetUiLabel(lang, 'jinxes')}
                     isEditMode={false}
-                    language={language}
+                    language={lang}
                     onRemoveCharacter={() => {}}
                     sheetDensityClass={sheetDensityClass}
                     showWakeOrder={false}
                     showEdition={false}
                     showCharacterCount={false}
                     supplementalPlacement="end"
-                    printOptions={opts}
+                    printOptions={{ ...opts, languageLayout: 'current' }}
                   />
                 </Box>
+              </Box>
+            ))
+          ) : (
+            <Box sx={{ width: previewW, maxWidth: '100%' }}>
+              <Box sx={{ bgcolor: 'white', boxShadow: '0 4px 24px rgba(0,0,0,0.18)', borderRadius: 1, overflow: 'visible' }}>
+                <SheetArticle
+                  activeScript={activeScript}
+                  activeScriptCharacters={activeScriptCharacters}
+                  groupedScriptCharacters={groupedScriptCharacters}
+                  bootleggerRulesLabel={getSheetUiLabel(language, 'bootlegger_rules')}
+                  jinxesLabel={getSheetUiLabel(language, 'jinxes')}
+                  isEditMode={false}
+                  language={language}
+                  onRemoveCharacter={() => {}}
+                  sheetDensityClass={sheetDensityClass}
+                  showWakeOrder={false}
+                  showEdition={false}
+                  showCharacterCount={false}
+                  supplementalPlacement="end"
+                  printOptions={opts}
+                />
               </Box>
             </Box>
           )}

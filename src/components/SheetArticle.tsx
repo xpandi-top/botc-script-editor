@@ -170,6 +170,7 @@ export function SheetArticle({
     ...(fontSize       && { fontSize }),
     ...(baseFontFamily && { fontFamily: baseFontFamily }),
     ...(bw             && { filter: 'grayscale(100%)' }),
+    ...(po             && { bgcolor: '#fff' }), // print output: plain white page, no theme parchment tint
   }
 
   const renderHeader = (lang: Language) => {
@@ -212,7 +213,7 @@ export function SheetArticle({
     const blLabel = locales[lang].ui?.['bootlegger_rules'] ?? bootleggerRulesLabel
     const jLabel  = locales[lang].ui?.['jinxes']           ?? jinxesLabel
     return (
-      <Box sx={{ mb: 1.5 }}>
+      <Box data-print-block sx={{ mb: 1.5 }}>
         {rules.length > 0 && (
           <Box sx={{ mb: 1 }}>
             <Typography variant="subtitle2" sx={{ mb: 0.5, ...(fontSize && { fontSize }) }}>{blLabel}</Typography>
@@ -243,7 +244,7 @@ export function SheetArticle({
     if (requiredAttributions.length === 0) return null
     const tpl = makeTpl(lang)
     return (
-      <Box sx={{ mt: 1, pt: 0.75, borderTop: '1px solid', borderColor: 'divider' }}>
+      <Box data-print-block sx={{ mt: 1, pt: 0.75, borderTop: '1px solid', borderColor: 'divider' }}>
         {requiredAttributions.map((credit) => {
           const name = getEditionCreditName(credit, lang)
           const author = getEditionCreditAuthor(credit, lang)
@@ -379,10 +380,11 @@ export function SheetArticle({
     const enFont = fontFamilyEn
 
     return (
-      <Grid key={character.id} size={{ xs: 12, sm: columns === 1 ? 12 : 6 }}>
+      <Grid key={character.id} data-print-card={character.id} size={{ xs: 12, sm: columns === 1 ? 12 : 6 }}>
         <Paper variant="outlined" sx={{
           p: cardPadding, position: 'relative', pageBreakInside: 'avoid', breakInside: 'avoid',
           ...(showCardOutline ? { borderWidth: 1, borderColor: 'divider' } : { borderWidth: 0 }),
+          ...(po && { bgcolor: 'transparent' }), // print output: no card tint, just the white page
         }}>
           <Box sx={{ display: 'flex', gap: '4px', alignItems: 'flex-start' }}>
 
@@ -473,32 +475,34 @@ export function SheetArticle({
         {groupedScriptCharacters.map((group, idx) => (
           <Box key={group.team} sx={{ mb: sectionMb, pageBreakInside: 'avoid', breakInside: 'avoid' }}>
               {/* Section label — chip | line | inline */}
-            {sectionStyle === 'chip' && (
-              <Chip
-                label={teamLabels[lang][group.team]}
-                size="small"
-                color={bw ? 'default' : ((group.team === 'townsfolk' || group.team === 'outsider') ? 'primary' : 'error')}
-                sx={{ mb: 0.5, ...(bw && { bgcolor: 'grey.300', color: 'text.primary' }) }}
-              />
-            )}
-            {sectionStyle === 'line' && (
-              <>
-                {idx > 0 && <Divider sx={{ mb: 0.5, borderBottomWidth: 1 }} />}
-                <Typography sx={{ mb: 0.5, fontSize: sectionFontSize ?? '0.85rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', color: 'text.secondary' }}>
-                  {teamLabels[lang][group.team]}
-                </Typography>
-              </>
-            )}
-            {sectionStyle === 'inline' && (
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.5 }}>
-                {/* Use borderBottom not bgcolor — bgcolor is stripped in print */}
-                <Box sx={{ flex: 1, height: 0, borderBottom: '1px solid', borderColor: 'text.secondary', opacity: 0.3 }} />
-                <Typography sx={{ fontSize: sectionFontSize ?? '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.6px', color: 'text.secondary', whiteSpace: 'nowrap' }}>
-                  {teamLabels[lang][group.team]}
-                </Typography>
-                <Box sx={{ flex: 1, height: 0, borderBottom: '1px solid', borderColor: 'text.secondary', opacity: 0.3 }} />
-              </Box>
-            )}
+            <Box data-print-header>
+              {sectionStyle === 'chip' && (
+                <Chip
+                  label={teamLabels[lang][group.team]}
+                  size="small"
+                  color={bw ? 'default' : ((group.team === 'townsfolk' || group.team === 'outsider') ? 'primary' : 'error')}
+                  sx={{ mb: 0.5, ...(bw && { bgcolor: 'grey.300', color: 'text.primary' }) }}
+                />
+              )}
+              {sectionStyle === 'line' && (
+                <>
+                  {idx > 0 && <Divider sx={{ mb: 0.5, borderBottomWidth: 1 }} />}
+                  <Typography sx={{ mb: 0.5, fontSize: sectionFontSize ?? '0.85rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', color: 'text.secondary' }}>
+                    {teamLabels[lang][group.team]}
+                  </Typography>
+                </>
+              )}
+              {sectionStyle === 'inline' && (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.5 }}>
+                  {/* Use borderBottom not bgcolor — bgcolor is stripped in print */}
+                  <Box sx={{ flex: 1, height: 0, borderBottom: '1px solid', borderColor: 'text.secondary', opacity: 0.3 }} />
+                  <Typography sx={{ fontSize: sectionFontSize ?? '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.6px', color: 'text.secondary', whiteSpace: 'nowrap' }}>
+                    {teamLabels[lang][group.team]}
+                  </Typography>
+                  <Box sx={{ flex: 1, height: 0, borderBottom: '1px solid', borderColor: 'text.secondary', opacity: 0.3 }} />
+                </Box>
+              )}
+            </Box>
             <Grid container spacing={gridSpacing}>
               {group.characters.map((character) => renderCharacterCard(character, lang, withBoth, nameColW))}
             </Grid>
@@ -536,7 +540,11 @@ export function SheetArticle({
         {isSeparate ? (
           <>
             {renderPage(language, false)}
-            <Box sx={{ pageBreakBefore: 'always', breakBefore: 'page' }} />
+            {/* Forces a hard page cut in exportSheetPdf's JS pagination (paginateSheet.ts) —
+                without it, the English/Chinese sections are just measured-and-packed like any
+                other content and can end up sharing a page. `pageBreakBefore`/`breakBefore`
+                remain as a fallback for a raw browser print (Cmd+P) on the un-paginated DOM. */}
+            <Box data-print-page-break sx={{ pageBreakBefore: 'always', breakBefore: 'page' }} />
             {renderPage(language === 'zh' ? 'en' : 'zh', false)}
           </>
         ) : (
