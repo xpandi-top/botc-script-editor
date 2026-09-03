@@ -346,6 +346,7 @@ export type TplKey =
   | 'line_height_val'
   | 'card_icon_px'
   | 'wake_icon_px'
+  | 'row_spacing_px'
   | 'pos_after'
   | 'insert_after'
   | 'player_entered_seat'
