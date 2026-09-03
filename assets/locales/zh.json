@@ -1017,6 +1017,7 @@
     "line_height_val": "行高: {0}",
     "card_icon_px": "角色卡图标: {0}px",
     "wake_icon_px": "夜晚顺序图标: {0}px",
+    "row_spacing_px": "行间距: {0}px",
     "pos_after": "第 {0} 位（{1} 后）",
     "insert_after": "在此之后插入（第 {0} 位）",
     "player_entered_seat": "玩家填写座位 #{0}",

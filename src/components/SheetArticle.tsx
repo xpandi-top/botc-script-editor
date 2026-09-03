@@ -118,7 +118,7 @@ export function SheetArticle({
   const showAuthor      = po?.showAuthor ?? true
   const padDef          = po ? PADDING_MAP[po.padding] : null
   const cardPadding     = padDef ? `${Math.max(1, Math.floor(padDef.card / 2))}px ${Math.max(2, padDef.card)}px` : '2px 4px'
-  const gridSpacing     = padDef ? padDef.gridSpacing : 0.5
+  const gridSpacing     = (po?.rowSpacing ?? 4) / 8 // MUI Grid spacing unit = 8px
   const sectionMb       = padDef ? padDef.sectionMb : 2
   const outerPadding    = padDef ? `${padDef.outerPadding}px` : '16px'
   const lineHeight      = po?.lineHeight ?? 1.3

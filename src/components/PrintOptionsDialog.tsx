@@ -64,6 +64,7 @@ export type PrintOptions = {
   showIconCircle: boolean   // show circle background behind icon
   showCardOutline: boolean  // show border/outline around character cards
   padding: 'compact' | 'normal' | 'spacious'
+  rowSpacing: number        // gap between character rows (and columns, in 2-col mode), px
   blackAndWhite: boolean
   languageLayout: LanguageLayout
   // ── New in v2 ──────────────────────────────────────────────────────────────
@@ -90,6 +91,7 @@ export const DEFAULT_PRINT_OPTIONS: PrintOptions = {
   showIconCircle: false,
   showCardOutline: false,
   padding: 'compact',
+  rowSpacing: 2,
   blackAndWhite: false,
   languageLayout: 'bilingual-separate',
   wakeOrder: 'side',
@@ -97,8 +99,8 @@ export const DEFAULT_PRINT_OPTIONS: PrintOptions = {
   showAuthor: true,
 }
 
-export const PADDING_MAP: Record<PrintOptions['padding'], { card: number; gridSpacing: number; sectionMb: number; outerPadding: number }> = {
-  compact:  { card: 2,  gridSpacing: 0.25, sectionMb: 0.5, outerPadding: 8  },
-  normal:   { card: 6,  gridSpacing: 0.75, sectionMb: 1,   outerPadding: 12 },
-  spacious: { card: 12, gridSpacing: 1.5,  sectionMb: 2,   outerPadding: 16 },
+export const PADDING_MAP: Record<PrintOptions['padding'], { card: number; sectionMb: number; outerPadding: number }> = {
+  compact:  { card: 2,  sectionMb: 0.5, outerPadding: 8  },
+  normal:   { card: 6,  sectionMb: 1,   outerPadding: 12 },
+  spacious: { card: 12, sectionMb: 2,   outerPadding: 16 },
 }

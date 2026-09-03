@@ -1017,6 +1017,7 @@
     "line_height_val": "Line height: {0}",
     "card_icon_px": "Card icon: {0}px",
     "wake_icon_px": "Wake icon: {0}px",
+    "row_spacing_px": "Row spacing: {0}px",
     "pos_after": "#{0} (after {1})",
     "insert_after": "Insert here — pos {0}",
     "player_entered_seat": "Player entered seat #{0}",

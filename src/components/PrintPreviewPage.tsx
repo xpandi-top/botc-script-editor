@@ -259,6 +259,14 @@ export function PrintPreviewPage({
                 <ToggleButton value="normal"   sx={{ fontSize: '0.72rem' }}>{t('normal')}</ToggleButton>
                 <ToggleButton value="spacious" sx={{ fontSize: '0.72rem' }}>{t('spacious')}</ToggleButton>
               </ToggleButtonGroup>
+              <Box>
+                <FieldLabel mb={0}>{tpl('row_spacing_px', opts.rowSpacing)}</FieldLabel>
+                <Slider value={opts.rowSpacing} min={0} max={24} step={1}
+                  onChange={(_, v) => set('rowSpacing', v as number)}
+                  marks={[{ value: 0, label: '0' }, { value: 12, label: '12' }, { value: 24, label: '24' }]}
+                  sx={{ mt: 0.5, mb: 0 }}
+                />
+              </Box>
             </Box>
           </Box>
 
