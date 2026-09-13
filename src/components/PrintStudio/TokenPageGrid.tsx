@@ -289,7 +289,7 @@ export function TokenPageGrid(props: TokenPageGridProps) {
     return (
       <Box>
         {pages.map((pageTokens, pageIdx) => (
-          <Box key={pageIdx}>
+          <Box key={pageIdx} sx={forPrint && pageIdx > 0 ? { pageBreakBefore: 'always', breakBefore: 'page' } : undefined}>
             {!forPrint && (
               <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
                 Page {pageIdx + 1}/{pages.length} ({pageTokens.length} tokens)
@@ -322,7 +322,7 @@ export function TokenPageGrid(props: TokenPageGridProps) {
     return (
       <Box>
         {pages.map((pageNums, pageIdx) => (
-          <Box key={pageIdx}>
+          <Box key={pageIdx} sx={forPrint && pageIdx > 0 ? { pageBreakBefore: 'always', breakBefore: 'page' } : undefined}>
             {!forPrint && (
               <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
                 Page {pageIdx + 1}/{pages.length}
@@ -357,7 +357,7 @@ export function TokenPageGrid(props: TokenPageGridProps) {
   return (
     <Box>
       {pages.map((pageMarkers, pageIdx) => (
-        <Box key={pageIdx}>
+        <Box key={pageIdx} sx={forPrint && pageIdx > 0 ? { pageBreakBefore: 'always', breakBefore: 'page' } : undefined}>
           {!forPrint && (
             <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
               Page {pageIdx + 1}/{pages.length} ({pageMarkers.length} markers)

@@ -67,7 +67,13 @@ export function PrintStudioPage({ opts, onOptionsChange, onClose, onOpenPrintPre
       document.head.appendChild(styleEl)
     }
     const { w, h } = PAGE_SIZE_DEFS[opts.pageSize]
-    styleEl.textContent = `@media print { @page { size: ${w}mm ${h}mm; margin: ${opts.marginMm}mm; } }`
+    // margin: 0 — each page box in TokenPageGrid is already sized to the full physical
+    // page with opts.marginMm baked in as its own internal padding (the token layout
+    // math accounts for it via usableW/usableH). An @page margin here would shrink the
+    // printable area on top of that, so the full-size box no longer fits it and the
+    // browser's own pagination slices across it wherever it happens to overflow —
+    // misaligned page breaks, content looking clipped.
+    styleEl.textContent = `@media print { @page { size: ${w}mm ${h}mm; margin: 0; } }`
     setTimeout(() => window.print(), 80)
   }
 

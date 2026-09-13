@@ -113,10 +113,13 @@ function renderRoot(children: React.ReactNode) {
             '.token-print-portal': { display: 'none' },
           },
           '@media print': {
+            // `.print-portal` (script sheet) intentionally excluded: it's rasterized
+            // programmatically via exportSheetPdf/html2canvas, never through the
+            // browser's own print dialog. Leaving it live here made it pop up
+            // alongside `.token-print-portal` on any window.print() call (Print
+            // Studio's web export), since the Scripts tab — and its portal — stays
+            // mounted app-wide once visited.
             '#root': { display: 'none' },
-            '.print-portal': { display: 'block' },
-            '.print-portal .MuiPaper-root': { boxShadow: 'none' },
-            '.print-portal .sheet-root': { boxShadow: 'none', border: 'none' },
             '.token-print-portal': { display: 'block' },
           },
         }} />
