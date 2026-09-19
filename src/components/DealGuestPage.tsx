@@ -17,6 +17,7 @@ import LockIcon from '@mui/icons-material/Lock'
 import PersonIcon from '@mui/icons-material/Person'
 import EventSeatIcon from '@mui/icons-material/EventSeat'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
+import VisibilityIcon from '@mui/icons-material/Visibility'
 import {
   getDealSession,
   getGuestCards,
@@ -65,6 +66,9 @@ export function DealGuestPage({ sessionId, language }: Props) {
   const [displayName, setDisplayName] = useState('')
   const [claimedSeat, setClaimedSeat] = useState('')
   const [submitted, setSubmitted] = useState(false)
+  // Lets the player re-reveal their own card after the one-time auto-reveal
+  // hides it (e.g. after a page refresh) — same browser/guest token only.
+  const [manualReveal, setManualReveal] = useState(false)
   const { t } = useT()
   const tpl = makeTpl(language)
 
@@ -213,7 +217,8 @@ export function DealGuestPage({ sessionId, language }: Props) {
   }
 
   if (state.kind === 'claimed') {
-    const { card, revealCharacter } = state
+    const { card } = state
+    const revealCharacter = state.revealCharacter || manualReveal
     const effectiveSeat = card.assignedSeat ?? card.claimedBySeat ?? null
     const displayName = card.assignedName ?? card.claimedByName ?? ''
     const votePanel = activeVote ? (
@@ -255,13 +260,24 @@ export function DealGuestPage({ sessionId, language }: Props) {
         borderRadius: 1.5,
         bgcolor: 'background.paper',
       }}>
-        <Typography variant="caption" sx={{ fontWeight: 800, whiteSpace: 'nowrap' }}>
-          {effectiveSeat != null ? tpl('seat_n', effectiveSeat) : t('seat')}
-          {displayName ? ` · ${displayName}` : ''}
-        </Typography>
-        <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'right', lineHeight: 1.2 }}>
-          {t('character_hidden_compact')}
-        </Typography>
+        <Box sx={{ minWidth: 0 }}>
+          <Typography variant="caption" sx={{ fontWeight: 800, whiteSpace: 'nowrap', display: 'block' }}>
+            {effectiveSeat != null ? tpl('seat_n', effectiveSeat) : t('seat')}
+            {displayName ? ` · ${displayName}` : ''}
+          </Typography>
+          <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1.2 }}>
+            {t('character_hidden_compact')}
+          </Typography>
+        </Box>
+        <Button
+          size="small"
+          variant="outlined"
+          startIcon={<VisibilityIcon />}
+          onClick={() => setManualReveal(true)}
+          sx={{ flexShrink: 0, whiteSpace: 'nowrap' }}
+        >
+          {t('show_my_character')}
+        </Button>
       </Box>
     ) : null
 

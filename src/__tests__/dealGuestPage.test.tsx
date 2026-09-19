@@ -5,19 +5,21 @@
  * grouped in a labeled card with icons and a persistent helper explaining
  * what "seat" means, instead of two bare floating text fields.
  */
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, afterEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import React from 'react'
 
 import { I18nProvider } from '../context/I18nContext'
 import { DealGuestPage } from '../components/DealGuestPage'
 
+let claimedCardOnLoad: any = null
+
 vi.mock('../lib/firebaseDeal', () => ({
   getDealSession: vi.fn(async () => ({
     id: 'sess1', createdAt: {}, expiresAt: {}, hostToken: 'h', status: 'open', cardCount: 5,
   })),
   getGuestCards: vi.fn(async () => Array.from({ length: 5 }, (_, i) => ({ position: i }))),
-  findClaimedCard: vi.fn(async () => null),
+  findClaimedCard: vi.fn(async () => claimedCardOnLoad),
   claimCard: vi.fn(),
   getGuestToken: vi.fn(() => 'guest-token-test'),
   hasSeenDealCharacter: vi.fn(() => false),
@@ -30,6 +32,8 @@ vi.mock('../lib/firebaseDeal', () => ({
 function withI18n(node: React.ReactElement) {
   return <I18nProvider language="en">{node}</I18nProvider>
 }
+
+afterEach(() => { claimedCardOnLoad = null })
 
 describe('DealGuestPage — name entry step', () => {
   it('renders name + seat fields grouped with a section label and seat helper text', async () => {
@@ -63,5 +67,33 @@ describe('DealGuestPage — name entry step', () => {
     await waitFor(() => {
       expect(screen.getByText(/pick your character card/i)).toBeInTheDocument()
     })
+  })
+})
+
+// ── Fix: reveal-after-refresh (Show My Character button) ────────────────────
+
+describe('DealGuestPage — reshowing an already-claimed character', () => {
+  it('loading an already-claimed card (e.g. after a refresh) hides the character behind a button', async () => {
+    claimedCardOnLoad = { position: 0, characterId: 'washerwoman', claimedByToken: 'guest-token-test', claimedByName: 'Alice', claimedBySeat: 3 }
+
+    render(withI18n(<DealGuestPage sessionId="sess1" language="en" />))
+
+    expect(await screen.findByText(/character hidden/i)).toBeInTheDocument()
+    expect(screen.queryByText('Washerwoman')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /show my character/i })).toBeInTheDocument()
+  })
+
+  it('clicking "Show My Character" reveals the assigned character again', async () => {
+    claimedCardOnLoad = { position: 0, characterId: 'washerwoman', claimedByToken: 'guest-token-test', claimedByName: 'Alice', claimedBySeat: 3 }
+
+    render(withI18n(<DealGuestPage sessionId="sess1" language="en" />))
+
+    const showBtn = await screen.findByRole('button', { name: /show my character/i })
+    fireEvent.click(showBtn)
+
+    await waitFor(() => {
+      expect(screen.getByText('Washerwoman')).toBeInTheDocument()
+    })
+    expect(screen.queryByText(/character hidden/i)).not.toBeInTheDocument()
   })
 })
