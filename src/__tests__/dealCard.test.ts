@@ -5,7 +5,7 @@
  * Firestore network calls are NOT tested here (require emulator / integration env).
  * We test:
  *   - shuffleDealCards pure utility
- *   - getGuestToken sessionStorage behaviour
+ *   - getGuestToken localStorage behaviour (shared across tabs)
  *   - HOST_TOKEN_KEY / GUEST_TOKEN_KEY constant shapes
  *   - DealCard claimed detection: undefined (deleteField) vs null vs string
  *   - buildShareUrl produces a non-localhost URL for deal sessions
@@ -96,7 +96,7 @@ describe('deal localStorage/sessionStorage key constants', () => {
 
 describe('getGuestToken', () => {
   beforeEach(() => {
-    sessionStorage.clear()
+    localStorage.clear()
   })
 
   it('returns a non-empty string', () => {
@@ -111,14 +111,14 @@ describe('getGuestToken', () => {
     expect(t1).toBe(t2)
   })
 
-  it('persists to sessionStorage under GUEST_TOKEN_KEY', () => {
+  it('persists to localStorage under GUEST_TOKEN_KEY (shared across tabs)', () => {
     const token = getGuestToken()
-    expect(sessionStorage.getItem(GUEST_TOKEN_KEY)).toBe(token)
+    expect(localStorage.getItem(GUEST_TOKEN_KEY)).toBe(token)
   })
 
   it('generates different tokens for different sessions (cleared storage)', () => {
     const t1 = getGuestToken()
-    sessionStorage.clear()
+    localStorage.clear()
     const t2 = getGuestToken()
     // Extremely unlikely to collide (24-char random ID)
     expect(t1).not.toBe(t2)

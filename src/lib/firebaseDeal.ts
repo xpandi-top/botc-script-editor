@@ -142,7 +142,7 @@ export const ACTIVE_HOST_DEAL_KEY = 'botc-deal-active-host'
 // localStorage key for deal session linked to a specific game instance
 export const GAME_DEAL_KEY = (gameId: string) => `botc-deal-game-${gameId}`
 
-// sessionStorage key for the guest's browser token
+// localStorage key for the guest's browser token
 export const GUEST_TOKEN_KEY = 'botc-deal-guest-token'
 
 // localStorage key marking that this browser/device has already seen its dealt
@@ -188,13 +188,15 @@ function responseRef(sessionId: string, voteId: string, seat: number) {
   return doc(db(), COLLECTION, sessionId, 'votes', voteId, 'responses', String(seat))
 }
 
-/** Get or create the guest's browser token (persisted in sessionStorage). */
+/** Get or create the guest's browser token (persisted in localStorage, shared
+ *  across tabs — so re-opening the same link in a new tab restores the same
+ *  claimed card instead of letting the browser claim a second seat). */
 export function getGuestToken(): string {
   try {
-    const existing = sessionStorage.getItem(GUEST_TOKEN_KEY)
+    const existing = localStorage.getItem(GUEST_TOKEN_KEY)
     if (existing) return existing
     const fresh = randomId(24)
-    sessionStorage.setItem(GUEST_TOKEN_KEY, fresh)
+    localStorage.setItem(GUEST_TOKEN_KEY, fresh)
     return fresh
   } catch {
     return randomId(24)
