@@ -548,6 +548,8 @@
     "unclaimed": "Unclaimed",
     "seat": "Seat #",
     "player_name": "Player name",
+    "enter_your_info_to_begin": "Enter your info to begin",
+    "seat_number_helper": "The seat number the storyteller assigned you at the table",
     "set_unclaimed": "Set Unclaimed",
     "set_claimed": "Set Claimed",
     "apply_start_game": "Apply & Start Game",

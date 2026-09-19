@@ -148,6 +148,7 @@ export type UiKey =
   | 'cancel_new_game' | 'show_log' | 'hide_log' | 'show_panel' | 'hide_panel'
   | 'alive_count' | 'total_count' | 'highest_vote' | 'leading_candidate'
   | 'quick_nomination' | 'quick_skill' | 'next_day' | 'next_phase' | 'previous_phase' | 'quick_actions'
+  | 'enter_your_info_to_begin' | 'seat_number_helper'
   | 'seat_assignment' | 'unassigned' | 'click_to_assign'
   | 'load_local_file' | 'remove_from_seat' | 'load_preset'
   | 'tag_settings' | 'default_tags' | 'load_predefined_tags' | 'add_tag_label'

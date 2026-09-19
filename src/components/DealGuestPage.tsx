@@ -14,6 +14,9 @@ import {
 } from '@mui/material'
 import AutoStoriesIcon from '@mui/icons-material/AutoStories'
 import LockIcon from '@mui/icons-material/Lock'
+import PersonIcon from '@mui/icons-material/Person'
+import EventSeatIcon from '@mui/icons-material/EventSeat'
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import {
   getDealSession,
   getGuestCards,
@@ -292,34 +295,49 @@ export function DealGuestPage({ sessionId, language }: Props) {
         <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
           {tpl('n_cards_tap_one', state.session.cardCount)}
         </Typography>
-        <TextField
-          size="small"
-          fullWidth
-          required
-          label={t('player_name')}
-          value={displayName}
-          onChange={e => { setDisplayName(e.target.value); setSubmitted(false) }}
-          onKeyDown={e => { if (e.key === 'Enter') handleStartPicking() }}
-          error={submitted && !displayName.trim()}
-          helperText={submitted && !displayName.trim() ? t('field_required') : undefined}
-          sx={{ maxWidth: 300, mb: 1.5 }}
-        />
-        <TextField
-          size="small"
-          fullWidth
-          required
-          label={t('seat')}
-          value={claimedSeat}
-          onChange={e => { setClaimedSeat(e.target.value.replace(/\D/g, '')); setSubmitted(false) }}
-          onKeyDown={e => { if (e.key === 'Enter') handleStartPicking() }}
-          error={submitted && !claimedSeat.trim()}
-          helperText={submitted && !claimedSeat.trim() ? t('field_required') : undefined}
-          sx={{ maxWidth: 300, mb: 2 }}
-          slotProps={{ htmlInput: { inputMode: 'numeric', pattern: '[0-9]*' } }}
-        />
-        <Button variant="contained" size="large" onClick={handleStartPicking}>
-          {t('view_cards')}
-        </Button>
+        <Paper
+          variant="outlined"
+          sx={{ p: 2.5, borderRadius: 3, width: '100%', maxWidth: 340, textAlign: 'left', bgcolor: 'background.paper' }}
+        >
+          <Typography
+            variant="overline"
+            color="text.secondary"
+            sx={{ display: 'block', fontWeight: 700, letterSpacing: '0.06em', mb: 1.5 }}
+          >
+            {t('enter_your_info_to_begin')}
+          </Typography>
+          <TextField
+            autoFocus
+            fullWidth
+            required
+            label={t('player_name')}
+            value={displayName}
+            onChange={e => { setDisplayName(e.target.value); setSubmitted(false) }}
+            onKeyDown={e => { if (e.key === 'Enter') handleStartPicking() }}
+            error={submitted && !displayName.trim()}
+            helperText={submitted && !displayName.trim() ? t('field_required') : ' '}
+            slotProps={{ input: { startAdornment: <PersonIcon sx={{ mr: 1, color: 'text.disabled' }} /> } }}
+            sx={{ mb: 0.5 }}
+          />
+          <TextField
+            fullWidth
+            required
+            label={t('seat')}
+            value={claimedSeat}
+            onChange={e => { setClaimedSeat(e.target.value.replace(/\D/g, '')); setSubmitted(false) }}
+            onKeyDown={e => { if (e.key === 'Enter') handleStartPicking() }}
+            error={submitted && !claimedSeat.trim()}
+            helperText={submitted && !claimedSeat.trim() ? t('field_required') : t('seat_number_helper')}
+            slotProps={{
+              input: { startAdornment: <EventSeatIcon sx={{ mr: 1, color: 'text.disabled' }} /> },
+              htmlInput: { inputMode: 'numeric', pattern: '[0-9]*' },
+            }}
+            sx={{ mb: 1 }}
+          />
+          <Button fullWidth variant="contained" size="large" endIcon={<ArrowForwardIcon />} onClick={handleStartPicking}>
+            {t('view_cards')}
+          </Button>
+        </Paper>
       </CenteredBox>
     )
   }
