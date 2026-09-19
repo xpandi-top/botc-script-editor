@@ -10,7 +10,7 @@ import { loadInitialState } from './storage'
 import { buildVotingOrder, makeEventId, STORAGE_KEY, RECORDS_CHANGED_EVENT, INITIAL_AUDIO_TRACKS, DEFAULT_ST_NAME_KEY } from './constants'
 import { storageSync } from '../../lib/storage'
 import { livingNonTravelers, eligibleVoters, nominationThreshold, exileThreshold } from '../../utils/seats'
-import { computeYesCount, computeVotePassed, filterNoVoteSeats, remoteResponsesToVoteMap, timeoutDealVoteResponse } from '../../utils/votes'
+import { computeYesCount, computeVotePassed, filterNoVoteSeats, remoteResponsesToVoteMap, timeoutDealVoteResponse, canCastRemoteDealVote } from '../../utils/votes'
 import { buildAggregatedEntries, filterAndSortLog } from '../../utils/logFilter'
 import {
   ACTIVE_HOST_DEAL_KEY,
@@ -20,6 +20,7 @@ import {
   createDealVoteSession,
   subscribeActiveDealVote,
   subscribeDealVoteResponses,
+  type DealVoteResponse,
   type DealVoteResponseRecord,
   type DealVoteSession,
 } from '../../lib/firebaseDeal'
@@ -455,6 +456,24 @@ export function useStoryteller(props: StorytellerHelperProps) {
     }
   }
 
+  /**
+   * Lets the storyteller cast a vote on a player's behalf during a live
+   * remote nomination vote — clicking a seat in the ST's own vote list does
+   * the same thing a player tapping "Agree"/"Disagree" on their phone does.
+   * Only accepted for the seat currently up to vote, and only once (a race
+   * with the player's own tap is resolved by Firestore: whichever response
+   * lands first wins, the other becomes a no-op).
+   */
+  async function castRemoteDealVote(seat: number, response: DealVoteResponse) {
+    if (!linkedDealSession || !remoteDealVote) return
+    if (!canCastRemoteDealVote(remoteDealVote, remoteDealVoteResponses, seat)) return
+    try {
+      await advanceDealVote(linkedDealSession.sessionId, remoteDealVote, { seat, response })
+    } catch (e: unknown) {
+      setRemoteDealVoteError(e instanceof Error ? e.message : String(e))
+    }
+  }
+
   // ── Return (identical shape as before) ──
   return {
     activeScriptSlug, activeScriptTitle, activeScriptVersion, language, onLanguageChange, onSelectScript, scriptOptions, onSwitchTab,
@@ -470,7 +489,7 @@ export function useStoryteller(props: StorytellerHelperProps) {
     ...audio,
     newGamePanel, setNewGamePanel, showNewGamePanel, setShowNewGamePanel,
     activeDealSession, setActiveDealSession, lastDealSession, setLastDealSession,
-    linkedDealSession, remoteDealVote, remoteDealVoteResponses, remoteDealVoteError, remoteDealVoteStarting, startRemoteDealVote,
+    linkedDealSession, remoteDealVote, remoteDealVoteResponses, remoteDealVoteError, remoteDealVoteStarting, startRemoteDealVote, castRemoteDealVote,
     showSaveBeforeNewGame, setShowSaveBeforeNewGame,
     pendingNewGameAfterSave, setPendingNewGameAfterSave,
     endGameResult, setEndGameResult, showEndGameModal, setShowEndGameModal,

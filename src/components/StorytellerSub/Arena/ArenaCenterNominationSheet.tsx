@@ -1,7 +1,7 @@
 import type { StorytellerContext } from '../useStoryteller'
 import type { DayState, StorytellerSeat, VoteDraft } from '../types'
 import type { SelectChangeEvent } from '@mui/material'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Alert, Box, Button, Typography, TextField, Select, MenuItem, FormControl, InputLabel, FormControlLabel, Checkbox } from '@mui/material'
 import CheckIcon from '@mui/icons-material/Check'
@@ -27,7 +27,7 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: StorytellerContext })
     rejectNomination, recordVote, votingYesCount, timerDefaults,
     appendEvent,
     linkedDealSession, remoteDealVote, remoteDealVoteResponses, remoteDealVoteError,
-    remoteDealVoteStarting, startRemoteDealVote,
+    remoteDealVoteStarting, startRemoteDealVote, castRemoteDealVote, currentVoterSeat,
     currentScriptCharacters,
   } = ctx
 
@@ -36,6 +36,16 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: StorytellerContext })
   const [showNominationTimer] = useState(true)
   const [selectedTimer, setSelectedTimer] = useState<'nominator' | 'nominee'>('nominator')
   const [isTimerRunning, setIsTimerRunning] = useState(false)
+
+  // Local 250ms clock so the ST's own vote list counts down smoothly in step
+  // with what players see on their phones — Firestore only pushes an update
+  // when a response is submitted or the turn advances, not every tick.
+  const [voteNow, setVoteNow] = useState(() => Date.now())
+  useEffect(() => {
+    if (!remoteDealVote || remoteDealVote.status !== 'active') return
+    const timer = window.setInterval(() => setVoteNow(Date.now()), 250)
+    return () => window.clearInterval(timer)
+  }, [remoteDealVote?.voteId, remoteDealVote?.status])
 
   const updateTimer = (newValue: number) => {
     if (selectedTimer === 'nominator') {
@@ -54,6 +64,15 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: StorytellerContext })
   const nominationActorSeconds = currentDay.nominationActorSeconds ?? timerDefaults.nominationActorSeconds
   const nominationTargetSeconds = currentDay.nominationTargetSeconds ?? timerDefaults.nominationTargetSeconds
   const currentSeconds = selectedTimer === 'nominator' ? nominationActorSeconds : nominationTargetSeconds
+
+  // Seconds left for whoever's up to vote right now — locally-ticked for a
+  // live remote vote (see voteNow above), or the ST-run manual timer's own
+  // per-second countdown (useTimerEffect) otherwise.
+  const liveVoteSeconds = currentDay.nominationStep !== 'voting'
+    ? null
+    : remoteDealVote && remoteDealVote.status === 'active'
+      ? Math.max(0, Math.ceil((remoteDealVote.deadlineAt.toMillis() - voteNow) / 1000))
+      : currentDay.votingState?.perPlayerSeconds ?? null
 
   const handleActorChange = (e: SelectChangeEvent<number | ''>) => {
     const v = parseInt(String(e.target.value))
@@ -95,6 +114,14 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: StorytellerContext })
   const handleVoteToggle = (seatNum: number) => {
     const voted = currentDay.votingState?.votes?.[seatNum]
     const isChecked = voted === true || voteDraft.voters.includes(seatNum)
+
+    // Live remote vote: clicking the seat currently up mirrors that player
+    // tapping "Agree" on their phone — submit through the same Firestore
+    // path so the countdown advances and both sides land on one answer.
+    if (!isChecked && remoteDealVote && remoteDealVote.status === 'active' && currentVoterSeat === seatNum) {
+      castRemoteDealVote(seatNum, 'agree')
+      return
+    }
 
     if (currentDay.votingState) {
       updateCurrentDay((d: DayState) => ({
@@ -261,6 +288,8 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: StorytellerContext })
               appendEvent={appendEvent}
               language={language}
               multiVoteEnabled={usesMultiVoteTokens(currentScriptCharacters ?? [])}
+              currentVoterSeat={currentVoterSeat}
+              liveVoteSeconds={liveVoteSeconds}
             />
           </>
         )}

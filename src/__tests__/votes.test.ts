@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { computeYesCount, computeVotePassed, filterNoVoteSeats, formatSeatLabel, getCurrentDealVoter, remoteResponsesToVoteMap, summarizeDealVote, timeoutDealVoteResponse } from '../utils/votes'
+import { computeYesCount, computeVotePassed, filterNoVoteSeats, formatSeatLabel, getCurrentDealVoter, remoteResponsesToVoteMap, summarizeDealVote, timeoutDealVoteResponse, canCastRemoteDealVote } from '../utils/votes'
 import { buildVotingOrder, createSeats } from '../components/StorytellerSub/constants'
 import type { VoteDraft, VotingState } from '../components/StorytellerSub/types'
 
@@ -158,5 +158,33 @@ describe('linked deal voting helpers', () => {
   it('gets current deal voter from voting index', () => {
     expect(getCurrentDealVoter({ votingOrder: [7, 8, 1], currentIndex: 1 })).toBe(8)
     expect(getCurrentDealVoter({ votingOrder: [7, 8, 1], currentIndex: 3 })).toBeNull()
+  })
+})
+
+// ── ST casting a vote on a live remote voter's behalf ───────────────────────
+
+describe('canCastRemoteDealVote', () => {
+  const activeVote = { status: 'active' as const, votingOrder: [7, 8, 1], currentIndex: 1 }
+
+  it('allows casting for the seat currently up, with no response yet', () => {
+    expect(canCastRemoteDealVote(activeVote, [], 8)).toBe(true)
+  })
+
+  it('refuses a seat that is not currently up', () => {
+    expect(canCastRemoteDealVote(activeVote, [], 7)).toBe(false)
+    expect(canCastRemoteDealVote(activeVote, [], 1)).toBe(false)
+  })
+
+  it('refuses once the current seat already has a response (player beat the ST to it)', () => {
+    expect(canCastRemoteDealVote(activeVote, [{ seat: 8 }], 8)).toBe(false)
+  })
+
+  it('refuses on a closed or cancelled vote', () => {
+    expect(canCastRemoteDealVote({ ...activeVote, status: 'closed' }, [], 8)).toBe(false)
+    expect(canCastRemoteDealVote({ ...activeVote, status: 'cancelled' }, [], 8)).toBe(false)
+  })
+
+  it('refuses once voting has run past the end of the order', () => {
+    expect(canCastRemoteDealVote({ ...activeVote, currentIndex: 3 }, [], 8)).toBe(false)
   })
 })

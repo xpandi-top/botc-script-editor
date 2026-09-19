@@ -23,6 +23,10 @@ interface NominationVoteListProps {
   language: Language
   /** Odyssey rules: dead players hold vote tokens and may spend several at once. */
   multiVoteEnabled?: boolean
+  /** Seat currently up to vote in a live (remote or ST-run) vote — highlighted with a countdown. */
+  currentVoterSeat?: number | null
+  /** Seconds left for currentVoterSeat, ticking in step with the player's own timer. */
+  liveVoteSeconds?: number | null
 }
 
 export function NominationVoteList({
@@ -37,6 +41,8 @@ export function NominationVoteList({
   appendEvent,
   language,
   multiVoteEnabled = false,
+  currentVoterSeat = null,
+  liveVoteSeconds = null,
 }: NominationVoteListProps) {
   const t = makeT(language)
   const tpl = makeTpl(language)
@@ -118,23 +124,33 @@ export function NominationVoteList({
           const showWeight = multiVoteEnabled && isDead && maxWeight > 1
 
           const nameLabel = s.name ? `${s.seat}. ${s.name}` : `#${s.seat}`
+          const isLiveVoter = currentVoterSeat === s.seat && liveVoteSeconds != null
 
           return (
+            <Box key={s.seat} sx={{ display: 'inline-flex', flexDirection: 'column', gap: 0.25 }}>
             <Box
-              key={s.seat}
               sx={{
                 display: 'inline-flex',
                 alignItems: 'stretch',
-                border: '1.5px solid',
-                borderColor: isNominee
-                  ? 'warning.main'
-                  : isVoted
-                    ? 'success.main'
-                    : 'divider',
+                border: isLiveVoter ? '2px solid' : '1.5px solid',
+                borderColor: isLiveVoter
+                  ? 'info.main'
+                  : isNominee
+                    ? 'warning.main'
+                    : isVoted
+                      ? 'success.main'
+                      : 'divider',
                 borderRadius: '20px',
                 overflow: 'hidden',
                 bgcolor: isVoted ? 'success.light' : 'background.paper',
                 transition: 'all 0.12s ease',
+                ...(isLiveVoter && {
+                  animation: 'nominationLiveVoterPulse 1s ease-in-out infinite',
+                  '@keyframes nominationLiveVoterPulse': {
+                    '0%, 100%': { boxShadow: '0 0 0 0 rgba(2,136,209,0.35)' },
+                    '50%':      { boxShadow: '0 0 0 4px rgba(2,136,209,0)' },
+                  },
+                }),
               }}
             >
               {/* ── Vote toggle (click name) ── */}
@@ -235,6 +251,21 @@ export function NominationVoteList({
                   }
                 </IconButton>
               </Tooltip>
+            </Box>
+            {isLiveVoter && (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.4, px: 1.25 }}>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    fontWeight: 800,
+                    fontFamily: 'monospace',
+                    color: liveVoteSeconds <= 2 ? 'error.main' : 'info.main',
+                  }}
+                >
+                  ⏱ {liveVoteSeconds}s
+                </Typography>
+              </Box>
+            )}
             </Box>
           )
         }

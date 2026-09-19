@@ -92,3 +92,32 @@ describe('NominationVoteList', () => {
     expect(screen.getAllByText(/票/).length).toBeGreaterThan(0)
   })
 })
+
+// ── Fix: live vote countdown synced into the ST's own vote list ────────────
+
+describe('NominationVoteList — live vote countdown', () => {
+  it('shows no countdown badge when there is no live voter', () => {
+    render(<NominationVoteList {...makeProps()} />)
+    expect(screen.queryByText(/⏱/)).not.toBeInTheDocument()
+  })
+
+  it('shows the countdown next to the current live voter only', () => {
+    render(<NominationVoteList {...makeProps({ currentVoterSeat: 2, liveVoteSeconds: 4 })} />)
+    expect(screen.getByText('⏱ 4s')).toBeInTheDocument()
+    // Only one badge rendered — not one per seat
+    expect(screen.getAllByText(/⏱/)).toHaveLength(1)
+  })
+
+  it('updates the displayed seconds as liveVoteSeconds ticks down', () => {
+    const { rerender } = render(<NominationVoteList {...makeProps({ currentVoterSeat: 1, liveVoteSeconds: 5 })} />)
+    expect(screen.getByText('⏱ 5s')).toBeInTheDocument()
+    rerender(<NominationVoteList {...makeProps({ currentVoterSeat: 1, liveVoteSeconds: 1 })} />)
+    expect(screen.getByText('⏱ 1s')).toBeInTheDocument()
+    expect(screen.queryByText('⏱ 5s')).not.toBeInTheDocument()
+  })
+
+  it('does not show a countdown when liveVoteSeconds is null even with a currentVoterSeat set', () => {
+    render(<NominationVoteList {...makeProps({ currentVoterSeat: 1, liveVoteSeconds: null })} />)
+    expect(screen.queryByText(/⏱/)).not.toBeInTheDocument()
+  })
+})

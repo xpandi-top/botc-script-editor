@@ -121,6 +121,23 @@ export function getCurrentDealVoter(
   return vote.votingOrder[vote.currentIndex] ?? null
 }
 
+/**
+ * Whether the storyteller may cast a vote on `seat`'s behalf right now —
+ * lets a click in the ST's own vote list stand in for that player tapping
+ * "Agree" on their phone. Only the seat currently up may be cast this way,
+ * and only before it already has a response (a race with the player's own
+ * tap is resolved by whichever write reaches Firestore first).
+ */
+export function canCastRemoteDealVote(
+  vote: Pick<DealVoteSession, 'status' | 'votingOrder' | 'currentIndex'>,
+  responses: Pick<DealVoteResponseRecord, 'seat'>[],
+  seat: number,
+): boolean {
+  if (vote.status !== 'active') return false
+  if (getCurrentDealVoter(vote) !== seat) return false
+  return !responses.some((r) => r.seat === seat)
+}
+
 export function formatSeatLabel(
   seat: number,
   seatLabels?: Record<string, string> | null,
