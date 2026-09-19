@@ -43,17 +43,23 @@ import { useT } from '../../../context/I18nContext'
 
 const PHASES: Phase[] = ['night', 'private', 'public', 'nomination']
 
+// Alpha raised from an earlier 0.20 — at that opacity the panel barely tinted
+// whatever sat behind it (the game board texture, which isn't theme-reactive),
+// so in dark mode near-white text ended up rendered over an effectively light
+// backdrop with almost no contrast. These are layered over an opaque solid
+// base color (see `panelBg` below) so legibility no longer depends on the
+// backdrop at all — the gradient now only supplies the per-phase color wash.
 const PANEL_COLORS_DARK: Record<Phase, string> = {
-  night:      'linear-gradient(135deg, rgba(22,28,40,0.20), rgba(40,51,71,0.20))',
-  private:    'linear-gradient(135deg, rgba(78,65,52,0.20), rgba(106,88,68,0.20))',
-  public:     'linear-gradient(135deg, rgba(36,50,67,0.20), rgba(57,76,97,0.20))',
-  nomination: 'linear-gradient(135deg, rgba(74,56,43,0.20), rgba(106,82,61,0.20))',
+  night:      'linear-gradient(135deg, rgba(22,28,40,0.94), rgba(40,51,71,0.94))',
+  private:    'linear-gradient(135deg, rgba(58,47,36,0.94), rgba(78,64,48,0.94))',
+  public:     'linear-gradient(135deg, rgba(24,33,45,0.94), rgba(38,51,66,0.94))',
+  nomination: 'linear-gradient(135deg, rgba(52,39,29,0.94), rgba(74,56,41,0.94))',
 }
 const PANEL_COLORS_LIGHT: Record<Phase, string> = {
-  night:      'linear-gradient(135deg, rgba(43,52,71,0.20), rgba(68,80,106,0.20))',
-  private:    'linear-gradient(135deg, rgba(245,232,209,0.20), rgba(231,212,178,0.20))',
-  public:     'linear-gradient(135deg, rgba(238,246,255,0.20), rgba(220,235,250,0.20))',
-  nomination: 'linear-gradient(135deg, rgba(236,220,200,0.20), rgba(214,184,150,0.20))',
+  night:      'linear-gradient(135deg, rgba(43,52,71,0.94), rgba(68,80,106,0.94))',
+  private:    'linear-gradient(135deg, rgba(245,232,209,0.94), rgba(231,212,178,0.94))',
+  public:     'linear-gradient(135deg, rgba(238,246,255,0.94), rgba(220,235,250,0.94))',
+  nomination: 'linear-gradient(135deg, rgba(236,220,200,0.94), rgba(214,184,150,0.94))',
 }
 // Light-theme phases that use a bright background → need dark text/buttons
 const LIGHT_BG_PHASES = new Set(['private', 'public', 'nomination'])
