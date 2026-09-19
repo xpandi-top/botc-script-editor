@@ -14,7 +14,7 @@ export function ArenaCenter({ ctx }: { ctx: StorytellerContext }) {
   const { t, tpl } = useT()
   const [commOpen, setCommOpen] = useState(false)
   const {
-    days, currentDay, goToNextDay, goToPreviousDay, setSelectedDayId,
+    days, currentDay, goToNextPhase, goToPreviousPhase, setSelectedDayId,
     setDialogState, currentScriptCharacters, language,
   } = ctx
 
@@ -35,8 +35,8 @@ export function ArenaCenter({ ctx }: { ctx: StorytellerContext }) {
       }}
     >
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5, pb: 0.5, borderBottom: '1px solid', borderBottomColor: 'divider', flexShrink: 0 }}>
-        <Tooltip title={t('previous_day')}>
-          <IconButton size="large" onClick={(e) => { e.stopPropagation(); goToPreviousDay() }}>
+        <Tooltip title={t('previous_phase')}>
+          <IconButton size="large" onClick={(e) => { e.stopPropagation(); goToPreviousPhase() }}>
             <ArrowBackIcon />
           </IconButton>
         </Tooltip>
@@ -65,8 +65,8 @@ export function ArenaCenter({ ctx }: { ctx: StorytellerContext }) {
             ))}
           </Select>
         </FormControl>
-        <Tooltip title={t('next_day_label')}>
-          <IconButton size="large" onClick={(e) => { e.stopPropagation(); goToNextDay() }}>
+        <Tooltip title={t('next_phase')}>
+          <IconButton size="large" onClick={(e) => { e.stopPropagation(); goToNextPhase() }}>
             <ArrowForwardIcon />
           </IconButton>
         </Tooltip>

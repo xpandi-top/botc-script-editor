@@ -60,6 +60,8 @@ function _genGameId(): string {
   return Array.from({ length: 16 }, () => _CHARS[Math.floor(Math.random() * _CHARS.length)]).join('')
 }
 
+export const PHASE_ORDER: Phase[] = ['night', 'private', 'public', 'nomination']
+
 export function buildGameLifecycle(deps: LifecycleDeps) {
   const { days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, activeScriptVersion, endGameResult, scriptOptions, onSelectScript, setDays, setDaysWithUndo, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay, setNewGamePanel, setShowNewGamePanel, setEndGameResult, setGameRecords, setAudioPlaying, language, appendEvent, customTagPool = [], playerNamePool = [], setCurrentRecordName, setTimerDefaults, setCustomTagPool, setPlayerNamePool, setShowEndGameModal, setNightShowCharacter, setNightShowWakeOrder, stFabledIds = [], stCustomRules = '', setStFabledIds, setStCustomRules, stName, setStName, gameStartedAt, setGameStartedAt, gameId, setGameId, setShowSaveBeforeNewGame, setPendingNewGameAfterSave } = deps
 
@@ -85,6 +87,20 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     setSelectedDayId(days[selectedDayIndex - 1].id)
     setPickerMode('none')
     setIsTimerRunning(false)
+  }
+
+  /** Step to the next phase within the day; from the last phase (nomination), advance to the next day. */
+  function goToNextPhase() {
+    const idx = PHASE_ORDER.indexOf(currentDay.phase)
+    if (idx < PHASE_ORDER.length - 1) { setPhase(PHASE_ORDER[idx + 1]); return }
+    goToNextDay()
+  }
+
+  /** Step to the previous phase within the day; from the first phase (night), go back to the previous day. */
+  function goToPreviousPhase() {
+    const idx = PHASE_ORDER.indexOf(currentDay.phase)
+    if (idx > 0) { setPhase(PHASE_ORDER[idx - 1]); return }
+    goToPreviousDay()
   }
 
   function deleteDay(dayId: string) {
@@ -470,5 +486,5 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     setEndGameResult({ winner: record.winner ?? null, playerTeams: teams, mvp: record.mvp ?? null, balanced: record.balanced ?? null, funEvil: record.funEvil ?? null, funGood: record.funGood ?? null, replay: record.replay ?? null, otherNote: record.otherNote ?? '' })
   }
 
-  return { goToNextDay, goToPreviousDay, deleteDay, moveToNextSpeaker, setPhase, startNight, addPlayerSeat, removeLastPlayerSeat, addTravelerSeat, removeLastTraveler, openNewGamePanel, openCharacterEditor, doOpenNewGamePanel: _doOpenNewGamePanel, confirmNewGameAfterSave, confirmNewGameDiscard, hasActiveGame, randomAssignCharacters, startNewGame, applyGameChanges, resetCurrentGame, openEndGamePanel, markGameEnded, unmarkGameEnded, loadGameRecord, ...exportActions }
+  return { goToNextDay, goToPreviousDay, goToNextPhase, goToPreviousPhase, deleteDay, moveToNextSpeaker, setPhase, startNight, addPlayerSeat, removeLastPlayerSeat, addTravelerSeat, removeLastTraveler, openNewGamePanel, openCharacterEditor, doOpenNewGamePanel: _doOpenNewGamePanel, confirmNewGameAfterSave, confirmNewGameDiscard, hasActiveGame, randomAssignCharacters, startNewGame, applyGameChanges, resetCurrentGame, openEndGamePanel, markGameEnded, unmarkGameEnded, loadGameRecord, ...exportActions }
 }

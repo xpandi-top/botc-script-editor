@@ -71,7 +71,7 @@ const PHASE_ICONS: Record<Phase, ReactNode> = {
 export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: StorytellerContext; collapsed: boolean; setCollapsed: (v: boolean) => void }) {
   const {
     language, text, currentDay, updateCurrentDay, days,
-    goToNextDay, goToPreviousDay, setSelectedDayId, setDialogState,
+    goToNextDay, goToNextPhase, goToPreviousPhase, setSelectedDayId, setDialogState,
     hasTimer, currentTimerSeconds, isTimerRunning, setIsTimerRunning,
     setCurrentTimer, syncDayTimers, setPickerMode,
     audioPlaying, setAudioPlaying, startNight, stopNight, sendYTCommand,
@@ -200,9 +200,11 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
         <Box sx={{ overflowY: 'auto', maxHeight: '38dvh', px: 1.5, pb: 1.5 }}>
           {/* Row 1: Day navigation */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
-            <IconButton sx={iconBtnSx} onClick={() => goToPreviousDay()}>
-              <ArrowBackIcon />
-            </IconButton>
+            <Tooltip title={t('previous_phase')}>
+              <IconButton sx={iconBtnSx} onClick={() => goToPreviousPhase()}>
+                <ArrowBackIcon />
+              </IconButton>
+            </Tooltip>
             <Select
               value={currentDay.id}
               onChange={(e) => setSelectedDayId(e.target.value)}
@@ -226,9 +228,11 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
                 </MenuItem>
               ))}
             </Select>
-            <IconButton sx={iconBtnSx} onClick={() => goToNextDay()}>
-              <ArrowForwardIcon />
-            </IconButton>
+            <Tooltip title={t('next_phase')}>
+              <IconButton sx={iconBtnSx} onClick={() => goToNextPhase()}>
+                <ArrowForwardIcon />
+              </IconButton>
+            </Tooltip>
             <Tooltip title={t('communication_board')}>
               <IconButton sx={{ ...iconBtnSx, color: 'primary.main' }} onClick={() => setCommOpen(true)}>
                 <ForumIcon />

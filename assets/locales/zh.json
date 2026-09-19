@@ -466,6 +466,8 @@
     "leading_candidate": "当前最高票",
     "quick_nomination": "快速提名",
     "next_day": "下一天",
+    "next_phase": "下一阶段",
+    "previous_phase": "上一阶段",
     "seat_assignment": "座位分配",
     "unassigned": "未分配",
     "click_to_assign": "点击名字分配到下一个空位",

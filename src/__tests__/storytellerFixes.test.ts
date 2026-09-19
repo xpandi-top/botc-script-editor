@@ -68,6 +68,7 @@ function buildDeps(currentDay: DayState, days: DayState[] = [currentDay]) {
   const setSelectedDayId = vi.fn()
   const setPickerMode = vi.fn()
   const setIsTimerRunning = vi.fn()
+  const setDays = vi.fn()
 
   const deps = {
     days,
@@ -78,7 +79,7 @@ function buildDeps(currentDay: DayState, days: DayState[] = [currentDay]) {
     activeScriptTitle: 'Trouble Brewing',
     endGameResult: null,
     scriptOptions: [{ slug: 'tb', characters: [] }],
-    setDays: vi.fn(),
+    setDays,
     setDaysWithUndo,
     setSelectedDayId,
     setPickerMode,
@@ -97,7 +98,7 @@ function buildDeps(currentDay: DayState, days: DayState[] = [currentDay]) {
     customTagPool: [],
     gameStartedAt: undefined,
   }
-  return { deps, setNewGamePanel, setDaysWithUndo, setSelectedDayId }
+  return { deps, setNewGamePanel, setDaysWithUndo, setSelectedDayId, setDays }
 }
 
 // ── Fix 1: New game inherits previous seat names ──────────────────────────────
@@ -330,6 +331,86 @@ describe('Fix 3 – demon bluffs carry across days', () => {
 
     const firstDays = setDaysWithUndo.mock.calls[0][0] as DayState[]
     expect(firstDays[0].demonBluffs).toEqual([])
+  })
+})
+
+// ── Fix 4: Prev/Next arrows step through phases, not just days ──────────────
+
+describe('Fix 4 – goToNextPhase / goToPreviousPhase step within the day', () => {
+  it('goToNextPhase from night steps to private, not the next day', () => {
+    const day1 = makeDay({ phase: 'night' })
+    const { deps, setDays, setDaysWithUndo } = buildDeps(day1, [day1])
+    const lc = buildGameLifecycle(deps as any)
+
+    lc.goToNextPhase()
+
+    expect(setDaysWithUndo).not.toHaveBeenCalled()
+    const updater = setDays.mock.calls[0][0]
+    const updated: DayState[] = updater([day1])
+    expect(updated[0].phase).toBe('private')
+  })
+
+  it('goToNextPhase steps private → public → nomination in order', () => {
+    const dayPrivate = makeDay({ phase: 'private' })
+    let r = buildDeps(dayPrivate, [dayPrivate])
+    let lc = buildGameLifecycle(r.deps as any)
+    lc.goToNextPhase()
+    expect(r.setDays.mock.calls[0][0]([dayPrivate])[0].phase).toBe('public')
+
+    const dayPublic = makeDay({ phase: 'public' })
+    r = buildDeps(dayPublic, [dayPublic])
+    lc = buildGameLifecycle(r.deps as any)
+    lc.goToNextPhase()
+    expect(r.setDays.mock.calls[0][0]([dayPublic])[0].phase).toBe('nomination')
+  })
+
+  it('goToNextPhase from nomination (last phase) advances to the next day', () => {
+    const day1 = makeDay({ phase: 'nomination' })
+    const { deps, setDaysWithUndo } = buildDeps(day1, [day1])
+    const lc = buildGameLifecycle(deps as any)
+
+    lc.goToNextPhase()
+
+    expect(setDaysWithUndo).toHaveBeenCalled()
+    const updater = setDaysWithUndo.mock.calls[0][0]
+    const newDays: DayState[] = updater([day1])
+    expect(newDays).toHaveLength(2)
+  })
+
+  it('goToPreviousPhase from nomination steps back to public', () => {
+    const day1 = makeDay({ phase: 'nomination' })
+    const { deps, setDays, setSelectedDayId } = buildDeps(day1, [day1])
+    const lc = buildGameLifecycle(deps as any)
+
+    lc.goToPreviousPhase()
+
+    expect(setSelectedDayId).not.toHaveBeenCalled()
+    const updater = setDays.mock.calls[0][0]
+    const updated: DayState[] = updater([day1])
+    expect(updated[0].phase).toBe('public')
+  })
+
+  it('goToPreviousPhase from night (first phase) goes to the previous day', () => {
+    const day1 = makeDay({ phase: 'night' })
+    const day2 = makeDay({ phase: 'night' })
+    const { deps, setSelectedDayId, setDays } = buildDeps(day2, [day1, day2])
+    const lc = buildGameLifecycle(deps as any)
+
+    lc.goToPreviousPhase()
+
+    expect(setDays).not.toHaveBeenCalled()
+    expect(setSelectedDayId).toHaveBeenCalledWith(day1.id)
+  })
+
+  it('goToPreviousPhase from night on day 1 is a no-op (no earlier day)', () => {
+    const day1 = makeDay({ phase: 'night' })
+    const { deps, setSelectedDayId, setDays } = buildDeps(day1, [day1])
+    const lc = buildGameLifecycle(deps as any)
+
+    lc.goToPreviousPhase()
+
+    expect(setDays).not.toHaveBeenCalled()
+    expect(setSelectedDayId).not.toHaveBeenCalled()
   })
 })
 
