@@ -161,3 +161,19 @@ async function boot() {
 }
 
 boot()
+
+// The service worker is configured with skipWaiting+clientsClaim (see
+// vite.config.ts), so a new deploy takes over network requests for an
+// already-open tab immediately — but that tab keeps running the OLD JS it
+// already loaded into memory until it reloads. Without this listener, a
+// user who had the app open across a deploy (or a PWA reopened from the
+// home screen) could sit on a stale build indefinitely. Reload once, the
+// moment the new worker actually takes control.
+if ('serviceWorker' in navigator) {
+  let reloadedForUpdate = false
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (reloadedForUpdate) return
+    reloadedForUpdate = true
+    window.location.reload()
+  })
+}
