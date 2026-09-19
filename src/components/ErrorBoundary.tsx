@@ -33,7 +33,21 @@ export class ErrorBoundary extends React.Component<Props, State> {
     console.error('[ErrorBoundary]', this.props.name ?? 'Component', 'crashed:', error, errorInfo)
   }
 
+  /** Dynamic import() failures (stale/missing chunk) — React.lazy caches the
+   *  rejected promise forever, so resetting state alone re-renders the same
+   *  dead lazy component. Only a hard reload re-fetches a working chunk URL. */
+  isChunkLoadError(error: Error | null): boolean {
+    const msg = error?.message ?? ''
+    return /Failed to fetch dynamically imported module|error loading dynamically imported module|Importing a module script failed|Loading chunk .* failed/i.test(
+      msg
+    )
+  }
+
   handleReset = () => {
+    if (this.isChunkLoadError(this.state.error)) {
+      window.location.reload()
+      return
+    }
     this.setState({ hasError: false, error: null, errorInfo: null })
   }
 

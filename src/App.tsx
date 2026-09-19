@@ -1,5 +1,4 @@
 import {
-  lazy,
   Suspense,
   useEffect,
   useMemo,
@@ -56,10 +55,11 @@ import { DEFAULT_TOKEN_OPTIONS } from './components/PrintStudio/types'
 import type { TokenPrintOptions } from './components/PrintStudio/types'
 import { ScriptsTab } from './components/tabs/ScriptsTab'
 import { SettingsTab } from './components/tabs/SettingsTab'
-const PrintStudioPage  = lazy(() => import('./components/PrintStudio/PrintStudioPage').then(m => ({ default: m.PrintStudioPage })))
-const CharactersTab    = lazy(() => import('./components/tabs/CharactersTab').then(m => ({ default: m.CharactersTab })))
-const AnalyticsTab     = lazy(() => import('./components/tabs/AnalyticsTab').then(m => ({ default: m.AnalyticsTab })))
-const StorytellerHelper = lazy(() => import('./components/StorytellerHelper').then(m => ({ default: m.StorytellerHelper })))
+import { lazyWithRetry } from './utils/lazyRetry'
+const PrintStudioPage  = lazyWithRetry(() => import('./components/PrintStudio/PrintStudioPage').then(m => ({ default: m.PrintStudioPage })), 'print-studio')
+const CharactersTab    = lazyWithRetry(() => import('./components/tabs/CharactersTab').then(m => ({ default: m.CharactersTab })), 'characters-tab')
+const AnalyticsTab     = lazyWithRetry(() => import('./components/tabs/AnalyticsTab').then(m => ({ default: m.AnalyticsTab })), 'analytics-tab')
+const StorytellerHelper = lazyWithRetry(() => import('./components/StorytellerHelper').then(m => ({ default: m.StorytellerHelper })), 'storyteller-helper')
 import { useFontSettings } from './hooks/useFontSettings'
 import {
   allCharacters,
