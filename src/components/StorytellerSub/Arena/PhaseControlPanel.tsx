@@ -126,6 +126,9 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
 
   const btnSx = { color: textColor, borderColor: btnBorder, fontSize: '0.95rem', px: 1.5, py: 0.75, minHeight: 40, minWidth: 0, fontWeight: 500, bgcolor: btnOverlay, '&:hover': { borderColor: btnBorder, bgcolor: btnOverlayHover } }
   const iconBtnSx = { color: textColor, p: 0.75 }
+  // Warm accent for the phase-tab underline — distinct from the neutral action-row chrome below it
+  const tabAccent = useDarkInk ? '#a5670f' : '#f3b544'
+  const actionRowSx = { bgcolor: useDarkInk ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.06)', border: `1px solid ${borderColor}`, borderRadius: 2, px: 0.75, pt: 0.5, pb: 0.75 }
 
   if (collapsed) {
     return (
@@ -240,30 +243,37 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
             </Tooltip>
           </Box>
 
-          {/* Row 2: Phase selector buttons */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.75 }}>
+          {/* Row 2: Phase tabs — which part of the day we're in */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
             <ToggleButtonGroup
               value={phase} exclusive
               onChange={(_, v) => v && setPhase(v)}
               sx={{
-                gap: 1,
+                width: '100%',
+                gap: 0,
+                borderBottom: `1px solid ${borderColor}`,
                 '& .MuiToggleButton-root': {
-                  color: textColor,
-                  borderColor: btnBorder,
-                  px: 1.25, py: 0.5, minHeight: 56, minWidth: 60,
-                  bgcolor: btnOverlay,
+                  flex: 1,
+                  color: mutedColor,
+                  border: 'none',
+                  borderRadius: 0,
+                  borderBottom: '3px solid transparent',
+                  px: 1, py: 0.625, minHeight: 56, minWidth: 0,
+                  bgcolor: 'transparent',
                   flexDirection: 'column',
                   gap: 0.25,
                   textTransform: 'none',
-                  '&:hover': { bgcolor: btnOverlayHover },
-                  '&.Mui-selected': { color: textColor, bgcolor: useDarkInk ? 'rgba(0,0,0,0.22)' : 'rgba(255,255,255,0.25)' },
+                  transition: 'color 0.15s ease, border-color 0.15s ease',
+                  '&:hover': { bgcolor: 'transparent', color: textColor },
+                  '&.Mui-selected': { color: textColor, bgcolor: 'transparent', borderBottomColor: tabAccent, fontWeight: 700 },
+                  '&.Mui-selected:hover': { bgcolor: 'transparent' },
                 },
               }}
             >
               {PHASES.map(p => (
                 <ToggleButton key={p} value={p}>
                   {PHASE_ICONS[p]}
-                  <Typography sx={{ fontSize: '0.62rem', lineHeight: 1, color: 'inherit', userSelect: 'none' }}>
+                  <Typography sx={{ fontSize: '0.62rem', lineHeight: 1, color: 'inherit', fontWeight: 'inherit', userSelect: 'none' }}>
                     {getPhaseLabel(p)}
                   </Typography>
                 </ToggleButton>
@@ -271,8 +281,11 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
             </ToggleButtonGroup>
           </Box>
 
-          {/* Public mode + ST Settings / Log / New Game / Save / Print row */}
-          <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.75, mb: 1, flexWrap: 'nowrap', overflowX: 'auto' }}>
+          {/* Row 3: Action toolbar — buttons the storyteller presses to DO things during this phase */}
+          <Typography sx={{ fontSize: '0.62rem', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: mutedColor, mb: 0.375, ml: 0.25 }}>
+            {t('quick_actions')}
+          </Typography>
+          <Box sx={{ ...actionRowSx, display: 'flex', alignItems: 'flex-start', gap: 0.75, mb: 1, flexWrap: 'nowrap', overflowX: 'auto' }}>
             {phase === 'public' && (
               <Select
                 value={publicMode}

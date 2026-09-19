@@ -175,16 +175,39 @@ export function ArenaCenterContent({ ctx }: { ctx: StorytellerContext }) {
       
       <ToggleButtonGroup
         value={phase} exclusive onChange={(_, v) => v && setPhase(v)} size="large"
-        sx={{ '& .MuiToggleButton-root': { flexDirection: 'column', gap: 0.25, px: 2, py: 0.75, minWidth: 72, textTransform: 'none' } }}
+        sx={{
+          width: '100%',
+          gap: 0,
+          borderBottom: '1px solid',
+          borderColor: 'divider',
+          '& .MuiToggleButton-root': {
+            flex: 1,
+            border: 'none',
+            borderRadius: 0,
+            borderBottom: '3px solid transparent',
+            color: 'text.secondary',
+            bgcolor: 'transparent',
+            flexDirection: 'column', gap: 0.25, px: 2, py: 0.75, minWidth: 72, textTransform: 'none',
+            '&:hover': { bgcolor: 'transparent', color: 'text.primary' },
+            '&.Mui-selected': { color: 'text.primary', bgcolor: 'transparent', borderBottomColor: 'warning.main', fontWeight: 700 },
+            '&.Mui-selected:hover': { bgcolor: 'transparent' },
+          },
+        }}
       >
         {PHASES.map(p => (
           <ToggleButton key={p} value={p}>
             {PHASE_ICONS[p]}
-            <Typography sx={{ fontSize: '0.7rem', lineHeight: 1, color: 'inherit' }}>{getPhaseLabel(p, text)}</Typography>
+            <Typography sx={{ fontSize: '0.7rem', lineHeight: 1, color: 'inherit', fontWeight: 'inherit' }}>{getPhaseLabel(p, text)}</Typography>
           </ToggleButton>
         ))}
       </ToggleButtonGroup>
-      <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
+      <Typography sx={{ fontSize: '0.68rem', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'text.secondary', alignSelf: 'flex-start', ml: 0.5 }}>
+        {t('quick_actions')}
+      </Typography>
+      <Box sx={{
+        display: 'flex', gap: 0.5, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center',
+        bgcolor: 'action.hover', border: '1px solid', borderColor: 'divider', borderRadius: 2, px: 1, py: 0.75, width: '100%',
+      }}>
       {phase === 'public' && <Select size="small" value={publicMode} onChange={(e) => updateCurrentDay((d: any) => ({ ...d, publicMode: e.target.value as PublicMode }))} sx={{ fontSize: '0.85rem', minWidth: 100 }}>
         <MenuItem value="free">{text.freeSpeech}</MenuItem>
         <MenuItem value="roundRobin">{text.roundRobinMode}</MenuItem>
