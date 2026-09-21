@@ -7,6 +7,7 @@ import { ModalsNewGame } from './ModalsNewGame'
 import { ModalsEndGame } from './ModalsEndGame'
 import { ModalsDialog } from './ModalsDialog'
 import { ModalsExport } from './ModalsExport'
+import { AssignmentCenter } from './AssignmentCenter'
 import { DealHostPage } from '../../DealHostPage'
 import { ResponsiveDialog, ResponsiveDialogContent } from '../../ui'
 
@@ -14,6 +15,7 @@ export function Modals({ ctx }: { ctx: StorytellerContext }) {
   const {
     showEditPlayersModal, setShowEditPlayersModal,
     newGamePanel, showNewGamePanel, setShowNewGamePanel,
+    showAssignmentCenter, setShowAssignmentCenter,
     showEndGameModal, setShowEndGameModal,
     showExportModal, setShowExportModal,
     text, language,
@@ -73,6 +75,16 @@ export function Modals({ ctx }: { ctx: StorytellerContext }) {
       </ResponsiveDialog>
 
       <ModalsDialog ctx={ctx} />
+
+      <ResponsiveDialog open={showAssignmentCenter} onClose={() => setShowAssignmentCenter(false)} maxWidth={dialogMaxWidth} paperSx={paperSx}>
+        <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
+          {t('player_assignments')}
+          <IconButton onClick={() => setShowAssignmentCenter(false)} size="small"><CloseIcon /></IconButton>
+        </DialogTitle>
+        <ResponsiveDialogContent>
+          <AssignmentCenter ctx={ctx} />
+        </ResponsiveDialogContent>
+      </ResponsiveDialog>
 
       {/* ── Deal host overlay — shown when ST clicks "Deal Cards" ── */}
       <Dialog

@@ -65,6 +65,7 @@ export function useStoryteller(props: StorytellerHelperProps) {
   const [skillOverlay, setSkillOverlay] = useState<SkillOverlayState | null>(null)
   const [newGamePanel, setNewGamePanel] = useState<NewGameConfig | null>(null)
   const [showNewGamePanel, setShowNewGamePanel] = useState(false)
+  const [showAssignmentCenter, setShowAssignmentCenter] = useState(false)
   const [activeDealSession, setActiveDealSession] = useState<{ sessionId: string; hostToken: string } | null>(null)
   const [lastDealSession, setLastDealSession] = useState<{ sessionId: string; hostToken: string } | null>(() => {
     try {
@@ -488,6 +489,7 @@ export function useStoryteller(props: StorytellerHelperProps) {
     skillOverlay, setSkillOverlay,
     ...audio,
     newGamePanel, setNewGamePanel, showNewGamePanel, setShowNewGamePanel,
+    showAssignmentCenter, setShowAssignmentCenter,
     activeDealSession, setActiveDealSession, lastDealSession, setLastDealSession,
     linkedDealSession, remoteDealVote, remoteDealVoteResponses, remoteDealVoteError, remoteDealVoteStarting, startRemoteDealVote, castRemoteDealVote,
     showSaveBeforeNewGame, setShowSaveBeforeNewGame,

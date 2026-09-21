@@ -1,13 +1,17 @@
-import { Box, IconButton, Tooltip, Typography } from '@mui/material'
+import { Box, Badge, IconButton, Tooltip, Typography } from '@mui/material'
 import AddCircleIcon from '@mui/icons-material/AddCircle'
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts'
 import SaveIcon from '@mui/icons-material/Save'
+import AssignmentIndIcon from '@mui/icons-material/AssignmentInd'
 import { makeT } from '../../lib/t'
 
 interface GameActionsBarProps {
   openNewGamePanel: () => void
   openCharacterEditor: () => void
   openEndGamePanel: () => void
+  openAssignmentCenter: () => void
+  /** Shows a small live-session dot on the Player Assignments action. */
+  hasActiveDealSession?: boolean
   text: { newGame?: string; editPlayers?: string; endGame?: string }
   language: string
   onAfterAction?: () => void
@@ -23,6 +27,8 @@ export function GameActionsBar({
   openNewGamePanel,
   openCharacterEditor,
   openEndGamePanel,
+  openAssignmentCenter,
+  hasActiveDealSession,
   language,
   onAfterAction,
   variant = 'toolbar',
@@ -42,6 +48,12 @@ export function GameActionsBar({
       icon: <ManageAccountsIcon />,
       label: t('edit_players'),
       onClick: wrap(openCharacterEditor),
+    },
+    {
+      key: 'assignments',
+      icon: hasActiveDealSession ? <Badge color="secondary" variant="dot"><AssignmentIndIcon /></Badge> : <AssignmentIndIcon />,
+      label: t('player_assignments'),
+      onClick: wrap(openAssignmentCenter),
     },
     {
       key: 'save',

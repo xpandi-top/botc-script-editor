@@ -20,6 +20,8 @@ function IconBar({
   openNewGamePanel,
   openCharacterEditor,
   openEndGamePanel,
+  openAssignmentCenter,
+  hasActiveDealSession,
   setShowExportModal,
   sx = {},
 }: {
@@ -31,6 +33,8 @@ function IconBar({
   openNewGamePanel: () => void
   openCharacterEditor: () => void
   openEndGamePanel: () => void
+  openAssignmentCenter: () => void
+  hasActiveDealSession?: boolean
   setShowExportModal: (v: boolean) => void
   sx?: object
 }) {
@@ -41,6 +45,8 @@ function IconBar({
         openNewGamePanel={openNewGamePanel}
         openCharacterEditor={openCharacterEditor}
         openEndGamePanel={openEndGamePanel}
+        openAssignmentCenter={openAssignmentCenter}
+        hasActiveDealSession={hasActiveDealSession}
         text={text}
         language={language}
         onAfterAction={onClose}
@@ -90,6 +96,7 @@ export function RightConsole({ ctx }: { ctx: StorytellerContext }) {
     showRightPanel, setShowRightPanel, activeRightPopup, setActiveRightPopup,
     language, text, setShowExportModal,
     openNewGamePanel, openCharacterEditor, openEndGamePanel,
+    setShowAssignmentCenter, linkedDealSession,
   } = ctx
 
   const theme = useTheme()
@@ -113,6 +120,8 @@ export function RightConsole({ ctx }: { ctx: StorytellerContext }) {
     openNewGamePanel,
     openCharacterEditor,
     openEndGamePanel,
+    openAssignmentCenter: () => setShowAssignmentCenter(true),
+    hasActiveDealSession: !!linkedDealSession,
     setShowExportModal,
   }
 

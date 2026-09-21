@@ -14,6 +14,7 @@ export function CompactToolbar({ ctx }: { ctx: StorytellerContext }) {
     sendYTCommand,
     handleLocalFileChange, handleUrlTrackAdd, deleteTrack, renameTrack, openNewGamePanel, openEndGamePanel,
     setShowRightPanel, openCharacterEditor, showScriptPanel, setShowScriptPanel,
+    setShowAssignmentCenter, linkedDealSession,
     text, undo, canUndo, bgmVolume, setBgmVolume,
   } = ctx
 
@@ -75,6 +76,8 @@ export function CompactToolbar({ ctx }: { ctx: StorytellerContext }) {
           openNewGamePanel={openNewGamePanel}
           openCharacterEditor={openCharacterEditor}
           openEndGamePanel={openEndGamePanel}
+          openAssignmentCenter={() => setShowAssignmentCenter(true)}
+          hasActiveDealSession={!!linkedDealSession}
           text={text}
           language={language}
           variant="toolbar"

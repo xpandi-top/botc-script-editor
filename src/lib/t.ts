@@ -221,6 +221,7 @@ export type UiKey =
   | 'click_to_load' | 'click_to_load_this_game' | 'close_char_picker'
   | 'commaseparated_tags' | 'countdown_settings'
   | 'deal_assigned_characters_to_players_new_tab' | 'deal_cards'
+  | 'player_assignments' | 'draw_deal_tab' | 'roster_tab' | 'messages_tab' | 'coming_soon'
   | 'default_bgm' | 'default_track' | 'ended' | 'enter_custom_rules' | 'expand'
   | 'file_name' | 'fill' | 'finished' | 'fun_for_evil' | 'fun_for_good'
   | 'game_end_survey' | 'guess' | 'is_it_balanced' | 'know'
@@ -391,7 +392,7 @@ export type TplKey =
   | 'player_most_active_st' | 'avg_duration_min'
   | 'more_n_scripts_tab' | 'more_n_storytellers'
   // Misc templates
-  | 'open_session' | 'script_chars_short' | 'log_tab_n' | 'fill_log_n'
+  | 'open_session' | 'script_chars_short' | 'log_tab_n' | 'fill_log_n' | 'seats_assigned_count'
   | 'context_editing' | 'tag_for_char'
   | 'st_detail_n_games_scripts'
   // Communication board templates

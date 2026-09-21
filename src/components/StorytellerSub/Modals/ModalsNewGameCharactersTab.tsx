@@ -1,11 +1,9 @@
 import { useMemo, useState } from 'react'
-import { Box, Button, CircularProgress, TextField, Select, MenuItem, FormControl, InputLabel, Typography, Paper, Divider, Chip, Collapse, IconButton, Tooltip } from '@mui/material'
+import { Box, Button, TextField, Select, MenuItem, FormControl, InputLabel, Typography, Paper, Divider, Chip, Collapse, IconButton, Tooltip } from '@mui/material'
 import type { ChipProps } from '@mui/material'
 import CasinoIcon from '@mui/icons-material/Casino'
 import ShuffleIcon from '@mui/icons-material/Shuffle'
 import ReplayIcon from '@mui/icons-material/Replay'
-import StyleIcon from '@mui/icons-material/Style'
-import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import ClearAllIcon from '@mui/icons-material/ClearAll'
@@ -13,28 +11,20 @@ import { getCharacterById, allCharacters, getDisplayName, getIconForCharacter } 
 import { makeT, makeTpl } from '../../../lib/t'
 import { CHARACTER_DISTRIBUTION } from '../constants'
 import { CharSelect, TeamDot, DistRow } from './ModalsNewGameHelpers'
-import { createDealSession, shuffleDealCards, HOST_TOKEN_KEY, ACTIVE_HOST_DEAL_KEY, GAME_DEAL_KEY } from '../../../lib/firebaseDeal'
 import { MonoText } from '../../../components/ui'
 import type { Language } from '../../../types'
 import type { NewGameConfig, ScriptOption } from '../types'
 
 const TEAM_ORDER = ['townsfolk', 'outsider', 'minion', 'demon'] as const
 type TeamKey = typeof TEAM_ORDER[number]
-type DealSession = { sessionId: string; hostToken: string }
-type NewGamePanelWithDeal = NewGameConfig & { activeDealSession?: DealSession | null }
 const TEAM_COLORS: Record<TeamKey, ChipProps['color']> = { townsfolk: 'primary', outsider: 'info', minion: 'error', demon: 'error' }
 
 type Props = {
-  newGamePanel: NewGamePanelWithDeal
+  newGamePanel: NewGameConfig
   scriptOptions: ScriptOption[]
   language: Language
-  updateConfig: (patch: Partial<NewGamePanelWithDeal>) => void
+  updateConfig: (patch: Partial<NewGameConfig>) => void
   randomAssignCharacters: (config: NewGameConfig) => Record<number, string>
-  activeDealSession?: DealSession | null
-  lastDealSession?: DealSession | null
-  gameId?: string
-  onDealCreated?: (sessionId: string, hostToken: string) => void
-  onDealOpen?: (sessionId: string, hostToken: string) => void
 }
 
 // ── Character pool multi-picker ───────────────────────────────────────────────
@@ -113,62 +103,17 @@ function CharPoolPicker({ scriptChars, selected, onChange, language }: {
 const TRAVELER_CHARS = allCharacters.filter((c) => c.team === 'traveler').map((c) => c.id)
 
 // ── Main tab ──────────────────────────────────────────────────────────────────
-export function CharactersTab({ newGamePanel, scriptOptions = [], language, updateConfig, randomAssignCharacters, activeDealSession, lastDealSession, gameId: gameIdProp, onDealCreated, onDealOpen }: Props) {
+export function CharactersTab({ newGamePanel, scriptOptions = [], language, updateConfig, randomAssignCharacters }: Props) {
   const zh = language === 'zh'
   const t = makeT(language)
   const tpl = makeTpl(language)
   const [poolOpen, setPoolOpen] = useState(false)
-  const [dealing, setDealing] = useState(false)
-
-  // Resolve gameId from prop or newGamePanel (edit-mode carries it in newGamePanel.gameId)
-  const gameId = gameIdProp ?? newGamePanel?.gameId ?? null
-
-  const handleDealCards = async () => {
-    // Collect assigned character IDs (may be partial — just deal what's assigned)
-    const assignments = newGamePanel?.assignments ?? {}
-    const characterIds: string[] = Object.values(assignments).filter(Boolean) as string[]
-    if (characterIds.length < 2) return // nothing meaningful to deal
-    setDealing(true)
-    try {
-      const shuffled = shuffleDealCards(characterIds)
-      const { sessionId, hostToken } = await createDealSession(shuffled)
-      // Persist host token so deal page can verify without ?host= param
-      try { localStorage.setItem(HOST_TOKEN_KEY(sessionId), hostToken) } catch {}
-      // Save deal keyed to this specific game so other games don't see it
-      if (gameId) {
-        try { localStorage.setItem(GAME_DEAL_KEY(gameId), JSON.stringify({ sessionId, hostToken })) } catch {}
-      }
-      // Also save to global key for backward compat with old installs
-      try { localStorage.setItem(ACTIVE_HOST_DEAL_KEY, JSON.stringify({ sessionId, hostToken })) } catch {}
-      updateConfig({ activeDealSession: { sessionId, hostToken } })
-      // Hand off to parent — shown as overlay dialog (no new tab, no state loss)
-      onDealCreated?.(sessionId, hostToken)
-    } catch (e) {
-      console.error('Failed to create deal session', e)
-    } finally {
-      setDealing(false)
-    }
-  }
 
   const script = scriptOptions?.find((s) => s.slug === newGamePanel?.scriptSlug)
   const scriptChars: string[] = script?.characters ?? []
 
   const calcDist = CHARACTER_DISTRIBUTION[newGamePanel?.playerCount] ?? { townsfolk: 0, outsider: 0, minion: 0, demon: 0 }
   const charPool: string[] = newGamePanel?.charPool ?? []
-
-  // Per-game deal lookup: if gameId known, only show deals belonging to THIS game.
-  // Falls back to lastDealSession (global key) for backward compat with old installs.
-  const storedGameDeal = useMemo(() => {
-    if (gameId) {
-      try {
-        const raw = localStorage.getItem(GAME_DEAL_KEY(gameId))
-        if (raw) return JSON.parse(raw) as DealSession
-      } catch {}
-    }
-    return null
-  }, [gameId])
-
-  const existingDealSession = storedGameDeal ?? activeDealSession ?? (gameId ? null : lastDealSession) ?? newGamePanel?.activeDealSession ?? null
 
   const actCounts = useMemo(() => {
     const c = { townsfolk: 0, outsider: 0, minion: 0, demon: 0 }
@@ -343,34 +288,6 @@ export function CharactersTab({ newGamePanel, scriptOptions = [], language, upda
         <Button size="small" variant="outlined" onClick={() => updateConfig({ assignments: {}, userAssignments: {}, demonBluffs: [] })} startIcon={<ReplayIcon fontSize="small" />}>
           {t('reset')}
         </Button>
-        <Tooltip title={t('deal_assigned_characters_to_players_new_tab')}>
-          <span>
-            <Button
-              size="small"
-              variant="contained"
-              color="secondary"
-              onClick={handleDealCards}
-              disabled={dealing || Object.values(newGamePanel?.assignments ?? {}).filter(Boolean).length < 2}
-              startIcon={dealing ? <CircularProgress size={14} color="inherit" /> : <StyleIcon fontSize="small" />}
-            >
-              {t('deal_cards')}
-            </Button>
-          </span>
-        </Tooltip>
-        {existingDealSession && (
-          <Tooltip title={t('open_active_deal_dashboard')}>
-            <Button
-              size="small"
-              variant="outlined"
-              color="secondary"
-              onClick={() => onDealOpen?.(existingDealSession.sessionId, existingDealSession.hostToken)}
-              startIcon={<OpenInNewIcon fontSize="small" />}
-              sx={{ fontFamily: 'monospace', fontWeight: 700 }}
-            >
-              {tpl('open_session', existingDealSession.sessionId)}
-            </Button>
-          </Tooltip>
-        )}
       </Box>
 
       <Divider />

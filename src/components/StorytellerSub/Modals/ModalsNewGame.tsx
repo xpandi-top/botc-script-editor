@@ -25,7 +25,7 @@ export function ModalsNewGame({ ctx }: { ctx: StorytellerContext }) {
   const {
     scriptOptions, playerNamePool, setPlayerNamePool, text, language,
     newGamePanel, setNewGamePanel, setShowNewGamePanel, startNewGame, applyGameChanges, randomAssignCharacters,
-    days, stName, setStName, activeDealSession, setActiveDealSession, lastDealSession, setLastDealSession,
+    days, stName, setStName,
   } = ctx
 
   // All hooks MUST be declared before any early return
@@ -221,15 +221,6 @@ export function ModalsNewGame({ ctx }: { ctx: StorytellerContext }) {
             language={language}
             updateConfig={updateConfig}
             randomAssignCharacters={randomAssignCharacters}
-            activeDealSession={activeDealSession}
-            lastDealSession={lastDealSession}
-            gameId={newGamePanel?.gameId}
-            onDealCreated={(sessionId, hostToken) => {
-              const session = { sessionId, hostToken }
-              setLastDealSession(session)
-              setActiveDealSession(session)
-            }}
-            onDealOpen={(sessionId, hostToken) => setActiveDealSession({ sessionId, hostToken })}
           />
         )}
       </Box>
