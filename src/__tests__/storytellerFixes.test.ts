@@ -417,7 +417,7 @@ describe('Fix 4 – goToNextPhase / goToPreviousPhase step within the day', () =
 // ── Bluff pool: always populated + unique per slot ────────────────────────────
 
 describe('Demon bluff pool – always available + unique per slot', () => {
-  // Mirror the availableBluffs logic from ModalsNewGameCharactersTab
+  // Mirror the availableBluffs logic from AssignmentCenter
   function computeAvailableBluffs(
     scriptChars: string[],
     assignments: Record<number, string>,
