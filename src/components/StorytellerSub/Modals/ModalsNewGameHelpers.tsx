@@ -43,12 +43,13 @@ export function DistRow({ label, counts, calc }: {
   )
 }
 
-export function CharSelect({ value, options, language, onChange, placeholder }: {
+export function CharSelect({ value, options, language, onChange, placeholder, disabled }: {
   value: string
   options: string[]
   language: Language
   onChange: (id: string) => void
   placeholder?: string
+  disabled?: boolean
 }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -65,9 +66,10 @@ export function CharSelect({ value, options, language, onChange, placeholder }: 
 
   return (
     <Box ref={ref} sx={{ position: 'relative' }}>
-      <Button 
-        size="small" 
+      <Button
+        size="small"
         variant="outlined"
+        disabled={disabled}
         onClick={() => setOpen((v) => !v)}
         sx={{ display: 'flex', gap: 0.5, minWidth: 100, justifyContent: 'flex-start' }}
       >
@@ -80,7 +82,7 @@ export function CharSelect({ value, options, language, onChange, placeholder }: 
         <ArrowDropDownIcon sx={{ ml: 'auto', fontSize: '1.2rem' }} />
       </Button>
 
-      {open && (
+      {!disabled && open && (
         <Paper 
           elevation={8} 
           sx={{ 

@@ -11,6 +11,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import QrCode2Icon from '@mui/icons-material/QrCode2'
 import DownloadIcon from '@mui/icons-material/Download'
 import LockIcon from '@mui/icons-material/Lock'
+import LockOpenIcon from '@mui/icons-material/LockOpen'
 import PersonAddIcon from '@mui/icons-material/PersonAdd'
 import PersonOffIcon from '@mui/icons-material/PersonOff'
 import CampaignIcon from '@mui/icons-material/Campaign'
@@ -371,6 +372,11 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
   // ── Live seat-claim roster (was a separate Roster tab — now inline) ────────
   const [seats, setSeats] = useState<DealSeatClaim[]>([])
   const [busySeat, setBusySeat] = useState<number | null>(null)
+  // Claimed seats default to locked (no accidental mid-game reassignment);
+  // ST must explicitly unlock a seat here before its controls become
+  // editable again. Resets — safest default — each time Assignment Center
+  // is reopened, same as liveDraft.
+  const [unlockedSeats, setUnlockedSeats] = useState<Set<number>>(new Set())
   const [reservingSeat, setReservingSeat] = useState<number | null>(null)
   const [reserveName, setReserveName] = useState('')
   const [copied, setCopied] = useState(false)
@@ -754,9 +760,24 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
               const userCid = userAssignments[sNum]
               const hasUserOverride = userCid !== undefined && userCid !== null && userCid !== ''
               const note = seatNotes[sNum] ?? ''
+              const locked = isClaimed && !unlockedSeats.has(sNum)
               return (
                 <Paper key={sNum} variant="outlined" sx={{ p: 1, display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
                   <Chip size="small" label={`#${sNum}`} sx={{ fontWeight: 700, minWidth: 40 }} />
+                  {isClaimed && (
+                    <Tooltip title={locked ? t('unlock_seat') : t('lock_seat')}>
+                      <IconButton
+                        size="small"
+                        onClick={() => setUnlockedSeats((prev) => {
+                          const next = new Set(prev)
+                          if (locked) next.add(sNum); else next.delete(sNum)
+                          return next
+                        })}
+                      >
+                        {locked ? <LockIcon fontSize="small" /> : <LockOpenIcon fontSize="small" color="warning" />}
+                      </IconButton>
+                    </Tooltip>
+                  )}
                   {existingDealSession && isReserving ? (
                     <>
                       <TextField
@@ -789,12 +810,14 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
                           language={language}
                           placeholder={t('select_pick')}
                           onChange={(id) => updateAssignment(sNum, id)}
+                          disabled={locked}
                         />
                       </Box>
                       <TeamDot team={ch?.team} />
                       <Button
                         size="small"
                         variant={hasUserOverride ? 'contained' : 'text'}
+                        disabled={locked}
                         onClick={() => hasUserOverride ? setUserPerceived(sNum, null) : setUserPerceived(sNum, assignedCid || null)}
                         sx={{ minWidth: 28, p: 0.5 }}
                       >
@@ -802,7 +825,7 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
                       </Button>
                       {hasUserOverride && (
                         <>
-                          <CharSelect value={userCid ?? ''} options={scriptChars} language={language} placeholder={t('perceived_character')} onChange={(id) => setUserPerceived(sNum, id || null)} />
+                          <CharSelect value={userCid ?? ''} options={scriptChars} language={language} placeholder={t('perceived_character')} onChange={(id) => setUserPerceived(sNum, id || null)} disabled={locked} />
                           <TeamDot team={getCharacterById(userCid ?? '')?.team} />
                         </>
                       )}
@@ -812,6 +835,7 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
                         value={note}
                         onChange={(e) => setSeatNote(sNum, e.target.value)}
                         sx={{ flex: { xs: '1 1 100%', sm: 1 }, minWidth: 100 }}
+                        disabled={locked}
                       />
                       {assignedCid && existingDealSession && (
                         <Chip
@@ -827,7 +851,7 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
                             size="small"
                             variant="outlined"
                             color="warning"
-                            disabled={isBusy}
+                            disabled={isBusy || locked}
                             startIcon={isBusy ? <CircularProgress size={12} /> : <PersonOffIcon fontSize="small" />}
                             onClick={() => handleFreeSeat(sNum)}
                           >

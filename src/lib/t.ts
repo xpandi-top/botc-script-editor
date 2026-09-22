@@ -215,7 +215,7 @@ export type UiKey =
   | 'tab_desc_scripts' | 'tab_desc_characters' | 'tab_desc_storyteller'
   | 'tab_desc_analytics' | 'tab_desc_printstudio' | 'tab_desc_settings'
   | 'eg_dimo' | 'fabled_loric' | 'none_selected' | 'special_note' | 'apply_changes'
-  | 'apply_changes_live_hint'
+  | 'apply_changes_live_hint' | 'lock_seat' | 'unlock_seat'
   | 'add_all' | 'alice_bob_charlie'
   | 'assign' | 'auto' | 'batch_load' | 'charactersseatsteams'
   | 'click_a_seat_on_the_table_to_select' | 'click_to_add_custom_rules'
