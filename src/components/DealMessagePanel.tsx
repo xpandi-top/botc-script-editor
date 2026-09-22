@@ -1,9 +1,11 @@
 /**
  * DealMessagePanel — floating chat button + drawer for ST <-> seat messaging.
- * Shared between DealGuestPage (seat's own view) and the future host panel.
+ * Guest-side (a claimed seat's own thread + broadcasts). The ST-side
+ * equivalent is AssignmentCenter's MessagesTab, which needs a seat picker
+ * and per-seat unread badges instead of a single fixed thread.
  */
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Badge, Box, Drawer, IconButton, Paper, TextField, Typography } from '@mui/material'
+import { Badge, Box, Drawer, IconButton, Paper, Tooltip, TextField, Typography } from '@mui/material'
 import ChatIcon from '@mui/icons-material/Chat'
 import CloseIcon from '@mui/icons-material/Close'
 import SendIcon from '@mui/icons-material/Send'
@@ -58,19 +60,21 @@ export function DealMessagePanel({ sessionId, seatNumber }: Props) {
 
   return (
     <>
-      <IconButton
-        onClick={() => setOpen(true)}
-        sx={{
-          position: 'fixed', bottom: 16, right: 16, zIndex: 1200,
-          bgcolor: 'primary.main', color: 'primary.contrastText',
-          width: 52, height: 52, boxShadow: 4,
-          '&:hover': { bgcolor: 'primary.dark' },
-        }}
-      >
-        <Badge badgeContent={unreadCount} color="error">
-          <ChatIcon />
-        </Badge>
-      </IconButton>
+      <Tooltip title={t('messages_tab')}>
+        <IconButton
+          onClick={() => setOpen(true)}
+          sx={{
+            position: 'fixed', bottom: 16, right: 16, zIndex: 1200,
+            bgcolor: 'primary.main', color: 'primary.contrastText',
+            width: 52, height: 52, boxShadow: 4,
+            '&:hover': { bgcolor: 'primary.dark' },
+          }}
+        >
+          <Badge badgeContent={unreadCount} color="error">
+            <ChatIcon />
+          </Badge>
+        </IconButton>
+      </Tooltip>
 
       <Drawer anchor="bottom" open={open} onClose={() => setOpen(false)}>
         <Box sx={{ display: 'flex', flexDirection: 'column', height: '70dvh', maxHeight: 560 }}>

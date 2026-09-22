@@ -378,7 +378,10 @@ export function DealGuestPage({ sessionId, language }: Props) {
             </Typography>
           </>
         ) : hiddenStrip}
-        {effectiveSeat != null && (
+        {/* Hidden while a vote is active — the chat FAB's fixed position can
+            sit over the vote panel's sticky Agree/Disagree buttons (zIndex 1),
+            which would block a time-critical tap. */}
+        {effectiveSeat != null && !activeVote && (
           <Suspense fallback={null}>
             <DealMessagePanel sessionId={sessionId} seatNumber={effectiveSeat} />
           </Suspense>
