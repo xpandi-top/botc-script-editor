@@ -1,10 +1,10 @@
 import { Box, Paper, Typography } from '@mui/material'
-import type { DealCard } from '../lib/DealSession'
 import { getAbilityText, getDisplayName, getIconForCharacter } from '../catalog'
 import { makeTpl } from '../lib/t'
 
 interface Props {
-  card: DealCard
+  /** Only `characterId` is read — accepts a DealCard or a DealSeatClaim alike. */
+  card: { characterId: string }
   language: 'en' | 'zh'
   effectiveSeat: number | null
 }

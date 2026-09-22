@@ -62,7 +62,7 @@ type PageState =
   | { kind: 'grid'; session: DealSession; cards: GuestCard[]; claiming: number | null; message?: string }
   | { kind: 'claimed'; card: DealCard; revealCharacter: boolean }
   | { kind: 'seatGrid'; session: DealSession; seats: DealSeatClaim[]; claiming: number | null; message?: string }
-  | { kind: 'seatClaimed'; seat: DealSeatClaim }
+  | { kind: 'seatClaimed'; seat: DealSeatClaim; revealCharacter: boolean }
 
 export function DealGuestPage({ sessionId, language }: Props) {
   const [state, setState] = useState<PageState>({ kind: 'loading' })
@@ -96,7 +96,7 @@ export function DealGuestPage({ sessionId, language }: Props) {
       if (session.totalSeats != null) {
         const alreadyClaimedSeat = await findClaimedSeat(sessionId, guestToken)
         if (alreadyClaimedSeat) {
-          setState({ kind: 'seatClaimed', seat: alreadyClaimedSeat })
+          setState({ kind: 'seatClaimed', seat: alreadyClaimedSeat, revealCharacter: false })
           return
         }
         const seats = await getSeatClaims(sessionId)
@@ -127,6 +127,24 @@ export function DealGuestPage({ sessionId, language }: Props) {
       setState((cur) => (cur.kind === 'seatGrid' ? { ...cur, seats } : cur))
     })
   }, [sessionId, state.kind])
+
+  // Keep the claimed seat live so a character the ST pushes after claiming
+  // appears without a reload — auto-reveal since the guest is watching live
+  // (a reload still hides it behind "show my character", same as card claims).
+  useEffect(() => {
+    if (state.kind !== 'seatClaimed') return
+    const mySeatNumber = state.seat.seatNumber
+    return subscribeSeatClaims(sessionId, (seats) => {
+      const mine = seats.find((s) => s.seatNumber === mySeatNumber)
+      if (!mine) return
+      setState((cur) => {
+        if (cur.kind !== 'seatClaimed') return cur
+        const gotNewCharacter = !cur.seat.characterId && !!mine.characterId
+        if (gotNewCharacter) markDealCharacterSeen(sessionId)
+        return { kind: 'seatClaimed', seat: mine, revealCharacter: cur.revealCharacter || gotNewCharacter }
+      })
+    })
+  }, [sessionId, state.kind === 'seatClaimed' ? state.seat.seatNumber : null])
 
   useEffect(() => {
     if (state.kind !== 'claimed') {
@@ -218,7 +236,7 @@ export function DealGuestPage({ sessionId, language }: Props) {
       const guestToken = getGuestToken()
       const claimed = await claimSeat(sessionId, namingSeat, guestToken, seatNameDraft)
       setNamingSeat(null)
-      setState({ kind: 'seatClaimed', seat: claimed })
+      setState({ kind: 'seatClaimed', seat: claimed, revealCharacter: false })
     } catch {
       try {
         const [seats, alreadyClaimed] = await Promise.all([
@@ -227,7 +245,7 @@ export function DealGuestPage({ sessionId, language }: Props) {
         ])
         if (alreadyClaimed) {
           setNamingSeat(null)
-          setState({ kind: 'seatClaimed', seat: alreadyClaimed })
+          setState({ kind: 'seatClaimed', seat: alreadyClaimed, revealCharacter: false })
           return
         }
         setNamingSeat(null)
@@ -448,19 +466,66 @@ export function DealGuestPage({ sessionId, language }: Props) {
   }
 
   if (state.kind === 'seatClaimed') {
-    const { seat } = state
+    const { seat, revealCharacter } = state
+
+    if (!seat.characterId) {
+      return (
+        <CenteredBox>
+          <EventSeatIcon sx={{ fontSize: 48, color: 'success.main', mb: 2 }} />
+          <Typography variant="h5" sx={{ mb: 1, fontWeight: 700 }}>
+            {tpl('seat_n', seat.seatNumber)}
+          </Typography>
+          {seat.playerName && (
+            <Typography variant="body1" sx={{ mb: 1 }}>{seat.playerName}</Typography>
+          )}
+          <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 340 }}>
+            {t('wait_for_storyteller_to_deal_characters')}
+          </Typography>
+          <Suspense fallback={null}>
+            <DealMessagePanel sessionId={sessionId} seatNumber={seat.seatNumber} />
+          </Suspense>
+        </CenteredBox>
+      )
+    }
+
     return (
       <CenteredBox>
-        <EventSeatIcon sx={{ fontSize: 48, color: 'success.main', mb: 2 }} />
-        <Typography variant="h5" sx={{ mb: 1, fontWeight: 700 }}>
-          {tpl('seat_n', seat.seatNumber)}
-        </Typography>
-        {seat.playerName && (
-          <Typography variant="body1" sx={{ mb: 1 }}>{seat.playerName}</Typography>
+        {revealCharacter ? (
+          <>
+            <Typography variant="h5" sx={{ mb: 2, fontWeight: 700 }}>
+              {t('remember_your_character')}
+            </Typography>
+            <Suspense fallback={<CircularProgress size={28} />}>
+              <DealCharacterReveal card={{ characterId: seat.characterId }} language={language} effectiveSeat={seat.seatNumber} />
+            </Suspense>
+            <Typography variant="caption" color="success.main" sx={{ mt: 2, maxWidth: 340 }}>
+              {t('saved_keep_your_character_secret')}
+            </Typography>
+          </>
+        ) : (
+          <Box sx={{
+            width: '100%', maxWidth: 520, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            gap: 1, px: 1.25, py: 0.75, border: '1px solid', borderColor: 'divider', borderRadius: 1.5, bgcolor: 'background.paper',
+          }}>
+            <Box sx={{ minWidth: 0 }}>
+              <Typography variant="caption" sx={{ fontWeight: 800, whiteSpace: 'nowrap', display: 'block' }}>
+                {tpl('seat_n', seat.seatNumber)}{seat.playerName ? ` · ${seat.playerName}` : ''}
+              </Typography>
+              <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1.2 }}>
+                {t('character_hidden_compact')}
+              </Typography>
+            </Box>
+            <Button
+              size="small"
+              variant="outlined"
+              startIcon={<VisibilityIcon />}
+              onClick={() => setState((cur) => cur.kind === 'seatClaimed' ? { ...cur, revealCharacter: true } : cur)}
+              sx={{ flexShrink: 0, whiteSpace: 'nowrap' }}
+            >
+              {t('show_my_character')}
+            </Button>
+          </Box>
         )}
-        <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 340 }}>
-          {t('wait_for_storyteller_to_deal_characters')}
-        </Typography>
         <Suspense fallback={null}>
           <DealMessagePanel sessionId={sessionId} seatNumber={seat.seatNumber} />
         </Suspense>

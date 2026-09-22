@@ -839,6 +839,8 @@
     "random_assign_characters_hint": "Randomly assign characters to every seat",
     "random_assign_and_deal": "Random Assign & Deal",
     "random_assign_and_deal_hint": "Randomly assign characters to every seat, then deal them right away",
+    "random_assign_and_send": "Random Assign & Send",
+    "random_assign_and_send_hint": "Randomly assign characters to claimed seats and reveal them live, no draw needed",
     "claim_seats_button": "Claim Seats",
     "view_roster": "View roster",
     "no_active_session_start_one_from_draw_deal": "No active session. Start one from the Draw & Deal tab.",

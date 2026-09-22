@@ -21,7 +21,7 @@ import { getDisplayName } from '../../../catalog'
 import { makeT, makeTpl } from '../../../lib/t'
 import {
   createDealSession, shuffleDealCards, getDealSession, closeDealSession,
-  createSeatClaimSession, subscribeSeatClaims, unclaimSeatByHost, renameSeatByHost,
+  createSeatClaimSession, subscribeSeatClaims, unclaimSeatByHost, renameSeatByHost, assignCharacterToSeatByHost,
   subscribeMessages, sendMessage, markMessageRead,
   HOST_TOKEN_KEY, ACTIVE_HOST_DEAL_KEY, GAME_DEAL_KEY,
   type DealSession as DealSessionDoc, type DealSeatClaim, type DealMessage,
@@ -307,6 +307,8 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
           session={existingDealSession}
           resolvedSession={resolvedSession}
           onSessionClosed={() => setResolvedSession((s) => s ? { ...s, status: 'closed' } : s)}
+          randomAssignCharacters={randomAssignCharacters}
+          activeScriptSlug={activeScriptSlug}
         />
       )}
 
@@ -324,11 +326,15 @@ function RosterTab({
   session,
   resolvedSession,
   onSessionClosed,
+  randomAssignCharacters,
+  activeScriptSlug,
 }: {
   language: 'en' | 'zh'
   session: DealSession | null
   resolvedSession: DealSessionDoc | null
   onSessionClosed: () => void
+  randomAssignCharacters: StorytellerContext['randomAssignCharacters']
+  activeScriptSlug: string | undefined
 }) {
   const t = makeT(language)
   const [seats, setSeats] = useState<DealSeatClaim[]>([])
@@ -338,6 +344,7 @@ function RosterTab({
   const [copied, setCopied] = useState(false)
   const [qrOpen, setQrOpen] = useState(false)
   const [closing, setClosing] = useState(false)
+  const [assigningChars, setAssigningChars] = useState(false)
   const qrCanvasRef = useRef<HTMLCanvasElement>(null)
 
   const isSeatClaimSession = resolvedSession?.totalSeats != null
@@ -414,6 +421,29 @@ function RosterTab({
     }
   }
 
+  // Randomly picks a character for every already-claimed seat and pushes it
+  // directly — the guest's page reveals it live, no second "draw a card" step.
+  const handleRandomAssignAndSend = async () => {
+    if (!session) return
+    const claimedSeatNumbers = seats.filter((s) => s.claimedByToken != null).map((s) => s.seatNumber)
+    if (claimedSeatNumbers.length < 1) return
+    setAssigningChars(true)
+    try {
+      const config = { playerCount: claimedSeatNumbers.length, scriptSlug: activeScriptSlug ?? '', charPool: [] } as unknown as NewGameConfig
+      const result = randomAssignCharacters(config)
+      const characterIds = Object.values(result)
+      await Promise.all(
+        claimedSeatNumbers.map((seatNumber, i) =>
+          characterIds[i] ? assignCharacterToSeatByHost(session.sessionId, seatNumber, characterIds[i]) : Promise.resolve()
+        )
+      )
+    } catch (e) {
+      console.error('Failed to assign characters to claimed seats', e)
+    } finally {
+      setAssigningChars(false)
+    }
+  }
+
   if (!session) {
     return (
       <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic', p: 2, textAlign: 'center' }}>
@@ -444,6 +474,20 @@ function RosterTab({
           <Chip size="small" label={t('closed')} color="warning" />
         )}
         <Box sx={{ flex: 1 }} />
+        <Tooltip title={t('random_assign_and_send_hint')}>
+          <span>
+            <Button
+              size="small"
+              variant="outlined"
+              color="secondary"
+              startIcon={assigningChars ? <CircularProgress size={14} color="inherit" /> : <CasinoIcon fontSize="small" />}
+              onClick={handleRandomAssignAndSend}
+              disabled={assigningChars || claimedCount < 1}
+            >
+              {t('random_assign_and_send')}
+            </Button>
+          </span>
+        </Tooltip>
         <Tooltip title={copied ? t('share_log_copied') : t('copy_player_link')}>
           <Button size="small" startIcon={<ContentCopyIcon fontSize="small" />} onClick={handleCopyLink} variant="outlined">
             {copied ? t('copied') : t('copy_link')}
@@ -495,6 +539,11 @@ function RosterTab({
                 <>
                   <Typography variant="body2" sx={{ flex: 1, color: isClaimed ? 'text.primary' : 'text.disabled', fontStyle: isClaimed ? 'normal' : 'italic' }}>
                     {isClaimed ? (seat.playerName || t('anonymous')) : t('unclaimed')}
+                    {isClaimed && seat.characterId && (
+                      <Typography component="span" variant="caption" color="text.secondary" sx={{ ml: 1 }}>
+                        {getDisplayName(seat.characterId, language)}
+                      </Typography>
+                    )}
                   </Typography>
                   {isClaimed ? (
                     <Button

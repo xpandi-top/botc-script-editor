@@ -229,6 +229,7 @@ export type UiKey =
   | 'no_active_session_start_one_from_draw_deal' | 'active_session_is_a_card_deal'
   | 'send' | 'no_messages_yet' | 'you_label' | 'storyteller_label' | 'broadcast_to_all_seats'
   | 'random_assign_characters_hint' | 'random_assign_and_deal' | 'random_assign_and_deal_hint'
+  | 'random_assign_and_send' | 'random_assign_and_send_hint'
   | 'default_bgm' | 'default_track' | 'ended' | 'enter_custom_rules' | 'expand'
   | 'file_name' | 'fill' | 'finished' | 'fun_for_evil' | 'fun_for_good'
   | 'game_end_survey' | 'guess' | 'is_it_balanced' | 'know'

@@ -59,6 +59,11 @@
  *       allow update: if request.resource.data.diff(resource.data).affectedKeys()
  *                          .hasOnly(['claimedByToken','playerName','claimedAt']);
  *
+ *       // Rule 3 — ST pushes a character onto an already-claimed seat, no second
+ *       //           "draw a card" step needed; the guest's page reveals it live.
+ *       allow update: if request.resource.data.diff(resource.data).affectedKeys()
+ *                          .hasOnly(['characterId']);
+ *
  *       allow delete: if false;
  *     }
  *
@@ -125,6 +130,7 @@ export type DealSeatClaim = {
   claimedByToken?: string | null;
   playerName?: string | null;
   claimedAt?: Timestamp | null;
+  characterId?: string | null; // pushed by the ST after the seat is claimed
 };
 
 export type DealVoteStatus = 'active' | 'closed' | 'cancelled';
@@ -335,6 +341,7 @@ export async function createSeatClaimSession(
       claimedByToken: null,
       playerName: null,
       claimedAt: null,
+      characterId: null,
     });
   }
 
@@ -713,6 +720,15 @@ export async function renameSeatByHost(
     playerName: playerName.trim() || null,
     claimedAt: serverTimestamp(),
   });
+}
+/** Push a character onto an already-claimed seat — the guest's page reveals it live, no draw step. ST only. */
+
+export async function assignCharacterToSeatByHost(
+  sessionId: string,
+  seatNumber: number,
+  characterId: string
+): Promise<void> {
+  await updateDoc(seatRef(sessionId, seatNumber), { characterId });
 }
 /** Close the session so no more claims can be made (app-layer only for now). */
 
