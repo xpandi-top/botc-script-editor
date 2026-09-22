@@ -17,6 +17,7 @@ import LockIcon from '@mui/icons-material/Lock'
 import PersonIcon from '@mui/icons-material/Person'
 import EventSeatIcon from '@mui/icons-material/EventSeat'
 import VisibilityIcon from '@mui/icons-material/Visibility'
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff'
 import {
   getDealSession,
   getGuestToken,
@@ -259,84 +260,99 @@ export function DealGuestPage({ sessionId, language }: Props) {
       />
     ) : null
 
-    if (!seat.characterId) {
-      return (
-        <CenteredBox compact={!!activeVote}>
-          {votePanel}
-          <EventSeatIcon sx={{ fontSize: 48, color: 'success.main', mb: 2 }} />
-          <Typography variant="h5" sx={{ mb: 1, fontWeight: 700 }}>
-            {tpl('seat_n', seat.seatNumber)}
-          </Typography>
-          {seat.playerName && (
-            <Typography variant="body1" sx={{ mb: 1 }}>{seat.playerName}</Typography>
-          )}
-          <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 340 }}>
-            {t('wait_for_storyteller_to_deal_characters')}
-          </Typography>
-          {/* Hidden while a vote is active — the chat FAB's fixed position can
-              sit over the vote panel's sticky Agree/Disagree buttons (zIndex 1),
-              which would block a time-critical tap. */}
-          {!activeVote && (
-            <Suspense fallback={null}>
-              <DealMessagePanel sessionId={sessionId} seatNumber={seat.seatNumber} />
-            </Suspense>
-          )}
-        </CenteredBox>
-      )
-    }
-
+    // Persistent identity header + a scrollable content column below it —
+    // keeps the seat/player identity visible no matter which of the three
+    // concerns (character, vote, chat) is currently showing, instead of the
+    // old single centered column that only labeled the seat in some states.
     return (
-      <CenteredBox compact={!!activeVote && !revealCharacter}>
-        {votePanel}
-        {revealCharacter ? (
-          <>
-            <Typography variant="h5" sx={{ mb: 2, fontWeight: 700 }}>
-              {seat.secondCharacterId ? t('one_of_these_is_your_character') : t('remember_your_character')}
+      <Box sx={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column' }}>
+        <Box sx={{
+          display: 'flex', alignItems: 'center', gap: 1, px: 2, py: 1.25,
+          borderBottom: '1px solid', borderColor: 'divider', bgcolor: 'background.paper',
+        }}>
+          <EventSeatIcon sx={{ color: 'primary.main', flexShrink: 0 }} />
+          <Box sx={{ minWidth: 0 }}>
+            <Typography sx={{ fontWeight: 800, lineHeight: 1.2 }} noWrap>
+              {tpl('seat_n', seat.seatNumber)}
             </Typography>
-            <Suspense fallback={<CircularProgress size={28} />}>
-              {seat.secondCharacterId ? (
-                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'center' }}>
-                  <DealCharacterReveal card={{ characterId: seat.characterId as string }} language={language} effectiveSeat={seat.seatNumber} />
-                  <DealCharacterReveal card={{ characterId: seat.secondCharacterId }} language={language} effectiveSeat={seat.seatNumber} />
-                </Box>
-              ) : (
-                <DealCharacterReveal card={{ characterId: seat.characterId as string }} language={language} effectiveSeat={seat.seatNumber} />
-              )}
-            </Suspense>
-            <Typography variant="caption" color="success.main" sx={{ mt: 2, maxWidth: 340 }}>
-              {t('saved_keep_your_character_secret')}
-            </Typography>
-          </>
-        ) : (
-          <Box sx={{
-            width: '100%', maxWidth: 520, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            gap: 1, px: 1.25, py: 0.75, border: '1px solid', borderColor: 'divider', borderRadius: 1.5, bgcolor: 'background.paper',
-          }}>
-            <Box sx={{ minWidth: 0 }}>
-              <Typography variant="caption" sx={{ fontWeight: 800, whiteSpace: 'nowrap', display: 'block' }}>
-                {tpl('seat_n', seat.seatNumber)}{seat.playerName ? ` · ${seat.playerName}` : ''}
+            {seat.playerName && (
+              <Typography variant="caption" color="text.secondary" noWrap sx={{ display: 'block' }}>
+                {seat.playerName}
               </Typography>
-              <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1.2 }}>
+            )}
+          </Box>
+        </Box>
+
+        <Box sx={{
+          flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
+          gap: 2, p: 2, overflowY: 'auto',
+        }}>
+          {votePanel}
+
+          {!seat.characterId ? (
+            <Paper variant="outlined" sx={{ p: 3, borderRadius: 3, maxWidth: 360, width: '100%', textAlign: 'center' }}>
+              <EventSeatIcon sx={{ fontSize: 40, color: 'success.main', mb: 1.5 }} />
+              <Typography variant="body2" color="text.secondary">
+                {t('wait_for_storyteller_to_deal_characters')}
+              </Typography>
+            </Paper>
+          ) : revealCharacter ? (
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5, width: '100%' }}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 700, textAlign: 'center' }}>
+                {seat.secondCharacterId ? t('one_of_these_is_your_character') : t('remember_your_character')}
+              </Typography>
+              <Suspense fallback={<CircularProgress size={28} />}>
+                {seat.secondCharacterId ? (
+                  <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'center' }}>
+                    <DealCharacterReveal card={{ characterId: seat.characterId as string }} language={language} effectiveSeat={seat.seatNumber} />
+                    <DealCharacterReveal card={{ characterId: seat.secondCharacterId }} language={language} effectiveSeat={seat.seatNumber} />
+                  </Box>
+                ) : (
+                  <DealCharacterReveal card={{ characterId: seat.characterId as string }} language={language} effectiveSeat={seat.seatNumber} />
+                )}
+              </Suspense>
+              <Typography variant="caption" color="success.main" sx={{ maxWidth: 340, textAlign: 'center' }}>
+                {t('saved_keep_your_character_secret')}
+              </Typography>
+              <Button
+                size="small"
+                variant="text"
+                startIcon={<VisibilityOffIcon fontSize="small" />}
+                onClick={() => setState((cur) => cur.kind === 'seatClaimed' ? { ...cur, revealCharacter: false } : cur)}
+              >
+                {t('hide_my_character')}
+              </Button>
+            </Box>
+          ) : (
+            <Paper variant="outlined" sx={{
+              p: 2, borderRadius: 3, maxWidth: 360, width: '100%',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1.5,
+            }}>
+              <Typography variant="body2" color="text.secondary">
                 {t('character_hidden_compact')}
               </Typography>
-            </Box>
-            <Button
-              size="small"
-              variant="outlined"
-              startIcon={<VisibilityIcon />}
-              onClick={() => setState((cur) => cur.kind === 'seatClaimed' ? { ...cur, revealCharacter: true } : cur)}
-              sx={{ flexShrink: 0, whiteSpace: 'nowrap' }}
-            >
-              {t('show_my_character')}
-            </Button>
-          </Box>
-        )}
+              <Button
+                size="small"
+                variant="contained"
+                startIcon={<VisibilityIcon fontSize="small" />}
+                onClick={() => setState((cur) => cur.kind === 'seatClaimed' ? { ...cur, revealCharacter: true } : cur)}
+                sx={{ flexShrink: 0, whiteSpace: 'nowrap' }}
+              >
+                {t('show_my_character')}
+              </Button>
+            </Paper>
+          )}
+        </Box>
+
+        {/* Hidden while a vote is active — the chat FAB's fixed position can
+            sit over the vote panel's sticky Agree/Disagree buttons (zIndex 1),
+            which would block a time-critical tap. */}
         {!activeVote && (
           <Suspense fallback={null}>
             <DealMessagePanel sessionId={sessionId} seatNumber={seat.seatNumber} />
           </Suspense>
         )}
-      </CenteredBox>
+      </Box>
     )
   }
 

@@ -548,6 +548,7 @@
     "player_name": "Player name",
     "seat_number_helper": "The seat number the storyteller assigned you at the table",
     "show_my_character": "Show My Character",
+    "hide_my_character": "Hide My Character",
     "set_unclaimed": "Set Unclaimed",
     "set_claimed": "Set Claimed",
     "changelog": "Changelog",

@@ -548,6 +548,7 @@
     "player_name": "玩家名",
     "seat_number_helper": "说书人分配给你在桌上的座位号",
     "show_my_character": "显示我的角色",
+    "hide_my_character": "隐藏我的角色",
     "set_unclaimed": "设为未认领",
     "set_claimed": "设为已认领",
     "changelog": "更新日志",
