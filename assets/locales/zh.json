@@ -810,6 +810,7 @@
     "search": "搜索…",
     "special_note": "特殊备注",
     "apply_changes": "应用更改",
+    "apply_changes_live_hint": "这里的编辑先暂存，点应用后才会改变座位环",
     "deal_assigned_characters_to_players_new_tab": "将已分配角色发给玩家（新标签页）",
     "player_assignments": "玩家分配",
     "draw_deal_tab": "抽牌与发牌",
@@ -1246,6 +1247,7 @@
     "send_assigned_characters_hint": "将当前已分配的角色发送给每个已认领座位——不会重新随机，座位名单里看到的就是会发放给玩家的",
     "delivered": "已发放",
     "pending_delivery": "待发送",
-    "send_assigned_characters_n": "发送已分配角色（{0}）"
+    "send_assigned_characters_n": "发送已分配角色（{0}）",
+    "apply_changes_n": "应用更改（{0}）"
   }
 }

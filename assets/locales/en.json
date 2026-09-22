@@ -810,6 +810,7 @@
     "search": "Search…",
     "special_note": "Special Note",
     "apply_changes": "Apply Changes",
+    "apply_changes_live_hint": "Edits here are staged — the seat ring only updates once you apply",
     "deal_assigned_characters_to_players_new_tab": "Deal assigned characters to players (new tab)",
     "player_assignments": "Player Assignments",
     "draw_deal_tab": "Draw & Deal",
@@ -1246,6 +1247,7 @@
     "send_assigned_characters_hint": "Push the currently assigned characters to every claimed seat — never re-randomizes, so what you see in the roster is exactly what gets delivered",
     "delivered": "Delivered",
     "pending_delivery": "Pending",
-    "send_assigned_characters_n": "Send Assigned Characters ({0})"
+    "send_assigned_characters_n": "Send Assigned Characters ({0})",
+    "apply_changes_n": "Apply Changes ({0})"
   }
 }

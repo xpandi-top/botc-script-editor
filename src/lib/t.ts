@@ -215,6 +215,7 @@ export type UiKey =
   | 'tab_desc_scripts' | 'tab_desc_characters' | 'tab_desc_storyteller'
   | 'tab_desc_analytics' | 'tab_desc_printstudio' | 'tab_desc_settings'
   | 'eg_dimo' | 'fabled_loric' | 'none_selected' | 'special_note' | 'apply_changes'
+  | 'apply_changes_live_hint'
   | 'add_all' | 'alice_bob_charlie'
   | 'assign' | 'auto' | 'batch_load' | 'charactersseatsteams'
   | 'click_a_seat_on_the_table_to_select' | 'click_to_add_custom_rules'
@@ -397,7 +398,7 @@ export type TplKey =
   | 'player_most_active_st' | 'avg_duration_min'
   | 'more_n_scripts_tab' | 'more_n_storytellers'
   // Misc templates
-  | 'script_chars_short' | 'log_tab_n' | 'fill_log_n' | 'send_assigned_characters_n'
+  | 'script_chars_short' | 'log_tab_n' | 'fill_log_n' | 'send_assigned_characters_n' | 'apply_changes_n'
   | 'context_editing' | 'tag_for_char'
   | 'st_detail_n_games_scripts'
   // Communication board templates

@@ -44,11 +44,15 @@ type AssignmentTab = 'deal' | 'messages'
 const TRAVELER_CHARS = allCharacters.filter((c) => c.team === 'traveler').map((c) => c.id)
 
 /**
- * Resolve the character assignments to deal, and the gameId to key the deal
- * session under. Sources from the in-progress setup draft (newGamePanel) when
- * one is open — new game or edit-players both funnel through it — otherwise
- * from the live running game's seats, so the feature works mid-game too.
- * Traveler seats are tracked separately (own pool, no seat-claim session).
+ * Resolve the gameId to key the deal session under, plus the purely
+ * structural roster shape (how many seats, which are travelers). Sources
+ * from the in-progress setup draft (newGamePanel) when one is open — new
+ * game or edit-players both funnel through it — otherwise from the live
+ * running game's seats, so the feature works mid-game too.
+ *
+ * Character/perceived/note/bluff VALUES are deliberately NOT resolved here
+ * for the live-game case — see `liveDraft` below, which stages them so
+ * editing here doesn't touch the seat ring until "Apply" is clicked.
  */
 function useAssignmentSource(ctx: StorytellerContext) {
   const { newGamePanel, currentDay, gameId: liveGameId } = ctx
@@ -58,30 +62,50 @@ function useAssignmentSource(ctx: StorytellerContext) {
       const travelerCount = newGamePanel.travelerCount ?? 0
       return {
         gameId: newGamePanel.gameId ?? liveGameId,
-        assignments: newGamePanel.assignments ?? {},
-        userAssignments: newGamePanel.userAssignments ?? {},
         playerCount,
         travelerSeats: Array.from({ length: travelerCount }, (_, i) => playerCount + i + 1),
-        travelerAssignments: newGamePanel.travelerAssignments ?? {},
       }
     }
-    const assignments: Record<number, string> = {}
-    const userAssignments: Record<number, string> = {}
     const travelerSeats: number[] = []
-    const travelerAssignments: Record<number, string> = {}
     let playerCount = 0
     for (const seat of currentDay.seats) {
-      if (seat.isTraveler) {
-        travelerSeats.push(seat.seat)
-        if (seat.characterId) travelerAssignments[seat.seat] = seat.characterId
-      } else {
-        playerCount++
-        if (seat.characterId) assignments[seat.seat] = seat.characterId
-        if (seat.userCharacterId) userAssignments[seat.seat] = seat.userCharacterId
-      }
+      if (seat.isTraveler) travelerSeats.push(seat.seat)
+      else playerCount++
     }
-    return { gameId: liveGameId, assignments, userAssignments, playerCount, travelerSeats, travelerAssignments }
+    return { gameId: liveGameId, playerCount, travelerSeats }
   }, [newGamePanel, currentDay.seats, liveGameId])
+}
+
+type LiveDraft = {
+  assignments: Record<number, string>
+  userAssignments: Record<number, string | null>
+  travelerAssignments: Record<number, string>
+  seatNotes: Record<number, string>
+  demonBluffs: string[]
+}
+
+/**
+ * Snapshot the live game's current seats/bluffs into an editable local
+ * draft. Mirrors newGamePanel's shape so the same picker/apply code works
+ * for both — but this one is component-local state, seeded once when
+ * Assignment Center opens (it unmounts on close, so this re-seeds fresh
+ * each time), and only pushed back to currentDay via handleApplyLiveDraft.
+ */
+function buildLiveDraft(currentDay: StorytellerContext['currentDay']): LiveDraft {
+  const assignments: Record<number, string> = {}
+  const userAssignments: Record<number, string | null> = {}
+  const travelerAssignments: Record<number, string> = {}
+  const seatNotes: Record<number, string> = {}
+  for (const seat of currentDay.seats) {
+    if (seat.isTraveler) {
+      if (seat.characterId) travelerAssignments[seat.seat] = seat.characterId
+    } else if (seat.characterId) {
+      assignments[seat.seat] = seat.characterId
+    }
+    userAssignments[seat.seat] = seat.userCharacterId ?? null
+    seatNotes[seat.seat] = seat.note ?? ''
+  }
+  return { assignments, userAssignments, travelerAssignments, seatNotes, demonBluffs: currentDay.demonBluffs ?? [] }
 }
 
 const MIN_PLAYERS = 5
@@ -103,8 +127,15 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
   // Character-pool restriction for random assignment when no draft is open
   // (live game) — newGamePanel.charPool is used instead when a draft exists.
   const [liveCharPool, setLiveCharPool] = useState<string[]>([])
+  // Staged edits for the live-game path (mirrors newGamePanel's role for the
+  // draft path) — seeded once on open, only committed on "Apply".
+  const [liveDraft, setLiveDraft] = useState(() => buildLiveDraft(currentDay))
 
-  const { gameId, assignments, userAssignments, playerCount, travelerSeats, travelerAssignments } = useAssignmentSource(ctx)
+  const { gameId, playerCount, travelerSeats } = useAssignmentSource(ctx)
+  const assignments = newGamePanel ? (newGamePanel.assignments ?? {}) : liveDraft.assignments
+  const userAssignments = newGamePanel ? (newGamePanel.userAssignments ?? {}) : liveDraft.userAssignments
+  const travelerAssignments = newGamePanel ? (newGamePanel.travelerAssignments ?? {}) : liveDraft.travelerAssignments
+  const seatNotes = newGamePanel ? (newGamePanel.seatNotes ?? {}) : liveDraft.seatNotes
 
   const storedGameDeal = useMemo(() => {
     try {
@@ -161,10 +192,10 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
     return c
   }, [assignments])
 
-  const demonBluffs = newGamePanel ? (newGamePanel.demonBluffs ?? []) : (currentDay.demonBluffs ?? [])
+  const demonBluffs = newGamePanel ? (newGamePanel.demonBluffs ?? []) : liveDraft.demonBluffs
   const setDemonBluffs = (bluffs: string[]) => {
     if (newGamePanel) setNewGamePanel((prev) => prev ? { ...prev, demonBluffs: bluffs } : prev)
-    else updateCurrentDay((d) => ({ ...d, demonBluffs: bluffs }))
+    else setLiveDraft((prev) => ({ ...prev, demonBluffs: bluffs }))
   }
   // Characters eligible as demon bluffs: not currently assigned to any seat.
   // Prefer script characters; fall back to ALL townsfolk/outsider from catalog
@@ -219,11 +250,7 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
       setNewGamePanel((prev) => prev ? { ...prev, assignments: result } : prev)
       return
     }
-    for (const seat of currentDay.seats) {
-      if (!seat.isTraveler && result[seat.seat]) {
-        updateSeatWithLog(seat.seat, (s) => ({ ...s, characterId: result[seat.seat] }))
-      }
-    }
+    setLiveDraft((prev) => ({ ...prev, assignments: { ...prev.assignments, ...result } }))
   }
 
   // Manual single-seat override from the roster row picker.
@@ -232,7 +259,7 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
       setNewGamePanel((prev) => prev ? { ...prev, assignments: { ...prev.assignments, [seatNumber]: characterId } } : prev)
       return
     }
-    updateSeatWithLog(seatNumber, (s) => ({ ...s, characterId }))
+    setLiveDraft((prev) => ({ ...prev, assignments: { ...prev.assignments, [seatNumber]: characterId } }))
   }
 
   const setTravelerAssignment = (seatNumber: number, characterId: string) => {
@@ -240,7 +267,7 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
       setNewGamePanel((prev) => prev ? { ...prev, travelerAssignments: { ...prev.travelerAssignments, [seatNumber]: characterId } } : prev)
       return
     }
-    updateSeatWithLog(seatNumber, (s) => ({ ...s, characterId }))
+    setLiveDraft((prev) => ({ ...prev, travelerAssignments: { ...prev.travelerAssignments, [seatNumber]: characterId } }))
   }
 
   // Shared by traveler and regular seat rows alike — same underlying field.
@@ -249,7 +276,7 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
       setNewGamePanel((prev) => prev ? { ...prev, seatNotes: { ...prev.seatNotes, [seatNumber]: note } } : prev)
       return
     }
-    updateSeatWithLog(seatNumber, (s) => ({ ...s, note }))
+    setLiveDraft((prev) => ({ ...prev, seatNotes: { ...prev.seatNotes, [seatNumber]: note } }))
   }
 
   const setUserPerceived = (seatNumber: number, characterId: string | null) => {
@@ -257,7 +284,33 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
       setNewGamePanel((prev) => prev ? { ...prev, userAssignments: { ...prev.userAssignments, [seatNumber]: characterId } } : prev)
       return
     }
-    updateSeatWithLog(seatNumber, (s) => ({ ...s, userCharacterId: characterId }))
+    setLiveDraft((prev) => ({ ...prev, userAssignments: { ...prev.userAssignments, [seatNumber]: characterId } }))
+  }
+
+  // Diff the staged live-game draft against currentDay.seats to know whether
+  // there's anything to push, and to drive the Apply button's dirty count.
+  const liveDraftDiff = useMemo(() => {
+    if (newGamePanel) return []
+    return currentDay.seats.filter((seat) => {
+      const draftCid = (seat.isTraveler ? liveDraft.travelerAssignments[seat.seat] : liveDraft.assignments[seat.seat]) ?? ''
+      const draftPerceived = liveDraft.userAssignments[seat.seat] ?? null
+      const draftNote = liveDraft.seatNotes[seat.seat] ?? ''
+      return draftCid !== (seat.characterId ?? '') || draftPerceived !== (seat.userCharacterId ?? null) || draftNote !== (seat.note ?? '')
+    })
+  }, [newGamePanel, currentDay.seats, liveDraft])
+  const bluffsDirty = !newGamePanel && JSON.stringify(liveDraft.demonBluffs) !== JSON.stringify(currentDay.demonBluffs ?? [])
+  const liveDraftDirty = liveDraftDiff.length > 0 || bluffsDirty
+
+  // Pushes the staged draft onto the live seat ring — nothing here reaches
+  // currentDay (and thus the ring other players/the ST see) until this runs.
+  const handleApplyLiveDraft = () => {
+    for (const seat of liveDraftDiff) {
+      const draftCid = (seat.isTraveler ? liveDraft.travelerAssignments[seat.seat] : liveDraft.assignments[seat.seat]) ?? ''
+      const draftPerceived = liveDraft.userAssignments[seat.seat] ?? null
+      const draftNote = liveDraft.seatNotes[seat.seat] ?? ''
+      updateSeatWithLog(seat.seat, (s) => ({ ...s, characterId: draftCid || null, userCharacterId: draftPerceived, note: draftNote }))
+    }
+    if (bluffsDirty) updateCurrentDay((d) => ({ ...d, demonBluffs: liveDraft.demonBluffs }))
   }
 
   const handleRandomAssign = () => {
@@ -445,6 +498,22 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
         </Button>
       )}
 
+      {!newGamePanel && (
+        <Tooltip title={t('apply_changes_live_hint')}>
+          <span>
+            <Button
+              variant="contained"
+              fullWidth
+              onClick={handleApplyLiveDraft}
+              disabled={!liveDraftDirty}
+              startIcon={<PlayArrowIcon fontSize="small" />}
+            >
+              {liveDraftDiff.length > 0 ? tpl('apply_changes_n', liveDraftDiff.length) : t('apply_changes')}
+            </Button>
+          </span>
+        </Tooltip>
+      )}
+
       <Tabs value={tab} onChange={(_, v) => setTab(v)} variant="fullWidth">
         <Tab value="deal" icon={<StyleIcon fontSize="small" />} iconPosition="start" label={t('draw_deal_tab')} />
         <Tab value="messages" icon={<ChatIcon fontSize="small" />} iconPosition="start" label={t('messages_tab')} />
@@ -593,7 +662,7 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
                 {travelerSeats.map((sNum) => {
                   const tcid = travelerAssignments[sNum] ?? ''
                   const tch = tcid ? getCharacterById(tcid) : null
-                  const note = newGamePanel ? (newGamePanel.seatNotes?.[sNum] ?? '') : (currentDay.seats.find((s) => s.seat === sNum)?.note ?? '')
+                  const note = seatNotes[sNum] ?? ''
                   return (
                     <Box key={sNum} sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: { xs: 'wrap', sm: 'nowrap' } }}>
                       <Typography variant="body2" sx={{ width: 40, flexShrink: 0, fontWeight: 700, color: 'text.secondary' }}>
@@ -684,7 +753,7 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
               const pending = !!assignedCid && !!existingDealSession && claim?.characterId !== assignedCid
               const userCid = userAssignments[sNum]
               const hasUserOverride = userCid !== undefined && userCid !== null && userCid !== ''
-              const note = newGamePanel ? (newGamePanel.seatNotes?.[sNum] ?? '') : (currentDay.seats.find((s) => s.seat === sNum)?.note ?? '')
+              const note = seatNotes[sNum] ?? ''
               return (
                 <Paper key={sNum} variant="outlined" sx={{ p: 1, display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
                   <Chip size="small" label={`#${sNum}`} sx={{ fontWeight: 700, minWidth: 40 }} />
