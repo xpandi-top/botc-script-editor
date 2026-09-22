@@ -44,6 +44,7 @@ import { makeTpl } from '../lib/t'
 import { formatSeatLabel, getCurrentDealVoter, summarizeDealVote } from '../utils/votes'
 
 const DealCharacterReveal = lazy(() => import('./DealCharacterReveal').then(m => ({ default: m.DealCharacterReveal })))
+const DealMessagePanel = lazy(() => import('./DealMessagePanel').then(m => ({ default: m.DealMessagePanel })))
 
 interface Props {
   sessionId: string
@@ -377,6 +378,11 @@ export function DealGuestPage({ sessionId, language }: Props) {
             </Typography>
           </>
         ) : hiddenStrip}
+        {effectiveSeat != null && (
+          <Suspense fallback={null}>
+            <DealMessagePanel sessionId={sessionId} seatNumber={effectiveSeat} />
+          </Suspense>
+        )}
       </CenteredBox>
     )
   }
@@ -452,6 +458,9 @@ export function DealGuestPage({ sessionId, language }: Props) {
         <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 340 }}>
           {t('wait_for_storyteller_to_deal_characters')}
         </Typography>
+        <Suspense fallback={null}>
+          <DealMessagePanel sessionId={sessionId} seatNumber={seat.seatNumber} />
+        </Suspense>
       </CenteredBox>
     )
   }

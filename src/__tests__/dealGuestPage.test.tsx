@@ -27,6 +27,9 @@ vi.mock('../lib/DealSession', () => ({
   subscribeActiveDealVote: vi.fn((_id: string, cb: (v: null) => void) => { cb(null); return () => {} }),
   subscribeDealVoteResponses: vi.fn((_id: string, _voteId: string, cb: (v: unknown[]) => void) => { cb([]); return () => {} }),
   submitDealVoteResponse: vi.fn(),
+  subscribeSeatMessages: vi.fn((_id: string, _seat: number, cb: (v: unknown[]) => void) => { cb([]); return () => {} }),
+  sendMessage: vi.fn(),
+  markMessageRead: vi.fn(),
 }))
 
 function withI18n(node: React.ReactElement) {
