@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Badge, Box, Button, Chip, CircularProgress, Dialog, DialogContent, DialogTitle, IconButton, Tabs, Tab, TextField, Typography, Paper, Tooltip } from '@mui/material'
+import { Badge, Box, Button, Chip, CircularProgress, Dialog, DialogContent, DialogTitle, IconButton, Tabs, Tab, TextField, Typography, Paper, Tooltip, Select, MenuItem, FormControl, InputLabel } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import RemoveIcon from '@mui/icons-material/Remove'
 import CasinoIcon from '@mui/icons-material/Casino'
@@ -18,10 +18,12 @@ import SendIcon from '@mui/icons-material/Send'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import ClearAllIcon from '@mui/icons-material/ClearAll'
-import { getDisplayName } from '../../../catalog'
+import { getCharacterById, getDisplayName } from '../../../catalog'
 import { makeT, makeTpl } from '../../../lib/t'
+import { CHARACTER_DISTRIBUTION } from '../constants'
 import { CharPoolPicker } from './CharPoolPicker'
-import { CharSelect } from './ModalsNewGameHelpers'
+import { CharSelect, DistRow } from './ModalsNewGameHelpers'
+import { MonoText } from '../../../components/ui'
 import {
   getDealSession, closeDealSession,
   createSeatClaimSession, subscribeSeatClaims, unclaimSeatByHost, renameSeatByHost, assignCharacterToSeatByHost,
@@ -120,6 +122,21 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
     if (newGamePanel) setNewGamePanel((prev) => prev ? { ...prev, charPool: ids } : prev)
     else setLiveCharPool(ids)
   }
+  // Script is only changeable while a draft is open — a live game's script
+  // was fixed at start, so it's shown read-only for the live-game path.
+  const handleScriptChange = (slug: string) => {
+    setNewGamePanel((prev) => prev ? { ...prev, scriptSlug: slug } : prev)
+  }
+
+  const calcDist = CHARACTER_DISTRIBUTION[playerCount] ?? { townsfolk: 0, outsider: 0, minion: 0, demon: 0 }
+  const actCounts = useMemo(() => {
+    const c = { townsfolk: 0, outsider: 0, minion: 0, demon: 0 }
+    Object.values(assignments).forEach((cid) => {
+      const ch = cid ? getCharacterById(cid) : null
+      if (ch && c[ch.team as keyof typeof c] !== undefined) c[ch.team as keyof typeof c]++
+    })
+    return c
+  }, [assignments])
 
   // Random character assignment — computed synchronously and returned so
   // callers don't have to wait a render cycle for newGamePanel/currentDay
@@ -317,6 +334,44 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
           <Typography variant="body2" color="text.secondary">
             {t('deal_assigned_characters_to_players_new_tab')}
           </Typography>
+
+          {newGamePanel ? (
+            <FormControl size="small" fullWidth>
+              <InputLabel>{t('script')}</InputLabel>
+              <Select value={scriptSlug} onChange={(e) => handleScriptChange(e.target.value)} label={t('script')}>
+                {scriptOptions.map((s) => (
+                  <MenuItem key={s.slug} value={s.slug}>
+                    {language === 'zh' ? (s.titleZh || s.title) : s.title}
+                    {s.version && (
+                      <MonoText component="span" sx={{ ml: 0.75, color: 'text.secondary' }}>
+                        v{s.version}
+                      </MonoText>
+                    )}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          ) : (
+            <Typography variant="caption" color="text.secondary">
+              {t('script')}: {(() => {
+                const opt = scriptOptions.find((s) => s.slug === scriptSlug)
+                if (!opt) return scriptSlug
+                return language === 'zh' ? (opt.titleZh || opt.title) : opt.title
+              })()}
+            </Typography>
+          )}
+
+          <Paper variant="outlined" sx={{ p: 1 }}>
+            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: 1 }}>
+              <Typography variant="caption" sx={{ width: 40 }}></Typography>
+              <Chip size="small" label="T" color="primary" sx={{ width: 28, height: 22 }} />
+              <Chip size="small" label="O" color="info" sx={{ width: 28, height: 22 }} />
+              <Chip size="small" label="M" color="error" sx={{ width: 28, height: 22 }} />
+              <Chip size="small" label="D" color="error" sx={{ width: 28, height: 22 }} />
+            </Box>
+            <DistRow label={t('calculated')} counts={calcDist} />
+            <DistRow label={t('actual_short')} counts={actCounts} calc={calcDist} />
+          </Paper>
 
           <Paper variant="outlined" sx={{ p: 1 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

@@ -13,7 +13,6 @@ import CheckIcon from '@mui/icons-material/Check'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import { PlayersTab } from './ModalsNewGamePlayersTab'
-import { CharactersTab } from './ModalsNewGameCharactersTab'
 import { DEFAULT_ST_NAME_KEY } from '../constants'
 import { allCharacters, getDisplayName, getAbilityText, getIconForCharacter } from '../../../catalog'
 import { useT } from '../../../context/I18nContext'
@@ -23,14 +22,14 @@ const FABLED_AND_LORIC = allCharacters.filter((c) => c.team === 'fabled' || c.ed
 
 export function ModalsNewGame({ ctx }: { ctx: StorytellerContext }) {
   const {
-    scriptOptions, playerNamePool, setPlayerNamePool, text, language,
-    newGamePanel, setNewGamePanel, setShowNewGamePanel, startNewGame, applyGameChanges, randomAssignCharacters,
+    playerNamePool, setPlayerNamePool, text, language,
+    newGamePanel, setNewGamePanel, setShowNewGamePanel, startNewGame, applyGameChanges,
     days, stName, setStName,
   } = ctx
 
   // All hooks MUST be declared before any early return
   const { t, tpl } = useT()
-  const [activeTab, setActiveTab] = useState<'settings' | 'players' | 'characters'>('players')
+  const [activeTab, setActiveTab] = useState<'settings' | 'players'>('players')
   const [showFabledPicker, setShowFabledPicker] = useState(false)
   const [fabledSearch, setFabledSearch] = useState('')
 
@@ -58,7 +57,6 @@ export function ModalsNewGame({ ctx }: { ctx: StorytellerContext }) {
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       <Tabs value={activeTab} onChange={(_, v) => setActiveTab(v)} variant="fullWidth">
         <Tab label={t('edit_players')} value="players" />
-        <Tab label={t('characters_section')} value="characters" />
         <Tab label={t('settings')} value="settings" />
       </Tabs>
 
@@ -210,17 +208,6 @@ export function ModalsNewGame({ ctx }: { ctx: StorytellerContext }) {
             seats={seats}
             updateConfig={updateConfig}
             setPlayerNamePool={setPlayerNamePool}
-          />
-        )}
-
-        {/* ── Characters tab ── */}
-        {activeTab === 'characters' && (
-          <CharactersTab
-            newGamePanel={newGamePanel}
-            scriptOptions={scriptOptions}
-            language={language}
-            updateConfig={updateConfig}
-            randomAssignCharacters={randomAssignCharacters}
           />
         )}
       </Box>
