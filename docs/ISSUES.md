@@ -5,6 +5,20 @@ Status: `open` | `fixed` | `wontfix`
 
 ---
 
+## I-72 — Deal cards: seat self-claim + ST/seat messaging, promoted to its own panel
+
+**Status:** fixed  
+**Area:** src/components/StorytellerSub/Modals/AssignmentCenter.tsx (new), src/components/DealMessagePanel.tsx (new), src/components/DealGuestPage.tsx, src/components/StorytellerSub/GameActionsBar.tsx, src/lib/DealSession.ts (renamed from firebaseDeal.ts)  
+**Detail:** Three related upgrades to the deal-cards feature, requested as one feature:
+
+1. **Standalone entry point** — "Deal Cards" moved out of the New Game modal's Characters tab (buried among random-pool/reset buttons) into a dedicated "Player Assignments" button in the toolbar/sidebar, reachable pre-game or mid-game regardless of which setup modal (if any) is open. Opens an Assignment Center dialog with Draw & Deal / Roster / Messages tabs.
+2. **Seat self-claim** — new mode alongside random-draw and manual assignment: guests tap an open seat number (blind, no character shown) and confirm with their name, instead of drawing a card or being told their seat by the ST. New Firestore subcollection `dealSessions/{id}/seats/{seatNumber}`, atomic claim via the same compare-and-swap + read-back-verify pattern as card claims. Live roster on the ST side with free/reserve/close actions.
+3. **ST ↔ seat messaging** — new Firestore subcollection `dealSessions/{id}/messages/{id}`. Guest gets a floating chat button (hidden during an active vote to avoid covering the vote buttons); ST gets a per-seat/broadcast thread view with unread badges in the Messages tab.
+
+`src/lib/firebaseDeal.ts` was renamed to `src/lib/DealSession.ts` as part of this work (all imports repointed, no behavior change).
+
+---
+
 ## I-69 — ST: Character-linked reminder tags (picker in player modal)
 
 **Status:** fixed  

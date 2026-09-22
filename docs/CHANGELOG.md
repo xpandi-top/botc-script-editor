@@ -4,7 +4,22 @@ Release timeline for BOTC Companion — features, fixes, and improvements.
 
 ---
 
-## 2026-08-30 — Odyssey Character Pack (latest)
+## 2026-09-21 — Player Assignments & Seat Self-Claim (latest)
+
+### Added
+- **"Player Assignments" panel** — a dedicated button in the storyteller toolbar/sidebar, reachable any time during setup or mid-game, independent of the New Game / Edit Players modals. Replaces the old "Deal Cards" button that was buried inside the New Game modal's Characters tab. Shows a live badge when a deal session is active.
+  - **Draw & Deal tab** — deal already-assigned characters to players' phones (unchanged behavior, relocated), or start seat self-claim.
+  - **Roster tab** — live seat-by-seat view for an active self-claim session; free a claimed seat or reserve one on behalf of an in-person player without a phone; share link/QR; close the session.
+  - **Messages tab** — storyteller can broadcast to every seat or message one seat directly, with a per-seat unread badge.
+- **Seat self-claim mode** — guests open the share link, tap an open seat number (blind — no character shown), and confirm with their name. Seats fill in live for every viewer, including the storyteller's Roster tab.
+- **Storyteller ↔ seat messaging** — a floating chat button on the guest's own page (hidden during an active nomination vote to avoid covering the Agree/Disagree buttons) opens a thread with the storyteller: their own messages plus any broadcasts, with an unread badge.
+
+### Notes
+- Seat-claim and messaging use two new Firestore subcollections (`dealSessions/{id}/seats`, `dealSessions/{id}/messages`) alongside the existing `cards` subcollection — see the rules block documented at the top of `src/lib/DealSession.ts`. A fresh Firebase project needs those rules added to the console before these two features work; the existing card-dealing flow is unaffected.
+
+---
+
+## 2026-08-30 — Odyssey Character Pack
 
 ### Added
 - **《奥德赛 Odyssey》 character pack** — 119 custom characters imported from the official wiki as a new `odyssey` edition (51 Townsfolk, 21 Outsiders, 24 Minions, 18 Demons, 3 Fabled, 2 Loric).

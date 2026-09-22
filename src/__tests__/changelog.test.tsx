@@ -86,9 +86,9 @@ describe('changelog helpers', () => {
   it('extracts dated releases in descending document order', () => {
     const parsed = parseChangelog(raw as string)
     expect(parsed.releases.length).toBeGreaterThan(3)
-    expect(parsed.releases[0].date).toBe('2026-08-30')
-    expect(parsed.releases[0].title).toContain('Odyssey Character Pack')
-    expect(parsed.releases[1].date).toBe('2026-05-30')
+    expect(parsed.releases[0].date).toBe('2026-09-21')
+    expect(parsed.releases[0].title).toContain('Player Assignments')
+    expect(parsed.releases[1].date).toBe('2026-08-30')
   })
 
   it('uses the first release heading as the latest release id', () => {
@@ -109,8 +109,8 @@ describe('changelog helpers', () => {
 describe('ChangelogPage', () => {
   it('renders the latest release expanded and older releases collapsed', () => {
     renderChangelog()
-    expect(screen.getByRole('button', { name: /2026-08-30.*Odyssey Character Pack/s })).toHaveAttribute('aria-expanded', 'true')
-    expect(screen.getByText(/119 custom characters imported/i)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /2026-09-21.*Player Assignments/s })).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.getByText(/hidden during an active nomination vote/i)).toBeInTheDocument()
 
     const older = screen.getByRole('button', { name: /^2026-05-28.*Communication Board/s })
     expect(older).toHaveAttribute('aria-expanded', 'false')
