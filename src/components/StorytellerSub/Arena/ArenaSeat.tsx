@@ -12,7 +12,7 @@ import { ArenaSeatPlayerModal } from './ArenaSeatPlayerModal'
 import { CharacterCircle } from './CharacterCircle'
 import { getDisplayName, getIconForCharacter, getEffectiveNightOrderFromRegistry, getAbilityTextForScript, getNightReminder } from '../../../catalog'
 import { getSeatPosition } from '../../../utils/seats'
-import { VoteButtonGroup, RoundRobinIndicator, TagChip, StatusBadge, translateStTag, resolveTagDisplay } from './ArenaSeatComponents'
+import { RoundRobinIndicator, TagChip, StatusBadge, translateStTag, resolveTagDisplay } from './ArenaSeatComponents'
 
 function WakeOrderBadge({ wakeOrder, isVisited, reminder, onToggle }: { wakeOrder: number; isVisited: boolean; reminder?: string; onToggle: (e: MouseEvent<HTMLElement>) => void }) {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
@@ -67,8 +67,8 @@ function WakeOrderBadge({ wakeOrder, isVisited, reminder, onToggle }: { wakeOrde
 
 function ArenaSeatInner({ ctx, seat, index, isPortrait }: { ctx: StorytellerContext, seat: StorytellerSeat, index: number, isPortrait: boolean }) {
   const {
-    language, pickerMode, currentDay, updateCurrentDay, currentVoterSeat,
-    selectedSeat, text, handleSeatClick, handleVoteYes, handleVoteNo,
+    language, pickerMode, currentDay,
+    selectedSeat, text, handleSeatClick,
     nightShowCharacter, nightShowWakeOrder, skillOverlay,
     toggleNightVisitedSeat,
     playerModalSeat, setPlayerModalSeat,
@@ -95,20 +95,11 @@ function ArenaSeatInner({ ctx, seat, index, isPortrait }: { ctx: StorytellerCont
   const isVoteTarget = currentDay.voteDraft.target === seat.seat
   const isSkillActor = skillOverlay?.draft.actor === seat.seat
   const isSkillTarget = skillOverlay?.draft.targets.includes(seat.seat) ?? false
-  const isCurrentVoter = currentVoterSeat === seat.seat
   const hasVoted = currentDay.votingState?.votes[seat.seat] !== undefined
   const votedYes = currentDay.votingState?.votes[seat.seat] === true
-  const isInNomination = currentDay.phase === 'nomination' && currentDay.nominationStep !== 'waitingForNomination'
   const isNightPhase = currentDay.phase === 'night'
   const showSecrets = canViewSecrets(currentDay.phase, nightShowCharacter)
   const showIdentity = showSecrets || seat.isTraveler
-
-  const cardVotedYes = currentDay.votingState
-    ? currentDay.votingState.votes[seat.seat] === true
-    : currentDay.voteDraft.voters.includes(seat.seat)
-  const cardVotedNo = currentDay.votingState
-    ? currentDay.votingState.votes[seat.seat] === false
-    : currentDay.voteDraft.noVoters.includes(seat.seat)
 
   const muiTheme = useTheme()
   const isDark = muiTheme.palette.mode === 'dark'
@@ -153,32 +144,6 @@ function ArenaSeatInner({ ctx, seat, index, isPortrait }: { ctx: StorytellerCont
     return 'divider'
   }
 
-  const handleVoteYesClick = (e: MouseEvent<HTMLElement>) => {
-    e.stopPropagation()
-    if (isCurrentVoter) { handleVoteYes(seat.seat) }
-    else if (currentDay.votingState) { updateCurrentDay((d) => ({ ...d, votingState: d.votingState ? { ...d.votingState, votes: { ...d.votingState.votes, [seat.seat]: true } } : null })) }
-    else { updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, voters: [...d.voteDraft.voters, seat.seat], noVoters: d.voteDraft.noVoters.filter((v) => v !== seat.seat) } })) }
-  }
-
-  const handleVoteNoClick = (e: MouseEvent<HTMLElement>) => {
-    e.stopPropagation()
-    if (isCurrentVoter) { handleVoteNo(seat.seat) }
-    else if (currentDay.votingState) { updateCurrentDay((d) => ({ ...d, votingState: d.votingState ? { ...d.votingState, votes: { ...d.votingState.votes, [seat.seat]: false } } : null })) }
-    else { updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, noVoters: [...d.voteDraft.noVoters, seat.seat], voters: d.voteDraft.voters.filter((v) => v !== seat.seat) } })) }
-  }
-
-  const handleRemoveVote = (e: MouseEvent<HTMLElement>) => {
-    e.stopPropagation()
-    if (currentDay.votingState) {
-      updateCurrentDay((d) => {
-        if (!d.votingState) return d
-        const { [seat.seat]: _removed, ...votes } = d.votingState.votes
-        return { ...d, votingState: { ...d.votingState, votes } }
-      })
-    }
-    else if (cardVotedYes) { updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, voters: d.voteDraft.voters.filter((v) => v !== seat.seat) } })) }
-    else if (cardVotedNo) { updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, noVoters: d.voteDraft.noVoters.filter((v) => v !== seat.seat) } })) }
-  }
   const CIRCLE = 90  // circle diameter px — matches --seat-size default
   const OVERLAP = CIRCLE / 2  // how much circle pokes above card top
 
@@ -205,6 +170,7 @@ function ArenaSeatInner({ ctx, seat, index, isPortrait }: { ctx: StorytellerCont
           <Box sx={{ position: 'absolute', top: -OVERLAP, left: '50%', transform: 'translateX(-50%)', zIndex: 3,
             filter: seat.alive ? 'none' : 'grayscale(85%) brightness(0.85)', opacity: seat.alive ? 1 : 0.75 }}>
             <CharacterCircle
+              label={`#${seat.seat} ${seat.name}`}
               alignment={showSecrets ? seatAlignment(seat) : null}
               size={CIRCLE}
               charIcon={charIcon ?? null}
@@ -282,7 +248,6 @@ function ArenaSeatInner({ ctx, seat, index, isPortrait }: { ctx: StorytellerCont
             </Box>
           )}
 
-          {isInNomination && <VoteButtonGroup seat={seat} cardVotedYes={cardVotedYes} cardVotedNo={cardVotedNo} handleVoteYesClick={handleVoteYesClick} handleVoteNoClick={handleVoteNoClick} handleRemoveVote={handleRemoveVote} />}
 
           {showSecrets && nightShowWakeOrder && playerWakeOrder !== null && (
             <WakeOrderBadge

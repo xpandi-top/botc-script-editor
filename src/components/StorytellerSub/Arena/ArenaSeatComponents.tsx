@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { Box, IconButton, Button, Chip, Popover, Typography } from '@mui/material'
 import type { SxProps, Theme } from '@mui/material'
 import CheckIcon from '@mui/icons-material/Check'
-import CloseIcon from '@mui/icons-material/Close'
 import LocalBarIcon from '@mui/icons-material/LocalBar'
 import ScienceIcon from '@mui/icons-material/Science'
 import type { UiKey } from '../../../lib/t'
@@ -160,48 +159,6 @@ export function StatusBadge({ type, label, isDark, srcIcon }: { type: 'drunk' | 
         <Typography variant="h6" sx={{ color, fontWeight: 700 }}>{label}</Typography>
       </Popover>
     </>
-  )
-}
-
-interface VoteButtonGroupProps {
-  seat: StorytellerSeat
-  cardVotedYes: boolean
-  cardVotedNo: boolean
-  handleVoteYesClick: (e: MouseEvent<HTMLElement>) => void
-  handleVoteNoClick: (e: MouseEvent<HTMLElement>) => void
-  handleRemoveVote: (e: MouseEvent<HTMLElement>) => void
-}
-
-export function VoteButtonGroup({
-  cardVotedYes,
-  cardVotedNo,
-  handleVoteYesClick,
-  handleVoteNoClick,
-  handleRemoveVote,
-}: VoteButtonGroupProps) {
-  return (
-    <Box sx={{ display: 'flex', gap: 0.25, mt: 0.25, justifyContent: 'center' }}>
-      {cardVotedYes || cardVotedNo ? (
-        <Button
-          size="medium"
-          variant="contained"
-          color={cardVotedYes ? 'success' : 'error'}
-          onClick={handleRemoveVote}
-          sx={{ minWidth: 0, px: 0.75, py: 0.25, fontWeight: 700 }}
-        >
-          {cardVotedYes ? <CheckIcon fontSize="small" /> : <CloseIcon fontSize="small" />}
-        </Button>
-      ) : (
-        <>
-          <IconButton size="medium" color="success" onClick={handleVoteYesClick} sx={{ border: '1px solid', borderColor: 'divider', p: 0.5 }}>
-            <CheckIcon fontSize="small" />
-          </IconButton>
-          <IconButton size="medium" color="error" onClick={handleVoteNoClick} sx={{ border: '1px solid', borderColor: 'divider', p: 0.5 }}>
-            <CloseIcon fontSize="small" />
-          </IconButton>
-        </>
-      )}
-    </Box>
   )
 }
 

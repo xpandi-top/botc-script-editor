@@ -2,7 +2,7 @@
  * UI render sanity tests — no corruption, no undefined/null leakage.
  *
  * Covers leaf components that display user data: CharacterCircle,
- * LogDetailText, VoteButtonGroup, RoundRobinIndicator,
+ * LogDetailText, RoundRobinIndicator,
  * NominationHistory, PlayerNightLog.
  *
  * Goals:
@@ -18,7 +18,7 @@ import React from 'react'
 
 import { CharacterCircle } from '../components/StorytellerSub/Arena/CharacterCircle'
 import { LogDetailText } from '../components/StorytellerSub/LogDetailText'
-import { VoteButtonGroup, RoundRobinIndicator } from '../components/StorytellerSub/Arena/ArenaSeatComponents'
+import { RoundRobinIndicator } from '../components/StorytellerSub/Arena/ArenaSeatComponents'
 import { NominationHistory } from '../components/StorytellerSub/Arena/NominationHistory'
 import { PlayerNightLog } from '../components/StorytellerSub/Arena/PlayerNightLog'
 
@@ -171,84 +171,6 @@ describe('LogDetailText — icon token substitution', () => {
     const { container } = render(<LogDetailText detail="simple text no tokens" />)
     expect(container.querySelector('img')).toBeNull()
     expect(container.textContent).toContain('simple text no tokens')
-  })
-})
-
-// ── VoteButtonGroup ───────────────────────────────────────────────────────────
-
-describe('VoteButtonGroup — unvoted state', () => {
-  const baseProps = {
-    seat: { seat: 1 },
-    cardVotedYes: false,
-    cardVotedNo: false,
-    handleVoteYesClick: vi.fn(),
-    handleVoteNoClick: vi.fn(),
-    handleRemoveVote: vi.fn(),
-  }
-
-  it('renders two icon buttons (yes + no) when not voted', () => {
-    render(<VoteButtonGroup {...baseProps} />)
-    const buttons = screen.getAllByRole('button')
-    expect(buttons).toHaveLength(2)
-  })
-
-  it('calls handleVoteYesClick when yes button clicked', () => {
-    const handler = vi.fn()
-    render(<VoteButtonGroup {...baseProps} handleVoteYesClick={handler} />)
-    fireEvent.click(screen.getAllByRole('button')[0])
-    expect(handler).toHaveBeenCalledTimes(1)
-  })
-
-  it('calls handleVoteNoClick when no button clicked', () => {
-    const handler = vi.fn()
-    render(<VoteButtonGroup {...baseProps} handleVoteNoClick={handler} />)
-    fireEvent.click(screen.getAllByRole('button')[1])
-    expect(handler).toHaveBeenCalledTimes(1)
-  })
-
-  it('produces no corrupt text', () => {
-    const { container } = render(<VoteButtonGroup {...baseProps} />)
-    noText(container)
-  })
-})
-
-describe('VoteButtonGroup — voted state', () => {
-  it('renders single button when voted yes', () => {
-    render(<VoteButtonGroup
-      seat={{ seat: 1 }}
-      cardVotedYes={true}
-      cardVotedNo={false}
-      handleVoteYesClick={noop}
-      handleVoteNoClick={noop}
-      handleRemoveVote={noop}
-    />)
-    expect(screen.getAllByRole('button')).toHaveLength(1)
-  })
-
-  it('renders single button when voted no', () => {
-    render(<VoteButtonGroup
-      seat={{ seat: 1 }}
-      cardVotedYes={false}
-      cardVotedNo={true}
-      handleVoteYesClick={noop}
-      handleVoteNoClick={noop}
-      handleRemoveVote={noop}
-    />)
-    expect(screen.getAllByRole('button')).toHaveLength(1)
-  })
-
-  it('calls handleRemoveVote when voted button clicked', () => {
-    const handler = vi.fn()
-    render(<VoteButtonGroup
-      seat={{ seat: 1 }}
-      cardVotedYes={true}
-      cardVotedNo={false}
-      handleVoteYesClick={noop}
-      handleVoteNoClick={noop}
-      handleRemoveVote={handler}
-    />)
-    fireEvent.click(screen.getByRole('button'))
-    expect(handler).toHaveBeenCalledTimes(1)
   })
 })
 

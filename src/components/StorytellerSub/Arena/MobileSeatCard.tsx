@@ -2,7 +2,6 @@ import { canViewSecrets, seatAlignment } from '../../../utils/seatAlignment'
 import { AlignmentBadge } from './AlignmentBadge'
 import type { StorytellerSeat } from '../types'
 import type { StorytellerContext } from '../useStoryteller'
-import type { MouseEvent } from 'react'
 import { memo } from 'react'
 import { Box, IconButton, Paper, Tooltip, useTheme } from '@mui/material'
 import type { SxProps, Theme } from '@mui/material'
@@ -12,7 +11,7 @@ import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked'
 import { ArenaSeatPlayerModal } from './ArenaSeatPlayerModal'
 import { CharacterCircle } from './CharacterCircle'
 import { getDisplayName, getIconForCharacter, getEffectiveNightOrderFromRegistry, getAbilityTextForScript } from '../../../catalog'
-import { VoteButtonGroup, TagChip, StatusBadge, translateStTag, resolveTagDisplay } from './ArenaSeatComponents'
+import { TagChip, StatusBadge, translateStTag, resolveTagDisplay } from './ArenaSeatComponents'
 
 
 const CIRCLE_SIZE = 72
@@ -20,8 +19,8 @@ const CIRCLE_OVERLAP = CIRCLE_SIZE / 2  // how much circle sticks into card
 
 function MobileSeatCardInner({ ctx, seat, side = 'left' }: { ctx: StorytellerContext; seat: StorytellerSeat; side?: 'left' | 'right' }) {
   const {
-    language, pickerMode, currentDay, updateCurrentDay, currentVoterSeat,
-    selectedSeat, text, handleSeatClick, handleVoteYes, handleVoteNo,
+    language, pickerMode, currentDay,
+    selectedSeat, text, handleSeatClick,
     nightShowCharacter, nightShowWakeOrder,
     toggleNightVisitedSeat,
     playerModalSeat, setPlayerModalSeat,
@@ -38,19 +37,11 @@ function MobileSeatCardInner({ ctx, seat, side = 'left' }: { ctx: StorytellerCon
   const isNightPhase = currentDay.phase === 'night'
   const showSecrets = canViewSecrets(currentDay.phase, nightShowCharacter)
   const showIdentity = showSecrets || seat.isTraveler
-  const isInNomination = currentDay.phase === 'nomination' && currentDay.nominationStep !== 'waitingForNomination'
 
   const isVoteActor = currentDay.voteDraft.actor === seat.seat
   const isVoteTarget = currentDay.voteDraft.target === seat.seat
-  const isCurrentVoter = currentVoterSeat === seat.seat
   const hasVoted = currentDay.votingState?.votes[seat.seat] !== undefined
   const votedYes = currentDay.votingState?.votes[seat.seat] === true
-  const cardVotedYes = currentDay.votingState
-    ? currentDay.votingState.votes[seat.seat] === true
-    : currentDay.voteDraft.voters.includes(seat.seat)
-  const cardVotedNo = currentDay.votingState
-    ? currentDay.votingState.votes[seat.seat] === false
-    : currentDay.voteDraft.noVoters.includes(seat.seat)
 
   const actualCharId = seat.characterId
   const perceivedCharId = seat.userCharacterId || seat.characterId
@@ -96,32 +87,6 @@ function MobileSeatCardInner({ ctx, seat, side = 'left' }: { ctx: StorytellerCon
     return 'divider'
   }
 
-  const handleVoteYesClick = (e: MouseEvent<HTMLElement>) => {
-    e.stopPropagation()
-    if (isCurrentVoter) { handleVoteYes(seat.seat) }
-    else if (currentDay.votingState) { updateCurrentDay((d) => ({ ...d, votingState: d.votingState ? { ...d.votingState, votes: { ...d.votingState.votes, [seat.seat]: true } } : null })) }
-    else { updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, voters: [...d.voteDraft.voters, seat.seat], noVoters: d.voteDraft.noVoters.filter((v) => v !== seat.seat) } })) }
-  }
-
-  const handleVoteNoClick = (e: MouseEvent<HTMLElement>) => {
-    e.stopPropagation()
-    if (isCurrentVoter) { handleVoteNo(seat.seat) }
-    else if (currentDay.votingState) { updateCurrentDay((d) => ({ ...d, votingState: d.votingState ? { ...d.votingState, votes: { ...d.votingState.votes, [seat.seat]: false } } : null })) }
-    else { updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, noVoters: [...d.voteDraft.noVoters, seat.seat], voters: d.voteDraft.voters.filter((v) => v !== seat.seat) } })) }
-  }
-
-  const handleRemoveVote = (e: MouseEvent<HTMLElement>) => {
-    e.stopPropagation()
-    if (currentDay.votingState) {
-      updateCurrentDay((d) => {
-        if (!d.votingState) return d
-        const { [seat.seat]: _removed, ...votes } = d.votingState.votes
-        return { ...d, votingState: { ...d.votingState, votes } }
-      })
-    } else if (cardVotedYes) { updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, voters: d.voteDraft.voters.filter((v) => v !== seat.seat) } })) }
-    else if (cardVotedNo) { updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, noVoters: d.voteDraft.noVoters.filter((v) => v !== seat.seat) } })) }
-  }
-
   const circleAlpha = seat.alive ? 1 : 0.75
   const circleFilter = seat.alive ? 'none' : 'grayscale(85%) brightness(0.85)'
 
@@ -150,6 +115,7 @@ function MobileSeatCardInner({ ctx, seat, side = 'left' }: { ctx: StorytellerCon
             filter: circleFilter, opacity: circleAlpha,
           }}>
             <CharacterCircle
+              label={`#${seat.seat} ${seat.name}`}
               alignment={showSecrets ? seatAlignment(seat) : null}
               size={CIRCLE_SIZE}
               charIcon={charIcon ?? null}
@@ -255,7 +221,6 @@ function MobileSeatCardInner({ ctx, seat, side = 'left' }: { ctx: StorytellerCon
             </Box>
           )}
 
-          {isInNomination && <VoteButtonGroup seat={seat} cardVotedYes={cardVotedYes} cardVotedNo={cardVotedNo} handleVoteYesClick={handleVoteYesClick} handleVoteNoClick={handleVoteNoClick} handleRemoveVote={handleRemoveVote} />}
         </Paper>
       </Box>
 
