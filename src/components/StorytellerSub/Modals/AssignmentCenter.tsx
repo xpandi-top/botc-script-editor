@@ -28,7 +28,7 @@ import { CharSelect, DistRow, TeamDot } from './ModalsNewGameHelpers'
 import { MonoText } from '../../../components/ui'
 import {
   getDealSession, closeDealSession,
-  createSeatClaimSession, subscribeSeatClaims, unclaimSeatByHost, renameSeatByHost, assignCharacterToSeatByHost,
+  createSeatClaimSession, subscribeSeatClaims, unclaimSeatByHost, renameSeatByHost, assignCharacterToSeatByHost, addSeatToSession,
   subscribeMessages, sendMessage, markMessageRead,
   HOST_TOKEN_KEY, ACTIVE_HOST_DEAL_KEY, GAME_DEAL_KEY,
   type DealSession as DealSessionDoc, type DealSeatClaim, type DealMessage,
@@ -89,7 +89,7 @@ const MAX_PLAYERS = 15
 
 export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
   const {
-    language, lastDealSession,
+    language,
     newGamePanel, setNewGamePanel, addPlayerSeat, removeLastPlayerSeat, setShowAssignmentCenter,
     randomAssignCharacters, updateSeatWithLog, updateCurrentDay, currentDay, activeScriptSlug, scriptOptions,
     startNewGame, applyGameChanges,
@@ -114,7 +114,12 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
     return null
   }, [gameId])
 
-  const existingDealSession: DealSession | null = localSeatSession ?? storedGameDeal ?? lastDealSession ?? null
+  // Deliberately NOT falling back to a device-wide "last used session" here —
+  // that used to leak a stale session from a previous, unrelated game into a
+  // freshly started one (same browser, different gameId). storedGameDeal is
+  // properly scoped per game via GAME_DEAL_KEY; that's the only valid source
+  // besides the in-memory session just created this render.
+  const existingDealSession: DealSession | null = localSeatSession ?? storedGameDeal ?? null
 
   // Resolve the active session's full metadata.
   const [resolvedSession, setResolvedSession] = useState<DealSessionDoc | null>(null)
@@ -283,8 +288,17 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
   // directly — same primitives GameActionsBar's own +/- controls use.
   const handleIncPlayers = () => {
     if (playerCount >= MAX_PLAYERS) return
+    const newSeatNumber = playerCount + 1
     if (newGamePanel) setNewGamePanel((prev) => prev ? { ...prev, playerCount: prev.playerCount + 1 } : prev)
     else addPlayerSeat()
+    // A seat-claim session may already be running (created for the old,
+    // smaller player count) — give the new seat a Firestore doc right away
+    // so claiming/assigning it doesn't fail against a doc that never existed.
+    if (existingDealSession && newSeatNumber > seats.length) {
+      addSeatToSession(existingDealSession.sessionId, newSeatNumber).catch((e) => {
+        console.error('Failed to add seat to active session', e)
+      })
+    }
   }
   const handleDecPlayers = () => {
     if (playerCount <= MIN_PLAYERS) return

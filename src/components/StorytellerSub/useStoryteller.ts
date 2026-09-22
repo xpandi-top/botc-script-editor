@@ -13,7 +13,6 @@ import { livingNonTravelers, eligibleVoters, nominationThreshold, exileThreshold
 import { computeYesCount, computeVotePassed, filterNoVoteSeats, remoteResponsesToVoteMap, timeoutDealVoteResponse, canCastRemoteDealVote } from '../../utils/votes'
 import { buildAggregatedEntries, filterAndSortLog } from '../../utils/logFilter'
 import {
-  ACTIVE_HOST_DEAL_KEY,
   GAME_DEAL_KEY,
   advanceDealVote,
   closeDealVote,
@@ -66,15 +65,6 @@ export function useStoryteller(props: StorytellerHelperProps) {
   const [newGamePanel, setNewGamePanel] = useState<NewGameConfig | null>(null)
   const [showNewGamePanel, setShowNewGamePanel] = useState(false)
   const [showAssignmentCenter, setShowAssignmentCenter] = useState(false)
-  const [activeDealSession, setActiveDealSession] = useState<{ sessionId: string; hostToken: string } | null>(null)
-  const [lastDealSession, setLastDealSession] = useState<{ sessionId: string; hostToken: string } | null>(() => {
-    try {
-      const raw = localStorage.getItem(ACTIVE_HOST_DEAL_KEY)
-      return raw ? JSON.parse(raw) : null
-    } catch {
-      return null
-    }
-  })
   const [showSaveBeforeNewGame, setShowSaveBeforeNewGame] = useState(false)
   const [pendingNewGameAfterSave, setPendingNewGameAfterSave] = useState(false)
   const [endGameResult, setEndGameResult] = useState<EndGameResult | null>(initial.endGameResult ?? null)
@@ -190,7 +180,7 @@ export function useStoryteller(props: StorytellerHelperProps) {
       if (raw) return JSON.parse(raw) as { sessionId: string; hostToken: string }
     } catch {}
     return null
-  }, [gameId, activeDealSession, lastDealSession])
+  }, [gameId])
 
   // ── Aggregated log ──
   const aggregatedLog = useMemo((): AggregatedLogEntry[] => {
@@ -490,7 +480,6 @@ export function useStoryteller(props: StorytellerHelperProps) {
     ...audio,
     newGamePanel, setNewGamePanel, showNewGamePanel, setShowNewGamePanel,
     showAssignmentCenter, setShowAssignmentCenter,
-    activeDealSession, setActiveDealSession, lastDealSession, setLastDealSession,
     linkedDealSession, remoteDealVote, remoteDealVoteResponses, remoteDealVoteError, remoteDealVoteStarting, startRemoteDealVote, castRemoteDealVote,
     showSaveBeforeNewGame, setShowSaveBeforeNewGame,
     pendingNewGameAfterSave, setPendingNewGameAfterSave,

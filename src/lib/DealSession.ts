@@ -475,27 +475,55 @@ export async function unclaimSeatByHost(
     claimedAt: deleteField(),
   });
 }
-/** Rename or force-claim a seat from the host dashboard. ST only. */
+/**
+ * Rename or force-claim a seat from the host dashboard. ST only.
+ * Uses setDoc+merge rather than updateDoc: the seat count can grow after the
+ * session was created (Assignment Center's player-count stepper), and a seat
+ * added that way has no Firestore doc yet — updateDoc would reject a write to
+ * a nonexistent doc. merge:true creates it if missing, patches it if not.
+ */
 
 export async function renameSeatByHost(
   sessionId: string,
   seatNumber: number,
   playerName: string
 ): Promise<void> {
-  await updateDoc(seatRef(sessionId, seatNumber), {
+  await setDoc(seatRef(sessionId, seatNumber), {
     claimedByToken: `host-${randomId(24)}`,
     playerName: playerName.trim() || null,
     claimedAt: serverTimestamp(),
-  });
+  }, { merge: true });
 }
-/** Push a character onto an already-claimed seat — the guest's page reveals it live, no draw step. ST only. */
+/**
+ * Push a character onto an already-claimed seat — the guest's page reveals it
+ * live, no draw step. ST only. setDoc+merge for the same reason as
+ * renameSeatByHost above.
+ */
 
 export async function assignCharacterToSeatByHost(
   sessionId: string,
   seatNumber: number,
   characterId: string
 ): Promise<void> {
-  await updateDoc(seatRef(sessionId, seatNumber), { characterId });
+  await setDoc(seatRef(sessionId, seatNumber), { characterId }, { merge: true });
+}
+/** Create a seat doc for a seat number added after the session was already
+ *  started (Assignment Center's player-count stepper can grow the roster
+ *  mid-session). Only call this for a seat number known not to have a doc
+ *  yet — it writes claimedByToken: null unconditionally, which would wipe
+ *  an existing claim if the seat were already claimed. */
+
+export async function addSeatToSession(
+  sessionId: string,
+  seatNumber: number
+): Promise<void> {
+  await setDoc(seatRef(sessionId, seatNumber), {
+    seatNumber,
+    claimedByToken: null,
+    playerName: null,
+    claimedAt: null,
+    characterId: null,
+  }, { merge: true });
 }
 /** Close the session so no more claims can be made (app-layer only for now). */
 
