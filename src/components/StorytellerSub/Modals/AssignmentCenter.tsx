@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Badge, Box, Button, Chip, CircularProgress, Dialog, DialogContent, DialogTitle, IconButton, Tabs, Tab, TextField, Typography, Paper, Tooltip } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import RemoveIcon from '@mui/icons-material/Remove'
+import CasinoIcon from '@mui/icons-material/Casino'
 import StyleIcon from '@mui/icons-material/Style'
 import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 import GroupsIcon from '@mui/icons-material/Groups'
@@ -27,6 +28,7 @@ import {
 } from '../../../lib/DealSession'
 import { buildShareUrl } from '../../../lib/shareUrl'
 import type { StorytellerContext } from '../useStoryteller'
+import type { NewGameConfig } from '../types'
 
 type DealSession = { sessionId: string; hostToken: string }
 type AssignmentTab = 'draw' | 'roster' | 'messages'
@@ -66,6 +68,7 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
   const {
     language, activeDealSession, setActiveDealSession, lastDealSession,
     newGamePanel, setNewGamePanel, addPlayerSeat, removeLastPlayerSeat,
+    randomAssignCharacters, updateSeatWithLog, currentDay, activeScriptSlug,
   } = ctx
   const t = makeT(language)
   const tpl = makeTpl(language)
@@ -109,11 +112,12 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
     try { localStorage.setItem(ACTIVE_HOST_DEAL_KEY, JSON.stringify(session)) } catch {}
   }
 
-  const handleDealCards = async () => {
-    if (characterIds.length < 2) return
+  const handleDealCards = async (explicitCharacterIds?: string[]) => {
+    const ids = explicitCharacterIds ?? characterIds
+    if (ids.length < 2) return
     setDealing(true)
     try {
-      const shuffled = shuffleDealCards(characterIds)
+      const shuffled = shuffleDealCards(ids)
       const session = await createDealSession(shuffled)
       persistSession(session)
       setLocalSeatSession(null)
@@ -123,6 +127,39 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
     } finally {
       setDealing(false)
     }
+  }
+
+  // Random character assignment, usable standalone or chained straight into a
+  // deal — computed synchronously and returned so the combo action below
+  // doesn't have to wait a render cycle for newGamePanel/currentDay to update.
+  const buildRandomAssignment = (): Record<number, string> | null => {
+    if (playerCount < 1) return null
+    const config = newGamePanel ?? ({ playerCount, scriptSlug: activeScriptSlug ?? '', charPool: [] } as unknown as NewGameConfig)
+    return randomAssignCharacters(config)
+  }
+
+  const applyAssignment = (result: Record<number, string>) => {
+    if (newGamePanel) {
+      setNewGamePanel((prev) => prev ? { ...prev, assignments: result } : prev)
+      return
+    }
+    for (const seat of currentDay.seats) {
+      if (!seat.isTraveler && result[seat.seat]) {
+        updateSeatWithLog(seat.seat, (s) => ({ ...s, characterId: result[seat.seat] }))
+      }
+    }
+  }
+
+  const handleRandomAssign = () => {
+    const result = buildRandomAssignment()
+    if (result) applyAssignment(result)
+  }
+
+  const handleRandomAssignAndDeal = async () => {
+    const result = buildRandomAssignment()
+    if (!result) return
+    applyAssignment(result)
+    await handleDealCards(Object.values(result).filter(Boolean))
   }
 
   const handleStartSeatClaim = async () => {
@@ -196,12 +233,37 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
           </Paper>
 
           <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap' }}>
-            <Tooltip title={t('deal_assigned_characters_to_players_new_tab')}>
+            <Tooltip title={t('random_assign_characters_hint')}>
+              <span>
+                <Button
+                  variant="outlined"
+                  onClick={handleRandomAssign}
+                  disabled={playerCount < 1}
+                  startIcon={<CasinoIcon fontSize="small" />}
+                >
+                  {t('random_assign')}
+                </Button>
+              </span>
+            </Tooltip>
+            <Tooltip title={t('random_assign_and_deal_hint')}>
               <span>
                 <Button
                   variant="contained"
                   color="secondary"
-                  onClick={handleDealCards}
+                  onClick={handleRandomAssignAndDeal}
+                  disabled={dealing || playerCount < 2}
+                  startIcon={dealing ? <CircularProgress size={14} color="inherit" /> : <CasinoIcon fontSize="small" />}
+                >
+                  {t('random_assign_and_deal')}
+                </Button>
+              </span>
+            </Tooltip>
+            <Tooltip title={t('deal_assigned_characters_to_players_new_tab')}>
+              <span>
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  onClick={() => handleDealCards()}
                   disabled={dealing || characterIds.length < 2}
                   startIcon={dealing ? <CircularProgress size={14} color="inherit" /> : <StyleIcon fontSize="small" />}
                 >
