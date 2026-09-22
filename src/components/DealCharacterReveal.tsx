@@ -1,5 +1,5 @@
 import { Box, Paper, Typography } from '@mui/material'
-import type { DealCard } from '../lib/firebaseDeal'
+import type { DealCard } from '../lib/DealSession'
 import { getAbilityText, getDisplayName, getIconForCharacter } from '../catalog'
 import { makeTpl } from '../lib/t'
 

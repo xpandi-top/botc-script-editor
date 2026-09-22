@@ -1,5 +1,5 @@
 import type { StorytellerSeat, VoteDraft, VotingState } from '../components/StorytellerSub/types'
-import type { DealVoteResponse, DealVoteResponseRecord, DealVoteSession } from '../lib/firebaseDeal'
+import type { DealVoteResponse, DealVoteResponseRecord, DealVoteSession } from '../lib/DealSession'
 
 // ── Vote tokens (Odyssey multi-vote rules) ───────────────────────────────────
 //

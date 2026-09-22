@@ -22,8 +22,8 @@ import {
   subscribeDealVoteResponses,
   type DealVoteResponse,
   type DealVoteResponseRecord,
-  type DealVoteSession,
-} from '../../lib/firebaseDeal'
+  type DealVoteSession
+} from '../../lib/DealSession'
 import type { PickerMode, NewGameConfig, EndGameResult, LogFilterState, AggregatedLogEntry, DialogState, SkillOverlayState, StorytellerHelperProps, DayState, EventLogEntry, PersistedState } from './types'
 
 export function useStoryteller(props: StorytellerHelperProps) {

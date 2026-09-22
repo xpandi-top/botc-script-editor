@@ -37,8 +37,8 @@ import {
   type DealCard,
   type DealSeatClaim,
   type DealVoteSession,
-  type DealVoteResponseRecord,
-} from '../lib/firebaseDeal'
+  type DealVoteResponseRecord
+} from '../lib/DealSession'
 import { useT } from '../context/I18nContext'
 import { makeTpl } from '../lib/t'
 import { formatSeatLabel, getCurrentDealVoter, summarizeDealVote } from '../utils/votes'

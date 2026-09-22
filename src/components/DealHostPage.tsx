@@ -35,8 +35,8 @@ import {
   markCardUnclaimedByHost,
   closeDealSession,
   type DealSession,
-  type DealCard,
-} from '../lib/firebaseDeal'
+  type DealCard
+} from '../lib/DealSession'
 import { getDisplayName, getIconForCharacter } from '../catalog'
 import type { NewGameConfig } from './StorytellerSub/types'
 import { useT } from '../context/I18nContext'

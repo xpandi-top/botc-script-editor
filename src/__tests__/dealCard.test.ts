@@ -21,7 +21,7 @@ import {
   hasSeenDealCharacter,
   markDealCharacterSeen,
   type DealCard,
-} from '../lib/firebaseDeal'
+} from '../lib/DealSession'
 
 // ── shuffleDealCards ──────────────────────────────────────────────────────────
 

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { DealGuestPage } from './DealGuestPage'
 import { DealHostPage } from './DealHostPage'
-import { HOST_TOKEN_KEY } from '../lib/firebaseDeal'
+import { HOST_TOKEN_KEY } from '../lib/DealSession'
 import { I18nProvider } from '../context/I18nContext'
 import { storageSync } from '../lib/storage'
 import type { Language } from '../types'

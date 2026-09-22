@@ -6,7 +6,7 @@ import GroupsIcon from '@mui/icons-material/Groups'
 import ChatIcon from '@mui/icons-material/Chat'
 import { getDisplayName } from '../../../catalog'
 import { makeT, makeTpl } from '../../../lib/t'
-import { createDealSession, shuffleDealCards, HOST_TOKEN_KEY, ACTIVE_HOST_DEAL_KEY, GAME_DEAL_KEY } from '../../../lib/firebaseDeal'
+import { createDealSession, shuffleDealCards, HOST_TOKEN_KEY, ACTIVE_HOST_DEAL_KEY, GAME_DEAL_KEY } from '../../../lib/DealSession'
 import type { StorytellerContext } from '../useStoryteller'
 
 type DealSession = { sessionId: string; hostToken: string }

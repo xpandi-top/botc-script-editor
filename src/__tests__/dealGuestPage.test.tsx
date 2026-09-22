@@ -14,7 +14,7 @@ import { DealGuestPage } from '../components/DealGuestPage'
 
 let claimedCardOnLoad: any = null
 
-vi.mock('../lib/firebaseDeal', () => ({
+vi.mock('../lib/DealSession', () => ({
   getDealSession: vi.fn(async () => ({
     id: 'sess1', createdAt: {}, expiresAt: {}, hostToken: 'h', status: 'open', cardCount: 5,
   })),

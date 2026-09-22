@@ -78,211 +78,183 @@
  * TTL: lazy-delete on read — Spark plan compatible, no scheduled functions.
  */
 
-import {
-  getFirestore,
-  doc,
-  getDoc,
-  updateDoc,
-  setDoc,
-  writeBatch,
-  collection,
-  onSnapshot,
-  deleteDoc,
-  deleteField,
-  Timestamp,
-  serverTimestamp,
-  type Unsubscribe,
-} from 'firebase/firestore'
-import { getFirebaseApp } from './firebase'
+import { Timestamp, getFirestore, doc, collection, writeBatch, getDoc, deleteDoc, type Unsubscribe, onSnapshot, setDoc, serverTimestamp, updateDoc, deleteField } from 'firebase/firestore';
+import { getFirebaseApp } from './firebase';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 export type DealSession = {
-  id: string
-  createdAt: Timestamp
-  expiresAt: Timestamp
-  hostToken: string
-  status: 'open' | 'closed'
-  cardCount: number
-  totalSeats?: number   // present when created via createSeatClaimSession
-}
+  id: string;
+  createdAt: Timestamp;
+  expiresAt: Timestamp;
+  hostToken: string;
+  status: 'open' | 'closed';
+  cardCount: number;
+  totalSeats?: number; // present when created via createSeatClaimSession
+};
 
 export type DealCard = {
-  position: number          // 0-indexed slot
-  characterId: string       // visible only to claimant (enforced app-layer)
+  position: number; // 0-indexed slot
+  characterId: string; // visible only to claimant (enforced app-layer)
+
   // Fields below are undefined when absent (deleteField() removes key from Firestore snapshot)
-  claimedByToken?: string | null
-  claimedByName?: string | null
-  claimedBySeat?: number | null  // guest-suggested seat; ST can override
-  claimedAt?: Timestamp | null
-  assignedSeat?: number | null   // ST-confirmed seat (overrides claimedBySeat)
-  assignedName?: string | null
-}
+  claimedByToken?: string | null;
+  claimedByName?: string | null;
+  claimedBySeat?: number | null; // guest-suggested seat; ST can override
+  claimedAt?: Timestamp | null;
+  assignedSeat?: number | null; // ST-confirmed seat (overrides claimedBySeat)
+  assignedName?: string | null;
+};
 
 export type DealSeatClaim = {
-  seatNumber: number         // 1-indexed seat
-  claimedByToken?: string | null
-  playerName?: string | null
-  claimedAt?: Timestamp | null
-}
+  seatNumber: number; // 1-indexed seat
+  claimedByToken?: string | null;
+  playerName?: string | null;
+  claimedAt?: Timestamp | null;
+};
 
-export type DealVoteStatus = 'active' | 'closed' | 'cancelled'
-export type DealVoteResponse = 'agree' | 'disagree'
+export type DealVoteStatus = 'active' | 'closed' | 'cancelled';
+export type DealVoteResponse = 'agree' | 'disagree';
 
 export type DealVoteSession = {
-  voteId: string
-  actorSeat: number
-  targetSeat: number
-  requiredVotes: number
-  votingOrder: number[]
-  currentIndex: number
-  perPlayerSeconds: number
-  noVoteSeats: number[]
-  seatLabels?: Record<string, string>
-  status: DealVoteStatus
-  startedAt: Timestamp
-  deadlineAt: Timestamp
-  gameId?: string | null
-  dayId?: string | null
-}
+  voteId: string;
+  actorSeat: number;
+  targetSeat: number;
+  requiredVotes: number;
+  votingOrder: number[];
+  currentIndex: number;
+  perPlayerSeconds: number;
+  noVoteSeats: number[];
+  seatLabels?: Record<string, string>;
+  status: DealVoteStatus;
+  startedAt: Timestamp;
+  deadlineAt: Timestamp;
+  gameId?: string | null;
+  dayId?: string | null;
+};
 
 export type DealVoteResponseRecord = {
-  seat: number
-  response: DealVoteResponse
-  guestToken?: string | null
-  submittedAt?: Timestamp | null
-}
-
+  seat: number;
+  response: DealVoteResponse;
+  guestToken?: string | null;
+  submittedAt?: Timestamp | null;
+};
 // ── Constants ─────────────────────────────────────────────────────────────────
+const COLLECTION = 'dealSessions';
+const TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
-const COLLECTION = 'dealSessions'
-const TTL_MS     = 24 * 60 * 60 * 1000   // 24 hours
-const ID_LEN     = 6
-const CHARS      = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789'
-
+const ID_LEN = 6;
+const CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
 // localStorage key where ST's hostToken is stored, keyed by sessionId
-export const HOST_TOKEN_KEY = (id: string) => `botc-deal-host-${id}`
 
+export const HOST_TOKEN_KEY = (id: string) => `botc-deal-host-${id}`;
 // localStorage key for the ST's most recently created host dashboard session
-export const ACTIVE_HOST_DEAL_KEY = 'botc-deal-active-host'
 
+export const ACTIVE_HOST_DEAL_KEY = 'botc-deal-active-host';
 // localStorage key for deal session linked to a specific game instance
-export const GAME_DEAL_KEY = (gameId: string) => `botc-deal-game-${gameId}`
 
+export const GAME_DEAL_KEY = (gameId: string) => `botc-deal-game-${gameId}`;
 // localStorage key for the guest's browser token
-export const GUEST_TOKEN_KEY = 'botc-deal-guest-token'
 
+export const GUEST_TOKEN_KEY = 'botc-deal-guest-token';
 // localStorage key marking that this browser/device has already seen its dealt
 // character for a session. The guest link can then be reused for votes/tools
 // without becoming a persistent character lookup page.
-export const CHARACTER_SEEN_KEY = (id: string) => `botc-deal-character-seen-${id}`
 
+export const CHARACTER_SEEN_KEY = (id: string) => `botc-deal-character-seen-${id}`;
 // ── Helpers ───────────────────────────────────────────────────────────────────
-
 function randomId(len = ID_LEN): string {
-  return Array.from({ length: len }, () => CHARS[Math.floor(Math.random() * CHARS.length)]).join('')
+  return Array.from({ length: len }, () => CHARS[Math.floor(Math.random() * CHARS.length)]).join('');
 }
-
 function db() {
-  return getFirestore(getFirebaseApp())
+  return getFirestore(getFirebaseApp());
 }
-
 function sessionRef(sessionId: string) {
-  return doc(db(), COLLECTION, sessionId)
+  return doc(db(), COLLECTION, sessionId);
 }
-
 function cardsRef(sessionId: string) {
-  return collection(db(), COLLECTION, sessionId, 'cards')
+  return collection(db(), COLLECTION, sessionId, 'cards');
 }
-
 function cardRef(sessionId: string, position: number) {
-  return doc(db(), COLLECTION, sessionId, 'cards', String(position))
+  return doc(db(), COLLECTION, sessionId, 'cards', String(position));
 }
-
 function seatsRef(sessionId: string) {
-  return collection(db(), COLLECTION, sessionId, 'seats')
+  return collection(db(), COLLECTION, sessionId, 'seats');
 }
-
 function seatRef(sessionId: string, seatNumber: number) {
-  return doc(db(), COLLECTION, sessionId, 'seats', String(seatNumber))
+  return doc(db(), COLLECTION, sessionId, 'seats', String(seatNumber));
 }
-
 function votesRef(sessionId: string) {
-  return collection(db(), COLLECTION, sessionId, 'votes')
+  return collection(db(), COLLECTION, sessionId, 'votes');
 }
-
 function voteRef(sessionId: string, voteId: string) {
-  return doc(db(), COLLECTION, sessionId, 'votes', voteId)
+  return doc(db(), COLLECTION, sessionId, 'votes', voteId);
 }
-
 function responsesRef(sessionId: string, voteId: string) {
-  return collection(db(), COLLECTION, sessionId, 'votes', voteId, 'responses')
+  return collection(db(), COLLECTION, sessionId, 'votes', voteId, 'responses');
 }
-
 function responseRef(sessionId: string, voteId: string, seat: number) {
-  return doc(db(), COLLECTION, sessionId, 'votes', voteId, 'responses', String(seat))
+  return doc(db(), COLLECTION, sessionId, 'votes', voteId, 'responses', String(seat));
 }
-
 /** Get or create the guest's browser token (persisted in localStorage, shared
  *  across tabs — so re-opening the same link in a new tab restores the same
  *  claimed card instead of letting the browser claim a second seat). */
+
 export function getGuestToken(): string {
   try {
-    const existing = localStorage.getItem(GUEST_TOKEN_KEY)
-    if (existing) return existing
-    const fresh = randomId(24)
-    localStorage.setItem(GUEST_TOKEN_KEY, fresh)
-    return fresh
+    const existing = localStorage.getItem(GUEST_TOKEN_KEY);
+    if (existing) return existing;
+    const fresh = randomId(24);
+    localStorage.setItem(GUEST_TOKEN_KEY, fresh);
+    return fresh;
   } catch {
-    return randomId(24)
+    return randomId(24);
   }
 }
 
 export function hasSeenDealCharacter(sessionId: string): boolean {
   try {
-    return localStorage.getItem(CHARACTER_SEEN_KEY(sessionId)) === '1'
+    return localStorage.getItem(CHARACTER_SEEN_KEY(sessionId)) === '1';
   } catch {
-    return false
+    return false;
   }
 }
 
 export function markDealCharacterSeen(sessionId: string): void {
   try {
-    localStorage.setItem(CHARACTER_SEEN_KEY(sessionId), '1')
+    localStorage.setItem(CHARACTER_SEEN_KEY(sessionId), '1');
   } catch {
     // Privacy marker is best-effort; if storage is unavailable the restored
     // claim path still hides the character.
   }
 }
-
 /** Check if expiry has passed; lazily delete and return true if expired. */
 function isExpired(expiresAt: Timestamp): boolean {
-  return expiresAt.toMillis() < Date.now()
+  return expiresAt.toMillis() < Date.now();
 }
-
 // ── Session CRUD ──────────────────────────────────────────────────────────────
-
 /**
  * Create a new deal session with shuffled cards.
  * Returns { sessionId, hostToken } — ST should persist hostToken in localStorage.
  */
-export async function createDealSession(
-  characterIds: string[],  // already shuffled by caller
-): Promise<{ sessionId: string; hostToken: string }> {
-  const sessionId = randomId()
-  const hostToken = randomId(32)
-  const expiresAt = Timestamp.fromDate(new Date(Date.now() + TTL_MS))
 
-  const batch = writeBatch(db())
+export async function createDealSession(
+  characterIds: string[]
+): Promise<{ sessionId: string; hostToken: string; }> {
+  const sessionId = randomId();
+  const hostToken = randomId(32);
+  const expiresAt = Timestamp.fromDate(new Date(Date.now() + TTL_MS));
+
+  const batch = writeBatch(db());
 
   // Session document
   batch.set(sessionRef(sessionId), {
-    createdAt:  Timestamp.now(),
+    createdAt: Timestamp.now(),
     expiresAt,
     hostToken,
-    status:    'open',
+    status: 'open',
     cardCount: characterIds.length,
-  })
+  });
 
   // One card document per character, position = index
   characterIds.forEach((characterId, position) => {
@@ -290,158 +262,156 @@ export async function createDealSession(
       position,
       characterId,
       claimedByToken: null,
-      claimedByName:  null,
-      claimedBySeat:  null,
-      claimedAt:      null,
-      assignedSeat:   null,
-      assignedName:   null,
-    })
-  })
+      claimedByName: null,
+      claimedBySeat: null,
+      claimedAt: null,
+      assignedSeat: null,
+      assignedName: null,
+    });
+  });
 
-  await batch.commit()
-  return { sessionId, hostToken }
+  await batch.commit();
+  return { sessionId, hostToken };
 }
-
 /**
  * Create a new session in seat self-claim mode: guests pick an open seat
  * number and enter their name, blind — no characters dealt yet. The ST
  * deals cards to the claimed seats afterward via a separate createDealSession
  * call (or assigns manually).
  */
-export async function createSeatClaimSession(
-  totalSeats: number,
-): Promise<{ sessionId: string; hostToken: string }> {
-  const sessionId = randomId()
-  const hostToken = randomId(32)
-  const expiresAt = Timestamp.fromDate(new Date(Date.now() + TTL_MS))
 
-  const batch = writeBatch(db())
+export async function createSeatClaimSession(
+  totalSeats: number
+): Promise<{ sessionId: string; hostToken: string; }> {
+  const sessionId = randomId();
+  const hostToken = randomId(32);
+  const expiresAt = Timestamp.fromDate(new Date(Date.now() + TTL_MS));
+
+  const batch = writeBatch(db());
 
   batch.set(sessionRef(sessionId), {
-    createdAt:  Timestamp.now(),
+    createdAt: Timestamp.now(),
     expiresAt,
     hostToken,
-    status:     'open',
-    cardCount:  0,
+    status: 'open',
+    cardCount: 0,
     totalSeats,
-  })
+  });
 
   for (let seatNumber = 1; seatNumber <= totalSeats; seatNumber++) {
     batch.set(seatRef(sessionId, seatNumber), {
       seatNumber,
       claimedByToken: null,
-      playerName:     null,
-      claimedAt:      null,
-    })
+      playerName: null,
+      claimedAt: null,
+    });
   }
 
-  await batch.commit()
-  return { sessionId, hostToken }
+  await batch.commit();
+  return { sessionId, hostToken };
 }
-
 /** Fetch session metadata. Returns null if missing or expired. */
+
 export async function getDealSession(sessionId: string): Promise<DealSession | null> {
-  const snap = await getDoc(sessionRef(sessionId))
-  if (!snap.exists()) return null
-  const data = snap.data() as Omit<DealSession, 'id'>
+  const snap = await getDoc(sessionRef(sessionId));
+  if (!snap.exists()) return null;
+  const data = snap.data() as Omit<DealSession, 'id'>;
   if (isExpired(data.expiresAt)) {
     // Lazy cleanup — fire-and-forget
-    deleteDoc(sessionRef(sessionId)).catch(() => {})
-    return null
+    deleteDoc(sessionRef(sessionId)).catch(() => { });
+    return null;
   }
-  return { id: sessionId, ...data }
+  return { id: sessionId, ...data };
 }
-
 /** Fetch all cards for a session (returns characterId for all — host view). */
+
 export async function getDealCards(sessionId: string): Promise<DealCard[]> {
-  const { getDocs } = await import('firebase/firestore')
-  const snap = await getDocs(cardsRef(sessionId))
+  const { getDocs } = await import('firebase/firestore');
+  const snap = await getDocs(cardsRef(sessionId));
   return snap.docs
     .map(d => d.data() as DealCard)
-    .sort((a, b) => a.position - b.position)
+    .sort((a, b) => a.position - b.position);
 }
-
 /**
  * Fetch all cards for the guest grid view — characterId is OMITTED for all
  * cards so it is never present in client state before a successful claim.
  * Only the claimed card (returned by claimCard / findClaimedCard) contains
  * characterId; that data path verifies ownership first.
  */
+
 export async function getGuestCards(sessionId: string): Promise<Omit<DealCard, 'characterId'>[]> {
-  const { getDocs } = await import('firebase/firestore')
-  const snap = await getDocs(cardsRef(sessionId))
+  const { getDocs } = await import('firebase/firestore');
+  const snap = await getDocs(cardsRef(sessionId));
   return snap.docs
     .map(d => {
-      const { characterId: _stripped, ...rest } = d.data() as DealCard
-      return rest
+      const { characterId: _stripped, ...rest } = d.data() as DealCard;
+      return rest;
     })
-    .sort((a, b) => a.position - b.position)
+    .sort((a, b) => a.position - b.position);
 }
-
 // ── Real-time subscription ────────────────────────────────────────────────────
-
 /**
  * Subscribe to live card updates.
  * Returns an unsubscribe function — call in useEffect cleanup.
  */
+
 export function subscribeCards(
   sessionId: string,
-  onChange: (cards: DealCard[]) => void,
+  onChange: (cards: DealCard[]) => void
 ): Unsubscribe {
   return onSnapshot(cardsRef(sessionId), (snap) => {
     const cards = snap.docs
       .map(d => d.data() as DealCard)
-      .sort((a, b) => a.position - b.position)
-    onChange(cards)
-  })
+      .sort((a, b) => a.position - b.position);
+    onChange(cards);
+  });
 }
-
 /** Fetch all seat claims for a session (host + one-off guest lookups). */
+
 export async function getSeatClaims(sessionId: string): Promise<DealSeatClaim[]> {
-  const { getDocs } = await import('firebase/firestore')
-  const snap = await getDocs(seatsRef(sessionId))
+  const { getDocs } = await import('firebase/firestore');
+  const snap = await getDocs(seatsRef(sessionId));
   return snap.docs
     .map(d => d.data() as DealSeatClaim)
-    .sort((a, b) => a.seatNumber - b.seatNumber)
+    .sort((a, b) => a.seatNumber - b.seatNumber);
 }
-
 /**
  * Subscribe to live seat-claim updates.
  * Returns an unsubscribe function — call in useEffect cleanup.
  */
+
 export function subscribeSeatClaims(
   sessionId: string,
-  onChange: (seats: DealSeatClaim[]) => void,
+  onChange: (seats: DealSeatClaim[]) => void
 ): Unsubscribe {
   return onSnapshot(seatsRef(sessionId), (snap) => {
     const seats = snap.docs
       .map(d => d.data() as DealSeatClaim)
-      .sort((a, b) => a.seatNumber - b.seatNumber)
-    onChange(seats)
-  })
+      .sort((a, b) => a.seatNumber - b.seatNumber);
+    onChange(seats);
+  });
 }
-
 // ── Experimental linked vote sessions ────────────────────────────────────────
 
 export async function createDealVoteSession(
   sessionId: string,
   input: {
-    actorSeat: number
-    targetSeat: number
-    requiredVotes: number
-    votingOrder: number[]
-    noVoteSeats?: number[]
-    seatLabels?: Record<string, string>
-    perPlayerSeconds?: number
-    gameId?: string | null
-    dayId?: string | null
-  },
+    actorSeat: number;
+    targetSeat: number;
+    requiredVotes: number;
+    votingOrder: number[];
+    noVoteSeats?: number[];
+    seatLabels?: Record<string, string>;
+    perPlayerSeconds?: number;
+    gameId?: string | null;
+    dayId?: string | null;
+  }
 ): Promise<DealVoteSession> {
-  const voteDoc = doc(votesRef(sessionId))
-  const voteId = voteDoc.id
-  const perPlayerSeconds = input.perPlayerSeconds ?? 5
-  const now = Timestamp.now()
-  const deadlineAt = Timestamp.fromMillis(now.toMillis() + perPlayerSeconds * 1000)
+  const voteDoc = doc(votesRef(sessionId));
+  const voteId = voteDoc.id;
+  const perPlayerSeconds = input.perPlayerSeconds ?? 5;
+  const now = Timestamp.now();
+  const deadlineAt = Timestamp.fromMillis(now.toMillis() + perPlayerSeconds * 1000);
   const payload: DealVoteSession = {
     voteId,
     actorSeat: input.actorSeat,
@@ -457,14 +427,14 @@ export async function createDealVoteSession(
     deadlineAt,
     gameId: input.gameId ?? null,
     dayId: input.dayId ?? null,
-  }
-  await setDoc(voteDoc, payload)
-  return payload
+  };
+  await setDoc(voteDoc, payload);
+  return payload;
 }
 
 export function subscribeActiveDealVote(
   sessionId: string,
-  onChange: (vote: DealVoteSession | null) => void,
+  onChange: (vote: DealVoteSession | null) => void
 ): Unsubscribe {
   // Filter client-side to avoid requiring a composite Firestore index for this
   // experimental layer. Vote documents are tiny and short-lived per deal session.
@@ -472,22 +442,22 @@ export function subscribeActiveDealVote(
     const active = snap.docs
       .map(d => d.data() as DealVoteSession)
       .filter(v => v.status === 'active')
-      .sort((a, b) => b.startedAt.toMillis() - a.startedAt.toMillis())[0] ?? null
-    onChange(active)
-  })
+      .sort((a, b) => b.startedAt.toMillis() - a.startedAt.toMillis())[0] ?? null;
+    onChange(active);
+  });
 }
 
 export function subscribeDealVoteResponses(
   sessionId: string,
   voteId: string,
-  onChange: (responses: DealVoteResponseRecord[]) => void,
+  onChange: (responses: DealVoteResponseRecord[]) => void
 ): Unsubscribe {
   return onSnapshot(responsesRef(sessionId, voteId), (snap) => {
     onChange(snap.docs
       .map(d => d.data() as DealVoteResponseRecord)
       .sort((a, b) => a.seat - b.seat)
-    )
-  })
+    );
+  });
 }
 
 export async function submitDealVoteResponse(
@@ -495,56 +465,54 @@ export async function submitDealVoteResponse(
   voteId: string,
   seat: number,
   guestToken: string,
-  response: DealVoteResponse,
+  response: DealVoteResponse
 ): Promise<void> {
   await setDoc(responseRef(sessionId, voteId, seat), {
     seat,
     response,
     guestToken,
     submittedAt: serverTimestamp(),
-  })
+  });
 }
 
 export async function advanceDealVote(
   sessionId: string,
   vote: DealVoteSession,
-  fallbackResponse?: { seat: number; response: DealVoteResponse },
+  fallbackResponse?: { seat: number; response: DealVoteResponse; }
 ): Promise<void> {
-  const batch = writeBatch(db())
+  const batch = writeBatch(db());
   if (fallbackResponse) {
     batch.set(responseRef(sessionId, vote.voteId, fallbackResponse.seat), {
       seat: fallbackResponse.seat,
       response: fallbackResponse.response,
       guestToken: null,
       submittedAt: serverTimestamp(),
-    }, { merge: true })
+    }, { merge: true });
   }
-  const nextIndex = vote.currentIndex + 1
+  const nextIndex = vote.currentIndex + 1;
   if (nextIndex >= vote.votingOrder.length) {
     batch.update(voteRef(sessionId, vote.voteId), {
       currentIndex: nextIndex,
       status: 'closed',
       deadlineAt: Timestamp.now(),
-    })
+    });
   } else {
     batch.update(voteRef(sessionId, vote.voteId), {
       currentIndex: nextIndex,
       deadlineAt: Timestamp.fromMillis(Date.now() + vote.perPlayerSeconds * 1000),
-    })
+    });
   }
-  await batch.commit()
+  await batch.commit();
 }
 
 export async function closeDealVote(
   sessionId: string,
   voteId: string,
-  status: DealVoteStatus = 'closed',
+  status: DealVoteStatus = 'closed'
 ): Promise<void> {
-  await updateDoc(voteRef(sessionId, voteId), { status, deadlineAt: Timestamp.now() })
+  await updateDoc(voteRef(sessionId, voteId), { status, deadlineAt: Timestamp.now() });
 }
-
 // ── Guest actions ─────────────────────────────────────────────────────────────
-
 /**
  * Atomically claim a card.
  * Firestore rule rejects the write if claimedByToken is already set.
@@ -554,55 +522,55 @@ export async function closeDealVote(
  * but both proceed to read.
  * Throws if already claimed by another user.
  */
+
 export async function claimCard(
   sessionId: string,
   position: number,
   guestToken: string,
   displayName: string,
-  claimedSeat?: number | null,
+  claimedSeat?: number | null
 ): Promise<DealCard> {
-  const ref = cardRef(sessionId, position)
+  const ref = cardRef(sessionId, position);
   const claimPayload: Record<string, unknown> = {
     claimedByToken: guestToken,
-    claimedByName:  displayName.trim() || null,
-    claimedAt:      serverTimestamp(),
-  }
-  if (claimedSeat != null) claimPayload.claimedBySeat = claimedSeat
+    claimedByName: displayName.trim() || null,
+    claimedAt: serverTimestamp(),
+  };
+  if (claimedSeat != null) claimPayload.claimedBySeat = claimedSeat;
   try {
-    await updateDoc(ref, claimPayload)
+    await updateDoc(ref, claimPayload);
   } catch (e) {
     // Retry without optional seat field in case Firestore rule affectedKeys check
     // rejects a payload that includes claimedBySeat but the rule only lists 4 fields.
-    if (claimedSeat == null) throw e
+    if (claimedSeat == null) throw e;
     await updateDoc(ref, {
       claimedByToken: guestToken,
-      claimedByName:  displayName.trim() || null,
-      claimedAt:      serverTimestamp(),
-    })
+      claimedByName: displayName.trim() || null,
+      claimedAt: serverTimestamp(),
+    });
   }
   // Verify ownership — read back and confirm this token won the race.
   // Without this check, a second user whose Firestore write was mis-allowed
   // (e.g. via the overly-permissive Rule 3) could still see the characterId.
-  const snap = await getDoc(ref)
-  const data = snap.data() as DealCard
+  const snap = await getDoc(ref);
+  const data = snap.data() as DealCard;
   if (data.claimedByToken !== guestToken) {
-    throw new Error('card_already_claimed')
+    throw new Error('card_already_claimed');
   }
-  return data
+  return data;
 }
-
 /**
  * Find the card already claimed by this guest token, if any.
  * Used to restore state when guest re-opens the link.
  */
+
 export async function findClaimedCard(
   sessionId: string,
-  guestToken: string,
+  guestToken: string
 ): Promise<DealCard | null> {
-  const cards = await getDealCards(sessionId)
-  return cards.find(c => c.claimedByToken === guestToken) ?? null
+  const cards = await getDealCards(sessionId);
+  return cards.find(c => c.claimedByToken === guestToken) ?? null;
 }
-
 /**
  * Atomically claim a seat.
  * Firestore rule rejects the write if claimedByToken is already set.
@@ -610,59 +578,59 @@ export async function findClaimedCard(
  * claimCard) — guards against two guests tapping the same seat at once.
  * Throws 'seat_already_claimed' if another guest won the race.
  */
+
 export async function claimSeat(
   sessionId: string,
   seatNumber: number,
   guestToken: string,
-  playerName: string,
+  playerName: string
 ): Promise<DealSeatClaim> {
-  const ref = seatRef(sessionId, seatNumber)
+  const ref = seatRef(sessionId, seatNumber);
   await updateDoc(ref, {
     claimedByToken: guestToken,
-    playerName:     playerName.trim() || null,
-    claimedAt:      serverTimestamp(),
-  })
-  const snap = await getDoc(ref)
-  const data = snap.data() as DealSeatClaim
+    playerName: playerName.trim() || null,
+    claimedAt: serverTimestamp(),
+  });
+  const snap = await getDoc(ref);
+  const data = snap.data() as DealSeatClaim;
   if (data.claimedByToken !== guestToken) {
-    throw new Error('seat_already_claimed')
+    throw new Error('seat_already_claimed');
   }
-  return data
+  return data;
 }
-
 /**
  * Find the seat already claimed by this guest token, if any.
  * Used to restore state when guest re-opens the link.
  */
+
 export async function findClaimedSeat(
   sessionId: string,
-  guestToken: string,
+  guestToken: string
 ): Promise<DealSeatClaim | null> {
-  const seats = await getSeatClaims(sessionId)
-  return seats.find(s => s.claimedByToken === guestToken) ?? null
+  const seats = await getSeatClaims(sessionId);
+  return seats.find(s => s.claimedByToken === guestToken) ?? null;
 }
-
 // ── Host actions ──────────────────────────────────────────────────────────────
-
 /** Assign a seat number and player name to a claimed card. ST only. */
+
 export async function updateCardAssignment(
   sessionId: string,
   position: number,
   seat: number | null,
-  name: string,
+  name: string
 ): Promise<void> {
   await updateDoc(cardRef(sessionId, position), {
     assignedSeat: seat,
     assignedName: name.trim() || null,
-  })
+  });
 }
-
 /** Mark a card claimed from the host dashboard. ST only. */
+
 export async function markCardClaimedByHost(
   sessionId: string,
   position: number,
   name: string,
-  seat: number | null,
+  seat: number | null
 ): Promise<void> {
   await updateDoc(cardRef(sessionId, position), {
     claimedByToken: `host-${randomId(24)}`,
@@ -671,13 +639,13 @@ export async function markCardClaimedByHost(
     claimedAt: serverTimestamp(),
     assignedSeat: seat,
     assignedName: name.trim() || null,
-  })
+  });
 }
-
 /** Mark a card unclaimed and clear any ST seat/name assignment. ST only. */
+
 export async function markCardUnclaimedByHost(
   sessionId: string,
-  position: number,
+  position: number
 ): Promise<void> {
   // Use deleteField() for token/timestamp fields so Firestore's affectedKeys()
   // correctly reflects the change (null→null wouldn't appear in the diff).
@@ -688,52 +656,50 @@ export async function markCardUnclaimedByHost(
     claimedAt: deleteField(),
     assignedSeat: deleteField(),
     assignedName: deleteField(),
-  })
+  });
 }
-
 /** Clear a guest's seat claim, freeing it up again. ST only (host token checked app-layer). */
+
 export async function unclaimSeatByHost(
   sessionId: string,
-  seatNumber: number,
+  seatNumber: number
 ): Promise<void> {
   await updateDoc(seatRef(sessionId, seatNumber), {
     claimedByToken: deleteField(),
     playerName: deleteField(),
     claimedAt: deleteField(),
-  })
+  });
 }
-
 /** Rename or force-claim a seat from the host dashboard. ST only. */
+
 export async function renameSeatByHost(
   sessionId: string,
   seatNumber: number,
-  playerName: string,
+  playerName: string
 ): Promise<void> {
   await updateDoc(seatRef(sessionId, seatNumber), {
     claimedByToken: `host-${randomId(24)}`,
     playerName: playerName.trim() || null,
     claimedAt: serverTimestamp(),
-  })
+  });
 }
-
 /** Close the session so no more claims can be made (app-layer only for now). */
+
 export async function closeDealSession(
   sessionId: string,
-  hostToken: string,
+  hostToken: string
 ): Promise<void> {
-  const session = await getDealSession(sessionId)
-  if (!session) throw new Error('Session not found')
-  if (session.hostToken !== hostToken) throw new Error('Invalid host token')
-  await updateDoc(sessionRef(sessionId), { status: 'closed' })
+  const session = await getDealSession(sessionId);
+  if (!session) throw new Error('Session not found');
+  if (session.hostToken !== hostToken) throw new Error('Invalid host token');
+  await updateDoc(sessionRef(sessionId), { status: 'closed' });
 }
-
 // ── Shuffle utility ───────────────────────────────────────────────────────────
 
 export function shuffleDealCards<T>(arr: T[]): T[] {
-  const result = [...arr]
+  const result = [...arr];
   for (let i = result.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[result[i], result[j]] = [result[j], result[i]]
+    const j = Math.floor(Math.random() * (i + 1));[result[i], result[j]] = [result[j], result[i]];
   }
-  return result
+  return result;
 }

@@ -10,7 +10,7 @@
  *   - exportGameJson download filename uses autoGameName
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { GAME_DEAL_KEY, ACTIVE_HOST_DEAL_KEY } from '../lib/firebaseDeal'
+import { GAME_DEAL_KEY, ACTIVE_HOST_DEAL_KEY } from '../lib/DealSession'
 import { autoGameName, buildGameExport } from '../hooks/useGameExport'
 import type { DayState } from '../components/StorytellerSub/types'
 
