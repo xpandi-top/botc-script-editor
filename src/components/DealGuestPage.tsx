@@ -29,8 +29,13 @@ import {
   subscribeActiveDealVote,
   subscribeDealVoteResponses,
   submitDealVoteResponse,
+  getSeatClaims,
+  subscribeSeatClaims,
+  findClaimedSeat,
+  claimSeat,
   type DealSession,
   type DealCard,
+  type DealSeatClaim,
   type DealVoteSession,
   type DealVoteResponseRecord,
 } from '../lib/firebaseDeal'
@@ -55,6 +60,8 @@ type PageState =
   | { kind: 'name'; session: DealSession; cards: GuestCard[] }
   | { kind: 'grid'; session: DealSession; cards: GuestCard[]; claiming: number | null; message?: string }
   | { kind: 'claimed'; card: DealCard; revealCharacter: boolean }
+  | { kind: 'seatGrid'; session: DealSession; seats: DealSeatClaim[]; claiming: number | null; message?: string }
+  | { kind: 'seatClaimed'; seat: DealSeatClaim }
 
 export function DealGuestPage({ sessionId, language }: Props) {
   const [state, setState] = useState<PageState>({ kind: 'loading' })
@@ -69,6 +76,9 @@ export function DealGuestPage({ sessionId, language }: Props) {
   // Lets the player re-reveal their own card after the one-time auto-reveal
   // hides it (e.g. after a page refresh) — same browser/guest token only.
   const [manualReveal, setManualReveal] = useState(false)
+  const [namingSeat, setNamingSeat] = useState<number | null>(null)
+  const [seatNameDraft, setSeatNameDraft] = useState('')
+  const [seatNameSubmitted, setSeatNameSubmitted] = useState(false)
   const { t } = useT()
   const tpl = makeTpl(language)
 
@@ -79,8 +89,21 @@ export function DealGuestPage({ sessionId, language }: Props) {
       if (!session) { setState({ kind: 'expired' }); return }
       if (session.status === 'closed') { setState({ kind: 'closed' }); return }
 
-      const cards = await getGuestCards(sessionId)
       const guestToken = getGuestToken()
+
+      // Seat self-claim mode — session created via createSeatClaimSession.
+      if (session.totalSeats != null) {
+        const alreadyClaimedSeat = await findClaimedSeat(sessionId, guestToken)
+        if (alreadyClaimedSeat) {
+          setState({ kind: 'seatClaimed', seat: alreadyClaimedSeat })
+          return
+        }
+        const seats = await getSeatClaims(sessionId)
+        setState({ kind: 'seatGrid', session, seats, claiming: null })
+        return
+      }
+
+      const cards = await getGuestCards(sessionId)
       const alreadyClaimed = await findClaimedCard(sessionId, guestToken)
 
       if (alreadyClaimed) {
@@ -95,6 +118,14 @@ export function DealGuestPage({ sessionId, language }: Props) {
   }, [sessionId])
 
   useEffect(() => { load() }, [load])
+
+  // Keep the seat grid live so guests see seats fill in as others claim them.
+  useEffect(() => {
+    if (state.kind !== 'seatGrid') return
+    return subscribeSeatClaims(sessionId, (seats) => {
+      setState((cur) => (cur.kind === 'seatGrid' ? { ...cur, seats } : cur))
+    })
+  }, [sessionId, state.kind])
 
   useEffect(() => {
     if (state.kind !== 'claimed') {
@@ -164,6 +195,55 @@ export function DealGuestPage({ sessionId, language }: Props) {
           cards: currentGrid.cards,
           claiming: null,
           message: t('could_not_claim_that_card_please_try_again'),
+        })
+      }
+    }
+  }
+
+  const handleOpenSeatNaming = (seatNumber: number) => {
+    if (state.kind !== 'seatGrid' || state.claiming !== null) return
+    setNamingSeat(seatNumber)
+    setSeatNameDraft('')
+    setSeatNameSubmitted(false)
+  }
+
+  const handleConfirmSeatClaim = async () => {
+    if (state.kind !== 'seatGrid' || namingSeat == null) return
+    setSeatNameSubmitted(true)
+    if (!seatNameDraft.trim()) return
+    const currentGrid = state
+    setState({ ...state, claiming: namingSeat, message: undefined })
+    try {
+      const guestToken = getGuestToken()
+      const claimed = await claimSeat(sessionId, namingSeat, guestToken, seatNameDraft)
+      setNamingSeat(null)
+      setState({ kind: 'seatClaimed', seat: claimed })
+    } catch {
+      try {
+        const [seats, alreadyClaimed] = await Promise.all([
+          getSeatClaims(sessionId),
+          findClaimedSeat(sessionId, getGuestToken()),
+        ])
+        if (alreadyClaimed) {
+          setNamingSeat(null)
+          setState({ kind: 'seatClaimed', seat: alreadyClaimed })
+          return
+        }
+        setNamingSeat(null)
+        setState({
+          kind: 'seatGrid',
+          session: currentGrid.session,
+          seats,
+          claiming: null,
+          message: t('that_seat_was_already_claimed_pick_another'),
+        })
+      } catch {
+        setState({
+          kind: 'seatGrid',
+          session: currentGrid.session,
+          seats: currentGrid.seats,
+          claiming: null,
+          message: t('could_not_claim_that_seat_please_try_again'),
         })
       }
     }
@@ -355,6 +435,147 @@ export function DealGuestPage({ sessionId, language }: Props) {
           </Button>
         </Paper>
       </CenteredBox>
+    )
+  }
+
+  if (state.kind === 'seatClaimed') {
+    const { seat } = state
+    return (
+      <CenteredBox>
+        <EventSeatIcon sx={{ fontSize: 48, color: 'success.main', mb: 2 }} />
+        <Typography variant="h5" sx={{ mb: 1, fontWeight: 700 }}>
+          {tpl('seat_n', seat.seatNumber)}
+        </Typography>
+        {seat.playerName && (
+          <Typography variant="body1" sx={{ mb: 1 }}>{seat.playerName}</Typography>
+        )}
+        <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 340 }}>
+          {t('wait_for_storyteller_to_deal_characters')}
+        </Typography>
+      </CenteredBox>
+    )
+  }
+
+  if (state.kind === 'seatGrid') {
+    const { seats, claiming, message } = state
+
+    if (namingSeat != null) {
+      return (
+        <CenteredBox>
+          <EventSeatIcon sx={{ fontSize: 48, color: 'primary.main', mb: 2 }} />
+          <Typography variant="h5" sx={{ mb: 1, fontWeight: 700 }}>
+            {tpl('seat_n', namingSeat)}
+          </Typography>
+          <Paper
+            variant="outlined"
+            sx={{ p: 2.5, borderRadius: 3, width: '100%', maxWidth: 340, textAlign: 'left', bgcolor: 'background.paper', mt: 2 }}
+          >
+            <Typography
+              variant="overline"
+              color="text.secondary"
+              sx={{ display: 'block', fontWeight: 700, letterSpacing: '0.06em', mb: 1.5 }}
+            >
+              {t('confirm_your_seat')}
+            </Typography>
+            <TextField
+              autoFocus
+              fullWidth
+              required
+              label={t('player_name')}
+              value={seatNameDraft}
+              onChange={e => { setSeatNameDraft(e.target.value); setSeatNameSubmitted(false) }}
+              onKeyDown={e => { if (e.key === 'Enter') handleConfirmSeatClaim() }}
+              error={seatNameSubmitted && !seatNameDraft.trim()}
+              helperText={seatNameSubmitted && !seatNameDraft.trim() ? t('field_required') : ' '}
+              slotProps={{ input: { startAdornment: <PersonIcon sx={{ mr: 1, color: 'text.disabled' }} /> } }}
+              sx={{ mb: 1 }}
+              disabled={claiming != null}
+            />
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <Button fullWidth variant="outlined" onClick={() => setNamingSeat(null)} disabled={claiming != null}>
+                {t('cancel')}
+              </Button>
+              <Button
+                fullWidth
+                variant="contained"
+                onClick={handleConfirmSeatClaim}
+                disabled={claiming != null}
+                startIcon={claiming != null ? <CircularProgress size={16} color="inherit" /> : undefined}
+              >
+                {t('claim_this_seat')}
+              </Button>
+            </Box>
+          </Paper>
+        </CenteredBox>
+      )
+    }
+
+    return (
+      <Box sx={{ p: 2, maxWidth: 600, mx: 'auto' }}>
+        <Typography variant="h6" sx={{ mb: 0.5, textAlign: 'center', fontWeight: 700 }}>
+          {t('pick_your_seat')}
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2, textAlign: 'center' }}>
+          {t('tap_an_open_seat_to_claim_it')}
+        </Typography>
+        {message && (
+          <Typography variant="body2" color="warning.main" sx={{ mb: 2, textAlign: 'center' }}>
+            {message}
+          </Typography>
+        )}
+
+        <Box sx={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))',
+          gap: 1.5,
+        }}>
+          {seats.map((seat) => {
+            const isTaken = seat.claimedByToken != null
+            const isClaiming = claiming === seat.seatNumber
+
+            return (
+              <Paper
+                key={seat.seatNumber}
+                elevation={isClaiming ? 6 : 2}
+                onClick={() => !isTaken && claiming == null && handleOpenSeatNaming(seat.seatNumber)}
+                sx={{
+                  height: 100,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 0.5,
+                  cursor: isTaken || claiming != null ? 'default' : 'pointer',
+                  opacity: isTaken ? 0.4 : claiming != null ? 0.7 : 1,
+                  borderRadius: 2,
+                  border: '2px solid',
+                  borderColor: isClaiming ? 'primary.main' : 'divider',
+                  transition: 'all 0.15s ease',
+                  userSelect: 'none',
+                  bgcolor: 'background.paper',
+                  '&:hover': (!isTaken && claiming == null)
+                    ? { borderColor: 'primary.light', transform: 'translateY(-2px)', boxShadow: 4 }
+                    : {},
+                }}
+              >
+                {isClaiming ? (
+                  <CircularProgress size={24} />
+                ) : (
+                  <>
+                    <EventSeatIcon sx={{ fontSize: 28, color: isTaken ? 'text.disabled' : 'primary.light' }} />
+                    <Typography variant="caption" sx={{ fontWeight: 700 }}>#{seat.seatNumber}</Typography>
+                    {isTaken && (
+                      <Typography variant="caption" color="text.disabled" noWrap sx={{ maxWidth: 84 }}>
+                        {seat.playerName || t('claimed')}
+                      </Typography>
+                    )}
+                  </>
+                )}
+              </Paper>
+            )
+          })}
+        </Box>
+      </Box>
     )
   }
 
