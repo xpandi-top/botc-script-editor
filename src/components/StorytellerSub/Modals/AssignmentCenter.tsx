@@ -252,7 +252,12 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
       setNewGamePanel((prev) => prev ? { ...prev, assignments: result } : prev)
       return
     }
-    setLiveDraft((prev) => ({ ...prev, assignments: { ...prev.assignments, ...result } }))
+    // Locked seats are protected from bulk random assignment too — same
+    // guard as their individually-disabled picker.
+    const filtered = Object.fromEntries(
+      Object.entries(result).filter(([sNum]) => !isSeatLocked(Number(sNum)))
+    )
+    setLiveDraft((prev) => ({ ...prev, assignments: { ...prev.assignments, ...filtered } }))
   }
 
   // Manual single-seat override from the roster row picker.
@@ -378,6 +383,13 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
   // editable again. Resets — safest default — each time Assignment Center
   // is reopened, same as liveDraft.
   const [unlockedSeats, setUnlockedSeats] = useState<Set<number>>(new Set())
+  // A claimed seat is locked unless explicitly unlocked this session —
+  // shared by the per-row picker guard, bulk random-assign, and the
+  // lock-all/unlock-all control below.
+  const isSeatLocked = (sNum: number): boolean => {
+    const claim = seats.find((s) => s.seatNumber === sNum)
+    return claim?.claimedByToken != null && !unlockedSeats.has(sNum)
+  }
   // Which roster rows have their detail section (perceived character + note)
   // expanded — collapsed by default to keep the primary row scannable.
   const [expandedSeats, setExpandedSeats] = useState<Set<number>>(new Set())
@@ -482,6 +494,7 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
 
   const claimedSeatNumbers = seats.filter((s) => s.claimedByToken != null).map((s) => s.seatNumber)
   const claimedCount = claimedSeatNumbers.length
+  const anyClaimedSeatUnlocked = claimedSeatNumbers.some((n) => unlockedSeats.has(n))
   // A claimed seat is "pending" once its computed reveal (a) doesn't yet
   // match what's been pushed to its Firestore doc (b) — covers both
   // never-sent and changed-after-send.
@@ -741,6 +754,19 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
                 label={`${claimedCount}/${seats.length} ${t('claimed')}`}
                 color={seats.length > 0 && claimedCount === seats.length ? 'success' : 'default'}
               />
+              {claimedCount > 0 && (
+                <Tooltip title={anyClaimedSeatUnlocked ? t('lock_all_hint') : t('unlock_all_hint')}>
+                  <Chip
+                    size="small"
+                    clickable
+                    icon={anyClaimedSeatUnlocked ? <LockOpenIcon fontSize="small" /> : <LockIcon fontSize="small" />}
+                    label={anyClaimedSeatUnlocked ? t('lock_all') : t('unlock_all')}
+                    color={anyClaimedSeatUnlocked ? 'warning' : 'default'}
+                    variant={anyClaimedSeatUnlocked ? 'filled' : 'outlined'}
+                    onClick={() => setUnlockedSeats(anyClaimedSeatUnlocked ? new Set() : new Set(claimedSeatNumbers))}
+                  />
+                </Tooltip>
+              )}
               {resolvedSession?.status === 'closed' && (
                 <Chip size="small" label={t('closed')} color="warning" />
               )}
@@ -808,7 +834,7 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
               const pending = !!assignedCid && !!existingDealSession && isSeatPending(sNum)
               const delivered = !!assignedCid && !!existingDealSession && !pending
               const note = seatNotes[sNum] ?? ''
-              const locked = isClaimed && !unlockedSeats.has(sNum)
+              const locked = isSeatLocked(sNum)
               const expanded = expandedSeats.has(sNum)
               const toggleExpanded = () => setExpandedSeats((prev) => {
                 const next = new Set(prev)
