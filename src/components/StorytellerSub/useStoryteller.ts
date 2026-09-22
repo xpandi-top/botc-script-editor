@@ -225,10 +225,6 @@ export function useStoryteller(props: StorytellerHelperProps) {
   }, [endGameResult])
 
   useEffect(() => {
-    if (currentDay.phase === 'nomination' && currentDay.nominationStep === 'waitingForNomination' && !currentDay.voteDraft.actor) setPickerMode('nominator')
-  }, [currentDay.phase, currentDay.nominationStep, currentDay.voteDraft.actor])
-
-  useEffect(() => {
     if (!linkedDealSession) {
       setRemoteDealVote(null)
       setRemoteDealVoteResponses([])

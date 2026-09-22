@@ -223,7 +223,7 @@ export type UiKey =
   | 'quick_send_reveal' | 'quick_send_reveal_hint' | 'one_of_these_is_your_character'
   | 'add_all' | 'alice_bob_charlie'
   | 'assign' | 'auto' | 'batch_load' | 'charactersseatsteams'
-  | 'click_a_seat_on_the_table_to_select' | 'click_to_add_custom_rules'
+  | 'click_to_add_custom_rules'
   | 'click_to_load' | 'click_to_load_this_game' | 'close_char_picker'
   | 'commaseparated_tags' | 'countdown_settings'
   | 'deal_assigned_characters_to_players_new_tab'

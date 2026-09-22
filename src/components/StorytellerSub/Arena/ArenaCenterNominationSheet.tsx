@@ -21,7 +21,7 @@ import { ResponsiveDialog } from '../../ui'
 
 export function ArenaCenterNominationSheet({ ctx }: { ctx: StorytellerContext }) {
   const {
-    language, text, currentDay, updateCurrentDay, pickerMode, setPickerMode,
+    language, text, currentDay, updateCurrentDay, setPickerMode,
     showNominationSheet, setShowNominationSheet, requiredVotes, exileRequiredVotes,
     effectiveRequiredVotes,
     rejectNomination, recordVote, votingYesCount, timerDefaults,
@@ -78,7 +78,6 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: StorytellerContext })
     const v = parseInt(String(e.target.value))
     if (!isNaN(v)) {
       updateCurrentDay((d: DayState) => ({ ...d, voteDraft: { ...d.voteDraft, actor: v } }))
-      setPickerMode('nominee')
     } else {
       updateCurrentDay((d: DayState) => ({ ...d, voteDraft: { ...d.voteDraft, actor: null } }))
     }
@@ -199,11 +198,6 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: StorytellerContext })
             ))}
           </Select>
         </FormControl>
-        {pickerMode === 'nominator' && (
-          <Typography variant="caption" color="primary">
-            {t('click_a_seat_on_the_table_to_select')}
-          </Typography>
-        )}
 
         <FormControl size="small" fullWidth>
           <InputLabel>{text.target}</InputLabel>
@@ -218,11 +212,6 @@ export function ArenaCenterNominationSheet({ ctx }: { ctx: StorytellerContext })
             ))}
           </Select>
         </FormControl>
-        {pickerMode === 'nominee' && (
-          <Typography variant="caption" color="primary">
-            {t('click_a_seat_on_the_table_to_select')}
-          </Typography>
-        )}
 
         <FormControlLabel
           control={

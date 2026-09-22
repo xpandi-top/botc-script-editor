@@ -140,7 +140,6 @@ export function buildGameActions(deps: ActionDeps) {
   function enterNomination() {
     updateCurrentDay((d) => ({ ...d, phase: 'nomination', nominationStep: 'waitingForNomination', nominationWaitSeconds: timerDefaults.nominationWaitSeconds, voteDraft: createDefaultVoteDraft(), votingState: null }))
     setShowNominationSheet(true)
-    setPickerMode('nominator')
     setIsTimerRunning(true)
   }
 
@@ -156,7 +155,6 @@ export function buildGameActions(deps: ActionDeps) {
       const failRecord: VoteRecord | null = (d.voteDraft.actor && d.voteDraft.target) ? { id: `${Date.now()}`, actor: d.voteDraft.actor, target: d.voteDraft.target, voters: [], voteCount: 0, requiredVotes, passed: false, note: d.voteDraft.note.trim(), overridden: false, failed: true } : null
       return appendEvent({ ...d, nominationStep: 'waitingForNomination', nominationWaitSeconds: timerDefaults.nominationWaitSeconds, voteHistory: failRecord ? [failRecord, ...d.voteHistory] : d.voteHistory, voteDraft: createDefaultVoteDraft(), votingState: null }, 'stateChange', logDetail.nominationFailed(language, d.voteDraft.actor ?? '?', d.voteDraft.target ?? '?'))
     })
-    setPickerMode('nominator')
     setIsTimerRunning(false)
   }
 
@@ -207,7 +205,6 @@ export function buildGameActions(deps: ActionDeps) {
     )
     const record: VoteRecord = { id: `${Date.now()}`, actor: vd.actor!, target: vd.target!, voters: yesSeats, voteCount: finalCount, requiredVotes, passed: draftPassed, note: vd.note.trim(), overridden: vd.manualPassed !== null || vd.voteCountOverride !== null, isExile: vd.isExile, ...(Object.keys(spentWeights).length > 0 && { voteWeights: spentWeights }) }
     updateCurrentDayWithUndo((d) => appendEvent({ ...d, seats: spendVoteTokens(d.seats, yesSeats, vd), nominationStep: 'waitingForNomination', nominationWaitSeconds: timerDefaults.nominationWaitSeconds, voteHistory: [record, ...d.voteHistory], voteDraft: createDefaultVoteDraft(), votingState: null }, 'vote', logDetail.voteResult(language, record.actor, record.target, record.passed, record.voteCount, record.requiredVotes)))
-    setPickerMode('nominator')
     setIsTimerRunning(false)
     // Timer does NOT auto-start — ST manually restarts nomination wait if needed
   }
@@ -246,14 +243,6 @@ export function buildGameActions(deps: ActionDeps) {
     if (pickerMode === 'speaker') {
       updateCurrentDay((d) => ({ ...d, currentSpeakerSeat: seatNumber, roundRobinSpokenSeats: [], publicRoundRobinSeconds: timerDefaults.publicRoundRobinSeconds }))
       setPickerMode('none')
-    } else if (pickerMode === 'nominator') {
-      updateCurrentDay((d) => ({ ...d, voteDraft: { ...d.voteDraft, actor: seatNumber } }))
-      setPickerMode('nominee')
-      setIsTimerRunning(false)
-    } else if (pickerMode === 'nominee') {
-      updateCurrentDay((d) => ({ ...d, nominationStep: 'nominationDecision', voteDraft: { ...d.voteDraft, target: seatNumber, voters: [] } }))
-      setPickerMode('none')
-      setIsTimerRunning(false)
     } else if (pickerMode === 'skillActor') {
       setSkillOverlay((p) => (p ? { ...p, draft: { ...p.draft, actor: seatNumber } } : p))
     } else if (pickerMode === 'skillTarget') {
