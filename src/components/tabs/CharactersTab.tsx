@@ -1,11 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { ScriptFilterPicker } from '../ScriptFilterPicker'
+import type { EditableScript, ScriptFolder } from '../../types'
 import NightsStayIcon from '@mui/icons-material/NightsStay'
 import SyncAltIcon from '@mui/icons-material/SyncAlt'
 import { NightOrderManager } from '../NightOrderManager'
 import { JinxManager } from '../JinxManager'
 import {
-  Box, Button, Checkbox, Collapse, DialogTitle, Divider, FormControl,
-  IconButton, InputLabel, Paper, Select, MenuItem, Snackbar, TextField, Tooltip, Typography,
+  Box, Button, Checkbox, Chip, Collapse, DialogTitle, Divider, FormControl,
+  IconButton, InputLabel, Paper, Select, MenuItem, Snackbar, TextField, Typography,
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import CloseIcon from '@mui/icons-material/Close'
@@ -47,6 +49,13 @@ import { useT } from '../../context/I18nContext'
 import { CompactButton, MicroChip, ResponsiveDialog, ResponsiveDialogActions, ResponsiveDialogContent } from '../ui'
 
 type Props = {
+  scripts: EditableScript[]
+  scriptFolders: ScriptFolder[]
+  isBuiltIn: (slug: string) => boolean
+  getScriptTitle: (s: EditableScript) => string
+  selectedScriptSlugs: string[]
+  setSelectedScriptSlugs: (slugs: string[]) => void
+  clearFilters: () => void
   uiText: Record<string, string>
   uiLanguage: Language
   filteredCharacters: CharacterEntry[]
@@ -519,6 +528,7 @@ function PackImportDialog({ open, onClose, pack, language, knownIds, existingCus
 
 
 export function CharactersTab({
+  scripts, scriptFolders, isBuiltIn, getScriptTitle, selectedScriptSlugs, setSelectedScriptSlugs, clearFilters,
   uiText,
   uiLanguage,
   filteredCharacters,
@@ -539,6 +549,10 @@ export function CharactersTab({
   onAiContextChange,
   aiFillRef,
 }: Props) {
+  const [toolsOpen, setToolsOpen] = useState(false)
+  const [moreFilters, setMoreFilters] = useState(false)
+  const [visibleCount, setVisibleCount] = useState(80)
+  useEffect(() => setVisibleCount(80), [characterQuery, selectedTeams, selectedEditions, selectedScriptSlugs])
   const [mobileDetailOpen, setMobileDetailOpen] = useState(false)
   const [customDialogOpen, setCustomDialogOpen] = useState(false)
   const [nightOrderOpen, setNightOrderOpen] = useState(false)
@@ -797,7 +811,7 @@ export function CharactersTab({
         }}>
           {/* Sticky filters */}
           <Box sx={{ p: 2, pb: 1, flexShrink: 0 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5, flexWrap: 'wrap', gap: 1 }}>
               <Box>
                 <Typography variant="h6">{uiText.allCharacters}</Typography>
                 <Typography variant="body2" color="text.secondary">
@@ -807,13 +821,9 @@ export function CharactersTab({
               <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
                 <Button size="small" startIcon={<AddIcon fontSize="small" />} onClick={openNew}
                   sx={{ textTransform: 'none', fontSize: '0.75rem' }}>
-                  {t('custom')}
+                  {t('library_new_character')}
                 </Button>
-                <Tooltip title={t('add_char_from_json')}>
-                  <IconButton size="small" onClick={() => addCharInputRef.current?.click()} sx={{ color: 'text.secondary' }}>
-                    <UploadIcon fontSize="small" />
-                  </IconButton>
-                </Tooltip>
+                <Button size="small" onClick={() => setToolsOpen(true)}>{t('library_tools')}</Button>
                 <input
                   ref={addCharInputRef}
                   type="file"
@@ -821,23 +831,17 @@ export function CharactersTab({
                   hidden
                   onChange={(e) => {
                     const f = e.target.files?.[0]
-                    if (f) handleAddCharFromFile(f)
+                    if (f) { setToolsOpen(false); handleAddCharFromFile(f) }
                     e.target.value = ''
                   }}
                 />
-                <FormControl size="small" sx={{ minWidth: 72, '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' }, '& .MuiInputLabel-root': { fontSize: '0.8rem' } }}>
-                  <InputLabel>{t('lang')}</InputLabel>
-                  <Select value={uiLanguage} label={t('lang')} onChange={(e) => onLanguageChange(e.target.value as Language)}>
-                    <MenuItem value="en">EN</MenuItem>
-                    <MenuItem value="zh">中文</MenuItem>
-                  </Select>
-                </FormControl>
+
               </Box>
             </Box>
 
             <TextField
               fullWidth size="small"
-              placeholder={uiText.searchCharacters}
+              label={uiText.searchCharacters}
               value={characterQuery}
               onChange={(e) => setCharacterQuery(e.target.value)}
               sx={{ mb: 1.5 }}
@@ -850,6 +854,13 @@ export function CharactersTab({
               ))}
             </Box>
 
+            <ScriptFilterPicker expanded={moreFilters} scripts={scripts} folders={scriptFolders} selected={selectedScriptSlugs} onChange={setSelectedScriptSlugs} isBuiltIn={isBuiltIn} title={getScriptTitle} />
+            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+              <Button size="small" onClick={() => setMoreFilters(v => !v)} endIcon={moreFilters ? <ExpandLessIcon /> : <ExpandMoreIcon />}>{t('library_more_conditions')}{selectedEditions.length ? ` (${selectedEditions.length})` : ''}</Button>
+              {(characterQuery || selectedTeams.length > 0 || selectedEditions.length > 0 || selectedScriptSlugs.length > 0) && <Button size="small" onClick={clearFilters}>{t('library_clear_filters')}</Button>}
+            </Box>
+            {!moreFilters && selectedEditions.length > 0 && <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', my: 1 }}>{selectedEditions.map(edition => <Chip key={edition} size="small" label={editionLabels[uiLanguage][edition] ?? toTitleCase(edition)} onDelete={() => toggleEdition(edition)} />)}</Box>}
+            <Collapse in={moreFilters}>
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
               {availableEditions.map((edition) => (
                 <FilterCheckbox key={edition} checked={selectedEditions.includes(edition)}
@@ -858,6 +869,22 @@ export function CharactersTab({
               ))}
             </Box>
 
+            </Collapse>
+            <ResponsiveDialog open={toolsOpen} onClose={() => setToolsOpen(false)}>
+              <DialogTitle>{t('library_tools')}</DialogTitle>
+              <ResponsiveDialogContent>
+                <FormControl size="small" sx={{ minWidth: 72, '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' }, '& .MuiInputLabel-root': { fontSize: '0.8rem' } }}>
+                  <InputLabel>{t('lang')}</InputLabel>
+                  <Select value={uiLanguage} label={t('lang')} onChange={(e) => onLanguageChange(e.target.value as Language)}>
+                    <MenuItem value="en">EN</MenuItem>
+                    <MenuItem value="zh">中文</MenuItem>
+                  </Select>
+                </FormControl>
+                <Box sx={{ mt: 3 }} />
+                <Button variant="outlined" startIcon={<UploadIcon />} onClick={() => addCharInputRef.current?.click()}>{t('library_import_one')}</Button>
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 1, mb: 3 }}>{t('library_one_help')}</Typography>
+                <Typography variant="subtitle2">{t('library_pack_tools')}</Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ my: 1 }}>{t('library_pack_help')}</Typography>
             {/* ── Import / Export row ── */}
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, mt: 1, alignItems: 'center' }}>
               <Select
@@ -902,16 +929,17 @@ export function CharactersTab({
                 hidden
                 onChange={(e) => {
                   const f = e.target.files?.[0]
-                  if (f) handleImportPack(f)
+                  if (f) { setToolsOpen(false); handleImportPack(f) }
                   e.target.value = ''
                 }}
               />
 
+              <Typography variant="subtitle2" sx={{ flexBasis: '100%', mt: 3 }}>{t('library_rule_tools')}</Typography>
               <Button
                 size="small"
                 variant="outlined"
                 startIcon={<NightsStayIcon fontSize="small" />}
-                onClick={() => setNightOrderOpen(true)}
+                onClick={() => { setToolsOpen(false); setNightOrderOpen(true) }}
                 sx={{ textTransform: 'none', fontSize: '0.75rem', py: '3px' }}
               >
                 {t('night_order')}
@@ -920,7 +948,7 @@ export function CharactersTab({
                 size="small"
                 variant="outlined"
                 startIcon={<SyncAltIcon fontSize="small" />}
-                onClick={() => setJinxOpen(true)}
+                onClick={() => { setToolsOpen(false); setJinxOpen(true) }}
                 sx={{ textTransform: 'none', fontSize: '0.75rem', py: '3px' }}
               >
                 {t('jinxes')}
@@ -935,6 +963,9 @@ export function CharactersTab({
                 />
               )}
             </Box>
+              </ResponsiveDialogContent>
+              <ResponsiveDialogActions><Button onClick={() => setToolsOpen(false)}>{t('close')}</Button></ResponsiveDialogActions>
+            </ResponsiveDialog>
           </Box>
 
           {/* Scrollable character list */}
@@ -942,7 +973,7 @@ export function CharactersTab({
             <Box sx={{ display: 'grid', gap: 1 }}>
               {(() => {
                 const packOverrideIds = getPackOverrideIds()
-                return filteredCharacters.map((character) => {
+                return filteredCharacters.slice(0, visibleCount).map((character) => {
                 const icon = getIconForCharacter(character.id)
                 const team = teamLabels[uiLanguage][character.team]
                 const edition = editionLabels[uiLanguage][character.edition] ?? toTitleCase(character.edition)
@@ -1007,6 +1038,8 @@ export function CharactersTab({
                 )
               })
               })()}
+              {!filteredCharacters.length && <Box sx={{ py: 4, textAlign: 'center' }}><Typography>{t('library_empty')}</Typography></Box>}
+              {filteredCharacters.length > visibleCount && <Button onClick={() => setVisibleCount(n => n + 80)}>{t('library_more')} ({visibleCount} / {filteredCharacters.length})</Button>}
             </Box>
           </Box>
         </Paper>

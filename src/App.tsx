@@ -69,13 +69,11 @@ import {
   editionLabels,
   getAbilityText,
   getAbilityTextForScript,
-  getCharacterById,
   getCustomChar,
   getDisplayName,
   getEffectiveAllCharacters,
   initialScripts,
   locales,
-  parseScriptFromData,
   registerCustomCharacters,
   teamOrder,
   toTitleCase,
@@ -396,7 +394,7 @@ export default function App() {
   const [editorQuery, setEditorQuery] = useState('')
   const [isEditMode, setIsEditMode] = useState(false)
   useEffect(() => { setIsEditMode(false) }, [activeSlug])
-  const [showWakeOrderPreview, setShowWakeOrderPreview] = useState(true)
+  const [showWakeOrderPreview, setShowWakeOrderPreview] = useState(false)
   const [printPreviewOpen, setPrintPreviewOpen] = useState(false)
   const [printOptions, setPrintOptions] = useState<PrintOptions>(DEFAULT_PRINT_OPTIONS)
   const [tokenPrintOptions, setTokenPrintOptions] = useState<TokenPrintOptions>(DEFAULT_TOKEN_OPTIONS)
@@ -555,6 +553,12 @@ export default function App() {
 
   const currentDescription = tabDescriptions[activeTab] ?? ''
 
+  const [selectedScriptSlugs, setSelectedScriptSlugs] = useState<string[]>([])
+  const selectedScriptIds = useMemo(() => {
+    const chosen = scripts.filter(s => selectedScriptSlugs.includes(s.slug))
+    return chosen.length ? new Set(chosen.flatMap(s => s.characters)) : null
+  }, [scripts, selectedScriptSlugs])
+
   const filteredCharacters = useMemo(() => {
     const tokens = characterQuery.trim().toLowerCase().split(/\s+/).filter(Boolean)
     return getEffectiveAllCharacters().filter((c) => {
@@ -569,10 +573,10 @@ export default function App() {
       )
       const matchesTeam = selectedTeams.length === 0 || selectedTeams.includes(c.team)
       const matchesEdition = selectedEditions.length === 0 || selectedEditions.includes(c.edition)
-      return matchesQuery && matchesTeam && matchesEdition
+      return matchesQuery && matchesTeam && matchesEdition && (!selectedScriptIds || selectedScriptIds.has(c.id))
     })
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [characterQuery, selectedEditions, selectedTeams, customChars])
+  }, [characterQuery, selectedEditions, selectedTeams, customChars, selectedScriptIds])
 
   const filteredEditorCharacters = useMemo(() => {
     const query = editorQuery.trim().toLowerCase()
@@ -594,7 +598,7 @@ export default function App() {
     [filteredEditorCharacters],
   )
 
-  const selectedCharacter = (getCharacterById(selectedCharacterId) ?? filteredCharacters[0] ?? allCharacters[0])
+  const selectedCharacter = (filteredCharacters.find(c => c.id === selectedCharacterId) ?? filteredCharacters[0])
 
   useEffect(() => {
     if (selectedCharacter) setSelectedCharacterId(selectedCharacter.id)
@@ -606,25 +610,18 @@ export default function App() {
     if (nextSlug && nextSlug !== activeScript.slug) setActiveSlug(nextSlug)
   }
 
-  function importScriptFile(file: File) {
-    if (file.size > 5 * 1024 * 1024) { setSaveStatus('Import failed: file too large (max 5 MB)'); return }
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      try {
-        const data = JSON.parse(e.target?.result as string)
-        const imported = parseScriptFromData(data, file.name)
-        let slug = imported.slug
-        let counter = 2
-        while (scripts.some((s) => s.slug === slug)) { slug = `${imported.slug}-${counter}`; counter++ }
-        const unique = { ...imported, slug }
-        setScripts((cur) => [...cur, unique])
-        setActiveSlug(unique.slug)
-        setSaveStatus(`Imported: ${unique.title}`)
-      } catch {
-        setSaveStatus('Import failed: invalid JSON')
-      }
-    }
-    reader.readAsText(file)
+  function importScripts(imported: EditableScript[], folderId?: string) {
+    const used = new Set(scripts.map(s => s.slug))
+    const additions = imported.map(script => {
+      let slug = script.slug
+      let counter = 2
+      while (used.has(slug)) slug = `${script.slug}-${counter++}`
+      used.add(slug)
+      return { ...script, slug, folderId }
+    })
+    setScripts(cur => [...cur, ...additions])
+    if (additions[0]) setActiveSlug(additions[0].slug)
+    setSaveStatus('')
   }
 
   function createNewScript() {
@@ -668,14 +665,18 @@ export default function App() {
     }
   }
 
-  function downloadScriptFile() {
+  async function downloadScriptFile() {
     if (!activeScript) return
     const safeName = (activeScript.title || activeScript.slug || 'script').replace(/[^a-zA-Z0-9_一-鿿\- ]/g, '').trim().replace(/\s+/g, '_')
     const versionSuffix = activeScript.version ? `_v${activeScript.version}` : ''
     const filename = `${safeName}${versionSuffix}.json`
     const payload = JSON.stringify(createScriptPayload(activeScript), null, 2)
-    exportGameFile(payload, filename)
-    setSaveStatus(`Downloaded ${filename}`)
+    try {
+      await exportGameFile(payload, filename)
+      setSaveStatus(`Downloaded ${filename}`)
+    } catch (error) {
+      setSaveStatus(error instanceof Error ? error.message : String(error))
+    }
   }
 
   function toggleCharacterInScript(characterId: string) {
@@ -708,26 +709,32 @@ export default function App() {
 
   return (
     <I18nProvider language={uiLanguage}>
-    <Container maxWidth="xl" sx={{ pt: 0, pb: { xs: '56px', sm: 3 }, px: { xs: 0, sm: 3 }, minHeight: '100vh' }}>
+    <Container maxWidth="xl" sx={{ pt: 0, pb: { xs: 'calc(56px + env(safe-area-inset-bottom))', sm: 3 }, px: { xs: 0, sm: 3 }, minHeight: '100vh' }}>
       {/* Hide header on mobile storyteller — MobileTopBar is the header there.
           Height: 100dvh in StorytellerHelper needs the viewport to start at y=0. */}
-      <Paper elevation={2} sx={{
+      <Paper component="header" elevation={0} sx={{
         position: 'sticky',
         top: 0,
         zIndex: 1100,
         mb: { xs: 0, sm: 2 },
         borderRadius: 0,
+        bgcolor: 'background.paper',
+        backgroundImage: 'none',
+        boxShadow: 'none',
+        border: 0,
         overflow: 'hidden',
         borderBottom: '1px solid',
         borderColor: 'divider',
         display: (activeTab === 'storyteller' && isMobileView) ? 'none' : undefined,
       }}>
         {/* ── Title + Tabs row ── */}
-        <Box sx={{ px: { xs: 2, sm: 3 }, py: { xs: 1.25, sm: 1.5 }, display: 'flex', alignItems: 'center', gap: 2 }}>
+        <Box sx={{ px: { xs: 1.5, sm: 2 }, py: { xs: 1, sm: 0.75 }, display: 'grid', alignItems: 'center', columnGap: 2,
+          gridTemplateColumns: { xs: 'minmax(0, 1fr) auto', lg: 'auto minmax(0, 1fr) auto' },
+          gridTemplateAreas: { xs: '"brand tools"', sm: '"brand tools" "nav nav"', lg: '"brand nav tools"' } }}>
 
           {/* Brand — icon + title */}
             <Box
-              sx={{ display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0,
+              sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0, gridArea: 'brand',
                 cursor: { xs: 'pointer', sm: 'default' } }}
               onClick={(e) => setTabMenuAnchor(e.currentTarget as HTMLElement)}
             >
@@ -735,7 +742,7 @@ export default function App() {
                 src={themeMode === 'dark' ? 'icons/icon-80.png' : 'appIcon.png'}
                 alt="BOTC Companion"
                 sx={{
-                  width: { xs: 28, sm: 34 }, height: { xs: 28, sm: 34 },
+                  width: 28, height: 28,
                   flexShrink: 0, borderRadius: 1,
                   // Dark: boost brightness + slight warm tint so dark artwork is legible on dark surface
                   // Light: slight warm desaturate to blend with parchment header
@@ -746,7 +753,8 @@ export default function App() {
               <Typography component="h1"
                 sx={{ fontFamily: 'inherit', m: 0,
                   fontWeight: 700, userSelect: 'none',
-                  fontSize: { xs: '1.05rem', sm: '1.25rem' },
+                  fontSize: { xs: '0.95rem', sm: '1.05rem' },
+                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                   letterSpacing: '-0.01em',
                   color: 'text.primary',
                   '&:hover': { color: { xs: 'primary.dark', sm: 'text.primary' } },
@@ -784,24 +792,32 @@ export default function App() {
 
           {/* Tabs — desktop */}
           <Tabs
+            aria-label={t('main_navigation')}
             value={activeTab}
             onChange={(_, v) => setActiveTab(v)}
             variant="scrollable"
             scrollButtons="auto"
             sx={{
-              display: { xs: 'none', sm: 'flex' },
-              '& .MuiTab-root': { minWidth: 0, px: 1 },
+              display: { xs: 'none', sm: 'flex' }, gridArea: 'nav', minWidth: 0, minHeight: 48,
+              '& .MuiTabs-indicator': { display: 'block', height: 3, borderRadius: '3px 3px 0 0', bgcolor: 'primary.main' },
+              '& .MuiTab-root': { minWidth: 64, minHeight: 48, px: 1.5, py: 1, border: 0, borderRadius: 0,
+                color: 'text.secondary', background: 'transparent', fontSize: '0.85rem', gap: 0.75,
+                '& .MuiSvgIcon-root': { fontSize: 19 },
+                '&.Mui-selected': { color: 'text.primary', background: 'transparent', fontWeight: 700 },
+                '&:hover': { bgcolor: 'action.hover', border: 0 },
+                '&.Mui-focusVisible': { outline: '2px solid', outlineColor: 'primary.main', outlineOffset: -3 },
+              },
             }}
           >
-            <Tab icon={<DescriptionIcon fontSize="small" />} value="scripts" aria-label={uiText.scriptSheet} title={uiText.scriptSheet} data-tutorial="tab-scripts" />
-            <Tab icon={<TheaterComedyIcon fontSize="small" />} value="characters" aria-label={uiText.allCharacters} title={uiText.allCharacters} data-tutorial="tab-characters" />
-            <Tab icon={<MenuBookIcon fontSize="small" />} value="storyteller" aria-label={stTabLabel} title={stTabLabel} data-tutorial="tab-storyteller" />
-            <Tab icon={<QueryStatsIcon fontSize="small" />} value="analytics" aria-label={anTabLabel} title={anTabLabel} data-tutorial="tab-analytics" />
-            <Tab icon={<PrintIcon fontSize="small" />} value="printstudio" aria-label={psTabLabel} title={psTabLabel} data-tutorial="tab-printstudio" />
-            <Tab icon={<TuneIcon fontSize="small" />} value="settings" aria-label={stgTabLabel} title={stgTabLabel} data-tutorial="tab-settings" />
+            <Tab icon={<DescriptionIcon fontSize="small" />} iconPosition="start" label={t('script_sheet')} value="scripts" aria-label={uiText.scriptSheet} title={uiText.scriptSheet} data-tutorial="tab-scripts" />
+            <Tab icon={<TheaterComedyIcon fontSize="small" />} iconPosition="start" label={t('chars')} value="characters" aria-label={uiText.allCharacters} title={uiText.allCharacters} data-tutorial="tab-characters" />
+            <Tab icon={<MenuBookIcon fontSize="small" />} iconPosition="start" label={t('tab_st_short')} value="storyteller" aria-label={stTabLabel} title={stTabLabel} data-tutorial="tab-storyteller" />
+            <Tab icon={<QueryStatsIcon fontSize="small" />} iconPosition="start" label={t('tab_stats_short')} value="analytics" aria-label={anTabLabel} title={anTabLabel} data-tutorial="tab-analytics" />
+            <Tab icon={<PrintIcon fontSize="small" />} iconPosition="start" label={t('tab_print_short')} value="printstudio" aria-label={psTabLabel} title={psTabLabel} data-tutorial="tab-printstudio" />
+            <Tab icon={<TuneIcon fontSize="small" />} iconPosition="start" label={t('settings')} value="settings" aria-label={stgTabLabel} title={stgTabLabel} data-tutorial="tab-settings" />
           </Tabs>
 
-<Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0 }}>
+<Box sx={{ gridArea: 'tools', ml: 'auto', display: 'flex', alignItems: 'center', gap: 0.25, '& .MuiIconButton-root': { width: 30, height: 30, color: 'text.secondary' }, '& .MuiSvgIcon-root': { fontSize: 20 } }}>
 
             {/* ── Cloud sync status badge — always visible ── */}
             <CloudSyncBadge
@@ -902,7 +918,7 @@ export default function App() {
           setEditorQuery={setEditorQuery}
           setActiveSlug={setActiveSlug}
           createNewScript={createNewScript}
-          importScriptFile={importScriptFile}
+          importScripts={importScripts}
           deleteScript={deleteScript}
           duplicateScript={duplicateScript}
           isBuiltIn={(slug) => initialSlugs.has(slug)}
@@ -956,6 +972,13 @@ export default function App() {
             uiText={uiText}
             uiLanguage={uiLanguage}
             onLanguageChange={setUiLanguage}
+            scripts={scripts}
+            scriptFolders={scriptFolders}
+            isBuiltIn={slug => initialSlugs.has(slug)}
+            getScriptTitle={getScriptTitle}
+            selectedScriptSlugs={selectedScriptSlugs}
+            setSelectedScriptSlugs={setSelectedScriptSlugs}
+            clearFilters={() => { setCharacterQuery(''); setSelectedTeams([]); setSelectedEditions([]); setSelectedScriptSlugs([]) }}
             filteredCharacters={filteredCharacters}
             availableEditions={availableEditions}
             selectedTeams={selectedTeams}
@@ -1036,18 +1059,26 @@ export default function App() {
       )}
       {/* ── Mobile bottom navigation ── */}
       {isMobileView && (
-        <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 1100, borderTop: '1px solid', borderColor: 'divider' }} elevation={3}>
-          <BottomNavigation
+        <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 1100, borderRadius: 0, borderTop: '1px solid', borderColor: 'divider', bgcolor: 'background.paper', pb: 'env(safe-area-inset-bottom)' }} elevation={0}>
+          <BottomNavigation component="nav" aria-label={t('main_navigation')} showLabels
             value={activeTab}
             onChange={(_, v) => setActiveTab(v)}
-            sx={{ height: 56 }}
+            sx={{ height: 56, bgcolor: 'background.paper',
+              '& .MuiBottomNavigationAction-root': { position: 'relative', pt: 0.5, pb: 1, color: 'text.secondary',
+                '&.Mui-selected': { color: 'text.primary' },
+                '&.Mui-selected::after': { content: '""', position: 'absolute', bottom: 2, left: 'calc(50% - 12px)', width: 24, height: 2, bgcolor: 'primary.main', borderRadius: 1 },
+                '& .MuiBottomNavigationAction-label, & .MuiBottomNavigationAction-label.Mui-selected': { fontSize: '0.65rem', opacity: 1 },
+                '&.Mui-selected .MuiBottomNavigationAction-label': { fontWeight: 700 },
+                '& .MuiSvgIcon-root': { fontSize: 22 },
+              },
+            }}
           >
-            <BottomNavigationAction value="scripts"     label={t('script_sheet')}     icon={<DescriptionIcon />}     sx={{ minWidth: 0, px: 0.5, '& .MuiBottomNavigationAction-label': { fontSize: '0.65rem' } }} />
-            <BottomNavigationAction value="characters"  label={t('chars')}             icon={<TheaterComedyIcon />}  sx={{ minWidth: 0, px: 0.5, '& .MuiBottomNavigationAction-label': { fontSize: '0.65rem' } }} />
-            <BottomNavigationAction value="storyteller" label={t('tab_st_short')}      icon={<MenuBookIcon />}        sx={{ minWidth: 0, px: 0.5, '& .MuiBottomNavigationAction-label': { fontSize: '0.65rem' } }} />
-            <BottomNavigationAction value="analytics"   label={t('tab_stats_short')}   icon={<QueryStatsIcon />}      sx={{ minWidth: 0, px: 0.5, '& .MuiBottomNavigationAction-label': { fontSize: '0.65rem' } }} />
-            <BottomNavigationAction value="printstudio" label={t('tab_print_short')}   icon={<PrintIcon />}           sx={{ minWidth: 0, px: 0.5, '& .MuiBottomNavigationAction-label': { fontSize: '0.65rem' } }} />
-            <BottomNavigationAction value="settings"    label={t('settings')}          icon={<TuneIcon />}            sx={{ minWidth: 0, px: 0.5, '& .MuiBottomNavigationAction-label': { fontSize: '0.65rem' } }} />
+            <BottomNavigationAction aria-current={activeTab === 'scripts' ? 'page' : undefined} value="scripts"     label={t('script_sheet')}     icon={<DescriptionIcon />}     sx={{ minWidth: 0, px: 0.5, '& .MuiBottomNavigationAction-label': { fontSize: '0.65rem' } }} />
+            <BottomNavigationAction aria-current={activeTab === 'characters' ? 'page' : undefined} value="characters"  label={t('chars')}             icon={<TheaterComedyIcon />}  sx={{ minWidth: 0, px: 0.5, '& .MuiBottomNavigationAction-label': { fontSize: '0.65rem' } }} />
+            <BottomNavigationAction aria-current={activeTab === 'storyteller' ? 'page' : undefined} value="storyteller" label={t('tab_st_short')}      icon={<MenuBookIcon />}        sx={{ minWidth: 0, px: 0.5, '& .MuiBottomNavigationAction-label': { fontSize: '0.65rem' } }} />
+            <BottomNavigationAction aria-current={activeTab === 'analytics' ? 'page' : undefined} value="analytics"   label={t('tab_stats_short')}   icon={<QueryStatsIcon />}      sx={{ minWidth: 0, px: 0.5, '& .MuiBottomNavigationAction-label': { fontSize: '0.65rem' } }} />
+            <BottomNavigationAction aria-current={activeTab === 'printstudio' ? 'page' : undefined} value="printstudio" label={t('tab_print_short')}   icon={<PrintIcon />}           sx={{ minWidth: 0, px: 0.5, '& .MuiBottomNavigationAction-label': { fontSize: '0.65rem' } }} />
+            <BottomNavigationAction aria-current={activeTab === 'settings' ? 'page' : undefined} value="settings"    label={t('settings')}          icon={<TuneIcon />}            sx={{ minWidth: 0, px: 0.5, '& .MuiBottomNavigationAction-label': { fontSize: '0.65rem' } }} />
           </BottomNavigation>
         </Paper>
       )}

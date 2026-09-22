@@ -937,10 +937,10 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>{t('night_private_hint')}</Typography>
         <Typography variant="body2">{hasNightAction ? nightReminder : t('no_night_action')}</Typography>
         {!hasNightAction && <Button size="small" onClick={() => setManualNightAction(v => !v)}>{t('manual_night_record')}</Button>}
-        <Button size="small" variant={nightDone ? 'contained' : 'outlined'} sx={{ mt: 1, display: 'flex' }}
+        {(hasNightAction || manualNightAction || nightDone) && <Button size="small" variant={nightDone ? 'contained' : 'outlined'} sx={{ mt: 1, display: 'flex' }}
           onClick={() => ctx.toggleNightVisitedSeat(seat.seat)}>
           {nightDone ? t('night_undo_done') : t('night_mark_done')}
-        </Button>
+        </Button>}
       </Box>}
       {skillOverlay && skillOverlay.phaseContext === currentDay.phase ? (
         // Active skillOverlay form (from openSeatSkill)
@@ -1315,7 +1315,8 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
     <ResponsiveDialog open={isOpen} onClose={handleClose} maxWidth="sm">
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 0.5, pt: 1.5, px: 2 }}>
         <Typography sx={{ fontWeight: 700 }}>#{seat.seat} {seat.name}</Typography>
-        <IconButton size="small" onClick={handleClose}><CloseIcon fontSize="small" /></IconButton>
+        {showSecrets && <Button size="small" disabled={!ctx.canUndo} onClick={ctx.undo} sx={{ ml: 'auto' }}>{t('undo')}</Button>}
+        <IconButton size="small" aria-label={t('close')} onClick={handleClose}><CloseIcon fontSize="small" /></IconButton>
       </DialogTitle>
       <ResponsiveDialogContent sx={{ pt: 1.5, px: 2 }}>
         {(showSecrets || showPublicCharacter) && <>{characterSection}<Divider sx={{ mb: 1.5 }} /></>}

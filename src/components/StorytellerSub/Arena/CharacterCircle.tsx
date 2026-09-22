@@ -3,6 +3,7 @@ import type { Alignment } from '../../../utils/seatAlignment'
 import { Box } from '@mui/material'
 
 interface Props {
+  label?: string
   alignment?: Alignment | null
   charIcon: string | null
   charName: string
@@ -13,13 +14,19 @@ interface Props {
   disabled?: boolean
 }
 
-export function CharacterCircle({ alignment, charIcon, charName, nightShowCharacter, isOpen, onClick, size = 60, disabled = false }: Props) {
+export function CharacterCircle({ label, alignment, charIcon, charName, nightShowCharacter, isOpen, onClick, size = 60, disabled = false }: Props) {
   const revealed = nightShowCharacter && charIcon
 
   return (
     <Box
+      component="button"
+      type="button"
+      aria-label={label}
+      disabled={disabled}
       onClick={disabled ? undefined : onClick}
       sx={{
+        p: 0,
+        font: 'inherit',
         width: size,
         height: size,
         borderRadius: '50%',

@@ -8,7 +8,6 @@ import AddIcon from '@mui/icons-material/Add'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import ClearIcon from '@mui/icons-material/Clear'
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder'
-import FileOpenIcon from '@mui/icons-material/FileOpen'
 import SearchIcon from '@mui/icons-material/Search'
 import ViewListIcon from '@mui/icons-material/ViewList'
 import { allCharacters, getDisplayName } from '../../catalog'
@@ -38,8 +37,6 @@ type Props = {
   onDetailOpen: () => void
   isBuiltIn: (slug: string) => boolean
   scriptFolders: ScriptFolder[]
-  createNewScript: () => void
-  importScriptFile: (file: File) => void
   deleteScript: (slug: string) => void
   duplicateScript: (slug: string) => void
   createFolder: (name: string, section?: 'community' | 'diy') => ScriptFolder
@@ -57,8 +54,6 @@ export function ScriptsMasonryGrid({
   onDetailOpen,
   isBuiltIn,
   scriptFolders,
-  createNewScript,
-  importScriptFile,
   deleteScript,
   duplicateScript,
   createFolder,
@@ -90,10 +85,12 @@ export function ScriptsMasonryGrid({
     const passes = (s: EditableScript) => {
       if (tagFilter && !(s.tags ?? []).includes(tagFilter)) return false
       if (!q) return true
-      if (s.title.toLowerCase().includes(q))   return true
-      if (s.titleZh.toLowerCase().includes(q)) return true
-      if (s.author.toLowerCase().includes(q))  return true
-      return s.characters.some((id) => charNameIndex.get(id)?.includes(q) ?? false)
+      const searchable = [s.title, s.titleZh, s.author, s.slug, ...(s.tags ?? []),
+        scriptFolders.find(f => f.id === s.folderId)?.name ?? '',
+        ...s.characters.map(id => `${id} ${charNameIndex.get(id) ?? ''}`),
+        ...s.customCharacters.map(c => c.name ?? ''),
+      ].join(' ').toLowerCase()
+      return q.split(/\s+/).every(token => searchable.includes(token))
     }
 
     let base = scripts
@@ -107,7 +104,7 @@ export function ScriptsMasonryGrid({
       community: base.filter((s) => isBuiltIn(s.slug) && !OFFICIAL.has(s.slug) && passes(s)),
       diy:       base.filter((s) => !isBuiltIn(s.slug)                          && passes(s)),
     }
-  }, [scripts, deferredQuery, tagFilter, folderFilter, charNameIndex, isBuiltIn])
+  }, [scripts, deferredQuery, tagFilter, folderFilter, charNameIndex, scriptFolders, isBuiltIn])
 
   // ── Tags in use ────────────────────────────────────────────────────────────
   const filterTags = useMemo(() => {
@@ -231,15 +228,7 @@ export function ScriptsMasonryGrid({
             <ViewListIcon fontSize="small" />
           </IconButton>
         </Tooltip>
-        <Tooltip title={t('import_json')}>
-          <IconButton size="small" component="label">
-            <FileOpenIcon fontSize="small" />
-            <input type="file" accept=".json" hidden onChange={(e) => {
-              const file = e.target.files?.[0]
-              if (file) { importScriptFile(file); e.target.value = '' }
-            }} />
-          </IconButton>
-        </Tooltip>
+
       </Box>
 
       {/* ── Tag filter chips ── */}
@@ -361,7 +350,7 @@ export function ScriptsMasonryGrid({
             {/* DIY: folder tiles + unfoldered scripts — always shown so add buttons are accessible */}
             {diyByFolder && (
               <GridSection label={t('diy')} count={diy.length}
-                onAddFolder={() => handleCreateFolder('diy')} onAddScript={createNewScript}>
+                onAddFolder={() => handleCreateFolder('diy')}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
 
                   {/* Folder tiles */}

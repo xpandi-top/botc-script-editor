@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Alert, Box, Button, Chip, CircularProgress, Collapse, DialogTitle, FormControl, IconButton, InputLabel, MenuItem, Paper, Select, TextField, Tooltip, Typography } from '@mui/material'
+import { Alert, Box, Button, Chip, CircularProgress, Collapse, DialogTitle, FormControlLabel, IconButton, MenuItem, Paper, Popover, Switch, TextField, Tooltip, Typography } from '@mui/material'
+import { ScriptImportDialog } from '../ScriptsTab/ScriptImportDialog'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import PrintIcon from '@mui/icons-material/Print'
 import DownloadIcon from '@mui/icons-material/Download'
@@ -8,13 +9,7 @@ import ShareIcon from '@mui/icons-material/Share'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import CheckIcon from '@mui/icons-material/Check'
 import MenuIcon from '@mui/icons-material/Menu'
-import MenuOpenIcon from '@mui/icons-material/MenuOpen'
-import NightsStayIcon from '@mui/icons-material/NightsStay'
 import NoteAltIcon from '@mui/icons-material/NoteAlt'
-import ViewListIcon from '@mui/icons-material/ViewList'
-import ViewModuleIcon from '@mui/icons-material/ViewModule'
-import SubjectIcon from '@mui/icons-material/Subject'
-import SortIcon from '@mui/icons-material/Sort'
 import { encodeShareParam, buildShareUrl } from '../../lib/shareUrl'
 import { createShortLink } from '../../lib/firebaseShortUrl'
 import { useBreakpoint } from '../../hooks/useBreakpoint'
@@ -55,12 +50,12 @@ type Props = {
   setEditorQuery: (v: string) => void
   setActiveSlug: (slug: string) => void
   createNewScript: () => void
-  importScriptFile: (file: File) => void
+  importScripts: (scripts: EditableScript[], folderId?: string) => void
   deleteScript: (slug: string) => void
   duplicateScript: (slug: string) => void
   isBuiltIn: (slug: string) => boolean
   scriptFolders: ScriptFolder[]
-  createFolder: (name: string) => ScriptFolder
+  createFolder: (name: string, section?: 'community' | 'diy') => ScriptFolder
   renameFolder: (id: string, name: string) => void
   deleteFolder: (id: string) => void
   toggleFolderCollapsed: (id: string) => void
@@ -98,7 +93,7 @@ export function ScriptsTab({
   setEditorQuery,
   setActiveSlug,
   createNewScript,
-  importScriptFile,
+  importScripts,
   deleteScript,
   duplicateScript,
   isBuiltIn,
@@ -106,7 +101,6 @@ export function ScriptsTab({
   createFolder,
   renameFolder,
   deleteFolder,
-  toggleFolderCollapsed,
   moveScriptToFolder,
   downloadScriptFile,
   updateActiveScript,
@@ -121,6 +115,10 @@ export function ScriptsTab({
   customChars,
 }: Props) {
   const { t } = useT()
+  const [displayAnchor, setDisplayAnchor] = useState<HTMLElement | null>(null)
+  const [tagsOpen, setTagsOpen] = useState(false)
+  const [importOpen, setImportOpen] = useState(false)
+  const [exportOpen, setExportOpen] = useState(false)
   const { isMobile } = useBreakpoint()
   const [listOpenDesktop, setListOpenDesktop] = useState(true)
   const [listOpenMobile, setListOpenMobile] = useState(false)
@@ -248,6 +246,37 @@ export function ScriptsTab({
 
   return (
     <Box sx={{ display: 'grid', gridTemplateColumns: gridCols, gap: 2, minHeight: 0 }}>
+      <Paper variant="outlined" sx={{ gridColumn: '1 / -1', p: 1.5, display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap', borderRadius: '12px', bgcolor: 'background.paper', boxShadow: 'none' }}>
+        <Typography variant="h6" sx={{ flex: 1, flexBasis: { xs: '100%', sm: 'auto' }, whiteSpace: 'nowrap' }}>{t('library_title')} <Typography component="span" color="text.secondary">{scripts.length}</Typography></Typography>
+        <Button variant="contained" onClick={() => { createNewScript(); setMasonryDetailOpen(true); setIsEditMode(true); if (isMobile) setListOpen(false) }}>{t('new_script')}</Button>
+        <Button variant="outlined" onClick={() => setImportOpen(true)}>{t('library_import')}</Button>
+        <Button onClick={e => setDisplayAnchor(e.currentTarget)} aria-expanded={Boolean(displayAnchor)}>{t('library_display_settings')}</Button>
+      </Paper>
+      <Popover open={Boolean(displayAnchor)} anchorEl={displayAnchor} onClose={() => setDisplayAnchor(null)} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} transformOrigin={{ vertical: 'top', horizontal: 'right' }}>
+        <Box sx={{ p: 2, width: 280, display: 'grid', gap: 2 }}>
+          <Typography variant="subtitle2">{t('library_display_settings')}</Typography>
+          <TextField select size="small" label={t('library_browse_view')} value={browseMode} onChange={e => { handleBrowseModeChange(e.target.value as 'list' | 'masonry'); setDisplayAnchor(null) }}>
+            <MenuItem value="list">{t('library_list_view')}</MenuItem><MenuItem value="masonry">{t('library_card_view')}</MenuItem>
+          </TextField>
+          <TextField select size="small" label={t('library_reading_layout')} value={viewColumns} onChange={e => setViewColumns(Number(e.target.value) as 1 | 2)}>
+            <MenuItem value={1}>{t('single_column')}</MenuItem><MenuItem value={2}>{t('two_columns')}</MenuItem>
+          </TextField>
+          <FormControlLabel control={<Switch checked={!hideAbility} onChange={(_, checked) => setHideAbility(!checked)} />} label={t('show_ability_text')} />
+          <TextField select size="small" label={t('lang')} value={uiLanguage} onChange={e => onLanguageChange(e.target.value as Language)}>
+            <MenuItem value="en">EN</MenuItem><MenuItem value="zh">中文</MenuItem>
+          </TextField>
+        </Box>
+      </Popover>
+      {importOpen && <ScriptImportDialog open onClose={() => setImportOpen(false)} folders={scriptFolders} onImport={(items, folder) => { importScripts(items, folder); setMasonryDetailOpen(true); if (isMobile) setListOpen(false) }} />}
+      <ResponsiveDialog open={exportOpen} onClose={() => setExportOpen(false)}>
+        <DialogTitle>{t('library_export')} · {activeScript && getScriptTitle(activeScript)}</DialogTitle>
+        <ResponsiveDialogContent><Box sx={{ display: 'grid', gap: 2, py: 1 }}>
+          <Button variant="outlined" startIcon={<DownloadIcon />} onClick={() => { downloadScriptFile(); setExportOpen(false) }}>{t('library_export_json')}</Button>
+          <Button variant="outlined" startIcon={<PrintIcon />} onClick={() => { setExportOpen(false); onPrintClick() }}>{t('library_export_pdf')}</Button>
+          <Button variant="outlined" startIcon={<ShareIcon />} onClick={() => { setExportOpen(false); void openShareDialog() }}>{t('library_export_link')}</Button>
+        </Box></ResponsiveDialogContent>
+        <ResponsiveDialogActions><Button onClick={() => setExportOpen(false)}>{t('cancel')}</Button></ResponsiveDialogActions>
+      </ResponsiveDialog>
       {/* ── Card gallery (masonry mode — full width, hides when detail open) ── */}
       {browseMode === 'masonry' && !masonryDetailOpen && (
         <Paper elevation={0} sx={{
@@ -266,8 +295,6 @@ export function ScriptsTab({
             onDetailOpen={() => setMasonryDetailOpen(true)}
             isBuiltIn={isBuiltIn}
             scriptFolders={scriptFolders}
-            createNewScript={createNewScript}
-            importScriptFile={importScriptFile}
             deleteScript={deleteScript}
             duplicateScript={duplicateScript}
             createFolder={createFolder}
@@ -284,19 +311,17 @@ export function ScriptsTab({
           p: 1.5, borderRadius: 3, bgcolor: 'background.paper',
           border: '1px solid', borderColor: 'divider',
           display: 'flex', flexDirection: 'column', gap: 1,
-          height: '100%', overflow: 'hidden',
+          height: { xs: 'calc(100dvh - 260px)', sm: 'calc(100dvh - 220px)' }, minHeight: 300, overflow: 'hidden',
         }}>
           <ScriptsLeftPanel
+            createNewScript={() => { createNewScript(); setIsEditMode(true) }}
             scripts={scripts}
             activeScript={activeScript}
             language={uiLanguage}
             isMobile={isMobile}
-            onBrowseModeChange={handleBrowseModeChange}
             getScriptTitle={getScriptTitle}
-            setActiveSlug={setActiveSlug}
+            setActiveSlug={slug => { setActiveSlug(slug); if (isMobile) setListOpen(false) }}
             onClose={() => setListOpen(false)}
-            createNewScript={createNewScript}
-            importScriptFile={importScriptFile}
             deleteScript={deleteScript}
             duplicateScript={duplicateScript}
             isBuiltIn={isBuiltIn}
@@ -304,14 +329,13 @@ export function ScriptsTab({
             createFolder={createFolder}
             renameFolder={renameFolder}
             deleteFolder={deleteFolder}
-            toggleFolderCollapsed={toggleFolderCollapsed}
             moveScriptToFolder={moveScriptToFolder}
           />
         </Paper>
       )}
 
       {/* ── Detail panel — list mode always; masonry mode only when detail open ── */}
-      {(browseMode === 'list' || masonryDetailOpen) && (
+      {(browseMode === 'list' ? !(isMobile && showList) : masonryDetailOpen) && (
       <Paper elevation={0} sx={{ p: 2, borderRadius: 3, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', height: '100%', boxSizing: 'border-box' }}>
         {activeScript ? (
           <>
@@ -325,72 +349,22 @@ export function ScriptsTab({
                   </IconButton>
                 </Tooltip>
               ) : (
-                /* Toggle list sidebar */
-                <IconButton size="small" onClick={() => setListOpen((v) => !v)}
-                  title={showList ? 'Hide list' : 'Show list'}>
-                  {showList ? <MenuOpenIcon fontSize="small" /> : <MenuIcon fontSize="small" />}
-                </IconButton>
+                !showList && <Button size="small" startIcon={<MenuIcon />} onClick={() => setListOpen(true)}>{t('library_choose_script')}</Button>
               )}
               {!isBuiltIn(activeScript.slug) && (
                 <Button variant="outlined" size="small" onClick={() => setIsEditMode((c) => !c)}>
                   {isEditMode ? uiText.doneEditing : uiText.editScript}
                 </Button>
               )}
-              <Tooltip title={uiText.downloadJson}>
-                <IconButton size="small" onClick={downloadScriptFile}>
-                  <DownloadIcon fontSize="small" />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title={t('copy_share_link')}>
-                <IconButton size="small" onClick={openShareDialog}>
-                  <ShareIcon fontSize="small" />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title={showWakeOrderPreview
-                ? (t('hide_night_order'))
-                : (t('show_night_order'))}>
-                <IconButton size="small"
-                  onClick={() => setShowWakeOrderPreview((c) => !c)}
-                  color={showWakeOrderPreview ? 'primary' : 'default'}>
-                  <NightsStayIcon fontSize="small" />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title={viewColumns === 2
-                ? (t('single_column'))
-                : (t('two_columns'))}>
-                <IconButton size="small" onClick={() => setViewColumns((v) => (v === 1 ? 2 : 1))}>
-                  {viewColumns === 2
-                    ? <ViewListIcon fontSize="small" />
-                    : <ViewModuleIcon fontSize="small" />}
-                </IconButton>
-              </Tooltip>
-              <Tooltip title={hideAbility
-                ? (t('show_ability_text'))
-                : (t('hide_ability_text'))}>
-                <IconButton size="small"
-                  onClick={() => setHideAbility((v) => !v)}
-                  color={hideAbility ? 'primary' : 'default'}>
-                  {hideAbility ? <SortIcon fontSize="small" /> : <SubjectIcon fontSize="small" />}
-                </IconButton>
-              </Tooltip>
-              {saveStatus && <Typography variant="body2" color="text.secondary">{saveStatus}</Typography>}
-              <Box sx={{ flex: 1 }} />
-              <FormControl size="small" sx={{ minWidth: 72, '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' }, '& .MuiInputLabel-root': { fontSize: '0.8rem' } }}>
-                <InputLabel>{t('lang')}</InputLabel>
-                <Select value={uiLanguage} label={t('lang')}
-                  onChange={(e) => onLanguageChange(e.target.value as Language)}>
-                  <MenuItem value="en">EN</MenuItem>
-                  <MenuItem value="zh">中文</MenuItem>
-                </Select>
-              </FormControl>
-              <Tooltip title={t('print_pdf')}>
-                <IconButton size="small" onClick={onPrintClick}>
-                  <PrintIcon fontSize="small" />
-                </IconButton>
-              </Tooltip>
+              {isBuiltIn(activeScript.slug) && <Button size="small" variant="outlined" onClick={() => { duplicateScript(activeScript.slug); setIsEditMode(true) }}>{t('library_copy_edit')}</Button>}
+              <Button size="small" variant="contained" onClick={() => setExportOpen(true)}>{t('library_export')}</Button>
+              <Button size="small" onClick={() => setTagsOpen(v => !v)} aria-expanded={tagsOpen}>{t('library_tags_notes')}{activeScript.tags?.length ? ` (${activeScript.tags.length})` : ''}{activeScript.notes?.trim() ? ' •' : ''}</Button>
+              {saveStatus && <Typography role="status" variant="body2" color="text.secondary">{saveStatus}</Typography>}
+
             </Box>
 
             {/* ── Tags + Note bar ── */}
+            <Collapse in={tagsOpen}>
             {(() => {
               const activeTags = activeScript.tags ?? []
               const note = activeScript.notes ?? ''
@@ -464,6 +438,8 @@ export function ScriptsTab({
               )
             })()}
 
+            </Collapse>
+
             {/* ── Night order preview (standalone, collapsible) ── */}
             {!isEditMode && (
               <Box sx={{ mb: 2 }}>
@@ -490,6 +466,7 @@ export function ScriptsTab({
                 showWakeOrder={false}
                 viewColumns={viewColumns}
                 hideAbility={hideAbility}
+                supplementalPlacement="end"
               />
             )}
 

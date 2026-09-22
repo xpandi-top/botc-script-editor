@@ -1,508 +1,145 @@
-import React, { useEffect, useDeferredValue, useMemo, useState } from 'react'
-import {
-  Box, Chip, Collapse, Divider, IconButton, ListItemIcon, ListItemText,
-  Menu, MenuItem, Select, TextField,
-  Tooltip, Typography,
-} from '@mui/material'
-import AddIcon from '@mui/icons-material/Add'
-import DashboardIcon from '@mui/icons-material/Dashboard'
-import ExpandLessIcon from '@mui/icons-material/ExpandLess'
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import FileOpenIcon from '@mui/icons-material/FileOpen'
-import FolderIcon from '@mui/icons-material/Folder'
+import { useDeferredValue, useMemo, useState } from 'react'
+import { Autocomplete, Box, Button, Chip, DialogTitle, IconButton, InputAdornment, Menu, MenuItem, TextField, Tooltip, Typography } from '@mui/material'
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
+import CloseIcon from '@mui/icons-material/Close'
 import MenuOpenIcon from '@mui/icons-material/MenuOpen'
-import ContentCopyIcon from '@mui/icons-material/ContentCopy'
-import DeleteIcon from '@mui/icons-material/Delete'
-import DriveFileMoveIcon from '@mui/icons-material/DriveFileMove'
-import FolderOffIcon from '@mui/icons-material/FolderOff'
-import SortIcon from '@mui/icons-material/Sort'
-import { ScriptFolderRow, NewFolderButton } from './ScriptFolderRow'
 import { allCharacters, getDisplayName } from '../../catalog'
-import { ScriptCard } from './ScriptCard'
-import { SCRIPT_TAG_META, SCRIPT_TAGS } from '../tabs/ScriptsTab.constants'
-import type { EditableScript, Language, ScriptFolder } from '../../types'
 import { useT } from '../../context/I18nContext'
-
-// ── Constants ────────────────────────────────────────────────────────────────
+import { ResponsiveDialog, ResponsiveDialogActions, ResponsiveDialogContent } from '../ui'
+import { ScriptCard } from './ScriptCard'
+import { SCRIPT_TAG_META } from '../tabs/ScriptsTab.constants'
+import type { EditableScript, Language, ScriptFolder } from '../../types'
 
 const OFFICIAL = new Set(['tb', 'bmr', 'snv'])
-// Max CSS height per section before it scrolls internally
-const SECTION_MAX_H = 360
-
-// ── Script row (plain div — no react-window) ─────────────────────────────────
-
-type RowProps = {
-  script: EditableScript
-  isActive: boolean
-  deletable: boolean
-  canFolder: boolean           // true for DIY + community (not official)
-  language: Language
-  folders: ScriptFolder[]
-  onSelect: () => void
-  duplicateScript: (slug: string) => void
-  deleteScript: (slug: string) => void
-  moveScriptToFolder: (slug: string, folderId: string | undefined) => void
-}
-
-function ScriptRow({ script, isActive, deletable, canFolder, language, folders, onSelect, duplicateScript, deleteScript, moveScriptToFolder }: RowProps) {
-  const { t } = useT()
-  const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null)
-
-  return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25, pr: 0.5 }}>
-      <Box sx={{ flex: 1, minWidth: 0 }}>
-        <ScriptCard
-          script={script}
-          isActive={isActive}
-          isBuiltIn={!deletable}
-          language={language}
-          onSelect={onSelect}
-        />
-      </Box>
-      {/* Copy-to-DIY: official + community */}
-      {!deletable && (
-        <Tooltip title={t('copy_to_diy')}>
-          <IconButton size="small" onClick={() => duplicateScript(script.slug)}
-            sx={{ flexShrink: 0, opacity: 0.35, '&:hover': { opacity: 1 } }}>
-            <ContentCopyIcon sx={{ fontSize: 13 }} />
-          </IconButton>
-        </Tooltip>
-      )}
-      {/* Move-to-folder: DIY + community */}
-      {canFolder && folders.length > 0 && (
-        <>
-          <Tooltip title={t('move_to_folder')}>
-            <IconButton size="small" onClick={(e) => setMenuAnchor(e.currentTarget)}
-              sx={{ flexShrink: 0, opacity: 0.35, '&:hover': { opacity: 1 } }}>
-              <DriveFileMoveIcon sx={{ fontSize: 13 }} />
-            </IconButton>
-          </Tooltip>
-          <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={() => setMenuAnchor(null)}
-            slotProps={{ paper: { sx: { minWidth: 160 } } }}>
-            {script.folderId && (
-              <MenuItem dense onClick={() => { moveScriptToFolder(script.slug, undefined); setMenuAnchor(null) }}>
-                <ListItemIcon><FolderOffIcon sx={{ fontSize: 16 }} /></ListItemIcon>
-                <ListItemText slotProps={{ primary: { sx: { fontSize: '0.8rem' } } }}>
-                  {t('remove_from_folder')}
-                </ListItemText>
-              </MenuItem>
-            )}
-            {folders.map((f) => f.id !== script.folderId && (
-              <MenuItem key={f.id} dense onClick={() => { moveScriptToFolder(script.slug, f.id); setMenuAnchor(null) }}>
-                <ListItemIcon><FolderIcon sx={{ fontSize: 16, color: 'warning.main' }} /></ListItemIcon>
-                <ListItemText slotProps={{ primary: { sx: { fontSize: '0.8rem' } } }}>{f.name}</ListItemText>
-              </MenuItem>
-            ))}
-          </Menu>
-        </>
-      )}
-      {/* Delete: DIY only */}
-      {deletable && (
-        <Tooltip title={t('delete')}>
-          <IconButton size="small" color="error" onClick={() => deleteScript(script.slug)}
-            sx={{ flexShrink: 0, opacity: 0.45, '&:hover': { opacity: 1 } }}>
-            <DeleteIcon sx={{ fontSize: 14 }} />
-          </IconButton>
-        </Tooltip>
-      )}
-    </Box>
-  )
-}
-
-// ── Props ────────────────────────────────────────────────────────────────────
-
+type Source = 'all' | 'official' | 'community' | 'mine'
 type Props = {
-  scripts: EditableScript[]
-  activeScript: EditableScript | undefined
-  language: Language
-  isMobile: boolean
-  onBrowseModeChange: (mode: 'list' | 'masonry') => void
-  getScriptTitle: (s: EditableScript) => string
-  setActiveSlug: (slug: string) => void
-  onClose: () => void
-  createNewScript: () => void
-  importScriptFile: (file: File) => void
-  deleteScript: (slug: string) => void
-  duplicateScript: (slug: string) => void
-  isBuiltIn: (slug: string) => boolean
-  scriptFolders: ScriptFolder[]
+  scripts: EditableScript[]; activeScript: EditableScript | undefined; language: Language; isMobile: boolean
+  getScriptTitle: (s: EditableScript) => string; setActiveSlug: (slug: string) => void; onClose: () => void
+  createNewScript: () => void; deleteScript: (slug: string) => void; duplicateScript: (slug: string) => void
+  isBuiltIn: (slug: string) => boolean; scriptFolders: ScriptFolder[]
   createFolder: (name: string, section?: 'community' | 'diy') => ScriptFolder
-  renameFolder: (id: string, name: string) => void
-  deleteFolder: (id: string) => void
-  toggleFolderCollapsed: (id: string) => void
+  renameFolder: (id: string, name: string) => void; deleteFolder: (id: string) => void
   moveScriptToFolder: (slug: string, folderId: string | undefined) => void
 }
 
-// ── Component ────────────────────────────────────────────────────────────────
-
-export function ScriptsLeftPanel({
-  scripts,
-  activeScript,
-  language,
-  isMobile,
-  onBrowseModeChange,
-  getScriptTitle,
-  setActiveSlug,
-  onClose,
-  createNewScript,
-  importScriptFile,
-  deleteScript,
-  duplicateScript,
-  isBuiltIn,
-  scriptFolders,
-  createFolder,
-  renameFolder,
-  deleteFolder,
-  toggleFolderCollapsed,
-  moveScriptToFolder,
-}: Props) {
-
+export function ScriptsLeftPanel({ scripts, activeScript, language, isMobile, getScriptTitle, setActiveSlug, onClose,
+  createNewScript, deleteScript, duplicateScript, isBuiltIn, scriptFolders, createFolder, renameFolder, deleteFolder, moveScriptToFolder }: Props) {
   const { t } = useT()
-  const zh = language === 'zh'
-  const [officialOpen, setOfficialOpen]   = useState(true)
-  const [communityOpen, setCommunityOpen] = useState(true)
-  const [diyOpen, setDiyOpen]             = useState(true)
-  const [scriptSearch, setScriptSearch]   = useState('')
-  const deferredSearch = useDeferredValue(scriptSearch)
-  const [tagFilter, setTagFilter]         = useState<string | null>(null)
-  const [sortKey, setSortKey]             = useState<'default' | 'name' | 'author' | 'chars'>('default')
+  const [query, setQuery] = useState('')
+  const deferredQuery = useDeferredValue(query)
+  const [source, setSource] = useState<Source>('all')
+  const [sort, setSort] = useState('default')
+  const [folder, setFolder] = useState<string | null>(null)
+  const [tag, setTag] = useState<string | null>(null)
+  const [menu, setMenu] = useState<{ anchor: HTMLElement; script: EditableScript | null } | null>(null)
+  const [moveScript, setMoveScript] = useState<EditableScript | null>(null)
+  const [pendingDelete, setPendingDelete] = useState<EditableScript | null>(null)
+  const [manageOpen, setManageOpen] = useState(false)
+  const [folderName, setFolderName] = useState('')
+  const [section, setSection] = useState<'community' | 'diy'>('diy')
+  const [rename, setRename] = useState<{ id: string; name: string } | null>(null)
+  const sourceOf = (s: EditableScript): Source => OFFICIAL.has(s.slug) ? 'official' : isBuiltIn(s.slug) ? 'community' : 'mine'
+  const labels = { all: t('all'), official: t('official'), community: t('community'), mine: t('nav_mine') }
+  const sortLabels = { default: t('default'), name: t('name_az'), author: t('author_2'), chars: t('char_count') }
+  const tags = [...new Set(scripts.flatMap(s => s.tags ?? []))]
+  const tagTitle = (value: string) => SCRIPT_TAG_META[value]?.[language === 'zh' ? 'zh' : 'en'] ?? value
+  const index = useMemo(() => {
+    const names = new Map(allCharacters.map(c => [c.id, `${getDisplayName(c.id, 'en')} ${getDisplayName(c.id, 'zh')}`]))
+    return new Map(scripts.map(s => [s.slug, [s.title, s.titleZh, s.author, s.slug, ...(s.tags ?? []),
+      scriptFolders.find(f => f.id === s.folderId)?.name ?? '', ...s.characters.map(id => `${id} ${names.get(id) ?? ''}`),
+      ...s.customCharacters.map(c => c.name ?? ''),
+    ].join(' ').toLocaleLowerCase()]))
+  }, [scripts, scriptFolders])
+  const matches = scripts.filter(s => deferredQuery.toLocaleLowerCase().trim().split(/\s+/).every(token => index.get(s.slug)?.includes(token)) &&
+    (!folder || s.folderId === folder) && (!tag || s.tags?.includes(tag)))
+  const visible = matches.filter(s => source === 'all' || sourceOf(s) === source).sort((a, b) => {
+    if (sort === 'name') return getScriptTitle(a).localeCompare(getScriptTitle(b), language)
+    if (sort === 'author') return a.author.localeCompare(b.author, language) || getScriptTitle(a).localeCompare(getScriptTitle(b), language)
+    if (sort === 'chars') return b.characters.length - a.characters.length
+    return (sourceOf(a) === 'official' ? 0 : sourceOf(a) === 'community' ? 1 : 2) - (sourceOf(b) === 'official' ? 0 : sourceOf(b) === 'community' ? 1 : 2)
+  })
+  const reset = () => { setQuery(''); setFolder(null); setTag(null); setSource('all') }
+  const selected = menu?.script
+  const moveFolders = moveScript ? scriptFolders.filter(f => (f.section ?? 'diy') === (isBuiltIn(moveScript.slug) ? 'community' : 'diy')) : []
 
-  // ── Character name index ──────────────────────────────────────────────────
-  const charNameIndex = useMemo(() => {
-    const m = new Map<string, string>()
-    for (const c of allCharacters) {
-      m.set(c.id, `${getDisplayName(c.id, 'en').toLowerCase()}|${getDisplayName(c.id, 'zh').toLowerCase()}`)
-    }
-    return m
-  }, [])
-
-  // ── Filter + sort ─────────────────────────────────────────────────────────
-  const { official, community, diy, isFiltering } = useMemo(() => {
-    const q = deferredSearch.trim().toLowerCase()
-
-    const filter = (s: EditableScript) => {
-      if (tagFilter && !(s.tags ?? []).includes(tagFilter)) return false
-      if (!q) return true
-      if (s.title.toLowerCase().includes(q)) return true
-      if (s.titleZh.toLowerCase().includes(q)) return true
-      if (s.author.toLowerCase().includes(q)) return true
-      return s.characters.some((id) => charNameIndex.get(id)?.includes(q) ?? false)
-    }
-
-    const sort = (arr: EditableScript[]) => {
-      if (sortKey === 'default') return arr
-      return [...arr].sort((a, b) => {
-        if (sortKey === 'name')   return getScriptTitle(a).localeCompare(getScriptTitle(b))
-        if (sortKey === 'author') return (a.author || '').localeCompare(b.author || '')
-        if (sortKey === 'chars')  return b.characters.length - a.characters.length
-        return 0
-      })
-    }
-
-    return {
-      official:    sort(scripts.filter((s) => OFFICIAL.has(s.slug)                           && filter(s))),
-      community:   sort(scripts.filter((s) => isBuiltIn(s.slug) && !OFFICIAL.has(s.slug)     && filter(s))),
-      diy:         sort(scripts.filter((s) => !isBuiltIn(s.slug)                             && filter(s))),
-      isFiltering: !!q || !!tagFilter,
-    }
-  }, [scripts, deferredSearch, tagFilter, sortKey, charNameIndex, isBuiltIn, getScriptTitle])
-
-  // ── Auto-expand section containing the active script ─────────────────────
-  const activeSlug = activeScript?.slug
-  useEffect(() => {
-    if (!activeSlug || isFiltering) return
-    if (diy.some((s) => s.slug === activeSlug))       { setDiyOpen(true);       return }
-    if (community.some((s) => s.slug === activeSlug)) { setCommunityOpen(true); return }
-    if (official.some((s) => s.slug === activeSlug))  { setOfficialOpen(true);  return }
-  }, [activeSlug])  // eslint-disable-line react-hooks/exhaustive-deps
-
-  // ── Tag filter chips (only tags in use) ──────────────────────────────────
-  const filterTags = useMemo(() => {
-    const allUsed = [...new Set(scripts.flatMap((s) => s.tags ?? []))]
-    const custom  = allUsed.filter((t) => !SCRIPT_TAG_META[t])
-    const preset  = SCRIPT_TAGS.filter((t) => allUsed.includes(t))
-    return [...preset, ...custom]
-  }, [scripts])
-
-  const communityFolders = scriptFolders.filter((f) => (f.section ?? 'diy') === 'community')
-  const diyFolders       = scriptFolders.filter((f) => (f.section ?? 'diy') === 'diy')
-
-  // ── Shared row renderer ───────────────────────────────────────────────────
-  // canFolder = true for DIY (deletable) + community (!deletable && !official)
-  const mkRows = (rows: EditableScript[], deletable: boolean, canFolder = false, sectionFolders = diyFolders) =>
-    rows.map((script) => (
-      <ScriptRow
-        key={script.slug}
-        script={script}
-        isActive={script.slug === activeSlug}
-        deletable={deletable}
-        canFolder={deletable || canFolder}
-        language={language}
-        folders={sectionFolders}
-        onSelect={() => { setActiveSlug(script.slug); if (isMobile) onClose() }}
-        duplicateScript={duplicateScript}
-        deleteScript={deleteScript}
-        moveScriptToFolder={moveScriptToFolder}
-      />
-    ))
-
-  const chipSx = {
-    fontSize: '0.72rem', height: 22, fontWeight: 600,
-    '& .MuiChip-icon': { fontSize: '0.85rem' },
-  }
-
-  return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, height: '100%', minHeight: 0 }}>
-      {/* ── Toolbar ── */}
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0 }}>
-        <Typography variant="subtitle2" sx={{ flex: 1, fontWeight: 700, fontSize: '0.85rem' }}>
-          {t('script_sheet')}
-          <Typography component="span" variant="caption" color="text.secondary" sx={{ ml: 0.75 }}>
-            ({official.length + community.length + diy.length})
-          </Typography>
-        </Typography>
-        <Tooltip title={t('switch_to_card_view')}>
-          <IconButton size="small" onClick={() => onBrowseModeChange('masonry')}
-            sx={{ opacity: 0.7, '&:hover': { opacity: 1 } }}>
-            <DashboardIcon sx={{ fontSize: 15 }} />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title={t('new_script')}>
-          <IconButton size="small" onClick={createNewScript}><AddIcon sx={{ fontSize: 16 }} /></IconButton>
-        </Tooltip>
-        <Tooltip title={t('import_json')}>
-          <IconButton size="small" component="label">
-            <FileOpenIcon sx={{ fontSize: 16 }} />
-            <input type="file" accept=".json" hidden onChange={(e) => {
-              const file = e.target.files?.[0]
-              if (file) { importScriptFile(file); e.target.value = '' }
-            }} />
-          </IconButton>
-        </Tooltip>
-        <IconButton size="small" onClick={onClose}>
-          <MenuOpenIcon sx={{ fontSize: 16 }} />
-        </IconButton>
-      </Box>
-
-      {/* ── Search + Sort ── */}
-      <Box sx={{ display: 'flex', gap: 0.5, flexShrink: 0 }}>
-        <TextField
-          size="small" fullWidth
-          placeholder={t('search_title_author_character')}
-          value={scriptSearch}
-          onChange={(e) => setScriptSearch(e.target.value)}
-          slotProps={{ input: { sx: { fontSize: '0.78rem', pr: 0.5 } }, htmlInput: { 'data-tutorial': 'script-search' } }}
-          sx={{ '& .MuiInputBase-root': { borderRadius: 1.5 } }}
-        />
-        <Select
-          size="small" value={sortKey}
-          onChange={(e) => setSortKey(e.target.value as typeof sortKey)}
-          renderValue={() => <SortIcon sx={{ fontSize: 16, display: 'block' }} />}
-          sx={{
-            minWidth: 36,
-            '& .MuiSelect-select': { py: '6px', px: '6px !important', display: 'flex', alignItems: 'center' },
-            '& .MuiSelect-icon': { display: 'none' },
-          }}
-        >
-          <MenuItem value="default" sx={{ fontSize: '0.8rem' }}>{t('default')}</MenuItem>
-          <MenuItem value="name"    sx={{ fontSize: '0.8rem' }}>{t('name_az')}</MenuItem>
-          <MenuItem value="author"  sx={{ fontSize: '0.8rem' }}>{t('author_2')}</MenuItem>
-          <MenuItem value="chars"   sx={{ fontSize: '0.8rem' }}>{t('char_count')}</MenuItem>
-        </Select>
-      </Box>
-
-      {/* ── Tag filter chips ── */}
-      {filterTags.length > 0 && (
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.4, flexShrink: 0 }}>
-          <Chip size="small" label={t('all')}
-            variant={tagFilter === null ? 'filled' : 'outlined'}
-            color={tagFilter === null ? 'primary' : 'default'}
-            onClick={() => setTagFilter(null)} sx={chipSx} />
-          {filterTags.map((tag) => {
-            const meta = SCRIPT_TAG_META[tag]
-            const IconComp = meta?.Icon
-            return (
-              <Chip key={tag} size="small"
-                label={meta ? (zh ? meta.zh : meta.en) : tag}
-                icon={IconComp ? <IconComp /> : undefined}
-                variant={tagFilter === tag ? 'filled' : 'outlined'}
-                color={tagFilter === tag ? 'primary' : 'default'}
-                onClick={() => setTagFilter((c) => c === tag ? null : tag)}
-                sx={chipSx} />
-            )
-          })}
+  return <Box component="nav" aria-label={t('nav_scripts')} sx={{ display: 'flex', flexDirection: 'column', gap: 1, minHeight: 0, height: '100%' }}>
+    <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
+      <TextField size="small" fullWidth label={t('search_title_author_character')} value={query} onChange={e => setQuery(e.target.value)}
+        slotProps={{ htmlInput: { 'data-tutorial': 'script-search' }, input: { endAdornment: query ? <InputAdornment position="end"><IconButton size="small" aria-label={t('clear')} onClick={() => setQuery('')}><CloseIcon fontSize="small" /></IconButton></InputAdornment> : undefined } }} />
+      <Tooltip title={t('nav_hide')}><IconButton size="small" aria-label={t('nav_hide')} onClick={onClose}><MenuOpenIcon fontSize="small" /></IconButton></Tooltip>
+    </Box>
+    <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }} role="group" aria-label={t('library_source')}>
+      {(['all', 'official', 'community', 'mine'] as const).map(value => <Chip key={value} size="small" label={`${labels[value]} ${value === 'all' ? matches.length : matches.filter(s => sourceOf(s) === value).length}`}
+        color={source === value ? 'primary' : 'default'} variant={source === value ? 'filled' : 'outlined'} aria-pressed={source === value}
+        onClick={() => setSource(value)} sx={{ '& .MuiChip-label': { px: 0.75 } }} />)}
+    </Box>
+    <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
+      <TextField select size="small" label={t('library_sort')} value={sort} onChange={e => setSort(e.target.value)} sx={{ flex: 1, mt: 0.5 }}>
+        {Object.entries(sortLabels).map(([value, label]) => <MenuItem key={value} value={value}>{label}</MenuItem>)}
+      </TextField>
+      <Button size="small" onClick={e => setMenu({ anchor: e.currentTarget, script: null })}>{t('nav_manage')}</Button>
+    </Box>
+    {scriptFolders.length > 0 && <Autocomplete size="small" options={scriptFolders} value={scriptFolders.find(f => f.id === folder) ?? null}
+      getOptionLabel={f => f.name} getOptionKey={f => f.id} isOptionEqualToValue={(a, b) => a.id === b.id}
+      onChange={(_, f) => { setFolder(f?.id ?? null); setSource('all') }} renderInput={params => <TextField {...params} label={t('library_folder')} />} />}
+    {tags.length > 0 && <Autocomplete size="small" options={tags} value={tag} getOptionLabel={tagTitle} onChange={(_, value) => setTag(value)}
+      renderInput={params => <TextField {...params} label={t('nav_tag_filter')} />} />}
+    {(query || folder || tag) && <Button size="small" onClick={reset}>{t('library_clear_filters')}</Button>}
+    {activeScript && !visible.some(s => s.slug === activeScript.slug) && <Button size="small" onClick={reset}>{t('nav_reveal_current')}</Button>}
+    <Box sx={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
+      {visible.map(script => <Box key={script.slug} sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
+        <Box sx={{ flex: 1, minWidth: 0 }}><ScriptCard script={script} isActive={script.slug === activeScript?.slug} isBuiltIn={isBuiltIn(script.slug)} language={language}
+          onSelect={() => { setActiveSlug(script.slug); if (isMobile) onClose() }} /></Box>
+        <IconButton size="small" aria-label={`${t('nav_more')}: ${getScriptTitle(script)}`} onClick={e => setMenu({ anchor: e.currentTarget, script })}><MoreHorizIcon fontSize="small" /></IconButton>
+      </Box>)}
+      {!visible.length && <Box sx={{ p: 2, textAlign: 'center' }}>
+        <Typography color="text.secondary" variant="body2">{source === 'mine' && !query && !folder && !tag ? t('nav_empty_mine') : t('no_matches')}</Typography>
+        {source === 'mine' && !query && !folder && !tag && <Button onClick={() => { createNewScript(); if (isMobile) onClose() }}>{t('new_script')}</Button>}
+      </Box>}
+    </Box>
+    <Menu anchorEl={menu?.anchor} open={Boolean(menu)} onClose={() => setMenu(null)}>
+      {selected ? [
+        <MenuItem key="copy" onClick={() => { duplicateScript(selected.slug); reset(); setSource('mine'); setMenu(null) }}>{t('copy_to_diy')}</MenuItem>,
+        !OFFICIAL.has(selected.slug) && <MenuItem key="move" onClick={() => { setMoveScript(selected); setMenu(null) }}>{t('move_to_folder')}</MenuItem>,
+        !isBuiltIn(selected.slug) && <MenuItem key="delete" sx={{ color: 'error.main' }} onClick={() => { setPendingDelete(selected); setMenu(null) }}>{t('delete')}</MenuItem>,
+      ] : <MenuItem onClick={() => { setManageOpen(true); setMenu(null) }}>{t('nav_folders')}</MenuItem>}
+    </Menu>
+    <ResponsiveDialog open={Boolean(moveScript)} onClose={() => setMoveScript(null)}>
+      <DialogTitle>{t('move_to_folder')} · {moveScript && getScriptTitle(moveScript)}</DialogTitle>
+      <ResponsiveDialogContent>
+        <Button fullWidth onClick={() => { if (moveScript) moveScriptToFolder(moveScript.slug, undefined); setMoveScript(null) }}>{t('library_unfiled')}</Button>
+        {moveFolders.map(f => <Button key={f.id} fullWidth onClick={() => { if (moveScript) moveScriptToFolder(moveScript.slug, f.id); setMoveScript(null) }}>{f.name}</Button>)}
+        {!moveFolders.length && <Typography color="text.secondary">{t('nav_no_folders')}</Typography>}
+      </ResponsiveDialogContent>
+      <ResponsiveDialogActions><Button onClick={() => setMoveScript(null)}>{t('cancel')}</Button></ResponsiveDialogActions>
+    </ResponsiveDialog>
+    <ResponsiveDialog open={manageOpen} onClose={() => setManageOpen(false)}>
+      <DialogTitle>{t('nav_folders')}</DialogTitle>
+      <ResponsiveDialogContent>
+        <Box sx={{ display: 'grid', gap: 2, py: 1 }}>
+          <TextField size="small" label={t('nav_new_folder')} value={folderName} onChange={e => setFolderName(e.target.value)} />
+          <TextField select size="small" label={t('library_source')} value={section} onChange={e => setSection(e.target.value as 'community' | 'diy')}>
+            <MenuItem value="community">{t('community')}</MenuItem><MenuItem value="diy">{t('nav_mine')}</MenuItem>
+          </TextField>
+          <Button variant="outlined" disabled={!folderName.trim()} onClick={() => { createFolder(folderName.trim(), section); setFolderName('') }}>{t('nav_new_folder')}</Button>
+          {scriptFolders.map(f => <Box key={f.id} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Typography sx={{ flex: 1 }}>{f.name} · {(f.section ?? 'diy') === 'community' ? t('community') : t('nav_mine')}</Typography>
+            <Button size="small" onClick={() => setRename({ id: f.id, name: f.name })}>{t('rename_folder')}</Button>
+            <Button size="small" color="error" onClick={() => { deleteFolder(f.id); if (folder === f.id) setFolder(null) }}>{t('delete')}</Button>
+          </Box>)}
+          <Typography variant="caption" color="text.secondary">{t('nav_delete_folder_hint')}</Typography>
         </Box>
-      )}
-
-      {isFiltering && (
-        <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem', flexShrink: 0 }}>
-          {official.length + community.length + diy.length} {t('results_suffix')}
-        </Typography>
-      )}
-
-      {/* ── Script sections ── */}
-      <Box sx={{ flex: 1, overflow: 'auto', minHeight: 0 }}>
-        {isFiltering ? (
-          // Flat scrollable list when filtering
-          official.length + community.length + diy.length === 0 ? (
-            <Typography variant="caption" color="text.secondary" sx={{ pl: 0.5 }}>
-              {t('no_matches')}
-            </Typography>
-          ) : (
-            <>
-              {mkRows(official, false)}
-              {mkRows(community, false, true, communityFolders)}
-              {mkRows(diy, true, false, diyFolders)}
-            </>
-          )
-        ) : (
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
-            {/* Official */}
-            <SectionHeader label={t('official')} count={official.length}
-              open={officialOpen} onToggle={() => setOfficialOpen((v) => !v)} />
-            <Collapse in={officialOpen}>
-              <Box sx={{ maxHeight: SECTION_MAX_H, overflow: 'auto' }}>
-                {official.length > 0 ? mkRows(official, false) : <EmptyRow />}
-              </Box>
-            </Collapse>
-
-            <Divider sx={{ my: 0.25 }} />
-
-            {/* Community */}
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Box sx={{ flex: 1 }}>
-                <SectionHeader label={t('community')} count={community.length}
-                  open={communityOpen} onToggle={() => setCommunityOpen((v) => !v)} />
-              </Box>
-              <NewFolderButton language={language} onCreate={(name) => createFolder(name, 'community')} />
-            </Box>
-            <Collapse in={communityOpen}>
-              <Box sx={{ maxHeight: SECTION_MAX_H, overflow: 'auto' }}>
-                {community.length === 0 ? <EmptyRow /> : (
-                  <ScriptTree
-                    scripts={community}
-                    folders={scriptFolders.filter((f) => (f.section ?? 'diy') === 'community')}
-                    language={language}
-                    deletable={false}
-                    canFolder={true}
-                    renameFolder={renameFolder}
-                    deleteFolder={deleteFolder}
-                    toggleFolderCollapsed={toggleFolderCollapsed}
-                    mkRows={mkRows}
-                  />
-                )}
-              </Box>
-            </Collapse>
-
-            <Divider sx={{ my: 0.25 }} />
-
-            {/* DIY */}
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Box sx={{ flex: 1 }}>
-                <SectionHeader label={t('diy')} count={diy.length}
-                  open={diyOpen} onToggle={() => setDiyOpen((v) => !v)} />
-              </Box>
-              <NewFolderButton language={language} onCreate={(name) => createFolder(name, 'diy')} />
-            </Box>
-            <Collapse in={diyOpen}>
-              <Box sx={{ maxHeight: SECTION_MAX_H, overflow: 'auto' }}>
-                {diy.length === 0 ? (
-                  <Typography variant="caption" color="text.secondary"
-                    sx={{ pl: 0.5, fontStyle: 'italic', fontSize: '0.75rem' }}>
-                    {t('copy_a_script_above_to_start')}
-                  </Typography>
-                ) : (
-                  <ScriptTree
-                    scripts={diy}
-                    folders={scriptFolders.filter((f) => (f.section ?? 'diy') === 'diy')}
-                    language={language}
-                    deletable={true}
-                    canFolder={true}
-                    renameFolder={renameFolder}
-                    deleteFolder={deleteFolder}
-                    toggleFolderCollapsed={toggleFolderCollapsed}
-                    mkRows={mkRows}
-                  />
-                )}
-              </Box>
-            </Collapse>
-          </Box>
-        )}
-      </Box>
-    </Box>
-  )
-}
-
-// ── Script folder tree (used by both Community + DIY sections) ───────────────
-
-function ScriptTree({
-  scripts,
-  folders,
-  language,
-  deletable,
-  canFolder,
-  renameFolder,
-  deleteFolder,
-  toggleFolderCollapsed,
-  mkRows,
-}: {
-  scripts: EditableScript[]
-  folders: ScriptFolder[]
-  language: Language
-  deletable: boolean
-  canFolder: boolean
-  renameFolder: (id: string, name: string) => void
-  deleteFolder: (id: string) => void
-  toggleFolderCollapsed: (id: string) => void
-  mkRows: (rows: EditableScript[], deletable: boolean, canFolder?: boolean) => React.ReactNode
-}) {
-  const unfoldered = scripts.filter((s) => !s.folderId)
-  const sorted = [...folders].sort((a, b) => a.order - b.order)
-
-  return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
-      {/* Unfoldered scripts */}
-      {unfoldered.length > 0 && mkRows(unfoldered, deletable, canFolder)}
-
-      {/* Folder sections — all folders including empty ones */}
-      {sorted.map((folder) => {
-        const folderScripts = scripts.filter((s) => s.folderId === folder.id)
-        return (
-          <ScriptFolderRow
-            key={folder.id}
-            folder={folder}
-            count={folderScripts.length}
-            language={language}
-            onToggle={() => toggleFolderCollapsed(folder.id)}
-            onRename={(name) => renameFolder(folder.id, name)}
-            onDelete={() => deleteFolder(folder.id)}
-          >
-            {mkRows(folderScripts, deletable, canFolder)}
-          </ScriptFolderRow>
-        )
-      })}
-    </Box>
-  )
-}
-
-// ── Internal helpers ─────────────────────────────────────────────────────────
-
-function SectionHeader({ label, count, open, onToggle }: {
-  label: string; count: number; open: boolean; onToggle: () => void
-}) {
-  return (
-    <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', userSelect: 'none', py: 0.25 }}
-      onClick={onToggle}>
-      <Typography variant="overline" color="text.secondary" sx={{ fontSize: '0.6rem', lineHeight: 1, flex: 1 }}>
-        {label} ({count})
-      </Typography>
-      {open
-        ? <ExpandLessIcon sx={{ fontSize: 13, color: 'text.secondary' }} />
-        : <ExpandMoreIcon sx={{ fontSize: 13, color: 'text.secondary' }} />}
-    </Box>
-  )
-}
-
-function EmptyRow() {
-  return <Typography variant="caption" color="text.secondary" sx={{ pl: 0.5 }}>—</Typography>
+      </ResponsiveDialogContent>
+      <ResponsiveDialogActions><Button onClick={() => setManageOpen(false)}>{t('close')}</Button></ResponsiveDialogActions>
+    </ResponsiveDialog>
+    <ResponsiveDialog open={Boolean(rename)} onClose={() => setRename(null)}>
+      <DialogTitle>{t('rename_folder')}</DialogTitle>
+      <ResponsiveDialogContent><TextField autoFocus fullWidth label={t('nav_folder_name')} value={rename?.name ?? ''} onChange={e => setRename(current => current && { ...current, name: e.target.value })} sx={{ mt: 1 }} /></ResponsiveDialogContent>
+      <ResponsiveDialogActions><Button onClick={() => setRename(null)}>{t('cancel')}</Button><Button disabled={!rename?.name.trim()} onClick={() => { if (rename) renameFolder(rename.id, rename.name.trim()); setRename(null) }}>{t('save')}</Button></ResponsiveDialogActions>
+    </ResponsiveDialog>
+    <ResponsiveDialog open={Boolean(pendingDelete)} onClose={() => setPendingDelete(null)}>
+      <DialogTitle>{t('delete')} · {pendingDelete && getScriptTitle(pendingDelete)}</DialogTitle>
+      <ResponsiveDialogActions><Button onClick={() => setPendingDelete(null)}>{t('cancel')}</Button><Button color="error" onClick={() => { if (pendingDelete) deleteScript(pendingDelete.slug); setPendingDelete(null) }}>{t('delete')}</Button></ResponsiveDialogActions>
+    </ResponsiveDialog>
+  </Box>
 }
