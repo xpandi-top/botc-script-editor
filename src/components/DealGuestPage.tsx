@@ -147,7 +147,7 @@ export function DealGuestPage({ sessionId, language }: Props) {
   }, [sessionId, state.kind === 'seatClaimed' ? state.seat.seatNumber : null])
 
   useEffect(() => {
-    if (state.kind !== 'claimed') {
+    if (state.kind !== 'claimed' && state.kind !== 'seatClaimed') {
       setActiveVote(null)
       setVoteResponses([])
       return
@@ -320,22 +320,20 @@ export function DealGuestPage({ sessionId, language }: Props) {
     const revealCharacter = state.revealCharacter || manualReveal
     const effectiveSeat = card.assignedSeat ?? card.claimedBySeat ?? null
     const displayName = card.assignedName ?? card.claimedByName ?? ''
-    const votePanel = activeVote ? (
+    const votePanel = activeVote && effectiveSeat != null ? (
       <GuestVotePanel
         vote={activeVote}
         responses={voteResponses}
-        card={card}
+        seat={effectiveSeat}
         now={voteNow}
         language={language}
         submitting={voteSubmitting}
         error={voteError}
         onVote={async (response) => {
-          const seat = card.assignedSeat ?? card.claimedBySeat
-          if (seat == null) return
           setVoteSubmitting(true)
           setVoteError(null)
           try {
-            await submitDealVoteResponse(sessionId, activeVote.voteId, seat, getGuestToken(), response)
+            await submitDealVoteResponse(sessionId, activeVote.voteId, effectiveSeat, getGuestToken(), response)
           } catch (e: unknown) {
             setVoteError(e instanceof Error ? e.message : String(e))
           } finally {
@@ -467,10 +465,33 @@ export function DealGuestPage({ sessionId, language }: Props) {
 
   if (state.kind === 'seatClaimed') {
     const { seat, revealCharacter } = state
+    const votePanel = activeVote ? (
+      <GuestVotePanel
+        vote={activeVote}
+        responses={voteResponses}
+        seat={seat.seatNumber}
+        now={voteNow}
+        language={language}
+        submitting={voteSubmitting}
+        error={voteError}
+        onVote={async (response) => {
+          setVoteSubmitting(true)
+          setVoteError(null)
+          try {
+            await submitDealVoteResponse(sessionId, activeVote.voteId, seat.seatNumber, getGuestToken(), response)
+          } catch (e: unknown) {
+            setVoteError(e instanceof Error ? e.message : String(e))
+          } finally {
+            setVoteSubmitting(false)
+          }
+        }}
+      />
+    ) : null
 
     if (!seat.characterId) {
       return (
-        <CenteredBox>
+        <CenteredBox compact={!!activeVote}>
+          {votePanel}
           <EventSeatIcon sx={{ fontSize: 48, color: 'success.main', mb: 2 }} />
           <Typography variant="h5" sx={{ mb: 1, fontWeight: 700 }}>
             {tpl('seat_n', seat.seatNumber)}
@@ -481,15 +502,19 @@ export function DealGuestPage({ sessionId, language }: Props) {
           <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 340 }}>
             {t('wait_for_storyteller_to_deal_characters')}
           </Typography>
-          <Suspense fallback={null}>
-            <DealMessagePanel sessionId={sessionId} seatNumber={seat.seatNumber} />
-          </Suspense>
+          {/* Hidden while a vote is active — same overlap-avoidance as the claimed-card flow */}
+          {!activeVote && (
+            <Suspense fallback={null}>
+              <DealMessagePanel sessionId={sessionId} seatNumber={seat.seatNumber} />
+            </Suspense>
+          )}
         </CenteredBox>
       )
     }
 
     return (
-      <CenteredBox>
+      <CenteredBox compact={!!activeVote && !revealCharacter}>
+        {votePanel}
         {revealCharacter ? (
           <>
             <Typography variant="h5" sx={{ mb: 2, fontWeight: 700 }}>
@@ -526,9 +551,11 @@ export function DealGuestPage({ sessionId, language }: Props) {
             </Button>
           </Box>
         )}
-        <Suspense fallback={null}>
-          <DealMessagePanel sessionId={sessionId} seatNumber={seat.seatNumber} />
-        </Suspense>
+        {!activeVote && (
+          <Suspense fallback={null}>
+            <DealMessagePanel sessionId={sessionId} seatNumber={seat.seatNumber} />
+          </Suspense>
+        )}
       </CenteredBox>
     )
   }
@@ -730,7 +757,7 @@ export function DealGuestPage({ sessionId, language }: Props) {
 function GuestVotePanel({
   vote,
   responses,
-  card,
+  seat,
   now,
   language,
   submitting,
@@ -739,16 +766,13 @@ function GuestVotePanel({
 }: {
   vote: DealVoteSession
   responses: DealVoteResponseRecord[]
-  card: DealCard
+  seat: number
   now: number
   language: 'en' | 'zh'
   submitting: boolean
   error: string | null
   onVote: (response: 'agree' | 'disagree') => Promise<void>
 }) {
-  const seat = card.assignedSeat ?? card.claimedBySeat ?? null
-  if (seat == null) return null
-
   const currentSeat = vote.votingOrder[vote.currentIndex] ?? null
   const existing = responses.find((r) => r.seat === seat)
   const isNoVote = vote.noVoteSeats.includes(seat)
