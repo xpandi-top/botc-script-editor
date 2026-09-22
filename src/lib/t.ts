@@ -225,6 +225,8 @@ export type UiKey =
   | 'pick_your_seat' | 'tap_an_open_seat_to_claim_it' | 'confirm_your_seat' | 'claim_this_seat'
   | 'that_seat_was_already_claimed_pick_another' | 'could_not_claim_that_seat_please_try_again'
   | 'wait_for_storyteller_to_deal_characters'
+  | 'let_players_claim_their_own_seat' | 'claim_seats_button' | 'view_roster'
+  | 'no_active_session_start_one_from_draw_deal' | 'active_session_is_a_card_deal'
   | 'default_bgm' | 'default_track' | 'ended' | 'enter_custom_rules' | 'expand'
   | 'file_name' | 'fill' | 'finished' | 'fun_for_evil' | 'fun_for_good'
   | 'game_end_survey' | 'guess' | 'is_it_balanced' | 'know'
