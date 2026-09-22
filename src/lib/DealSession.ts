@@ -2,9 +2,10 @@
  * Firebase Firestore helpers for the Card Dealing feature.
  *
  * Collection structure:
- *   dealSessions/{sessionId}              — session metadata
- *   dealSessions/{sessionId}/cards/{pos}  — one doc per card (0-indexed)
- *   dealSessions/{sessionId}/seats/{seat} — one doc per seat, for seat self-claim mode
+ *   dealSessions/{sessionId}                 — session metadata
+ *   dealSessions/{sessionId}/cards/{pos}     — one doc per card (0-indexed)
+ *   dealSessions/{sessionId}/seats/{seat}    — one doc per seat, for seat self-claim mode
+ *   dealSessions/{sessionId}/messages/{id}   — ST <-> seat chat, auto-id per message
  *
  * Firestore rules required (add to existing rules in Firebase console):
  * ─────────────────────────────────────────────────────────────────────
@@ -69,6 +70,19 @@
  *       match /responses/{seat} {
  *         allow read, create, update: if true; // app-layer guest token checks
  *       }
+ *     }
+ *
+ *     match /messages/{messageId} {
+ *       // ST <-> seat chat. seatNumber: null = broadcast to all seats.
+ *       // No ownership check at the rule layer (matches votes/responses above) —
+ *       // guest/ST identity is enforced app-side; tighten with a Cloud Function
+ *       // in Phase 2 if this needs to resist a malicious client.
+ *       allow read: if true;
+ *       allow create: if request.resource.data.text is string
+ *                    && request.resource.data.text.size() > 0
+ *                    && request.resource.data.text.size() <= 500;
+ *       allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+ *       allow delete: if false;
  *     }
  *   }
  * ─────────────────────────────────────────────────────────────────────
@@ -139,6 +153,17 @@ export type DealVoteResponseRecord = {
   guestToken?: string | null;
   submittedAt?: Timestamp | null;
 };
+
+export type DealMessageSender = 'st' | 'seat';
+
+export type DealMessage = {
+  id: string;
+  seatNumber: number | null; // null = broadcast to all seats
+  from: DealMessageSender;
+  text: string;
+  sentAt: Timestamp;
+  read: boolean;
+};
 // ── Constants ─────────────────────────────────────────────────────────────────
 const COLLECTION = 'dealSessions';
 const TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
@@ -195,6 +220,12 @@ function responsesRef(sessionId: string, voteId: string) {
 }
 function responseRef(sessionId: string, voteId: string, seat: number) {
   return doc(db(), COLLECTION, sessionId, 'votes', voteId, 'responses', String(seat));
+}
+function messagesRef(sessionId: string) {
+  return collection(db(), COLLECTION, sessionId, 'messages');
+}
+function messageRef(sessionId: string, messageId: string) {
+  return doc(db(), COLLECTION, sessionId, 'messages', messageId);
 }
 /** Get or create the guest's browser token (persisted in localStorage, shared
  *  across tabs — so re-opening the same link in a new tab restores the same
@@ -694,6 +725,63 @@ export async function closeDealSession(
   if (session.hostToken !== hostToken) throw new Error('Invalid host token');
   await updateDoc(sessionRef(sessionId), { status: 'closed' });
 }
+// ── Messages — ST <-> seat chat ─────────────────────────────────────────────
+
+/**
+ * Send a message. seatNumber null broadcasts to every seat; a specific
+ * seatNumber addresses one seat's thread. Either side (ST or a claimed seat)
+ * can call this — `from` distinguishes the sender for rendering.
+ */
+export async function sendMessage(
+  sessionId: string,
+  input: { seatNumber: number | null; from: DealMessageSender; text: string },
+): Promise<DealMessage> {
+  const ref = doc(messagesRef(sessionId));
+  const payload = {
+    seatNumber: input.seatNumber,
+    from: input.from,
+    text: input.text.trim().slice(0, 500),
+    sentAt: serverTimestamp(),
+    read: false,
+  };
+  await setDoc(ref, payload);
+  const snap = await getDoc(ref);
+  return { id: ref.id, ...(snap.data() as Omit<DealMessage, 'id'>) };
+}
+
+/** Subscribe to every message in the session — ST-side view. */
+export function subscribeMessages(
+  sessionId: string,
+  onChange: (messages: DealMessage[]) => void,
+): Unsubscribe {
+  return onSnapshot(messagesRef(sessionId), (snap) => {
+    const messages = snap.docs
+      .map((d) => ({ id: d.id, ...(d.data() as Omit<DealMessage, 'id'>) }))
+      .sort((a, b) => (a.sentAt?.toMillis?.() ?? 0) - (b.sentAt?.toMillis?.() ?? 0));
+    onChange(messages);
+  });
+}
+
+/**
+ * Subscribe to one seat's thread — its own messages plus any broadcast
+ * (seatNumber: null) messages. Filtered client-side, same as the vote
+ * subscriptions above, to avoid a composite Firestore index.
+ */
+export function subscribeSeatMessages(
+  sessionId: string,
+  seatNumber: number,
+  onChange: (messages: DealMessage[]) => void,
+): Unsubscribe {
+  return subscribeMessages(sessionId, (all) => {
+    onChange(all.filter((m) => m.seatNumber === seatNumber || m.seatNumber === null));
+  });
+}
+
+/** Mark a message read (unread-badge bookkeeping on either side). */
+export async function markMessageRead(sessionId: string, messageId: string): Promise<void> {
+  await updateDoc(messageRef(sessionId, messageId), { read: true });
+}
+
 // ── Shuffle utility ───────────────────────────────────────────────────────────
 
 export function shuffleDealCards<T>(arr: T[]): T[] {
