@@ -2,8 +2,9 @@
  * Firebase Firestore helpers for the Card Dealing feature.
  *
  * Collection structure:
- *   dealSessions/{sessionId}            — session metadata
- *   dealSessions/{sessionId}/cards/{pos} — one doc per card (0-indexed)
+ *   dealSessions/{sessionId}              — session metadata
+ *   dealSessions/{sessionId}/cards/{pos}  — one doc per card (0-indexed)
+ *   dealSessions/{sessionId}/seats/{seat} — one doc per seat, for seat self-claim mode
  *
  * Firestore rules required (add to existing rules in Firebase console):
  * ─────────────────────────────────────────────────────────────────────
@@ -38,6 +39,24 @@
  *                          .hasOnly(['claimedByToken','claimedByName','claimedBySeat','claimedAt','assignedSeat','assignedName'])
  *                     && request.resource.data.diff(resource.data).affectedKeys()
  *                          .hasAny(['assignedSeat','assignedName']);
+ *
+ *       allow delete: if false;
+ *     }
+ *
+ *     match /seats/{seatNumber} {
+ *       allow read: if true;
+ *       allow create: if true;
+ *
+ *       // Rule 1 — guest claims an unclaimed seat
+ *       allow update: if resource.data.get('claimedByToken', null) == null
+ *                     && request.resource.data.claimedByToken is string
+ *                     && request.resource.data.claimedByToken.size() > 0
+ *                     && request.resource.data.diff(resource.data).affectedKeys()
+ *                          .hasOnly(['claimedByToken','playerName','claimedAt']);
+ *
+ *       // Rule 2 — ST clears or renames a claim (host token checked app-layer)
+ *       allow update: if request.resource.data.diff(resource.data).affectedKeys()
+ *                          .hasOnly(['claimedByToken','playerName','claimedAt']);
  *
  *       allow delete: if false;
  *     }
@@ -85,6 +104,7 @@ export type DealSession = {
   hostToken: string
   status: 'open' | 'closed'
   cardCount: number
+  totalSeats?: number   // present when created via createSeatClaimSession
 }
 
 export type DealCard = {
@@ -97,6 +117,13 @@ export type DealCard = {
   claimedAt?: Timestamp | null
   assignedSeat?: number | null   // ST-confirmed seat (overrides claimedBySeat)
   assignedName?: string | null
+}
+
+export type DealSeatClaim = {
+  seatNumber: number         // 1-indexed seat
+  claimedByToken?: string | null
+  playerName?: string | null
+  claimedAt?: Timestamp | null
 }
 
 export type DealVoteStatus = 'active' | 'closed' | 'cancelled'
@@ -170,6 +197,14 @@ function cardsRef(sessionId: string) {
 
 function cardRef(sessionId: string, position: number) {
   return doc(db(), COLLECTION, sessionId, 'cards', String(position))
+}
+
+function seatsRef(sessionId: string) {
+  return collection(db(), COLLECTION, sessionId, 'seats')
+}
+
+function seatRef(sessionId: string, seatNumber: number) {
+  return doc(db(), COLLECTION, sessionId, 'seats', String(seatNumber))
 }
 
 function votesRef(sessionId: string) {
@@ -267,6 +302,43 @@ export async function createDealSession(
   return { sessionId, hostToken }
 }
 
+/**
+ * Create a new session in seat self-claim mode: guests pick an open seat
+ * number and enter their name, blind — no characters dealt yet. The ST
+ * deals cards to the claimed seats afterward via a separate createDealSession
+ * call (or assigns manually).
+ */
+export async function createSeatClaimSession(
+  totalSeats: number,
+): Promise<{ sessionId: string; hostToken: string }> {
+  const sessionId = randomId()
+  const hostToken = randomId(32)
+  const expiresAt = Timestamp.fromDate(new Date(Date.now() + TTL_MS))
+
+  const batch = writeBatch(db())
+
+  batch.set(sessionRef(sessionId), {
+    createdAt:  Timestamp.now(),
+    expiresAt,
+    hostToken,
+    status:     'open',
+    cardCount:  0,
+    totalSeats,
+  })
+
+  for (let seatNumber = 1; seatNumber <= totalSeats; seatNumber++) {
+    batch.set(seatRef(sessionId, seatNumber), {
+      seatNumber,
+      claimedByToken: null,
+      playerName:     null,
+      claimedAt:      null,
+    })
+  }
+
+  await batch.commit()
+  return { sessionId, hostToken }
+}
+
 /** Fetch session metadata. Returns null if missing or expired. */
 export async function getDealSession(sessionId: string): Promise<DealSession | null> {
   const snap = await getDoc(sessionRef(sessionId))
@@ -321,6 +393,31 @@ export function subscribeCards(
       .map(d => d.data() as DealCard)
       .sort((a, b) => a.position - b.position)
     onChange(cards)
+  })
+}
+
+/** Fetch all seat claims for a session (host + one-off guest lookups). */
+export async function getSeatClaims(sessionId: string): Promise<DealSeatClaim[]> {
+  const { getDocs } = await import('firebase/firestore')
+  const snap = await getDocs(seatsRef(sessionId))
+  return snap.docs
+    .map(d => d.data() as DealSeatClaim)
+    .sort((a, b) => a.seatNumber - b.seatNumber)
+}
+
+/**
+ * Subscribe to live seat-claim updates.
+ * Returns an unsubscribe function — call in useEffect cleanup.
+ */
+export function subscribeSeatClaims(
+  sessionId: string,
+  onChange: (seats: DealSeatClaim[]) => void,
+): Unsubscribe {
+  return onSnapshot(seatsRef(sessionId), (snap) => {
+    const seats = snap.docs
+      .map(d => d.data() as DealSeatClaim)
+      .sort((a, b) => a.seatNumber - b.seatNumber)
+    onChange(seats)
   })
 }
 
@@ -506,6 +603,45 @@ export async function findClaimedCard(
   return cards.find(c => c.claimedByToken === guestToken) ?? null
 }
 
+/**
+ * Atomically claim a seat.
+ * Firestore rule rejects the write if claimedByToken is already set.
+ * Verifies ownership via a post-write read (same anti-race pattern as
+ * claimCard) — guards against two guests tapping the same seat at once.
+ * Throws 'seat_already_claimed' if another guest won the race.
+ */
+export async function claimSeat(
+  sessionId: string,
+  seatNumber: number,
+  guestToken: string,
+  playerName: string,
+): Promise<DealSeatClaim> {
+  const ref = seatRef(sessionId, seatNumber)
+  await updateDoc(ref, {
+    claimedByToken: guestToken,
+    playerName:     playerName.trim() || null,
+    claimedAt:      serverTimestamp(),
+  })
+  const snap = await getDoc(ref)
+  const data = snap.data() as DealSeatClaim
+  if (data.claimedByToken !== guestToken) {
+    throw new Error('seat_already_claimed')
+  }
+  return data
+}
+
+/**
+ * Find the seat already claimed by this guest token, if any.
+ * Used to restore state when guest re-opens the link.
+ */
+export async function findClaimedSeat(
+  sessionId: string,
+  guestToken: string,
+): Promise<DealSeatClaim | null> {
+  const seats = await getSeatClaims(sessionId)
+  return seats.find(s => s.claimedByToken === guestToken) ?? null
+}
+
 // ── Host actions ──────────────────────────────────────────────────────────────
 
 /** Assign a seat number and player name to a claimed card. ST only. */
@@ -552,6 +688,31 @@ export async function markCardUnclaimedByHost(
     claimedAt: deleteField(),
     assignedSeat: deleteField(),
     assignedName: deleteField(),
+  })
+}
+
+/** Clear a guest's seat claim, freeing it up again. ST only (host token checked app-layer). */
+export async function unclaimSeatByHost(
+  sessionId: string,
+  seatNumber: number,
+): Promise<void> {
+  await updateDoc(seatRef(sessionId, seatNumber), {
+    claimedByToken: deleteField(),
+    playerName: deleteField(),
+    claimedAt: deleteField(),
+  })
+}
+
+/** Rename or force-claim a seat from the host dashboard. ST only. */
+export async function renameSeatByHost(
+  sessionId: string,
+  seatNumber: number,
+  playerName: string,
+): Promise<void> {
+  await updateDoc(seatRef(sessionId, seatNumber), {
+    claimedByToken: `host-${randomId(24)}`,
+    playerName: playerName.trim() || null,
+    claimedAt: serverTimestamp(),
   })
 }
 
