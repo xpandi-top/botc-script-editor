@@ -17,8 +17,12 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd'
 import PersonOffIcon from '@mui/icons-material/PersonOff'
 import CampaignIcon from '@mui/icons-material/Campaign'
 import SendIcon from '@mui/icons-material/Send'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import ExpandLessIcon from '@mui/icons-material/ExpandLess'
+import ClearAllIcon from '@mui/icons-material/ClearAll'
 import { getDisplayName } from '../../../catalog'
 import { makeT, makeTpl } from '../../../lib/t'
+import { CharPoolPicker } from './CharPoolPicker'
 import {
   getDealSession, closeDealSession,
   createSeatClaimSession, subscribeSeatClaims, unclaimSeatByHost, renameSeatByHost, assignCharacterToSeatByHost,
@@ -68,13 +72,17 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
   const {
     language, lastDealSession,
     newGamePanel, setNewGamePanel, addPlayerSeat, removeLastPlayerSeat,
-    randomAssignCharacters, updateSeatWithLog, currentDay, activeScriptSlug,
+    randomAssignCharacters, updateSeatWithLog, currentDay, activeScriptSlug, scriptOptions,
   } = ctx
   const t = makeT(language)
   const tpl = makeTpl(language)
   const [tab, setTab] = useState<AssignmentTab>('draw')
   const [startingSeatClaim, setStartingSeatClaim] = useState(false)
   const [localSeatSession, setLocalSeatSession] = useState<DealSession | null>(null)
+  const [poolOpen, setPoolOpen] = useState(false)
+  // Character-pool restriction for random assignment when no draft is open
+  // (live game) — newGamePanel.charPool is used instead when a draft exists.
+  const [liveCharPool, setLiveCharPool] = useState<string[]>([])
 
   const { gameId, assignments, playerCount } = useAssignmentSource(ctx)
   const characterIds = Object.values(assignments).filter(Boolean) as string[]
@@ -106,12 +114,20 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
     try { localStorage.setItem(ACTIVE_HOST_DEAL_KEY, JSON.stringify(session)) } catch {}
   }
 
+  const scriptSlug = newGamePanel?.scriptSlug ?? activeScriptSlug ?? ''
+  const scriptChars = scriptOptions.find((s) => s.slug === scriptSlug)?.characters ?? []
+  const charPool = newGamePanel ? (newGamePanel.charPool ?? []) : liveCharPool
+  const setCharPool = (ids: string[]) => {
+    if (newGamePanel) setNewGamePanel((prev) => prev ? { ...prev, charPool: ids } : prev)
+    else setLiveCharPool(ids)
+  }
+
   // Random character assignment — computed synchronously and returned so
   // callers don't have to wait a render cycle for newGamePanel/currentDay
   // to update before using the result.
   const buildRandomAssignment = (): Record<number, string> | null => {
     if (playerCount < 1) return null
-    const config = newGamePanel ?? ({ playerCount, scriptSlug: activeScriptSlug ?? '', charPool: [] } as unknown as NewGameConfig)
+    const config = newGamePanel ?? ({ playerCount, scriptSlug, charPool: liveCharPool } as unknown as NewGameConfig)
     return randomAssignCharacters(config)
   }
 
@@ -201,6 +217,45 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
             </Box>
           </Paper>
 
+          <Paper variant="outlined" sx={{ p: 1 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                <Typography variant="caption" sx={{ fontWeight: 600 }}>
+                  {t('random_pool')}
+                </Typography>
+                {charPool.length > 0 && (
+                  <Chip size="small" label={charPool.length} color="primary" sx={{ height: 18, fontSize: '0.65rem' }} />
+                )}
+              </Box>
+              <Box sx={{ display: 'flex', gap: 0.5 }}>
+                {charPool.length > 0 && (
+                  <Tooltip title={t('clear_pool')}>
+                    <IconButton size="small" onClick={() => setCharPool([])}>
+                      <ClearAllIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                )}
+                <IconButton size="small" onClick={() => setPoolOpen((v) => !v)}>
+                  {poolOpen ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
+                </IconButton>
+              </Box>
+            </Box>
+            {poolOpen && (
+              <Box sx={{ mt: 1 }}>
+                {scriptChars.length === 0 ? (
+                  <Typography variant="caption" color="text.disabled">{t('select_script_first')}</Typography>
+                ) : (
+                  <CharPoolPicker
+                    scriptChars={scriptChars}
+                    selected={charPool}
+                    onChange={setCharPool}
+                    language={language}
+                  />
+                )}
+              </Box>
+            )}
+          </Paper>
+
           <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap' }}>
             <Tooltip title={t('random_assign_characters_hint')}>
               <span>
@@ -251,7 +306,8 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
           resolvedSession={resolvedSession}
           onSessionClosed={() => setResolvedSession((s) => s ? { ...s, status: 'closed' } : s)}
           randomAssignCharacters={randomAssignCharacters}
-          activeScriptSlug={activeScriptSlug}
+          scriptSlug={scriptSlug}
+          charPool={charPool}
         />
       )}
 
@@ -270,14 +326,16 @@ function RosterTab({
   resolvedSession,
   onSessionClosed,
   randomAssignCharacters,
-  activeScriptSlug,
+  scriptSlug,
+  charPool,
 }: {
   language: 'en' | 'zh'
   session: DealSession | null
   resolvedSession: DealSessionDoc | null
   onSessionClosed: () => void
   randomAssignCharacters: StorytellerContext['randomAssignCharacters']
-  activeScriptSlug: string | undefined
+  scriptSlug: string
+  charPool: string[]
 }) {
   const t = makeT(language)
   const [seats, setSeats] = useState<DealSeatClaim[]>([])
@@ -372,7 +430,7 @@ function RosterTab({
     if (claimedSeatNumbers.length < 1) return
     setAssigningChars(true)
     try {
-      const config = { playerCount: claimedSeatNumbers.length, scriptSlug: activeScriptSlug ?? '', charPool: [] } as unknown as NewGameConfig
+      const config = { playerCount: claimedSeatNumbers.length, scriptSlug, charPool } as unknown as NewGameConfig
       const result = randomAssignCharacters(config)
       const characterIds = Object.values(result)
       await Promise.all(
