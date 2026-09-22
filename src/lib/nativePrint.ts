@@ -2,8 +2,9 @@ import { Capacitor } from '@capacitor/core'
 import { Filesystem, Directory } from '@capacitor/filesystem'
 import { Share } from '@capacitor/share'
 import { computePageRects } from './paginateSheet'
-import { PAGE_PREVIEW_WIDTH_PX, PAGE_SIZE_DEFS } from '../components/PrintOptionsDialog'
+import { FONT_CSS, PAGE_PREVIEW_WIDTH_PX, PAGE_SIZE_DEFS } from '../components/PrintOptionsDialog'
 import type { PrintOptions } from '../components/PrintOptionsDialog'
+import { MM_TO_PX, type TokenPrintOptions } from '../components/PrintStudio/types'
 
 export const isNativePlatform = Capacitor.isNativePlatform()
 
@@ -61,116 +62,134 @@ function restorePortal(portal: HTMLElement, snapshot: PortalStyleSnapshot) {
   portal.style.maxHeight = snapshot.maxHeight
 }
 
-/**
- * On iOS/Android: capture element with html2canvas → jsPDF → share via OS share sheet.
- * Falls back to window.print() on web.
- *
- * Pass `portalSelector` to capture a print portal (e.g. `.token-print-portal`) instead
- * of the live preview element. Portals have the correct print layout and are
- * temporarily revealed at A4 width before capture.
- *
- * Used by PrintStudio (tokens) — the fixed-grid token layout doesn't need the
- * measured multi-page pagination `exportSheetPdf` does for character sheets below.
- */
-export async function printOrShare(
-  element: HTMLElement,
+function assetDataUrl(href: string, assets: Map<string, Promise<string>>): Promise<string> {
+  if (href.startsWith('data:')) return Promise.resolve(href)
+  if (!assets.has(href)) {
+    assets.set(href, (async () => {
+      const response = await fetch(href)
+      if (!response.ok) throw new Error(`Could not load token asset: ${response.status}`)
+      const blob = await response.blob()
+      return new Promise<string>((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = () => resolve(reader.result as string)
+        reader.onerror = () => reject(reader.error)
+        reader.readAsDataURL(blob)
+      })
+    })())
+  }
+  return assets.get(href)!
+}
+
+async function tokenFonts(opts: TokenPrintOptions, assets: Map<string, Promise<string>>): Promise<string> {
+  const families = `${FONT_CSS[opts.fontKeyEn]}, ${FONT_CSS[opts.fontKeyZh]}`
+  const fonts: string[] = []
+  for (const sheet of Array.from(document.styleSheets)) {
+    let rules: CSSRuleList
+    try { rules = sheet.cssRules } catch { continue }
+    for (const rule of Array.from(rules)) {
+      if (!(rule instanceof CSSFontFaceRule)) continue
+      const family = rule.style.fontFamily.replace(/["']/g, '')
+      if (!families.includes(family)) continue
+      let css = rule.cssText
+      for (const match of css.matchAll(/url\(["']?([^"')]+)["']?\)/g)) {
+        const url = new URL(match[1], sheet.href || document.baseURI).href
+        css = css.replace(match[0], `url("${await assetDataUrl(url, assets)}")`)
+      }
+      fonts.push(css)
+    }
+  }
+  return fonts.join('\n')
+}
+
+/** External images and web fonts must be embedded in SVGs used as canvas images. */
+async function tokenImage(svg: SVGSVGElement, assets: Map<string, Promise<string>>, fonts: string): Promise<HTMLImageElement> {
+  await Promise.all(Array.from(svg.querySelectorAll('image')).map(async image => {
+    const href = image.getAttribute('href')
+    if (href) image.setAttribute('href', await assetDataUrl(href, assets))
+  }))
+  if (fonts) {
+    const style = document.createElementNS('http://www.w3.org/2000/svg', 'style')
+    style.textContent = fonts
+    svg.prepend(style)
+  }
+  // Grayscale is applied to the completed page so images and emoji agree.
+  svg.style.filter = ''
+  const source = new XMLSerializer().serializeToString(svg)
+  const image = new Image()
+  image.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(source)}`
+  await image.decode()
+  return image
+}
+
+/** Export the existing packed token pages directly to a PDF download/share.
+ * Draw each transparent SVG at its measured position: overlapping SVG viewports
+ * in the honeycomb layout must not become opaque rectangles or clip neighbours.
+ * Each preview page maps to one PDF page at the selected physical paper size. */
+export async function exportTokenPdf(
+  opts: TokenPrintOptions,
   filename: string,
   onBefore?: () => void,
   onAfter?: () => void,
-  options?: { portalSelector?: string },
 ): Promise<void> {
-  if (!isNativePlatform) {
-    onBefore?.()
-    setTimeout(() => { window.print(); onAfter?.() }, 80)
-    return
-  }
-
   onBefore?.()
   try {
-    const html2canvas = (await import('html2canvas')).default
+    const portal = document.querySelector<HTMLElement>('.token-print-portal')
+    if (!portal) throw new Error('Token export content not found')
     const { jsPDF } = await import('jspdf')
+    const { w, h } = PAGE_SIZE_DEFS[opts.pageSize]
+    const width = w * MM_TO_PX
+    const height = h * MM_TO_PX
+    const snapshot = revealPortal(portal, width)
+    let pages
+    try {
+      await document.fonts.ready
+      // Capture all geometry and SVGs together so changes during export cannot
+      // mix options or character selections across pages.
+      pages = Array.from(portal.querySelectorAll<HTMLElement>('[data-token-page]')).map(page => {
+        const bounds = page.getBoundingClientRect()
+        return Array.from(page.querySelectorAll<SVGSVGElement>('svg')).map(svg => {
+          const rect = svg.getBoundingClientRect()
+          return { svg: svg.cloneNode(true) as SVGSVGElement,
+            x: rect.left - bounds.left, y: rect.top - bounds.top,
+            width: rect.width, height: rect.height }
+        })
+      })
+    } finally {
+      restorePortal(portal, snapshot)
+    }
+    if (!pages.length) throw new Error('No tokens selected')
 
-    // Prefer the print portal element — it always has the full print-optimised layout,
-    // unlike the live preview which may be hidden or mobile-scaled.
-    const target: HTMLElement = options?.portalSelector
-      ? (document.querySelector(options.portalSelector) as HTMLElement | null) ?? element
-      : element
-
-    // Print portals are display:none on screen. Temporarily reveal at A4 width
-    // so html2canvas gets a real layout to capture.
-    const computedDisplay = window.getComputedStyle(target).display
-    const wasHidden = computedDisplay === 'none'
-    if (wasHidden) {
-      target.style.display = 'block'
-      target.style.position = 'fixed'
-      target.style.top = '-19999px'
-      target.style.left = '0'
-      target.style.width = '794px'  // ~A4 at 96dpi
-      target.style.zIndex = '-1'
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [w, h] })
+    const assets = new Map<string, Promise<string>>()
+    const fonts = await tokenFonts(opts, assets)
+    for (let i = 0; i < pages.length; i++) {
+      const canvas = document.createElement('canvas')
+      canvas.width = Math.ceil(width * 3)
+      canvas.height = Math.ceil(height * 3)
+      const context = canvas.getContext('2d')
+      if (!context) throw new Error('Could not create PDF image')
+      context.scale(canvas.width / width, canvas.height / height)
+      context.fillStyle = '#ffffff'
+      context.fillRect(0, 0, width, height)
+      for (const token of pages[i]) {
+        const image = await tokenImage(token.svg, assets, fonts)
+        context.drawImage(image, token.x, token.y, token.width, token.height)
+      }
+      if (opts.blackAndWhite) desaturateCanvas(canvas)
+      if (i > 0) pdf.addPage([w, h])
+      pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, w, h, undefined, 'FAST')
     }
 
-    // Give browser a frame to recalculate layout after un-hiding
-    await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())))
-
-    // Expand to full scroll height so html2canvas captures everything
-    const originalOverflow = target.style.overflow
-    const originalMaxHeight = target.style.maxHeight
-    target.style.overflow = 'visible'
-    target.style.maxHeight = 'none'
-
-    const canvas = await html2canvas(target, {
-      scale: 2,
-      useCORS: true,
-      allowTaint: true,
-      backgroundColor: '#ffffff',
-      scrollX: 0,
-      scrollY: 0,
-      width: target.scrollWidth,
-      height: target.scrollHeight,
-    })
-
-    // Restore element state
-    target.style.overflow = originalOverflow
-    target.style.maxHeight = originalMaxHeight
-    if (wasHidden) {
-      target.style.display = ''
-      target.style.position = ''
-      target.style.top = ''
-      target.style.left = ''
-      target.style.width = ''
-      target.style.zIndex = ''
+    if (isNativePlatform) {
+      const saved = await Filesystem.writeFile({
+        path: `${filename.replace(/[/\\:*?"<>|]/g, '-')}.pdf`,
+        data: pdf.output('datauristring').split(',')[1],
+        directory: Directory.Cache,
+      })
+      await Share.share({ title: filename, url: saved.uri, dialogTitle: 'Save PDF' })
+    } else {
+      pdf.save(`${filename}.pdf`)
     }
-
-    const imgData = canvas.toDataURL('image/jpeg', 0.92)
-    const imgWidth = canvas.width
-    const imgHeight = canvas.height
-
-    // Scale to A4 width (595pt), keep aspect ratio
-    const pdfWidth = 595.28
-    const pdfHeight = (imgHeight / imgWidth) * pdfWidth
-
-    const pdf = new (jsPDF as any)({
-      orientation: 'portrait',
-      unit: 'pt',
-      format: [pdfWidth, pdfHeight],
-    })
-
-    pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight)
-
-    const base64 = pdf.output('datauristring').split(',')[1]
-    const safeFilename = filename.replace(/[^a-zA-Z0-9\-_]/g, '-')
-
-    const saved = await Filesystem.writeFile({
-      path: `${safeFilename}.pdf`,
-      data: base64,
-      directory: Directory.Cache,
-    })
-
-    await Share.share({
-      title: filename,
-      url: saved.uri,
-      dialogTitle: 'Save or Print PDF',
-    })
   } finally {
     onAfter?.()
   }

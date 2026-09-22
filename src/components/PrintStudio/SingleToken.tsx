@@ -244,7 +244,7 @@ function RectangleToken({
     <svg
       width={W} height={H}
       viewBox={`0 0 ${W} ${H}`}
-      style={{ display: 'block', filter: grayFilter }}
+      style={{ display: 'block', flexShrink: 0, filter: grayFilter }}
       xmlns="http://www.w3.org/2000/svg"
     >
       <defs>
@@ -411,10 +411,9 @@ export function SingleToken({
   // Icon geometry
   const iconSize = S * 0.42 * opts.iconSizeRatio
   const iconX    = cx - iconSize / 2
-  // Circle: icon in lower half; Hex: centered slightly below shape-center; Square: same as circle
-  const iconY = isHex
-    ? cy - iconSize / 2 + hexHalfH * 0.08   // slight downward push within hex
-    : cy - iconSize / 2 + S * 0.13
+  // Reserve room above the icon only when ability text is actually shown.
+  const iconOffsetY = displayAbility ? (isHex ? hexHalfH * 0.08 : S * 0.13) : 0
+  const iconY = cy - iconSize / 2 + iconOffsetY
 
   // Name geometry
   const nameArcR = cR * .98
@@ -479,7 +478,7 @@ export function SingleToken({
       width={outerS}
       height={outerS}
       viewBox={`0 0 ${outerS} ${outerS}`}
-      style={{ display: 'block', filter: grayFilter }}
+      style={{ display: 'block', flexShrink: 0, filter: grayFilter }}
       xmlns="http://www.w3.org/2000/svg"
     >
       <defs>
@@ -528,7 +527,7 @@ export function SingleToken({
           {/* Emoji icon (for custom tags) */}
           {displayIconEmoji && (
             <text
-              x={cx} y={cy + iconSize * 0.15}
+              x={cx} y={cy + iconOffsetY}
               textAnchor="middle" dominantBaseline="middle"
               fontSize={iconSize * 0.7}
             >

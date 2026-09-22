@@ -1,14 +1,13 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Box, Button, CircularProgress, FormControl, InputLabel, IconButton, MenuItem, Paper, Select, Tooltip, Typography, useMediaQuery, useTheme } from '@mui/material'
+import { Alert, Box, Button, CircularProgress, FormControl, InputLabel, IconButton, MenuItem, Paper, Select, Tooltip, Typography, useMediaQuery, useTheme } from '@mui/material'
 import PrintIcon from '@mui/icons-material/Print'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import MenuIcon from '@mui/icons-material/Menu'
 import MenuOpenIcon from '@mui/icons-material/MenuOpen'
-import { printOrShare, isNativePlatform } from '../../lib/nativePrint'
+import { exportTokenPdf } from '../../lib/nativePrint'
 import { TokenOptionsPanel } from './TokenOptionsPanel'
 import { TokenPageGrid, TokenPrintPortal } from './TokenPageGrid'
-import { PAGE_SIZE_DEFS } from '../PrintOptionsDialog'
 import type { TokenPrintOptions } from './types'
 import type { EditableScript, Language, ResolvedScriptCharacter } from '../../types'
 import { allCharacters } from '../../catalog'
@@ -34,7 +33,7 @@ export function PrintStudioPage({ opts, onOptionsChange, onClose, onOpenPrintPre
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const [panelOpen, setPanelOpen] = useState(true)
   const [printing, setPrinting] = useState(false)
-  const previewRef = useRef<HTMLDivElement>(null)
+  const [exportError, setExportError] = useState<string | null>(null)
 
   // When "__all__" is selected, use allCharacters
   const scriptCharacters = activeSlug === '__all__'
@@ -44,37 +43,18 @@ export function PrintStudioPage({ opts, onOptionsChange, onClose, onOpenPrintPre
   const pinnedRevisions = scripts.find(s => s.slug === activeSlug)?.pinnedRevisions
 
   const handlePrint = async () => {
-    if (isNativePlatform) {
-      const title = scripts.find(s => s.slug === activeSlug)
-        ? getScriptTitle(scripts.find(s => s.slug === activeSlug)!)
-        : 'tokens'
-      // Capture the print portal (.token-print-portal) which always has the
-      // full print-optimised layout — not the mobile preview which may be hidden.
-      await printOrShare(
-        previewRef.current!,
-        title,
+    const script = scripts.find(s => s.slug === activeSlug)
+    setExportError(null)
+    try {
+      await exportTokenPdf(
+        opts,
+        script ? `${getScriptTitle(script)}-tokens` : 'tokens',
         () => setPrinting(true),
         () => setPrinting(false),
-        { portalSelector: '.token-print-portal' },
       )
-      return
+    } catch (error) {
+      setExportError(error instanceof Error ? error.message : String(error))
     }
-    // inject @page css
-    let styleEl = document.getElementById('ts-page-style') as HTMLStyleElement | null
-    if (!styleEl) {
-      styleEl = document.createElement('style')
-      styleEl.id = 'ts-page-style'
-      document.head.appendChild(styleEl)
-    }
-    const { w, h } = PAGE_SIZE_DEFS[opts.pageSize]
-    // margin: 0 — each page box in TokenPageGrid is already sized to the full physical
-    // page with opts.marginMm baked in as its own internal padding (the token layout
-    // math accounts for it via usableW/usableH). An @page margin here would shrink the
-    // printable area on top of that, so the full-size box no longer fits it and the
-    // browser's own pagination slices across it wherever it happens to overflow —
-    // misaligned page breaks, content looking clipped.
-    styleEl.textContent = `@media print { @page { size: ${w}mm ${h}mm; margin: 0; } }`
-    setTimeout(() => window.print(), 80)
   }
 
   const selectedCount = opts.mode === 'characters'
@@ -131,13 +111,14 @@ export function PrintStudioPage({ opts, onOptionsChange, onClose, onOpenPrintPre
             {panelOpen ? <MenuOpenIcon fontSize="small" /> : <MenuIcon fontSize="small" />}
           </IconButton>
         </Tooltip>
-        <Button variant="contained" size="small" startIcon={printing ? <CircularProgress size={14} color="inherit" /> : <PrintIcon />} onClick={handlePrint} disabled={selectedCount === 0 || printing}>
+        <Button variant="contained" size="small" startIcon={printing ? <CircularProgress size={14} color="inherit" /> : <PrintIcon />} aria-label={t('print')} onClick={handlePrint} disabled={selectedCount === 0 || printing}>
           <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
             {printing ? (t('exporting')) : (t('print'))}
           </Box>
         </Button>
       </Paper>
 
+      {exportError && <Alert severity="error" onClose={() => setExportError(null)}>{exportError}</Alert>}
       <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
         {/* Settings panel — full-width on mobile (replaces preview), sidebar on sm+ */}
         {panelOpen && <Box sx={{
@@ -158,7 +139,7 @@ export function PrintStudioPage({ opts, onOptionsChange, onClose, onOpenPrintPre
         </Box>}
 
         {/* Live preview — hidden only on mobile when panel is open; tablet+ always visible */}
-        <Box ref={previewRef} sx={{
+        <Box sx={{
           flex: 1,
           overflow: 'auto',
           bgcolor: 'grey.200',
@@ -185,9 +166,7 @@ export function PrintStudioPage({ opts, onOptionsChange, onClose, onOpenPrintPre
 
       {/* Print portal */}
       {createPortal(
-        <div className="token-print-portal" aria-hidden="true">
-          <TokenPrintPortal opts={opts} pinnedRevisions={pinnedRevisions} />
-        </div>,
+        <TokenPrintPortal opts={opts} pinnedRevisions={pinnedRevisions} />,
         document.body,
       )}
     </Box>

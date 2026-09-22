@@ -142,6 +142,7 @@ function GridPage({
 }) {
   return (
     <Box
+      data-token-page
       sx={{
         display: 'flex',
         flexWrap: 'wrap',
@@ -152,7 +153,7 @@ function GridPage({
         height: PAGE_SIZE_DEFS[opts.pageSize].h * MM_TO_PX,
         backgroundColor: '#fff',
         flexShrink: 0,
-        ...(showBorder && { border: '1px dashed #ccc' }),
+        ...(showBorder && { outline: '1px dashed #ccc' }),
       }}
     >
       {children}
@@ -179,6 +180,7 @@ function StaggeredPage({
   const { w, h } = PAGE_SIZE_DEFS[opts.pageSize]
   return (
     <Box
+      data-token-page
       sx={{
         position: 'relative',
         width: w * MM_TO_PX,
@@ -186,7 +188,7 @@ function StaggeredPage({
         backgroundColor: '#fff',
         flexShrink: 0,
         overflow: 'hidden',
-        ...(showBorder && { border: '1px dashed #ccc' }),
+        ...(showBorder && { outline: '1px dashed #ccc' }),
       }}
     >
       {items.slice(0, positions.length).map((item, i) => (
@@ -287,7 +289,7 @@ export function TokenPageGrid(props: TokenPageGridProps) {
     const pages = splitIntoPages(tokens, itemsPerPage)
 
     return (
-      <Box>
+      <Box sx={{ flexShrink: 0, width: 'max-content' }}>
         {pages.map((pageTokens, pageIdx) => (
           <Box key={pageIdx} sx={forPrint && pageIdx > 0 ? { pageBreakBefore: 'always', breakBefore: 'page' } : undefined}>
             {!forPrint && (
@@ -320,7 +322,7 @@ export function TokenPageGrid(props: TokenPageGridProps) {
     const pages = splitIntoPages(numbers, itemsPerPage)
 
     return (
-      <Box>
+      <Box sx={{ flexShrink: 0, width: 'max-content' }}>
         {pages.map((pageNums, pageIdx) => (
           <Box key={pageIdx} sx={forPrint && pageIdx > 0 ? { pageBreakBefore: 'always', breakBefore: 'page' } : undefined}>
             {!forPrint && (
@@ -355,7 +357,7 @@ export function TokenPageGrid(props: TokenPageGridProps) {
   const pages = splitIntoPages(allMarkerTokens, itemsPerPage)
 
   return (
-    <Box>
+    <Box sx={{ flexShrink: 0, width: 'max-content' }}>
       {pages.map((pageMarkers, pageIdx) => (
         <Box key={pageIdx} sx={forPrint && pageIdx > 0 ? { pageBreakBefore: 'always', breakBefore: 'page' } : undefined}>
           {!forPrint && (
