@@ -1,18 +1,17 @@
 /**
- * Tests: Card Deal feature — pure logic, type safety, and the claimed-detection
- * regression that was introduced by using deleteField() on unclaim.
+ * Tests: seat self-claim deal feature — pure logic, type safety, and the
+ * claimed-detection regression that was introduced by using deleteField() on
+ * unclaim.
  *
  * Firestore network calls are NOT tested here (require emulator / integration env).
  * We test:
- *   - shuffleDealCards pure utility
  *   - getGuestToken localStorage behaviour (shared across tabs)
  *   - HOST_TOKEN_KEY / GUEST_TOKEN_KEY constant shapes
- *   - DealCard claimed detection: undefined (deleteField) vs null vs string
+ *   - DealSeatClaim claimed detection: undefined (deleteField) vs null vs string
  *   - buildShareUrl produces a non-localhost URL for deal sessions
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import {
-  shuffleDealCards,
   getGuestToken,
   HOST_TOKEN_KEY,
   GUEST_TOKEN_KEY,
@@ -20,47 +19,8 @@ import {
   CHARACTER_SEEN_KEY,
   hasSeenDealCharacter,
   markDealCharacterSeen,
-  type DealCard,
+  type DealSeatClaim,
 } from '../lib/DealSession'
-
-// ── shuffleDealCards ──────────────────────────────────────────────────────────
-
-describe('shuffleDealCards', () => {
-  it('returns same length array', () => {
-    const input = [1, 2, 3, 4, 5]
-    expect(shuffleDealCards(input)).toHaveLength(5)
-  })
-
-  it('contains all original elements', () => {
-    const input = ['a', 'b', 'c', 'd']
-    const result = shuffleDealCards(input)
-    expect(result.sort()).toEqual([...input].sort())
-  })
-
-  it('does not mutate original array', () => {
-    const input = [1, 2, 3]
-    const copy = [...input]
-    shuffleDealCards(input)
-    expect(input).toEqual(copy)
-  })
-
-  it('handles empty array', () => {
-    expect(shuffleDealCards([])).toEqual([])
-  })
-
-  it('handles single element', () => {
-    expect(shuffleDealCards(['x'])).toEqual(['x'])
-  })
-
-  it('produces different order at least sometimes (statistical)', () => {
-    const input = [1, 2, 3, 4, 5, 6, 7, 8]
-    // Run 20 times — probability all match original order: (1/8!)^20 ≈ 0
-    const alwaysSame = Array.from({ length: 20 }).every(() =>
-      shuffleDealCards(input).join(',') === input.join(',')
-    )
-    expect(alwaysSame).toBe(false)
-  })
-})
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -149,56 +109,56 @@ describe('deal character seen marker', () => {
   })
 })
 
-// ── DealCard claimed detection — REGRESSION ───────────────────────────────────
+// ── DealSeatClaim claimed detection — REGRESSION ──────────────────────────────
 //
-// Bug: markCardUnclaimedByHost uses deleteField(), which removes the key from
+// Bug: unclaimSeatByHost uses deleteField(), which removes the key from
 // the Firestore snapshot. JavaScript receives `undefined`, not `null`.
-// The old check `card.claimedByToken !== null` is TRUE for undefined, so the
-// card kept displaying as claimed.
+// The old check `seat.claimedByToken !== null` is TRUE for undefined, so the
+// seat kept displaying as claimed.
 // Fix: use loose `!= null` (catches both null and undefined).
 
-describe('DealCard claimed detection — != null regression', () => {
-  function isClaimed(card: DealCard): boolean {
-    return card.claimedByToken != null   // the fixed check
+describe('DealSeatClaim claimed detection — != null regression', () => {
+  function isClaimed(seat: DealSeatClaim): boolean {
+    return seat.claimedByToken != null   // the fixed check
   }
 
-  function isClaimedStrict(card: DealCard): boolean {
-    return card.claimedByToken !== null  // the buggy check
+  function isClaimedStrict(seat: DealSeatClaim): boolean {
+    return seat.claimedByToken !== null  // the buggy check
   }
 
   it('string token → claimed (both checks agree)', () => {
-    const card: DealCard = { position: 0, characterId: 'imp', claimedByToken: 'abc123' }
-    expect(isClaimed(card)).toBe(true)
-    expect(isClaimedStrict(card)).toBe(true)
+    const seat: DealSeatClaim = { seatNumber: 1, claimedByToken: 'abc123' }
+    expect(isClaimed(seat)).toBe(true)
+    expect(isClaimedStrict(seat)).toBe(true)
   })
 
   it('null token → not claimed (both checks agree)', () => {
-    const card: DealCard = { position: 0, characterId: 'imp', claimedByToken: null }
-    expect(isClaimed(card)).toBe(false)
-    expect(isClaimedStrict(card)).toBe(false)
+    const seat: DealSeatClaim = { seatNumber: 1, claimedByToken: null }
+    expect(isClaimed(seat)).toBe(false)
+    expect(isClaimedStrict(seat)).toBe(false)
   })
 
   it('undefined token (deleteField result) → not claimed with != null', () => {
     // deleteField() removes the key; snapshot delivers undefined
-    const card: DealCard = { position: 0, characterId: 'imp' }  // no claimedByToken
-    expect(isClaimed(card)).toBe(false)       // FIXED: correctly not claimed
-    expect(isClaimedStrict(card)).toBe(true)  // BUG: would wrongly show as claimed
+    const seat: DealSeatClaim = { seatNumber: 1 }  // no claimedByToken
+    expect(isClaimed(seat)).toBe(false)       // FIXED: correctly not claimed
+    expect(isClaimedStrict(seat)).toBe(true)  // BUG: would wrongly show as claimed
   })
 
-  it('claimedCount using != null excludes undefined-token cards', () => {
-    const cards: DealCard[] = [
-      { position: 0, characterId: 'imp', claimedByToken: 'tok1' },
-      { position: 1, characterId: 'librarian' },              // undefined (unclaimed via deleteField)
-      { position: 2, characterId: 'chef', claimedByToken: null },
-      { position: 3, characterId: 'soldier', claimedByToken: 'tok2' },
+  it('claimedCount using != null excludes undefined-token seats', () => {
+    const seats: DealSeatClaim[] = [
+      { seatNumber: 1, claimedByToken: 'tok1' },
+      { seatNumber: 2 },              // undefined (unclaimed via deleteField)
+      { seatNumber: 3, claimedByToken: null },
+      { seatNumber: 4, claimedByToken: 'tok2' },
     ]
-    const count = cards.filter(c => c.claimedByToken != null).length
-    expect(count).toBe(2)   // only positions 0 and 3
+    const count = seats.filter(s => s.claimedByToken != null).length
+    expect(count).toBe(2)   // only seats 1 and 4
   })
 
   it('host-prefixed token → still claimed', () => {
-    const card: DealCard = { position: 0, characterId: 'imp', claimedByToken: 'host-xyz' }
-    expect(isClaimed(card)).toBe(true)
+    const seat: DealSeatClaim = { seatNumber: 1, claimedByToken: 'host-xyz' }
+    expect(isClaimed(seat)).toBe(true)
   })
 })
 

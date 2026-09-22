@@ -3,7 +3,7 @@ import { getAbilityText, getDisplayName, getIconForCharacter } from '../catalog'
 import { makeTpl } from '../lib/t'
 
 interface Props {
-  /** Only `characterId` is read — accepts a DealCard or a DealSeatClaim alike. */
+  /** Only `characterId` is read — accepts a full DealSeatClaim or just the id. */
   card: { characterId: string }
   language: 'en' | 'zh'
   effectiveSeat: number | null

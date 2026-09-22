@@ -1,10 +1,9 @@
 /**
- * Firebase Firestore helpers for the Card Dealing feature.
+ * Firebase Firestore helpers for the seat self-claim / character-deal feature.
  *
  * Collection structure:
  *   dealSessions/{sessionId}                 — session metadata
- *   dealSessions/{sessionId}/cards/{pos}     — one doc per card (0-indexed)
- *   dealSessions/{sessionId}/seats/{seat}    — one doc per seat, for seat self-claim mode
+ *   dealSessions/{sessionId}/seats/{seat}    — one doc per seat, seat self-claim mode
  *   dealSessions/{sessionId}/messages/{id}   — ST <-> seat chat, auto-id per message
  *
  * Firestore rules required (add to existing rules in Firebase console):
@@ -16,33 +15,6 @@
  *                  && request.resource.data.cardCount <= 20;
  *     allow update: if true;   // host token check is app-layer; tighten in Phase 2
  *     allow delete: if false;
- *
- *     match /cards/{position} {
- *       allow read: if true;
- *       allow create: if true;
- *
- *       // Rule 1 — player claims an unclaimed card
- *       allow update: if resource.data.get('claimedByToken', null) == null
- *                     && request.resource.data.claimedByToken is string
- *                     && request.resource.data.claimedByToken.size() > 0
- *                     && request.resource.data.diff(resource.data).affectedKeys()
- *                          .hasOnly(['claimedByToken','claimedByName','claimedBySeat','claimedAt']);
- *
- *       // Rule 2 — ST updates seat/name only
- *       allow update: if request.resource.data.diff(resource.data).affectedKeys()
- *                          .hasOnly(['assignedSeat','assignedName']);
- *
- *       // Rule 3 — ST force-claims or unclears a card. Must touch at least one
- *       //           ST-only field (assignedSeat/assignedName) to distinguish from a
- *       //           plain guest claim. Prevents guests from overwriting existing claims
- *       //           via this rule. Full enforcement requires Cloud Functions.
- *       allow update: if request.resource.data.diff(resource.data).affectedKeys()
- *                          .hasOnly(['claimedByToken','claimedByName','claimedBySeat','claimedAt','assignedSeat','assignedName'])
- *                     && request.resource.data.diff(resource.data).affectedKeys()
- *                          .hasAny(['assignedSeat','assignedName']);
- *
- *       allow delete: if false;
- *     }
  *
  *     match /seats/{seatNumber} {
  *       allow read: if true;
@@ -110,19 +82,6 @@ export type DealSession = {
   status: 'open' | 'closed';
   cardCount: number;
   totalSeats?: number; // present when created via createSeatClaimSession
-};
-
-export type DealCard = {
-  position: number; // 0-indexed slot
-  characterId: string; // visible only to claimant (enforced app-layer)
-
-  // Fields below are undefined when absent (deleteField() removes key from Firestore snapshot)
-  claimedByToken?: string | null;
-  claimedByName?: string | null;
-  claimedBySeat?: number | null; // guest-suggested seat; ST can override
-  claimedAt?: Timestamp | null;
-  assignedSeat?: number | null; // ST-confirmed seat (overrides claimedBySeat)
-  assignedName?: string | null;
 };
 
 export type DealSeatClaim = {
@@ -203,12 +162,6 @@ function db() {
 function sessionRef(sessionId: string) {
   return doc(db(), COLLECTION, sessionId);
 }
-function cardsRef(sessionId: string) {
-  return collection(db(), COLLECTION, sessionId, 'cards');
-}
-function cardRef(sessionId: string, position: number) {
-  return doc(db(), COLLECTION, sessionId, 'cards', String(position));
-}
 function seatsRef(sessionId: string) {
   return collection(db(), COLLECTION, sessionId, 'seats');
 }
@@ -235,7 +188,7 @@ function messageRef(sessionId: string, messageId: string) {
 }
 /** Get or create the guest's browser token (persisted in localStorage, shared
  *  across tabs — so re-opening the same link in a new tab restores the same
- *  claimed card instead of letting the browser claim a second seat). */
+ *  claimed seat instead of letting the browser claim a second one). */
 
 export function getGuestToken(): string {
   try {
@@ -271,50 +224,10 @@ function isExpired(expiresAt: Timestamp): boolean {
 }
 // ── Session CRUD ──────────────────────────────────────────────────────────────
 /**
- * Create a new deal session with shuffled cards.
- * Returns { sessionId, hostToken } — ST should persist hostToken in localStorage.
- */
-
-export async function createDealSession(
-  characterIds: string[]
-): Promise<{ sessionId: string; hostToken: string; }> {
-  const sessionId = randomId();
-  const hostToken = randomId(32);
-  const expiresAt = Timestamp.fromDate(new Date(Date.now() + TTL_MS));
-
-  const batch = writeBatch(db());
-
-  // Session document
-  batch.set(sessionRef(sessionId), {
-    createdAt: Timestamp.now(),
-    expiresAt,
-    hostToken,
-    status: 'open',
-    cardCount: characterIds.length,
-  });
-
-  // One card document per character, position = index
-  characterIds.forEach((characterId, position) => {
-    batch.set(cardRef(sessionId, position), {
-      position,
-      characterId,
-      claimedByToken: null,
-      claimedByName: null,
-      claimedBySeat: null,
-      claimedAt: null,
-      assignedSeat: null,
-      assignedName: null,
-    });
-  });
-
-  await batch.commit();
-  return { sessionId, hostToken };
-}
-/**
  * Create a new session in seat self-claim mode: guests pick an open seat
- * number and enter their name, blind — no characters dealt yet. The ST
- * deals cards to the claimed seats afterward via a separate createDealSession
- * call (or assigns manually).
+ * number and enter their name, blind. The ST assigns characters to claimed
+ * seats afterward (random or manual) via assignCharacterToSeatByHost —
+ * returns { sessionId, hostToken }, ST should persist hostToken in localStorage.
  */
 
 export async function createSeatClaimSession(
@@ -361,49 +274,7 @@ export async function getDealSession(sessionId: string): Promise<DealSession | n
   }
   return { id: sessionId, ...data };
 }
-/** Fetch all cards for a session (returns characterId for all — host view). */
-
-export async function getDealCards(sessionId: string): Promise<DealCard[]> {
-  const { getDocs } = await import('firebase/firestore');
-  const snap = await getDocs(cardsRef(sessionId));
-  return snap.docs
-    .map(d => d.data() as DealCard)
-    .sort((a, b) => a.position - b.position);
-}
-/**
- * Fetch all cards for the guest grid view — characterId is OMITTED for all
- * cards so it is never present in client state before a successful claim.
- * Only the claimed card (returned by claimCard / findClaimedCard) contains
- * characterId; that data path verifies ownership first.
- */
-
-export async function getGuestCards(sessionId: string): Promise<Omit<DealCard, 'characterId'>[]> {
-  const { getDocs } = await import('firebase/firestore');
-  const snap = await getDocs(cardsRef(sessionId));
-  return snap.docs
-    .map(d => {
-      const { characterId: _stripped, ...rest } = d.data() as DealCard;
-      return rest;
-    })
-    .sort((a, b) => a.position - b.position);
-}
 // ── Real-time subscription ────────────────────────────────────────────────────
-/**
- * Subscribe to live card updates.
- * Returns an unsubscribe function — call in useEffect cleanup.
- */
-
-export function subscribeCards(
-  sessionId: string,
-  onChange: (cards: DealCard[]) => void
-): Unsubscribe {
-  return onSnapshot(cardsRef(sessionId), (snap) => {
-    const cards = snap.docs
-      .map(d => d.data() as DealCard)
-      .sort((a, b) => a.position - b.position);
-    onChange(cards);
-  });
-}
 /** Fetch all seat claims for a session (host + one-off guest lookups). */
 
 export async function getSeatClaims(sessionId: string): Promise<DealSeatClaim[]> {
@@ -552,68 +423,11 @@ export async function closeDealVote(
 }
 // ── Guest actions ─────────────────────────────────────────────────────────────
 /**
- * Atomically claim a card.
- * Firestore rule rejects the write if claimedByToken is already set.
- * Returns the full card (including characterId) ONLY if the post-write
- * snapshot confirms claimedByToken === guestToken — guards against the race
- * where two guests write simultaneously and one wins the Firestore rule check
- * but both proceed to read.
- * Throws if already claimed by another user.
- */
-
-export async function claimCard(
-  sessionId: string,
-  position: number,
-  guestToken: string,
-  displayName: string,
-  claimedSeat?: number | null
-): Promise<DealCard> {
-  const ref = cardRef(sessionId, position);
-  const claimPayload: Record<string, unknown> = {
-    claimedByToken: guestToken,
-    claimedByName: displayName.trim() || null,
-    claimedAt: serverTimestamp(),
-  };
-  if (claimedSeat != null) claimPayload.claimedBySeat = claimedSeat;
-  try {
-    await updateDoc(ref, claimPayload);
-  } catch (e) {
-    // Retry without optional seat field in case Firestore rule affectedKeys check
-    // rejects a payload that includes claimedBySeat but the rule only lists 4 fields.
-    if (claimedSeat == null) throw e;
-    await updateDoc(ref, {
-      claimedByToken: guestToken,
-      claimedByName: displayName.trim() || null,
-      claimedAt: serverTimestamp(),
-    });
-  }
-  // Verify ownership — read back and confirm this token won the race.
-  // Without this check, a second user whose Firestore write was mis-allowed
-  // (e.g. via the overly-permissive Rule 3) could still see the characterId.
-  const snap = await getDoc(ref);
-  const data = snap.data() as DealCard;
-  if (data.claimedByToken !== guestToken) {
-    throw new Error('card_already_claimed');
-  }
-  return data;
-}
-/**
- * Find the card already claimed by this guest token, if any.
- * Used to restore state when guest re-opens the link.
- */
-
-export async function findClaimedCard(
-  sessionId: string,
-  guestToken: string
-): Promise<DealCard | null> {
-  const cards = await getDealCards(sessionId);
-  return cards.find(c => c.claimedByToken === guestToken) ?? null;
-}
-/**
  * Atomically claim a seat.
  * Firestore rule rejects the write if claimedByToken is already set.
- * Verifies ownership via a post-write read (same anti-race pattern as
- * claimCard) — guards against two guests tapping the same seat at once.
+ * Verifies ownership via a post-write read — guards against two guests
+ * tapping the same seat at once (one write wins the Firestore rule check,
+ * but both would otherwise proceed to read).
  * Throws 'seat_already_claimed' if another guest won the race.
  */
 
@@ -649,53 +463,6 @@ export async function findClaimedSeat(
   return seats.find(s => s.claimedByToken === guestToken) ?? null;
 }
 // ── Host actions ──────────────────────────────────────────────────────────────
-/** Assign a seat number and player name to a claimed card. ST only. */
-
-export async function updateCardAssignment(
-  sessionId: string,
-  position: number,
-  seat: number | null,
-  name: string
-): Promise<void> {
-  await updateDoc(cardRef(sessionId, position), {
-    assignedSeat: seat,
-    assignedName: name.trim() || null,
-  });
-}
-/** Mark a card claimed from the host dashboard. ST only. */
-
-export async function markCardClaimedByHost(
-  sessionId: string,
-  position: number,
-  name: string,
-  seat: number | null
-): Promise<void> {
-  await updateDoc(cardRef(sessionId, position), {
-    claimedByToken: `host-${randomId(24)}`,
-    claimedByName: name.trim() || null,
-    claimedBySeat: seat,
-    claimedAt: serverTimestamp(),
-    assignedSeat: seat,
-    assignedName: name.trim() || null,
-  });
-}
-/** Mark a card unclaimed and clear any ST seat/name assignment. ST only. */
-
-export async function markCardUnclaimedByHost(
-  sessionId: string,
-  position: number
-): Promise<void> {
-  // Use deleteField() for token/timestamp fields so Firestore's affectedKeys()
-  // correctly reflects the change (null→null wouldn't appear in the diff).
-  await updateDoc(cardRef(sessionId, position), {
-    claimedByToken: deleteField(),
-    claimedByName: deleteField(),
-    claimedBySeat: deleteField(),
-    claimedAt: deleteField(),
-    assignedSeat: deleteField(),
-    assignedName: deleteField(),
-  });
-}
 /** Clear a guest's seat claim, freeing it up again. ST only (host token checked app-layer). */
 
 export async function unclaimSeatByHost(
@@ -796,14 +563,4 @@ export function subscribeSeatMessages(
 /** Mark a message read (unread-badge bookkeeping on either side). */
 export async function markMessageRead(sessionId: string, messageId: string): Promise<void> {
   await updateDoc(messageRef(sessionId, messageId), { read: true });
-}
-
-// ── Shuffle utility ───────────────────────────────────────────────────────────
-
-export function shuffleDealCards<T>(arr: T[]): T[] {
-  const result = [...arr];
-  for (let i = result.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));[result[i], result[j]] = [result[j], result[i]];
-  }
-  return result;
 }

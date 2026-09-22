@@ -1,9 +1,8 @@
 /**
- * DealGuestPage — guest-side "enter your info" form tests.
+ * DealGuestPage — seat self-claim guest flow tests.
  *
- * Covers the fix making the name/seat entry step more obvious: fields are
- * grouped in a labeled card with icons and a persistent helper explaining
- * what "seat" means, instead of two bare floating text fields.
+ * Covers picking an open seat, naming it, and the reveal-after-refresh
+ * behavior once the ST has pushed a character onto an already-claimed seat.
  */
 import { describe, it, expect, vi, afterEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
@@ -12,18 +11,30 @@ import React from 'react'
 import { I18nProvider } from '../context/I18nContext'
 import { DealGuestPage } from '../components/DealGuestPage'
 
-let claimedCardOnLoad: any = null
+let claimedSeatOnLoad: any = null
+
+const SEATS = Array.from({ length: 5 }, (_, i) => ({ seatNumber: i + 1, claimedByToken: null, playerName: null, characterId: null }))
 
 vi.mock('../lib/DealSession', () => ({
   getDealSession: vi.fn(async () => ({
-    id: 'sess1', createdAt: {}, expiresAt: {}, hostToken: 'h', status: 'open', cardCount: 5,
+    id: 'sess1', createdAt: {}, expiresAt: {}, hostToken: 'h', status: 'open', cardCount: 0, totalSeats: 5,
   })),
-  getGuestCards: vi.fn(async () => Array.from({ length: 5 }, (_, i) => ({ position: i }))),
-  findClaimedCard: vi.fn(async () => claimedCardOnLoad),
-  claimCard: vi.fn(),
+  getSeatClaims: vi.fn(async () => SEATS),
+  findClaimedSeat: vi.fn(async () => claimedSeatOnLoad),
+  claimSeat: vi.fn(async (_id: string, seatNumber: number, _token: string, playerName: string) => ({
+    seatNumber, claimedByToken: 'guest-token-test', playerName, characterId: null,
+  })),
   getGuestToken: vi.fn(() => 'guest-token-test'),
-  hasSeenDealCharacter: vi.fn(() => false),
   markDealCharacterSeen: vi.fn(),
+  // Reflects claimedSeatOnLoad into the live snapshot so the seatClaimed
+  // live-subscription effect doesn't clobber the loaded seat with a blank one.
+  subscribeSeatClaims: vi.fn((_id: string, cb: (v: unknown[]) => void) => {
+    const seats = claimedSeatOnLoad
+      ? SEATS.map((s) => (s.seatNumber === claimedSeatOnLoad.seatNumber ? claimedSeatOnLoad : s))
+      : SEATS
+    cb(seats)
+    return () => {}
+  }),
   subscribeActiveDealVote: vi.fn((_id: string, cb: (v: null) => void) => { cb(null); return () => {} }),
   subscribeDealVoteResponses: vi.fn((_id: string, _voteId: string, cb: (v: unknown[]) => void) => { cb([]); return () => {} }),
   submitDealVoteResponse: vi.fn(),
@@ -36,48 +47,46 @@ function withI18n(node: React.ReactElement) {
   return <I18nProvider language="en">{node}</I18nProvider>
 }
 
-afterEach(() => { claimedCardOnLoad = null })
+afterEach(() => { claimedSeatOnLoad = null })
 
-describe('DealGuestPage — name entry step', () => {
-  it('renders name + seat fields grouped with a section label and seat helper text', async () => {
+describe('DealGuestPage — seat pick + naming step', () => {
+  it('renders the open seat grid', async () => {
     render(withI18n(<DealGuestPage sessionId="sess1" language="en" />))
 
-    expect(await screen.findByLabelText(/player name/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/seat/i)).toBeInTheDocument()
-    expect(screen.getByText(/enter your info to begin/i)).toBeInTheDocument()
-    expect(screen.getByText(/the seat number the storyteller assigned you/i)).toBeInTheDocument()
+    expect(await screen.findByText(/pick your seat/i)).toBeInTheDocument()
+    expect(screen.getByText('#1')).toBeInTheDocument()
+    expect(screen.getByText('#5')).toBeInTheDocument()
   })
 
-  it('shows required errors when submitting empty fields', async () => {
+  it('shows a required error when confirming an empty name', async () => {
     render(withI18n(<DealGuestPage sessionId="sess1" language="en" />))
 
-    const button = await screen.findByRole('button', { name: /view cards/i })
-    fireEvent.click(button)
+    fireEvent.click(await screen.findByText('#3'))
+    expect(await screen.findByText(/confirm your seat/i)).toBeInTheDocument()
 
-    const requiredMessages = await screen.findAllByText(/required/i)
-    expect(requiredMessages.length).toBeGreaterThanOrEqual(2)
+    fireEvent.click(screen.getByRole('button', { name: /claim this seat/i }))
+    expect(await screen.findByText(/required/i)).toBeInTheDocument()
   })
 
-  it('advances to the card grid once both fields are filled', async () => {
+  it('claims the seat once a name is entered and shows the waiting state', async () => {
     render(withI18n(<DealGuestPage sessionId="sess1" language="en" />))
 
+    fireEvent.click(await screen.findByText('#3'))
     const nameField = await screen.findByLabelText(/player name/i)
-    const seatField = screen.getByLabelText(/seat/i)
     fireEvent.change(nameField, { target: { value: 'Alice' } })
-    fireEvent.change(seatField, { target: { value: '3' } })
-    fireEvent.click(screen.getByRole('button', { name: /view cards/i }))
+    fireEvent.click(screen.getByRole('button', { name: /claim this seat/i }))
 
     await waitFor(() => {
-      expect(screen.getByText(/pick your character card/i)).toBeInTheDocument()
+      expect(screen.getByText(/wait for the storyteller/i)).toBeInTheDocument()
     })
   })
 })
 
 // ── Fix: reveal-after-refresh (Show My Character button) ────────────────────
 
-describe('DealGuestPage — reshowing an already-claimed character', () => {
-  it('loading an already-claimed card (e.g. after a refresh) hides the character behind a button', async () => {
-    claimedCardOnLoad = { position: 0, characterId: 'washerwoman', claimedByToken: 'guest-token-test', claimedByName: 'Alice', claimedBySeat: 3 }
+describe('DealGuestPage — reshowing an already-claimed seat character', () => {
+  it('loading an already-claimed seat (e.g. after a refresh) hides the character behind a button', async () => {
+    claimedSeatOnLoad = { seatNumber: 3, claimedByToken: 'guest-token-test', playerName: 'Alice', characterId: 'washerwoman' }
 
     render(withI18n(<DealGuestPage sessionId="sess1" language="en" />))
 
@@ -87,7 +96,7 @@ describe('DealGuestPage — reshowing an already-claimed character', () => {
   })
 
   it('clicking "Show My Character" reveals the assigned character again', async () => {
-    claimedCardOnLoad = { position: 0, characterId: 'washerwoman', claimedByToken: 'guest-token-test', claimedByName: 'Alice', claimedBySeat: 3 }
+    claimedSeatOnLoad = { seatNumber: 3, claimedByToken: 'guest-token-test', playerName: 'Alice', characterId: 'washerwoman' }
 
     render(withI18n(<DealGuestPage sessionId="sess1" language="en" />))
 
@@ -98,5 +107,14 @@ describe('DealGuestPage — reshowing an already-claimed character', () => {
       expect(screen.getByText('Washerwoman')).toBeInTheDocument()
     })
     expect(screen.queryByText(/character hidden/i)).not.toBeInTheDocument()
+  })
+
+  it('shows the waiting message when the claimed seat has no character yet', async () => {
+    claimedSeatOnLoad = { seatNumber: 3, claimedByToken: 'guest-token-test', playerName: 'Alice', characterId: null }
+
+    render(withI18n(<DealGuestPage sessionId="sess1" language="en" />))
+
+    expect(await screen.findByText(/wait for the storyteller/i)).toBeInTheDocument()
+    expect(screen.getByText('Alice')).toBeInTheDocument()
   })
 })

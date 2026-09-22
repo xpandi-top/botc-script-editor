@@ -7,8 +7,7 @@
  *  ?ss=<shortId> — decode a custom script from Firebase short link
  *  ?ar=<encoded> — analytics share (long encoded URL)
  *  ?sl=<shortId> — analytics share (Firebase short link)
- *  ?deal=<id>    — card-deal session
- *  ?host=<token> — deal host token
+ *  ?deal=<id>    — deal session (seat self-claim guest page)
  */
 
 import { useEffect, useState } from 'react'
@@ -38,8 +37,6 @@ export interface ShareParamState {
   clearSharedRecords: () => void
   /** ?deal=<id> param — present means render deal page instead of normal UI */
   dealSessionId: string | null
-  /** ?host=<token> param — set when ST opens their own host link */
-  dealHostToken: string | null
   /** ?s=<slug> — slug of built-in script to open on load */
   initialScriptSlug: string | null
   /** Decoded custom script from ?ss= short/encoded link */
@@ -69,10 +66,6 @@ export function useShareParam(): ShareParamState {
   const dealSessionId = useState<string | null>(() => {
     const params = new URLSearchParams(window.location.search)
     return params.get('deal')
-  })[0]
-  const dealHostToken = useState<string | null>(() => {
-    const params = new URLSearchParams(window.location.search)
-    return params.get('host')
   })[0]
 
   // ?s= initial script slug (built-in only, stable)
@@ -249,7 +242,6 @@ export function useShareParam(): ShareParamState {
     shareDecodeError,
     clearSharedRecords,
     dealSessionId,
-    dealHostToken,
     initialScriptSlug,
     sharedScript,
     sharedScriptError,

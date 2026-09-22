@@ -20,7 +20,7 @@ import SendIcon from '@mui/icons-material/Send'
 import { getDisplayName } from '../../../catalog'
 import { makeT, makeTpl } from '../../../lib/t'
 import {
-  createDealSession, shuffleDealCards, getDealSession, closeDealSession,
+  getDealSession, closeDealSession,
   createSeatClaimSession, subscribeSeatClaims, unclaimSeatByHost, renameSeatByHost, assignCharacterToSeatByHost,
   subscribeMessages, sendMessage, markMessageRead,
   HOST_TOKEN_KEY, ACTIVE_HOST_DEAL_KEY, GAME_DEAL_KEY,
@@ -66,17 +66,14 @@ const MAX_PLAYERS = 15
 
 export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
   const {
-    language, activeDealSession, setActiveDealSession, lastDealSession,
+    language, lastDealSession,
     newGamePanel, setNewGamePanel, addPlayerSeat, removeLastPlayerSeat,
     randomAssignCharacters, updateSeatWithLog, currentDay, activeScriptSlug,
   } = ctx
   const t = makeT(language)
   const tpl = makeTpl(language)
   const [tab, setTab] = useState<AssignmentTab>('draw')
-  const [dealing, setDealing] = useState(false)
   const [startingSeatClaim, setStartingSeatClaim] = useState(false)
-  // Seat-claim sessions are intentionally NOT pushed through ctx.activeDealSession —
-  // that state also drives the full-screen DealHostPage overlay, which is card-only.
   const [localSeatSession, setLocalSeatSession] = useState<DealSession | null>(null)
 
   const { gameId, assignments, playerCount } = useAssignmentSource(ctx)
@@ -90,10 +87,9 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
     return null
   }, [gameId])
 
-  const existingDealSession: DealSession | null = localSeatSession ?? activeDealSession ?? storedGameDeal ?? lastDealSession ?? null
+  const existingDealSession: DealSession | null = localSeatSession ?? storedGameDeal ?? lastDealSession ?? null
 
-  // Resolve the active session's full metadata (needed to tell a card-deal
-  // session apart from a seat self-claim session — same GAME_DEAL_KEY slot).
+  // Resolve the active session's full metadata.
   const [resolvedSession, setResolvedSession] = useState<DealSessionDoc | null>(null)
   useEffect(() => {
     if (!existingDealSession) { setResolvedSession(null); return }
@@ -101,8 +97,6 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
     getDealSession(existingDealSession.sessionId).then((s) => { if (!cancelled) setResolvedSession(s) })
     return () => { cancelled = true }
   }, [existingDealSession?.sessionId])
-
-  const isSeatClaimSession = resolvedSession?.totalSeats != null
 
   const persistSession = (session: DealSession) => {
     try { localStorage.setItem(HOST_TOKEN_KEY(session.sessionId), session.hostToken) } catch {}
@@ -112,26 +106,9 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
     try { localStorage.setItem(ACTIVE_HOST_DEAL_KEY, JSON.stringify(session)) } catch {}
   }
 
-  const handleDealCards = async (explicitCharacterIds?: string[]) => {
-    const ids = explicitCharacterIds ?? characterIds
-    if (ids.length < 2) return
-    setDealing(true)
-    try {
-      const shuffled = shuffleDealCards(ids)
-      const session = await createDealSession(shuffled)
-      persistSession(session)
-      setLocalSeatSession(null)
-      setActiveDealSession(session)
-    } catch (e) {
-      console.error('Failed to create deal session', e)
-    } finally {
-      setDealing(false)
-    }
-  }
-
-  // Random character assignment, usable standalone or chained straight into a
-  // deal — computed synchronously and returned so the combo action below
-  // doesn't have to wait a render cycle for newGamePanel/currentDay to update.
+  // Random character assignment — computed synchronously and returned so
+  // callers don't have to wait a render cycle for newGamePanel/currentDay
+  // to update before using the result.
   const buildRandomAssignment = (): Record<number, string> | null => {
     if (playerCount < 1) return null
     const config = newGamePanel ?? ({ playerCount, scriptSlug: activeScriptSlug ?? '', charPool: [] } as unknown as NewGameConfig)
@@ -155,20 +132,12 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
     if (result) applyAssignment(result)
   }
 
-  const handleRandomAssignAndDeal = async () => {
-    const result = buildRandomAssignment()
-    if (!result) return
-    applyAssignment(result)
-    await handleDealCards(Object.values(result).filter(Boolean))
-  }
-
   const handleStartSeatClaim = async () => {
     if (playerCount < 1) return
     setStartingSeatClaim(true)
     try {
       const session = await createSeatClaimSession(playerCount)
       persistSession(session)
-      setActiveDealSession(null)
       setLocalSeatSession(session)
       const full = await getDealSession(session.sessionId)
       setResolvedSession(full)
@@ -245,32 +214,6 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
                 </Button>
               </span>
             </Tooltip>
-            <Tooltip title={t('random_assign_and_deal_hint')}>
-              <span>
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  onClick={handleRandomAssignAndDeal}
-                  disabled={dealing || playerCount < 2}
-                  startIcon={dealing ? <CircularProgress size={14} color="inherit" /> : <CasinoIcon fontSize="small" />}
-                >
-                  {t('random_assign_and_deal')}
-                </Button>
-              </span>
-            </Tooltip>
-            <Tooltip title={t('deal_assigned_characters_to_players_new_tab')}>
-              <span>
-                <Button
-                  variant="outlined"
-                  color="secondary"
-                  onClick={() => handleDealCards()}
-                  disabled={dealing || characterIds.length < 2}
-                  startIcon={dealing ? <CircularProgress size={14} color="inherit" /> : <StyleIcon fontSize="small" />}
-                >
-                  {t('deal_cards')}
-                </Button>
-              </span>
-            </Tooltip>
             <Tooltip title={t('let_players_claim_their_own_seat')}>
               <span>
                 <Button
@@ -285,11 +228,11 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
               </span>
             </Tooltip>
             {existingDealSession && (
-              <Tooltip title={isSeatClaimSession ? t('view_roster') : t('open_active_deal_dashboard')}>
+              <Tooltip title={t('view_roster')}>
                 <Button
                   variant="outlined"
                   color="secondary"
-                  onClick={() => isSeatClaimSession ? setTab('roster') : setActiveDealSession(existingDealSession)}
+                  onClick={() => setTab('roster')}
                   startIcon={<OpenInNewIcon fontSize="small" />}
                   sx={{ fontFamily: 'monospace', fontWeight: 700 }}
                 >
