@@ -18,7 +18,8 @@ import SendIcon from '@mui/icons-material/Send'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import ClearAllIcon from '@mui/icons-material/ClearAll'
-import { getCharacterById, getDisplayName } from '../../../catalog'
+import ShuffleIcon from '@mui/icons-material/Shuffle'
+import { allCharacters, getCharacterById, getDisplayName } from '../../../catalog'
 import { makeT, makeTpl } from '../../../lib/t'
 import { CHARACTER_DISTRIBUTION } from '../constants'
 import { CharPoolPicker } from './CharPoolPicker'
@@ -73,7 +74,7 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
   const {
     language, lastDealSession,
     newGamePanel, setNewGamePanel, addPlayerSeat, removeLastPlayerSeat,
-    randomAssignCharacters, updateSeatWithLog, currentDay, activeScriptSlug, scriptOptions,
+    randomAssignCharacters, updateSeatWithLog, updateCurrentDay, currentDay, activeScriptSlug, scriptOptions,
   } = ctx
   const t = makeT(language)
   const tpl = makeTpl(language)
@@ -137,6 +138,50 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
     })
     return c
   }, [assignments])
+
+  const demonBluffs = newGamePanel ? (newGamePanel.demonBluffs ?? []) : (currentDay.demonBluffs ?? [])
+  const setDemonBluffs = (bluffs: string[]) => {
+    if (newGamePanel) setNewGamePanel((prev) => prev ? { ...prev, demonBluffs: bluffs } : prev)
+    else updateCurrentDay((d) => ({ ...d, demonBluffs: bluffs }))
+  }
+  // Characters eligible as demon bluffs: not currently assigned to any seat.
+  // Prefer script characters; fall back to ALL townsfolk/outsider from catalog
+  // so tight custom scripts never show an empty bluff picker.
+  const availableBluffs = useMemo(() => {
+    const assigned = new Set<string>(Object.values(assignments).filter(Boolean) as string[])
+    const scriptAvail = scriptChars.filter((id: string) => !assigned.has(id))
+    if (scriptAvail.length >= 3) return scriptAvail
+    const catalogFallback = allCharacters
+      .filter((c) => (c.team === 'townsfolk' || c.team === 'outsider') && !assigned.has(c.id))
+      .map((c) => c.id)
+    return [...new Set([...scriptAvail, ...catalogFallback])]
+  }, [scriptChars, assignments])
+  // Per-slot options: exclude characters already picked in the other two slots.
+  // Always include the slot's own current value so it stays visible after close/reopen.
+  const bluffSlotOptions = useMemo(() => {
+    return [0, 1, 2].map((idx) => {
+      const others = new Set(demonBluffs.filter((id, i) => i !== idx && !!id))
+      const filtered = availableBluffs.filter((id) => !others.has(id))
+      const currentVal = demonBluffs[idx]
+      if (currentVal && !filtered.includes(currentVal)) return [currentVal, ...filtered]
+      return filtered
+    })
+  }, [availableBluffs, demonBluffs])
+  const setBluff = (idx: number, cid: string) => {
+    const bluffs = [...demonBluffs, '', '', ''].slice(0, 3)
+    bluffs[idx] = cid
+    setDemonBluffs(bluffs)
+  }
+  const quickFillBluffs = () => {
+    const pool = availableBluffs.filter((id) => {
+      const ch = getCharacterById(id)
+      return ch && (ch.team === 'townsfolk' || ch.team === 'outsider')
+    })
+    const shuffled = [...pool].sort(() => Math.random() - 0.5)
+    const picked = shuffled.slice(0, 3)
+    while (picked.length < 3) picked.push('')
+    setDemonBluffs(picked)
+  }
 
   // Random character assignment — computed synchronously and returned so
   // callers don't have to wait a render cycle for newGamePanel/currentDay
@@ -451,6 +496,29 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
                 <Typography key={sNum} variant="caption" sx={{ px: 0.75, py: 0.25, borderRadius: 1, bgcolor: 'action.hover' }}>
                   #{sNum} {getDisplayName(cid, language)}
                 </Typography>
+              ))}
+            </Box>
+          </Paper>
+
+          <Paper variant="outlined" sx={{ p: 1 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+              <Typography variant="subtitle2">{t('demon_bluffs')}</Typography>
+              <Tooltip title={t('random_fill_hint')}>
+                <IconButton size="small" onClick={quickFillBluffs}>
+                  <ShuffleIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            </Box>
+            <Box sx={{ display: 'flex', gap: 1, flexDirection: { xs: 'column', sm: 'row' } }}>
+              {[0, 1, 2].map((idx) => (
+                <CharSelect
+                  key={idx}
+                  value={demonBluffs[idx] ?? ''}
+                  options={bluffSlotOptions[idx]}
+                  language={language}
+                  placeholder={t('select_pick')}
+                  onChange={(id) => setBluff(idx, id)}
+                />
               ))}
             </Box>
           </Paper>
