@@ -820,7 +820,6 @@
     "storyteller_label": "说书人",
     "broadcast_to_all_seats": "广播给所有座位",
     "coming_soon": "即将推出",
-    "seats_assigned_count": "已分配 {0} 个座位",
     "let_players_claim_their_own_seat": "让玩家自行认领座位",
     "random_assign_characters_hint": "为每个座位随机分配角色",
     "claim_seats_button": "认领座位",

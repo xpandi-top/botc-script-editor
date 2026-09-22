@@ -397,7 +397,7 @@ export type TplKey =
   | 'player_most_active_st' | 'avg_duration_min'
   | 'more_n_scripts_tab' | 'more_n_storytellers'
   // Misc templates
-  | 'script_chars_short' | 'log_tab_n' | 'fill_log_n' | 'seats_assigned_count' | 'send_assigned_characters_n'
+  | 'script_chars_short' | 'log_tab_n' | 'fill_log_n' | 'send_assigned_characters_n'
   | 'context_editing' | 'tag_for_char'
   | 'st_detail_n_games_scripts'
   // Communication board templates

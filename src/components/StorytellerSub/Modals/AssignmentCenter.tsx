@@ -19,7 +19,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import ClearAllIcon from '@mui/icons-material/ClearAll'
 import ShuffleIcon from '@mui/icons-material/Shuffle'
-import { allCharacters, getCharacterById, getDisplayName } from '../../../catalog'
+import { allCharacters, getCharacterById } from '../../../catalog'
 import { makeT, makeTpl } from '../../../lib/t'
 import { CHARACTER_DISTRIBUTION } from '../constants'
 import { CharPoolPicker } from './CharPoolPicker'
@@ -58,12 +58,14 @@ function useAssignmentSource(ctx: StorytellerContext) {
       return {
         gameId: newGamePanel.gameId ?? liveGameId,
         assignments: newGamePanel.assignments ?? {},
+        userAssignments: newGamePanel.userAssignments ?? {},
         playerCount,
         travelerSeats: Array.from({ length: travelerCount }, (_, i) => playerCount + i + 1),
         travelerAssignments: newGamePanel.travelerAssignments ?? {},
       }
     }
     const assignments: Record<number, string> = {}
+    const userAssignments: Record<number, string> = {}
     const travelerSeats: number[] = []
     const travelerAssignments: Record<number, string> = {}
     let playerCount = 0
@@ -74,9 +76,10 @@ function useAssignmentSource(ctx: StorytellerContext) {
       } else {
         playerCount++
         if (seat.characterId) assignments[seat.seat] = seat.characterId
+        if (seat.userCharacterId) userAssignments[seat.seat] = seat.userCharacterId
       }
     }
-    return { gameId: liveGameId, assignments, playerCount, travelerSeats, travelerAssignments }
+    return { gameId: liveGameId, assignments, userAssignments, playerCount, travelerSeats, travelerAssignments }
   }, [newGamePanel, currentDay.seats, liveGameId])
 }
 
@@ -99,8 +102,7 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
   // (live game) — newGamePanel.charPool is used instead when a draft exists.
   const [liveCharPool, setLiveCharPool] = useState<string[]>([])
 
-  const { gameId, assignments, playerCount, travelerSeats, travelerAssignments } = useAssignmentSource(ctx)
-  const characterIds = Object.values(assignments).filter(Boolean) as string[]
+  const { gameId, assignments, userAssignments, playerCount, travelerSeats, travelerAssignments } = useAssignmentSource(ctx)
 
   const storedGameDeal = useMemo(() => {
     try {
@@ -234,12 +236,21 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
     updateSeatWithLog(seatNumber, (s) => ({ ...s, characterId }))
   }
 
-  const setTravelerNote = (seatNumber: number, note: string) => {
+  // Shared by traveler and regular seat rows alike — same underlying field.
+  const setSeatNote = (seatNumber: number, note: string) => {
     if (newGamePanel) {
       setNewGamePanel((prev) => prev ? { ...prev, seatNotes: { ...prev.seatNotes, [seatNumber]: note } } : prev)
       return
     }
     updateSeatWithLog(seatNumber, (s) => ({ ...s, note }))
+  }
+
+  const setUserPerceived = (seatNumber: number, characterId: string | null) => {
+    if (newGamePanel) {
+      setNewGamePanel((prev) => prev ? { ...prev, userAssignments: { ...prev.userAssignments, [seatNumber]: characterId } } : prev)
+      return
+    }
+    updateSeatWithLog(seatNumber, (s) => ({ ...s, userCharacterId: characterId }))
   }
 
   const handleRandomAssign = () => {
@@ -517,19 +528,6 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
           </Box>
 
           <Paper variant="outlined" sx={{ p: 1 }}>
-            <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mb: 0.5 }}>
-              {tpl('seats_assigned_count', characterIds.length)}
-            </Typography>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-              {Object.entries(assignments).filter(([, cid]) => cid).map(([sNum, cid]) => (
-                <Typography key={sNum} variant="caption" sx={{ px: 0.75, py: 0.25, borderRadius: 1, bgcolor: 'action.hover' }}>
-                  #{sNum} {getDisplayName(cid, language)}
-                </Typography>
-              ))}
-            </Box>
-          </Paper>
-
-          <Paper variant="outlined" sx={{ p: 1 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
               <Typography variant="subtitle2">{t('demon_bluffs')}</Typography>
               <Tooltip title={t('random_fill_hint')}>
@@ -578,7 +576,7 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
                         fullWidth
                         placeholder={t('traveler_note')}
                         value={note}
-                        onChange={(e) => setTravelerNote(sNum, e.target.value)}
+                        onChange={(e) => setSeatNote(sNum, e.target.value)}
                         sx={{ flex: { xs: '1 1 100%', sm: 1 } }}
                       />
                     </Box>
@@ -589,133 +587,169 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
           )}
 
           {existingDealSession && (
-            <>
-              <Paper variant="outlined" sx={{ p: 1.5, borderRadius: 2, display: 'flex', flexWrap: 'wrap', gap: 1, alignItems: 'center' }}>
-                <Chip
-                  size="small"
-                  label={`${claimedCount}/${seats.length} ${t('claimed')}`}
-                  color={seats.length > 0 && claimedCount === seats.length ? 'success' : 'default'}
-                />
-                {resolvedSession?.status === 'closed' && (
-                  <Chip size="small" label={t('closed')} color="warning" />
-                )}
-                <Box sx={{ flex: 1 }} />
-                <Tooltip title={t('send_assigned_characters_hint')}>
+            <Paper variant="outlined" sx={{ p: 1.5, borderRadius: 2, display: 'flex', flexWrap: 'wrap', gap: 1, alignItems: 'center' }}>
+              <Chip
+                size="small"
+                label={`${claimedCount}/${seats.length} ${t('claimed')}`}
+                color={seats.length > 0 && claimedCount === seats.length ? 'success' : 'default'}
+              />
+              {resolvedSession?.status === 'closed' && (
+                <Chip size="small" label={t('closed')} color="warning" />
+              )}
+              <Box sx={{ flex: 1 }} />
+              <Tooltip title={t('send_assigned_characters_hint')}>
+                <span>
+                  <Button
+                    size="small"
+                    variant="contained"
+                    color="secondary"
+                    startIcon={sendingAssigned ? <CircularProgress size={14} color="inherit" /> : <SendIcon fontSize="small" />}
+                    onClick={handleSendAssigned}
+                    disabled={sendingAssigned || pendingSendCount < 1}
+                  >
+                    {pendingSendCount > 0 ? tpl('send_assigned_characters_n', pendingSendCount) : t('send_assigned_characters')}
+                  </Button>
+                </span>
+              </Tooltip>
+              <Tooltip title={copied ? t('share_log_copied') : t('copy_player_link')}>
+                <Button size="small" startIcon={<ContentCopyIcon fontSize="small" />} onClick={handleCopyLink} variant="outlined">
+                  {copied ? t('copied') : t('copy_link')}
+                </Button>
+              </Tooltip>
+              <Tooltip title="QR Code">
+                <IconButton size="small" onClick={() => setQrOpen(true)}>
+                  <QrCode2Icon />
+                </IconButton>
+              </Tooltip>
+              {resolvedSession?.status === 'open' && (
+                <Tooltip title={t('close_deal_no_more_claims')}>
                   <span>
-                    <Button
-                      size="small"
-                      variant="contained"
-                      color="secondary"
-                      startIcon={sendingAssigned ? <CircularProgress size={14} color="inherit" /> : <SendIcon fontSize="small" />}
-                      onClick={handleSendAssigned}
-                      disabled={sendingAssigned || pendingSendCount < 1}
-                    >
-                      {pendingSendCount > 0 ? tpl('send_assigned_characters_n', pendingSendCount) : t('send_assigned_characters')}
+                    <Button size="small" color="warning" startIcon={<LockIcon fontSize="small" />} onClick={handleCloseSession} disabled={closing}>
+                      {t('close')}
                     </Button>
                   </span>
                 </Tooltip>
-                <Tooltip title={copied ? t('share_log_copied') : t('copy_player_link')}>
-                  <Button size="small" startIcon={<ContentCopyIcon fontSize="small" />} onClick={handleCopyLink} variant="outlined">
-                    {copied ? t('copied') : t('copy_link')}
-                  </Button>
-                </Tooltip>
-                <Tooltip title="QR Code">
-                  <IconButton size="small" onClick={() => setQrOpen(true)}>
-                    <QrCode2Icon />
-                  </IconButton>
-                </Tooltip>
-                {resolvedSession?.status === 'open' && (
-                  <Tooltip title={t('close_deal_no_more_claims')}>
-                    <span>
-                      <Button size="small" color="warning" startIcon={<LockIcon fontSize="small" />} onClick={handleCloseSession} disabled={closing}>
-                        {t('close')}
-                      </Button>
-                    </span>
-                  </Tooltip>
-                )}
-              </Paper>
+              )}
+            </Paper>
+          )}
 
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                {seats.map((seat) => {
-                  const isClaimed = seat.claimedByToken != null
-                  const isBusy = busySeat === seat.seatNumber
-                  const isReserving = reservingSeat === seat.seatNumber
-                  const assignedCid = assignments[seat.seatNumber] ?? ''
-                  const delivered = !!assignedCid && seat.characterId === assignedCid
-                  const pending = !!assignedCid && seat.characterId !== assignedCid
-                  return (
-                    <Paper key={seat.seatNumber} variant="outlined" sx={{ p: 1, display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
-                      <Chip size="small" label={`#${seat.seatNumber}`} sx={{ fontWeight: 700, minWidth: 40 }} />
-                      {isReserving ? (
+          {/* Regular-seat roster — always visible so a specific character can be
+              assigned per seat whether or not a seat-claim session exists yet;
+              claim status/actions only render once a session is active. */}
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            {Array.from({ length: playerCount }, (_, i) => i + 1).map((sNum) => {
+              const claim = seats.find((s) => s.seatNumber === sNum)
+              const isClaimed = claim?.claimedByToken != null
+              const isBusy = busySeat === sNum
+              const isReserving = reservingSeat === sNum
+              const assignedCid = assignments[sNum] ?? ''
+              const ch = assignedCid ? getCharacterById(assignedCid) : null
+              const delivered = !!assignedCid && claim?.characterId === assignedCid
+              const pending = !!assignedCid && !!existingDealSession && claim?.characterId !== assignedCid
+              const userCid = userAssignments[sNum]
+              const hasUserOverride = userCid !== undefined && userCid !== null && userCid !== ''
+              const note = newGamePanel ? (newGamePanel.seatNotes?.[sNum] ?? '') : (currentDay.seats.find((s) => s.seat === sNum)?.note ?? '')
+              return (
+                <Paper key={sNum} variant="outlined" sx={{ p: 1, display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                  <Chip size="small" label={`#${sNum}`} sx={{ fontWeight: 700, minWidth: 40 }} />
+                  {existingDealSession && isReserving ? (
+                    <>
+                      <TextField
+                        size="small"
+                        autoFocus
+                        placeholder={t('player_name')}
+                        value={reserveName}
+                        onChange={(e) => setReserveName(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === 'Enter') handleReserveSeat(sNum) }}
+                        sx={{ flex: 1, minWidth: 120 }}
+                      />
+                      <Button size="small" variant="contained" disabled={isBusy || !reserveName.trim()} onClick={() => handleReserveSeat(sNum)}>
+                        {t('save')}
+                      </Button>
+                      <Button size="small" variant="text" onClick={() => { setReservingSeat(null); setReserveName('') }}>
+                        {t('cancel')}
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      {existingDealSession && (
+                        <Typography variant="body2" sx={{ minWidth: 90, color: isClaimed ? 'text.primary' : 'text.disabled', fontStyle: isClaimed ? 'normal' : 'italic' }}>
+                          {isClaimed ? (claim?.playerName || t('anonymous')) : t('unclaimed')}
+                        </Typography>
+                      )}
+                      <Box sx={{ minWidth: 140 }}>
+                        <CharSelect
+                          value={assignedCid}
+                          options={scriptChars}
+                          language={language}
+                          placeholder={t('select_pick')}
+                          onChange={(id) => updateAssignment(sNum, id)}
+                        />
+                      </Box>
+                      <TeamDot team={ch?.team} />
+                      <Button
+                        size="small"
+                        variant={hasUserOverride ? 'contained' : 'text'}
+                        onClick={() => hasUserOverride ? setUserPerceived(sNum, null) : setUserPerceived(sNum, assignedCid || null)}
+                        sx={{ minWidth: 28, p: 0.5 }}
+                      >
+                        {hasUserOverride ? '👁' : '='}
+                      </Button>
+                      {hasUserOverride && (
                         <>
-                          <TextField
-                            size="small"
-                            autoFocus
-                            placeholder={t('player_name')}
-                            value={reserveName}
-                            onChange={(e) => setReserveName(e.target.value)}
-                            onKeyDown={(e) => { if (e.key === 'Enter') handleReserveSeat(seat.seatNumber) }}
-                            sx={{ flex: 1, minWidth: 120 }}
-                          />
-                          <Button size="small" variant="contained" disabled={isBusy || !reserveName.trim()} onClick={() => handleReserveSeat(seat.seatNumber)}>
-                            {t('save')}
-                          </Button>
-                          <Button size="small" variant="text" onClick={() => { setReservingSeat(null); setReserveName('') }}>
-                            {t('cancel')}
-                          </Button>
-                        </>
-                      ) : (
-                        <>
-                          <Typography variant="body2" sx={{ minWidth: 90, color: isClaimed ? 'text.primary' : 'text.disabled', fontStyle: isClaimed ? 'normal' : 'italic' }}>
-                            {isClaimed ? (seat.playerName || t('anonymous')) : t('unclaimed')}
-                          </Typography>
-                          <Box sx={{ flex: 1, minWidth: 140 }}>
-                            <CharSelect
-                              value={assignedCid}
-                              options={scriptChars}
-                              language={language}
-                              placeholder={t('select_pick')}
-                              onChange={(id) => updateAssignment(seat.seatNumber, id)}
-                            />
-                          </Box>
-                          {assignedCid && (
-                            <Chip
-                              size="small"
-                              label={delivered ? t('delivered') : t('pending_delivery')}
-                              color={delivered ? 'success' : pending ? 'warning' : 'default'}
-                              variant={delivered ? 'filled' : 'outlined'}
-                            />
-                          )}
-                          {isClaimed ? (
-                            <Button
-                              size="small"
-                              variant="outlined"
-                              color="warning"
-                              disabled={isBusy}
-                              startIcon={isBusy ? <CircularProgress size={12} /> : <PersonOffIcon fontSize="small" />}
-                              onClick={() => handleFreeSeat(seat.seatNumber)}
-                            >
-                              {t('set_unclaimed')}
-                            </Button>
-                          ) : (
-                            <Button
-                              size="small"
-                              variant="outlined"
-                              color="success"
-                              disabled={isBusy}
-                              startIcon={<PersonAddIcon fontSize="small" />}
-                              onClick={() => { setReservingSeat(seat.seatNumber); setReserveName('') }}
-                            >
-                              {t('set_claimed')}
-                            </Button>
-                          )}
+                          <CharSelect value={userCid ?? ''} options={scriptChars} language={language} placeholder={t('perceived_character')} onChange={(id) => setUserPerceived(sNum, id || null)} />
+                          <TeamDot team={getCharacterById(userCid ?? '')?.team} />
                         </>
                       )}
-                    </Paper>
-                  )
-                })}
-              </Box>
+                      <TextField
+                        size="small"
+                        placeholder={t('note_placeholder')}
+                        value={note}
+                        onChange={(e) => setSeatNote(sNum, e.target.value)}
+                        sx={{ flex: { xs: '1 1 100%', sm: 1 }, minWidth: 100 }}
+                      />
+                      {assignedCid && existingDealSession && (
+                        <Chip
+                          size="small"
+                          label={delivered ? t('delivered') : t('pending_delivery')}
+                          color={delivered ? 'success' : pending ? 'warning' : 'default'}
+                          variant={delivered ? 'filled' : 'outlined'}
+                        />
+                      )}
+                      {existingDealSession && (
+                        isClaimed ? (
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            color="warning"
+                            disabled={isBusy}
+                            startIcon={isBusy ? <CircularProgress size={12} /> : <PersonOffIcon fontSize="small" />}
+                            onClick={() => handleFreeSeat(sNum)}
+                          >
+                            {t('set_unclaimed')}
+                          </Button>
+                        ) : (
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            color="success"
+                            disabled={isBusy}
+                            startIcon={<PersonAddIcon fontSize="small" />}
+                            onClick={() => { setReservingSeat(sNum); setReserveName('') }}
+                          >
+                            {t('set_claimed')}
+                          </Button>
+                        )
+                      )}
+                    </>
+                  )}
+                </Paper>
+              )
+            })}
+          </Box>
 
+          {existingDealSession && (
+            <>
               <Dialog open={qrOpen} onClose={() => setQrOpen(false)} maxWidth="xs" fullWidth>
                 <DialogTitle>
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
