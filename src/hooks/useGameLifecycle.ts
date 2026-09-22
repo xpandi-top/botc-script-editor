@@ -25,6 +25,7 @@ interface LifecycleDeps {
   setSkillOverlay: (v: null) => void
   setNewGamePanel: React.Dispatch<React.SetStateAction<NewGameConfig | null>>
   setShowNewGamePanel?: (v: boolean) => void
+  setShowAssignmentCenter?: (v: boolean) => void
   setEndGameResult: React.Dispatch<React.SetStateAction<EndGameResult | null>>
   setGameRecords: React.Dispatch<React.SetStateAction<GameRecord[]>>
   setSelectedAudioSrc: (src: string) => void
@@ -63,7 +64,7 @@ function _genGameId(): string {
 export const PHASE_ORDER: Phase[] = ['night', 'private', 'public', 'nomination']
 
 export function buildGameLifecycle(deps: LifecycleDeps) {
-  const { days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, activeScriptVersion, endGameResult, scriptOptions, onSelectScript, setDays, setDaysWithUndo, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay, setNewGamePanel, setShowNewGamePanel, setEndGameResult, setGameRecords, setAudioPlaying, language, appendEvent, customTagPool = [], playerNamePool = [], setCurrentRecordName, setTimerDefaults, setCustomTagPool, setPlayerNamePool, setShowEndGameModal, setNightShowCharacter, setNightShowWakeOrder, stFabledIds = [], stCustomRules = '', setStFabledIds, setStCustomRules, stName, setStName, gameStartedAt, setGameStartedAt, gameId, setGameId, setShowSaveBeforeNewGame, setPendingNewGameAfterSave } = deps
+  const { days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, activeScriptVersion, endGameResult, scriptOptions, onSelectScript, setDays, setDaysWithUndo, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay, setNewGamePanel, setShowNewGamePanel, setShowAssignmentCenter, setEndGameResult, setGameRecords, setAudioPlaying, language, appendEvent, customTagPool = [], playerNamePool = [], setCurrentRecordName, setTimerDefaults, setCustomTagPool, setPlayerNamePool, setShowEndGameModal, setNightShowCharacter, setNightShowWakeOrder, stFabledIds = [], stCustomRules = '', setStFabledIds, setStCustomRules, stName, setStName, gameStartedAt, setGameStartedAt, gameId, setGameId, setShowSaveBeforeNewGame, setPendingNewGameAfterSave } = deps
 
   const exportActions = buildGameExport({ days, currentDay, activeScriptSlug, activeScriptTitle, activeScriptVersion, endGameResult, timerDefaults, customTagPool, playerNamePool, stFabledIds, stCustomRules, setGameRecords, setCurrentRecordName, gameStartedAt, gameId, stName })
 
@@ -209,27 +210,11 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     setShowNewGamePanel?.(true)
   }
 
+  // Opens Assignment Center directly against the live game — no draft needed,
+  // since its live-game path already edits currentDay.seats in place (with
+  // undo/log via updateSeatWithLog), the same as every other live edit here.
   function openCharacterEditor() {
-    const seats = currentDay?.seats ?? []
-    const regular = seats.filter((s) => !s.isTraveler)
-    const travelers = seats.filter((s) => s.isTraveler)
-    setNewGamePanel({
-      playerCount: regular.length,
-      travelerCount: travelers.length,
-      scriptSlug: activeScriptSlug ?? scriptOptions[0]?.slug ?? '',
-      assignments: Object.fromEntries(seats.map((s) => [s.seat, s.characterId ?? ''])),
-      userAssignments: Object.fromEntries(seats.map((s) => [s.seat, s.userCharacterId ?? ''])),
-      travelerAssignments: Object.fromEntries(travelers.map((s) => [s.seat, s.characterId ?? ''])),
-      seatNames: Object.fromEntries(seats.map((s) => [s.seat, s.name])),
-      seatNotes: Object.fromEntries(seats.map((s) => [s.seat, s.note ?? ''])),
-      specialNote: '',
-      demonBluffs: currentDay?.demonBluffs ?? [],
-      charPool: [],
-      fabledIds: [...(stFabledIds ?? [])],
-      editMode: true,
-      gameId,  // carry current game's ID so deal session lookup works in CharactersTab
-    })
-    setShowNewGamePanel?.(true)
+    setShowAssignmentCenter?.(true)
   }
 
   function hasActiveGame(): boolean {

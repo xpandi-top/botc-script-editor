@@ -19,6 +19,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import ClearAllIcon from '@mui/icons-material/ClearAll'
 import ShuffleIcon from '@mui/icons-material/Shuffle'
+import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import { allCharacters, getCharacterById } from '../../../catalog'
 import { makeT, makeTpl } from '../../../lib/t'
 import { CHARACTER_DISTRIBUTION } from '../constants'
@@ -89,8 +90,9 @@ const MAX_PLAYERS = 15
 export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
   const {
     language, lastDealSession,
-    newGamePanel, setNewGamePanel, addPlayerSeat, removeLastPlayerSeat,
+    newGamePanel, setNewGamePanel, addPlayerSeat, removeLastPlayerSeat, setShowAssignmentCenter,
     randomAssignCharacters, updateSeatWithLog, updateCurrentDay, currentDay, activeScriptSlug, scriptOptions,
+    startNewGame, applyGameChanges,
   } = ctx
   const t = makeT(language)
   const tpl = makeTpl(language)
@@ -290,6 +292,15 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
     else removeLastPlayerSeat()
   }
 
+  // Lets a brand-new-game or edit-players draft finish here — no need to
+  // reopen the New Game modal just to hit start/apply.
+  const handleFinishDraft = () => {
+    if (!newGamePanel) return
+    if (newGamePanel.editMode) applyGameChanges(newGamePanel)
+    else startNewGame(newGamePanel)
+    setShowAssignmentCenter(false)
+  }
+
   // ── Live seat-claim roster (was a separate Roster tab — now inline) ────────
   const [seats, setSeats] = useState<DealSeatClaim[]>([])
   const [busySeat, setBusySeat] = useState<number | null>(null)
@@ -408,6 +419,17 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
           <AddIcon fontSize="small" />
         </IconButton>
       </Paper>
+
+      {newGamePanel && (
+        <Button
+          variant="contained"
+          fullWidth
+          onClick={handleFinishDraft}
+          startIcon={<PlayArrowIcon fontSize="small" />}
+        >
+          {newGamePanel.editMode ? t('apply_changes') : t('start_new_game')}
+        </Button>
+      )}
 
       <Tabs value={tab} onChange={(_, v) => setTab(v)} variant="fullWidth">
         <Tab value="deal" icon={<StyleIcon fontSize="small" />} iconPosition="start" label={t('draw_deal_tab')} />
