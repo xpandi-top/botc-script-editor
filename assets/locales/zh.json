@@ -832,6 +832,7 @@
     "no_messages_yet": "暂无消息",
     "you_label": "你",
     "storyteller_label": "说书人",
+    "broadcast_to_all_seats": "广播给所有座位",
     "coming_soon": "即将推出",
     "seats_assigned_count": "已分配 {0} 个座位",
     "let_players_claim_their_own_seat": "让玩家自行认领座位",

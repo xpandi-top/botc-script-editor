@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Box, Button, Chip, CircularProgress, Dialog, DialogContent, DialogTitle, IconButton, Tabs, Tab, TextField, Typography, Paper, Tooltip } from '@mui/material'
+import { Badge, Box, Button, Chip, CircularProgress, Dialog, DialogContent, DialogTitle, IconButton, Tabs, Tab, TextField, Typography, Paper, Tooltip } from '@mui/material'
 import StyleIcon from '@mui/icons-material/Style'
 import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 import GroupsIcon from '@mui/icons-material/Groups'
@@ -12,13 +12,16 @@ import DownloadIcon from '@mui/icons-material/Download'
 import LockIcon from '@mui/icons-material/Lock'
 import PersonAddIcon from '@mui/icons-material/PersonAdd'
 import PersonOffIcon from '@mui/icons-material/PersonOff'
+import CampaignIcon from '@mui/icons-material/Campaign'
+import SendIcon from '@mui/icons-material/Send'
 import { getDisplayName } from '../../../catalog'
 import { makeT, makeTpl } from '../../../lib/t'
 import {
   createDealSession, shuffleDealCards, getDealSession, closeDealSession,
   createSeatClaimSession, subscribeSeatClaims, unclaimSeatByHost, renameSeatByHost,
+  subscribeMessages, sendMessage, markMessageRead,
   HOST_TOKEN_KEY, ACTIVE_HOST_DEAL_KEY, GAME_DEAL_KEY,
-  type DealSession as DealSessionDoc, type DealSeatClaim,
+  type DealSession as DealSessionDoc, type DealSeatClaim, type DealMessage,
 } from '../../../lib/DealSession'
 import { buildShareUrl } from '../../../lib/shareUrl'
 import type { StorytellerContext } from '../useStoryteller'
@@ -213,9 +216,7 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
       )}
 
       {tab === 'messages' && (
-        <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic', p: 2, textAlign: 'center' }}>
-          {t('coming_soon')}
-        </Typography>
+        <MessagesTab language={language} session={existingDealSession} playerCount={playerCount} />
       )}
     </Box>
   )
@@ -452,6 +453,156 @@ function RosterTab({
           </Box>
         </DialogContent>
       </Dialog>
+    </Box>
+  )
+}
+
+// ── Messages tab — ST <-> seat chat, broadcast or per-seat ──────────────────
+
+function MessagesTab({
+  language,
+  session,
+  playerCount,
+}: {
+  language: 'en' | 'zh'
+  session: DealSession | null
+  playerCount: number
+}) {
+  const t = makeT(language)
+  const tpl = makeTpl(language)
+  const [messages, setMessages] = useState<DealMessage[]>([])
+  const [selectedSeat, setSelectedSeat] = useState<number | 'broadcast'>('broadcast')
+  const [draft, setDraft] = useState('')
+  const [sending, setSending] = useState(false)
+  const listRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!session) { setMessages([]); return }
+    return subscribeMessages(session.sessionId, setMessages)
+  }, [session?.sessionId])
+
+  const unreadBySeat = useMemo(() => {
+    const map: Record<number, number> = {}
+    for (const m of messages) {
+      if (m.from === 'seat' && !m.read && m.seatNumber != null) {
+        map[m.seatNumber] = (map[m.seatNumber] ?? 0) + 1
+      }
+    }
+    return map
+  }, [messages])
+
+  const threadMessages = useMemo(() => {
+    if (selectedSeat === 'broadcast') return messages.filter((m) => m.seatNumber === null)
+    return messages.filter((m) => m.seatNumber === selectedSeat || m.seatNumber === null)
+  }, [messages, selectedSeat])
+
+  useEffect(() => {
+    if (!session || selectedSeat === 'broadcast') return
+    messages
+      .filter((m) => m.from === 'seat' && m.seatNumber === selectedSeat && !m.read)
+      .forEach((m) => { markMessageRead(session.sessionId, m.id).catch(() => {}) })
+  }, [session, selectedSeat, messages])
+
+  useEffect(() => {
+    listRef.current?.scrollTo({ top: listRef.current.scrollHeight })
+  }, [threadMessages.length, selectedSeat])
+
+  const handleSend = async () => {
+    if (!session || !draft.trim() || sending) return
+    setSending(true)
+    try {
+      await sendMessage(session.sessionId, {
+        seatNumber: selectedSeat === 'broadcast' ? null : selectedSeat,
+        from: 'st',
+        text: draft,
+      })
+      setDraft('')
+    } catch (e) {
+      console.error('Failed to send message', e)
+    } finally {
+      setSending(false)
+    }
+  }
+
+  if (!session) {
+    return (
+      <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic', p: 2, textAlign: 'center' }}>
+        {t('no_active_session_start_one_from_draw_deal')}
+      </Typography>
+    )
+  }
+
+  return (
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+      <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+        <Chip
+          size="small"
+          icon={<CampaignIcon fontSize="small" />}
+          label={t('broadcast_to_all_seats')}
+          color={selectedSeat === 'broadcast' ? 'primary' : 'default'}
+          variant={selectedSeat === 'broadcast' ? 'filled' : 'outlined'}
+          onClick={() => setSelectedSeat('broadcast')}
+        />
+        {Array.from({ length: playerCount }, (_, i) => i + 1).map((seatNum) => (
+          <Badge key={seatNum} badgeContent={unreadBySeat[seatNum] ?? 0} color="error">
+            <Chip
+              size="small"
+              label={`#${seatNum}`}
+              color={selectedSeat === seatNum ? 'primary' : 'default'}
+              variant={selectedSeat === seatNum ? 'filled' : 'outlined'}
+              onClick={() => setSelectedSeat(seatNum)}
+            />
+          </Badge>
+        ))}
+      </Box>
+
+      <Paper variant="outlined" sx={{ borderRadius: 2, display: 'flex', flexDirection: 'column', height: 340 }}>
+        <Box ref={listRef} sx={{ flex: 1, overflowY: 'auto', p: 1.5, display: 'flex', flexDirection: 'column', gap: 1 }}>
+          {threadMessages.length === 0 && (
+            <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', mt: 2, fontStyle: 'italic' }}>
+              {t('no_messages_yet')}
+            </Typography>
+          )}
+          {threadMessages.map((m) => {
+            const mine = m.from === 'st'
+            const broadcast = m.seatNumber === null
+            return (
+              <Box key={m.id} sx={{ display: 'flex', flexDirection: 'column', alignItems: mine ? 'flex-end' : 'flex-start' }}>
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.25 }}>
+                  {broadcast && <CampaignIcon sx={{ fontSize: 12 }} />}
+                  {mine ? t('storyteller_label') : tpl('seat_n', m.seatNumber ?? 0)}
+                </Typography>
+                <Paper
+                  variant={mine ? 'elevation' : 'outlined'}
+                  elevation={mine ? 2 : 0}
+                  sx={{
+                    px: 1.5, py: 0.75, borderRadius: 2, maxWidth: '80%',
+                    bgcolor: mine ? 'primary.main' : 'background.paper',
+                    color: mine ? 'primary.contrastText' : 'text.primary',
+                  }}
+                >
+                  <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{m.text}</Typography>
+                </Paper>
+              </Box>
+            )
+          })}
+        </Box>
+
+        <Box sx={{ display: 'flex', gap: 1, p: 1.5, borderTop: '1px solid', borderColor: 'divider' }}>
+          <TextField
+            fullWidth
+            size="small"
+            placeholder={t('type_a_message_enter_to_send')}
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend() } }}
+            disabled={sending}
+          />
+          <IconButton color="primary" onClick={handleSend} disabled={sending || !draft.trim()}>
+            <SendIcon />
+          </IconButton>
+        </Box>
+      </Paper>
     </Box>
   )
 }
