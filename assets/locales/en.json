@@ -813,6 +813,8 @@
     "apply_changes_live_hint": "Edits here are staged — the seat ring only updates once you apply",
     "lock_seat": "Locked — click to unlock before editing this seat",
     "unlock_seat": "Unlocked — click to lock again",
+    "expand_seat_detail": "Show perceived character & note",
+    "collapse_seat_detail": "Hide perceived character & note",
     "deal_assigned_characters_to_players_new_tab": "Deal assigned characters to players (new tab)",
     "player_assignments": "Player Assignments",
     "draw_deal_tab": "Draw & Deal",

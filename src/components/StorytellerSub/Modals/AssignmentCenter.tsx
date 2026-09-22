@@ -377,6 +377,9 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
   // editable again. Resets — safest default — each time Assignment Center
   // is reopened, same as liveDraft.
   const [unlockedSeats, setUnlockedSeats] = useState<Set<number>>(new Set())
+  // Which roster rows have their detail section (perceived character + note)
+  // expanded — collapsed by default to keep the primary row scannable.
+  const [expandedSeats, setExpandedSeats] = useState<Set<number>>(new Set())
   const [reservingSeat, setReservingSeat] = useState<number | null>(null)
   const [reserveName, setReserveName] = useState('')
   const [copied, setCopied] = useState(false)
@@ -761,62 +764,114 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
               const hasUserOverride = userCid !== undefined && userCid !== null && userCid !== ''
               const note = seatNotes[sNum] ?? ''
               const locked = isClaimed && !unlockedSeats.has(sNum)
+              const expanded = expandedSeats.has(sNum)
+              const toggleExpanded = () => setExpandedSeats((prev) => {
+                const next = new Set(prev)
+                if (expanded) next.delete(sNum); else next.add(sNum)
+                return next
+              })
               return (
-                <Paper key={sNum} variant="outlined" sx={{ p: 1, display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
-                  <Chip size="small" label={`#${sNum}`} sx={{ fontWeight: 700, minWidth: 40 }} />
-                  {isClaimed && (
-                    <Tooltip title={locked ? t('unlock_seat') : t('lock_seat')}>
-                      <IconButton
-                        size="small"
-                        onClick={() => setUnlockedSeats((prev) => {
-                          const next = new Set(prev)
-                          if (locked) next.add(sNum); else next.delete(sNum)
-                          return next
-                        })}
-                      >
-                        {locked ? <LockIcon fontSize="small" /> : <LockOpenIcon fontSize="small" color="warning" />}
-                      </IconButton>
-                    </Tooltip>
-                  )}
-                  {existingDealSession && isReserving ? (
-                    <>
-                      <TextField
-                        size="small"
-                        autoFocus
-                        placeholder={t('player_name')}
-                        value={reserveName}
-                        onChange={(e) => setReserveName(e.target.value)}
-                        onKeyDown={(e) => { if (e.key === 'Enter') handleReserveSeat(sNum) }}
-                        sx={{ flex: 1, minWidth: 120 }}
-                      />
-                      <Button size="small" variant="contained" disabled={isBusy || !reserveName.trim()} onClick={() => handleReserveSeat(sNum)}>
-                        {t('save')}
-                      </Button>
-                      <Button size="small" variant="text" onClick={() => { setReservingSeat(null); setReserveName('') }}>
-                        {t('cancel')}
-                      </Button>
-                    </>
-                  ) : (
-                    <>
-                      {existingDealSession && (
-                        <Typography variant="body2" sx={{ minWidth: 90, color: isClaimed ? 'text.primary' : 'text.disabled', fontStyle: isClaimed ? 'normal' : 'italic' }}>
-                          {isClaimed ? (claim?.playerName || t('anonymous')) : t('unclaimed')}
-                        </Typography>
-                      )}
-                      <Box sx={{ minWidth: 140 }}>
-                        <CharSelect
-                          value={assignedCid}
-                          options={scriptChars}
-                          language={language}
-                          placeholder={t('select_pick')}
-                          onChange={(id) => updateAssignment(sNum, id)}
-                          disabled={locked}
+                <Paper key={sNum} variant="outlined" sx={{ borderRadius: 1.5, overflow: 'hidden' }}>
+                  {/* Primary row — always visible, kept to one line's worth of
+                      the frequently-used controls (seat, claim, character,
+                      status). Perceived character + note live in the
+                      collapsible detail row below. */}
+                  <Box sx={{ p: 1, display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                    <Chip size="small" label={`#${sNum}`} sx={{ fontWeight: 700, minWidth: 40 }} />
+                    {isClaimed && (
+                      <Tooltip title={locked ? t('lock_seat') : t('unlock_seat')}>
+                        <IconButton
+                          size="small"
+                          onClick={() => setUnlockedSeats((prev) => {
+                            const next = new Set(prev)
+                            if (locked) next.add(sNum); else next.delete(sNum)
+                            return next
+                          })}
+                        >
+                          {locked ? <LockIcon fontSize="small" /> : <LockOpenIcon fontSize="small" color="warning" />}
+                        </IconButton>
+                      </Tooltip>
+                    )}
+                    {existingDealSession && isReserving ? (
+                      <>
+                        <TextField
+                          size="small"
+                          autoFocus
+                          placeholder={t('player_name')}
+                          value={reserveName}
+                          onChange={(e) => setReserveName(e.target.value)}
+                          onKeyDown={(e) => { if (e.key === 'Enter') handleReserveSeat(sNum) }}
+                          sx={{ flex: 1, minWidth: 120 }}
                         />
-                      </Box>
-                      <TeamDot team={ch?.team} />
+                        <Button size="small" variant="contained" disabled={isBusy || !reserveName.trim()} onClick={() => handleReserveSeat(sNum)}>
+                          {t('save')}
+                        </Button>
+                        <Button size="small" variant="text" onClick={() => { setReservingSeat(null); setReserveName('') }}>
+                          {t('cancel')}
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        {existingDealSession && (
+                          <Typography variant="body2" sx={{ minWidth: 90, color: isClaimed ? 'text.primary' : 'text.disabled', fontStyle: isClaimed ? 'normal' : 'italic' }}>
+                            {isClaimed ? (claim?.playerName || t('anonymous')) : t('unclaimed')}
+                          </Typography>
+                        )}
+                        <Box sx={{ minWidth: 140 }}>
+                          <CharSelect
+                            value={assignedCid}
+                            options={scriptChars}
+                            language={language}
+                            placeholder={t('select_pick')}
+                            onChange={(id) => updateAssignment(sNum, id)}
+                            disabled={locked}
+                          />
+                        </Box>
+                        <TeamDot team={ch?.team} />
+                        {assignedCid && existingDealSession && (
+                          <Chip
+                            size="small"
+                            label={delivered ? t('delivered') : t('pending_delivery')}
+                            color={delivered ? 'success' : pending ? 'warning' : 'default'}
+                            variant={delivered ? 'filled' : 'outlined'}
+                          />
+                        )}
+                        <Box sx={{ flex: 1 }} />
+                        {existingDealSession && (
+                          isClaimed ? (
+                            <Tooltip title={t('set_unclaimed')}>
+                              <span>
+                                <IconButton size="small" color="warning" disabled={isBusy || locked} onClick={() => handleFreeSeat(sNum)}>
+                                  {isBusy ? <CircularProgress size={16} /> : <PersonOffIcon fontSize="small" />}
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                          ) : (
+                            <Tooltip title={t('set_claimed')}>
+                              <span>
+                                <IconButton size="small" color="success" disabled={isBusy} onClick={() => { setReservingSeat(sNum); setReserveName('') }}>
+                                  <PersonAddIcon fontSize="small" />
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                          )
+                        )}
+                        <Tooltip title={expanded ? t('collapse_seat_detail') : t('expand_seat_detail')}>
+                          <IconButton size="small" onClick={toggleExpanded}>
+                            {hasUserOverride && !expanded && <span style={{ fontSize: '0.7rem', marginRight: 2 }}>👁</span>}
+                            {note && !expanded && <span style={{ fontSize: '0.7rem', marginRight: 2 }}>📝</span>}
+                            {expanded ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
+                          </IconButton>
+                        </Tooltip>
+                      </>
+                    )}
+                  </Box>
+
+                  {expanded && !isReserving && (
+                    <Box sx={{ px: 1, pb: 1, pt: 0.5, display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap', bgcolor: 'action.hover' }}>
                       <Button
                         size="small"
-                        variant={hasUserOverride ? 'contained' : 'text'}
+                        variant={hasUserOverride ? 'contained' : 'outlined'}
                         disabled={locked}
                         onClick={() => hasUserOverride ? setUserPerceived(sNum, null) : setUserPerceived(sNum, assignedCid || null)}
                         sx={{ minWidth: 28, p: 0.5 }}
@@ -837,40 +892,7 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
                         sx={{ flex: { xs: '1 1 100%', sm: 1 }, minWidth: 100 }}
                         disabled={locked}
                       />
-                      {assignedCid && existingDealSession && (
-                        <Chip
-                          size="small"
-                          label={delivered ? t('delivered') : t('pending_delivery')}
-                          color={delivered ? 'success' : pending ? 'warning' : 'default'}
-                          variant={delivered ? 'filled' : 'outlined'}
-                        />
-                      )}
-                      {existingDealSession && (
-                        isClaimed ? (
-                          <Button
-                            size="small"
-                            variant="outlined"
-                            color="warning"
-                            disabled={isBusy || locked}
-                            startIcon={isBusy ? <CircularProgress size={12} /> : <PersonOffIcon fontSize="small" />}
-                            onClick={() => handleFreeSeat(sNum)}
-                          >
-                            {t('set_unclaimed')}
-                          </Button>
-                        ) : (
-                          <Button
-                            size="small"
-                            variant="outlined"
-                            color="success"
-                            disabled={isBusy}
-                            startIcon={<PersonAddIcon fontSize="small" />}
-                            onClick={() => { setReservingSeat(sNum); setReserveName('') }}
-                          >
-                            {t('set_claimed')}
-                          </Button>
-                        )
-                      )}
-                    </>
+                    </Box>
                   )}
                 </Paper>
               )

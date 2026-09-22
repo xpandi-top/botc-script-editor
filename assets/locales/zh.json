@@ -813,6 +813,8 @@
     "apply_changes_live_hint": "这里的编辑先暂存，点应用后才会改变座位环",
     "lock_seat": "已锁定——点击解锁后才能修改此座位",
     "unlock_seat": "已解锁——点击重新锁定",
+    "expand_seat_detail": "展开感知角色和备注",
+    "collapse_seat_detail": "收起感知角色和备注",
     "deal_assigned_characters_to_players_new_tab": "将已分配角色发给玩家（新标签页）",
     "player_assignments": "玩家分配",
     "draw_deal_tab": "抽牌与发牌",
