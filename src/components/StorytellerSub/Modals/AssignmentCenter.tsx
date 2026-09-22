@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Badge, Box, Button, Chip, CircularProgress, Dialog, DialogContent, DialogTitle, IconButton, Tabs, Tab, TextField, Typography, Paper, Tooltip } from '@mui/material'
+import AddIcon from '@mui/icons-material/Add'
+import RemoveIcon from '@mui/icons-material/Remove'
 import StyleIcon from '@mui/icons-material/Style'
 import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 import GroupsIcon from '@mui/icons-material/Groups'
@@ -57,8 +59,14 @@ function useAssignmentSource(ctx: StorytellerContext) {
   }, [newGamePanel, currentDay.seats, liveGameId])
 }
 
+const MIN_PLAYERS = 5
+const MAX_PLAYERS = 15
+
 export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
-  const { language, activeDealSession, setActiveDealSession, lastDealSession } = ctx
+  const {
+    language, activeDealSession, setActiveDealSession, lastDealSession,
+    newGamePanel, setNewGamePanel, addPlayerSeat, removeLastPlayerSeat,
+  } = ctx
   const t = makeT(language)
   const tpl = makeTpl(language)
   const [tab, setTab] = useState<AssignmentTab>('draw')
@@ -135,8 +143,33 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
     }
   }
 
+  // Player-count edit: patches the in-progress setup draft when one is open
+  // (new game / edit players), otherwise adds/removes a seat on the live game
+  // directly — same primitives GameActionsBar's own +/- controls use.
+  const handleIncPlayers = () => {
+    if (playerCount >= MAX_PLAYERS) return
+    if (newGamePanel) setNewGamePanel((prev) => prev ? { ...prev, playerCount: prev.playerCount + 1 } : prev)
+    else addPlayerSeat()
+  }
+  const handleDecPlayers = () => {
+    if (playerCount <= MIN_PLAYERS) return
+    if (newGamePanel) setNewGamePanel((prev) => prev ? { ...prev, playerCount: prev.playerCount - 1 } : prev)
+    else removeLastPlayerSeat()
+  }
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <Paper variant="outlined" sx={{ p: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1.5 }}>
+        <Typography variant="body2" sx={{ fontWeight: 600 }}>{t('player_count')}</Typography>
+        <IconButton size="small" onClick={handleDecPlayers} disabled={playerCount <= MIN_PLAYERS}>
+          <RemoveIcon fontSize="small" />
+        </IconButton>
+        <Typography variant="body1" sx={{ fontWeight: 700, minWidth: 24, textAlign: 'center' }}>{playerCount}</Typography>
+        <IconButton size="small" onClick={handleIncPlayers} disabled={playerCount >= MAX_PLAYERS}>
+          <AddIcon fontSize="small" />
+        </IconButton>
+      </Paper>
+
       <Tabs value={tab} onChange={(_, v) => setTab(v)} variant="fullWidth">
         <Tab value="draw" icon={<StyleIcon fontSize="small" />} iconPosition="start" label={t('draw_deal_tab')} />
         <Tab value="roster" icon={<GroupsIcon fontSize="small" />} iconPosition="start" label={t('roster_tab')} />
