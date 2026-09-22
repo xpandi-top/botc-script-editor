@@ -108,7 +108,7 @@ export function DealGuestPage({ sessionId, language }: Props) {
       if (!mine) return
       setState((cur) => {
         if (cur.kind !== 'seatClaimed') return cur
-        const gotNewCharacter = !cur.seat.characterId && !!mine.characterId
+        const gotNewCharacter = (!cur.seat.characterId && !!mine.characterId) || (!cur.seat.secondCharacterId && !!mine.secondCharacterId)
         if (gotNewCharacter) markDealCharacterSeen(sessionId)
         return { kind: 'seatClaimed', seat: mine, revealCharacter: cur.revealCharacter || gotNewCharacter }
       })
@@ -291,10 +291,17 @@ export function DealGuestPage({ sessionId, language }: Props) {
         {revealCharacter ? (
           <>
             <Typography variant="h5" sx={{ mb: 2, fontWeight: 700 }}>
-              {t('remember_your_character')}
+              {seat.secondCharacterId ? t('one_of_these_is_your_character') : t('remember_your_character')}
             </Typography>
             <Suspense fallback={<CircularProgress size={28} />}>
-              <DealCharacterReveal card={{ characterId: seat.characterId }} language={language} effectiveSeat={seat.seatNumber} />
+              {seat.secondCharacterId ? (
+                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'center' }}>
+                  <DealCharacterReveal card={{ characterId: seat.characterId as string }} language={language} effectiveSeat={seat.seatNumber} />
+                  <DealCharacterReveal card={{ characterId: seat.secondCharacterId }} language={language} effectiveSeat={seat.seatNumber} />
+                </Box>
+              ) : (
+                <DealCharacterReveal card={{ characterId: seat.characterId as string }} language={language} effectiveSeat={seat.seatNumber} />
+              )}
             </Suspense>
             <Typography variant="caption" color="success.main" sx={{ mt: 2, maxWidth: 340 }}>
               {t('saved_keep_your_character_secret')}

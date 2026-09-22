@@ -380,6 +380,9 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
   // Which roster rows have their detail section (perceived character + note)
   // expanded — collapsed by default to keep the primary row scannable.
   const [expandedSeats, setExpandedSeats] = useState<Set<number>>(new Set())
+  // Seats where the ST opted to reveal BOTH the real and perceived character
+  // (only meaningful — and only offered — when a perceived override exists).
+  const [sendBothSeats, setSendBothSeats] = useState<Set<number>>(new Set())
   const [reservingSeat, setReservingSeat] = useState<number | null>(null)
   const [reserveName, setReserveName] = useState('')
   const [copied, setCopied] = useState(false)
@@ -460,22 +463,50 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
     }
   }
 
+  // What a seat's reveal should look like if sent right now: the perceived
+  // character by default (falls back to the real one when there's no
+  // override — same as what the seat ring itself shows), or both cards when
+  // the ST opted into "send both, don't say which is real" for that seat.
+  const computeReveal = (sNum: number): { characterId: string; secondCharacterId: string | null } | null => {
+    const real = assignments[sNum]
+    if (!real) return null
+    const userCid = userAssignments[sNum]
+    const hasOverride = userCid !== undefined && userCid !== null && userCid !== ''
+    const primary = hasOverride ? (userCid as string) : real
+    const both = hasOverride && sendBothSeats.has(sNum)
+    return { characterId: primary, secondCharacterId: both ? real : null }
+  }
+
   const claimedSeatNumbers = seats.filter((s) => s.claimedByToken != null).map((s) => s.seatNumber)
   const claimedCount = claimedSeatNumbers.length
-  // A claimed seat is "pending" once it has an assigned character (a) that
-  // doesn't yet match what's been pushed to its Firestore doc (b) — covers
-  // both never-sent and changed-after-send.
-  const pendingSendCount = claimedSeatNumbers.filter((n) => assignments[n] && seats.find((s) => s.seatNumber === n)?.characterId !== assignments[n]).length
+  // A claimed seat is "pending" once its computed reveal (a) doesn't yet
+  // match what's been pushed to its Firestore doc (b) — covers both
+  // never-sent and changed-after-send.
+  const isSeatPending = (n: number): boolean => {
+    const reveal = computeReveal(n)
+    if (!reveal) return false
+    const claim = seats.find((s) => s.seatNumber === n)
+    return claim?.characterId !== reveal.characterId || (claim?.secondCharacterId ?? null) !== reveal.secondCharacterId
+  }
+  const pendingSendCount = claimedSeatNumbers.filter(isSeatPending).length
 
-  // Pushes the CURRENT assignments to every claimed seat — never re-randomizes,
-  // so what the ST sees in the roster is always exactly what gets delivered.
+  // Pushes each claimed seat's computed reveal to Firestore — never
+  // re-randomizes, so what the ST sees in the roster is always exactly what
+  // gets delivered. Used both for the bulk "send all" action and for a
+  // single-seat quick-send from the Messages tab.
+  const sendRevealToSeat = (sessionId: string, seatNumber: number) => {
+    const reveal = computeReveal(seatNumber)
+    if (!reveal) return Promise.resolve()
+    return assignCharacterToSeatByHost(sessionId, seatNumber, reveal)
+  }
+
   const handleSendAssigned = async () => {
     if (!existingDealSession) return
-    const toSend = claimedSeatNumbers.filter((n) => assignments[n])
+    const toSend = claimedSeatNumbers.filter(isSeatPending)
     if (toSend.length < 1) return
     setSendingAssigned(true)
     try {
-      await Promise.all(toSend.map((n) => assignCharacterToSeatByHost(existingDealSession.sessionId, n, assignments[n])))
+      await Promise.all(toSend.map((n) => sendRevealToSeat(existingDealSession.sessionId, n)))
     } catch (e) {
       console.error('Failed to send assigned characters', e)
     } finally {
@@ -758,10 +789,11 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
               const isReserving = reservingSeat === sNum
               const assignedCid = assignments[sNum] ?? ''
               const ch = assignedCid ? getCharacterById(assignedCid) : null
-              const delivered = !!assignedCid && claim?.characterId === assignedCid
-              const pending = !!assignedCid && !!existingDealSession && claim?.characterId !== assignedCid
               const userCid = userAssignments[sNum]
               const hasUserOverride = userCid !== undefined && userCid !== null && userCid !== ''
+              const sendBoth = hasUserOverride && sendBothSeats.has(sNum)
+              const pending = !!assignedCid && !!existingDealSession && isSeatPending(sNum)
+              const delivered = !!assignedCid && !!existingDealSession && !pending
               const note = seatNotes[sNum] ?? ''
               const locked = isClaimed && !unlockedSeats.has(sNum)
               const expanded = expandedSeats.has(sNum)
@@ -771,7 +803,7 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
                 return next
               })
               return (
-                <Paper key={sNum} variant="outlined" sx={{ borderRadius: 1.5, overflow: 'hidden' }}>
+                <Paper key={sNum} variant="outlined" sx={{ borderRadius: 1.5 }}>
                   {/* Primary row — always visible, kept to one line's worth of
                       the frequently-used controls (seat, claim, character,
                       status). Perceived character + note live in the
@@ -882,6 +914,22 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
                         <>
                           <CharSelect value={userCid ?? ''} options={scriptChars} language={language} placeholder={t('perceived_character')} onChange={(id) => setUserPerceived(sNum, id || null)} disabled={locked} />
                           <TeamDot team={getCharacterById(userCid ?? '')?.team} />
+                          {existingDealSession && (
+                            <Tooltip title={t('send_both_hint')}>
+                              <Chip
+                                size="small"
+                                clickable
+                                label={sendBoth ? t('reveal_mode_both') : t('reveal_mode_single')}
+                                color={sendBoth ? 'secondary' : 'default'}
+                                variant={sendBoth ? 'filled' : 'outlined'}
+                                onClick={() => setSendBothSeats((prev) => {
+                                  const next = new Set(prev)
+                                  if (sendBoth) next.delete(sNum); else next.add(sNum)
+                                  return next
+                                })}
+                              />
+                            </Tooltip>
+                          )}
                         </>
                       )}
                       <TextField
@@ -929,7 +977,13 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
       )}
 
       {tab === 'messages' && (
-        <MessagesTab language={language} session={existingDealSession} playerCount={playerCount} />
+        <MessagesTab
+          language={language}
+          session={existingDealSession}
+          playerCount={playerCount}
+          isSeatPending={isSeatPending}
+          onQuickSend={(seatNumber) => existingDealSession ? sendRevealToSeat(existingDealSession.sessionId, seatNumber) : Promise.resolve()}
+        />
       )}
     </Box>
   )
@@ -941,10 +995,14 @@ function MessagesTab({
   language,
   session,
   playerCount,
+  isSeatPending,
+  onQuickSend,
 }: {
   language: 'en' | 'zh'
   session: DealSession | null
   playerCount: number
+  isSeatPending: (seatNumber: number) => boolean
+  onQuickSend: (seatNumber: number) => Promise<void>
 }) {
   const t = makeT(language)
   const tpl = makeTpl(language)
@@ -952,6 +1010,7 @@ function MessagesTab({
   const [selectedSeat, setSelectedSeat] = useState<number | 'broadcast'>('broadcast')
   const [draft, setDraft] = useState('')
   const [sending, setSending] = useState(false)
+  const [quickSending, setQuickSending] = useState(false)
   const listRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -1033,6 +1092,27 @@ function MessagesTab({
           </Badge>
         ))}
       </Box>
+
+      {selectedSeat !== 'broadcast' && isSeatPending(selectedSeat) && (
+        <Tooltip title={t('quick_send_reveal_hint')}>
+          <span>
+            <Button
+              size="small"
+              variant="outlined"
+              color="secondary"
+              startIcon={quickSending ? <CircularProgress size={14} color="inherit" /> : <SendIcon fontSize="small" />}
+              disabled={quickSending}
+              onClick={async () => {
+                setQuickSending(true)
+                try { await onQuickSend(selectedSeat) } finally { setQuickSending(false) }
+              }}
+              sx={{ alignSelf: 'flex-start' }}
+            >
+              {t('quick_send_reveal')}
+            </Button>
+          </span>
+        </Tooltip>
+      )}
 
       <Paper variant="outlined" sx={{ borderRadius: 2, display: 'flex', flexDirection: 'column', height: 340 }}>
         <Box ref={listRef} sx={{ flex: 1, overflowY: 'auto', p: 1.5, display: 'flex', flexDirection: 'column', gap: 1 }}>

@@ -31,10 +31,11 @@
  *       allow update: if request.resource.data.diff(resource.data).affectedKeys()
  *                          .hasOnly(['claimedByToken','playerName','claimedAt']);
  *
- *       // Rule 3 — ST pushes a character onto an already-claimed seat, no second
- *       //           "draw a card" step needed; the guest's page reveals it live.
+ *       // Rule 3 — ST pushes a character (and optionally a second one, for the
+ *       //           "send both, don't say which is real" reveal mode) onto an
+ *       //           already-claimed seat; the guest's page reveals it live.
  *       allow update: if request.resource.data.diff(resource.data).affectedKeys()
- *                          .hasOnly(['characterId']);
+ *                          .hasOnly(['characterId','secondCharacterId']);
  *
  *       allow delete: if false;
  *     }
@@ -90,6 +91,10 @@ export type DealSeatClaim = {
   playerName?: string | null;
   claimedAt?: Timestamp | null;
   characterId?: string | null; // pushed by the ST after the seat is claimed
+  // Set only when the ST sends BOTH the real and perceived character for this
+  // seat — the guest page then shows two cards, neither labeled as the real
+  // one. Absent/null in the normal single-card case.
+  secondCharacterId?: string | null;
 };
 
 export type DealVoteStatus = 'active' | 'closed' | 'cancelled';
@@ -497,15 +502,20 @@ export async function renameSeatByHost(
 /**
  * Push a character onto an already-claimed seat — the guest's page reveals it
  * live, no draw step. ST only. setDoc+merge for the same reason as
- * renameSeatByHost above.
+ * renameSeatByHost above. Pass secondCharacterId to reveal both a real and a
+ * perceived character at once (guest sees two cards, neither labeled real);
+ * omit/null it to reveal a single card as before.
  */
 
 export async function assignCharacterToSeatByHost(
   sessionId: string,
   seatNumber: number,
-  characterId: string
+  payload: { characterId: string; secondCharacterId?: string | null }
 ): Promise<void> {
-  await setDoc(seatRef(sessionId, seatNumber), { characterId }, { merge: true });
+  await setDoc(seatRef(sessionId, seatNumber), {
+    characterId: payload.characterId,
+    secondCharacterId: payload.secondCharacterId ?? null,
+  }, { merge: true });
 }
 /** Create a seat doc for a seat number added after the session was already
  *  started (Assignment Center's player-count stepper can grow the roster
