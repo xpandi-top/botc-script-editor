@@ -5,6 +5,22 @@ Status: `open` | `fixed` | `wontfix`
 
 ---
 
+## I-73 — Security: Web OAuth client secret shipped in the public bundle
+
+**Status:** open  
+**Area:** .github/workflows/deploy-pages.yml, src/lib/googleAuth.ts, src/components/settings/CloudSyncSection.tsx  
+**Detail:** The Pages deploy passes `VITE_GOOGLE_CLIENT_SECRET` into `vite build`, so the Google "Web application" client secret is readable by anyone from the served JS. Google requires the secret for the web token exchange, so it cannot simply be dropped. Planned fix (docs/ARCHITECTURE-API.md, P2): move the code→token exchange behind a Cloudflare Worker proxy that holds the secret server-side, then remove the secret from the build env and rotate it.
+
+---
+
+## I-74 — Security: deal sessions writable by anyone who knows the session id
+
+**Status:** open  
+**Area:** src/lib/DealSession.ts (Firestore rules in header comment)  
+**Detail:** `dealSessions/{id}` allows `update: if true` and seat/vote/message subcollections are similarly open. The host check is app-layer only, and `hostToken` is stored on the publicly readable session document, so a guest can read it and reassign characters or tamper with remote votes. Planned fix (docs/ARCHITECTURE-API.md, P3): move deal sessions into a Durable Object where writes are authorized server-side; until then, narrow the writable fields in the rules.
+
+---
+
 ## I-72 — Deal cards: seat self-claim + ST/seat messaging, promoted to its own panel
 
 **Status:** fixed  
