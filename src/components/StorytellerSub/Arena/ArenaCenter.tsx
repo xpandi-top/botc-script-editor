@@ -23,14 +23,10 @@ export function ArenaCenter({ ctx }: { ctx: StorytellerContext }) {
       sx={{
         display: 'flex',
         flexDirection: 'column',
-        // width: '100%',
-        // height: '100%',
-        width: 700,
-        height: 600,
-        // maxHeight: '80%',
-        // maxWidth: '80%',
+        width: 'min(760px, 60%)',
+        height: 'min(680px, 68%)',
         zIndex: 5,
-        padding: `max(160px, calc((8dvh) / 2))`,
+        padding: 3,
         alignItems: 'center',
       }}
     >
@@ -83,10 +79,11 @@ export function ArenaCenter({ ctx }: { ctx: StorytellerContext }) {
         scriptCharacters={currentScriptCharacters}
         language={language}
       />
-      <Box sx={{ 
-        maxHeight: '80%',
-        maxWidth: '80%',
-        display: 'flex', flex: 1, gap: 1, overflow: 'auto',flexDirection: 'column'}}>
+      <Box sx={{
+        width: '100%',
+        flex: 1,
+        minHeight: 0,
+        display: 'flex', gap: 1, overflow: 'auto', flexDirection: 'column'}}>
         <ArenaCenterContent ctx={ctx} />
         <ArenaCenterNominationSheet ctx={ctx} />
       </Box>

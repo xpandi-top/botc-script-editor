@@ -13,7 +13,7 @@ export function CompactToolbar({ ctx }: { ctx: StorytellerContext }) {
     audioPlaying, setAudioPlaying, audioTracks, selectedAudioSrc, setSelectedAudioSrc,
     sendYTCommand,
     handleLocalFileChange, handleUrlTrackAdd, deleteTrack, renameTrack, openNewGamePanel, openEndGamePanel,
-    setShowRightPanel, openCharacterEditor, showScriptPanel, setShowScriptPanel,
+    setShowRightPanel, showScriptPanel, setShowScriptPanel,
     setShowAssignmentCenter, linkedDealSession,
     text, undo, canUndo, bgmVolume, setBgmVolume,
   } = ctx
@@ -74,7 +74,6 @@ export function CompactToolbar({ ctx }: { ctx: StorytellerContext }) {
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
         <GameActionsBar
           openNewGamePanel={openNewGamePanel}
-          openCharacterEditor={openCharacterEditor}
           openEndGamePanel={openEndGamePanel}
           openAssignmentCenter={() => setShowAssignmentCenter(true)}
           hasActiveDealSession={!!linkedDealSession}

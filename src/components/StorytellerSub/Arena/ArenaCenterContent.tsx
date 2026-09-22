@@ -97,45 +97,28 @@ export function ArenaCenterContent({ ctx }: { ctx: StorytellerContext }) {
   }
 
   const nightControls = phase === 'night' && (
-    <>
-      <BgmBar
-        audioPlaying={audioPlaying}
-        onTogglePlay={() => {
-          if (audioPlaying) { sendYTCommand('pauseVideo'); setAudioPlaying(false) }
-          else { sendYTCommand('playVideo'); startNight() }
-        }}
-        onStop={stopNight}
-        audioTracks={audioTracks}
-        selectedAudioSrc={selectedAudioSrc}
-        setSelectedAudioSrc={setSelectedAudioSrc}
-        bgmVolume={bgmVolume}
-        setBgmVolume={setBgmVolume}
-        handleLocalFileChange={handleLocalFileChange}
-        handleUrlTrackAdd={handleUrlTrackAdd}
-        deleteTrack={deleteTrack}
-        renameTrack={renameTrack}
-        language={language}
-        iconSize="large"
-        sx={{ border: '1px solid', borderColor: 'divider', bgcolor: 'transparent', borderRadius: 2, px: 0.5, py: 0.5 }}
-        buttonSx={{ ...TIMER_IDLE_SX }}
-        activeButtonSx={{ ...TIMER_CONTROL_SX }}
-      />
-      <Box sx={{ display: 'flex', gap: 0.5 }}>
-        <Tooltip title={nightShowCharacter ? (t('hide_characters')) : (t('show_characters'))}>
-          <IconButton size="large" onClick={() => setNightShowCharacter((v: boolean) => !v)} sx={nightShowCharacter ? TIMER_CONTROL_SX : TIMER_IDLE_SX}>
-            <VisibilityIcon />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title={nightShowWakeOrder ? (t('hide_wake_order')) : (t('show_wake_order'))}>
-          <IconButton size="large" onClick={() => setNightShowWakeOrder((v: boolean) => !v)} sx={nightShowWakeOrder ? TIMER_CONTROL_SX : TIMER_IDLE_SX}>
-            <FormatListNumberedIcon />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title={t('edit_characters')}>
-          <IconButton size="large" onClick={openCharacterEditor}><ManageAccountsIcon /></IconButton>
-        </Tooltip>
-      </Box>
-    </>
+    <BgmBar
+      audioPlaying={audioPlaying}
+      onTogglePlay={() => {
+        if (audioPlaying) { sendYTCommand('pauseVideo'); setAudioPlaying(false) }
+        else { sendYTCommand('playVideo'); startNight() }
+      }}
+      onStop={stopNight}
+      audioTracks={audioTracks}
+      selectedAudioSrc={selectedAudioSrc}
+      setSelectedAudioSrc={setSelectedAudioSrc}
+      bgmVolume={bgmVolume}
+      setBgmVolume={setBgmVolume}
+      handleLocalFileChange={handleLocalFileChange}
+      handleUrlTrackAdd={handleUrlTrackAdd}
+      deleteTrack={deleteTrack}
+      renameTrack={renameTrack}
+      language={language}
+      iconSize="large"
+      sx={{ border: '1px solid', borderColor: 'divider', bgcolor: 'transparent', borderRadius: 2, px: 0.5, py: 0.5 }}
+      buttonSx={{ ...TIMER_IDLE_SX }}
+      activeButtonSx={{ ...TIMER_CONTROL_SX }}
+    />
   )
 
   const publicRobinControls = phase === 'public' && publicMode === 'roundRobin' && (
@@ -212,6 +195,20 @@ export function ArenaCenterContent({ ctx }: { ctx: StorytellerContext }) {
         <MenuItem value="free">{text.freeSpeech}</MenuItem>
         <MenuItem value="roundRobin">{text.roundRobinMode}</MenuItem>
       </Select>}
+      {phase === 'night' && (
+        <>
+          <Tooltip title={nightShowCharacter ? (t('hide_characters')) : (t('show_characters'))}>
+            <IconButton size="large" onClick={() => setNightShowCharacter((v: boolean) => !v)} sx={nightShowCharacter ? TIMER_CONTROL_SX : TIMER_IDLE_SX}>
+              <VisibilityIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title={nightShowWakeOrder ? (t('hide_wake_order')) : (t('show_wake_order'))}>
+            <IconButton size="large" onClick={() => setNightShowWakeOrder((v: boolean) => !v)} sx={nightShowWakeOrder ? TIMER_CONTROL_SX : TIMER_IDLE_SX}>
+              <FormatListNumberedIcon />
+            </IconButton>
+          </Tooltip>
+        </>
+      )}
       <Tooltip title={t('edit_characters')}>
         <IconButton size="large" onClick={openCharacterEditor}><ManageAccountsIcon /></IconButton>
       </Tooltip>

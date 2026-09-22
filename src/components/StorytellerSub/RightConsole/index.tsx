@@ -18,7 +18,6 @@ function IconBar({
   togglePopup,
   onClose,
   openNewGamePanel,
-  openCharacterEditor,
   openEndGamePanel,
   openAssignmentCenter,
   hasActiveDealSession,
@@ -31,7 +30,6 @@ function IconBar({
   togglePopup: (name: 'settings' | 'records') => void
   onClose: () => void
   openNewGamePanel: () => void
-  openCharacterEditor: () => void
   openEndGamePanel: () => void
   openAssignmentCenter: () => void
   hasActiveDealSession?: boolean
@@ -43,7 +41,6 @@ function IconBar({
     <Box sx={{ width: barWidth, display: 'flex', flexDirection: 'column', alignItems: 'center', py: 1, gap: 0.5, borderLeft: '1px solid', borderLeftColor: 'divider', bgcolor: 'background.paper', flexShrink: 0, ...sx }}>
       <GameActionsBar
         openNewGamePanel={openNewGamePanel}
-        openCharacterEditor={openCharacterEditor}
         openEndGamePanel={openEndGamePanel}
         openAssignmentCenter={openAssignmentCenter}
         hasActiveDealSession={hasActiveDealSession}
@@ -95,7 +92,7 @@ export function RightConsole({ ctx }: { ctx: StorytellerContext }) {
   const {
     showRightPanel, setShowRightPanel, activeRightPopup, setActiveRightPopup,
     language, text, setShowExportModal,
-    openNewGamePanel, openCharacterEditor, openEndGamePanel,
+    openNewGamePanel, openEndGamePanel,
     setShowAssignmentCenter, linkedDealSession,
   } = ctx
 
@@ -118,7 +115,6 @@ export function RightConsole({ ctx }: { ctx: StorytellerContext }) {
     togglePopup,
     onClose: closePanel,
     openNewGamePanel,
-    openCharacterEditor,
     openEndGamePanel,
     openAssignmentCenter: () => setShowAssignmentCenter(true),
     hasActiveDealSession: !!linkedDealSession,

@@ -1,13 +1,11 @@
 import { Box, Badge, IconButton, Tooltip, Typography } from '@mui/material'
 import AddCircleIcon from '@mui/icons-material/AddCircle'
-import ManageAccountsIcon from '@mui/icons-material/ManageAccounts'
 import SaveIcon from '@mui/icons-material/Save'
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd'
 import { makeT } from '../../lib/t'
 
 interface GameActionsBarProps {
   openNewGamePanel: () => void
-  openCharacterEditor: () => void
   openEndGamePanel: () => void
   openAssignmentCenter: () => void
   /** Shows a small live-session dot on the Player Assignments action. */
@@ -25,7 +23,6 @@ interface GameActionsBarProps {
 
 export function GameActionsBar({
   openNewGamePanel,
-  openCharacterEditor,
   openEndGamePanel,
   openAssignmentCenter,
   hasActiveDealSession,
@@ -42,12 +39,6 @@ export function GameActionsBar({
       icon: <AddCircleIcon />,
       label: t('new_game'),
       onClick: wrap(openNewGamePanel),
-    },
-    {
-      key: 'players',
-      icon: <ManageAccountsIcon />,
-      label: t('edit_players'),
-      onClick: wrap(openCharacterEditor),
     },
     {
       key: 'assignments',
