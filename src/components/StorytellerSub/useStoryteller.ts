@@ -426,7 +426,7 @@ export function useStoryteller(props: StorytellerHelperProps) {
         votingOrder,
         noVoteSeats,
         seatLabels,
-        perPlayerSeconds: 5,
+        perPlayerSeconds: currentDay.nominationTargetSeconds ?? timerDefaults.nominationTargetSeconds,
         gameId,
         dayId: currentDay.id,
       })
