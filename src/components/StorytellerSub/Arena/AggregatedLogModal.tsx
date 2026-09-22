@@ -145,7 +145,7 @@ export function AggregatedLogModal({ ctx }: { ctx: StorytellerContext }) {
     editLogEntry, removeLogEntry, addQuickEvent, swapLogEntries, currentDay,
   } = ctx
 
-  const isNight = currentDay.phase === 'night'
+  const isNight = currentDay.phase === 'night' && ctx.nightShowCharacter
   const muiTheme = useTheme()
   const { isMobile } = useBreakpoint()
   const isDark = muiTheme.palette.mode === 'dark'
@@ -178,7 +178,7 @@ export function AggregatedLogModal({ ctx }: { ctx: StorytellerContext }) {
   }, [ctx.days, ctx.activeScriptTitle, ctx.stName, ctx.language,
       ctx.currentScriptCharacters, ctx.activeScriptSlug, ctx.scriptOptions])
 
-  const effectiveVisFilter = isNight ? visFilter : (visFilter === 'all' ? 'public' : visFilter)
+  const effectiveVisFilter = isNight ? visFilter : 'public'
 
   const handleShare = async () => {
     const shareText = buildShareText(days, text, language, effectiveVisFilter, typeFilters)

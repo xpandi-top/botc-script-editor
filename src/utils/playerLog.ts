@@ -115,7 +115,7 @@ export function buildPlayerLogEntries(days: DayState[], seatNum: number, languag
         text,
         kind: 'skill',
         phase: s.activatedDuringPhase,
-        visibility: s.visibility ?? 'st-only',
+        visibility: s.activatedDuringPhase === 'night' ? 'st-only' : s.visibility ?? 'st-only',
       })
     }
 

@@ -155,10 +155,10 @@ describe('buildPlayerLogEntries — visibility rules', () => {
     expect(entries[0].visibility).toBe('st-only')
   })
 
-  it('skill with explicit visibility=public → public', () => {
+  it('legacy night skill with visibility=public stays private', () => {
     const day = makeDay(1, { skillHistory: [makeSkill('301', 1, [], 'public')] })
     const [{ entries }] = buildPlayerLogEntries([day], 1)
-    expect(entries[0].visibility).toBe('public')
+    expect(entries[0].visibility).toBe('st-only')
   })
 
   it('skill with explicit visibility=st-only → st-only', () => {

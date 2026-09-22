@@ -46,7 +46,7 @@ export function buildAggregatedEntries(days: DayState[], language: Language = 'z
         phase: s.activatedDuringPhase,
         timestamp: Number(s.id),
         type: 'skill',
-        visibility: s.visibility ?? 'st-only',
+        visibility: s.activatedDuringPhase === 'night' ? 'st-only' : s.visibility ?? 'st-only',
         detail,
       })
     }
@@ -55,7 +55,7 @@ export function buildAggregatedEntries(days: DayState[], language: Language = 'z
     for (const e of day.eventLog) {
       if (e.kind === 'vote' || e.kind === 'skill') continue
       const vis: 'public' | 'st-only' =
-        e.kind === 'stateChange' || e.kind === 'phaseTransition' ? 'public' : 'st-only'
+        e.visibility ?? (e.kind === 'stateChange' || e.kind === 'phaseTransition' ? 'public' : 'st-only')
       entries.push({
         id: `e-${day.day}-${e.id}`,
         day: day.day,

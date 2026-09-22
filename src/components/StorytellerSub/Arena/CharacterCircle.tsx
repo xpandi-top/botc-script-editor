@@ -1,7 +1,9 @@
 import type { MouseEvent } from 'react'
+import type { Alignment } from '../../../utils/seatAlignment'
 import { Box } from '@mui/material'
 
 interface Props {
+  alignment?: Alignment | null
   charIcon: string | null
   charName: string
   nightShowCharacter: boolean
@@ -11,7 +13,7 @@ interface Props {
   disabled?: boolean
 }
 
-export function CharacterCircle({ charIcon, charName, nightShowCharacter, isOpen, onClick, size = 60, disabled = false }: Props) {
+export function CharacterCircle({ alignment, charIcon, charName, nightShowCharacter, isOpen, onClick, size = 60, disabled = false }: Props) {
   const revealed = nightShowCharacter && charIcon
 
   return (
@@ -22,7 +24,7 @@ export function CharacterCircle({ charIcon, charName, nightShowCharacter, isOpen
         height: size,
         borderRadius: '50%',
         border: '2px solid',
-        borderColor: disabled ? 'divider' : isOpen ? 'primary.main' : revealed ? 'primary.light' : 'divider',
+        borderColor: disabled ? 'divider' : alignment === 'evil' ? 'error.main' : alignment === 'good' ? 'info.main' : isOpen ? 'primary.main' : revealed ? 'primary.light' : 'divider',
         bgcolor: 'background.paper',
         display: 'flex',
         flexDirection: 'column',

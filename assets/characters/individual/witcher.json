@@ -11,7 +11,16 @@
     }
   ],
   "en": {
-    "name": "Witcher"
+    "name": "Witcher",
+    "ability": "Once per game, during the night*, you may choose a player: they die, and the demon cannot attack that night. If you kill the demon, you and them swap roles and teams.",
+    "revisions": {
+      "v1": "Once per game, during the night*, you may choose a player: they die, and the demon cannot attack that night. If you kill the demon, you and them swap roles and teams."
+    },
+    "otherNightReminder": "Wake them up and have them choose a player, marking the chosen player with a 'dead' reminder token.",
+    "reminders": [
+      "Dead",
+      "Lost Ability"
+    ]
   },
   "zh": {
     "name": "猎魔人",

@@ -11,7 +11,16 @@
     }
   ],
   "en": {
-    "name": "Painter"
+    "name": "Painter",
+    "ability": "On your first night, you will learn one of the present characters. Each night*, you must choose a player: if they are the character you most recently learned, you will learn another present character.",
+    "revisions": {
+      "v1": "On your first night, you will learn one of the present characters. Each night*, you must choose a player: if they are the character you most recently learned, you will learn another present character."
+    },
+    "firstNightReminder": "Inform them of one of the present characters and place a 'most recently learned' marker next to that player's character token.",
+    "otherNightReminder": "Have them choose a player. If they choose the player marked 'most recently learned', inform them of a new present character.",
+    "reminders": [
+      "Most Recently Learned"
+    ]
   },
   "zh": {
     "name": "画家",

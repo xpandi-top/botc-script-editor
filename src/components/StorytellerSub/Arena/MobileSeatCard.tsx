@@ -1,3 +1,5 @@
+import { canViewSecrets, seatAlignment } from '../../../utils/seatAlignment'
+import { AlignmentBadge } from './AlignmentBadge'
 import type { StorytellerSeat } from '../types'
 import type { StorytellerContext } from '../useStoryteller'
 import type { MouseEvent } from 'react'
@@ -34,6 +36,8 @@ function MobileSeatCardInner({ ctx, seat, side = 'left' }: { ctx: StorytellerCon
   const isPlayerModalOpen = playerModalSeat === seat.seat
   const isSelected = selectedSeat?.seat === seat.seat
   const isNightPhase = currentDay.phase === 'night'
+  const showSecrets = canViewSecrets(currentDay.phase, nightShowCharacter)
+  const showIdentity = showSecrets || seat.isTraveler
   const isInNomination = currentDay.phase === 'nomination' && currentDay.nominationStep !== 'waitingForNomination'
 
   const isVoteActor = currentDay.voteDraft.actor === seat.seat
@@ -133,10 +137,10 @@ function MobileSeatCardInner({ ctx, seat, side = 'left' }: { ctx: StorytellerCon
       }}>
         {/* Circle — pulled into card by negative margin on the card-facing side */}
         <Tooltip
-          title={actualCharAbility || ''}
+          title={showIdentity ? actualCharAbility || '' : ''}
           placement={side === 'right' ? 'right' : 'left'}
           arrow
-          disableHoverListener={!actualCharAbility || !nightShowCharacter}
+          disableHoverListener={!actualCharAbility || !showIdentity}
           enterDelay={600}
         >
           <Box sx={{
@@ -146,10 +150,11 @@ function MobileSeatCardInner({ ctx, seat, side = 'left' }: { ctx: StorytellerCon
             filter: circleFilter, opacity: circleAlpha,
           }}>
             <CharacterCircle
+              alignment={showSecrets ? seatAlignment(seat) : null}
               size={CIRCLE_SIZE}
               charIcon={charIcon ?? null}
               charName={actualCharName}
-              nightShowCharacter={nightShowCharacter}
+              nightShowCharacter={showIdentity}
               isOpen={isPlayerModalOpen}
               disabled={false}
               onClick={(e) => { e.stopPropagation(); setPlayerModalSeat(isPlayerModalOpen ? null : seat.seat) }}
@@ -188,6 +193,8 @@ function MobileSeatCardInner({ ctx, seat, side = 'left' }: { ctx: StorytellerCon
             <Box component="span" sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: seat.alive ? 'success.main' : 'text.disabled', flexShrink: 0 }} />
             {hasVoted && <Box component="span" sx={{ fontWeight: 700, fontSize: '0.9rem', color: votedYes ? 'success.main' : 'error.main' }}>{votedYes ? <CheckIcon fontSize="small" /> : <CloseIcon fontSize="small" />}</Box>}
           </Box>
+
+          {showSecrets && <AlignmentBadge alignment={seatAlignment(seat)} />}
 
           {/* Drunk / Poisoned — always visible */}
           {isNightPhase && nightShowCharacter && (isDrunk || isPoisoned) && (() => {
@@ -238,7 +245,7 @@ function MobileSeatCardInner({ ctx, seat, side = 'left' }: { ctx: StorytellerCon
             </Box>
           )}
 
-          {isNightPhase && nightShowWakeOrder && playerWakeOrder !== null && (
+          {showSecrets && nightShowWakeOrder && playerWakeOrder !== null && (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
               <IconButton size="small" onClick={(e) => { e.stopPropagation(); toggleNightVisitedSeat(seat.seat) }}
                 sx={{ p: 0.25, width: 44, height: 44, borderRadius: '50%', border: '2px solid', borderColor: isVisited ? 'success.main' : 'divider', bgcolor: isVisited ? 'success.light' : 'transparent', flexShrink: 0 }}>

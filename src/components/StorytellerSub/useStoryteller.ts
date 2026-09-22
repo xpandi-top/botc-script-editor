@@ -184,8 +184,10 @@ export function useStoryteller(props: StorytellerHelperProps) {
 
   // ── Aggregated log ──
   const aggregatedLog = useMemo((): AggregatedLogEntry[] => {
-    return filterAndSortLog(buildAggregatedEntries(days, language), logFilter)
-  }, [days, language, logFilter])
+    const entries = buildAggregatedEntries(days, language)
+    const showSecrets = currentDay.phase === 'night' && ui.nightShowCharacter
+    return filterAndSortLog(showSecrets ? entries : entries.filter(e => e.visibility === 'public'), logFilter)
+  }, [days, language, logFilter, currentDay.phase, ui.nightShowCharacter])
 
   function getPhaseContext(): string {
     const d = currentDay

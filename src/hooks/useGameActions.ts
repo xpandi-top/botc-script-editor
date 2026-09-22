@@ -1,3 +1,4 @@
+import { preserveAlignment, seatAlignment } from '../utils/seatAlignment'
 import { createDefaultVoteDraft, createDefaultSkillDraft, buildVotingOrder } from '../components/StorytellerSub/constants'
 import type { DayState, EventLogEntry, PickerMode, SkillOverlayState, SkillRecord, StorytellerSeat, TimerDefaults, VoteRecord } from '../components/StorytellerSub/types'
 import type { Language } from '../types'
@@ -42,7 +43,7 @@ export function buildGameActions(deps: ActionDeps) {
       const oldSeat = d.seats.find((s) => s.seat === seatNumber)
       const newSeats = d.seats.map((s) => {
         if (s.seat !== seatNumber) return s
-        const next = updater(s)
+        const next = preserveAlignment(s, updater(s))
         // Dying grants a vote token (Odyssey). Harmless on official rosters —
         // nothing reads voteTokens there.
         const voteTokens = voteTokensAfterLifeChange(next, s.alive)
@@ -64,6 +65,14 @@ export function buildGameActions(deps: ActionDeps) {
           } else if (oldSeat.characterId) {
             updated = appendEvent(updated, 'tagChange', `#${seatNumber} ${logPhrase(language, 'roleCleared')}: ${dn(oldSeat.characterId)}`)
           }
+        }
+        if (seatAlignment(oldSeat) !== seatAlignment(newSeat)) {
+          const label = (s: StorytellerSeat) => seatAlignment(s) ? logPhrase(language, seatAlignment(s)!) : '—'
+          updated = appendEvent(updated, 'tagChange', `#${seatNumber} ${logPhrase(language, 'teamPrefix')}: ${label(oldSeat)} → ${label(newSeat)}`, 'st-only')
+        }
+        if (oldSeat.userCharacterId !== newSeat.userCharacterId) {
+          const name = (id: string | null) => id ? getDisplayName(id, language) : '—'
+          updated = appendEvent(updated, 'tagChange', `#${seatNumber} ${language === 'zh' ? '认知角色' : 'Perceived character'}: ${name(oldSeat.userCharacterId)} → ${name(newSeat.userCharacterId)}`, 'st-only')
         }
         const added = newSeat.customTags.filter((t) => !oldSeat.customTags.includes(t))
         const removed = oldSeat.customTags.filter((t) => !newSeat.customTags.includes(t))
@@ -204,13 +213,13 @@ export function buildGameActions(deps: ActionDeps) {
   }
 
   function openSkillOverlay() {
-    setSkillOverlay({ pausedPhase: currentDay.phase, wasTimerRunning: isTimerRunning, draft: createDefaultSkillDraft(), phaseContext: currentDay.phase, visibility: 'public' })
+    setSkillOverlay({ pausedPhase: currentDay.phase, wasTimerRunning: isTimerRunning, draft: createDefaultSkillDraft(), phaseContext: currentDay.phase, visibility: currentDay.phase === 'night' ? 'st-only' : 'public' })
     setIsTimerRunning(false)
     setPickerMode('skillActor')
   }
 
   function openSeatSkill(seatNumber: number) {
-    setSkillOverlay({ pausedPhase: currentDay.phase, wasTimerRunning: isTimerRunning, draft: { ...createDefaultSkillDraft(), actor: seatNumber }, phaseContext: currentDay.phase, visibility: 'public' })
+    setSkillOverlay({ pausedPhase: currentDay.phase, wasTimerRunning: isTimerRunning, draft: { ...createDefaultSkillDraft(), actor: seatNumber }, phaseContext: currentDay.phase, visibility: currentDay.phase === 'night' ? 'st-only' : 'public' })
     setIsTimerRunning(false)
     setPickerMode('none')
     setSkillPopoutSeat(seatNumber)
@@ -219,7 +228,7 @@ export function buildGameActions(deps: ActionDeps) {
 
   function closeSkillOverlay(record: boolean) {
     if (record && skillOverlay?.draft.actor) {
-      const vis = skillOverlay.visibility ?? 'public'
+      const vis = skillOverlay.phaseContext === 'night' ? 'st-only' : skillOverlay.visibility ?? 'public'
       const sr: SkillRecord = { id: `${Date.now()}`, ...skillOverlay.draft, activatedDuringPhase: skillOverlay.phaseContext, visibility: vis }
       const roleName = sr.roleId ? getDisplayName(sr.roleId, language) : '?'
       updateCurrentDay((d) => appendEvent({ ...d, skillHistory: [sr, ...d.skillHistory] }, 'skill', `#${sr.actor} ${roleName} — ${logDetail.phase(language, sr.activatedDuringPhase)}`, vis))

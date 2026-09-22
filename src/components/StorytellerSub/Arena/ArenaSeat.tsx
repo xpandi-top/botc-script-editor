@@ -1,3 +1,5 @@
+import { canViewSecrets, seatAlignment } from '../../../utils/seatAlignment'
+import { AlignmentBadge } from './AlignmentBadge'
 import type { StorytellerSeat } from '../types'
 import type { StorytellerContext } from '../useStoryteller'
 import type { MouseEvent } from 'react'
@@ -98,6 +100,8 @@ function ArenaSeatInner({ ctx, seat, index, isPortrait }: { ctx: StorytellerCont
   const votedYes = currentDay.votingState?.votes[seat.seat] === true
   const isInNomination = currentDay.phase === 'nomination' && currentDay.nominationStep !== 'waitingForNomination'
   const isNightPhase = currentDay.phase === 'night'
+  const showSecrets = canViewSecrets(currentDay.phase, nightShowCharacter)
+  const showIdentity = showSecrets || seat.isTraveler
 
   const cardVotedYes = currentDay.votingState
     ? currentDay.votingState.votes[seat.seat] === true
@@ -192,19 +196,20 @@ function ArenaSeatInner({ ctx, seat, index, isPortrait }: { ctx: StorytellerCont
       >
         {/* Circle: absolutely centered above card top edge — tooltip shows ability */}
         <Tooltip
-          title={actualCharAbility || ''}
+          title={showIdentity ? actualCharAbility || '' : ''}
           placement="top"
           arrow
-          disableHoverListener={!actualCharAbility || !nightShowCharacter}
+          disableHoverListener={!actualCharAbility || !showIdentity}
           enterDelay={600}
         >
           <Box sx={{ position: 'absolute', top: -OVERLAP, left: '50%', transform: 'translateX(-50%)', zIndex: 3,
             filter: seat.alive ? 'none' : 'grayscale(85%) brightness(0.85)', opacity: seat.alive ? 1 : 0.75 }}>
             <CharacterCircle
+              alignment={showSecrets ? seatAlignment(seat) : null}
               size={CIRCLE}
               charIcon={charIcon ?? null}
               charName={actualCharName}
-              nightShowCharacter={nightShowCharacter || seat.isTraveler}
+              nightShowCharacter={showIdentity}
               isOpen={isPlayerModalOpen}
               disabled={false}
               onClick={(e) => { e.stopPropagation(); setPlayerModalSeat(isPlayerModalOpen ? null : seat.seat) }}
@@ -243,6 +248,8 @@ function ArenaSeatInner({ ctx, seat, index, isPortrait }: { ctx: StorytellerCont
             {hasVoted && <Box component="span" sx={{ color: votedYes ? 'success.main' : 'error.main', fontWeight: 700 }}>{votedYes ? <CheckIcon fontSize="small" /> : <CloseIcon fontSize="small" />}</Box>}
           </Box>
 
+          {showSecrets && <AlignmentBadge alignment={seatAlignment(seat)} />}
+
           {/* Drunk / Poisoned — always visible to ST, prominent status */}
           {isNightPhase && nightShowCharacter && (isDrunk || isPoisoned) && (() => {
             const getTagSrcIcon = (key: string) => {
@@ -277,7 +284,7 @@ function ArenaSeatInner({ ctx, seat, index, isPortrait }: { ctx: StorytellerCont
 
           {isInNomination && <VoteButtonGroup seat={seat} cardVotedYes={cardVotedYes} cardVotedNo={cardVotedNo} handleVoteYesClick={handleVoteYesClick} handleVoteNoClick={handleVoteNoClick} handleRemoveVote={handleRemoveVote} />}
 
-          {isNightPhase && nightShowWakeOrder && playerWakeOrder !== null && (
+          {showSecrets && nightShowWakeOrder && playerWakeOrder !== null && (
             <WakeOrderBadge
               wakeOrder={playerWakeOrder}
               isVisited={isVisited}

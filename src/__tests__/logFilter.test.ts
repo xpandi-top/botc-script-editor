@@ -100,10 +100,10 @@ describe('buildAggregatedEntries', () => {
     expect(entry).toMatchObject({ type: 'skill', visibility: 'st-only', day: 1 })
   })
 
-  it('skill visibility public when set explicitly', () => {
+  it('legacy night skill marked public stays private', () => {
     const day = makeDay(1, { skillHistory: [makeSkill('5000', 2, 'public')] })
     const [entry] = buildAggregatedEntries([day])
-    expect(entry.visibility).toBe('public')
+    expect(entry.visibility).toBe('st-only')
   })
 
   it('stateChange event → type=event visibility=public', () => {

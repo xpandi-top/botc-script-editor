@@ -1,3 +1,5 @@
+import { canViewSecrets, seatAlignment, defaultAlignment } from '../../../utils/seatAlignment'
+import { AlignmentBadge } from './AlignmentBadge'
 import type { DayState, Phase, SkillOverlayState, SkillRecord, StorytellerSeat } from '../types'
 import type { StorytellerContext } from '../useStoryteller'
 import { useState, useEffect, useMemo, useRef } from 'react'
@@ -17,7 +19,7 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import ListIcon from '@mui/icons-material/List'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'
-import { getDisplayName, getIconForCharacter, getAbilityTextForScript, allCharacters, characterById, getCharacterReminders, getCharacterRemindersGlobal } from '../../../catalog'
+import { getDisplayName, getIconForCharacter, getAbilityTextForScript, allCharacters, characterById, getCharacterReminders, getCharacterRemindersGlobal, getNightReminder, getEffectiveNightOrderFromRegistry } from '../../../catalog'
 import { buildPlayerLogEntries, filterPlayerLogByCurrentPhase } from '../../../utils/playerLog'
 import { logPhrase } from '../../../utils/logI18n'
 import { LogDetailText } from '../LogDetailText'
@@ -87,6 +89,9 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
   const stText   = isDark ? '#E8C97A' : 'rgba(80, 50, 0, 0.90)'
 
   // ── Section state ──
+  const [showAlignmentPicker, setShowAlignmentPicker] = useState(false)
+  const [showAllReminders, setShowAllReminders] = useState(false)
+  const [manualNightAction, setManualNightAction] = useState(false)
   const [showCharPicker, setShowCharPicker] = useState(false)
   const [stTagInput, setStTagInput] = useState('')
   const [publicTagInput, setPublicTagInput] = useState('')
@@ -125,6 +130,9 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
 
   useEffect(() => {
     if (isOpen) {
+      setShowAlignmentPicker(false)
+      setShowAllReminders(false)
+      setManualNightAction(false)
       setShowCharPicker(false)
       setSkillType('')
       setTargets(new Set())
@@ -163,6 +171,8 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
   const perceivedCharId = seat?.userCharacterId || seat?.characterId || null
   const allSeats: StorytellerSeat[] = currentDay?.seats ?? []
   const isNight = (currentDay?.phase ?? 'private') === 'night'
+  const showSecrets = canViewSecrets(currentDay.phase, nightShowCharacter)
+  const showPublicCharacter = Boolean(seat?.isTraveler && actualCharId && characterById[actualCharId]?.team === 'traveler')
 
   // ── useMemo hooks — must be before any conditional return ──
   const stTagsForTargets = useMemo(() => {
@@ -193,7 +203,8 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
   }, [currentScriptCharacters, allSeats, language])
 
   // Fall back to DEFAULT_ST_TAGS when no script reminders (e.g. no script loaded)
-  const stTagChips = scriptReminderTags.length > 0 ? scriptReminderTags : DEFAULT_ST_TAGS
+  const stTagChips = [...new Set([...DEFAULT_ST_TAGS, ...(actualCharId ? getCharacterReminders(actualCharId, language) : [])])]
+  const visibleStTagChips = showAllReminders ? [...new Set([...stTagChips, ...scriptReminderTags])] : stTagChips
 
   // All script chars with deduplicated reminders (empty array = no reminders)
   // Sorted: in-play first, then alphabetically within each group
@@ -234,8 +245,8 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
   }, [skillType, knowResult, knowChars, knowInfo, changeTo, changeToChar, csSubtype, tagInput, removeTagVal])
 
   const logDays = useMemo(
-    () => filterPlayerLogByCurrentPhase(buildPlayerLogEntries(days || [currentDay], seat?.seat ?? -1, language), isNight),
-    [days, currentDay, seat?.seat, isNight, language],
+    () => filterPlayerLogByCurrentPhase(buildPlayerLogEntries(days || [currentDay], seat?.seat ?? -1, language), showSecrets),
+    [days, currentDay, seat?.seat, showSecrets, language],
   )
 
   // ── Conditional return after all hooks ──
@@ -247,7 +258,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
   }
 
   // ── Character helpers ──
-  const showDifferentPerception = seat.userCharacterId && seat.userCharacterId !== seat.characterId
+  const showDifferentPerception = showSecrets && seat.userCharacterId && seat.userCharacterId !== seat.characterId
   const actualIcon = actualCharId ? getIconForCharacter(actualCharId) : null
   const perceivedIcon = perceivedCharId ? getIconForCharacter(perceivedCharId) : null
 
@@ -288,7 +299,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
   const toggleTarget = (seatNum: number) => setTargets((prev) => { const next = new Set(prev); next.has(seatNum) ? next.delete(seatNum) : next.add(seatNum); return next })
 
   const handleSaveSkill = () => {
-    if (!canSaveSkill) return
+    if (!canSaveSkill || !showSecrets) return
     const targetArr = Array.from(targets)
     const tLabels = targetArr.map((n) => `#${n}`).join(', ')
     const actorLabel = `#${seat.seat}${actualCharId ? ` (${getDisplayName(actualCharId, language)})` : ''}`
@@ -366,8 +377,9 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
       note: skillNote.trim(),
       result: isSuccess ? 'success' as const : 'failure' as const,
       activatedDuringPhase: currentDay?.phase ?? 'night',
+      visibility: 'st-only',
     }
-    updateCurrentDay((d: DayState) => appendEvent({ ...d, skillHistory: [sr, ...d.skillHistory] }, 'skill', detail))
+    updateCurrentDay((d: DayState) => appendEvent({ ...d, skillHistory: [sr, ...d.skillHistory] }, 'skill', detail, 'st-only'))
     setSkillType(''); setTargets(new Set()); setTagInput(''); setRemoveTagVal(''); setSkillNote('')
     setKnowChars([]); setKnowInfo(''); setChangeToChar('')
   }
@@ -378,7 +390,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
   const handleQuickAdd = () => {
     if (!quickAddText.trim()) return
     const detail = `#${seat.seat}: ${quickAddText.trim()}`
-    addQuickEvent(detail, quickAddSt ? 'st-only' : 'public')
+    addQuickEvent(detail, isNight || quickAddSt ? 'st-only' : 'public')
     setQuickAddText('')
   }
 
@@ -386,7 +398,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
 
   const characterSection = (
     <Box sx={{ mb: 1.5 }}>
-      <ModalSectionLabel label={t('characters_section')} />
+      <ModalSectionLabel label={t('identity_management')} />
       <Box sx={{ display: 'flex', gap: 1, mb: 0.75 }}>
         {/* Actual */}
         <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', gap: 0.75, p: 1, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
@@ -423,11 +435,28 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
           </Box>
         )}
       </Box>
+      {showSecrets && <>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap', my: 1 }}>
+          <Typography variant="caption">{t('current_alignment')}</Typography>
+          <AlignmentBadge alignment={seatAlignment(seat)} onClick={() => setShowAlignmentPicker(v => !v)} />
+          {seatAlignment(seat) && defaultAlignment(seat.characterId) && seatAlignment(seat) !== defaultAlignment(seat.characterId) &&
+            <Typography variant="caption" color="text.secondary">{t('alignment_changed')}</Typography>}
+        </Box>
+        {(showAlignmentPicker || !seatAlignment(seat)) && <Box role="group" aria-label={t('current_alignment')} sx={{ display: 'flex', gap: 1, mb: 1 }}>
+          {(['good', 'evil'] as const).map(alignment => <Button key={alignment} size="small"
+            color={alignment === 'good' ? 'info' : 'error'}
+            variant={seatAlignment(seat) === alignment ? 'contained' : 'outlined'}
+            aria-pressed={seatAlignment(seat) === alignment}
+            onClick={() => { updateSeatWithLog(seat.seat, s => ({ ...s, teamTag: alignment })); setShowAlignmentPicker(false) }}>
+            {t(alignment)}
+          </Button>)}
+        </Box>}
       <Button size="small" variant="outlined" onClick={() => setShowCharPicker((v) => !v)}>
         {showCharPicker ? <ExpandMoreIcon fontSize="small" /> : <ChevronRightIcon fontSize="small" />} {t('change_character')}
       </Button>
       {showCharPicker && (
         <Box sx={{ mt: 0.75 }}>
+          <Typography variant="caption" sx={{ display: 'block', mb: 1 }}>{t('preserve_alignment_hint')}</Typography>
           {(() => {
             const charOptions = seat.isTraveler ? TRAVELER_CHAR_IDS : (currentScriptCharacters ?? [])
             return (
@@ -455,12 +484,13 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
           })()}
         </Box>
       )}
+      </>}
     </Box>
   )
 
   const publicStatusSection = (
     <Box sx={{ mb: 1.5 }}>
-      <ModalSectionLabel label={t('public')} />
+      <ModalSectionLabel label={t('player_status')} />
       {/* Status toggles */}
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 0.75 }}>
         {[
@@ -625,9 +655,25 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
   const nightStStatusSection = (
     <Box sx={{ mb: 1.5 }}>
       <ModalSectionLabel label={t('night_st_status')} />
+      {/* Existing stTags (removable, with optional source char icon) */}
+      {stTags.length > 0 && (
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 0.75 }}>
+          {stTags.map((tag: string) => {
+            const { label, sourceCharId } = parseStTag(tag)
+            const srcIcon = sourceCharId ? getIconForCharacter(sourceCharId) : null
+            const displayLabel = translateStTag(label, language)
+            return (
+              <Chip key={`st-${tag}`} label={displayLabel} size="small"
+                icon={srcIcon ? <Box component="img" src={srcIcon as string} sx={{ width: 16, height: 16, ml: '4px !important', borderRadius: '50%' }} /> : undefined}
+                onDelete={() => removeStTag(tag)}
+                sx={{ bgcolor: 'warning.light', color: 'warning.contrastText', '& .MuiChip-deleteIcon': { color: 'warning.dark' } }} />
+            )
+          })}
+        </Box>
+      )}
       {/* Script reminder chips — when char selected, clicks link to that char */}
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 0.75 }}>
-        {stTagChips.map((label) => {
+        {visibleStTagChips.map((label) => {
           const linkedCharId = charReminderPickerOpen ? selectedReminderChar : null
           const active = linkedCharId
             ? stTags.some(t => { const p = parseStTag(t); return p.label === label && p.sourceCharId === linkedCharId })
@@ -649,22 +695,9 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
           )
         })}
       </Box>
-      {/* Existing stTags (removable, with optional source char icon) */}
-      {stTags.length > 0 && (
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 0.75 }}>
-          {stTags.map((tag: string) => {
-            const { label, sourceCharId } = parseStTag(tag)
-            const srcIcon = sourceCharId ? getIconForCharacter(sourceCharId) : null
-            const displayLabel = translateStTag(label, language)
-            return (
-              <Chip key={`st-${tag}`} label={displayLabel} size="small"
-                icon={srcIcon ? <Box component="img" src={srcIcon as string} sx={{ width: 16, height: 16, ml: '4px !important', borderRadius: '50%' }} /> : undefined}
-                onDelete={() => removeStTag(tag)}
-                sx={{ bgcolor: 'warning.light', color: 'warning.contrastText', '& .MuiChip-deleteIcon': { color: 'warning.dark' } }} />
-            )
-          })}
-        </Box>
-      )}
+      <Button size="small" onClick={() => setShowAllReminders(v => !v)} aria-expanded={showAllReminders}>
+        {t('more_st_markers')} {showAllReminders ? '−' : '+'}
+      </Button>
       {/* Character + Reminder picker */}
       {charReminderPickerOpen && scriptAllChars.length > 0 && (
         <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 0.75, mb: 0.75 }}>
@@ -857,8 +890,8 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
         const char = s.characterId ? characterById[s.characterId] : null
         const charTeam = char?.team ?? null
         // teamTag overrides alignment (set by Change→Team skill)
-        const alignIsEvil = s.teamTag === 'evil' ? true : s.teamTag === 'good' ? false : (charTeam === 'minion' || charTeam === 'demon')
-        const alignLabel = (s.teamTag || charTeam) ? (alignIsEvil ? 'E' : 'G') : null
+        const alignIsEvil = seatAlignment(s) === 'evil'
+        const alignLabel = seatAlignment(s) ? t(alignIsEvil ? 'evil' : 'good') : null
         const typeLabel = charTeam ? (TYPE_LABEL[charTeam] ?? null) : null
         const teamColor = charTeam ? TEAM_TYPE_COLORS[charTeam] : undefined
         const alignColor = alignIsEvil ? ALIGN_COLORS.evil : ALIGN_COLORS.good
@@ -891,10 +924,25 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
     </Box>
   )
 
+  const nightKind = currentDay.day === 1 ? 'first' : 'other'
+  const nightOrder = getEffectiveNightOrderFromRegistry()
+  const hasNightAction = Boolean(perceivedCharId && (nightKind === 'first' ? nightOrder.first_night : nightOrder.other_nights)?.includes(perceivedCharId))
+  const nightReminder = perceivedCharId ? getNightReminder(perceivedCharId, language, nightKind) : undefined
+  const nightDone = currentDay.nightVisitedSeats?.includes(seat.seat) ?? false
+
   const abilitySection = (
     <Box ref={abilitySectionRef} sx={{ mb: 1.5 }}>
-      <ModalSectionLabel label={isNight ? (t('night_ability')) : t('day_ability')} />
-      {skillOverlay ? (
+      <ModalSectionLabel label={isNight ? t('tonight_actions') : t('day_ability')} />
+      {isNight && <Box sx={{ mb: 1 }}>
+        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>{t('night_private_hint')}</Typography>
+        <Typography variant="body2">{hasNightAction ? nightReminder : t('no_night_action')}</Typography>
+        {!hasNightAction && <Button size="small" onClick={() => setManualNightAction(v => !v)}>{t('manual_night_record')}</Button>}
+        <Button size="small" variant={nightDone ? 'contained' : 'outlined'} sx={{ mt: 1, display: 'flex' }}
+          onClick={() => ctx.toggleNightVisitedSeat(seat.seat)}>
+          {nightDone ? t('night_undo_done') : t('night_mark_done')}
+        </Button>
+      </Box>}
+      {skillOverlay && skillOverlay.phaseContext === currentDay.phase ? (
         // Active skillOverlay form (from openSeatSkill)
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
           <Box sx={{ maxHeight: 200, overflow: 'auto', border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 0.5 }}>
@@ -955,7 +1003,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
             onChange={(e) => setSkillOverlay((p: SkillOverlayState | null) => p ? { ...p, draft: { ...p.draft, note: e.target.value } } : p)} />
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <Box sx={{ display: 'flex', gap: 0.5 }}>
-              {(['public', 'st-only'] as const).map((v) => (
+              {!isNight && (['public', 'st-only'] as const).map((v) => (
                 <Button key={v} size="small"
                   variant={(skillOverlay.visibility ?? 'public') === v ? 'contained' : 'outlined'}
                   color={v === 'st-only' ? 'warning' : 'primary'}
@@ -975,12 +1023,12 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
         <Button variant="outlined" fullWidth onClick={() => openSeatSkill?.(seat.seat)}>
           {t('use_day_ability')}
         </Button>
-      ) : (
+      ) : hasNightAction || manualNightAction ? (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
           {/* Skill type toggle row */}
           <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
             {(['know', 'guess', 'change', 'changeStatus'] as const).map((skillKey) => {
-              const labels: Record<string, string> = { know: t('know'), guess: t('guess'), change: t('change'), changeStatus: t('change_status') }
+              const labels: Record<string, string> = { know: t('record_information'), guess: t('guess'), change: t('change'), changeStatus: t('record_effect') }
               return (
                 <Button key={skillKey} size="small" variant={skillType === skillKey ? 'contained' : 'outlined'}
                   onClick={() => { setSkillType(skillType === skillKey ? '' : skillKey); setTargets(new Set()); setRemoveTagVal('') }}>
@@ -993,7 +1041,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
           {/* ── Know / Guess ── */}
           {(skillType === 'know' || skillType === 'guess') && (
             <>
-              <Typography variant="caption" color="text.secondary">{t('edit_players')}</Typography>
+              <Typography variant="caption" color="text.secondary">{t('night_target_prompt')}</Typography>
               <PlayerList />
               <Typography variant="caption" color="text.secondary">{t('result')}</Typography>
               {/* Result type button group */}
@@ -1068,7 +1116,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
           {/* ── Change ── */}
           {skillType === 'change' && (
             <>
-              <Typography variant="caption" color="text.secondary">{t('edit_players')}</Typography>
+              <Typography variant="caption" color="text.secondary">{t('night_target_prompt')}</Typography>
               <PlayerList />
               <Typography variant="caption" color="text.secondary">{t('change_to')}</Typography>
               <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', alignItems: 'center' }}>
@@ -1115,7 +1163,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
                   </Button>
                 ))}
               </Box>
-              <Typography variant="caption" color="text.secondary">{t('edit_players')}</Typography>
+              <Typography variant="caption" color="text.secondary">{t('night_target_prompt')}</Typography>
               <PlayerList showTags />
               {/* Tag input / selector */}
               {(csSubtype === 'addST') && (
@@ -1189,7 +1237,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
             </>
           )}
         </Box>
-      )}
+      ) : null}
     </Box>
   )
 
@@ -1206,8 +1254,9 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleQuickAdd() } }}
             sx={{ flex: 1 }} />
           <FormControlLabel
-            control={<Switch size="small" checked={quickAddSt} onChange={(e) => setQuickAddSt(e.target.checked)} />}
-            label={<Typography variant="caption">{quickAddSt ? 'ST' : t('public_short')}</Typography>}
+            disabled={isNight}
+            control={<Switch size="small" checked={isNight || quickAddSt} onChange={(e) => setQuickAddSt(e.target.checked)} />}
+            label={<Typography variant="caption">{isNight || quickAddSt ? 'ST' : t('public_short')}</Typography>}
             sx={{ mx: 0 }} />
           <Button size="small" variant="contained" onClick={handleQuickAdd} sx={{ minWidth: 40, px: 1 }}>+</Button>
         </Box>
@@ -1269,42 +1318,24 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
         <IconButton size="small" onClick={handleClose}><CloseIcon fontSize="small" /></IconButton>
       </DialogTitle>
       <ResponsiveDialogContent sx={{ pt: 1.5, px: 2 }}>
-        {isNight ? (
-          <>
-            <Divider sx={{ mb: 1.5 }} />
-            {characterSection}
-            <Divider sx={{ mb: 1.5 }} />
-            {publicStatusSection}
-            <Divider sx={{ mb: 1.5 }} />
-            {nightStStatusSection}
-            <Divider sx={{ mb: 1.5 }} />
-            {abilitySection}
-            <Divider sx={{ mb: 1.5 }} />
-            {logSection}
-          </>
-        ) : (
-          <>
-            <Divider sx={{ mb: 1.5 }} />
-            {(nightShowCharacter || seat.isTraveler) && (
-              <>
-                {characterSection}
-                <Divider sx={{ mb: 1.5 }} />
-              </>
-            )}
-            {publicStatusSection}
-            <Divider sx={{ mb: 1.5 }} />
-            {abilitySection}
-            <Divider sx={{ mb: 1.5 }} />
-            {logSection}
-          </>
-        )}
+        {(showSecrets || showPublicCharacter) && <>{characterSection}<Divider sx={{ mb: 1.5 }} /></>}
+        {!showSecrets && <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1.5 }}>{t('secret_hidden_hint')}</Typography>}
+        {showSecrets && <>
+          {abilitySection}
+          <Divider sx={{ mb: 1.5 }} />
+          {nightStStatusSection}
+          <Divider sx={{ mb: 1.5 }} />
+        </>}
+        {publicStatusSection}
+        {!isNight && <>{abilitySection}<Divider sx={{ mb: 1.5 }} /></>}
+        {logSection}
       </ResponsiveDialogContent>
     </ResponsiveDialog>
   )
 
   const abilityDetailModal = (
     <AbilityDetailDialog
-      charId={abilityModalCharId}
+      charId={showSecrets || showPublicCharacter ? abilityModalCharId : null}
       language={language}
       pinnedRevisions={pinnedRevisions}
       onClose={() => setAbilityModalCharId(null)}

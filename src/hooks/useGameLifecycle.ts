@@ -1,3 +1,4 @@
+import { seatAlignment, defaultAlignment } from '../utils/seatAlignment'
 import { getCharacterById, getDisplayName } from '../catalog'
 import type { Language } from '../types'
 import { createDayState, createSeats, shuffleArray, CHARACTER_DISTRIBUTION, DEFAULT_PLAYER_COUNT, getNextRoundRobinSeat } from '../components/StorytellerSub/constants'
@@ -315,8 +316,7 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
           const cid = newGamePanel.assignments[sNum]
           newSeat.characterId = cid || null
           newSeat.userCharacterId = newGamePanel.userAssignments[sNum] || null
-          if (cid) { const char = getCharacterById(cid); if (char) newSeat.teamTag = (char.team === 'minion' || char.team === 'demon') ? 'evil' : 'good' }
-          else newSeat.teamTag = null
+          newSeat.teamTag = seatAlignment(seat) ?? defaultAlignment(cid || null)
           if (cid !== oldCharId) {
             const getCharName = (id: string | null) => id ? getDisplayName(id, language) : '—'
             if (oldCharId && cid) updatedDay = appendEvent(updatedDay, 'tagChange', `#${sNum}: ${getCharName(oldCharId)} → ${getCharName(cid)}`)

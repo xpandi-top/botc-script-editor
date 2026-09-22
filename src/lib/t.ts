@@ -13,6 +13,7 @@ import { locales } from '../catalog'
 import type { Language } from '../types'
 
 export type UiKey =
+  | 'alignment_unset' | 'current_alignment' | 'alignment_changed' | 'identity_management' | 'preserve_alignment_hint' | 'tonight_actions' | 'no_night_action' | 'manual_night_record' | 'night_resolved' | 'night_mark_done' | 'night_undo_done' | 'night_private_hint' | 'secret_hidden_hint' | 'common_st_markers' | 'more_st_markers' | 'player_status' | 'record_information' | 'record_effect' | 'night_target_prompt'
   | 'app_title' | 'app_lead' | 'print' | 'script_sheet' | 'settings'
   | 'all_characters' | 'new_script' | 'edit_script' | 'done_editing'
   | 'download_json' | 'no_scripts' | 'pdf_settings' | 'current_script'
