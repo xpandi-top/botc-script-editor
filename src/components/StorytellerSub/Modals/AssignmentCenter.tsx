@@ -23,7 +23,7 @@ import { allCharacters, getCharacterById, getDisplayName } from '../../../catalo
 import { makeT, makeTpl } from '../../../lib/t'
 import { CHARACTER_DISTRIBUTION } from '../constants'
 import { CharPoolPicker } from './CharPoolPicker'
-import { CharSelect, DistRow } from './ModalsNewGameHelpers'
+import { CharSelect, DistRow, TeamDot } from './ModalsNewGameHelpers'
 import { MonoText } from '../../../components/ui'
 import {
   getDealSession, closeDealSession,
@@ -39,31 +39,44 @@ import type { NewGameConfig } from '../types'
 type DealSession = { sessionId: string; hostToken: string }
 type AssignmentTab = 'deal' | 'messages'
 
+// ── All traveler characters ────────────────────────────────────────────────
+const TRAVELER_CHARS = allCharacters.filter((c) => c.team === 'traveler').map((c) => c.id)
+
 /**
  * Resolve the character assignments to deal, and the gameId to key the deal
  * session under. Sources from the in-progress setup draft (newGamePanel) when
  * one is open — new game or edit-players both funnel through it — otherwise
  * from the live running game's seats, so the feature works mid-game too.
+ * Traveler seats are tracked separately (own pool, no seat-claim session).
  */
 function useAssignmentSource(ctx: StorytellerContext) {
   const { newGamePanel, currentDay, gameId: liveGameId } = ctx
   return useMemo(() => {
     if (newGamePanel) {
+      const playerCount = newGamePanel.playerCount ?? 0
+      const travelerCount = newGamePanel.travelerCount ?? 0
       return {
         gameId: newGamePanel.gameId ?? liveGameId,
         assignments: newGamePanel.assignments ?? {},
-        playerCount: newGamePanel.playerCount ?? 0,
+        playerCount,
+        travelerSeats: Array.from({ length: travelerCount }, (_, i) => playerCount + i + 1),
+        travelerAssignments: newGamePanel.travelerAssignments ?? {},
       }
     }
     const assignments: Record<number, string> = {}
+    const travelerSeats: number[] = []
+    const travelerAssignments: Record<number, string> = {}
     let playerCount = 0
     for (const seat of currentDay.seats) {
-      if (!seat.isTraveler) {
+      if (seat.isTraveler) {
+        travelerSeats.push(seat.seat)
+        if (seat.characterId) travelerAssignments[seat.seat] = seat.characterId
+      } else {
         playerCount++
         if (seat.characterId) assignments[seat.seat] = seat.characterId
       }
     }
-    return { gameId: liveGameId, assignments, playerCount }
+    return { gameId: liveGameId, assignments, playerCount, travelerSeats, travelerAssignments }
   }, [newGamePanel, currentDay.seats, liveGameId])
 }
 
@@ -86,7 +99,7 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
   // (live game) — newGamePanel.charPool is used instead when a draft exists.
   const [liveCharPool, setLiveCharPool] = useState<string[]>([])
 
-  const { gameId, assignments, playerCount } = useAssignmentSource(ctx)
+  const { gameId, assignments, playerCount, travelerSeats, travelerAssignments } = useAssignmentSource(ctx)
   const characterIds = Object.values(assignments).filter(Boolean) as string[]
 
   const storedGameDeal = useMemo(() => {
@@ -211,6 +224,22 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
       return
     }
     updateSeatWithLog(seatNumber, (s) => ({ ...s, characterId }))
+  }
+
+  const setTravelerAssignment = (seatNumber: number, characterId: string) => {
+    if (newGamePanel) {
+      setNewGamePanel((prev) => prev ? { ...prev, travelerAssignments: { ...prev.travelerAssignments, [seatNumber]: characterId } } : prev)
+      return
+    }
+    updateSeatWithLog(seatNumber, (s) => ({ ...s, characterId }))
+  }
+
+  const setTravelerNote = (seatNumber: number, note: string) => {
+    if (newGamePanel) {
+      setNewGamePanel((prev) => prev ? { ...prev, seatNotes: { ...prev.seatNotes, [seatNumber]: note } } : prev)
+      return
+    }
+    updateSeatWithLog(seatNumber, (s) => ({ ...s, note }))
   }
 
   const handleRandomAssign = () => {
@@ -522,6 +551,42 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
               ))}
             </Box>
           </Paper>
+
+          {travelerSeats.length > 0 && (
+            <Paper variant="outlined" sx={{ p: 1 }}>
+              <Typography variant="subtitle2" sx={{ mb: 1 }}>{t('traveler_assignments')}</Typography>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                {travelerSeats.map((sNum) => {
+                  const tcid = travelerAssignments[sNum] ?? ''
+                  const tch = tcid ? getCharacterById(tcid) : null
+                  const note = newGamePanel ? (newGamePanel.seatNotes?.[sNum] ?? '') : (currentDay.seats.find((s) => s.seat === sNum)?.note ?? '')
+                  return (
+                    <Box key={sNum} sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: { xs: 'wrap', sm: 'nowrap' } }}>
+                      <Typography variant="body2" sx={{ width: 40, flexShrink: 0, fontWeight: 700, color: 'text.secondary' }}>
+                        ✈#{sNum}
+                      </Typography>
+                      <CharSelect
+                        value={tcid}
+                        options={TRAVELER_CHARS}
+                        language={language}
+                        placeholder={t('select_traveler')}
+                        onChange={(id) => setTravelerAssignment(sNum, id)}
+                      />
+                      <TeamDot team={tch?.team} />
+                      <TextField
+                        size="small"
+                        fullWidth
+                        placeholder={t('traveler_note')}
+                        value={note}
+                        onChange={(e) => setTravelerNote(sNum, e.target.value)}
+                        sx={{ flex: { xs: '1 1 100%', sm: 1 } }}
+                      />
+                    </Box>
+                  )
+                })}
+              </Box>
+            </Paper>
+          )}
 
           {existingDealSession && (
             <>
