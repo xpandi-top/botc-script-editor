@@ -813,7 +813,6 @@
     "deal_assigned_characters_to_players_new_tab": "Deal assigned characters to players (new tab)",
     "player_assignments": "Player Assignments",
     "draw_deal_tab": "Draw & Deal",
-    "roster_tab": "Roster",
     "messages_tab": "Messages",
     "send": "Send",
     "no_messages_yet": "No messages yet",
@@ -824,12 +823,8 @@
     "seats_assigned_count": "{0} seats assigned",
     "let_players_claim_their_own_seat": "Let players claim their own seat",
     "random_assign_characters_hint": "Randomly assign characters to every seat",
-    "random_assign_and_send": "Random Assign & Send",
-    "random_assign_and_send_hint": "Randomly assign characters to claimed seats and reveal them live, no draw needed",
     "claim_seats_button": "Claim Seats",
-    "view_roster": "View roster",
     "no_active_session_start_one_from_draw_deal": "No active session. Start one from the Draw & Deal tab.",
-    "active_session_is_a_card_deal": "The active session is a card deal — see the Draw & Deal tab.",
     "game_end_survey": "Game End & Survey",
     "mvp": "MVP",
     "select_player": "Select player",
@@ -1100,7 +1095,6 @@
     "avg_duration_min": "Avg {0} min/game",
     "more_n_scripts_tab": "+{0} more in Scripts tab",
     "more_n_storytellers": "+{0} more storytellers",
-    "open_session": "Open {0}",
     "script_chars_short": "{0}c",
     "log_tab_n": "Log ({0})",
     "fill_log_n": "Fill Log ({0})",
@@ -1248,6 +1242,11 @@
     "pack_terms": "Usage terms",
     "glossary": "Terms",
     "no_glossary_for_this_script": "No pack glossary for this script.",
-    "vote_tokens_spent": "Spending {0} of {1} vote tokens — click to change"
+    "vote_tokens_spent": "Spending {0} of {1} vote tokens — click to change",
+    "send_assigned_characters": "Send Assigned Characters",
+    "send_assigned_characters_hint": "Push the currently assigned characters to every claimed seat — never re-randomizes, so what you see in the roster is exactly what gets delivered",
+    "delivered": "Delivered",
+    "pending_delivery": "Pending",
+    "send_assigned_characters_n": "Send Assigned Characters ({0})"
   }
 }

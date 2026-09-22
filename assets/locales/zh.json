@@ -813,7 +813,6 @@
     "deal_assigned_characters_to_players_new_tab": "将已分配角色发给玩家（新标签页）",
     "player_assignments": "玩家分配",
     "draw_deal_tab": "抽牌与发牌",
-    "roster_tab": "座位名单",
     "messages_tab": "消息",
     "send": "发送",
     "no_messages_yet": "暂无消息",
@@ -824,12 +823,8 @@
     "seats_assigned_count": "已分配 {0} 个座位",
     "let_players_claim_their_own_seat": "让玩家自行认领座位",
     "random_assign_characters_hint": "为每个座位随机分配角色",
-    "random_assign_and_send": "随机分配并发送",
-    "random_assign_and_send_hint": "为已认领的座位随机分配角色并实时展示，无需抽牌",
     "claim_seats_button": "认领座位",
-    "view_roster": "查看座位名单",
     "no_active_session_start_one_from_draw_deal": "当前没有进行中的会话。请在“抽牌与发牌”标签页中开始。",
-    "active_session_is_a_card_deal": "当前会话是发牌会话——请查看“抽牌与发牌”标签页。",
     "game_end_survey": "结算与调查",
     "mvp": "MVP次数",
     "select_player": "选择玩家",
@@ -1100,7 +1095,6 @@
     "avg_duration_min": "平均时长 {0} 分钟",
     "more_n_scripts_tab": "+{0} 个剧本（在剧本栏查看全部）",
     "more_n_storytellers": "+{0} 位说书人",
-    "open_session": "打开 {0}",
     "script_chars_short": "{0}角",
     "log_tab_n": "日志 ({0})",
     "fill_log_n": "填充记录 ({0})",
@@ -1248,6 +1242,11 @@
     "pack_terms": "使用条款",
     "glossary": "术语",
     "no_glossary_for_this_script": "该剧本没有角色包术语。",
-    "vote_tokens_spent": "使用 {0} / {1} 枚投票标记 —— 点击切换"
+    "vote_tokens_spent": "使用 {0} / {1} 枚投票标记 —— 点击切换",
+    "send_assigned_characters": "发送已分配角色",
+    "send_assigned_characters_hint": "将当前已分配的角色发送给每个已认领座位——不会重新随机，座位名单里看到的就是会发放给玩家的",
+    "delivered": "已发放",
+    "pending_delivery": "待发送",
+    "send_assigned_characters_n": "发送已分配角色（{0}）"
   }
 }
