@@ -819,7 +819,7 @@
     "collapse_seat_detail": "Hide perceived character & note",
     "reveal_mode_single": "Send 1 card",
     "reveal_mode_both": "Send both cards",
-    "send_both_hint": "Send both the real and perceived character — the player sees two cards and isn't told which is real",
+    "send_both_hint": "Global setting: for every seat with a perceived character set, send both the real and perceived character — the player sees two cards and isn't told which is real",
     "quick_send_reveal": "Send character",
     "quick_send_reveal_hint": "Push this seat's current character reveal right now, without leaving the chat",
     "deal_assigned_characters_to_players_new_tab": "Deal assigned characters to players (new tab)",

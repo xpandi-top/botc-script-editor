@@ -819,7 +819,7 @@
     "collapse_seat_detail": "收起感知角色和备注",
     "reveal_mode_single": "发一张卡",
     "reveal_mode_both": "同时发两张卡",
-    "send_both_hint": "同时发送真实和感知角色——玩家会看到两张卡，不会被告知哪张是真的",
+    "send_both_hint": "全局设置：对所有设了感知角色的座位，发送时同时发真实和感知角色——玩家会看到两张卡，不会被告知哪张是真的",
     "quick_send_reveal": "发送角色",
     "quick_send_reveal_hint": "不用切换标签页，直接把这个座位当前的角色发送出去",
     "deal_assigned_characters_to_players_new_tab": "将已分配角色发给玩家（新标签页）",

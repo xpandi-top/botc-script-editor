@@ -21,6 +21,7 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import ClearAllIcon from '@mui/icons-material/ClearAll'
 import ShuffleIcon from '@mui/icons-material/Shuffle'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
+import VisibilityIcon from '@mui/icons-material/Visibility'
 import { allCharacters, getCharacterById } from '../../../catalog'
 import { makeT, makeTpl } from '../../../lib/t'
 import { CHARACTER_DISTRIBUTION } from '../constants'
@@ -380,9 +381,11 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
   // Which roster rows have their detail section (perceived character + note)
   // expanded — collapsed by default to keep the primary row scannable.
   const [expandedSeats, setExpandedSeats] = useState<Set<number>>(new Set())
-  // Seats where the ST opted to reveal BOTH the real and perceived character
-  // (only meaningful — and only offered — when a perceived override exists).
-  const [sendBothSeats, setSendBothSeats] = useState<Set<number>>(new Set())
+  // Global reveal mode: when on, every seat that has a perceived override
+  // sends BOTH the real and perceived character (guest sees two cards,
+  // neither labeled real). One switch for the whole game rather than a
+  // per-seat toggle — simpler to reason about mid-game.
+  const [sendBothGlobal, setSendBothGlobal] = useState(false)
   const [reservingSeat, setReservingSeat] = useState<number | null>(null)
   const [reserveName, setReserveName] = useState('')
   const [copied, setCopied] = useState(false)
@@ -466,14 +469,14 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
   // What a seat's reveal should look like if sent right now: the perceived
   // character by default (falls back to the real one when there's no
   // override — same as what the seat ring itself shows), or both cards when
-  // the ST opted into "send both, don't say which is real" for that seat.
+  // the global "send both, don't say which is real" mode is on.
   const computeReveal = (sNum: number): { characterId: string; secondCharacterId: string | null } | null => {
     const real = assignments[sNum]
     if (!real) return null
     const userCid = userAssignments[sNum]
     const hasOverride = userCid !== undefined && userCid !== null && userCid !== ''
     const primary = hasOverride ? (userCid as string) : real
-    const both = hasOverride && sendBothSeats.has(sNum)
+    const both = hasOverride && sendBothGlobal
     return { characterId: primary, secondCharacterId: both ? real : null }
   }
 
@@ -741,6 +744,17 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
               {resolvedSession?.status === 'closed' && (
                 <Chip size="small" label={t('closed')} color="warning" />
               )}
+              <Tooltip title={t('send_both_hint')}>
+                <Chip
+                  size="small"
+                  clickable
+                  icon={<VisibilityIcon fontSize="small" />}
+                  label={sendBothGlobal ? t('reveal_mode_both') : t('reveal_mode_single')}
+                  color={sendBothGlobal ? 'secondary' : 'default'}
+                  variant={sendBothGlobal ? 'filled' : 'outlined'}
+                  onClick={() => setSendBothGlobal((v) => !v)}
+                />
+              </Tooltip>
               <Box sx={{ flex: 1 }} />
               <Tooltip title={t('send_assigned_characters_hint')}>
                 <span>
@@ -791,7 +805,6 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
               const ch = assignedCid ? getCharacterById(assignedCid) : null
               const userCid = userAssignments[sNum]
               const hasUserOverride = userCid !== undefined && userCid !== null && userCid !== ''
-              const sendBoth = hasUserOverride && sendBothSeats.has(sNum)
               const pending = !!assignedCid && !!existingDealSession && isSeatPending(sNum)
               const delivered = !!assignedCid && !!existingDealSession && !pending
               const note = seatNotes[sNum] ?? ''
@@ -914,22 +927,6 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
                         <>
                           <CharSelect value={userCid ?? ''} options={scriptChars} language={language} placeholder={t('perceived_character')} onChange={(id) => setUserPerceived(sNum, id || null)} disabled={locked} />
                           <TeamDot team={getCharacterById(userCid ?? '')?.team} />
-                          {existingDealSession && (
-                            <Tooltip title={t('send_both_hint')}>
-                              <Chip
-                                size="small"
-                                clickable
-                                label={sendBoth ? t('reveal_mode_both') : t('reveal_mode_single')}
-                                color={sendBoth ? 'secondary' : 'default'}
-                                variant={sendBoth ? 'filled' : 'outlined'}
-                                onClick={() => setSendBothSeats((prev) => {
-                                  const next = new Set(prev)
-                                  if (sendBoth) next.delete(sNum); else next.add(sNum)
-                                  return next
-                                })}
-                              />
-                            </Tooltip>
-                          )}
                         </>
                       )}
                       <TextField
