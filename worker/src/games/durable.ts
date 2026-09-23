@@ -30,4 +30,11 @@ export class GameRoom extends DurableObject<Env> {
   command(access: Access, commands: GameCommand[], expectedVersion?: number) { return this.api.command(access, commands, expectedVersion) }
   nightScript(access: Access, night: 'first' | 'other', lang: 'en' | 'zh', includeDead?: boolean) { return this.api.nightScript(access, night, lang, includeDead) }
   journal(access: Access, since?: number) { return this.api.journal(access, since) }
+  lobby() { return this.api.lobby() }
+  claimSeat(seat: number, name: string, seatToken: string) { return this.api.claimSeat(seat, name, seatToken) }
+  releaseSeat(access: Access, seat: number) { return this.api.releaseSeat(access, seat) }
+  mySeat(access: Access) { return this.api.mySeat(access) }
+  sendMessage(access: Access, to: 'st' | 'all' | number, text: string) { return this.api.sendMessage(access, to, text) }
+  messages(access: Access, since?: number) { return this.api.messages(access, since) }
+  castOwnVote(access: Access, yes: boolean) { return this.api.castOwnVote(access, yes) }
 }
