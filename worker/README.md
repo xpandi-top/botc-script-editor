@@ -51,6 +51,14 @@ Needs a free Cloudflare account; no credit card.
    `VITE_FIREBASE_API_KEY`), then deploy again. Links then use the existing
    Firestore `shortlinks` collection (24 h expiry).
 
+## Google OAuth token proxy (security fix I-73)
+
+`POST /v1/auth/google/token` lets the web app sign in to Google (Cloud Sync)
+without shipping the OAuth client secret. Setup is in `docs/ISSUES.md` → I-73:
+`npx wrangler secret put GOOGLE_CLIENT_SECRET`, set `GOOGLE_WEB_CLIENT_ID` and
+`OAUTH_ALLOWED_ORIGINS` in `wrangler.jsonc`, then set `VITE_OAUTH_TOKEN_PROXY`
+for the Pages build.
+
 ## Connect an agent
 
 - **Claude Code**: `claude mcp add --transport http botc https://botc-api.<sub>.workers.dev/mcp`

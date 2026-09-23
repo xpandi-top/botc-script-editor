@@ -73,6 +73,8 @@ jobs:
           VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
           VITE_FIREBASE_MEASUREMENT_ID: ${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}
           VITE_APP_URL: ${{ secrets.VITE_APP_URL }}
+          # Optional: API worker token proxy (I-73). Empty = call Google directly.
+          VITE_OAUTH_TOKEN_PROXY: ${{ secrets.VITE_OAUTH_TOKEN_PROXY }}
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

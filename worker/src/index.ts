@@ -9,6 +9,7 @@ import { HTTPException } from 'hono/http-exception'
 import { buildApi } from './api'
 import type { Env } from './env'
 import { buildMcpServer, SERVER_INFO } from './mcp'
+import { buildOAuthRoutes } from './oauth'
 import { openApiDocument } from './openapi'
 import { InputError } from './scripts'
 import { ShareError } from './share'
@@ -67,6 +68,7 @@ POST /v1/scripts/drafts     {"name", "name_zh"?, "author"?, "characters": [ids o
 })
 
 app.route('/v1', buildApi())
+app.route('/v1/auth', buildOAuthRoutes())
 
 // Stateless MCP: a fresh server + transport per request (no session state to keep).
 app.all('/mcp', async (c) => {
