@@ -1,131 +1,155 @@
 /**
  * build-embeddings.mjs
  *
- * Pre-compute Gemini text embeddings for all BotC characters and write them
- * to public/embeddings.json. Run once (or when catalog changes).
+ * Pre-compute Gemini text embeddings for every character in the catalog
+ * (all editions, including Odyssey) and write them to public/embeddings.json.
+ * Re-run when characters are added or their name/ability text changes.
  *
  * Usage:
- *   VITE_GEMINI_API_KEY=<key> node scripts/build-embeddings.mjs
+ *   node --env-file=.env.local scripts/build-embeddings.mjs   # key from VITE_GEMINI_API_KEY / GEMINI_API_KEY
+ *   node scripts/build-embeddings.mjs --check                 # report missing/stale entries, no API calls
+ *   node scripts/build-embeddings.mjs --force                 # re-embed everything
+ *
+ * Each character is embedded once from its English + Chinese name and ability
+ * (gemini-embedding-001 is multilingual, so queries in either language match).
+ * Entries keep a hash of that text: unchanged characters reuse their vector,
+ * so a re-run only calls the API for new or edited characters.
  *
  * Output: public/embeddings.json
- *   { version: 1, model: "...", entries: [{ id, vector: number[] }] }
+ *   { version: 1, model, dimensions, taskType, builtAt, entryCount, entries: [{ id, hash, vector }] }
+ * Vectors are unit length (cosine = dot product) and rounded to 4 decimals.
  *
- * The app can then load this JSON and use cosine similarity for semantic
- * search (botcVectorSearch.ts), falling back to TF-IDF (botcSearch.ts)
- * when the JSON is unavailable.
+ * The app loads this file on demand and embeds queries with the same model,
+ * dimensions and task type (src/lib/botcVectorSearch.ts), falling back to
+ * TF-IDF (botcSearch.ts) without it.
  */
 
-import fs from 'fs'
-import path from 'path'
-import { fileURLToPath } from 'url'
+import crypto from 'node:crypto'
+import fs from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { buildCatalogData } from './catalog-data.mjs'
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const ROOT      = path.resolve(__dirname, '..')
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 
 // ── Config ────────────────────────────────────────────────────────────────────
 
-const GEMINI_API_KEY = process.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY
-const EMBED_MODEL    = 'models/text-embedding-004'
-const BATCH_SIZE     = 10          // embed N texts per request
-const RATE_DELAY_MS  = 300         // ms between batches
-const OUT_PATH       = path.join(ROOT, 'public', 'embeddings.json')
+const EMBED_MODEL   = 'models/gemini-embedding-001'
+const DIMENSIONS    = 768
+const TASK_TYPE     = 'SEMANTIC_SIMILARITY'
+const PRECISION     = 1e4          // decimals kept per component
+const BATCH_SIZE    = 20           // texts per batchEmbedContents request
+const RATE_DELAY_MS = 1000         // between batches (free tier: ~100 requests / 30k tokens per minute)
+const MAX_RETRIES   = 5
+const OUT_PATH      = path.join(ROOT, 'public', 'embeddings.json')
 
-if (!GEMINI_API_KEY) {
-  console.error('Error: VITE_GEMINI_API_KEY or GEMINI_API_KEY env var required')
-  process.exit(1)
-}
+const args  = process.argv.slice(2)
+const CHECK = args.includes('--check')
+const FORCE = args.includes('--force')
 
-// ── Load catalog ──────────────────────────────────────────────────────────────
+// ── Documents ─────────────────────────────────────────────────────────────────
 
-const charDir = path.join(ROOT, 'assets', 'characters')
-if (!fs.existsSync(charDir)) {
-  console.error('Character assets not found at', charDir)
-  process.exit(1)
-}
+const MISSING_ABILITY = 'No ability text available.'
+const uniq = (values) => [...new Set(values.filter(Boolean))]
 
-// Load EN locale for ability texts
-const enLocale = JSON.parse(
-  fs.readFileSync(path.join(ROOT, 'assets', 'locales', 'en.json'), 'utf-8'),
-)
-
-// Load character JSON files
-const charFiles = fs.readdirSync(charDir)
-  .filter((f) => f.endsWith('.json'))
-  .map((f) => {
-    try { return JSON.parse(fs.readFileSync(path.join(charDir, f), 'utf-8')) }
-    catch { return null }
-  })
-  .filter(Boolean)
-
-// Build (id, text) pairs — ability text is the embedding content
-const docs = charFiles
-  .filter((c) => c?.id && c?.team)
+const docs = buildCatalogData(ROOT).characters
   .map((c) => {
-    const ability = enLocale?.abilities?.[c.id] ?? enLocale?.[c.id]?.ability ?? ''
-    const name    = enLocale?.names?.[c.id]     ?? enLocale?.[c.id]?.name    ?? c.id
-    return { id: c.id, team: c.team, text: `${name}: ${ability}`.trim() }
+    const abilities = uniq([c.ability.en, c.ability.zh]).filter((a) => a !== MISSING_ABILITY)
+    const text = `${uniq([c.name.en, c.name.zh]).join(' / ')} (${c.team}): ${abilities.join('\n')}`
+    return { id: c.id, text, hasAbility: abilities.length > 0 }
   })
-  .filter((d) => d.text && d.text.length > 5)
+  .filter((d) => d.hasAbility)
+  .map(({ id, text }) => ({ id, text, hash: crypto.createHash('sha1').update(text).digest('hex').slice(0, 12) }))
 
-console.log(`Embedding ${docs.length} characters…`)
+const previous = (() => {
+  try {
+    const file = JSON.parse(fs.readFileSync(OUT_PATH, 'utf-8'))
+    const compatible = file.version === 1 && file.model === EMBED_MODEL && file.dimensions === DIMENSIONS && file.taskType === TASK_TYPE
+    return compatible ? new Map(file.entries.map((e) => [e.id, e])) : new Map()
+  } catch {
+    return new Map()
+  }
+})()
+
+const reusable = (d) => !FORCE && previous.get(d.id)?.hash === d.hash
+const todo = docs.filter((d) => !reusable(d))
+const removed = [...previous.keys()].filter((id) => !docs.some((d) => d.id === id))
+
+console.log(`${docs.length} characters: ${docs.length - todo.length} up to date, ${todo.length} to embed${removed.length ? `, ${removed.length} removed` : ''}`)
+
+if (CHECK) {
+  if (todo.length) console.log(`  missing or stale: ${todo.map((d) => d.id).join(', ')}`)
+  process.exit(todo.length || removed.length ? 1 : 0)
+}
 
 // ── Gemini embed API ──────────────────────────────────────────────────────────
 
-async function embedBatch(texts) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/${EMBED_MODEL}:batchEmbedContents?key=${GEMINI_API_KEY}`
-  const body = {
-    requests: texts.map((text) => ({
-      model: EMBED_MODEL,
-      content: { parts: [{ text }] },
-      taskType: 'SEMANTIC_SIMILARITY',
-    })),
-  }
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  })
-  if (!res.ok) {
-    const err = await res.text()
-    throw new Error(`Gemini embed error ${res.status}: ${err}`)
-  }
-  const json = await res.json()
-  return json.embeddings.map((e) => e.values)
+const GEMINI_API_KEY = process.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY
+if (todo.length && !GEMINI_API_KEY) {
+  console.error('Error: VITE_GEMINI_API_KEY or GEMINI_API_KEY env var required (e.g. node --env-file=.env.local …)')
+  process.exit(1)
 }
 
-function sleep(ms) { return new Promise((r) => setTimeout(r, ms)) }
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+
+function normalize(vector) {
+  const norm = Math.hypot(...vector) || 1
+  return vector.map((x) => Math.round((x / norm) * PRECISION) / PRECISION)
+}
+
+async function embedBatch(texts) {
+  for (let attempt = 1; ; attempt++) {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/${EMBED_MODEL}:batchEmbedContents`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': GEMINI_API_KEY },
+      body: JSON.stringify({
+        requests: texts.map((text) => ({
+          model: EMBED_MODEL,
+          content: { parts: [{ text }] },
+          taskType: TASK_TYPE,
+          outputDimensionality: DIMENSIONS,
+        })),
+      }),
+    })
+    if (res.ok) return (await res.json()).embeddings.map((e) => normalize(e.values))
+    const detail = (await res.text()).slice(0, 300)
+    if ((res.status === 429 || res.status >= 500) && attempt < MAX_RETRIES) {
+      const wait = Math.min(60_000, 5_000 * 2 ** (attempt - 1))
+      console.log(`\n  HTTP ${res.status}, retrying in ${wait / 1000}s…`)
+      await sleep(wait)
+      continue
+    }
+    throw new Error(`Gemini embed error ${res.status}: ${detail}`)
+  }
+}
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 
-const entries = []
-let processed = 0
-
-for (let i = 0; i < docs.length; i += BATCH_SIZE) {
-  const batch = docs.slice(i, i + BATCH_SIZE)
-  try {
-    const vectors = await embedBatch(batch.map((d) => d.text))
-    for (let j = 0; j < batch.length; j++) {
-      entries.push({ id: batch[j].id, vector: vectors[j] })
-    }
-    processed += batch.length
-    process.stdout.write(`\r  ${processed}/${docs.length}`)
-    if (i + BATCH_SIZE < docs.length) await sleep(RATE_DELAY_MS)
-  } catch (err) {
-    console.error(`\nBatch ${i}–${i + BATCH_SIZE} failed:`, err.message)
-    // Continue with remaining batches
-  }
+const fresh = new Map()
+for (let i = 0; i < todo.length; i += BATCH_SIZE) {
+  const batch = todo.slice(i, i + BATCH_SIZE)
+  const vectors = await embedBatch(batch.map((d) => d.text))
+  batch.forEach((d, j) => fresh.set(d.id, vectors[j]))
+  process.stdout.write(`\r  ${Math.min(i + BATCH_SIZE, todo.length)}/${todo.length}`)
+  if (i + BATCH_SIZE < todo.length) await sleep(RATE_DELAY_MS)
 }
+if (todo.length) process.stdout.write('\n')
 
-console.log(`\nDone. Embedding dimension: ${entries[0]?.vector?.length ?? 'unknown'}`)
+const entries = docs
+  .map((d) => ({ id: d.id, hash: d.hash, vector: fresh.get(d.id) ?? previous.get(d.id).vector }))
+  .sort((a, b) => a.id.localeCompare(b.id))
 
 const output = {
   version:    1,
   model:      EMBED_MODEL,
+  dimensions: DIMENSIONS,
+  taskType:   TASK_TYPE,
   builtAt:    new Date().toISOString(),
   entryCount: entries.length,
   entries,
 }
 
+const json = JSON.stringify(output)
 fs.mkdirSync(path.dirname(OUT_PATH), { recursive: true })
-fs.writeFileSync(OUT_PATH, JSON.stringify(output))
-console.log(`Wrote ${OUT_PATH} (${(JSON.stringify(output).length / 1024).toFixed(1)} KB)`)
+fs.writeFileSync(OUT_PATH, json)
+console.log(`Wrote ${path.relative(ROOT, OUT_PATH)}: ${entries.length} entries × ${DIMENSIONS} dims (${(json.length / 1024).toFixed(0)} KB)`)

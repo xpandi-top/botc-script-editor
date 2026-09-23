@@ -5,8 +5,10 @@
  * Falls back to TF-IDF (botcSearch.ts) when embeddings unavailable.
  *
  * Usage:
- *   await initVectorIndex()          // call once at startup (optional)
  *   findSimilar(query, n, opts)      // always works (auto-falls back)
+ *
+ * The vectors (public/embeddings.json, ~2 MB, from scripts/build-embeddings.mjs)
+ * are fetched on the first semantic search, not at startup.
  */
 
 import { findSimilarByTFIDF, getTeamExamples, type CharExample } from './botcSearch'
@@ -17,28 +19,36 @@ import type { Team } from '../types'
 type EmbeddingEntry = { id: string; vector: number[] }
 
 type EmbeddingFile = {
-  version: number
-  model:   string
-  entries: EmbeddingEntry[]
+  version:     number
+  model:       string
+  dimensions?: number
+  taskType?:   string
+  entries:     EmbeddingEntry[]
 }
+
+/** How the document vectors were made; queries must be embedded the same way. */
+type EmbeddingSpec = { model: string; dimensions?: number; taskType: string }
 
 // ── State ─────────────────────────────────────────────────────────────────────
 
 let _vectorMap: Map<string, number[]> | null = null
-let _initAttempted = false
+let _spec: EmbeddingSpec | null = null
+let _init: Promise<boolean> | null = null
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 
 /**
  * Attempt to load pre-computed embeddings from public/embeddings.json (served
  * under the app's base path), when the build included one.
- * Safe to call multiple times — cached after first load.
+ * Safe to call multiple times (and concurrently) — the first load is shared.
  * Does NOT throw — falls back to TF-IDF silently.
  */
-export async function initVectorIndex(): Promise<boolean> {
-  if (_initAttempted) return _vectorMap !== null
-  _initAttempted = true
+export function initVectorIndex(): Promise<boolean> {
+  _init ??= loadVectorIndex()
+  return _init
+}
 
+async function loadVectorIndex(): Promise<boolean> {
   // Not generated for this build: skip the request (it would only 404).
   if (!__BOTC_HAS_EMBEDDINGS__) return false
 
@@ -49,6 +59,7 @@ export async function initVectorIndex(): Promise<boolean> {
     if (data.version !== 1 || !Array.isArray(data.entries)) return false
 
     _vectorMap = new Map(data.entries.map((e) => [e.id, e.vector]))
+    _spec = { model: data.model, dimensions: data.dimensions, taskType: data.taskType ?? 'SEMANTIC_SIMILARITY' }
     console.debug(`[botcVectorSearch] Loaded ${_vectorMap.size} vectors (${data.model})`)
     return true
   } catch {
@@ -71,17 +82,17 @@ function cosine(a: number[], b: number[]): number {
 
 // ── Gemini embed (runtime query) ──────────────────────────────────────────────
 
-async function embedQuery(text: string, apiKey: string): Promise<number[] | null> {
-  const model = 'models/text-embedding-004'
-  const url = `https://generativelanguage.googleapis.com/v1beta/${model}:embedContent?key=${apiKey}`
+async function embedQuery(text: string, apiKey: string, spec: EmbeddingSpec): Promise<number[] | null> {
+  const url = `https://generativelanguage.googleapis.com/v1beta/${spec.model}:embedContent`
   try {
     const res = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'X-goog-api-key': apiKey },
       body: JSON.stringify({
-        model,
+        model: spec.model,
         content: { parts: [{ text }] },
-        taskType: 'SEMANTIC_SIMILARITY',
+        taskType: spec.taskType,
+        ...(spec.dimensions ? { outputDimensionality: spec.dimensions } : {}),
       }),
     })
     if (!res.ok) return null
@@ -104,19 +115,18 @@ export type VectorSearchOpts = {
  * Find n chars most similar to `query`.
  *
  * Strategy:
- * 1. If vectorMap loaded + apiKey provided → embed query live + cosine
- * 2. If vectorMap loaded, no key → use pre-computed vectors with TF-IDF query vec approximation (not available)
- *    → fall through to TF-IDF
- * 3. Fallback: TF-IDF (always works, no API needed)
+ * 1. If a Gemini key is provided and the vectors load (first call fetches
+ *    them) → embed the query live with the same model + cosine
+ * 2. No key, no vectors or the embed call fails → TF-IDF (always works, no API needed)
  */
 export async function findSimilar(
   query: string,
   n = 4,
   opts?: VectorSearchOpts,
 ): Promise<CharExample[]> {
-  // Try semantic search if vectors loaded + API key available
-  if (_vectorMap && opts?.geminiApiKey) {
-    const queryVec = await embedQuery(query, opts.geminiApiKey)
+  // Try semantic search if vectors load + API key available
+  if (opts?.geminiApiKey && (await initVectorIndex()) && _vectorMap && _spec) {
+    const queryVec = await embedQuery(query, opts.geminiApiKey, _spec)
     if (queryVec) {
       // Import entries from botcSearch to get CharExample objects
       const { allCharacterFiles, getDisplayName, getAbilityText } = await import('../catalog')

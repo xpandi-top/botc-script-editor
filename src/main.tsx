@@ -147,21 +147,18 @@ async function boot() {
     { default: App },
     { initNative },
     { migrateAiSettings },
-    { initVectorIndex },
     { initWikiSearch },
   ] = await Promise.all([
     import('./App'),
     import('./lib/nativeInit'),
     import('./lib/aiSettings'),
-    import('./lib/botcVectorSearch'),
     import('./lib/wikiSearch'),
   ])
 
   // On native: await initNative so the Preferences sync-cache is populated
   // before React's synchronous useState initialisers run.
   migrateAiSettings()
-  initVectorIndex()
-  initWikiSearch()
+  initWikiSearch() // character embeddings load on first semantic search (botcVectorSearch)
   await initNative()
   renderRoot(<App />)
 }

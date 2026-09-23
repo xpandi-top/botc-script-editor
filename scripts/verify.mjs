@@ -23,6 +23,8 @@ const steps = [
   ['unit tests', 'npm', ['test']],
   ['production build', 'npm', ['run', 'build']],
   ['bundle budget', 'npm', ['run', 'bundle:check']],
+  // Regenerating needs a Gemini key, so stale embeddings only warn.
+  ['character embeddings up to date', 'node', ['scripts/build-embeddings.mjs', '--check'], { warnOnly: true }],
 ]
 
 // The API worker has its own dependencies (cd worker && npm install).
@@ -46,14 +48,17 @@ if (includeNative) {
   steps.push(['native build', 'npm', ['run', 'build:native']])
 }
 
-function runStep([label, command, args]) {
+function runStep([label, command, args, { warnOnly = false } = {}]) {
   return new Promise((resolve, reject) => {
     console.log(`\n==> ${label}`)
     const child = spawn(command, args, { stdio: 'inherit', shell: process.platform === 'win32' })
     child.on('error', reject)
     child.on('exit', (code) => {
       if (code === 0) resolve()
-      else reject(new Error(`${label} failed with exit code ${code}`))
+      else if (warnOnly) {
+        console.warn(`  ⚠ ${label}: check failed (exit code ${code}), continuing`)
+        resolve()
+      } else reject(new Error(`${label} failed with exit code ${code}`))
     })
   })
 }
