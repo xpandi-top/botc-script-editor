@@ -18,6 +18,7 @@ const includeNative = process.argv.includes('--native') || process.argv.includes
 
 const steps = [
   ['i18n strict check', 'npm', ['run', 'i18n:check:strict']],
+  ['core boundary type check', 'npm', ['run', 'core:check']],
   ['unit tests', 'npm', ['test']],
   ['production build', 'npm', ['run', 'build']],
   ['bundle budget', 'npm', ['run', 'bundle:check']],

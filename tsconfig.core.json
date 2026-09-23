@@ -1,0 +1,21 @@
+{
+  // Type-checks src/core without DOM or Vite types, so any use of window,
+  // document, localStorage, timers, console or import.meta fails to compile.
+  // Run with `npm run core:check`.
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "types": [],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true
+  },
+  "include": ["src/core"]
+}

@@ -1,0 +1,235 @@
+/**
+ * Game-domain types: seats, days, votes, skills, records and the persisted
+ * storyteller state. Framework-free so the game engine, the API worker and
+ * the web UI can share them. UI-only types stay in
+ * src/components/StorytellerSub/types.ts, which re-exports everything here.
+ */
+
+export type Phase = 'night' | 'private' | 'public' | 'nomination'
+export type PublicMode = 'free' | 'roundRobin'
+export type NominationStep =
+  | 'waitingForNomination'
+  | 'nominationDecision'
+  | 'actorSpeech'
+  | 'readyForTargetSpeech'
+  | 'targetSpeech'
+  | 'readyToVote'
+  | 'voting'
+  | 'votingDone'
+
+export type CharacterAssignment = {
+  seat: number;
+  characterId: string;
+  userCharacterId?: string | null;
+  team: 'evil' | 'good' | null;
+  note?: string;
+}
+
+export type NewGameConfig = {
+  playerCount: number
+  travelerCount: number
+  scriptSlug: string
+  seatNames: Record<number, string>
+  assignments: Record<number, string> // seat -> characterId
+  userAssignments: Record<number, string | null> // seat -> user-perceived char
+  travelerAssignments: Record<number, string> // traveler seat -> characterId
+  seatNotes: Record<number, string>
+  specialNote: string
+  demonBluffs: string[] // up to 3 character IDs shown to the Demon
+  charPool: string[] // character IDs selected for random pool (empty = all)
+  fabledIds?: string[] // fabled + loric character IDs active for this game
+  editMode?: boolean // true when editing existing game setup
+  applyNamesToAllDays?: boolean // propagate seatNames changes to all days
+  gameId?: string  // stable ID linking this setup to a deal session
+}
+
+export type EndGameResult = {
+  winner: 'evil' | 'good' | 'storyteller' | null
+  playerTeams: Record<number, 'evil' | 'good' | null>
+  mvp: number | 'storyteller' | null
+  balanced: number | null
+  funEvil: number | null
+  funGood: number | null
+  replay: number | null
+  otherNote: string
+}
+
+export type StorytellerSeat = {
+  seat: number
+  name: string
+  alive: boolean
+  isTraveler: boolean
+  isExecuted: boolean
+  hasNoVote: boolean
+  /**
+   * Odyssey vote tokens held by this seat. Granted on death, spent to vote.
+   * Undefined on seats from before multi-vote support and on official rosters.
+   */
+  voteTokens?: number
+  customTags: string[]
+  stTags: string[]
+  characterId: string | null
+  userCharacterId: string | null
+  teamTag: 'evil' | 'good' | null
+  note: string
+}
+
+export type VoteDraft = {
+  actor: number | null
+  target: number | null
+  voters: number[]
+  noVoters: number[]
+  note: string
+  manualPassed: boolean | null
+  nominationResult: 'succeed' | 'fail'
+  /** Exile mode — threshold is ≥50% of ALL seats (incl. travelers + dead) */
+  isExile: boolean
+  /** Manual vote count override — null means use voters.length */
+  voteCountOverride: number | null
+  /**
+   * Votes cast per seat, for Odyssey multi-vote rosters. A seat absent from the
+   * map counts as one vote; only seats spending several appear here.
+   */
+  voteWeights?: Record<number, number>
+}
+
+export type VoteRecord = {
+  id: string
+  actor: number
+  target: number
+  voters: number[]
+  voteCount: number
+  requiredVotes: number
+  passed: boolean
+  note: string
+  overridden: boolean
+  failed?: boolean
+  isExile?: boolean
+  /** Votes cast per seat when a voter spent more than one vote token. */
+  voteWeights?: Record<number, number>
+}
+
+export type SkillDraft = {
+  actor: number | null
+  roleId: string
+  targets: number[]
+  targetNotes: Record<number, string>
+  statement: string
+  note: string
+  result: 'success' | 'failure' | null
+}
+
+export type SkillRecord = SkillDraft & { id: string; activatedDuringPhase: string; visibility?: 'public' | 'st-only' }
+
+export type VotingState = {
+  votingOrder: number[]
+  votingIndex: number
+  perPlayerSeconds: number
+  votes: Record<number, boolean>
+}
+
+export type EventLogEntry = {
+  id: string
+  timestamp: number
+  phase: string
+  kind: 'vote' | 'skill' | 'stateChange' | 'tagChange' | 'phaseTransition'
+  detail: string
+  visibility?: 'public' | 'st-only'
+}
+
+export type TimerDefaults = {
+  privateSeconds: number
+  publicFreeSeconds: number
+  publicRoundRobinSeconds: number
+  nominationDelayMinutes: number
+  nominationWaitSeconds: number
+  nominationActorSeconds: number
+  nominationTargetSeconds: number
+  nominationVoteSeconds: number
+  alarmSound: string
+  defaultBgmSrc?: string
+  phaseSwitchSoundEnabled?: boolean
+}
+
+export type DayState = {
+  id: string
+  day: number
+  phase: Phase
+  publicMode: PublicMode
+  nominationStep: NominationStep
+  privateSeconds: number
+  publicFreeSeconds: number
+  publicRoundRobinSeconds: number
+  publicElapsedSeconds: number
+  nominationWaitSeconds: number
+  nominationActorSeconds: number
+  nominationTargetSeconds: number
+  currentSpeakerSeat: number | null
+  roundRobinSpokenSeats: number[]
+  seats: StorytellerSeat[]
+  voteDraft: VoteDraft
+  votingState: VotingState | null
+  voteHistory: VoteRecord[]
+  skillHistory: SkillRecord[]
+  eventLog: EventLogEntry[]
+  nightVisitedSeats: number[]
+  gameEnded: boolean
+  demonBluffs: string[]
+}
+
+export type GameRecord = {
+  id: string
+  startedAt?: number
+  endedAt: number
+  durationMs?: number
+  recordName?: string
+  scriptTitle?: string
+  scriptVersion?: string
+  scriptSlug?: string
+  winner?: 'evil' | 'good' | 'storyteller' | null
+  playerSummaries?: Array<{ seat: number; name: string; team: 'evil' | 'good' | null }>
+  /** Seat number of MVP player, or 'storyteller' if the ST was the standout, or null */
+  mvp?: number | 'storyteller' | null
+  balanced?: number | null
+  funEvil?: number | null
+  funGood?: number | null
+  replay?: number | null
+  otherNote?: string
+  days: Array<{ day: number; votes: number; votePassed: number; skills: number; nominations: number }>
+  savedDays?: DayState[]
+  timerDefaults?: TimerDefaults
+  customTagPool?: string[]
+  playerNamePool?: string[]
+  // Game setup data
+  setup?: {
+    playerCount: number
+    travelerCount: number
+    seatNames: Record<number, string>
+    assignments: Record<number, string>
+    userAssignments: Record<number, string | null>
+    travelerAssignments?: Record<number, string>
+    seatNotes: Record<number, string>
+    specialNote: string
+    demonBluffs: string[]
+  }
+  stFabledIds?: string[]
+  stName?: string
+  stCustomRules?: string
+}
+
+export type PersistedState = {
+  selectedDayId: string
+  timerDefaults: TimerDefaults
+  days: DayState[]
+  customTagPool: string[]
+  gameRecords: GameRecord[]
+  playerNamePool: string[]
+  activeScriptSlug?: string
+  activeScriptTitle?: string
+  endGameResult?: EndGameResult | null
+  stFabledIds?: string[]
+  stCustomRules?: string
+  stName?: string
+  gameStartedAt?: number
+  gameId?: string  // stable ID; always present after first save of this feature
+}

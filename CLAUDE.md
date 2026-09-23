@@ -77,6 +77,10 @@ Two-language (en/zh). Locale files contain UI strings, character abilities, jinx
 - **Material UI (MUI) 9** + Emotion for all UI components
 - Puppeteer installed but no test scripts configured
 
+## API / MCP Roadmap
+
+See [`docs/ARCHITECTURE-API.md`](docs/ARCHITECTURE-API.md) for the plan to expose scripts, characters and storyteller automation to agents (REST + MCP on Cloudflare free tier). Game rules, stats and script parsing are being extracted into `src/core/`, which must stay framework-free: no React/MUI/Firebase, no DOM or `localStorage`, no `import.meta` (enforced by `npm run core:check` and `src/__tests__/coreBoundary.test.ts`). Keep old import paths working through re-exports while migrating.
+
 ## Issue Tracking
 
 See [`docs/ISSUES.md`](docs/ISSUES.md) for open/fixed bugs and features.
