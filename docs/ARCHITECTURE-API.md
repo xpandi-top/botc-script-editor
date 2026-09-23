@@ -250,7 +250,7 @@ AI 设置保持本地 BYOK，永不上传。
 | ✅ | 方案文档 + 安全问题登记（I-73 / I-74） | 本文 |
 | ✅ | `src/core/` + 边界守卫（`tsconfig.core.json` 无 DOM lib；边界测试禁止 React / Firebase / DOM / `import.meta`） | `npm run core:check`、`src/__tests__/coreBoundary.test.ts`；已加入 `npm run verify` |
 | ✅ | 领域类型迁入 `src/core/types/`（旧路径 re-export） | `catalog.ts`（原 `src/types.ts`）、`game.ts`（原 StorytellerSub 领域类型） |
-| ⬜ | 统计纯函数 `src/core/stats/`（`useStats` 仅保留 `useMemo` 包装） | |
+| ✅ | 统计纯函数 `src/core/stats/`（`useStats` 仅保留 `useMemo` 包装） | `src/core/stats/records.ts` + `coreStats.test.ts` |
 | ⬜ | 剧本格式解析迁入 `src/core/script/` + 新增 `validateScript` | |
 | ⬜ | 引擎第一片：提名 / 投票状态迁移（`src/core/engine/`） | |
 | ⬜ | 引擎：座位更新 + 结构化事件（`{ code, params }`） | 需兼容旧 `detail` |
