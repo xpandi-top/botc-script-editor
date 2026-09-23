@@ -18,6 +18,7 @@ import { registerGameTools } from './games/mcpTools'
 import type { RoomApi } from './games/room'
 import type { LibraryStore } from './library/store'
 import { searchRules } from './rules'
+import { findSimilar, type SemanticDeps } from './ai/embeddings'
 import { createScriptShareLink, ShareError } from './share'
 import { characterView, jinxView, nightOrderView, tokenManifest, type Lang } from './views'
 
@@ -67,7 +68,7 @@ export type McpLibraryContext = { store: LibraryStore; principal: Principal; now
 /** Present when cloud games are enabled (GAMES Durable Object binding). */
 export type McpGamesContext = { rooms: (gameId: string) => RoomApi | null }
 
-export function buildMcpServer(env: Env, library?: McpLibraryContext, games?: McpGamesContext): McpServer {
+export function buildMcpServer(env: Env, library?: McpLibraryContext, games?: McpGamesContext, semantic?: SemanticDeps): McpServer {
   const instructions = library ? `${INSTRUCTIONS}\n${LIBRARY_INSTRUCTIONS}` : INSTRUCTIONS
   const server = new McpServer(SERVER_INFO, { instructions, jsonSchemaValidator: new CfWorkerJsonSchemaValidator() })
   const catalog = getCatalog()
@@ -105,6 +106,27 @@ export function buildMcpServer(env: Env, library?: McpLibraryContext, games?: Mc
     }
     return { ...characterView(c, language), jinxes: catalog.data.jinxes.filter((j) => j.characters.includes(c.id)).map((j) => jinxView(j, language)) }
   }))
+
+  if (semantic) {
+    server.registerTool('find_similar_characters', {
+      title: 'Find similar characters',
+      description: 'Semantic search: characters whose ability is closest in meaning to a description (English or Chinese), or to an existing character. Use it to find precedents when designing or translating a character, or swap candidates for a script.',
+      inputSchema: {
+        query: z.string().max(1000).optional().describe('Describe the effect, e.g. "a minion whose vote counts twice" or "每晚杀两人的恶魔".'),
+        id: z.string().optional().describe('Or: an existing character id to find neighbours of.'),
+        team: teamSchema.optional(),
+        exclude: z.array(z.string()).optional().describe('Character ids to leave out.'),
+        limit: z.number().int().min(1).max(20).optional().describe('Default 5.'),
+        language: lang,
+      },
+      annotations: READ_ONLY,
+    }, ({ query, id, team, exclude, limit, language }) => guarded(async () => {
+      if (!query?.trim() && !id) throw new InputError('Provide "query" or "id".')
+      const found = await findSimilar(semantic, { query: query?.trim(), id, team, exclude, limit })
+      if (!found) throw new InputError(`Unknown character "${id}". Use search_characters to find ids.`)
+      return { model: semantic.model, items: found.map(({ id: cid, score }) => ({ ...summary(cid, language), score: Math.round(score * 1000) / 1000 })) }
+    }))
+  }
 
   server.registerTool('get_jinxes', {
     title: 'Get jinxes',

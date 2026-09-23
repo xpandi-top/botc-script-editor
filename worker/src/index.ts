@@ -6,6 +6,8 @@ import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { HTTPException } from 'hono/http-exception'
+import { buildAiRoutes, semanticDepsFor, type AiAppOptions } from './ai/routes'
+import { AiServiceError } from './ai/models'
 import { buildApi } from './api'
 import type { Env } from './env'
 import { AuthError, authenticate, verifyGoogleAccessToken } from './library/auth'
@@ -19,7 +21,7 @@ import { openApiDocument } from './openapi'
 import { InputError } from './scripts'
 import { ShareError } from './share'
 
-export type AppOptions = Partial<LibraryDeps> & {
+export type AppOptions = Partial<LibraryDeps> & AiAppOptions & {
   /** RPC handle for one game; defaults to the GAMES Durable Object namespace. */
   roomFor?: (env: Env, gameId: string) => RoomApi | null
 }
@@ -41,6 +43,12 @@ export function createApp(options: AppOptions = {}) {
   app.onError((err, c) => {
     if (err instanceof InputError) return c.json({ error: { code: 'invalid_request', message: err.message } }, 400)
     if (err instanceof ShareError) return c.json({ error: { code: 'share_failed', message: err.message } }, 502)
+    if (err instanceof AiServiceError) {
+      console.error('Workers AI:', err.message)
+      return err.quota
+        ? c.json({ error: { code: 'ai_quota_exhausted', message: 'The free AI allowance for today is used up. Try again tomorrow, or use your own API key.' } }, 429)
+        : c.json({ error: { code: 'ai_failed', message: 'The AI service failed; try again.' } }, 502)
+    }
     if (err instanceof HTTPException) return err.getResponse()
     console.error(err)
     return c.json({ error: { code: 'internal', message: 'Internal error.' } }, 500)
@@ -110,6 +118,8 @@ MCP tools: create_game, get_game, run_commands, get_night_script, suggest_night_
 
   app.route('/v1/me', buildLibraryRoutes(deps))
   app.route('/v1/games', buildGameRoutes({ ...deps, roomFor }))
+  // Before buildApi: /v1/characters/similar must not match /v1/characters/:id.
+  app.route('/v1', buildAiRoutes(options))
   app.route('/v1', buildApi())
   app.route('/v1/auth', buildOAuthRoutes())
 
@@ -130,7 +140,7 @@ MCP tools: create_game, get_game, run_commands, get_night_script, suggest_night_
       }
     }
     const games = options.roomFor || c.env.GAMES ? { rooms: (gameId: string) => roomFor(c.env, gameId) } : undefined
-    const server = buildMcpServer(c.env, library, games)
+    const server = buildMcpServer(c.env, library, games, semanticDepsFor(c.env, options) ?? undefined)
     const transport = new WebStandardStreamableHTTPServerTransport({ sessionIdGenerator: undefined, enableJsonResponse: true })
     await server.connect(transport)
     return transport.handleRequest(c.req.raw)
