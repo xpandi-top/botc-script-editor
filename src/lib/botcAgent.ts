@@ -16,9 +16,11 @@
 
 import { geminiAsk } from './gemini'
 import {
-  getTeamExamples, getTranslationPairs, findSimilarByTFIDF, formatExamplesPrompt,
+  getTeamExamples, getTranslationPairs, formatExamplesPrompt,
 } from './botcSearch'
 import { findSimilarPairs, formatTmPrompt } from './translationMemory'
+import { findSimilar } from './botcVectorSearch'
+import { loadAiSettings } from './aiSettings'
 import type { Team } from '../types'
 
 // ── System prompt shared across all tasks ───────────────────────────────────
@@ -125,10 +127,12 @@ export async function suggestAbility(opts: {
   const conceptLine = opts.concept ? `\nDesign concept: ${opts.concept}` : ''
   const zhLine = opts.generateZh ? '\nAlso provide a Chinese translation as "abilityZh".' : ''
 
-  // Few-shot: team examples + TF-IDF similar by concept
+  // Few-shot: team examples + characters similar to the concept (semantic
+  // search with a Gemini key, TF-IDF otherwise)
   const teamExamples = getTeamExamples(opts.team, 3, opts.excludeIds ?? [])
+  const geminiApiKey = loadAiSettings().keys.gemini?.trim() || undefined
   const similarExamples = opts.concept
-    ? findSimilarByTFIDF(opts.concept, 2, { team: opts.team, excludeIds: opts.excludeIds })
+    ? await findSimilar(opts.concept, 2, { team: opts.team, excludeIds: opts.excludeIds, geminiApiKey })
     : []
   // Deduplicate by id
   const seen = new Set(teamExamples.map((e) => e.id))
