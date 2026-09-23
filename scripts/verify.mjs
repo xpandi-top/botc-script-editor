@@ -27,7 +27,10 @@ const steps = [
 
 // The API worker has its own dependencies (cd worker && npm install).
 if (existsSync('worker/node_modules')) {
-  steps.push(['worker tests (API + MCP)', 'npm', ['--prefix', 'worker', 'test']])
+  steps.push(
+    ['worker type check', 'npm', ['--prefix', 'worker', 'run', 'typecheck']],
+    ['worker tests (API + MCP)', 'npm', ['--prefix', 'worker', 'test']],
+  )
 } else {
   console.log('Skipping worker tests: run `npm install` in worker/ to include them.')
 }

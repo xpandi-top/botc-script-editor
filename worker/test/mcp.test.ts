@@ -34,7 +34,7 @@ describe('MCP endpoint', () => {
   it('lists tools with annotations', async () => {
     const { tools } = await rpc('tools/list')
     const names = tools.map((t: { name: string }) => t.name)
-    expect(names).toEqual(expect.arrayContaining(['search_characters', 'get_character', 'get_jinxes', 'get_night_order', 'list_scripts', 'get_script', 'validate_script', 'analyze_script', 'get_token_manifest', 'create_script_draft']))
+    expect(names).toEqual(expect.arrayContaining(['search_characters', 'get_character', 'get_jinxes', 'get_night_order', 'search_rules', 'list_scripts', 'get_script', 'validate_script', 'analyze_script', 'get_token_manifest', 'create_script_draft']))
     const draft = tools.find((t: { name: string }) => t.name === 'create_script_draft')
     expect(draft.annotations.readOnlyHint).toBe(false)
     expect(draft.inputSchema.required).toEqual(expect.arrayContaining(['name', 'characters']))
@@ -48,6 +48,9 @@ describe('MCP endpoint', () => {
     const near = await callTool('get_character', { id: 'HighPriestess' })
     expect(near.isError).toBe(true)
     expect(near.text).toContain('high_priestess')
+    const rules = await callTool('search_rules', { query: 'drunk poisoned', limit: 2 })
+    expect(rules.json).toHaveLength(2)
+    expect(rules.json[0]).toEqual(expect.objectContaining({ page: expect.any(String), url: expect.stringContaining('http'), text: expect.any(String) }))
     const order = await callTool('get_night_order', { characters: ['imp', 'poisoner', 'monk'], night: 'other' })
     expect(order.json.map((n: { id: string }) => n.id)).toEqual(['DUSK', 'poisoner', 'monk', 'imp', 'DAWN'])
   })

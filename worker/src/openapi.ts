@@ -45,6 +45,13 @@ export function openApiDocument(serverUrl: string) {
           responses: { 200: json('Character'), 404: json('Unknown character') },
         },
       },
+      '/v1/rules/search': {
+        get: {
+          operationId: 'searchRules', summary: 'Search BotC wiki excerpts',
+          parameters: [{ name: 'q', in: 'query', required: true, schema: { type: 'string' } }, { name: 'limit', in: 'query', schema: { type: 'integer', minimum: 1, maximum: 10 } }],
+          responses: { 200: json('{ items }'), 400: json('Missing query') },
+        },
+      },
       '/v1/editions': { get: { operationId: 'listEditions', summary: 'Editions / character packs with credits', responses: { 200: json('{ items }') } } },
       '/v1/night-order': {
         get: {

@@ -19,7 +19,7 @@ analysis and drafting. Plan and roadmap: [`../docs/ARCHITECTURE-API.md`](../docs
 | `/v1/...` | REST — see `/llms.txt` or `/openapi.json` |
 | `/` | Service info |
 
-MCP tools: `search_characters`, `get_character`, `get_jinxes`, `get_night_order`,
+MCP tools: `search_characters`, `get_character`, `get_jinxes`, `get_night_order`, `search_rules`,
 `list_scripts`, `get_script`, `validate_script`, `analyze_script`,
 `get_token_manifest`, `create_script_draft`.
 Resources: `botc://characters/{id}`, `botc://scripts/{slug}`, `botc://night-order`, `botc://glossary`.

@@ -12,6 +12,7 @@ import type { Team } from '../../src/core/types/catalog'
 import { getCatalog } from './catalog'
 import type { Env } from './env'
 import { analyze, buildDraftScript, checkScript, InputError, resolveScriptData, toEditableScript, type DraftInput } from './scripts'
+import { searchRules } from './rules'
 import { createScriptShareLink, ShareError } from './share'
 import { characterView, jinxView, nightOrderView, tokenManifest, type Lang } from './views'
 
@@ -103,6 +104,13 @@ export function buildMcpServer(env: Env): McpServer {
     inputSchema: { characters: z.array(z.string()).min(1), night: z.enum(['first', 'other']).default('first'), language: lang },
     annotations: READ_ONLY,
   }, ({ characters, night, language }) => guarded(() => nightOrderView(catalog, characters, night, language ?? 'en')))
+
+  server.registerTool('search_rules', {
+    title: 'Search rules',
+    description: 'Search excerpts from the official BotC wiki (rules, setup, states such as drunk/poisoned, storyteller advice) and some Chinese rule notes. Returns page, heading, url and text.',
+    inputSchema: { query: z.string().min(1), limit: z.number().int().min(1).max(10).optional().describe('Default 3.') },
+    annotations: READ_ONLY,
+  }, ({ query, limit }) => guarded(() => searchRules(query, limit ?? 3)))
 
   // ── Scripts ────────────────────────────────────────────────────────────────
 

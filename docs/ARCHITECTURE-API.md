@@ -269,10 +269,11 @@ AI 设置保持本地 BYOK，永不上传。
 | ✅ | Worker 脚手架：Hono + MCP（`@modelcontextprotocol/sdk` Web 标准 Streamable HTTP，无状态）+ OpenAPI + `llms.txt` | 独立 `package.json`，不进 Web 构建 / CI 安装；bundle gzip 357 KB |
 | ✅ | 只读目录 API：角色搜索 / 详情、版本、夜序、jinx、剧本、打印清单 | 数据来自 `npm run build:catalog` 快照 |
 | ✅ | 剧本校验 / 分析 / 草稿：`POST /v1/scripts/{validate,analyze,drafts}` | 草稿返回 `?ss=` 链接；配置 Firebase 时写 `shortlinks` 生成短链 |
-| ✅ | MCP：10 tools、4 resources、4 prompts | 本地 workerd 实测；Worker 生成的链接在 app 中导入成功（含自定义角色） |
+| ✅ | MCP：11 tools、4 resources、4 prompts | 本地 workerd 实测；Worker 生成的链接在 app 中导入成功（含自定义角色） |
 | ✅ | 测试：`cd worker && npm test`（REST + MCP JSON-RPC）；已并入 `npm run verify` | |
 | ⬜ | **部署（需手动）**：`cd worker && npx wrangler login && npm run deploy` | 见 `worker/README.md` |
-| ⬜ | `search_rules`（wiki-chunks）、`find_similar_characters`（embeddings 尚未生成） | |
+| ✅ | `search_rules` / `GET /v1/rules/search`（wiki-chunks TF-IDF，索引逻辑抽到 `src/core/ai/wikiIndex.ts`，app 共用） | |
+| ⬜ | `find_similar_characters` | 需先用 Gemini key 运行 `npm run build-embeddings`（手动，需 API key） |
 | ⬜ | Pages 静态 `/api/v1/*.json` 镜像 | 可选：Worker 已覆盖 |
 | ⬜ | 限流 | Cloudflare WAF 规则（控制台手动） |
 

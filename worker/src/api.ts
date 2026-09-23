@@ -9,6 +9,7 @@ import type { Team } from '../../src/core/types/catalog'
 import { getCatalog } from './catalog'
 import type { Env } from './env'
 import { analyze, buildDraftScript, checkScript, InputError, resolveScriptData, toEditableScript, type DraftInput } from './scripts'
+import { searchRules } from './rules'
 import { createScriptShareLink } from './share'
 import { characterView, jinxView, nightOrderView, parseLang, tokenManifest } from './views'
 
@@ -48,6 +49,13 @@ export function buildApi() {
   })
 
   api.get('/editions', (c) => c.json({ items: getCatalog().data.editions }))
+
+  api.get('/rules/search', (c) => {
+    const q = c.req.query('q')?.trim()
+    if (!q) throw new InputError('"q" is required.')
+    const limit = Math.min(10, Math.max(1, Number(c.req.query('limit') ?? 3) || 3))
+    return c.json({ items: searchRules(q, limit) })
+  })
 
   api.get('/night-order', (c) => {
     const ids = listParam(c.req.query('ids'))
