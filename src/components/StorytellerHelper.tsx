@@ -1,3 +1,4 @@
+import { PresentationControls } from './StorytellerSub/PresentationControls'
 import React, { useEffect } from 'react'
 import { Box, Paper } from '@mui/material'
 import { LeftScriptPanel } from './StorytellerSub/LeftScriptPanel'
@@ -153,6 +154,7 @@ export function StorytellerHelper(props: StorytellerHelperProps) {
           {/* Row 1: topbar (auto height). minWidth:0 prevents grid blowout. */}
           <Box sx={{ minWidth: 0, overflow: 'hidden' }}>
             <MobileTopBar ctx={ctx} />
+            <PresentationControls ctx={ctx} />
             <LeftScriptPanel ctx={ctx} />
           </Box>
           {/* Row 2: Arena fills remaining 1fr.

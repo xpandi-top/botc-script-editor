@@ -132,6 +132,11 @@ function renderRoot(children: React.ReactNode) {
 
 async function boot() {
   const params = new URLSearchParams(window.location.search)
+  if (params.has('audience')) {
+    const { AudienceView } = await import('./components/AudienceView')
+    renderRoot(<AudienceView />)
+    return
+  }
   if (params.has('deal')) {
     const { DealRouteApp } = await import('./components/DealRouteApp')
     renderRoot(<DealRouteApp />)

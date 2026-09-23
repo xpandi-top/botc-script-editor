@@ -197,8 +197,8 @@ export function ArenaCenterContent({ ctx }: { ctx: StorytellerContext }) {
       </Select>}
       {phase === 'night' && (
         <>
-          <Tooltip title={nightShowCharacter ? (t('hide_characters')) : (t('show_characters'))}>
-            <IconButton size="large" onClick={() => setNightShowCharacter((v: boolean) => !v)} sx={nightShowCharacter ? TIMER_CONTROL_SX : TIMER_IDLE_SX}>
+          <Tooltip title={ctx.privateView || nightShowCharacter ? (t('hide_characters')) : (t('show_characters'))}>
+            <IconButton size="large" onClick={() => { if (ctx.privateView) { ctx.setPrivateView(false); setNightShowCharacter(false) } else setNightShowCharacter((v: boolean) => !v) }} sx={ctx.privateView || nightShowCharacter ? TIMER_CONTROL_SX : TIMER_IDLE_SX}>
               <VisibilityIcon />
             </IconButton>
           </Tooltip>

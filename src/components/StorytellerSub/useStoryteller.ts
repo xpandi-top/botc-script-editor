@@ -1,3 +1,5 @@
+import { useAudienceWindow } from '../../hooks/useAudienceWindow'
+import { buildAudienceSnapshot } from './presentation'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useI18n } from '../../hooks/useI18n'
 import { useAudioState } from '../../hooks/useAudioState'
@@ -182,12 +184,19 @@ export function useStoryteller(props: StorytellerHelperProps) {
     return null
   }, [gameId])
 
+  const audienceSnapshot = useMemo(() => buildAudienceSnapshot({
+    day: currentDay, language, title: activeScriptTitle ?? '',
+    timerSeconds: currentTimerSeconds, timerRunning: isTimerRunning && !skillOverlay,
+    requiredVotes: effectiveRequiredVotes, yesCount: votingYesCount, currentVoterSeat,
+  }), [currentDay, language, activeScriptTitle, currentTimerSeconds, isTimerRunning, skillOverlay, effectiveRequiredVotes, votingYesCount, currentVoterSeat])
+  const presentation = useAudienceWindow(audienceSnapshot)
+
   // ── Aggregated log ──
   const aggregatedLog = useMemo((): AggregatedLogEntry[] => {
     const entries = buildAggregatedEntries(days, language)
-    const showSecrets = currentDay.phase === 'night' && ui.nightShowCharacter
+    const showSecrets = presentation.privateView || (currentDay.phase === 'night' && ui.nightShowCharacter)
     return filterAndSortLog(showSecrets ? entries : entries.filter(e => e.visibility === 'public'), logFilter)
-  }, [days, language, logFilter, currentDay.phase, ui.nightShowCharacter])
+  }, [days, language, logFilter, currentDay.phase, ui.nightShowCharacter, presentation.privateView])
 
   function getPhaseContext(): string {
     const d = currentDay
@@ -474,6 +483,7 @@ export function useStoryteller(props: StorytellerHelperProps) {
     dialogState, setDialogState, seatTagDrafts, setSeatTagDrafts,
     selectedSeatNumber, setSelectedSeatNumber,
     ...ui,
+    ...presentation,
     skillOverlay, setSkillOverlay,
     ...audio,
     newGamePanel, setNewGamePanel, showNewGamePanel, setShowNewGamePanel,

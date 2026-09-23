@@ -171,7 +171,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
   const perceivedCharId = seat?.userCharacterId || seat?.characterId || null
   const allSeats: StorytellerSeat[] = currentDay?.seats ?? []
   const isNight = (currentDay?.phase ?? 'private') === 'night'
-  const showSecrets = canViewSecrets(currentDay.phase, nightShowCharacter)
+  const showSecrets = canViewSecrets(currentDay.phase, nightShowCharacter, ctx.privateView)
   const showPublicCharacter = Boolean(seat?.isTraveler && actualCharId && characterById[actualCharId]?.team === 'traveler')
 
   // ── useMemo hooks — must be before any conditional return ──

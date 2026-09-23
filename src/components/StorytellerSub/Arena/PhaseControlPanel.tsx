@@ -297,7 +297,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
             </Box>
 
             {phase === 'night' && [
-              { label: nightShowCharacter ? t('hide_characters') : t('show_characters'), active: nightShowCharacter, icon: nightShowCharacter ? <VisibilityIcon /> : <VisibilityOffIcon />, action: () => setNightShowCharacter((v: boolean) => !v) },
+              { label: ctx.privateView || nightShowCharacter ? t('hide_characters') : t('show_characters'), active: ctx.privateView || nightShowCharacter, icon: ctx.privateView || nightShowCharacter ? <VisibilityIcon /> : <VisibilityOffIcon />, action: () => { if (ctx.privateView) { ctx.setPrivateView(false); setNightShowCharacter(false) } else setNightShowCharacter((v: boolean) => !v) } },
               { label: nightShowWakeOrder ? t('hide_wake_order') : t('show_wake_order'), active: nightShowWakeOrder, icon: <FormatListNumberedIcon />, action: () => setNightShowWakeOrder((v: boolean) => !v) },
             ].map(control => (
               <Box key={control.label} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.25 }}>

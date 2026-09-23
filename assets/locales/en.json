@@ -1,5 +1,18 @@
 {
   "ui": {
+    "presentation_open": "Open audience window",
+    "presentation_focus": "Show audience window",
+    "presentation_stop": "End presentation",
+    "presentation_private": "Private storyteller view",
+    "presentation_hint": "Share only the audience window, or move it to an extended display. Roles and private tags stay in this window. Audio plays here.",
+    "presentation_error": "Could not open the audience window. Allow pop-ups and use a desktop browser that supports multiple windows.",
+    "presentation_audience": "Audience view",
+    "presentation_fullscreen": "Toggle fullscreen",
+    "presentation_fullscreen_error": "Use your browser’s fullscreen command to enlarge this window.",
+    "presentation_running": "Timer running",
+    "presentation_paused": "Timer paused",
+    "presentation_waiting": "Waiting for the storyteller. Open an audience window from the storyteller tab.",
+    "presentation_disconnected": "Connection interrupted. Return to the storyteller window to resume.",
     "alignment_unset": "Choose alignment",
     "current_alignment": "Current alignment",
     "alignment_changed": "Different from character default",

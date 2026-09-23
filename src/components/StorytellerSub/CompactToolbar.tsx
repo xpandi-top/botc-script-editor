@@ -1,3 +1,4 @@
+import { PresentationControls } from './PresentationControls'
 import type { StorytellerContext } from './useStoryteller'
 import { Box, FormControl, InputLabel, Select, MenuItem, IconButton, Typography, Chip } from '@mui/material'
 import UndoIcon from '@mui/icons-material/Undo'
@@ -25,6 +26,8 @@ export function CompactToolbar({ ctx }: { ctx: StorytellerContext }) {
   const distColors: Record<string, string> = { townsfolk: '#2e6ec4', outsider: '#7c4dbf', minion: '#c45c2e', demon: '#b91c1c' }
 
   return (
+    <>
+    <PresentationControls ctx={ctx} />
     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1.5, pb: 1.5, borderBottom: '1px solid', borderBottomColor: 'divider', mb: 1, flexShrink: 0 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap', flex: 1 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -101,5 +104,6 @@ export function CompactToolbar({ ctx }: { ctx: StorytellerContext }) {
         </IconButton>
       </Box>
     </Box>
+    </>
   )
 }
