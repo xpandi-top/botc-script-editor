@@ -37,3 +37,9 @@ export function dealtTeamTag(getTeam: TeamLookup, characterId: string | null): A
   if (!team) return null
   return team === 'minion' || team === 'demon' ? 'evil' : 'good'
 }
+
+/** Freeze the current alignment before changing role, including legacy seats. */
+export function preserveAlignmentWith(getTeam: TeamLookup, before: StorytellerSeat, after: StorytellerSeat): StorytellerSeat {
+  if (before.characterId === after.characterId || before.teamTag !== after.teamTag) return after
+  return { ...after, teamTag: seatAlignmentWith(getTeam, before) ?? defaultAlignmentWith(getTeam, after.characterId) }
+}

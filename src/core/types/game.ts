@@ -133,8 +133,13 @@ export type EventLogEntry = {
   timestamp: number
   phase: string
   kind: 'vote' | 'skill' | 'stateChange' | 'tagChange' | 'phaseTransition'
+  /** Localized display text, fixed when the entry was written. */
   detail: string
   visibility?: 'public' | 'st-only'
+  /** Stable machine-readable event code (see core/engine/events.ts); absent on older or free-text entries. */
+  code?: string
+  /** Parameters for `code`: seat numbers, character ids, counts. */
+  params?: Record<string, string | number | boolean | null>
 }
 
 export type TimerDefaults = {

@@ -2,7 +2,8 @@ import { catalogTeamOf } from '../utils/seatAlignment'
 import { getDisplayName } from '../catalog'
 import type { Language } from '../types'
 import { createDayState, createSeats, DEFAULT_PLAYER_COUNT } from '../components/StorytellerSub/constants'
-import type { DayState, EndGameResult, GameRecord, NewGameConfig, Phase, PickerMode, TimerDefaults } from '../components/StorytellerSub/types'
+import type { DayState, EndGameResult, EventLogEntry, GameRecord, NewGameConfig, Phase, PickerMode, TimerDefaults } from '../components/StorytellerSub/types'
+import { eventFields } from '../utils/eventText'
 import { buildGameExport } from './useGameExport'
 import {
   addPlayerSeat as addPlayerSeatToDay,
@@ -52,7 +53,7 @@ interface LifecycleDeps {
   setAudioPlaying: (v: boolean) => void
   nightBgmSrc: string
   language: Language
-  appendEvent: (d: DayState, kind: 'stateChange' | 'phaseTransition' | 'tagChange' | 'skill' | 'vote', detail: string) => DayState
+  appendEvent: (d: DayState, kind: 'stateChange' | 'phaseTransition' | 'tagChange' | 'skill' | 'vote', detail: string, visibility?: 'public' | 'st-only', structured?: Pick<EventLogEntry, 'code' | 'params'>) => DayState
   customTagPool?: string[]
   playerNamePool?: string[]
   setCurrentRecordName?: (name: string | null) => void
@@ -235,9 +236,10 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     let updatedDay = currentDay
     const getCharName = (id: string | null) => id ? getDisplayName(id, language) : '—'
     for (const { seat: sNum, from, to } of characterChanges) {
-      if (from && to) updatedDay = appendEvent(updatedDay, 'tagChange', `#${sNum}: ${getCharName(from)} → ${getCharName(to)}`)
-      else if (to) updatedDay = appendEvent(updatedDay, 'tagChange', `#${sNum}: ${getCharName(to)}`)
-      else if (from) updatedDay = appendEvent(updatedDay, 'tagChange', `#${sNum}: ${getCharName(from)} ×`)
+      const structured = eventFields({ code: 'setup.character', params: { seat: sNum, from, to } })
+      if (from && to) updatedDay = appendEvent(updatedDay, 'tagChange', `#${sNum}: ${getCharName(from)} → ${getCharName(to)}`, undefined, structured)
+      else if (to) updatedDay = appendEvent(updatedDay, 'tagChange', `#${sNum}: ${getCharName(to)}`, undefined, structured)
+      else if (from) updatedDay = appendEvent(updatedDay, 'tagChange', `#${sNum}: ${getCharName(from)} ×`, undefined, structured)
     }
     if (newGamePanel.applyNamesToAllDays) {
       // Propagate seat name changes to every day, char/note changes only to current day

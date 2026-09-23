@@ -22,6 +22,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 import { getDisplayName, getIconForCharacter, getAbilityTextForScript, allCharacters, characterById, getCharacterReminders, getCharacterRemindersGlobal, getNightReminder, getEffectiveNightOrderFromRegistry } from '../../../catalog'
 import { buildPlayerLogEntries, filterPlayerLogByCurrentPhase } from '../../../utils/playerLog'
 import { logPhrase } from '../../../utils/logI18n'
+import { eventFields } from '../../../utils/eventText'
 import { LogDetailText } from '../LogDetailText'
 import { useT } from '../../../context/I18nContext'
 import { translateStTag, resolveTagDisplay } from './ArenaSeatComponents'
@@ -379,7 +380,7 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
       activatedDuringPhase: currentDay?.phase ?? 'night',
       visibility: 'st-only',
     }
-    updateCurrentDay((d: DayState) => appendEvent({ ...d, skillHistory: [sr, ...d.skillHistory] }, 'skill', detail, 'st-only'))
+    updateCurrentDay((d: DayState) => appendEvent({ ...d, skillHistory: [sr, ...d.skillHistory] }, 'skill', detail, 'st-only', eventFields({ code: 'skill.used', params: { actor: sr.actor, roleId: sr.roleId, phase: sr.activatedDuringPhase } })))
     setSkillType(''); setTargets(new Set()); setTagInput(''); setRemoveTagVal(''); setSkillNote('')
     setKnowChars([]); setKnowInfo(''); setChangeToChar('')
   }

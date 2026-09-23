@@ -95,8 +95,9 @@ export function useStoryteller(props: StorytellerHelperProps) {
     setDaysWithUndo((cur) => cur.map((d) => (d.id === currentDay.id ? updater(d) : d)))
   }
 
-  function appendEvent(d: DayState, kind: EventLogEntry['kind'], detail: string, visibility?: 'public' | 'st-only'): DayState {
-    return { ...d, eventLog: [...d.eventLog, { id: makeEventId(), timestamp: Date.now(), phase: d.phase, kind, detail, visibility }] }
+  /** Append a log entry; `structured` adds the machine-readable code/params (core/engine/events.ts). */
+  function appendEvent(d: DayState, kind: EventLogEntry['kind'], detail: string, visibility?: 'public' | 'st-only', structured?: Pick<EventLogEntry, 'code' | 'params'>): DayState {
+    return { ...d, eventLog: [...d.eventLog, { id: makeEventId(), timestamp: Date.now(), phase: d.phase, kind, detail, visibility, ...structured }] }
   }
 
   function syncDayTimers(d: DayState) {

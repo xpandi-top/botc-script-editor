@@ -1,6 +1,6 @@
 import { getCharacterById } from '../catalog'
 import type { Phase, StorytellerSeat } from '../components/StorytellerSub/types'
-import { defaultAlignmentWith, seatAlignmentWith, type Alignment, type TeamLookup } from '../core/engine/alignment'
+import { defaultAlignmentWith, preserveAlignmentWith, seatAlignmentWith, type Alignment, type TeamLookup } from '../core/engine/alignment'
 
 export type { Alignment } from '../core/engine/alignment'
 
@@ -22,6 +22,5 @@ export function canViewSecrets(phase: Phase, showCharacters: boolean): boolean {
 
 /** Freeze the current alignment before changing role, including legacy seats. */
 export function preserveAlignment(before: StorytellerSeat, after: StorytellerSeat): StorytellerSeat {
-  if (before.characterId === after.characterId || before.teamTag !== after.teamTag) return after
-  return { ...after, teamTag: seatAlignment(before) ?? defaultAlignment(after.characterId) }
+  return preserveAlignmentWith(catalogTeamOf, before, after)
 }

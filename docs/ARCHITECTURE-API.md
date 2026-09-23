@@ -254,7 +254,7 @@ AI 设置保持本地 BYOK，永不上传。
 | ✅ | 剧本格式解析迁入 `src/core/script/` + 新增 `validateScript` | `format.ts`（从 catalog.ts 原样迁出）、`validate.ts`（含 did-you-mean 建议）；已发现 I-75 |
 | ✅ | 座位 / 投票规则与状态工厂迁入 `src/core/engine/`（`seats.ts`、`votes.ts`、`factories.ts`） | 原样搬迁，`utils/seats`、`utils/votes`、`constants` re-export |
 | ✅ | 引擎第一片：提名 / 投票状态迁移（`src/core/engine/nomination.ts`） | `useGameActions` 只保留 UI 副作用；浏览器实测记录 / 失败提名路径 |
-| ⬜ | 引擎：座位更新 + 结构化事件（`{ code, params }`） | 需兼容旧 `detail` |
+| ✅ | 引擎：座位更新 + 结构化事件（`{ code, params }`） | `core/engine/events.ts`（`diffSeat`、`applySeatEdit`）；日志条目新增可选 `code`/`params`，`detail` 文本不变（`utils/eventText.ts`） |
 | ✅ | 引擎：阶段 / 日程 / 建局（`useGameLifecycle`） | `core/engine/lifecycle.ts`、`setup.ts`（随机发牌可注入种子）、`alignment.ts`；浏览器实测阶段推进、新游戏、随机分配 |
 | ⬜ | 计时器 → `endsAt` | 需 state 迁移 |
 | ⬜ | catalog 拆分：纯查询 + overlay 注入；`scripts/build-catalog.mjs` | |
