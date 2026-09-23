@@ -11,13 +11,20 @@ import type { Env } from './env'
 import { AuthError, authenticate, verifyGoogleAccessToken } from './library/auth'
 import { buildLibraryRoutes, type LibraryDeps } from './library/routes'
 import { D1LibraryStore } from './library/store'
+import { buildGameRoutes } from './games/routes'
+import type { RoomApi } from './games/room'
 import { buildMcpServer, SERVER_INFO } from './mcp'
 import { buildOAuthRoutes } from './oauth'
 import { openApiDocument } from './openapi'
 import { InputError } from './scripts'
 import { ShareError } from './share'
 
-export type AppOptions = Partial<LibraryDeps>
+export type AppOptions = Partial<LibraryDeps> & {
+  /** RPC handle for one game; defaults to the GAMES Durable Object namespace. */
+  roomFor?: (env: Env, gameId: string) => RoomApi | null
+}
+
+export { GameRoom } from './games/durable'
 
 /** Build the app; tests inject an in-memory store and a fake Google verifier. */
 export function createApp(options: AppOptions = {}) {
@@ -26,6 +33,7 @@ export function createApp(options: AppOptions = {}) {
     verifyGoogle: options.verifyGoogle ?? verifyGoogleAccessToken,
     now: options.now ?? Date.now,
   }
+  const roomFor = options.roomFor ?? ((env: Env, gameId: string) => (env.GAMES ? env.GAMES.get(env.GAMES.idFromName(gameId)) as unknown as RoomApi : null))
   const app = new Hono<{ Bindings: Env }>()
 
   app.use('*', cors({ origin: '*', allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], allowHeaders: ['content-type', 'accept', 'authorization', 'mcp-session-id', 'mcp-protocol-version', 'last-event-id'], exposeHeaders: ['mcp-session-id'] }))
@@ -84,10 +92,20 @@ GET    /v1/me/{scripts|characters|records}?since=<ms>   (with since: includes de
 GET    /v1/me/{kind}/{id} · PUT {"data", "updatedAt"?, "baseUpdatedAt"?} · DELETE
 GET    /v1/me/stats
 MCP with the same header adds: list_my_scripts, get_my_script, save_script, delete_my_script, list_my_characters, save_character, list_records, get_stats
+
+## Cloud games (storyteller: X-Game-Token: <host token from create>, or the signed-in owner)
+POST /v1/games  {"scriptSlug" | "script", "playerCount", "travelerCount"?, "seatNames"?, "assignments": {seat: id} | "random", "perceived"?, "demonBluffs"?} → {gameId, hostToken}
+GET  /v1/games/{id}                public view · ?view=st → grimoire (host)
+GET  /v1/games/{id}/seats/{n}      what that player knows (host)
+POST /v1/games/{id}/commands       {"commands": [...], "expectedVersion"?} (host; atomic)
+GET  /v1/games/{id}/night-script?night=first|other&lang=  (host)
+GET  /v1/games/{id}/journal?since=<version>               (host)
+MCP tools: create_game, get_game, run_commands, get_night_script, get_seat_view
 `)
   })
 
   app.route('/v1/me', buildLibraryRoutes(deps))
+  app.route('/v1/games', buildGameRoutes({ ...deps, roomFor }))
   app.route('/v1', buildApi())
   app.route('/v1/auth', buildOAuthRoutes())
 
@@ -107,7 +125,8 @@ MCP with the same header adds: list_my_scripts, get_my_script, save_script, dele
         throw e
       }
     }
-    const server = buildMcpServer(c.env, library)
+    const games = options.roomFor || c.env.GAMES ? { rooms: (gameId: string) => roomFor(c.env, gameId) } : undefined
+    const server = buildMcpServer(c.env, library, games)
     const transport = new WebStandardStreamableHTTPServerTransport({ sessionIdGenerator: undefined, enableJsonResponse: true })
     await server.connect(transport)
     return transport.handleRequest(c.req.raw)

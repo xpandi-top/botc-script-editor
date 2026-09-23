@@ -13,4 +13,6 @@ export type Env = {
   GOOGLE_CLIENT_IDS?: string
   /** Cloud library database (P2). Without it /v1/me answers 503 and MCP stays read-only. */
   DB?: D1Database
+  /** Cloud games (P3): one Durable Object per game (GameRoom). */
+  GAMES?: DurableObjectNamespace
 }

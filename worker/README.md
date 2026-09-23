@@ -71,6 +71,24 @@ sync, stats, personal access tokens) and extra MCP tools (`list_my_scripts`,
 
 Without the D1 binding everything above answers 503 and MCP stays read-only.
 
+## Cloud games (P3)
+
+One Durable Object per game (SQLite-backed, available on the free plan;
+created automatically on deploy). The storyteller — a person or an agent —
+creates a game, keeps the returned host token and drives it with commands;
+anyone with the game id can read the public view.
+
+- REST: `POST /v1/games`, `GET /v1/games/{id}` (`?view=st` for the grimoire),
+  `POST /v1/games/{id}/commands`, `GET /v1/games/{id}/night-script`,
+  `GET /v1/games/{id}/seats/{n}`, `GET /v1/games/{id}/journal`.
+- MCP: `create_game`, `get_game`, `run_commands`, `get_night_script`, `get_seat_view`.
+- Commands are the engine in `src/core/engine/commands.ts` (atomic batches,
+  `expectedVersion` for concurrency). Public views never include characters,
+  alignments, storyteller tags or notes (`src/core/engine/views.ts`).
+
+Not yet: seat tokens for players (seat views are storyteller-only for now),
+realtime push (clients poll `version`), and the web app's "cloud game" mode.
+
 ## Google OAuth token proxy (security fix I-73)
 
 `POST /v1/auth/google/token` lets the web app sign in to Google (Cloud Sync)

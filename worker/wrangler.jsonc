@@ -5,6 +5,9 @@
   "compatibility_date": "2026-06-01",
   "compatibility_flags": ["nodejs_compat"],
   "observability": { "enabled": true },
+  // P3 cloud games: one SQLite-backed Durable Object per game (free plan).
+  "durable_objects": { "bindings": [{ "name": "GAMES", "class_name": "GameRoom" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["GameRoom"] }],
   // P2 cloud library. Create once with `npx wrangler d1 create botc-library`,
   // paste the printed database_id below, uncomment, then
   // `npx wrangler d1 migrations apply botc-library --remote`.

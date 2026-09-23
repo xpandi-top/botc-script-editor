@@ -296,6 +296,21 @@ AI 设置保持本地 BYOK，永不上传。
 
 ---
 
+## 7.3 P3 进度（云对局）
+
+| 状态 | 项目 | 备注 |
+|---|---|---|
+| ✅ | 视角隔离 `src/core/engine/views.ts`（公开 / 座位，白名单）；夜晚唤醒脚本 `src/core/engine/nightScript.ts` | 测试断言公开视图不含任何角色 / 阵营 / ST 标签 / 备注 |
+| ✅ | `GameRoom` Durable Object（SQLite，免费）+ `GameRoomCore`（逻辑可测，存储注入） | 每局串行执行；批量命令原子提交；`expectedVersion` 冲突 409；命令日志（journal） |
+| ✅ | `/v1/games`：建局（指定 / 随机发牌、自认角色、恶魔伪装）、公开视图、说书人 grimoire、座位视图、命令、夜晚脚本、journal | 说书人凭 host token（`X-Game-Token`）或登录的创建者 |
+| ✅ | MCP：`create_game`、`get_game`、`run_commands`、`get_night_script`、`get_seat_view` —— AI 说书人 L1 可用 | 本地 workerd 实测 DO 持久化与 RPC |
+| ⬜ | 座位令牌（玩家凭令牌看自己的座位视图）+ 大厅（认领座位） | 替代 Firestore Deal，修 I-74 |
+| ⬜ | 实时推送（WebSocket hibernation） | 目前客户端按 `version` 轮询 |
+| ⬜ | Web：“云对局”模式（本地模式仍为默认） | |
+| ⏸ | 计时器改 `endsAt` | 随 Web 云对局模式一起做 |
+
+---
+
 ## 8. 免费额度核算
 
 > 数据为规划时的公开额度，落地前以官网为准。

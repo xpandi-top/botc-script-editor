@@ -14,6 +14,8 @@ import type { Env } from './env'
 import { analyze, buildDraftScript, checkScript, InputError, resolveScriptData, toEditableScript, type DraftInput } from './scripts'
 import type { Principal } from './library/auth'
 import { registerLibraryTools } from './library/mcpTools'
+import { registerGameTools } from './games/mcpTools'
+import type { RoomApi } from './games/room'
 import type { LibraryStore } from './library/store'
 import { searchRules } from './rules'
 import { createScriptShareLink, ShareError } from './share'
@@ -62,11 +64,15 @@ const summary = (id: string, l?: Lang) => {
 
 export type McpLibraryContext = { store: LibraryStore; principal: Principal; now: () => number }
 
-export function buildMcpServer(env: Env, library?: McpLibraryContext): McpServer {
+/** Present when cloud games are enabled (GAMES Durable Object binding). */
+export type McpGamesContext = { rooms: (gameId: string) => RoomApi | null }
+
+export function buildMcpServer(env: Env, library?: McpLibraryContext, games?: McpGamesContext): McpServer {
   const instructions = library ? `${INSTRUCTIONS}\n${LIBRARY_INSTRUCTIONS}` : INSTRUCTIONS
   const server = new McpServer(SERVER_INFO, { instructions, jsonSchemaValidator: new CfWorkerJsonSchemaValidator() })
   const catalog = getCatalog()
   if (library) registerLibraryTools(server, { env, ...library, guarded })
+  if (games) registerGameTools(server, { rooms: games.rooms, userId: library?.principal.userId ?? null, guarded })
 
   // ── Catalog ────────────────────────────────────────────────────────────────
 
