@@ -5,6 +5,7 @@ import {
   Box, Button, IconButton, Tooltip, Typography, ToggleButton, ToggleButtonGroup,
   Select, MenuItem, TextField, useTheme,
 } from '@mui/material'
+import { alpha } from '@mui/material/styles'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import PauseIcon from '@mui/icons-material/Pause'
 import StopIcon from '@mui/icons-material/Stop'
@@ -42,6 +43,13 @@ import type { Phase, PublicMode } from '../types'
 import { useT } from '../../../context/I18nContext'
 
 const PHASES: Phase[] = ['night', 'private', 'public', 'nomination']
+
+const PHASE_ACCENTS: Record<Phase, { light: string; dark: string }> = {
+  night: { light: '#57518c', dark: '#aaa0e0' },
+  private: { light: '#886747', dark: '#c6a27c' },
+  public: { light: '#376e91', dark: '#83b9d9' },
+  nomination: { light: '#986315', dark: '#dfad59' },
+}
 
 const fmt = (s: number) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
 
@@ -83,11 +91,18 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
   const publicMode = currentDay.publicMode
   const seats = useMemo(() => currentDay.seats, [currentDay.seats])
 
-  // Use the same opaque surface and ink as the rest of the app in every phase.
+  // Tint an opaque theme surface, keeping text and controls fully opaque.
   const palette = muiTheme.palette
+  const isDark = palette.mode === 'dark'
+  const phaseAccent = PHASE_ACCENTS[phase][isDark ? 'dark' : 'light']
+  const phaseWash = alpha(phaseAccent, isDark ? 0.16 : 0.12)
+  const panelSurface = {
+    bgcolor: palette.background.paper,
+    backgroundImage: `linear-gradient(${phaseWash}, ${phaseWash})`,
+  }
   const textColor = palette.text.primary
   const mutedColor = palette.text.secondary
-  const pipColor = palette.text.disabled
+  const pipColor = phaseAccent
   const borderColor = palette.divider
   const btnOverlay = palette.action.hover
   const btnOverlayHover = palette.action.selected
@@ -105,8 +120,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
 
   const btnSx = { color: textColor, borderColor: btnBorder, fontSize: '0.95rem', px: 1.5, py: 0.75, minHeight: 40, minWidth: 0, fontWeight: 500, bgcolor: btnOverlay, '&:hover': { borderColor: btnBorder, bgcolor: btnOverlayHover } }
   const iconBtnSx = { color: textColor, p: 0.75 }
-  // Warm accent for the phase-tab underline — distinct from the neutral action-row chrome below it
-  const tabAccent = palette.primary.main
+  const tabAccent = phaseAccent
   const actionRowSx = { bgcolor: palette.action.hover, border: `1px solid ${borderColor}`, borderRadius: 2, px: 0.75, pt: 0.5, pb: 0.75 }
 
   if (collapsed) {
@@ -116,7 +130,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
           position: 'fixed', bottom: 'calc(56px + var(--safe-bottom, 0px))',
           left: '50%', transform: 'translateX(-50%)',
           width: '100%', maxWidth: 600,
-          zIndex: 1200, bgcolor: palette.background.paper,
+          zIndex: 1200, ...panelSurface,
           borderTop: `1px solid ${borderColor}`,
           borderRadius: '12px',
           display: 'flex', alignItems: 'center', gap: 1, px: 1.5, py: 0.75,
@@ -161,7 +175,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
           width: '100%', maxWidth: 600,
           minHeight: 200,
           zIndex: 1200,
-          bgcolor: palette.background.paper,
+          ...panelSurface,
           borderTop: `1px solid ${borderColor}`,
           borderRadius: '16px',
           boxShadow: muiTheme.shadows[8],
@@ -240,8 +254,8 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
                   textTransform: 'none',
                   transition: 'color 0.15s ease, border-color 0.15s ease',
                   '&:hover': { bgcolor: 'transparent', color: textColor },
-                  '&.Mui-selected': { color: textColor, bgcolor: 'transparent', borderBottomColor: tabAccent, fontWeight: 700 },
-                  '&.Mui-selected:hover': { bgcolor: 'transparent' },
+                  '&.Mui-selected': { color: tabAccent, bgcolor: alpha(phaseAccent, 0.10), borderBottomColor: tabAccent, fontWeight: 700 },
+                  '&.Mui-selected:hover': { bgcolor: alpha(phaseAccent, 0.16) },
                 },
               }}
             >

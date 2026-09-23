@@ -17,13 +17,17 @@ for (const theme of ['light', 'dark']) test(`phase controls follow the ${theme} 
     await expect(panel).toBeVisible()
     const headerColor = await page.locator('header').evaluate(el => getComputedStyle(el).backgroundColor)
     await expect(panel).toHaveCSS('background-color', headerColor)
-    await expect(panel).toHaveCSS('background-image', 'none')
+    await expect(panel).toHaveCSS('background-image', /linear-gradient/)
     await page.screenshot({ path: info.outputPath('phase-night.png') })
   }
-  await page.getByRole('button', { name: '公聊', exact: true }).click()
-  await expect(page.getByText(/距提名开放/)).toHaveCount(0)
-  if (info.project.name === 'mobile-android') {
-    await expect(panel).toHaveCSS('background-image', 'none')
-    await page.screenshot({ path: info.outputPath('phase-public.png') })
+  const colors = new Set<string>()
+  for (const name of ['夜晚', '私聊', '公聊', '提名']) {
+    await page.getByRole('button', { name, exact: true }).click()
+    await expect(page.getByText(/距提名开放/)).toHaveCount(0)
+    if (info.project.name === 'mobile-android') {
+      colors.add(await panel.evaluate(el => getComputedStyle(el).backgroundImage))
+      await page.screenshot({ path: info.outputPath(`phase-${name}.png`) })
+    }
   }
+  if (info.project.name === 'mobile-android') expect(colors.size).toBe(4)
 })
