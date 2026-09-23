@@ -30,6 +30,7 @@ import {
   normalizeScriptJinxOverride,
   normalizeScriptMetaEntry,
 } from './core/script/format'
+import { editableScriptFromData } from './core/script/editable'
 
 export const REVISION_OVERRIDES_KEY = 'BOTC_REVISION_OVERRIDES'
 
@@ -1255,41 +1256,12 @@ export function parseScriptFromData(data: unknown, filename: string): import('./
     return slug
   }
 
-  if (Array.isArray(data)) {
-    const normalizedMeta = normalizeScriptMetaEntry(data as ScriptFileEntry[])
-    const { scriptCharacterItems, characters } = extractScriptCharacters(data as ScriptFileEntry[])
-    const nightPositions = extractScriptNightPositions(scriptCharacterItems)
-    return {
-      slug: dedupeSlug(fallbackSlug),
-      title: normalizedMeta?.name ?? toTitleCase(fallbackSlug),
-      titleZh: normalizedMeta?.name_zh ?? normalizedMeta?.name ?? toTitleCase(fallbackSlug),
-      author: normalizedMeta?.author ?? '',
-      meta: normalizedMeta ?? { id: '_meta', name: toTitleCase(fallbackSlug) },
-      customCharacters: scriptCharacterItems.filter(
-        (e) => typeof e.name === 'string' || typeof e.ability === 'string',
-      ),
-      edition: inferEditionFromSlug(fallbackSlug),
-      characters,
-      sourceFile,
-      ...(normalizedMeta?.version !== undefined ? { version: normalizedMeta.version } : {}),
-      ...(normalizedMeta?.tags?.length ? { tags: normalizedMeta.tags } : {}),
-      ...(nightPositions ? { scriptNightPositions: nightPositions } : {}),
-    }
-  }
-
-  const d = data as any
-  return {
+  return editableScriptFromData(data, {
     slug: dedupeSlug(fallbackSlug),
-    title: d.title ?? toTitleCase(fallbackSlug),
-    titleZh: d.title ?? toTitleCase(fallbackSlug),
-    author: '',
-    meta: { id: '_meta', name: d.title ?? toTitleCase(fallbackSlug) },
-    customCharacters: [],
-    edition: d.edition ?? 'custom',
-    characters: Array.isArray(d.characters) ? d.characters : [],
+    baseSlug: fallbackSlug,
     sourceFile,
-    ...(d.version !== undefined ? { version: d.version } : {}),
-  }
+    edition: inferEditionFromSlug(fallbackSlug),
+  })
 }
 
 export function sortCharacterIds(ids: string[]) {
