@@ -6,6 +6,7 @@ export const AUDIENCE_TIMEOUT_MS = 12_000
 
 export interface PresentationSource {
   day: DayState
+  days: DayState[]
   language: Language
   title: string
   timerSeconds: number
@@ -44,10 +45,16 @@ export function buildAudienceSnapshot(source: PresentationSource) {
       isExile: day.voteDraft.isExile,
       yesCount: source.yesCount, requiredVotes: source.requiredVotes,
     } : null,
-    voteHistory: day.voteHistory.map(vote => ({
-      id: vote.id, actor: vote.actor, target: vote.target,
-      voteCount: vote.voteCount, requiredVotes: vote.requiredVotes,
-      passed: vote.passed, failed: vote.failed, isExile: vote.isExile,
+    nominationHistory: [...source.days].sort((a, b) => a.day - b.day).map(historyDay => ({
+      id: historyDay.id,
+      day: historyDay.day,
+      votes: historyDay.voteHistory.map(vote => ({
+        id: vote.id, actor: vote.actor, target: vote.target,
+        actorName: historyDay.seats.find(seat => seat.seat === vote.actor)?.name ?? '',
+        targetName: historyDay.seats.find(seat => seat.seat === vote.target)?.name ?? '',
+        voteCount: vote.voteCount, requiredVotes: vote.requiredVotes,
+        passed: vote.passed, failed: vote.failed, isExile: vote.isExile,
+      })),
     })),
   }
 }

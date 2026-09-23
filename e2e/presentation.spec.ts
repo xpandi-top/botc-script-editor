@@ -96,3 +96,39 @@ test('closing the host clears the audience view', async ({ page }) => {
   await page.close()
   await expect(audience.getByTestId('audience-seat-1')).toHaveCount(0, { timeout: 16_000 })
 })
+
+test('audience keeps nominations for every day when the host advances and the audience refreshes', async ({ page }, testInfo) => {
+  await page.evaluate(() => {
+    const key = 'botc-storyteller-companion-v5'
+    const state = JSON.parse(localStorage.getItem(key)!)
+    const current = state.days[0]
+    const first = JSON.parse(JSON.stringify(current))
+    first.id = 'first-day'
+    first.day = 1
+    first.seats[0].name = 'Earlier Player'
+    first.voteHistory = [{ id: 'vote-1', actor: 1, target: 2, voters: [1, 2, 3], voteCount: 3, requiredVotes: 3, passed: true, overridden: false, note: 'PRIVATE_PAST_VOTE' }]
+    current.phase = 'nomination'
+    current.voteHistory = [{ id: 'vote-2', actor: 2, target: 6, voters: [1], voteCount: 1, requiredVotes: 3, passed: false, failed: true, isExile: true, overridden: false, note: 'PRIVATE_CURRENT_VOTE' }]
+    state.days = [first, current]
+    localStorage.setItem(key, JSON.stringify(state))
+  })
+  await page.reload()
+  const popupEvent = page.waitForEvent('popup')
+  await page.getByRole('button', { name: '打开观众窗口', exact: true }).click()
+  const audience = await popupEvent
+  const first = audience.getByTestId('audience-history-day-1')
+  const second = audience.getByTestId('audience-history-day-2')
+  await expect(first).toContainText('#1 Earlier Player → #2 Player 2')
+  await expect(first).toContainText('提名 · 3/3 · 通过')
+  await expect(second).toContainText('放逐 · 1/3 · 失败')
+  await expect(audience.locator('body')).not.toContainText(/PRIVATE_/)
+  await page.getByRole('button', { name: '下一天', exact: true }).click()
+  await expect(audience.getByTestId('audience-history-day-3')).toContainText('（无记录）')
+  await expect(first).toContainText('Earlier Player')
+  await expect(second).toContainText('1/3')
+  await audience.reload()
+  await expect(first).toContainText('Earlier Player')
+  await expect(second).toContainText('1/3')
+  await expect(audience.getByTestId('audience-history-day-3')).toContainText('（无记录）')
+  await audience.screenshot({ path: testInfo.outputPath('audience-daily-nominations.png'), fullPage: true })
+})

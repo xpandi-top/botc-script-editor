@@ -8,7 +8,7 @@ import { resolveTagDisplay } from './StorytellerSub/Arena/ArenaSeatComponents'
 import { getSeatPosition } from '../utils/seats'
 
 const nominationLabels: Record<NominationStep, UiKey> = {
-  waitingForNomination: 'waiting_for_nomination', nominationDecision: 'nomination',
+  waitingForNomination: 'waiting_for_nomination', nominationDecision: 'term_nomination',
   actorSpeech: 'actor_speaking', readyForTargetSpeech: 'target_speaking',
   targetSpeech: 'target_speaking', readyToVote: 'ready_to_vote',
   voting: 'voting', votingDone: 'voting_done',
@@ -21,6 +21,7 @@ export function AudienceView() {
   const [fullscreenError, setFullscreenError] = useState(false)
   const theme = useTheme()
   const compact = useMediaQuery('(max-width: 700px)')
+  const wide = useMediaQuery('(min-width: 1200px)')
   const params = new URLSearchParams(window.location.search)
   const session = params.get('audience') ?? ''
   const language = snapshot?.language ?? (params.get('lang') === 'en' ? 'en' : 'zh')
@@ -95,7 +96,7 @@ export function AudienceView() {
       }}>{t('presentation_fullscreen')}</Button>
     </Box>
     {fullscreenError && <Alert severity="info">{t('presentation_fullscreen_error')}</Alert>}
-    {!connected ? <Alert severity="info" sx={{ mt: 3 }}>{t(snapshot ? 'presentation_disconnected' : 'presentation_waiting')}</Alert> : snapshot && <>
+    {!connected ? <Alert severity="info" sx={{ mt: 3 }}>{t(snapshot ? 'presentation_disconnected' : 'presentation_waiting')}</Alert> : snapshot && <Box sx={{ display: 'grid', gridTemplateColumns: wide ? 'minmax(0, 1fr) 280px' : 'minmax(0, 1fr)', gap: 1 }}>
       <Paper elevation={0} sx={{
         position: 'relative', overflow: 'hidden', borderRadius: 4,
         minHeight: compact ? undefined : 'max(620px, calc(100dvh - 115px))',
@@ -113,7 +114,7 @@ export function AudienceView() {
             const highlighted = seat.seat === snapshot.currentSpeakerSeat || seat.seat === snapshot.currentVoterSeat
             const icon = seat.characterId ? getIconForCharacter(seat.characterId) : null
             return <Paper key={seat.seat} data-testid={`audience-seat-${seat.seat}`} elevation={highlighted ? 5 : 1} sx={{
-              ...(compact ? {} : { position: 'absolute', left: `${position.left}%`, top: `${50 + (position.top - 50) * 0.83}%`, transform: 'translate(-50%, -50%)', width: dense ? 'clamp(78px, 9vw, 126px)' : 'clamp(95px, 12vw, 164px)' }),
+              ...(compact ? {} : { position: 'absolute', left: `${position.left}%`, top: `${50 + (position.top - 50) * 0.83}%`, transform: 'translate(-50%, -50%)', width: dense ? '12%' : '16%', maxWidth: dense ? 126 : 164 }),
               textAlign: 'center', p: dense ? 0.75 : 1.25, borderRadius: 3,
               border: '2px solid', borderColor: highlighted ? 'primary.main' : seat.isExecuted ? 'error.main' : 'divider',
               opacity: seat.alive ? 1 : 0.7,
@@ -138,12 +139,21 @@ export function AudienceView() {
           })}
         </Box>
       </Paper>
-      {snapshot.voteHistory.length > 0 && <Paper elevation={0} sx={{ mt: 1, p: 2 }}>
-        <Typography variant="subtitle2">{t('nominations')}</Typography>
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1 }}>
-          {snapshot.voteHistory.map(vote => <Chip key={vote.id} variant="outlined" color={vote.passed && !vote.failed ? 'success' : 'default'} label={`${name(vote.actor)} → ${name(vote.target)} · ${vote.voteCount}/${vote.requiredVotes} · ${t(vote.isExile ? 'exile' : 'nomination')}`} />)}
-        </Box>
-      </Paper>}
-    </>}
+      <Paper component="section" aria-label={t('nominations')} elevation={0} sx={{ p: 2, minWidth: 0, maxHeight: wide ? 'max(620px, calc(100dvh - 115px))' : undefined, overflowY: wide ? 'auto' : undefined }}>
+        <Typography variant="h6">{t('nominations')}</Typography>
+        {(snapshot.nominationHistory ?? []).map(historyDay => <Box key={historyDay.id} data-testid={`audience-history-day-${historyDay.day}`} sx={{ mt: 2 }}>
+          <Typography variant="subtitle2">{tpl('day_n', historyDay.day)}</Typography>
+          {historyDay.votes.length === 0 ? <Typography variant="body2" color="text.secondary">{t('no_entries')}</Typography> :
+            <Box component="ul" sx={{ m: 0, mt: 0.5, pl: 2.5 }}>
+              {historyDay.votes.map(vote => <Box component="li" key={vote.id} sx={{ mb: 0.75 }}>
+                <Typography variant="body2" sx={{ overflowWrap: 'anywhere' }}>
+                  {`#${vote.actor} ${vote.actorName} → #${vote.target} ${vote.targetName} · ${t(vote.isExile ? 'exile' : 'term_nomination')} · ${vote.voteCount}/${vote.requiredVotes}`}
+                  {' · '}<Box component="span" sx={{ color: vote.passed && !vote.failed ? 'success.main' : 'text.secondary', fontWeight: 700 }}>{t(vote.passed && !vote.failed ? 'passed' : 'failed')}</Box>
+                </Typography>
+              </Box>)}
+            </Box>}
+        </Box>)}
+      </Paper>
+    </Box>}
   </Box>
 }

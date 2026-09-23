@@ -185,10 +185,10 @@ export function useStoryteller(props: StorytellerHelperProps) {
   }, [gameId])
 
   const audienceSnapshot = useMemo(() => buildAudienceSnapshot({
-    day: currentDay, language, title: activeScriptTitle ?? '',
+    day: currentDay, days, language, title: activeScriptTitle ?? '',
     timerSeconds: currentTimerSeconds, timerRunning: isTimerRunning && !skillOverlay,
     requiredVotes: effectiveRequiredVotes, yesCount: votingYesCount, currentVoterSeat,
-  }), [currentDay, language, activeScriptTitle, currentTimerSeconds, isTimerRunning, skillOverlay, effectiveRequiredVotes, votingYesCount, currentVoterSeat])
+  }), [currentDay, days, language, activeScriptTitle, currentTimerSeconds, isTimerRunning, skillOverlay, effectiveRequiredVotes, votingYesCount, currentVoterSeat])
   const presentation = useAudienceWindow(audienceSnapshot)
 
   // ── Aggregated log ──

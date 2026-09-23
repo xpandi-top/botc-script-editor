@@ -39,6 +39,22 @@ Electron allows only this specific local audience route to create another app
 window. Existing external-link behavior is unchanged. Each host uses a fresh
 session identifier, so separate host windows do not mix their broadcasts.
 
+### Daily nomination history
+
+The audience shows every day of the current game's nomination history in day
+order, including days with no records. Wide windows display it in a scrollable
+sidebar alongside the table; narrower windows place it below the table. Each
+entry includes the day's player names, nomination/exile type, vote count and
+threshold, and explicit result. Advancing the day and refreshing the audience
+retain earlier records. Vote notes and private historical player fields are
+excluded from the public payload.
+
+Follow-up validation: `npm run verify` passed with 787 unit tests. All 10
+presentation/privacy desktop and mobile E2E cases passed, including advancing
+to another day and refreshing with historical nominations. The two daily-history
+cases were also rerun after correcting the nomination label. Reviewed the wide
+audience layout with its daily-history sidebar.
+
 ## Verification
 
 - `npm run verify -- --native`: passed strict locale validation, 786 unit tests
