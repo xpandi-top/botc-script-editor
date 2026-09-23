@@ -5,11 +5,12 @@
  * behavior once the ST has pushed a character onto an already-claimed seat.
  */
 import { describe, it, expect, vi, afterEach } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import React from 'react'
 
 import { I18nProvider } from '../context/I18nContext'
 import { DealGuestPage } from '../components/DealGuestPage'
+import { subscribeSeatClaims, subscribeActiveDealVote } from '../lib/DealSession'
 
 let claimedSeatOnLoad: any = null
 
@@ -116,5 +117,36 @@ describe('DealGuestPage — reshowing an already-claimed seat character', () => 
 
     expect(await screen.findByText(/wait for the storyteller/i)).toBeInTheDocument()
     expect(screen.getByText('Alice')).toBeInTheDocument()
+  })
+})
+
+
+describe('live player privacy', () => {
+  it('does not automatically reveal a newly delivered role', async () => {
+    claimedSeatOnLoad = { seatNumber: 3, claimedByToken: 'guest-token-test', playerName: 'Alice', characterId: null }
+    render(withI18n(<DealGuestPage sessionId="sess1" language="en" />))
+    await screen.findByText(/wait for the storyteller/i)
+    const callback = vi.mocked(subscribeSeatClaims).mock.calls.at(-1)![1]
+    act(() => callback([{ ...claimedSeatOnLoad, characterId: 'washerwoman' }]))
+    expect(await screen.findByText(/character hidden/i)).toBeInTheDocument()
+    expect(screen.queryByText('Washerwoman')).not.toBeInTheDocument()
+  })
+
+  it('hides an open role on each new nomination but allows explicit reopening', async () => {
+    claimedSeatOnLoad = { seatNumber: 3, claimedByToken: 'guest-token-test', playerName: 'Alice', characterId: 'washerwoman' }
+    render(withI18n(<DealGuestPage sessionId="sess1" language="en" />))
+    fireEvent.click(await screen.findByRole('button', { name: /show my character/i }))
+    expect(await screen.findByText('Washerwoman')).toBeInTheDocument()
+    const callback = vi.mocked(subscribeActiveDealVote).mock.calls.at(-1)![1]
+    const now = Date.now()
+    const vote = { voteId: 'vote-1', actorSeat: 1, targetSeat: 2, requiredVotes: 3, votingOrder: [3, 4], currentIndex: 0, perPlayerSeconds: 10, noVoteSeats: [], status: 'active' as const, startedAt: { toMillis: () => now }, deadlineAt: { toMillis: () => now + 10000 } } as any
+    act(() => callback(vote))
+    expect(screen.queryByText('Washerwoman')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /show my character/i }))
+    expect(await screen.findByText('Washerwoman')).toBeInTheDocument()
+    act(() => callback({ ...vote, currentIndex: 1 }))
+    expect(screen.getByText('Washerwoman')).toBeInTheDocument()
+    act(() => callback({ ...vote, voteId: 'vote-2' }))
+    expect(screen.queryByText('Washerwoman')).not.toBeInTheDocument()
   })
 })

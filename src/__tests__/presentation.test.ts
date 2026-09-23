@@ -15,14 +15,14 @@ describe('audience data isolation', () => {
     second.voteHistory = [{ ...first.voteHistory[0], voteCount: 0, passed: false, failed: true, isExile: true }]
     const source = { day: third, days: [third, first, second], language: 'en' as const, title: '', timerSeconds: 0, timerRunning: false, requiredVotes: 1, yesCount: 0, currentVoterSeat: null }
     const snapshot = buildAudienceSnapshot(source)
-    expect(snapshot.nominationHistory.map(d => d.day)).toEqual([1, 2, 3])
-    expect(snapshot.nominationHistory[0].votes[0]).toMatchObject({ actorName: 'Original player', passed: true })
+    expect(snapshot.nominationHistory.map(d => d.day)).toEqual([3, 2, 1])
+    expect(snapshot.nominationHistory[2].votes[0]).toMatchObject({ actorName: 'Original player', passed: true })
     expect(snapshot.nominationHistory[1].votes[0]).toMatchObject({ actorName: 'Player 1', failed: true, isExile: true })
-    expect(snapshot.nominationHistory[2].votes).toEqual([])
+    expect(snapshot.nominationHistory[0].votes).toEqual([])
     expect(JSON.stringify(snapshot)).not.toContain('SECRET')
     expect(source.days.map(d => d.day)).toEqual([3, 1, 2])
     first.voteHistory = []
-    expect(buildAudienceSnapshot(source).nominationHistory[0].votes).toEqual([])
+    expect(buildAudienceSnapshot(source).nominationHistory[2].votes).toEqual([])
   })
 
   it('keeps public status and traveller identity, excluding all private data even at night', () => {

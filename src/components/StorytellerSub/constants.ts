@@ -99,7 +99,7 @@ export function createTimerDefaults(): TimerDefaults {
     nominationWaitSeconds: 10,
     nominationActorSeconds: 30,
     nominationTargetSeconds: 30,
-    nominationVoteSeconds: 5,
+    nominationVoteSeconds: 10,
     alarmSound: `${BASE_URL}audio/alarm/Vintage Clock Sound Effect.mp3`,
     defaultBgmSrc: `${BASE_URL}audio/below_the_granite_arch.mp3`,
     phaseSwitchSoundEnabled: false,

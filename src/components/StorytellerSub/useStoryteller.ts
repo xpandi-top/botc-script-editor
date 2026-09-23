@@ -1,3 +1,4 @@
+import { useDealRoster } from '../../hooks/useDealRoster'
 import { useAudienceWindow } from '../../hooks/useAudienceWindow'
 import { buildAudienceSnapshot } from './presentation'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -15,7 +16,7 @@ import { livingNonTravelers, eligibleVoters, nominationThreshold, exileThreshold
 import { computeYesCount, computeVotePassed, filterNoVoteSeats, remoteResponsesToVoteMap, timeoutDealVoteResponse, canCastRemoteDealVote } from '../../utils/votes'
 import { buildAggregatedEntries, filterAndSortLog } from '../../utils/logFilter'
 import {
-  GAME_DEAL_KEY,
+  DEFAULT_DEAL_VOTE_SECONDS,
   advanceDealVote,
   closeDealVote,
   createDealVoteSession,
@@ -176,13 +177,7 @@ export function useStoryteller(props: StorytellerHelperProps) {
   const hasTimer = currentDay.phase !== 'night'
   const NIGHT_BGM_SRC = INITIAL_AUDIO_TRACKS.find((t) => t.name === 'Measured Pulse of the Tower')?.src ?? INITIAL_AUDIO_TRACKS[0].src
 
-  const linkedDealSession = useMemo(() => {
-    try {
-      const raw = localStorage.getItem(GAME_DEAL_KEY(gameId))
-      if (raw) return JSON.parse(raw) as { sessionId: string; hostToken: string }
-    } catch {}
-    return null
-  }, [gameId])
+  const linkedDealSession = useDealRoster(gameId, setDays)
 
   const audienceSnapshot = useMemo(() => buildAudienceSnapshot({
     day: currentDay, days, language, title: activeScriptTitle ?? '',
@@ -431,7 +426,7 @@ export function useStoryteller(props: StorytellerHelperProps) {
         votingOrder,
         noVoteSeats,
         seatLabels,
-        perPlayerSeconds: currentDay.nominationTargetSeconds ?? timerDefaults.nominationTargetSeconds,
+        perPlayerSeconds: DEFAULT_DEAL_VOTE_SECONDS,
         gameId,
         dayId: currentDay.id,
       })

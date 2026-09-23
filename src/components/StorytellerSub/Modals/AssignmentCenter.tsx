@@ -32,7 +32,7 @@ import {
   getDealSession, closeDealSession,
   createSeatClaimSession, subscribeSeatClaims, unclaimSeatByHost, renameSeatByHost, assignCharacterToSeatByHost, addSeatToSession,
   subscribeMessages, sendMessage, markMessageRead,
-  HOST_TOKEN_KEY, ACTIVE_HOST_DEAL_KEY, GAME_DEAL_KEY,
+  HOST_TOKEN_KEY, ACTIVE_HOST_DEAL_KEY, GAME_DEAL_KEY, DEAL_SESSION_CHANGED_EVENT,
   type DealSession as DealSessionDoc, type DealSeatClaim, type DealMessage,
 } from '../../../lib/DealSession'
 import { buildShareUrl } from '../../../lib/shareUrl'
@@ -166,7 +166,7 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
   const persistSession = (session: DealSession) => {
     try { localStorage.setItem(HOST_TOKEN_KEY(session.sessionId), session.hostToken) } catch {}
     if (gameId) {
-      try { localStorage.setItem(GAME_DEAL_KEY(gameId), JSON.stringify(session)) } catch {}
+      try { localStorage.setItem(GAME_DEAL_KEY(gameId), JSON.stringify(session)); window.dispatchEvent(new Event(DEAL_SESSION_CHANGED_EVENT)) } catch {}
     }
     try { localStorage.setItem(ACTIVE_HOST_DEAL_KEY, JSON.stringify(session)) } catch {}
   }

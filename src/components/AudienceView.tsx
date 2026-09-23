@@ -143,11 +143,14 @@ export function AudienceView() {
         <Typography variant="h6">{t('nominations')}</Typography>
         {(snapshot.nominationHistory ?? []).map(historyDay => <Box key={historyDay.id} data-testid={`audience-history-day-${historyDay.day}`} sx={{ mt: 2 }}>
           <Typography variant="subtitle2">{tpl('day_n', historyDay.day)}</Typography>
+          <Typography variant="caption" sx={{ display: 'block' }}>{t('today_nominators')}: {(historyDay.nominators ?? []).map(seat => `#${seat}`).join('、') || '—'}</Typography>
+          <Typography variant="caption" sx={{ display: 'block' }}>{t('today_nominees')}: {(historyDay.nominees ?? []).map(seat => `#${seat}`).join('、') || '—'}</Typography>
           {historyDay.votes.length === 0 ? <Typography variant="body2" color="text.secondary">{t('no_entries')}</Typography> :
             <Box component="ul" sx={{ m: 0, mt: 0.5, pl: 2.5 }}>
               {historyDay.votes.map(vote => <Box component="li" key={vote.id} sx={{ mb: 0.75 }}>
                 <Typography variant="body2" sx={{ overflowWrap: 'anywhere' }}>
                   {`#${vote.actor} ${vote.actorName} → #${vote.target} ${vote.targetName} · ${t(vote.isExile ? 'exile' : 'term_nomination')} · ${vote.voteCount}/${vote.requiredVotes}`}
+                  {vote.voters?.length > 0 && ` (${vote.voters.map(seat => `#${seat}`).join(',')})`}
                   {' · '}<Box component="span" sx={{ color: vote.passed && !vote.failed ? 'success.main' : 'text.secondary', fontWeight: 700 }}>{t(vote.passed && !vote.failed ? 'passed' : 'failed')}</Box>
                 </Typography>
               </Box>)}

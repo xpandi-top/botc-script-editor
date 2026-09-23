@@ -1,3 +1,4 @@
+import { newestNominations } from '../../utils/nominationHistory'
 import type { Language } from '../../types'
 import type { DayState } from './types'
 
@@ -45,13 +46,16 @@ export function buildAudienceSnapshot(source: PresentationSource) {
       isExile: day.voteDraft.isExile,
       yesCount: source.yesCount, requiredVotes: source.requiredVotes,
     } : null,
-    nominationHistory: [...source.days].sort((a, b) => a.day - b.day).map(historyDay => ({
+    nominationHistory: [...source.days].sort((a, b) => b.day - a.day).map(historyDay => ({
       id: historyDay.id,
       day: historyDay.day,
-      votes: historyDay.voteHistory.map(vote => ({
+      nominators: [...new Set(historyDay.voteHistory.map(vote => vote.actor))],
+      nominees: [...new Set(historyDay.voteHistory.map(vote => vote.target))],
+      votes: newestNominations(historyDay.voteHistory).map(vote => ({
         id: vote.id, actor: vote.actor, target: vote.target,
         actorName: historyDay.seats.find(seat => seat.seat === vote.actor)?.name ?? '',
         targetName: historyDay.seats.find(seat => seat.seat === vote.target)?.name ?? '',
+        voters: [...vote.voters],
         voteCount: vote.voteCount, requiredVotes: vote.requiredVotes,
         passed: vote.passed, failed: vote.failed, isExile: vote.isExile,
       })),

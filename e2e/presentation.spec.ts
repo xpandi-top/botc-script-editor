@@ -106,7 +106,8 @@ test('audience keeps nominations for every day when the host advances and the au
     first.id = 'first-day'
     first.day = 1
     first.seats[0].name = 'Earlier Player'
-    first.voteHistory = [{ id: 'vote-1', actor: 1, target: 2, voters: [1, 2, 3], voteCount: 3, requiredVotes: 3, passed: true, overridden: false, note: 'PRIVATE_PAST_VOTE' }]
+    first.voteHistory = [{ id: '1000', actor: 1, target: 2, voters: [1, 2, 3], voteCount: 3, requiredVotes: 3, passed: true, overridden: false, note: 'PRIVATE_PAST_VOTE' }]
+    first.voteHistory.push({ ...first.voteHistory[0], id: '2000', actor: 4, voters: [3], voteCount: 1, passed: false })
     current.phase = 'nomination'
     current.voteHistory = [{ id: 'vote-2', actor: 2, target: 6, voters: [1], voteCount: 1, requiredVotes: 3, passed: false, failed: true, isExile: true, overridden: false, note: 'PRIVATE_CURRENT_VOTE' }]
     state.days = [first, current]
@@ -119,8 +120,12 @@ test('audience keeps nominations for every day when the host advances and the au
   const first = audience.getByTestId('audience-history-day-1')
   const second = audience.getByTestId('audience-history-day-2')
   await expect(first).toContainText('#1 Earlier Player → #2 Player 2')
-  await expect(first).toContainText('提名 · 3/3 · 通过')
-  await expect(second).toContainText('放逐 · 1/3 · 失败')
+  await expect(first).toContainText('提名 · 3/3 (#1,#2,#3) · 通过')
+  await expect(first).toContainText('今日提名者: #1、#4')
+  await expect(first.getByRole('listitem').first()).toContainText('#4 Player 4')
+  await expect(first).toContainText('今日被提名者: #2')
+  await expect(audience.locator('[data-testid^="audience-history-day-"]').first()).toHaveAttribute('data-testid', 'audience-history-day-2')
+  await expect(second).toContainText('放逐 · 1/3 (#1) · 失败')
   await expect(audience.locator('body')).not.toContainText(/PRIVATE_/)
   await page.getByRole('button', { name: '下一天', exact: true }).click()
   await expect(audience.getByTestId('audience-history-day-3')).toContainText('（无记录）')

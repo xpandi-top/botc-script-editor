@@ -41,11 +41,11 @@ session identifier, so separate host windows do not mix their broadcasts.
 
 ### Daily nomination history
 
-The audience shows every day of the current game's nomination history in day
-order, including days with no records. Wide windows display it in a scrollable
-sidebar alongside the table; narrower windows place it below the table. Each
+The audience shows every day of the current game's nomination history in reverse day
+order (newest first), including days with no records. Wide windows display it in a scrollable
+sidebar alongside the table; narrower windows place it below the table. Each day lists nominators and nominees; records are newest first. Each
 entry includes the day's player names, nomination/exile type, vote count and
-threshold, and explicit result. Advancing the day and refreshing the audience
+threshold, voting seats, and explicit result. Advancing the day and refreshing the audience
 retain earlier records. Vote notes and private historical player fields are
 excluded from the public payload.
 
@@ -67,3 +67,20 @@ audience layout with its daily-history sidebar.
   using an isolated temporary profile.
 - Reviewed screenshots of audience and presenter layouts.
 - Physical external monitors and an actual Zoom meeting were not exercised.
+
+
+### Claimed names and player privacy
+
+Claimed names now synchronize to game seats across all days, even with the
+assignment dialog closed. Creating a claim session takes effect without reloading
+and switching games disconnects the old roster. Guest character cards stay hidden
+on load and on live role delivery; each new remote nomination also hides an open
+card. Guests may explicitly reopen it. Remote votes use 10 seconds per player,
+independently of the nominee speech timer; new local timer defaults are 10 seconds.
+
+Validation: full verification passed (793 unit tests, locale validation, build,
+bundle budget), plus 10 desktop/mobile presentation and privacy cases. Focused
+regressions cover live roster subscription/session changes, ten-second remote
+vote requests, hidden live role delivery, hiding on new nominations, and descending
+daily/within-day history. Cloud callbacks are mocked in unit tests; no live
+Firestore game was modified for testing.
