@@ -5,6 +5,11 @@
   "compatibility_date": "2026-06-01",
   "compatibility_flags": ["nodejs_compat"],
   "observability": { "enabled": true },
+  // P2 cloud library. Create once with `npx wrangler d1 create botc-library`,
+  // paste the printed database_id below, uncomment, then
+  // `npx wrangler d1 migrations apply botc-library --remote`.
+  // Without it /v1/me answers 503 and MCP stays read-only.
+  // "d1_databases": [{ "binding": "DB", "database_name": "botc-library", "database_id": "<paste id>", "migrations_dir": "migrations" }],
   "vars": {
     // Web app the share links open. Must match the deployed Pages URL.
     "APP_URL": "https://xpandi-top.github.io/botc-script-editor/",
@@ -15,6 +20,8 @@
     // Optional OAuth token proxy for the web app (docs/ISSUES.md I-73). Also run
     // `npx wrangler secret put GOOGLE_CLIENT_SECRET`.
     "GOOGLE_WEB_CLIENT_ID": "",
-    "OAUTH_ALLOWED_ORIGINS": "https://xpandi-top.github.io,http://localhost:5173"
+    "OAUTH_ALLOWED_ORIGINS": "https://xpandi-top.github.io,http://localhost:5173",
+    // Other Google OAuth client ids (Android, Electron) allowed to sign in to /v1/me.
+    "GOOGLE_CLIENT_IDS": ""
   }
 }

@@ -51,6 +51,26 @@ Needs a free Cloudflare account; no credit card.
    `VITE_FIREBASE_API_KEY`), then deploy again. Links then use the existing
    Firestore `shortlinks` collection (24 h expiry).
 
+## Cloud library (P2, optional)
+
+Signed-in users get `/v1/me` (scripts, custom characters, game records with
+sync, stats, personal access tokens) and extra MCP tools (`list_my_scripts`,
+`get_my_script`, `save_script`, `delete_my_script`, `list_my_characters`,
+`save_character`, `list_records`, `get_stats`).
+
+- Identity: the Google account the app already uses for Cloud Sync. Send the
+  Google access token, or a personal access token (`botc_pat_…`) created with
+  `POST /v1/me/tokens` while signed in with Google. Only token hashes are stored.
+- Storage: D1 (free: 5 GB, 5M row reads/day). Setup (manual, once):
+  1. `npx wrangler d1 create botc-library` → paste the id into the commented
+     `d1_databases` entry in `wrangler.jsonc` and uncomment it.
+  2. `npx wrangler d1 migrations apply botc-library --remote`
+  3. Set `GOOGLE_WEB_CLIENT_ID` (and `GOOGLE_CLIENT_IDS` for Android/Electron) in `wrangler.jsonc`; `npm run deploy`.
+- MCP clients pass the token as a header, e.g.
+  `claude mcp add --transport http botc https://…/mcp --header "Authorization: Bearer botc_pat_…"`.
+
+Without the D1 binding everything above answers 503 and MCP stays read-only.
+
 ## Google OAuth token proxy (security fix I-73)
 
 `POST /v1/auth/google/token` lets the web app sign in to Google (Cloud Sync)

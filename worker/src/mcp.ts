@@ -12,6 +12,9 @@ import type { Team } from '../../src/core/types/catalog'
 import { getCatalog } from './catalog'
 import type { Env } from './env'
 import { analyze, buildDraftScript, checkScript, InputError, resolveScriptData, toEditableScript, type DraftInput } from './scripts'
+import type { Principal } from './library/auth'
+import { registerLibraryTools } from './library/mcpTools'
+import type { LibraryStore } from './library/store'
 import { searchRules } from './rules'
 import { createScriptShareLink, ShareError } from './share'
 import { characterView, jinxView, nightOrderView, tokenManifest, type Lang } from './views'
@@ -23,6 +26,8 @@ const INSTRUCTIONS = `Blood on the Clocktower (BOTC) data and tools from BOTC Co
 - To design a script: pick characters, call validate_script and analyze_script, fix issues, then call create_script_draft. It returns a link that imports the script into the BOTC Companion web app.
 - A standard script has 13 Townsfolk, 4 Outsiders, 4 Minions and 4 Demons. Check jinxes with get_jinxes.
 - Text is available in English (en) and Chinese (zh).`
+
+const LIBRARY_INSTRUCTIONS = `- You are signed in to the user's cloud library: save_script / save_character store work there (it shows up in the app after sync); list_records and get_stats read their saved games.`
 
 const lang = z.enum(['en', 'zh']).optional().describe('Return text in one language (en or zh). Omit for both.')
 const teamSchema = z.enum(SCRIPT_TEAMS as unknown as [Team, ...Team[]])
@@ -40,7 +45,7 @@ function toolError(message: string) {
 }
 
 /** Run a tool body, turning input problems into MCP tool errors the agent can act on. */
-async function guarded(run: () => unknown | Promise<unknown>) {
+export async function guarded(run: () => unknown | Promise<unknown>) {
   try {
     return ok(await run())
   } catch (e) {
@@ -55,9 +60,13 @@ const summary = (id: string, l?: Lang) => {
   return l ? { id, team: c.team, edition: c.edition, name: c.name[l], ability: c.ability[l] } : { id, team: c.team, edition: c.edition, name: c.name, ability: c.ability }
 }
 
-export function buildMcpServer(env: Env): McpServer {
-  const server = new McpServer(SERVER_INFO, { instructions: INSTRUCTIONS, jsonSchemaValidator: new CfWorkerJsonSchemaValidator() })
+export type McpLibraryContext = { store: LibraryStore; principal: Principal; now: () => number }
+
+export function buildMcpServer(env: Env, library?: McpLibraryContext): McpServer {
+  const instructions = library ? `${INSTRUCTIONS}\n${LIBRARY_INSTRUCTIONS}` : INSTRUCTIONS
+  const server = new McpServer(SERVER_INFO, { instructions, jsonSchemaValidator: new CfWorkerJsonSchemaValidator() })
   const catalog = getCatalog()
+  if (library) registerLibraryTools(server, { env, ...library, guarded })
 
   // ── Catalog ────────────────────────────────────────────────────────────────
 

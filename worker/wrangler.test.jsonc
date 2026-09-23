@@ -1,0 +1,7 @@
+// Only used by test/d1Store.test.ts (wrangler getPlatformProxy, local SQLite).
+{
+  "name": "botc-api-test",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-06-01",
+  "d1_databases": [{ "binding": "DB", "database_name": "botc-library-test", "database_id": "00000000-0000-0000-0000-000000000000", "migrations_dir": "migrations" }]
+}

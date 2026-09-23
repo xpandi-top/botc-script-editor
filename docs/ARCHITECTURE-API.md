@@ -279,6 +279,21 @@ AI 设置保持本地 BYOK，永不上传。
 
 路径约定：原计划的 Google 风格 `:validate` 与 Hono 路由参数语法冲突，实际使用 `/v1/scripts/validate` 这类子路径。
 
+## 7.2 P2 进度（云端库）
+
+**决策调整：** 身份改为复用 app 已有的 Google 登录（Cloud Sync 的 OAuth access token，Worker 用 Google tokeninfo 校验 `aud`/`azp` 是我们的 client id），不再新增 Firebase Auth——少一套登录、用户无感。Agent 使用个人访问令牌（PAT，`botc_pat_…`，D1 只存 SHA-256）。MCP 暂以 `Authorization` 头传 PAT；完整 MCP OAuth 2.1 留到有需要时再做。
+
+| 状态 | 项目 | 备注 |
+|---|---|---|
+| ✅ | D1 schema（`worker/migrations/0001_library.sql`）：users / api_tokens / documents（含墓碑） | |
+| ✅ | 存储层 `LibraryStore`：D1 + 内存实现，同一套契约测试（D1 用 wrangler 本地 SQLite 真测） | 后写覆盖、`baseUpdatedAt` 乐观并发、删除墓碑、`since` 增量 |
+| ✅ | `/v1/me`：身份、PAT 管理、scripts / characters / records 增删改查 + 增量同步、`/v1/me/stats`（复用 `src/core/stats`） | 文档形状校验；512 KB 上限 |
+| ✅ | 带凭证的 MCP：`list_my_scripts`、`get_my_script`、`save_script`、`delete_my_script`、`list_my_characters`、`save_character`、`list_records`、`get_stats` | 无凭证仍为只读工具 |
+| ✅ | OAuth token 交换代理（I-73 修复代码） | 见 ISSUES I-73 手动步骤 |
+| ⬜ | **D1 创建与迁移（需手动）** | `worker/README.md` → Cloud library |
+| ⬜ | Web：设置页 “API 与 MCP” —— 生成 / 撤销 PAT（仅配置 `VITE_API_URL` 时显示） | |
+| ⬜ | Web：云端库同步（剧本 / 自定义角色 / 记录，基于 `since` + `updatedAt`） | 需谨慎设计合并，默认关闭 |
+
 ---
 
 ## 8. 免费额度核算
