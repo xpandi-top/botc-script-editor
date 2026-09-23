@@ -20,12 +20,16 @@ import type {
   NightOrderData,
   RevisionOverrides,
   ScriptJinxOverride,
-  ScriptCharacterItem,
   ScriptFileEntry,
   ScriptFileSource,
-  ScriptMetaEntry,
   Team,
 } from './types'
+import {
+  extractScriptCharacters,
+  extractScriptNightPositions,
+  normalizeScriptJinxOverride,
+  normalizeScriptMetaEntry,
+} from './core/script/format'
 
 export const REVISION_OVERRIDES_KEY = 'BOTC_REVISION_OVERRIDES'
 
@@ -687,55 +691,6 @@ export function importJinxesJson(json: string) {
   refreshJinxOverrides()
 }
 
-function normalizeJinxPairId(id: string) {
-  const parts = id
-    .split('::')
-    .map((part) => part.trim())
-    .filter(Boolean)
-
-  if (parts.length !== 2) {
-    return null
-  }
-
-  return parts.sort((left, right) => left.localeCompare(right)).join('::')
-}
-
-function normalizeScriptJinxOverride(entry: ScriptJinxOverride) {
-  const normalizedId = typeof entry.id === 'string' ? normalizeJinxPairId(entry.id) : null
-  const normalizedCharacters =
-    Array.isArray(entry.characters) && entry.characters.length === 2
-      ? [...entry.characters].map((characterId) => characterId.trim()).filter(Boolean)
-      : []
-  const pairId =
-    normalizedId ??
-    (normalizedCharacters.length === 2
-      ? normalizedJinxPairIdFromCharacters(normalizedCharacters[0], normalizedCharacters[1])
-      : null)
-
-  if (!pairId) {
-    return null
-  }
-
-  const [left, right] = pairId.split('::')
-
-  const status: 'active' | 'inactive' = entry.status === 'inactive' ? 'inactive' : 'active'
-
-  return {
-    id: pairId,
-    characters: [left, right] as [string, string],
-    status,
-    reason: entry.reason?.trim() ?? '',
-    reason_zh: entry.reason_zh?.trim() ?? '',
-  }
-}
-
-function normalizedJinxPairIdFromCharacters(left: string, right: string) {
-  return [left.trim(), right.trim()]
-    .filter(Boolean)
-    .sort((a, b) => a.localeCompare(b))
-    .join('::')
-}
-
 export function getCurrentRevision(id: string) {
   return _revisionOverrides[id]?.current_revision ?? characterById[id]?.current_revision
 }
@@ -1211,52 +1166,6 @@ function inferEditionFromSlug(slug: string) {
   if (slug === 'huadeng-shan-yu') return 'huadeng'
   if (slug in editionLabels.en) return slug
   return 'custom'
-}
-
-const isScriptMetaEntry = (entry: ScriptFileEntry): entry is ScriptMetaEntry =>
-  typeof entry === 'object' && entry !== null && (entry as ScriptMetaEntry).id === '_meta'
-
-const isScriptCharacterItem = (entry: ScriptFileEntry): entry is ScriptCharacterItem =>
-  typeof entry === 'object' && entry !== null && (entry as ScriptMetaEntry).id !== '_meta'
-
-/** Extract per-character night position overrides from script JSON items. */
-function extractScriptNightPositions(
-  items: ScriptCharacterItem[],
-): Record<string, { firstNight?: number; otherNight?: number }> | undefined {
-  const result: Record<string, { firstNight?: number; otherNight?: number }> = {}
-  for (const item of items) {
-    const fn = typeof item.firstNight === 'number' && item.firstNight > 0 ? item.firstNight : undefined
-    const on = typeof item.otherNight === 'number' && item.otherNight > 0 ? item.otherNight : undefined
-    if (fn !== undefined || on !== undefined) {
-      result[item.id] = { ...(fn !== undefined ? { firstNight: fn } : {}), ...(on !== undefined ? { otherNight: on } : {}) }
-    }
-  }
-  return Object.keys(result).length > 0 ? result : undefined
-}
-
-// ── Shared script-parsing helpers ────────────────────────────────────────────
-
-/** Normalize the _meta entry from an array-format script (handles jinx overrides). */
-function normalizeScriptMetaEntry(data: ScriptFileEntry[]) {
-  const meta = data.find(isScriptMetaEntry)
-  if (!meta) return undefined
-  return {
-    ...meta,
-    jinxes: Array.isArray(meta.jinxes)
-      ? meta.jinxes
-          .map(normalizeScriptJinxOverride)
-          .filter((e): e is NonNullable<ReturnType<typeof normalizeScriptJinxOverride>> => e !== null)
-      : undefined,
-  }
-}
-
-/** Extract character id list + raw ScriptCharacterItem list from array-format data. */
-function extractScriptCharacters(data: ScriptFileEntry[]) {
-  const scriptCharacterItems = data.filter(isScriptCharacterItem)
-  const characters = data
-    .filter((e): e is string | ScriptCharacterItem => typeof e === 'string' || isScriptCharacterItem(e))
-    .map((e) => (typeof e === 'string' ? e : e.id))
-  return { scriptCharacterItems, characters }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
