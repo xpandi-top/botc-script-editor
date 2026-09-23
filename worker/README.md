@@ -43,7 +43,7 @@ Needs a free Cloudflare account; no credit card.
 
 1. `cd worker && npx wrangler login` (opens the browser).
 2. Check `APP_URL` in `wrangler.jsonc` is the deployed web app
-   (`https://xpandi-top.github.io/botc-script-editor/`).
+   (`https://apps.xpandi.top/botc-script-editor/`).
 3. `npm run deploy` → prints `https://botc-api.<your-subdomain>.workers.dev`.
 4. Optional, for 7-character short links instead of long inline links: set
    `FIREBASE_PROJECT_ID` and `FIREBASE_API_KEY` in `wrangler.jsonc` to the same

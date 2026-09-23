@@ -2,7 +2,7 @@
 
 A storyteller tool for **Blood on the Clocktower** — browse scripts, run games, track votes and skills, and print character tokens.
 
-**[▶ Open the app](https://xpandi-top.github.io/botc-script-editor/)**
+**[▶ Open the app](https://apps.xpandi.top/botc-script-editor/)**
 
 ---
 
