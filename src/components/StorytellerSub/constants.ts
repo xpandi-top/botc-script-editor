@@ -10,9 +10,11 @@ export {
   createDefaultVoteDraft,
   createSeats,
   getNextRoundRobinSeat,
+  shuffleArray,
   unique,
   uniqueStrings,
 } from '../../core/engine/factories'
+export { CHARACTER_DISTRIBUTION } from '../../core/engine/setup'
 
 // ── Constants & Factories ──────────────────────────────────────
 
@@ -51,20 +53,6 @@ export const FAKE_NAMES_ZH = [
   '冯十二',
 ]
 
-export const CHARACTER_DISTRIBUTION: Record<number, { townsfolk: number; outsider: number; minion: number; demon: number }> = {
-  5: { townsfolk: 3, outsider: 0, minion: 1, demon: 1 },
-  6: { townsfolk: 3, outsider: 1, minion: 1, demon: 1 },
-  7: { townsfolk: 5, outsider: 0, minion: 1, demon: 1 },
-  8: { townsfolk: 5, outsider: 1, minion: 1, demon: 1 },
-  9: { townsfolk: 5, outsider: 2, minion: 1, demon: 1 },
-  10: { townsfolk: 7, outsider: 0, minion: 2, demon: 1 },
-  11: { townsfolk: 7, outsider: 1, minion: 2, demon: 1 },
-  12: { townsfolk: 7, outsider: 2, minion: 2, demon: 1 },
-  13: { townsfolk: 9, outsider: 0, minion: 3, demon: 1 },
-  14: { townsfolk: 9, outsider: 1, minion: 3, demon: 1 },
-  15: { townsfolk: 9, outsider: 2, minion: 3, demon: 1 },
-}
-
 export const INITIAL_AUDIO_TRACKS: AudioTrack[] = [
   { name: 'Below the Granite Arch', src: `${BASE_URL}audio/below_the_granite_arch.mp3` },
   { name: 'Measured Pulse of the Tower', src: `${BASE_URL}audio/measured_pulse_of_the_tower.mp3` },
@@ -97,13 +85,4 @@ export function createTimerDefaults(): TimerDefaults {
 
 export function makeEventId() {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
-}
-
-export function shuffleArray<T>(arr: T[]): T[] {
-  const result = [...arr]
-  for (let i = result.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[result[i], result[j]] = [result[j], result[i]]
-  }
-  return result
 }

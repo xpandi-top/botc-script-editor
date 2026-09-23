@@ -84,3 +84,13 @@ export function buildVotingOrder(seats: StorytellerSeat[], targetSeat: number): 
   if (idx === -1) return eligible
   return [...eligible.slice(idx + 1), ...eligible.slice(0, idx + 1)]
 }
+
+/** Fisher–Yates shuffle into a new array. `rng` defaults to Math.random; pass a seeded source for replays. */
+export function shuffleArray<T>(arr: T[], rng: () => number = Math.random): T[] {
+  const result = [...arr]
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1))
+    ;[result[i], result[j]] = [result[j], result[i]]
+  }
+  return result
+}

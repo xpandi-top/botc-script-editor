@@ -1,10 +1,29 @@
-import { seatAlignment, defaultAlignment } from '../utils/seatAlignment'
-import { getCharacterById, getDisplayName } from '../catalog'
+import { catalogTeamOf } from '../utils/seatAlignment'
+import { getDisplayName } from '../catalog'
 import type { Language } from '../types'
-import { createDayState, createSeats, shuffleArray, CHARACTER_DISTRIBUTION, DEFAULT_PLAYER_COUNT, getNextRoundRobinSeat } from '../components/StorytellerSub/constants'
-import type { DayState, EndGameResult, GameRecord, NewGameConfig, Phase, NominationStep, PickerMode, StorytellerSeat, TimerDefaults } from '../components/StorytellerSub/types'
-import type { Team } from '../types'
+import { createDayState, createSeats, DEFAULT_PLAYER_COUNT } from '../components/StorytellerSub/constants'
+import type { DayState, EndGameResult, GameRecord, NewGameConfig, Phase, PickerMode, TimerDefaults } from '../components/StorytellerSub/types'
 import { buildGameExport } from './useGameExport'
+import {
+  addPlayerSeat as addPlayerSeatToDay,
+  addTravelerSeat as addTravelerSeatToDay,
+  applyPhase,
+  createNextDay,
+  endGameResultFromRecord,
+  fillEndGameTeams,
+  initialEndGameResult,
+  nextPhase,
+  nextSpeakerPatch,
+  previousPhase,
+  removeDay,
+  removeLastPlayerSeat as removeLastPlayerSeatFromDay,
+  removeLastTraveler as removeLastTravelerFromDay,
+  restoreDaysFromRecord,
+} from '../core/engine/lifecycle'
+import { applySetupToSeats, buildSeatsFromConfig, drawRandomAssignments, newGameConfigFromDay } from '../core/engine/setup'
+
+// Phase order lives in src/core/engine/lifecycle.ts; re-exported for existing imports.
+export { PHASE_ORDER } from '../core/engine/lifecycle'
 
 interface LifecycleDeps {
   days: DayState[]
@@ -62,8 +81,6 @@ function _genGameId(): string {
   return Array.from({ length: 16 }, () => _CHARS[Math.floor(Math.random() * _CHARS.length)]).join('')
 }
 
-export const PHASE_ORDER: Phase[] = ['night', 'private', 'public', 'nomination']
-
 export function buildGameLifecycle(deps: LifecycleDeps) {
   const { days, currentDay, selectedDayIndex, timerDefaults, activeScriptSlug, activeScriptTitle, activeScriptVersion, endGameResult, scriptOptions, onSelectScript, setDays, setDaysWithUndo, setSelectedDayId, setPickerMode, setIsTimerRunning, setSeatTagDrafts, setSkillOverlay, setNewGamePanel, setShowNewGamePanel, setShowAssignmentCenter, setEndGameResult, setGameRecords, setAudioPlaying, language, appendEvent, customTagPool = [], playerNamePool = [], setCurrentRecordName, setTimerDefaults, setCustomTagPool, setPlayerNamePool, setShowEndGameModal, setNightShowCharacter, setNightShowWakeOrder, stFabledIds = [], stCustomRules = '', setStFabledIds, setStCustomRules, stName, setStName, gameStartedAt, setGameStartedAt, gameId, setGameId, setShowSaveBeforeNewGame, setPendingNewGameAfterSave } = deps
 
@@ -74,10 +91,7 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     setNightShowWakeOrder?.(false)
     if (selectedDayIndex < days.length - 1) { setSelectedDayId(days[selectedDayIndex + 1].id); setIsTimerRunning(false); return }
     if (currentDay.gameEnded) return
-    const next = createDayState(days.length + 1, currentDay.seats, timerDefaults)
-    // Carry demon bluffs forward — they're set once during setup and remain
-    // valid for the entire game, not just day 1.
-    next.demonBluffs = currentDay.demonBluffs ?? []
+    const next = createNextDay(days.length, currentDay, timerDefaults)
     setDaysWithUndo((cur) => [...cur, next])
     setSelectedDayId(next.id)
     setPickerMode('none')
@@ -93,25 +107,23 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
 
   /** Step to the next phase within the day; from the last phase (nomination), advance to the next day. */
   function goToNextPhase() {
-    const idx = PHASE_ORDER.indexOf(currentDay.phase)
-    if (idx < PHASE_ORDER.length - 1) { setPhase(PHASE_ORDER[idx + 1]); return }
+    const phase = nextPhase(currentDay.phase)
+    if (phase) { setPhase(phase); return }
     goToNextDay()
   }
 
   /** Step to the previous phase within the day; from the first phase (night), go back to the previous day. */
   function goToPreviousPhase() {
-    const idx = PHASE_ORDER.indexOf(currentDay.phase)
-    if (idx > 0) { setPhase(PHASE_ORDER[idx - 1]); return }
+    const phase = previousPhase(currentDay.phase)
+    if (phase) { setPhase(phase); return }
     goToPreviousDay()
   }
 
   function deleteDay(dayId: string) {
-    if (days.length <= 1) return // never delete last day
+    // Never deletes the last day; remaining days are renumbered from 1.
+    const renumbered = removeDay(days, dayId)
+    if (!renumbered) return
     const idx = days.findIndex((d) => d.id === dayId)
-    if (idx === -1) return
-    const remaining = days.filter((d) => d.id !== dayId)
-    // Re-number days sequentially after deletion
-    const renumbered = remaining.map((d, i) => ({ ...d, day: i + 1 }))
     setDaysWithUndo(() => renumbered)
     // If deleting current day, move to adjacent day
     if (days[idx].id === currentDay.id) {
@@ -122,21 +134,13 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
   }
 
   function moveToNextSpeaker() {
-    const cur = currentDay.currentSpeakerSeat
-    const spoken = cur ? [...new Set([...currentDay.roundRobinSpokenSeats, cur])] : currentDay.roundRobinSpokenSeats
-    const next = getNextRoundRobinSeat(currentDay.seats, cur, spoken)
-    setDays((d) => d.map((day) => day.id === currentDay.id ? { ...day, roundRobinSpokenSeats: spoken, currentSpeakerSeat: next, publicRoundRobinSeconds: next ? timerDefaults.publicRoundRobinSeconds : 0 } : day))
-    if (!next) setIsTimerRunning(false)
+    const patch = nextSpeakerPatch(currentDay, timerDefaults)
+    setDays((d) => d.map((day) => day.id === currentDay.id ? { ...day, ...patch } : day))
+    if (!patch.currentSpeakerSeat) setIsTimerRunning(false)
   }
 
   function setPhase(phase: Phase) {
-    setDays((d) => d.map((day) => {
-      if (day.id !== currentDay.id) return day
-      let next = { ...day, phase }
-      if (phase === 'night') next = { ...next, nightVisitedSeats: [] }
-      if (phase === 'nomination') next = { ...next, nominationStep: 'waitingForNomination' as NominationStep, nominationWaitSeconds: timerDefaults.nominationWaitSeconds, voteDraft: { actor: null, target: null, voters: [], noVoters: [], note: '', manualPassed: null, nominationResult: 'succeed' as const, isExile: false, voteCountOverride: null }, votingState: null }
-      return next
-    }))
+    setDays((d) => d.map((day) => (day.id === currentDay.id ? applyPhase(day, phase, timerDefaults) : day)))
     if (phase !== 'night') {
       setNightShowCharacter?.(false)
       setNightShowWakeOrder?.(false)
@@ -148,64 +152,20 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
 
   function startNight() { setAudioPlaying(true) }
 
-  function addPlayerSeat() {
-    setDays((d) => d.map((day) => {
-      if (day.id !== currentDay.id) return day
-      const regular = day.seats.filter((s) => !s.isTraveler)
-      const travelers = day.seats.filter((s) => s.isTraveler)
-      const nextNum = regular.length + 1
-      const newSeat: StorytellerSeat = { seat: nextNum, name: `Player ${nextNum}`, alive: true, isTraveler: false, isExecuted: false, hasNoVote: false, customTags: [], stTags: [], characterId: null, userCharacterId: null, teamTag: null, note: '' }
-      const reSeated = [...regular, newSeat].map((s, i) => ({ ...s, seat: i + 1 }))
-      return { ...day, seats: [...reSeated, ...travelers.map((s, i) => ({ ...s, seat: reSeated.length + i + 1 }))] }
-    }))
+  function updateCurrentDay(update: (day: DayState) => DayState) {
+    setDays((d) => d.map((day) => (day.id === currentDay.id ? update(day) : day)))
   }
 
-  function removeLastPlayerSeat() {
-    setDays((d) => d.map((day) => {
-      if (day.id !== currentDay.id) return day
-      const regular = day.seats.filter((s) => !s.isTraveler)
-      if (regular.length <= 5) return day
-      const travelers = day.seats.filter((s) => s.isTraveler)
-      const trimmed = regular.slice(0, regular.length - 1)
-      return { ...day, seats: [...trimmed, ...travelers.map((s, i) => ({ ...s, seat: trimmed.length + i + 1 }))] }
-    }))
-  }
-
-  function addTravelerSeat() {
-    setDays((d) => d.map((day) => {
-      if (day.id !== currentDay.id) return day
-      const nextSeatNum = day.seats.length + 1
-      const newSeat: StorytellerSeat = { seat: nextSeatNum, name: `Traveler ${nextSeatNum}`, alive: true, isTraveler: true, isExecuted: false, hasNoVote: false, customTags: [], stTags: [], characterId: null, userCharacterId: null, teamTag: null, note: '' }
-      return { ...day, seats: [...day.seats, newSeat] }
-    }))
-  }
-
-  function removeLastTraveler() {
-    setDays((d) => d.map((day) => {
-      if (day.id !== currentDay.id) return day
-      const travelers = day.seats.filter((s) => s.isTraveler)
-      if (travelers.length === 0) return day
-      const regular = day.seats.filter((s) => !s.isTraveler)
-      const trimmed = travelers.slice(0, travelers.length - 1)
-      return { ...day, seats: [...regular, ...trimmed.map((s, i) => ({ ...s, seat: regular.length + i + 1 }))] }
-    }))
-  }
+  function addPlayerSeat() { updateCurrentDay(addPlayerSeatToDay) }
+  function removeLastPlayerSeat() { updateCurrentDay((day) => removeLastPlayerSeatFromDay(day)) }
+  function addTravelerSeat() { updateCurrentDay(addTravelerSeatToDay) }
+  function removeLastTraveler() { updateCurrentDay(removeLastTravelerFromDay) }
 
   function _doOpenNewGamePanel() {
     const slug = activeScriptSlug ?? scriptOptions[0]?.slug ?? ''
     // Pre-fill seat names from current game so recurring groups don't
     // have to re-enter names every session. Only non-default names carry over.
-    const inheritedNames: Record<number, string> = {}
-    if (currentDay?.seats) {
-      for (const s of currentDay.seats) {
-        if (s.name && !/^Player \d+$/.test(s.name) && !/^Traveler \d+$/.test(s.name)) {
-          inheritedNames[s.seat] = s.name
-        }
-      }
-    }
-    const currentPlayerCount = currentDay?.seats ? currentDay.seats.filter((s) => !s.isTraveler).length : 9
-    const currentTravelerCount = currentDay?.seats ? currentDay.seats.filter((s) => s.isTraveler).length : 0
-    const freshConfig: NewGameConfig = { playerCount: currentPlayerCount || 9, travelerCount: currentTravelerCount, scriptSlug: slug, seatNames: inheritedNames, assignments: {}, userAssignments: {}, travelerAssignments: {}, seatNotes: {}, specialNote: '', demonBluffs: [], charPool: [], fabledIds: [...(stFabledIds ?? [])], gameId: _genGameId() }
+    const freshConfig = newGameConfigFromDay({ currentDay, scriptSlug: slug, fabledIds: stFabledIds ?? [], gameId: _genGameId() })
     // Preserve existing draft so close → reopen restores in-progress config
     setNewGamePanel((prev) => prev ?? freshConfig)
     setShowNewGamePanel?.(true)
@@ -241,46 +201,14 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
   }
 
   function randomAssignCharacters(config: NewGameConfig): Record<number, string> {
-    const dist = CHARACTER_DISTRIBUTION[config.playerCount]
-    if (!dist) return {}
     const script = scriptOptions.find((s) => s.slug === config.scriptSlug)
     if (!script) return {}
-    const byTeam: Record<string, string[]> = { townsfolk: [], outsider: [], minion: [], demon: [] }
-    const pool: string[] = (config as any).charPool ?? []
-    for (const cid of script.characters) { const char = getCharacterById(cid); if (char && byTeam[char.team]) { if (pool.length === 0 || pool.includes(cid)) byTeam[char.team].push(cid) } }
-    const teamPool: Team[] = []
-    for (const { team, count } of [{ team: 'townsfolk' as Team, count: dist.townsfolk }, { team: 'outsider' as Team, count: dist.outsider }, { team: 'minion' as Team, count: dist.minion }, { team: 'demon' as Team, count: dist.demon }]) { for (let i = 0; i < count; i++) teamPool.push(team) }
-    const shuffledTeams = shuffleArray(teamPool)
-    const usedChars = new Set<string>()
-    const assignments: Record<number, string> = {}
-    for (let i = 0; i < config.playerCount; i++) {
-      const pool = byTeam[shuffledTeams[i]] || []
-      const eligible = pool.filter((c) => !usedChars.has(c))
-      const picked = (eligible.length > 0 ? eligible : pool)[Math.floor(Math.random() * (eligible.length > 0 ? eligible : pool).length)]
-      if (picked) { assignments[i + 1] = picked; usedChars.add(picked) }
-    }
-    return assignments
+    return drawRandomAssignments({ playerCount: config.playerCount, scriptCharacters: script.characters, charPool: config.charPool, getTeam: catalogTeamOf })
   }
 
   function startNewGame(newGamePanel: NewGameConfig) {
     if (onSelectScript) onSelectScript(newGamePanel.scriptSlug)
-    const totalCount = newGamePanel.playerCount + newGamePanel.travelerCount
-    const seats = createSeats(totalCount)
-    for (let i = newGamePanel.playerCount; i < totalCount; i++) seats[i].isTraveler = true
-    for (const seat of seats) {
-      const sNum = seat.seat
-      seat.name = newGamePanel.seatNames[sNum] || (seat.isTraveler ? `Traveler ${sNum}` : `Player ${sNum}`)
-      if (!seat.isTraveler) {
-        const cid = newGamePanel.assignments[sNum]
-        seat.characterId = cid || null
-        seat.userCharacterId = newGamePanel.userAssignments[sNum] || null
-        if (cid) { const char = getCharacterById(cid); if (char) seat.teamTag = (char.team === 'minion' || char.team === 'demon') ? 'evil' : 'good' }
-      } else {
-        const tcid = (newGamePanel as any).travelerAssignments?.[sNum]
-        if (tcid) seat.characterId = tcid
-      }
-      seat.note = newGamePanel.seatNotes[sNum] || ''
-    }
+    const seats = buildSeatsFromConfig(newGamePanel, catalogTeamOf)
     const firstDay = createDayState(1, seats, timerDefaults)
     firstDay.demonBluffs = newGamePanel.demonBluffs || []
     setDaysWithUndo([firstDay])
@@ -302,42 +230,15 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
   function applyGameChanges(newGamePanel: NewGameConfig) {
     if (!newGamePanel) return
     if (onSelectScript && newGamePanel.scriptSlug) onSelectScript(newGamePanel.scriptSlug)
-    const totalCount = newGamePanel.playerCount + newGamePanel.travelerCount
+    // Kept seats get the new setup; new seats are appended; character swaps are logged in seat order.
+    const { seats: updatedSeats, characterChanges } = applySetupToSeats(currentDay.seats, newGamePanel, catalogTeamOf)
     let updatedDay = currentDay
-    // Update existing seats (only those within the new count)
-    const updatedExisting = currentDay.seats
-      .filter((seat) => seat.seat <= totalCount)
-      .map((seat) => {
-        const sNum = seat.seat
-        const newSeat = { ...seat }
-        const oldCharId = seat.characterId
-        newSeat.name = newGamePanel.seatNames[sNum] || seat.name
-        if (!seat.isTraveler) {
-          const cid = newGamePanel.assignments[sNum]
-          newSeat.characterId = cid || null
-          newSeat.userCharacterId = newGamePanel.userAssignments[sNum] || null
-          newSeat.teamTag = seatAlignment(seat) ?? defaultAlignment(cid || null)
-          if (cid !== oldCharId) {
-            const getCharName = (id: string | null) => id ? getDisplayName(id, language) : '—'
-            if (oldCharId && cid) updatedDay = appendEvent(updatedDay, 'tagChange', `#${sNum}: ${getCharName(oldCharId)} → ${getCharName(cid)}`)
-            else if (cid) updatedDay = appendEvent(updatedDay, 'tagChange', `#${sNum}: ${getCharName(cid)}`)
-            else if (oldCharId) updatedDay = appendEvent(updatedDay, 'tagChange', `#${sNum}: ${getCharName(oldCharId)} ×`)
-          }
-        }
-        newSeat.note = newGamePanel.seatNotes[sNum] || ''
-        return newSeat
-      })
-    // Add new seats if count increased
-    const newSeats: StorytellerSeat[] = []
-    for (let sNum = currentDay.seats.length + 1; sNum <= totalCount; sNum++) {
-      const isTraveler = sNum > newGamePanel.playerCount
-      const defaultName = newGamePanel.seatNames[sNum] || (isTraveler ? `Traveler ${sNum}` : `Player ${sNum}`)
-      const cid = isTraveler ? null : (newGamePanel.assignments[sNum] || null)
-      let teamTag: 'evil' | 'good' | null = null
-      if (cid) { const char = getCharacterById(cid); if (char) teamTag = (char.team === 'minion' || char.team === 'demon') ? 'evil' : 'good' }
-      newSeats.push({ seat: sNum, name: defaultName, alive: true, isTraveler, isExecuted: false, hasNoVote: false, customTags: [], stTags: [], characterId: cid, userCharacterId: newGamePanel.userAssignments[sNum] || null, teamTag, note: newGamePanel.seatNotes[sNum] || '' })
+    const getCharName = (id: string | null) => id ? getDisplayName(id, language) : '—'
+    for (const { seat: sNum, from, to } of characterChanges) {
+      if (from && to) updatedDay = appendEvent(updatedDay, 'tagChange', `#${sNum}: ${getCharName(from)} → ${getCharName(to)}`)
+      else if (to) updatedDay = appendEvent(updatedDay, 'tagChange', `#${sNum}: ${getCharName(to)}`)
+      else if (from) updatedDay = appendEvent(updatedDay, 'tagChange', `#${sNum}: ${getCharName(from)} ×`)
     }
-    const updatedSeats = [...updatedExisting, ...newSeats]
     if (newGamePanel.applyNamesToAllDays) {
       // Propagate seat name changes to every day, char/note changes only to current day
       setDays((d) => d.map((day) => {
@@ -370,21 +271,10 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
 
   function openEndGamePanel() {
     if (!endGameResult) {
-      const teams: Record<number, 'evil' | 'good' | null> = {}
-      for (const s of currentDay.seats) teams[s.seat] = s.teamTag ?? 'good'
-      setEndGameResult({ winner: null, playerTeams: teams, mvp: null, balanced: null, funEvil: null, funGood: null, replay: null, otherNote: '' })
+      setEndGameResult(initialEndGameResult(currentDay.seats))
     } else {
       // Merge in any seats whose teamTag changed since the panel was last opened
-      setEndGameResult((c) => {
-        if (!c) return c
-        const updated = { ...c.playerTeams }
-        for (const s of currentDay.seats) {
-          if (updated[s.seat] === undefined || updated[s.seat] === null) {
-            updated[s.seat] = s.teamTag ?? 'good'
-          }
-        }
-        return { ...c, playerTeams: updated }
-      })
+      setEndGameResult((c) => (c ? fillEndGameTeams(c, currentDay.seats) : c))
     }
     if (setShowEndGameModal) setShowEndGameModal(true)
     setEndGameResult((c) => c ? { ...c } : c)
@@ -401,52 +291,7 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
   function loadGameRecord(record: GameRecord) {
     if (setShowEndGameModal) setShowEndGameModal(false)
 
-    let restoredDays: DayState[]
-
-    if (record.savedDays && record.savedDays.length > 0) {
-      // ── Full restore ──────────────────────────────────────────
-      restoredDays = record.savedDays
-    } else {
-      // ── Partial restore from setup / playerSummaries ──────────
-      // Build seats: prefer setup.seatNames+assignments, fall back to playerSummaries
-      const setup = record.setup
-      const summaries = record.playerSummaries ?? []
-      const playerCount = setup?.playerCount ?? (summaries.filter((p) => p.team !== null).length || summaries.length || 5)
-      const travelerCount = setup?.travelerCount ?? 0
-      const totalSeats = playerCount + travelerCount
-
-      const baseSeats: StorytellerSeat[] = createSeats(totalSeats).map((s) => {
-        const seatNum = s.seat
-        const summary = summaries.find((p) => p.seat === seatNum)
-        const isTravel = travelerCount > 0 && seatNum > playerCount
-        return {
-          ...s,
-          name: setup?.seatNames?.[seatNum] ?? summary?.name ?? s.name,
-          characterId: setup?.assignments?.[seatNum] || null,
-          userCharacterId: setup?.userAssignments?.[seatNum] ?? null,
-          teamTag: summary?.team ?? null,
-          note: setup?.seatNotes?.[seatNum] ?? '',
-          isTraveler: isTravel,
-        }
-      })
-
-      // Create one day per entry in record.days (or 1 if none)
-      const dayCount = record.days?.length || 1
-      restoredDays = Array.from({ length: dayCount }, (_, i) =>
-        createDayState(i + 1, baseSeats, timerDefaults)
-      )
-      // Mark last day ended if game has a winner
-      if (record.winner) {
-        restoredDays[restoredDays.length - 1] = {
-          ...restoredDays[restoredDays.length - 1],
-          gameEnded: true,
-        }
-      }
-      // Apply demonBluffs if present
-      if (setup?.demonBluffs?.length) {
-        restoredDays[0] = { ...restoredDays[0], demonBluffs: setup.demonBluffs }
-      }
-    }
+    const restoredDays = restoreDaysFromRecord(record, timerDefaults)
 
     setDaysWithUndo(restoredDays)
     setSelectedDayId(restoredDays[0].id)
@@ -461,14 +306,7 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     setGameStartedAt?.(record.startedAt)
 
     // Restore endGameResult from survey data
-    const firstDay = restoredDays[0]
-    const teams: Record<number, 'evil' | 'good' | null> = {}
-    for (const s of firstDay.seats) {
-      const team = record.playerSummaries?.find((p) => p.seat === s.seat)?.team
-      // For partial restore, teamTag is already on the seat; use it as fallback
-      teams[s.seat] = team ?? (s.teamTag as 'evil' | 'good' | null) ?? null
-    }
-    setEndGameResult({ winner: record.winner ?? null, playerTeams: teams, mvp: record.mvp ?? null, balanced: record.balanced ?? null, funEvil: record.funEvil ?? null, funGood: record.funGood ?? null, replay: record.replay ?? null, otherNote: record.otherNote ?? '' })
+    setEndGameResult(endGameResultFromRecord(record, restoredDays[0]))
   }
 
   return { goToNextDay, goToPreviousDay, goToNextPhase, goToPreviousPhase, deleteDay, moveToNextSpeaker, setPhase, startNight, addPlayerSeat, removeLastPlayerSeat, addTravelerSeat, removeLastTraveler, openNewGamePanel, openCharacterEditor, doOpenNewGamePanel: _doOpenNewGamePanel, confirmNewGameAfterSave, confirmNewGameDiscard, hasActiveGame, randomAssignCharacters, startNewGame, applyGameChanges, resetCurrentGame, openEndGamePanel, markGameEnded, unmarkGameEnded, loadGameRecord, ...exportActions }
