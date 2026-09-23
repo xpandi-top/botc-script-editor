@@ -1,6 +1,6 @@
 # 架构演进方案：API / MCP / AI 说书人
 
-> 状态：P0 进行中（分支 `feat/api-core-prep`）
+> 状态：P0 完成，P1 进行中（分支 `feat/api-core-prep`）
 > 目标：在**不影响现有功能**、**全程免费额度**的前提下，把 BOTC Companion 从“纯前端静态站”演进为可被 Agent 调用的平台（REST API + MCP），支撑剧本创建、角色创建、说书人自动化 / AI 化。
 
 ---
@@ -258,7 +258,7 @@ AI 设置保持本地 BYOK，永不上传。
 | ✅ | 引擎：阶段 / 日程 / 建局（`useGameLifecycle`） | `core/engine/lifecycle.ts`、`setup.ts`（随机发牌可注入种子）、`alignment.ts`；浏览器实测阶段推进、新游戏、随机分配 |
 | ⏸ | 计时器 → `endsAt` | **推迟到 P3**：本地应用无收益且需迁移持久化状态；云对局的 DO 状态直接用 `endsAt`，客户端换算剩余秒数 |
 | ✅ | catalog 快照：`scripts/build-catalog.mjs` → `CatalogData`；`src/core/catalog`（查询）、`src/core/script/analyze.ts`（确定性分析） | Web 继续用 `catalog.ts`（含用户覆盖）；测试逐角色比对二者一致（名称 / 能力 / 提醒 / 夜序文本 / jinx / 剧本） |
-| ⬜ | 回放 fixture 测试（`GameRecord.savedDays`） | |
+| ✅ | 命令引擎 `applyCommand`（`core/engine/commands.ts`）+ 回放测试 | 一局暗流涌动从建局到结束在 Node 中确定性回放；可从 `GameRecord.savedDays` 恢复后继续；非法命令返回错误码且不改状态 |
 
 ---
 

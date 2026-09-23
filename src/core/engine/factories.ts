@@ -34,9 +34,9 @@ export function cloneSeats(seats: StorytellerSeat[]) {
   return seats.map((s) => ({ ...s, customTags: [...s.customTags] }))
 }
 
-export function createDayState(day: number, seats: StorytellerSeat[], defaults: TimerDefaults): DayState {
+export function createDayState(day: number, seats: StorytellerSeat[], defaults: TimerDefaults, id = `day-${day}-${Math.random().toString(36).slice(2, 8)}`): DayState {
   return {
-    id: `day-${day}-${Math.random().toString(36).slice(2, 8)}`,
+    id,
     day,
     phase: 'night',
     publicMode: 'free',

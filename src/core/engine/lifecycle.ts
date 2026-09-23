@@ -30,8 +30,8 @@ export function applyPhase(day: DayState, phase: Phase, timers: Pick<TimerDefaul
 }
 
 /** The day after `current`, numbered after the existing `dayCount` days, carrying seats and demon bluffs forward. */
-export function createNextDay(dayCount: number, current: DayState, timers: TimerDefaults): DayState {
-  const next = createDayState(dayCount + 1, current.seats, timers)
+export function createNextDay(dayCount: number, current: DayState, timers: TimerDefaults, id?: string): DayState {
+  const next = createDayState(dayCount + 1, current.seats, timers, id)
   // Demon bluffs are set once during setup and stay valid for the whole game.
   next.demonBluffs = current.demonBluffs ?? []
   return next
