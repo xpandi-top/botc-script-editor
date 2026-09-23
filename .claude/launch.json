@@ -23,6 +23,21 @@
         "8787"
       ],
       "port": 8787
+    },
+    {
+      "name": "preview",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "preview",
+        "--",
+        "--port",
+        "4173",
+        "--strictPort",
+        "--base",
+        "/botc-script-editor/"
+      ],
+      "port": 4173
     }
   ]
 }

@@ -1,3 +1,5 @@
+import { existsSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
@@ -16,6 +18,11 @@ export default defineConfig(({ command, mode }) => {
   }
 
   return {
+    define: {
+      // public/embeddings.json is optional (scripts/build-embeddings.mjs needs a
+      // Gemini key); without it the app skips the request instead of a 404.
+      __BOTC_HAS_EMBEDDINGS__: JSON.stringify(existsSync(fileURLToPath(new URL('./public/embeddings.json', import.meta.url)))),
+    },
     test: {
       environment: 'jsdom',
       setupFiles: ['src/test/setup.ts'],

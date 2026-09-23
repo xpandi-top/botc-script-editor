@@ -28,7 +28,8 @@ export async function initWikiSearch(): Promise<boolean> {
   if (_initAttempted) return _index !== null
   _initAttempted = true
   try {
-    const res = await fetch('/wiki-chunks.json', { cache: 'force-cache' })
+    // Relative to the deployed base path (e.g. /botc-script-editor/), not the domain root.
+    const res = await fetch(`${import.meta.env.BASE_URL}wiki-chunks.json`, { cache: 'force-cache' })
     if (!res.ok) return false
     const chunks = parseWikiFile(await res.json())
     if (!chunks) return false

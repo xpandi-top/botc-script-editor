@@ -30,7 +30,8 @@ let _initAttempted = false
 // ── Init ──────────────────────────────────────────────────────────────────────
 
 /**
- * Attempt to load pre-computed embeddings from /public/embeddings.json.
+ * Attempt to load pre-computed embeddings from public/embeddings.json (served
+ * under the app's base path), when the build included one.
  * Safe to call multiple times — cached after first load.
  * Does NOT throw — falls back to TF-IDF silently.
  */
@@ -38,8 +39,11 @@ export async function initVectorIndex(): Promise<boolean> {
   if (_initAttempted) return _vectorMap !== null
   _initAttempted = true
 
+  // Not generated for this build: skip the request (it would only 404).
+  if (!__BOTC_HAS_EMBEDDINGS__) return false
+
   try {
-    const res = await fetch('/embeddings.json', { cache: 'force-cache' })
+    const res = await fetch(`${import.meta.env.BASE_URL}embeddings.json`, { cache: 'force-cache' })
     if (!res.ok) return false
     const data = (await res.json()) as EmbeddingFile
     if (data.version !== 1 || !Array.isArray(data.entries)) return false
