@@ -1370,6 +1370,25 @@
     "nav_empty_mine": "还没有自己的剧本，可以新建或复制现有剧本。",
     "nav_no_folders": "还没有可用文件夹，可在“管理”中新建。",
     "nav_delete_folder_hint": "删除文件夹会将其中的剧本移到未分类，不删除剧本。",
-    "main_navigation": "主导航"
+    "main_navigation": "主导航",
+    "api_access": "API 与 MCP",
+    "api_access_desc": "让 AI 代理（Claude、Cursor 等）读取血染钟楼数据、校验剧本，并保存到你的云端库。",
+    "api_endpoint": "API 地址",
+    "api_mcp_endpoint": "MCP 地址（供代理连接）",
+    "api_sign_in_hint": "请先在上方连接 Google Drive 同步，才能管理访问令牌和云端库。",
+    "api_tokens": "访问令牌",
+    "api_tokens_desc": "把令牌交给代理后，它就能使用你的云端库。持有令牌的人可以读取和修改你的库，不用时请撤销。",
+    "api_token_name": "令牌名称",
+    "api_create_token": "创建令牌",
+    "api_token_created": "请立即复制此令牌，它不会再次显示。",
+    "api_revoke": "撤销",
+    "api_no_tokens": "暂无有效令牌。",
+    "api_library": "云端库",
+    "api_library_desc": "上传本设备的剧本、自定义角色和对局记录，或导入代理与其他设备保存的内容。导入只会添加本设备缺少的项目。",
+    "api_upload": "上传到云端库",
+    "api_import": "从云端库导入",
+    "api_upload_done": "已上传 {0} 个剧本、{1} 个角色和 {2} 条记录。",
+    "api_import_done": "已导入 {0} 个剧本、{1} 个角色和 {2} 条记录。刷新页面后即可看到。",
+    "api_error": "请求失败：{0}"
   }
 }

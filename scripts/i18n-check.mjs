@@ -48,6 +48,7 @@ const ALLOWED_EN_IN_ZH = [
   'DIY',                             // tab label
   'BGM',                             // music term
   'MVP',                             // stat term
+  'MCP',                             // Model Context Protocol (agent connector)
 ]
 
 /**

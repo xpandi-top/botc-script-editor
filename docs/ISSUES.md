@@ -5,6 +5,42 @@ Status: `open` | `fixed` | `wontfix`
 
 ---
 
+## I-75 — Rochambeau script: High Priestess id does not resolve
+
+**Status:** fixed  
+**Area:** assets/scripts/Rochambeau.json, assets/characters/individual/high_priestess.json  
+**Detail:** Found by the new script validator (src/core/script/validate.ts). Rochambeau lists `"highpriestess"` (official-script style id), but the catalog id is `high_priestess`, so the character does not resolve when the script is opened. Either fix the id in the script, or teach the catalog to resolve loose aliases (case/underscore-insensitive) so imported official scripts using the compact ids also work. When fixed, remove the entry from `KNOWN_UNKNOWN_IDS` in src/__tests__/coreScriptValidate.test.ts.
+
+**Fix:** Changed the id in `assets/scripts/Rochambeau.json` to `high_priestess`; the bundled-script validator test now expects zero unknown ids. (Loose alias matching for imported official scripts is not implemented; the validator's `suggestion` field points agents at the catalog id instead.)
+
+---
+
+## I-73 — Security: Web OAuth client secret shipped in the public bundle
+
+**Status:** open — fix implemented, needs deployment (manual steps below)  
+**Area:** .github/workflows/deploy-pages.yml, src/lib/googleAuth.ts, src/components/settings/CloudSyncSection.tsx  
+**Detail:** The Pages deploy passes `VITE_GOOGLE_CLIENT_SECRET` into `vite build`, so the Google "Web application" client secret is readable by anyone from the served JS. Google requires the secret for the web token exchange, so it cannot simply be dropped. Planned fix (docs/ARCHITECTURE-API.md, P2): move the code→token exchange behind a Cloudflare Worker proxy that holds the secret server-side, then remove the secret from the build env and rotate it.
+
+**Implemented:** `worker/src/oauth.ts` (`POST /v1/auth/google/token`, adds the secret from a Worker secret; checks client id, grant type, redirect origin and request origin). `src/lib/googleAuth.ts` sends web token requests there without a secret when `VITE_OAUTH_TOKEN_PROXY` is set; unset = previous behavior. The deploy workflow passes `VITE_OAUTH_TOKEN_PROXY` through. Settings → Cloud Sync treats the proxy like a baked-in secret, so removing the secret does not make the app ask users for credentials.
+
+**To finish (manual):**
+1. Deploy the worker (worker/README.md), then `cd worker && npx wrangler secret put GOOGLE_CLIENT_SECRET` and set `GOOGLE_WEB_CLIENT_ID` in `wrangler.jsonc`; redeploy.
+2. Add the GitHub secret `VITE_OAUTH_TOKEN_PROXY` = `https://<worker>/v1/auth/google/token` and redeploy Pages; check Cloud Sync sign-in and token refresh.
+3. Remove `VITE_GOOGLE_CLIENT_SECRET` from `.github/workflows/deploy-pages.yml` (and the GitHub secret).
+4. Rotate the web client secret in Google Cloud Console (the old one was public) and update the Worker secret.
+
+---
+
+## I-74 — Security: deal sessions writable by anyone who knows the session id
+
+**Status:** open  
+**Area:** src/lib/DealSession.ts (Firestore rules in header comment)  
+**Detail:** `dealSessions/{id}` allows `update: if true` and seat/vote/message subcollections are similarly open. The host check is app-layer only, and `hostToken` is stored on the publicly readable session document, so a guest can read it and reassign characters or tamper with remote votes. Planned fix (docs/ARCHITECTURE-API.md, P3): move deal sessions into a Durable Object where writes are authorized server-side; until then, narrow the writable fields in the rules.
+
+**Progress:** the server side exists in the API worker (cloud game lobby: seat claims with per-seat tokens, storyteller↔seat messages, players voting on their turn, all authorized in the `GameRoom` Durable Object). Remaining: switch the web guest page / Assignment Center to it, then lock down the Firestore rules.
+
+---
+
 ## I-72 — Deal cards: seat self-claim + ST/seat messaging, promoted to its own panel
 
 **Status:** fixed  

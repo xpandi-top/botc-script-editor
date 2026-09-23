@@ -20,7 +20,8 @@ export default defineConfig(({ command, mode }) => {
       environment: 'jsdom',
       setupFiles: ['src/test/setup.ts'],
       globals: true,
-      exclude: ['**/node_modules/**', '**/dist/**', 'e2e/**'],
+      // worker/ has its own package and test runner (cd worker && npm test)
+      exclude: ['**/node_modules/**', '**/dist/**', 'e2e/**', 'worker/**'],
       coverage: {
         provider: 'v8',
         reporter: ['text', 'html'],

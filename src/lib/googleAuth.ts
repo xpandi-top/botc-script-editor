@@ -64,6 +64,23 @@ export function getClientId(): string {
   return (import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined) ?? ''
 }
 
+const GOOGLE_TOKEN_ENDPOINT = 'https://oauth2.googleapis.com/token'
+
+/**
+ * Where web token requests go. When VITE_OAUTH_TOKEN_PROXY is set (the API
+ * worker's /v1/auth/google/token), the web build exchanges and refreshes
+ * tokens through it and never sends a client secret, so the secret does not
+ * have to ship in the bundle (docs/ISSUES.md I-73). Native/Electron flows and
+ * users who configured their own client secret keep talking to Google directly.
+ */
+function tokenRequestTarget(): { url: string; includeSecret: boolean } {
+  const proxy = (import.meta.env.VITE_OAUTH_TOKEN_PROXY as string | undefined)?.trim()
+  let userSecret = false
+  try { userSecret = !!localStorage.getItem(CLIENT_SECRET_STORAGE_KEY)?.trim() } catch {}
+  if (proxy && !Capacitor.isNativePlatform() && !isElectron() && !userSecret) return { url: proxy, includeSecret: false }
+  return { url: GOOGLE_TOKEN_ENDPOINT, includeSecret: true }
+}
+
 /** Read client secret — Electron env var > localStorage > web env var. */
 export function getClientSecret(): string {
   if (isElectron() && ELECTRON_CLIENT_SECRET) return ELECTRON_CLIENT_SECRET
@@ -465,10 +482,12 @@ export async function handleOAuthCallback(
     code_verifier: verifier,
   })
   // Web Application OAuth clients require client_secret even with PKCE
-  const secret = getClientSecret()
+  // (added by the token proxy instead when one is configured).
+  const target = tokenRequestTarget()
+  const secret = target.includeSecret ? getClientSecret() : ''
   if (secret) body.set('client_secret', secret)
 
-  const res = await fetch('https://oauth2.googleapis.com/token', {
+  const res = await fetch(target.url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: body.toString(),
@@ -513,10 +532,11 @@ export async function refreshAccessToken(refreshToken: string): Promise<GoogleTo
     grant_type: 'refresh_token',
     refresh_token: refreshToken,
   })
-  const secret = getClientSecret()
+  const target = tokenRequestTarget()
+  const secret = target.includeSecret ? getClientSecret() : ''
   if (secret) body.set('client_secret', secret)
 
-  const res = await fetch('https://oauth2.googleapis.com/token', {
+  const res = await fetch(target.url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: body.toString(),

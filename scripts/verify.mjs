@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { spawn } from 'node:child_process'
+import { existsSync } from 'node:fs'
 
 if (process.argv.includes('--help') || process.argv.includes('-h')) {
   console.log(`Usage: npm run verify -- [options]
@@ -18,10 +19,21 @@ const includeNative = process.argv.includes('--native') || process.argv.includes
 
 const steps = [
   ['i18n strict check', 'npm', ['run', 'i18n:check:strict']],
+  ['core boundary type check', 'npm', ['run', 'core:check']],
   ['unit tests', 'npm', ['test']],
   ['production build', 'npm', ['run', 'build']],
   ['bundle budget', 'npm', ['run', 'bundle:check']],
 ]
+
+// The API worker has its own dependencies (cd worker && npm install).
+if (existsSync('worker/node_modules')) {
+  steps.push(
+    ['worker type check', 'npm', ['--prefix', 'worker', 'run', 'typecheck']],
+    ['worker tests (API + MCP)', 'npm', ['--prefix', 'worker', 'test']],
+  )
+} else {
+  console.log('Skipping worker tests: run `npm install` in worker/ to include them.')
+}
 
 if (includeE2e) {
   steps.push(

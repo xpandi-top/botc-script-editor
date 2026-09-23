@@ -1,6 +1,7 @@
 import type { DayState, EventLogEntry, StorytellerSeat, VoteDraft, VotingState } from '../types'
 import type { Language } from '../../../types'
 import { logDetail } from '../../../utils/logI18n'
+import { eventFields } from '../../../utils/eventText'
 import { maxVoteWeightFor, voteTokensAfterLifeChange, voteTokensOf, voteWeightFor } from '../../../utils/votes'
 import { makeT, makeTpl } from '../../../lib/t'
 import { Box, Typography, IconButton, Button, Tooltip } from '@mui/material'
@@ -19,7 +20,7 @@ interface NominationVoteListProps {
   votingYesCount: number
   handleVoteToggle: (seatNum: number) => void
   updateCurrentDay: (updater: (day: DayState) => DayState) => void
-  appendEvent: (d: DayState, kind: EventLogEntry['kind'], detail: string) => DayState
+  appendEvent: (d: DayState, kind: EventLogEntry['kind'], detail: string, visibility?: 'public' | 'st-only', structured?: Pick<EventLogEntry, 'code' | 'params'>) => DayState
   language: Language
   /** Odyssey rules: dead players hold vote tokens and may spend several at once. */
   multiVoteEnabled?: boolean
@@ -72,7 +73,7 @@ export function NominationVoteList({
           return { ...next, voteTokens: voteTokensAfterLifeChange(next, s.alive) }
         }),
       }
-      return appendEvent(updated, 'stateChange', newAlive ? logDetail.seatAlive(language, seatNum) : logDetail.seatDead(language, seatNum))
+      return appendEvent(updated, 'stateChange', newAlive ? logDetail.seatAlive(language, seatNum) : logDetail.seatDead(language, seatNum), undefined, eventFields({ code: newAlive ? 'seat.alive' : 'seat.died', params: { seat: seatNum } }))
     })
   }
 
@@ -91,7 +92,7 @@ export function NominationVoteList({
       const seat = d.seats.find((s) => s.seat === seatNum)
       const newHasNoVote = !seat?.hasNoVote
       const updated = { ...d, seats: d.seats.map((s) => s.seat === seatNum ? { ...s, hasNoVote: newHasNoVote } : s) }
-      return appendEvent(updated, 'stateChange', newHasNoVote ? logDetail.seatNoVote(language, seatNum) : logDetail.seatUnNoVote(language, seatNum))
+      return appendEvent(updated, 'stateChange', newHasNoVote ? logDetail.seatNoVote(language, seatNum) : logDetail.seatUnNoVote(language, seatNum), undefined, eventFields({ code: newHasNoVote ? 'seat.noVote' : 'seat.voteRestored', params: { seat: seatNum } }))
     })
   }
 

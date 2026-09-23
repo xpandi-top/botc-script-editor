@@ -34,9 +34,12 @@ export function CloudSyncSection({ cloud, language }: {
   // Web: user must enter credentials
   const isNative = Capacitor.isNativePlatform() || isElectronConfigured()
   const hasClientId = isNative || !!getClientId()
+  // Web counts as pre-configured with a client id plus either the secret or
+  // the API token proxy that holds it server-side (docs/ISSUES.md I-73).
   const isPreConfigured = isNative || !!(
     (import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined)?.trim() &&
-    (import.meta.env.VITE_GOOGLE_CLIENT_SECRET as string | undefined)?.trim()
+    ((import.meta.env.VITE_GOOGLE_CLIENT_SECRET as string | undefined)?.trim() ||
+      (import.meta.env.VITE_OAUTH_TOKEN_PROXY as string | undefined)?.trim())
   )
 
   const isBusy = cloud.connected && (cloud.status === 'pulling' || cloud.status === 'pushing' || cloud.status === 'syncing')

@@ -1,0 +1,5 @@
+node_modules/
+.wrangler/
+.dev.vars
+# Generated from ../assets by `npm run build:catalog`
+src/generated/

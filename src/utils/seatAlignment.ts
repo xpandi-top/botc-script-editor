@@ -1,17 +1,19 @@
 import { getCharacterById } from '../catalog'
 import type { Phase, StorytellerSeat } from '../components/StorytellerSub/types'
+import { defaultAlignmentWith, preserveAlignmentWith, seatAlignmentWith, type Alignment, type TeamLookup } from '../core/engine/alignment'
 
-export type Alignment = 'good' | 'evil'
+export type { Alignment } from '../core/engine/alignment'
+
+/** Team lookup over the live catalog (bundled + custom characters). */
+export const catalogTeamOf: TeamLookup = (characterId) => getCharacterById(characterId)?.team
 
 export function defaultAlignment(characterId: string | null): Alignment | null {
-  const team = characterId ? getCharacterById(characterId)?.team : undefined
-  if (team === 'minion' || team === 'demon') return 'evil'
-  if (team === 'townsfolk' || team === 'outsider') return 'good'
-  return null // Travellers require an explicit storyteller decision.
+  // Travellers require an explicit storyteller decision (null).
+  return defaultAlignmentWith(catalogTeamOf, characterId)
 }
 
 export function seatAlignment(seat: Pick<StorytellerSeat, 'characterId' | 'teamTag'>): Alignment | null {
-  return seat.teamTag ?? defaultAlignment(seat.characterId)
+  return seatAlignmentWith(catalogTeamOf, seat)
 }
 
 export function canViewSecrets(phase: Phase, showCharacters: boolean, privateView = false): boolean {
@@ -20,6 +22,5 @@ export function canViewSecrets(phase: Phase, showCharacters: boolean, privateVie
 
 /** Freeze the current alignment before changing role, including legacy seats. */
 export function preserveAlignment(before: StorytellerSeat, after: StorytellerSeat): StorytellerSeat {
-  if (before.characterId === after.characterId || before.teamTag !== after.teamTag) return after
-  return { ...after, teamTag: seatAlignment(before) ?? defaultAlignment(after.characterId) }
+  return preserveAlignmentWith(catalogTeamOf, before, after)
 }

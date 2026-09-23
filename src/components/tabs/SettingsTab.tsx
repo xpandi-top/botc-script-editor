@@ -18,6 +18,8 @@ import type { Language } from '../../types'
 import { useThemeMode } from '../../context/ThemeMode'
 import { FontPicker, LivePreview } from '../settings/FontSection'
 import { CloudSyncSection } from '../settings/CloudSyncSection'
+import { ApiAccessSection } from '../settings/ApiAccessSection'
+import { isApiConfigured } from '../../lib/apiClient'
 import { useT } from '../../context/I18nContext'
 import { ResponsiveDialog, ResponsiveDialogActions, ResponsiveDialogContent } from '../ui'
 
@@ -207,6 +209,14 @@ export function SettingsTab({ language, onLanguageChange, fontSettings, cloudSyn
       <CloudSyncSection cloud={cloud} language={language} />
 
       <Divider />
+
+      {/* API worker (agents / MCP / cloud library) — only when VITE_API_URL is configured */}
+      {isApiConfigured() && (
+        <>
+          <ApiAccessSection cloud={cloud} language={language} />
+          <Divider />
+        </>
+      )}
 
       {/* ── Section: Export / Import ── */}
       <Box>

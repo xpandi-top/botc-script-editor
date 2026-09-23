@@ -1,11 +1,12 @@
-import { preserveAlignment, seatAlignment } from '../utils/seatAlignment'
-import { createDefaultVoteDraft, createDefaultSkillDraft, buildVotingOrder } from '../components/StorytellerSub/constants'
-import type { DayState, EventLogEntry, PickerMode, SkillOverlayState, SkillRecord, StorytellerSeat, TimerDefaults, VoteRecord } from '../components/StorytellerSub/types'
+import { catalogTeamOf } from '../utils/seatAlignment'
+import { createDefaultSkillDraft, buildVotingOrder } from '../components/StorytellerSub/constants'
+import type { DayState, EventLogEntry, PickerMode, SkillOverlayState, SkillRecord, StorytellerSeat, TimerDefaults } from '../components/StorytellerSub/types'
 import type { Language } from '../types'
-import { logDetail, logPhrase } from '../utils/logI18n'
-import { spendVoteTokens, voteTokensAfterLifeChange, voteWeightFor } from '../utils/votes'
+import { logDetail } from '../utils/logI18n'
+import { eventFields, presentSeatEvent } from '../utils/eventText'
+import { applySeatEdit, diffSeat } from '../core/engine/events'
+import { applyVoteRecord, buildVoteRecord, canStartActorSpeech, canStartTargetSpeech, canStartVoting, castVote, openNominations, rejectNomination as rejectNominationState, startActorSpeech, startTargetSpeech, startVoting as startVotingState } from '../core/engine/nomination'
 import { getDisplayName } from '../catalog'
-import { translateStTag } from '../components/StorytellerSub/Arena/ArenaSeatComponents'
 
 interface ActionDeps {
   currentDay: DayState
@@ -17,7 +18,7 @@ interface ActionDeps {
   seatTagDrafts: Record<number, string>
   updateCurrentDay: (u: (d: DayState) => DayState) => void
   updateCurrentDayWithUndo: (u: (d: DayState) => DayState) => void
-  appendEvent: (d: DayState, kind: EventLogEntry['kind'], detail: string, visibility?: 'public' | 'st-only') => DayState
+  appendEvent: (d: DayState, kind: EventLogEntry['kind'], detail: string, visibility?: 'public' | 'st-only', structured?: Pick<EventLogEntry, 'code' | 'params'>) => DayState
   setPickerMode: (m: PickerMode) => void
   setIsTimerRunning: (v: boolean) => void
   setSkillOverlay: React.Dispatch<React.SetStateAction<SkillOverlayState | null>>
@@ -41,79 +42,15 @@ export function buildGameActions(deps: ActionDeps) {
   function updateSeatWithLog(seatNumber: number, updater: (s: StorytellerSeat) => StorytellerSeat) {
     updateCurrentDayWithUndo((d) => {
       const oldSeat = d.seats.find((s) => s.seat === seatNumber)
-      const newSeats = d.seats.map((s) => {
-        if (s.seat !== seatNumber) return s
-        const next = preserveAlignment(s, updater(s))
-        // Dying grants a vote token (Odyssey). Harmless on official rosters —
-        // nothing reads voteTokens there.
-        const voteTokens = voteTokensAfterLifeChange(next, s.alive)
-        return voteTokens === next.voteTokens ? next : { ...next, voteTokens }
-      })
+      // Keeps alignment across a role change and grants an Odyssey vote token on death.
+      const newSeats = d.seats.map((s) => (s.seat === seatNumber ? applySeatEdit(catalogTeamOf, s, updater(s)) : s))
       const newSeat = newSeats.find((s) => s.seat === seatNumber)
       let updated = { ...d, seats: newSeats }
       if (oldSeat && newSeat) {
-        if (oldSeat.alive !== newSeat.alive) updated = appendEvent(updated, 'stateChange', newSeat.alive ? logDetail.seatAlive(language, seatNumber) : logDetail.seatDead(language, seatNumber))
-        if (oldSeat.isExecuted !== newSeat.isExecuted) updated = appendEvent(updated, 'stateChange', newSeat.isExecuted ? logDetail.seatExecuted(language, seatNumber) : logDetail.seatUnexecuted(language, seatNumber))
-        if (oldSeat.isTraveler !== newSeat.isTraveler) updated = appendEvent(updated, 'stateChange', newSeat.isTraveler ? logDetail.seatTraveler(language, seatNumber) : logDetail.seatUntraveler(language, seatNumber))
-        if (oldSeat.hasNoVote !== newSeat.hasNoVote) updated = appendEvent(updated, 'stateChange', newSeat.hasNoVote ? logDetail.seatNoVote(language, seatNumber) : logDetail.seatUnNoVote(language, seatNumber))
-        if (oldSeat.characterId !== newSeat.characterId) {
-          const dn = (id: string | null) => id ? getDisplayName(id, language) : '—'
-          if (oldSeat.characterId && newSeat.characterId) {
-            updated = appendEvent(updated, 'tagChange', `#${seatNumber} ${logPhrase(language, 'roleChanged')}: ${dn(oldSeat.characterId)} → ${dn(newSeat.characterId)}`)
-          } else if (newSeat.characterId) {
-            updated = appendEvent(updated, 'tagChange', `#${seatNumber} ${logPhrase(language, 'roleAssigned')}: ${dn(newSeat.characterId)}`)
-          } else if (oldSeat.characterId) {
-            updated = appendEvent(updated, 'tagChange', `#${seatNumber} ${logPhrase(language, 'roleCleared')}: ${dn(oldSeat.characterId)}`)
-          }
+        for (const event of diffSeat(catalogTeamOf, oldSeat, newSeat)) {
+          const shown = presentSeatEvent(event, language)
+          if (shown) updated = appendEvent(updated, shown.kind, shown.detail, shown.visibility, eventFields(event))
         }
-        if (seatAlignment(oldSeat) !== seatAlignment(newSeat)) {
-          const label = (s: StorytellerSeat) => seatAlignment(s) ? logPhrase(language, seatAlignment(s)!) : '—'
-          updated = appendEvent(updated, 'tagChange', `#${seatNumber} ${logPhrase(language, 'teamPrefix')}: ${label(oldSeat)} → ${label(newSeat)}`, 'st-only')
-        }
-        if (oldSeat.userCharacterId !== newSeat.userCharacterId) {
-          const name = (id: string | null) => id ? getDisplayName(id, language) : '—'
-          updated = appendEvent(updated, 'tagChange', `#${seatNumber} ${language === 'zh' ? '认知角色' : 'Perceived character'}: ${name(oldSeat.userCharacterId)} → ${name(newSeat.userCharacterId)}`, 'st-only')
-        }
-        const added = newSeat.customTags.filter((t) => !oldSeat.customTags.includes(t))
-        const removed = oldSeat.customTags.filter((t) => !newSeat.customTags.includes(t))
-        const parsePublicTag = (t: string) => {
-          if (!t.startsWith('📝')) return { label: t, sourceCharId: null }
-          const body = t.slice(2)
-          const sep = body.indexOf('::')
-          return sep === -1 ? { label: body, sourceCharId: null } : { label: body.slice(0, sep), sourceCharId: body.slice(sep + 2) || null }
-        }
-        const publicTagDetail = (t: string, isAdded: boolean) => {
-          const { label, sourceCharId } = parsePublicTag(t)
-          const translatedLabel = translateStTag(label, language)
-          const verb = logPhrase(language, isAdded ? 'addTag' : 'removeTag')
-          if (sourceCharId) {
-            const charName = getDisplayName(sourceCharId, language)
-            return `#${seatNumber} ${verb}: [icon:${sourceCharId}] ${charName}:${translatedLabel}`
-          }
-          return `#${seatNumber} ${verb}: ${translatedLabel}`
-        }
-        for (const t of added) updated = appendEvent(updated, 'tagChange', publicTagDetail(t, true))
-        for (const t of removed) updated = appendEvent(updated, 'tagChange', publicTagDetail(t, false))
-        const oldStTags = oldSeat.stTags || []
-        const newStTags = newSeat.stTags || []
-        const addedStTags = newStTags.filter((t) => !oldStTags.includes(t))
-        const removedStTags = oldStTags.filter((t) => !newStTags.includes(t))
-        const parseStTag = (t: string) => {
-          const body = t.startsWith('📝') ? t.slice(2) : t
-          const sep = body.indexOf('::')
-          return sep === -1
-            ? { label: body, sourceCharId: null }
-            : { label: body.slice(0, sep), sourceCharId: body.slice(sep + 2) || null }
-        }
-        const stTagDetail = (t: string, added: boolean) => {
-          const { label, sourceCharId } = parseStTag(t)
-          const translatedLabel = translateStTag(label, language)
-          const verb = logPhrase(language, added ? 'addST' : 'removeST')
-          const iconPart = sourceCharId ? `[icon:${sourceCharId}] ` : ''
-          return `#${seatNumber} ${verb}: ${iconPart}${translatedLabel}`
-        }
-        for (const t of addedStTags) updated = appendEvent(updated, 'tagChange', stTagDetail(t, true))
-        for (const t of removedStTags) updated = appendEvent(updated, 'tagChange', stTagDetail(t, false))
       }
       return updated
     })
@@ -138,56 +75,41 @@ export function buildGameActions(deps: ActionDeps) {
   }
 
   function enterNomination() {
-    updateCurrentDay((d) => ({ ...d, phase: 'nomination', nominationStep: 'waitingForNomination', nominationWaitSeconds: timerDefaults.nominationWaitSeconds, voteDraft: createDefaultVoteDraft(), votingState: null }))
+    updateCurrentDay((d) => openNominations(d, timerDefaults))
     setShowNominationSheet(true)
     setIsTimerRunning(true)
   }
 
   function confirmNomination() {
-    const canStart = currentDay.nominationStep === 'nominationDecision' || currentDay.nominationStep === 'actorSpeech' || currentDay.nominationStep === 'readyForTargetSpeech' || currentDay.nominationStep === 'targetSpeech' || currentDay.nominationStep === 'readyToVote' || currentDay.nominationStep === 'voting' || currentDay.nominationStep === 'votingDone'
-    if (!canStart) return
-    updateCurrentDay((d) => ({ ...d, nominationStep: 'actorSpeech', nominationActorSeconds: timerDefaults.nominationActorSeconds }))
+    if (!canStartActorSpeech(currentDay)) return
+    updateCurrentDay((d) => startActorSpeech(d, timerDefaults))
     setIsTimerRunning(true)
   }
 
   function rejectNomination() {
-    updateCurrentDay((d) => {
-      const failRecord: VoteRecord | null = (d.voteDraft.actor && d.voteDraft.target) ? { id: `${Date.now()}`, actor: d.voteDraft.actor, target: d.voteDraft.target, voters: [], voteCount: 0, requiredVotes, passed: false, note: d.voteDraft.note.trim(), overridden: false, failed: true } : null
-      return appendEvent({ ...d, nominationStep: 'waitingForNomination', nominationWaitSeconds: timerDefaults.nominationWaitSeconds, voteHistory: failRecord ? [failRecord, ...d.voteHistory] : d.voteHistory, voteDraft: createDefaultVoteDraft(), votingState: null }, 'stateChange', logDetail.nominationFailed(language, d.voteDraft.actor ?? '?', d.voteDraft.target ?? '?'))
-    })
+    updateCurrentDay((d) => appendEvent(rejectNominationState(d, { requiredVotes, now: Date.now(), timers: timerDefaults }), 'stateChange', logDetail.nominationFailed(language, d.voteDraft.actor ?? '?', d.voteDraft.target ?? '?'), undefined, eventFields({ code: 'nomination.failed', params: { actor: d.voteDraft.actor, target: d.voteDraft.target } })))
     setIsTimerRunning(false)
   }
 
   function confirmTargetSpeech() {
-    const canStart = currentDay.nominationStep === 'actorSpeech' || currentDay.nominationStep === 'readyForTargetSpeech' || currentDay.nominationStep === 'targetSpeech' || currentDay.nominationStep === 'readyToVote' || currentDay.nominationStep === 'voting' || currentDay.nominationStep === 'votingDone'
-    if (!canStart) return
-    updateCurrentDay((d) => ({ ...d, nominationStep: 'targetSpeech', nominationTargetSeconds: timerDefaults.nominationTargetSeconds }))
+    if (!canStartTargetSpeech(currentDay)) return
+    updateCurrentDay((d) => startTargetSpeech(d, timerDefaults))
     setIsTimerRunning(true)
   }
 
   function startVoting() {
-    if (currentDay.voteDraft.target === null || currentDay.voteDraft.target === undefined) return
-    const canStart = currentDay.nominationStep === 'targetSpeech' || currentDay.nominationStep === 'readyToVote' || currentDay.nominationStep === 'voting' || currentDay.nominationStep === 'votingDone'
-    if (!canStart && currentDay.nominationStep !== 'nominationDecision') return
-    const order = buildVotingOrder(currentDay.seats, currentDay.voteDraft.target)
-    updateCurrentDay((d) => ({ ...d, nominationStep: 'voting', votingState: { votingOrder: order, votingIndex: 0, perPlayerSeconds: timerDefaults.nominationVoteSeconds, votes: {} } }))
+    if (!canStartVoting(currentDay)) return
+    const order = buildVotingOrder(currentDay.seats, currentDay.voteDraft.target!)
+    updateCurrentDay((d) => startVotingState(d, order, timerDefaults))
     setPickerMode('none')
     setIsTimerRunning(true)
   }
 
   function _advanceVote(seatNumber: number, voteValue: boolean) {
     updateCurrentDay((d) => {
-      if (!d.votingState || d.nominationStep !== 'voting') return d
-      const vs = d.votingState
-      if (seatNumber !== vs.votingOrder[vs.votingIndex]) return d
-      const newVotes = { ...vs.votes, [seatNumber]: voteValue }
-      const nextIdx = vs.votingIndex + 1
-      if (nextIdx >= vs.votingOrder.length) {
-        window.setTimeout(() => setIsTimerRunning(false), 0)
-        const yesVoters = Object.entries(newVotes).filter(([, v]) => v).map(([k]) => Number(k))
-        return { ...d, nominationStep: 'votingDone', voteDraft: { ...d.voteDraft, voters: yesVoters }, votingState: { ...vs, votes: newVotes, votingIndex: nextIdx, perPlayerSeconds: 0 } }
-      }
-      return { ...d, votingState: { ...vs, votes: newVotes, votingIndex: nextIdx, perPlayerSeconds: timerDefaults.nominationVoteSeconds } }
+      const { day, completed } = castVote(d, seatNumber, voteValue, timerDefaults)
+      if (completed) window.setTimeout(() => setIsTimerRunning(false), 0)
+      return day
     })
   }
 
@@ -195,16 +117,11 @@ export function buildGameActions(deps: ActionDeps) {
   function handleVoteNo(seatNumber: number) { _advanceVote(seatNumber, false) }
 
   function recordVote() {
-    if (!currentDay.voteDraft.actor || currentDay.voteDraft.target === null || currentDay.voteDraft.target === undefined) return
     const vd = currentDay.voteDraft
-    const yesSeats = [...new Set(vd.voters)]
-    const weightedCount = yesSeats.reduce((total, seat) => total + voteWeightFor(vd, seat), 0)
-    const finalCount = vd.voteCountOverride !== null ? vd.voteCountOverride : weightedCount
-    const spentWeights = Object.fromEntries(
-      yesSeats.map((seat) => [seat, voteWeightFor(vd, seat)]).filter(([, weight]) => weight !== 1),
-    )
-    const record: VoteRecord = { id: `${Date.now()}`, actor: vd.actor!, target: vd.target!, voters: yesSeats, voteCount: finalCount, requiredVotes, passed: draftPassed, note: vd.note.trim(), overridden: vd.manualPassed !== null || vd.voteCountOverride !== null, isExile: vd.isExile, ...(Object.keys(spentWeights).length > 0 && { voteWeights: spentWeights }) }
-    updateCurrentDayWithUndo((d) => appendEvent({ ...d, seats: spendVoteTokens(d.seats, yesSeats, vd), nominationStep: 'waitingForNomination', nominationWaitSeconds: timerDefaults.nominationWaitSeconds, voteHistory: [record, ...d.voteHistory], voteDraft: createDefaultVoteDraft(), votingState: null }, 'vote', logDetail.voteResult(language, record.actor, record.target, record.passed, record.voteCount, record.requiredVotes)))
+    const record = buildVoteRecord(vd, { requiredVotes, passed: draftPassed, now: Date.now() })
+    if (!record) return
+    const voteEvent = eventFields({ code: 'vote.recorded', params: { actor: record.actor, target: record.target, passed: record.passed, voteCount: record.voteCount, requiredVotes: record.requiredVotes } })
+    updateCurrentDayWithUndo((d) => appendEvent(applyVoteRecord(d, record, vd, timerDefaults), 'vote', logDetail.voteResult(language, record.actor, record.target, record.passed, record.voteCount, record.requiredVotes), undefined, voteEvent))
     setIsTimerRunning(false)
     // Timer does NOT auto-start — ST manually restarts nomination wait if needed
   }
@@ -228,7 +145,7 @@ export function buildGameActions(deps: ActionDeps) {
       const vis = skillOverlay.phaseContext === 'night' ? 'st-only' : skillOverlay.visibility ?? 'public'
       const sr: SkillRecord = { id: `${Date.now()}`, ...skillOverlay.draft, activatedDuringPhase: skillOverlay.phaseContext, visibility: vis }
       const roleName = sr.roleId ? getDisplayName(sr.roleId, language) : '?'
-      updateCurrentDay((d) => appendEvent({ ...d, skillHistory: [sr, ...d.skillHistory] }, 'skill', `#${sr.actor} ${roleName} — ${logDetail.phase(language, sr.activatedDuringPhase)}`, vis))
+      updateCurrentDay((d) => appendEvent({ ...d, skillHistory: [sr, ...d.skillHistory] }, 'skill', `#${sr.actor} ${roleName} — ${logDetail.phase(language, sr.activatedDuringPhase)}`, vis, eventFields({ code: 'skill.used', params: { actor: sr.actor, roleId: sr.roleId, phase: sr.activatedDuringPhase } })))
     }
     const wasRunning = skillOverlay?.wasTimerRunning ?? false
     setSkillOverlay(null)

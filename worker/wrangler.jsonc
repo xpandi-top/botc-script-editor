@@ -1,0 +1,55 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "botc-api",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-06-01",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"observability": {
+		"enabled": true
+	},
+	// P3 cloud games: one SQLite-backed Durable Object per game (free plan).
+	"durable_objects": {
+		"bindings": [
+			{
+				"name": "GAMES",
+				"class_name": "GameRoom"
+			}
+		]
+	},
+	"migrations": [
+		{
+			"tag": "v1",
+			"new_sqlite_classes": [
+				"GameRoom"
+			]
+		}
+	],
+	"vars": {
+		// Web app the share links open. Must match the deployed Pages URL.
+		"APP_URL": "https://apps.xpandi.top/botc-script-editor/",
+		// Optional: Firestore project + web API key (public client config) to
+		// create 7-character ?ss= short links. Leave empty to return inline links.
+		"FIREBASE_PROJECT_ID": "",
+		"FIREBASE_API_KEY": "",
+		// Optional OAuth token proxy for the web app (docs/ISSUES.md I-73). Also run
+		// `npx wrangler secret put GOOGLE_CLIENT_SECRET`.
+		"GOOGLE_WEB_CLIENT_ID": "401513017527-11mrpj9kf8g0f0igu66qk58c1ksiapvn.apps.googleusercontent.com",
+		"OAUTH_ALLOWED_ORIGINS": "https://xpandi-top.github.io,http://localhost:5173,https://apps.xpandi.top",
+		// Other Google OAuth client ids (Android, Electron) allowed to sign in to /v1/me.
+		"GOOGLE_CLIENT_IDS": ""
+	},
+	// P2 cloud library (code reads env.DB). Apply the schema with
+	// `npx wrangler d1 migrations apply botc-library --remote`.
+	// "remote": true makes `wrangler dev` use this production database too.
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "botc-library",
+			"database_id": "a083f6b4-eaad-46b6-846c-d5698a8d1d5a",
+			"migrations_dir": "migrations",
+			"remote": true
+		}
+	]
+}

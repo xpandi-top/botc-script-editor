@@ -1,5 +1,21 @@
-import { createIdentityHistory } from '../../utils/playerIdentity'
-import type { AudioTrack, StorytellerSeat, VoteDraft, SkillDraft, TimerDefaults, DayState } from './types'
+import type { AudioTrack, DayState, StorytellerSeat, TimerDefaults } from './types'
+import { createDayState as createCoreDayState } from '../../core/engine/factories'
+import { catalogTeamOf } from '../../utils/seatAlignment'
+
+// Seat/draft/day constructors live in src/core/engine/factories.ts;
+// re-exported for existing imports.
+export {
+  buildVotingOrder,
+  cloneSeats,
+  createDefaultSkillDraft,
+  createDefaultVoteDraft,
+  createSeats,
+  getNextRoundRobinSeat,
+  shuffleArray,
+  unique,
+  uniqueStrings,
+} from '../../core/engine/factories'
+export { CHARACTER_DISTRIBUTION } from '../../core/engine/setup'
 
 // ── Constants & Factories ──────────────────────────────────────
 
@@ -38,20 +54,6 @@ export const FAKE_NAMES_ZH = [
   '冯十二',
 ]
 
-export const CHARACTER_DISTRIBUTION: Record<number, { townsfolk: number; outsider: number; minion: number; demon: number }> = {
-  5: { townsfolk: 3, outsider: 0, minion: 1, demon: 1 },
-  6: { townsfolk: 3, outsider: 1, minion: 1, demon: 1 },
-  7: { townsfolk: 5, outsider: 0, minion: 1, demon: 1 },
-  8: { townsfolk: 5, outsider: 1, minion: 1, demon: 1 },
-  9: { townsfolk: 5, outsider: 2, minion: 1, demon: 1 },
-  10: { townsfolk: 7, outsider: 0, minion: 2, demon: 1 },
-  11: { townsfolk: 7, outsider: 1, minion: 2, demon: 1 },
-  12: { townsfolk: 7, outsider: 2, minion: 2, demon: 1 },
-  13: { townsfolk: 9, outsider: 0, minion: 3, demon: 1 },
-  14: { townsfolk: 9, outsider: 1, minion: 3, demon: 1 },
-  15: { townsfolk: 9, outsider: 2, minion: 3, demon: 1 },
-}
-
 export const INITIAL_AUDIO_TRACKS: AudioTrack[] = [
   { name: 'Below the Granite Arch', src: `${BASE_URL}audio/below_the_granite_arch.mp3` },
   { name: 'Measured Pulse of the Tower', src: `${BASE_URL}audio/measured_pulse_of_the_tower.mp3` },
@@ -65,31 +67,6 @@ export const DEFAULT_ALARM_SOUNDS: AudioTrack[] = [
   { name: 'Vintage Clock', src: `${BASE_URL}audio/alarm/Vintage Clock Sound Effect.mp3` },
   { name: 'Old Spring', src: `${BASE_URL}audio/alarm/Old Spring Alarm Clock Sound Effect.mp3` },
 ]
-
-export function createSeats(count: number): StorytellerSeat[] {
-  return Array.from({ length: count }, (_, i) => ({
-    seat: i + 1,
-    name: `Player ${i + 1}`,
-    alive: true,
-    isTraveler: false,
-    isExecuted: false,
-    hasNoVote: false,
-    customTags: [],
-    stTags: [],
-    characterId: null,
-    userCharacterId: null,
-    teamTag: null,
-    note: '',
-  }))
-}
-
-export function createDefaultVoteDraft(): VoteDraft {
-  return { actor: null, target: null, voters: [], noVoters: [], note: '', manualPassed: null, nominationResult: 'succeed', isExile: false, voteCountOverride: null }
-}
-
-export function createDefaultSkillDraft(): SkillDraft {
-  return { actor: null, roleId: '', targets: [], targetNotes: {}, statement: '', note: '', result: null }
-}
 
 export function createTimerDefaults(): TimerDefaults {
   return {
@@ -107,71 +84,11 @@ export function createTimerDefaults(): TimerDefaults {
   }
 }
 
-export function cloneSeats(seats: StorytellerSeat[]) {
-  return seats.map((s) => ({ ...s, customTags: [...s.customTags] }))
-}
-
-export function createDayState(day: number, seats: StorytellerSeat[], defaults: TimerDefaults): DayState {
-  return {
-    id: `day-${day}-${Math.random().toString(36).slice(2, 8)}`,
-    day,
-    phase: 'night',
-    publicMode: 'free',
-    nominationStep: 'waitingForNomination',
-    privateSeconds: defaults.privateSeconds,
-    publicFreeSeconds: defaults.publicFreeSeconds,
-    publicRoundRobinSeconds: defaults.publicRoundRobinSeconds,
-    publicElapsedSeconds: 0,
-    nominationWaitSeconds: defaults.nominationWaitSeconds,
-    nominationActorSeconds: defaults.nominationActorSeconds,
-    nominationTargetSeconds: defaults.nominationTargetSeconds,
-    currentSpeakerSeat: 1,
-    roundRobinSpokenSeats: [],
-    seats: cloneSeats(seats),
-    voteDraft: createDefaultVoteDraft(),
-    votingState: null,
-    voteHistory: [],
-    skillHistory: [],
-    eventLog: [],
-    nightVisitedSeats: [],
-    identityHistory: createIdentityHistory(seats),
-    gameEnded: false,
-    demonBluffs: [],
-  }
-}
-
-export function unique(values: number[]) {
-  return Array.from(new Set(values)).sort((a, b) => a - b)
-}
-
-export function uniqueStrings(values: string[]) {
-  return Array.from(new Set(values.filter(Boolean)))
-}
-
-export function getNextRoundRobinSeat(seats: StorytellerSeat[], fromSeat: number | null, spokenSeats: number[]) {
-  const remaining = seats.filter((s) => !spokenSeats.includes(s.seat)).map((s) => s.seat)
-  if (!remaining.length) return null
-  if (fromSeat === null) return remaining[0] ?? null
-  const clockwise = [...remaining.filter((s) => s > fromSeat), ...remaining.filter((s) => s < fromSeat)]
-  return clockwise[0] ?? null
-}
-
-export function buildVotingOrder(seats: StorytellerSeat[], targetSeat: number): number[] {
-  const eligible = seats.filter((s) => !s.hasNoVote).map((s) => s.seat)
-  const idx = eligible.indexOf(targetSeat)
-  if (idx === -1) return eligible
-  return [...eligible.slice(idx + 1), ...eligible.slice(0, idx + 1)]
+/** A fresh day that starts an identity history for the analytics (utils/playerIdentity). */
+export function createDayState(day: number, seats: StorytellerSeat[], defaults: TimerDefaults, id?: string): DayState {
+  return createCoreDayState(day, seats, defaults, id, catalogTeamOf)
 }
 
 export function makeEventId() {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
-}
-
-export function shuffleArray<T>(arr: T[]): T[] {
-  const result = [...arr]
-  for (let i = result.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[result[i], result[j]] = [result[j], result[i]]
-  }
-  return result
 }
