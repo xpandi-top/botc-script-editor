@@ -130,6 +130,14 @@ export function buildGameRoutes(deps: GameDeps) {
     return reply(c, await room(c).nightScript(await accessOf(c), night, lang, c.req.query('includeDead') === 'true'))
   })
 
+  /** ?seat=3&targets=1,6 — legal information for that seat's night action (host). */
+  games.get('/:id/night-info', async (c) => {
+    const seat = Number(c.req.query('seat'))
+    if (!Number.isInteger(seat)) throw new InputError('"seat" is required.')
+    const targets = c.req.query('targets')?.split(',').map(Number).filter(Number.isInteger)
+    return reply(c, await room(c).nightInfo(await accessOf(c), seat, targets))
+  })
+
   games.get('/:id/journal', async (c) => reply(c, await room(c).journal(await accessOf(c), Number(c.req.query('since') ?? 0) || 0)))
 
   // ── Lobby and players (seat tokens replace the Firestore deal sessions) ────

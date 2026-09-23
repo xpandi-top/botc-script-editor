@@ -101,6 +101,21 @@ describe('/v1/games', () => {
     expect((await send('GET', `/v1/games/${gameId}/night-script`)).status).toBe(403)
   })
 
+  it('suggests legal night information, with yesterday\'s execution for the Undertaker', async () => {
+    const { gameId, hostToken } = await newGame({ ...TB7, assignments: { ...TB7.assignments, 4: 'undertaker' } })
+    const ft = await j(await send('GET', `/v1/games/${gameId}/night-info?seat=3&targets=6,1`, { token: hostToken }))
+    expect(ft).toMatchObject({ role: 'fortuneteller', truthful: true, info: { kind: 'yesno', values: [true] } })
+    const run = (commands: unknown[]) => send('POST', `/v1/games/${gameId}/commands`, { token: hostToken, body: { commands } })
+    await run([{ type: 'seat.update', seat: 5, changes: { isExecuted: true, alive: false } }, { type: 'phase.set', phase: 'nomination' }, { type: 'day.next' }])
+    const day2 = await j(await send('GET', `/v1/games/${gameId}/night-info?seat=4`, { token: hostToken }))
+    expect(day2.info).toEqual({ kind: 'character', seat: 5, values: ['poisoner'], truth: 'poisoner' })
+    await run([{ type: 'phase.set', phase: 'nomination' }, { type: 'day.next' }])
+    const day3 = await j(await send('GET', `/v1/games/${gameId}/night-info?seat=4`, { token: hostToken }))
+    expect(day3.info).toMatchObject({ truth: null }) // no new execution on day 2
+    expect((await send('GET', `/v1/games/${gameId}/night-info?seat=4`)).status).toBe(403)
+    expect((await send('GET', `/v1/games/${gameId}/night-info`, { token: hostToken })).status).toBe(400)
+  })
+
   it('deals at random and lets a signed-in owner play without the token', async () => {
     const { gameId } = await newGame({ scriptSlug: 'tb', playerCount: 10, assignments: 'random' }, 'google-ann')
     const st = await j(await send('GET', `/v1/games/${gameId}?view=st`, { auth: 'google-ann' }))
@@ -211,6 +226,8 @@ describe('MCP game tools', () => {
     expect(created.json.grimoire.seats[6]).toMatchObject({ seat: 7, character: 'drunk', believes: 'chef', team: 'good' })
     expect(created.json.grimoire.seats[1].name).toBe('Bo')
 
+    const info = await tool('suggest_night_info', { game_id, host_token, seat: 7 })
+    expect(info.json).toMatchObject({ role: 'chef', truthful: false, impaired: ['drunk'], info: { kind: 'number', truth: 1 } })
     const night = await tool('get_night_script', { game_id, host_token, night: 'first' })
     expect(night.json.find((s: any) => s.id === 'poisoner').seats[0].seat).toBe(5)
 

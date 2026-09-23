@@ -6,6 +6,7 @@
 import { applyCommand, currentDayOf, type EngineGame, type GameCommand } from '../../../src/core/engine/commands'
 import { createDayState } from '../../../src/core/engine/factories'
 import { buildNightScript } from '../../../src/core/engine/nightScript'
+import { suggestNightInfo } from '../../../src/core/engine/nightInfo'
 import { buildSeatsFromConfig, drawRandomAssignments } from '../../../src/core/engine/setup'
 import { publicView, seatView } from '../../../src/core/engine/views'
 import type { NewGameConfig, TimerDefaults } from '../../../src/core/types/game'
@@ -189,6 +190,23 @@ export class GameRoomCore {
     }, { includeDead })
   }
 
+  /** Legal information for a seat's night action (see core/engine/nightInfo.ts). */
+  async nightInfo(access: Access, seatNumber: number, targets?: number[]) {
+    const state = await this.state()
+    await this.requireHost(state, access)
+    const ordered = [...state.game.days].sort((a, b) => a.day - b.day)
+    const current = currentDayOf(state.game)
+    const i = ordered.indexOf(current)
+    // Execution flags carry over to later days, so "today's execution" for
+    // tonight's Undertaker is the seat newly executed on the previous day.
+    const prev = ordered[i - 1]
+    const before = ordered[i - 2]
+    const executedSeat = prev?.seats.find((s) => s.isExecuted && !before?.seats.find((b) => b.seat === s.seat)?.isExecuted)?.seat ?? null
+    const suggestion = suggestNightInfo(current, seatNumber, this.catalog.teamOf, { targets, executedSeat })
+    if (!suggestion) throw new RoomError('invalid_argument', `Seat ${seatNumber} does not exist.`)
+    return suggestion
+  }
+
   async journal(access: Access, since = 0) {
     const state = await this.state()
     await this.requireHost(state, access)
@@ -323,6 +341,7 @@ export function roomApi(core: GameRoomCore) {
     command: (access: Access, commands: GameCommand[], expectedVersion?: number) => settle(() => core.command(access, commands, expectedVersion)),
     nightScript: (access: Access, night: 'first' | 'other', lang: 'en' | 'zh', includeDead?: boolean) => settle(() => core.nightScript(access, night, lang, includeDead)),
     journal: (access: Access, since?: number) => settle(() => core.journal(access, since)),
+    nightInfo: (access: Access, seat: number, targets?: number[]) => settle(() => core.nightInfo(access, seat, targets)),
     lobby: () => settle(() => core.lobby()),
     claimSeat: (seat: number, name: string, seatToken: string) => settle(() => core.claimSeat(seat, name, seatToken)),
     releaseSeat: (access: Access, seat: number) => settle(() => core.releaseSeat(access, seat)),

@@ -99,11 +99,12 @@ GET  /v1/games/{id}                public view · ?view=st → grimoire (host)
 GET  /v1/games/{id}/seats/{n}      what that player knows (host)
 POST /v1/games/{id}/commands       {"commands": [...], "expectedVersion"?} (host; atomic)
 GET  /v1/games/{id}/night-script?night=first|other&lang=  (host)
+GET  /v1/games/{id}/night-info?seat=&targets=a,b       (host) legal info for an information role
 GET  /v1/games/{id}/journal?since=<version>               (host)
 Players: GET /v1/games/{id}/lobby · POST /v1/games/{id}/claim {"seat","name"} → seatToken (once)
          GET /v1/games/{id}/me · POST /v1/games/{id}/vote {"yes"} · GET|POST /v1/games/{id}/messages   (X-Seat-Token)
 Storyteller: POST /v1/games/{id}/messages {"to": seat|"all", "text"} · DELETE /v1/games/{id}/claims/{seat}
-MCP tools: create_game, get_game, run_commands, get_night_script, get_seat_view, get_lobby, send_player_message, get_messages
+MCP tools: create_game, get_game, run_commands, get_night_script, suggest_night_info, get_seat_view, get_lobby, send_player_message, get_messages
 `)
   })
 

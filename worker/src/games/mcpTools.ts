@@ -145,6 +145,13 @@ export function registerGameTools(server: McpServer, deps: { rooms: (gameId: str
     annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   }, ({ game_id, host_token, since }) => guarded(async () => unwrap(await roomOf(game_id).messages(access(host_token), since))))
 
+  server.registerTool('suggest_night_info', {
+    title: 'Suggest night information',
+    description: 'Legal information for an information character tonight (Washerwoman, Librarian, Investigator, Chef, Empath, Fortune Teller, Undertaker, Ravenkeeper): the true options, Recluse/Spy misregistration ranges, and whether the seat is drunk/poisoned (then any answer is allowed). Choose one option; do not invent information. Other roles return "unsupported".',
+    inputSchema: { ...idArgs, seat: z.number().int().min(1), targets: z.array(z.number().int().min(1)).max(2).optional().describe('Players the role chose (Fortune Teller: 2, Ravenkeeper: 1).') },
+    annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  }, ({ game_id, host_token, seat, targets }) => guarded(async () => unwrap(await roomOf(game_id).nightInfo(access(host_token), seat, targets))))
+
   server.registerTool('get_seat_view', {
     title: 'Get seat view',
     description: 'What one player knows: the public state plus the character they were told they are.',
