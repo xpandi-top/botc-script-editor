@@ -1,0 +1,26 @@
+{
+  "name": "botc-api",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "BOTC Companion public API + MCP server (Cloudflare Worker). See ../docs/ARCHITECTURE-API.md.",
+  "scripts": {
+    "build:catalog": "node ../scripts/build-catalog.mjs --out src/generated/catalog.json",
+    "dev": "npm run build:catalog && wrangler dev",
+    "deploy": "npm run build:catalog && wrangler deploy",
+    "test": "npm run build:catalog && vitest run",
+    "typecheck": "npm run build:catalog && tsc --noEmit"
+  },
+  "dependencies": {
+    "@cfworker/json-schema": "^4.1.1",
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "hono": "^4.13.8",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260922.1",
+    "typescript": "~5.8.3",
+    "vitest": "^4.1.11",
+    "wrangler": "^4.136.3"
+  }
+}

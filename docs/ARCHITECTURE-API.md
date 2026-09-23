@@ -128,10 +128,10 @@ scripts/build-catalog.mjs # P1：产出 Worker 可用的精简 catalog JSON + �
 | 接口 | 用途 | 权限 | 阶段 | MCP |
 |---|---|---|---|---|
 | `GET /v1/scripts` · `/v1/scripts/{slug}` | 官方 / 社区剧本 | 🌐 | P1 | `list_scripts` / `get_script` |
-| `POST /v1/scripts:validate` | 未知 id、重复、阵营计数、缺恶魔、自定义角色字段、适用 jinx；返回解析后完整角色表 + 夜序 | 🌐 | P1 | `validate_script` |
-| `POST /v1/scripts:analyze` | 确定性统计：信息 / 保护 / 杀伤占比、外来者修正、难度指标 | 🌐 | P1 | `analyze_script` |
-| `POST /v1/scripts:convert` | 官方 script JSON ⇄ EditableScript | 🌐 | P1 | — |
-| `POST /v1/share` | 复用 shortlinks → 返回 app `?sl=` 导入链接 | 🌐 | P1 | `create_script_draft` |
+| `POST /v1/scripts/validate` | 未知 id、重复、阵营计数、缺恶魔、自定义角色字段、适用 jinx；返回解析后完整角色表 + 夜序 | 🌐 | P1 | `validate_script` |
+| `POST /v1/scripts/analyze` | 确定性统计：信息 / 保护 / 杀伤占比、外来者修正、难度指标 | 🌐 | P1 | `analyze_script` |
+| `POST /v1/scripts/drafts` | 由角色 id / 自定义角色生成剧本 → 校验 → 返回 app `?ss=` 导入链接 | 🌐 | P1 ✅ | `create_script_draft` |
+| `POST /v1/share` | 通用分享（记录等） | 🌐 | P2 | — |
 | `GET·POST /v1/me/scripts`，`GET·PATCH·DELETE /v1/me/scripts/{id}` | 我的剧本库 | 👤 | P2 | `list_my_scripts` / `save_script` |
 | `POST /v1/me/scripts/{id}/revisions` · `PUT /v1/me/folders` | 版本 / 文件夹 | 👤 | P2 | — |
 | `GET /v1/me/scripts/{id}/export?format=json` | 官方 JSON；PDF → 返回打印深链 | 👤 | P2 | — |
@@ -140,7 +140,7 @@ scripts/build-catalog.mjs # P1：产出 Worker 可用的精简 catalog JSON + �
 
 | 接口 | 用途 | 权限 | 阶段 | MCP |
 |---|---|---|---|---|
-| `POST /v1/characters:validate` | 字段校验 + 风格 lint + id 冲突 | 🌐 | P1 | `validate_character` |
+| `POST /v1/characters/validate` | 字段校验 + 风格 lint + id 冲突 | 🌐 | P1 | `validate_character` |
 | `GET·POST /v1/me/characters`，`PATCH·DELETE /{id}` | 自定义角色（`custom_*`，图标 → R2） | 👤 | P2 | `create_character` / `update_character` |
 | `POST /v1/me/characters/{id}/revisions` | 能力修订（对应 `npm run add-revision`） | 👤 | P2 | `add_revision` |
 | `PATCH /v1/me/overrides/{jinxes\|reminders\|night}` | 相克 / 提醒标记 / 夜序覆盖 | 👤 | P2 | — |
@@ -259,6 +259,24 @@ AI 设置保持本地 BYOK，永不上传。
 | ⏸ | 计时器 → `endsAt` | **推迟到 P3**：本地应用无收益且需迁移持久化状态；云对局的 DO 状态直接用 `endsAt`，客户端换算剩余秒数 |
 | ✅ | catalog 快照：`scripts/build-catalog.mjs` → `CatalogData`；`src/core/catalog`（查询）、`src/core/script/analyze.ts`（确定性分析） | Web 继续用 `catalog.ts`（含用户覆盖）；测试逐角色比对二者一致（名称 / 能力 / 提醒 / 夜序文本 / jinx / 剧本） |
 | ✅ | 命令引擎 `applyCommand`（`core/engine/commands.ts`）+ 回放测试 | 一局暗流涌动从建局到结束在 Node 中确定性回放；可从 `GameRecord.savedDays` 恢复后继续；非法命令返回错误码且不改状态 |
+
+---
+
+## 7.1 P1 进度（`worker/`）
+
+| 状态 | 项目 | 备注 |
+|---|---|---|
+| ✅ | Worker 脚手架：Hono + MCP（`@modelcontextprotocol/sdk` Web 标准 Streamable HTTP，无状态）+ OpenAPI + `llms.txt` | 独立 `package.json`，不进 Web 构建 / CI 安装；bundle gzip 357 KB |
+| ✅ | 只读目录 API：角色搜索 / 详情、版本、夜序、jinx、剧本、打印清单 | 数据来自 `npm run build:catalog` 快照 |
+| ✅ | 剧本校验 / 分析 / 草稿：`POST /v1/scripts/{validate,analyze,drafts}` | 草稿返回 `?ss=` 链接；配置 Firebase 时写 `shortlinks` 生成短链 |
+| ✅ | MCP：10 tools、4 resources、4 prompts | 本地 workerd 实测；Worker 生成的链接在 app 中导入成功（含自定义角色） |
+| ✅ | 测试：`cd worker && npm test`（REST + MCP JSON-RPC）；已并入 `npm run verify` | |
+| ⬜ | **部署（需手动）**：`cd worker && npx wrangler login && npm run deploy` | 见 `worker/README.md` |
+| ⬜ | `search_rules`（wiki-chunks）、`find_similar_characters`（embeddings 尚未生成） | |
+| ⬜ | Pages 静态 `/api/v1/*.json` 镜像 | 可选：Worker 已覆盖 |
+| ⬜ | 限流 | Cloudflare WAF 规则（控制台手动） |
+
+路径约定：原计划的 Google 风格 `:validate` 与 Hono 路由参数语法冲突，实际使用 `/v1/scripts/validate` 这类子路径。
 
 ---
 
