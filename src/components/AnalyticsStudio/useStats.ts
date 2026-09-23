@@ -41,6 +41,7 @@ export function useScriptStats(records: GameRecord[]): ScriptStat[] {
       totalNominations: number; totalSkills: number
       totalDurationMs: number; durationCount: number
       dayHistogram: number[]
+      balancedCount: number; funEvilCount: number; funGoodCount: number; replayCount: number
       ratingCount: number; totalBalanced: number; totalFunEvil: number; totalFunGood: number; totalReplay: number
     }>()
 
@@ -53,6 +54,7 @@ export function useScriptStats(records: GameRecord[]): ScriptStat[] {
         totalNominations: 0, totalSkills: 0,
         totalDurationMs: 0, durationCount: 0,
         dayHistogram: [],
+        balancedCount: 0, funEvilCount: 0, funGoodCount: 0, replayCount: 0,
         ratingCount: 0, totalBalanced: 0, totalFunEvil: 0, totalFunGood: 0, totalReplay: 0,
       }
       entry.total++
@@ -68,10 +70,10 @@ export function useScriptStats(records: GameRecord[]): ScriptStat[] {
       if (r.durationMs) { entry.totalDurationMs += r.durationMs; entry.durationCount++ }
       if (r.balanced != null || r.funEvil != null || r.funGood != null || r.replay != null) {
         entry.ratingCount++
-        if (r.balanced != null) entry.totalBalanced += r.balanced
-        if (r.funEvil != null) entry.totalFunEvil += r.funEvil
-        if (r.funGood != null) entry.totalFunGood += r.funGood
-        if (r.replay != null) entry.totalReplay += r.replay
+        if (r.balanced != null) { entry.totalBalanced += r.balanced; entry.balancedCount++ }
+        if (r.funEvil != null) { entry.totalFunEvil += r.funEvil; entry.funEvilCount++ }
+        if (r.funGood != null) { entry.totalFunGood += r.funGood; entry.funGoodCount++ }
+        if (r.replay != null) { entry.totalReplay += r.replay; entry.replayCount++ }
       }
       if (dayLen > 0) {
         entry.dayHistogram[dayLen - 1] = (entry.dayHistogram[dayLen - 1] ?? 0) + 1
@@ -88,10 +90,10 @@ export function useScriptStats(records: GameRecord[]): ScriptStat[] {
         avgNominations: s.total ? +(s.totalNominations / s.total).toFixed(1) : 0,
         votePassRate: s.totalVotes ? Math.round((s.totalVotePassed / s.totalVotes) * 100) : null,
         avgDurationMin: s.durationCount ? Math.round(s.totalDurationMs / s.durationCount / 60000) : null,
-        avgBalanced: s.ratingCount ? +(s.totalBalanced / s.ratingCount).toFixed(1) : null,
-        avgFunEvil: s.ratingCount ? +(s.totalFunEvil / s.ratingCount).toFixed(1) : null,
-        avgFunGood: s.ratingCount ? +(s.totalFunGood / s.ratingCount).toFixed(1) : null,
-        avgReplay: s.ratingCount ? +(s.totalReplay / s.ratingCount).toFixed(1) : null,
+        avgBalanced: s.balancedCount ? +(s.totalBalanced / s.balancedCount).toFixed(1) : null,
+        avgFunEvil: s.funEvilCount ? +(s.totalFunEvil / s.funEvilCount).toFixed(1) : null,
+        avgFunGood: s.funGoodCount ? +(s.totalFunGood / s.funGoodCount).toFixed(1) : null,
+        avgReplay: s.replayCount ? +(s.totalReplay / s.replayCount).toFixed(1) : null,
       }))
   }, [records])
 }
@@ -338,6 +340,7 @@ export function useStorytellerStats(records: GameRecord[]): StorytellerStat[] {
     const map = new Map<string, {
       name: string; total: number; evil: number; good: number; st: number
       scripts: Set<string>
+      balancedCount: number; funEvilCount: number; funGoodCount: number; replayCount: number
       ratingCount: number; totalBalanced: number; totalFunEvil: number; totalFunGood: number; totalReplay: number
     }>()
 
@@ -348,6 +351,7 @@ export function useStorytellerStats(records: GameRecord[]): StorytellerStat[] {
       const entry = map.get(key) ?? {
         name, total: 0, evil: 0, good: 0, st: 0,
         scripts: new Set<string>(),
+        balancedCount: 0, funEvilCount: 0, funGoodCount: 0, replayCount: 0,
         ratingCount: 0, totalBalanced: 0, totalFunEvil: 0, totalFunGood: 0, totalReplay: 0,
       }
       entry.total++
@@ -358,10 +362,10 @@ export function useStorytellerStats(records: GameRecord[]): StorytellerStat[] {
       if (scriptKey) entry.scripts.add(scriptKey)
       if (r.balanced != null || r.funEvil != null || r.funGood != null || r.replay != null) {
         entry.ratingCount++
-        if (r.balanced != null) entry.totalBalanced += r.balanced
-        if (r.funEvil != null) entry.totalFunEvil += r.funEvil
-        if (r.funGood != null) entry.totalFunGood += r.funGood
-        if (r.replay != null) entry.totalReplay += r.replay
+        if (r.balanced != null) { entry.totalBalanced += r.balanced; entry.balancedCount++ }
+        if (r.funEvil != null) { entry.totalFunEvil += r.funEvil; entry.funEvilCount++ }
+        if (r.funGood != null) { entry.totalFunGood += r.funGood; entry.funGoodCount++ }
+        if (r.replay != null) { entry.totalReplay += r.replay; entry.replayCount++ }
       }
       map.set(key, entry)
     }
@@ -370,10 +374,10 @@ export function useStorytellerStats(records: GameRecord[]): StorytellerStat[] {
       .sort((a, b) => b.total - a.total)
       .map((s) => ({
         ...s,
-        avgBalanced: s.ratingCount ? +(s.totalBalanced / s.ratingCount).toFixed(1) : null,
-        avgFunEvil: s.ratingCount ? +(s.totalFunEvil / s.ratingCount).toFixed(1) : null,
-        avgFunGood: s.ratingCount ? +(s.totalFunGood / s.ratingCount).toFixed(1) : null,
-        avgReplay: s.ratingCount ? +(s.totalReplay / s.ratingCount).toFixed(1) : null,
+        avgBalanced: s.balancedCount ? +(s.totalBalanced / s.balancedCount).toFixed(1) : null,
+        avgFunEvil: s.funEvilCount ? +(s.totalFunEvil / s.funEvilCount).toFixed(1) : null,
+        avgFunGood: s.funGoodCount ? +(s.totalFunGood / s.funGoodCount).toFixed(1) : null,
+        avgReplay: s.replayCount ? +(s.totalReplay / s.replayCount).toFixed(1) : null,
       }))
   }, [records])
 }
@@ -421,14 +425,14 @@ export function useKpiSummary(records: GameRecord[]): KpiSummary {
     const totalPlayers = playerRecs.reduce((s, r) => s + (r.playerSummaries?.length ?? 0), 0)
 
     // Rating aggregates
-    let rCount = 0, rBal = 0, rFunE = 0, rFunG = 0, rRep = 0
+    let rBalCount = 0, rFunECount = 0, rFunGCount = 0, rRepCount = 0
+    let rBal = 0, rFunE = 0, rFunG = 0, rRep = 0
     for (const r of records) {
       if (r.balanced != null || r.funEvil != null || r.funGood != null || r.replay != null) {
-        rCount++
-        if (r.balanced != null) rBal += r.balanced
-        if (r.funEvil != null) rFunE += r.funEvil
-        if (r.funGood != null) rFunG += r.funGood
-        if (r.replay != null) rRep += r.replay
+        if (r.balanced != null) { rBal += r.balanced; rBalCount++ }
+        if (r.funEvil != null) { rFunE += r.funEvil; rFunECount++ }
+        if (r.funGood != null) { rFunG += r.funGood; rFunGCount++ }
+        if (r.replay != null) { rRep += r.replay; rRepCount++ }
       }
     }
 
@@ -444,10 +448,10 @@ export function useKpiSummary(records: GameRecord[]): KpiSummary {
       avgDays: total ? +(totalDays / total).toFixed(1) : null,
       avgDurationMin: durRecs.length ? Math.round(totalDurationMs / durRecs.length / 60000) : null,
       avgPlayers: playerRecs.length ? +(totalPlayers / playerRecs.length).toFixed(1) : null,
-      avgBalanced: rCount ? +(rBal / rCount).toFixed(1) : null,
-      avgFunEvil: rCount ? +(rFunE / rCount).toFixed(1) : null,
-      avgFunGood: rCount ? +(rFunG / rCount).toFixed(1) : null,
-      avgReplay: rCount ? +(rRep / rCount).toFixed(1) : null,
+      avgBalanced: rBalCount ? +(rBal / rBalCount).toFixed(1) : null,
+      avgFunEvil: rFunECount ? +(rFunE / rFunECount).toFixed(1) : null,
+      avgFunGood: rFunGCount ? +(rFunG / rFunGCount).toFixed(1) : null,
+      avgReplay: rRepCount ? +(rRep / rRepCount).toFixed(1) : null,
     }
   }, [records])
 }

@@ -1,3 +1,4 @@
+import { COMPONENT_RADIUS as R } from './tokens'
 // Re-export factory for dynamic usage; keep static `theme` for backwards compat.
 export { makeTheme } from './makeTheme'
 export type { ThemeMode } from './makeTheme'
@@ -35,13 +36,7 @@ declare module '@mui/material/Typography' {
 
 // ── Radius system ─────────────────────────────────────────────────────────────
 // One consistent curve per tier — no random mixing
-const R = {
-  btn:    10,   // all buttons / toggles / inputs — medium rounded
-  card:   12,   // cards / panels
-  dialog: 16,   // modals / drawers
-  pill:   999,  // navigation tabs / chips — intentional pill
-  xs:     4,    // tooltips / tiny badges
-} as const
+
 
 export const theme = createTheme({
   // ── Palette ───────────────────────────────────────────────────────────────
@@ -146,7 +141,7 @@ export const theme = createTheme({
   },
 
   // ── Shape — single base radius (btn tier) ──────────────────────────────────
-  shape: { borderRadius: R.btn },
+  shape: { borderRadius: R.base },
   spacing: 8,
 
   // ── Components ─────────────────────────────────────────────────────────────
@@ -190,7 +185,7 @@ export const theme = createTheme({
           padding:      '4px 12px',
           fontSize:     '0.88rem',
           minHeight:    32,
-          borderRadius: R.btn - 2,
+          borderRadius: R.btn,
         },
         sizeMedium: { padding: '8px 16px' },
         sizeLarge:  { padding: '12px 24px', minHeight: 48, fontSize: '1.05rem' },
@@ -288,7 +283,7 @@ export const theme = createTheme({
           textTransform: 'none',
           fontWeight:    WEIGHT.medium,
           fontSize:      '0.95rem',
-          borderRadius:  R.btn,              // 10px — matches Button/ToggleButton
+          borderRadius:  R.btn,              // matches Button/ToggleButton
           border:        `1px solid ${BORDER.subtle}`,
           minHeight:     38,
           minWidth:      44,                 // icon-only: near-square touch target
@@ -363,7 +358,7 @@ export const theme = createTheme({
         root: {
           fontSize:     '0.95rem',
           color:        INK.primary,
-          borderRadius: R.btn - 2,
+          borderRadius: R.btn,
           margin:       '1px 4px',
           padding:      '6px 10px',
           '&:hover':    { background: STATE.hover },

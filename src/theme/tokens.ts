@@ -102,13 +102,24 @@ export const SPACE = {
 } as const
 
 // ── Border radius ─────────────────────────────────────────────────────────────
+// Numeric values here are CSS pixels in component overrides.
+// MUI sx numeric radii multiply `shape.borderRadius`, so keep its unit at 4px.
+export const COMPONENT_RADIUS = {
+  base: 4,
+  btn: 8,
+  card: 12,
+  dialog: 16,
+  pill: 999,
+  xs: 4,
+} as const
+
 export const RADIUS = {
-  xs:   '4px',
-  sm:   '8px',
-  md:   '12px',
-  lg:   '16px',
+  xs:   `${COMPONENT_RADIUS.xs}px`,
+  sm:   `${COMPONENT_RADIUS.btn}px`,
+  md:   `${COMPONENT_RADIUS.card}px`,
+  lg:   `${COMPONENT_RADIUS.dialog}px`,
   xl:   '20px',
-  pill: '999px',
+  pill: `${COMPONENT_RADIUS.pill}px`,
 } as const
 
 // ── Elevation / shadows (warm bistre-tinted, never pure grey) ─────────────────

@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Box, Tab, Tabs, Typography } from '@mui/material'
-import { useBreakpoint } from '../../hooks/useBreakpoint'
 import BarChartIcon from '@mui/icons-material/BarChart'
 import AutoStoriesIcon from '@mui/icons-material/AutoStories'
 import GroupIcon from '@mui/icons-material/Group'
@@ -32,7 +31,6 @@ type StudioTab = typeof TABS[number]
 export function StudioShell({ records, onRecordsChange, language, onCreateRecord, onEditRecord }: Props) {
   const tpl = makeTpl(language)
   const [activeTab, setActiveTab] = useState<StudioTab>('overview')
-  const { isMobile } = useBreakpoint()
   const { filter, setFilter, filtered, activeCount, resetFilter, allScriptOptions, allPlayerOptions } = useAnalyticsFilter(records)
 
   const kpi = useKpiSummary(filtered)
@@ -72,12 +70,16 @@ export function StudioShell({ records, onRecordsChange, language, onCreateRecord
       {/* Studio tabs */}
       <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
         <Tabs
+          aria-label={language === 'zh' ? '统计分类' : 'Analytics sections'}
           value={activeTab}
           onChange={(_, v) => setActiveTab(v)}
           variant="scrollable"
           scrollButtons="auto"
           sx={{
+            '& .MuiTabs-indicator': { display: 'block', height: 3 },
             '& .MuiTab-root': {
+              border: 0, borderRadius: 0, backgroundColor: 'transparent',
+              '&.Mui-selected': { backgroundColor: 'transparent', color: 'text.primary', fontWeight: 700 },
               minHeight: { xs: 36, sm: 40 },
               py: { xs: 0.5, sm: 0.75 },
               px: { xs: 1, sm: 1.5 },
@@ -93,7 +95,7 @@ export function StudioShell({ records, onRecordsChange, language, onCreateRecord
               key={t.key}
               value={t.key}
               label={
-                isMobile ? undefined : (language === 'zh' ? t.labelZh : t.label)
+                language === 'zh' ? t.labelZh : t.label
               }
               icon={t.icon as React.ReactElement}
               iconPosition="start"

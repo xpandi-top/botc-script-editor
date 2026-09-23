@@ -122,7 +122,7 @@ function buildInsights(
 
   // ── Win balance ──
   const diff = Math.abs(kpi.evilPct - kpi.goodPct)
-  if (kpi.total >= 5) {
+  if (kpi.evilWins + kpi.goodWins >= 20) {
     if (diff <= 8) {
       out.push({ id: 'balance-ok', severity: 'good',
         label: t('balanced_win_rates'),
@@ -131,12 +131,12 @@ function buildInsights(
     } else if (kpi.evilPct > kpi.goodPct + 15) {
       out.push({ id: 'balance-evil', severity: 'warning',
         label: t('evildominant'),
-        detail: t('consider_more_goodfavoured_scripts'),
+        detail: tpl('evil_vs_good_pct', kpi.evilPct, kpi.goodPct),
         value: `${kpi.evilPct}% E` })
     } else if (kpi.goodPct > kpi.evilPct + 15) {
       out.push({ id: 'balance-good', severity: 'warning',
         label: t('gooddominant'),
-        detail: t('consider_harder_evil_roles'),
+        detail: tpl('evil_vs_good_pct', kpi.evilPct, kpi.goodPct),
         value: `${kpi.goodPct}% G` })
     }
   }
@@ -159,7 +159,7 @@ function buildInsights(
   }
 
   // ── Script dominance ──
-  const qualified = scriptStats.filter((s) => s.total >= 3)
+  const qualified = scriptStats.filter((s) => s.evil + s.good >= 10)
   if (qualified.length > 0) {
     const mostEvil = qualified.reduce((a, b) => (b.evil / b.total > a.evil / a.total ? b : a))
     const ePct = Math.round((mostEvil.evil / mostEvil.total) * 100)
@@ -178,7 +178,7 @@ function buildInsights(
         value: `${gPct}%` })
     }
     // Highest-rated script
-    const rated = qualified.filter((s) => s.avgBalanced != null || s.avgReplay != null)
+    const rated = qualified.filter((s) => s.avgBalanced != null && s.avgReplay != null)
     if (rated.length > 0) {
       const topRated = rated.reduce((a, b) => {
         const aScore = ((a.avgBalanced ?? 0) + (a.avgReplay ?? 0)) / 2
@@ -287,7 +287,7 @@ function InsightCard({ insight }: { insight: Insight }) {
 function RecentStreak({ records }: { records: GameRecord[] }) {
   const { t } = useT()
   const recent = [...records].sort((a, b) => b.endedAt - a.endedAt).slice(0, 10).reverse()
-  if (recent.length < 3) return null
+  if (recent.length === 0) return null
   return (
     <Box>
       <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.75 }}>
@@ -356,21 +356,21 @@ export function OverviewSection({ kpi, scriptStats, playerStats, charStats, stor
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, '& .MuiPaper-root': { boxShadow: 'none', border: '1px solid', borderColor: 'divider', borderRadius: '12px' } }}>
 
       {/* ── KPI Cards ── */}
-      <Box sx={{ display: 'flex', gap: { xs: 1, sm: 1.5 }, flexWrap: 'wrap' }}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', sm: 'repeat(4, minmax(0, 1fr))' }, gap: 1.5 }}>
         <Paper sx={{ p: { xs: 1.5, sm: 2 }, flex: '1 1 100px', textAlign: 'center', minWidth: 90 }} elevation={2}>
           <Typography variant="h4" sx={{ fontWeight: 700 }}>{kpi.total}</Typography>
           <Typography variant="caption" color="text.secondary">{t('total_games')}</Typography>
         </Paper>
-        <Paper sx={{ p: { xs: 1.5, sm: 2 }, flex: '1 1 100px', textAlign: 'center', bgcolor: '#7a2e24', color: '#f5ede8', minWidth: 90 }} elevation={2}>
-          <Typography variant="h4" sx={{ fontWeight: 700, color: '#f5ede8' }}>{kpi.evilPct}%</Typography>
-          <Typography variant="caption" sx={{ color: '#d4b0a8' }}>{tpl('evil_wins_n', kpi.evilWins)}</Typography>
+        <Paper sx={{ p: { xs: 1.5, sm: 2 }, flex: '1 1 100px', textAlign: 'center', bgcolor: 'background.paper', color: 'error.main', minWidth: 90 }} elevation={2}>
+          <Typography variant="h4" sx={{ fontWeight: 700, color: 'error.main' }}>{kpi.evilPct}%</Typography>
+          <Typography variant="caption" sx={{ color: 'text.secondary' }}>{tpl('evil_wins_n', kpi.evilWins)}</Typography>
         </Paper>
-        <Paper sx={{ p: { xs: 1.5, sm: 2 }, flex: '1 1 100px', textAlign: 'center', bgcolor: '#2e5e3a', color: '#e8f2eb', minWidth: 90 }} elevation={2}>
-          <Typography variant="h4" sx={{ fontWeight: 700, color: '#e8f2eb' }}>{kpi.goodPct}%</Typography>
-          <Typography variant="caption" sx={{ color: '#a8ccb4' }}>{tpl('good_wins_n', kpi.goodWins)}</Typography>
+        <Paper sx={{ p: { xs: 1.5, sm: 2 }, flex: '1 1 100px', textAlign: 'center', bgcolor: 'background.paper', color: 'success.main', minWidth: 90 }} elevation={2}>
+          <Typography variant="h4" sx={{ fontWeight: 700, color: 'success.main' }}>{kpi.goodPct}%</Typography>
+          <Typography variant="caption" sx={{ color: 'text.secondary' }}>{tpl('good_wins_n', kpi.goodWins)}</Typography>
         </Paper>
         {kpi.stWins > 0 && (
           <Paper sx={{ p: { xs: 1.5, sm: 2 }, flex: '1 1 100px', textAlign: 'center', minWidth: 90 }} elevation={2}>
@@ -405,6 +405,7 @@ export function OverviewSection({ kpi, scriptStats, playerStats, charStats, stor
             <BalanceIcon sx={{ fontSize: '1rem', color: 'warning.main' }} />
             <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>{t('avg_ratings')}</Typography>
           </Box>
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>{zh ? '各项仅统计已填写评分，未填写不计为零分。' : 'Each average includes only recorded ratings; missing values are excluded.'}</Typography>
           <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1 }}>
             {kpi.avgBalanced != null && (
               <Box>
@@ -438,6 +439,12 @@ export function OverviewSection({ kpi, scriptStats, playerStats, charStats, stor
       <Paper sx={{ p: 2 }} elevation={1}>
         <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1.5 }}>{t('win_balance')}</Typography>
         <WinBalanceMeter kpi={kpi} />
+        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
+          {zh ? `基于当前筛选的 ${kpi.total} 场记录；未记录结果 ${kpi.total - kpi.evilWins - kpi.goodWins - kpi.stWins} 场。占比以全部记录为分母。` : `Based on ${kpi.total} filtered games; ${kpi.total - kpi.evilWins - kpi.goodWins - kpi.stWins} without results. Percentages use all records.`}
+        </Typography>
+        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+          {zh ? '胜负受玩家经验、阵容和说书方式影响；样本趋势不代表剧本强弱。总体趋势至少需要 20 场善恶胜负记录，单剧本至少 10 场。' : 'Results depend on experience, setup and storytelling. Trends require 20 good/evil results overall, or 10 per script, and do not establish script balance.'}
+        </Typography>
       </Paper>
 
       <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
@@ -467,19 +474,21 @@ export function OverviewSection({ kpi, scriptStats, playerStats, charStats, stor
           <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1.5 }}>{t('script_summary')}</Typography>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.25 }}>
             {scriptStats.slice(0, 5).map((s) => {
-              const stWin = s.total - s.evil - s.good
+              const stWin = s.st
+              const unknown = s.total - s.evil - s.good - s.st
               return (
                 <Box key={s.key}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.25 }}>
                     <Typography variant="body2" sx={{ fontWeight: 600 }}>{s.title}</Typography>
                     <Typography variant="caption" color="text.secondary">
-                      {s.total}{t('games_g')} · E:{s.evil} G:{s.good}{stWin > 0 ? ` ST:${stWin}` : ''}
+                      {s.total}{t('games_g')} · E:{s.evil} G:{s.good}{stWin > 0 ? ` ST:${stWin}` : ''}{unknown > 0 ? ` · ${zh ? '未记录' : 'Unknown'}:${unknown}` : ''}
                     </Typography>
                   </Box>
                   <Box sx={{ display: 'flex', height: 6, borderRadius: 1, overflow: 'hidden', gap: '1px' }}>
                     {s.evil > 0 && <Box sx={{ flex: s.evil, bgcolor: '#b91c1c' }} />}
                     {s.good > 0 && <Box sx={{ flex: s.good, bgcolor: '#2e7d32' }} />}
                     {stWin > 0 && <Box sx={{ flex: stWin, bgcolor: '#6a1b9a' }} />}
+                    {unknown > 0 && <Box sx={{ flex: unknown, bgcolor: 'action.disabledBackground' }} />}
                   </Box>
                 </Box>
               )

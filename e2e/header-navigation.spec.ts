@@ -4,6 +4,18 @@ import { waitForAppReady } from './helpers'
 for (const theme of ['light', 'dark']) test(`navigation uses visible labels and indicators without overflow (${theme})`, async ({ page }, info) => {
   await page.addInitScript(mode => localStorage.setItem('botc-theme-mode', mode), theme)
   await waitForAppReady(page)
+  const trigger = page.getByRole('button', { name: '主导航', exact: true })
+  await trigger.click()
+  const menu = page.getByRole('menu', { name: '主导航', exact: true })
+  await expect(menu.getByRole('menuitem')).toHaveCount(6)
+  await expect(menu.getByRole('menuitem', { name: '剧本', exact: true })).toHaveAttribute('aria-current', 'page')
+  await page.screenshot({ path: info.outputPath('navigation-menu.png'), animations: 'disabled' })
+  await page.keyboard.press('Escape')
+  await expect(menu).not.toBeVisible()
+  await expect(trigger).toBeFocused()
+  await trigger.press('Enter')
+  await menu.getByRole('menuitem', { name: '全部角色', exact: true }).click()
+  await expect(menu).not.toBeVisible()
   const mobile = info.project.name === 'mobile-android'
   if (mobile) {
     const nav = page.getByRole('navigation', { name: '主导航', exact: true })

@@ -18,7 +18,7 @@ export function ScriptCard({ script, isActive, isBuiltIn, language, onSelect }: 
   const subtitle = `${script.author || source} · ${script.characters.length} ${t('library_roles')}${script.version ? ` · v${script.version}` : ''}`
   return <Box component="button" type="button" onClick={onSelect} aria-pressed={isActive} title={`${title}\n${subtitle}`}
     sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, width: '100%', minWidth: 0, textAlign: 'left', font: 'inherit',
-      p: 1, minHeight: 58, border: 0, borderRadius: 1.5, cursor: 'pointer', color: 'text.primary',
+      p: 1, minHeight: 58, border: 0, borderRadius: 2, cursor: 'pointer', color: 'text.primary',
       bgcolor: isActive ? 'action.selected' : 'transparent', borderLeft: '3px solid', borderLeftColor: isActive ? 'primary.main' : 'transparent',
       '&:hover': { bgcolor: 'action.hover' }, '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main', outlineOffset: -2 } }}>
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: '100%', minWidth: 0 }}>
