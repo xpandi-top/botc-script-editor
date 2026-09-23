@@ -1,7 +1,8 @@
+import { trackIdentityUpdates } from '../../utils/playerIdentity'
 import { useDealRoster } from '../../hooks/useDealRoster'
 import { useAudienceWindow } from '../../hooks/useAudienceWindow'
 import { buildAudienceSnapshot } from './presentation'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useI18n } from '../../hooks/useI18n'
 import { useAudioState } from '../../hooks/useAudioState'
 import { useUIState } from '../../hooks/useUIState'
@@ -35,8 +36,12 @@ export function useStoryteller(props: StorytellerHelperProps) {
   const initial = useMemo(() => loadInitialState(), [])
   const daysHistory = useHistory(initial.days)
   const days = daysHistory.value
-  const setDays = daysHistory.set
-  const setDaysWithUndo = daysHistory.setWithUndo
+  const setDays = useCallback((action: React.SetStateAction<DayState[]>) => {
+    daysHistory.set(previous => typeof action === 'function' ? trackIdentityUpdates(previous, action(previous)) : action)
+  }, [daysHistory.set])
+  const setDaysWithUndo = useCallback((action: React.SetStateAction<DayState[]>) => {
+    daysHistory.setWithUndo(previous => typeof action === 'function' ? trackIdentityUpdates(previous, action(previous)) : action)
+  }, [daysHistory.setWithUndo])
   const undo = daysHistory.undo
   const canUndo = daysHistory.canUndo
   const [selectedDayId, setSelectedDayId] = useState(initial.selectedDayId)

@@ -196,7 +196,21 @@ export type TimerDefaults = {
   phaseSwitchSoundEnabled?: boolean
 }
 
+export type IdentityState = { characterId: string | null; team: 'good' | 'evil' | null }
+export type IdentityChange = { seat: number; at: number; phase: Phase; from: IdentityState; to: IdentityState }
+export type IdentityHistory = { complete: boolean; initial: Array<IdentityState & { seat: number }>; changes: IdentityChange[] }
+export type PlayerSummary = {
+  seat: number; name: string; team: 'evil' | 'good' | null
+  initialCharacterId?: string | null
+  finalCharacterId?: string | null
+  initialTeam?: 'good' | 'evil' | null
+  finalTeam?: 'good' | 'evil' | null
+  characterChangeCount?: number | null
+  alignmentChangeCount?: number | null
+  historyComplete?: boolean
+}
 export type DayState = {
+  identityHistory?: IdentityHistory
   id: string
   day: number
   phase: Phase
@@ -232,7 +246,7 @@ export type GameRecord = {
   scriptVersion?: string
   scriptSlug?: string
   winner?: 'evil' | 'good' | 'storyteller' | null
-  playerSummaries?: Array<{ seat: number; name: string; team: 'evil' | 'good' | null }>
+  playerSummaries?: PlayerSummary[]
   /** Seat number of MVP player, or 'storyteller' if the ST was the standout, or null */
   mvp?: number | 'storyteller' | null
   balanced?: number | null

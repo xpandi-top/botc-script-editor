@@ -194,7 +194,7 @@ function buildInsights(
   }
 
   // ── Top player ──
-  const qualPlayers = playerStats.filter((p) => p.total >= 5)
+  const qualPlayers = playerStats.filter((p) => p.decided >= 5)
   if (qualPlayers.length > 0) {
     const best = qualPlayers.reduce((a, b) => b.winRate > a.winRate ? b : a)
     out.push({ id: 'player-top', severity: 'highlight',
@@ -217,7 +217,7 @@ function buildInsights(
     const charName = getDisplayName(top.charId, zh ? 'zh' : 'en')
     out.push({ id: 'char-top', severity: 'info',
       label: tpl('char_most_played_label', charName),
-      detail: tpl('char_played_winrate', top.total, top.winRate),
+      detail: tpl('char_played_winrate', top.total, top.decided ? top.winRate : '—'),
       value: `${top.total}×` })
   }
 
@@ -512,7 +512,7 @@ export function OverviewSection({ kpi, scriptStats, playerStats, charStats, stor
                 <Typography sx={{ fontWeight: 700, color: 'text.secondary', fontSize: '0.8rem', width: 18, flexShrink: 0 }}>#{idx + 1}</Typography>
                 <Box>
                   <Typography variant="body2" sx={{ fontWeight: 700, lineHeight: 1.2 }}>{p.name}</Typography>
-                  <Typography variant="caption" color="text.secondary">{p.winRate}%{t('win_short')} · {p.total}{t('games_g')}</Typography>
+                  <Typography variant="caption" color="text.secondary">{p.decided ? `${p.winRate}%` : '—'}{t('win_short')} · {p.total}{t('games_g')}</Typography>
                 </Box>
               </Box>
             ))}

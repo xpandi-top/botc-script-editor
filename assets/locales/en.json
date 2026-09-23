@@ -1,5 +1,17 @@
 {
   "ui": {
+    "identity_initial": "Initial identity",
+    "identity_final": "Final identity",
+    "identity_basis": "Role and alignment grouping",
+    "identity_stats_hint": "Group roles and alignments by the selected point in time. Wins use final alignment; only known good/evil results enter win-rate denominators. Role totals count player appearances. Missing initial identities are excluded from initial role/alignment groups.",
+    "identity_history": "Identity history",
+    "identity_roles": "Role changes",
+    "identity_teams": "Alignment changes",
+    "identity_unknown": "Unknown",
+    "identity_missing": "Incomplete history: unknown values are not counted as zero. Manual changes to final identity do not rewrite the recorded timeline.",
+    "identity_tracked": "Games with complete identity history",
+    "identity_samples": "Decided results",
+    "identity_edit_hint": "These fields edit final identity. Changing it preserves the original timeline and marks change counts unknown.",
     "presentation_open": "Open audience window",
     "presentation_focus": "Show audience window",
     "presentation_stop": "End presentation",

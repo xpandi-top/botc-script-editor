@@ -369,25 +369,12 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
   }
 
   function openEndGamePanel() {
-    if (!endGameResult) {
-      const teams: Record<number, 'evil' | 'good' | null> = {}
-      for (const s of currentDay.seats) teams[s.seat] = s.teamTag ?? 'good'
-      setEndGameResult({ winner: null, playerTeams: teams, mvp: null, balanced: null, funEvil: null, funGood: null, replay: null, otherNote: '' })
-    } else {
-      // Merge in any seats whose teamTag changed since the panel was last opened
-      setEndGameResult((c) => {
-        if (!c) return c
-        const updated = { ...c.playerTeams }
-        for (const s of currentDay.seats) {
-          if (updated[s.seat] === undefined || updated[s.seat] === null) {
-            updated[s.seat] = s.teamTag ?? 'good'
-          }
-        }
-        return { ...c, playerTeams: updated }
-      })
-    }
+    const finalDay = [...days].sort((a, b) => b.day - a.day)[0] ?? currentDay
+    const teams = Object.fromEntries(finalDay.seats.map(s => [s.seat, seatAlignment(s)]))
+    setEndGameResult(c => c
+      ? { ...c, playerTeams: teams }
+      : { winner: null, playerTeams: teams, mvp: null, balanced: null, funEvil: null, funGood: null, replay: null, otherNote: '' })
     if (setShowEndGameModal) setShowEndGameModal(true)
-    setEndGameResult((c) => c ? { ...c } : c)
   }
 
   function markGameEnded() {
@@ -433,7 +420,7 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
       // Create one day per entry in record.days (or 1 if none)
       const dayCount = record.days?.length || 1
       restoredDays = Array.from({ length: dayCount }, (_, i) =>
-        createDayState(i + 1, baseSeats, timerDefaults)
+        ({ ...createDayState(i + 1, baseSeats, timerDefaults), identityHistory: undefined })
       )
       // Mark last day ended if game has a winner
       if (record.winner) {

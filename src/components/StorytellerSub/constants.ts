@@ -1,3 +1,4 @@
+import { createIdentityHistory } from '../../utils/playerIdentity'
 import type { AudioTrack, StorytellerSeat, VoteDraft, SkillDraft, TimerDefaults, DayState } from './types'
 
 // ── Constants & Factories ──────────────────────────────────────
@@ -133,6 +134,7 @@ export function createDayState(day: number, seats: StorytellerSeat[], defaults: 
     skillHistory: [],
     eventLog: [],
     nightVisitedSeats: [],
+    identityHistory: createIdentityHistory(seats),
     gameEnded: false,
     demonBluffs: [],
   }

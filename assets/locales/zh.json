@@ -1,5 +1,17 @@
 {
   "ui": {
+    "identity_initial": "初始身份",
+    "identity_final": "最终身份",
+    "identity_basis": "角色与阵营统计口径",
+    "identity_stats_hint": "按所选时点归类角色与阵营；胜负按最终阵营判定，胜率只计入胜负及最终阵营明确的对局。角色数量按玩家人次计算。初始身份缺失的记录不进入初始角色／阵营分组。",
+    "identity_history": "身份变化历史",
+    "identity_roles": "角色变化次数",
+    "identity_teams": "阵营变化次数",
+    "identity_unknown": "未知",
+    "identity_missing": "历史不完整时，未知值不会按零次计算。手动修正最终身份不会改写原始变化过程。",
+    "identity_tracked": "身份历史完整的对局",
+    "identity_samples": "已知胜负样本",
+    "identity_edit_hint": "此处编辑最终身份。修改后保留原始变化过程，变化次数标为未知。",
     "presentation_open": "打开观众窗口",
     "presentation_focus": "定位观众窗口",
     "presentation_stop": "结束演示",

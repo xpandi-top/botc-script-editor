@@ -1,3 +1,4 @@
+import { recordPlayers } from '../../utils/playerIdentity'
 /**
  * RecordFormDialog — create or edit a single GameRecord.
  * Extracted from AnalyticsTab to keep that file manageable.
@@ -24,7 +25,7 @@ import { ResponsiveDialog, ResponsiveDialogActions, ResponsiveDialogContent } fr
 
 // ── Types ─────────────────────────────────────────────────────────
 
-type PlayerData = { name: string; charId: string; team: 'evil' | 'good' | '' }
+type PlayerData = { seat?: number; name: string; charId: string; team: 'evil' | 'good' | '' }
 /** @deprecated use PlayerData */
 type PlayerRow = PlayerData
 
@@ -113,11 +114,11 @@ const PlayerRowItem = React.memo(function PlayerRowItem({
     }}>
       <Typography variant="caption" color="text.secondary"
         sx={{ textAlign: 'center', fontWeight: 600, fontSize: { xs: '0.68rem', sm: '0.75rem' } }}>
-        {index + 1}
+        {player.seat ?? index + 1}
       </Typography>
       <TextField
         size="small"
-        placeholder={`${playerLabel} ${index + 1}`}
+        placeholder={`${playerLabel} ${player.seat ?? index + 1}`}
         value={player.name}
         onChange={handleNameChange}
         sx={{ minWidth: 0, '& .MuiInputBase-input': { py: { xs: '3px', sm: '4px' }, fontSize: { xs: '0.72rem', sm: '0.8rem' } } }}
@@ -189,9 +190,10 @@ export function RecordFormDialog({ existing, zh, language, onSave, onClose }: {
 
   const initPlayers = (): PlayerRow[] => {
     if (!existing?.playerSummaries) return makeRows(5)
-    return existing.playerSummaries.map((ps) => ({
+    return recordPlayers(existing).map((ps) => ({
+      seat: ps.seat,
       name: ps.name ?? '',
-      charId: existing.setup?.assignments?.[ps.seat] ?? '',
+      charId: ps.finalCharacterId ?? '',
       team: (ps.team ?? '') as 'evil' | 'good' | '',
     }))
   }
@@ -249,7 +251,7 @@ export function RecordFormDialog({ existing, zh, language, onSave, onClose }: {
     const clamped = Math.max(1, Math.min(20, n))
     setPlayerCount(clamped)
     setPlayers((prev) => {
-      if (clamped > prev.length) return [...prev, ...makeRows(clamped - prev.length)]
+      if (clamped > prev.length) return [...prev, ...makeRows(clamped - prev.length).map((p, i) => ({ ...p, seat: Math.max(0, ...prev.map((s, idx) => s.seat ?? idx + 1)) + i + 1 }))]
       return prev.slice(0, clamped)
     })
   }
@@ -263,15 +265,23 @@ export function RecordFormDialog({ existing, zh, language, onSave, onClose }: {
   const hasSurvey = balanced != null || funEvil != null || funGood != null || replay != null || mvp !== '' || stName || stCustomRules
 
   const handleSave = () => {
-    const endedAt = new Date(date + 'T12:00:00').getTime() || Date.now()
-    const activePlayers = players.filter((p) => p.name || p.charId)
-    const playerSummaries = activePlayers.map((p, idx) => ({
-      seat: idx + 1,
-      name: p.name || `#${idx + 1}`,
-      team: (p.team || null) as 'evil' | 'good' | null,
-    }))
-    const assignments: Record<number, string> = {}
-    players.forEach((p, idx) => { if (p.charId) assignments[idx + 1] = p.charId })
+    const endedAt = existing && new Date(existing.endedAt).toISOString().slice(0, 10) === date ? existing.endedAt : new Date(date + 'T12:00:00').getTime() || Date.now()
+    const activePlayers = players.map((p, i) => ({ ...p, seat: p.seat ?? i + 1 })).filter(p => p.name || p.charId)
+    const previous = existing ? recordPlayers(existing) : []
+    const playerSummaries = activePlayers.map(p => {
+      const old = previous.find(s => s.seat === p.seat)
+      const changed = old && (old.finalCharacterId !== (p.charId || null) || old.finalTeam !== (p.team || null))
+      return {
+        ...old,
+        seat: p.seat,
+        name: p.name || `#${p.seat}`,
+        team: p.team || null,
+        finalCharacterId: p.charId || null,
+        finalTeam: p.team || null,
+        ...(changed ? { historyComplete: false, characterChangeCount: null, alignmentChangeCount: null } : {}),
+      }
+    })
+    const assignments: Record<number, string> = Object.fromEntries(activePlayers.filter(p => p.charId).map(p => [p.seat, p.charId]))
     const hasSetup = Object.keys(assignments).length > 0
 
     const updatedRecord: GameRecord = {
@@ -299,9 +309,10 @@ export function RecordFormDialog({ existing, zh, language, onSave, onClose }: {
         nominations: existing?.days?.[i]?.nominations ?? 0,
       })),
       setup: hasSetup ? {
-        playerCount: players.length,
+        ...existing?.setup,
+        playerCount: activePlayers.length - (existing?.setup?.travelerCount ?? 0),
         travelerCount: existing?.setup?.travelerCount ?? 0,
-        seatNames: Object.fromEntries(players.map((p, i) => [i + 1, p.name])),
+        seatNames: Object.fromEntries(activePlayers.map(p => [p.seat, p.name])),
         assignments,
         userAssignments: existing?.setup?.userAssignments ?? {},
         seatNotes: existing?.setup?.seatNotes ?? {},
@@ -426,7 +437,7 @@ export function RecordFormDialog({ existing, zh, language, onSave, onClose }: {
               <IconButton size="small" onClick={() => setPlayerCount_(playerCount + 1)}><AddIcon fontSize="small" /></IconButton>
             </Box>
             <Typography variant="caption" color="text.secondary">
-              {t('analytics_char_team_hint')}
+              {t('analytics_char_team_hint')} {t('identity_edit_hint')}
             </Typography>
             {/* Header row */}
             <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '22px 1fr 1fr auto', sm: '32px 1fr 1fr 80px' }, gap: { xs: 0.375, sm: 0.5 }, alignItems: 'center', px: 0.5 }}>
