@@ -37,6 +37,20 @@ npm run typecheck
 
 `npm run verify` in the repo root also runs these tests once `worker/node_modules` exists.
 
+### Smoke test against a running worker
+
+`npm run smoke` checks a live deployment end to end: the REST API with plain
+`fetch`, and the MCP server through the official MCP client (the protocol
+Claude, Cursor and other agents use) — tools, prompts, resources and a full
+storyteller flow on a throwaway cloud game.
+
+```bash
+npm run smoke                                   # production (botc-api.xpandi-top.workers.dev)
+npm run smoke -- --url http://localhost:8787    # local `npm run dev`
+npm run smoke -- --no-games                     # don't create a throwaway game
+BOTC_TOKEN=botc_pat_… npm run smoke             # also check the signed-in cloud library
+```
+
 ## Deploy (manual, one-time setup)
 
 Needs a free Cloudflare account; no credit card.
