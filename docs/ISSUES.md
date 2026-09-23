@@ -7,9 +7,11 @@ Status: `open` | `fixed` | `wontfix`
 
 ## I-75 — Rochambeau script: High Priestess id does not resolve
 
-**Status:** open  
+**Status:** fixed  
 **Area:** assets/scripts/Rochambeau.json, assets/characters/individual/high_priestess.json  
 **Detail:** Found by the new script validator (src/core/script/validate.ts). Rochambeau lists `"highpriestess"` (official-script style id), but the catalog id is `high_priestess`, so the character does not resolve when the script is opened. Either fix the id in the script, or teach the catalog to resolve loose aliases (case/underscore-insensitive) so imported official scripts using the compact ids also work. When fixed, remove the entry from `KNOWN_UNKNOWN_IDS` in src/__tests__/coreScriptValidate.test.ts.
+
+**Fix:** Changed the id in `assets/scripts/Rochambeau.json` to `high_priestess`; the bundled-script validator test now expects zero unknown ids. (Loose alias matching for imported official scripts is not implemented; the validator's `suggestion` field points agents at the catalog id instead.)
 
 ---
 

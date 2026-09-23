@@ -40,10 +40,7 @@ const realCatalog: ScriptValidationCatalog = {
  * Known data problems in bundled scripts (docs/ISSUES.md). Listed explicitly so
  * a new bad id fails the test, and fixing one reminds you to delete its entry.
  */
-const KNOWN_UNKNOWN_IDS: Record<string, string[]> = {
-  // I-75: official-style id; the catalog file is high_priestess.json
-  'Rochambeau.json': ['highpriestess'],
-}
+const KNOWN_UNKNOWN_IDS: Record<string, string[]> = {}
 
 const codes = (r: ReturnType<typeof validateScript>) => r.issues.map((i) => i.code)
 
