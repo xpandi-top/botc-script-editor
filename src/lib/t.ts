@@ -342,6 +342,7 @@ export type UiKey =
   | 'analytics_char_team_hint' | 'analytics_no_char_data' | 'analytics_no_records_hint'
   | 'scripts_empty_hint' | 'delete_day_confirm'
   | 'char_unsaved_note' | 'search_id_name_desc' | 'tokens_all_seats_note'
+  | 'api_access' | 'api_access_desc' | 'api_endpoint' | 'api_mcp_endpoint' | 'api_sign_in_hint' | 'api_tokens' | 'api_tokens_desc' | 'api_token_name' | 'api_create_token' | 'api_token_created' | 'api_revoke' | 'api_no_tokens' | 'api_library' | 'api_library_desc' | 'api_upload' | 'api_import'
 
 export type TplKey =
   | 'showing_n_of_m'
@@ -378,6 +379,9 @@ export type TplKey =
   | 'avg_days_n'
   | 'avg_votes_n'
   | 'avg_noms_n'
+  | 'api_upload_done'
+  | 'api_import_done'
+  | 'api_error'
   | 'exec_rate_n'
   | 'showing_n_games_of_m'
   | 'ratings_n'

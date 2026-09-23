@@ -291,8 +291,8 @@ AI 设置保持本地 BYOK，永不上传。
 | ✅ | 带凭证的 MCP：`list_my_scripts`、`get_my_script`、`save_script`、`delete_my_script`、`list_my_characters`、`save_character`、`list_records`、`get_stats` | 无凭证仍为只读工具 |
 | ✅ | OAuth token 交换代理（I-73 修复代码） | 见 ISSUES I-73 手动步骤 |
 | ⬜ | **D1 创建与迁移（需手动）** | `worker/README.md` → Cloud library |
-| ⬜ | Web：设置页 “API 与 MCP” —— 生成 / 撤销 PAT（仅配置 `VITE_API_URL` 时显示） | |
-| ⬜ | Web：云端库同步（剧本 / 自定义角色 / 记录，基于 `since` + `updatedAt`） | 需谨慎设计合并，默认关闭 |
+| ✅ | Web：设置页 “API 与 MCP” —— API/MCP 地址、生成 / 撤销 PAT（`src/components/settings/ApiAccessSection.tsx`） | 仅配置 `VITE_API_URL` 时显示；生产环境未配置则不可见 |
+| ✅ | Web：云端库“上传 / 导入”（`src/lib/apiClient.ts`） | 显式按钮；导入只添加本机缺少的项目、不改不删（与 bundle 合并导入同语义）；自动双向同步留待后续 |
 
 ---
 

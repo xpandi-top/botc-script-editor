@@ -21,7 +21,7 @@ Status: `open` | `fixed` | `wontfix`
 **Area:** .github/workflows/deploy-pages.yml, src/lib/googleAuth.ts, src/components/settings/CloudSyncSection.tsx  
 **Detail:** The Pages deploy passes `VITE_GOOGLE_CLIENT_SECRET` into `vite build`, so the Google "Web application" client secret is readable by anyone from the served JS. Google requires the secret for the web token exchange, so it cannot simply be dropped. Planned fix (docs/ARCHITECTURE-API.md, P2): move the code→token exchange behind a Cloudflare Worker proxy that holds the secret server-side, then remove the secret from the build env and rotate it.
 
-**Implemented:** `worker/src/oauth.ts` (`POST /v1/auth/google/token`, adds the secret from a Worker secret; checks client id, grant type, redirect origin and request origin). `src/lib/googleAuth.ts` sends web token requests there without a secret when `VITE_OAUTH_TOKEN_PROXY` is set; unset = previous behavior. The deploy workflow passes `VITE_OAUTH_TOKEN_PROXY` through.
+**Implemented:** `worker/src/oauth.ts` (`POST /v1/auth/google/token`, adds the secret from a Worker secret; checks client id, grant type, redirect origin and request origin). `src/lib/googleAuth.ts` sends web token requests there without a secret when `VITE_OAUTH_TOKEN_PROXY` is set; unset = previous behavior. The deploy workflow passes `VITE_OAUTH_TOKEN_PROXY` through. Settings → Cloud Sync treats the proxy like a baked-in secret, so removing the secret does not make the app ask users for credentials.
 
 **To finish (manual):**
 1. Deploy the worker (worker/README.md), then `cd worker && npx wrangler secret put GOOGLE_CLIENT_SECRET` and set `GOOGLE_WEB_CLIENT_ID` in `wrangler.jsonc`; redeploy.

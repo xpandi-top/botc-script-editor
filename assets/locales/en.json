@@ -1345,6 +1345,25 @@
     "nav_empty_mine": "No scripts of your own yet. Create one or copy an existing script.",
     "nav_no_folders": "No folders available. Create one under Manage.",
     "nav_delete_folder_hint": "Deleting a folder moves its scripts to Unfiled; the scripts are preserved.",
-    "main_navigation": "Main navigation"
+    "main_navigation": "Main navigation",
+    "api_access": "API & MCP",
+    "api_access_desc": "Let AI agents (Claude, Cursor…) read BOTC data, check scripts and save to your cloud library.",
+    "api_endpoint": "API URL",
+    "api_mcp_endpoint": "MCP URL (for agents)",
+    "api_sign_in_hint": "Connect Google Drive Sync above to manage access tokens and the cloud library.",
+    "api_tokens": "Access tokens",
+    "api_tokens_desc": "Give a token to an agent so it can use your cloud library. Anyone with the token can read and change your library; revoke tokens you no longer use.",
+    "api_token_name": "Token name",
+    "api_create_token": "Create token",
+    "api_token_created": "Copy this token now; it will not be shown again.",
+    "api_revoke": "Revoke",
+    "api_no_tokens": "No active tokens.",
+    "api_library": "Cloud library",
+    "api_library_desc": "Upload this device's scripts, custom characters and game records, or import items saved by agents or other devices. Import only adds what is missing here.",
+    "api_upload": "Upload to cloud library",
+    "api_import": "Import from cloud library",
+    "api_upload_done": "Uploaded {0} scripts, {1} characters and {2} records.",
+    "api_import_done": "Imported {0} scripts, {1} characters and {2} records. Reload the page to see them.",
+    "api_error": "Request failed: {0}"
   }
 }
