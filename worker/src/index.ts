@@ -36,7 +36,7 @@ export function createApp(options: AppOptions = {}) {
   const roomFor = options.roomFor ?? ((env: Env, gameId: string) => (env.GAMES ? env.GAMES.get(env.GAMES.idFromName(gameId)) as unknown as RoomApi : null))
   const app = new Hono<{ Bindings: Env }>()
 
-  app.use('*', cors({ origin: '*', allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], allowHeaders: ['content-type', 'accept', 'authorization', 'mcp-session-id', 'mcp-protocol-version', 'last-event-id'], exposeHeaders: ['mcp-session-id'] }))
+  app.use('*', cors({ origin: '*', allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], allowHeaders: ['content-type', 'accept', 'authorization', 'x-game-token', 'x-seat-token', 'mcp-session-id', 'mcp-protocol-version', 'last-event-id'], exposeHeaders: ['mcp-session-id'] }))
 
   app.onError((err, c) => {
     if (err instanceof InputError) return c.json({ error: { code: 'invalid_request', message: err.message } }, 400)
@@ -100,7 +100,10 @@ GET  /v1/games/{id}/seats/{n}      what that player knows (host)
 POST /v1/games/{id}/commands       {"commands": [...], "expectedVersion"?} (host; atomic)
 GET  /v1/games/{id}/night-script?night=first|other&lang=  (host)
 GET  /v1/games/{id}/journal?since=<version>               (host)
-MCP tools: create_game, get_game, run_commands, get_night_script, get_seat_view
+Players: GET /v1/games/{id}/lobby · POST /v1/games/{id}/claim {"seat","name"} → seatToken (once)
+         GET /v1/games/{id}/me · POST /v1/games/{id}/vote {"yes"} · GET|POST /v1/games/{id}/messages   (X-Seat-Token)
+Storyteller: POST /v1/games/{id}/messages {"to": seat|"all", "text"} · DELETE /v1/games/{id}/claims/{seat}
+MCP tools: create_game, get_game, run_commands, get_night_script, get_seat_view, get_lobby, send_player_message, get_messages
 `)
   })
 

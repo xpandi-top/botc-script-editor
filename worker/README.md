@@ -81,13 +81,16 @@ anyone with the game id can read the public view.
 - REST: `POST /v1/games`, `GET /v1/games/{id}` (`?view=st` for the grimoire),
   `POST /v1/games/{id}/commands`, `GET /v1/games/{id}/night-script`,
   `GET /v1/games/{id}/seats/{n}`, `GET /v1/games/{id}/journal`.
-- MCP: `create_game`, `get_game`, `run_commands`, `get_night_script`, `get_seat_view`.
+- MCP: `create_game`, `get_game`, `run_commands`, `get_night_script`, `get_seat_view`,
+  `get_lobby`, `send_player_message`, `get_messages`.
+- Players: `GET /v1/games/{id}/lobby`, `POST /v1/games/{id}/claim` (returns a seat
+  token once), then with `X-Seat-Token`: `GET /me`, `POST /vote`, `GET|POST /messages`.
 - Commands are the engine in `src/core/engine/commands.ts` (atomic batches,
   `expectedVersion` for concurrency). Public views never include characters,
   alignments, storyteller tags or notes (`src/core/engine/views.ts`).
 
-Not yet: seat tokens for players (seat views are storyteller-only for now),
-realtime push (clients poll `version`), and the web app's "cloud game" mode.
+Not yet: realtime push (clients poll `version`) and the web app's "cloud game"
+mode / guest page on top of these routes.
 
 ## Google OAuth token proxy (security fix I-73)
 

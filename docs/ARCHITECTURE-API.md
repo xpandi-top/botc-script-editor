@@ -304,7 +304,7 @@ AI 设置保持本地 BYOK，永不上传。
 | ✅ | `GameRoom` Durable Object（SQLite，免费）+ `GameRoomCore`（逻辑可测，存储注入） | 每局串行执行；批量命令原子提交；`expectedVersion` 冲突 409；命令日志（journal） |
 | ✅ | `/v1/games`：建局（指定 / 随机发牌、自认角色、恶魔伪装）、公开视图、说书人 grimoire、座位视图、命令、夜晚脚本、journal | 说书人凭 host token（`X-Game-Token`）或登录的创建者 |
 | ✅ | MCP：`create_game`、`get_game`、`run_commands`、`get_night_script`、`get_seat_view` —— AI 说书人 L1 可用 | 本地 workerd 实测 DO 持久化与 RPC |
-| ⬜ | 座位令牌（玩家凭令牌看自己的座位视图）+ 大厅（认领座位） | 替代 Firestore Deal，修 I-74 |
+| ✅ | 座位令牌 + 大厅：认领座位、玩家自己的座位视图、ST↔座位私信 / 广播、玩家轮到时自投票；MCP `get_lobby` / `send_player_message` / `get_messages` | 服务端已可替代 Firestore Deal（写操作全部服务端鉴权，修 I-74 的基础）；Web guest 页仍用 Firestore |
 | ⬜ | 实时推送（WebSocket hibernation） | 目前客户端按 `version` 轮询 |
 | ⬜ | Web：“云对局”模式（本地模式仍为默认） | |
 | ⏸ | 计时器改 `endsAt` | 随 Web 云对局模式一起做 |

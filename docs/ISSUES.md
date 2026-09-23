@@ -37,6 +37,8 @@ Status: `open` | `fixed` | `wontfix`
 **Area:** src/lib/DealSession.ts (Firestore rules in header comment)  
 **Detail:** `dealSessions/{id}` allows `update: if true` and seat/vote/message subcollections are similarly open. The host check is app-layer only, and `hostToken` is stored on the publicly readable session document, so a guest can read it and reassign characters or tamper with remote votes. Planned fix (docs/ARCHITECTURE-API.md, P3): move deal sessions into a Durable Object where writes are authorized server-side; until then, narrow the writable fields in the rules.
 
+**Progress:** the server side exists in the API worker (cloud game lobby: seat claims with per-seat tokens, storyteller↔seat messages, players voting on their turn, all authorized in the `GameRoom` Durable Object). Remaining: switch the web guest page / Assignment Center to it, then lock down the Firestore rules.
+
 ---
 
 ## I-72 — Deal cards: seat self-claim + ST/seat messaging, promoted to its own panel

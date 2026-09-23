@@ -120,6 +120,78 @@ describe('/v1/games', () => {
   })
 })
 
+describe('lobby, seat tokens and messages', () => {
+  const seatSend = (method: string, path: string, seatToken: string, body?: unknown) => lib.request(path, {
+    method,
+    headers: { 'x-seat-token': seatToken, ...(body !== undefined ? { 'content-type': 'application/json' } : {}) },
+    ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
+  }, env)
+
+  it('lets players claim seats and see only their own character', async () => {
+    const { gameId, hostToken } = await newGame()
+    const lobby = await j(await send('GET', `/v1/games/${gameId}/lobby`))
+    expect(lobby).toHaveLength(7)
+    expect(lobby.every((s: any) => !s.claimed)).toBe(true)
+
+    const claim = await send('POST', `/v1/games/${gameId}/claim`, { body: { seat: 7, name: '  Gus  ' } })
+    expect(claim.status).toBe(201)
+    const { seatToken, name } = await j(claim)
+    expect(seatToken).toMatch(/^botc_seat_/)
+    expect(name).toBe('Gus')
+    expect((await send('POST', `/v1/games/${gameId}/claim`, { body: { seat: 7, name: 'Other' } })).status).toBe(409)
+    expect((await send('POST', `/v1/games/${gameId}/claim`, { body: { seat: 99, name: 'X' } })).status).toBe(400)
+    expect((await send('POST', `/v1/games/${gameId}/claim`, { body: { seat: 6, name: '   ' } })).status).toBe(400)
+    expect((await j(await send('GET', `/v1/games/${gameId}/lobby`))).find((s: any) => s.seat === 7)).toEqual({ seat: 7, name: 'Gus', claimed: true, isTraveler: false })
+
+    const me = await j(await seatSend('GET', `/v1/games/${gameId}/me`, seatToken))
+    expect(me).toMatchObject({ seat: 7, character: 'chef' }) // the Drunk is told they are the Chef
+    expect(JSON.stringify(me)).not.toMatch(/drunk|imp|poisoner/)
+    expect((await seatSend('GET', `/v1/games/${gameId}/me`, 'botc_seat_forged')).status).toBe(403)
+
+    // the storyteller can free the seat; the token stops working
+    expect((await send('DELETE', `/v1/games/${gameId}/claims/7`)).status).toBe(403)
+    expect((await send('DELETE', `/v1/games/${gameId}/claims/7`, { token: hostToken })).status).toBe(200)
+    expect((await seatSend('GET', `/v1/games/${gameId}/me`, seatToken)).status).toBe(403)
+  })
+
+  it('routes private messages between the storyteller and seats', async () => {
+    const { gameId, hostToken } = await newGame()
+    const ann = (await j(await send('POST', `/v1/games/${gameId}/claim`, { body: { seat: 1, name: 'Ann' } }))).seatToken
+    const bo = (await j(await send('POST', `/v1/games/${gameId}/claim`, { body: { seat: 2, name: 'Bo' } }))).seatToken
+
+    expect((await send('POST', `/v1/games/${gameId}/messages`, { token: hostToken, body: { to: 1, text: 'You learn: #3 or #6 is the Fortune Teller.' } })).status).toBe(201)
+    await send('POST', `/v1/games/${gameId}/messages`, { token: hostToken, body: { to: 'all', text: 'Dawn breaks.' } })
+    expect((await seatSend('POST', `/v1/games/${gameId}/messages`, bo, { text: 'Can I use my ability?' })).status).toBe(201)
+    expect((await seatSend('POST', `/v1/games/${gameId}/messages`, bo, { to: 1, text: 'sneaky' })).status).toBe(201) // players can only reach the ST
+
+    const annInbox = await j(await seatSend('GET', `/v1/games/${gameId}/messages`, ann))
+    expect(annInbox.map((m: any) => m.text)).toEqual(['You learn: #3 or #6 is the Fortune Teller.', 'Dawn breaks.'])
+    const boInbox = await j(await seatSend('GET', `/v1/games/${gameId}/messages`, bo))
+    expect(boInbox.map((m: any) => [m.from, m.to])).toEqual([['st', 'all'], [2, 'st'], [2, 'st']])
+    const all = await j(await send('GET', `/v1/games/${gameId}/messages`, { token: hostToken }))
+    expect(all).toHaveLength(4)
+    expect((await send('GET', `/v1/games/${gameId}/messages`)).status).toBe(403)
+    expect((await send('POST', `/v1/games/${gameId}/messages`, { token: hostToken, body: { to: 'st', text: 'x' } })).status).toBe(400)
+    expect((await send('POST', `/v1/games/${gameId}/messages`, { token: hostToken, body: { to: 1, text: 'x'.repeat(501) } })).status).toBe(400)
+  })
+
+  it('lets a player cast their own vote only on their turn', async () => {
+    const { gameId, hostToken } = await newGame()
+    const tokens: Record<number, string> = {}
+    for (const seat of [1, 7]) tokens[seat] = (await j(await send('POST', `/v1/games/${gameId}/claim`, { body: { seat, name: `P${seat}` } }))).seatToken
+    await send('POST', `/v1/games/${gameId}/commands`, { token: hostToken, body: { commands: [
+      { type: 'phase.set', phase: 'nomination' }, { type: 'nomination.set', actor: 1, target: 6 },
+      { type: 'nomination.confirm' }, { type: 'speech.target' }, { type: 'vote.start' },
+    ] } })
+    // clockwise after the nominee (6): seat 7 first
+    expect((await seatSend('POST', `/v1/games/${gameId}/vote`, tokens[1], { yes: true })).status).toBe(409)
+    expect((await seatSend('POST', `/v1/games/${gameId}/vote`, tokens[7], { yes: true })).status).toBe(200)
+    const pub = await j(await send('GET', `/v1/games/${gameId}`))
+    expect(pub.day.voting).toMatchObject({ index: 1, votes: { 7: true } })
+    expect((await seatSend('POST', `/v1/games/${gameId}/vote`, tokens[7], { yes: 'maybe' })).status).toBe(400)
+  })
+})
+
 describe('MCP game tools', () => {
   let nextId = 1
   const tool = async (name: string, args: Record<string, unknown>) => {
@@ -160,5 +232,8 @@ describe('MCP game tools', () => {
     expect(JSON.stringify(pub.json)).not.toContain('Poisoned')
     expect((await tool('get_game', { game_id })).isError).toBe(true) // storyteller view needs the token
     expect((await tool('get_seat_view', { game_id, host_token, seat: 7 })).json.character).toBe('chef')
+    expect((await tool('send_player_message', { game_id, host_token, to: 7, text: 'You are the Chef. You learn: 0.' })).json).toMatchObject({ from: 'st', to: 7 })
+    expect((await tool('get_messages', { game_id, host_token })).json).toHaveLength(1)
+    expect((await tool('get_lobby', { game_id })).json).toHaveLength(7)
   })
 })

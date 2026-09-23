@@ -25,10 +25,13 @@ export function newGameId(): string {
   return Array.from(crypto.getRandomValues(new Uint8Array(10)), (b) => ID_CHARS[b % ID_CHARS.length]).join('')
 }
 
-export function newHostToken(): string {
+function randomToken(prefix: string): string {
   const bytes = crypto.getRandomValues(new Uint8Array(24))
-  return 'botc_host_' + btoa(String.fromCharCode(...bytes)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+  return prefix + btoa(String.fromCharCode(...bytes)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
 }
+
+export const newHostToken = () => randomToken('botc_host_')
+export const newSeatToken = () => randomToken('botc_seat_')
 
 /** Cloud games need the GAMES Durable Object binding. */
 export class GamesUnavailableError extends Error {
@@ -72,7 +75,7 @@ export function buildGameRoutes(deps: GameDeps) {
 
   async function accessOf(c: GamesContext): Promise<Access> {
     const principal = await principalOf(c)
-    return { hostToken: c.req.header('x-game-token') ?? undefined, userId: principal?.userId }
+    return { hostToken: c.req.header('x-game-token') ?? undefined, seatToken: c.req.header('x-seat-token') ?? undefined, userId: principal?.userId }
   }
 
   function room(c: GamesContext) {
@@ -128,6 +131,40 @@ export function buildGameRoutes(deps: GameDeps) {
   })
 
   games.get('/:id/journal', async (c) => reply(c, await room(c).journal(await accessOf(c), Number(c.req.query('since') ?? 0) || 0)))
+
+  // ── Lobby and players (seat tokens replace the Firestore deal sessions) ────
+
+  games.get('/:id/lobby', async (c) => reply(c, await room(c).lobby()))
+
+  /** A player takes a free seat; the seat token is returned only here. */
+  games.post('/:id/claim', async (c) => {
+    const body = await c.req.json().catch(() => null) as { seat?: unknown; name?: unknown } | null
+    if (!body || !Number.isInteger(body.seat) || typeof body.name !== 'string') throw new InputError('Body must be { "seat": <number>, "name": <string> }.')
+    const seatToken = newSeatToken()
+    const claimed = await room(c).claimSeat(body.seat as number, body.name, seatToken)
+    return claimed.ok ? c.json({ ...claimed.value, seatToken }, 201) : reply(c, claimed)
+  })
+
+  games.delete('/:id/claims/:seat', async (c) => reply(c, await room(c).releaseSeat(await accessOf(c), Number(c.req.param('seat')))))
+
+  /** A player's own view (X-Seat-Token). */
+  games.get('/:id/me', async (c) => reply(c, await room(c).mySeat(await accessOf(c))))
+
+  games.post('/:id/messages', async (c) => {
+    const body = await c.req.json().catch(() => null) as { to?: unknown; text?: unknown } | null
+    const to = body?.to === 'all' || body?.to === 'st' ? body.to : Number.isInteger(body?.to) ? body!.to as number : body?.to === undefined ? 'st' : null
+    if (to === null || typeof body?.text !== 'string') throw new InputError('Body must be { "to": <seat> | "all", "text": <string> } (players omit "to").')
+    return reply(c, await room(c).sendMessage(await accessOf(c), to, body.text), 201)
+  })
+
+  games.get('/:id/messages', async (c) => reply(c, await room(c).messages(await accessOf(c), Number(c.req.query('since') ?? 0) || 0)))
+
+  /** A player votes when it is their turn in a clockwise vote (X-Seat-Token). */
+  games.post('/:id/vote', async (c) => {
+    const body = await c.req.json().catch(() => null) as { yes?: unknown } | null
+    if (typeof body?.yes !== 'boolean') throw new InputError('Body must be { "yes": true | false }.')
+    return reply(c, await room(c).castOwnVote(await accessOf(c), body.yes))
+  })
 
   return games
 }
