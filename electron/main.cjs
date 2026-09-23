@@ -9,6 +9,7 @@ const { app, BrowserWindow, shell, Menu, ipcMain } = require('electron')
 const path = require('path')
 const fs   = require('fs')
 const http = require('http')
+const { pathToFileURL } = require('url')
 
 // ── Paths ─────────────────────────────────────────────────────────────────────
 
@@ -118,13 +119,40 @@ function createWindow() {
   const indexPath = getIndexPath()
   mainWindow.loadFile(indexPath)
 
-  // Open external links in default browser, not Electron window
+  // Only the dedicated read-only audience route may open an app window.
+  // All existing external links retain their original behavior.
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    const audienceUrl = new URL(url)
+    const entryUrl = pathToFileURL(indexPath)
+    if (audienceUrl.protocol === 'file:' && audienceUrl.host === entryUrl.host &&
+        audienceUrl.pathname === entryUrl.pathname &&
+        /^[\da-f-]{36}$/.test(audienceUrl.searchParams.get('audience') || '') &&
+        [...audienceUrl.searchParams.keys()].every(key => ['audience', 'lang'].includes(key))) {
+      return {
+        action: 'allow',
+        overrideBrowserWindowOptions: {
+          width: 1280, height: 800, minWidth: 700, minHeight: 500,
+          title: 'BOTC · Audience', autoHideMenuBar: true,
+          webPreferences: { nodeIntegration: false, contextIsolation: true, webSecurity: true, backgroundThrottling: false },
+        },
+      }
+    }
     if (isAllowedExternalUrl(url)) {
       shell.openExternal(url)
       return { action: 'deny' }
     }
     return { action: 'deny' }
+  })
+
+  mainWindow.webContents.on('did-create-window', (audienceWindow, { url }) => {
+    const hostWindow = mainWindow
+    audienceWindow.webContents.setWindowOpenHandler(() => ({ action: 'deny' }))
+    audienceWindow.webContents.on('will-navigate', (event, targetUrl) => {
+      if (targetUrl !== url) event.preventDefault()
+    })
+    const closeAudience = () => { if (!audienceWindow.isDestroyed()) audienceWindow.close() }
+    hostWindow.once('closed', closeAudience)
+    audienceWindow.once('closed', () => hostWindow.removeListener('closed', closeAudience))
   })
 
   mainWindow.webContents.on('will-navigate', (event, url) => {

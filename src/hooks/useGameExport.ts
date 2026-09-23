@@ -1,3 +1,4 @@
+import { summarizeIdentities } from '../utils/playerIdentity'
 import type { DayState, EndGameResult, ExportConfig, GameRecord, TimerDefaults } from '../components/StorytellerSub/types'
 import { exportGameFile } from '../lib/exportGame'
 
@@ -85,13 +86,15 @@ export function buildGameExport(deps: ExportDeps) {
   }): GameRecord {
     const { id, recordName, savedDaysOverride, survey } = opts
     const savedAt = Date.now()
-    const nonTravelers = currentDay.seats.filter((s) => !s.isTraveler)
-    const travelers = currentDay.seats.filter((s) => s.isTraveler)
+    const recordDays = savedDaysOverride ?? days
+    const finalDay = [...recordDays].sort((a, b) => b.day - a.day)[0] ?? currentDay
+    const nonTravelers = finalDay.seats.filter((s) => !s.isTraveler)
+    const travelers = finalDay.seats.filter((s) => s.isTraveler)
     const seatNames: Record<number, string> = {}
     const assignments: Record<number, string> = {}
     const userAssignments: Record<number, string | null> = {}
     const seatNotes: Record<number, string> = {}
-    for (const s of currentDay.seats) {
+    for (const s of finalDay.seats) {
       seatNames[s.seat] = s.name
       if (s.characterId) assignments[s.seat] = s.characterId
       if (s.userCharacterId) userAssignments[s.seat] = s.userCharacterId
@@ -107,10 +110,10 @@ export function buildGameExport(deps: ExportDeps) {
       scriptVersion: activeScriptVersion,
       scriptSlug: activeScriptSlug,
       winner: survey?.winner ?? null,
-      playerSummaries: currentDay.seats.map((s) => ({
-        seat: s.seat,
-        name: s.name,
-        team: (survey?.playerTeams?.[s.seat] ?? null) as 'evil' | 'good' | null,
+      playerSummaries: summarizeIdentities(recordDays).map(s => ({
+        ...s,
+        team: survey?.playerTeams?.[s.seat] ?? s.team,
+        finalTeam: survey?.playerTeams?.[s.seat] ?? s.finalTeam,
       })),
       mvp: survey?.mvp ?? null,
       balanced: survey?.balanced ?? null,
@@ -118,14 +121,14 @@ export function buildGameExport(deps: ExportDeps) {
       funGood: survey?.funGood ?? null,
       replay: survey?.replay ?? null,
       otherNote: survey?.otherNote ?? '',
-      days: days.map((d) => ({
+      days: recordDays.map((d) => ({
         day: d.day,
         votes: d.voteHistory.length,
-        votePassed: d.voteHistory.filter((v) => v.passed).length,
+        votePassed: d.voteHistory.filter((v) => v.passed && !v.failed).length,
         skills: d.skillHistory.length,
         nominations: d.voteHistory.length, // each vote record = one nomination resolved
       })),
-      savedDays: savedDaysOverride ?? days,
+      savedDays: recordDays,
       timerDefaults,
       customTagPool,
       playerNamePool,
@@ -140,7 +143,7 @@ export function buildGameExport(deps: ExportDeps) {
         ),
         seatNotes,
         specialNote: '',
-        demonBluffs: currentDay.demonBluffs || [],
+        demonBluffs: finalDay.demonBluffs || [],
       },
       stFabledIds,
       stCustomRules,
@@ -154,13 +157,13 @@ export function buildGameExport(deps: ExportDeps) {
     const survey: EndGameResult | null = surveyData || endGameResult
     if (!survey) return
     const savedAt = Date.now()
-    const id = gameId ? `${savedAt}-${gameId}` : `${savedAt}`
+    const id = gameId ? `game-${gameId}` : `${savedAt}`
     const finalName = recordName || autoGameName(activeScriptTitle, gameId, savedAt)
     const mergedDays = days.map((d) =>
       d.id === currentDay.id ? { ...d, gameEnded: currentDay.gameEnded } : d
     )
     const record = buildRecord({ id, recordName: finalName, savedDaysOverride: mergedDays, survey })
-    setGameRecords((cur) => [record, ...cur])
+    setGameRecords((cur) => [record, ...cur.filter(r => r.id !== id)])
     if (setCurrentRecordName) setCurrentRecordName(finalName)
   }
 

@@ -5,7 +5,7 @@
  *  1. Load session metadata + seat grid
  *  2. Player taps an open seat → enters name → claims it
  *  3. ST pushes a character onto the claimed seat later (random or manual);
- *     this page updates live and reveals it once, then hides behind a button
+ *     this page updates live; the character stays hidden until explicitly opened
  *  4. Re-open link → restored as player control page; character stays hidden
  */
 import { lazy, Suspense, useEffect, useState, useCallback, type ReactNode } from 'react'
@@ -98,9 +98,7 @@ export function DealGuestPage({ sessionId, language }: Props) {
     })
   }, [sessionId, state.kind])
 
-  // Keep the claimed seat live so a character the ST pushes after claiming
-  // appears without a reload — auto-reveal since the guest is watching live
-  // (a reload still hides it behind "show my character").
+  // Live assignments stay hidden until the player explicitly opens the card.
   useEffect(() => {
     if (state.kind !== 'seatClaimed') return
     const mySeatNumber = state.seat.seatNumber
@@ -109,9 +107,8 @@ export function DealGuestPage({ sessionId, language }: Props) {
       if (!mine) return
       setState((cur) => {
         if (cur.kind !== 'seatClaimed') return cur
-        const gotNewCharacter = (!cur.seat.characterId && !!mine.characterId) || (!cur.seat.secondCharacterId && !!mine.secondCharacterId)
-        if (gotNewCharacter) markDealCharacterSeen(sessionId)
-        return { kind: 'seatClaimed', seat: mine, revealCharacter: cur.revealCharacter || gotNewCharacter }
+        const changedCharacter = cur.seat.characterId !== mine.characterId || cur.seat.secondCharacterId !== mine.secondCharacterId
+        return { kind: 'seatClaimed', seat: mine, revealCharacter: changedCharacter ? false : cur.revealCharacter }
       })
     })
   }, [sessionId, state.kind === 'seatClaimed' ? state.seat.seatNumber : null])
@@ -122,7 +119,16 @@ export function DealGuestPage({ sessionId, language }: Props) {
       setVoteResponses([])
       return
     }
-    return subscribeActiveDealVote(sessionId, setActiveVote)
+    let lastActiveVoteId: string | null = null
+    return subscribeActiveDealVote(sessionId, vote => {
+      // Batch the vote and visibility updates so the card is already hidden
+      // in the first frame showing a new nomination.
+      if (vote?.status === 'active' && vote.voteId !== lastActiveVoteId) {
+        setState(cur => cur.kind === 'seatClaimed' ? { ...cur, revealCharacter: false } : cur)
+        lastActiveVoteId = vote.voteId
+      }
+      setActiveVote(vote)
+    })
   }, [sessionId, state.kind])
 
   useEffect(() => {
@@ -335,7 +341,7 @@ export function DealGuestPage({ sessionId, language }: Props) {
                 size="small"
                 variant="contained"
                 startIcon={<VisibilityIcon fontSize="small" />}
-                onClick={() => setState((cur) => cur.kind === 'seatClaimed' ? { ...cur, revealCharacter: true } : cur)}
+                onClick={() => { markDealCharacterSeen(sessionId); setState((cur) => cur.kind === 'seatClaimed' ? { ...cur, revealCharacter: true } : cur) }}
                 sx={{ flexShrink: 0, whiteSpace: 'nowrap' }}
               >
                 {t('show_my_character')}

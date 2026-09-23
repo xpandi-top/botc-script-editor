@@ -4,6 +4,8 @@
  * game engine / API.
  */
 import type { DayState, SkillDraft, StorytellerSeat, TimerDefaults, VoteDraft } from '../types/game'
+import type { TeamLookup } from './alignment'
+import { createIdentityHistory } from './identity'
 
 export function createSeats(count: number): StorytellerSeat[] {
   return Array.from({ length: count }, (_, i) => ({
@@ -34,7 +36,8 @@ export function cloneSeats(seats: StorytellerSeat[]) {
   return seats.map((s) => ({ ...s, customTags: [...s.customTags] }))
 }
 
-export function createDayState(day: number, seats: StorytellerSeat[], defaults: TimerDefaults, id = `day-${day}-${Math.random().toString(36).slice(2, 8)}`): DayState {
+/** A fresh day. With `getTeam`, the day also starts an identity history (who each seat is right now). */
+export function createDayState(day: number, seats: StorytellerSeat[], defaults: TimerDefaults, id = `day-${day}-${Math.random().toString(36).slice(2, 8)}`, getTeam?: TeamLookup): DayState {
   return {
     id,
     day,
@@ -57,6 +60,7 @@ export function createDayState(day: number, seats: StorytellerSeat[], defaults: 
     skillHistory: [],
     eventLog: [],
     nightVisitedSeats: [],
+    ...(getTeam ? { identityHistory: createIdentityHistory(seats, getTeam) } : {}),
     gameEnded: false,
     demonBluffs: [],
   }

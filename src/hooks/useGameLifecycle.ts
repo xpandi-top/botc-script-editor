@@ -11,8 +11,8 @@ import {
   applyPhase,
   createNextDay,
   endGameResultFromRecord,
-  fillEndGameTeams,
-  initialEndGameResult,
+  endGameResultWithTeams,
+  endGameTeams,
   nextPhase,
   nextSpeakerPatch,
   previousPhase,
@@ -92,7 +92,7 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
     setNightShowWakeOrder?.(false)
     if (selectedDayIndex < days.length - 1) { setSelectedDayId(days[selectedDayIndex + 1].id); setIsTimerRunning(false); return }
     if (currentDay.gameEnded) return
-    const next = createNextDay(days.length, currentDay, timerDefaults)
+    const next = createNextDay(days.length, currentDay, timerDefaults, undefined, catalogTeamOf)
     setDaysWithUndo((cur) => [...cur, next])
     setSelectedDayId(next.id)
     setPickerMode('none')
@@ -272,14 +272,10 @@ export function buildGameLifecycle(deps: LifecycleDeps) {
   }
 
   function openEndGamePanel() {
-    if (!endGameResult) {
-      setEndGameResult(initialEndGameResult(currentDay.seats))
-    } else {
-      // Merge in any seats whose teamTag changed since the panel was last opened
-      setEndGameResult((c) => (c ? fillEndGameTeams(c, currentDay.seats) : c))
-    }
+    // Teams come from the latest day's alignments and are refreshed on every open.
+    const teams = endGameTeams(days, currentDay, catalogTeamOf)
+    setEndGameResult((c) => endGameResultWithTeams(c, teams))
     if (setShowEndGameModal) setShowEndGameModal(true)
-    setEndGameResult((c) => c ? { ...c } : c)
   }
 
   function markGameEnded() {

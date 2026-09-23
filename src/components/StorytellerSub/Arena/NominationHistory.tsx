@@ -1,3 +1,4 @@
+import { newestNominations } from '../../../utils/nominationHistory'
 import type { DayState, VoteRecord } from '../types'
 import type { Language } from '../../../types'
 import { Box, Typography, Select, MenuItem, IconButton, useTheme } from '@mui/material'
@@ -32,16 +33,11 @@ export function NominationHistory({
   const nominatorsToday = [...new Set(voteHistory.map((record) => record.actor))]
   const nomineesToday = [...new Set(voteHistory.map((record) => record.target))]
 
-  const filteredHistory = voteHistory
+  const filteredHistory = newestNominations(voteHistory)
     .filter((record) => {
       if (historyFilter === 'all') return true
       if (historyFilter === 'exile') return record.isExile
       return !record.isExile
-    })
-    .sort((a, b) => {
-      const voteDiff = (b.voteCount ?? 0) - (a.voteCount ?? 0)
-      if (voteDiff !== 0) return voteDiff
-      return Number(b.id) - Number(a.id)
     })
 
   return (

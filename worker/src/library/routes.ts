@@ -5,6 +5,7 @@
 import { Hono } from 'hono'
 import { computeCharStats, computeKpiSummary, computePlayerStats, computeScriptStats, computeStorytellerStats } from '../../../src/core/stats/records'
 import type { GameRecord } from '../../../src/core/types/game'
+import { getCatalog } from '../catalog'
 import type { Env } from '../env'
 import { AuthError, authenticate, newTokenSecret, sha256Hex, type GoogleVerifier, type Principal } from './auth'
 import type { LibraryStore } from './store'
@@ -83,8 +84,8 @@ export function buildLibraryRoutes(deps: LibraryDeps) {
     return c.json(jsonSafe({
       kpi: computeKpiSummary(records),
       scripts: computeScriptStats(records),
-      players: computePlayerStats(records),
-      characters: computeCharStats(records),
+      players: computePlayerStats(records, getCatalog().teamOf),
+      characters: computeCharStats(records, getCatalog().teamOf),
       storytellers: computeStorytellerStats(records),
     }) as Record<string, unknown>)
   })

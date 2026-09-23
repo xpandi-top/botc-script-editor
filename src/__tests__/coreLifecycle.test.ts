@@ -7,8 +7,9 @@ import {
   applyPhase,
   createNextDay,
   endGameResultFromRecord,
-  fillEndGameTeams,
-  initialEndGameResult,
+  endGameResultWithTeams,
+  endGameTeams,
+  latestDay,
   nextPhase,
   nextSpeakerPatch,
   previousPhase,
@@ -127,12 +128,17 @@ describe('core/engine/lifecycle — seats', () => {
 })
 
 describe('core/engine/lifecycle — end of game and records', () => {
-  it('builds and fills the end-of-game survey', () => {
-    const seats = [{ seat: 1, teamTag: 'evil' as const }, { seat: 2, teamTag: null }]
-    const result = initialEndGameResult(seats)
-    expect(result.playerTeams).toEqual({ 1: 'evil', 2: 'good' })
-    const filled = fillEndGameTeams({ ...result, playerTeams: { 1: 'evil', 2: null } }, [...seats, { seat: 3, teamTag: 'evil' as const }])
-    expect(filled.playerTeams).toEqual({ 1: 'evil', 2: 'good', 3: 'evil' })
+  it('takes end-of-game teams from the latest day and refreshes an open survey', () => {
+    const d1 = { ...day(3), day: 1 }
+    const d2 = { ...createNextDay(1, d1, timers), seats: d1.seats.map((s) => ({ ...s, characterId: s.seat === 1 ? 'imp' : s.seat === 2 ? 'chef' : null, teamTag: s.seat === 2 ? 'evil' as const : null })) }
+    expect(latestDay([d2, d1], d1)).toBe(d2)
+    expect(latestDay([], d1)).toBe(d1)
+    // alignment: explicit tag, else the character's team, else unknown
+    const teams = endGameTeams([d1, d2], d1, getTeam)
+    expect(teams).toEqual({ 1: 'evil', 2: 'evil', 3: null })
+    expect(endGameResultWithTeams(null, teams)).toMatchObject({ winner: null, playerTeams: teams, otherNote: '' })
+    const open = { ...endGameResultWithTeams(null, {}), winner: 'good' as const, otherNote: 'close game' }
+    expect(endGameResultWithTeams(open, teams)).toMatchObject({ winner: 'good', otherNote: 'close game', playerTeams: teams })
   })
 
   it('restores full saved days as-is', () => {

@@ -1,6 +1,7 @@
+import type { IdentityBasis } from '../../utils/playerIdentity'
+import { makeT } from '../../lib/t'
 import { useState } from 'react'
-import { Box, Tab, Tabs, Typography } from '@mui/material'
-import { useBreakpoint } from '../../hooks/useBreakpoint'
+import { Box, Tab, Tabs, Typography, ToggleButton, ToggleButtonGroup } from '@mui/material'
 import BarChartIcon from '@mui/icons-material/BarChart'
 import AutoStoriesIcon from '@mui/icons-material/AutoStories'
 import GroupIcon from '@mui/icons-material/Group'
@@ -31,14 +32,15 @@ type StudioTab = typeof TABS[number]
 
 export function StudioShell({ records, onRecordsChange, language, onCreateRecord, onEditRecord }: Props) {
   const tpl = makeTpl(language)
+  const t = makeT(language)
+  const [basis, setBasis] = useState<IdentityBasis>('final')
   const [activeTab, setActiveTab] = useState<StudioTab>('overview')
-  const { isMobile } = useBreakpoint()
   const { filter, setFilter, filtered, activeCount, resetFilter, allScriptOptions, allPlayerOptions } = useAnalyticsFilter(records)
 
   const kpi = useKpiSummary(filtered)
   const scriptStats = useScriptStats(filtered)
-  const playerStats = usePlayerStats(filtered)
-  const charStats = useCharStats(filtered, language)
+  const playerStats = usePlayerStats(filtered, basis)
+  const charStats = useCharStats(filtered, language, basis)
   const storytellerStats = useStorytellerStats(filtered)
 
   const tabDefs: Array<{ key: StudioTab; label: string; labelZh: string; icon: React.ReactNode }> = [
@@ -72,12 +74,16 @@ export function StudioShell({ records, onRecordsChange, language, onCreateRecord
       {/* Studio tabs */}
       <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
         <Tabs
+          aria-label={language === 'zh' ? '统计分类' : 'Analytics sections'}
           value={activeTab}
           onChange={(_, v) => setActiveTab(v)}
           variant="scrollable"
           scrollButtons="auto"
           sx={{
+            '& .MuiTabs-indicator': { display: 'block', height: 3 },
             '& .MuiTab-root': {
+              border: 0, borderRadius: 0, backgroundColor: 'transparent',
+              '&.Mui-selected': { backgroundColor: 'transparent', color: 'text.primary', fontWeight: 700 },
               minHeight: { xs: 36, sm: 40 },
               py: { xs: 0.5, sm: 0.75 },
               px: { xs: 1, sm: 1.5 },
@@ -93,7 +99,7 @@ export function StudioShell({ records, onRecordsChange, language, onCreateRecord
               key={t.key}
               value={t.key}
               label={
-                isMobile ? undefined : (language === 'zh' ? t.labelZh : t.label)
+                language === 'zh' ? t.labelZh : t.label
               }
               icon={t.icon as React.ReactElement}
               iconPosition="start"
@@ -102,6 +108,15 @@ export function StudioShell({ records, onRecordsChange, language, onCreateRecord
         </Tabs>
       </Box>
 
+      {(activeTab === 'players' || activeTab === 'characters' || activeTab === 'overview') && (
+        <Box sx={{ mb: 2 }}>
+          <ToggleButtonGroup size="small" exclusive value={basis} aria-label={t('identity_basis')} onChange={(_, value) => value && setBasis(value)}>
+            <ToggleButton value="initial">{t('identity_initial')}</ToggleButton>
+            <ToggleButton value="final">{t('identity_final')}</ToggleButton>
+          </ToggleButtonGroup>
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>{t('identity_stats_hint')}</Typography>
+        </Box>
+      )}
       {/* Section content */}
       {activeTab === 'overview' && (
         <OverviewSection kpi={kpi} scriptStats={scriptStats} playerStats={playerStats} charStats={charStats} storytellerStats={storytellerStats} language={language} records={filtered} />

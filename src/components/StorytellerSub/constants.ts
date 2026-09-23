@@ -1,11 +1,12 @@
-import type { AudioTrack, TimerDefaults } from './types'
+import type { AudioTrack, DayState, StorytellerSeat, TimerDefaults } from './types'
+import { createDayState as createCoreDayState } from '../../core/engine/factories'
+import { catalogTeamOf } from '../../utils/seatAlignment'
 
 // Seat/draft/day constructors live in src/core/engine/factories.ts;
 // re-exported for existing imports.
 export {
   buildVotingOrder,
   cloneSeats,
-  createDayState,
   createDefaultSkillDraft,
   createDefaultVoteDraft,
   createSeats,
@@ -76,11 +77,16 @@ export function createTimerDefaults(): TimerDefaults {
     nominationWaitSeconds: 10,
     nominationActorSeconds: 30,
     nominationTargetSeconds: 30,
-    nominationVoteSeconds: 5,
+    nominationVoteSeconds: 10,
     alarmSound: `${BASE_URL}audio/alarm/Vintage Clock Sound Effect.mp3`,
     defaultBgmSrc: `${BASE_URL}audio/below_the_granite_arch.mp3`,
     phaseSwitchSoundEnabled: false,
   }
+}
+
+/** A fresh day that starts an identity history for the analytics (utils/playerIdentity). */
+export function createDayState(day: number, seats: StorytellerSeat[], defaults: TimerDefaults, id?: string): DayState {
+  return createCoreDayState(day, seats, defaults, id, catalogTeamOf)
 }
 
 export function makeEventId() {

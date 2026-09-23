@@ -13,6 +13,8 @@ import { locales } from '../catalog'
 import type { Language } from '../types'
 
 export type UiKey =
+  | 'identity_initial' | 'identity_final' | 'identity_basis' | 'identity_stats_hint' | 'identity_history' | 'identity_roles' | 'identity_teams' | 'identity_unknown' | 'identity_missing' | 'identity_tracked' | 'identity_samples' | 'identity_edit_hint'
+  | 'presentation_open' | 'presentation_focus' | 'presentation_stop' | 'presentation_private' | 'presentation_hint' | 'presentation_error' | 'presentation_audience' | 'presentation_fullscreen' | 'presentation_fullscreen_error' | 'presentation_running' | 'presentation_paused' | 'presentation_waiting' | 'presentation_disconnected'
   | 'main_navigation'
   | 'nav_mine' | 'nav_scripts' | 'nav_hide' | 'nav_manage' | 'nav_more' | 'nav_folders' | 'nav_new_folder' | 'nav_folder_name' | 'nav_tag_filter' | 'nav_reveal_current' | 'nav_empty_mine' | 'nav_no_folders' | 'nav_delete_folder_hint'
   | 'library_new_character'

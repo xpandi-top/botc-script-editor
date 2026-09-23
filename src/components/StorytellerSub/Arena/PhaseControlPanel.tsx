@@ -5,6 +5,7 @@ import {
   Box, Button, IconButton, Tooltip, Typography, ToggleButton, ToggleButtonGroup,
   Select, MenuItem, TextField, useTheme,
 } from '@mui/material'
+import { alpha } from '@mui/material/styles'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import PauseIcon from '@mui/icons-material/Pause'
 import StopIcon from '@mui/icons-material/Stop'
@@ -43,26 +44,12 @@ import { useT } from '../../../context/I18nContext'
 
 const PHASES: Phase[] = ['night', 'private', 'public', 'nomination']
 
-// Alpha raised from an earlier 0.20 — at that opacity the panel barely tinted
-// whatever sat behind it (the game board texture, which isn't theme-reactive),
-// so in dark mode near-white text ended up rendered over an effectively light
-// backdrop with almost no contrast. These are layered over an opaque solid
-// base color (see `panelBg` below) so legibility no longer depends on the
-// backdrop at all — the gradient now only supplies the per-phase color wash.
-const PANEL_COLORS_DARK: Record<Phase, string> = {
-  night:      'linear-gradient(135deg, rgba(22,28,40,0.94), rgba(40,51,71,0.94))',
-  private:    'linear-gradient(135deg, rgba(58,47,36,0.94), rgba(78,64,48,0.94))',
-  public:     'linear-gradient(135deg, rgba(24,33,45,0.94), rgba(38,51,66,0.94))',
-  nomination: 'linear-gradient(135deg, rgba(52,39,29,0.94), rgba(74,56,41,0.94))',
+const PHASE_ACCENTS: Record<Phase, { light: string; dark: string }> = {
+  night: { light: '#57518c', dark: '#aaa0e0' },
+  private: { light: '#886747', dark: '#c6a27c' },
+  public: { light: '#376e91', dark: '#83b9d9' },
+  nomination: { light: '#986315', dark: '#dfad59' },
 }
-const PANEL_COLORS_LIGHT: Record<Phase, string> = {
-  night:      'linear-gradient(135deg, rgba(43,52,71,0.94), rgba(68,80,106,0.94))',
-  private:    'linear-gradient(135deg, rgba(245,232,209,0.94), rgba(231,212,178,0.94))',
-  public:     'linear-gradient(135deg, rgba(238,246,255,0.94), rgba(220,235,250,0.94))',
-  nomination: 'linear-gradient(135deg, rgba(236,220,200,0.94), rgba(214,184,150,0.94))',
-}
-// Light-theme phases that use a bright background → need dark text/buttons
-const LIGHT_BG_PHASES = new Set(['private', 'public', 'nomination'])
 
 const fmt = (s: number) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
 
@@ -83,7 +70,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
     audioPlaying, setAudioPlaying, startNight, stopNight, sendYTCommand,
     audioTracks, selectedAudioSrc, setSelectedAudioSrc, bgmVolume, setBgmVolume,
     handleLocalFileChange, handleUrlTrackAdd, deleteTrack, renameTrack,
-    canNominate, secondsUntilNomination,
+    canNominate,
     showNominationSheet, setShowNominationSheet,
     enterNomination, moveToNextSpeaker, setPhase,
     alarmActive, setAlarmActive, nightShowCharacter, setNightShowCharacter,
@@ -95,7 +82,6 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
 
   const { t, tpl } = useT()
   const muiTheme = useTheme()
-  const isDark = muiTheme.palette.mode === 'dark'
 
   const [timerEditing, setTimerEditing] = useState(false)
   const [timerInput, setTimerInput] = useState('')
@@ -105,22 +91,24 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
   const publicMode = currentDay.publicMode
   const seats = useMemo(() => currentDay.seats, [currentDay.seats])
 
-  // Phase background gradient
-  const bgGradient = (isDark ? PANEL_COLORS_DARK : PANEL_COLORS_LIGHT)[phase]
-    ?? (isDark ? 'linear-gradient(135deg, #1a1520, #2a2035)' : 'linear-gradient(135deg, #ddd, #eee)')
-
-  // Text and UI element colors — light-bg phases in light theme use dark ink
-  const useDarkInk = !isDark && LIGHT_BG_PHASES.has(phase)
-  const textColor   = useDarkInk ? 'rgba(30,20,10,0.88)'  : 'rgba(255,255,255,0.92)'
-  const mutedColor  = useDarkInk ? 'rgba(30,20,10,0.50)'  : 'rgba(255,255,255,0.55)'
-  const pipColor    = useDarkInk ? 'rgba(0,0,0,0.22)'     : 'rgba(255,255,255,0.30)'
-  const borderColor = useDarkInk ? 'rgba(0,0,0,0.10)'     : 'rgba(255,255,255,0.18)'
-  const btnOverlay  = useDarkInk ? 'rgba(0,0,0,0.07)'     : 'rgba(255,255,255,0.08)'
-  const btnOverlayHover = useDarkInk ? 'rgba(0,0,0,0.14)' : 'rgba(255,255,255,0.15)'
-  const btnBorder   = useDarkInk ? 'rgba(0,0,0,0.28)'     : 'rgba(255,255,255,0.50)'
-
-  const TIMER_ACTIVE_SX = { bgcolor: useDarkInk ? 'rgba(0,0,0,0.18)' : 'rgba(255,255,255,0.25)', border: `1px solid ${useDarkInk ? 'rgba(0,0,0,0.40)' : 'rgba(255,255,255,0.5)'}` }
-  const TIMER_IDLE_SX   = { bgcolor: useDarkInk ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.05)', border: `1px solid ${useDarkInk ? 'rgba(0,0,0,0.20)' : 'rgba(255,255,255,0.25)'}` }
+  // Tint an opaque theme surface, keeping text and controls fully opaque.
+  const palette = muiTheme.palette
+  const isDark = palette.mode === 'dark'
+  const phaseAccent = PHASE_ACCENTS[phase][isDark ? 'dark' : 'light']
+  const phaseWash = alpha(phaseAccent, isDark ? 0.16 : 0.12)
+  const panelSurface = {
+    bgcolor: palette.background.paper,
+    backgroundImage: `linear-gradient(${phaseWash}, ${phaseWash})`,
+  }
+  const textColor = palette.text.primary
+  const mutedColor = palette.text.secondary
+  const pipColor = phaseAccent
+  const borderColor = palette.divider
+  const btnOverlay = palette.action.hover
+  const btnOverlayHover = palette.action.selected
+  const btnBorder = palette.divider
+  const TIMER_ACTIVE_SX = { bgcolor: palette.action.selected, border: `1px solid ${palette.primary.main}` }
+  const TIMER_IDLE_SX = { bgcolor: 'transparent', border: `1px solid ${borderColor}` }
 
   const getPhaseLabel = (p: Phase) => ({ night: text.nightPhase, private: text.privateChat, public: text.publicChat, nomination: text.nomination }[p])
 
@@ -132,9 +120,8 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
 
   const btnSx = { color: textColor, borderColor: btnBorder, fontSize: '0.95rem', px: 1.5, py: 0.75, minHeight: 40, minWidth: 0, fontWeight: 500, bgcolor: btnOverlay, '&:hover': { borderColor: btnBorder, bgcolor: btnOverlayHover } }
   const iconBtnSx = { color: textColor, p: 0.75 }
-  // Warm accent for the phase-tab underline — distinct from the neutral action-row chrome below it
-  const tabAccent = useDarkInk ? '#a5670f' : '#f3b544'
-  const actionRowSx = { bgcolor: useDarkInk ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.06)', border: `1px solid ${borderColor}`, borderRadius: 2, px: 0.75, pt: 0.5, pb: 0.75 }
+  const tabAccent = phaseAccent
+  const actionRowSx = { bgcolor: palette.action.hover, border: `1px solid ${borderColor}`, borderRadius: 2, px: 0.75, pt: 0.5, pb: 0.75 }
 
   if (collapsed) {
     return (
@@ -143,9 +130,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
           position: 'fixed', bottom: 'calc(56px + var(--safe-bottom, 0px))',
           left: '50%', transform: 'translateX(-50%)',
           width: '100%', maxWidth: 600,
-          zIndex: 1200, background: bgGradient,
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
+          zIndex: 1200, ...panelSurface,
           borderTop: `1px solid ${borderColor}`,
           borderRadius: '12px',
           display: 'flex', alignItems: 'center', gap: 1, px: 1.5, py: 0.75,
@@ -190,12 +175,10 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
           width: '100%', maxWidth: 600,
           minHeight: 200,
           zIndex: 1200,
-          background: bgGradient,
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
+          ...panelSurface,
           borderTop: `1px solid ${borderColor}`,
-          borderRadius: '20px',
-          boxShadow: '0 -8px 32px rgba(0,0,0,0.5)',
+          borderRadius: '16px',
+          boxShadow: muiTheme.shadows[8],
           display: 'flex',
           flexDirection: 'column',
           overflow: 'auto',
@@ -271,8 +254,8 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
                   textTransform: 'none',
                   transition: 'color 0.15s ease, border-color 0.15s ease',
                   '&:hover': { bgcolor: 'transparent', color: textColor },
-                  '&.Mui-selected': { color: textColor, bgcolor: 'transparent', borderBottomColor: tabAccent, fontWeight: 700 },
-                  '&.Mui-selected:hover': { bgcolor: 'transparent' },
+                  '&.Mui-selected': { color: tabAccent, bgcolor: alpha(phaseAccent, 0.10), borderBottomColor: tabAccent, fontWeight: 700 },
+                  '&.Mui-selected:hover': { bgcolor: alpha(phaseAccent, 0.16) },
                 },
               }}
             >
@@ -291,7 +274,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
           <Typography sx={{ fontSize: '0.62rem', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: mutedColor, mb: 0.375, ml: 0.25 }}>
             {t('quick_actions')}
           </Typography>
-          <Box sx={{ ...actionRowSx, display: 'flex', alignItems: 'flex-start', gap: 0.75, mb: 1, flexWrap: 'nowrap', overflowX: 'auto' }}>
+          <Box sx={{ ...actionRowSx, display: 'flex', alignItems: 'flex-start', gap: 0.75, mb: 1, flexWrap: 'wrap' }}>
             {phase === 'public' && (
               <Select
                 value={publicMode}
@@ -312,6 +295,20 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
               </Tooltip>
               <Typography sx={{ fontSize: '0.58rem', color: mutedColor, lineHeight: 1, userSelect: 'none' }}>{t('characters_section')}</Typography>
             </Box>
+
+            {phase === 'night' && [
+              { label: ctx.privateView || nightShowCharacter ? t('hide_characters') : t('show_characters'), active: ctx.privateView || nightShowCharacter, icon: ctx.privateView || nightShowCharacter ? <VisibilityIcon /> : <VisibilityOffIcon />, action: () => { if (ctx.privateView) { ctx.setPrivateView(false); setNightShowCharacter(false) } else setNightShowCharacter((v: boolean) => !v) } },
+              { label: nightShowWakeOrder ? t('hide_wake_order') : t('show_wake_order'), active: nightShowWakeOrder, icon: <FormatListNumberedIcon />, action: () => setNightShowWakeOrder((v: boolean) => !v) },
+            ].map(control => (
+              <Box key={control.label} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.25 }}>
+                <Tooltip title={control.label}>
+                  <IconButton aria-label={control.label} aria-pressed={control.active} sx={{ ...iconBtnSx, ...(control.active ? TIMER_ACTIVE_SX : TIMER_IDLE_SX), p: 0.75 }} onClick={control.action}>
+                    {control.icon}
+                  </IconButton>
+                </Tooltip>
+                <Typography sx={{ fontSize: '0.58rem', color: mutedColor, lineHeight: 1, whiteSpace: 'nowrap' }}>{control.label}</Typography>
+              </Box>
+            ))}
 
             {/* Log */}
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.25 }}>
@@ -447,23 +444,7 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
                 }}
                 sliderSx={{ color: textColor }}
               />
-              <Box sx={{ gap: 1, display: 'flex' }}>
-                <Tooltip title={nightShowCharacter ? (t('hide_characters')) : (t('show_characters'))}>
-                  <IconButton sx={{ ...iconBtnSx, ...(nightShowCharacter ? TIMER_ACTIVE_SX : TIMER_IDLE_SX), p: 0.75 }} onClick={() => setNightShowCharacter((v: boolean) => !v)}>
-                    {nightShowCharacter ? <VisibilityIcon /> : <VisibilityOffIcon />}
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title={nightShowWakeOrder ? (t('hide_wake_order')) : (t('show_wake_order'))}>
-                  <IconButton sx={{ ...iconBtnSx, ...(nightShowWakeOrder ? TIMER_ACTIVE_SX : TIMER_IDLE_SX), p: 0.75 }} onClick={() => setNightShowWakeOrder((v: boolean) => !v)}>
-                    <FormatListNumberedIcon />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title={t('edit_characters')}>
-                  <IconButton sx={{ ...iconBtnSx, ...TIMER_IDLE_SX, p: 0.75 }} onClick={openCharacterEditor}>
-                    <ManageAccountsIcon />
-                  </IconButton>
-                </Tooltip>
-              </Box>
+
             </Box>
           )}
 
@@ -496,11 +477,11 @@ export function PhaseControlPanel({ ctx, collapsed, setCollapsed }: { ctx: Story
           )}
 
           {/* Public free — nomination gate */}
-          {phase === 'public' && publicMode === 'free' && (
+          {phase === 'public' && publicMode === 'free' && canNominate && (
             <Box sx={{ mb: 1 }}>
               {canNominate
                 ? <Button variant="contained" onClick={enterNomination} sx={{ borderRadius: 999, fontSize: '0.95rem', px: 2, py: 0.75, minHeight: 40 }}>{text.startNomination}</Button>
-                : <Typography sx={{ color: mutedColor, fontSize: '0.85rem' }}>{text.nominationGate}: {Math.floor(secondsUntilNomination / 60)}:{String(secondsUntilNomination % 60).padStart(2, '0')}</Typography>
+                : null
               }
             </Box>
           )}

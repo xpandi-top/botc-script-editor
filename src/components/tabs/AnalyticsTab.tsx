@@ -5,7 +5,6 @@ import {
   Divider, FormControl, IconButton, InputLabel, Menu, MenuItem, Select, Snackbar,
   TextField, Tooltip, Typography,
 } from '@mui/material'
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import FileDownloadIcon from '@mui/icons-material/FileDownload'
 import FileOpenIcon from '@mui/icons-material/FileOpen'
 import LinkIcon from '@mui/icons-material/Link'
@@ -382,17 +381,12 @@ export function AnalyticsTab({ language, onLanguageChange, sharedRecords: shared
         {/* Export dropdown */}
         <Tooltip title={t('export')}>
           <span>
-            <IconButton size="small" disabled={total === 0}
+            <IconButton aria-label={t('export')} size="small" disabled={total === 0}
               onClick={(e) => setExportMenuAnchor(e.currentTarget)}>
               <FileDownloadIcon fontSize="small" />
             </IconButton>
           </span>
         </Tooltip>
-        <IconButton size="small" disabled={total === 0}
-          onClick={(e) => setExportMenuAnchor(e.currentTarget)}
-          sx={{ ml: -0.5 }}>
-          <ArrowDropDownIcon fontSize="small" />
-        </IconButton>
         <Menu anchorEl={exportMenuAnchor} open={Boolean(exportMenuAnchor)} onClose={() => setExportMenuAnchor(null)}>
           <MenuItem onClick={() => { exportRecords(); setExportMenuAnchor(null) }}>
             {t('export_records_json')}
@@ -408,17 +402,13 @@ export function AnalyticsTab({ language, onLanguageChange, sharedRecords: shared
         {/* Share dropdown */}
         <Tooltip title={t('share')}>
           <span>
-            <IconButton size="small"
+            <IconButton aria-label={t('share')} size="small"
               disabled={total === 0 || sharing}
               onClick={(e) => setShareMenuAnchor(e.currentTarget)}>
               {sharing ? <CircularProgress size={16} color="inherit" /> : <ShareIcon fontSize="small" />}
             </IconButton>
           </span>
         </Tooltip>
-        <IconButton size="small" disabled={total === 0 || sharing}
-          onClick={(e) => setShareMenuAnchor(e.currentTarget)}>
-          <ArrowDropDownIcon fontSize="small" />
-        </IconButton>
         <Menu anchorEl={shareMenuAnchor} open={Boolean(shareMenuAnchor)} onClose={() => setShareMenuAnchor(null)}>
           <MenuItem onClick={() => { void copyShareLink(); setShareMenuAnchor(null) }}>
             <LinkIcon fontSize="small" sx={{ mr: 1 }} />

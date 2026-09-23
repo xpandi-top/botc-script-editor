@@ -5,6 +5,7 @@
  * caller (useGameLifecycle today, the API engine later).
  */
 import type { DayState, EndGameResult, GameRecord, Phase, StorytellerSeat, TimerDefaults } from '../types/game'
+import { seatAlignmentWith, type TeamLookup } from './alignment'
 import { createDayState, createDefaultVoteDraft, createSeats, getNextRoundRobinSeat } from './factories'
 
 export const PHASE_ORDER: Phase[] = ['night', 'private', 'public', 'nomination']
@@ -30,8 +31,8 @@ export function applyPhase(day: DayState, phase: Phase, timers: Pick<TimerDefaul
 }
 
 /** The day after `current`, numbered after the existing `dayCount` days, carrying seats and demon bluffs forward. */
-export function createNextDay(dayCount: number, current: DayState, timers: TimerDefaults, id?: string): DayState {
-  const next = createDayState(dayCount + 1, current.seats, timers, id)
+export function createNextDay(dayCount: number, current: DayState, timers: TimerDefaults, id?: string, getTeam?: TeamLookup): DayState {
+  const next = createDayState(dayCount + 1, current.seats, timers, id, getTeam)
   // Demon bluffs are set once during setup and stay valid for the whole game.
   next.demonBluffs = current.demonBluffs ?? []
   return next
@@ -94,22 +95,21 @@ export function removeLastTraveler(day: DayState): DayState {
 
 // ── End of game ──────────────────────────────────────────────────────────────
 
-/** Empty end-of-game survey with each seat's team (untagged seats default to good). */
-export function initialEndGameResult(seats: Pick<StorytellerSeat, 'seat' | 'teamTag'>[]): EndGameResult {
-  const teams: Record<number, 'evil' | 'good' | null> = {}
-  for (const s of seats) teams[s.seat] = s.teamTag ?? 'good'
-  return { winner: null, playerTeams: teams, mvp: null, balanced: null, funEvil: null, funGood: null, replay: null, otherNote: '' }
+/** The latest day by day number (the game's current state), or `fallback` when there are none. */
+export function latestDay(days: DayState[], fallback: DayState): DayState {
+  return [...days].sort((a, b) => b.day - a.day)[0] ?? fallback
 }
 
-/** Fill in teams for seats that have none yet (e.g. seats added since the survey was opened). */
-export function fillEndGameTeams(result: EndGameResult, seats: Pick<StorytellerSeat, 'seat' | 'teamTag'>[]): EndGameResult {
-  const updated = { ...result.playerTeams }
-  for (const s of seats) {
-    if (updated[s.seat] === undefined || updated[s.seat] === null) {
-      updated[s.seat] = s.teamTag ?? 'good'
-    }
-  }
-  return { ...result, playerTeams: updated }
+/** Each seat's alignment on the latest day (null when unknown), for the end-of-game survey. */
+export function endGameTeams(days: DayState[], fallback: DayState, getTeam: TeamLookup): Record<number, 'evil' | 'good' | null> {
+  return Object.fromEntries(latestDay(days, fallback).seats.map((s) => [s.seat, seatAlignmentWith(getTeam, s)]))
+}
+
+/** The survey with `teams` refreshed, or an empty survey when none is open yet. */
+export function endGameResultWithTeams(current: EndGameResult | null, teams: Record<number, 'evil' | 'good' | null>): EndGameResult {
+  return current
+    ? { ...current, playerTeams: teams }
+    : { winner: null, playerTeams: teams, mvp: null, balanced: null, funEvil: null, funGood: null, replay: null, otherNote: '' }
 }
 
 // ── Restoring saved records ──────────────────────────────────────────────────
@@ -142,7 +142,8 @@ export function restoreDaysFromRecord(record: GameRecord, timers: TimerDefaults)
     }
   })
 
-  // One day per entry in record.days (or 1 if none)
+  // One day per entry in record.days (or 1 if none). No identity history: a
+  // rebuilt game's timeline is unknown.
   const dayCount = record.days?.length || 1
   const restoredDays = Array.from({ length: dayCount }, (_, i) => createDayState(i + 1, baseSeats, timers))
   // Mark the last day ended if the game has a winner

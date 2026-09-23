@@ -1,3 +1,4 @@
+import { normalizeIdentityHistory } from '../../utils/playerIdentity'
 import type { DayState, EventLogEntry, NominationStep, PersistedState, Phase, SkillRecord, VoteRecord, VotingState } from './types'
 import { STORAGE_KEY, DEFAULT_PLAYER_COUNT, createTimerDefaults, createDayState, createSeats, createDefaultVoteDraft, createDefaultSkillDraft, BASE_URL } from './constants'
 import { storageSync } from '../../lib/storage'
@@ -130,6 +131,7 @@ function normalizePersistedState(value: unknown, fallback: PersistedState): Pers
       nightVisitedSeats: asNumberArray(d.nightVisitedSeats),
       gameEnded: typeof d.gameEnded === 'boolean' ? d.gameEnded : false,
       demonBluffs: asStringArray(d.demonBluffs),
+      identityHistory: normalizeIdentityHistory(d.identityHistory),
     }
   })
 

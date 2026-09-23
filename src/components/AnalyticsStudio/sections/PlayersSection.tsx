@@ -1,3 +1,4 @@
+import { recordPlayers } from '../../../utils/playerIdentity'
 import { useState } from 'react'
 import { Box, Collapse, IconButton, Paper, Table, TableBody, TableCell, TableHead, TableRow, TableSortLabel, Tooltip, Typography } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
@@ -18,15 +19,18 @@ type SortKey = 'name' | 'total' | 'winRate' | 'goodWinRate' | 'evilWinRate' | 'e
 
 // ── Inline player detail ──────────────────────────────────────────
 
-function PlayerDetail({ player, language }: { player: PlayerStat; language: Language; records: GameRecord[] }) {
+function PlayerDetail({ player, language, records }: { player: PlayerStat; language: Language; records: GameRecord[] }) {
   const { t, tpl } = useT()
+  const histories = records.flatMap(recordPlayers).filter(p => p.name === player.name && p.historyComplete)
+  const roleChanges = histories.reduce((n, p) => n + (p.characterChangeCount ?? 0), 0)
+  const teamChanges = histories.reduce((n, p) => n + (p.alignmentChangeCount ?? 0), 0)
   // Per-character stats for this player
   const charEntries = [...player.charMap.entries()]
     .map(([charId, e]) => ({
       charId,
       total: e.total,
       wins: e.wins,
-      wr: e.total ? Math.round((e.wins / e.total) * 100) : 0,
+      wr: e.decided ? Math.round((e.wins / e.decided) * 100) : null,
     }))
     .sort((a, b) => b.total - a.total)
 
@@ -46,6 +50,9 @@ function PlayerDetail({ player, language }: { player: PlayerStat; language: Lang
       maxHeight: { xs: '50vh', sm: 'none' },
       overflowY: { xs: 'auto', sm: 'visible' },
     }}>
+      <Typography variant="caption" sx={{ display: 'block', mb: 1 }}>
+        {t('identity_samples')}: {player.decided} · {t('identity_tracked')}: {histories.length} · {t('identity_roles')}: {histories.length ? roleChanges : '—'} · {t('identity_teams')}: {histories.length ? teamChanges : '—'}
+      </Typography>
       <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
 
         {/* Stat breakdown */}
@@ -107,8 +114,8 @@ function PlayerDetail({ player, language }: { player: PlayerStat; language: Lang
                     <Typography variant="caption" sx={{ fontSize: '0.62rem', textAlign: 'center', lineHeight: 1.2 }}>
                       {getDisplayName(e.charId, language)}
                     </Typography>
-                    <Typography variant="caption" sx={{ fontSize: '0.6rem', color: e.wr >= 60 ? 'success.dark' : e.wr <= 30 ? 'error.dark' : 'text.disabled' }}>
-                      {e.total}× {e.wr}%
+                    <Typography variant="caption" sx={{ fontSize: '0.6rem', color: e.wr !== null && e.wr >= 60 ? 'success.dark' : e.wr !== null && e.wr <= 30 ? 'error.dark' : 'text.disabled' }}>
+                      {e.total}× {e.wr === null ? '—' : `${e.wr}%`}
                     </Typography>
                   </Box>
                 )
@@ -190,7 +197,7 @@ function ComparePanel({ a, b }: { a: PlayerStat; b: PlayerStat; language: Langua
   const fmt = (n: number | null, suffix = '%') => n != null ? `${n}${suffix}` : '—'
   const rows = [
     { label: t('games'),        aVal: a.total,                            bVal: b.total },
-    { label: t('win_rate'),       aVal: `${a.winRate}%`,                    bVal: `${b.winRate}%` },
+    { label: t('win_rate'),       aVal: a.decided ? `${a.winRate}%` : '—',                    bVal: b.decided ? `${b.winRate}%` : '—' },
     { label: t('good_games'),   aVal: a.goodGames || '—',                 bVal: b.goodGames || '—' },
     { label: t('good_w'),    aVal: fmt(a.goodWinRate),                 bVal: fmt(b.goodWinRate) },
     { label: t('evil_games'),   aVal: a.evilGames || '—',                 bVal: b.evilGames || '—' },
@@ -366,6 +373,7 @@ export function PlayersSection({ playerStats, language, records }: Props) {
                     '&:hover': { bgcolor: 'rgba(0,0,0,0.04)' },
                   }}
                 >
+
                   <TableCell sx={{ ...tdSx, color: 'text.secondary' }}>{idx + 1}</TableCell>
                   <TableCell sx={{ ...tdSx, fontWeight: 600, overflow: 'hidden', maxWidth: 0 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, overflow: 'hidden' }}>
@@ -399,7 +407,7 @@ export function PlayersSection({ playerStats, language, records }: Props) {
                   </TableCell>
                   <TableCell sx={{ ...tdSx, display: { xs: 'none', sm: 'table-cell' } }} align="center">{p.total}</TableCell>
                   <TableCell sx={{ ...tdSx, fontWeight: 700, color: p.winRate >= 60 ? 'success.dark' : p.winRate <= 35 ? 'error.dark' : 'text.primary' }} align="center">
-                    {p.winRate}%
+                    {p.decided ? `${p.winRate}%` : '—'}
                   </TableCell>
                   <TableCell sx={{ ...tdSx, display: { xs: 'none', sm: 'table-cell' }, color: 'success.dark' }} align="center">
                     {p.goodWinRate !== null ? `${p.goodWinRate}%` : '—'}

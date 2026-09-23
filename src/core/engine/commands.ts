@@ -9,6 +9,7 @@
 import type { DayState, EventLogEntry, Phase, SkillRecord, StorytellerSeat, TimerDefaults } from '../types/game'
 import type { TeamLookup } from './alignment'
 import { applySeatEdit, diffSeat, type GameEvent } from './events'
+import { trackIdentityUpdates } from './identity'
 import { applyPhase, createNextDay, nextPhase } from './lifecycle'
 import { applyVoteRecord, buildVoteRecord, canStartActorSpeech, canStartTargetSpeech, canStartVoting, castVote, openNominations, rejectNomination, startActorSpeech, startTargetSpeech, startVoting } from './nomination'
 import { buildVotingOrder } from './factories'
@@ -144,7 +145,7 @@ export function applyCommand(game: EngineGame, command: GameCommand, ctx: Engine
     }
     case 'day.next': {
       if (day.gameEnded) return fail('game_ended', 'The game has ended.')
-      const next = createNextDay(game.days.length, day, game.timers, `day-${game.days.length + 1}-${makeId()}`)
+      const next = createNextDay(game.days.length, day, game.timers, `day-${game.days.length + 1}-${makeId()}`, ctx.getTeam)
       days = [...days, next]
       currentDayId = next.id
       timer(false)
@@ -256,6 +257,8 @@ export function applyCommand(game: EngineGame, command: GameCommand, ctx: Engine
       return fail('unknown_command', `Unknown command "${(command as { type?: string }).type}".`)
   }
 
+  // Record role/alignment changes in the identity history, as the web app does.
+  days = trackIdentityUpdates(game.days, days, ctx.getTeam, ctx.now)
   return { ok: true, game: { ...game, days, currentDayId, version: game.version + 1 }, events, effects }
 }
 

@@ -16,8 +16,8 @@ export function seatAlignment(seat: Pick<StorytellerSeat, 'characterId' | 'teamT
   return seatAlignmentWith(catalogTeamOf, seat)
 }
 
-export function canViewSecrets(phase: Phase, showCharacters: boolean): boolean {
-  return phase === 'night' && showCharacters
+export function canViewSecrets(phase: Phase, showCharacters: boolean, privateView = false): boolean {
+  return privateView || (phase === 'night' && showCharacters)
 }
 
 /** Freeze the current alignment before changing role, including legacy seats. */

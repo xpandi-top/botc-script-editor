@@ -1,3 +1,4 @@
+import { RADIUS } from '../../theme/tokens'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
@@ -32,7 +33,7 @@ export function ResponsiveDialog({
     display: 'flex',
     flexDirection: 'column',
     overflow: 'hidden',
-    borderRadius: mobile === 'fullScreen' ? { xs: 0, sm: 2 } : 2,
+    borderRadius: mobile === 'fullScreen' ? { xs: 0, sm: RADIUS.lg } : RADIUS.lg,
   }
 
   return (

@@ -1,3 +1,4 @@
+import { IdentityHistoryView } from '../IdentityHistoryView'
 import { memo, useMemo, useState } from 'react'
 import {
   Box, Button, Checkbox, Chip, Collapse, DialogTitle,
@@ -296,6 +297,7 @@ const RecordRowDetail = memo(function RecordRowDetail({ record, language }: { re
         </Box>
       )}
 
+      <IdentityHistoryView record={record} language={language} />
       {/* ── Day stats ── */}
       {record.days && record.days.length > 0 && (
         <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', mb: hasRatings || record.setup?.demonBluffs?.length ? 0.75 : 0 }}>

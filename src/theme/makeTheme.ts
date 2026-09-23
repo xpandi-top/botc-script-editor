@@ -1,3 +1,4 @@
+import { COMPONENT_RADIUS as R } from './tokens'
 import { createTheme, alpha } from '@mui/material/styles'
 import { PALETTE, BG, INK, BORDER, STATE, FONT, WEIGHT, SHADOW, MOTION, TYPE_SCALE } from './tokens'
 import { DARK_PALETTE, DARK_BG, DARK_INK, DARK_BORDER, DARK_STATE } from './darkTokens'
@@ -23,13 +24,7 @@ declare module '@mui/material/Typography' {
   }
 }
 
-const R = {
-  btn:    10,
-  card:   12,
-  dialog: 16,
-  pill:   999,
-  xs:     4,
-} as const
+
 
 export type ThemeMode = 'light' | 'dark' | 'system'
 
@@ -143,7 +138,7 @@ export function makeTheme(mode: ThemeMode) {
       },
     },
 
-    shape:   { borderRadius: R.btn },
+    shape:   { borderRadius: R.base },
     spacing: 8,
 
     components: {
@@ -177,7 +172,7 @@ export function makeTheme(mode: ThemeMode) {
             color:     ink.primary,
             '&:hover': { background: state.hover },
           },
-          sizeSmall:  { padding: '4px 12px',  fontSize: '0.88rem', minHeight: 32, borderRadius: R.btn - 2 },
+          sizeSmall:  { padding: '4px 12px',  fontSize: '0.88rem', minHeight: 32, borderRadius: R.btn },
           sizeMedium: { padding: '8px 16px' },
           sizeLarge:  { padding: '12px 24px', minHeight: 48, fontSize: '1.05rem' },
         },
@@ -299,7 +294,7 @@ export function makeTheme(mode: ThemeMode) {
           root: {
             fontSize:     '0.95rem',
             color:        ink.primary,
-            borderRadius: R.btn - 2,
+            borderRadius: R.btn,
             margin:       '1px 4px',
             padding:      '6px 10px',
             '&:hover':    { background: state.hover },

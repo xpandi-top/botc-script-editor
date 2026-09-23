@@ -1,4 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { trackIdentityUpdates } from '../../utils/playerIdentity'
+import { useDealRoster } from '../../hooks/useDealRoster'
+import { useAudienceWindow } from '../../hooks/useAudienceWindow'
+import { buildAudienceSnapshot } from './presentation'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useI18n } from '../../hooks/useI18n'
 import { useAudioState } from '../../hooks/useAudioState'
 import { useUIState } from '../../hooks/useUIState'
@@ -13,7 +17,7 @@ import { livingNonTravelers, eligibleVoters, nominationThreshold, exileThreshold
 import { computeYesCount, computeVotePassed, filterNoVoteSeats, remoteResponsesToVoteMap, timeoutDealVoteResponse, canCastRemoteDealVote } from '../../utils/votes'
 import { buildAggregatedEntries, filterAndSortLog } from '../../utils/logFilter'
 import {
-  GAME_DEAL_KEY,
+  DEFAULT_DEAL_VOTE_SECONDS,
   advanceDealVote,
   closeDealVote,
   createDealVoteSession,
@@ -32,8 +36,12 @@ export function useStoryteller(props: StorytellerHelperProps) {
   const initial = useMemo(() => loadInitialState(), [])
   const daysHistory = useHistory(initial.days)
   const days = daysHistory.value
-  const setDays = daysHistory.set
-  const setDaysWithUndo = daysHistory.setWithUndo
+  const setDays = useCallback((action: React.SetStateAction<DayState[]>) => {
+    daysHistory.set(previous => typeof action === 'function' ? trackIdentityUpdates(previous, action(previous)) : action)
+  }, [daysHistory.set])
+  const setDaysWithUndo = useCallback((action: React.SetStateAction<DayState[]>) => {
+    daysHistory.setWithUndo(previous => typeof action === 'function' ? trackIdentityUpdates(previous, action(previous)) : action)
+  }, [daysHistory.setWithUndo])
   const undo = daysHistory.undo
   const canUndo = daysHistory.canUndo
   const [selectedDayId, setSelectedDayId] = useState(initial.selectedDayId)
@@ -175,20 +183,21 @@ export function useStoryteller(props: StorytellerHelperProps) {
   const hasTimer = currentDay.phase !== 'night'
   const NIGHT_BGM_SRC = INITIAL_AUDIO_TRACKS.find((t) => t.name === 'Measured Pulse of the Tower')?.src ?? INITIAL_AUDIO_TRACKS[0].src
 
-  const linkedDealSession = useMemo(() => {
-    try {
-      const raw = localStorage.getItem(GAME_DEAL_KEY(gameId))
-      if (raw) return JSON.parse(raw) as { sessionId: string; hostToken: string }
-    } catch {}
-    return null
-  }, [gameId])
+  const linkedDealSession = useDealRoster(gameId, setDays)
+
+  const audienceSnapshot = useMemo(() => buildAudienceSnapshot({
+    day: currentDay, days, language, title: activeScriptTitle ?? '',
+    timerSeconds: currentTimerSeconds, timerRunning: isTimerRunning && !skillOverlay,
+    requiredVotes: effectiveRequiredVotes, yesCount: votingYesCount, currentVoterSeat,
+  }), [currentDay, days, language, activeScriptTitle, currentTimerSeconds, isTimerRunning, skillOverlay, effectiveRequiredVotes, votingYesCount, currentVoterSeat])
+  const presentation = useAudienceWindow(audienceSnapshot)
 
   // ── Aggregated log ──
   const aggregatedLog = useMemo((): AggregatedLogEntry[] => {
     const entries = buildAggregatedEntries(days, language)
-    const showSecrets = currentDay.phase === 'night' && ui.nightShowCharacter
+    const showSecrets = presentation.privateView || (currentDay.phase === 'night' && ui.nightShowCharacter)
     return filterAndSortLog(showSecrets ? entries : entries.filter(e => e.visibility === 'public'), logFilter)
-  }, [days, language, logFilter, currentDay.phase, ui.nightShowCharacter])
+  }, [days, language, logFilter, currentDay.phase, ui.nightShowCharacter, presentation.privateView])
 
   function getPhaseContext(): string {
     const d = currentDay
@@ -423,7 +432,7 @@ export function useStoryteller(props: StorytellerHelperProps) {
         votingOrder,
         noVoteSeats,
         seatLabels,
-        perPlayerSeconds: currentDay.nominationTargetSeconds ?? timerDefaults.nominationTargetSeconds,
+        perPlayerSeconds: DEFAULT_DEAL_VOTE_SECONDS,
         gameId,
         dayId: currentDay.id,
       })
@@ -475,6 +484,7 @@ export function useStoryteller(props: StorytellerHelperProps) {
     dialogState, setDialogState, seatTagDrafts, setSeatTagDrafts,
     selectedSeatNumber, setSelectedSeatNumber,
     ...ui,
+    ...presentation,
     skillOverlay, setSkillOverlay,
     ...audio,
     newGamePanel, setNewGamePanel, showNewGamePanel, setShowNewGamePanel,

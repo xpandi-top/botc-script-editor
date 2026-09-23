@@ -145,7 +145,7 @@ export function AggregatedLogModal({ ctx }: { ctx: StorytellerContext }) {
     editLogEntry, removeLogEntry, addQuickEvent, swapLogEntries, currentDay,
   } = ctx
 
-  const isNight = currentDay.phase === 'night' && ctx.nightShowCharacter
+  const isNight = ctx.privateView || (currentDay.phase === 'night' && ctx.nightShowCharacter)
   const muiTheme = useTheme()
   const { isMobile } = useBreakpoint()
   const isDark = muiTheme.palette.mode === 'dark'

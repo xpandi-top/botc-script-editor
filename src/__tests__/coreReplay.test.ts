@@ -92,6 +92,23 @@ describe('command engine replay', () => {
     expect(logged.find((e) => e.code === 'vote.recorded')?.detail).toBe('#1 nominated #5 — passed (4/4)')
   })
 
+  it('keeps the identity history like the web app', () => {
+    const start = newGame()
+    // created without a catalog lookup, so day 1 has no history yet
+    expect(start.days[0].identityHistory).toBeUndefined()
+    const { game } = applyCommands(start, [
+      { type: 'seat.update', seat: 3, changes: { characterId: 'imp', teamTag: 'evil' } },
+      { type: 'phase.set', phase: 'nomination' },
+      { type: 'day.next' },
+    ], ctx)
+    const day1 = game.days[0].identityHistory!
+    expect(day1.complete).toBe(false) // started mid-game
+    expect(day1.changes).toEqual([{ seat: 3, at: T0, phase: 'night', from: { characterId: 'fortuneteller', team: 'good' }, to: { characterId: 'imp', team: 'evil' } }])
+    const day2 = game.days[1].identityHistory!
+    expect(day2.complete).toBe(true)
+    expect(day2.initial.find((s) => s.seat === 3)).toEqual({ seat: 3, characterId: 'imp', team: 'evil' })
+  })
+
   it('is deterministic', () => {
     const start = newGame()
     expect(applyCommands(start, script, ctx)).toEqual(applyCommands(start, script, ctx))

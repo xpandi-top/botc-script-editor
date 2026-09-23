@@ -24,6 +24,8 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material'
+import CheckIcon from '@mui/icons-material/Check'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import DescriptionIcon from '@mui/icons-material/Description'
 import MenuBookIcon from '@mui/icons-material/MenuBook'
 import TheaterComedyIcon from '@mui/icons-material/TheaterComedy'
@@ -717,7 +719,7 @@ export default function App() {
         top: 0,
         zIndex: 1100,
         mb: { xs: 0, sm: 2 },
-        borderRadius: 0,
+        borderRadius: '12px',
         bgcolor: 'background.paper',
         backgroundImage: 'none',
         boxShadow: 'none',
@@ -735,9 +737,11 @@ export default function App() {
           {/* Brand — icon + title */}
             <Box
               sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0, gridArea: 'brand',
-                cursor: { xs: 'pointer', sm: 'default' } }}
-              onClick={(e) => setTabMenuAnchor(e.currentTarget as HTMLElement)}
+              }}
             >
+              <Box component="button" type="button" aria-label={t('main_navigation')} aria-haspopup="menu" aria-expanded={Boolean(tabMenuAnchor)} aria-controls={tabMenuAnchor ? 'main-navigation-menu' : undefined}
+                onClick={e => setTabMenuAnchor(e.currentTarget)}
+                sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0, p: 0, border: 0, background: 'transparent', color: 'inherit', font: 'inherit', cursor: 'pointer', borderRadius: 1, '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main', outlineOffset: 4 } }}>
               <Box component="img"
                 src={themeMode === 'dark' ? 'icons/icon-80.png' : 'appIcon.png'}
                 alt="BOTC Companion"
@@ -762,6 +766,8 @@ export default function App() {
               >
                 {uiText.appTitle}
               </Typography>
+              <ExpandMoreIcon sx={{ fontSize: 16, color: 'text.secondary', flexShrink: 0, transform: tabMenuAnchor ? 'rotate(180deg)' : 'none' }} />
+              </Box>
               {hasUnreadChangelog && (
                 <Box
                   component="button"
@@ -880,7 +886,13 @@ export default function App() {
         )}
 
         {/* Mobile tab menu */}
-        <Menu anchorEl={tabMenuAnchor} open={Boolean(tabMenuAnchor)} onClose={() => setTabMenuAnchor(null)}>
+        <Menu id="main-navigation-menu" anchorEl={tabMenuAnchor} open={Boolean(tabMenuAnchor)} onClose={() => setTabMenuAnchor(null)}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }} transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+          slotProps={{
+            backdrop: { sx: { bgcolor: 'transparent' } },
+            paper: { sx: { mt: 1, width: 232, maxWidth: 'calc(100vw - 24px)', bgcolor: 'background.paper', backgroundImage: 'none', borderRadius: '12px', border: '1px solid', borderColor: 'divider', boxShadow: '0 6px 20px rgba(0,0,0,0.12)' } },
+            list: { 'aria-label': t('main_navigation'), sx: { p: 0.75 } },
+          }}>
           {([
             ['scripts', uiText.scriptSheet, <DescriptionIcon fontSize="small" />],
             ['characters', uiText.allCharacters, <TheaterComedyIcon fontSize="small" />],
@@ -889,9 +901,20 @@ export default function App() {
             ['printstudio', psTabLabel, <PrintIcon fontSize="small" />],
             ['settings', stgTabLabel, <TuneIcon fontSize="small" />],
           ] as [TabKey, string, React.ReactNode][]).map(([key, label, icon]) => (
-            <MenuItem key={key} selected={activeTab === key} onClick={() => { setActiveTab(key); setTabMenuAnchor(null) }}>
+            <MenuItem key={key} selected={activeTab === key} aria-current={activeTab === key ? 'page' : undefined}
+              onClick={() => { setActiveTab(key); setTabMenuAnchor(null) }}
+              sx={{ minHeight: 44, mx: 0, my: 0.25, px: 1.25, py: 0.75, borderRadius: '8px', gap: 1.25,
+                color: 'text.secondary', position: 'relative',
+                '& .MuiSvgIcon-root': { fontSize: 19, flexShrink: 0 },
+                '&.Mui-selected': { bgcolor: 'transparent', color: 'text.primary',
+                  '&::before': { content: '""', position: 'absolute', left: 0, top: 12, bottom: 12, width: 2, borderRadius: 1, bgcolor: 'primary.main' },
+                  '&:hover': { bgcolor: 'action.hover' },
+                },
+                '&:hover, &.Mui-focusVisible': { bgcolor: 'action.hover' },
+              }}>
               {icon}
-              <ListItemText sx={{ ml: 1 }}>{label}</ListItemText>
+              <ListItemText slotProps={{ primary: { sx: { fontSize: '0.875rem', fontWeight: activeTab === key ? 700 : 400, lineHeight: 1.4 } } }}>{label}</ListItemText>
+              {activeTab === key && <CheckIcon sx={{ fontSize: '16px !important' }} />}
             </MenuItem>
           ))}
         </Menu>

@@ -59,7 +59,7 @@ export function ArenaCenterContent({ ctx }: { ctx: StorytellerContext }) {
     audioPlaying, setAudioPlaying, startNight, stopNight, sendYTCommand,
     audioTracks, selectedAudioSrc, setSelectedAudioSrc, bgmVolume, setBgmVolume,
     handleLocalFileChange, handleUrlTrackAdd, deleteTrack, renameTrack,
-    canNominate, secondsUntilNomination,
+    canNominate,
     showNominationSheet, setShowNominationSheet,
     enterNomination, moveToNextSpeaker, goToNextDay, setPhase,
     alarmActive, setAlarmActive, nightShowCharacter, setNightShowCharacter,
@@ -149,7 +149,7 @@ export function ArenaCenterContent({ ctx }: { ctx: StorytellerContext }) {
             <HowToVoteIcon />
           </IconButton>
         </Tooltip>
-      : <Typography variant="caption" color="text.secondary">{text.nominationGate}: {Math.floor(secondsUntilNomination / 60)}:{String(secondsUntilNomination % 60).padStart(2, '0')}</Typography>
+      : null
   )
 
   return (
@@ -197,8 +197,8 @@ export function ArenaCenterContent({ ctx }: { ctx: StorytellerContext }) {
       </Select>}
       {phase === 'night' && (
         <>
-          <Tooltip title={nightShowCharacter ? (t('hide_characters')) : (t('show_characters'))}>
-            <IconButton size="large" onClick={() => setNightShowCharacter((v: boolean) => !v)} sx={nightShowCharacter ? TIMER_CONTROL_SX : TIMER_IDLE_SX}>
+          <Tooltip title={ctx.privateView || nightShowCharacter ? (t('hide_characters')) : (t('show_characters'))}>
+            <IconButton size="large" onClick={() => { if (ctx.privateView) { ctx.setPrivateView(false); setNightShowCharacter(false) } else setNightShowCharacter((v: boolean) => !v) }} sx={ctx.privateView || nightShowCharacter ? TIMER_CONTROL_SX : TIMER_IDLE_SX}>
               <VisibilityIcon />
             </IconButton>
           </Tooltip>

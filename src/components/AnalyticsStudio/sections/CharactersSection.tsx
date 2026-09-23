@@ -1,3 +1,4 @@
+import { recordPlayers, identityForBasis } from '../../../utils/playerIdentity'
 import { useState, useMemo } from 'react'
 import { Box, Chip, Collapse, MenuItem, Paper, Select, ToggleButton, ToggleButtonGroup, Tooltip, Typography, useTheme } from '@mui/material'
 import FlashOnIcon from '@mui/icons-material/FlashOn'
@@ -43,7 +44,7 @@ function CharDetail({ stat, records }: { stat: CharStat; records: GameRecord[]; 
 
   // Game history
   const charRecords = records
-    .filter((r) => r.setup?.assignments && Object.values(r.setup.assignments).includes(stat.charId))
+    .filter(r => recordPlayers(r).some(p => identityForBasis(p, stat.basis).characterId === stat.charId))
     .sort((a, b) => b.endedAt - a.endedAt)
     .slice(0, 5)
 
@@ -99,8 +100,7 @@ function CharDetail({ stat, records }: { stat: CharStat; records: GameRecord[]; 
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
             {charRecords.map((r) => {
               // Find the player who played this char
-              const seat = Object.entries(r.setup?.assignments ?? {}).find(([, cid]) => cid === stat.charId)?.[0]
-              const playerName = seat ? r.setup?.seatNames?.[+seat] || r.playerSummaries?.find((ps) => ps.seat === +seat)?.name : null
+              const playerName = recordPlayers(r).filter(p => identityForBasis(p, stat.basis).characterId === stat.charId).map(p => p.name).join(', ')
               return (
                 <Box key={r.id} sx={{ display: 'flex', gap: 1, alignItems: 'center', p: 0.5, borderRadius: 1, bgcolor: 'action.hover' }}>
                   <Typography variant="caption" sx={{ flex: 1 }}>{r.recordName || r.scriptTitle || '?'}</Typography>
@@ -169,12 +169,12 @@ function CharCard({ stat, language, records, zh }: { stat: CharStat; language: L
             </Typography>
           </Box>
           <Typography variant="caption" color="text.secondary">
-            {stat.total}{t('games_g')} · {stat.winRate}%{t('win_short')}
+            {stat.total}{t('games_g')} · {stat.decided ? `${stat.winRate}%` : '—'}{t('win_short')}
             {isEvil ? (stat.evilGames > 0 ? ` · E:${stat.evilGames}` : '') : (stat.goodGames > 0 ? ` · G:${stat.goodGames}` : '')}
           </Typography>
           {/* Win bar */}
           <Box sx={{ mt: 0.5, height: 4, borderRadius: 1, bgcolor: 'rgba(0,0,0,0.1)', overflow: 'hidden' }}>
-            <Box sx={{ height: '100%', width: `${stat.winRate}%`, bgcolor: winBarColor, borderRadius: 1, transition: 'width 0.4s ease' }} />
+            <Box sx={{ height: '100%', width: `${stat.decided ? `${stat.winRate}%` : '—'}`, bgcolor: winBarColor, borderRadius: 1, transition: 'width 0.4s ease' }} />
           </Box>
         </Box>
 

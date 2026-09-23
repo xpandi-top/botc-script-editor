@@ -7,6 +7,9 @@ import {
   computeStorytellerStats,
 } from '../core/stats/records'
 import type { GameRecord } from '../core/types/game'
+import type { TeamLookup } from '../core/engine/alignment'
+
+const getTeam: TeamLookup = (id) => ({ imp: 'demon', washerwoman: 'townsfolk', chef: 'townsfolk' } as const)[id as 'imp']
 
 const day = (votes: number, votePassed: number, nominations = votes, skills = 0) => ({ day: 1, votes, votePassed, skills, nominations })
 
@@ -87,16 +90,16 @@ describe('core/stats — computeScriptStats', () => {
 
 describe('core/stats — computePlayerStats', () => {
   it('computes per-alignment win rates, characters and teammates', () => {
-    const bob = computePlayerStats(records).find((p) => p.name === 'Bob')!
+    const bob = computePlayerStats(records, getTeam).find((p) => p.name === 'Bob')!
     expect(bob).toMatchObject({ total: 2, wins: 2, goodGames: 1, evilGames: 1, winRate: 100, evilRate: 50, mvpCount: 1 })
-    expect(bob.charMap.get('imp')).toEqual({ charId: 'imp', total: 1, wins: 1 })
+    expect(bob.charMap.get('imp')).toEqual({ charId: 'imp', total: 1, wins: 1, decided: 1 })
     expect(bob.teammates.get('Cara')).toBe(1)
     expect(bob.teammatesGood.get('Cara')).toBe(1)
     expect(bob.teammatesEvil.size).toBe(0)
   })
 
   it('credits storyteller MVPs and counts games run as storyteller', () => {
-    const alice = computePlayerStats(records).find((p) => p.name === 'Alice')!
+    const alice = computePlayerStats(records, getTeam).find((p) => p.name === 'Alice')!
     expect(alice.mvpCount).toBe(1)
     expect(alice.stGameCount).toBe(2)
   })
@@ -104,7 +107,7 @@ describe('core/stats — computePlayerStats', () => {
 
 describe('core/stats — computeCharStats', () => {
   it('counts plays, wins and unassigned demon bluffs', () => {
-    const stats = computeCharStats(records)
+    const stats = computeCharStats(records, getTeam)
     const imp = stats.find((c) => c.charId === 'imp')!
     expect(imp).toMatchObject({ total: 2, wins: 1, evilGames: 2, winRate: 50, evilWinRate: 50 })
     // empath was only ever a bluff, so it is filtered out of the play list

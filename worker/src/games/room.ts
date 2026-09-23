@@ -114,7 +114,7 @@ export class GameRoomCore {
       demonBluffs: input.demonBluffs ?? [], charPool: [],
     }
     const timers = { ...DEFAULT_TIMERS, ...input.timers }
-    const day = { ...createDayState(1, buildSeatsFromConfig(config, this.catalog.teamOf), timers, `day-1-${gameId}`), demonBluffs: config.demonBluffs }
+    const day = { ...createDayState(1, buildSeatsFromConfig(config, this.catalog.teamOf), timers, `day-1-${gameId}`, this.catalog.teamOf), demonBluffs: config.demonBluffs }
     const state: RoomState = {
       meta: { gameId, createdAt: this.now(), ownerId: owner.ownerId, hostTokenHash: await sha256Hex(owner.hostToken), script: input.script },
       game: { days: [day], currentDayId: day.id, timers, version: 0 },

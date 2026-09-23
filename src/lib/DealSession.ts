@@ -148,6 +148,9 @@ export const HOST_TOKEN_KEY = (id: string) => `botc-deal-host-${id}`;
 export const ACTIVE_HOST_DEAL_KEY = 'botc-deal-active-host';
 // localStorage key for deal session linked to a specific game instance
 
+export const DEAL_SESSION_CHANGED_EVENT = 'botc-deal-session-changed';
+export const DEFAULT_DEAL_VOTE_SECONDS = 10;
+
 export const GAME_DEAL_KEY = (gameId: string) => `botc-deal-game-${gameId}`;
 // localStorage key for the guest's browser token
 
@@ -323,7 +326,7 @@ export async function createDealVoteSession(
 ): Promise<DealVoteSession> {
   const voteDoc = doc(votesRef(sessionId));
   const voteId = voteDoc.id;
-  const perPlayerSeconds = input.perPlayerSeconds ?? 5;
+  const perPlayerSeconds = input.perPlayerSeconds ?? DEFAULT_DEAL_VOTE_SECONDS;
   const now = Timestamp.now();
   const deadlineAt = Timestamp.fromMillis(now.toMillis() + perPlayerSeconds * 1000);
   const payload: DealVoteSession = {

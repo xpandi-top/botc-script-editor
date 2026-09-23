@@ -34,8 +34,7 @@ function MobileSeatCardInner({ ctx, seat, side = 'left' }: { ctx: StorytellerCon
 
   const isPlayerModalOpen = playerModalSeat === seat.seat
   const isSelected = selectedSeat?.seat === seat.seat
-  const isNightPhase = currentDay.phase === 'night'
-  const showSecrets = canViewSecrets(currentDay.phase, nightShowCharacter)
+  const showSecrets = canViewSecrets(currentDay.phase, nightShowCharacter, ctx.privateView)
   const showIdentity = showSecrets || seat.isTraveler
 
   const isVoteActor = currentDay.voteDraft.actor === seat.seat
@@ -163,7 +162,7 @@ function MobileSeatCardInner({ ctx, seat, side = 'left' }: { ctx: StorytellerCon
           {showSecrets && <AlignmentBadge alignment={seatAlignment(seat)} />}
 
           {/* Drunk / Poisoned — always visible */}
-          {isNightPhase && nightShowCharacter && (isDrunk || isPoisoned) && (() => {
+          {showSecrets && (isDrunk || isPoisoned) && (() => {
             const getTagSrcIcon = (key: string) => {
               const raw = (seat.stTags || []).find((t: string) => {
                 const b = t.startsWith('📝') ? t.slice(2) : t; const s = b.indexOf('::'); return (s === -1 ? b : b.slice(0, s)) === key
@@ -181,7 +180,7 @@ function MobileSeatCardInner({ ctx, seat, side = 'left' }: { ctx: StorytellerCon
             )
           })()}
 
-          {isNightPhase && nightShowCharacter && (seat.stTags || []).length > 0 && (
+          {showSecrets && (seat.stTags || []).length > 0 && (
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.25, mb: 0.25 }}>
               {(seat.stTags as string[]).map((tag: string) => {
                 const body = tag.startsWith('📝') ? tag.slice(2) : tag
@@ -237,6 +236,7 @@ export const MobileSeatCard = memo(MobileSeatCardInner, (prev, next) =>
   prev.ctx.currentDay === next.ctx.currentDay &&
   prev.ctx.currentVoterSeat === next.ctx.currentVoterSeat &&
   prev.ctx.selectedSeat === next.ctx.selectedSeat &&
+  prev.ctx.privateView === next.ctx.privateView &&
   prev.ctx.nightShowCharacter === next.ctx.nightShowCharacter &&
   prev.ctx.nightShowWakeOrder === next.ctx.nightShowWakeOrder &&
   prev.ctx.skillOverlay === next.ctx.skillOverlay &&
