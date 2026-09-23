@@ -1,9 +1,10 @@
 import { preserveAlignment, seatAlignment } from '../utils/seatAlignment'
-import { createDefaultVoteDraft, createDefaultSkillDraft, buildVotingOrder } from '../components/StorytellerSub/constants'
-import type { DayState, EventLogEntry, PickerMode, SkillOverlayState, SkillRecord, StorytellerSeat, TimerDefaults, VoteRecord } from '../components/StorytellerSub/types'
+import { createDefaultSkillDraft, buildVotingOrder } from '../components/StorytellerSub/constants'
+import type { DayState, EventLogEntry, PickerMode, SkillOverlayState, SkillRecord, StorytellerSeat, TimerDefaults } from '../components/StorytellerSub/types'
 import type { Language } from '../types'
 import { logDetail, logPhrase } from '../utils/logI18n'
-import { spendVoteTokens, voteTokensAfterLifeChange, voteWeightFor } from '../utils/votes'
+import { voteTokensAfterLifeChange } from '../utils/votes'
+import { applyVoteRecord, buildVoteRecord, canStartActorSpeech, canStartTargetSpeech, canStartVoting, castVote, openNominations, rejectNomination as rejectNominationState, startActorSpeech, startTargetSpeech, startVoting as startVotingState } from '../core/engine/nomination'
 import { getDisplayName } from '../catalog'
 import { translateStTag } from '../components/StorytellerSub/Arena/ArenaSeatComponents'
 
@@ -138,56 +139,41 @@ export function buildGameActions(deps: ActionDeps) {
   }
 
   function enterNomination() {
-    updateCurrentDay((d) => ({ ...d, phase: 'nomination', nominationStep: 'waitingForNomination', nominationWaitSeconds: timerDefaults.nominationWaitSeconds, voteDraft: createDefaultVoteDraft(), votingState: null }))
+    updateCurrentDay((d) => openNominations(d, timerDefaults))
     setShowNominationSheet(true)
     setIsTimerRunning(true)
   }
 
   function confirmNomination() {
-    const canStart = currentDay.nominationStep === 'nominationDecision' || currentDay.nominationStep === 'actorSpeech' || currentDay.nominationStep === 'readyForTargetSpeech' || currentDay.nominationStep === 'targetSpeech' || currentDay.nominationStep === 'readyToVote' || currentDay.nominationStep === 'voting' || currentDay.nominationStep === 'votingDone'
-    if (!canStart) return
-    updateCurrentDay((d) => ({ ...d, nominationStep: 'actorSpeech', nominationActorSeconds: timerDefaults.nominationActorSeconds }))
+    if (!canStartActorSpeech(currentDay)) return
+    updateCurrentDay((d) => startActorSpeech(d, timerDefaults))
     setIsTimerRunning(true)
   }
 
   function rejectNomination() {
-    updateCurrentDay((d) => {
-      const failRecord: VoteRecord | null = (d.voteDraft.actor && d.voteDraft.target) ? { id: `${Date.now()}`, actor: d.voteDraft.actor, target: d.voteDraft.target, voters: [], voteCount: 0, requiredVotes, passed: false, note: d.voteDraft.note.trim(), overridden: false, failed: true } : null
-      return appendEvent({ ...d, nominationStep: 'waitingForNomination', nominationWaitSeconds: timerDefaults.nominationWaitSeconds, voteHistory: failRecord ? [failRecord, ...d.voteHistory] : d.voteHistory, voteDraft: createDefaultVoteDraft(), votingState: null }, 'stateChange', logDetail.nominationFailed(language, d.voteDraft.actor ?? '?', d.voteDraft.target ?? '?'))
-    })
+    updateCurrentDay((d) => appendEvent(rejectNominationState(d, { requiredVotes, now: Date.now(), timers: timerDefaults }), 'stateChange', logDetail.nominationFailed(language, d.voteDraft.actor ?? '?', d.voteDraft.target ?? '?')))
     setIsTimerRunning(false)
   }
 
   function confirmTargetSpeech() {
-    const canStart = currentDay.nominationStep === 'actorSpeech' || currentDay.nominationStep === 'readyForTargetSpeech' || currentDay.nominationStep === 'targetSpeech' || currentDay.nominationStep === 'readyToVote' || currentDay.nominationStep === 'voting' || currentDay.nominationStep === 'votingDone'
-    if (!canStart) return
-    updateCurrentDay((d) => ({ ...d, nominationStep: 'targetSpeech', nominationTargetSeconds: timerDefaults.nominationTargetSeconds }))
+    if (!canStartTargetSpeech(currentDay)) return
+    updateCurrentDay((d) => startTargetSpeech(d, timerDefaults))
     setIsTimerRunning(true)
   }
 
   function startVoting() {
-    if (currentDay.voteDraft.target === null || currentDay.voteDraft.target === undefined) return
-    const canStart = currentDay.nominationStep === 'targetSpeech' || currentDay.nominationStep === 'readyToVote' || currentDay.nominationStep === 'voting' || currentDay.nominationStep === 'votingDone'
-    if (!canStart && currentDay.nominationStep !== 'nominationDecision') return
-    const order = buildVotingOrder(currentDay.seats, currentDay.voteDraft.target)
-    updateCurrentDay((d) => ({ ...d, nominationStep: 'voting', votingState: { votingOrder: order, votingIndex: 0, perPlayerSeconds: timerDefaults.nominationVoteSeconds, votes: {} } }))
+    if (!canStartVoting(currentDay)) return
+    const order = buildVotingOrder(currentDay.seats, currentDay.voteDraft.target!)
+    updateCurrentDay((d) => startVotingState(d, order, timerDefaults))
     setPickerMode('none')
     setIsTimerRunning(true)
   }
 
   function _advanceVote(seatNumber: number, voteValue: boolean) {
     updateCurrentDay((d) => {
-      if (!d.votingState || d.nominationStep !== 'voting') return d
-      const vs = d.votingState
-      if (seatNumber !== vs.votingOrder[vs.votingIndex]) return d
-      const newVotes = { ...vs.votes, [seatNumber]: voteValue }
-      const nextIdx = vs.votingIndex + 1
-      if (nextIdx >= vs.votingOrder.length) {
-        window.setTimeout(() => setIsTimerRunning(false), 0)
-        const yesVoters = Object.entries(newVotes).filter(([, v]) => v).map(([k]) => Number(k))
-        return { ...d, nominationStep: 'votingDone', voteDraft: { ...d.voteDraft, voters: yesVoters }, votingState: { ...vs, votes: newVotes, votingIndex: nextIdx, perPlayerSeconds: 0 } }
-      }
-      return { ...d, votingState: { ...vs, votes: newVotes, votingIndex: nextIdx, perPlayerSeconds: timerDefaults.nominationVoteSeconds } }
+      const { day, completed } = castVote(d, seatNumber, voteValue, timerDefaults)
+      if (completed) window.setTimeout(() => setIsTimerRunning(false), 0)
+      return day
     })
   }
 
@@ -195,16 +181,10 @@ export function buildGameActions(deps: ActionDeps) {
   function handleVoteNo(seatNumber: number) { _advanceVote(seatNumber, false) }
 
   function recordVote() {
-    if (!currentDay.voteDraft.actor || currentDay.voteDraft.target === null || currentDay.voteDraft.target === undefined) return
     const vd = currentDay.voteDraft
-    const yesSeats = [...new Set(vd.voters)]
-    const weightedCount = yesSeats.reduce((total, seat) => total + voteWeightFor(vd, seat), 0)
-    const finalCount = vd.voteCountOverride !== null ? vd.voteCountOverride : weightedCount
-    const spentWeights = Object.fromEntries(
-      yesSeats.map((seat) => [seat, voteWeightFor(vd, seat)]).filter(([, weight]) => weight !== 1),
-    )
-    const record: VoteRecord = { id: `${Date.now()}`, actor: vd.actor!, target: vd.target!, voters: yesSeats, voteCount: finalCount, requiredVotes, passed: draftPassed, note: vd.note.trim(), overridden: vd.manualPassed !== null || vd.voteCountOverride !== null, isExile: vd.isExile, ...(Object.keys(spentWeights).length > 0 && { voteWeights: spentWeights }) }
-    updateCurrentDayWithUndo((d) => appendEvent({ ...d, seats: spendVoteTokens(d.seats, yesSeats, vd), nominationStep: 'waitingForNomination', nominationWaitSeconds: timerDefaults.nominationWaitSeconds, voteHistory: [record, ...d.voteHistory], voteDraft: createDefaultVoteDraft(), votingState: null }, 'vote', logDetail.voteResult(language, record.actor, record.target, record.passed, record.voteCount, record.requiredVotes)))
+    const record = buildVoteRecord(vd, { requiredVotes, passed: draftPassed, now: Date.now() })
+    if (!record) return
+    updateCurrentDayWithUndo((d) => appendEvent(applyVoteRecord(d, record, vd, timerDefaults), 'vote', logDetail.voteResult(language, record.actor, record.target, record.passed, record.voteCount, record.requiredVotes)))
     setIsTimerRunning(false)
     // Timer does NOT auto-start — ST manually restarts nomination wait if needed
   }
