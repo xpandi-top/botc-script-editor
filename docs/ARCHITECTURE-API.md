@@ -256,8 +256,8 @@ AI 设置保持本地 BYOK，永不上传。
 | ✅ | 引擎第一片：提名 / 投票状态迁移（`src/core/engine/nomination.ts`） | `useGameActions` 只保留 UI 副作用；浏览器实测记录 / 失败提名路径 |
 | ✅ | 引擎：座位更新 + 结构化事件（`{ code, params }`） | `core/engine/events.ts`（`diffSeat`、`applySeatEdit`）；日志条目新增可选 `code`/`params`，`detail` 文本不变（`utils/eventText.ts`） |
 | ✅ | 引擎：阶段 / 日程 / 建局（`useGameLifecycle`） | `core/engine/lifecycle.ts`、`setup.ts`（随机发牌可注入种子）、`alignment.ts`；浏览器实测阶段推进、新游戏、随机分配 |
-| ⬜ | 计时器 → `endsAt` | 需 state 迁移 |
-| ⬜ | catalog 拆分：纯查询 + overlay 注入；`scripts/build-catalog.mjs` | |
+| ⏸ | 计时器 → `endsAt` | **推迟到 P3**：本地应用无收益且需迁移持久化状态；云对局的 DO 状态直接用 `endsAt`，客户端换算剩余秒数 |
+| ✅ | catalog 快照：`scripts/build-catalog.mjs` → `CatalogData`；`src/core/catalog`（查询）、`src/core/script/analyze.ts`（确定性分析） | Web 继续用 `catalog.ts`（含用户覆盖）；测试逐角色比对二者一致（名称 / 能力 / 提醒 / 夜序文本 / jinx / 剧本） |
 | ⬜ | 回放 fixture 测试（`GameRecord.savedDays`） | |
 
 ---
