@@ -7,15 +7,15 @@
  */
 import { getDisplayName } from '../../catalog'
 import { charactersIn, listLine, poolProblems, setupProblems } from './answerParse'
-import { planRequest } from './ruleFacts'
+import { mostNamedScript, planRequest } from './ruleFacts'
 import type { AiContext } from './types'
 
 export type CheckedAnswer = { text: string; corrected: boolean }
 
 const names = (ids: string[], zh: boolean) => `${ids.join(', ')}（${ids.map((id) => getDisplayName(id, zh ? 'zh' : 'en')).join(zh ? '、' : ', ')}）`
 
-export function checkAnswer(ctx: Pick<AiContext, 'language' | 'characterIds' | 'seats'>, query: string, text: string): CheckedAnswer {
-  const request = planRequest(query, ctx)
+export function checkAnswer(ctx: Pick<AiContext, 'language' | 'characterIds' | 'seats'>, query: string, text: string, previousQueries: string[] = [], lastAnswer?: string): CheckedAnswer {
+  const request = planRequest(query, { ...ctx, previousQueries, lastAnswer })
   if (!request) return { text, corrected: false }
   const zh = ctx.language === 'zh'
   const label = zh ? '程序校验' : 'Program check'
@@ -23,14 +23,24 @@ export function checkAnswer(ctx: Pick<AiContext, 'language' | 'characterIds' | '
   if (request.kind === 'setup') {
     const { plan, script, players } = request
     if (!plan || plan.inPlay.length !== players) return { text, corrected: false }
+    // Read the line-up against the question's script, and against the script
+    // the answer itself is about (a follow-up on a recommended script).
     // An explicit list line; else the program's line-up if the answer names all
     // of it (it may mention other characters in passing); else exactly the
     // script characters the answer names.
-    const named = [...charactersIn(text)].filter((id) => script.includes(id))
-    const adopted = plan.inPlay.every((id) => named.includes(id)) ? plan.inPlay : null
-    const ids = listLine(text, ['在场角色', 'Characters in play']) ?? adopted ?? (named.length === players ? named : null)
+    const listed = listLine(text, ['在场角色', 'Characters in play'])
+    const lineUpFor = (candidate: string[]) => {
+      const named = [...charactersIn(text)].filter((id) => candidate.includes(id))
+      const adopted = candidate === script && plan.inPlay.every((id) => named.includes(id)) ? plan.inPlay : null
+      return listed ?? adopted ?? (named.length === players ? named : null)
+    }
+    const aboutScript = mostNamedScript(text)
+    for (const candidate of [script, ...(aboutScript && aboutScript !== script ? [aboutScript] : [])]) {
+      const lineUp = lineUpFor(candidate)
+      if (lineUp && !setupProblems(lineUp, candidate, players).length) return { text, corrected: false }
+    }
+    const ids = lineUpFor(script)
     const problems = ids ? setupProblems(ids, script, players, ctx.language) : []
-    if (ids && !problems.length) return { text, corrected: false }
     const why = ids
       ? (zh ? `回答里的配置不符合规则（${problems.join('；')}）` : `the line-up in the answer breaks the rules (${problems.join('; ')})`)
       : (zh ? '回答里没有完整的在场角色名单' : 'the answer has no complete list of characters in play')

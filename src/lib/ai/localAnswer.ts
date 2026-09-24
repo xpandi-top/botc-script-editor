@@ -70,13 +70,13 @@ function excerpt(text: string, max: number): string {
 
 export type LocalAnswer = { message: string; found: boolean }
 
-export function answerLocally(ctx: AiContext, query: string, previousQueries: string[] = []): LocalAnswer {
+export function answerLocally(ctx: AiContext, query: string, previousQueries: string[] = [], lastAnswer?: string): LocalAnswer {
   const language = ctx.language
   const zh = language === 'zh'
   const retrieval = retrieveCatalog(query, language, previousQueries)
   const sections: string[] = []
 
-  const facts = computeRuleFacts(query, language, ctx)
+  const facts = computeRuleFacts(query, language, { ...ctx, previousQueries, lastAnswer })
   if (facts) sections.push(facts.split('\n').slice(1).join('\n'))
 
   // Characters the question names: official text (both languages for translations).

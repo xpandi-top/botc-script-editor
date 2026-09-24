@@ -24,7 +24,12 @@ import { mentionedEntities } from './catalogRetrieval'
 import { scriptRecommendationFacts } from './scriptFacts'
 import type { AiContext } from './types'
 
-export type FactsPage = Pick<AiContext, 'characterIds' | 'seats'>
+/** The page (script / game) plus earlier user questions in the chat, for follow-ups like "那 7 个人玩它". */
+export type FactsPage = Pick<AiContext, 'characterIds' | 'seats'> & {
+  previousQueries?: string[]
+  /** The assistant's last answer: "它" often means the script it just recommended. */
+  lastAnswer?: string
+}
 
 const SETUP_WORDS = /局|配置|开局|在场|上场|发牌|推荐角色|挑选|setup|set up|in play|line-?up|deal|which characters/i
 const SCRIPT_DESIGN = /(设计|生成|创建|组|做|出|编|写)[^。？?\n]{0,16}剧本|剧本[^。？?\n]{0,6}(设计|生成)|(design|build|create|make|generate)\b[^.?\n]{0,30}\bscript/i
@@ -53,10 +58,31 @@ const row = (zh: boolean, c: { townsfolk: number; outsider: number; minion: numb
   zh ? `镇民 ${c.townsfolk} / 外来者 ${c.outsider} / 爪牙 ${c.minion} / 恶魔 ${c.demon}` : `${c.townsfolk} Townsfolk / ${c.outsider} Outsiders / ${c.minion} Minions / ${c.demon} Demon`
 const list = (ids: string[], zh: boolean) => `${ids.join(', ')}（${ids.map((id) => name(id, zh)).join(zh ? '、' : ', ')}）`
 
-/** The page's script, or the bundled script of an edition the question names. */
+const REFERS_BACK = /它|这个|那个|这套|该剧本|上面|刚才|\b(it|this|that)\b/i
+const bundledScriptOf = (text: string) => mentionedEntities(text).editionIds.map((id) => initialScripts.find((s) => s.slug === id)?.characters).find(Boolean)
+
+/** The bundled script an answer names most often (by title). */
+export function mostNamedScript(text: string): string[] | undefined {
+  const counts = initialScripts
+    .map((s) => ({ s, n: [s.titleZh, s.title].filter((t) => t && t.length > 1).reduce((sum, t) => sum + (text.split(t!).length - 1), 0) }))
+    .filter((x) => x.n > 0)
+    .sort((a, b) => b.n - a.n)
+  return counts[0]?.s.characters
+}
+
+/** The bundled script the question names, or a follow-up's earlier one ("它"), else the page's script. */
 function scriptFor(query: string, page: FactsPage): string[] {
-  const named = mentionedEntities(query).editionIds.map((id) => initialScripts.find((s) => s.slug === id)?.characters).find(Boolean)
-  return named ?? page.characterIds ?? []
+  const named = bundledScriptOf(query)
+  if (named) return named
+  if (REFERS_BACK.test(query)) {
+    for (const previous of [...(page.previousQueries ?? [])].reverse().slice(0, 6)) {
+      const earlier = bundledScriptOf(previous)
+      if (earlier) return earlier
+    }
+    const recommended = page.lastAnswer ? mostNamedScript(page.lastAnswer) : undefined
+    if (recommended) return recommended
+  }
+  return page.characterIds ?? []
 }
 
 function gameFactText(fact: GameFact, zh: boolean, seatName: (seat: number) => string): string {

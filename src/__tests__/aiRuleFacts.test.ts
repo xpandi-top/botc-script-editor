@@ -63,3 +63,15 @@ describe('program facts answer the hard cases on their own', () => {
     })
   }
 })
+
+describe('follow-up questions', () => {
+  it('uses the script named in an earlier question for "它"', async () => {
+    const { planRequest } = await import('../lib/ai/ruleFacts')
+    const alVsAl = initialScripts.find((s) => s.slug === 'al_vs_al')!.characters
+    const followUp = planRequest('那 7 个人玩它，帮我挑选在场角色', { characterIds: alVsAl, previousQueries: ['暗流涌动适合入门吗？'] })
+    expect(followUp?.kind === 'setup' && followUp.plan!.inPlay.every((id) => tb.includes(id))).toBe(true)
+    // Without a reference back, the page's script is used.
+    const onPage = planRequest('7 个人玩，帮我挑选在场角色', { characterIds: alVsAl, previousQueries: ['暗流涌动适合入门吗？'] })
+    expect(onPage?.kind === 'setup' && onPage.plan!.inPlay.every((id) => alVsAl.includes(id))).toBe(true)
+  })
+})

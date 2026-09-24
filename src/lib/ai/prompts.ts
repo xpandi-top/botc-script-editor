@@ -370,13 +370,15 @@ export function buildSystemPrompt(ctx: AiContext, query?: string, options?: {
   almanac?: string
   /** Estimated input tokens the runtime accepts (default: the Groq budget); page context scales with it. */
   inputBudget?: number
+  /** The assistant's last answer, for follow-ups that refer back to it. */
+  lastAnswer?: string
 }): string {
   const zh   = ctx.language === 'zh'
   const retrieval = options?.retrieval ?? retrieveCatalog(query ?? ctx.title, ctx.language, options?.previousQueries)
   const searchQuery = retrieval.query
   const catalog = formatCatalogRetrieval(retrieval, options?.almanac)
   const references = wikiSection(searchQuery, zh)
-  const facts = computeRuleFacts(query ?? '', ctx.language, ctx)
+  const facts = computeRuleFacts(query ?? '', ctx.language, { ...ctx, previousQueries: options?.previousQueries, lastAnswer: options?.lastAnswer })
   const evidence = catalog ? `${catalog}\n\n${selectContext(references, searchQuery, 350)}` : references
   const wiki = facts ? `${facts}\n\n${evidence}` : evidence
   const source = ctx.serialized ?? serializeContext(ctx)
@@ -406,12 +408,12 @@ export function buildSystemPrompt(ctx: AiContext, query?: string, options?: {
 }
 
 /** Resolve entities before gathering passages; local mode does not require a Wiki fetch. */
-export async function prepareSystemPrompt(ctx: AiContext, query: string, previousQueries: string[] = [], options?: { local?: boolean; inputBudget?: number }): Promise<string> {
+export async function prepareSystemPrompt(ctx: AiContext, query: string, previousQueries: string[] = [], options?: { local?: boolean; inputBudget?: number; lastAnswer?: string }): Promise<string> {
   const retrieval = await resolveCatalogQuery(query, ctx.language, previousQueries)
   const [, almanac] = await Promise.all([options?.local ? Promise.resolve(false) : initWikiSearch(), retrieveAlmanac(retrieval, ctx.language)])
   if (options?.local) {
     // A 4K local model cannot use the online prompt's large baseline reference.
-    const computed = computeRuleFacts(query, ctx.language, ctx)
+    const computed = computeRuleFacts(query, ctx.language, { ...ctx, previousQueries, lastAnswer: options?.lastAnswer })
     const found = formatCatalogRetrieval(retrieval, almanac, 1500) || selectContext(searchWiki(query, 2).map((chunk) => `[${chunk.page}] ${chunk.url}\n${chunk.text}`).join('\n\n'), query, 650)
     const facts = computed ? `${computed}\n\n${found}` : found
     const page = selectContext(ctx.serialized ?? serializeContext(ctx), retrieval.query, 450)
@@ -427,5 +429,5 @@ ${facts}
 
 ${page}`
   }
-  return buildSystemPrompt(ctx, query, { retrieval, almanac, inputBudget: options?.inputBudget })
+  return buildSystemPrompt(ctx, query, { retrieval, almanac, inputBudget: options?.inputBudget, previousQueries, lastAnswer: options?.lastAnswer })
 }

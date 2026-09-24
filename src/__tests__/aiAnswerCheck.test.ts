@@ -38,3 +38,19 @@ describe('checkAnswer', () => {
     expect(checkAnswer({ language: 'zh' }, '洗衣妇的能力是什么？', '……').corrected).toBe(false)
   })
 })
+
+describe('follow-ups about a recommended script', () => {
+  const alVsAl = { language: 'zh' as const, characterIds: initialScripts.find((s) => s.slug === 'al_vs_al')!.characters }
+  const recommendation = '推荐《暗流涌动》：官方建议新手先玩暗流涌动。暗流涌动只有 1 个恶魔。'
+
+  it('plans for the script the assistant just recommended', async () => {
+    const { planRequest } = await import('../lib/ai/ruleFacts')
+    const plan = planRequest('那 7 个人玩它，帮我挑选在场角色', { ...alVsAl, previousQueries: ['官方的剧本哪个最适合入门？'], lastAnswer: recommendation })
+    expect(plan?.kind === 'setup' && plan.plan!.inPlay.every((id) => tb.characterIds.includes(id))).toBe(true)
+  })
+
+  it('accepts a legal line-up for the script the answer is about', () => {
+    const answer = '7 人局《暗流涌动》推荐：洗衣妇、图书管理员、调查员、厨师、共情者、投毒者、小恶魔。'
+    expect(checkAnswer(alVsAl, '那 7 个人玩它，帮我挑选在场角色', answer, ['官方的剧本哪个最适合入门？']).corrected).toBe(false)
+  })
+})

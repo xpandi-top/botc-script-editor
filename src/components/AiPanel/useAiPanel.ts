@@ -144,8 +144,9 @@ export function useAiPanel({ open, context, callbacks }: UseAiPanelOptions) {
       }))
 
     const previousQueries = messages.filter((m) => m.role === 'user').map((m) => m.content)
+    const lastAnswer = [...messages].reverse().find((m) => m.role === 'assistant')?.content
     const zh = effectiveCtx.language === 'zh'
-    const local = () => answerLocally(effectiveCtx, text, previousQueries)
+    const local = () => answerLocally(effectiveCtx, text, previousQueries, lastAnswer)
     if (!modelReady(latestSettings)) {
       const why = latestSettings.provider === 'webllm'
         ? (zh ? '本地模型尚未下载或加载' : 'The local model is not loaded')
@@ -160,7 +161,7 @@ export function useAiPanel({ open, context, callbacks }: UseAiPanelOptions) {
 
     let result: Awaited<ReturnType<typeof callAi>>
     try {
-      const systemPrompt = await prepareSystemPrompt(effectiveCtx, text, previousQueries, { local: latestSettings.provider === 'webllm', inputBudget: latestSettings.provider === 'botc' ? HOSTED_INPUT_BUDGET : undefined })
+      const systemPrompt = await prepareSystemPrompt(effectiveCtx, text, previousQueries, { local: latestSettings.provider === 'webllm', inputBudget: latestSettings.provider === 'botc' ? HOSTED_INPUT_BUDGET : undefined, lastAnswer })
       result = await callAi({ systemPrompt, history, settings: latestSettings, temperature: 0.6 })
     } catch (error) {
       result = { ok: false, error: error instanceof Error ? error.message : String(error) }
@@ -169,7 +170,7 @@ export function useAiPanel({ open, context, callbacks }: UseAiPanelOptions) {
     if (result.ok) {
       const { response } = result
       // Line-ups and scripts in the answer are checked; illegal ones get the program's legal version.
-      const checked = checkAnswer(effectiveCtx, text, response.message)
+      const checked = checkAnswer(effectiveCtx, text, response.message, previousQueries, lastAnswer)
       const msgId = crypto.randomUUID()
       setMessages((m) => [
         ...m,

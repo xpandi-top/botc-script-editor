@@ -56,10 +56,12 @@ export function scriptRecommendationFacts(query: string, language: Language): st
     ? '官方建议（官方规则·准备游戏）：先从暗流涌动开始，熟悉后再尝试其他剧本；暗流涌动 5 人即可开局，其他剧本建议 7 人或以上。首局建议 5–10 人，且不加旅行者和传奇角色。'
     : 'Official advice (rules, setup): start with Trouble Brewing and then move on to other editions; Trouble Brewing needs 5+ players, other editions 7+. For a first game use 5–10 players and no Travellers or Fabled.']
   const official = OFFICIAL.map((slug) => all.find((s) => s.slug === slug)).filter((s): s is ScriptComplexity => !!s)
-  facts.push(`${zh ? '官方剧本' : 'Official scripts'}：${official.map(describe).join(zh ? '；' : '; ')}`)
+  // One script per nested list item, so answers stay readable.
+  const items = (list: ScriptComplexity[]) => list.map((sc) => `\n  - ${describe(sc)}`).join('')
+  facts.push(`${zh ? '官方剧本' : 'Official scripts'}：${items(official)}`)
   const small = SMALL_GROUP.test(query)
   const others = all.filter((s) => !OFFICIAL.includes(s.slug) && (!small || s.characters <= 16)).slice(0, 5)
-  if (others.length) facts.push(`${zh ? (small ? '适合人少的内置小型剧本（按复杂度从低到高）' : '其他内置剧本中较简单的（按复杂度从低到高）') : (small ? 'Small bundled scripts (simplest first)' : 'Simplest other bundled scripts')}：${others.map(describe).join(zh ? '；' : '; ')}`)
+  if (others.length) facts.push(`${zh ? (small ? '适合人少的内置小型剧本（按复杂度从低到高）' : '其他内置剧本中较简单的（按复杂度从低到高）') : (small ? 'Small bundled scripts (simplest first)' : 'Simplest other bundled scripts')}：${items(others)}`)
   facts.push(zh
     ? `复杂度排名由程序按每个角色的夜晚唤醒、错误信息来源（醉酒、中毒、登记、疯狂等）、相克和设置修正估算，在 ${all.length} 个内置剧本中排序（1 = 最简单），仅供参考。`
     : `Complexity rank is estimated by program from night wakers, false-information sources (drunk, poison, registering, madness), jinxes and setup modifiers per character, among ${all.length} bundled scripts (1 = simplest); a guide only.`)
