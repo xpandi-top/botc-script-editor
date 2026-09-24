@@ -23,7 +23,7 @@
   - 分类：`ok`（只用本地角色）、`community`（有民间 / 改版 / 不确定角色）、`bundled`（与 `assets/scripts/` 里已有剧本角色相同或同名）、`duplicate`、`pack`（角色合集，> 40 个角色）、`unmatched`、`error`。
   - 本地没有的角色去 BWIKI 查页面（精确标题，否则搜索第一条），报告所属合集、创意来源；缓存在 `node_modules/.cache/import-scripts/`。
   - 应用：`src/catalog.ts` 与 API 快照（`scripts/catalog-data.mjs`）都读取 `assets/scripts/community/*.json`；剧本列表归入“社区”，卡片和剧本表头显示“民间剧本 · 钟楼剧本博物馆 第N期《标题》”（链接到文章）；AI 推荐剧本时写明“民间剧本，来源 …”，回答里的民间剧本名只有带《》才算提到该剧本（很多标题是成语）。测试：`src/__tests__/communityScripts.test.tsx`。
-  - 默认只出报告；`--write` 写入 `assets/scripts/community/museum-<期数>.json`：官方数组格式，`_meta` 保留标题、作者、夜序和相克，加 `community: true` 与 `source`（`钟楼剧本博物馆`、期数、标题、文章链接、索引链接、原文件名）；图片（logo、背景、角色图标）不保留。`--allow-community` 也写入民间角色剧本，民间角色用 JSON 自带的内联定义。`--report <file>` 输出完整报告。
+  - 默认只出报告；`--write` 写入 `assets/scripts/community/museum-<期数>.json`：官方数组格式，`_meta` 保留标题、作者、夜序和相克，加 `community: true` 与 `source`（`钟楼剧本博物馆`、期数、标题、文章链接、索引链接、原文件名）；图片（logo、背景、角色图标）不保留。`--allow-community` 也写入民间角色剧本，民间角色用 JSON 自带的内联定义；`--category 快速上手,旋转木马` 只处理这些分类的期数。`--report <file>` 输出完整报告。
 
 ## 3. 方案（待定）
 

@@ -20,6 +20,7 @@
  * Options:
  *   --write              write the scripts (default: report only)
  *   --allow-community    also write scripts with community characters that the JSON defines inline
+ *   --category <a,b>     only issues in index categories whose name contains one of these (e.g. 快速上手,旋转木马)
  *   --out <dir>          output folder (default assets/scripts/community)
  *   --report <file>      also write the full report as JSON
  *   --no-bwiki           do not look up community characters on BWIKI
@@ -35,13 +36,14 @@ import {
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const args = process.argv.slice(2)
 const flag = (name) => { const i = args.indexOf(name); return i === -1 ? undefined : args[i + 1] }
-const folder = args.find((arg, i) => !arg.startsWith('--') && !['--out', '--report'].includes(args[i - 1]))
+const folder = args.find((arg, i) => !arg.startsWith('--') && !['--out', '--report', '--category'].includes(args[i - 1]))
 if (!folder || args.includes('--help')) {
-  console.log('Usage: npm run import:scripts -- <folder> [--write] [--allow-community] [--out <dir>] [--report <file>] [--no-bwiki] [--refresh]')
+  console.log('Usage: npm run import:scripts -- <folder> [--write] [--allow-community] [--category <a,b>] [--out <dir>] [--report <file>] [--no-bwiki] [--refresh]')
   process.exit(folder ? 0 : 1)
 }
 const WRITE = args.includes('--write')
 const ALLOW_COMMUNITY = args.includes('--allow-community')
+const CATEGORIES = flag('--category')?.split(',').map((s) => s.trim()).filter(Boolean)
 const OUT_DIR = path.resolve(flag('--out') ?? path.join(ROOT, 'assets', 'scripts', 'community'))
 const BWIKI = !args.includes('--no-bwiki')
 const REFRESH = args.includes('--refresh')
@@ -147,6 +149,7 @@ for (const full of jsonFiles.sort()) {
     ...(warnings.length ? { warnings } : {}),
   }
   const setKey = characterSetKey(ids)
+  if (CATEGORIES && match.issue && !match.issue.categories.some((cat) => CATEGORIES.some((wanted) => cat.includes(wanted)))) { result.status = 'other-category'; results.push(result); continue }
   if (characters.length > PACK_SIZE || /角色合集/.test(match.issue?.title ?? '')) result.status = 'pack'
   else if (!match.issue) { result.status = 'unmatched'; result.reason = match.candidates ? `several issues: ${match.candidates.map((c) => c.issue).join(', ')}` : 'no issue with this number or title' }
   else if (!other.length && bundledBySet.has(setKey)) { result.status = 'bundled'; result.reason = `same characters as assets/scripts/${bundledBySet.get(setKey)}` }
@@ -191,6 +194,7 @@ console.log(`  duplicate                    ${count('duplicate')}`)
 console.log(`  character pack               ${count('pack')}`)
 console.log(`  no issue matched             ${count('unmatched')}`)
 console.log(`  unreadable                   ${count('error')}`)
+if (CATEGORIES) console.log(`  other categories (skipped)   ${count('other-category')}`)
 
 const byCategory = new Map()
 for (const r of results) for (const cat of r.categories ?? ['(no issue)']) {
