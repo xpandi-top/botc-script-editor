@@ -3,10 +3,12 @@
  * §5 "验证并展示"): when the question asked for a game line-up or a script,
  * the characters the answer gives are checked against the rules. If they are
  * missing or not legal, the program's legal line-up / script is appended with
- * the reason — models explain well but often miscount.
+ * the reason — models explain well but often miscount. Ability descriptions
+ * whose wording is far from the real text get the real text appended: models
+ * also make up abilities ("镇长：投票权增加 2 票").
  */
-import { getDisplayName } from '../../catalog'
-import { charactersIn, listLine, poolProblems, setupProblems } from './answerParse'
+import { getAbilityText, getDisplayName } from '../../catalog'
+import { charactersIn, listLine, misdescribedAbilities, poolProblems, setupProblems } from './answerParse'
 import { headlineScript, mostNamedScript, planRequest } from './ruleFacts'
 import type { AiContext } from './types'
 
@@ -14,7 +16,22 @@ export type CheckedAnswer = { text: string; corrected: boolean }
 
 const names = (ids: string[], zh: boolean) => `${ids.join(', ')}（${ids.map((id) => getDisplayName(id, zh ? 'zh' : 'en')).join(zh ? '、' : ', ')}）`
 
-export function checkAnswer(ctx: Pick<AiContext, 'language' | 'characterIds' | 'seats'>, query: string, text: string, previousQueries: string[] = [], lastAnswer?: string): CheckedAnswer {
+type CheckContext = Pick<AiContext, 'language' | 'characterIds' | 'seats'>
+
+export function checkAnswer(ctx: CheckContext, query: string, text: string, previousQueries: string[] = [], lastAnswer?: string): CheckedAnswer {
+  const checked = checkLineUp(ctx, query, text, previousQueries, lastAnswer)
+  // Only the model's own words: not the program's line-up just appended.
+  const ids = misdescribedAbilities(text)
+  if (!ids.length) return checked
+  const zh = ctx.language === 'zh'
+  const lines = ids.map((id) => `- ${getDisplayName(id, ctx.language)}：${getAbilityText(id, ctx.language) ?? ''}`).join('\n')
+  return {
+    corrected: true,
+    text: `${checked.text}\n\n---\n**${zh ? '能力原文' : 'Ability text'}**：${zh ? '以下角色能力的描述与原文措辞差异较大，请以原文为准：' : 'these descriptions differ a lot from the official wording; the official text is:'}\n${lines}`,
+  }
+}
+
+function checkLineUp(ctx: CheckContext, query: string, text: string, previousQueries: string[], lastAnswer?: string): CheckedAnswer {
   const request = planRequest(query, { ...ctx, previousQueries, lastAnswer })
   if (!request) return { text, corrected: false }
   const zh = ctx.language === 'zh'
