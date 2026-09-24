@@ -1,17 +1,22 @@
 /** Program check of line-ups and scripts in model answers. */
 import { describe, it, expect } from 'vitest'
 import { checkAnswer } from '../lib/ai/answerCheck'
-import { initialScripts } from '../catalog'
+import { getDisplayName, initialScripts } from '../catalog'
 
 const tb = { language: 'zh' as const, characterIds: initialScripts.find((s) => s.slug === 'tb')!.characters }
 
 describe('checkAnswer', () => {
-  it('leaves a legal line-up alone, from a list line or the named characters', () => {
+  it('leaves a legal line-up alone, from a list line or the named characters', async () => {
     const q = '我们 7 个人玩暗流涌动，帮我挑选这局的在场角色'
     const listed = '推荐如下。\n在场角色: washerwoman, librarian, investigator, chef, empath, poisoner, imp'
     expect(checkAnswer(tb, q, listed)).toEqual({ text: listed, corrected: false })
     const prose = '镇民：洗衣妇、图书管理员、调查员、送葬者、守鸦人；爪牙：投毒者；恶魔：小恶魔。'
     expect(checkAnswer(tb, q, prose).corrected).toBe(false)
+    // The program's own line-up in prose, with another character mentioned in passing.
+    const { planRequest } = await import('../lib/ai/ruleFacts')
+    const plan = planRequest(q, tb)
+    const adopted = `推荐：${plan!.kind === 'setup' ? plan!.plan!.inPlay.map((id) => getDisplayName(id, 'zh')).join('、') : ''}。如果想加入男爵，要相应增加外来者。`
+    expect(checkAnswer(tb, q, adopted).corrected).toBe(false)
   })
 
   it('appends a legal line-up when the answer breaks the counts or has none', () => {

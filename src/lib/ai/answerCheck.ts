@@ -23,9 +23,12 @@ export function checkAnswer(ctx: Pick<AiContext, 'language' | 'characterIds' | '
   if (request.kind === 'setup') {
     const { plan, script, players } = request
     if (!plan || plan.inPlay.length !== players) return { text, corrected: false }
-    // An explicit list line, or else exactly the script characters the answer names.
+    // An explicit list line; else the program's line-up if the answer names all
+    // of it (it may mention other characters in passing); else exactly the
+    // script characters the answer names.
     const named = [...charactersIn(text)].filter((id) => script.includes(id))
-    const ids = listLine(text, ['在场角色', 'Characters in play']) ?? (named.length === players ? named : null)
+    const adopted = plan.inPlay.every((id) => named.includes(id)) ? plan.inPlay : null
+    const ids = listLine(text, ['在场角色', 'Characters in play']) ?? adopted ?? (named.length === players ? named : null)
     const problems = ids ? setupProblems(ids, script, players, ctx.language) : []
     if (ids && !problems.length) return { text, corrected: false }
     const why = ids
@@ -39,7 +42,8 @@ export function checkAnswer(ctx: Pick<AiContext, 'language' | 'characterIds' | '
   }
 
   const { pool, requirements } = request
-  const ids = listLine(text, ['剧本角色', 'Script characters'])
+  const named = charactersIn(text)
+  const ids = listLine(text, ['剧本角色', 'Script characters']) ?? (pool.characters.every((id) => named.has(id)) ? pool.characters : null)
   const problems = ids ? poolProblems(ids, requirements, ctx.language) : []
   if (ids && !problems.length) return { text, corrected: false }
   const why = ids
