@@ -3,7 +3,10 @@
  * Takes precedence over env vars so user can switch without rebuild.
  */
 
-export type AiProvider = 'groq' | 'openrouter' | 'gemini'
+import { WEBLLM_MODELS } from './ai/runtime/webllmModels'
+
+export type OnlineAiProvider = 'groq' | 'openrouter' | 'gemini'
+export type AiProvider = OnlineAiProvider | 'webllm'
 
 export type AiSettings = {
   provider: AiProvider
@@ -16,12 +19,11 @@ export type AiSettings = {
 }
 
 export const PROVIDER_MODELS: Record<AiProvider, Array<{ id: string; label: string; free?: boolean }>> = {
+  webllm: WEBLLM_MODELS,
   groq: [
-    { id: 'llama-3.3-70b-versatile',    label: 'Llama 3.3 70B (versatile)', free: true },
-    { id: 'llama-3.1-8b-instant',        label: 'Llama 3.1 8B (fast)',        free: true },
-    { id: 'gemma2-9b-it',                label: 'Gemma 2 9B',                 free: true },
-    { id: 'mixtral-8x7b-32768',          label: 'Mixtral 8x7B',               free: true },
-    { id: 'llama-3.3-70b-specdec',       label: 'Llama 3.3 70B SpecDec',      free: true },
+    { id: 'qwen/qwen3.8-27b', label: 'Qwen 3.8 27B (default)' },
+    { id: 'openai/gpt-oss-120b', label: 'GPT OSS 120B' },
+    { id: 'openai/gpt-oss-20b', label: 'GPT OSS 20B' },
   ],
   openrouter: [
     { id: 'meta-llama/llama-3.3-70b-instruct:free',  label: 'Llama 3.3 70B',    free: true },
@@ -39,14 +41,31 @@ export const PROVIDER_MODELS: Record<AiProvider, Array<{ id: string; label: stri
 }
 
 const DEFAULT_MODELS: Record<AiProvider, string> = {
-  groq:       'llama-3.3-70b-versatile',
+  webllm: WEBLLM_MODELS[0].id,
+  groq:       'qwen/qwen3.8-27b',
   openrouter: 'meta-llama/llama-3.3-70b-instruct:free',
   gemini:     'gemini-2.0-flash',
 }
 
+// Retire only known obsolete choices; preserve manually configured model IDs.
+const RETIRED_GROQ_MODELS = new Set([
+  'llama-3.3-70b-versatile', 'llama-3.1-8b-instant', 'gemma2-9b-it',
+  'mixtral-8x7b-32768', 'llama-3.3-70b-specdec',
+])
+
+function normalizeModel(provider: AiProvider, model?: string): string {
+  if (provider === 'webllm' && !WEBLLM_MODELS.some((m) => m.id === model)) return DEFAULT_MODELS.webllm
+  if (!model || (provider === 'groq' && RETIRED_GROQ_MODELS.has(model))) return DEFAULT_MODELS[provider]
+  return model
+}
+
+function isProvider(value: unknown): value is AiProvider {
+  return typeof value === 'string' && Object.prototype.hasOwnProperty.call(PROVIDER_MODELS, value)
+}
+
 const LS_KEY = 'BOTC_AI_SETTINGS'
 
-function envKey(provider: AiProvider): string {
+function envKey(provider: OnlineAiProvider): string {
   const universal = (import.meta.env.VITE_AI_API_KEY as string | undefined)?.trim() ?? ''
   const activeProvider = (import.meta.env.VITE_AI_PROVIDER as AiProvider | undefined) ?? 'groq'
   if (provider === 'groq') {
@@ -61,7 +80,8 @@ function envKey(provider: AiProvider): string {
 }
 
 function defaultSettings(): AiSettings {
-  const provider = ((import.meta.env.VITE_AI_PROVIDER as AiProvider) ?? 'groq')
+  const envProvider = import.meta.env.VITE_AI_PROVIDER
+  const provider: AiProvider = isProvider(envProvider) ? envProvider : 'groq'
   return {
     provider,
     model: DEFAULT_MODELS[provider],
@@ -81,20 +101,20 @@ export function loadAiSettings(): AiSettings {
 
     const parsed = JSON.parse(raw) as Partial<AiSettings>
 
-    // Env provider always wins — prevents stale localStorage locking to old provider
-    const provider = defaults.provider
+    // Saved user choice wins; environment supplies first-run defaults only.
+    const provider = isProvider(parsed.provider) ? parsed.provider : defaults.provider
     const model = (parsed.provider === provider && parsed.model)
       ? parsed.model
-      : defaults.model
+      : DEFAULT_MODELS[provider]
 
     return {
       provider,
-      model,
+      model: normalizeModel(provider, model),
       keys: {
-        // Env keys take precedence; localStorage fills in keys user entered via UI
-        groq:       defaults.keys.groq       || parsed.keys?.groq       || '',
-        openrouter: defaults.keys.openrouter || parsed.keys?.openrouter || '',
-        gemini:     defaults.keys.gemini     || parsed.keys?.gemini     || '',
+        // Preserve user-entered keys, including an intentional empty value.
+        groq:       parsed.keys?.groq       ?? defaults.keys.groq       ?? '',
+        openrouter: parsed.keys?.openrouter ?? defaults.keys.openrouter ?? '',
+        gemini:     parsed.keys?.gemini     ?? defaults.keys.gemini     ?? '',
       },
     }
   } catch {
@@ -103,22 +123,14 @@ export function loadAiSettings(): AiSettings {
 }
 
 export function saveAiSettings(s: AiSettings): void {
-  localStorage.setItem(LS_KEY, JSON.stringify(s))
+  localStorage.setItem(LS_KEY, JSON.stringify({ ...s, model: normalizeModel(s.provider, s.model) }))
 }
 
-/** Call once on app init — clears stale provider lock from localStorage. */
+/** Normalize retired choices without resetting the user's selected runtime. */
 export function migrateAiSettings(): void {
   try {
-    const raw = localStorage.getItem(LS_KEY)
-    if (!raw) return
-    const parsed = JSON.parse(raw) as Partial<AiSettings>
-    const envProvider = (import.meta.env.VITE_AI_PROVIDER as AiProvider | undefined) ?? 'groq'
-    if (parsed.provider && parsed.provider !== envProvider) {
-      // Provider changed in env — reset provider + model, keep any manually-entered keys
-      const updated = { ...parsed, provider: envProvider, model: DEFAULT_MODELS[envProvider] }
-      localStorage.setItem(LS_KEY, JSON.stringify(updated))
-    }
-  } catch { /* ignore */ }
+    if (localStorage.getItem(LS_KEY)) saveAiSettings(loadAiSettings())
+  } catch { /* storage may be unavailable */ }
 }
 
 export function getDefaultModel(provider: AiProvider): string {
@@ -127,10 +139,11 @@ export function getDefaultModel(provider: AiProvider): string {
 
 export function isAiAvailable(s?: AiSettings): boolean {
   const settings = s ?? loadAiSettings()
-  return Boolean(settings.keys[settings.provider]?.trim())
+  return settings.provider === 'webllm' || Boolean(settings.keys[settings.provider]?.trim())
 }
 
 export const PROVIDER_LABELS: Record<AiProvider, string> = {
+  webllm: 'WebLLM',
   groq: 'Groq',
   openrouter: 'OpenRouter',
   gemini: 'Gemini',

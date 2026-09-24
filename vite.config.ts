@@ -62,9 +62,15 @@ export default defineConfig(({ command, mode }) => {
           // icons and large fonts are runtime-cached when requested instead of
           // being mandatory first-install precache entries.
           globPatterns: ['**/*.{js,css,html,ico,webmanifest}'],
-          globIgnores: ['botcCompanion.svg'],
+          globIgnores: ['botcCompanion.svg', '**/webllm*.js'],
           maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
           runtimeCaching: [
+            {
+              // Optional local inference code is cached only after explicit use.
+              urlPattern: /\/assets\/webllm[^/]*\.js$/,
+              handler: 'CacheFirst',
+              options: { cacheName: 'webllm-runtime', expiration: { maxEntries: 8 } },
+            },
             {
               urlPattern: /\/assets\/locales\/.+\.json$/,
               handler: 'CacheFirst',
@@ -93,6 +99,7 @@ export default defineConfig(({ command, mode }) => {
       rollupOptions: {
         output: {
           manualChunks(id) {
+            if (id.includes('/@mlc-ai/')) return 'webllm-runtime'
             // React + MUI/Emotion MUST be in the same chunk.
             // Splitting them causes a module-init race: vendor-mui's top-level
             // code accesses React internals (e.g. AsyncMode) before vendor-react

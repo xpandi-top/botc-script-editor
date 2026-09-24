@@ -16,7 +16,7 @@ export { formatWikiPrompt } from '../core/ai/wikiIndex'
 // ── State ─────────────────────────────────────────────────────────────────────
 
 let _index: WikiIndex | null = null
-let _initAttempted = false
+let _init: Promise<boolean> | null = null
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 
@@ -24,12 +24,15 @@ let _initAttempted = false
  * Load wiki-chunks.json and build TF-IDF index.
  * Call once at startup; safe to call multiple times.
  */
-export async function initWikiSearch(): Promise<boolean> {
-  if (_initAttempted) return _index !== null
-  _initAttempted = true
+export function initWikiSearch(): Promise<boolean> {
+  _init ??= loadWikiIndex()
+  return _init
+}
+
+async function loadWikiIndex(): Promise<boolean> {
   try {
     // Relative to the deployed base path (e.g. /botc-script-editor/), not the domain root.
-    const res = await fetch(`${import.meta.env.BASE_URL}wiki-chunks.json`, { cache: 'force-cache' })
+    const res = await fetch(`${import.meta.env.BASE_URL}wiki-chunks.json`, { cache: 'force-cache', signal: AbortSignal.timeout(5000) })
     if (!res.ok) return false
     const chunks = parseWikiFile(await res.json())
     if (!chunks) return false

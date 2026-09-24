@@ -2,16 +2,18 @@
  * useAiPanel — state and logic for the AI panel.
  */
 
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect, useCallback, useSyncExternalStore } from 'react'
 import {
-  loadAiSettings, saveAiSettings, type AiSettings,
+  loadAiSettings, saveAiSettings, isAiAvailable, type AiSettings,
 } from '../../lib/aiSettings'
 import {
   appendFillLog, getFillLogForForm, markUndone, exportFillLogMd,
   type FillLogEntry,
 } from '../../lib/fillLog'
+import { getWebLlmState, subscribeWebLlm, unloadWebLlm } from '../../lib/ai/runtime/webllm'
+import { useT } from '../../context/I18nContext'
 import { storePair } from '../../lib/translationMemory'
-import { buildSystemPrompt, callAi } from '../../lib/ai'
+import { prepareSystemPrompt, callAi } from '../../lib/ai'
 import { buildGeneralContext } from '../../lib/ai/context'
 import type { AiContext, FillAction } from '../../lib/ai/types'
 import type { AiMessage, PanelTab, AiChatCallbacks, AiPanelVariant } from './types'
@@ -35,7 +37,12 @@ export function useAiPanel({ open, context, callbacks }: UseAiPanelOptions) {
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef  = useRef<HTMLInputElement>(null)
 
-  const effectiveCtx: AiContext = context ?? buildGeneralContext('en')
+  const { language } = useT()
+  const localState = useSyncExternalStore(subscribeWebLlm, getWebLlmState)
+  const canSend = settings.provider === 'webllm'
+    ? localState.status === 'ready' && localState.model === settings.model
+    : isAiAvailable(settings)
+  const effectiveCtx: AiContext = context ?? buildGeneralContext(language)
   const formKey = `${effectiveCtx.type}:${effectiveCtx.title}`
 
   useEffect(() => {
@@ -50,12 +57,13 @@ export function useAiPanel({ open, context, callbacks }: UseAiPanelOptions) {
   }, [messages])
 
   const patchSettings = useCallback((patch: Partial<AiSettings>) => {
+    if ((patch.provider && patch.provider !== settings.provider) || (patch.model && patch.model !== settings.model)) unloadWebLlm()
     setSettings((prev) => {
       const next = { ...prev, ...patch, keys: { ...prev.keys, ...(patch.keys ?? {}) } }
       saveAiSettings(next)
       return next
     })
-  }, [])
+  }, [settings.provider, settings.model])
 
   const doApplyFill = useCallback((msgId: string, fill: FillAction, oldValue: unknown) => {
     callbacks?.onFill(fill.field, fill.value)
@@ -97,7 +105,7 @@ export function useAiPanel({ open, context, callbacks }: UseAiPanelOptions) {
 
   const handleSend = useCallback(async (overrideText?: string, displayLabel?: string) => {
     const text = (overrideText ?? input).trim()
-    if (!text || loading) return
+    if (!text || loading || !canSend) return
     const userMsg: AiMessage = {
       id: crypto.randomUUID(),
       role: 'user',
@@ -118,12 +126,13 @@ export function useAiPanel({ open, context, callbacks }: UseAiPanelOptions) {
         parts: [{ text: m.content }] as [{ text: string }],
       }))
 
-    const result = await callAi({
-      systemPrompt: buildSystemPrompt(effectiveCtx, text),
-      history,
-      settings: latestSettings,
-      temperature: 0.6,
-    })
+    let result: Awaited<ReturnType<typeof callAi>>
+    try {
+      const systemPrompt = await prepareSystemPrompt(effectiveCtx, text, messages.filter((m) => m.role === 'user').map((m) => m.content), { local: latestSettings.provider === 'webllm' })
+      result = await callAi({ systemPrompt, history, settings: latestSettings, temperature: 0.6 })
+    } catch (error) {
+      result = { ok: false, error: error instanceof Error ? error.message : String(error) }
+    }
 
     if (result.ok) {
       const { response } = result
@@ -146,7 +155,7 @@ export function useAiPanel({ open, context, callbacks }: UseAiPanelOptions) {
 
     setLoading(false)
     setTimeout(() => inputRef.current?.focus(), 50)
-  }, [input, loading, messages, effectiveCtx, autoApply, doApplyFill, context])
+  }, [input, loading, canSend, messages, effectiveCtx, autoApply, doApplyFill, context])
 
   const downloadLog = useCallback(() => {
     const md  = exportFillLogMd(fillLog)
@@ -160,7 +169,6 @@ export function useAiPanel({ open, context, callbacks }: UseAiPanelOptions) {
 
   const clearMessages = useCallback(() => setMessages([]), [])
 
-  const apiKey = settings.keys[settings.provider]
 
   return {
     settings,
@@ -180,7 +188,8 @@ export function useAiPanel({ open, context, callbacks }: UseAiPanelOptions) {
     bottomRef,
     inputRef,
     effectiveCtx,
-    apiKey,
+    canSend,
+    localState,
     doApplyFill,
     undoFill,
     handleSend,

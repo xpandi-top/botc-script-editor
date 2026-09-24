@@ -1,0 +1,156 @@
+/** Entity-first retrieval over the bundled catalog. Counts never come from top-K results. */
+import {
+  allCharacterFiles, editionLabels, getEditionCredit, getDisplayName, getAbilityText,
+  loadAlmanacFile, hasAlmanac,
+} from '../../catalog'
+import { estimateTokens, selectContext } from '../../core/ai/contextBudget'
+import { createWikiIndex } from '../../core/ai/wikiIndex'
+import type { Language } from '../../types'
+
+const characters = allCharacterFiles.filter((c) => c?.id && c?.edition)
+const editions = [...new Set(characters.map((c) => c.edition!))]
+
+function matches(query: string, alias: string): boolean {
+  const value = alias.trim().toLowerCase()
+  if (!value) return false
+  if (/[一-鿿]/.test(value)) {
+    // Single-character names such as 幻 / 晓 must not match ordinary prose.
+    return value.length > 1 ? query.includes(value) :
+      query.trim() === value || [`角色${value}`, `“${value}”`, `「${value}」`, `《${value}》`].some((s) => query.includes(s))
+  }
+  const escaped = value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  return new RegExp(`(^|[^a-z0-9])${escaped}($|[^a-z0-9])`, 'i').test(query)
+}
+
+function entities(query: string) {
+  const q = query.toLowerCase()
+  const editionIds = editions.filter((id) => {
+    const credit = getEditionCredit(id)
+    const aliases = [id, editionLabels.en[id], editionLabels.zh[id], credit?.name_en, credit?.name_zh]
+      .filter((value): value is string => Boolean(value))
+      .flatMap((value) => [value, ...(value.match(/[一-鿿]+/g) ?? [])])
+    return aliases.some((alias) => matches(q, alias))
+  })
+  const characterIds = characters.filter((c) =>
+    [c.id, getDisplayName(c.id, 'en'), getDisplayName(c.id, 'zh')].some((alias) => matches(q, alias)),
+  ).map((c) => c.id)
+  return { editionIds, characterIds }
+}
+
+export type CatalogRetrieval = ReturnType<typeof retrieveCatalog>
+
+export function retrieveCatalog(query: string, language: Language, previousQueries: string[] = []) {
+  let resolved = entities(query)
+  let retrievalQuery = query
+  // Resolve only referential follow-ups; never import assistant-generated guesses.
+  if (!resolved.editionIds.length && !resolved.characterIds.length &&
+      /它|这个|这些|该角色|该包|其中|那[么些个]|^(还有|有多少|一共|总共|多少|有哪些|几个)|\b(it|its|they|their|those|these|how many|which ones)\b/i.test(query)) {
+    for (const previous of previousQueries.slice(-6).reverse()) {
+      const found = entities(previous)
+      if (found.editionIds.length || found.characterIds.length) {
+        resolved = found
+        retrievalQuery = `${previous}\n${query}`
+        break
+      }
+    }
+  }
+  // A role's own pack supplies provenance, even when only its name was queried.
+  const editionIds = [...new Set([...resolved.editionIds, ...resolved.characterIds.map((id) => characters.find((c) => c.id === id)!.edition!)])]
+  const facts: string[] = []
+  const rosters: string[] = []
+  for (const id of editionIds) {
+    const roster = characters.filter((c) => c.edition === id)
+    const credit = getEditionCredit(id)
+    const counts = new Map<string, number>()
+    for (const c of roster) counts.set(c.team ?? 'unknown', (counts.get(c.team ?? 'unknown') ?? 0) + 1)
+    facts.push(`Local edition: ${editionLabels.zh[id] ?? id} / ${editionLabels.en[id] ?? id} [${id}]\n` +
+      `Exact local catalog count (all teams, not retrieval hits): ${roster.length}\n` +
+      `Team counts: ${[...counts].map(([team, count]) => `${team}=${count}`).join(', ')}\n` +
+      `Source: assets/characters/individual/*.json (edition=${id})` +
+      (credit ? `; assets/editions.json; ${credit.source ?? ''}\nAuthor: ${credit.author_zh ?? credit.author_en ?? 'not recorded'}` : '') +
+      '\nOfficial publication status: not established by these catalog fields; do not infer it.')
+    const wantsRoster = !resolved.characterIds.length && !/规则|机制|能力|审判日|变量|投票|怎么|如何|\b(rule|mechanic|ability|abilities|judgment|vote|how does)\b/i.test(query)
+    if (resolved.editionIds.includes(id) && wantsRoster) {
+      rosters.push(`Complete local roster [${id}]:\n` + [...counts].map(([team, count]) =>
+        `${team} (${count}): ${roster.filter((c) => (c.team ?? 'unknown') === team).map((c) => getDisplayName(c.id, language)).join('、')}`,
+      ).join('\n'))
+    }
+  }
+  const details = resolved.characterIds.map((id) =>
+    `Character: ${getDisplayName(id, 'zh')} / ${getDisplayName(id, 'en')} [${id}]\n` +
+    `Source: assets/characters/individual/${id}.json (current local revision)\nAbility: ${getAbilityText(id, language)}`,
+  )
+  return { ...resolved, editionIds, query: retrievalQuery, facts: facts.join('\n\n'), rosters, details }
+}
+
+/** Resolve pack-specific terminology even when the user did not name its edition. */
+export async function resolveCatalogQuery(query: string, language: Language, previousQueries: string[] = []): Promise<CatalogRetrieval> {
+  const direct = retrieveCatalog(query, language, previousQueries)
+  if (direct.editionIds.length) return direct
+  const files = await Promise.all(editions.filter(hasAlmanac).map((id) => loadAlmanacFile(id, language)))
+  const matching = files.filter((file) => file && Object.values(file.terminology ?? {}).some((term) =>
+    (term.title.match(/[一-鿿]+|[A-Za-z]+(?: [A-Za-z]+)*/g) ?? []).some((alias) => matches(query.toLowerCase(), alias)),
+  ))
+  return matching.length ? retrieveCatalog(`${matching.map((file) => file!.edition).join(' ')}\n${query}`, language) : direct
+}
+
+/** Lazy local almanac loading; no LLM prequery or remote embedding request. */
+export async function retrieveAlmanac(retrieval: CatalogRetrieval, language: Language): Promise<string> {
+  const files = await Promise.all(retrieval.editionIds.map((id) => loadAlmanacFile(id, language)))
+  const passages: string[] = []
+  const definitions: string[] = []
+  for (const file of files) {
+    if (!file) continue
+    const source = `Local almanac [${file.edition}]: ${file.source ?? 'assets/almanac'}`
+    for (const term of Object.values(file.terminology ?? {})) {
+      const paragraphs = term.text.split(/\n\s*\n/).filter((s) => s.length > 10)
+      const aliases = term.title.match(/[一-鿿]+|[A-Za-z]+(?: [A-Za-z]+)*/g) ?? []
+      const explicitlyNamed = aliases.some((alias) => matches(retrieval.query.toLowerCase(), alias))
+      for (const [i, paragraph] of paragraphs.entries()) {
+        const passage = `${source}\n${term.source ?? ''}\n${term.title}\n${paragraph}`
+        passages.push(passage)
+        // Definitions must survive cosine ranking, which otherwise favors short repeated headings.
+        if (explicitlyNamed && i === 0) definitions.push(passage)
+      }
+    }
+    for (const id of retrieval.characterIds) {
+      const entry = file.characters?.[id]
+      if (!entry) continue
+      for (const [section, value] of Object.entries(entry)) {
+        if (typeof value === 'string' && value.trim()) {
+          for (const paragraph of value.split(/\n\s*\n/)) {
+            passages.push(`${source}\n${entry.source ?? ''}\n${getDisplayName(id, language)} [${id}] ${section}\n${paragraph}`)
+          }
+        }
+      }
+    }
+  }
+  const index = createWikiIndex(passages.map((text, i) => ({ id: String(i), heading: '', page: '', url: '', text, wordCount: 0 })))
+  return [...new Set([...definitions, ...index.search(retrieval.query, 4).map((chunk) => chunk.text)])].join('\n\n')
+}
+
+export function formatCatalogRetrieval(retrieval: CatalogRetrieval, almanac = '', budget = 1900): string {
+  if (!retrieval.facts) return ''
+  const header = 'LOCAL CATALOG RESULTS — authoritative for local counts, membership and abilities. Cite the supplied source. Counts include all matching catalog entries; never infer totals from excerpts.\n'
+  const facts = header + retrieval.facts
+  // Keep aggregate facts intact. Large multi-pack queries must be narrowed rather than fabricated.
+  let remaining = budget - estimateTokens(facts)
+  const sections = [facts]
+  for (const detail of retrieval.details) {
+    const cost = estimateTokens('\n\n' + detail)
+    if (cost > remaining) { sections.push('[Some requested abilities omitted; ask to narrow the question.]'); break }
+    sections.push(detail)
+    remaining -= cost
+  }
+  for (const roster of retrieval.rosters) {
+    const cost = estimateTokens('\n\n' + roster)
+    if (cost > remaining) {
+      sections.push('[Roster omitted for space. Exact counts above remain complete. Ask for a team or a specific character; do not invent missing names.]')
+      break
+    }
+    sections.push(roster)
+    remaining -= cost
+  }
+  if (almanac && remaining > 150) sections.push(selectContext(almanac, retrieval.query, remaining - 20))
+  return sections.join('\n\n')
+}

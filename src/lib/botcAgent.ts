@@ -130,7 +130,8 @@ export async function suggestAbility(opts: {
   // Few-shot: team examples + characters similar to the concept (semantic
   // search with a Gemini key, TF-IDF otherwise)
   const teamExamples = getTeamExamples(opts.team, 3, opts.excludeIds ?? [])
-  const geminiApiKey = loadAiSettings().keys.gemini?.trim() || undefined
+  const settings = loadAiSettings()
+  const geminiApiKey = settings.provider === 'webllm' ? undefined : settings.keys.gemini?.trim() || undefined
   const similarExamples = opts.concept
     ? await findSimilar(opts.concept, 2, { team: opts.team, excludeIds: opts.excludeIds, geminiApiKey })
     : []

@@ -91,8 +91,13 @@ export async function callAi(params: AiCallParams): Promise<AiCallResult> {
       systemInstruction: systemPrompt,
       contents: history,
       temperature: temperature ?? 0.6,
-    })
-    const response = parseResponse(res.text)
+    }, params.settings)
+    const parsed = parseResponse(res.text)
+    const response: AgentResponse = parsed && typeof parsed.message === 'string'
+      ? { message: parsed.message, fills: Array.isArray(parsed.fills) ? parsed.fills.filter((fill) =>
+          fill && typeof fill.field === 'string' && ['string', 'number', 'boolean'].includes(typeof fill.value),
+        ) : undefined }
+      : { message: res.text }
     return { ok: true, response, rawText: res.text }
   } catch (e) {
     const error = e instanceof GeminiError ? e.message : String(e)

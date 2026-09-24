@@ -111,7 +111,7 @@ type Props = {
   setMessages: React.Dispatch<React.SetStateAction<AiMessage[]>>
   context?: AiContext
   callbacks?: AiChatCallbacks
-  apiKey?: string
+  canSend: boolean
   bottomRef: RefObject<HTMLDivElement | null>
   inputRef: RefObject<HTMLInputElement | null>
   language: Language
@@ -120,7 +120,7 @@ type Props = {
 export function ChatTab({
   messages, loading, input, setInput, autoApply, setAutoApply,
   handleSend, doApplyFill, setMessages, context,
-  apiKey, bottomRef, inputRef,
+  canSend, bottomRef, inputRef,
 }: Props) {
   const { t, tpl } = useT()
 
@@ -286,7 +286,7 @@ export function ChatTab({
           <Button
             variant="contained" size="small"
             onClick={() => handleSend()}
-            disabled={loading || !input.trim() || !apiKey?.trim()}
+            disabled={loading || !input.trim() || !canSend}
             sx={{ minWidth: 0, px: 1.1, py: 0.85, flexShrink: 0 }}
           >
             {loading

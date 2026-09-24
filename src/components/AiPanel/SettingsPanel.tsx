@@ -2,6 +2,7 @@
  * SettingsPanel — collapsible provider/model/key configuration.
  */
 
+import { WebLlmSettings } from './WebLlmSettings'
 import { Box, Collapse, MenuItem, Select, Tab, Tabs, TextField, Chip } from '@mui/material'
 import {
   PROVIDER_MODELS, PROVIDER_LABELS, getDefaultModel,
@@ -12,11 +13,12 @@ type Props = {
   settings: AiSettings
   patchSettings: (patch: Partial<AiSettings>) => void
   showSettings: boolean
+  busy?: boolean
 }
 
-export function SettingsPanel({ settings, patchSettings, showSettings }: Props) {
+export function SettingsPanel({ settings, patchSettings, showSettings, busy }: Props) {
   const models  = PROVIDER_MODELS[settings.provider]
-  const apiKey  = settings.keys[settings.provider]
+  const apiKey  = settings.provider === 'webllm' ? '' : settings.keys[settings.provider]
 
   return (
     <Collapse in={showSettings}>
@@ -35,16 +37,16 @@ export function SettingsPanel({ settings, patchSettings, showSettings }: Props) 
           variant="fullWidth"
           sx={{ mb: 1, minHeight: 26, '& .MuiTabs-indicator': { height: 2 } }}
         >
-          {(['groq', 'openrouter', 'gemini'] as AiProvider[]).map((p) => (
+          {(['webllm', 'groq', 'openrouter', 'gemini'] as AiProvider[]).map((p) => (
             <Tab
-              key={p} value={p} label={PROVIDER_LABELS[p]}
+              disabled={busy} key={p} value={p} label={PROVIDER_LABELS[p]}
               sx={{ minHeight: 26, py: 0, fontSize: '0.65rem', textTransform: 'none' }}
             />
           ))}
         </Tabs>
 
         <Select
-          size="small" fullWidth
+          size="small" fullWidth disabled={busy}
           value={settings.model}
           onChange={(e) => patchSettings({ model: e.target.value })}
           sx={{ mb: 1, fontSize: '0.75rem' }}
@@ -59,7 +61,7 @@ export function SettingsPanel({ settings, patchSettings, showSettings }: Props) 
           ))}
         </Select>
 
-        <TextField
+        {settings.provider === 'webllm' ? <WebLlmSettings model={settings.model} /> : <TextField
           size="small" fullWidth type="password"
           label={`${PROVIDER_LABELS[settings.provider]} API Key`}
           value={apiKey ?? ''}
@@ -68,7 +70,7 @@ export function SettingsPanel({ settings, patchSettings, showSettings }: Props) 
           }
           placeholder="Stored in localStorage only"
           sx={{ '& input': { fontSize: '0.75rem' } }}
-        />
+        />}
       </Box>
     </Collapse>
   )

@@ -46,7 +46,7 @@ export function AiPanelContent({ open, onClose, context, callbacks, variant = 's
     settings, patchSettings, showSettings, setShowSettings,
     activeTab, setActiveTab, messages, setMessages, input, setInput,
     loading, autoApply, setAutoApply, fillLog, bottomRef, inputRef,
-    effectiveCtx, apiKey, doApplyFill, undoFill, handleSend, downloadLog, clearMessages,
+    effectiveCtx, canSend, localState, doApplyFill, undoFill, handleSend, downloadLog, clearMessages,
   } = panel
 
   const zh         = effectiveCtx.language === 'zh'
@@ -66,7 +66,7 @@ export function AiPanelContent({ open, onClose, context, callbacks, variant = 's
         language={effectiveCtx.language}
       />
 
-      <SettingsPanel settings={settings} patchSettings={patchSettings} showSettings={showSettings} />
+      <SettingsPanel settings={settings} patchSettings={patchSettings} showSettings={showSettings} busy={loading || localState.status === 'loading'} />
 
       {/* ── Context badge ─────────────────────────────────────────── */}
       {hasCtx && (
@@ -94,7 +94,7 @@ export function AiPanelContent({ open, onClose, context, callbacks, variant = 's
               label={zh ? skill.labelZh : skill.label}
               size="small" variant="outlined"
               onClick={() => handleSend(skill.prompt(effectiveCtx), zh ? skill.labelZh : skill.label)}
-              disabled={loading}
+              disabled={loading || !canSend}
               sx={{
                 fontSize: '0.65rem', height: 22, cursor: 'pointer',
                 '&:hover': { bgcolor: (t) => alpha(t.palette.primary.main, 0.08) },
@@ -130,14 +130,14 @@ export function AiPanelContent({ open, onClose, context, callbacks, variant = 's
             autoApply={autoApply} setAutoApply={setAutoApply}
             handleSend={handleSend} doApplyFill={doApplyFill}
             setMessages={setMessages}
-            context={context} apiKey={apiKey}
+            context={context} canSend={canSend}
             bottomRef={bottomRef} inputRef={inputRef}
             language={effectiveCtx.language}
           />
         )}
         {activeTab === 'skills' && (
           <SkillsTab
-            context={effectiveCtx} loading={loading}
+            context={effectiveCtx} loading={loading || !canSend}
             handleSend={handleSend} language={effectiveCtx.language}
           />
         )}

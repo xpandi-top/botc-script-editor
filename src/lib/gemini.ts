@@ -4,7 +4,9 @@
  * falling back to env vars. No page reload needed to switch provider.
  */
 
-import { loadAiSettings, type AiProvider } from './aiSettings'
+import { loadAiSettings, isAiAvailable, type AiProvider, type AiSettings } from './aiSettings'
+
+import { budgetHistory, GROQ_INPUT_BUDGET } from '../core/ai/contextBudget'
 
 export class GeminiError extends Error {
   constructor(
@@ -19,7 +21,7 @@ export class GeminiError extends Error {
 
 export function isGeminiAvailable(): boolean {
   const s = loadAiSettings()
-  return Boolean(s.keys[s.provider]?.trim())
+  return isAiAvailable(s)
 }
 
 export type GeminiRequest = {
@@ -35,13 +37,24 @@ export type GeminiResponse = {
   finishReason: string
 }
 
-export async function geminiGenerate(req: GeminiRequest): Promise<GeminiResponse> {
-  const settings = loadAiSettings()
+export async function geminiGenerate(req: GeminiRequest, settings: AiSettings = loadAiSettings()): Promise<GeminiResponse> {
   const provider = settings.provider
-  const apiKey   = settings.keys[provider]?.trim()
   const model    = req.model ?? settings.model
+  if (provider === 'webllm') {
+    const { generateWebLlm } = await import('./ai/runtime/webllm')
+    return generateWebLlm(req, model)
+  }
+  const apiKey   = settings.keys[provider]?.trim()
 
   if (!apiKey) throw new GeminiError(`No API key set for provider "${provider}"`)
+
+  if (provider === 'groq') {
+    try {
+      req = { ...req, contents: budgetHistory(req.systemInstruction ?? '', req.contents, GROQ_INPUT_BUDGET) }
+    } catch (error) {
+      throw new GeminiError(error instanceof Error ? error.message : String(error))
+    }
+  }
 
   if (provider === 'gemini') return _callGemini(req, model, apiKey)
   return _callOpenAICompat(req, model, apiKey, provider)

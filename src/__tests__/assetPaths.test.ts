@@ -14,7 +14,8 @@ describe('runtime asset paths', () => {
     const fetchMock = vi.fn(async () => new Response(JSON.stringify({ version: 1, builtAt: '', chunkCount: 0, chunks: [] })))
     vi.stubGlobal('fetch', fetchMock)
     const { initWikiSearch } = await import('../lib/wikiSearch')
-    expect(await initWikiSearch()).toBe(true)
+    expect(await Promise.all([initWikiSearch(), initWikiSearch()])).toEqual([true, true])
+    expect(fetchMock).toHaveBeenCalledTimes(1)
     expect(fetchMock).toHaveBeenCalledWith(`${import.meta.env.BASE_URL}wiki-chunks.json`, expect.anything())
   })
 
