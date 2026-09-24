@@ -9,6 +9,7 @@
  */
 
 import { createWikiIndex, parseWikiFile, type WikiChunk, type WikiIndex } from '../core/ai/wikiIndex'
+import { expandTermAliases } from '../core/ai/glossary'
 
 export type { WikiChunk } from '../core/ai/wikiIndex'
 export { formatWikiPrompt } from '../core/ai/wikiIndex'
@@ -52,9 +53,18 @@ export function isWikiLoaded(): boolean { return _index !== null }
 
 // ── Public API ────────────────────────────────────────────────────────────────
 
+// "X 是什么意思": the glossary pages hold one short chunk per term, which
+// outrank longer advice on shared words, so they answer definition questions only.
+const ASKS_DEFINITION = /什么意思|啥意思|是什么|什么是|指什么|是指|含义|定义|what does .{1,30} mean|what is|meaning|definition|define/i
+
 /**
- * Find n most relevant wiki chunks for a query.
+ * Find n most relevant wiki chunks for a query ("鬼票" also searches the
+ * rules' own words, see expandTermAliases).
  */
 export function searchWiki(query: string, n = 3): WikiChunk[] {
-  return _index ? _index.search(query, n) : []
+  if (!_index) return []
+  const definitions = ASKS_DEFINITION.test(query)
+  return _index.search(expandTermAliases(query), n + 40)
+    .filter((chunk) => definitions || !chunk.page.endsWith('glossary'))
+    .slice(0, n)
 }
