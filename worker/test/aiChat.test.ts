@@ -97,14 +97,14 @@ describe('POST /v1/ai/chat', () => {
     expect(body.steps).toEqual([
       { tool: 'search_characters', arguments: { query: 'imp', language: 'en', limit: 1 }, ok: true },
       { tool: 'no_such_tool', arguments: {}, ok: false },
-      { tool: 'get_character', arguments: '{not json', ok: false },
+      { tool: 'get_character', arguments: {}, ok: false }, // malformed arguments become {}
     ])
     const second = ai.chatCalls[1].messages
     const toolMessages = second.filter((m) => m.role === 'tool')
     expect(toolMessages.map((m) => m.tool_call_id)).toEqual(['c1', 'c2', 'c3'])
     expect(JSON.parse(toolMessages[0].content as string).items[0]).toMatchObject({ id: 'imp', name: 'Imp' })
     expect(toolMessages[1].content).toMatch(/^Error: Unknown tool/)
-    expect(toolMessages[2].content).toMatch(/^Error: Tool arguments must be a JSON object/)
+    expect(toolMessages[2].content).toMatch(/^Error:/)
     expect(second.find((m) => m.role === 'assistant')).toMatchObject({ tool_calls: [{ id: 'c1' }, { id: 'c2' }, { id: 'c3' }] })
   })
 
@@ -123,7 +123,12 @@ describe('POST /v1/ai/chat', () => {
     expect((await j(await chat(ask('hi', { tools: false })))).text).toBe('plain')
     expect(ai.chatCalls[0].tools).toBeUndefined()
 
-    ai.queue({ content: '' }, { content: '' })
+    // An empty answer gets one plain retry (no tool definitions) …
+    ai.queue({ content: '' }, { content: '' }, { content: 'plain answer' })
+    expect((await j(await chat(ask('hi')))).text).toBe('plain answer')
+    expect(ai.chatCalls.at(-1)!.tools).toBeUndefined()
+    // … and fails only if that is empty too.
+    ai.queue({ content: '' }, { content: '' }, { content: '' })
     const empty = await chat(ask('hi'))
     expect(empty.status).toBe(502)
     expect((await j(empty)).error.code).toBe('ai_failed')

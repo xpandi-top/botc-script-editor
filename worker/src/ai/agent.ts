@@ -76,11 +76,16 @@ export async function runAgent(opts: {
 
   // Must answer now. A model that still writes a call (inline, despite
   // tool_choice none) gets its results and one more chance.
+  let finish: string | undefined
   for (let attempt = 0; attempt < 2; attempt++) {
     const final = await ask({ messages, tools: opts.tools?.specs, toolChoice: 'none', temperature: opts.temperature })
     if (final.content) return { text: final.content, steps, usage }
+    finish = final.finishReason
     if (!final.toolCalls.length || attempt === 1) break
     await runCalls(final)
   }
-  throw new AiServiceError('The model returned an empty answer.', false)
+  // Some models return nothing with tool definitions present: ask plainly once.
+  const plain = await ask({ messages: [...messages, { role: 'user', content: 'Answer the question above now, in plain text, using what you have.' }], temperature: opts.temperature })
+  if (plain.content) return { text: plain.content, steps, usage }
+  throw new AiServiceError(`The model returned an empty answer (finish_reason: ${plain.finishReason ?? finish ?? 'unknown'}).`, false)
 }

@@ -17,6 +17,7 @@ import { evalContext } from '../lib/ai/eval/contexts'
 import { gradeCase } from '../lib/ai/eval/graders'
 import { callAi } from '../lib/ai/api'
 import { checkAnswer } from '../lib/ai/answerCheck'
+import { answerLocally } from '../lib/ai/localAnswer'
 import { prepareSystemPrompt } from '../lib/ai/prompts'
 import { HOSTED_INPUT_BUDGET } from '../lib/ai/runtime/hosted'
 import { estimateTokens } from '../core/ai/contextBudget'
@@ -41,9 +42,11 @@ it.skipIf(!url)('hosted AI evaluation', async () => {
       temperature: 0.6,
     })
     const seconds = (Date.now() - started) / 1000
-    // As the panel shows it: after the program check of line-ups and scripts.
+    // As the panel shows it: after the program check of line-ups and scripts,
+    // or, when the model fails, the error followed by the local-data answer.
     const checked = result.ok ? checkAnswer(ctx, c.question, result.response.message) : null
-    const text = result.ok ? checked!.text : `ERROR: ${result.error}`
+    const fallback = result.ok ? null : answerLocally(ctx, c.question)
+    const text = result.ok ? checked!.text : `ERROR: ${result.error}${fallback?.found ? `\n\n${fallback.message}` : ''}`
     const grade = gradeCase(c, { text, steps: result.ok ? result.steps : [] })
     if (result.ok && result.usage) model ||= 'hosted'
     rows.push({
@@ -55,6 +58,7 @@ it.skipIf(!url)('hosted AI evaluation', async () => {
       rounds: result.ok ? result.usage?.rounds : undefined,
       tools: result.ok ? (result.steps ?? []).map((s) => s.tool).join(' → ') : '',
       corrected: !!checked?.corrected,
+      fallback: !!fallback?.found,
       answer: text,
     })
     console.log(`${grade.pass ? '✓' : '✗'} ${c.id} (${seconds.toFixed(1)}s${result.ok && result.usage ? `, ${result.usage.neurons} neurons` : ''})${grade.pass ? '' : ` — ${rows.at(-1)!.failed}`}`)
@@ -68,7 +72,7 @@ it.skipIf(!url)('hosted AI evaluation', async () => {
   const table = [
     '| case | 类别 | 难度 | 结果 | 程序校正 | 未通过的检查 | 秒 | 提示词估算 | 实际输入 token | neurons | 轮次 | 工具 |',
     '|---|---|---|---|---|---|---|---|---|---|---|---|',
-    ...rows.map((r) => `| ${r.id} | ${r.category} | ${r.difficulty} | ${r.pass ? '✅' : '❌'} | ${r.corrected ? '是' : ''} | ${String(r.failed).replace(/\|/g, '/')} | ${Number(r.seconds).toFixed(1)} | ${r.promptEstimate} | ${r.promptTokens ?? ''} | ${r.neurons ?? ''} | ${r.rounds ?? ''} | ${r.tools} |`),
+    ...rows.map((r) => `| ${r.id} | ${r.category} | ${r.difficulty} | ${r.pass ? '✅' : '❌'} | ${r.corrected ? '校正' : r.fallback ? '本地回退' : ''} | ${String(r.failed).replace(/\|/g, '/')} | ${Number(r.seconds).toFixed(1)} | ${r.promptEstimate} | ${r.promptTokens ?? ''} | ${r.neurons ?? ''} | ${r.rounds ?? ''} | ${r.tools} |`),
   ].join('\n')
   const answers = rows.map((r) => `### ${r.id} ${r.pass ? '✅' : '❌'}\n\n${String(r.answer).trim()}\n`).join('\n')
   const out = process.env.BOTC_AI_EVAL_OUT ?? 'ai-eval-report.md'

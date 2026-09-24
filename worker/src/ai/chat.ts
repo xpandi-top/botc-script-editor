@@ -18,12 +18,12 @@ export type ToolSpec = { type: 'function'; function: { name: string; description
 /** `toolChoice: 'none'` keeps the tool definitions (the history refers to them) but asks for a plain answer. */
 export type ChatRequest = { messages: ChatMessage[]; tools?: ToolSpec[]; toolChoice?: 'auto' | 'none'; temperature?: number; maxTokens?: number }
 export type ChatUsage = { promptTokens: number; completionTokens: number; neurons: number }
-export type ChatResult = { content: string; toolCalls: ToolCall[]; usage: ChatUsage }
+export type ChatResult = { content: string; toolCalls: ToolCall[]; usage: ChatUsage; finishReason?: string }
 export type ChatModel = (req: ChatRequest) => Promise<ChatResult>
 
 type RawToolCall = { id?: string; name?: string; arguments?: unknown; function?: { name?: string; arguments?: unknown } }
 type RawResponse = {
-  choices?: Array<{ message?: { content?: string | null; tool_calls?: RawToolCall[] } }>
+  choices?: Array<{ message?: { content?: string | null; tool_calls?: RawToolCall[] }; finish_reason?: string }>
   response?: string | null
   tool_calls?: RawToolCall[]
   usage?: { prompt_tokens?: number; completion_tokens?: number; neurons?: number }
@@ -60,6 +60,16 @@ function inlineToolCalls(text: string): { text: string; calls: ToolCall[] } {
   return { text: rest.trim(), calls }
 }
 
+/** Arguments echoed back in the history must be valid JSON (some models emit malformed strings). */
+function jsonArguments(args: unknown): string {
+  if (typeof args !== 'string') return JSON.stringify(args ?? {})
+  try {
+    return JSON.stringify(JSON.parse(args))
+  } catch {
+    return '{}'
+  }
+}
+
 export function parseChatResponse(raw: unknown): ChatResult {
   const r = (raw ?? {}) as RawResponse
   const message = r.choices?.[0]?.message
@@ -68,11 +78,10 @@ export function parseChatResponse(raw: unknown): ChatResult {
   const toolCalls = calls.flatMap((call, i) => {
     const name = call.function?.name ?? call.name
     if (!name) return []
-    const args = call.function?.arguments ?? call.arguments ?? {}
-    return [{ id: call.id || `call_${i}`, type: 'function' as const, function: { name, arguments: typeof args === 'string' ? args : JSON.stringify(args) } }]
+    return [{ id: call.id || `call_${i}`, type: 'function' as const, function: { name, arguments: jsonArguments(call.function?.arguments ?? call.arguments) } }]
   })
   const inline = inlineToolCalls(stripThinking(typeof content === 'string' ? content : JSON.stringify(content)))
-  return { usage: usageOf(r), content: inline.text, toolCalls: [...toolCalls, ...inline.calls] }
+  return { usage: usageOf(r), content: inline.text, toolCalls: [...toolCalls, ...inline.calls], finishReason: r.choices?.[0]?.finish_reason }
 }
 
 export function workersAiChat(ai: AiRunner, model: string): ChatModel {
