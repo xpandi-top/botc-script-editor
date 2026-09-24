@@ -3,6 +3,7 @@
  * No React imports here.
  */
 
+import { CHARACTER_DISTRIBUTION } from '../../core/engine/setup'
 import {
   getDisplayName, getAbilityTextForScript, getCharacterById,
   teamOrder, teamLabels, getEffectiveNightOrderFromRegistry, getNightReminder,
@@ -162,9 +163,10 @@ const TEAM_LABEL: Record<Team, { en: string; zh: string }> = {
 }
 
 // Typical 15-player composition for balance reference
+// Characters in play per player count come from the core table (the script is a pool, not the line-up).
 const TYPICAL_COMPOSITION = {
-  en: 'Typical 15p: 9 Townsfolk, 2 Outsiders, 2 Minions, 1 Demon (+ 1 Traveler optional)',
-  zh: '典型15人配置: 9镇民, 2外来者, 2爪牙, 1恶魔 (+ 1旅行者可选)',
+  en: `In play by player count (Townsfolk/Outsiders/Minions/Demons): ${Object.entries(CHARACTER_DISTRIBUTION).map(([n, d]) => `${n}: ${d.townsfolk}/${d.outsider}/${d.minion}/${d.demon}`).join(', ')}. Only some script characters are in play each game.`,
+  zh: `按人数的在场角色（镇民/外来者/爪牙/恶魔）：${Object.entries(CHARACTER_DISTRIBUTION).map(([n, d]) => `${n}人 ${d.townsfolk}/${d.outsider}/${d.minion}/${d.demon}`).join('，')}。每局只使用剧本中的部分角色。`,
 }
 
 function serializeScriptForPrompt(input: ScriptInput): string {
