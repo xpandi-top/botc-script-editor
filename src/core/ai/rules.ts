@@ -54,7 +54,7 @@ DRUNK & POISONED:
 - Example: a drunk Empath may learn a wrong number; a poisoned Demon's kill does not happen.
 
 REGISTERING & MADNESS:
-- A player who "registers as" a character or alignment counts as it for game rules and other players' abilities, but keeps their real alignment (and wins with it) and does not gain that character's ability.
+- A player who "registers as" a character or alignment counts as it for game rules and other players' abilities, but keeps their real alignment (and wins with it) and does not gain that character's ability. Example: a good player who registers as evil is still good, but abilities that detect evil treat them as evil.
 - A player who is "mad" about something tries to convince the group it is true; if they do not try, the Storyteller may apply a penalty.
 
 TRAVELLERS, EXILE & FABLED:
@@ -107,7 +107,7 @@ const ZH = `血染钟楼——核心规则（依据官方规则与术语表；�
 - 例如：醉酒的共情者可能得到错误的数字；中毒的恶魔杀人不会生效。
 
 登记与疯狂：
-- “登记为”某角色或阵营的玩家，在游戏规则和其他玩家的能力面前视为该角色或阵营，但仍属于原阵营（随原阵营胜负），也不会获得该角色的能力。
+- “登记为”某角色或阵营的玩家，在游戏规则和其他玩家的能力面前视为该角色或阵营，但仍属于原阵营（随原阵营胜负），也不会获得该角色的能力。例如：登记为邪恶的善良玩家仍是善良阵营，只是会被检测邪恶的能力当作邪恶。
 - 对某事“疯狂”的玩家要努力让大家相信此事为真；若说书人认为其没有努力，可能会给予惩罚。
 
 旅行者、流放与传奇角色：
