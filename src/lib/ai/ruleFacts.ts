@@ -13,7 +13,7 @@
  *
  * The same facts are the no-model offline answer (localAnswer.ts).
  */
-import { allCharacterFiles, getAbilityText, getCharacterById, getDisplayName, initialScripts, teamLabels } from '../../catalog'
+import { allCharacterFiles, editionLabels, getAbilityText, getCharacterById, getDisplayName, initialScripts, teamLabels } from '../../catalog'
 import { buildScriptPool, planSetup, type ScriptPool, type SetupPlan } from '../../core/engine/planning'
 import { CHARACTER_DISTRIBUTION, SETUP_OUTSIDER_SHIFTS } from '../../core/engine/setup'
 import { gameStateFacts, type GameFact } from '../../core/engine/winConditions'
@@ -21,7 +21,7 @@ import { catalogTeamOf } from '../../utils/seatAlignment'
 import type { Language, Team } from '../../types'
 import { charactersIn, type PoolRequirements } from './answerParse'
 import { mentionedEntities } from './catalogRetrieval'
-import { scriptRecommendationFacts } from './scriptFacts'
+import { scriptQueryFacts, scriptRecommendationFacts } from './scriptFacts'
 import type { AiContext } from './types'
 
 /** The page (script / game) plus earlier user questions in the chat, for follow-ups like "那 7 个人玩它". */
@@ -29,14 +29,23 @@ export type FactsPage = Pick<AiContext, 'characterIds' | 'seats'> & {
   previousQueries?: string[]
   /** The assistant's last answer: "它" often means the script it just recommended. */
   lastAnswer?: string
+  /**
+   * Facts about the page's game (alive count, win conditions): always (a
+   * large model uses them as context), or only when the question is about
+   * the game (a local answer or a 4K local model has no room for noise).
+   */
+  gameFacts?: 'always' | 'when-asked'
 }
+
+// About the game on the page, not a hypothetical ("6 个人存活时…" brings its own numbers).
+const ASKS_GAME = /局势|局面|现在|当前|目前|场上|这局|本局|此时|今天|接下来|会怎样|会不会|获胜|胜利|赢|输|结束|situation|right now|current|this game|today|next|win|lose|game over/i
 
 const SETUP_WORDS = /局|配置|开局|在场|上场|发牌|推荐角色|挑选|setup|set up|in play|line-?up|deal|which characters/i
 const SCRIPT_DESIGN = /(设计|生成|创建|组|做|出|编|写)[^。？?\n]{0,16}剧本|剧本[^。？?\n]{0,6}(设计|生成)|(design|build|create|make|generate)\b[^.?\n]{0,30}\bscript/i
 const TEENSY = /teensy|小型|小剧本|5\s*[-–~到至]\s*6\s*人|五到六人|5-6|5～6/i
 const ONLY_EDITION = /只用|仅用|只包含|只从|全部来自|全部用|only (use|from)|entirely from/i
 
-function aliveCount(query: string): number | null {
+export function aliveCount(query: string): number | null {
   const m = query.match(/(\d{1,2})\s*(?:个|名)?\s*(?:人|玩家)?\s*(?:存活|活着)|存活(?:的)?(?:玩家)?(?:有|还剩|剩)?\s*(\d{1,2})|(\d{1,2})\s+(?:players?\s+)?(?:are\s+)?(?:alive|living)/i)
   const n = m ? Number(m[1] ?? m[2] ?? m[3]) : NaN
   return n >= 1 && n <= 20 ? n : null
@@ -103,6 +112,16 @@ export function mostNamedScript(text: string): string[] | undefined {
 export function headlineScript(text: string): string[] | undefined {
   const first = text.split('\n').find((line) => line.trim()) ?? ''
   return mostNamedScript(first)
+}
+
+/** The script a question is about: a bundled script or pack it names, else the page's script. */
+function scriptScope(query: string, page: FactsPage, zh: boolean): { ids: string[]; name: string } | null {
+  const editionId = mentionedEntities(query).editionIds[0]
+  const bundled = editionId ? initialScripts.find((s) => s.slug === editionId) : undefined
+  if (bundled) return { ids: bundled.characters, name: zh ? `《${bundled.titleZh || bundled.title}》` : bundled.title }
+  if (editionId) return { ids: allCharacterFiles.filter((c) => c.edition === editionId).map((c) => c.id), name: editionLabels[zh ? 'zh' : 'en'][editionId] ?? editionId }
+  if (page.characterIds?.length) return { ids: page.characterIds, name: zh ? '当前剧本' : 'the current script' }
+  return null
 }
 
 /** The bundled script the question names, or a follow-up's earlier one ("它", "第一个"), else the page's script. */
@@ -222,7 +241,11 @@ export function computeRuleFacts(query: string, language: Language, page: FactsP
       : `A Blood on the Clocktower script is a character pool; each game uses part of it. A legal ${shape === 'teensy' ? 'Teensyville (5–6 player)' : 'full'} script built by program from the question's constraints (${row(false, pool.counts)}): Script characters: ${list(pool.characters, false)}. Use it as is, or swap characters while keeping these counts and adding no Travellers.`)
   }
 
-  if (!request) facts.push(...scriptRecommendationFacts(query, language))
+  // Jinxes, night order or "which characters poison" on one script; else advice on choosing one.
+  const scope = !request && !mentionedEntities(query).characterIds.length ? scriptScope(query, page, zh) : null
+  const onScript = scope ? scriptQueryFacts(query, language, scope) : []
+  facts.push(...onScript)
+  if (!request && !onScript.length) facts.push(...scriptRecommendationFacts(query, language))
 
   // "这套配置里每个角色的能力是什么": the characters of the last answer, with their real text,
   // so the model does not repeat what it made up before.
@@ -233,7 +256,7 @@ export function computeRuleFacts(query: string, language: Language, page: FactsP
     if (ids.length) facts.push(`${zh ? '上一条回答里角色的能力原文（原样引用，不要改写或凭记忆补充）' : 'Official ability text of the characters in the last answer (quote as is; do not reword or recall)'}：${ids.map((id) => `\n  - ${name(id, zh)}：${getAbilityText(id, language) ?? ''}`).join('')}`)
   }
 
-  if (page.seats?.length) {
+  if (page.seats?.length && (page.gameFacts !== 'when-asked' || ASKS_GAME.test(query))) {
     const seatName = (seat: number) => {
       const id = page.seats!.find((s) => s.seat === seat)?.characterId
       return `#${seat}${id ? (zh ? `（${name(id, true)}）` : ` (${name(id, false)})`) : ''}`

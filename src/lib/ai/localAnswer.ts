@@ -6,10 +6,10 @@
  * passages, each with its source.
  */
 import {
-  getAbilityText, getCharacterById, getDisplayName, getEffectiveNightOrderFromRegistry, getJinxReason, jinxes, teamLabels,
+  allCharacterFiles, editionLabels, getAbilityText, getCharacterById, getDisplayName, getEditionCredit, getEditionCreditAuthor,
+  getEffectiveNightOrderFromRegistry, getJinxReason, jinxes, teamLabels,
 } from '../../catalog'
-import { coreRuleSections } from '../../core/ai/rules'
-import { createWikiIndex } from '../../core/ai/wikiIndex'
+import { searchCoreRules } from '../../core/ai/rules'
 import type { Language, Team } from '../../types'
 import { searchWiki } from '../wikiSearch'
 import { retrieveCatalog } from './catalogRetrieval'
@@ -21,14 +21,16 @@ const TEAM_WORDS: Array<[Team, RegExp]> = [
   ['demon', /恶魔|demons?/i], ['traveler', /旅行者|travell?ers?/i], ['fabled', /传奇角色|fabled/i],
 ]
 
-const ruleIndexes = new Map<Language, ReturnType<typeof createWikiIndex>>()
-function ruleIndex(language: Language) {
-  let index = ruleIndexes.get(language)
-  if (!index) {
-    index = createWikiIndex(coreRuleSections(language).map((s, i) => ({ id: String(i), page: 'core', url: '', heading: s.heading, text: s.text, wordCount: 0 })))
-    ruleIndexes.set(language, index)
-  }
-  return index
+const TEAM_ORDER: Team[] = ['townsfolk', 'outsider', 'minion', 'demon', 'traveler', 'fabled', 'loric']
+
+/** "暗流涌动 / Trouble Brewing：本地共 28 个角色——镇民 13、……" with the author when recorded. */
+function editionSummary(id: string, language: Language): string {
+  const zh = language === 'zh'
+  const roster = allCharacterFiles.filter((c) => c?.edition === id && c.team)
+  const counts = TEAM_ORDER.map((team) => [team, roster.filter((c) => c.team === team).length] as const).filter(([, n]) => n > 0)
+  const credit = getEditionCredit(id)
+  const author = credit ? getEditionCreditAuthor(credit, language) ?? '' : ''
+  return `**${editionLabels.zh[id] ?? id} / ${editionLabels.en[id] ?? id}**${zh ? `：本地共 ${roster.length} 个角色——` : `: ${roster.length} characters locally — `}${counts.map(([team, n]) => `${teamLabels[language][team]} ${n}`).join(zh ? '、' : ', ')}${author ? (zh ? `；作者：${author}` : `; by ${author}`) : ''}`
 }
 
 function characterCard(id: string, language: Language, bilingual: boolean): string {
@@ -68,7 +70,20 @@ function excerpt(text: string, max: number): string {
   return end > max * 0.4 ? cut.slice(0, end + 1) : `${cut}…`
 }
 
-export type LocalAnswer = { message: string; found: boolean }
+/**
+ * Questions that want judgement or explanation rather than a fact: these go
+ * to a model when one is available; the rest the program answers exactly.
+ */
+const OPEN_QUESTION = /为什么|怎么办|怎么(玩|主持|做|打|判断|应对|处理|讲|说)|如何|策略|技巧|思路|心得|注意|建议|讲讲|聊聊|分析|区别|对比|比较|推理|why|how (do|should|can|to|would)|strategy|tips?\b|advice|explain|analy[sz]e|compare|difference/i
+
+// Questions about how the game works, even when they also name a character.
+const RULE_WORDS = /规则|能不能|允许|醉酒|中毒|疯狂|登记|提名|处决|死亡|复活|旅行者|传奇角色|恶魔伪装|rule|allowed|drunk|poison|mad(ness)?\b|register|nominat|execut|resurrect|travell?er|fabled|bluff/i
+
+/**
+ * `definitive`: the program's answer is exact (computed facts, official
+ * text, counts) and needs no model; a small local model only adds errors.
+ */
+export type LocalAnswer = { message: string; found: boolean; definitive: boolean }
 
 export function answerLocally(ctx: AiContext, query: string, previousQueries: string[] = [], lastAnswer?: string): LocalAnswer {
   const language = ctx.language
@@ -76,13 +91,15 @@ export function answerLocally(ctx: AiContext, query: string, previousQueries: st
   const retrieval = retrieveCatalog(query, language, previousQueries)
   const sections: string[] = []
 
-  const facts = computeRuleFacts(query, language, { ...ctx, previousQueries, lastAnswer })
+  const facts = computeRuleFacts(query, language, { ...ctx, previousQueries, lastAnswer, gameFacts: 'when-asked' })
   if (facts) sections.push(facts.split('\n').slice(1).join('\n'))
+  let exact = Boolean(facts)
 
   // Characters the question names: official text (both languages for translations).
   const bilingual = /翻译|译成|translat/i.test(query) || retrieval.quotedIds.length > 0
   const characters = retrieval.characterIds.slice(0, 6)
   if (characters.length) sections.push(characters.map((id) => characterCard(id, language, bilingual || retrieval.quotedIds.includes(id))).join('\n\n'))
+  exact ||= characters.length > 0
 
   if (characters.length >= 2) {
     const pairJinxes = Object.values(jinxes).filter((j) => j.characters?.length === 2 && j.characters.every((id) => characters.includes(id)))
@@ -93,16 +110,24 @@ export function answerLocally(ctx: AiContext, query: string, previousQueries: st
 
   // Editions: exact counts, author, and the roster (only the teams asked about).
   if (retrieval.editionIds.length && !characters.length) {
-    sections.push(retrieval.facts.split('\n').filter((line) => !/^Source:|publication status/i.test(line)).join('\n'))
+    sections.push(retrieval.editionIds.map((id) => editionSummary(id, language)).join('\n'))
     const teams = TEAM_WORDS.filter(([, pattern]) => pattern.test(query)).map(([team]) => team)
-    const rosters = retrieval.rosters.join('\n').split('\n').filter((line) => !teams.length || teams.some((team) => line.startsWith(`${team} (`)))
+    const rosters = retrieval.rosters.join('\n').split('\n')
+      .filter((line) => /^\w+ \(\d+\):/.test(line) && (!teams.length || teams.some((team) => line.startsWith(`${team} (`))))
+      .map((line) => line.replace(/^(\w+) \((\d+)\):\s*/, (_m, team: string, n: string) => `${teamLabels[language][team as Team] ?? team}（${n}）：`))
     if (/哪些|列出|名单|有什么|which|list/i.test(query)) sections.push(rosters.join('\n'))
+    exact = true
   }
 
-  // Rules and terms: the most relevant core rules sections, then wiki excerpts.
-  if (!characters.length || /规则|怎么|如何|能不能|可以|吗|rule|how|can /i.test(query)) {
-    const rules = ruleIndex(language).search(query, 2).map((chunk) => chunk.text)
+  // Rules and terms: the most relevant core rules sections — unless the program
+  // already computed the answer — then a wiki excerpt when nothing else is exact.
+  if (!exact || (!facts && RULE_WORDS.test(query))) {
+    // Next to a character's text, only sections about the rule the question names ("醉酒").
+    const term = exact ? query.match(RULE_WORDS)?.[0]?.toLowerCase() ?? '' : ''
+    const rules = searchCoreRules(query, language, 2).map((section) => section.text).filter((text) => !term || text.toLowerCase().includes(term))
     if (rules.length) sections.push(`${rules.join('\n\n')}\n${zh ? '（来源：官方规则与术语表）' : '(Source: official rules and glossary)'}`)
+  }
+  if (!exact) {
     const wiki = searchWiki(query, 1).filter((chunk) => zh === chunk.page.startsWith('zh-'))
     if (wiki.length) sections.push(wiki.map((chunk) => `${excerpt(chunk.text, 500)}\n${zh ? '来源' : 'Source'}: ${chunk.url}`).join('\n\n'))
   }
@@ -112,5 +137,5 @@ export function answerLocally(ctx: AiContext, query: string, previousQueries: st
   const body = found
     ? sections.join('\n\n')
     : (zh ? '本地资料中没有找到与这个问题直接相关的内容。可以换个说法，或在 AI 设置中选择在线 AI / 下载本地模型。' : 'Nothing in the local data answers this directly. Try rephrasing, or choose the online AI or a local model in AI settings.')
-  return { message: `${header}\n\n${body}`, found }
+  return { message: `${header}\n\n${body}`, found, definitive: found && exact && !OPEN_QUESTION.test(query) }
 }

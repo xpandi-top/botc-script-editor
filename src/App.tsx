@@ -1124,6 +1124,7 @@ export default function App() {
           <Box sx={{ position: 'fixed', bottom: { xs: 68, sm: 24 }, right: { xs: 12, sm: 24 }, zIndex: 1200 }}>
             <Fab
               size="small"
+              aria-label={t('ai_assistant_experimental')}
               onClick={() => setAiChatOpen((v) => !v)}
               sx={{
                 bgcolor: aiChatOpen ? 'primary.dark' : 'primary.main',

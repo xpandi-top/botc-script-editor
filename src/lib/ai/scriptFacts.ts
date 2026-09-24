@@ -6,11 +6,12 @@
  * information (drunk, poison, registering, madness), jinxes and setup
  * modifiers — per character on the script. It is a guide, not a rating.
  */
-import { getAbilityText, getCharacterById, getEffectiveNightOrderFromRegistry, initialScripts, jinxes } from '../../catalog'
+import { getAbilityText, getCharacterById, getDisplayName, getEffectiveNightOrderFromRegistry, getJinxReason, initialScripts, jinxes } from '../../catalog'
 import type { Language } from '../../types'
 
 const ASKS_SCRIPT = /剧本|板子|script/i
-const ASKS_ADVICE = /推荐|入门|新手|休闲|轻松|简单|容易|难度|复杂|适合|有哪些|哪个|哪些|什么剧本|玩什么|recommend|beginner|new players?|first game|easy|casual|simple|difficult|complex|which|what script/i
+// Choosing a script — not a question about what is on one ("这个剧本里有哪些相克").
+const ASKS_ADVICE = /推荐|入门|新手|休闲|轻松|简单|容易|难度|复杂|适合|哪个剧本|哪些剧本|有什么剧本|什么剧本|玩什么|recommend|beginner|new players?|first game|easy|casual|simple|difficult|complex|which scripts?\b|what script/i
 const SMALL_GROUP = /小型|人少|5\s*[-–~到至]?\s*6\s*人|五六个人|teensy|small group|few players/i
 const ONLY_OFFICIAL = /官方|official/i
 const OFFICIAL = ['tb', 'bmr', 'snv']
@@ -69,3 +70,61 @@ export function scriptRecommendationFacts(query: string, language: Language): st
     : `Complexity rank is estimated by program from night wakers, false-information sources (drunk, poison, registering, madness), jinxes and setup modifiers per character, among ${all.length} bundled scripts (1 = simplest); a guide only.`)
   return facts
 }
+
+// ── Questions about one script ───────────────────────────────────────────────
+
+const ASKS_JINXES = /相克|jinx/i
+const ASKS_NIGHT_ORDER = /(夜晚|夜间|首夜|第一(个)?夜|其他夜|其余夜|每晚)[^？?。]{0,8}(顺序|先后|谁先|唤醒)|唤醒顺序|夜序|night order|wake order|order of (the )?(first|other) nights?/i
+// "哪些角色会让人醉酒或中毒" / "which characters poison": ability keywords in both languages.
+const ABILITY_WORDS: Array<[RegExp, RegExp]> = [
+  [/醉酒/, /drunk/i], [/中毒/, /poison/i], [/疯狂/, /\bmad\b/i], [/登记|被当作/, /regist/i],
+  [/复活|起死回生/, /resurrect|return to life|back to life/i], [/保护|不会死亡|安全/, /\bsafe\b|protect|cannot die/i],
+  [/得知|信息/, /\blearn/i], [/杀死|杀人|死亡/, /\bdies?\b|\bkill/i], [/交换|换/, /swap|exchange/i],
+]
+const ASKS_WHICH = /哪些|哪几个|有谁|谁会|which|who/i
+const NIGHT_MARKERS: Record<string, [string, string]> = { MINION_INFO: ['爪牙信息', 'Minion info'], DEMON_INFO: ['恶魔信息', 'Demon info'] }
+
+/**
+ * Facts about the script in scope (named in the question, else the page's):
+ * its jinxes, its night order, or its characters whose ability does what
+ * the question asks about. Empty when the question asks none of these.
+ */
+export function scriptQueryFacts(query: string, language: Language, script: { ids: string[]; name: string }): string[] {
+  const zh = language === 'zh'
+  const ids = script.ids.filter((id) => getCharacterById(id))
+  if (!ids.length) return []
+  const name = (id: string) => getDisplayName(id, language)
+  const facts: string[] = []
+
+  if (ASKS_JINXES.test(query)) {
+    const pairs = Object.values(jinxes).filter((j) => j.characters?.length === 2 && j.characters.every((id) => ids.includes(id)))
+    facts.push(pairs.length
+      ? `${zh ? `${script.name}的相克（共 ${pairs.length} 条）` : `Jinxes on ${script.name} (${pairs.length})`}：${pairs.map((j) => `\n  - ${j.characters.map(name).join(' + ')}：${getJinxReason(j.id, language)}`).join('')}`
+      : (zh ? `${script.name}的角色之间没有相克规则。` : `No jinxes between the characters on ${script.name}.`))
+  }
+
+  if (ASKS_NIGHT_ORDER.test(query)) {
+    const order = getEffectiveNightOrderFromRegistry()
+    const other = /其他夜|其余夜|每个夜晚\*|other nights?/i.test(query)
+    const first = /首夜|第一(个)?夜|first night/i.test(query)
+    const nights: Array<['first_night' | 'other_nights', string]> = [
+      ...(!other || first ? [['first_night', zh ? '第一个夜晚' : 'First night'] as ['first_night', string]] : []),
+      ...(!first || other ? [['other_nights', zh ? '其他夜晚' : 'Other nights'] as ['other_nights', string]] : []),
+    ]
+    for (const [key, label] of nights) {
+      const sequence = (order[key] ?? []).filter((id) => ids.includes(id) || (key === 'first_night' && NIGHT_MARKERS[id]))
+      const steps = sequence.map((id) => NIGHT_MARKERS[id]?.[zh ? 0 : 1] ?? name(id))
+      facts.push(`${zh ? `${script.name}${label}的唤醒顺序` : `${label} order on ${script.name}`}：${steps.length ? steps.join(' → ') : (zh ? '无角色被唤醒' : 'nobody wakes')}${key === 'first_night' ? (zh ? '（爪牙信息与恶魔信息仅 7 人及以上）' : ' (Minion and Demon info only with 7+ players)') : ''}`)
+    }
+  }
+
+  const words = ABILITY_WORDS.filter(([zhWord, enWord]) => zhWord.test(query) || enWord.test(query))
+  if (ASKS_WHICH.test(query) && words.length && !ASKS_JINXES.test(query)) {
+    const matching = ids.filter((id) => words.some(([zhWord, enWord]) => zhWord.test(getAbilityText(id, 'zh') ?? '') || enWord.test(getAbilityText(id, 'en') ?? '')))
+    facts.push(matching.length
+      ? `${zh ? `${script.name}上能力涉及“${words.map(([w]) => w.source.split('|')[0]).join('、')}”的角色（${matching.length} 个）` : `Characters on ${script.name} whose ability involves ${words.map(([, w]) => w.source.replace(/\\b/g, '').split('|')[0]).join(', ')} (${matching.length})`}：${matching.map((id) => `\n  - ${name(id)}：${getAbilityText(id, language) ?? ''}`).join('')}`
+      : (zh ? `${script.name}上没有能力涉及这些的角色。` : `No character on ${script.name} has such an ability.`))
+  }
+  return facts
+}
+

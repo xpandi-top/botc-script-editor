@@ -46,7 +46,8 @@ export async function findSimilar(
   n = 4,
   opts: VectorSearchOpts = {},
 ): Promise<CharExample[]> {
-  if (opts.allowRemote !== false && isApiConfigured() && query.trim()) {
+  const offline = typeof navigator !== 'undefined' && navigator.onLine === false
+  if (opts.allowRemote !== false && !offline && isApiConfigured() && query.trim()) {
     const ids = await similarIds(query, n, opts)
     if (ids?.length) {
       const found = ids.flatMap((id): CharExample[] => {

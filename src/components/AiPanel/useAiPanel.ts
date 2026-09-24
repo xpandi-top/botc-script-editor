@@ -10,7 +10,7 @@ import {
   appendFillLog, getFillLogForForm, markUndone, exportFillLogMd,
   type FillLogEntry,
 } from '../../lib/fillLog'
-import { getWebLlmState, subscribeWebLlm, unloadWebLlm } from '../../lib/ai/runtime/webllm'
+import { getWebLlmState, resumeWebLlm, subscribeWebLlm, unloadWebLlm } from '../../lib/ai/runtime/webllm'
 import { getHostedStatus, HOSTED_INPUT_BUDGET } from '../../lib/ai/runtime/hosted'
 import { answerLocally } from '../../lib/ai/localAnswer'
 import { initWikiSearch } from '../../lib/wikiSearch'
@@ -28,6 +28,9 @@ export type UseAiPanelOptions = {
   callbacks?: AiChatCallbacks
   variant?: AiPanelVariant
 }
+
+// fetch() failures across browsers: Chrome, Firefox, Safari.
+const NETWORK_ERROR = /Failed to fetch|NetworkError|Load failed|network error|ERR_INTERNET_DISCONNECTED/i
 
 export function useAiPanel({ open, context, callbacks }: UseAiPanelOptions) {
   const [settings, setSettings]         = useState<AiSettings>(() => loadAiSettings())
@@ -67,6 +70,11 @@ export function useAiPanel({ open, context, callbacks }: UseAiPanelOptions) {
   useEffect(() => {
     if (open) void initWikiSearch()
   }, [open])
+
+  // Local mode after a reload: load the cached model again without a click (never downloads).
+  useEffect(() => {
+    if (open && settings.provider === 'webllm') void resumeWebLlm(settings.model).catch(() => { /* error shown in settings */ })
+  }, [open, settings.provider, settings.model])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -154,16 +162,36 @@ export function useAiPanel({ open, context, callbacks }: UseAiPanelOptions) {
     const zh = effectiveCtx.language === 'zh'
     // Offline answers quote the wiki, so wait for its index (cached after the first load).
     const local = async () => { await initWikiSearch(); return answerLocally(effectiveCtx, text, previousQueries, lastAnswer) }
-    if (!modelReady(latestSettings)) {
-      const why = latestSettings.provider === 'webllm'
-        ? (zh ? '本地模型尚未下载或加载' : 'The local model is not loaded')
-        : latestSettings.provider === 'botc'
-          ? (zh ? 'BOTC 在线 AI 暂不可用' : 'The BOTC online AI is not available')
-          : (zh ? '未填写 API Key' : 'No API key')
-      const answer = await local()
-      setMessages((m) => [...m, { id: crypto.randomUUID(), role: 'assistant', content: `${answer.message}\n\n_${why}${zh ? '，以上为本地资料。' : '; this is local data only.'}_`, local: true }])
+    const reply = (content: string) => {
+      setMessages((m) => [...m, { id: crypto.randomUUID(), role: 'assistant', content, local: true }])
       setLoading(false)
       setTimeout(() => inputRef.current?.focus(), 50)
+    }
+    // Offline with an online model selected: local data right away, no request to wait on.
+    if (latestSettings.provider !== 'webllm' && typeof navigator !== 'undefined' && navigator.onLine === false) {
+      const answer = await local()
+      reply(`${answer.message}\n\n_${zh ? '当前离线，以上为本地资料。' : 'Offline; this is local data only.'}_`)
+      return
+    }
+    // Local mode: what the program answers exactly (counts, line-ups, official text,
+    // script facts) never goes to the model — a small model gets numbers wrong.
+    if (latestSettings.provider === 'webllm') {
+      const answer = await local()
+      if (answer.definitive) { reply(answer.message); return }
+      if (!modelReady(latestSettings)) {
+        const loadingModel = localState.status === 'loading'
+        reply(`${answer.message}\n\n_${loadingModel
+          ? (zh ? `本地模型加载中（${Math.round(localState.progress * 100)}%），以上为本地资料；加载完成后可回答解释类问题。` : `The local model is loading (${Math.round(localState.progress * 100)}%); this is local data only.`)
+          : (zh ? '本地模型尚未下载或加载，以上为本地资料；加载模型后可回答解释类问题。' : 'The local model is not loaded; this is local data only. Load it for explanations.')}_`)
+        return
+      }
+    }
+    if (!modelReady(latestSettings)) {
+      const why = latestSettings.provider === 'botc'
+        ? (zh ? 'BOTC 在线 AI 暂不可用' : 'The BOTC online AI is not available')
+        : (zh ? '未填写 API Key' : 'No API key')
+      const answer = await local()
+      reply(`${answer.message}\n\n_${why}${zh ? '，以上为本地资料。' : '; this is local data only.'}_`)
       return
     }
 
@@ -194,7 +222,7 @@ export function useAiPanel({ open, context, callbacks }: UseAiPanelOptions) {
       const fallback = await local()
       setMessages((m) => [
         ...m,
-        { id: crypto.randomUUID(), role: 'error', content: result.error },
+        { id: crypto.randomUUID(), role: 'error', content: NETWORK_ERROR.test(result.error) ? (zh ? '无法连接在线 AI（网络不可用或请求被拦截）。' : 'Could not reach the online AI (no network, or the request was blocked).') : result.error },
         ...(fallback.found ? [{ id: crypto.randomUUID(), role: 'assistant' as const, content: fallback.message, local: true }] : []),
       ])
     }

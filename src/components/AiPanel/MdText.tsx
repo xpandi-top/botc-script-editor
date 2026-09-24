@@ -7,7 +7,7 @@
  */
 import { Box, Divider, Link, Typography } from '@mui/material'
 import { Fragment, memo, type ReactNode } from 'react'
-import { stripThinking } from '../../lib/ai/modelText'
+import { splitInlineList, stripThinking } from '../../lib/ai/modelText'
 
 const SAFE_URL = /^https?:\/\//i
 
@@ -78,7 +78,7 @@ function Table({ rows, id }: { rows: string[]; id: number }) {
 }
 
 export const MdText = memo(function MdText({ text }: { text: string }) {
-  const lines = stripThinking(text).split('\n')
+  const lines = splitInlineList(stripThinking(text)).split('\n')
   const nodes: ReactNode[] = []
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]

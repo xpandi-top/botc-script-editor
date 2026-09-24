@@ -9,6 +9,18 @@ export function estimateTokens(text: string): number {
   return Math.ceil(units)
 }
 
+/**
+ * Closer estimate for Qwen-family tokenizers (the local WebLLM models): about
+ * 1.3 tokens per CJK character and 0.3 per other character. The general
+ * estimate above charges 3 per CJK character, which leaves a 4K local model
+ * room for barely 1,000 Chinese characters.
+ */
+export function estimateQwenTokens(text: string): number {
+  let units = 0
+  for (const char of text) units += char.codePointAt(0)! <= 127 ? 0.3 : 1.3
+  return Math.ceil(units)
+}
+
 const OMITTED = '\n[Context excerpts only; omitted material is unknown. Ask for details if needed.]'
 const cache = new Map<string, WikiIndex>()
 
@@ -58,15 +70,15 @@ export function selectContext(text: string, query: string, budget: number): stri
 }
 
 export type BudgetMessage = { role: 'user' | 'model'; parts: Array<{ text: string }> }
-export function messageTokens(message: BudgetMessage): number {
-  return estimateTokens(message.parts.map((p) => p.text).join('')) + 16
+export function messageTokens(message: BudgetMessage, estimate = estimateTokens): number {
+  return estimate(message.parts.map((p) => p.text).join('')) + 16
 }
 
 /** Preserve the current question and instructions; discard oldest complete turns. */
-export function budgetHistory(system: string, contents: BudgetMessage[], budget: number): BudgetMessage[] {
+export function budgetHistory(system: string, contents: BudgetMessage[], budget: number, estimate = estimateTokens): BudgetMessage[] {
   const latest = contents[contents.length - 1]
   if (!latest) return []
-  let remaining = budget - estimateTokens(system) - 32 - messageTokens(latest)
+  let remaining = budget - estimate(system) - 32 - messageTokens(latest, estimate)
   if (remaining < 0) {
     throw new Error('当前问题或页面内容过长，请缩小问题范围或分段提交。The current question or page context is too large; please split it into smaller requests.')
   }
@@ -78,7 +90,7 @@ export function budgetHistory(system: string, contents: BudgetMessage[], budget:
     while (start > 0 && contents[start].role !== 'user') start--
     if (contents[start].role !== 'user') break
     const turn = contents.slice(start, end)
-    const cost = turn.reduce((sum, message) => sum + messageTokens(message), 0)
+    const cost = turn.reduce((sum, message) => sum + messageTokens(message, estimate), 0)
     if (cost > remaining) break
     kept.unshift(...turn)
     remaining -= cost

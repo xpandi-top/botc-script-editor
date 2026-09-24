@@ -171,10 +171,14 @@ boot()
 // already loaded into memory until it reloads. Without this listener, a
 // user who had the app open across a deploy (or a PWA reopened from the
 // home screen) could sit on a stale build indefinitely. Reload once, the
-// moment the new worker actually takes control.
+// moment the new worker actually takes control. The very first install also
+// takes control (clientsClaim), but that page already runs the current build:
+// no reload then.
 if ('serviceWorker' in navigator) {
+  let controlled = Boolean(navigator.serviceWorker.controller)
   let reloadedForUpdate = false
   navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!controlled) { controlled = true; return }
     if (reloadedForUpdate) return
     reloadedForUpdate = true
     window.location.reload()

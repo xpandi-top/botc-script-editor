@@ -26,6 +26,8 @@ export type WikiIndex = {
   chunks: WikiChunk[]
   /** The `n` most relevant chunks for a query (EN or ZH), best first. */
   search(query: string, n?: number): WikiChunk[]
+  /** The same, with each chunk's cosine score (0–1). */
+  scored(query: string, n?: number): Array<{ chunk: WikiChunk; score: number }>
 }
 
 export function tokenize(text: string): string[] {
@@ -83,14 +85,16 @@ export function createWikiIndex(chunks: WikiChunk[]): WikiIndex {
   return {
     chunks,
     search(query, n = 3) {
+      return this.scored(query, n).map(({ chunk }) => chunk)
+    },
+    scored(query, n = 3) {
       if (!index.length) return []
       const qVec = tfidfVec(tokenize(query), idf)
       return index
-        .map((e) => ({ e, score: cosineSparse(qVec, e.vec) }))
+        .map((e) => ({ chunk: e.chunk, score: cosineSparse(qVec, e.vec) }))
         .filter(({ score }) => score > 0)
         .sort((a, b) => b.score - a.score)
         .slice(0, n)
-        .map(({ e }) => e.chunk)
     },
   }
 }

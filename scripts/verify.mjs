@@ -7,7 +7,7 @@ if (process.argv.includes('--help') || process.argv.includes('-h')) {
   console.log(`Usage: npm run verify -- [options]
 
 Options:
-  --e2e       Also run desktop and mobile Playwright smoke tests.
+  --e2e       Also run desktop, mobile and offline (production build) Playwright tests.
   --native    Also run the native Vite build.
   --platform  Alias for --native.
 `)
@@ -39,6 +39,8 @@ if (includeE2e) {
   steps.push(
     ['desktop e2e', 'npm', ['run', 'test:e2e:desktop']],
     ['mobile e2e', 'npm', ['run', 'test:e2e:mobile']],
+    // Uses dist/ from the production build step above.
+    ['offline e2e', 'npm', ['run', 'test:e2e:offline']],
   )
 }
 
