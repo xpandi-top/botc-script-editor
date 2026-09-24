@@ -26,6 +26,10 @@ npm run sync-reminders
 # `-- --refresh` refetches. Coverage + freshness report:
 npm run build:guides
 node scripts/audit-ai-content.mjs --online
+
+# Ability texts vs official roles.json (English) and the 集石 wiki (Chinese), classified
+# (errata / spelling / translation / new version / wiki older) — review, then add-revision
+npm run check-abilities
 ```
 
 ```bash
