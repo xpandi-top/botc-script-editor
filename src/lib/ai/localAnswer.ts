@@ -78,7 +78,7 @@ function excerpt(text: string, max: number): string {
 const OPEN_QUESTION = /为什么|怎么办|怎么(玩|主持|做|打|判断|应对|处理|讲|说)|如何|策略|技巧|思路|心得|注意|建议|讲讲|聊聊|分析|区别|对比|比较|推理|why|how (do|should|can|to|would)|strategy|tips?\b|advice|explain|analy[sz]e|compare|difference/i
 
 // Questions about how the game works, even when they also name a character.
-const RULE_WORDS = /规则|能不能|允许|醉|中毒|疯狂|登记|提名|处决|死亡|复活|旅行者|传奇角色|恶魔伪装|rule|allowed|drunk|poison|mad(ness)?\b|register|nominat|execut|resurrect|travell?er|fabled|bluff/i
+export const RULE_WORDS = /规则|能不能|允许|醉|中毒|疯狂|登记|提名|处决|死亡|复活|旅行者|传奇角色|恶魔伪装|rule|allowed|drunk|poison|mad(ness)?\b|register|nominat|execut|resurrect|travell?er|fabled|bluff/i
 // "醉着是什么意思" / "血染里的醉确定是这个意思吗": a question about what a term means.
 const ASKS_TERM = /什么意思|啥意思|是什么|什么是|指什么|是指|含义|定义|意思吗|确定是|真的是|what does .{1,30} mean|what is|meaning|definition/i
 // Guide questions a character's almanac can answer: examples, how to play, tips, bluffing.

@@ -438,3 +438,24 @@ worker/src/         # 共享领域服务的MCP/REST/云存储适配
 - **续载：** 刷新后若模型文件完整在缓存中，打开面板即自动加载（不下载）；模式标签显示加载进度与“模型就绪”；设置里可删除模型文件。
 - 无头 Chromium 默认只有软件 WebGPU（无 shader-f16），测试需 `--enable-gpu --use-angle=metal`（macOS）。
 
+## 19. 反馈闭环与调参
+
+**收集。** 每条回答带一份 trace（`src/lib/ai/trace.ts`）：谁回答的（`model` 模型 / `program` 程序 / `fallback` 模型不可用改用本地资料 / `offline` 离线）、provider 与模型、`PROMPT_VERSION` 与构建号、程序给了哪些事实（votes、setup、script-pool、script-facts、recommend、ability-backref、game-state）、检索到的角色 / 角色包 / 规则段落 / wiki 页、答案校验补了什么（lineup、script、votes、ability、ability-text）、在线工具与 neurons、耗时。回答下方可 👍 / 👎（原因：事实或规则错误、答非所问、太笼统、语言或格式、太慢、其他，可附正确答案），ⓘ 看诊断，标题栏一键“分享对话”（发送并复制为 Markdown）。只在用户点击时发送，不含 API Key、页面内容与玩家名；离线时进发件箱，联网后补发。
+
+**存储。** `POST /v1/ai/feedback` → D1 `ai_feedback`（迁移 0003，部署工作流自动应用），每 IP 每天 100 条，不存 IP；不依赖 Workers AI，本地模式的回答也能评价。
+
+**分析。** `cd worker && npm run feedback -- --days 7`：导出到 `worker/.feedback/`（不提交），按回答来源、provider·模型、prompt 版本、程序事实类型统计 👎 率与 p50 / p90 耗时，统计 👎 原因，数出“没有任何本地资料的 👎 回答”（检索缺口），并把 👎 回答写成评测草稿（`eval-drafts-*.json`），补上 `checks` 后并入 `src/lib/ai/eval/cases.ts`。
+
+**可调的地方与对应信号：**
+
+| 现象（反馈中的信号） | 调整的位置 |
+|---|---|
+| 程序本可精确回答却交给了模型，或反之（按来源的 👎 率、“答非所问”） | 路由正则：`localAnswer.ts` 的 `OPEN_QUESTION`、`ASKS_TERM`、`ASKS_GUIDE`、`RULE_WORDS`；`catalogRetrieval.ts` 的 `FOLLOW_UP` |
+| 答案没有依据（检索缺口计数、“太笼统”） | 本地资料：`coreRuleSections`（`src/core/ai/rules.ts`，相关度阈值 0.6×最佳）、`wiki-chunks.json`、角色年鉴（目前只有奥德赛有范例 / 技巧；官方角色可从集石 wiki 导入）、向量检索（bge-m3，`/v1/characters/similar`） |
+| 事实或规则错误（按程序事实类型的 👎 率） | 程序事实（`ruleFacts.ts`、`scriptFacts.ts`）与答案校验（`answerCheck.ts`、`answerParse.ts` 的能力相似度阈值 0.25） |
+| 按 prompt 版本对比 👎 率 | 提示词（`prompts.ts`），改动后提升 `PROMPT_VERSION` |
+| 按模型对比 👎 率与耗时 | 在线模型 `AI_CHAT_MODEL`（Worker 变量）、温度 0.6（`useAiPanel.ts`）；本地模型 1.7B / 0.6B，`WEBLLM_INPUT_BUDGET` 3200 / `WEBLLM_OUTPUT_BUDGET` 768 |
+| “太慢”、p90 耗时 | 在线：工具轮数（最多 5）与输出上限；本地：换 0.6B、缩短证据 |
+
+**节奏：** 定期 `npm run feedback` → 把 👎 草稿补成评测用例 → 改一个调整点并提升 `PROMPT_VERSION` → `npm test`（离线评测）与少量在线评测（`BOTC_AI_EVAL_URL`）→ 部署 → 下个周期按 prompt 版本比较 👎 率与耗时。
+

@@ -9,7 +9,7 @@ import { retrieveCatalog, resolveCatalogQuery, retrieveAlmanac, formatCatalogRet
 import { selectContext, estimateTokens, GROQ_INPUT_BUDGET } from '../../core/ai/contextBudget'
 import { CORE_RULES, searchCoreRules } from '../../core/ai/rules'
 import { computeRuleFacts } from './ruleFacts'
-import { loadCharacterGuides } from './localAnswer'
+import { loadCharacterGuides, RULE_WORDS } from './localAnswer'
 import {
   getTeamExamples, getTranslationPairs, formatExamplesPrompt,
 } from '../botcSearch'
@@ -427,7 +427,9 @@ export async function prepareSystemPrompt(ctx: AiContext, query: string, previou
     const computed = selectContext(computeRuleFacts(query, ctx.language, { ...ctx, previousQueries, lastAnswer: options?.lastAnswer, gameFacts: 'when-asked' }, meta?.facts), query, 1500)
     const catalog = formatCatalogRetrieval(retrieval, almanac, 1500)
     const zhLang = ctx.language === 'zh'
-    const rules = searchCoreRules(query, ctx.language, 2)
+    // About a character: only rules sections that name the rule asked about (else they are noise).
+    const term = retrieval.characterIds.length ? query.match(RULE_WORDS)?.[0]?.toLowerCase() : undefined
+    const rules = searchCoreRules(query, ctx.language, 2).filter((section) => !retrieval.characterIds.length || (term && section.text.toLowerCase().includes(term)))
     const wiki = searchWiki(query, 3).filter((chunk) => zhLang === chunk.page.startsWith('zh-')).slice(0, 2)
     if (meta) { meta.rules = rules.map((section) => section.heading); meta.wiki = wiki.map((chunk) => chunk.page) }
     const reference = [

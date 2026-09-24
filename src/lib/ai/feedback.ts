@@ -76,8 +76,9 @@ async function post(item: FeedbackItem): Promise<boolean> {
       body: JSON.stringify(item),
       signal: AbortSignal.timeout(10_000),
     })
-    // 4xx other than rate limiting will not get better on retry: drop it.
-    return res.ok || (res.status >= 400 && res.status < 500 && res.status !== 429)
+    // A malformed or oversized item will not get better on retry: drop it. Anything
+    // else (a server without the route yet, rate limits, outages) is retried later.
+    return res.ok || res.status === 400 || res.status === 413
   } catch {
     return false
   }
