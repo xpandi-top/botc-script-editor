@@ -1,0 +1,46 @@
+name: CI
+
+# Full check on pull requests and feature branches: i18n, core boundary,
+# unit tests (incl. catalog integrity), production build, bundle budget,
+# and the API worker's type check + tests. main is covered by the deploy
+# workflows (Pages: web tests + build; worker: worker tests + deploy + smoke).
+on:
+  pull_request:
+  push:
+    branches-ignore:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            worker/package-lock.json
+
+      - name: Install dependencies
+        run: npm install --ignore-scripts
+        env:
+          ELECTRON_SKIP_BINARY_DOWNLOAD: 1
+          PUPPETEER_SKIP_DOWNLOAD: true
+
+      - name: Install worker dependencies
+        run: npm ci --prefix worker
+
+      - name: Verify
+        run: npm run verify

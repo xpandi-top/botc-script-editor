@@ -1,0 +1,105 @@
+name: Deploy API worker
+
+# Deploys worker/ (REST + MCP + hosted AI) when it or the catalog data it
+# bundles changes. After the deploy, the smoke test calls the live API: its
+# AI checks make the worker re-embed new or edited characters and then fail
+# if any embedding is still stale.
+#
+# Needs repository secrets CLOUDFLARE_API_TOKEN (Workers Scripts: Edit,
+# D1: Edit) and CLOUDFLARE_ACCOUNT_ID; without them the deploy is skipped.
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'worker/**'
+      - 'src/core/**'
+      - 'assets/characters/**'
+      - 'assets/scripts/**'
+      - 'assets/locales/**'
+      - 'assets/icons/**'
+      - 'assets/jinxes.json'
+      - 'assets/editions.json'
+      - 'scripts/catalog-data.mjs'
+      - 'scripts/build-catalog.mjs'
+      - 'public/wiki-chunks.json'
+      - '.github/workflows/deploy-worker.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-worker
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: worker/package-lock.json
+
+      - name: Install worker dependencies
+        run: npm ci --prefix worker
+
+      - name: Type check
+        run: npm --prefix worker run typecheck
+
+      - name: Tests (REST, MCP, hosted AI, local D1)
+        run: npm --prefix worker test
+
+  credentials:
+    runs-on: ubuntu-latest
+    outputs:
+      ok: ${{ steps.check.outputs.ok }}
+    steps:
+      - id: check
+        env:
+          TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          if [ -n "$TOKEN" ]; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::CLOUDFLARE_API_TOKEN is not set: skipping the worker deploy (see worker/README.md)."
+          fi
+
+  deploy:
+    needs: [test, credentials]
+    if: needs.credentials.outputs.ok == 'true'
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: worker/package-lock.json
+
+      - name: Install worker dependencies
+        run: npm ci --prefix worker
+
+      - name: Apply D1 migrations
+        working-directory: worker
+        run: npx wrangler d1 migrations apply botc-library --remote
+
+      - name: Deploy
+        working-directory: worker
+        run: npm run deploy
+
+      - name: Smoke test (refreshes embeddings when the catalog changed)
+        working-directory: worker
+        run: npm run smoke -- --no-games
