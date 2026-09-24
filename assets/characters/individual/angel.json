@@ -2,13 +2,17 @@
   "id": "angel",
   "team": "fabled",
   "edition": "fabled",
-  "current_revision": "v1",
+  "current_revision": "v2026-09",
   "setup": false,
   "firstNightReminder": "Announce which players are protected by the Angel. :reminder:",
   "revisions": [
     {
       "id": "v1",
       "note": ""
+    },
+    {
+      "id": "v2026-09",
+      "note": "Official Chinese translation from the 集石 wiki; ability unchanged (checked 2026-09-24)."
     }
   ],
   "en": {
@@ -16,15 +20,17 @@
     "ability": "Something bad might happen to whoever is most responsible for the death of a new player.",
     "flavor": "Let those who are without sin dare to raise their hand to my chosen, for I shall strike such fools down with the fury and righteousness of a thousand storms.",
     "revisions": {
-      "v1": "Something bad might happen to whoever is most responsible for the death of a new player."
+      "v1": "Something bad might happen to whoever is most responsible for the death of a new player.",
+      "v2026-09": "Something bad might happen to whoever is most responsible for the death of a new player."
     },
     "firstNightReminder": "Announce which players are protected by the Angel. :reminder:"
   },
   "zh": {
     "name": "天使",
-    "ability": "新玩家死亡时，最应为其死亡负责的人可能会遭遇不好的事。",
+    "ability": "对新玩家的死亡负最大责任的人，可能会遭遇一些不好的事情。",
     "revisions": {
-      "v1": "新玩家死亡时，最应为其死亡负责的人可能会遭遇不好的事。"
+      "v1": "新玩家死亡时，最应为其死亡负责的人可能会遭遇不好的事。",
+      "v2026-09": "对新玩家的死亡负最大责任的人，可能会遭遇一些不好的事情。"
     },
     "reminders": [
       "庇护",

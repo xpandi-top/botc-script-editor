@@ -2,25 +2,31 @@
   "id": "guhuoniao",
   "team": "demon",
   "edition": "shanyuyulai",
-  "current_revision": "v1",
+  "current_revision": "v2026-07",
   "revisions": [
     {
       "id": "v1",
       "note": ""
+    },
+    {
+      "id": "v2026-07",
+      "note": "集石 wiki version of the ability (page updated 2026-07); English is our translation."
     }
   ],
   "en": {
     "name": "Guhuoniao",
-    "ability": "Each night*, choose a player: they die. You may have the ability of the last executed minion.",
+    "ability": "Each night*, choose a player: they die. Once per game, when a Minion dies by execution, you might gain their ability.",
     "revisions": {
-      "v1": "Each night*, choose a player: they die. You may have the ability of the last executed minion."
+      "v1": "Each night*, choose a player: they die. You may have the ability of the last executed minion.",
+      "v2026-07": "Each night*, choose a player: they die. Once per game, when a Minion dies by execution, you might gain their ability."
     }
   },
   "zh": {
     "name": "姑获鸟",
-    "ability": "每个夜晚*，你要选择一名玩家：他死亡。你可能会拥有上一个死于处决的爪牙的能力。",
+    "ability": "每个夜晚*，你要选择一名玩家：他死亡。每局游戏限一次，当爪牙死于处决时，你可能会获得他的能力。",
     "revisions": {
-      "v1": "每个夜晚*，你要选择一名玩家：他死亡。你可能会拥有上一个死于处决的爪牙的能力。"
+      "v1": "每个夜晚*，你要选择一名玩家：他死亡。你可能会拥有上一个死于处决的爪牙的能力。",
+      "v2026-07": "每个夜晚*，你要选择一名玩家：他死亡。每局游戏限一次，当爪牙死于处决时，你可能会获得他的能力。"
     },
     "reminders": [
       "死亡",

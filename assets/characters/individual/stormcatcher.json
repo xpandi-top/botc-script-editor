@@ -2,13 +2,17 @@
   "id": "stormcatcher",
   "team": "loric",
   "edition": "loric",
-  "current_revision": "v1",
+  "current_revision": "v2026-09",
   "setup": false,
   "firstNightReminder": "Announce which character is stormcaught. If that character is in play, mark that player as *STORMCAUGHT*. Wake each evil player and show them the character token, then the marked player.  If not in play, wake each evil player, show them the *THESE CHARACTERS ARE NOT IN PLAY* token & the relevant character token.",
   "revisions": [
     {
       "id": "v1",
       "note": ""
+    },
+    {
+      "id": "v2026-09",
+      "note": "Official Chinese translation from the 集石 wiki; ability unchanged (checked 2026-09-24)."
     }
   ],
   "en": {
@@ -16,15 +20,17 @@
     "ability": "Name a good character. If in play, they can only die by execution, but evil players learn which player it is.",
     "flavor": "At dawn, the temple’s long shadow creeps to the fountain. At dusk, the obelisk blocks the red glare, cooling warm water under the archway. All lines converge here. A storm is coming, and this, this pebbled and lush and holy place between the apple trees, is the eye.",
     "revisions": {
-      "v1": "Name a good character. If in play, they can only die by execution, but evil players learn which player it is."
+      "v1": "Name a good character. If in play, they can only die by execution, but evil players learn which player it is.",
+      "v2026-09": "Name a good character. If in play, they can only die by execution, but evil players learn which player it is."
     },
     "firstNightReminder": "Announce which character is stormcaught. If that character is in play, mark that player as *STORMCAUGHT*. Wake each evil player and show them the character token, then the marked player.  If not in play, wake each evil player, show them the *THESE CHARACTERS ARE NOT IN PLAY* token & the relevant character token."
   },
   "zh": {
     "name": "暴风捕手",
-    "ability": "指定一个善良角色。若该角色在场，则他只能因处决而死，但邪恶玩家会得知具体是哪位玩家。",
+    "ability": "游戏开始时，你要宣布一个善良角色。如果该角色在场，他只能死于处决，但所有邪恶玩家会在首个夜晚得知他是哪一名玩家。",
     "revisions": {
-      "v1": "指定一个善良角色。若该角色在场，则他只能因处决而死，但邪恶玩家会得知具体是哪位玩家。"
+      "v1": "指定一个善良角色。若该角色在场，则他只能因处决而死，但邪恶玩家会得知具体是哪位玩家。",
+      "v2026-09": "游戏开始时，你要宣布一个善良角色。如果该角色在场，他只能死于处决，但所有邪恶玩家会在首个夜晚得知他是哪一名玩家。"
     },
     "reminders": [
       "不会死亡"

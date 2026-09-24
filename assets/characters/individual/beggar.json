@@ -2,27 +2,33 @@
   "id": "beggar",
   "team": "traveler",
   "edition": "tb",
-  "current_revision": "v1",
+  "current_revision": "v2026-09",
   "setup": false,
   "revisions": [
     {
       "id": "v1",
       "note": ""
+    },
+    {
+      "id": "v2026-09",
+      "note": "Official wording from TPI roles.json: dead players giving you their vote token (checked 2026-09-24)."
     }
   ],
   "en": {
     "name": "Beggar",
-    "ability": "You must use a vote token to vote. Dead players may choose to give you theirs. If so, you learn their alignment. You are sober & healthy.",
+    "ability": "You must use a vote token to vote. If a dead player gives you theirs, you learn their alignment. You are sober & healthy.",
     "flavor": "Alms for the poor, good Sir? Spare a coin, Madam? Thank you. God bless! You're a right kind soul and no mistake! I'll have some swanky nosh tonight, I will!",
     "revisions": {
-      "v1": "You must use a vote token to vote. Dead players may choose to give you theirs. If so, you learn their alignment. You are sober & healthy."
+      "v1": "You must use a vote token to vote. Dead players may choose to give you theirs. If so, you learn their alignment. You are sober & healthy.",
+      "v2026-09": "You must use a vote token to vote. If a dead player gives you theirs, you learn their alignment. You are sober & healthy."
     }
   },
   "zh": {
     "name": "乞丐",
     "ability": "你只能使用投票标记才能投票。死亡的玩家可以将他的投票标记给你，如果他这么做，你会得知他的阵营。你不会中毒和醉酒。",
     "revisions": {
-      "v1": "你只能使用投票标记才能投票。死亡的玩家可以将他的投票标记给你，如果他这么做，你会得知他的阵营。你不会中毒和醉酒。"
+      "v1": "你只能使用投票标记才能投票。死亡的玩家可以将他的投票标记给你，如果他这么做，你会得知他的阵营。你不会中毒和醉酒。",
+      "v2026-09": "你只能使用投票标记才能投票。死亡的玩家可以将他的投票标记给你，如果他这么做，你会得知他的阵营。你不会中毒和醉酒。"
     }
   }
 }

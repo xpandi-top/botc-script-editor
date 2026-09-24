@@ -2,13 +2,17 @@
   "id": "buddhist",
   "team": "fabled",
   "edition": "fabled",
-  "current_revision": "v1",
+  "current_revision": "v2026-09",
   "setup": false,
   "firstNightReminder": "Announce which players are affected by the Buddhist.",
   "revisions": [
     {
       "id": "v1",
       "note": ""
+    },
+    {
+      "id": "v2026-09",
+      "note": "Official Chinese translation from the 集石 wiki; ability unchanged (checked 2026-09-24)."
     }
   ],
   "en": {
@@ -16,15 +20,17 @@
     "ability": "For the first 2 minutes of each day, veteran players may not talk.",
     "flavor": "You throw thorns. Falling in my silence, they become flowers.",
     "revisions": {
-      "v1": "For the first 2 minutes of each day, veteran players may not talk."
+      "v1": "For the first 2 minutes of each day, veteran players may not talk.",
+      "v2026-09": "For the first 2 minutes of each day, veteran players may not talk."
     },
     "firstNightReminder": "Announce which players are affected by the Buddhist."
   },
   "zh": {
     "name": "佛教徒",
-    "ability": "每天开始的前2分钟，老玩家不能说话。",
+    "ability": "每个白天的前两分钟老玩家不能发言。",
     "revisions": {
-      "v1": "每天开始的前2分钟，老玩家不能说话。"
+      "v1": "每天开始的前2分钟，老玩家不能说话。",
+      "v2026-09": "每个白天的前两分钟老玩家不能发言。"
     }
   }
 }

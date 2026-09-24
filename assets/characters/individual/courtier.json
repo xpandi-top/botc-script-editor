@@ -2,7 +2,7 @@
   "id": "courtier",
   "team": "townsfolk",
   "edition": "bmr",
-  "current_revision": "v1",
+  "current_revision": "v2026-09",
   "setup": false,
   "firstNightReminder": "The Courtier might choose a character. :reminder: :reminder:",
   "otherNightReminder": "The Courtier might choose a character. :reminder: :reminder:",
@@ -10,6 +10,10 @@
     {
       "id": "v1",
       "note": ""
+    },
+    {
+      "id": "v2026-09",
+      "note": "Official Chinese translation from the 集石 wiki; ability unchanged (checked 2026-09-24)."
     }
   ],
   "en": {
@@ -17,16 +21,18 @@
     "ability": "Once per game, at night, choose a character: they are drunk for 3 nights & 3 days.",
     "flavor": "I am more afraid of an army of one hundred sheep led by a lion than an army of one hundred lions led by a sheep.",
     "revisions": {
-      "v1": "Once per game, at night, choose a character: they are drunk for 3 nights & 3 days."
+      "v1": "Once per game, at night, choose a character: they are drunk for 3 nights & 3 days.",
+      "v2026-09": "Once per game, at night, choose a character: they are drunk for 3 nights & 3 days."
     },
     "firstNightReminder": "The Courtier might choose a character. :reminder: :reminder:",
     "otherNightReminder": "The Courtier might choose a character. :reminder: :reminder:"
   },
   "zh": {
     "name": "侍臣",
-    "ability": "每局游戏限一次，在夜晚时，你可以选择一个角色：如果该角色在场，一个该角色从当晚开始醉酒三天三夜。",
+    "ability": "每局游戏限一次，在夜晚时，你可以选择一个角色：如果该角色在场，该角色之一从当晚开始醉酒三天三夜。",
     "revisions": {
-      "v1": "每局游戏限一次，在夜晚时，你可以选择一个角色：如果该角色在场，一个该角色从当晚开始醉酒三天三夜。"
+      "v1": "每局游戏限一次，在夜晚时，你可以选择一个角色：如果该角色在场，一个该角色从当晚开始醉酒三天三夜。",
+      "v2026-09": "每局游戏限一次，在夜晚时，你可以选择一个角色：如果该角色在场，该角色之一从当晚开始醉酒三天三夜。"
     },
     "firstNightReminder": "唤醒侍臣，他可以摇头不使用能力，或选择角色列表上的一个任意角色，该角色对应的玩家之一醉酒。",
     "otherNightReminder": "如果侍臣未曾使用能力，唤醒侍臣，他可以摇头不使用能力，或选择角色列表上的一个任意角色，该角色对应的玩家之一醉酒。",

@@ -2,25 +2,31 @@
   "id": "gudiao",
   "team": "minion",
   "edition": "shanyuyulai",
-  "current_revision": "v1",
+  "current_revision": "v2026-07",
   "revisions": [
     {
       "id": "v1",
       "note": ""
+    },
+    {
+      "id": "v2026-07",
+      "note": "集石 wiki version of the ability (page updated 2026-07); English is our translation."
     }
   ],
   "en": {
     "name": "Gudiao",
-    "ability": "Each night, choose left or right: you learn the character of next alive good player in that direction, they are poisoned and register as evil Gudiao until dusk.",
+    "ability": "Each night, you learn the character of the next alive Townsfolk clockwise: they are poisoned & might register as an evil Gudiao until dusk. Once per game, at night, you may change direction.",
     "revisions": {
-      "v1": "Each night, choose left or right: you learn the character of next alive good player in that direction, they are poisoned and register as evil Gudiao until dusk."
+      "v1": "Each night, choose left or right: you learn the character of next alive good player in that direction, they are poisoned and register as evil Gudiao until dusk.",
+      "v2026-07": "Each night, you learn the character of the next alive Townsfolk clockwise: they are poisoned & might register as an evil Gudiao until dusk. Once per game, at night, you may change direction."
     }
   },
   "zh": {
     "name": "蛊雕",
-    "ability": "每个夜晚，你要选择左或右：你得知该方向上的下一名存活善良玩家的角色，他中毒且其他善良玩家以为他是邪恶的蛊雕，直到下个黄昏。",
+    "ability": "每个夜晚，你会得知顺时针方向上的下一名存活的镇民玩家的角色，他中毒且可能被当作邪恶的蛊雕，直到下个黄昏。每局游戏限一次，在夜晚时，你可以改变方向。",
     "revisions": {
-      "v1": "每个夜晚，你要选择左或右：你得知该方向上的下一名存活善良玩家的角色，他中毒且其他善良玩家以为他是邪恶的蛊雕，直到下个黄昏。"
+      "v1": "每个夜晚，你要选择左或右：你得知该方向上的下一名存活善良玩家的角色，他中毒且其他善良玩家以为他是邪恶的蛊雕，直到下个黄昏。",
+      "v2026-07": "每个夜晚，你会得知顺时针方向上的下一名存活的镇民玩家的角色，他中毒且可能被当作邪恶的蛊雕，直到下个黄昏。每局游戏限一次，在夜晚时，你可以改变方向。"
     },
     "reminders": [
       "蛊毒",

@@ -2,12 +2,16 @@
   "id": "ferryman",
   "team": "fabled",
   "edition": "fabled",
-  "current_revision": "v1",
+  "current_revision": "v2026-09",
   "setup": false,
   "revisions": [
     {
       "id": "v1",
       "note": ""
+    },
+    {
+      "id": "v2026-09",
+      "note": "Official Chinese translation from the 集石 wiki; ability unchanged (checked 2026-09-24)."
     }
   ],
   "en": {
@@ -15,14 +19,16 @@
     "ability": "On the final day, all dead players regain their vote token.",
     "flavor": "When righteous dreams come, they have the weight of truth.",
     "revisions": {
-      "v1": "On the final day, all dead players regain their vote token."
+      "v1": "On the final day, all dead players regain their vote token.",
+      "v2026-09": "On the final day, all dead players regain their vote token."
     }
   },
   "zh": {
     "name": "摆渡人",
-    "ability": "在最后一天，所有死亡玩家取回他们的投票标记。",
+    "ability": "在游戏的最后一天，所有已死亡玩家会重新获得投票标记。",
     "revisions": {
-      "v1": "在最后一天，所有死亡玩家取回他们的投票标记。"
+      "v1": "在最后一天，所有死亡玩家取回他们的投票标记。",
+      "v2026-09": "在游戏的最后一天，所有已死亡玩家会重新获得投票标记。"
     }
   }
 }

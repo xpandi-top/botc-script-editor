@@ -2,27 +2,33 @@
   "id": "fisherman",
   "team": "townsfolk",
   "edition": "experimental",
-  "current_revision": "v1",
+  "current_revision": "v2026-09",
   "setup": false,
   "revisions": [
     {
       "id": "v1",
       "note": ""
+    },
+    {
+      "id": "v2026-09",
+      "note": "Official wording from TPI roles.json: advice to help your team win (checked 2026-09-24)."
     }
   ],
   "en": {
     "name": "Fisherman",
-    "ability": "Once per game, during the day, visit the Storyteller for some advice to help you win.",
+    "ability": "Once per game, during the day, visit the Storyteller for some advice to help your team win.",
     "flavor": "This was my favourite part of the river... see how the sunlight makes a rainbow from the monastery to the market? This was the best place for big fish. And the older I get, the bigger they were.",
     "revisions": {
-      "v1": "Once per game, during the day, visit the Storyteller for some advice to help you win."
+      "v1": "Once per game, during the day, visit the Storyteller for some advice to help you win.",
+      "v2026-09": "Once per game, during the day, visit the Storyteller for some advice to help your team win."
     }
   },
   "zh": {
     "name": "渔夫",
     "ability": "每局游戏限一次，在白天时，你可以让说书人给你一些能帮助你的阵营获胜的建议。",
     "revisions": {
-      "v1": "每局游戏限一次，在白天时，你可以让说书人给你一些能帮助你的阵营获胜的建议。"
+      "v1": "每局游戏限一次，在白天时，你可以让说书人给你一些能帮助你的阵营获胜的建议。",
+      "v2026-09": "每局游戏限一次，在白天时，你可以让说书人给你一些能帮助你的阵营获胜的建议。"
     },
     "reminders": [
       "失去能力"

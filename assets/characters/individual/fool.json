@@ -2,7 +2,7 @@
   "id": "fool",
   "team": "townsfolk",
   "edition": "bmr",
-  "current_revision": "v1",
+  "current_revision": "v2026-09",
   "setup": false,
   "reminders": [
     "No Ability"
@@ -11,21 +11,27 @@
     {
       "id": "v1",
       "note": ""
+    },
+    {
+      "id": "v2026-09",
+      "note": "Official spelling from TPI roles.json (checked 2026-09-24); ability unchanged."
     }
   ],
   "en": {
     "name": "Fool",
-    "ability": "The first time you die, you don't.",
+    "ability": "The 1st time you die, you don't.",
     "flavor": "...and the King said 'What?! I've never even owned a pair of rubber pantaloons, let alone a custard cannon!' Ho-ho! Jolly day!",
     "revisions": {
-      "v1": "The first time you die, you don't."
+      "v1": "The first time you die, you don't.",
+      "v2026-09": "The 1st time you die, you don't."
     }
   },
   "zh": {
     "name": "弄臣",
     "ability": "当你首次将要死亡时，你不会死亡。",
     "revisions": {
-      "v1": "当你首次将要死亡时，你不会死亡。"
+      "v1": "当你首次将要死亡时，你不会死亡。",
+      "v2026-09": "当你首次将要死亡时，你不会死亡。"
     },
     "reminders": [
       "失去能力"

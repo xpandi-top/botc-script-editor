@@ -2,12 +2,16 @@
   "id": "zenomancer",
   "team": "loric",
   "edition": "loric",
-  "current_revision": "v1",
+  "current_revision": "v2026-09",
   "setup": false,
   "revisions": [
     {
       "id": "v1",
       "note": ""
+    },
+    {
+      "id": "v2026-09",
+      "note": "Official Chinese translation from the 集石 wiki; ability unchanged (checked 2026-09-24)."
     }
   ],
   "en": {
@@ -15,14 +19,16 @@
     "ability": "One or more players each have a goal. When achieved, that player learns a piece of true info.",
     "flavor": "The universe is a verb not a noun, they say, and it is turtles, turtles all the way down. Turtles all the way down, my friend, turtles all the way down.",
     "revisions": {
-      "v1": "One or more players each have a goal. When achieved, that player learns a piece of true info."
+      "v1": "One or more players each have a goal. When achieved, that player learns a piece of true info.",
+      "v2026-09": "One or more players each have a goal. When achieved, that player learns a piece of true info."
     }
   },
   "zh": {
     "name": "异术士",
-    "ability": "一名或多名玩家各自拥有一个目标。达成后，该玩家会得知一条真实信息。",
+    "ability": "一名或多名玩家各自拥有一个目标。当达成目标后，他会获得一条正确信息。",
     "revisions": {
-      "v1": "一名或多名玩家各自拥有一个目标。达成后，该玩家会得知一条真实信息。"
+      "v1": "一名或多名玩家各自拥有一个目标。达成后，该玩家会得知一条真实信息。",
+      "v2026-09": "一名或多名玩家各自拥有一个目标。当达成目标后，他会获得一条正确信息。"
     },
     "reminders": [
       "目标",

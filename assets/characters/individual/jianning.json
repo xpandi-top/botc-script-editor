@@ -2,25 +2,31 @@
   "id": "jianning",
   "team": "demon",
   "edition": "shanyuyulai",
-  "current_revision": "v1",
+  "current_revision": "v2026-08",
   "revisions": [
     {
       "id": "v1",
       "note": ""
+    },
+    {
+      "id": "v2026-08",
+      "note": "集石 wiki version of the ability (page updated 2026-08); English is our translation."
     }
   ],
   "en": {
     "name": "Jianjing",
-    "ability": "Each night*, choose a player: they die. If you did not vote today, you may act twice tonight.",
+    "ability": "Each night*, choose a player: they die. On the night a Minion dies, they choose a player: if that player is good, they die.",
     "revisions": {
-      "v1": "Each night*, choose a player: they die. If you did not vote today, you may act twice tonight."
+      "v1": "Each night*, choose a player: they die. If you did not vote today, you may act twice tonight.",
+      "v2026-08": "Each night*, choose a player: they die. On the night a Minion dies, they choose a player: if that player is good, they die."
     }
   },
   "zh": {
     "name": "奸佞",
-    "ability": "每个夜晚*，你要选择一名玩家：他死亡。如果你今天白天没有投票，今晚你可以行动两次。",
+    "ability": "每个夜晚*，你要选择一名玩家：他死亡。爪牙在其死亡的当晚要选择一名玩家：如果他是善良的，他死亡。",
     "revisions": {
-      "v1": "每个夜晚*，你要选择一名玩家：他死亡。如果你今天白天没有投票，今晚你可以行动两次。"
+      "v1": "每个夜晚*，你要选择一名玩家：他死亡。如果你今天白天没有投票，今晚你可以行动两次。",
+      "v2026-08": "每个夜晚*，你要选择一名玩家：他死亡。爪牙在其死亡的当晚要选择一名玩家：如果他是善良的，他死亡。"
     },
     "reminders": [
       "爪牙死亡",

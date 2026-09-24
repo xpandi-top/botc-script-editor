@@ -2,7 +2,7 @@
   "id": "tor",
   "team": "loric",
   "edition": "loric",
-  "current_revision": "v1",
+  "current_revision": "v2026-09",
   "setup": true,
   "firstNightReminder": "Skip Minion Info and Demon Info.",
   "otherNightReminder": "If a player died tonight, show the *YOU ARE* info token, their character token, & give a thumb signal.",
@@ -10,6 +10,10 @@
     {
       "id": "v1",
       "note": ""
+    },
+    {
+      "id": "v2026-09",
+      "note": "Official Chinese translation from the 集石 wiki; ability unchanged (checked 2026-09-24)."
     }
   ],
   "en": {
@@ -17,16 +21,18 @@
     "ability": "Players don't know their character or alignment. They learn them when they die.",
     "flavor": "With thunder as my voice and lightning as my blade, I, the eternal guardian, feast upon the fools who dare approach the forbidden gate. Behold, my sacred goal! To purge the beetle from the belly of the rocky earth, to ensnare it in a net of stars, on the hilltop where heaven meets earth.",
     "revisions": {
-      "v1": "Players don't know their character or alignment. They learn them when they die."
+      "v1": "Players don't know their character or alignment. They learn them when they die.",
+      "v2026-09": "Players don't know their character or alignment. They learn them when they die."
     },
     "firstNightReminder": "Skip Minion Info and Demon Info.",
     "otherNightReminder": "If a player died tonight, show the *YOU ARE* info token, their character token, & give a thumb signal."
   },
   "zh": {
     "name": "遗忘之门",
-    "ability": "玩家不知道自己的角色或阵营。他们会在死亡时得知。",
+    "ability": "玩家不知道自己的角色和阵营。当他们死亡时才会得知这些信息。",
     "revisions": {
-      "v1": "玩家不知道自己的角色或阵营。他们会在死亡时得知。"
+      "v1": "玩家不知道自己的角色或阵营。他们会在死亡时得知。",
+      "v2026-09": "玩家不知道自己的角色和阵营。当他们死亡时才会得知这些信息。"
     }
   }
 }

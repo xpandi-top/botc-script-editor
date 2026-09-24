@@ -2,12 +2,16 @@
   "id": "bootlegger",
   "team": "loric",
   "edition": "loric",
-  "current_revision": "v1",
+  "current_revision": "v2026-09",
   "setup": true,
   "revisions": [
     {
       "id": "v1",
       "note": ""
+    },
+    {
+      "id": "v2026-09",
+      "note": "Official Chinese translation from the 集石 wiki; ability unchanged (checked 2026-09-24)."
     }
   ],
   "en": {
@@ -15,14 +19,16 @@
     "ability": "This script has homebrew characters or rules.",
     "flavor": "When I was born, I was named ‘Homebrewy McHomebrewface’, like my father before me. A respectable name, for a dignified age.",
     "revisions": {
-      "v1": "This script has homebrew characters or rules."
+      "v1": "This script has homebrew characters or rules.",
+      "v2026-09": "This script has homebrew characters or rules."
     }
   },
   "zh": {
     "name": "私货商人",
-    "ability": "这个剧本含有自创角色或自定义规则。",
+    "ability": "这个剧本包含有自制角色或自制规则。",
     "revisions": {
-      "v1": "这个剧本含有自创角色或自定义规则。"
+      "v1": "这个剧本含有自创角色或自定义规则。",
+      "v2026-09": "这个剧本包含有自制角色或自制规则。"
     },
     "reminders": [
       "？",

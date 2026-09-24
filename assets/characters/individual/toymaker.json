@@ -2,7 +2,7 @@
   "id": "toymaker",
   "team": "fabled",
   "edition": "fabled",
-  "current_revision": "v1",
+  "current_revision": "v2026-09",
   "setup": false,
   "firstNightReminder": "Resolve Minion Info and Demon Info, even though there are fewer than 7 players.",
   "otherNightReminder": "If a Demon attack could end the game, and the Demon is marked *FINAL NIGHT: NO ATTACK*, do not wake the Demon.",
@@ -10,6 +10,10 @@
     {
       "id": "v1",
       "note": ""
+    },
+    {
+      "id": "v2026-09",
+      "note": "Official Chinese translation from the 集石 wiki; ability unchanged (checked 2026-09-24)."
     }
   ],
   "en": {
@@ -17,16 +21,18 @@
     "ability": "The Demon may choose not to attack & must do this at least once per game. Evil players get normal starting info.",
     "flavor": "It buzzes! It walks down stairs! It keeps you warm at night! It tastes like sugar! The kiddies love it! Introducing... the brand new... Warm'o-buzzy-wuzzy-walk'a'bot-thingy-contraption! Fun for all ages!",
     "revisions": {
-      "v1": "The Demon may choose not to attack & must do this at least once per game. Evil players get normal starting info."
+      "v1": "The Demon may choose not to attack & must do this at least once per game. Evil players get normal starting info.",
+      "v2026-09": "The Demon may choose not to attack & must do this at least once per game. Evil players get normal starting info."
     },
     "firstNightReminder": "Resolve Minion Info and Demon Info, even though there are fewer than 7 players.",
     "otherNightReminder": "If a Demon attack could end the game, and the Demon is marked *FINAL NIGHT: NO ATTACK*, do not wake the Demon."
   },
   "zh": {
     "name": "玩具匠",
-    "ability": "恶魔可以选择今夜不攻击，且每局至少必须这样做一次。邪恶玩家获得正常的开局信息。",
+    "ability": "恶魔可以在夜晚选择放弃攻击（每局游戏至少一次）。邪恶玩家照常获取初始信息。",
     "revisions": {
-      "v1": "恶魔可以选择今夜不攻击，且每局至少必须这样做一次。邪恶玩家获得正常的开局信息。"
+      "v1": "恶魔可以选择今夜不攻击，且每局至少必须这样做一次。邪恶玩家获得正常的开局信息。",
+      "v2026-09": "恶魔可以在夜晚选择放弃攻击（每局游戏至少一次）。邪恶玩家照常获取初始信息。"
     },
     "reminders": [
       "无法攻击"

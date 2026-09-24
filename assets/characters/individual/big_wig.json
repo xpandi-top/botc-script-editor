@@ -2,12 +2,16 @@
   "id": "big_wig",
   "team": "loric",
   "edition": "loric",
-  "current_revision": "v1",
+  "current_revision": "v2026-09",
   "setup": false,
   "revisions": [
     {
       "id": "v1",
       "note": ""
+    },
+    {
+      "id": "v2026-09",
+      "note": "Official Chinese translation from the 集石 wiki; ability unchanged (checked 2026-09-24)."
     }
   ],
   "en": {
@@ -15,14 +19,16 @@
     "ability": "Each nominee chooses a player: until voting, only they may speak & they are mad the nominee is good or they might die.",
     "flavor": "Vanity asks ‘Is it popular?’ Cowardice asks ‘Is it safe?’ Conscience asks ‘Is it right?’ Who among us will ask: ‘Is it true?’",
     "revisions": {
-      "v1": "Each nominee chooses a player: until voting, only they may speak & they are mad the nominee is good or they might die."
+      "v1": "Each nominee chooses a player: until voting, only they may speak & they are mad the nominee is good or they might die.",
+      "v2026-09": "Each nominee chooses a player: until voting, only they may speak & they are mad the nominee is good or they might die."
     }
   },
   "zh": {
     "name": "首席律师",
-    "ability": "每位被提名者都要选择一名玩家：在投票开始前，只有该玩家可以发言，且他必须“疯狂”地声称被提名者是善良的，否则他可能会死亡。",
+    "ability": "每个被提名者要选择一名玩家：在投票前，只有他可以发言，并且他要“疯狂”地证明被提名者是善良的，否则他可能死亡。",
     "revisions": {
-      "v1": "每位被提名者都要选择一名玩家：在投票开始前，只有该玩家可以发言，且他必须“疯狂”地声称被提名者是善良的，否则他可能会死亡。"
+      "v1": "每位被提名者都要选择一名玩家：在投票开始前，只有该玩家可以发言，且他必须“疯狂”地声称被提名者是善良的，否则他可能会死亡。",
+      "v2026-09": "每个被提名者要选择一名玩家：在投票前，只有他可以发言，并且他要“疯狂”地证明被提名者是善良的，否则他可能死亡。"
     }
   }
 }

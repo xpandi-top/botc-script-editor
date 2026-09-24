@@ -2,27 +2,33 @@
   "id": "gangster",
   "team": "traveler",
   "edition": "experimental",
-  "current_revision": "v1",
+  "current_revision": "v2026-09",
   "setup": false,
   "revisions": [
     {
       "id": "v1",
       "note": ""
+    },
+    {
+      "id": "v2026-09",
+      "note": "Official spelling from TPI roles.json (checked 2026-09-24); ability unchanged."
     }
   ],
   "en": {
     "name": "Gangster",
-    "ability": "Once per day, you may choose to kill an alive neighbour, if your other alive neighbour agrees.",
+    "ability": "Once per day, you may choose to kill an alive neighbor, if your other alive neighbor agrees.",
     "flavor": "I like your shoes. It would be such a shame if you had a little accident, and they got ruined. Now that you mention it, I like your cufflinks too.",
     "revisions": {
-      "v1": "Once per day, you may choose to kill an alive neighbour, if your other alive neighbour agrees."
+      "v1": "Once per day, you may choose to kill an alive neighbour, if your other alive neighbour agrees.",
+      "v2026-09": "Once per day, you may choose to kill an alive neighbor, if your other alive neighbor agrees."
     }
   },
   "zh": {
     "name": "黑帮",
     "ability": "每个白天限一次，你可以杀死与你邻近的两名存活的玩家中的一名，但需要另一边那个存活的玩家同意。",
     "revisions": {
-      "v1": "每个白天限一次，你可以杀死与你邻近的两名存活的玩家中的一名，但需要另一边那个存活的玩家同意。"
+      "v1": "每个白天限一次，你可以杀死与你邻近的两名存活的玩家中的一名，但需要另一边那个存活的玩家同意。",
+      "v2026-09": "每个白天限一次，你可以杀死与你邻近的两名存活的玩家中的一名，但需要另一边那个存活的玩家同意。"
     }
   }
 }

@@ -2,27 +2,33 @@
   "id": "gardener",
   "team": "loric",
   "edition": "loric",
-  "current_revision": "v1",
+  "current_revision": "v2026-09",
   "setup": true,
   "revisions": [
     {
       "id": "v1",
       "note": ""
+    },
+    {
+      "id": "v2026-09",
+      "note": "Official wording from TPI roles.json: the Storyteller assigns all players' characters (checked 2026-09-24). Chinese from the 集石 wiki."
     }
   ],
   "en": {
     "name": "Gardener",
-    "ability": "The Storyteller assigns 1 or more players' characters.",
+    "ability": "The Storyteller assigns all players' characters.",
     "flavor": "When sophistry becomes stupidity and hypocrisy cruelty, retreat to the garden. The final love of old men is flowers and stones.",
     "revisions": {
-      "v1": "The Storyteller assigns 1 or more players' characters."
+      "v1": "The Storyteller assigns 1 or more players' characters.",
+      "v2026-09": "The Storyteller assigns all players' characters."
     }
   },
   "zh": {
     "name": "园丁",
-    "ability": "说书人指定1名或多名玩家的角色。",
+    "ability": "由说书人来为所有玩家派发角色。",
     "revisions": {
-      "v1": "说书人指定1名或多名玩家的角色。"
+      "v1": "说书人指定1名或多名玩家的角色。",
+      "v2026-09": "由说书人来为所有玩家派发角色。"
     }
   }
 }

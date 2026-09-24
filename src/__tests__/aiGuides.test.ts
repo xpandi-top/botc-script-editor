@@ -51,9 +51,11 @@ describe('guide passages in prompts', () => {
   })
 
   it('say when a guide was written for another version of the ability', async () => {
-    // The wiki's 暴君 kills one player a night; ours chooses up to two.
-    const baojun = await loadCharacterGuides('暴君怎么玩？', 'zh')
-    expect(baojun.baojun).toMatch(/^注：这份攻略依据的能力文本是“每个夜晚\*，你要选择一名玩家：他死亡。/)
+    // The wiki describes the first 戏子; the current one is the 山雨欲来 release.
+    const xizi = await loadCharacterGuides('戏子怎么玩？', 'zh')
+    expect(xizi.xizi).toMatch(/^注：这份攻略依据的能力文本是“所有戏子互相认识。/)
+    // The 暴君 now uses the wiki's version: no note.
+    expect((await loadCharacterGuides('暴君怎么玩？', 'zh')).baojun).not.toContain('注：')
     expect((await loadCharacterGuides('水手怎么玩？', 'zh')).sailor).not.toContain('注：')
     expect((await loadCharacterGuides('纹章官怎么玩？', 'zh')).herald).not.toContain('注：')
   })
