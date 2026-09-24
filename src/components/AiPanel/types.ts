@@ -20,6 +20,9 @@ export type AiMessage = {
   displayContent?: string
   fills?: FillAction[]
   appliedFills?: string[]
+  /** Hosted AI: tools the server ran for this answer, and requests left today. */
+  steps?: Array<{ tool: string; ok: boolean }>
+  remaining?: number | null
 }
 
 export type AiPanelContentProps = {

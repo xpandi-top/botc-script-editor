@@ -11,6 +11,7 @@ import {
   type FillLogEntry,
 } from '../../lib/fillLog'
 import { getWebLlmState, subscribeWebLlm, unloadWebLlm } from '../../lib/ai/runtime/webllm'
+import { getHostedStatus } from '../../lib/ai/runtime/hosted'
 import { useT } from '../../context/I18nContext'
 import { storePair } from '../../lib/translationMemory'
 import { prepareSystemPrompt, callAi } from '../../lib/ai'
@@ -39,9 +40,13 @@ export function useAiPanel({ open, context, callbacks }: UseAiPanelOptions) {
 
   const { language } = useT()
   const localState = useSyncExternalStore(subscribeWebLlm, getWebLlmState)
+  // null = not checked yet; the hosted AI is usable until the server says otherwise.
+  const [hostedAvailable, setHostedAvailable] = useState<boolean | null>(null)
   const canSend = settings.provider === 'webllm'
     ? localState.status === 'ready' && localState.model === settings.model
-    : isAiAvailable(settings)
+    : settings.provider === 'botc'
+      ? isAiAvailable(settings) && hostedAvailable !== false
+      : isAiAvailable(settings)
   const effectiveCtx: AiContext = context ?? buildGeneralContext(language)
   const formKey = `${effectiveCtx.type}:${effectiveCtx.title}`
 
@@ -55,6 +60,13 @@ export function useAiPanel({ open, context, callbacks }: UseAiPanelOptions) {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
+
+  useEffect(() => {
+    if (!open || settings.provider !== 'botc') return
+    let live = true
+    void getHostedStatus().then((s) => { if (live) setHostedAvailable(s.available) })
+    return () => { live = false }
+  }, [open, settings.provider])
 
   const patchSettings = useCallback((patch: Partial<AiSettings>) => {
     if ((patch.provider && patch.provider !== settings.provider) || (patch.model && patch.model !== settings.model)) unloadWebLlm()
@@ -139,7 +151,7 @@ export function useAiPanel({ open, context, callbacks }: UseAiPanelOptions) {
       const msgId = crypto.randomUUID()
       setMessages((m) => [
         ...m,
-        { id: msgId, role: 'assistant', content: response.message, fills: response.fills, appliedFills: [] },
+        { id: msgId, role: 'assistant', content: response.message, fills: response.fills, appliedFills: [], ...(result.steps ? { steps: result.steps, remaining: result.remaining } : {}) },
       ])
       if (autoApply && response.fills?.length) {
         response.fills.forEach((fill) => {

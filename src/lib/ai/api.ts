@@ -16,7 +16,7 @@ export type AiCallParams = {
 }
 
 export type AiCallResult =
-  | { ok: true; response: AgentResponse; rawText: string }
+  | { ok: true; response: AgentResponse; rawText: string; steps?: Array<{ tool: string; ok: boolean }>; remaining?: number | null }
   | { ok: false; error: string }
 
 // ── Parsing ───────────────────────────────────────────────────────────────────
@@ -98,7 +98,7 @@ export async function callAi(params: AiCallParams): Promise<AiCallResult> {
           fill && typeof fill.field === 'string' && ['string', 'number', 'boolean'].includes(typeof fill.value),
         ) : undefined }
       : { message: res.text }
-    return { ok: true, response, rawText: res.text }
+    return { ok: true, response, rawText: res.text, ...(res.steps ? { steps: res.steps, remaining: res.remaining ?? null } : {}) }
   } catch (e) {
     const error = e instanceof GeminiError ? e.message : String(e)
     return { ok: false, error }

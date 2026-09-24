@@ -1,0 +1,152 @@
+/**
+ * The BOTC hosted AI runtime (worker /v1/ai/chat): when it is the default,
+ * what a request carries, how failures read, and what the chat shows.
+ */
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { cleanup, render, screen, waitFor } from '@testing-library/react'
+import { availableProviders, isAiAvailable, loadAiSettings, migrateAiSettings, saveAiSettings, type AiSettings } from '../lib/aiSettings'
+import { geminiGenerate } from '../lib/gemini'
+import { callAi } from '../lib/ai/api'
+import { getHostedStatus, resetHostedStatus } from '../lib/ai/runtime/hosted'
+import { ChatTab } from '../components/AiPanel/ChatTab'
+import { HostedAiSettings } from '../components/AiPanel/HostedAiSettings'
+import { I18nProvider } from '../context/I18nContext'
+
+const google = vi.hoisted(() => ({ token: null as string | null }))
+vi.mock('../lib/googleAuth', () => ({ getValidToken: async () => google.token }))
+
+const API = 'https://api.test'
+const hosted: AiSettings = { provider: 'botc', model: 'default', keys: { groq: '', openrouter: '', gemini: '' } }
+const reply = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } })
+
+beforeEach(() => {
+  vi.stubEnv('VITE_API_URL', `${API}/`)
+  vi.stubEnv('VITE_AI_PROVIDER', '')
+  vi.stubEnv('VITE_GROQ_API_KEY', '')
+  vi.stubEnv('VITE_AI_API_KEY', '')
+  vi.stubEnv('VITE_GEMINI_API_KEY', '')
+  google.token = null
+  resetHostedStatus()
+})
+afterEach(() => { cleanup(); localStorage.clear(); vi.unstubAllEnvs(); vi.unstubAllGlobals() })
+
+describe('hosted AI settings', () => {
+  it('is the default when the build has an API, and offered first', () => {
+    expect(loadAiSettings()).toMatchObject({ provider: 'botc', model: 'default' })
+    expect(availableProviders()[0]).toBe('botc')
+    expect(isAiAvailable()).toBe(true)
+  })
+
+  it('keeps a working choice and replaces a key-based provider that has no key', () => {
+    saveAiSettings({ ...hosted, provider: 'groq', model: 'qwen/qwen3.8-27b', keys: { ...hosted.keys, groq: 'user-key' } })
+    expect(loadAiSettings().provider).toBe('groq')
+    saveAiSettings({ ...hosted, provider: 'webllm', model: 'Qwen3-1.7B-q4f16_1-MLC' })
+    expect(loadAiSettings().provider).toBe('webllm')
+    // Settings saved before the hosted AI existed: Groq selected, never given a key.
+    localStorage.setItem('BOTC_AI_SETTINGS', JSON.stringify({ provider: 'groq', model: 'llama-3.3-70b-versatile', keys: { groq: '', openrouter: '', gemini: '' } }))
+    migrateAiSettings()
+    expect(loadAiSettings()).toMatchObject({ provider: 'botc', model: 'default' })
+  })
+
+  it('an environment provider with a key still wins', () => {
+    vi.stubEnv('VITE_AI_PROVIDER', 'groq')
+    vi.stubEnv('VITE_GROQ_API_KEY', 'env-key')
+    expect(loadAiSettings().provider).toBe('groq')
+  })
+
+  it('does not exist without an API', () => {
+    vi.stubEnv('VITE_API_URL', '')
+    saveAiSettings(hosted)
+    expect(loadAiSettings().provider).toBe('groq')
+    expect(availableProviders()).not.toContain('botc')
+  })
+})
+
+describe('hosted AI requests', () => {
+  it('sends the system prompt and trimmed history, and returns the tools it used', async () => {
+    const fetchMock = vi.fn(async (_url: string, _init?: RequestInit) => reply({ text: '{"message":"119"}', model: '@cf/zai-org/glm-4.7-flash', remaining: 28, steps: [{ tool: 'list_editions', arguments: {}, ok: true }] }))
+    vi.stubGlobal('fetch', fetchMock)
+    const res = await geminiGenerate({
+      systemInstruction: 'LOCAL CATALOG RESULTS …',
+      contents: [
+        { role: 'model', parts: [{ text: 'Hello!' }] },
+        { role: 'user', parts: [{ text: '奥德赛角色包' }] },
+        { role: 'model', parts: [{ text: '好的' }] },
+        { role: 'user', parts: [{ text: '一共有多少角色？' }] },
+      ],
+      temperature: 0.6,
+    }, hosted)
+    expect(res).toMatchObject({ text: '{"message":"119"}', remaining: 28, steps: [{ tool: 'list_editions', ok: true }] })
+    const [url, init] = fetchMock.mock.calls[0]
+    expect(url).toBe(`${API}/v1/ai/chat`)
+    expect((init!.headers as Record<string, string>).authorization).toBeUndefined()
+    expect(JSON.parse(init!.body as string)).toEqual({
+      system: 'LOCAL CATALOG RESULTS …',
+      messages: [
+        { role: 'user', content: '奥德赛角色包' },
+        { role: 'assistant', content: '好的' },
+        { role: 'user', content: '一共有多少角色？' },
+      ],
+      temperature: 0.6,
+    })
+  })
+
+  it('explains limits and outages in both languages', async () => {
+    const cases: Array<[Response | Error, RegExp]> = [
+      [reply({ error: { code: 'ai_rate_limited', scope: 'caller', message: 'x' } }, 429), /次数已用完.*used today's free AI requests/],
+      [reply({ error: { code: 'ai_rate_limited', scope: 'global', message: 'x' } }, 429), /全站上限/],
+      [reply({ error: { code: 'ai_quota_exhausted', message: 'x' } }, 429), /额度已用完/],
+      [reply({ error: { code: 'not_found' } }, 404), /尚未启用 AI/],
+      [new TypeError('Failed to fetch'), /无法连接 BOTC 服务器/],
+    ]
+    for (const [outcome, message] of cases) {
+      vi.stubGlobal('fetch', vi.fn(async () => { if (outcome instanceof Error) throw outcome; return outcome }))
+      await expect(geminiGenerate({ contents: [{ role: 'user', parts: [{ text: 'hi' }] }] }, hosted)).rejects.toThrow(message)
+    }
+  })
+
+  it('uses a Google sign-in for the per-user limit, and falls back to anonymous if it is rejected', async () => {
+    google.token = 'google-token'
+    const fetchMock = vi.fn(async (_url: string, init?: RequestInit) => ((init!.headers as Record<string, string>).authorization
+      ? reply({ error: { code: 'unauthorized' } }, 401)
+      : reply({ text: 'ok', steps: [], remaining: 29 })))
+    vi.stubGlobal('fetch', fetchMock)
+    expect((await geminiGenerate({ contents: [{ role: 'user', parts: [{ text: 'hi' }] }] }, hosted)).text).toBe('ok')
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+    expect((fetchMock.mock.calls[0][1]!.headers as Record<string, string>).authorization).toBe('Bearer google-token')
+  })
+
+  it('passes tool steps through callAi', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => reply({ text: '{"message":"Imp kills."}', steps: [{ tool: 'get_character', ok: true }], remaining: 5 })))
+    const result = await callAi({ systemPrompt: 's', history: [{ role: 'user', parts: [{ text: 'imp?' }] }], settings: hosted })
+    expect(result).toMatchObject({ ok: true, response: { message: 'Imp kills.' }, steps: [{ tool: 'get_character', ok: true }], remaining: 5 })
+  })
+
+  it('reads the server status once', async () => {
+    const fetchMock = vi.fn(async () => reply({ chat: { available: true, model: 'glm', dailyLimits: { global: 300, perIp: 30, perUser: 100 } } }))
+    vi.stubGlobal('fetch', fetchMock)
+    const [a, b] = await Promise.all([getHostedStatus(), getHostedStatus()])
+    expect(a).toEqual({ available: true, model: 'glm', dailyLimits: { global: 300, perIp: 30, perUser: 100 } })
+    expect(b).toBe(a)
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('hosted AI in the panel', () => {
+  it('shows which lookups backed an answer and the requests left', () => {
+    render(<I18nProvider language="zh"><ChatTab
+      messages={[{ id: 'a', role: 'assistant', content: '共有 119 个角色。', steps: [{ tool: 'list_editions', ok: true }, { tool: 'search_characters', ok: true }, { tool: 'search_characters', ok: true }, { tool: 'get_character', ok: false }], remaining: 28 }]}
+      loading={false} input="" setInput={() => {}} autoApply={false} setAutoApply={() => {}}
+      handleSend={async () => {}} doApplyFill={() => {}} setMessages={() => {}}
+      canSend bottomRef={{ current: null }} inputRef={{ current: null }} language="zh"
+    /></I18nProvider>)
+    expect(screen.getByText('已查询: 角色包统计 · 查角色 · 角色详情 ✗ — 今日剩余 28 次')).toBeInTheDocument()
+  })
+
+  it('describes what is sent and warns when the server has no AI', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => reply({ error: { code: 'not_found' } }, 404)))
+    render(<I18nProvider language="zh"><HostedAiSettings /></I18nProvider>)
+    expect(screen.getByText(/会发送到 BOTC 服务器/)).toBeInTheDocument()
+    await waitFor(() => expect(screen.getByText(/暂未提供 AI/)).toBeInTheDocument())
+  })
+})

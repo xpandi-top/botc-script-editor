@@ -117,12 +117,31 @@ type Props = {
   language: Language
 }
 
+const TOOL_LABELS: Record<string, [string, string]> = {
+  list_editions: ['角色包统计', 'editions'],
+  search_characters: ['查角色', 'characters'],
+  get_character: ['角色详情', 'character details'],
+  find_similar_characters: ['相似角色', 'similar characters'],
+  get_jinxes: ['相克规则', 'jinxes'],
+  get_night_order: ['夜晚顺序', 'night order'],
+  search_rules: ['规则', 'rules'],
+  list_scripts: ['剧本列表', 'scripts'],
+  get_script: ['剧本', 'script'],
+  validate_script: ['校验剧本', 'script check'],
+  analyze_script: ['分析剧本', 'script analysis'],
+  get_token_manifest: ['标记清单', 'token list'],
+  create_script_draft: ['导入链接', 'import link'],
+}
+
+const toolLabel = (tool: string, zh: boolean) => TOOL_LABELS[tool]?.[zh ? 0 : 1] ?? tool
+
 export function ChatTab({
   messages, loading, input, setInput, autoApply, setAutoApply,
   handleSend, doApplyFill, setMessages, context,
-  canSend, bottomRef, inputRef,
+  canSend, bottomRef, inputRef, language,
 }: Props) {
   const { t, tpl } = useT()
+  const zh = language === 'zh'
 
   return (
     <>
@@ -177,6 +196,18 @@ export function ChatTab({
                 }
               </Paper>
             </Box>
+
+            {/* Hosted AI: which lookups backed this answer (diagnostics, see the offline-first plan §7) */}
+            {m.role === 'assistant' && (m.steps?.length || typeof m.remaining === 'number') ? (
+              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', ml: 0.5, mt: 0.25, fontSize: '0.62rem' }}>
+                {m.steps?.length
+                  ? `${zh ? '已查询' : 'Looked up'}: ${[...new Set(m.steps.map((s) => toolLabel(s.tool, zh) + (s.ok ? '' : ' ✗')))].join(' · ')}`
+                  : ''}
+                {typeof m.remaining === 'number'
+                  ? `${m.steps?.length ? ' — ' : ''}${zh ? `今日剩余 ${m.remaining} 次` : `${m.remaining} left today`}`
+                  : ''}
+              </Typography>
+            ) : null}
 
             {/* Fill cards */}
             {m.fills && m.fills.length > 0 && !autoApply && (

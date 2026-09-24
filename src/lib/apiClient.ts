@@ -11,14 +11,9 @@ import type { CustomCharacter, EditableScript } from '../types'
 import type { GameRecord } from '../components/StorytellerSub/types'
 import { applyBundle } from './bundleIO'
 import { loadInitialState } from '../components/StorytellerSub/storage'
+import { getApiUrl } from './apiUrl'
 
-export function getApiUrl(): string {
-  return ((import.meta.env.VITE_API_URL as string | undefined) ?? '').trim().replace(/\/+$/, '')
-}
-
-export function isApiConfigured(): boolean {
-  return getApiUrl() !== ''
-}
+export { getApiUrl, isApiConfigured } from './apiUrl'
 
 export type ApiToken = { id: string; name: string; createdAt: number; lastUsedAt: number | null }
 

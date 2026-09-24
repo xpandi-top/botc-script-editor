@@ -2,10 +2,11 @@
  * SettingsPanel — collapsible provider/model/key configuration.
  */
 
+import { HostedAiSettings } from './HostedAiSettings'
 import { WebLlmSettings } from './WebLlmSettings'
 import { Box, Collapse, MenuItem, Select, Tab, Tabs, TextField, Chip } from '@mui/material'
 import {
-  PROVIDER_MODELS, PROVIDER_LABELS, getDefaultModel,
+  PROVIDER_MODELS, PROVIDER_LABELS, availableProviders, getDefaultModel,
   type AiProvider, type AiSettings,
 } from '../../lib/aiSettings'
 
@@ -18,7 +19,9 @@ type Props = {
 
 export function SettingsPanel({ settings, patchSettings, showSettings, busy }: Props) {
   const models  = PROVIDER_MODELS[settings.provider]
-  const apiKey  = settings.provider === 'webllm' ? '' : settings.keys[settings.provider]
+  const keyed   = settings.provider !== 'botc' && settings.provider !== 'webllm' ? settings.provider : null
+  // Raw value (not trimmed) so typing is not disturbed.
+  const apiKey  = keyed ? settings.keys[keyed] : ''
 
   return (
     <Collapse in={showSettings}>
@@ -37,7 +40,7 @@ export function SettingsPanel({ settings, patchSettings, showSettings, busy }: P
           variant="fullWidth"
           sx={{ mb: 1, minHeight: 26, '& .MuiTabs-indicator': { height: 2 } }}
         >
-          {(['webllm', 'groq', 'openrouter', 'gemini'] as AiProvider[]).map((p) => (
+          {availableProviders().map((p) => (
             <Tab
               disabled={busy} key={p} value={p} label={PROVIDER_LABELS[p]}
               sx={{ minHeight: 26, py: 0, fontSize: '0.65rem', textTransform: 'none' }}
@@ -45,7 +48,7 @@ export function SettingsPanel({ settings, patchSettings, showSettings, busy }: P
           ))}
         </Tabs>
 
-        <Select
+        {settings.provider !== 'botc' && <Select
           size="small" fullWidth disabled={busy}
           value={settings.model}
           onChange={(e) => patchSettings({ model: e.target.value })}
@@ -59,9 +62,9 @@ export function SettingsPanel({ settings, patchSettings, showSettings, busy }: P
               )}
             </MenuItem>
           ))}
-        </Select>
+        </Select>}
 
-        {settings.provider === 'webllm' ? <WebLlmSettings model={settings.model} /> : <TextField
+        {settings.provider === 'botc' ? <HostedAiSettings /> : settings.provider === 'webllm' ? <WebLlmSettings model={settings.model} /> : <TextField
           size="small" fullWidth type="password"
           label={`${PROVIDER_LABELS[settings.provider]} API Key`}
           value={apiKey ?? ''}
