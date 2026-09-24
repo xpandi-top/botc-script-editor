@@ -6,9 +6,10 @@
   "setup": false,
   "otherNightReminder": "The Po may choose a player OR chooses 3 players if they chose no-one last night. :reminder: or :reminder: :reminder: :reminder:",
   "reminders": [
-    "Chosen",
-    "Chosen",
-    "Chosen"
+    "Dead",
+    "Dead",
+    "Dead",
+    "3 Attacks"
   ],
   "revisions": [
     {
@@ -31,6 +32,12 @@
     "revisions": {
       "v1": "每个夜晚*，你可以选择一名玩家：他死亡。如果你上次选择时没有选择任何玩家，当晚你要选择三名玩家：他们死亡。"
     },
-    "otherNightReminder": "唤醒珀，他可以攻击一名玩家或不进行攻击，如果他上一次选择了不进行攻击，则此次必须攻击三名玩家。"
+    "otherNightReminder": "唤醒珀，他可以攻击一名玩家或不进行攻击，如果他上一次选择了不进行攻击，则此次必须攻击三名玩家。",
+    "reminders": [
+      "死亡",
+      "死亡",
+      "死亡",
+      "攻击三次"
+    ]
   }
 }

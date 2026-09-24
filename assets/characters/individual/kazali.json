@@ -29,6 +29,12 @@
       "v1": "每个夜晚*，你要选择一名玩家：他死亡。<br>[由你决定谁是什么爪牙，-或+任意数量外来者]"
     },
     "firstNightReminder": "唤醒卡扎力，让他选择玩家变成邪恶爪牙。",
-    "otherNightReminder": "唤醒卡扎力，让他攻击一名玩家。"
-  }
+    "otherNightReminder": "唤醒卡扎力，让他攻击一名玩家。",
+    "reminders": [
+      "死亡"
+    ]
+  },
+  "reminders": [
+    "Dead"
+  ]
 }

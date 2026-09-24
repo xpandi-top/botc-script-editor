@@ -7,7 +7,7 @@
   "firstNightReminder": "The Devil's Advocate chooses a living player. :reminder:",
   "otherNightReminder": "The Devil's Advocate chooses a living player. :reminder:",
   "reminders": [
-    "Protected"
+    "Survives Execution"
   ],
   "revisions": [
     {
@@ -32,6 +32,9 @@
       "v1": "每个夜晚，你要选择一名存活的玩家（与上个夜晚不同）：如果明天白天他被处决，他不会死亡。"
     },
     "firstNightReminder": "唤醒魔鬼代言人，让他选择一名玩家，那名玩家处决不死。",
-    "otherNightReminder": "唤醒魔鬼代言人，让他选择一名与上一晚不同的玩家，那名玩家处决不死。"
+    "otherNightReminder": "唤醒魔鬼代言人，让他选择一名与上一晚不同的玩家，那名玩家处决不死。",
+    "reminders": [
+      "处决不死"
+    ]
   }
 }

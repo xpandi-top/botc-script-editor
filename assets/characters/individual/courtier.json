@@ -6,9 +6,6 @@
   "setup": false,
   "firstNightReminder": "The Courtier might choose a character. :reminder: :reminder:",
   "otherNightReminder": "The Courtier might choose a character. :reminder: :reminder:",
-  "remindersGlobal": [
-    "Drunk"
-  ],
   "revisions": [
     {
       "id": "v1",
@@ -32,6 +29,18 @@
       "v1": "每局游戏限一次，在夜晚时，你可以选择一个角色：如果该角色在场，一个该角色从当晚开始醉酒三天三夜。"
     },
     "firstNightReminder": "唤醒侍臣，他可以摇头不使用能力，或选择角色列表上的一个任意角色，该角色对应的玩家之一醉酒。",
-    "otherNightReminder": "如果侍臣未曾使用能力，唤醒侍臣，他可以摇头不使用能力，或选择角色列表上的一个任意角色，该角色对应的玩家之一醉酒。"
-  }
+    "otherNightReminder": "如果侍臣未曾使用能力，唤醒侍臣，他可以摇头不使用能力，或选择角色列表上的一个任意角色，该角色对应的玩家之一醉酒。",
+    "reminders": [
+      "醉酒3",
+      "醉酒2",
+      "醉酒1",
+      "失去能力"
+    ]
+  },
+  "reminders": [
+    "Drunk 3",
+    "Drunk 2",
+    "Drunk 1",
+    "No Ability"
+  ]
 }

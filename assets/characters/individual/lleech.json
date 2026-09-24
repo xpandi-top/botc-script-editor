@@ -35,6 +35,14 @@
       "v2024-07": "每个夜晚*，你要选择一名玩家：他死亡。在你的首个夜晚，你要选择一名玩家：他中毒。当且仅当他处于死亡状态时，你死亡。"
     },
     "firstNightReminder": "唤醒痢蛭，让他选择一名玩家以寄生。",
-    "otherNightReminder": "唤醒痢蛭，让他攻击一名玩家。"
-  }
+    "otherNightReminder": "唤醒痢蛭，让他攻击一名玩家。",
+    "reminders": [
+      "死亡",
+      "中毒"
+    ]
+  },
+  "reminders": [
+    "Dead",
+    "Poisoned"
+  ]
 }

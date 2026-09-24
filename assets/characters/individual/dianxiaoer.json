@@ -22,6 +22,14 @@
     "revisions": {
       "v1": "在你的首个夜晚，你会得知两名善良玩家。他们之中会有一人醉酒，即使你已死亡。"
     },
-    "firstNightReminder": "唤醒店小二，对他指向两名善良玩家。"
-  }
+    "firstNightReminder": "唤醒店小二，对他指向两名善良玩家。",
+    "reminders": [
+      "熟客",
+      "醉酒"
+    ]
+  },
+  "reminders": [
+    "Regular",
+    "Drunk"
+  ]
 }

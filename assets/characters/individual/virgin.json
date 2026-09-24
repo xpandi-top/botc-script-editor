@@ -5,7 +5,7 @@
   "current_revision": "v1",
   "setup": false,
   "reminders": [
-    "Nominated"
+    "No Ability"
   ],
   "revisions": [
     {
@@ -26,6 +26,9 @@
     "ability": "当你首次被提名时，如果提名你的玩家是镇民，他立刻被处决。",
     "revisions": {
       "v1": "当你首次被提名时，如果提名你的玩家是镇民，他立刻被处决。"
-    }
+    },
+    "reminders": [
+      "失去能力"
+    ]
   }
 }

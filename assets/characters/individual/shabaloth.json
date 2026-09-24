@@ -7,7 +7,8 @@
   "otherNightReminder": "A previously chosen player might be resurrected. :reminder: The Shabaloth chooses 2 players. :reminder: :reminder:",
   "reminders": [
     "Dead",
-    "Dead"
+    "Dead",
+    "Alive"
   ],
   "revisions": [
     {
@@ -30,6 +31,11 @@
     "revisions": {
       "v1": "每个夜晚*，你要选择两名玩家：他们死亡。<br>你上个夜晚选择过且当前死亡的玩家之一可能会被你反刍。"
     },
-    "otherNightReminder": "决定上一夜被沙巴洛斯选择的玩家是否被反刍。然后唤醒沙巴洛斯，让他攻击两名玩家。"
+    "otherNightReminder": "决定上一夜被沙巴洛斯选择的玩家是否被反刍。然后唤醒沙巴洛斯，让他攻击两名玩家。",
+    "reminders": [
+      "死亡",
+      "死亡",
+      "复活"
+    ]
   }
 }

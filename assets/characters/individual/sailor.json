@@ -6,9 +6,6 @@
   "setup": false,
   "firstNightReminder": "The Sailor chooses a living player. :reminder:",
   "otherNightReminder": "The Sailor chooses a living player. :reminder:",
-  "remindersGlobal": [
-    "Drunk"
-  ],
   "revisions": [
     {
       "id": "v1",
@@ -32,6 +29,12 @@
       "v1": "每个夜晚，你要选择一名存活的玩家：你或他之一会醉酒直到下个黄昏。你不会死亡。"
     },
     "firstNightReminder": "唤醒水手，让他选择一名玩家。决定他俩其中谁因为水手能力醉酒。",
-    "otherNightReminder": "唤醒水手，让他选择一名玩家。决定他俩其中谁因为水手能力醉酒。"
-  }
+    "otherNightReminder": "唤醒水手，让他选择一名玩家。决定他俩其中谁因为水手能力醉酒。",
+    "reminders": [
+      "醉酒"
+    ]
+  },
+  "reminders": [
+    "Drunk"
+  ]
 }

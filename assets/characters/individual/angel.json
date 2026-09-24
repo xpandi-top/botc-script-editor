@@ -25,6 +25,16 @@
     "ability": "新玩家死亡时，最应为其死亡负责的人可能会遭遇不好的事。",
     "revisions": {
       "v1": "新玩家死亡时，最应为其死亡负责的人可能会遭遇不好的事。"
-    }
-  }
+    },
+    "reminders": [
+      "庇护",
+      "庇护",
+      "不好的事"
+    ]
+  },
+  "reminders": [
+    "Protected",
+    "Protected",
+    "Something Bad"
+  ]
 }

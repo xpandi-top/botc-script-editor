@@ -6,7 +6,7 @@
   "setup": false,
   "otherNightReminder": "The Monk chooses a player. :reminder:",
   "reminders": [
-    "Protected"
+    "Safe"
   ],
   "revisions": [
     {
@@ -29,6 +29,9 @@
     "revisions": {
       "v1": "每个夜晚*，你要选择除你以外的一名玩家：当晚恶魔的负面能力对他无效。"
     },
-    "otherNightReminder": "唤醒僧侣，让他选择除自己以外的一名玩家，那名玩家今晚免受恶魔负面效果影响。"
+    "otherNightReminder": "唤醒僧侣，让他选择除自己以外的一名玩家，那名玩家今晚免受恶魔负面效果影响。",
+    "reminders": [
+      "保护"
+    ]
   }
 }

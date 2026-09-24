@@ -23,6 +23,14 @@
     "ability": "你不知道你是酒鬼。你以为你是一个镇民角色，但其实你不是。",
     "revisions": {
       "v1": "你不知道你是酒鬼。你以为你是一个镇民角色，但其实你不是。"
-    }
-  }
+    },
+    "reminders": [],
+    "remindersGlobal": [
+      "是酒鬼"
+    ]
+  },
+  "reminders": [],
+  "remindersGlobal": [
+    "Is The Drunk"
+  ]
 }

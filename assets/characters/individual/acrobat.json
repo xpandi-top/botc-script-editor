@@ -6,7 +6,8 @@
   "setup": false,
   "otherNightReminder": "The Acrobat chooses a player. :reminder:",
   "reminders": [
-    "Check"
+    "Dead",
+    "Chosen"
   ],
   "revisions": [
     {
@@ -35,6 +36,10 @@
       "v1": "每个夜晚*，如果与你邻近的存活善良玩家之一醉酒或中毒，你死亡。",
       "v2024-10": "每个夜晚*，你要选择一名玩家：如果他在今晚是或变得醉酒或中毒，你死亡。"
     },
-    "otherNightReminder": "唤醒杂技演员，让他选择一名玩家。如果当晚这名玩家醉酒或中毒，杂技演员死亡。"
+    "otherNightReminder": "唤醒杂技演员，让他选择一名玩家。如果当晚这名玩家醉酒或中毒，杂技演员死亡。",
+    "reminders": [
+      "死亡",
+      "被选择"
+    ]
   }
 }

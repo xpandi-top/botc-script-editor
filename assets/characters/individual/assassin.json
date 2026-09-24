@@ -5,9 +5,6 @@
   "current_revision": "v1",
   "setup": false,
   "otherNightReminder": "The Assassin might choose a player. :reminder: :reminder:",
-  "remindersGlobal": [
-    "Dead"
-  ],
   "revisions": [
     {
       "id": "v1",
@@ -29,6 +26,14 @@
     "revisions": {
       "v1": "每局游戏限一次，在夜晚时*，你可以选择一名玩家：他死亡，即使因为任何原因让他不会死亡。"
     },
-    "otherNightReminder": "如果刺客未曾使用能力，唤醒刺客，他可以摇头不使用能力，或选择攻击一名玩家。"
-  }
+    "otherNightReminder": "如果刺客未曾使用能力，唤醒刺客，他可以摇头不使用能力，或选择攻击一名玩家。",
+    "reminders": [
+      "死亡",
+      "失去能力"
+    ]
+  },
+  "reminders": [
+    "Dead",
+    "No Ability"
+  ]
 }

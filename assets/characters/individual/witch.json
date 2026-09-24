@@ -6,9 +6,6 @@
   "setup": false,
   "firstNightReminder": "The Witch chooses a player. :reminder:",
   "otherNightReminder": "The Witch chooses a player. :reminder:",
-  "remindersGlobal": [
-    "Cursed"
-  ],
   "revisions": [
     {
       "id": "v1",
@@ -32,6 +29,12 @@
       "v1": "每个夜晚，你要选择一名玩家：如果他明天白天发起提名，他死亡。如果只有三名存活的玩家，你失去此能力。"
     },
     "firstNightReminder": "唤醒女巫，让她选择一名玩家，那名玩家被诅咒。",
-    "otherNightReminder": "唤醒女巫，让她选择一名玩家，那名玩家被诅咒。"
-  }
+    "otherNightReminder": "唤醒女巫，让她选择一名玩家，那名玩家被诅咒。",
+    "reminders": [
+      "被诅咒"
+    ]
+  },
+  "reminders": [
+    "Cursed"
+  ]
 }

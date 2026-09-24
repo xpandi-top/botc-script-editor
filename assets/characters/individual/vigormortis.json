@@ -5,10 +5,6 @@
   "current_revision": "v1",
   "setup": true,
   "otherNightReminder": "The Vigormortis chooses a player. :reminder: If that player is a Minion, poison a neighboring Townsfolk. :reminder: :reminder:",
-  "remindersGlobal": [
-    "Dead",
-    "No ability"
-  ],
   "revisions": [
     {
       "id": "v1",
@@ -30,6 +26,24 @@
     "revisions": {
       "v1": "每个夜晚*，你要选择一名玩家：他死亡。被你杀死的爪牙保留他的能力，且与他邻近的两名镇民之一中毒。[-1外来者]"
     },
-    "otherNightReminder": "唤醒亡骨魔，让他攻击一名玩家。"
-  }
+    "otherNightReminder": "唤醒亡骨魔，让他攻击一名玩家。",
+    "reminders": [
+      "死亡",
+      "保留能力",
+      "保留能力",
+      "保留能力",
+      "中毒",
+      "中毒",
+      "中毒"
+    ]
+  },
+  "reminders": [
+    "Dead",
+    "Has Ability",
+    "Has Ability",
+    "Has Ability",
+    "Poisoned",
+    "Poisoned",
+    "Poisoned"
+  ]
 }

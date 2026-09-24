@@ -5,9 +5,6 @@
   "current_revision": "v1",
   "setup": false,
   "otherNightReminder": "The Pit-Hag chooses a player & a character. If they chose a character that is not in play: Put the Pit-Hag to sleep. Wake the target. Show the *YOU ARE* token & their new character token.",
-  "remindersGlobal": [
-    "New role"
-  ],
   "revisions": [
     {
       "id": "v1",
@@ -30,5 +27,6 @@
       "v1": "每个夜晚*，你要选择一名玩家和一个角色，如果该角色不在场，他变成该角色。如果因此创造了一个恶魔，当晚的死亡由说书人决定。"
     },
     "otherNightReminder": "唤醒麻脸巫婆，让她选择一名玩家和角色列表上的一个角色。如果该角色不在场，则在麻脸巫婆入睡后通知该玩家角色变化。"
-  }
+  },
+  "reminders": []
 }

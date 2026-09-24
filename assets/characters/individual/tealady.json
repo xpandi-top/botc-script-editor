@@ -5,8 +5,8 @@
   "current_revision": "v1",
   "setup": false,
   "reminders": [
-    "Alive",
-    "Alive"
+    "Cannot Die",
+    "Cannot Die"
   ],
   "revisions": [
     {
@@ -27,6 +27,10 @@
     "ability": "如果与你邻近的两名存活的玩家是善良的，他们不会死亡。",
     "revisions": {
       "v1": "如果与你邻近的两名存活的玩家是善良的，他们不会死亡。"
-    }
+    },
+    "reminders": [
+      "不会死亡",
+      "不会死亡"
+    ]
   }
 }

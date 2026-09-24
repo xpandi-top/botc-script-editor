@@ -29,6 +29,14 @@
       "v1": "每局游戏限一次，你可以向说书人许愿。如果愿望被实现，可能会伴随着代价和线索。"
     },
     "firstNightReminder": "如果有必要，让巫师的能力生效。",
-    "otherNightReminder": "如果有必要，让巫师的能力生效。"
-  }
+    "otherNightReminder": "如果有必要，让巫师的能力生效。",
+    "reminders": [
+      "？",
+      "？"
+    ]
+  },
+  "reminders": [
+    "?",
+    "?"
+  ]
 }

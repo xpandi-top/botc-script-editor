@@ -6,7 +6,7 @@
   "setup": false,
   "otherNightReminder": "If a player was executed today, show their character token.",
   "reminders": [
-    "Dead"
+    "Died Today"
   ],
   "revisions": [
     {
@@ -29,6 +29,9 @@
     "revisions": {
       "v1": "每个夜晚*，你会得知今天白天死于处决的玩家的角色。"
     },
-    "otherNightReminder": "如果今天白天有玩家死于处决，唤醒送葬者，对他展示那名玩家的角色标记。"
+    "otherNightReminder": "如果今天白天有玩家死于处决，唤醒送葬者，对他展示那名玩家的角色标记。",
+    "reminders": [
+      "死于今日"
+    ]
   }
 }
