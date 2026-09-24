@@ -19,7 +19,7 @@ export type UiKey =
   | 'nav_mine' | 'nav_scripts' | 'nav_hide' | 'nav_manage' | 'nav_more' | 'nav_folders' | 'nav_new_folder' | 'nav_folder_name' | 'nav_tag_filter' | 'nav_reveal_current' | 'nav_empty_mine' | 'nav_no_folders' | 'nav_delete_folder_hint'
   | 'library_new_character'
   | 'library_display_settings' | 'library_browse_view' | 'library_list_view' | 'library_card_view' | 'library_reading_layout' | 'library_choose_script' | 'library_tags_notes' | 'library_tools' | 'library_more_conditions' | 'library_narrow_scripts' | 'library_filter_short' | 'library_import_one' | 'library_pack_tools' | 'library_rule_tools' | 'library_one_help' | 'library_pack_help' | 'library_sort' | 'library_script_selected'
-  | 'library_missing_roles'
+  | 'library_missing_roles' | 'community_script'
   | 'library_import' | 'library_import_help' | 'library_choose_files' | 'library_destination' | 'library_unfiled' | 'library_reading' | 'library_roles' | 'library_import_duplicates' | 'library_confirm_import' | 'library_file_size' | 'library_invalid_script' | 'library_filter_scripts' | 'library_filter_help' | 'library_no_scripts' | 'library_source' | 'library_all_sources' | 'library_builtin' | 'library_mine' | 'library_all_folders' | 'library_folder' | 'library_more_filters' | 'library_clear_filters' | 'library_empty' | 'library_more' | 'library_export' | 'library_export_json' | 'library_export_pdf' | 'library_export_link' | 'library_title' | 'library_copy_edit'
   | 'alignment_unset' | 'current_alignment' | 'alignment_changed' | 'identity_management' | 'preserve_alignment_hint' | 'tonight_actions' | 'no_night_action' | 'manual_night_record' | 'night_resolved' | 'night_mark_done' | 'night_undo_done' | 'night_private_hint' | 'secret_hidden_hint' | 'common_st_markers' | 'more_st_markers' | 'player_status' | 'record_information' | 'record_effect' | 'night_target_prompt'
   | 'app_title' | 'app_lead' | 'print' | 'script_sheet' | 'settings'
@@ -415,7 +415,7 @@ export type TplKey =
   | 'player_most_active_st' | 'avg_duration_min'
   | 'more_n_scripts_tab' | 'more_n_storytellers'
   // Misc templates
-  | 'script_chars_short' | 'log_tab_n' | 'fill_log_n' | 'send_assigned_characters_n' | 'apply_changes_n'
+  | 'script_chars_short' | 'log_tab_n' | 'fill_log_n' | 'send_assigned_characters_n' | 'apply_changes_n' | 'source_issue_n'
   | 'context_editing' | 'tag_for_char'
   | 'st_detail_n_games_scripts'
   // Communication board templates

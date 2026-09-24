@@ -301,7 +301,8 @@ export const characterFileById: Record<string, CharacterFileEntry> = Object.from
   allCharacterFiles.filter((c) => c?.id).map((c) => [c.id, c])
 )
 
-const scriptFiles = import.meta.glob('../assets/scripts/*.json', {
+// Community scripts (民间, scripts/import-scripts.mjs) live in assets/scripts/community/.
+const scriptFiles = import.meta.glob(['../assets/scripts/*.json', '../assets/scripts/community/*.json'], {
   eager: true,
   import: 'default',
 }) as Record<string, ScriptFileSource>

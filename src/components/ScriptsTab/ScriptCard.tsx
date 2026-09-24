@@ -2,6 +2,7 @@ import { Box, Typography } from '@mui/material'
 import CheckIcon from '@mui/icons-material/Check'
 import { useT } from '../../context/I18nContext'
 import type { EditableScript, Language } from '../../types'
+import { authorAndOrigin, scriptOrigin } from './scriptOrigin'
 
 type Props = {
   script: EditableScript
@@ -12,10 +13,11 @@ type Props = {
 }
 
 export function ScriptCard({ script, isActive, isBuiltIn, language, onSelect }: Props) {
-  const { t } = useT()
+  const { t, tpl } = useT()
   const title = language === 'zh' && script.titleZh ? script.titleZh : script.title
   const source = ['tb', 'bmr', 'snv'].includes(script.slug) ? t('official') : isBuiltIn ? t('community') : t('nav_mine')
-  const subtitle = `${script.author || source} · ${script.characters.length} ${t('library_roles')}${script.version ? ` · v${script.version}` : ''}`
+  const origin = scriptOrigin(script, tpl)
+  const subtitle = `${authorAndOrigin(script.author, origin) || source} · ${script.characters.length} ${t('library_roles')}${script.version ? ` · v${script.version}` : ''}`
   return <Box component="button" type="button" onClick={onSelect} aria-pressed={isActive} title={`${title}\n${subtitle}`}
     sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, width: '100%', minWidth: 0, textAlign: 'left', font: 'inherit',
       p: 1, minHeight: 58, border: 0, borderRadius: 2, cursor: 'pointer', color: 'text.primary',

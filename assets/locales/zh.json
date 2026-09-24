@@ -1157,6 +1157,8 @@
     "more_n_scripts_tab": "+{0} 个剧本（在剧本栏查看全部）",
     "more_n_storytellers": "+{0} 位说书人",
     "script_chars_short": "{0}角",
+    "source_issue_n": "第{0}期",
+    "community_script": "民间剧本",
     "log_tab_n": "日志 ({0})",
     "fill_log_n": "填充记录 ({0})",
     "context_editing": "正在编辑「{0}」",

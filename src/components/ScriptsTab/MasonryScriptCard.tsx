@@ -14,6 +14,7 @@ import { SCRIPT_TAG_META } from '../tabs/ScriptsTab.constants'
 import type { EditableScript, Language, ScriptFolder } from '../../types'
 import { useT } from '../../context/I18nContext'
 import { makeTpl } from '../../lib/t'
+import { authorAndOrigin, scriptOrigin } from './scriptOrigin'
 
 // ── Per-slug deterministic dark gradient ───────────────────────────────────────
 
@@ -109,6 +110,7 @@ export function MasonryScriptCard({
   const [folderMenuAnchor, setFolderMenuAnchor] = useState<null | HTMLElement>(null)
 
   const title = (zh && script.titleZh) ? script.titleZh : script.title
+  const origin = scriptOrigin(script, tpl)
 
   const customIconMap = useMemo(() => {
     if (!script.customCharacters.length) return undefined
@@ -252,11 +254,11 @@ export function MasonryScriptCard({
           display: 'flex', flexDirection: 'column', gap: 0.5,
         }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 0 }}>
-            <Typography sx={{
+            <Typography title={origin || undefined} sx={{
               flex: 1, fontSize: '0.72rem', color: 'text.secondary',
               overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
             }}>
-              {script.author || ' '}
+              {authorAndOrigin(script.author, origin) || ' '}
             </Typography>
             <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center', flexShrink: 0 }}>
               {script.version && (

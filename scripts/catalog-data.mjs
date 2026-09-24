@@ -120,9 +120,16 @@ export function buildCatalogData(root = process.cwd()) {
       })),
     }))
 
+  // Bundled scripts, then community ones (assets/scripts/community/, like src/catalog.ts).
   const scriptDir = path.join(assets, 'scripts')
-  const scripts = listJson(scriptDir).map((sourceFile) => {
-    const data = readJson(path.join(scriptDir, sourceFile))
+  const communityDir = path.join(scriptDir, 'community')
+  const scriptPaths = [
+    ...listJson(scriptDir).map((f) => path.join(scriptDir, f)),
+    ...(fs.existsSync(communityDir) ? listJson(communityDir).map((f) => path.join(communityDir, f)) : []),
+  ]
+  const scripts = scriptPaths.map((file) => {
+    const data = readJson(file)
+    const sourceFile = path.basename(file)
     const base = sourceFile.replace('.json', '')
     return { slug: Array.isArray(data) ? base : (data.slug ?? base), sourceFile, data }
   })

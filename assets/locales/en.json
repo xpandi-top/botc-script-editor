@@ -1157,6 +1157,8 @@
     "more_n_scripts_tab": "+{0} more in Scripts tab",
     "more_n_storytellers": "+{0} more storytellers",
     "script_chars_short": "{0}c",
+    "source_issue_n": "issue {0}",
+    "community_script": "Community script",
     "log_tab_n": "Log ({0})",
     "fill_log_n": "Fill Log ({0})",
     "context_editing": "Context: \"{0}\"",

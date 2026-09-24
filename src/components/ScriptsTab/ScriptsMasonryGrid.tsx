@@ -85,7 +85,7 @@ export function ScriptsMasonryGrid({
     const passes = (s: EditableScript) => {
       if (tagFilter && !(s.tags ?? []).includes(tagFilter)) return false
       if (!q) return true
-      const searchable = [s.title, s.titleZh, s.author, s.slug, ...(s.tags ?? []),
+      const searchable = [s.title, s.titleZh, s.author, s.slug, s.meta.source?.name ?? '', ...(s.tags ?? []),
         scriptFolders.find(f => f.id === s.folderId)?.name ?? '',
         ...s.characters.map(id => `${id} ${charNameIndex.get(id) ?? ''}`),
         ...s.customCharacters.map(c => c.name ?? ''),

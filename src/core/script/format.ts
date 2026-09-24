@@ -3,7 +3,7 @@
  * an optional `_meta` entry). Framework-free so the web app, the validator
  * and the planned API worker parse scripts identically.
  */
-import type { ScriptCharacterItem, ScriptFileEntry, ScriptJinxOverride, ScriptMetaEntry } from '../types/catalog'
+import type { ScriptCharacterItem, ScriptFileEntry, ScriptJinxOverride, ScriptMetaEntry, ScriptSourceMeta } from '../types/catalog'
 
 // ── Jinx pair ids ("charA::charB", sorted) ───────────────────────────────────
 
@@ -102,4 +102,10 @@ export function extractScriptCharacters(data: ScriptFileEntry[]) {
     .filter((e): e is string | ScriptCharacterItem => typeof e === 'string' || isScriptCharacterItem(e))
     .map((e) => (typeof e === 'string' ? e : e.id))
   return { scriptCharacterItems, characters }
+}
+
+/** The publication a community script came from, when its _meta names one with a link. */
+export function communityScriptSource(meta: ScriptMetaEntry | undefined): ScriptSourceMeta | undefined {
+  const source = meta?.source
+  return meta?.community && source && typeof source.url === 'string' && typeof source.name === 'string' ? source : undefined
 }
