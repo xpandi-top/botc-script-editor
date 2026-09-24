@@ -33,7 +33,7 @@ it.skipIf(!url)('hosted AI evaluation', async () => {
   let model = ''
   for (const c of cases) {
     const ctx = evalContext(c)
-    const system = await prepareSystemPrompt(ctx, c.question, [], { inputBudget: HOSTED_INPUT_BUDGET })
+    const system = await prepareSystemPrompt(ctx, c.question, c.previous ?? [], { inputBudget: HOSTED_INPUT_BUDGET })
     const started = Date.now()
     const result = await callAi({
       systemPrompt: system,
@@ -45,7 +45,7 @@ it.skipIf(!url)('hosted AI evaluation', async () => {
     // As the panel shows it: after the program check of line-ups and scripts,
     // or, when the model fails, the error followed by the local-data answer.
     const checked = result.ok ? checkAnswer(ctx, c.question, result.response.message) : null
-    const fallback = result.ok ? null : answerLocally(ctx, c.question)
+    const fallback = result.ok ? null : answerLocally(ctx, c.question, c.previous)
     const text = result.ok ? checked!.text : `ERROR: ${result.error}${fallback?.found ? `\n\n${fallback.message}` : ''}`
     const grade = gradeCase(c, { text, steps: result.ok ? result.steps : [] })
     if (result.ok && result.usage) model ||= 'hosted'

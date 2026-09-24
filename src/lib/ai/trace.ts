@@ -10,7 +10,7 @@
 import type { Language } from '../../types'
 
 /** Bump when the system prompts or the routing between program and model change. */
-export const PROMPT_VERSION = '2026-09-24'
+export const PROMPT_VERSION = '2026-09-24.2'
 
 export const BUILD_ID: string = typeof __BUILD_ID__ === 'string' ? __BUILD_ID__ : 'dev'
 
@@ -31,6 +31,8 @@ export type RetrievalMeta = {
   rules: string[]
   /** Wiki excerpts by page. */
   wiki: string[]
+  /** Characters whose guide (examples, tips, how to run, …) was given. */
+  guides?: string[]
   /** System prompt length in characters (model routes). */
   promptChars?: number
 }

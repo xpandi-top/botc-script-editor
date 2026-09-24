@@ -6,13 +6,15 @@ import { describe, it, expect } from 'vitest'
 import { EVAL_CASES } from '../lib/ai/eval/cases'
 import { evalContext } from '../lib/ai/eval/contexts'
 import { gradeCase } from '../lib/ai/eval/graders'
-import { answerLocally } from '../lib/ai/localAnswer'
+import { answerLocally, loadCharacterGuides } from '../lib/ai/localAnswer'
 import { initialScripts } from '../catalog'
 
 describe('offline answers (no model)', () => {
   for (const c of EVAL_CASES.filter((x) => x.offline)) {
-    it(c.id, () => {
-      const answer = answerLocally(evalContext(c), c.question)
+    it(c.id, async () => {
+      // As the panel does: guide passages first, then the local answer.
+      const guides = await loadCharacterGuides(c.question, c.language, c.previous)
+      const answer = answerLocally(evalContext(c), c.question, c.previous, undefined, guides)
       expect(answer.found).toBe(true)
       const failed = gradeCase(c, { text: answer.message }).checks.filter((r) => !r.pass)
       expect(failed, answer.message).toEqual([])
@@ -69,7 +71,7 @@ describe('offline answers (no model)', () => {
     expect(sure.message).not.toContain('水手 / Sailor')
     // Examples and tips from a pack's almanac, for a guide question.
     const guides = await loadCharacterGuides('纹章官怎么玩？', 'zh')
-    expect(guides.herald).toContain('纹章官 · 玩法技巧')
+    expect(guides.herald).toContain('纹章官 · 提示与技巧')
     const examples = await loadCharacterGuides('能举个例子吗', 'zh', ['纹章官怎么玩？'])
     const answer = answerLocally(general, '能举个例子吗', ['纹章官怎么玩？'], undefined, examples)
     expect(answer.message).toContain('纹章官 · 范例')

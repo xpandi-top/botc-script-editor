@@ -48,7 +48,7 @@ export function summarize(rows) {
   // 👎 answers that had nothing local to go on: retrieval or routing to improve.
   const misses = rated.filter((r) => {
     const t = answerTrace(r)
-    return r.rating === 'down' && t && !t.facts?.length && !t.characters?.length && !t.rules?.length && !t.wiki?.length
+    return r.rating === 'down' && t && !t.facts?.length && !t.characters?.length && !t.rules?.length && !t.wiki?.length && !t.guides?.length
   })
   const group = (key) => byKey(rated, key).map(([value, g]) => ({
     value, total: g.total, down: g.down, downRate: pct(g.down, g.total),
@@ -101,7 +101,7 @@ export function formatSummary(s) {
     `Feedback items: ${s.items} (answers ${s.answers}, shared conversations ${s.conversations})`,
     `Ratings: 👍 ${s.up}  👎 ${s.down}`,
     `👎 reasons: ${s.reasons.map(([r, n]) => `${r} ${n}`).join(', ') || '–'}`,
-    `👎 answers with no program facts, characters, rules or wiki (retrieval misses): ${s.retrievalMisses}`,
+    `👎 answers with no program facts, characters, rules, wiki or guides (retrieval misses): ${s.retrievalMisses}`,
     table('By route (model / program / fallback / offline):', s.byRoute),
     table('By provider · model:', s.byModel),
     table('By prompt version:', s.byPrompt),
