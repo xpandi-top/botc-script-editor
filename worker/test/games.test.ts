@@ -5,6 +5,7 @@ import type { Env } from '../src/env'
 import type { GoogleVerifier } from '../src/library/auth'
 import { MemoryLibraryStore } from '../src/library/store'
 import { GameRoomCore, MemoryRoomStorage, roomApi, type RoomApi } from '../src/games/room'
+import { setupExpectation } from '../../src/core/engine/setupHints'
 
 const env: Env = { APP_URL: 'https://example.test/app/', GOOGLE_WEB_CLIENT_ID: 'web-client' }
 const j = (res: Response): Promise<any> => res.json()
@@ -119,10 +120,17 @@ describe('/v1/games', () => {
   it('deals at random and lets a signed-in owner play without the token', async () => {
     const { gameId } = await newGame({ scriptSlug: 'tb', playerCount: 10, assignments: 'random' }, 'google-ann')
     const st = await j(await send('GET', `/v1/games/${gameId}?view=st`, { auth: 'google-ann' }))
-    const teams = st.game.days[0].seats.map((s: any) => getCatalog().getCharacter(s.characterId)?.team)
-    expect(teams.filter((t: string) => t === 'townsfolk')).toHaveLength(7)
-    expect(teams.filter((t: string) => t === 'minion')).toHaveLength(2)
-    expect(teams.filter((t: string) => t === 'demon')).toHaveLength(1)
+    const ids: string[] = st.game.days[0].seats.map((s: any) => s.characterId)
+    const teams = ids.map((id) => getCatalog().getCharacter(id)?.team)
+    // 7/0/2/1, unless a setup ability shifts it (a Baron deals 2 Outsiders for 2 Townsfolk).
+    const { expected } = setupExpectation(10, ids)!
+    for (const team of ['townsfolk', 'outsider', 'minion', 'demon'] as const) {
+      const count = teams.filter((t) => t === team).length
+      expect(count, team).toBeGreaterThanOrEqual(expected[team][0])
+      expect(count, team).toBeLessThanOrEqual(expected[team][1])
+    }
+    expect(teams.filter((t) => t === 'minion')).toHaveLength(2)
+    expect(teams.filter((t) => t === 'demon')).toHaveLength(1)
     expect((await send('GET', `/v1/games/${gameId}?view=st`, { auth: 'google-bob' })).status).toBe(403)
   })
 
