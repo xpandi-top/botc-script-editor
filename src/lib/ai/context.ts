@@ -452,6 +452,7 @@ export function buildStorytellerContext(input: StorytellerInput): AiContext {
     fields,
     serialized: serializeStorytellerForPrompt(input),
     characterIds: [...new Set([...(input.scriptCharacters ?? []), ...currentDay.seats.map((s) => s.characterId).filter((id): id is string => !!id)])],
+    seats: currentDay.seats,
   }
 }
 

@@ -23,6 +23,8 @@ export type AiMessage = {
   /** Hosted AI: tools the server ran for this answer, and requests left today. */
   steps?: Array<{ tool: string; ok: boolean }>
   remaining?: number | null
+  /** Answered from local data without a model (localAnswer.ts). */
+  local?: boolean
 }
 
 export type AiPanelContentProps = {

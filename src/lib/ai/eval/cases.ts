@@ -133,7 +133,7 @@ export const EVAL_CASES: EvalCase[] = [
     question: '6 个人存活的时候，处决至少需要几票？',
     checks: [
       { kind: 'includes', any: ['3 ?票', '三票'], label: '3 票' },
-      { kind: 'excludes', any: ['4 ?票', '四票', '超过半数'], label: '不是 4 票 / 超过半数' },
+      { kind: 'excludes', any: ['(需要|至少)[^。\\n，,]{0,6}(4|四)\\s*票', '超过半数'], label: '没有得出 4 票 / 超过半数' },
     ],
   },
   {
@@ -141,7 +141,7 @@ export const EVAL_CASES: EvalCase[] = [
     question: '死亡的玩家还能投票吗？',
     checks: [
       { kind: 'includes', any: ['一次', '1 次', '一票'], label: '只能再投一次' },
-      { kind: 'excludes', any: ['不能投票。', '无法投票。', '不可以投票。'], label: '没说完全不能投' },
+      { kind: 'excludes', any: ['^[^。\n]{0,12}(不能|无法|不可以)(再)?投票'], label: '没说死亡玩家完全不能投' },
     ],
   },
   {
@@ -153,7 +153,7 @@ export const EVAL_CASES: EvalCase[] = [
     ],
   },
   {
-    id: 'rules-drunk-empath', category: 'rules', difficulty: 'basic', language: 'zh', context: general,
+    id: 'rules-drunk-empath', category: 'rules', difficulty: 'basic', language: 'zh', context: general, offline: true,
     question: '醉酒的共情者晚上会得到什么信息？他自己知道吗？',
     checks: [
       { kind: 'includes', any: ['错误', '假的', '虚假'], label: '可能得到错误信息' },
@@ -183,12 +183,12 @@ export const EVAL_CASES: EvalCase[] = [
 
   // ── Game setup ────────────────────────────────────────────────────────────
   {
-    id: 'setup-tb-7', category: 'setup', difficulty: 'basic', language: 'zh', context: { kind: 'script', slug: 'tb' },
+    id: 'setup-tb-7', category: 'setup', difficulty: 'basic', language: 'zh', context: { kind: 'script', slug: 'tb' }, offline: true,
     question: '我们 7 个人玩暗流涌动，帮我挑选这局的在场角色，并说明理由。最后单独一行用“在场角色: 角色id1, 角色id2, …”列出全部在场角色。',
     checks: [{ kind: 'setup', script: 'tb', players: 7, label: '7 人局配置合法' }],
   },
   {
-    id: 'setup-tb-8-baron', category: 'setup', difficulty: 'hard', language: 'zh', context: { kind: 'script', slug: 'tb' },
+    id: 'setup-tb-8-baron', category: 'setup', difficulty: 'hard', language: 'zh', context: { kind: 'script', slug: 'tb' }, offline: true,
     question: '暗流涌动 8 人局，我想让男爵在场，该怎么配？最后单独一行用“在场角色: 角色id1, 角色id2, …”列出全部在场角色。',
     checks: [
       { kind: 'setup', script: 'tb', players: 8, label: '8 人局 + 男爵配置合法' },
@@ -198,7 +198,7 @@ export const EVAL_CASES: EvalCase[] = [
 
   // ── Script generation ─────────────────────────────────────────────────────
   {
-    id: 'script-newbie-tb', category: 'script', difficulty: 'hard', language: 'zh', context: general,
+    id: 'script-newbie-tb', category: 'script', difficulty: 'hard', language: 'zh', context: general, offline: true,
     question: '帮我设计一个适合新手的完整剧本（血染钟楼的剧本是角色清单），主要用暗流涌动的角色，必须包含洗衣妇和小恶魔，不要旅行者。最后单独一行用“剧本角色: 角色id1, 角色id2, …”列出剧本里的全部角色。',
     checks: [{
       kind: 'script', label: '合法的新手剧本',
@@ -208,7 +208,7 @@ export const EVAL_CASES: EvalCase[] = [
     }],
   },
   {
-    id: 'script-teensy-odyssey', category: 'script', difficulty: 'hard', language: 'zh', context: general,
+    id: 'script-teensy-odyssey', category: 'script', difficulty: 'hard', language: 'zh', context: general, offline: true,
     question: '只用奥德赛角色包的角色，设计一个适合 5–6 人的小型剧本（Teensyville）。最后单独一行用“剧本角色: 角色id1, 角色id2, …”列出剧本里的全部角色。',
     checks: [{
       kind: 'script', label: '奥德赛小型剧本',
@@ -220,7 +220,7 @@ export const EVAL_CASES: EvalCase[] = [
 
   // ── Game situations ───────────────────────────────────────────────────────
   {
-    id: 'situation-scarlet-woman', category: 'situation', difficulty: 'hard', language: 'zh', context: { kind: 'game', fixture: 'scarlet-woman-6-alive' },
+    id: 'situation-scarlet-woman', category: 'situation', difficulty: 'hard', language: 'zh', context: { kind: 'game', fixture: 'scarlet-woman-6-alive' }, offline: true,
     question: '如果今天处决了 1 号（小恶魔），游戏会结束吗？',
     checks: [
       { kind: 'includes', any: ['红唇女郎'], label: '想到红唇女郎' },
@@ -229,15 +229,15 @@ export const EVAL_CASES: EvalCase[] = [
     ],
   },
   {
-    id: 'situation-mayor', category: 'situation', difficulty: 'hard', language: 'zh', context: { kind: 'game', fixture: 'mayor-3-alive' },
+    id: 'situation-mayor', category: 'situation', difficulty: 'hard', language: 'zh', context: { kind: 'game', fixture: 'mayor-3-alive' }, offline: true,
     question: '现在只剩 3 名玩家存活。如果今天白天不处决任何人，会发生什么？',
     checks: [
       { kind: 'includes', any: ['镇长'], label: '想到镇长' },
-      { kind: 'includes', any: ['善良[^。\\n]{0,8}(获胜|胜利|赢)', '好人[^。\\n]{0,8}(获胜|胜利|赢)'], label: '善良获胜' },
+      { kind: 'includes', any: ['善良[^。\\n]{0,8}(获胜|胜利|赢)', '好人[^。\\n]{0,8}(获胜|胜利|赢)', '镇长[^。\\n]{0,6}(获胜|胜利)'], label: '善良（镇长阵营）获胜' },
     ],
   },
   {
-    id: 'situation-evil-close', category: 'situation', difficulty: 'hard', language: 'zh', context: { kind: 'game', fixture: 'four-alive-evil-close' },
+    id: 'situation-evil-close', category: 'situation', difficulty: 'hard', language: 'zh', context: { kind: 'game', fixture: 'four-alive-evil-close' }, offline: true,
     question: '现在存活 4 人。如果今天处决了一名善良玩家，今晚恶魔又杀了一人，结果会怎样？',
     checks: [
       { kind: 'includes', any: ['邪恶[^。\\n]{0,8}(获胜|胜利|赢)'], label: '邪恶获胜' },

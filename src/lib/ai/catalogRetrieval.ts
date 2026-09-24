@@ -48,6 +48,12 @@ function entities(query: string) {
   return { editionIds, characterIds: [...new Set([...named, ...quotedIds])], quotedIds }
 }
 
+/** Editions and characters a question names (by name, id or quoted ability). */
+export function mentionedEntities(query: string): { editionIds: string[]; characterIds: string[] } {
+  const { editionIds, characterIds } = entities(query)
+  return { editionIds, characterIds }
+}
+
 export type CatalogRetrieval = ReturnType<typeof retrieveCatalog>
 
 export function retrieveCatalog(query: string, language: Language, previousQueries: string[] = []) {

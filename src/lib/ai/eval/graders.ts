@@ -44,7 +44,8 @@ export function listLine(text: string, labels: string[]): string[] | null {
   const pattern = new RegExp(`(?:${labels.map(escape).join('|')})\\s*[:：]\\s*(.+)$`, 'gim')
   const lines = [...text.matchAll(pattern)]
   if (!lines.length) return null
-  const raw = lines[lines.length - 1][1].replace(/[`*_]/g, '')
+  // "ids（中文名）" and trailing sentences are not part of the list.
+  const raw = lines[lines.length - 1][1].replace(/[（(][^）)]*[）)]/g, '').replace(/[；;。].*$/, '').replace(/[`*]/g, '')
   return raw.split(/[,，、;；]+/).map((token) => token.trim()).filter(Boolean).flatMap((token) => {
     const id = token.toLowerCase().replace(/\s+/g, '_')
     if (teamOf.has(id)) return [id]

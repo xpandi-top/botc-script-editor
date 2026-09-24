@@ -376,7 +376,7 @@ export function buildSystemPrompt(ctx: AiContext, query?: string, options?: {
   const searchQuery = retrieval.query
   const catalog = formatCatalogRetrieval(retrieval, options?.almanac)
   const references = wikiSection(searchQuery, zh)
-  const facts = computeRuleFacts(query ?? '', ctx.language, ctx.characterIds)
+  const facts = computeRuleFacts(query ?? '', ctx.language, ctx)
   const evidence = catalog ? `${catalog}\n\n${selectContext(references, searchQuery, 350)}` : references
   const wiki = facts ? `${facts}\n\n${evidence}` : evidence
   const source = ctx.serialized ?? serializeContext(ctx)
@@ -411,7 +411,7 @@ export async function prepareSystemPrompt(ctx: AiContext, query: string, previou
   const [, almanac] = await Promise.all([options?.local ? Promise.resolve(false) : initWikiSearch(), retrieveAlmanac(retrieval, ctx.language)])
   if (options?.local) {
     // A 4K local model cannot use the online prompt's large baseline reference.
-    const computed = computeRuleFacts(query, ctx.language, ctx.characterIds)
+    const computed = computeRuleFacts(query, ctx.language, ctx)
     const found = formatCatalogRetrieval(retrieval, almanac, 1500) || selectContext(searchWiki(query, 2).map((chunk) => `[${chunk.page}] ${chunk.url}\n${chunk.text}`).join('\n\n'), query, 650)
     const facts = computed ? `${computed}\n\n${found}` : found
     const page = selectContext(ctx.serialized ?? serializeContext(ctx), retrieval.query, 450)

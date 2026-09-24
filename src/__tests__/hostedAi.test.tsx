@@ -168,3 +168,34 @@ describe('prompt budget for the hosted runtime', () => {
     expect(estimateTokens(hostedPrompt)).toBeLessThanOrEqual(HOSTED_INPUT_BUDGET)
   })
 })
+
+describe('answers without a model', () => {
+  it('uses local data when the local model is not loaded, and after an online failure', async () => {
+    const { renderHook, act } = await import('@testing-library/react')
+    const { useAiPanel } = await import('../components/AiPanel/useAiPanel')
+    const wrapper = ({ children }: { children: React.ReactNode }) => <I18nProvider language="zh">{children}</I18nProvider>
+
+    saveAiSettings({ ...hosted, provider: 'webllm', model: 'Qwen3-1.7B-q4f16_1-MLC' })
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+    const local = renderHook(() => useAiPanel({ open: true }), { wrapper })
+    expect(local.result.current.canSend).toBe(true)
+    await act(async () => { await local.result.current.handleSend('洗衣妇的能力是什么？') })
+    const answer = local.result.current.messages.at(-1)!
+    expect(answer).toMatchObject({ role: 'assistant', local: true })
+    expect(answer.content).toContain('这两名玩家之一是该角色')
+    expect(answer.content).toContain('本地模型尚未下载或加载')
+    expect(fetchMock).not.toHaveBeenCalled()
+
+    saveAiSettings(hosted)
+    vi.stubGlobal('fetch', vi.fn(async (url: string) => (String(url).endsWith('/v1/ai/status')
+      ? reply({ chat: { available: true, model: 'glm' } })
+      : reply({ error: { code: 'ai_quota_exhausted' } }, 429))))
+    const online = renderHook(() => useAiPanel({ open: true }), { wrapper })
+    await act(async () => { await online.result.current.handleSend('6 个人存活的时候，处决至少需要几票？') })
+    const [error, fallback] = online.result.current.messages.slice(-2)
+    expect(error).toMatchObject({ role: 'error', content: expect.stringContaining('额度已用完') })
+    expect(fallback).toMatchObject({ role: 'assistant', local: true })
+    expect(fallback.content).toContain('至少需要 3 票')
+  })
+})
