@@ -128,12 +128,11 @@ export async function suggestAbility(opts: {
   const zhLine = opts.generateZh ? '\nAlso provide a Chinese translation as "abilityZh".' : ''
 
   // Few-shot: team examples + characters similar to the concept (semantic
-  // search with a Gemini key, TF-IDF otherwise)
+  // search on the BOTC API, TF-IDF with the local runtime or offline)
   const teamExamples = getTeamExamples(opts.team, 3, opts.excludeIds ?? [])
-  const settings = loadAiSettings()
-  const geminiApiKey = settings.provider === 'webllm' ? undefined : settings.keys.gemini?.trim() || undefined
+  const allowRemote = loadAiSettings().provider !== 'webllm'
   const similarExamples = opts.concept
-    ? await findSimilar(opts.concept, 2, { team: opts.team, excludeIds: opts.excludeIds, geminiApiKey })
+    ? await findSimilar(opts.concept, 2, { team: opts.team, excludeIds: opts.excludeIds, allowRemote })
     : []
   // Deduplicate by id
   const seen = new Set(teamExamples.map((e) => e.id))

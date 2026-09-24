@@ -11,10 +11,6 @@ npm run preview      # Preview production build
 
 # Add character ability revision (custom Vite plugin script):
 npm run add-revision -- <char_id> --en "text" --zh "text"
-
-# Re-embed new/changed characters into public/embeddings.json (Gemini key from .env.local);
-# add `-- --check` to only report stale entries (npm run verify warns about them)
-npm run build-embeddings
 ```
 
 ```bash
