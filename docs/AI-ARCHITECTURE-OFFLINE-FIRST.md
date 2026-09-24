@@ -356,7 +356,10 @@ worker/src/         # 共享领域服务的MCP/REST/云存储适配
 | 本地 · 离线 | 不需要模型：本地资料回答（能力原文 / 双语官方文本、数量与名单、相克、夜序、核心规则与 wiki 段落、程序事实）；可选 WebLLM 本机模型在此之上生成解释 | `src/lib/ai/localAnswer.ts`、`runtime/webllm.ts` |
 | 自带 Key（可选） | Groq / OpenRouter / Gemini，服务商、模型、key 在第三个标签 | `SettingsPanel.tsx` |
 | 程序计算的事实 | 处决票数、按人数配置、设置修正（男爵等）、合法开局 + 伪装、按约束组出的剧本池（完整 13/4/4/4、小型 6/2/2/2）、局面胜负（红唇女郎接任、镇长、剩几人邪恶获胜、圣徒） | `src/lib/ai/ruleFacts.ts`、`src/core/engine/planning.ts`、`winConditions.ts` |
-| 答案校验 | 回答中的在场角色 / 剧本角色按规则校验，不合法或缺失时附上程序方案与原因 | `src/lib/ai/answerCheck.ts`、`answerParse.ts` |
+| 答案校验 | 回答中的在场角色 / 剧本角色按规则校验，不合法或缺失时附上程序方案与原因；配置须属于回答标题所说的剧本；“角色：你……”式的能力描述与原文措辞差异大时（按全体能力的稀有字对加权比较）附上原文 | `src/lib/ai/answerCheck.ts`、`answerParse.ts` |
+| 选剧本建议 | 官方建议 + 程序估算的复杂度排名（夜晚唤醒、错误信息来源、相克、设置修正）；问“官方”时只列三个官方剧本，其余标为非官方 | `src/lib/ai/scriptFacts.ts` |
+| 多轮追问 | “它 / 这套 / 第一个 / the second”指上一条回答里按出现顺序的剧本；“这套配置里每个角色的能力”由程序给出这些角色的能力原文 | `src/lib/ai/ruleFacts.ts` |
+| 对话显示 | 无依赖 Markdown（表格、嵌套列表、引用、代码、链接缩短）；去掉 `<think>`；长链接与长词不溢出；等待时显示秒数，10 秒后提示通常耗时 | `src/components/AiPanel/MdText.tsx`、`ChatTab.tsx`、`src/lib/ai/modelText.ts` |
 | 页面关键状态 | 剧本 id 名单、对局座位（角色 id、阵营、存活）与“存活 N 人、处决需 M 票”放在上下文首段，始终保留 | `src/lib/ai/context.ts`、`core/ai/contextBudget.ts` |
 | 核心规则 | 逐条依据本地官方资料，新增“剧本与配置”一节；Web 与 Worker（`search_rules`）共用 | `src/core/ai/rules.ts` |
 | MCP 总数与分页 | `search_characters` 返回 `totalMatches` / `nextCursor`，新增 `list_editions` | `worker/src/mcp.ts` |
@@ -366,7 +369,7 @@ worker/src/         # 共享领域服务的MCP/REST/云存储适配
 | 状态 | 项 |
 |---|---|
 | ✅ | A：设置优先级；无 key 可问答；核验并替换核心规则；MCP 总数 / 分页；程序计数与校验 |
-| ✅ | D（部分）：WebLLM 运行时（本环境无 WebGPU，未实测其中文质量；离线模式不依赖它） |
+| ✅ | D（部分）：WebLLM 运行时（浏览器有 WebGPU 与 shader-f16，但未下载模型实测中文质量；离线模式不依赖它）；`wiki-chunks.json` 由 service worker 缓存（stale-while-revalidate），AI 面板打开时预载，离线回答可引用 |
 | ✅ | F（部分）：托管在线运行时、每日请求与 neurons 限额、429 / 额度 / 故障的降级与本地回退 |
 | ⬜ | B / C：统一 QueryPlan / EvidenceBundle、有效目录快照（含自定义角色）、离线资料包安装与严格离线门禁 |
 | ⬜ | 更多角色的局面规则（目前覆盖暗流涌动常见的胜负相关角色）；回答中事实与引文的自动核对 |
@@ -413,4 +416,4 @@ worker/src/         # 共享领域服务的MCP/REST/云存储适配
 
 **常见失败与对策：** 模型在规则就在提示词里时仍算错票数（→ 程序给出数字）；上下文被按相关度裁掉座位表（→ 首段保留）；翻译不用官方原文（→ 双语官方文本 + 工具指引）；把工具调用写进正文或返回空回答（→ 解析执行、无工具重试）；列出的配置不合法（→ 答案校验附上合法方案）。
 
-**已知的数据问题：** 占卜师、侍女的提醒标记与官方不符（占卜师应为“Red herring”，侍女应为“Chose”），已另开任务核对全部提醒标记。
+**提醒标记：** 已按官方 `roles.json`（英文，每枚实体标记一条，含全局标记）与集石 wiki 各角色“提示标记”一节（中文）同步，`npm run sync-reminders` 可重新核对（加 `-- --write` 写入）。中文名先按关键词与数字配对，其余按顺序，修正了 wiki 顺序不同的角色（杂技演员、食人族、朝臣、珀等）；wiki 与官方数量不符的 4 个角色用人工对照。华灯初上 / 山雨欲来的角色用 wiki 中文名并附我们的英文译名；15 个角色 wiki 无此节、奥德赛角色无英文来源，保持原样。语言回退改为“本语言 → 英文基础列表”，英文界面不再显示中文标记。
