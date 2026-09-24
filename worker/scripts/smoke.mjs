@@ -9,6 +9,7 @@
  *   npm run smoke -- --no-games                         # skip creating a throwaway cloud game
  *   npm run smoke -- --chat                             # also send one hosted-AI chat (uses 1 of today's requests)
  *   npm run smoke -- --no-ai                            # skip the hosted-AI checks
+ *   npm run smoke -- --expect-ai                        # after a deploy: wait for the AI routes, fail without them
  *   BOTC_TOKEN=botc_pat_… npm run smoke                 # also check the signed-in cloud library
  *
  * Read-only apart from the throwaway game (and nothing is written to the
@@ -25,6 +26,8 @@ const token = process.env.BOTC_TOKEN
 const withGames = !args.includes('--no-games')
 const withAi = !args.includes('--no-ai')
 const withChat = args.includes('--chat')
+// After a deploy: wait until the new version (with the AI routes) answers, and fail if it never does.
+const expectAi = args.includes('--expect-ai')
 
 let failures = 0
 let passed = 0
@@ -132,7 +135,13 @@ let aiEnabled = false
 if (withAi) {
   console.log('\nHosted AI')
   await check('status', async () => {
-    const { status, json } = await http('GET', '/v1/ai/status')
+    let { status, json } = await http('GET', '/v1/ai/status')
+    // A fresh deploy takes a few seconds to reach every location.
+    for (let waited = 0; expectAi && status === 404 && waited < 90; waited += 5) {
+      await new Promise((resolve) => setTimeout(resolve, 5000))
+      ;({ status, json } = await http('GET', '/v1/ai/status'))
+    }
+    if (status === 404 && expectAi) throw new Error('the deployment still has no /v1/ai routes after 90 s')
     if (status === 404) throw new Skip('this deployment has no /v1/ai routes yet')
     assert(status === 200, `${status} ${JSON.stringify(json)}`)
     if (!json.chat?.available) throw new Skip('no Workers AI binding')
