@@ -3,6 +3,7 @@
  * Composes Header, SettingsPanel, context badge, quick chips, tabs.
  */
 
+import { useState } from 'react'
 import { Box, Chip, Divider, Tab, Tabs, alpha } from '@mui/material'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import TranslateIcon    from '@mui/icons-material/Translate'
@@ -21,6 +22,7 @@ import { aiModeLabel } from '../../lib/aiSettings'
 import { ChatTab }       from './ChatTab'
 import { SkillsTab }     from './SkillsTab'
 import { LogTab }        from './LogTab'
+import { ShareDialog }   from './ShareDialog'
 import { useAiPanel }    from './useAiPanel'
 import { getChipSkills } from '../../lib/ai/skills'
 import type { AiPanelContentProps, PanelTab } from './types'
@@ -48,8 +50,9 @@ export function AiPanelContent({ open, onClose, context, callbacks, variant = 's
     activeTab, setActiveTab, messages, setMessages, input, setInput,
     loading, autoApply, setAutoApply, fillLog, bottomRef, inputRef,
     effectiveCtx, canSend, localState, doApplyFill, undoFill, handleSend, downloadLog, clearMessages,
-    rateAnswer, shareConversation, notice,
+    rateAnswer, shareConversation, conversationItem, notice,
   } = panel
+  const [shareOpen, setShareOpen] = useState(false)
 
   const zh         = effectiveCtx.language === 'zh'
   const chipSkills = getChipSkills(effectiveCtx)
@@ -67,10 +70,12 @@ export function AiPanelContent({ open, onClose, context, callbacks, variant = 's
         setShowSettings={setShowSettings}
         hasMessages={messages.length > 0}
         onClear={clearMessages}
-        onShare={() => { void shareConversation() }}
+        onShare={() => setShareOpen(true)}
         onClose={onClose}
         language={effectiveCtx.language}
       />
+
+      <ShareDialog open={shareOpen} onClose={() => setShareOpen(false)} zh={zh} item={conversationItem} onSend={(comment) => { void shareConversation(comment) }} />
 
       <SettingsPanel settings={settings} patchSettings={patchSettings} showSettings={showSettings} busy={loading || localState.status === 'loading'} />
 

@@ -108,3 +108,62 @@ export function formatSummary(s) {
     table('By computed facts:', s.byFacts),
   ].join('\n')
 }
+
+// ── Google Form responses (Google Sheets → File → Download → CSV) ───────────────
+
+const FORM_JSON_MARKER = '--- botc-feedback-json ---'
+
+/** RFC 4180 CSV: quoted fields may hold commas, quotes ("") and newlines. */
+export function parseCsv(text) {
+  const rows = []
+  let row = [], field = '', quoted = false
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i]
+    if (quoted) {
+      if (c === '"' && text[i + 1] === '"') { field += '"'; i++ }
+      else if (c === '"') quoted = false
+      else field += c
+    } else if (c === '"') quoted = true
+    else if (c === ',') { row.push(field); field = '' }
+    else if (c === '\n' || c === '\r') {
+      if (c === '\r' && text[i + 1] === '\n') i++
+      row.push(field); rows.push(row); row = []; field = ''
+    } else field += c
+  }
+  if (field || row.length) { row.push(field); rows.push(row) }
+  return rows.filter((r) => r.some((f) => f !== ''))
+}
+
+/**
+ * Form responses as rows like the ai_feedback table's: the JSON block at the
+ * end of "Chat History" carries kind, rating, reasons and each answer's
+ * trace; the readable part carries the answers.
+ */
+export function rowsFromFormCsv(text) {
+  const [header, ...records] = parseCsv(text.replace(/^\uFEFF/, ''))
+  const col = (name) => header.findIndex((h) => h.trim().toLowerCase() === name)
+  const iTime = col('timestamp'), iChat = col('chat history'), iComment = col('additional comment')
+  return records.flatMap((r, index) => {
+    const chat = r[iChat] ?? ''
+    const [readable, json] = chat.split(FORM_JSON_MARKER)
+    let meta
+    try { meta = JSON.parse(json) } catch { return [] }
+    const answers = readable.split(/\*\*(?:答|A)：\*\*/).slice(1).map((a) => a.split(/\n\*\*(?:问|Q)：\*\*|\n> /)[0].trim())
+    const messages = meta.turns.flatMap((t, i) => [
+      ...(t.q ? [{ role: 'user', content: t.q }] : []),
+      { role: 'assistant', content: answers[i] ?? '', ...(t.trace ? { trace: t.trace } : {}) },
+    ])
+    const last = meta.turns[meta.turns.length - 1]?.trace ?? {}
+    return [{
+      id: `form-${index + 1}`,
+      created_at: Date.parse(r[iTime]) || Date.parse(meta.at) || 0,
+      kind: meta.kind, rating: meta.rating, reasons: JSON.stringify(meta.reasons ?? []),
+      comment: (r[iComment] ?? '').trim() || null, language: meta.language,
+      route: last.route ?? null, provider: last.provider ?? null, model: last.model ?? null,
+      prompt_version: meta.promptVersion ?? null, build: meta.build ?? null,
+      question: meta.turns[meta.turns.length - 1]?.q ?? null,
+      payload: JSON.stringify({ context: meta.context, language: meta.language, messages }),
+    }]
+  })
+}
+

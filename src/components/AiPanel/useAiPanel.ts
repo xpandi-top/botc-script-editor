@@ -16,7 +16,7 @@ import { answerLocally, loadCharacterGuides } from '../../lib/ai/localAnswer'
 import { getAbilityText, getDisplayName } from '../../catalog'
 import { initWikiSearch } from '../../lib/wikiSearch'
 import { BUILD_ID, emptyMeta, PROMPT_VERSION, type AnswerRoute, type AnswerTrace, type RetrievalMeta } from '../../lib/ai/trace'
-import { conversationMarkdown, feedbackItem, flushFeedback, sendFeedback, type FeedbackMessage, type FeedbackRating, type FeedbackReason } from '../../lib/ai/feedback'
+import { feedbackItem, flushFeedback, sendFeedback, type FeedbackMessage, type FeedbackRating, type FeedbackReason } from '../../lib/ai/feedback'
 import { checkAnswer } from '../../lib/ai/answerCheck'
 import { useT } from '../../context/I18nContext'
 import { storePair } from '../../lib/translationMemory'
@@ -292,18 +292,19 @@ export function useAiPanel({ open, context, callbacks }: UseAiPanelOptions) {
     setMessages((list) => list.map((m) => m.id === msgId ? { ...m, feedback: { rating, reasons, comment, state } } : m))
   }, [messages, effectiveCtx.language, feedbackContext])
 
-  /** One click: send the whole conversation with its diagnostics, and copy it as Markdown. */
-  const shareConversation = useCallback(async () => {
-    const list = asFeedback(messages)
-    if (!list.length) return
+  /** The whole conversation as one feedback item (what "share" sends). */
+  const conversationItem = useCallback((comment?: string) => feedbackItem({
+    kind: 'conversation', comment, language: effectiveCtx.language, context: feedbackContext(), messages: asFeedback(messages),
+  }), [messages, effectiveCtx.language, feedbackContext])
+
+  /** Send the whole conversation with its diagnostics (and the user's comment) to the feedback form. */
+  const shareConversation = useCallback(async (comment?: string) => {
+    if (!messages.some((m) => m.role !== 'error')) return
     const zh = effectiveCtx.language === 'zh'
-    const markdown = conversationMarkdown(list, zh, effectiveCtx.title)
-    const copied = await navigator.clipboard?.writeText(markdown).then(() => true, () => false) ?? false
-    const state = await sendFeedback(feedbackItem({ kind: 'conversation', language: effectiveCtx.language, context: feedbackContext(), messages: list }))
-    const sent = { sent: zh ? '已发送给开发者用于改进' : 'Sent to the developers', queued: zh ? '已保存，联网后发送' : 'Saved; it will be sent when online', local: zh ? '未配置服务器，未发送' : 'No server configured; not sent' }[state]
-    setNotice(`${copied ? (zh ? '对话已复制；' : 'Copied; ') : ''}${sent}`)
+    const state = await sendFeedback(conversationItem(comment))
+    setNotice({ sent: zh ? '已发送到反馈表单，谢谢' : 'Sent to the feedback form, thanks', queued: zh ? '已保存，联网后发送' : 'Saved; it will be sent when online', local: zh ? '未配置反馈表单，未发送' : 'No feedback form configured; not sent' }[state])
     setTimeout(() => setNotice(null), 5000)
-  }, [messages, effectiveCtx, feedbackContext])
+  }, [messages, effectiveCtx.language, conversationItem])
 
   // Feedback given offline goes out once the browser is online again.
   useEffect(() => {
@@ -342,6 +343,7 @@ export function useAiPanel({ open, context, callbacks }: UseAiPanelOptions) {
     clearMessages,
     rateAnswer,
     shareConversation,
+    conversationItem,
     notice,
   }
 }

@@ -442,9 +442,9 @@ worker/src/         # 共享领域服务的MCP/REST/云存储适配
 
 **收集。** 每条回答带一份 trace（`src/lib/ai/trace.ts`）：谁回答的（`model` 模型 / `program` 程序 / `fallback` 模型不可用改用本地资料 / `offline` 离线）、provider 与模型、`PROMPT_VERSION` 与构建号、程序给了哪些事实（votes、setup、script-pool、script-facts、recommend、ability-backref、game-state）、检索到的角色 / 角色包 / 规则段落 / wiki 页、答案校验补了什么（lineup、script、votes、ability、ability-text）、在线工具与 neurons、耗时。回答下方可 👍 / 👎（原因：事实或规则错误、答非所问、太笼统、语言或格式、太慢、其他，可附正确答案），ⓘ 看诊断，标题栏一键“分享对话”（发送并复制为 Markdown）。只在用户点击时发送，不含 API Key、页面内容与玩家名；离线时进发件箱，联网后补发。
 
-**存储。** `POST /v1/ai/feedback` → D1 `ai_feedback`（迁移 0003，部署工作流自动应用），每 IP 每天 100 条，不存 IP；不依赖 Workers AI，本地模式的回答也能评价。
+**存储。** 默认发到开发者的 Google 表单“BOTC CHAT BOT FEEDBACK”（https://forms.gle/WQhGQPGfxyCuUJvH9，在 Google Sheets 里查看）：“Chat History” 栏是可读的对话（每条回答后附一行模型与诊断信息），末尾是 `--- botc-feedback-json ---` 之后的一段 JSON（类型、评价、原因、每条回答的问题与 trace）；“Additional Comment” 栏是用户的补充说明。应用内直接提交（POST `formResponse`，无 URL 长度限制，单元格上限 5 万字，超长时去掉最早的几轮）；分享对话框可预览发送内容，也可“在 Google 表单中打开”（预填链接，过长时截断并把全文复制到剪贴板）。表单 id 与两栏的 entry id 在 `src/lib/ai/feedback.ts` 的 `FEEDBACK_FORM`；`VITE_FEEDBACK_FORM=off` 时改发 `POST /v1/ai/feedback` → D1 `ai_feedback`（迁移 0003，每 IP 每天 100 条，不存 IP，不依赖 Workers AI）。
 
-**分析。** `cd worker && npm run feedback -- --days 7`：导出到 `worker/.feedback/`（不提交），按回答来源、provider·模型、prompt 版本、程序事实类型统计 👎 率与 p50 / p90 耗时，统计 👎 原因，数出“没有任何本地资料的 👎 回答”（检索缺口），并把 👎 回答写成评测草稿（`eval-drafts-*.json`），补上 `checks` 后并入 `src/lib/ai/eval/cases.ts`。
+**分析。** 表单：Google Sheets → 文件 → 下载 → CSV，然后 `cd worker && npm run feedback -- --csv 回复.csv`；D1：`npm run feedback -- --days 7`（导出到 `worker/.feedback/`，不提交）。两者输出相同：按回答来源、provider·模型、prompt 版本、程序事实类型统计 👎 率与 p50 / p90 耗时，统计 👎 原因，数出“没有任何本地资料的 👎 回答”（检索缺口），并把 👎 回答写成评测草稿（`eval-drafts-*.json`），补上 `checks` 后并入 `src/lib/ai/eval/cases.ts`。
 
 **可调的地方与对应信号：**
 

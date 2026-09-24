@@ -12,8 +12,9 @@ npm run preview      # Preview production build
 # Add character ability revision (custom Vite plugin script):
 npm run add-revision -- <char_id> --en "text" --zh "text"
 
-# AI answer feedback (👍/👎, shared conversations) from D1: stats + draft eval cases
-(cd worker && npm run feedback -- --days 7)
+# AI answer feedback (👍/👎, shared conversations): stats + draft eval cases, from the
+# Google Form's Sheets export (--csv) or from D1 (--days)
+(cd worker && npm run feedback -- --csv responses.csv)
 
 # Re-check reminder tokens against the official roles.json (English) and the
 # 集石 wiki 提示标记 sections (Chinese); add `-- --write` to update the files

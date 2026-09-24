@@ -20,7 +20,7 @@ type Props = {
   setShowSettings: (v: boolean | ((prev: boolean) => boolean)) => void
   hasMessages: boolean
   onClear: () => void
-  /** Send the conversation to the developers and copy it as Markdown. */
+  /** Open the dialog that sends the conversation to the feedback form. */
   onShare?: () => void
   onClose?: () => void
   language: Language
@@ -63,7 +63,7 @@ export function Header({ variant, modeLabel, showSettings, setShowSettings, hasM
         </IconButton>
       </Tooltip>
       {onShare && (
-        <Tooltip title={zh ? '分享对话给开发者，并复制为 Markdown（问题、回答与诊断信息；不含 Key、页面内容与玩家名）' : 'Share the conversation with the developers and copy it as Markdown (questions, answers, diagnostics; no keys, page text or player names)'}>
+        <Tooltip title={zh ? '把对话和模型信息发送到反馈表单（可加说明）' : 'Send the conversation and model information to the feedback form (with a comment)'}>
           <span>
             <IconButton size="small" aria-label={zh ? '分享对话' : 'Share conversation'} onClick={onShare} disabled={!hasMessages} sx={{ p: 0.3 }}>
               <IosShareIcon sx={{ fontSize: 15 }} />
