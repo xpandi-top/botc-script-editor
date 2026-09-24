@@ -9,7 +9,7 @@
  */
 import { getAbilityText, getDisplayName } from '../../catalog'
 import { charactersIn, listLine, misdescribedAbilities, poolProblems, setupProblems } from './answerParse'
-import { headlineScript, mostNamedScript, planRequest } from './ruleFacts'
+import { aliveCount, headlineScript, mostNamedScript, planRequest } from './ruleFacts'
 import type { AiContext } from './types'
 
 export type CheckedAnswer = { text: string; corrected: boolean }
@@ -19,16 +19,33 @@ const names = (ids: string[], zh: boolean) => `${ids.join(', ')}（${ids.map((id
 type CheckContext = Pick<AiContext, 'language' | 'characterIds' | 'seats'>
 
 export function checkAnswer(ctx: CheckContext, query: string, text: string, previousQueries: string[] = [], lastAnswer?: string): CheckedAnswer {
+  const zh = ctx.language === 'zh'
   const checked = checkLineUp(ctx, query, text, previousQueries, lastAnswer)
+  const notes: string[] = []
+  const votes = voteProblem(query, text, zh)
+  if (votes) notes.push(`**${zh ? '程序校验' : 'Program check'}**：${votes}`)
   // Only the model's own words: not the program's line-up just appended.
   const ids = misdescribedAbilities(text)
-  if (!ids.length) return checked
-  const zh = ctx.language === 'zh'
-  const lines = ids.map((id) => `- ${getDisplayName(id, ctx.language)}：${getAbilityText(id, ctx.language) ?? ''}`).join('\n')
-  return {
-    corrected: true,
-    text: `${checked.text}\n\n---\n**${zh ? '能力原文' : 'Ability text'}**：${zh ? '以下角色能力的描述与原文措辞差异较大，请以原文为准：' : 'these descriptions differ a lot from the official wording; the official text is:'}\n${lines}`,
+  if (ids.length) {
+    const lines = ids.map((id) => `- ${getDisplayName(id, ctx.language)}：${getAbilityText(id, ctx.language) ?? ''}`).join('\n')
+    notes.push(`**${zh ? '能力原文' : 'Ability text'}**：${zh ? '以下角色能力的描述与原文措辞差异较大，请以原文为准：' : 'these descriptions differ a lot from the official wording; the official text is:'}\n${lines}`)
   }
+  if (!notes.length) return checked
+  return { corrected: true, text: `${checked.text}${notes.map((note) => `\n\n---\n${note}`).join('')}` }
+}
+
+const ZH_NUMBERS: Record<string, number> = { 一: 1, 两: 2, 二: 2, 三: 3, 四: 4, 五: 5, 六: 6, 七: 7, 八: 8, 九: 9, 十: 10 }
+
+/** "N 名存活玩家时处决需要几票": the answer's vote numbers must include the right one. */
+function voteProblem(query: string, text: string, zh: boolean): string | null {
+  const alive = aliveCount(query)
+  if (!alive || !/票|vote/i.test(query)) return null
+  const need = Math.ceil(alive / 2)
+  const numbers = [...text.matchAll(/(\d+|[一两二三四五六七八九十])\s*(?:张)?\s*(?:票|votes?)/gi)].map((m) => ZH_NUMBERS[m[1]] ?? Number(m[1]))
+  if (!numbers.length || numbers.includes(need)) return null
+  return zh
+    ? `${alive} 名存活玩家时，处决至少需要 ${need} 票（存活人数的一半，向上取整），且票数要多于当天其他被提名者。`
+    : `With ${alive} players alive, an execution needs at least ${need} votes (half the alive players, rounded up) and more than any other nominee today.`
 }
 
 function checkLineUp(ctx: CheckContext, query: string, text: string, previousQueries: string[], lastAnswer?: string): CheckedAnswer {

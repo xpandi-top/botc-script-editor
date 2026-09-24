@@ -1,6 +1,6 @@
 import type { WebWorkerMLCEngine } from '@mlc-ai/web-llm'
 import type { GeminiRequest, GeminiResponse } from '../../gemini'
-import { budgetHistory } from '../../../core/ai/contextBudget'
+import { budgetHistory, estimateQwenTokens } from '../../../core/ai/contextBudget'
 import { stripThinking } from '../modelText'
 import { WEBLLM_MODELS, WEBLLM_INPUT_BUDGET, WEBLLM_OUTPUT_BUDGET } from './webllmModels'
 
@@ -47,7 +47,28 @@ export function unloadWebLlm(): void {
   update({ status: 'idle', model: '', progress: 0, detail: '' })
 }
 
-/** Explicit user action only. Merely choosing WebLLM never downloads a model. */
+// The model last loaded on this device: its files are probably in the browser cache.
+const LOADED_KEY = 'botc-webllm-loaded'
+const remember = (model: string | null) => {
+  try { if (model) localStorage.setItem(LOADED_KEY, model); else localStorage.removeItem(LOADED_KEY) } catch { /* storage unavailable */ }
+}
+
+/**
+ * After a page reload, load the model again when its files are still in the
+ * browser cache: no download, a few seconds. Never starts a download — a
+ * cleared cache needs the explicit button again.
+ */
+export async function resumeWebLlm(model: string): Promise<boolean> {
+  if (state.status !== 'idle' || !supportsWebLlm()) return false
+  try { if (localStorage.getItem(LOADED_KEY) !== model) return false } catch { return false }
+  const { hasModelInCache } = await import('@mlc-ai/web-llm')
+  if (!(await hasModelInCache(model).catch(() => false))) { remember(null); return false }
+  if (state.status !== 'idle') return false
+  await loadWebLlm(model)
+  return true
+}
+
+/** Explicit user action only (or resumeWebLlm from cache). Merely choosing WebLLM never downloads a model. */
 export async function loadWebLlm(model: string): Promise<void> {
   if (state.status === 'ready' && state.model === model) return
   if (state.status === 'loading' || state.status === 'generating') throw new Error('本地模型正在忙 / Local model is busy')
@@ -73,7 +94,10 @@ export async function loadWebLlm(model: string): Promise<void> {
       },
     })
     await cancellable(current.engine.reload(model, { context_window_size: 4096 }), current.abort.signal)
-    if (session === current) update({ status: 'ready', progress: 1, detail: '' })
+    if (session === current) {
+      update({ status: 'ready', progress: 1, detail: '' })
+      remember(model)
+    }
   } catch (error) {
     if (session === current) {
       unloadWebLlm()
@@ -88,7 +112,7 @@ export async function generateWebLlm(req: GeminiRequest, model: string): Promise
   if (!current?.engine || state.status !== 'ready' || state.model !== model) {
     throw new Error('请先在 AI 设置中下载并加载所选本地模型。 / Load the selected local model in AI settings first.')
   }
-  const contents = budgetHistory(req.systemInstruction ?? '', req.contents, WEBLLM_INPUT_BUDGET)
+  const contents = budgetHistory(req.systemInstruction ?? '', req.contents, WEBLLM_INPUT_BUDGET, estimateQwenTokens)
   const messages = [
     ...(req.systemInstruction ? [{ role: 'system' as const, content: req.systemInstruction }] : []),
     ...contents.map((c) => ({ role: c.role === 'model' ? 'assistant' as const : 'user' as const, content: c.parts.map((p) => p.text).join('') })),

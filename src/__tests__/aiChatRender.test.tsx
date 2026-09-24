@@ -2,7 +2,7 @@
 import { describe, it, expect, afterEach } from 'vitest'
 import { cleanup, render, screen } from '@testing-library/react'
 import { MdText } from '../components/AiPanel/MdText'
-import { stripThinking } from '../lib/ai/modelText'
+import { splitInlineList, stripThinking } from '../lib/ai/modelText'
 
 afterEach(cleanup)
 
@@ -12,6 +12,17 @@ describe('stripThinking', () => {
     expect(stripThinking('<think>先想一想……\n很多步</think>\n\n答案')).toBe('答案')
     expect(stripThinking('<think>unfinished reasoning\n\nThe answer.')).toBe('The answer.')
     expect(stripThinking('plain </think> text')).toBe('plain  text')
+  })
+})
+
+describe('splitInlineList', () => {
+  it('puts inline numbered points on their own lines', () => {
+    expect(splitInlineList('要注意以下几点：1. 保持轻松。2. 与玩家互动。3. 注意节奏。'))
+      .toBe('要注意以下几点：\n1. 保持轻松。\n2. 与玩家互动。\n3. 注意节奏。')
+    expect(splitInlineList('Tips: 1. Relax 2. Talk')).toBe('Tips:\n1. Relax\n2. Talk')
+  })
+  it('leaves versions, decimals and single numbers alone', () => {
+    for (const text of ['Qwen3 1.7B 与 0.6B', '第 1. 条', '1. 只有一条', '版本 2.1 和 1.5']) expect(splitInlineList(text)).toBe(text)
   })
 })
 

@@ -29,14 +29,23 @@ export type FactsPage = Pick<AiContext, 'characterIds' | 'seats'> & {
   previousQueries?: string[]
   /** The assistant's last answer: "它" often means the script it just recommended. */
   lastAnswer?: string
+  /**
+   * Facts about the page's game (alive count, win conditions): always (a
+   * large model uses them as context), or only when the question is about
+   * the game (a local answer or a 4K local model has no room for noise).
+   */
+  gameFacts?: 'always' | 'when-asked'
 }
+
+// About the game on the page, not a hypothetical ("6 个人存活时…" brings its own numbers).
+const ASKS_GAME = /局势|局面|现在|当前|目前|场上|这局|本局|此时|今天|接下来|会怎样|会不会|获胜|胜利|赢|输|结束|situation|right now|current|this game|today|next|win|lose|game over/i
 
 const SETUP_WORDS = /局|配置|开局|在场|上场|发牌|推荐角色|挑选|setup|set up|in play|line-?up|deal|which characters/i
 const SCRIPT_DESIGN = /(设计|生成|创建|组|做|出|编|写)[^。？?\n]{0,16}剧本|剧本[^。？?\n]{0,6}(设计|生成)|(design|build|create|make|generate)\b[^.?\n]{0,30}\bscript/i
 const TEENSY = /teensy|小型|小剧本|5\s*[-–~到至]\s*6\s*人|五到六人|5-6|5～6/i
 const ONLY_EDITION = /只用|仅用|只包含|只从|全部来自|全部用|only (use|from)|entirely from/i
 
-function aliveCount(query: string): number | null {
+export function aliveCount(query: string): number | null {
   const m = query.match(/(\d{1,2})\s*(?:个|名)?\s*(?:人|玩家)?\s*(?:存活|活着)|存活(?:的)?(?:玩家)?(?:有|还剩|剩)?\s*(\d{1,2})|(\d{1,2})\s+(?:players?\s+)?(?:are\s+)?(?:alive|living)/i)
   const n = m ? Number(m[1] ?? m[2] ?? m[3]) : NaN
   return n >= 1 && n <= 20 ? n : null
@@ -233,7 +242,7 @@ export function computeRuleFacts(query: string, language: Language, page: FactsP
     if (ids.length) facts.push(`${zh ? '上一条回答里角色的能力原文（原样引用，不要改写或凭记忆补充）' : 'Official ability text of the characters in the last answer (quote as is; do not reword or recall)'}：${ids.map((id) => `\n  - ${name(id, zh)}：${getAbilityText(id, language) ?? ''}`).join('')}`)
   }
 
-  if (page.seats?.length) {
+  if (page.seats?.length && (page.gameFacts !== 'when-asked' || ASKS_GAME.test(query))) {
     const seatName = (seat: number) => {
       const id = page.seats!.find((s) => s.seat === seat)?.characterId
       return `#${seat}${id ? (zh ? `（${name(id, true)}）` : ` (${name(id, false)})`) : ''}`

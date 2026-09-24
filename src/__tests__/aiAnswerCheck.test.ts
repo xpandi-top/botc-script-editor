@@ -39,6 +39,16 @@ describe('checkAnswer', () => {
   })
 })
 
+describe('vote counts', () => {
+  it('appends the threshold when the answer gives another number', () => {
+    const q = '6 个人存活的时候，处决至少需要几票？'
+    expect(checkAnswer(tb, q, '5票').text).toContain('处决至少需要 3 票')
+    expect(checkAnswer(tb, q, '至少需要三票。').corrected).toBe(false)
+    expect(checkAnswer(tb, q, '需要 3 票，而且要比其他人的 2 票多。').corrected).toBe(false)
+    expect(checkAnswer(tb, '处决规则是什么？', '5票').corrected).toBe(false)
+  })
+})
+
 describe('ability descriptions', () => {
   it('appends the real text for made-up abilities, and leaves quotes alone', () => {
     const made = '7 人配置\n- 镇长：你可以将你的投票权增加 2 票。\n- 小恶魔：每个夜晚*，你要选择一名玩家：他死亡。如果你以这种方式自杀，一名爪牙会变成小恶魔。\n- 厨师：适合新手，信息简单。'

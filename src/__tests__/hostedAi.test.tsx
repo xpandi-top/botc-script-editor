@@ -184,7 +184,10 @@ describe('answers without a model', () => {
     const answer = local.result.current.messages.at(-1)!
     expect(answer).toMatchObject({ role: 'assistant', local: true })
     expect(answer.content).toContain('这两名玩家之一是该角色')
-    expect(answer.content).toContain('本地模型尚未下载或加载')
+    // Official text is exact: no model needed, so no note about loading one.
+    expect(answer.content).not.toContain('本地模型尚未下载或加载')
+    await act(async () => { await local.result.current.handleSend('新手说书人第一次主持要注意什么？') })
+    expect(local.result.current.messages.at(-1)!.content).toContain('本地模型尚未下载或加载')
     // Only the app's own wiki file (cached for offline answers); nothing goes to the API.
     expect(fetchMock.mock.calls.map(([url]) => String(url)).filter((url) => !url.endsWith('/wiki-chunks.json'))).toEqual([])
 
@@ -198,6 +201,28 @@ describe('answers without a model', () => {
     expect(error).toMatchObject({ role: 'error', content: expect.stringContaining('额度已用完') })
     expect(fallback).toMatchObject({ role: 'assistant', local: true })
     expect(fallback.content).toContain('至少需要 3 票')
+  })
+
+  it('answers from local data at once when the browser is offline', async () => {
+    const { renderHook, act } = await import('@testing-library/react')
+    const { useAiPanel } = await import('../components/AiPanel/useAiPanel')
+    const wrapper = ({ children }: { children: React.ReactNode }) => <I18nProvider language="zh">{children}</I18nProvider>
+    saveAiSettings(hosted)
+    const fetchMock = vi.fn(async () => { throw new TypeError('Failed to fetch') })
+    vi.stubGlobal('fetch', fetchMock)
+    const onLine = vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false)
+    try {
+      const panel = renderHook(() => useAiPanel({ open: true }), { wrapper })
+      await act(async () => { await panel.result.current.handleSend('6 个人存活的时候，处决至少需要几票？') })
+      const answer = panel.result.current.messages.at(-1)!
+      expect(answer).toMatchObject({ role: 'assistant', local: true })
+      expect(answer.content).toContain('至少需要 3 票')
+      expect(answer.content).toContain('当前离线')
+      expect(panel.result.current.messages.some((m) => m.role === 'error')).toBe(false)
+      expect(fetchMock.mock.calls.map(([url]) => String(url)).filter((url) => url.includes('/v1/ai/chat'))).toEqual([])
+    } finally {
+      onLine.mockRestore()
+    }
   })
 })
 

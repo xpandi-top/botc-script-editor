@@ -7,6 +7,7 @@
  * so context selection can keep the relevant ones whole.
  */
 import { CHARACTER_DISTRIBUTION } from '../engine/setup'
+import { createWikiIndex, type WikiIndex } from './wikiIndex'
 
 function distributionLine(zh: boolean): string {
   return Object.entries(CHARACTER_DISTRIBUTION)
@@ -126,3 +127,16 @@ export const CORE_RULES: Record<'en' | 'zh', string> = { en: EN, zh: ZH }
 export function coreRuleSections(lang: 'en' | 'zh'): Array<{ heading: string; text: string }> {
   return CORE_RULES[lang].split(/\n\s*\n/).slice(1, -1).map((block) => ({ heading: block.split('\n')[0].replace(/[:：]$/, ''), text: block }))
 }
+
+const sectionIndexes = new Map<'en' | 'zh', WikiIndex>()
+
+/** The rules sections most relevant to a question (TF-IDF over the sections above). */
+export function searchCoreRules(query: string, lang: 'en' | 'zh', n = 2): Array<{ heading: string; text: string }> {
+  let index = sectionIndexes.get(lang)
+  if (!index) {
+    index = createWikiIndex(coreRuleSections(lang).map((s, i) => ({ id: String(i), page: 'core', url: '', heading: s.heading, text: s.text, wordCount: 0 })))
+    sectionIndexes.set(lang, index)
+  }
+  return index.search(query, n).map((chunk) => ({ heading: chunk.heading, text: chunk.text }))
+}
+

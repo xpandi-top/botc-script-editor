@@ -59,7 +59,9 @@ export function AiPanelContent({ open, onClose, context, callbacks, variant = 's
 
       <Header
         variant={variant}
-        modeLabel={aiModeLabel(settings, zh)}
+        modeLabel={`${aiModeLabel(settings, zh)}${settings.provider !== 'webllm' ? ''
+          : localState.status === 'loading' ? ` · ${Math.round(localState.progress * 100)}%`
+          : localState.status === 'ready' || localState.status === 'generating' ? (zh ? ' · 模型就绪' : ' · model ready') : ''}`}
         showSettings={showSettings}
         setShowSettings={setShowSettings}
         hasMessages={messages.length > 0}

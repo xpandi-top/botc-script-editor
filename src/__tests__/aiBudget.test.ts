@@ -66,6 +66,20 @@ describe('local context retrieval and request budget', () => {
       if (type === 'character') expect(prompt).toContain('FILLS FORMAT')
     }
   })
+  it('fits the local model prompt into its 4K window, with rules and wiki evidence', async () => {
+    const { prepareSystemPrompt } = await import('../lib/ai/prompts')
+    const { estimateQwenTokens } = await import('../core/ai/contextBudget')
+    const { WEBLLM_INPUT_BUDGET } = await import('../lib/ai/runtime/webllmModels')
+    const { EVAL_CASES } = await import('../lib/ai/eval/cases')
+    const { evalContext } = await import('../lib/ai/eval/contexts')
+    const game = evalContext(EVAL_CASES.find((x) => x.id === 'situation-scarlet-woman')!)
+    for (const q of ['新手说书人第一次主持要注意什么？', '有什么剧本休闲可以玩的', '我们 7 个人玩暗流涌动，帮我挑选这局的在场角色', '醉酒的共情者晚上会得到什么信息？']) {
+      const prompt = await prepareSystemPrompt(game, q, [], { local: true })
+      expect(estimateQwenTokens(prompt) + estimateQwenTokens(q) + 48, q).toBeLessThanOrEqual(WEBLLM_INPUT_BUDGET)
+    }
+    // Relevant core rules reach the local model too (the wiki index is shared across tests).
+    expect(await prepareSystemPrompt(game, '醉酒的共情者晚上会得到什么信息？', [], { local: true })).toContain('醉酒或中毒的玩家没有能力')
+  })
   it.each(['zh', 'en'] as const)('fits a large %s game context and long history into the outbound request', async (language) => {
     const relevant = language === 'zh' ? '中毒玩家：小明被投毒，今晚没有能力。' : 'Poisoned player: Alice has no ability tonight.'
     const query = language === 'zh' ? '中毒玩家今晚能使用能力吗？' : 'Can the poisoned player use their ability tonight?'

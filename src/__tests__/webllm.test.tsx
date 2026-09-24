@@ -1,16 +1,17 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, fireEvent, render, screen, waitFor, cleanup } from '@testing-library/react'
-import { getWebLlmState, loadWebLlm, unloadWebLlm, generateWebLlm } from '../lib/ai/runtime/webllm'
-import { WEBLLM_MODELS } from '../lib/ai/runtime/webllmModels'
+import { getWebLlmState, loadWebLlm, resumeWebLlm, unloadWebLlm, generateWebLlm } from '../lib/ai/runtime/webllm'
+import { WEBLLM_INPUT_BUDGET, WEBLLM_MODELS } from '../lib/ai/runtime/webllmModels'
 import { getDefaultModel, loadAiSettings, migrateAiSettings, saveAiSettings, type AiSettings } from '../lib/aiSettings'
 import { geminiGenerate } from '../lib/gemini'
 import { prepareSystemPrompt } from '../lib/ai/prompts'
-import { estimateTokens } from '../core/ai/contextBudget'
+import { estimateQwenTokens } from '../core/ai/contextBudget'
 import { WebLlmSettings } from '../components/AiPanel/WebLlmSettings'
 import { I18nProvider } from '../context/I18nContext'
 
-const sdk = vi.hoisted(() => ({ reload: vi.fn(), create: vi.fn(), terminate: vi.fn() }))
+const sdk = vi.hoisted(() => ({ reload: vi.fn(), create: vi.fn(), terminate: vi.fn(), cached: vi.fn() }))
 vi.mock('@mlc-ai/web-llm', () => ({
+  hasModelInCache: sdk.cached,
   WebWorkerMLCEngine: class {
     reload = sdk.reload
     chat = { completions: { create: sdk.create } }
@@ -50,6 +51,26 @@ describe('WebLLM settings', () => {
     await expect(geminiGenerate({ contents: [{ role: 'user', parts: [{ text: '你好' }] }] }, settings)).rejects.toThrow('下载并加载')
     expect(sdk.reload).not.toHaveBeenCalled()
     expect(fetchMock).not.toHaveBeenCalled()
+  })
+})
+
+describe('resuming a cached model after a reload', () => {
+  it('loads again only a model this device loaded before and still has cached', async () => {
+    sdk.cached.mockResolvedValue(true)
+    expect(await resumeWebLlm(model)).toBe(false) // never loaded here: no automatic download
+    expect(sdk.reload).not.toHaveBeenCalled()
+    await loadWebLlm(model)
+    unloadWebLlm()
+    sdk.reload.mockClear()
+    expect(await resumeWebLlm(model)).toBe(true)
+    expect(sdk.reload).toHaveBeenCalledTimes(1)
+    expect(getWebLlmState().status).toBe('ready')
+    unloadWebLlm()
+    // Cache cleared by the browser: no download without the button.
+    sdk.cached.mockResolvedValue(false)
+    sdk.reload.mockClear()
+    expect(await resumeWebLlm(model)).toBe(false)
+    expect(sdk.reload).not.toHaveBeenCalled()
   })
 })
 
@@ -101,14 +122,15 @@ describe('local runtime', () => {
     expect(sdk.create).not.toHaveBeenCalled()
     expect(getWebLlmState().status).toBe('ready')
   })
-  it('builds a compact Chinese prompt using the local catalog without embedding or Wiki network calls', async () => {
+  it('builds a Chinese prompt that fits the local window, with no embedding or API calls', async () => {
     const fetchMock = vi.fn()
     vi.stubGlobal('fetch', fetchMock)
     const prompt = await prepareSystemPrompt({ type: 'general', title: '', language: 'zh', fields: [] }, '奥德赛有多少角色？', [], { local: true })
     expect(prompt).toContain('119')
     expect(prompt).toContain('简体中文')
-    expect(estimateTokens(prompt)).toBeLessThan(2600)
-    expect(fetchMock).not.toHaveBeenCalled()
+    expect(estimateQwenTokens(prompt)).toBeLessThan(WEBLLM_INPUT_BUDGET - 400)
+    // Only the app's own wiki file (served from the service worker cache offline).
+    expect(fetchMock.mock.calls.map(([url]) => String(url)).filter((url) => !url.endsWith('/wiki-chunks.json'))).toEqual([])
   })
   it('shows Chinese loading/ready controls and releases resources from the UI', async () => {
     render(<I18nProvider language="zh"><WebLlmSettings model={model} /></I18nProvider>)
