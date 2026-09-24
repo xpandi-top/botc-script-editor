@@ -12,6 +12,7 @@ import type { Language } from '../../types'
 const ASKS_SCRIPT = /剧本|板子|script/i
 const ASKS_ADVICE = /推荐|入门|新手|休闲|轻松|简单|容易|难度|复杂|适合|有哪些|哪个|哪些|什么剧本|玩什么|recommend|beginner|new players?|first game|easy|casual|simple|difficult|complex|which|what script/i
 const SMALL_GROUP = /小型|人少|5\s*[-–~到至]?\s*6\s*人|五六个人|teensy|small group|few players/i
+const ONLY_OFFICIAL = /官方|official/i
 const OFFICIAL = ['tb', 'bmr', 'snv']
 
 const MISINFORMATION = {
@@ -58,10 +59,11 @@ export function scriptRecommendationFacts(query: string, language: Language): st
   const official = OFFICIAL.map((slug) => all.find((s) => s.slug === slug)).filter((s): s is ScriptComplexity => !!s)
   // One script per nested list item, so answers stay readable.
   const items = (list: ScriptComplexity[]) => list.map((sc) => `\n  - ${describe(sc)}`).join('')
-  facts.push(`${zh ? '官方剧本' : 'Official scripts'}：${items(official)}`)
+  facts.push(`${zh ? '官方剧本（只有这三个是官方基础剧本）' : 'Official scripts (only these three are the official base editions)'}：${items(official)}`)
   const small = SMALL_GROUP.test(query)
-  const others = all.filter((s) => !OFFICIAL.includes(s.slug) && (!small || s.characters <= 16)).slice(0, 5)
-  if (others.length) facts.push(`${zh ? (small ? '适合人少的内置小型剧本（按复杂度从低到高）' : '其他内置剧本中较简单的（按复杂度从低到高）') : (small ? 'Small bundled scripts (simplest first)' : 'Simplest other bundled scripts')}：${items(others)}`)
+  // A question about official scripts gets only those; community scripts would be mistaken for official ones.
+  const others = ONLY_OFFICIAL.test(query) ? [] : all.filter((s) => !OFFICIAL.includes(s.slug) && (!small || s.characters <= 16)).slice(0, 5)
+  if (others.length) facts.push(`${zh ? (small ? '适合人少的非官方内置剧本（社区作者，按复杂度从低到高）' : '非官方内置剧本中较简单的（社区作者，按复杂度从低到高）') : (small ? 'Small unofficial bundled scripts (community authors, simplest first)' : 'Simplest unofficial bundled scripts (community authors)')}：${items(others)}`)
   facts.push(zh
     ? `复杂度排名由程序按每个角色的夜晚唤醒、错误信息来源（醉酒、中毒、登记、疯狂等）、相克和设置修正估算，在 ${all.length} 个内置剧本中排序（1 = 最简单），仅供参考。`
     : `Complexity rank is estimated by program from night wakers, false-information sources (drunk, poison, registering, madness), jinxes and setup modifiers per character, among ${all.length} bundled scripts (1 = simplest); a guide only.`)

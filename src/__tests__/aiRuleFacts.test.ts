@@ -74,4 +74,31 @@ describe('follow-up questions', () => {
     const onPage = planRequest('7 个人玩，帮我挑选在场角色', { characterIds: alVsAl, previousQueries: ['暗流涌动适合入门吗？'] })
     expect(onPage?.kind === 'setup' && onPage.plan!.inPlay.every((id) => alVsAl.includes(id))).toBe(true)
   })
+
+  it('reads "第一个" / "the second" as the scripts the last answer listed, in order', async () => {
+    const { planRequest, mostNamedScript } = await import('../lib/ai/ruleFacts')
+    const script = (slug: string) => initialScripts.find((s) => s.slug === slug)!.characters
+    const alVsAl = script('al_vs_al')
+    // "暗流涌动-进阶" is its own script, not a mention of 暗流涌动.
+    const lastAnswer = '最推荐：暗流涌动（tb）。入门进阶：暗流涌动-进阶。其他：明枪暗箭。暗流涌动-进阶 7 人以上。'
+    expect(mostNamedScript(lastAnswer)).toBe(script('tb_expert'))
+    const first = planRequest('第一个适合几个人玩？给我一套 7 人的配置', { characterIds: alVsAl, lastAnswer })
+    expect(first?.kind === 'setup' && first.plan!.inPlay.every((id) => tb.includes(id))).toBe(true)
+    const second = planRequest('For the second one, pick the characters in play for 7 players', { characterIds: alVsAl, lastAnswer })
+    expect(second?.kind === 'setup' && second.script).toBe(script('tb_expert'))
+    // "第一个夜晚" is about the night, not a script.
+    const night = planRequest('7 人局第一个夜晚怎么安排', { characterIds: alVsAl, lastAnswer })
+    expect(night?.kind === 'setup' && night.script).toBe(alVsAl)
+  })
+})
+
+describe('script recommendations', () => {
+  it('lists only the official scripts when asked about official ones', async () => {
+    const { scriptRecommendationFacts } = await import('../lib/ai/scriptFacts')
+    const official = scriptRecommendationFacts('官方的剧本有哪个剧本难度比较适合入门', 'zh').join('\n')
+    expect(official).toContain('暗流涌动')
+    expect(official).not.toContain('非官方')
+    const casual = scriptRecommendationFacts('有什么剧本休闲可以玩的', 'zh').join('\n')
+    expect(casual).toContain('非官方内置剧本')
+  })
 })

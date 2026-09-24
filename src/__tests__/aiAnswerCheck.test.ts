@@ -49,6 +49,16 @@ describe('follow-ups about a recommended script', () => {
     expect(plan?.kind === 'setup' && plan.plan!.inPlay.every((id) => tb.characterIds.includes(id))).toBe(true)
   })
 
+  it('corrects a line-up that is not on the script the heading names', () => {
+    // Legal for the page's script, but the answer says it is a Trouble Brewing line-up.
+    const plan = checkAnswer(alVsAl, '7 个人玩，帮我挑选在场角色', '').text
+    const pageLineUp = plan.match(/在场角色: ([^（]+)/)![1].split(', ')
+    const answer = `暗流涌动（tb）7 人配置\n${pageLineUp.map((id) => getDisplayName(id, 'zh')).join('、')}`
+    const checked = checkAnswer(alVsAl, '第一个适合几个人玩？给我一套 7 人的配置', answer, [], recommendation)
+    expect(checked.corrected).toBe(true)
+    expect(checked.text).toMatch(/在场角色: .*imp/)
+  })
+
   it('accepts a legal line-up for the script the answer is about', () => {
     const answer = '7 人局《暗流涌动》推荐：洗衣妇、图书管理员、调查员、厨师、共情者、投毒者、小恶魔。'
     expect(checkAnswer(alVsAl, '那 7 个人玩它，帮我挑选在场角色', answer, ['官方的剧本哪个最适合入门？']).corrected).toBe(false)

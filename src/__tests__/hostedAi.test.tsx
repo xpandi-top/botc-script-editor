@@ -185,7 +185,8 @@ describe('answers without a model', () => {
     expect(answer).toMatchObject({ role: 'assistant', local: true })
     expect(answer.content).toContain('这两名玩家之一是该角色')
     expect(answer.content).toContain('本地模型尚未下载或加载')
-    expect(fetchMock).not.toHaveBeenCalled()
+    // Only the app's own wiki file (cached for offline answers); nothing goes to the API.
+    expect(fetchMock.mock.calls.map(([url]) => String(url)).filter((url) => !url.endsWith('/wiki-chunks.json'))).toEqual([])
 
     saveAiSettings(hosted)
     vi.stubGlobal('fetch', vi.fn(async (url: string) => (String(url).endsWith('/v1/ai/status')

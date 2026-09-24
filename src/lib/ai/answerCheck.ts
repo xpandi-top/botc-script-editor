@@ -7,7 +7,7 @@
  */
 import { getDisplayName } from '../../catalog'
 import { charactersIn, listLine, poolProblems, setupProblems } from './answerParse'
-import { mostNamedScript, planRequest } from './ruleFacts'
+import { headlineScript, mostNamedScript, planRequest } from './ruleFacts'
 import type { AiContext } from './types'
 
 export type CheckedAnswer = { text: string; corrected: boolean }
@@ -35,12 +35,21 @@ export function checkAnswer(ctx: Pick<AiContext, 'language' | 'characterIds' | '
       return listed ?? adopted ?? (named.length === players ? named : null)
     }
     const aboutScript = mostNamedScript(text)
+    // A line-up must also belong to the script the answer's heading names:
+    // "暗流涌动 7 人配置" listing another script's characters is wrong even
+    // when those characters make a legal line-up for that other script.
+    const headline = headlineScript(text)
+    const offHeadline = (lineUp: string[]) => headline ? lineUp.filter((id) => !headline.includes(id)) : []
     for (const candidate of [script, ...(aboutScript && aboutScript !== script ? [aboutScript] : [])]) {
       const lineUp = lineUpFor(candidate)
-      if (lineUp && !setupProblems(lineUp, candidate, players).length) return { text, corrected: false }
+      if (lineUp && !setupProblems(lineUp, candidate, players).length && !offHeadline(lineUp).length) return { text, corrected: false }
     }
-    const ids = lineUpFor(script)
-    const problems = ids ? setupProblems(ids, script, players, ctx.language) : []
+    const ids = lineUpFor(script) ?? (headline && headline !== script ? lineUpFor(headline) : null)
+    const outside = ids ? offHeadline(ids) : []
+    const problems = [
+      ...(ids ? setupProblems(ids, script, players, ctx.language) : []),
+      ...(outside.length ? [zh ? `${outside.map((id) => getDisplayName(id, 'zh')).join('、')} 不在回答所说的剧本里` : `${outside.map((id) => getDisplayName(id, 'en')).join(', ')} not on the script the answer names`] : []),
+    ]
     const why = ids
       ? (zh ? `回答里的配置不符合规则（${problems.join('；')}）` : `the line-up in the answer breaks the rules (${problems.join('; ')})`)
       : (zh ? '回答里没有完整的在场角色名单' : 'the answer has no complete list of characters in play')

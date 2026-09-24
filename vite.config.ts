@@ -67,6 +67,14 @@ export default defineConfig(({ command, mode }) => {
               options: { cacheName: 'webllm-runtime', expiration: { maxEntries: 8 } },
             },
             {
+              // Rules and wiki excerpts behind offline answers (src/lib/wikiSearch.ts):
+              // loaded when the AI panel opens, then served from cache when offline
+              // and refreshed in the background when online.
+              urlPattern: /\/wiki-chunks\.json$/,
+              handler: 'StaleWhileRevalidate',
+              options: { cacheName: 'wiki-cache', expiration: { maxEntries: 2 } },
+            },
+            {
               urlPattern: /\/assets\/locales\/.+\.json$/,
               handler: 'CacheFirst',
               options: {

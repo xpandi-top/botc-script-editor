@@ -58,23 +58,63 @@ const row = (zh: boolean, c: { townsfolk: number; outsider: number; minion: numb
   zh ? `镇民 ${c.townsfolk} / 外来者 ${c.outsider} / 爪牙 ${c.minion} / 恶魔 ${c.demon}` : `${c.townsfolk} Townsfolk / ${c.outsider} Outsiders / ${c.minion} Minions / ${c.demon} Demon`
 const list = (ids: string[], zh: boolean) => `${ids.join(', ')}（${ids.map((id) => name(id, zh)).join(zh ? '、' : ', ')}）`
 
-const REFERS_BACK = /它|这个|那个|这套|该剧本|上面|刚才|\b(it|this|that)\b/i
+const REFERS_BACK = /它|这个|那个|这套|该剧本|上面|刚才|前者|后者|推荐的|你说的|第[一二三四五1-5]个(?![夜晚白天])|\b(it|this|that|the (first|second|third|former|latter))\b/i
+// "第一个" / "the first" = the first script the last answer named, and so on; -1 = the last one.
+const ORDINALS: [RegExp, number][] = [
+  [/第[一1]个(?![夜晚白天])|前者|\bthe (first|former)\b/i, 0],
+  [/第[二2]个(?![夜晚白天])|\bthe second\b/i, 1],
+  [/第[三3]个(?![夜晚白天])|\bthe third\b/i, 2],
+  [/后者|\bthe latter\b/i, -1],
+]
 const bundledScriptOf = (text: string) => mentionedEntities(text).editionIds.map((id) => initialScripts.find((s) => s.slug === id)?.characters).find(Boolean)
+
+/**
+ * Bundled scripts named in a text by title, in order of first mention.
+ * Longer titles are matched first, so "暗流涌动-进阶" is not also a mention
+ * of "暗流涌动".
+ */
+function scriptMentions(text: string): { characters: string[]; first: number; count: number }[] {
+  const titles = initialScripts
+    .flatMap((s) => [s.titleZh, s.title].filter((t): t is string => !!t && t.length > 1).map((title) => ({ s, title })))
+    .sort((a, b) => b.title.length - a.title.length)
+  let rest = text
+  const found = new Map<string, { characters: string[]; first: number; count: number }>()
+  for (const { s, title } of titles) {
+    let at = rest.indexOf(title)
+    while (at !== -1) {
+      const entry = found.get(s.slug) ?? { characters: s.characters, first: at, count: 0 }
+      entry.first = Math.min(entry.first, at)
+      entry.count++
+      found.set(s.slug, entry)
+      rest = rest.slice(0, at) + '\u0000'.repeat(title.length) + rest.slice(at + title.length)
+      at = rest.indexOf(title, at + title.length)
+    }
+  }
+  return [...found.values()]
+}
 
 /** The bundled script an answer names most often (by title). */
 export function mostNamedScript(text: string): string[] | undefined {
-  const counts = initialScripts
-    .map((s) => ({ s, n: [s.titleZh, s.title].filter((t) => t && t.length > 1).reduce((sum, t) => sum + (text.split(t!).length - 1), 0) }))
-    .filter((x) => x.n > 0)
-    .sort((a, b) => b.n - a.n)
-  return counts[0]?.s.characters
+  return scriptMentions(text).sort((a, b) => b.count - a.count || a.first - b.first)[0]?.characters
 }
 
-/** The bundled script the question names, or a follow-up's earlier one ("它"), else the page's script. */
+/** The bundled script a text's first line (its heading) names, if any. */
+export function headlineScript(text: string): string[] | undefined {
+  const first = text.split('\n').find((line) => line.trim()) ?? ''
+  return mostNamedScript(first)
+}
+
+/** The bundled script the question names, or a follow-up's earlier one ("它", "第一个"), else the page's script. */
 function scriptFor(query: string, page: FactsPage): string[] {
   const named = bundledScriptOf(query)
   if (named) return named
   if (REFERS_BACK.test(query)) {
+    const ordinal = ORDINALS.find(([pattern]) => pattern.test(query))?.[1]
+    if (ordinal !== undefined && page.lastAnswer) {
+      const inOrder = scriptMentions(page.lastAnswer).sort((a, b) => a.first - b.first)
+      const picked = inOrder[ordinal < 0 ? inOrder.length + ordinal : ordinal]
+      if (picked) return picked.characters
+    }
     for (const previous of [...(page.previousQueries ?? [])].reverse().slice(0, 6)) {
       const earlier = bundledScriptOf(previous)
       if (earlier) return earlier

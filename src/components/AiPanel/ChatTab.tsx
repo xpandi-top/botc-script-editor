@@ -2,7 +2,7 @@
  * ChatTab — message list, fill cards, and input area.
  */
 
-import { RefObject } from 'react'
+import { RefObject, useEffect, useState } from 'react'
 import {
   Box, Button, CircularProgress, FormControlLabel, Paper,
   Switch, TextField, Typography, Chip, alpha,
@@ -53,6 +53,34 @@ const TOOL_LABELS: Record<string, [string, string]> = {
 }
 
 const toolLabel = (tool: string, zh: boolean) => TOOL_LABELS[tool]?.[zh ? 0 : 1] ?? tool
+
+/**
+ * The wait indicator, with elapsed seconds: an online answer that looks
+ * things up takes 10–30 s, and a silent spinner reads as a hang.
+ */
+function Waiting({ label, zh }: { label: string; zh: boolean }) {
+  const [seconds, setSeconds] = useState(0)
+  useEffect(() => {
+    const started = Date.now()
+    const timer = setInterval(() => setSeconds(Math.floor((Date.now() - started) / 1000)), 1000)
+    return () => clearInterval(timer)
+  }, [])
+  return (
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+        <CircularProgress size={12} />
+        <Typography variant="caption" color="text.secondary">
+          {label}{seconds >= 2 ? ` ${seconds}s` : ''}
+        </Typography>
+      </Box>
+      {seconds >= 10 && (
+        <Typography variant="caption" color="text.disabled" sx={{ fontSize: '0.62rem' }}>
+          {zh ? '需要查资料或组配置的问题通常要 10–30 秒。' : 'Questions that look things up or build a line-up usually take 10–30 s.'}
+        </Typography>
+      )}
+    </Box>
+  )
+}
 
 export function ChatTab({
   messages, loading, input, setInput, autoApply, setAutoApply,
@@ -200,14 +228,7 @@ export function ChatTab({
           </Box>
         ))}
 
-        {loading && (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-            <CircularProgress size={12} />
-            <Typography variant="caption" color="text.secondary">
-              {t('thinking')}
-            </Typography>
-          </Box>
-        )}
+        {loading && <Waiting label={t('thinking')} zh={zh} />}
         <div ref={bottomRef} />
       </Box>
 
