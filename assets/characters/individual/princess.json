@@ -2,6 +2,13 @@
   "id": "princess",
   "team": "townsfolk",
   "edition": "experimental",
+  "current_revision": "v1",
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
   "setup": false,
   "otherNightReminder": "If the Princess nominated the player who was executed today, wake the Demon as normal, but no one dies to the Demon's ability. :reminder:",
   "en": {

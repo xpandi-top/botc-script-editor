@@ -9,8 +9,9 @@ npm run dev          # Start dev server (Vite)
 npm run build        # TypeScript check + Vite build
 npm run preview      # Preview production build
 
-# Add character ability revision (custom Vite plugin script):
-npm run add-revision -- <char_id> --en "text" --zh "text"
+# Add a character ability revision to assets/characters/individual/<id>.json
+# (becomes current; --keep-current adds an alternative; a language left out keeps its text):
+npm run add-revision -- <char_id> --en "text" --zh "text" [--revision v2026-09] [--note "why"]
 
 # AI answer feedback (👍/👎, shared conversations): stats + draft eval cases, from the
 # Google Form's Sheets export (--csv) or from D1 (--days)
