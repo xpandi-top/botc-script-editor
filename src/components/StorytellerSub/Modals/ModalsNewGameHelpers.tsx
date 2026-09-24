@@ -1,9 +1,52 @@
 import { useState, useEffect, useRef } from 'react'
-import { Box, Button, Typography, Chip, Paper } from '@mui/material'
+import { Box, Button, Typography, Chip, Paper, FormControl, FormHelperText, InputLabel, MenuItem, Select } from '@mui/material'
 import type { ChipProps } from '@mui/material'
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import { getDisplayName, getIconForCharacter, characterById } from '../../../catalog'
+import { MonoText } from '../../../components/ui'
 import type { Language } from '../../../types'
+import type { NewGameConfig, ScriptOption } from '../types'
+
+/**
+ * A new-game draft on another script: the characters dealt, the random pool
+ * and the bluffs came from the old one, so they are cleared. Editing a
+ * running game keeps its seats.
+ */
+export function withScript(config: NewGameConfig, slug: string): NewGameConfig {
+  if (config.scriptSlug === slug) return config
+  if (config.editMode) return { ...config, scriptSlug: slug }
+  return { ...config, scriptSlug: slug, assignments: {}, userAssignments: {}, demonBluffs: [], charPool: [] }
+}
+
+/** Script picker for the storyteller (new game, player assignment). */
+export function ScriptSelect({ value, options, language, label, helperText, onChange }: {
+  value: string
+  options: ScriptOption[]
+  language: Language
+  label: string
+  helperText?: string
+  onChange: (slug: string) => void
+}) {
+  return (
+    // Top margin: the outlined label floats above the field and was clipped at a dialog's top edge.
+    <FormControl size="small" fullWidth sx={{ mt: 0.75 }}>
+      <InputLabel>{label}</InputLabel>
+      <Select value={options.some((s) => s.slug === value) ? value : ''} onChange={(e) => onChange(String(e.target.value))} label={label}>
+        {options.map((s) => (
+          <MenuItem key={s.slug} value={s.slug}>
+            {language === 'zh' ? (s.titleZh || s.title) : s.title}
+            {s.version && (
+              <MonoText component="span" sx={{ ml: 0.75, color: 'text.secondary' }}>
+                v{s.version}
+              </MonoText>
+            )}
+          </MenuItem>
+        ))}
+      </Select>
+      {helperText && <FormHelperText>{helperText}</FormHelperText>}
+    </FormControl>
+  )
+}
 
 type DistributionCounts = {
   townsfolk: number

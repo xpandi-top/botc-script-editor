@@ -366,6 +366,7 @@
     "actual_short": "实",
     "adjusted_for_setup": "修正",
     "setup_checks": "排板提醒",
+    "script_switch_keeps_seats": "切换剧本不会改动已发的角色。",
     "change_to": "变更为",
     "n_games_suffix": " 局",
     "restore_alive": "恢复存活",

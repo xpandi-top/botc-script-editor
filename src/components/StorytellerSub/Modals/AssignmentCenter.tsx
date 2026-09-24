@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Badge, Box, Button, Chip, CircularProgress, Dialog, DialogContent, DialogTitle, IconButton, Tabs, Tab, TextField, Typography, Paper, Tooltip, Select, MenuItem, FormControl, InputLabel } from '@mui/material'
+import { Badge, Box, Button, Chip, CircularProgress, Dialog, DialogContent, DialogTitle, IconButton, Tabs, Tab, TextField, Typography, Paper, Tooltip } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import RemoveIcon from '@mui/icons-material/Remove'
 import CasinoIcon from '@mui/icons-material/Casino'
@@ -30,8 +30,7 @@ import type { Team } from '../../../types'
 import { makeT, makeTpl } from '../../../lib/t'
 import { CHARACTER_DISTRIBUTION } from '../constants'
 import { CharPoolPicker } from './CharPoolPicker'
-import { CharSelect, DistRow, TeamDot } from './ModalsNewGameHelpers'
-import { MonoText } from '../../../components/ui'
+import { CharSelect, DistRow, ScriptSelect, TeamDot, withScript } from './ModalsNewGameHelpers'
 import {
   getDealSession, closeDealSession,
   createSeatClaimSession, subscribeSeatClaims, unclaimSeatByHost, renameSeatByHost, assignCharacterToSeatByHost, addSeatToSession,
@@ -123,7 +122,7 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
   const {
     language,
     newGamePanel, setNewGamePanel, addPlayerSeat, removeLastPlayerSeat, setShowAssignmentCenter,
-    randomAssignCharacters, updateSeatWithLog, updateCurrentDay, currentDay, activeScriptSlug, scriptOptions,
+    randomAssignCharacters, updateSeatWithLog, updateCurrentDay, currentDay, activeScriptSlug, scriptOptions, onSelectScript,
     startNewGame, applyGameChanges,
   } = ctx
   const t = makeT(language)
@@ -187,7 +186,7 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
   // Script is only changeable while a draft is open — a live game's script
   // was fixed at start, so it's shown read-only for the live-game path.
   const handleScriptChange = (slug: string) => {
-    setNewGamePanel((prev) => prev ? { ...prev, scriptSlug: slug } : prev)
+    setNewGamePanel((prev) => prev ? withScript(prev, slug) : prev)
   }
 
   const calcDist = CHARACTER_DISTRIBUTION[playerCount] ?? { townsfolk: 0, outsider: 0, minion: 0, demon: 0 }
@@ -601,31 +600,16 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
             {t('deal_assigned_characters_to_players_new_tab')}
           </Typography>
 
-          {newGamePanel ? (
-            <FormControl size="small" fullWidth>
-              <InputLabel>{t('script')}</InputLabel>
-              <Select value={scriptSlug} onChange={(e) => handleScriptChange(e.target.value)} label={t('script')}>
-                {scriptOptions.map((s) => (
-                  <MenuItem key={s.slug} value={s.slug}>
-                    {language === 'zh' ? (s.titleZh || s.title) : s.title}
-                    {s.version && (
-                      <MonoText component="span" sx={{ ml: 0.75, color: 'text.secondary' }}>
-                        v{s.version}
-                      </MonoText>
-                    )}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          ) : (
-            <Typography variant="caption" color="text.secondary">
-              {t('script')}: {(() => {
-                const opt = scriptOptions.find((s) => s.slug === scriptSlug)
-                if (!opt) return scriptSlug
-                return language === 'zh' ? (opt.titleZh || opt.title) : opt.title
-              })()}
-            </Typography>
-          )}
+          {/* Draft: the new game's script. Live game: switch the running game's
+              script (a wrong pick, or the next game on the same seats). */}
+          <ScriptSelect
+            value={scriptSlug}
+            options={scriptOptions}
+            language={language}
+            label={t('script')}
+            helperText={newGamePanel ? undefined : t('script_switch_keeps_seats')}
+            onChange={(slug) => (newGamePanel ? handleScriptChange(slug) : onSelectScript?.(slug))}
+          />
 
           <Paper variant="outlined" sx={{ p: 1 }}>
             <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: 1 }}>

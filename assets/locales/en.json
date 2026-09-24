@@ -366,6 +366,7 @@
     "actual_short": "Act",
     "adjusted_for_setup": "Adj",
     "setup_checks": "Setup checks",
+    "script_switch_keeps_seats": "Switching the script keeps the characters already dealt.",
     "change_to": "Change to",
     "n_games_suffix": " games",
     "restore_alive": "Restore alive",
