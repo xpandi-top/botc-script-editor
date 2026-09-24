@@ -15,6 +15,7 @@ import { searchWiki } from '../wikiSearch'
 import { retrieveCatalog } from './catalogRetrieval'
 import { computeRuleFacts } from './ruleFacts'
 import type { AiContext } from './types'
+import { emptyMeta, type RetrievalMeta } from './trace'
 
 const TEAM_WORDS: Array<[Team, RegExp]> = [
   ['townsfolk', /镇民|townsfolk/i], ['outsider', /外来者|outsiders?/i], ['minion', /爪牙|minions?/i],
@@ -83,7 +84,7 @@ const RULE_WORDS = /规则|能不能|允许|醉酒|中毒|疯狂|登记|提名|�
  * `definitive`: the program's answer is exact (computed facts, official
  * text, counts) and needs no model; a small local model only adds errors.
  */
-export type LocalAnswer = { message: string; found: boolean; definitive: boolean }
+export type LocalAnswer = { message: string; found: boolean; definitive: boolean; meta: RetrievalMeta }
 
 export function answerLocally(ctx: AiContext, query: string, previousQueries: string[] = [], lastAnswer?: string): LocalAnswer {
   const language = ctx.language
@@ -91,13 +92,16 @@ export function answerLocally(ctx: AiContext, query: string, previousQueries: st
   const retrieval = retrieveCatalog(query, language, previousQueries)
   const sections: string[] = []
 
-  const facts = computeRuleFacts(query, language, { ...ctx, previousQueries, lastAnswer, gameFacts: 'when-asked' })
+  const meta = emptyMeta()
+  const facts = computeRuleFacts(query, language, { ...ctx, previousQueries, lastAnswer, gameFacts: 'when-asked' }, meta.facts)
   if (facts) sections.push(facts.split('\n').slice(1).join('\n'))
   let exact = Boolean(facts)
 
   // Characters the question names: official text (both languages for translations).
   const bilingual = /翻译|译成|translat/i.test(query) || retrieval.quotedIds.length > 0
   const characters = retrieval.characterIds.slice(0, 6)
+  meta.characters = characters
+  meta.editions = retrieval.editionIds
   if (characters.length) sections.push(characters.map((id) => characterCard(id, language, bilingual || retrieval.quotedIds.includes(id))).join('\n\n'))
   exact ||= characters.length > 0
 
@@ -124,11 +128,14 @@ export function answerLocally(ctx: AiContext, query: string, previousQueries: st
   if (!exact || (!facts && RULE_WORDS.test(query))) {
     // Next to a character's text, only sections about the rule the question names ("醉酒").
     const term = exact ? query.match(RULE_WORDS)?.[0]?.toLowerCase() ?? '' : ''
-    const rules = searchCoreRules(query, language, 2).map((section) => section.text).filter((text) => !term || text.toLowerCase().includes(term))
+    const sections2 = searchCoreRules(query, language, 2).filter((section) => !term || section.text.toLowerCase().includes(term))
+    meta.rules = sections2.map((section) => section.heading)
+    const rules = sections2.map((section) => section.text)
     if (rules.length) sections.push(`${rules.join('\n\n')}\n${zh ? '（来源：官方规则与术语表）' : '(Source: official rules and glossary)'}`)
   }
   if (!exact) {
     const wiki = searchWiki(query, 1).filter((chunk) => zh === chunk.page.startsWith('zh-'))
+    meta.wiki = wiki.map((chunk) => chunk.page)
     if (wiki.length) sections.push(wiki.map((chunk) => `${excerpt(chunk.text, 500)}\n${zh ? '来源' : 'Source'}: ${chunk.url}`).join('\n\n'))
   }
 
@@ -137,5 +144,5 @@ export function answerLocally(ctx: AiContext, query: string, previousQueries: st
   const body = found
     ? sections.join('\n\n')
     : (zh ? '本地资料中没有找到与这个问题直接相关的内容。可以换个说法，或在 AI 设置中选择在线 AI / 下载本地模型。' : 'Nothing in the local data answers this directly. Try rephrasing, or choose the online AI or a local model in AI settings.')
-  return { message: `${header}\n\n${body}`, found, definitive: found && exact && !OPEN_QUESTION.test(query) }
+  return { message: `${header}\n\n${body}`, found, definitive: found && exact && !OPEN_QUESTION.test(query), meta }
 }

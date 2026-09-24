@@ -72,6 +72,34 @@ export function openApiDocument(serverUrl: string) {
         },
       },
       '/v1/ai/status': { get: { operationId: 'aiStatus', summary: 'Hosted AI availability, models, daily limits and embedding freshness', responses: { 200: json('{ chat: { available, model, dailyLimits }, embeddings: { available, model?, total?, embedded?, stale? } }') } } },
+      '/v1/ai/feedback': {
+        post: {
+          operationId: 'aiFeedback', summary: 'Feedback on an AI answer (rating, reasons, comment) or a shared conversation, with each answer\'s trace. 100 per IP per day.',
+          requestBody: {
+            required: true,
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  required: ['kind', 'messages'],
+                  properties: {
+                    kind: { type: 'string', enum: ['answer', 'conversation'] },
+                    rating: { type: 'string', enum: ['up', 'down'] },
+                    reasons: { type: 'array', items: { type: 'string', enum: ['wrong', 'off_topic', 'vague', 'language', 'slow', 'other'] } },
+                    comment: { type: 'string', maxLength: 2000 },
+                    language: { type: 'string' },
+                    context: { type: 'object' },
+                    messages: { type: 'array', minItems: 1, maxItems: 40, items: { type: 'object', required: ['role', 'content'], properties: { role: { type: 'string', enum: ['user', 'assistant'] }, content: { type: 'string' }, trace: { type: 'object' } } } },
+                    build: { type: 'string' },
+                    promptVersion: { type: 'string' },
+                  },
+                },
+              },
+            },
+          },
+          responses: { 201: json('{ id }'), 400: json('Bad input'), 429: json('Daily feedback limit reached') },
+        },
+      },
       '/v1/ai/chat': {
         post: {
           operationId: 'aiChat', summary: 'Hosted chat; the model can call this server\'s MCP tools. Daily limits per IP / signed-in user.',

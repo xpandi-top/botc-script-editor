@@ -13,7 +13,7 @@ import { InputError } from '../scripts'
 import { characterView, parseLang, type Lang } from '../views'
 import { D1EmbeddingStore, embeddingStatus, findSimilar, MemoryEmbeddingStore, workersAiEmbedder, type EmbeddingStore, type SemanticDeps } from './embeddings'
 import type { Neighbor } from '../../../src/core/ai/vectors'
-import { AuthError, authenticate } from '../library/auth'
+import { AuthError, authenticate, sha256Hex } from '../library/auth'
 import type { LibraryDeps } from '../library/routes'
 import { buildMcpServer } from '../mcp'
 import { runAgent, TOOL_GUIDE } from './agent'
@@ -21,12 +21,15 @@ import { workersAiChat, type ChatMessage } from './chat'
 import { chatModelOf, embedModelOf } from './models'
 import { D1QuotaStore, MemoryQuotaStore, quotaLimits, recordNeurons, takeQuota, usageToday, type QuotaStore } from './quota'
 import { connectTools } from './tools'
+import { D1FeedbackStore, MemoryFeedbackStore, parseFeedback, type FeedbackStore } from './feedback'
 
 export type AiAppOptions = {
   /** Where vectors are kept; defaults to D1 (env.DB), else a per-isolate memory store. */
   embeddingStoreFor?: (env: Env) => EmbeddingStore
   /** Daily chat counters; defaults to D1 (env.DB), else a per-isolate memory store. */
   quotaStoreFor?: (env: Env) => QuotaStore
+  /** Answer feedback; defaults to D1 (env.DB), else a per-isolate memory store. */
+  feedbackStoreFor?: (env: Env) => FeedbackStore
   now?: () => number
 }
 
@@ -59,6 +62,9 @@ const isolateQuota = new MemoryQuotaStore()
 type AppContext = Context<{ Bindings: Env }>
 
 const isolateEmbeddings = new MemoryEmbeddingStore()
+const isolateFeedback = new MemoryFeedbackStore()
+/** Feedback items per IP per UTC day. */
+const FEEDBACK_PER_IP = 100
 
 export function semanticDepsFor(env: Env, options: AiAppOptions = {}): SemanticDeps | null {
   if (!env.AI) return null
@@ -137,6 +143,25 @@ export function buildAiRoutes(options: AiAppOptions = {}, library?: LibraryDeps)
     } finally {
       await tools?.close()
     }
+  })
+
+  /**
+   * Feedback on an answer (👍 / 👎 with reasons) or a shared conversation,
+   * with each answer's trace. Works without Workers AI: local-mode answers
+   * are rated too. Capped per IP per day; the IP is not stored.
+   */
+  r.post('/ai/feedback', async (c) => {
+    const record = parseFeedback(await c.req.json().catch(() => undefined), crypto.randomUUID(), now())
+    const day = new Date(now()).toISOString().slice(0, 10)
+    const subject = `feedback:${(await sha256Hex(`${day}|${c.req.header('cf-connecting-ip') ?? 'unknown'}`)).slice(0, 16)}`
+    const quotaStore = quotaStoreOf(c.env)
+    if (((await quotaStore.counts(day, [subject])).get(subject) ?? 0) >= FEEDBACK_PER_IP) {
+      return c.json({ error: { code: 'feedback_rate_limited', message: `At most ${FEEDBACK_PER_IP} feedback items per day.` } }, 429)
+    }
+    await quotaStore.increment(day, [subject])
+    const store = options.feedbackStoreFor?.(c.env) ?? (c.env.DB ? new D1FeedbackStore(c.env.DB) : isolateFeedback)
+    await store.add(record)
+    return c.json({ id: record.id }, 201)
   })
 
   r.get('/characters/similar', async (c) => {

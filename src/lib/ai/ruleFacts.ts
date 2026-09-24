@@ -192,14 +192,19 @@ export function planRequest(query: string, page: FactsPage = {}): PlanRequest | 
   return { kind: 'setup', players, script, plan: script.length ? planSetup({ scriptCharacters: script, players, getTeam: catalogTeamOf, include }) : null }
 }
 
-/** An empty string when nothing in the question or page can be computed. */
-export function computeRuleFacts(query: string, language: Language, page: FactsPage = {}): string {
+/**
+ * An empty string when nothing in the question or page can be computed.
+ * `kinds` collects which facts were given (for answer traces and feedback).
+ */
+export function computeRuleFacts(query: string, language: Language, page: FactsPage = {}, kinds: string[] = []): string {
   const zh = language === 'zh'
   const facts: string[] = []
+  const tag = (kind: string, count = 1) => { if (count > 0 && !kinds.includes(kind)) kinds.push(kind) }
 
   const alive = aliveCount(query)
   if (alive) {
     const votes = Math.ceil(alive / 2)
+    tag('votes')
     facts.push(zh
       ? `${alive} 名存活玩家时，处决至少需要 ${votes} 票（存活人数的一半，向上取整），且票数要多于当天其他被提名者——这只是与其他被提名者比较，不会提高 ${votes} 票的门槛。`
       : `With ${alive} players alive, an execution needs at least ${votes} votes (half the alive players, rounded up) and more votes than any other nominee today — that comparison does not raise the ${votes}-vote threshold.`)
@@ -208,6 +213,7 @@ export function computeRuleFacts(query: string, language: Language, page: FactsP
   const request = planRequest(query, page)
   const players = request?.kind === 'setup' ? request.players : null
   if (players) {
+    tag('setup')
     const d = CHARACTER_DISTRIBUTION[players]
     const script = scriptFor(query, page)
     facts.push(zh
@@ -234,6 +240,7 @@ export function computeRuleFacts(query: string, language: Language, page: FactsP
   }
 
   if (request?.kind === 'script') {
+    tag('script-pool')
     const { pool } = request
     const shape = pool.shape
     facts.push(zh
@@ -245,7 +252,12 @@ export function computeRuleFacts(query: string, language: Language, page: FactsP
   const scope = !request && !mentionedEntities(query).characterIds.length ? scriptScope(query, page, zh) : null
   const onScript = scope ? scriptQueryFacts(query, language, scope) : []
   facts.push(...onScript)
-  if (!request && !onScript.length) facts.push(...scriptRecommendationFacts(query, language))
+  tag('script-facts', onScript.length)
+  if (!request && !onScript.length) {
+    const advice = scriptRecommendationFacts(query, language)
+    facts.push(...advice)
+    tag('recommend', advice.length)
+  }
 
   // "这套配置里每个角色的能力是什么": the characters of the last answer, with their real text,
   // so the model does not repeat what it made up before.
@@ -253,6 +265,7 @@ export function computeRuleFacts(query: string, language: Language, page: FactsP
     const text = page.lastAnswer
     const at = (id: string) => Math.min(...[id, name(id, true), name(id, false)].map((n) => text.indexOf(n)).filter((i) => i >= 0))
     const ids = [...charactersIn(text)].sort((a, b) => at(a) - at(b)).slice(0, 15)
+    tag('ability-backref', ids.length)
     if (ids.length) facts.push(`${zh ? '上一条回答里角色的能力原文（原样引用，不要改写或凭记忆补充）' : 'Official ability text of the characters in the last answer (quote as is; do not reword or recall)'}：${ids.map((id) => `\n  - ${name(id, zh)}：${getAbilityText(id, language) ?? ''}`).join('')}`)
   }
 
@@ -261,7 +274,9 @@ export function computeRuleFacts(query: string, language: Language, page: FactsP
       const id = page.seats!.find((s) => s.seat === seat)?.characterId
       return `#${seat}${id ? (zh ? `（${name(id, true)}）` : ` (${name(id, false)})`) : ''}`
     }
-    facts.push(...gameStateFacts(page.seats, catalogTeamOf).map((f) => gameFactText(f, zh, seatName)))
+    const state = gameStateFacts(page.seats, catalogTeamOf)
+    tag('game-state', state.length)
+    facts.push(...state.map((f) => gameFactText(f, zh, seatName)))
   }
 
   if (!facts.length) return ''

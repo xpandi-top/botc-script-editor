@@ -48,6 +48,7 @@ export function AiPanelContent({ open, onClose, context, callbacks, variant = 's
     activeTab, setActiveTab, messages, setMessages, input, setInput,
     loading, autoApply, setAutoApply, fillLog, bottomRef, inputRef,
     effectiveCtx, canSend, localState, doApplyFill, undoFill, handleSend, downloadLog, clearMessages,
+    rateAnswer, shareConversation, notice,
   } = panel
 
   const zh         = effectiveCtx.language === 'zh'
@@ -66,6 +67,7 @@ export function AiPanelContent({ open, onClose, context, callbacks, variant = 's
         setShowSettings={setShowSettings}
         hasMessages={messages.length > 0}
         onClear={clearMessages}
+        onShare={() => { void shareConversation() }}
         onClose={onClose}
         language={effectiveCtx.language}
       />
@@ -138,6 +140,8 @@ export function AiPanelContent({ open, onClose, context, callbacks, variant = 's
             modeHint={zh
               ? `当前：${aiModeLabel(settings, true)}。点右上角的模式标签可切换在线 / 本地 / 自带 Key。`
               : `Mode: ${aiModeLabel(settings, false)}. Click the mode tag at the top right to switch online / local / own key.`}
+            onRate={(id, rating, reasons, comment) => { void rateAnswer(id, rating, reasons, comment) }}
+            notice={notice}
             bottomRef={bottomRef} inputRef={inputRef}
             language={effectiveCtx.language}
           />
