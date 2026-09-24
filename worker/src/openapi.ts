@@ -32,10 +32,11 @@ export function openApiDocument(serverUrl: string) {
             { name: 'q', in: 'query', schema: { type: 'string' }, description: 'Match id, names or ability text (EN/ZH).' },
             { name: 'team', in: 'query', schema: { type: 'string', enum: ['townsfolk', 'outsider', 'minion', 'demon', 'traveler', 'fabled', 'loric'] } },
             { name: 'edition', in: 'query', schema: { type: 'string' } },
-            { name: 'limit', in: 'query', schema: { type: 'integer', minimum: 1 } },
+            { name: 'limit', in: 'query', schema: { type: 'integer', minimum: 1 }, description: 'Page size (default: all).' },
+            { name: 'offset', in: 'query', schema: { type: 'integer', minimum: 0 } },
             lang,
           ],
-          responses: { 200: json('{ count, items }') },
+          responses: { 200: json('{ totalMatches, returned, offset, nextCursor, count (= returned), items }') },
         },
       },
       '/v1/characters/{id}': {
@@ -101,7 +102,7 @@ export function openApiDocument(serverUrl: string) {
           responses: { 200: json('{ items }'), 400: json('Missing query') },
         },
       },
-      '/v1/editions': { get: { operationId: 'listEditions', summary: 'Editions / character packs with credits', responses: { 200: json('{ items }') } } },
+      '/v1/editions': { get: { operationId: 'listEditions', summary: 'Editions / character packs with credits and exact character counts per team', parameters: [lang], responses: { 200: json('{ items: [{ id, name, author?, characterCount, teamCounts }] }') } } },
       '/v1/night-order': {
         get: {
           operationId: 'getNightOrder', summary: 'Global night order, or the wake order for a set of characters',

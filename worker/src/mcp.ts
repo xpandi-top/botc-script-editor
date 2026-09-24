@@ -21,7 +21,7 @@ import type { LibraryStore } from './library/store'
 import { searchRules } from './rules'
 import { findSimilar, type SemanticDeps } from './ai/embeddings'
 import { createScriptShareLink, ShareError } from './share'
-import { characterView, jinxView, nightOrderView, tokenManifest, type Lang } from './views'
+import { characterView, editionSummaries, jinxView, nightOrderView, pageOf, tokenManifest, type Lang } from './views'
 
 export const SERVER_INFO = { name: 'botc-companion', version: '0.1.0' }
 
@@ -78,20 +78,28 @@ export function buildMcpServer(env: Env, library?: McpLibraryContext, games?: Mc
 
   // ── Catalog ────────────────────────────────────────────────────────────────
 
+  server.registerTool('list_editions', {
+    title: 'List editions',
+    description: 'Editions / character packs (e.g. tb, bmr, snv, odyssey) with the exact number of characters in each, per team, and credits. Use this for "how many characters does X have" instead of counting search results.',
+    inputSchema: { language: lang },
+    annotations: READ_ONLY,
+  }, ({ language }) => guarded(() => editionSummaries(catalog, language).filter((e) => e.characterCount > 0)))
+
   server.registerTool('search_characters', {
     title: 'Search characters',
-    description: 'Find BOTC characters by name or ability text (English or Chinese), optionally filtered by team and edition. Returns id, team, edition, name and ability.',
+    description: 'Find BOTC characters by name or ability text (English or Chinese), optionally filtered by team and edition. Returns id, team, edition, name and ability, one page at a time: totalMatches is the full number of matches, returned the page size; pass nextCursor as cursor for the next page.',
     inputSchema: {
       query: z.string().optional().describe('Text to match against id, names and ability text.'),
       team: teamSchema.optional(),
       edition: z.string().optional().describe('Edition id, e.g. tb, bmr, snv, odyssey, experimental.'),
       language: lang,
-      limit: z.number().int().min(1).max(100).optional().describe('Maximum results (default 20).'),
+      limit: z.number().int().min(1).max(100).optional().describe('Page size (default 20).'),
+      cursor: z.string().regex(/^\d+$/).optional().describe('nextCursor from the previous page.'),
     },
     annotations: READ_ONLY,
-  }, ({ query, team, edition, language, limit }) => guarded(() => {
-    const items = catalog.searchCharacters({ q: query, team, edition, limit: limit ?? 20 })
-    return { count: items.length, items: items.map((c) => summary(c.id, language)) }
+  }, ({ query, team, edition, language, limit, cursor }) => guarded(() => {
+    const page = pageOf(catalog.searchCharacters({ q: query, team, edition }), Number(cursor ?? 0), limit ?? 20)
+    return { ...page, items: page.items.map((c) => summary(c.id, language)) }
   }))
 
   server.registerTool('get_character', {

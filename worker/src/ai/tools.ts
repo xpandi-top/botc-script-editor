@@ -10,6 +10,7 @@ import type { ToolSpec } from './chat'
 
 /** Read-only catalog and script tools, plus drafting an import link (nothing is saved). */
 export const AGENT_TOOLS = [
+  'list_editions',
   'search_characters',
   'get_character',
   'find_similar_characters',

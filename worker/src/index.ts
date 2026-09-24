@@ -76,13 +76,13 @@ Blood on the Clocktower characters, scripts, jinxes and night order (English + C
 
 ## MCP
 Streamable HTTP endpoint: ${base}/mcp (no authentication)
-Tools: search_characters, get_character, find_similar_characters (with AI), get_jinxes, get_night_order, search_rules, list_scripts, get_script, validate_script, analyze_script, get_token_manifest, create_script_draft
+Tools: list_editions, search_characters, get_character, find_similar_characters (with AI), get_jinxes, get_night_order, search_rules, list_scripts, get_script, validate_script, analyze_script, get_token_manifest, create_script_draft
 Prompts: design_script, design_character, translate_ability, review_script
 
 ## REST (OpenAPI: ${base}/openapi.json)
-GET  /v1/characters?q=&team=&edition=&lang=&limit=
+GET  /v1/characters?q=&team=&edition=&lang=&limit=&offset=   → totalMatches, returned, nextCursor, items
 GET  /v1/characters/{id}?lang=
-GET  /v1/editions
+GET  /v1/editions?lang=                      editions with exact character counts per team
 GET  /v1/rules/search?q=&limit=
 GET  /v1/night-order?ids=a,b&night=first|other&lang=
 GET  /v1/jinxes?ids=a,b&lang=
