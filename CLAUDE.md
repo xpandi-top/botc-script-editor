@@ -30,6 +30,10 @@ node scripts/audit-ai-content.mjs --online
 # Ability texts vs official roles.json (English) and the 集石 wiki (Chinese), classified
 # (errata / spelling / translation / new version / wiki older) — review, then add-revision
 npm run check-abilities
+
+# Community scripts from the 钟楼剧本博物馆 netdisk JSON (downloaded by hand into a folder):
+# report, then `--write` to assets/scripts/community/ (see docs/COMMUNITY-CONTENT.md)
+npm run import:scripts -- <folder> [--write] [--allow-community]
 ```
 
 ```bash
