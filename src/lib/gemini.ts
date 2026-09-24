@@ -37,8 +37,9 @@ export type GeminiResponse = {
   finishReason: string
   /** Hosted runtime: the server model, the tools it ran and today's remaining requests. */
   model?: string
-  steps?: Array<{ tool: string; ok: boolean }>
+  steps?: Array<{ tool: string; ok: boolean; arguments?: unknown }>
   remaining?: number | null
+  usage?: { promptTokens: number; completionTokens: number; neurons: number; rounds: number }
 }
 
 export async function geminiGenerate(req: GeminiRequest, settings: AiSettings = loadAiSettings()): Promise<GeminiResponse> {

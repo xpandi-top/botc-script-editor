@@ -24,6 +24,8 @@ export type Env = {
   AI_DAILY_LIMIT?: string
   AI_DAILY_LIMIT_PER_IP?: string
   AI_DAILY_LIMIT_PER_USER?: string
+  /** Workers AI neurons hosted chat may use per UTC day (free plan: 10,000 for everything). */
+  AI_DAILY_NEURONS?: string
 }
 
 /** The part of the Workers AI binding the worker uses (tests pass a fake). */

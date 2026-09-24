@@ -46,10 +46,13 @@ const toolCall = (id: string, name: string, args: unknown) => ({ id, type: 'func
 describe('parseChatResponse', () => {
   it('reads OpenAI-style and legacy Workers AI responses', () => {
     expect(parseChatResponse({ choices: [{ message: { content: '<think>hmm</think> Hi', tool_calls: [{ id: 'a', function: { name: 'get_character', arguments: '{"id":"imp"}' } }] } }] }))
-      .toEqual({ content: 'Hi', toolCalls: [{ id: 'a', type: 'function', function: { name: 'get_character', arguments: '{"id":"imp"}' } }] })
+      .toMatchObject({ content: 'Hi', toolCalls: [{ id: 'a', type: 'function', function: { name: 'get_character', arguments: '{"id":"imp"}' } }] })
     expect(parseChatResponse({ response: 'Hello', tool_calls: [{ name: 'search_characters', arguments: { query: 'imp' } }] }))
-      .toEqual({ content: 'Hello', toolCalls: [{ id: 'call_0', type: 'function', function: { name: 'search_characters', arguments: '{"query":"imp"}' } }] })
-    expect(parseChatResponse({ choices: [{ message: { content: null } }] })).toEqual({ content: '', toolCalls: [] })
+      .toMatchObject({ content: 'Hello', toolCalls: [{ id: 'call_0', type: 'function', function: { name: 'search_characters', arguments: '{"query":"imp"}' } }] })
+    expect(parseChatResponse({ choices: [{ message: { content: null } }] })).toMatchObject({ content: '', toolCalls: [] })
+    expect(parseChatResponse({ choices: [], usage: { prompt_tokens: 1000, completion_tokens: 100, neurons: 9.5 } }).usage).toEqual({ promptTokens: 1000, completionTokens: 100, neurons: 9.5 })
+    // No neurons reported: estimated from tokens at GLM rates.
+    expect(parseChatResponse({ choices: [], usage: { prompt_tokens: 1000, completion_tokens: 100 } }).usage.neurons).toBeCloseTo(9.14, 1)
   })
 })
 
@@ -67,7 +70,7 @@ describe('POST /v1/ai/chat', () => {
     ai.queue({ content: '你好！' })
     const res = await chat(ask('你好', { system: 'Reply as JSON: {"message": "..."}' }))
     expect(res.status).toBe(200)
-    expect(await j(res)).toEqual({ text: '你好！', steps: [], model: CHAT_MODEL, remaining: 29 })
+    expect(await j(res)).toEqual({ text: '你好！', steps: [], model: CHAT_MODEL, remaining: 29, usage: { promptTokens: 10, completionTokens: 5, neurons: 0.2, rounds: 1 } })
     expect(res.headers.get('x-ai-remaining')).toBe('29')
     const call = ai.chatCalls[0]
     expect(call.messages[0]).toMatchObject({ role: 'system' })
@@ -150,11 +153,35 @@ describe('POST /v1/ai/chat', () => {
 
   it('treats "0" as no cap and starts a new count each day', async () => {
     const store = new MemoryQuotaStore()
-    const limits = { global: Infinity, perIp: 1, perUser: 1 }
+    const limits = { global: Infinity, perIp: 1, perUser: 1, neurons: Infinity }
     expect(await takeQuota(store, { now: clock, ip: 'x', userId: null, limits })).toEqual({ ok: true, remaining: 0 })
     expect((await takeQuota(store, { now: clock, ip: 'x', userId: null, limits })).ok).toBe(false)
     expect((await takeQuota(store, { now: clock + 86_400_000, ip: 'x', userId: null, limits })).ok).toBe(true)
     const status = await j(await app.request('/v1/ai/status', {}, { ...env, AI_DAILY_LIMIT: '0' }))
-    expect(status.chat.dailyLimits).toEqual({ global: null, perIp: 30, perUser: 100 })
+    expect(status.chat.dailyLimits).toEqual({ global: null, perIp: 30, perUser: 100, neurons: 8000 })
+  })
+
+  it('stops when the daily neuron budget is used, and reports usage', async () => {
+    const budget = { ...env, AI_DAILY_NEURONS: '50' }
+    ai.queue({ content: 'one', neurons: 30 }, { content: 'two', neurons: 30 })
+    expect((await j(await chat(ask('1'), { env: budget }))).usage).toMatchObject({ neurons: 30, rounds: 1 })
+    expect((await chat(ask('2'), { env: budget })).status).toBe(200)
+    const over = await chat(ask('3'), { env: budget })
+    expect(over.status).toBe(429)
+    expect(await j(over)).toMatchObject({ error: { code: 'ai_rate_limited', scope: 'global' } })
+    const status = await j(await app.request('/v1/ai/status', {}, budget))
+    expect(status.chat.usedToday).toEqual({ requests: 2, neurons: 60 })
+  })
+
+  it('makes the model answer once tool output reaches the cap', async () => {
+    const bigSearch = (id: string) => toolCall(id, 'search_characters', { limit: 100 })
+    ai.queue({ tool_calls: [bigSearch('a'), bigSearch('b'), bigSearch('c')] }, { content: 'Summary.' })
+    const body = await j(await chat(ask('List every character')))
+    expect(body.text).toBe('Summary.')
+    expect(ai.chatCalls).toHaveLength(2)
+    expect(ai.chatCalls[1].tool_choice).toBe('none')
+    const toolText = ai.chatCalls[1].messages.filter((m) => m.role === 'tool').map((m) => m.content as string)
+    expect(toolText.every((t) => t.length <= 6020)).toBe(true)
   })
 })
+

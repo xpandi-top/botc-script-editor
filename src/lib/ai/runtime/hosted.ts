@@ -103,13 +103,14 @@ export async function generateHosted(req: GeminiRequest): Promise<GeminiResponse
   let res = await send(auth)
   // A sign-in the server cannot verify should not block the anonymous allowance.
   if (res.status === 401 && auth.authorization) res = await send({})
-  const data = await res.json().catch(() => null) as (ErrorBody & { text?: string; model?: string; remaining?: number | null; steps?: Array<{ tool: string; ok: boolean }> }) | null
+  const data = await res.json().catch(() => null) as (ErrorBody & Partial<Pick<GeminiResponse, 'text' | 'model' | 'remaining' | 'usage'>> & { steps?: Array<{ tool: string; ok: boolean; arguments?: unknown }> }) | null
   if (!res.ok || !data?.text) throw new GeminiError(errorMessage(res.status, data), res.status, data)
   return {
     text: data.text,
     finishReason: 'stop',
     model: data.model,
-    steps: (data.steps ?? []).map(({ tool, ok }) => ({ tool, ok })),
+    steps: (data.steps ?? []).map(({ tool, ok, arguments: args }) => ({ tool, ok, arguments: args })),
     remaining: data.remaining ?? null,
+    ...(data.usage ? { usage: data.usage } : {}),
   }
 }

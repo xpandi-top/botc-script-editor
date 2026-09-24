@@ -19,7 +19,7 @@ import { buildMcpServer } from '../mcp'
 import { runAgent, TOOL_GUIDE } from './agent'
 import { workersAiChat, type ChatMessage } from './chat'
 import { chatModelOf, embedModelOf } from './models'
-import { D1QuotaStore, MemoryQuotaStore, quotaLimits, takeQuota, type QuotaStore } from './quota'
+import { D1QuotaStore, MemoryQuotaStore, quotaLimits, recordNeurons, takeQuota, usageToday, type QuotaStore } from './quota'
 import { connectTools } from './tools'
 
 export type AiAppOptions = {
@@ -91,6 +91,7 @@ export function similarView(neighbors: Neighbor[], lang?: Lang) {
 export function buildAiRoutes(options: AiAppOptions = {}, library?: LibraryDeps) {
   const r = new Hono<{ Bindings: Env }>()
   const now = options.now ?? Date.now
+  const quotaStoreOf = (env: Env) => options.quotaStoreFor?.(env) ?? (env.DB ? new D1QuotaStore(env.DB) : isolateQuota)
 
   /**
    * Hosted chat. The model can call this server's MCP tools (read-only
@@ -114,7 +115,7 @@ export function buildAiRoutes(options: AiAppOptions = {}, library?: LibraryDeps)
       }
     }
 
-    const quotaStore = options.quotaStoreFor?.(c.env) ?? (c.env.DB ? new D1QuotaStore(c.env.DB) : isolateQuota)
+    const quotaStore = quotaStoreOf(c.env)
     const quota = await takeQuota(quotaStore, { now: now(), ip: c.req.header('cf-connecting-ip') ?? 'unknown', userId, limits: quotaLimits(c.env) })
     if (!quota.ok) {
       const message = quota.scope === 'global'
@@ -129,8 +130,10 @@ export function buildAiRoutes(options: AiAppOptions = {}, library?: LibraryDeps)
       const system = `${body.system?.trim() || DEFAULT_SYSTEM}${tools ? `\n\n${TOOL_GUIDE}` : ''}`
       const messages: ChatMessage[] = [{ role: 'system', content: system }, ...body.messages]
       const run = await runAgent({ chat: workersAiChat(c.env.AI, model), messages, tools, temperature: body.temperature })
+      await recordNeurons(quotaStore, now(), run.usage.neurons)
       if (quota.remaining !== null) c.header('x-ai-remaining', String(quota.remaining))
-      return c.json({ text: run.text, steps: run.steps, model, remaining: quota.remaining })
+      const usage = { ...run.usage, neurons: Math.round(run.usage.neurons * 10) / 10 }
+      return c.json({ text: run.text, steps: run.steps, model, remaining: quota.remaining, usage })
     } finally {
       await tools?.close()
     }
@@ -161,7 +164,12 @@ export function buildAiRoutes(options: AiAppOptions = {}, library?: LibraryDeps)
     const limits = quotaLimits(c.env)
     const cap = (n: number) => (Number.isFinite(n) ? n : null)
     return c.json({
-      chat: { available: !!c.env.AI, model: c.env.AI ? chatModelOf(c.env) : null, dailyLimits: { global: cap(limits.global), perIp: cap(limits.perIp), perUser: cap(limits.perUser) } },
+      chat: {
+        available: !!c.env.AI,
+        model: c.env.AI ? chatModelOf(c.env) : null,
+        dailyLimits: { global: cap(limits.global), perIp: cap(limits.perIp), perUser: cap(limits.perUser), neurons: cap(limits.neurons) },
+        ...(c.env.AI ? { usedToday: await usageToday(quotaStoreOf(c.env), now()) } : {}),
+      },
       embeddings: deps ? { available: true, ...(await embeddingStatus(deps)) } : { available: false },
     })
   })

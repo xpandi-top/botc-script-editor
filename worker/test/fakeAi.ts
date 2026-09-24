@@ -21,7 +21,7 @@ export function fakeEmbedding(text: string): number[] {
 }
 
 export type ChatCall = { messages: Array<Record<string, unknown>>; tools?: Array<{ function: { name: string } }>; [key: string]: unknown }
-export type ChatReply = { content?: string; tool_calls?: Array<{ id: string; type: 'function'; function: { name: string; arguments: string } }> } | Error
+export type ChatReply = { content?: string; tool_calls?: Array<{ id: string; type: 'function'; function: { name: string; arguments: string } }>; neurons?: number } | Error
 
 export class FakeAi implements AiRunner {
   embedCalls = 0
@@ -45,6 +45,6 @@ export class FakeAi implements AiRunner {
     this.chatCalls.push(inputs as ChatCall)
     const reply = this.replies.shift() ?? { content: 'ok' }
     if (reply instanceof Error) throw reply
-    return { choices: [{ message: { role: 'assistant', content: reply.content ?? '', tool_calls: reply.tool_calls }, finish_reason: reply.tool_calls ? 'tool_calls' : 'stop' }], usage: { prompt_tokens: 10, completion_tokens: 5 } }
+    return { choices: [{ message: { role: 'assistant', content: reply.content ?? '', tool_calls: reply.tool_calls }, finish_reason: reply.tool_calls ? 'tool_calls' : 'stop' }], usage: { prompt_tokens: 10, completion_tokens: 5, ...(reply.neurons !== undefined ? { neurons: reply.neurons } : {}) } }
   }
 }

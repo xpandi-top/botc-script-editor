@@ -134,8 +134,11 @@ many embeddings are stale.
 
 Daily caps per UTC day (wrangler vars; `"0"` = no cap): `AI_DAILY_LIMIT`
 (everyone, default 300), `AI_DAILY_LIMIT_PER_IP` (30; the IP is stored only
-as a salted hash) and `AI_DAILY_LIMIT_PER_USER` (100, callers signed in with a
-PAT or Google token). When the account's Workers AI allowance (10,000
+as a salted hash), `AI_DAILY_LIMIT_PER_USER` (100, callers signed in with a
+PAT or Google token) and `AI_DAILY_NEURONS` (8000: the Workers AI neurons all
+chats may use, counted from each response's usage). Every chat response
+carries `usage` (prompt / completion tokens, neurons, model rounds); tool
+output fed back to the model is capped at 16,000 characters per request. When the account's Workers AI allowance (10,000
 neurons/day on the free plan) runs out, the API answers 429
 `ai_quota_exhausted` and the app should suggest the user's own key.
 

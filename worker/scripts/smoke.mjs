@@ -138,7 +138,8 @@ if (withAi) {
     if (!json.chat?.available) throw new Skip('no Workers AI binding')
     aiEnabled = true
     const limits = json.chat.dailyLimits
-    return `${json.chat.model}; daily limits ${limits.global ?? '∞'} total / ${limits.perIp ?? '∞'} per IP / ${limits.perUser ?? '∞'} per user`
+    const used = json.chat.usedToday ?? { requests: 0, neurons: 0 }
+    return `${json.chat.model}; today ${used.requests}/${limits.global ?? '∞'} requests, ${used.neurons}/${limits.neurons ?? '∞'} neurons; ${limits.perIp ?? '∞'} per IP / ${limits.perUser ?? '∞'} per user`
   })
   if (aiEnabled) {
     await check('semantic search (zh)', async () => {
@@ -157,7 +158,7 @@ if (withAi) {
       await check('chat with MCP tools', async () => {
         const { status, json } = await http('POST', '/v1/ai/chat', { messages: [{ role: 'user', content: 'What is the exact ability text of the Imp? Look it up.' }] })
         assert(status === 200 && json.text?.length > 0, `${status} ${JSON.stringify(json).slice(0, 300)}`)
-        return `${json.steps.map((st) => st.tool).join(' → ') || 'no tools'}; ${json.remaining ?? '∞'} requests left today`
+        return `${json.steps.map((st) => st.tool).join(' → ') || 'no tools'}; ${json.usage?.promptTokens ?? '?'} prompt tokens, ${json.usage?.neurons ?? '?'} neurons; ${json.remaining ?? '∞'} requests left today`
       })
     }
   }

@@ -17,7 +17,8 @@ export type ToolSpec = { type: 'function'; function: { name: string; description
 
 /** `toolChoice: 'none'` keeps the tool definitions (the history refers to them) but asks for a plain answer. */
 export type ChatRequest = { messages: ChatMessage[]; tools?: ToolSpec[]; toolChoice?: 'auto' | 'none'; temperature?: number; maxTokens?: number }
-export type ChatResult = { content: string; toolCalls: ToolCall[] }
+export type ChatUsage = { promptTokens: number; completionTokens: number; neurons: number }
+export type ChatResult = { content: string; toolCalls: ToolCall[]; usage: ChatUsage }
 export type ChatModel = (req: ChatRequest) => Promise<ChatResult>
 
 type RawToolCall = { id?: string; name?: string; arguments?: unknown; function?: { name?: string; arguments?: unknown } }
@@ -25,6 +26,18 @@ type RawResponse = {
   choices?: Array<{ message?: { content?: string | null; tool_calls?: RawToolCall[] } }>
   response?: string | null
   tool_calls?: RawToolCall[]
+  usage?: { prompt_tokens?: number; completion_tokens?: number; neurons?: number }
+}
+
+/**
+ * Workers AI reports neurons for most models; otherwise estimate from tokens
+ * at GLM-4.7-flash rates ($0.0605 / $0.40 per M tokens, $0.011 per 1k neurons).
+ */
+function usageOf(raw: RawResponse): ChatUsage {
+  const promptTokens = raw.usage?.prompt_tokens ?? 0
+  const completionTokens = raw.usage?.completion_tokens ?? 0
+  const neurons = raw.usage?.neurons ?? (promptTokens * 0.0055 + completionTokens * 0.0364)
+  return { promptTokens, completionTokens, neurons }
 }
 
 /** Reasoning models sometimes leak their thinking into the answer. */
@@ -36,6 +49,7 @@ export function parseChatResponse(raw: unknown): ChatResult {
   const content = message?.content ?? r.response ?? ''
   const calls = message?.tool_calls ?? r.tool_calls ?? []
   return {
+    usage: usageOf(r),
     content: stripThinking(typeof content === 'string' ? content : JSON.stringify(content)),
     toolCalls: calls.flatMap((call, i) => {
       const name = call.function?.name ?? call.name
