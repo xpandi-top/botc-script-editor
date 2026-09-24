@@ -30,6 +30,8 @@ export type AiContext = {
   fields: AiField[]
   /** Pre-serialized text for prompt injection */
   serialized?: string
+  /** Characters on the page's script / in the game, for computed rule facts. */
+  characterIds?: string[]
 }
 
 // ── Response types ────────────────────────────────────────────────────────────

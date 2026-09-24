@@ -26,6 +26,18 @@ export const CHARACTER_DISTRIBUTION: Record<number, { townsfolk: number; outside
 }
 
 /**
+ * How setup abilities in [brackets] change the Outsider count (Townsfolk
+ * change the other way). Several values = the Storyteller chooses.
+ */
+export const SETUP_OUTSIDER_SHIFTS: Record<string, number[]> = {
+  baron: [2],
+  godfather: [-1, 1],
+  fanggu: [1],
+  vigormortis: [-1],
+  balloonist: [0, 1],
+}
+
+/**
  * Deal the official distribution for `playerCount` at random from the
  * script's characters (restricted to `charPool` when it is non-empty).
  * Returns seat → character id; seats are left out when a team has no

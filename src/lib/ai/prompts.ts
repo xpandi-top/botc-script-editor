@@ -8,6 +8,7 @@ import { searchWiki, initWikiSearch } from '../wikiSearch'
 import { retrieveCatalog, resolveCatalogQuery, retrieveAlmanac, formatCatalogRetrieval, type CatalogRetrieval } from './catalogRetrieval'
 import { selectContext, estimateTokens, GROQ_INPUT_BUDGET } from '../../core/ai/contextBudget'
 import { CORE_RULES } from '../../core/ai/rules'
+import { computeRuleFacts } from './ruleFacts'
 import {
   getTeamExamples, getTranslationPairs, formatExamplesPrompt,
 } from '../botcSearch'
@@ -375,7 +376,9 @@ export function buildSystemPrompt(ctx: AiContext, query?: string, options?: {
   const searchQuery = retrieval.query
   const catalog = formatCatalogRetrieval(retrieval, options?.almanac)
   const references = wikiSection(searchQuery, zh)
-  const wiki = catalog ? `${catalog}\n\n${selectContext(references, searchQuery, 350)}` : references
+  const facts = computeRuleFacts(query ?? '', ctx.language, ctx.characterIds)
+  const evidence = catalog ? `${catalog}\n\n${selectContext(references, searchQuery, 350)}` : references
+  const wiki = facts ? `${facts}\n\n${evidence}` : evidence
   const source = ctx.serialized ?? serializeContext(ctx)
   const inputBudget = options?.inputBudget ?? GROQ_INPUT_BUDGET
   const scale = inputBudget / GROQ_INPUT_BUDGET
@@ -408,7 +411,9 @@ export async function prepareSystemPrompt(ctx: AiContext, query: string, previou
   const [, almanac] = await Promise.all([options?.local ? Promise.resolve(false) : initWikiSearch(), retrieveAlmanac(retrieval, ctx.language)])
   if (options?.local) {
     // A 4K local model cannot use the online prompt's large baseline reference.
-    const facts = formatCatalogRetrieval(retrieval, almanac, 1500) || selectContext(searchWiki(query, 2).map((chunk) => `[${chunk.page}] ${chunk.url}\n${chunk.text}`).join('\n\n'), query, 650)
+    const computed = computeRuleFacts(query, ctx.language, ctx.characterIds)
+    const found = formatCatalogRetrieval(retrieval, almanac, 1500) || selectContext(searchWiki(query, 2).map((chunk) => `[${chunk.page}] ${chunk.url}\n${chunk.text}`).join('\n\n'), query, 650)
+    const facts = computed ? `${computed}\n\n${found}` : found
     const page = selectContext(ctx.serialized ?? serializeContext(ctx), retrieval.query, 450)
     const keys = ctx.fields.filter((field) => field.editable).map((field) => field.key).join(', ')
     const instruction = ctx.language === 'zh'

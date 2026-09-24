@@ -251,6 +251,7 @@ export function buildScriptContext(input: ScriptInput): AiContext {
     fields,
   }
   ctx.serialized = serializeScriptForPrompt(input)
+  ctx.characterIds = script.characters
   return ctx
 }
 
@@ -269,11 +270,18 @@ function serializeStorytellerForPrompt(input: StorytellerInput): string {
   lines.push((zh ? '总天数: ' : 'Total days played: ') + days.length)
 
   // ── Seat assignments ────────────────────────────────────────────────────────
-  lines.push('')
+  // Same paragraph as the header: context selection always keeps the first
+  // paragraph whole, so the game state is never cut for relevance.
+  const aliveCount = currentDay.seats.filter((s) => s.alive && !s.isTraveler).length
+  lines.push(zh
+    ? `存活玩家: ${aliveCount} 人（不含旅行者）；今天处决至少需要 ${Math.ceil(aliveCount / 2)} 票`
+    : `Alive players: ${aliveCount} (not counting Travellers); an execution today needs at least ${Math.ceil(aliveCount / 2)} votes`)
   lines.push(zh ? '── 座位分配 ──' : '── Seat Assignments ──')
   for (const s of currentDay.seats) {
     const name   = s.name || `#${s.seat}`
-    const char   = s.characterId ? getDisplayName(s.characterId, language) : (zh ? '未分配' : 'unassigned')
+    const entry  = s.characterId ? getCharacterById(s.characterId) : undefined
+    const team   = entry?.team ? (zh ? teamLabels.zh[entry.team as Team] ?? entry.team : teamLabels.en[entry.team as Team] ?? entry.team) : ''
+    const char   = s.characterId ? `${getDisplayName(s.characterId, language)} [${s.characterId}${team ? `, ${team}` : ''}]` : (zh ? '未分配' : 'unassigned')
     const status = s.alive ? (zh ? '存活' : 'alive') : (zh ? '死亡' : 'dead')
     const tags   = [...(s.customTags ?? []), ...(s.stTags ?? [])].filter(Boolean)
     const tagStr = tags.length ? ` [${tags.join(', ')}]` : ''
@@ -286,8 +294,8 @@ function serializeStorytellerForPrompt(input: StorytellerInput): string {
   const assignedCharIds = [...new Set(
     currentDay.seats.map((s) => s.characterId).filter(Boolean) as string[]
   )]
-  // Include all script chars + fabled for full reference
-  const rosterIds = [...new Set([...scriptCharacters, ...assignedCharIds, ...stFabledIds])]
+  // Characters in play first, then the rest of the script + fabled for reference
+  const rosterIds = [...new Set([...assignedCharIds, ...stFabledIds, ...scriptCharacters])]
 
   if (rosterIds.length) {
     lines.push('')
@@ -443,6 +451,7 @@ export function buildStorytellerContext(input: StorytellerInput): AiContext {
     language,
     fields,
     serialized: serializeStorytellerForPrompt(input),
+    characterIds: [...new Set([...(input.scriptCharacters ?? []), ...currentDay.seats.map((s) => s.characterId).filter((id): id is string => !!id)])],
   }
 }
 

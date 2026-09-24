@@ -19,11 +19,13 @@ export function selectContext(text: string, query: string, budget: number): stri
   let index = cache.get(text)
   if (!index) {
     const chunks: string[] = []
-    for (const paragraph of text.split(/\n\s*\n/)) {
+    for (const [i, paragraph] of text.split(/\n\s*\n/).entries()) {
       let heading = ''
       // Keep small paragraphs whole; split long rosters/logs into labelled lines.
+      // The first paragraph is the page's essential state (script roster, seats)
+      // and is always kept whole.
       const lines = paragraph.split('\n')
-      const split = estimateTokens(paragraph) > 450 && lines.length > 1
+      const split = lines.length > 1 && estimateTokens(paragraph) > (i === 0 ? budget * 0.8 : 450)
       if (split) heading = lines[0].trim()
       const parts = split ? lines : [paragraph]
       for (const part of parts) {
