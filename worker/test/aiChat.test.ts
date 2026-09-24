@@ -50,6 +50,10 @@ describe('parseChatResponse', () => {
     expect(parseChatResponse({ response: 'Hello', tool_calls: [{ name: 'search_characters', arguments: { query: 'imp' } }] }))
       .toMatchObject({ content: 'Hello', toolCalls: [{ id: 'call_0', type: 'function', function: { name: 'search_characters', arguments: '{"query":"imp"}' } }] })
     expect(parseChatResponse({ choices: [{ message: { content: null } }] })).toMatchObject({ content: '', toolCalls: [] })
+    // GLM writing a call into the text.
+    const inline = parseChatResponse({ choices: [{ message: { content: 'Drafting.<tool_call>create_script_draft<arg_key>name</arg_key><arg_value>新手剧本</arg_value><arg_key>characters</arg_key><arg_value>["washerwoman", "imp"]</arg_value></tool_call>' } }] })
+    expect(inline.content).toBe('Drafting.')
+    expect(inline.toolCalls).toEqual([{ id: 'call_inline_0', type: 'function', function: { name: 'create_script_draft', arguments: '{"name":"新手剧本","characters":["washerwoman","imp"]}' } }])
     expect(parseChatResponse({ choices: [], usage: { prompt_tokens: 1000, completion_tokens: 100, neurons: 9.5 } }).usage).toEqual({ promptTokens: 1000, completionTokens: 100, neurons: 9.5 })
     // No neurons reported: estimated from tokens at GLM rates.
     expect(parseChatResponse({ choices: [], usage: { prompt_tokens: 1000, completion_tokens: 100 } }).usage.neurons).toBeCloseTo(9.14, 1)
@@ -182,6 +186,17 @@ describe('POST /v1/ai/chat', () => {
     expect(ai.chatCalls[1].tool_choice).toBe('none')
     const toolText = ai.chatCalls[1].messages.filter((m) => m.role === 'tool').map((m) => m.content as string)
     expect(toolText.every((t) => t.length <= 6020)).toBe(true)
+  })
+
+  it('runs a call written into the final answer, then asks once more', async () => {
+    ai.queue(
+      { content: '<tool_call>get_character<arg_key>id</arg_key><arg_value>imp</arg_value></tool_call>' },
+      { content: '<tool_call>get_character<arg_key>id</arg_key><arg_value>imp</arg_value></tool_call>' },
+      { content: 'The Imp kills at night.' },
+    )
+    const body = await j(await chat(ask('Imp?')))
+    expect(body.text).toBe('The Imp kills at night.')
+    expect(body.steps.map((s: { tool: string }) => s.tool)).toEqual(['get_character', 'get_character'])
   })
 })
 

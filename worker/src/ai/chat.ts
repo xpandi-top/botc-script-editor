@@ -43,21 +43,36 @@ function usageOf(raw: RawResponse): ChatUsage {
 /** Reasoning models sometimes leak their thinking into the answer. */
 const stripThinking = (text: string) => text.replace(/<think>[\s\S]*?<\/think>/g, '').trim()
 
+/**
+ * GLM sometimes writes a call in its native format into the text instead of
+ * tool_calls: <tool_call>name<arg_key>k</arg_key><arg_value>v</arg_value>…</tool_call>.
+ */
+function inlineToolCalls(text: string): { text: string; calls: ToolCall[] } {
+  const calls: ToolCall[] = []
+  const rest = text.replace(/<tool_call>\s*([\w-]+)([\s\S]*?)<\/tool_call>/g, (_m, name: string, body: string) => {
+    const args: Record<string, unknown> = {}
+    for (const [, key, value] of body.matchAll(/<arg_key>([\s\S]*?)<\/arg_key>\s*<arg_value>([\s\S]*?)<\/arg_value>/g)) {
+      try { args[key.trim()] = JSON.parse(value) } catch { args[key.trim()] = value.trim() }
+    }
+    calls.push({ id: `call_inline_${calls.length}`, type: 'function', function: { name, arguments: JSON.stringify(args) } })
+    return ''
+  })
+  return { text: rest.trim(), calls }
+}
+
 export function parseChatResponse(raw: unknown): ChatResult {
   const r = (raw ?? {}) as RawResponse
   const message = r.choices?.[0]?.message
   const content = message?.content ?? r.response ?? ''
   const calls = message?.tool_calls ?? r.tool_calls ?? []
-  return {
-    usage: usageOf(r),
-    content: stripThinking(typeof content === 'string' ? content : JSON.stringify(content)),
-    toolCalls: calls.flatMap((call, i) => {
-      const name = call.function?.name ?? call.name
-      if (!name) return []
-      const args = call.function?.arguments ?? call.arguments ?? {}
-      return [{ id: call.id || `call_${i}`, type: 'function' as const, function: { name, arguments: typeof args === 'string' ? args : JSON.stringify(args) } }]
-    }),
-  }
+  const toolCalls = calls.flatMap((call, i) => {
+    const name = call.function?.name ?? call.name
+    if (!name) return []
+    const args = call.function?.arguments ?? call.arguments ?? {}
+    return [{ id: call.id || `call_${i}`, type: 'function' as const, function: { name, arguments: typeof args === 'string' ? args : JSON.stringify(args) } }]
+  })
+  const inline = inlineToolCalls(stripThinking(typeof content === 'string' ? content : JSON.stringify(content)))
+  return { usage: usageOf(r), content: inline.text, toolCalls: [...toolCalls, ...inline.calls] }
 }
 
 export function workersAiChat(ai: AiRunner, model: string): ChatModel {
