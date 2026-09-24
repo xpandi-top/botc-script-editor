@@ -3,3 +3,5 @@ node_modules/
 .dev.vars
 # Generated from ../assets by `npm run build:catalog`
 src/generated/
+# Exported answer feedback (npm run feedback): user questions, not committed
+.feedback/

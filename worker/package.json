@@ -11,7 +11,8 @@
     "postdeploy": "npm run smoke -- --no-games --expect-ai",
     "test": "npm run build:catalog && vitest run",
     "typecheck": "npm run build:catalog && tsc --noEmit",
-    "smoke": "node scripts/smoke.mjs"
+    "smoke": "node scripts/smoke.mjs",
+    "feedback": "node scripts/feedback.mjs"
   },
   "dependencies": {
     "@cfworker/json-schema": "^4.1.1",
