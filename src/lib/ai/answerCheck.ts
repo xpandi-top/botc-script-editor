@@ -3,19 +3,36 @@
  * §5 "验证并展示"): when the question asked for a game line-up or a script,
  * the characters the answer gives are checked against the rules. If they are
  * missing or not legal, the program's legal line-up / script is appended with
- * the reason — models explain well but often miscount.
+ * the reason — models explain well but often miscount. Ability descriptions
+ * whose wording is far from the real text get the real text appended: models
+ * also make up abilities ("镇长：投票权增加 2 票").
  */
-import { getDisplayName } from '../../catalog'
-import { charactersIn, listLine, poolProblems, setupProblems } from './answerParse'
-import { planRequest } from './ruleFacts'
+import { getAbilityText, getDisplayName } from '../../catalog'
+import { charactersIn, listLine, misdescribedAbilities, poolProblems, setupProblems } from './answerParse'
+import { headlineScript, mostNamedScript, planRequest } from './ruleFacts'
 import type { AiContext } from './types'
 
 export type CheckedAnswer = { text: string; corrected: boolean }
 
 const names = (ids: string[], zh: boolean) => `${ids.join(', ')}（${ids.map((id) => getDisplayName(id, zh ? 'zh' : 'en')).join(zh ? '、' : ', ')}）`
 
-export function checkAnswer(ctx: Pick<AiContext, 'language' | 'characterIds' | 'seats'>, query: string, text: string): CheckedAnswer {
-  const request = planRequest(query, ctx)
+type CheckContext = Pick<AiContext, 'language' | 'characterIds' | 'seats'>
+
+export function checkAnswer(ctx: CheckContext, query: string, text: string, previousQueries: string[] = [], lastAnswer?: string): CheckedAnswer {
+  const checked = checkLineUp(ctx, query, text, previousQueries, lastAnswer)
+  // Only the model's own words: not the program's line-up just appended.
+  const ids = misdescribedAbilities(text)
+  if (!ids.length) return checked
+  const zh = ctx.language === 'zh'
+  const lines = ids.map((id) => `- ${getDisplayName(id, ctx.language)}：${getAbilityText(id, ctx.language) ?? ''}`).join('\n')
+  return {
+    corrected: true,
+    text: `${checked.text}\n\n---\n**${zh ? '能力原文' : 'Ability text'}**：${zh ? '以下角色能力的描述与原文措辞差异较大，请以原文为准：' : 'these descriptions differ a lot from the official wording; the official text is:'}\n${lines}`,
+  }
+}
+
+function checkLineUp(ctx: CheckContext, query: string, text: string, previousQueries: string[], lastAnswer?: string): CheckedAnswer {
+  const request = planRequest(query, { ...ctx, previousQueries, lastAnswer })
   if (!request) return { text, corrected: false }
   const zh = ctx.language === 'zh'
   const label = zh ? '程序校验' : 'Program check'
@@ -23,14 +40,33 @@ export function checkAnswer(ctx: Pick<AiContext, 'language' | 'characterIds' | '
   if (request.kind === 'setup') {
     const { plan, script, players } = request
     if (!plan || plan.inPlay.length !== players) return { text, corrected: false }
+    // Read the line-up against the question's script, and against the script
+    // the answer itself is about (a follow-up on a recommended script).
     // An explicit list line; else the program's line-up if the answer names all
     // of it (it may mention other characters in passing); else exactly the
     // script characters the answer names.
-    const named = [...charactersIn(text)].filter((id) => script.includes(id))
-    const adopted = plan.inPlay.every((id) => named.includes(id)) ? plan.inPlay : null
-    const ids = listLine(text, ['在场角色', 'Characters in play']) ?? adopted ?? (named.length === players ? named : null)
-    const problems = ids ? setupProblems(ids, script, players, ctx.language) : []
-    if (ids && !problems.length) return { text, corrected: false }
+    const listed = listLine(text, ['在场角色', 'Characters in play'])
+    const lineUpFor = (candidate: string[]) => {
+      const named = [...charactersIn(text)].filter((id) => candidate.includes(id))
+      const adopted = candidate === script && plan.inPlay.every((id) => named.includes(id)) ? plan.inPlay : null
+      return listed ?? adopted ?? (named.length === players ? named : null)
+    }
+    const aboutScript = mostNamedScript(text)
+    // A line-up must also belong to the script the answer's heading names:
+    // "暗流涌动 7 人配置" listing another script's characters is wrong even
+    // when those characters make a legal line-up for that other script.
+    const headline = headlineScript(text)
+    const offHeadline = (lineUp: string[]) => headline ? lineUp.filter((id) => !headline.includes(id)) : []
+    for (const candidate of [script, ...(aboutScript && aboutScript !== script ? [aboutScript] : [])]) {
+      const lineUp = lineUpFor(candidate)
+      if (lineUp && !setupProblems(lineUp, candidate, players).length && !offHeadline(lineUp).length) return { text, corrected: false }
+    }
+    const ids = lineUpFor(script) ?? (headline && headline !== script ? lineUpFor(headline) : null)
+    const outside = ids ? offHeadline(ids) : []
+    const problems = [
+      ...(ids ? setupProblems(ids, script, players, ctx.language) : []),
+      ...(outside.length ? [zh ? `${outside.map((id) => getDisplayName(id, 'zh')).join('、')} 不在回答所说的剧本里` : `${outside.map((id) => getDisplayName(id, 'en')).join(', ')} not on the script the answer names`] : []),
+    ]
     const why = ids
       ? (zh ? `回答里的配置不符合规则（${problems.join('；')}）` : `the line-up in the answer breaks the rules (${problems.join('; ')})`)
       : (zh ? '回答里没有完整的在场角色名单' : 'the answer has no complete list of characters in play')

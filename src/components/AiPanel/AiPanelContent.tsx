@@ -17,6 +17,7 @@ import MenuBookIcon     from '@mui/icons-material/MenuBook'
 import type { ReactElement } from 'react'
 import { Header }        from './Header'
 import { SettingsPanel } from './SettingsPanel'
+import { aiModeLabel } from '../../lib/aiSettings'
 import { ChatTab }       from './ChatTab'
 import { SkillsTab }     from './SkillsTab'
 import { LogTab }        from './LogTab'
@@ -58,6 +59,7 @@ export function AiPanelContent({ open, onClose, context, callbacks, variant = 's
 
       <Header
         variant={variant}
+        modeLabel={aiModeLabel(settings, zh)}
         showSettings={showSettings}
         setShowSettings={setShowSettings}
         hasMessages={messages.length > 0}
@@ -131,6 +133,9 @@ export function AiPanelContent({ open, onClose, context, callbacks, variant = 's
             handleSend={handleSend} doApplyFill={doApplyFill}
             setMessages={setMessages}
             context={context} canSend={canSend}
+            modeHint={zh
+              ? `当前：${aiModeLabel(settings, true)}。点右上角的模式标签可切换在线 / 本地 / 自带 Key。`
+              : `Mode: ${aiModeLabel(settings, false)}. Click the mode tag at the top right to switch online / local / own key.`}
             bottomRef={bottomRef} inputRef={inputRef}
             language={effectiveCtx.language}
           />

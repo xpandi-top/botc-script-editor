@@ -5,9 +5,6 @@
   "current_revision": "v1",
   "setup": false,
   "otherNightReminder": "If the Sweetheart died, a player became drunk immediately. If you haven't done this yet, do so now. :reminder:",
-  "remindersGlobal": [
-    "Drunk"
-  ],
   "revisions": [
     {
       "id": "v1",
@@ -29,6 +26,12 @@
     "revisions": {
       "v1": "当你死亡时，会有一名玩家开始醉酒。"
     },
-    "otherNightReminder": "如果心上人死亡，一名玩家醉酒。"
-  }
+    "otherNightReminder": "如果心上人死亡，一名玩家醉酒。",
+    "reminders": [
+      "醉酒"
+    ]
+  },
+  "reminders": [
+    "Drunk"
+  ]
 }

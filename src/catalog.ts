@@ -146,23 +146,22 @@ export function refreshCharReminders() {
 /**
  * Get effective reminders for any character id.
  * Priority: CustomCharacter fields → BOTC_CHAR_REMINDERS user override →
- * character JSON `<language>` block → other language block → top-level `reminders`.
+ * character JSON `<language>` block → the base list.
  *
- * Official characters keep their tokens in the top-level field (English); packs
- * that ship localized tokens (e.g. Odyssey) put them under `en`/`zh`. The
- * cross-language fallback mirrors getAbilityText: showing the other language
- * beats showing nothing.
+ * Official characters keep their English tokens in the top-level field and
+ * the Chinese ones under `zh` (scripts/sync-reminders.mjs); packs that ship
+ * only localized tokens (e.g. Odyssey) put them under `en`/`zh`. The base list
+ * is the top-level field, else a language block, so English falls back to
+ * the English tokens before a pack's Chinese ones: showing the other
+ * language beats showing nothing, but never beats the right language.
  */
 export function getCharacterReminders(id: string, language?: Language): string[] {
   const custom = _customCharRegistry.get(id)
   if (custom) return custom.reminders ?? []
   if (_charReminders[id]?.reminders !== undefined) return _charReminders[id].reminders!
-  if (language) {
-    const fallbackLanguage: Language = language === 'en' ? 'zh' : 'en'
-    const localized = _charLocale[language]?.[id]?.reminders ?? _charLocale[fallbackLanguage]?.[id]?.reminders
-    if (localized) return localized
-  }
-  // Fall back to value baked into the character JSON file (loaded at startup via characterById)
+  const localized = language ? _charLocale[language]?.[id]?.reminders : undefined
+  if (localized) return localized
+  // The value baked into the character JSON file (loaded at startup via characterById)
   return characterById[id]?.reminders ?? []
 }
 
@@ -170,11 +169,8 @@ export function getCharacterRemindersGlobal(id: string, language?: Language): st
   const custom = _customCharRegistry.get(id)
   if (custom) return custom.remindersGlobal ?? []
   if (_charReminders[id]?.remindersGlobal !== undefined) return _charReminders[id].remindersGlobal!
-  if (language) {
-    const fallbackLanguage: Language = language === 'en' ? 'zh' : 'en'
-    const localized = _charLocale[language]?.[id]?.remindersGlobal ?? _charLocale[fallbackLanguage]?.[id]?.remindersGlobal
-    if (localized) return localized
-  }
+  const localized = language ? _charLocale[language]?.[id]?.remindersGlobal : undefined
+  if (localized) return localized
   return characterById[id]?.remindersGlobal ?? []
 }
 

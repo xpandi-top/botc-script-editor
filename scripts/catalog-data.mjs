@@ -83,8 +83,8 @@ export function buildCatalogData(root = process.cwd()) {
       edition: file.edition,
       name: resolveText(id, 'name', toTitleCase),
       ability: resolveText(id, 'ability', () => 'No ability text available.'),
-      reminders: Object.fromEntries(LANGS.map((lang) => [lang, locale[lang][id]?.reminders ?? locale[other(lang)][id]?.reminders ?? baseReminders])),
-      remindersGlobal: Object.fromEntries(LANGS.map((lang) => [lang, locale[lang][id]?.remindersGlobal ?? locale[other(lang)][id]?.remindersGlobal ?? baseGlobal])),
+      reminders: Object.fromEntries(LANGS.map((lang) => [lang, locale[lang][id]?.reminders ?? baseReminders])),
+      remindersGlobal: Object.fromEntries(LANGS.map((lang) => [lang, locale[lang][id]?.remindersGlobal ?? baseGlobal])),
     }
     if (Object.keys(flavor).length > 0) character.flavor = flavor
     if (typeof file.setup === 'boolean') character.setup = file.setup

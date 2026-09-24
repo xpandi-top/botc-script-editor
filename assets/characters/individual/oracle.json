@@ -5,9 +5,7 @@
   "current_revision": "v1",
   "setup": false,
   "otherNightReminder": "Give a finger signal.",
-  "reminders": [
-    "Dead"
-  ],
+  "reminders": [],
   "revisions": [
     {
       "id": "v1",

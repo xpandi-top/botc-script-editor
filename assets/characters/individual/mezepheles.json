@@ -29,6 +29,14 @@
       "v1": "在你的首个夜晚，你会得知一个关键词。首个说出该关键词的善良玩家会在当晚转变为邪恶阵营。"
     },
     "firstNightReminder": "唤醒灵言师，对他展示他的关键词。",
-    "otherNightReminder": "如果首次有善良玩家说出了灵言师的关键词，唤醒该玩家并通知他阵营变化。"
-  }
+    "otherNightReminder": "如果首次有善良玩家说出了灵言师的关键词，唤醒该玩家并通知他阵营变化。",
+    "reminders": [
+      "转为邪恶",
+      "失去能力"
+    ]
+  },
+  "reminders": [
+    "Turns Evil",
+    "No Ability"
+  ]
 }

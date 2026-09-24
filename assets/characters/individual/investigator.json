@@ -6,6 +6,7 @@
   "setup": false,
   "firstNightReminder": "Show the Minion character token. Point to both the *MINION* and *WRONG* players.",
   "reminders": [
+    "Minion",
     "Wrong"
   ],
   "revisions": [
@@ -29,6 +30,10 @@
     "revisions": {
       "v1": "在你的首个夜晚，你会得知两名玩家和一个爪牙角色：这两名玩家之一是该角色（或者你会得知没有爪牙在场）。"
     },
-    "firstNightReminder": "唤醒调查员，对他指向两名玩家，并展示一个爪牙角色标记。这两名玩家其中之一是这个爪牙。"
+    "firstNightReminder": "唤醒调查员，对他指向两名玩家，并展示一个爪牙角色标记。这两名玩家其中之一是这个爪牙。",
+    "reminders": [
+      "爪牙",
+      "错误"
+    ]
   }
 }

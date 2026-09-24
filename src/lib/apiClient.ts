@@ -1,6 +1,6 @@
 /**
  * Client for the BOTC Companion API worker (worker/): personal access tokens
- * and the cloud library. Only active when VITE_API_URL is set; requests are
+ * and the cloud library (the public API unless VITE_API_URL=off); requests are
  * authorized with the Google access token from Cloud Sync.
  */
 import { storageSync } from './storage'

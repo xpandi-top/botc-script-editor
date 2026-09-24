@@ -60,15 +60,23 @@ function nightOrderLines(ids: string[], language: Language, query: string): stri
   })
 }
 
+/** Up to `max` characters, ending at a sentence end when there is one. */
+function excerpt(text: string, max: number): string {
+  if (text.length <= max) return text
+  const cut = text.slice(0, max)
+  const end = Math.max(...['。', '！', '？', '. ', '! ', '? '].map((p) => cut.lastIndexOf(p)))
+  return end > max * 0.4 ? cut.slice(0, end + 1) : `${cut}…`
+}
+
 export type LocalAnswer = { message: string; found: boolean }
 
-export function answerLocally(ctx: AiContext, query: string, previousQueries: string[] = []): LocalAnswer {
+export function answerLocally(ctx: AiContext, query: string, previousQueries: string[] = [], lastAnswer?: string): LocalAnswer {
   const language = ctx.language
   const zh = language === 'zh'
   const retrieval = retrieveCatalog(query, language, previousQueries)
   const sections: string[] = []
 
-  const facts = computeRuleFacts(query, language, ctx)
+  const facts = computeRuleFacts(query, language, { ...ctx, previousQueries, lastAnswer })
   if (facts) sections.push(facts.split('\n').slice(1).join('\n'))
 
   // Characters the question names: official text (both languages for translations).
@@ -96,7 +104,7 @@ export function answerLocally(ctx: AiContext, query: string, previousQueries: st
     const rules = ruleIndex(language).search(query, 2).map((chunk) => chunk.text)
     if (rules.length) sections.push(`${rules.join('\n\n')}\n${zh ? '（来源：官方规则与术语表）' : '(Source: official rules and glossary)'}`)
     const wiki = searchWiki(query, 1).filter((chunk) => zh === chunk.page.startsWith('zh-'))
-    if (wiki.length) sections.push(wiki.map((chunk) => `${chunk.text.slice(0, 500)}\n${zh ? '来源' : 'Source'}: ${chunk.url}`).join('\n\n'))
+    if (wiki.length) sections.push(wiki.map((chunk) => `${excerpt(chunk.text, 500)}\n${zh ? '来源' : 'Source'}: ${chunk.url}`).join('\n\n'))
   }
 
   const found = sections.length > 0

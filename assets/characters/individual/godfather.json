@@ -7,7 +7,8 @@
   "firstNightReminder": "Show the character tokens of all in-play Outsiders.",
   "otherNightReminder": "If an Outsider died today, the Godfather chooses a player. :reminder:",
   "reminders": [
-    "Died today"
+    "Died Today",
+    "Dead"
   ],
   "revisions": [
     {
@@ -32,6 +33,10 @@
       "v1": "在你的首个夜晚，你会得知有哪些外来者角色在场。如果有外来者在白天死亡，你会在当晚被唤醒并且你要选择一名玩家：他死亡。[-1或+1外来者]"
     },
     "firstNightReminder": "唤醒教父，对他展示外来者角色标记，告诉他有哪些外来者在场。",
-    "otherNightReminder": "如果今天白天有外来者死亡，唤醒教父，让他攻击一名玩家。"
+    "otherNightReminder": "如果今天白天有外来者死亡，唤醒教父，让他攻击一名玩家。",
+    "reminders": [
+      "死于今日",
+      "死亡"
+    ]
   }
 }

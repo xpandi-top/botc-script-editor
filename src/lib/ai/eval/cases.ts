@@ -43,7 +43,7 @@ export type Check =
 
 export type EvalCase = {
   id: string
-  category: 'fact' | 'translation' | 'rules' | 'term' | 'setup' | 'script' | 'situation'
+  category: 'fact' | 'translation' | 'rules' | 'term' | 'setup' | 'script' | 'recommend' | 'situation'
   difficulty: 'basic' | 'hard'
   language: 'zh' | 'en'
   context: EvalContext
@@ -216,6 +216,32 @@ export const EVAL_CASES: EvalCase[] = [
       counts: { townsfolk: [5, 8], outsider: [1, 3], minion: [1, 3], demon: [1, 3] },
       dealable: [5, 6],
     }],
+  },
+
+  // ── Recommendations ──────────────────────────────────────────────────────
+  {
+    id: 'recommend-beginner-official', category: 'recommend', difficulty: 'basic', language: 'zh', context: general, offline: true,
+    question: '官方的剧本有哪个剧本难度比较适合入门？',
+    checks: [
+      { kind: 'includes', any: ['暗流涌动'], label: '推荐暗流涌动' },
+      { kind: 'excludes', any: ['没有相关'], label: '没有说“没有相关资料”' },
+    ],
+  },
+  {
+    id: 'recommend-casual', category: 'recommend', difficulty: 'basic', language: 'zh', context: general, offline: true,
+    question: '有什么剧本休闲可以玩的？',
+    checks: [
+      { kind: 'includes', any: ['暗流涌动', '明枪暗箭', '靶区优选', '暗流涌动-进阶'], label: '给出具体剧本' },
+      { kind: 'excludes', any: ['没有相关'], label: '没有说“没有相关信息”' },
+    ],
+  },
+  {
+    id: 'recommend-small-group', category: 'recommend', difficulty: 'basic', language: 'zh', context: general, offline: true,
+    question: '我们只有 6 个人，有什么小型剧本推荐？',
+    checks: [
+      { kind: 'includes', any: ['靶区优选', '窃窃私语', '死限', 'Over the River', '暗流涌动'], label: '给出适合人少的剧本' },
+      { kind: 'excludes', any: ['没有相关'], label: '没有说“没有相关资料”' },
+    ],
   },
 
   // ── Game situations ───────────────────────────────────────────────────────

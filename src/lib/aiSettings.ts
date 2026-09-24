@@ -169,6 +169,20 @@ export function isAiAvailable(s?: AiSettings): boolean {
   return settings.provider === 'webllm' || Boolean(providerKey(settings))
 }
 
+export type AiMode = 'online' | 'local' | 'byok'
+
+/** The settings' main mode: hosted, local (data + optional on-device model), or own key. */
+export function aiModeOf(settings: Pick<AiSettings, 'provider'>): AiMode {
+  return settings.provider === 'botc' ? 'online' : settings.provider === 'webllm' ? 'local' : 'byok'
+}
+
+export function aiModeLabel(settings: Pick<AiSettings, 'provider'>, zh: boolean): string {
+  const mode = aiModeOf(settings)
+  if (mode === 'online') return zh ? '在线 · BOTC 免费' : 'Online · BOTC free'
+  if (mode === 'local') return zh ? '本地 · 离线' : 'Local · offline'
+  return `${PROVIDER_LABELS[settings.provider]} · ${zh ? '自带 Key' : 'own key'}`
+}
+
 /** Settings tabs in display order; the hosted AI only when this build has an API. */
 export function availableProviders(): AiProvider[] {
   return [...(isApiConfigured() ? ['botc' as const] : []), 'webllm', 'groq', 'openrouter', 'gemini']

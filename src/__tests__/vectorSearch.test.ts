@@ -34,7 +34,7 @@ describe('findSimilar', () => {
     const local = await findSimilar('each night choose a player they die', 2, { team: 'demon', allowRemote: false })
     expect(local).toHaveLength(2)
     expect(local.every((r) => r.team === 'demon')).toBe(true)
-    vi.stubEnv('VITE_API_URL', '')
+    vi.stubEnv('VITE_API_URL', 'off')
     expect(await findSimilar('each night choose a player they die', 2, { team: 'demon' })).toHaveLength(2)
     expect(fetchMock).not.toHaveBeenCalled()
   })

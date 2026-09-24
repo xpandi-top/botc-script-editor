@@ -3,7 +3,7 @@
  * the answer check in the AI panel (answerCheck.ts) and the evaluation
  * graders.
  */
-import { allCharacterFiles, getDisplayName } from '../../catalog'
+import { allCharacterFiles, getAbilityText, getDisplayName } from '../../catalog'
 import { CHARACTER_DISTRIBUTION, SETUP_OUTSIDER_SHIFTS } from '../../core/engine/setup'
 import type { Team } from '../../types'
 
@@ -116,3 +116,66 @@ export function poolProblems(ids: string[], req: PoolRequirements, language: 'en
     ...(ids.length !== new Set(ids).size ? [zh ? '有重复角色' : 'duplicates'] : []),
   ]
 }
+
+// ── Ability descriptions ─────────────────────────────────────────────────────
+
+// A description of what a character does, as opposed to advice about it.
+const DESCRIBES_ABILITY = /你|每个?夜晚|每晚|首个夜晚|\byou\b|\beach night\b|\bonce per game\b/i
+
+/**
+ * "Name（名字）：description" lines whose description reads like an ability:
+ * the head names exactly one character, the rest speaks to the player.
+ */
+export function abilityClaims(text: string): Array<{ id: string; claim: string }> {
+  const lines = text.split('\n').map((line) => line.replace(/[*_`]/g, '').replace(/^\s*(?:[-•+]|\d+[.)、])?\s*/, '').trim()).filter(Boolean)
+  return lines.flatMap((line, i) => {
+    const m = line.match(/^([^：:]{2,40})[：:]\s*(.*)$/)
+    if (!m) return []
+    // "Name：" with the description on the next (nested) line.
+    const claim = m[2].trim() || (lines[i + 1] && !/[：:]\s*$/.test(lines[i + 1]) ? lines[i + 1] : '')
+    if (claim.length < 6 || !DESCRIBES_ABILITY.test(claim)) return []
+    const named = [...charactersIn(m[1])]
+    return named.length === 1 ? [{ id: named[0], claim }] : []
+  })
+}
+
+const bigrams = (s: string) => {
+  const t = s.toLowerCase().replace(/<[^>]+>|[\s\p{P}\p{S}]/gu, '')
+  return new Set(Array.from({ length: Math.max(0, t.length - 1) }, (_, i) => t.slice(i, i + 2)))
+}
+
+// Rare character pairs carry the meaning; "每个夜晚" / "each night" do not.
+let idf: Map<string, number> | null = null
+function weightOf(pair: string): number {
+  if (!idf) {
+    const texts = characters.flatMap((c) => [getAbilityText(c.id, 'en'), getAbilityText(c.id, 'zh')]).filter((t): t is string => !!t)
+    const df = new Map<string, number>()
+    for (const text of texts) for (const p of bigrams(text)) df.set(p, (df.get(p) ?? 0) + 1)
+    idf = new Map([...df].map(([p, n]) => [p, Math.log(texts.length / n)]))
+  }
+  return idf.get(pair) ?? Math.log(characters.length * 2)
+}
+
+/** Similarity of two texts' character pairs, weighted by rarity across all abilities, 0–1. */
+export function textSimilarity(a: string, b: string): number {
+  const x = bigrams(a), y = bigrams(b)
+  if (!x.size || !y.size) return 0
+  const total = (set: Set<string>) => [...set].reduce((sum, p) => sum + weightOf(p), 0)
+  let shared = 0
+  for (const pair of x) if (y.has(pair)) shared += weightOf(pair)
+  return (2 * shared) / (total(x) + total(y))
+}
+
+/**
+ * Characters whose ability the answer describes in words that share little
+ * with the real text: made-up abilities rather than paraphrases.
+ */
+export function misdescribedAbilities(text: string, threshold = 0.25): string[] {
+  const wrong = abilityClaims(text).filter(({ id, claim }) => {
+    const lang = /[\u3400-\u9fff]/.test(claim) ? 'zh' : 'en'
+    const real = getAbilityText(id, lang) ?? ''
+    return real && textSimilarity(claim, real) < threshold
+  })
+  return [...new Set(wrong.map(({ id }) => id))]
+}
+

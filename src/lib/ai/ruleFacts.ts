@@ -19,11 +19,17 @@ import { CHARACTER_DISTRIBUTION, SETUP_OUTSIDER_SHIFTS } from '../../core/engine
 import { gameStateFacts, type GameFact } from '../../core/engine/winConditions'
 import { catalogTeamOf } from '../../utils/seatAlignment'
 import type { Language, Team } from '../../types'
-import type { PoolRequirements } from './answerParse'
+import { charactersIn, type PoolRequirements } from './answerParse'
 import { mentionedEntities } from './catalogRetrieval'
+import { scriptRecommendationFacts } from './scriptFacts'
 import type { AiContext } from './types'
 
-export type FactsPage = Pick<AiContext, 'characterIds' | 'seats'>
+/** The page (script / game) plus earlier user questions in the chat, for follow-ups like "那 7 个人玩它". */
+export type FactsPage = Pick<AiContext, 'characterIds' | 'seats'> & {
+  previousQueries?: string[]
+  /** The assistant's last answer: "它" often means the script it just recommended. */
+  lastAnswer?: string
+}
 
 const SETUP_WORDS = /局|配置|开局|在场|上场|发牌|推荐角色|挑选|setup|set up|in play|line-?up|deal|which characters/i
 const SCRIPT_DESIGN = /(设计|生成|创建|组|做|出|编|写)[^。？?\n]{0,16}剧本|剧本[^。？?\n]{0,6}(设计|生成)|(design|build|create|make|generate)\b[^.?\n]{0,30}\bscript/i
@@ -52,10 +58,72 @@ const row = (zh: boolean, c: { townsfolk: number; outsider: number; minion: numb
   zh ? `镇民 ${c.townsfolk} / 外来者 ${c.outsider} / 爪牙 ${c.minion} / 恶魔 ${c.demon}` : `${c.townsfolk} Townsfolk / ${c.outsider} Outsiders / ${c.minion} Minions / ${c.demon} Demon`
 const list = (ids: string[], zh: boolean) => `${ids.join(', ')}（${ids.map((id) => name(id, zh)).join(zh ? '、' : ', ')}）`
 
-/** The page's script, or the bundled script of an edition the question names. */
+const ASKS_ABILITY = /能力|技能|做什么|\babilit(y|ies)\b|what does/i
+const REFERS_BACK = /它|这个|那个|这套|该剧本|上面|刚才|前者|后者|推荐的|你说的|第[一二三四五1-5]个(?![夜晚白天])|\b(it|this|that|the (first|second|third|former|latter))\b/i
+// "第一个" / "the first" = the first script the last answer named, and so on; -1 = the last one.
+const ORDINALS: [RegExp, number][] = [
+  [/第[一1]个(?![夜晚白天])|前者|\bthe (first|former)\b/i, 0],
+  [/第[二2]个(?![夜晚白天])|\bthe second\b/i, 1],
+  [/第[三3]个(?![夜晚白天])|\bthe third\b/i, 2],
+  [/后者|\bthe latter\b/i, -1],
+]
+const bundledScriptOf = (text: string) => mentionedEntities(text).editionIds.map((id) => initialScripts.find((s) => s.slug === id)?.characters).find(Boolean)
+
+/**
+ * Bundled scripts named in a text by title, in order of first mention.
+ * Longer titles are matched first, so "暗流涌动-进阶" is not also a mention
+ * of "暗流涌动".
+ */
+function scriptMentions(text: string): { characters: string[]; first: number; count: number }[] {
+  const titles = initialScripts
+    .flatMap((s) => [s.titleZh, s.title].filter((t): t is string => !!t && t.length > 1).map((title) => ({ s, title })))
+    .sort((a, b) => b.title.length - a.title.length)
+  let rest = text
+  const found = new Map<string, { characters: string[]; first: number; count: number }>()
+  for (const { s, title } of titles) {
+    let at = rest.indexOf(title)
+    while (at !== -1) {
+      const entry = found.get(s.slug) ?? { characters: s.characters, first: at, count: 0 }
+      entry.first = Math.min(entry.first, at)
+      entry.count++
+      found.set(s.slug, entry)
+      rest = rest.slice(0, at) + '\u0000'.repeat(title.length) + rest.slice(at + title.length)
+      at = rest.indexOf(title, at + title.length)
+    }
+  }
+  return [...found.values()]
+}
+
+/** The bundled script an answer names most often (by title). */
+export function mostNamedScript(text: string): string[] | undefined {
+  return scriptMentions(text).sort((a, b) => b.count - a.count || a.first - b.first)[0]?.characters
+}
+
+/** The bundled script a text's first line (its heading) names, if any. */
+export function headlineScript(text: string): string[] | undefined {
+  const first = text.split('\n').find((line) => line.trim()) ?? ''
+  return mostNamedScript(first)
+}
+
+/** The bundled script the question names, or a follow-up's earlier one ("它", "第一个"), else the page's script. */
 function scriptFor(query: string, page: FactsPage): string[] {
-  const named = mentionedEntities(query).editionIds.map((id) => initialScripts.find((s) => s.slug === id)?.characters).find(Boolean)
-  return named ?? page.characterIds ?? []
+  const named = bundledScriptOf(query)
+  if (named) return named
+  if (REFERS_BACK.test(query)) {
+    const ordinal = ORDINALS.find(([pattern]) => pattern.test(query))?.[1]
+    if (ordinal !== undefined && page.lastAnswer) {
+      const inOrder = scriptMentions(page.lastAnswer).sort((a, b) => a.first - b.first)
+      const picked = inOrder[ordinal < 0 ? inOrder.length + ordinal : ordinal]
+      if (picked) return picked.characters
+    }
+    for (const previous of [...(page.previousQueries ?? [])].reverse().slice(0, 6)) {
+      const earlier = bundledScriptOf(previous)
+      if (earlier) return earlier
+    }
+    const recommended = page.lastAnswer ? mostNamedScript(page.lastAnswer) : undefined
+    if (recommended) return recommended
+  }
+  return page.characterIds ?? []
 }
 
 function gameFactText(fact: GameFact, zh: boolean, seatName: (seat: number) => string): string {
@@ -152,6 +220,17 @@ export function computeRuleFacts(query: string, language: Language, page: FactsP
     facts.push(zh
       ? `血染钟楼的剧本是角色池，每局只用其中一部分。程序按问题的约束组出的合法${shape === 'teensy' ? '小型（Teensyville，5–6 人）' : '完整'}剧本（${row(true, pool.counts)}）：剧本角色: ${list(pool.characters, true)}。可以直接采用；替换角色时保持各类数量、不加旅行者。`
       : `A Blood on the Clocktower script is a character pool; each game uses part of it. A legal ${shape === 'teensy' ? 'Teensyville (5–6 player)' : 'full'} script built by program from the question's constraints (${row(false, pool.counts)}): Script characters: ${list(pool.characters, false)}. Use it as is, or swap characters while keeping these counts and adding no Travellers.`)
+  }
+
+  if (!request) facts.push(...scriptRecommendationFacts(query, language))
+
+  // "这套配置里每个角色的能力是什么": the characters of the last answer, with their real text,
+  // so the model does not repeat what it made up before.
+  if (ASKS_ABILITY.test(query) && REFERS_BACK.test(query) && page.lastAnswer && !mentionedEntities(query).characterIds.length) {
+    const text = page.lastAnswer
+    const at = (id: string) => Math.min(...[id, name(id, true), name(id, false)].map((n) => text.indexOf(n)).filter((i) => i >= 0))
+    const ids = [...charactersIn(text)].sort((a, b) => at(a) - at(b)).slice(0, 15)
+    if (ids.length) facts.push(`${zh ? '上一条回答里角色的能力原文（原样引用，不要改写或凭记忆补充）' : 'Official ability text of the characters in the last answer (quote as is; do not reword or recall)'}：${ids.map((id) => `\n  - ${name(id, zh)}：${getAbilityText(id, language) ?? ''}`).join('')}`)
   }
 
   if (page.seats?.length) {

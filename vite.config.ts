@@ -20,6 +20,8 @@ export default defineConfig(({ command, mode }) => {
       environment: 'jsdom',
       setupFiles: ['src/test/setup.ts'],
       globals: true,
+      // Tests opt in to the API (vi.stubEnv); the build default is the public worker.
+      env: { VITE_API_URL: 'off' },
       // worker/ has its own package and test runner (cd worker && npm test)
       exclude: ['**/node_modules/**', '**/dist/**', 'e2e/**', 'worker/**'],
       coverage: {
@@ -63,6 +65,14 @@ export default defineConfig(({ command, mode }) => {
               urlPattern: /\/assets\/webllm[^/]*\.js$/,
               handler: 'CacheFirst',
               options: { cacheName: 'webllm-runtime', expiration: { maxEntries: 8 } },
+            },
+            {
+              // Rules and wiki excerpts behind offline answers (src/lib/wikiSearch.ts):
+              // loaded when the AI panel opens, then served from cache when offline
+              // and refreshed in the background when online.
+              urlPattern: /\/wiki-chunks\.json$/,
+              handler: 'StaleWhileRevalidate',
+              options: { cacheName: 'wiki-cache', expiration: { maxEntries: 2 } },
             },
             {
               urlPattern: /\/assets\/locales\/.+\.json$/,

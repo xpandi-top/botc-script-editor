@@ -26,6 +26,12 @@
     "revisions": {
       "v1": "在你的首个夜晚，你会得知一名善良玩家。"
     },
-    "firstNightReminder": "唤醒事务官，对他指向一名善良玩家。"
-  }
+    "firstNightReminder": "唤醒事务官，对他指向一名善良玩家。",
+    "reminders": [
+      "得知"
+    ]
+  },
+  "reminders": [
+    "Know"
+  ]
 }

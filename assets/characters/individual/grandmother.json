@@ -7,7 +7,8 @@
   "firstNightReminder": "Point to the grandchild player & show their character token.",
   "otherNightReminder": "If the grandchild was killed by the Demon, the Grandmother dies too. :reminder:",
   "reminders": [
-    "Grandmother"
+    "Grandchild",
+    "Dead"
   ],
   "revisions": [
     {
@@ -32,6 +33,10 @@
       "v1": "在你的首个夜晚，你会得知一名善良玩家和他的角色。如果恶魔杀死了他，你也会死亡。"
     },
     "firstNightReminder": "唤醒祖母，对她指向一名善良玩家，并展示该玩家的角色标记。",
-    "otherNightReminder": "如果恶魔杀死了孙子，祖母死亡。"
+    "otherNightReminder": "如果恶魔杀死了孙子，祖母死亡。",
+    "reminders": [
+      "孙子",
+      "死亡"
+    ]
   }
 }

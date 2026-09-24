@@ -13,6 +13,8 @@ import { useT } from '../../context/I18nContext'
 
 type Props = {
   variant: AiPanelVariant
+  /** Current mode, e.g. "在线 · BOTC 免费"; click to change it. */
+  modeLabel: string
   showSettings: boolean
   setShowSettings: (v: boolean | ((prev: boolean) => boolean)) => void
   hasMessages: boolean
@@ -21,7 +23,7 @@ type Props = {
   language: Language
 }
 
-export function Header({ variant, showSettings, setShowSettings, hasMessages, onClear, onClose }: Props) {
+export function Header({ variant, modeLabel, showSettings, setShowSettings, hasMessages, onClear, onClose }: Props) {
   const { t } = useT()
   return (
     <Box sx={{
@@ -33,6 +35,14 @@ export function Header({ variant, showSettings, setShowSettings, hasMessages, on
       <Typography sx={{ flex: 1, fontSize: '0.82rem', fontWeight: 700 }}>
         {t('ai_assistant')}
       </Typography>
+      <Tooltip title={t('settings')}>
+        <Chip
+          label={modeLabel}
+          size="small" variant={showSettings ? 'filled' : 'outlined'} color="primary"
+          onClick={() => setShowSettings((v) => !v)}
+          sx={{ fontSize: '0.62rem', height: 19, maxWidth: 150, cursor: 'pointer', '& .MuiChip-label': { px: 0.75, overflow: 'hidden', textOverflow: 'ellipsis' } }}
+        />
+      </Tooltip>
       <Chip
         label={t('exp')}
         size="small" color="warning" variant="outlined"

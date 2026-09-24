@@ -6,7 +6,7 @@
   "setup": false,
   "otherNightReminder": "If the Banshee was killed by the Demon tonight, announce that the Banshee has died. :reminder:",
   "reminders": [
-    "Active"
+    "Has Ability"
   ],
   "revisions": [
     {
@@ -29,6 +29,9 @@
     "revisions": {
       "v1": "如果恶魔杀死了你，所有玩家都会得知此事。从现在开始，你每天可以发起两次提名，每次投票时可以投两票。"
     },
-    "otherNightReminder": "如果恶魔杀死了报丧女妖，宣布\"报丧女妖觉醒了\"，并使用\"具有能力\"标记报丧女妖。"
+    "otherNightReminder": "如果恶魔杀死了报丧女妖，宣布\"报丧女妖觉醒了\"，并使用\"具有能力\"标记报丧女妖。",
+    "reminders": [
+      "具有能力"
+    ]
   }
 }

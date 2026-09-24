@@ -6,9 +6,8 @@
   "setup": false,
   "otherNightReminder": "The Innkeeper chooses 2 players. :reminder: :reminder: :reminder:",
   "reminders": [
-    "Protected"
-  ],
-  "remindersGlobal": [
+    "Safe",
+    "Safe",
     "Drunk"
   ],
   "revisions": [
@@ -32,6 +31,11 @@
     "revisions": {
       "v1": "每个夜晚*，你要选择两名玩家：他们当晚不会死亡，但其中一人会醉酒到下个黄昏。"
     },
-    "otherNightReminder": "唤醒旅店老板，让他选择两名玩家。这两名玩家今晚不死，同时需要决定他俩其中谁因为旅店老板能力醉酒。"
+    "otherNightReminder": "唤醒旅店老板，让他选择两名玩家。这两名玩家今晚不死，同时需要决定他俩其中谁因为旅店老板能力醉酒。",
+    "reminders": [
+      "不会死亡",
+      "不会死亡",
+      "醉酒"
+    ]
   }
 }

@@ -7,6 +7,7 @@
 import { loadAiSettings, isAiAvailable, providerKey, type AiProvider, type AiSettings } from './aiSettings'
 
 import { budgetHistory, GROQ_INPUT_BUDGET } from '../core/ai/contextBudget'
+import { stripThinking } from './ai/modelText'
 
 export class GeminiError extends Error {
   constructor(
@@ -43,6 +44,11 @@ export type GeminiResponse = {
 }
 
 export async function geminiGenerate(req: GeminiRequest, settings: AiSettings = loadAiSettings()): Promise<GeminiResponse> {
+  const res = await generateRaw(req, settings)
+  return { ...res, text: stripThinking(res.text) }
+}
+
+async function generateRaw(req: GeminiRequest, settings: AiSettings): Promise<GeminiResponse> {
   const provider = settings.provider
   const model    = req.model ?? settings.model
   if (provider === 'webllm') {

@@ -22,6 +22,14 @@
     "revisions": {
       "v1": "每个夜晚*，你要选择一名玩家：他死亡。当你将要死亡时，改为一名存活且具有能力的爪牙失去能力。你不会得知恶魔信息。"
     },
-    "firstNightReminder": "如果梼杌在场，跳过他的恶魔信息环节。"
-  }
+    "firstNightReminder": "如果梼杌在场，跳过他的恶魔信息环节。",
+    "reminders": [
+      "死亡",
+      "失去能力"
+    ]
+  },
+  "reminders": [
+    "Dead",
+    "No Ability"
+  ]
 }

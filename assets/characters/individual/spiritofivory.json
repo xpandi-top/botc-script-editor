@@ -23,6 +23,12 @@
     "ability": "额外变为邪恶的玩家不能超过1名。",
     "revisions": {
       "v1": "额外变为邪恶的玩家不能超过1名。"
-    }
-  }
+    },
+    "reminders": [
+      "禁止邪恶"
+    ]
+  },
+  "reminders": [
+    "No More Evil"
+  ]
 }

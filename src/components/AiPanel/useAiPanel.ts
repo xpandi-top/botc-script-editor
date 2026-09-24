@@ -13,6 +13,7 @@ import {
 import { getWebLlmState, subscribeWebLlm, unloadWebLlm } from '../../lib/ai/runtime/webllm'
 import { getHostedStatus, HOSTED_INPUT_BUDGET } from '../../lib/ai/runtime/hosted'
 import { answerLocally } from '../../lib/ai/localAnswer'
+import { initWikiSearch } from '../../lib/wikiSearch'
 import { checkAnswer } from '../../lib/ai/answerCheck'
 import { useT } from '../../context/I18nContext'
 import { storePair } from '../../lib/translationMemory'
@@ -61,6 +62,11 @@ export function useAiPanel({ open, context, callbacks }: UseAiPanelOptions) {
       setFillLog(getFillLogForForm(formKey))
     }
   }, [open, formKey])
+
+  // Load the wiki index while online, so offline answers can quote it later (the service worker caches it).
+  useEffect(() => {
+    if (open) void initWikiSearch()
+  }, [open])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -144,15 +150,18 @@ export function useAiPanel({ open, context, callbacks }: UseAiPanelOptions) {
       }))
 
     const previousQueries = messages.filter((m) => m.role === 'user').map((m) => m.content)
+    const lastAnswer = [...messages].reverse().find((m) => m.role === 'assistant')?.content
     const zh = effectiveCtx.language === 'zh'
-    const local = () => answerLocally(effectiveCtx, text, previousQueries)
+    // Offline answers quote the wiki, so wait for its index (cached after the first load).
+    const local = async () => { await initWikiSearch(); return answerLocally(effectiveCtx, text, previousQueries, lastAnswer) }
     if (!modelReady(latestSettings)) {
       const why = latestSettings.provider === 'webllm'
         ? (zh ? '本地模型尚未下载或加载' : 'The local model is not loaded')
         : latestSettings.provider === 'botc'
           ? (zh ? 'BOTC 在线 AI 暂不可用' : 'The BOTC online AI is not available')
           : (zh ? '未填写 API Key' : 'No API key')
-      setMessages((m) => [...m, { id: crypto.randomUUID(), role: 'assistant', content: `${local().message}\n\n_${why}${zh ? '，以上为本地资料。' : '; this is local data only.'}_`, local: true }])
+      const answer = await local()
+      setMessages((m) => [...m, { id: crypto.randomUUID(), role: 'assistant', content: `${answer.message}\n\n_${why}${zh ? '，以上为本地资料。' : '; this is local data only.'}_`, local: true }])
       setLoading(false)
       setTimeout(() => inputRef.current?.focus(), 50)
       return
@@ -160,7 +169,7 @@ export function useAiPanel({ open, context, callbacks }: UseAiPanelOptions) {
 
     let result: Awaited<ReturnType<typeof callAi>>
     try {
-      const systemPrompt = await prepareSystemPrompt(effectiveCtx, text, previousQueries, { local: latestSettings.provider === 'webllm', inputBudget: latestSettings.provider === 'botc' ? HOSTED_INPUT_BUDGET : undefined })
+      const systemPrompt = await prepareSystemPrompt(effectiveCtx, text, previousQueries, { local: latestSettings.provider === 'webllm', inputBudget: latestSettings.provider === 'botc' ? HOSTED_INPUT_BUDGET : undefined, lastAnswer })
       result = await callAi({ systemPrompt, history, settings: latestSettings, temperature: 0.6 })
     } catch (error) {
       result = { ok: false, error: error instanceof Error ? error.message : String(error) }
@@ -169,7 +178,7 @@ export function useAiPanel({ open, context, callbacks }: UseAiPanelOptions) {
     if (result.ok) {
       const { response } = result
       // Line-ups and scripts in the answer are checked; illegal ones get the program's legal version.
-      const checked = checkAnswer(effectiveCtx, text, response.message)
+      const checked = checkAnswer(effectiveCtx, text, response.message, previousQueries, lastAnswer)
       const msgId = crypto.randomUUID()
       setMessages((m) => [
         ...m,
@@ -182,7 +191,7 @@ export function useAiPanel({ open, context, callbacks }: UseAiPanelOptions) {
       }
     } else {
       // The model failed (offline, limits, outage): still show what local data says.
-      const fallback = local()
+      const fallback = await local()
       setMessages((m) => [
         ...m,
         { id: crypto.randomUUID(), role: 'error', content: result.error },

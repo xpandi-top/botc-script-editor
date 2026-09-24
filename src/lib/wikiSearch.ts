@@ -22,10 +22,14 @@ let _init: Promise<boolean> | null = null
 
 /**
  * Load wiki-chunks.json and build TF-IDF index.
- * Call once at startup; safe to call multiple times.
+ * Call once at startup; safe to call multiple times. A failed load (offline
+ * before the file was ever cached) is retried on the next call.
  */
 export function initWikiSearch(): Promise<boolean> {
-  _init ??= loadWikiIndex()
+  _init ??= loadWikiIndex().then((loaded) => {
+    if (!loaded) _init = null
+    return loaded
+  })
   return _init
 }
 

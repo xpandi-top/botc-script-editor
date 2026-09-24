@@ -5,7 +5,7 @@
   "current_revision": "v1",
   "setup": false,
   "reminders": [
-    "No ability"
+    "No Ability"
   ],
   "revisions": [
     {
@@ -26,6 +26,9 @@
     "ability": "当你首次将要死亡时，你不会死亡。",
     "revisions": {
       "v1": "当你首次将要死亡时，你不会死亡。"
-    }
+    },
+    "reminders": [
+      "失去能力"
+    ]
   }
 }

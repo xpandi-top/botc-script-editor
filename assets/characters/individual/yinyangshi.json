@@ -22,6 +22,14 @@
     "revisions": {
       "v1": "在你的首个夜晚，你会得知两个善良角色和两个邪恶角色。其中有且只有两个角色在场。"
     },
-    "firstNightReminder": "唤醒阴阳师，对他展示两个善良角色和两个邪恶角色。"
-  }
+    "firstNightReminder": "唤醒阴阳师，对他展示两个善良角色和两个邪恶角色。",
+    "reminders": [
+      "在场",
+      "不在场"
+    ]
+  },
+  "reminders": [
+    "In Play",
+    "Not In Play"
+  ]
 }

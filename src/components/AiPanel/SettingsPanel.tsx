@@ -9,8 +9,8 @@ import { WebLlmSettings } from './WebLlmSettings'
 import { Box, Chip, Collapse, MenuItem, Select, Tab, Tabs, TextField, Typography } from '@mui/material'
 import { useT } from '../../context/I18nContext'
 import {
-  PROVIDER_MODELS, PROVIDER_LABELS, availableProviders, getDefaultModel,
-  type AiSettings, type KeyedAiProvider,
+  PROVIDER_MODELS, PROVIDER_LABELS, aiModeOf, availableProviders, getDefaultModel,
+  type AiMode, type AiSettings, type KeyedAiProvider,
 } from '../../lib/aiSettings'
 
 type Props = {
@@ -20,13 +20,13 @@ type Props = {
   busy?: boolean
 }
 
-type Mode = 'online' | 'local' | 'byok'
+type Mode = AiMode
 const KEYED: KeyedAiProvider[] = ['groq', 'openrouter', 'gemini']
 
 export function SettingsPanel({ settings, patchSettings, showSettings, busy }: Props) {
   const { language } = useT()
   const zh = language === 'zh'
-  const mode: Mode = settings.provider === 'botc' ? 'online' : settings.provider === 'webllm' ? 'local' : 'byok'
+  const mode: Mode = aiModeOf(settings)
   const keyed = mode === 'byok' ? settings.provider as KeyedAiProvider : null
   // Raw value (not trimmed) so typing is not disturbed.
   const apiKey = keyed ? settings.keys[keyed] : ''

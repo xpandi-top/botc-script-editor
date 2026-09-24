@@ -26,6 +26,12 @@
     "revisions": {
       "v1": "你随时可能死亡。"
     },
-    "otherNightReminder": "在夜晚的任意时机，你都可以决定杀死修补匠。这里只是一个提示以免遗忘修补匠。"
-  }
+    "otherNightReminder": "在夜晚的任意时机，你都可以决定杀死修补匠。这里只是一个提示以免遗忘修补匠。",
+    "reminders": [
+      "死亡"
+    ]
+  },
+  "reminders": [
+    "Dead"
+  ]
 }

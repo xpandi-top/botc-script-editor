@@ -1,7 +1,7 @@
 /** Rule numbers the program computes for the model, and the page state it always keeps. */
 import { describe, it, expect } from 'vitest'
 import { computeRuleFacts } from '../lib/ai/ruleFacts'
-import { initialScripts } from '../catalog'
+import { getAbilityText, initialScripts } from '../catalog'
 import { EVAL_CASES } from '../lib/ai/eval/cases'
 import { evalContext } from '../lib/ai/eval/contexts'
 import { buildSystemPrompt } from '../lib/ai/prompts'
@@ -62,4 +62,53 @@ describe('program facts answer the hard cases on their own', () => {
       expect(grade.checks.filter((r) => !r.pass), facts).toEqual([])
     })
   }
+})
+
+describe('follow-up questions', () => {
+  it('uses the script named in an earlier question for "它"', async () => {
+    const { planRequest } = await import('../lib/ai/ruleFacts')
+    const alVsAl = initialScripts.find((s) => s.slug === 'al_vs_al')!.characters
+    const followUp = planRequest('那 7 个人玩它，帮我挑选在场角色', { characterIds: alVsAl, previousQueries: ['暗流涌动适合入门吗？'] })
+    expect(followUp?.kind === 'setup' && followUp.plan!.inPlay.every((id) => tb.includes(id))).toBe(true)
+    // Without a reference back, the page's script is used.
+    const onPage = planRequest('7 个人玩，帮我挑选在场角色', { characterIds: alVsAl, previousQueries: ['暗流涌动适合入门吗？'] })
+    expect(onPage?.kind === 'setup' && onPage.plan!.inPlay.every((id) => alVsAl.includes(id))).toBe(true)
+  })
+
+  it('reads "第一个" / "the second" as the scripts the last answer listed, in order', async () => {
+    const { planRequest, mostNamedScript } = await import('../lib/ai/ruleFacts')
+    const script = (slug: string) => initialScripts.find((s) => s.slug === slug)!.characters
+    const alVsAl = script('al_vs_al')
+    // "暗流涌动-进阶" is its own script, not a mention of 暗流涌动.
+    const lastAnswer = '最推荐：暗流涌动（tb）。入门进阶：暗流涌动-进阶。其他：明枪暗箭。暗流涌动-进阶 7 人以上。'
+    expect(mostNamedScript(lastAnswer)).toBe(script('tb_expert'))
+    const first = planRequest('第一个适合几个人玩？给我一套 7 人的配置', { characterIds: alVsAl, lastAnswer })
+    expect(first?.kind === 'setup' && first.plan!.inPlay.every((id) => tb.includes(id))).toBe(true)
+    const second = planRequest('For the second one, pick the characters in play for 7 players', { characterIds: alVsAl, lastAnswer })
+    expect(second?.kind === 'setup' && second.script).toBe(script('tb_expert'))
+    // "第一个夜晚" is about the night, not a script.
+    const night = planRequest('7 人局第一个夜晚怎么安排', { characterIds: alVsAl, lastAnswer })
+    expect(night?.kind === 'setup' && night.script).toBe(alVsAl)
+  })
+})
+
+describe('abilities of the characters in the last answer', () => {
+  it('gives their real text for "这套配置里每个角色的能力"', () => {
+    const lastAnswer = '暗流涌动 7 人配置\n- Undertaker（送葬者）\n- Mayor（镇长）\n- Imp（小恶魔）'
+    const facts = computeRuleFacts('这套配置里每个角色的能力分别是什么？', 'zh', { lastAnswer })
+    expect(facts).toContain(`- 送葬者：${getAbilityText('undertaker', 'zh')}`)
+    expect(facts.indexOf('送葬者')).toBeLessThan(facts.indexOf('小恶魔'))
+    expect(computeRuleFacts('这套配置适合新手吗？', 'zh', { lastAnswer })).not.toContain('能力原文')
+  })
+})
+
+describe('script recommendations', () => {
+  it('lists only the official scripts when asked about official ones', async () => {
+    const { scriptRecommendationFacts } = await import('../lib/ai/scriptFacts')
+    const official = scriptRecommendationFacts('官方的剧本有哪个剧本难度比较适合入门', 'zh').join('\n')
+    expect(official).toContain('暗流涌动')
+    expect(official).not.toContain('非官方')
+    const casual = scriptRecommendationFacts('有什么剧本休闲可以玩的', 'zh').join('\n')
+    expect(casual).toContain('非官方内置剧本')
+  })
 })

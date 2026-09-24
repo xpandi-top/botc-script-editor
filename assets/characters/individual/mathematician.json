@@ -7,7 +7,11 @@
   "firstNightReminder": "Give a finger signal.",
   "otherNightReminder": "Give a finger signal.",
   "reminders": [
-    "+1"
+    "Abnormal",
+    "Abnormal",
+    "Abnormal",
+    "Abnormal",
+    "Abnormal"
   ],
   "revisions": [
     {
@@ -32,6 +36,13 @@
       "v1": "每个夜晚，你会得知有多少名玩家的能力因为其他角色的能力而未正常生效。（从上个黎明到你被唤醒时）"
     },
     "firstNightReminder": "唤醒数学家，用手势比划数字来告诉他今天有多少玩家的能力未正常生效。",
-    "otherNightReminder": "唤醒数学家，用手势比划数字来告诉他今天有多少玩家的能力未正常生效。"
+    "otherNightReminder": "唤醒数学家，用手势比划数字来告诉他今天有多少玩家的能力未正常生效。",
+    "reminders": [
+      "未正常生效",
+      "未正常生效",
+      "未正常生效",
+      "未正常生效",
+      "未正常生效"
+    ]
   }
 }

@@ -6,10 +6,7 @@
   "setup": false,
   "firstNightReminder": "The Chambermaid chooses 2 living players. Give a finger signal.",
   "otherNightReminder": "The Chambermaid chooses 2 living players. Give a finger signal.",
-  "reminders": [
-    "No ability",
-    "+1"
-  ],
+  "reminders": [],
   "revisions": [
     {
       "id": "v1",

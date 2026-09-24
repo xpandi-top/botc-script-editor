@@ -26,6 +26,14 @@
     "revisions": {
       "v1": "每个夜晚*，你会得知在今天白天时是否有爪牙发起过提名。"
     },
-    "otherNightReminder": "唤醒城镇公告员，以点头或摇头告知他今天白天是否有爪牙发起提名。"
-  }
+    "otherNightReminder": "唤醒城镇公告员，以点头或摇头告知他今天白天是否有爪牙发起提名。",
+    "reminders": [
+      "爪牙未提名",
+      "爪牙已提名"
+    ]
+  },
+  "reminders": [
+    "Minions Not Nominated",
+    "Minion Nominated"
+  ]
 }

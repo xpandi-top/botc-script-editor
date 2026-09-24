@@ -7,8 +7,7 @@
   "firstNightReminder": "The Philosopher might choose a character. If necessary, swap their character token. :reminder:",
   "otherNightReminder": "The Philosopher might choose a character. If necessary, swap their character token. :reminder:",
   "reminders": [
-    "Is the Philosopher",
-    "Poisoned"
+    "Drunk"
   ],
   "revisions": [
     {
@@ -33,6 +32,15 @@
       "v1": "每局游戏限一次，在夜晚时，你可以选择一个善良角色：你获得该角色的能力。如果这个角色在场，他醉酒。"
     },
     "firstNightReminder": "唤醒哲学家，他可以摇头不使用能力，或选择获得角色列表上的一个善良角色的能力。",
-    "otherNightReminder": "如果哲学家未曾使用能力，唤醒哲学家，他可以摇头不使用能力，或选择获得角色列表上的一个善良角色的能力。"
-  }
+    "otherNightReminder": "如果哲学家未曾使用能力，唤醒哲学家，他可以摇头不使用能力，或选择获得角色列表上的一个善良角色的能力。",
+    "reminders": [
+      "醉酒"
+    ],
+    "remindersGlobal": [
+      "是哲学家"
+    ]
+  },
+  "remindersGlobal": [
+    "Is The Philosopher"
+  ]
 }
