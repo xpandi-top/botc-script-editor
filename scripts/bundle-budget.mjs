@@ -10,7 +10,8 @@ const LIMITS = {
   mainGzipKiB: 360,
   vendorGzipKiB: 220,
   precacheMiB: 45,
-  distMiB: 90,
+  // Character guides (assets/almanac) add ~3.4 MB of lazily loaded chunks.
+  distMiB: 95,
   largestAssetMiB: 7,
 }
 

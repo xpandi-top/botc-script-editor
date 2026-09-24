@@ -2,12 +2,16 @@
   "id": "deusexfiasco",
   "team": "fabled",
   "edition": "fabled",
-  "current_revision": "v1",
+  "current_revision": "v2026-09",
   "setup": true,
   "revisions": [
     {
       "id": "v1",
       "note": ""
+    },
+    {
+      "id": "v2026-09",
+      "note": "Official Chinese translation from the 集石 wiki; ability unchanged (checked 2026-09-24)."
     }
   ],
   "en": {
@@ -15,14 +19,16 @@
     "ability": "At least once per game, the Storyteller will make a mistake, correct it, and publicly admit to it.",
     "flavor": "It's not a bug, it's a feature. It's not an error, it's a tweak. It's not broken, it's quirky.",
     "revisions": {
-      "v1": "At least once per game, the Storyteller will make a mistake, correct it, and publicly admit to it."
+      "v1": "At least once per game, the Storyteller will make a mistake, correct it, and publicly admit to it.",
+      "v2026-09": "At least once per game, the Storyteller will make a mistake, correct it, and publicly admit to it."
     }
   },
   "zh": {
     "name": "失败的上帝",
-    "ability": "每局游戏至少一次，说书人会犯错、纠正它，并公开承认。",
+    "ability": "每局游戏至少一次，说书人将会出现失误，但会纠正并公开承认自己曾处理有误。",
     "revisions": {
-      "v1": "每局游戏至少一次，说书人会犯错、纠正它，并公开承认。"
+      "v1": "每局游戏至少一次，说书人会犯错、纠正它，并公开承认。",
+      "v2026-09": "每局游戏至少一次，说书人将会出现失误，但会纠正并公开承认自己曾处理有误。"
     },
     "reminders": [
       "哎呀！"

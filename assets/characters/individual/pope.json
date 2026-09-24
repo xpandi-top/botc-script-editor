@@ -2,12 +2,16 @@
   "id": "pope",
   "team": "loric",
   "edition": "loric",
-  "current_revision": "v1",
+  "current_revision": "v2026-09",
   "setup": true,
   "revisions": [
     {
       "id": "v1",
       "note": ""
+    },
+    {
+      "id": "v2026-09",
+      "note": "Official Chinese translation from the 集石 wiki; ability unchanged (checked 2026-09-24)."
     }
   ],
   "en": {
@@ -15,14 +19,16 @@
     "ability": "There are duplicate good characters in play. They might also be bluffs.",
     "flavor": "...Pulcherrimae.",
     "revisions": {
-      "v1": "There are duplicate good characters in play. They might also be bluffs."
+      "v1": "There are duplicate good characters in play. They might also be bluffs.",
+      "v2026-09": "There are duplicate good characters in play. They might also be bluffs."
     }
   },
   "zh": {
     "name": "教皇",
-    "ability": "场上有重复的善良角色。它们也可能同时出现在恶魔的伪装中。",
+    "ability": "会有重复的善良角色在场。他们也可能是恶魔的伪装。",
     "revisions": {
-      "v1": "场上有重复的善良角色。它们也可能同时出现在恶魔的伪装中。"
+      "v1": "场上有重复的善良角色。它们也可能同时出现在恶魔的伪装中。",
+      "v2026-09": "会有重复的善良角色在场。他们也可能是恶魔的伪装。"
     }
   }
 }

@@ -2,21 +2,26 @@
   "id": "marionette",
   "team": "minion",
   "edition": "experimental",
-  "current_revision": "v1",
+  "current_revision": "v2026-09",
   "setup": true,
   "firstNightReminder": "Wake the Demon. Show the *THIS PLAYER IS* & Marionette tokens. Point to the Marionette.",
   "revisions": [
     {
       "id": "v1",
       "note": ""
+    },
+    {
+      "id": "v2026-09",
+      "note": "Official spelling from TPI roles.json (checked 2026-09-24); ability unchanged."
     }
   ],
   "en": {
     "name": "Marionette",
-    "ability": "You think you are a good character but you are not. The Demon knows who you are. [You neighbour the Demon]",
+    "ability": "You think you are a good character, but you are not. The Demon knows who you are. [You neighbor the Demon]",
     "flavor": "Words, words. They're all we have to go on.",
     "revisions": {
-      "v1": "You think you are a good character but you are not. The Demon knows who you are. [You neighbour the Demon]"
+      "v1": "You think you are a good character but you are not. The Demon knows who you are. [You neighbour the Demon]",
+      "v2026-09": "You think you are a good character, but you are not. The Demon knows who you are. [You neighbor the Demon]"
     },
     "firstNightReminder": "Wake the Demon. Show the *THIS PLAYER IS* & Marionette tokens. Point to the Marionette."
   },
@@ -24,7 +29,8 @@
     "name": "提线木偶",
     "ability": "你以为你是一个善良角色，但其实你不是。恶魔会知道你是提线木偶。[提线木偶会与恶魔邻座]",
     "revisions": {
-      "v1": "你以为你是一个善良角色，但其实你不是。恶魔会知道你是提线木偶。[提线木偶会与恶魔邻座]"
+      "v1": "你以为你是一个善良角色，但其实你不是。恶魔会知道你是提线木偶。[提线木偶会与恶魔邻座]",
+      "v2026-09": "你以为你是一个善良角色，但其实你不是。恶魔会知道你是提线木偶。[提线木偶会与恶魔邻座]"
     },
     "firstNightReminder": "如果提线木偶在场，对恶魔展示提线木偶角色标记并指向提线木偶玩家。",
     "reminders": [],

@@ -2,25 +2,31 @@
   "id": "yishi",
   "team": "townsfolk",
   "edition": "shanyuyulai",
-  "current_revision": "v1",
+  "current_revision": "v2026-08",
   "revisions": [
     {
       "id": "v1",
       "note": ""
+    },
+    {
+      "id": "v2026-08",
+      "note": "集石 wiki version of the ability (page updated 2026-08); English is our translation."
     }
   ],
   "en": {
     "name": "Yishi",
-    "ability": "Each day, you may publicly choose a character. That night, you learn whether that character is in play. If you learn a no, you lose this ability.",
+    "ability": "Each day, you may publicly claim a character is in play. That night, you learn whether it was true. Once you have learned both a yes and a no, you lose this ability.",
     "revisions": {
-      "v1": "Each day, you may publicly choose a character. That night, you learn whether that character is in play. If you learn a no, you lose this ability."
+      "v1": "Each day, you may publicly choose a character. That night, you learn whether that character is in play. If you learn a no, you lose this ability.",
+      "v2026-08": "Each day, you may publicly claim a character is in play. That night, you learn whether it was true. Once you have learned both a yes and a no, you lose this ability."
     }
   },
   "zh": {
     "name": "驿使",
-    "ability": "每个白天，你可以公开声明一个角色。在当晚，你会得知该角色是否在场。如果你因此得知了否，你失去此能力。",
+    "ability": "每个白天，你可以公开声明一个角色在场。在当晚，你会得知该声明是否正确。如果你得知过是和否，你失去此能力。",
     "revisions": {
-      "v1": "每个白天，你可以公开声明一个角色。在当晚，你会得知该角色是否在场。如果你因此得知了否，你失去此能力。"
+      "v1": "每个白天，你可以公开声明一个角色。在当晚，你会得知该角色是否在场。如果你因此得知了否，你失去此能力。",
+      "v2026-08": "每个白天，你可以公开声明一个角色在场。在当晚，你会得知该声明是否正确。如果你得知过是和否，你失去此能力。"
     },
     "reminders": [
       "是",

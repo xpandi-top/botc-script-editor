@@ -7,8 +7,9 @@
  */
 import {
   allCharacterFiles, editionLabels, getAbilityText, getCharacterById, getDisplayName, getEditionCredit, getEditionCreditAuthor,
-  getAlmanacEntry, getEffectiveNightOrderFromRegistry, getJinxReason, jinxes, teamLabels,
+  getCharacterGuide, getEffectiveNightOrderFromRegistry, getJinxReason, jinxes, teamLabels,
 } from '../../catalog'
+import { abilityDiffers, GUIDE_BUDGET, guideIntent, guideSectionLabel, selectGuide } from '../../core/ai/guides'
 import { searchCoreRules } from '../../core/ai/rules'
 import type { Language, Team } from '../../types'
 import { searchWiki } from '../wikiSearch'
@@ -81,8 +82,6 @@ const OPEN_QUESTION = /为什么|怎么办|怎么(玩|主持|做|打|判断|应�
 export const RULE_WORDS = /规则|能不能|允许|醉|中毒|疯狂|登记|提名|处决|死亡|复活|旅行者|传奇角色|恶魔伪装|rule|allowed|drunk|poison|mad(ness)?\b|register|nominat|execut|resurrect|travell?er|fabled|bluff/i
 // "醉着是什么意思" / "血染里的醉确定是这个意思吗": a question about what a term means.
 const ASKS_TERM = /什么意思|啥意思|是什么|什么是|指什么|是指|含义|定义|意思吗|确定是|真的是|what does .{1,30} mean|what is|meaning|definition/i
-// Guide questions a character's almanac can answer: examples, how to play, tips, bluffing.
-const ASKS_GUIDE = /怎么玩|玩法|如何玩|怎样玩|举例|举个|例子|比如|示例|技巧|策略|伪装|假扮|how (do i|to) play|examples?\b|tips?\b|strategy|bluff/i
 
 /**
  * `definitive`: the program's answer is exact (computed facts, official
@@ -91,24 +90,49 @@ const ASKS_GUIDE = /怎么玩|玩法|如何玩|怎样玩|举例|举个|例子|�
 export type LocalAnswer = { message: string; found: boolean; definitive: boolean; meta: RetrievalMeta }
 
 /**
- * Almanac prose for the characters a guide question is about ("怎么玩",
- * "举个例子", "技巧", "伪装"), for packs that ship one; empty otherwise.
+ * Guide passages for the characters a question is about, from their
+ * edition's guide file (src/core/ai/guides.ts): tips for "怎么玩", examples
+ * for "举个例子", how to run for "怎么主持", bluffing for "伪装", the
+ * matching paragraphs for a rules detail ("水手被处决会死吗"). Each ends
+ * with its source page. `maxChars` is shared by the (at most two)
+ * characters. A guide only in the other language is quoted when a model
+ * will read it (`crossLanguage`: it can translate), otherwise only linked.
  */
-export async function loadCharacterGuides(query: string, language: Language, previousQueries: string[] = []): Promise<Record<string, string>> {
-  if (!ASKS_GUIDE.test(query)) return {}
+export async function loadCharacterGuides(
+  query: string,
+  language: Language,
+  previousQueries: string[] = [],
+  options: { maxChars?: number; crossLanguage?: boolean } = {},
+): Promise<Record<string, string>> {
+  if (!guideIntent(query)) return {}
   const zh = language === 'zh'
+  const ids = retrieveCatalog(query, language, previousQueries).characterIds.slice(0, 2)
+  const maxChars = Math.round((options.maxChars ?? GUIDE_BUDGET.answer) / Math.max(1, ids.length))
   const guides: Record<string, string> = {}
-  for (const id of retrieveCatalog(query, language, previousQueries).characterIds.slice(0, 2)) {
-    const entry = await getAlmanacEntry(id, language)
-    if (!entry) continue
-    const fields: Array<[keyof typeof entry, string, string]> = /例|比如|example/i.test(query) ? [['examples', '范例', 'Examples']]
-      : /伪装|假扮|bluff/i.test(query) ? [['bluffing', '伪装技巧', 'Bluffing']]
-      : [['tips', '玩法技巧', 'Tips'], ['examples', '范例', 'Examples']]
-    const parts = fields.flatMap(([key, labelZh, labelEn]) => {
-      const text = entry[key]
-      return typeof text === 'string' && text.trim() ? [`**${getDisplayName(id, language)} · ${zh ? labelZh : labelEn}**\n${excerpt(text.trim(), 700)}`] : []
-    })
-    if (parts.length) guides[id] = parts.join('\n\n')
+  for (const id of ids) {
+    const guide = await getCharacterGuide(id, language)
+    if (!guide) continue
+    const name = getDisplayName(id, language)
+    const community = guide.entry.community ? (zh ? '（社区 wiki，非官方）' : ' (community wiki, unofficial)') : ''
+    const source = guide.entry.source ? `${zh ? '来源' : 'Source'}${community}: ${guide.entry.source}` : ''
+    const foreign = guide.language !== language
+    if (foreign && !options.crossLanguage) {
+      if (source) guides[id] = zh ? `**${name}**：攻略只有英文版。${source}` : `**${name}**: the guide exists only in Chinese. ${source}`
+      continue
+    }
+    const picked = selectGuide(guide.entry, query, maxChars)
+    if (!picked) continue
+    const note = foreign ? (zh ? '（英文资料）' : ' (Chinese source; translate, do not quote as official English)') : ''
+    // Written for another version or translation of the ability (the wiki's 暴君, 戏子, …): say so.
+    const version = abilityDiffers(guide.entry.ability, getAbilityText(id, guide.language))
+      ? (zh ? `注：这份攻略依据的能力文本是“${guide.entry.ability}”，与本地能力文本不同；有冲突时以本地能力为准。`
+        : `Note: this guide was written for the ability text "${guide.entry.ability}", which differs from the local one; the local ability wins where they conflict.`)
+      : ''
+    guides[id] = [
+      version,
+      ...picked.sections.map((section) => `**${name} · ${guideSectionLabel(section.id, language)}**${note}\n${section.text}`),
+      source,
+    ].filter(Boolean).join('\n\n')
   }
   return guides
 }
@@ -135,8 +159,8 @@ export function answerLocally(ctx: AiContext, query: string, previousQueries: st
   meta.editions = retrieval.editionIds
   if (characters.length) sections.push(characters.map((id) => characterCard(id, language, bilingual || retrieval.quotedIds.includes(id))).join('\n\n'))
   exact ||= characters.length > 0
-  const guideText = characters.map((id) => guides[id]).filter(Boolean)
-  if (guideText.length) sections.push(`${guideText.join('\n\n')}\n${zh ? '（来源：角色年鉴）' : '(Source: character almanac)'}`)
+  meta.guides = characters.filter((id) => guides[id])
+  if (meta.guides.length) sections.push(meta.guides.map((id) => guides[id]).join('\n\n'))
 
   if (characters.length >= 2) {
     const pairJinxes = Object.values(jinxes).filter((j) => j.characters?.length === 2 && j.characters.every((id) => characters.includes(id)))

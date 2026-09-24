@@ -3,7 +3,7 @@ import { Box, CircularProgress, Collapse, Divider, Link, Typography } from '@mui
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import { CompactButton } from './ui'
-import { getAlmanacEntry, hasAlmanac } from '../catalog'
+import { getAlmanacEntry, hasCharacterGuide } from '../catalog'
 import type { AlmanacCharacterEntry } from '../catalog'
 import type { Language } from '../types'
 import { useT } from '../context/I18nContext'
@@ -18,6 +18,7 @@ const SECTIONS: Array<{ field: keyof AlmanacCharacterEntry; label: UiKey }> = [
   { field: 'reminder_details', label: 'almanac_reminder_details' },
   { field: 'tips', label: 'almanac_tips' },
   { field: 'bluffing', label: 'almanac_bluffing' },
+  { field: 'fighting', label: 'almanac_fighting' },
   { field: 'flavor', label: 'almanac_flavor' },
 ]
 
@@ -28,11 +29,9 @@ const SECTIONS: Array<{ field: keyof AlmanacCharacterEntry; label: UiKey }> = [
  */
 export function CharacterAlmanacSection({
   characterId,
-  edition,
   language,
 }: {
   characterId: string
-  edition: string
   language: Language
 }) {
   const { t } = useT()
@@ -56,7 +55,7 @@ export function CharacterAlmanacSection({
     return () => { cancelled = true }
   }, [open, entry, characterId, language])
 
-  if (!hasAlmanac(edition)) return null
+  if (!hasCharacterGuide(characterId)) return null
 
   const shown = SECTIONS.filter(({ field }) => typeof entry?.[field] === 'string' && entry[field])
 
@@ -108,7 +107,7 @@ export function CharacterAlmanacSection({
               variant="caption"
               sx={{ alignSelf: 'flex-start' }}
             >
-              {t('almanac_source')}
+              {t(entry.community ? 'almanac_source_community' : 'almanac_source')}
             </Link>
           )}
         </Box>

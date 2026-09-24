@@ -9,8 +9,9 @@ npm run dev          # Start dev server (Vite)
 npm run build        # TypeScript check + Vite build
 npm run preview      # Preview production build
 
-# Add character ability revision (custom Vite plugin script):
-npm run add-revision -- <char_id> --en "text" --zh "text"
+# Add a character ability revision to assets/characters/individual/<id>.json
+# (becomes current; --keep-current adds an alternative; a language left out keeps its text):
+npm run add-revision -- <char_id> --en "text" --zh "text" [--revision v2026-09] [--note "why"]
 
 # AI answer feedback (👍/👎, shared conversations): stats + draft eval cases, from the
 # Google Form's Sheets export (--csv) or from D1 (--days)
@@ -19,6 +20,16 @@ npm run add-revision -- <char_id> --en "text" --zh "text"
 # Re-check reminder tokens against the official roles.json (English) and the
 # 集石 wiki 提示标记 sections (Chinese); add `-- --write` to update the files
 npm run sync-reminders
+
+# Character guides (how to play / examples / how to run / bluffing) for the AI and the
+# almanac panel, from the 集石 and official wikis → assets/almanac/ (see docs/AI-CONTENT.md);
+# `-- --refresh` refetches. Coverage + freshness report:
+npm run build:guides
+node scripts/audit-ai-content.mjs --online
+
+# Ability texts vs official roles.json (English) and the 集石 wiki (Chinese), classified
+# (errata / spelling / translation / new version / wiki older) — review, then add-revision
+npm run check-abilities
 ```
 
 ```bash

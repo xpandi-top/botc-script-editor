@@ -2,12 +2,13 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 export const rootDir = process.cwd()
-export const charactersDir = path.join(rootDir, 'assets', 'characters')
+export const charactersDir = path.join(rootDir, 'assets', 'characters', 'individual')
 export const jinxesFile = path.join(rootDir, 'assets', 'jinxes.json')
 export const localeFiles = [
   { language: 'en', path: path.join(rootDir, 'assets', 'locales', 'en.json') },
   { language: 'zh', path: path.join(rootDir, 'assets', 'locales', 'zh.json') },
 ]
+export const characterLanguages = ['en', 'zh']
 
 export function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, 'utf8'))
@@ -21,66 +22,56 @@ export function fail(message) {
   throw new Error(message)
 }
 
+/**
+ * Every character file (assets/characters/individual/<id>.json): the
+ * revision list with a note each, a current_revision from it, and per
+ * language (en / zh) the text of each revision, with `ability` equal to the
+ * current one. A language may be absent altogether (Odyssey has no English
+ * yet), but every revision needs text in at least one language.
+ */
 export function loadCharacterDefinitions() {
   const revisionMap = new Map()
 
-  for (const fileName of fs.readdirSync(charactersDir)) {
-    if (!fileName.endsWith('.json') || fileName === 'night-order.json') {
-      continue
+  for (const fileName of fs.readdirSync(charactersDir).sort()) {
+    if (!fileName.endsWith('.json')) continue
+    const character = readJson(path.join(charactersDir, fileName))
+    const id = character.id
+    if (!id) fail(`Missing id in ${fileName}`)
+
+    const { current_revision: currentRevision, revisions } = character
+    if (!Array.isArray(revisions) || revisions.length === 0) fail(`Missing revisions list for character: ${id}`)
+    if (!currentRevision) fail(`Missing current_revision for character: ${id}`)
+
+    const revisionIds = revisions.map((revision) => {
+      if (!revision || typeof revision !== 'object' || !revision.id) fail(`Invalid revision entry for character: ${id}`)
+      if (typeof revision.note !== 'string') fail(`Missing revision note for character: ${id}.${revision.id}`)
+      if (
+        revision.jinx_updates !== undefined &&
+        (typeof revision.jinx_updates !== 'object' || revision.jinx_updates === null || Array.isArray(revision.jinx_updates))
+      ) {
+        fail(`Invalid jinx_updates map for character: ${id}.${revision.id}`)
+      }
+      return revision.id
+    })
+    if (new Set(revisionIds).size !== revisionIds.length) fail(`Duplicate revision ids for character: ${id}`)
+    if (!revisionIds.includes(currentRevision)) fail(`Character ${id} has current_revision ${currentRevision} not present in revisions list`)
+
+    for (const revision of revisionIds) {
+      if (!characterLanguages.some((language) => character[language]?.revisions?.[revision]?.trim())) {
+        fail(`No ability text in any language for ${id} revision ${revision}`)
+      }
+    }
+    for (const language of characterLanguages) {
+      const copy = character[language]
+      if (!copy?.revisions) continue
+      const current = copy.revisions[currentRevision]
+      if (typeof current !== 'string' || !current.trim()) fail(`Missing ${language} text for ${id} current revision ${currentRevision}`)
+      if (copy.ability !== undefined && copy.ability !== current) {
+        fail(`Current ability mismatch for ${language}.${id}: ability must match revisions.${currentRevision}`)
+      }
     }
 
-    const filePath = path.join(charactersDir, fileName)
-    const data = readJson(filePath)
-
-    for (const [id, definition] of Object.entries(data)) {
-      if (!definition || typeof definition !== 'object') {
-        continue
-      }
-
-      const currentRevision = definition.current_revision
-      const revisions = definition.revisions
-
-      if (!currentRevision) {
-        fail(`Missing current_revision for character definition: ${id}`)
-      }
-
-      if (!Array.isArray(revisions) || revisions.length === 0) {
-        fail(`Missing revisions list for character definition: ${id}`)
-      }
-
-      const revisionIds = revisions.map((revision) => {
-        if (!revision || typeof revision !== 'object' || !revision.id) {
-          fail(`Invalid revision entry for character definition: ${id}`)
-        }
-
-        if (typeof revision.note !== 'string') {
-          fail(`Missing revision note for character definition: ${id}.${revision.id}`)
-        }
-
-        if (
-          revision.jinx_updates !== undefined &&
-          (typeof revision.jinx_updates !== 'object' ||
-            revision.jinx_updates === null ||
-            Array.isArray(revision.jinx_updates))
-        ) {
-          fail(`Invalid jinx_updates map for character definition: ${id}.${revision.id}`)
-        }
-
-        return revision.id
-      })
-
-      if (!revisionIds.includes(currentRevision)) {
-        fail(
-          `Character definition ${id} has current_revision ${currentRevision} not present in revisions list`,
-        )
-      }
-
-      revisionMap.set(id, {
-        currentRevision,
-        revisions,
-        revisionIds,
-      })
-    }
+    revisionMap.set(id, { currentRevision, revisions, revisionIds })
   }
 
   return revisionMap
@@ -151,50 +142,11 @@ export function loadJinxDefinitions() {
   return jinxMap
 }
 
-export function validateLocaleFile(language, filePath, revisionMap, jinxMap) {
+export function validateLocaleFile(language, filePath, jinxMap) {
   const locale = readJson(filePath)
-  const characters = locale.characters ?? {}
   // Jinx text may live in a separate <lang>.jinxes.json sidecar file
   const jinxSidecar = filePath.replace('.json', '.jinxes.json')
   const localeJinxes = (locale.jinxes ?? (fs.existsSync(jinxSidecar) ? readJson(jinxSidecar) : {}))
-
-  for (const [id, definition] of revisionMap.entries()) {
-    const copy = characters[id]
-
-    if (!copy) {
-      fail(`Missing ${language} locale character entry: ${id}`)
-    }
-
-    if (!copy.revision) {
-      fail(`Missing ${language} locale revision for character: ${id}`)
-    }
-
-    if (copy.revision !== definition.currentRevision) {
-      fail(
-        `Locale revision mismatch for ${language}.${id}: expected ${definition.currentRevision}, got ${copy.revision}`,
-      )
-    }
-
-    if (!copy.revisions || typeof copy.revisions !== 'object' || Array.isArray(copy.revisions)) {
-      fail(`Missing ${language} locale revisions map for character: ${id}`)
-    }
-
-    for (const revision of definition.revisionIds) {
-      const description = copy.revisions[revision]
-
-      if (typeof description !== 'string' || description.trim() === '') {
-        fail(`Missing ${language} locale description for ${id} revision ${revision}`)
-      }
-    }
-
-    const currentDescription = copy.revisions[copy.revision]
-
-    if (copy.ability !== currentDescription) {
-      fail(
-        `Current ability mismatch for ${language}.${id}: ability must match revisions.${copy.revision}`,
-      )
-    }
-  }
 
   for (const [id, definition] of jinxMap.entries()) {
     const copy = localeJinxes[id]
@@ -256,25 +208,14 @@ export function validateAllRevisions() {
   }
 
   for (const localeFile of localeFiles) {
-    validateLocaleFile(localeFile.language, localeFile.path, revisionMap, jinxMap)
+    validateLocaleFile(localeFile.language, localeFile.path, jinxMap)
   }
 }
 
+/** The character's file and its parsed contents, or null. */
 export function findCharacterDefinitionFile(characterId) {
-  for (const fileName of fs.readdirSync(charactersDir)) {
-    if (!fileName.endsWith('.json') || fileName === 'night-order.json') {
-      continue
-    }
-
-    const filePath = path.join(charactersDir, fileName)
-    const data = readJson(filePath)
-
-    if (data[characterId]) {
-      return { filePath, data }
-    }
-  }
-
-  return null
+  const filePath = path.join(charactersDir, `${characterId}.json`)
+  return fs.existsSync(filePath) ? { filePath, data: readJson(filePath) } : null
 }
 
 export function getNextRevisionId(revisions) {

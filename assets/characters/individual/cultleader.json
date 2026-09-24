@@ -2,7 +2,7 @@
   "id": "cultleader",
   "team": "townsfolk",
   "edition": "experimental",
-  "current_revision": "v1",
+  "current_revision": "v2026-09",
   "setup": false,
   "firstNightReminder": "The Cult Leader might change alignment. If so, show the *YOU ARE* info token & give a thumb signal.",
   "otherNightReminder": "The Cult Leader might change alignment. If so, show the *YOU ARE* info token & give a thumb signal.",
@@ -10,14 +10,19 @@
     {
       "id": "v1",
       "note": ""
+    },
+    {
+      "id": "v2026-09",
+      "note": "Official spelling from TPI roles.json (checked 2026-09-24); ability unchanged."
     }
   ],
   "en": {
     "name": "Cult Leader",
-    "ability": "Each night, you become the alignment of an alive neighbour. If all good players choose to join your cult, your team wins.",
+    "ability": "Each night, you become the alignment of an alive neighbor. If all good players choose to join your cult, your team wins.",
     "flavor": "Thinking themselves wise, they became fools.",
     "revisions": {
-      "v1": "Each night, you become the alignment of an alive neighbour. If all good players choose to join your cult, your team wins."
+      "v1": "Each night, you become the alignment of an alive neighbour. If all good players choose to join your cult, your team wins.",
+      "v2026-09": "Each night, you become the alignment of an alive neighbor. If all good players choose to join your cult, your team wins."
     },
     "firstNightReminder": "The Cult Leader might change alignment. If so, show the *YOU ARE* info token & give a thumb signal.",
     "otherNightReminder": "The Cult Leader might change alignment. If so, show the *YOU ARE* info token & give a thumb signal."
@@ -26,7 +31,8 @@
     "name": "异教领袖",
     "ability": "每个夜晚，你会转变为与你邻近的一名存活的玩家的阵营。每个白天，你可以提议所有玩家加入你的教派，如果所有善良玩家同意加入，你的阵营获胜。",
     "revisions": {
-      "v1": "每个夜晚，你会转变为与你邻近的一名存活的玩家的阵营。每个白天，你可以提议所有玩家加入你的教派，如果所有善良玩家同意加入，你的阵营获胜。"
+      "v1": "每个夜晚，你会转变为与你邻近的一名存活的玩家的阵营。每个白天，你可以提议所有玩家加入你的教派，如果所有善良玩家同意加入，你的阵营获胜。",
+      "v2026-09": "每个夜晚，你会转变为与你邻近的一名存活的玩家的阵营。每个白天，你可以提议所有玩家加入你的教派，如果所有善良玩家同意加入，你的阵营获胜。"
     },
     "firstNightReminder": "如果异教领袖的阵营发生了变化，将他唤醒并通知他最新阵营。",
     "otherNightReminder": "如果异教领袖的阵营发生了变化，将他唤醒并通知他最新阵营。"

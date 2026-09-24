@@ -100,10 +100,11 @@ async function wikiText(id, zhName) {
  * Has Ability as for the Vigormortis, …).
  */
 const CHINESE_EDITIONS = ['huadengchushang', 'shanyuyulai']
-/** Our ability version differs from the wiki's: keep our tokens, translated. */
-const KEEP_TRANSLATED = {
-  baojun: { '1stTarget': '第一目标', '2ndTarget': '第二目标' },
-}
+/**
+ * Our ability version differs from the wiki's: keep our tokens, translated.
+ * (Empty since 2026-09: the 暴君 now follows the wiki's current version.)
+ */
+const KEEP_TRANSLATED = {}
 const EN_FOR_ZH = {
   死亡: 'Dead', 醉酒: 'Drunk', 中毒: 'Poisoned', 失去能力: 'No Ability', 没有能力: 'No Ability', 死于今日: 'Died Today',
   得知: 'Know', 保护: 'Safe', 获得能力: 'Has Ability', 重获能力: 'Has Ability', 保留能力: 'Has Ability',
@@ -111,7 +112,7 @@ const EN_FOR_ZH = {
   是变脸师: 'Is The Face Changer', 是叫花子: 'Is The Pauper', 是悟道者: 'Is The Enlightened One',
   恃宠而骄: 'Spoiled', 警惕: 'Alert', 蛊毒: 'Gu Poison', 改变方向: 'Switch Direction', 已生效: 'Triggered',
   以为存活: 'Registers Alive', 被魅惑: 'Charmed', 善良中毒: 'Good Poisoned', 爪牙死亡: 'Minion Died',
-  乞讨: 'Begging', 太子: 'Prince', 微醺: 'Tipsy', 不共戴天: 'Sworn Enemy', 已触发: 'Used', 捣蛋: 'Mischief',
+  乞讨: 'Begging', 太子: 'Prince', 微醺: 'Tipsy', 不共戴天: 'Sworn Enemy', 已触发: 'Used', 捣蛋: 'Mischief', 暴虐: 'Tyranny',
   巡防戍卫: 'Patrolled', 蛊: 'Gu', 在场: 'In Play', 不在场: 'Not In Play',
   是: 'Yes', 否: 'No', 得知过是: 'Learnt Yes', 得知过否: 'Learnt No', 客死他乡: 'Died Abroad',
 }

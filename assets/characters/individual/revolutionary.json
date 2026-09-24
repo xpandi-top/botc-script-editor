@@ -2,12 +2,16 @@
   "id": "revolutionary",
   "team": "fabled",
   "edition": "fabled",
-  "current_revision": "v1",
+  "current_revision": "v2026-09",
   "setup": false,
   "revisions": [
     {
       "id": "v1",
       "note": ""
+    },
+    {
+      "id": "v2026-09",
+      "note": "Official Chinese translation from the 集石 wiki; ability unchanged (checked 2026-09-24)."
     }
   ],
   "en": {
@@ -15,14 +19,16 @@
     "ability": "2 neighboring players are known to be the same alignment. Once per game, 1 of them registers falsely.",
     "flavor": "United we feigned. Divided, we stalled.",
     "revisions": {
-      "v1": "2 neighboring players are known to be the same alignment. Once per game, 1 of them registers falsely."
+      "v1": "2 neighboring players are known to be the same alignment. Once per game, 1 of them registers falsely.",
+      "v2026-09": "2 neighboring players are known to be the same alignment. Once per game, 1 of them registers falsely."
     }
   },
   "zh": {
     "name": "革命者",
-    "ability": "相邻的2名玩家已知为同一阵营。每局游戏一次，其中1人会错误呈现。",
+    "ability": "公开声明一对邻座玩家本局游戏一直保持同一阵营。每局游戏限一次，他们中的一人可能被当作其他的角色/阵营。",
     "revisions": {
-      "v1": "相邻的2名玩家已知为同一阵营。每局游戏一次，其中1人会错误呈现。"
+      "v1": "相邻的2名玩家已知为同一阵营。每局游戏一次，其中1人会错误呈现。",
+      "v2026-09": "公开声明一对邻座玩家本局游戏一直保持同一阵营。每局游戏限一次，他们中的一人可能被当作其他的角色/阵营。"
     },
     "reminders": [
       "被当作其他",

@@ -2,34 +2,40 @@
   "id": "baojun",
   "team": "demon",
   "edition": "shanyuyulai",
-  "current_revision": "v1",
+  "current_revision": "v2026-07",
   "setup": false,
   "reminders": [
-    "1stTarget",
-    "2ndTarget"
+    "Dead",
+    "Tyranny"
   ],
   "revisions": [
     {
       "id": "v1",
       "note": ""
+    },
+    {
+      "id": "v2026-07",
+      "note": "集石 wiki version of the ability (page updated 2026-07); English is our translation."
     }
   ],
   "en": {
     "name": "Baojun",
-    "ability": "Each night*, choose up to two players: they die. The number of players you choose cannot be the same as the number of players who died last night (if more than two, count as two).",
+    "ability": "Each night*, choose a player: they die. If you kill a player neighboring a Minion, the next night you may choose up to 2 players: they die.",
     "revisions": {
-      "v1": "Each night*, choose up to two players: they die. The number of players you choose cannot be the same as the number of players who died last night (if more than two, count as two)."
+      "v1": "Each night*, choose up to two players: they die. The number of players you choose cannot be the same as the number of players who died last night (if more than two, count as two).",
+      "v2026-07": "Each night*, choose a player: they die. If you kill a player neighboring a Minion, the next night you may choose up to 2 players: they die."
     }
   },
   "zh": {
     "name": "暴君",
-    "ability": "每个夜晚*，你可以选择至多两名玩家：他们死亡。你选择的玩家数量不能与上个夜晚死亡的玩家数量相同（超过二人时算作二人）。",
+    "ability": "每个夜晚*，你要选择一名玩家：他死亡。如果你杀死了与爪牙邻近的玩家，下个夜晚你可以选择至多两名玩家：他们死亡。",
     "revisions": {
-      "v1": "每个夜晚*，你可以选择至多两名玩家：他们死亡。你选择的玩家数量不能与上个夜晚死亡的玩家数量相同（超过二人时算作二人）。"
+      "v1": "每个夜晚*，你可以选择至多两名玩家：他们死亡。你选择的玩家数量不能与上个夜晚死亡的玩家数量相同（超过二人时算作二人）。",
+      "v2026-07": "每个夜晚*，你要选择一名玩家：他死亡。如果你杀死了与爪牙邻近的玩家，下个夜晚你可以选择至多两名玩家：他们死亡。"
     },
     "reminders": [
-      "第一目标",
-      "第二目标"
+      "死亡",
+      "暴虐"
     ]
   }
 }

@@ -2,27 +2,33 @@
   "id": "yinluren",
   "team": "townsfolk",
   "edition": "shanyuyulai",
-  "current_revision": "v1",
+  "current_revision": "v2026-07",
   "revisions": [
     {
       "id": "v1",
       "note": ""
+    },
+    {
+      "id": "v2026-07",
+      "note": "集石 wiki version of the ability (page updated 2026-07); English is our translation."
     }
   ],
   "en": {
     "name": "Yunluren",
-    "ability": "Each night, choose up to 3 players. You learn if any of them is targeted by an evil player's ability that night.",
+    "ability": "Each night, choose up to 3 players other than yourself: you learn if an evil player's ability chose or affected any of them tonight.",
     "revisions": {
-      "v1": "Each night, choose up to 3 players. You learn if any of them is targeted by an evil player's ability that night."
+      "v1": "Each night, choose up to 3 players. You learn if any of them is targeted by an evil player's ability that night.",
+      "v2026-07": "Each night, choose up to 3 players other than yourself: you learn if an evil player's ability chose or affected any of them tonight."
     }
   },
   "zh": {
     "name": "引路人",
-    "ability": "每个夜晚，你要选择至多三名玩家：你会得知今晚是否有邪恶玩家的能力选择或影响了他们之中的玩家。",
+    "ability": "每个夜晚，你要选择除你以外的至多三名玩家：你会得知今晚是否有邪恶玩家的能力选择或影响了他们之中的玩家。",
     "revisions": {
-      "v1": "每个夜晚，你要选择至多三名玩家：你会得知今晚是否有邪恶玩家的能力选择或影响了他们之中的玩家。"
+      "v1": "每个夜晚，你要选择至多三名玩家：你会得知今晚是否有邪恶玩家的能力选择或影响了他们之中的玩家。",
+      "v2026-07": "每个夜晚，你要选择除你以外的至多三名玩家：你会得知今晚是否有邪恶玩家的能力选择或影响了他们之中的玩家。"
     },
-    "firstNightReminder": "唤醒引路人，让他选择一至三名玩家，以点头或摇头告知他选择的玩家中是否有玩家在当晚被邪恶玩家的能力选择或影响过。",
-    "otherNightReminder": "唤醒引路人，让他选择一至三名玩家，以点头或摇头告知他选择的玩家中是否有玩家在当晚被邪恶玩家的能力选择或影响过。"
+    "firstNightReminder": "唤醒引路人，让他选择除自己以外的一至三名玩家，以点头或摇头告知他选择的玩家中是否有玩家在当晚被邪恶玩家的能力选择或影响过。",
+    "otherNightReminder": "唤醒引路人，让他选择除自己以外的一至三名玩家，以点头或摇头告知他选择的玩家中是否有玩家在当晚被邪恶玩家的能力选择或影响过。"
   }
 }

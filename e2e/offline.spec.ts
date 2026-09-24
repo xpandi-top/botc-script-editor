@@ -4,6 +4,7 @@
  * local data with no server and no network.
  */
 import { spawn, type ChildProcess } from 'node:child_process'
+import { readdirSync } from 'node:fs'
 import { test, expect, type Page } from '@playwright/test'
 
 const PORT = 4174
@@ -50,6 +51,12 @@ test('loads and answers from local data with no server and no network', async ({
     return false
   }), { timeout: 15_000 }).toBe(true)
 
+  // Character guides are not precached: an edition's chunk is cached when first
+  // used (here imported directly, as the app's lazy import does) and works offline after.
+  const bmrGuide = readdirSync('dist/assets').find((name) => /^almanac-bmr\.zh-.*\.js$/.test(name))!
+  await page.evaluate(async (url) => { await import(url) }, `${BASE}assets/${bmrGuide}`)
+  await expect.poll(() => page.evaluate(async () => (await (await caches.open('almanac')).keys()).length), { timeout: 15_000 }).toBe(1)
+
   // Offline: no server, no network.
   stopServer()
   await context.setOffline(true)
@@ -67,6 +74,13 @@ test('loads and answers from local data with no server and no network', async ({
   // An open question: an excerpt from the cached wiki, with its source.
   await ask(page, '新手说书人第一次主持要注意什么？')
   await expect(page.getByText(/来源: |Source: /).first()).toBeVisible()
+  // A guide question for the cached edition: the 集石 tips, not just the ability.
+  await ask(page, '水手这个角色怎么玩？')
+  await expect(page.getByText('水手 · 提示与技巧').first()).toBeVisible()
+  // An edition never opened online: the ability still answers, without a guide.
+  await ask(page, '小恶魔怎么玩？')
+  await expect(page.getByText(/每个夜晚\*，你要选择一名玩家：他死亡/).last()).toBeVisible()
+  await expect(page.getByText('小恶魔 · 提示与技巧')).toHaveCount(0)
 })
 
 // Opt-in: downloads Qwen3 0.6B (~0.4 GB) and needs a GPU with shader-f16.

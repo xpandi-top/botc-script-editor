@@ -14,6 +14,7 @@
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import { chunkText } from './wiki-chunk.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const ROOT = path.resolve(__dirname, '..')
@@ -28,20 +29,17 @@ const WIKI_PAGES = [
   // ── English wiki ─────────────────────────────────────────────────────────────
   { key: 'setup',        url: 'https://wiki.bloodontheclocktower.com/Setup',               label: 'Setup Rules' },
   { key: 'rules',        url: 'https://wiki.bloodontheclocktower.com/Rules_Explanation',   label: 'Rules Explanation' },
-  { key: 'glossary',     url: 'https://wiki.bloodontheclocktower.com/Glossary',            label: 'Glossary' },
+  { key: 'glossary',     url: 'https://wiki.bloodontheclocktower.com/Glossary',            label: 'Glossary', perItem: true },
   { key: 'st-advice',    url: 'https://wiki.bloodontheclocktower.com/Storyteller_Advice',  label: 'Storyteller Advice' },
   { key: 'states',       url: 'https://wiki.bloodontheclocktower.com/States',              label: 'States' },
   { key: 'abilities',    url: 'https://wiki.bloodontheclocktower.com/Abilities',           label: 'Abilities' },
   // ── Chinese wiki (gstonegames) — requires browser UA ─────────────────────────
   { key: 'zh-rules',     url: ZH_BASE + encodeURIComponent('规则概要'),            label: '规则概要', ua: ZH_UA },
   { key: 'zh-details',   url: ZH_BASE + encodeURIComponent('重要细节'),            label: '重要细节', ua: ZH_UA },
-  { key: 'zh-glossary',  url: ZH_BASE + encodeURIComponent('术语汇总'),            label: '术语汇总', ua: ZH_UA },
+  { key: 'zh-glossary',  url: ZH_BASE + encodeURIComponent('术语汇总'),            label: '术语汇总', ua: ZH_UA, perItem: true },
   { key: 'zh-st-tips',   url: ZH_BASE + encodeURIComponent('给说书人的建议'),      label: '给说书人的建议', ua: ZH_UA },
   { key: 'zh-jinx',      url: ZH_BASE + encodeURIComponent('相克规则'),            label: '相克规则', ua: ZH_UA },
 ]
-
-const MAX_CHUNK_WORDS  = 350
-const MIN_CHUNK_WORDS  = 30
 
 // ── HTML → text ───────────────────────────────────────────────────────────────
 
@@ -91,67 +89,9 @@ function extractMainContent(html) {
   return match ? match[1] : html
 }
 
-// ── Chunk by heading ──────────────────────────────────────────────────────────
-
-function chunkText(text, pageKey, pageUrl) {
-  const chunks = []
-  const lines  = text.split('\n')
-
-  let currentHeading  = ''
-  let currentParents  = []   // heading stack for context
-  let buffer          = []
-  let chunkIndex      = 0
-
-  function flush() {
-    const body = buffer.join('\n').trim()
-    const wordCount = body.split(/\s+/).filter(Boolean).length
-    if (wordCount >= MIN_CHUNK_WORDS) {
-      const headingChain = [...currentParents, currentHeading].filter(Boolean).join(' › ')
-      chunks.push({
-        id:        `${pageKey}-${chunkIndex++}`,
-        page:      pageKey,
-        url:       pageUrl,
-        heading:   headingChain || '(intro)',
-        text:      body,
-        wordCount,
-      })
-    }
-    buffer = []
-  }
-
-  for (const line of lines) {
-    const h1 = line.match(/^# (.+)/)
-    const h2 = line.match(/^## (.+)/)
-    const h3 = line.match(/^### (.+)/)
-
-    if (h1) {
-      flush()
-      currentParents = []
-      currentHeading = h1[1]
-    } else if (h2) {
-      flush()
-      currentParents = [currentHeading].filter(Boolean)
-      currentHeading = h2[1]
-    } else if (h3) {
-      // Split within chunk if getting long
-      const words = buffer.join('\n').split(/\s+/).filter(Boolean).length
-      if (words > MAX_CHUNK_WORDS) flush()
-      currentParents = [currentHeading].filter(Boolean)
-      currentHeading = h3[1]
-    } else {
-      buffer.push(line)
-      // Auto-split very long chunks
-      const words = buffer.join('\n').split(/\s+/).filter(Boolean).length
-      if (words > MAX_CHUNK_WORDS) flush()
-    }
-  }
-  flush()
-  return chunks
-}
-
 // ── Fetch + process one page ──────────────────────────────────────────────────
 
-async function processPage({ key, url, label, ua }) {
+async function processPage({ key, url, label, ua, perItem }) {
   console.log(`  Fetching [${label}] …`)
   const res = await fetch(url, {
     headers: { 'User-Agent': ua ?? BOT_UA },
@@ -160,7 +100,7 @@ async function processPage({ key, url, label, ua }) {
   const html    = await res.text()
   const content = extractMainContent(html)
   const text    = htmlToText(content)
-  const chunks  = chunkText(text, key, url)
+  const chunks  = chunkText(text, key, url, { perItem })
   console.log(`    → ${chunks.length} chunks, ${chunks.reduce((s, c) => s + c.wordCount, 0)} words total`)
   return chunks
 }

@@ -2,12 +2,16 @@
   "id": "fibbin",
   "team": "fabled",
   "edition": "fabled",
-  "current_revision": "v1",
+  "current_revision": "v2026-09",
   "setup": false,
   "revisions": [
     {
       "id": "v1",
       "note": ""
+    },
+    {
+      "id": "v2026-09",
+      "note": "Official Chinese translation from the 集石 wiki; ability unchanged (checked 2026-09-24)."
     }
   ],
   "en": {
@@ -15,14 +19,16 @@
     "ability": "Once per game, 1 good player might get incorrect information.",
     "flavor": "Tee-hee-hee. Tee. Hee. Hee.",
     "revisions": {
-      "v1": "Once per game, 1 good player might get incorrect information."
+      "v1": "Once per game, 1 good player might get incorrect information.",
+      "v2026-09": "Once per game, 1 good player might get incorrect information."
     }
   },
   "zh": {
     "name": "骗人精",
-    "ability": "每局游戏一次，1名善良玩家可能会得到错误信息。",
+    "ability": "每局游戏限一次，一名善良玩家可能会得知“有问题”的信息。",
     "revisions": {
-      "v1": "每局游戏一次，1名善良玩家可能会得到错误信息。"
+      "v1": "每局游戏一次，1名善良玩家可能会得到错误信息。",
+      "v2026-09": "每局游戏限一次，一名善良玩家可能会得知“有问题”的信息。"
     },
     "reminders": [
       "失去能力"

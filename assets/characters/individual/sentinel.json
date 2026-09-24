@@ -2,12 +2,16 @@
   "id": "sentinel",
   "team": "fabled",
   "edition": "fabled",
-  "current_revision": "v1",
+  "current_revision": "v2026-09",
   "setup": true,
   "revisions": [
     {
       "id": "v1",
       "note": ""
+    },
+    {
+      "id": "v2026-09",
+      "note": "Official Chinese translation from the 集石 wiki; ability unchanged (checked 2026-09-24)."
     }
   ],
   "en": {
@@ -15,14 +19,16 @@
     "ability": "There might be 1 extra or 1 fewer Outsider in play.",
     "flavor": "Name, please. Papers, please. Weapons, please.",
     "revisions": {
-      "v1": "There might be 1 extra or 1 fewer Outsider in play."
+      "v1": "There might be 1 extra or 1 fewer Outsider in play.",
+      "v2026-09": "There might be 1 extra or 1 fewer Outsider in play."
     }
   },
   "zh": {
     "name": "哨兵",
-    "ability": "场上可能会多1名或少1名外来者。",
+    "ability": "在初始设置时，可能会额外增加或减少一个外来者。",
     "revisions": {
-      "v1": "场上可能会多1名或少1名外来者。"
+      "v1": "场上可能会多1名或少1名外来者。",
+      "v2026-09": "在初始设置时，可能会额外增加或减少一个外来者。"
     }
   }
 }

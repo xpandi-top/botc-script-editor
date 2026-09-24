@@ -2,27 +2,33 @@
   "id": "voudon",
   "team": "traveler",
   "edition": "bmr",
-  "current_revision": "v1",
+  "current_revision": "v2026-09",
   "setup": false,
   "revisions": [
     {
       "id": "v1",
       "note": ""
+    },
+    {
+      "id": "v2026-09",
+      "note": "Official wording from TPI roles.json: wording (checked 2026-09-24)."
     }
   ],
   "en": {
     "name": "Voudon",
-    "ability": "Only you and the dead can vote. They don't need a vote token to do so. A 50% majority is not required.",
+    "ability": "Only you & the dead can vote. They don't need a vote token to do so. A 50% majority isn't required.",
     "flavor": "Bien venu. Sit down. Breathe deep. Enter the land of the dead. See with their eyes. Speak with their voice. Yon sel lang se janm ase.",
     "revisions": {
-      "v1": "Only you and the dead can vote. They don't need a vote token to do so. A 50% majority is not required."
+      "v1": "Only you and the dead can vote. They don't need a vote token to do so. A 50% majority is not required.",
+      "v2026-09": "Only you & the dead can vote. They don't need a vote token to do so. A 50% majority isn't required."
     }
   },
   "zh": {
     "name": "巫毒师",
     "ability": "只有你和死亡的玩家可以投票，且投票不需要使用投票标记。忽略票数需要过半的要求。",
     "revisions": {
-      "v1": "只有你和死亡的玩家可以投票，且投票不需要使用投票标记。忽略票数需要过半的要求。"
+      "v1": "只有你和死亡的玩家可以投票，且投票不需要使用投票标记。忽略票数需要过半的要求。",
+      "v2026-09": "只有你和死亡的玩家可以投票，且投票不需要使用投票标记。忽略票数需要过半的要求。"
     }
   }
 }

@@ -43,11 +43,13 @@ export type Check =
 
 export type EvalCase = {
   id: string
-  category: 'fact' | 'translation' | 'rules' | 'term' | 'setup' | 'script' | 'recommend' | 'situation'
+  category: 'fact' | 'translation' | 'rules' | 'term' | 'guide' | 'setup' | 'script' | 'recommend' | 'situation'
   difficulty: 'basic' | 'hard'
   language: 'zh' | 'en'
   context: EvalContext
   question: string
+  /** Earlier questions in the conversation, for follow-ups ("能举个例子吗"). */
+  previous?: string[]
   checks: Check[]
   /** Answerable from local data without any model. */
   offline?: boolean
@@ -178,6 +180,73 @@ export const EVAL_CASES: EvalCase[] = [
     checks: [
       { kind: 'includes', any: ['善良'], label: '仍是善良' },
       { kind: 'includes', any: ['视为', '当作', '算作', '被当作'], label: '只是被当作' },
+    ],
+  },
+
+  {
+    id: 'term-ghost-vote', category: 'term', difficulty: 'basic', language: 'zh', context: general, offline: true,
+    question: '鬼票还能投几次？',
+    checks: [{ kind: 'includes', any: ['只能再投一次', '只能进行一次投票', '一次'], label: '死亡玩家只能再投一次' }],
+  },
+
+  // ── Character guides (docs/AI-CONTENT.md): how to play, examples, running, bluffing ──
+  {
+    id: 'guide-sailor-play', category: 'guide', difficulty: 'basic', language: 'zh', context: general, offline: true,
+    question: '水手这个角色怎么玩？',
+    checks: [
+      { kind: 'includes', any: ['醉酒'], label: '说到醉酒' },
+      { kind: 'includes', any: ['生存能力', '故意被处决', '选择你想醉酒', '让其他玩家醉酒', '活到最后'], label: '集石攻略里的玩法' },
+    ],
+  },
+  {
+    id: 'guide-sailor-example', category: 'guide', difficulty: 'basic', language: 'zh', context: general, offline: true,
+    question: '能举个例子吗',
+    previous: ['水手这个角色怎么玩'],
+    checks: [
+      { kind: 'includes', any: ['驱魔人', '沙巴洛斯', '造谣者', '主谋'], label: '集石范例（接上一问的水手）' },
+      { kind: 'characters', include: ['sailor'], label: '仍是水手' },
+    ],
+  },
+  {
+    id: 'guide-sailor-detail', category: 'guide', difficulty: 'basic', language: 'zh', context: general, offline: true,
+    question: '水手醉酒的时候被处决会死吗？',
+    checks: [
+      { kind: 'includes', any: ['醉酒，所以死亡', '醉酒[^。\\n]{0,12}(死亡|会死)', '不会死亡'], label: '依据规则细节 / 范例' },
+      { kind: 'includes', any: ['清醒'], label: '只有清醒时免死' },
+    ],
+  },
+  {
+    id: 'guide-imp-run', category: 'guide', difficulty: 'basic', language: 'zh', context: general, offline: true,
+    question: '说书人怎么主持小恶魔？',
+    checks: [
+      { kind: 'includes', any: ['唤醒小恶魔'], label: '运作方式' },
+      { kind: 'includes', any: ['自杀', '爪牙'], label: '小恶魔自杀传位' },
+    ],
+  },
+  {
+    id: 'guide-empath-bluff', category: 'guide', difficulty: 'basic', language: 'zh', context: general, offline: true,
+    question: '邪恶玩家伪装成共情者有什么技巧？',
+    checks: [{ kind: 'includes', any: ['数字是"0"', '数字是"1"', '数字是"2"', '邻座'], label: '集石伪装建议' }],
+  },
+  {
+    id: 'guide-chinese-edition', category: 'guide', difficulty: 'basic', language: 'zh', context: general, offline: true,
+    question: '打更人怎么玩？',
+    checks: [
+      { kind: 'includes', any: ['猜测', '距离'], label: '猜测距离' },
+      { kind: 'includes', any: ['不会死亡', '没有死亡', '存活'], label: '猜中时免死' },
+    ],
+  },
+  {
+    id: 'guide-odyssey-bluff', category: 'guide', difficulty: 'basic', language: 'zh', context: general, offline: true,
+    question: '怎么伪装成纹章官？',
+    checks: [{ kind: 'includes', any: ['外来者', '不同角色类型'], label: '奥德赛年鉴伪装建议' }],
+  },
+  {
+    id: 'guide-en-sailor', category: 'guide', difficulty: 'basic', language: 'en', context: general, offline: true,
+    question: 'How do I play the Sailor?',
+    checks: [
+      { kind: 'includes', any: ['drunk'], label: 'drunk' },
+      { kind: 'includes', any: ['survivab', 'deliberately getting executed', 'final day'], label: 'tips from the official wiki' },
     ],
   },
 

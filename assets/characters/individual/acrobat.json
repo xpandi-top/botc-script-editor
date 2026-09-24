@@ -2,7 +2,7 @@
   "id": "acrobat",
   "team": "townsfolk",
   "edition": "experimental",
-  "current_revision": "v2024-10",
+  "current_revision": "v2026-09",
   "setup": false,
   "otherNightReminder": "The Acrobat chooses a player. :reminder:",
   "reminders": [
@@ -17,6 +17,10 @@
     {
       "id": "v2024-10",
       "note": "Made the Acrobat a Townsfolk and changed the ability to target a player."
+    },
+    {
+      "id": "v2026-09",
+      "note": "Official Chinese translation from the 集石 wiki; ability unchanged (checked 2026-09-24)."
     }
   ],
   "en": {
@@ -25,16 +29,18 @@
     "flavor": "Welcome, one and all, to the greatest show on earth.",
     "revisions": {
       "v1": "Each night*, if either good living neighbour is drunk or poisoned, you die.",
-      "v2024-10": "Each night*, choose a player: if they are or become drunk or poisoned tonight, you die."
+      "v2024-10": "Each night*, choose a player: if they are or become drunk or poisoned tonight, you die.",
+      "v2026-09": "Each night*, choose a player: if they are or become drunk or poisoned tonight, you die."
     },
     "otherNightReminder": "The Acrobat chooses a player. :reminder:"
   },
   "zh": {
     "name": "杂技演员",
-    "ability": "每个夜晚*，你要选择一名玩家：如果他在今晚是或变得醉酒或中毒，你死亡。",
+    "ability": "每个夜晚*，你要选择一名玩家：如果当晚他醉酒或中毒，你死亡。",
     "revisions": {
       "v1": "每个夜晚*，如果与你邻近的存活善良玩家之一醉酒或中毒，你死亡。",
-      "v2024-10": "每个夜晚*，你要选择一名玩家：如果他在今晚是或变得醉酒或中毒，你死亡。"
+      "v2024-10": "每个夜晚*，你要选择一名玩家：如果他在今晚是或变得醉酒或中毒，你死亡。",
+      "v2026-09": "每个夜晚*，你要选择一名玩家：如果当晚他醉酒或中毒，你死亡。"
     },
     "otherNightReminder": "唤醒杂技演员，让他选择一名玩家。如果当晚这名玩家醉酒或中毒，杂技演员死亡。",
     "reminders": [

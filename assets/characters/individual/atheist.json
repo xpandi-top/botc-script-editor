@@ -2,27 +2,33 @@
   "id": "atheist",
   "team": "townsfolk",
   "edition": "experimental",
-  "current_revision": "v1",
+  "current_revision": "v2026-09",
   "setup": true,
   "revisions": [
     {
       "id": "v1",
       "note": ""
+    },
+    {
+      "id": "v2026-09",
+      "note": "Official spelling from TPI roles.json (checked 2026-09-24); ability unchanged."
     }
   ],
   "en": {
     "name": "Atheist",
-    "ability": "The Storyteller can break the game rules & if executed, good wins, even if you are dead. [No evil characters]",
+    "ability": "The Storyteller can break the game rules, and if executed, good wins, even if you are dead. [No evil characters]",
     "flavor": "Let us disperse with unnecessary conjecture and silly paranoia. There is a perfectly rational explanation for everything. Yes, a teacup may indeed be orbiting the planet, too small to see, but I shall drink my tea from the very real china in my very real hands.",
     "revisions": {
-      "v1": "The Storyteller can break the game rules & if executed, good wins, even if you are dead. [No evil characters]"
+      "v1": "The Storyteller can break the game rules & if executed, good wins, even if you are dead. [No evil characters]",
+      "v2026-09": "The Storyteller can break the game rules, and if executed, good wins, even if you are dead. [No evil characters]"
     }
   },
   "zh": {
     "name": "无神论者",
     "ability": "说书人可以打破游戏规则。如果说书人被处决，善良阵营获胜，即使你已死亡。[无邪恶角色在场]",
     "revisions": {
-      "v1": "说书人可以打破游戏规则。如果说书人被处决，善良阵营获胜，即使你已死亡。[无邪恶角色在场]"
+      "v1": "说书人可以打破游戏规则。如果说书人被处决，善良阵营获胜，即使你已死亡。[无邪恶角色在场]",
+      "v2026-09": "说书人可以打破游戏规则。如果说书人被处决，善良阵营获胜，即使你已死亡。[无邪恶角色在场]"
     }
   }
 }

@@ -68,8 +68,10 @@ export default defineConfig(({ command, mode, isPreview }) => {
           // being mandatory first-install precache entries.
           // wiki-chunks.json: rules and wiki excerpts behind offline answers
           // (src/lib/wikiSearch.ts), ready offline after the first visit.
+          // Character guides (assets/almanac, ~3 MB) are cached per edition
+          // on first use instead (see runtimeCaching).
           globPatterns: ['**/*.{js,css,html,ico,webmanifest}', 'wiki-chunks.json'],
-          globIgnores: ['botcCompanion.svg', '**/webllm*.js'],
+          globIgnores: ['botcCompanion.svg', '**/webllm*.js', '**/almanac-*.js'],
           maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
           runtimeCaching: [
             {
@@ -77,6 +79,13 @@ export default defineConfig(({ command, mode, isPreview }) => {
               urlPattern: /\/assets\/webllm[^/]*\.js$/,
               handler: 'CacheFirst',
               options: { cacheName: 'webllm-runtime', expiration: { maxEntries: 8 } },
+            },
+            {
+              // One chunk per edition and language (assets/almanac/*.json), hashed.
+              // Module imports send Origin; a server's `Vary: Origin` must not split the cache.
+              urlPattern: /\/assets\/almanac-[^/]*\.js$/,
+              handler: 'CacheFirst',
+              options: { cacheName: 'almanac', expiration: { maxEntries: 40 }, matchOptions: { ignoreVary: true } },
             },
             {
               urlPattern: /\/assets\/locales\/.+\.json$/,
@@ -107,6 +116,9 @@ export default defineConfig(({ command, mode, isPreview }) => {
         output: {
           manualChunks(id) {
             if (id.includes('/@mlc-ai/')) return 'webllm-runtime'
+            // Character guides: a named chunk per file, cached on first use (not precached).
+            const almanac = id.match(/\/assets\/almanac\/([^/]+)\.json$/)?.[1]
+            if (almanac && almanac !== 'index') return `almanac-${almanac}`
             // React + MUI/Emotion MUST be in the same chunk.
             // Splitting them causes a module-init race: vendor-mui's top-level
             // code accesses React internals (e.g. AsyncMode) before vendor-react

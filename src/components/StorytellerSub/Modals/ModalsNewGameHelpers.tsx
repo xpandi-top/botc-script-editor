@@ -1,9 +1,52 @@
 import { useState, useEffect, useRef } from 'react'
-import { Box, Button, Typography, Chip, Paper } from '@mui/material'
+import { Box, Button, Typography, Chip, Paper, FormControl, FormHelperText, InputLabel, MenuItem, Select } from '@mui/material'
 import type { ChipProps } from '@mui/material'
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import { getDisplayName, getIconForCharacter, characterById } from '../../../catalog'
+import { MonoText } from '../../../components/ui'
 import type { Language } from '../../../types'
+import type { NewGameConfig, ScriptOption } from '../types'
+
+/**
+ * A new-game draft on another script: the characters dealt, the random pool
+ * and the bluffs came from the old one, so they are cleared. Editing a
+ * running game keeps its seats.
+ */
+export function withScript(config: NewGameConfig, slug: string): NewGameConfig {
+  if (config.scriptSlug === slug) return config
+  if (config.editMode) return { ...config, scriptSlug: slug }
+  return { ...config, scriptSlug: slug, assignments: {}, userAssignments: {}, demonBluffs: [], charPool: [] }
+}
+
+/** Script picker for the storyteller (new game, player assignment). */
+export function ScriptSelect({ value, options, language, label, helperText, onChange }: {
+  value: string
+  options: ScriptOption[]
+  language: Language
+  label: string
+  helperText?: string
+  onChange: (slug: string) => void
+}) {
+  return (
+    // Top margin: the outlined label floats above the field and was clipped at a dialog's top edge.
+    <FormControl size="small" fullWidth sx={{ mt: 0.75 }}>
+      <InputLabel>{label}</InputLabel>
+      <Select value={options.some((s) => s.slug === value) ? value : ''} onChange={(e) => onChange(String(e.target.value))} label={label}>
+        {options.map((s) => (
+          <MenuItem key={s.slug} value={s.slug}>
+            {language === 'zh' ? (s.titleZh || s.title) : s.title}
+            {s.version && (
+              <MonoText component="span" sx={{ ml: 0.75, color: 'text.secondary' }}>
+                v{s.version}
+              </MonoText>
+            )}
+          </MenuItem>
+        ))}
+      </Select>
+      {helperText && <FormHelperText>{helperText}</FormHelperText>}
+    </FormControl>
+  )
+}
 
 type DistributionCounts = {
   townsfolk: number
@@ -18,12 +61,19 @@ export function TeamDot({ team }: { team: string | null | undefined }) {
   return <Chip size="small" label={team} color={color as ChipProps['color']} sx={{ height: 20, fontSize: '0.65rem' }} />
 }
 
-export function DistRow({ label, counts, calc }: {
+export function DistRow({ label, counts, calc, expected, display }: {
   label: string
   counts: DistributionCounts
   calc?: DistributionCounts
+  /** Allowed range per type (setup abilities); used instead of `calc` to mark mismatches. */
+  expected?: Record<keyof DistributionCounts, [number, number]>
+  /** Chip text per type instead of the count, e.g. "0–1". */
+  display?: Partial<Record<keyof DistributionCounts, string>>
 }) {
-  const match = (k: keyof typeof counts) => calc && counts[k] === calc[k]
+  const match = (k: keyof typeof counts) => expected
+    ? counts[k] >= expected[k][0] && counts[k] <= expected[k][1]
+    : calc && counts[k] === calc[k]
+  const checked = Boolean(expected || calc)
   const keys = ['townsfolk', 'outsider', 'minion', 'demon'] as const
   const colors = ['primary', 'info', 'error', 'error'] as const
   return (
@@ -33,10 +83,10 @@ export function DistRow({ label, counts, calc }: {
         <Chip 
           key={k} 
           size="small" 
-          label={counts[k]} 
+          label={display?.[k] ?? counts[k]} 
           color={colors[i]} 
-          variant={calc && !match(k) ? 'outlined' : 'filled'}
-          sx={{ width: 28, height: 22, fontSize: '0.7rem' }}
+          variant={checked && !match(k) ? 'outlined' : 'filled'}
+          sx={{ width: 28, height: 22, fontSize: '0.7rem', ...(display && { '& .MuiChip-label': { px: 0 } }) }}
         />
       ))}
     </Box>

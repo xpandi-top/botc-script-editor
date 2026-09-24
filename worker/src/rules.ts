@@ -4,6 +4,7 @@
  * (public/wiki-chunks.json), indexed on first use.
  */
 import wikiJson from '../../public/wiki-chunks.json'
+import { expandTermAliases } from '../../src/core/ai/glossary'
 import { coreRuleSections } from '../../src/core/ai/rules'
 import { createWikiIndex, parseWikiFile, type WikiChunk, type WikiIndex } from '../../src/core/ai/wikiIndex'
 
@@ -26,5 +27,5 @@ export function getRulesIndex(): WikiIndex {
 }
 
 export function searchRules(query: string, limit = 3) {
-  return getRulesIndex().search(query, limit).map(({ page, heading, url, text }) => ({ page, heading, url, text }))
+  return getRulesIndex().search(expandTermAliases(query), limit).map(({ page, heading, url, text }) => ({ page, heading, url, text }))
 }

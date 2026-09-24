@@ -2,27 +2,33 @@
   "id": "xuncha",
   "team": "townsfolk",
   "edition": "shanyuyulai",
-  "current_revision": "v1",
+  "current_revision": "v2026-07",
   "revisions": [
     {
       "id": "v1",
       "note": ""
+    },
+    {
+      "id": "v2026-07",
+      "note": "集石 wiki version of the ability (page updated 2026-07); English is our translation."
     }
   ],
   "en": {
     "name": "Xuncha",
-    "ability": "Each night*, choose two good characters (different from the previous night): if they are both alive, they can't die tonight.",
+    "ability": "Each night*, choose 2 good characters (both different to last night): if both are alive, they can't die tonight.",
     "revisions": {
-      "v1": "Each night*, choose two good characters (different from the previous night): if they are both alive, they can't die tonight."
+      "v1": "Each night*, choose two good characters (different from the previous night): if they are both alive, they can't die tonight.",
+      "v2026-07": "Each night*, choose 2 good characters (both different to last night): if both are alive, they can't die tonight."
     }
   },
   "zh": {
     "name": "巡察",
-    "ability": "每个夜晚*，你要选择两个善良角色（与上个夜晚不同）：如果他们都存活，他们当晚不会死亡。",
+    "ability": "每个夜晚*，你要选择两个善良角色（与上个夜晚都不同）：如果他们都存活，他们当晚不会死亡。",
     "revisions": {
-      "v1": "每个夜晚*，你要选择两个善良角色（与上个夜晚不同）：如果他们都存活，他们当晚不会死亡。"
+      "v1": "每个夜晚*，你要选择两个善良角色（与上个夜晚不同）：如果他们都存活，他们当晚不会死亡。",
+      "v2026-07": "每个夜晚*，你要选择两个善良角色（与上个夜晚都不同）：如果他们都存活，他们当晚不会死亡。"
     },
-    "otherNightReminder": "唤醒巡察，让他选择角色列表上的两个善良角色的图标。如果对应的两名玩家都存活，他们今晚不死。",
+    "otherNightReminder": "唤醒巡察，让他选择角色列表上的两个善良角色的图标（都不能是上个夜晚选过的）。如果对应的两名玩家都存活，他们今晚不死。",
     "reminders": [
       "巡防戍卫"
     ]

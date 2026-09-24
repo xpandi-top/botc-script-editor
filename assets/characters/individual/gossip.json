@@ -2,7 +2,7 @@
   "id": "gossip",
   "team": "townsfolk",
   "edition": "bmr",
-  "current_revision": "v1",
+  "current_revision": "v2026-09",
   "setup": false,
   "otherNightReminder": "If the Gossip is due to kill a player, they die. :reminder:",
   "reminders": [
@@ -12,6 +12,10 @@
     {
       "id": "v1",
       "note": ""
+    },
+    {
+      "id": "v2026-09",
+      "note": "Official Chinese translation from the 集石 wiki; ability unchanged (checked 2026-09-24)."
     }
   ],
   "en": {
@@ -19,15 +23,17 @@
     "ability": "Each day, you may make a public statement. Tonight, if it was true, a player dies.",
     "flavor": "Blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah. Blah.",
     "revisions": {
-      "v1": "Each day, you may make a public statement. Tonight, if it was true, a player dies."
+      "v1": "Each day, you may make a public statement. Tonight, if it was true, a player dies.",
+      "v2026-09": "Each day, you may make a public statement. Tonight, if it was true, a player dies."
     },
     "otherNightReminder": "If the Gossip is due to kill a player, they die. :reminder:"
   },
   "zh": {
     "name": "造谣者",
-    "ability": "每个白天，你可以公开发表一个声明。在当晚，如果该声明是正确的，会有一名玩家死亡。",
+    "ability": "每个白天，你可以公开发表一个声明。如果该声明正确，在当晚会有一名玩家死亡。",
     "revisions": {
-      "v1": "每个白天，你可以公开发表一个声明。在当晚，如果该声明是正确的，会有一名玩家死亡。"
+      "v1": "每个白天，你可以公开发表一个声明。在当晚，如果该声明是正确的，会有一名玩家死亡。",
+      "v2026-09": "每个白天，你可以公开发表一个声明。如果该声明正确，在当晚会有一名玩家死亡。"
     },
     "otherNightReminder": "如果造谣者今天白天的声明正确，一名玩家死亡。",
     "reminders": [

@@ -1,23 +1,28 @@
 import {
+  characterLanguages,
   fail,
   findCharacterDefinitionFile,
   getNextRevisionId,
-  localeFiles,
-  readJson,
   validateAllRevisions,
   writeJson,
 } from './revision-helpers.mjs'
 
 function printUsage() {
   console.log(`Usage:
-  node scripts/add-character-revision.mjs <character_id> --en "English text" --zh "Chinese text" [--revision v2] [--note "Why this changed"]
+  node scripts/add-character-revision.mjs <character_id> [--en "English text"] [--zh "Chinese text"] [--revision v2] [--note "Why this changed"] [--keep-current]
+
+Adds a revision to assets/characters/individual/<character_id>.json and makes
+it the current one (--keep-current adds it as an alternative instead). A
+language left out keeps its current text for the new revision, so a
+translation fix passes only --zh.
 
 Examples:
   node scripts/add-character-revision.mjs clockmaker --en "New English text" --zh "新的中文文本"
-  node scripts/add-character-revision.mjs clockmaker --revision v2 --note "Experimental wording" --en "New English text" --zh "新的中文文本"`)
+  node scripts/add-character-revision.mjs mayor --revision v2026-09 --note "集石官方中文译文" --zh "……"`)
 }
 
-function parseArgs(argv) {
+/** Parse the command line; exported for tests. */
+export function parseArgs(argv) {
   const args = [...argv]
   if (args[0] === '--help' || args[0] === '-h') {
     printUsage()
@@ -25,105 +30,56 @@ function parseArgs(argv) {
   }
 
   const characterId = args.shift()
-
   if (!characterId || characterId.startsWith('-')) {
     printUsage()
     fail('Character id is required.')
   }
 
-  const parsed = {
-    characterId,
-    revision: '',
-    note: '',
-    en: '',
-    zh: '',
-  }
-
+  const parsed = { characterId, revision: '', note: '', en: '', zh: '', keepCurrent: false }
   while (args.length > 0) {
     const flag = args.shift()
+    if (flag === '--keep-current') { parsed.keepCurrent = true; continue }
     const value = args.shift()
-
-    if (!flag) {
-      continue
-    }
-
-    if (!value) {
-      fail(`Missing value for ${flag}`)
-    }
-
-    if (flag === '--revision') {
-      parsed.revision = value.trim()
-      continue
-    }
-
-    if (flag === '--note') {
-      parsed.note = value
-      continue
-    }
-
-    if (flag === '--en') {
-      parsed.en = value
-      continue
-    }
-
-    if (flag === '--zh') {
-      parsed.zh = value
-      continue
-    }
-
-    fail(`Unknown argument: ${flag}`)
+    if (!value) fail(`Missing value for ${flag}`)
+    if (flag === '--revision') parsed.revision = value.trim()
+    else if (flag === '--note') parsed.note = value
+    else if (flag === '--en') parsed.en = value
+    else if (flag === '--zh') parsed.zh = value
+    else fail(`Unknown argument: ${flag}`)
   }
-
-  if (!parsed.en.trim()) {
-    fail('English text is required. Pass it with --en "..."')
-  }
-
-  if (!parsed.zh.trim()) {
-    fail('Chinese text is required. Pass it with --zh "..."')
-  }
-
+  if (!parsed.en.trim() && !parsed.zh.trim()) fail('Pass the new text with --en "..." and/or --zh "..."')
   return parsed
 }
 
-const { characterId, revision, note, en, zh } = parseArgs(process.argv.slice(2))
-
-const definitionMatch = findCharacterDefinitionFile(characterId)
-if (!definitionMatch) {
-  fail(`Character not found: ${characterId}`)
-}
-
-const { filePath: characterFilePath, data: characterData } = definitionMatch
-const definition = characterData[characterId]
-const existingRevisions = Array.isArray(definition.revisions) ? [...definition.revisions] : []
-const nextRevision = revision || getNextRevisionId(existingRevisions)
-
-if (existingRevisions.some((entry) => entry.id === nextRevision)) {
-  fail(`Revision already exists for ${characterId}: ${nextRevision}`)
-}
-
-definition.revisions = [...existingRevisions, { id: nextRevision, note: note.trim() }]
-definition.current_revision = nextRevision
-writeJson(characterFilePath, characterData)
-
-for (const localeFile of localeFiles) {
-  const localeData = readJson(localeFile.path)
-  const characterCopy = localeData.characters?.[characterId]
-
-  if (!characterCopy) {
-    fail(`Missing ${localeFile.language} locale character entry: ${characterId}`)
+/**
+ * The character with a new revision: `texts` per language (a missing one
+ * copies the current revision's text), made current unless `keepCurrent`.
+ */
+export function addRevision(character, { revision, note = '', texts, keepCurrent = false }) {
+  const revisions = Array.isArray(character.revisions) ? [...character.revisions] : []
+  const id = revision || getNextRevisionId(revisions)
+  if (revisions.some((entry) => entry.id === id)) fail(`Revision already exists for ${character.id}: ${id}`)
+  const current = character.current_revision
+  const next = { ...character, revisions: [...revisions, { id, note: note.trim() }] }
+  if (!keepCurrent) next.current_revision = id
+  for (const language of characterLanguages) {
+    const copy = character[language]
+    const text = texts[language]?.trim() || copy?.revisions?.[current]
+    if (!text) continue
+    const updated = { ...copy, revisions: { ...(copy?.revisions ?? {}), [id]: text } }
+    if (!keepCurrent) updated.ability = text
+    next[language] = updated
   }
-
-  const nextAbility = localeFile.language === 'en' ? en : zh
-  characterCopy.revision = nextRevision
-  characterCopy.ability = nextAbility
-  characterCopy.revisions = {
-    ...(characterCopy.revisions ?? {}),
-    [nextRevision]: nextAbility,
-  }
-
-  writeJson(localeFile.path, localeData)
+  return next
 }
 
-validateAllRevisions()
-
-console.log(`Added ${characterId} revision ${nextRevision}`)
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const { characterId, revision, note, en, zh, keepCurrent } = parseArgs(process.argv.slice(2))
+  const match = findCharacterDefinitionFile(characterId)
+  if (!match) fail(`Character not found: ${characterId}`)
+  const next = addRevision(match.data, { revision, note, texts: { en, zh }, keepCurrent })
+  writeJson(match.filePath, next)
+  validateAllRevisions()
+  const added = next.revisions[next.revisions.length - 1].id
+  console.log(`Added ${characterId} revision ${added}${keepCurrent ? ' (current stays ' + next.current_revision + ')' : ' (now current)'}`)
+}

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Badge, Box, Button, Chip, CircularProgress, Dialog, DialogContent, DialogTitle, IconButton, Tabs, Tab, TextField, Typography, Paper, Tooltip, Select, MenuItem, FormControl, InputLabel } from '@mui/material'
+import { Badge, Box, Button, Chip, CircularProgress, Dialog, DialogContent, DialogTitle, IconButton, Tabs, Tab, TextField, Typography, Paper, Tooltip } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import RemoveIcon from '@mui/icons-material/Remove'
 import CasinoIcon from '@mui/icons-material/Casino'
@@ -22,12 +22,15 @@ import ClearAllIcon from '@mui/icons-material/ClearAll'
 import ShuffleIcon from '@mui/icons-material/Shuffle'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import VisibilityIcon from '@mui/icons-material/Visibility'
-import { allCharacters, getCharacterById } from '../../../catalog'
+import WarningAmberIcon from '@mui/icons-material/WarningAmber'
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
+import { allCharacters, getAbilityText, getCharacterById, getDisplayName } from '../../../catalog'
+import { dealtCounts, setupExpectation, setupHints, suggestShownCharacters } from '../../../core/engine/setupHints'
+import type { Team } from '../../../types'
 import { makeT, makeTpl } from '../../../lib/t'
 import { CHARACTER_DISTRIBUTION } from '../constants'
 import { CharPoolPicker } from './CharPoolPicker'
-import { CharSelect, DistRow, TeamDot } from './ModalsNewGameHelpers'
-import { MonoText } from '../../../components/ui'
+import { CharSelect, DistRow, ScriptSelect, TeamDot, withScript } from './ModalsNewGameHelpers'
 import {
   getDealSession, closeDealSession,
   createSeatClaimSession, subscribeSeatClaims, unclaimSeatByHost, renameSeatByHost, assignCharacterToSeatByHost, addSeatToSession,
@@ -41,6 +44,8 @@ import type { NewGameConfig } from '../types'
 
 type DealSession = { sessionId: string; hostToken: string }
 type AssignmentTab = 'deal' | 'messages'
+
+const getTeam = (id: string) => getCharacterById(id)?.team as Team | undefined
 
 // ── All traveler characters ────────────────────────────────────────────────
 const TRAVELER_CHARS = allCharacters.filter((c) => c.team === 'traveler').map((c) => c.id)
@@ -117,7 +122,7 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
   const {
     language,
     newGamePanel, setNewGamePanel, addPlayerSeat, removeLastPlayerSeat, setShowAssignmentCenter,
-    randomAssignCharacters, updateSeatWithLog, updateCurrentDay, currentDay, activeScriptSlug, scriptOptions,
+    randomAssignCharacters, updateSeatWithLog, updateCurrentDay, currentDay, activeScriptSlug, scriptOptions, onSelectScript,
     startNewGame, applyGameChanges,
   } = ctx
   const t = makeT(language)
@@ -181,20 +186,25 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
   // Script is only changeable while a draft is open — a live game's script
   // was fixed at start, so it's shown read-only for the live-game path.
   const handleScriptChange = (slug: string) => {
-    setNewGamePanel((prev) => prev ? { ...prev, scriptSlug: slug } : prev)
+    setNewGamePanel((prev) => prev ? withScript(prev, slug) : prev)
   }
 
   const calcDist = CHARACTER_DISTRIBUTION[playerCount] ?? { townsfolk: 0, outsider: 0, minion: 0, demon: 0 }
-  const actCounts = useMemo(() => {
-    const c = { townsfolk: 0, outsider: 0, minion: 0, demon: 0 }
-    Object.values(assignments).forEach((cid) => {
-      const ch = cid ? getCharacterById(cid) : null
-      if (ch && c[ch.team as keyof typeof c] !== undefined) c[ch.team as keyof typeof c]++
-    })
-    return c
-  }, [assignments])
+  const dealtIds = useMemo(() => Object.values(assignments).filter((cid): cid is string => Boolean(cid)), [assignments])
+  // Counted as setup counts them (the Titan takes a Minion slot).
+  const actCounts = useMemo(() => dealtCounts(dealtIds, getTeam), [dealtIds])
 
   const demonBluffs = newGamePanel ? (newGamePanel.demonBluffs ?? []) : liveDraft.demonBluffs
+  // Layout checks (排板提醒): setup abilities, players shown another character, seating, bluffs.
+  const fabledIds = ctx.stFabledIds
+  const setupExpected = useMemo(() => setupExpectation(playerCount, dealtIds, fabledIds), [playerCount, dealtIds, fabledIds])
+  const layoutHints = useMemo(() => setupHints({
+    players: playerCount, seats: assignments, travellerSeats: travelerSeats, perceived: userAssignments,
+    bluffs: demonBluffs, fabled: fabledIds, getTeam, language,
+    name: (id) => getDisplayName(id, language),
+    ability: (id) => getAbilityText(id, language),
+  }), [playerCount, assignments, travelerSeats, userAssignments, demonBluffs, fabledIds, language])
+  const rangeText = (r: [number, number]) => (r[0] === r[1] ? String(r[0]) : `${r[0]}–${r[1]}`)
   const setDemonBluffs = (bluffs: string[]) => {
     if (newGamePanel) setNewGamePanel((prev) => prev ? { ...prev, demonBluffs: bluffs } : prev)
     else setLiveDraft((prev) => ({ ...prev, demonBluffs: bluffs }))
@@ -248,8 +258,14 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
   }
 
   const applyAssignment = (result: Record<number, string>) => {
+    // A new deal also sets what each dealt seat is shown: a not-in-play
+    // Townsfolk for a Drunk and the like, nothing (their own character) otherwise.
+    const shownFor = (dealt: Record<number, string>, all: Record<number, string | null>) => {
+      const suggested = suggestShownCharacters(all, scriptChars, getTeam)
+      return Object.fromEntries(Object.keys(dealt).map((seat) => [seat, suggested[Number(seat)] ?? null]))
+    }
     if (newGamePanel) {
-      setNewGamePanel((prev) => prev ? { ...prev, assignments: result } : prev)
+      setNewGamePanel((prev) => prev ? { ...prev, assignments: result, userAssignments: { ...prev.userAssignments, ...shownFor(result, result) } } : prev)
       return
     }
     // Locked seats are protected from bulk random assignment too — same
@@ -257,7 +273,10 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
     const filtered = Object.fromEntries(
       Object.entries(result).filter(([sNum]) => !isSeatLocked(Number(sNum)))
     )
-    setLiveDraft((prev) => ({ ...prev, assignments: { ...prev.assignments, ...filtered } }))
+    setLiveDraft((prev) => {
+      const next = { ...prev.assignments, ...filtered }
+      return { ...prev, assignments: next, userAssignments: { ...prev.userAssignments, ...shownFor(filtered, next) } }
+    })
   }
 
   // Manual single-seat override from the roster row picker.
@@ -581,31 +600,16 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
             {t('deal_assigned_characters_to_players_new_tab')}
           </Typography>
 
-          {newGamePanel ? (
-            <FormControl size="small" fullWidth>
-              <InputLabel>{t('script')}</InputLabel>
-              <Select value={scriptSlug} onChange={(e) => handleScriptChange(e.target.value)} label={t('script')}>
-                {scriptOptions.map((s) => (
-                  <MenuItem key={s.slug} value={s.slug}>
-                    {language === 'zh' ? (s.titleZh || s.title) : s.title}
-                    {s.version && (
-                      <MonoText component="span" sx={{ ml: 0.75, color: 'text.secondary' }}>
-                        v{s.version}
-                      </MonoText>
-                    )}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          ) : (
-            <Typography variant="caption" color="text.secondary">
-              {t('script')}: {(() => {
-                const opt = scriptOptions.find((s) => s.slug === scriptSlug)
-                if (!opt) return scriptSlug
-                return language === 'zh' ? (opt.titleZh || opt.title) : opt.title
-              })()}
-            </Typography>
-          )}
+          {/* Draft: the new game's script. Live game: switch the running game's
+              script (a wrong pick, or the next game on the same seats). */}
+          <ScriptSelect
+            value={scriptSlug}
+            options={scriptOptions}
+            language={language}
+            label={t('script')}
+            helperText={newGamePanel ? undefined : t('script_switch_keeps_seats')}
+            onChange={(slug) => (newGamePanel ? handleScriptChange(slug) : onSelectScript?.(slug))}
+          />
 
           <Paper variant="outlined" sx={{ p: 1 }}>
             <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: 1 }}>
@@ -616,8 +620,44 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
               <Chip size="small" label="D" color="error" sx={{ width: 28, height: 22 }} />
             </Box>
             <DistRow label={t('calculated')} counts={calcDist} />
-            <DistRow label={t('actual_short')} counts={actCounts} calc={calcDist} />
+            {setupExpected && setupExpected.shifts.length > 0 && (
+              <DistRow
+                label={t('adjusted_for_setup')}
+                counts={calcDist}
+                display={{
+                  townsfolk: rangeText(setupExpected.expected.townsfolk),
+                  outsider: rangeText(setupExpected.expected.outsider),
+                  minion: rangeText(setupExpected.expected.minion),
+                  demon: rangeText(setupExpected.expected.demon),
+                }}
+              />
+            )}
+            {/* Setup abilities the Storyteller resolves by hand (Legion, Kazali, …): counts are not marked. */}
+            <DistRow
+              label={t('actual_short')}
+              counts={actCounts}
+              calc={setupExpected?.free.length ? undefined : calcDist}
+              expected={setupExpected && !setupExpected.free.length && setupExpected.shifts.length ? setupExpected.expected : undefined}
+            />
           </Paper>
+
+          {layoutHints.length > 0 && (
+            <Paper variant="outlined" sx={{ p: 1 }}>
+              <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mb: 0.5 }}>{t('setup_checks')}</Typography>
+              <Box component="ul" sx={{ m: 0, p: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                {layoutHints.map((hint, i) => (
+                  <Box component="li" key={i} sx={{ display: 'flex', gap: 0.75, alignItems: 'flex-start' }}>
+                    {hint.level === 'warn'
+                      ? <WarningAmberIcon sx={{ fontSize: 16, mt: '2px', color: 'warning.main' }} />
+                      : <InfoOutlinedIcon sx={{ fontSize: 16, mt: '2px', color: 'text.secondary' }} />}
+                    <Typography variant="caption" sx={{ lineHeight: 1.5, color: hint.level === 'warn' ? 'text.primary' : 'text.secondary' }}>
+                      {hint.text}
+                    </Typography>
+                  </Box>
+                ))}
+              </Box>
+            </Paper>
+          )}
 
           <Paper variant="outlined" sx={{ p: 1 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

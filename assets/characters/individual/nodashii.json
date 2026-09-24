@@ -2,21 +2,26 @@
   "id": "nodashii",
   "team": "demon",
   "edition": "snv",
-  "current_revision": "v1",
+  "current_revision": "v2026-09",
   "setup": false,
   "otherNightReminder": "The No Dashii chooses a player. :reminder:",
   "revisions": [
     {
       "id": "v1",
       "note": ""
+    },
+    {
+      "id": "v2026-09",
+      "note": "Official spelling from TPI roles.json (checked 2026-09-24); ability unchanged."
     }
   ],
   "en": {
     "name": "No Dashii",
-    "ability": "Each night*, choose a player: they die. Your 2 Townsfolk neighbours are poisoned.",
+    "ability": "Each night*, choose a player: they die. Your 2 Townsfolk neighbors are poisoned.",
     "flavor": "By the sins of Arnoch, I feel thy laden stench. By the curs-ed sun and her foul legion of tiny grinning gods, I corrupt thee. By the blessed night and the hidden depths of the horrid and unholy sea, I end thy squalid life upon this plane.",
     "revisions": {
-      "v1": "Each night*, choose a player: they die. Your 2 Townsfolk neighbours are poisoned."
+      "v1": "Each night*, choose a player: they die. Your 2 Townsfolk neighbours are poisoned.",
+      "v2026-09": "Each night*, choose a player: they die. Your 2 Townsfolk neighbors are poisoned."
     },
     "otherNightReminder": "The No Dashii chooses a player. :reminder:"
   },
@@ -24,7 +29,8 @@
     "name": "诺-达鲺",
     "ability": "每个夜晚*，你要选择一名玩家：他死亡。<br>与你邻近的两名镇民中毒。",
     "revisions": {
-      "v1": "每个夜晚*，你要选择一名玩家：他死亡。<br>与你邻近的两名镇民中毒。"
+      "v1": "每个夜晚*，你要选择一名玩家：他死亡。<br>与你邻近的两名镇民中毒。",
+      "v2026-09": "每个夜晚*，你要选择一名玩家：他死亡。<br>与你邻近的两名镇民中毒。"
     },
     "otherNightReminder": "唤醒诺-达鲺，让他攻击一名玩家。",
     "reminders": [

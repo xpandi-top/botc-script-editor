@@ -2,12 +2,16 @@
   "id": "hellslibrarian",
   "team": "fabled",
   "edition": "fabled",
-  "current_revision": "v1",
+  "current_revision": "v2026-09",
   "setup": false,
   "revisions": [
     {
       "id": "v1",
       "note": ""
+    },
+    {
+      "id": "v2026-09",
+      "note": "Official Chinese translation from the 集石 wiki; ability unchanged (checked 2026-09-24)."
     }
   ],
   "en": {
@@ -15,14 +19,16 @@
     "ability": "Something bad might happen to whoever talks when the Storyteller has asked for silence.",
     "flavor": "Shhhhhh. Please be quiet. It is best not to disturb the Librarian. I've heard it has a temper.",
     "revisions": {
-      "v1": "Something bad might happen to whoever talks when the Storyteller has asked for silence."
+      "v1": "Something bad might happen to whoever talks when the Storyteller has asked for silence.",
+      "v2026-09": "Something bad might happen to whoever talks when the Storyteller has asked for silence."
     }
   },
   "zh": {
     "name": "地狱藏书员",
-    "ability": "当说书人要求保持安静时，开口说话的人可能会遭遇不好的事。",
+    "ability": "当说书人宣布安静时，仍在说话的玩家可能会遭遇一些不好的事情。",
     "revisions": {
-      "v1": "当说书人要求保持安静时，开口说话的人可能会遭遇不好的事。"
+      "v1": "当说书人要求保持安静时，开口说话的人可能会遭遇不好的事。",
+      "v2026-09": "当说书人宣布安静时，仍在说话的玩家可能会遭遇一些不好的事情。"
     },
     "reminders": [
       "不好的事"

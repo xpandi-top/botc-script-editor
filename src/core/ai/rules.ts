@@ -7,6 +7,7 @@
  * so context selection can keep the relevant ones whole.
  */
 import { CHARACTER_DISTRIBUTION } from '../engine/setup'
+import { expandTermAliases } from './glossary'
 import { createWikiIndex, type WikiIndex } from './wikiIndex'
 
 function distributionLine(zh: boolean): string {
@@ -53,6 +54,7 @@ EXECUTION & DEATH:
 DRUNK & POISONED:
 - A drunk or poisoned player has no ability but thinks they do, and the Storyteller acts like they do. If the ability gives information, the Storyteller may give false information. They do not know they are drunk or poisoned.
 - Example: a drunk Empath may learn a wrong number; a poisoned Demon's kill does not happen.
+- The opposite of drunk is sober; of poisoned, healthy. A "once per game" ability used while drunk or poisoned is still used up.
 
 REGISTERING & MADNESS:
 - A player who "registers as" a character or alignment counts as it for game rules and other players' abilities, but keeps their real alignment (and wins with it) and does not gain that character's ability. Example: a good player who registers as evil is still good, but abilities that detect evil treat them as evil.
@@ -106,9 +108,10 @@ const ZH = `血染钟楼——核心规则（依据官方规则与术语表；�
 醉酒与中毒：
 - 醉酒或中毒的玩家没有能力，但以为自己有，说书人也会假装其能力生效。若能力提供信息，说书人可以给出错误信息。玩家不知道自己醉酒或中毒。
 - 例如：醉酒的共情者可能得到错误的数字；中毒的恶魔杀人不会生效。
+- 醉酒的反面是“清醒”，中毒的反面是“健康”。“每局游戏限一次”的能力即使在醉酒或中毒时使用，也算用掉了。
 
 登记与疯狂：
-- “登记为”某角色或阵营的玩家，在游戏规则和其他玩家的能力面前视为该角色或阵营，但仍属于原阵营（随原阵营胜负），也不会获得该角色的能力。例如：登记为邪恶的善良玩家仍是善良阵营，只是会被检测邪恶的能力当作邪恶。
+- “被当作”（也常说“登记为”）某角色或阵营的玩家，在游戏规则和其他玩家的能力面前视为该角色或阵营，但仍属于原阵营（随原阵营胜负），也不会获得该角色的能力。例如：登记为邪恶的善良玩家仍是善良阵营，只是会被检测邪恶的能力当作邪恶。
 - 对某事“疯狂”的玩家要努力让大家相信此事为真；若说书人认为其没有努力，可能会给予惩罚。
 
 旅行者、流放与传奇角色：
@@ -140,7 +143,7 @@ export function searchCoreRules(query: string, lang: 'en' | 'zh', n = 2): Array<
     index = createWikiIndex(coreRuleSections(lang).map((s, i) => ({ id: String(i), page: 'core', url: '', heading: s.heading, text: s.text, wordCount: 0 })))
     sectionIndexes.set(lang, index)
   }
-  const hits = index.scored(query, n)
+  const hits = index.scored(expandTermAliases(query), n)
   return hits.filter(({ score }) => score >= hits[0].score * 0.6).map(({ chunk }) => ({ heading: chunk.heading, text: chunk.text }))
 }
 

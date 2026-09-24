@@ -2,12 +2,16 @@
   "id": "ventriloquist",
   "team": "loric",
   "edition": "loric",
-  "current_revision": "v1",
+  "current_revision": "v2026-09",
   "setup": false,
   "revisions": [
     {
       "id": "v1",
       "note": ""
+    },
+    {
+      "id": "v2026-09",
+      "note": "Official Chinese translation from the 集石 wiki; ability unchanged (checked 2026-09-24)."
     }
   ],
   "en": {
@@ -15,14 +19,16 @@
     "ability": "If a player is mad as a fresh character during their nomination, they might not die if executed today.",
     "flavor": "Well, folks, gather ‘round! This here’s my pal Charlie, and he’s got a mouth on him that’d make a mule blush. But don’t worry folks, I do all the talkin’... or do I?",
     "revisions": {
-      "v1": "If a player is mad as a fresh character during their nomination, they might not die if executed today."
+      "v1": "If a player is mad as a fresh character during their nomination, they might not die if executed today.",
+      "v2026-09": "If a player is mad as a fresh character during their nomination, they might not die if executed today."
     }
   },
   "zh": {
     "name": "腹语师",
-    "ability": "如果一名玩家在自己被提名期间“疯狂”地声称一个全新的角色，那么他今天若被处决，可能不会死亡。",
+    "ability": "如果一名玩家在被提名时“疯狂”地证明自己是一个新的角色，他可能不会死于当天的处决。",
     "revisions": {
-      "v1": "如果一名玩家在自己被提名期间“疯狂”地声称一个全新的角色，那么他今天若被处决，可能不会死亡。"
+      "v1": "如果一名玩家在自己被提名期间“疯狂”地声称一个全新的角色，那么他今天若被处决，可能不会死亡。",
+      "v2026-09": "如果一名玩家在被提名时“疯狂”地证明自己是一个新的角色，他可能不会死于当天的处决。"
     },
     "reminders": [
       "疯狂"

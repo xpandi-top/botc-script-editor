@@ -13,6 +13,7 @@ import CheckIcon from '@mui/icons-material/Check'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import { PlayersTab } from './ModalsNewGamePlayersTab'
+import { ScriptSelect, withScript } from './ModalsNewGameHelpers'
 import { DEFAULT_ST_NAME_KEY } from '../constants'
 import { allCharacters, getDisplayName, getAbilityText, getIconForCharacter } from '../../../catalog'
 import { useT } from '../../../context/I18nContext'
@@ -24,7 +25,7 @@ export function ModalsNewGame({ ctx }: { ctx: StorytellerContext }) {
   const {
     playerNamePool, setPlayerNamePool, text, language,
     newGamePanel, setNewGamePanel, setShowNewGamePanel, startNewGame, applyGameChanges,
-    days, stName, setStName,
+    days, stName, setStName, scriptOptions,
   } = ctx
 
   // All hooks MUST be declared before any early return
@@ -55,6 +56,14 @@ export function ModalsNewGame({ ctx }: { ctx: StorytellerContext }) {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      {/* The script comes first: dealing and the random pool depend on it. */}
+      <ScriptSelect
+        value={newGamePanel.scriptSlug}
+        options={scriptOptions}
+        language={language}
+        label={t('script')}
+        onChange={(slug) => setNewGamePanel((prev) => prev ? withScript(prev, slug) : prev)}
+      />
       <Tabs value={activeTab} onChange={(_, v) => setActiveTab(v)} variant="fullWidth">
         <Tab label={t('edit_players')} value="players" />
         <Tab label={t('settings')} value="settings" />

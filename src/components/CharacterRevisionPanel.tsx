@@ -648,7 +648,6 @@ export function CharacterRevisionPanel({
       {/* ── Almanac (lazy-loaded prose from the character pack) ── */}
       <CharacterAlmanacSection
         characterId={character.id}
-        edition={character.edition}
         language={language}
       />
 

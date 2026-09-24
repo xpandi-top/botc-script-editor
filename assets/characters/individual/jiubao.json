@@ -2,25 +2,31 @@
   "id": "jiubao",
   "team": "outsider",
   "edition": "shanyuyulai",
-  "current_revision": "v1",
+  "current_revision": "v2026-07",
   "revisions": [
     {
       "id": "v1",
       "note": ""
+    },
+    {
+      "id": "v2026-07",
+      "note": "集石 wiki version of the ability (page updated 2026-07); English is our translation."
     }
   ],
   "en": {
     "name": "Jiubao",
-    "ability": "One of your townsfolk neighbour is drunk, even if you are dead.",
+    "ability": "One of your good neighbors (not Travellers) is drunk, even if you die by execution.",
     "revisions": {
-      "v1": "One of your townsfolk neighbour is drunk, even if you are dead."
+      "v1": "One of your townsfolk neighbour is drunk, even if you are dead.",
+      "v2026-07": "One of your good neighbors (not Travellers) is drunk, even if you die by execution."
     }
   },
   "zh": {
     "name": "酒保",
-    "ability": "与你邻近的善良玩家之一醉酒，即使你已死亡。",
+    "ability": "与你邻近的善良玩家（旅行者除外）之一醉酒，即使你死于处决。",
     "revisions": {
-      "v1": "与你邻近的善良玩家之一醉酒，即使你已死亡。"
+      "v1": "与你邻近的善良玩家之一醉酒，即使你已死亡。",
+      "v2026-07": "与你邻近的善良玩家（旅行者除外）之一醉酒，即使你死于处决。"
     },
     "reminders": [
       "醉酒"
