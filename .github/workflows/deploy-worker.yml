@@ -96,10 +96,8 @@ jobs:
         working-directory: worker
         run: npx wrangler d1 migrations apply botc-library --remote
 
-      - name: Deploy
+      # postdeploy runs the smoke test: it makes the live worker re-embed new
+      # or edited characters and fails if any embedding is still stale.
+      - name: Deploy and smoke test
         working-directory: worker
         run: npm run deploy
-
-      - name: Smoke test (refreshes embeddings when the catalog changed)
-        working-directory: worker
-        run: npm run smoke -- --no-games

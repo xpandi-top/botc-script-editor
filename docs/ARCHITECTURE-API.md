@@ -354,6 +354,7 @@ AI 设置保持本地 BYOK，永不上传。
 | ✅ | CI：`ci.yml`、`deploy-worker.yml`、冒烟测试（AI 状态 / 语义检索 / 向量无过期 / 可选对话）、目录完整性测试 | 目录完整性测试列出 16 个缺夜间提醒的华灯初上 / 山雨欲来角色（已知缺口，修复后需同步删除） |
 | ✅ | Web：托管运行时 `src/lib/ai/runtime/hosted.ts`（与 WebLLM、BYOK 并列，见 `docs/AI-ARCHITECTURE-OFFLINE-FIRST.md` §15）；设置页 “BOTC” 标签（说明发送范围、每日限额、服务器无 AI 时告警并禁用发送）；聊天气泡显示调用过的工具与今日剩余次数；相似检索走 API；删除静态 `embeddings.json` 与 Gemini 生成脚本 | 浏览器实测：剧本页问“有哪些相克规则”→ 返回该剧本全部 4 条相克。实测中发现并修复：剧本上下文被按问题相关度裁掉角色名单（Groq 同样受影响）；模型自行翻译并编造能力 |
 | ✅ | MCP `search_characters` 返回 `totalMatches` / `returned` / `nextCursor`（`count` 保留为旧别名）；新增 `list_editions`（每个角色包的精确数量） | 离线优先评审 §9 的 P0 |
+| ✅ | 规则正确性与难题：核心规则逐条核对；程序计算票数 / 配置 / 开局 / 剧本 / 局势并校验回答；无模型的本地回答；neurons 预算；评测 22 题 | 详见 `docs/AI-ARCHITECTURE-OFFLINE-FIRST.md` §0、§15–§17 |
 | ⬜ | **手动**：D1 迁移 `0002_ai.sql`、部署 Worker、配置 GitHub secrets | 见 `worker/README.md` → Hosted AI |
 
 ---

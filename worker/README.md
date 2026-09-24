@@ -147,7 +147,10 @@ One-time setup:
 1. Apply the new D1 tables: `npx wrangler d1 migrations apply botc-library --remote`
    (`migrations/0002_ai.sql`).
 2. `npm run deploy`. Workers AI needs no extra setup (binding `AI` in `wrangler.jsonc`).
-3. `npm run smoke -- --chat` to check chat, semantic search and embeddings.
+   Every `npm run deploy` then runs the smoke test (`postdeploy`), which makes
+   the live worker re-embed characters whose text changed and fails if any
+   embedding is still stale.
+3. Optionally `npm run smoke -- --chat` to also try one hosted chat.
 
 ### Automatic deploys
 

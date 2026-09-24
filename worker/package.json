@@ -8,6 +8,7 @@
     "build:catalog": "node ../scripts/build-catalog.mjs --out src/generated/catalog.json",
     "dev": "npm run build:catalog && wrangler dev",
     "deploy": "npm run build:catalog && wrangler deploy",
+    "postdeploy": "npm run smoke -- --no-games",
     "test": "npm run build:catalog && vitest run",
     "typecheck": "npm run build:catalog && tsc --noEmit",
     "smoke": "node scripts/smoke.mjs"
