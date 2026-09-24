@@ -16,14 +16,30 @@
   font-display: swap;
 }
 
+/* Xingkai and Xinwei map 84 code points (accented Latin such as â ã ñ ö, « » © ®,
+   ⅰ–ⅹ) to empty glyphs, which would print nothing. The unicode-range leaves them
+   out so they fall back to the next font. Found by scripts/zh-font-fix.py --check. */
 @font-face {
   font-family: 'Xingkai';
   src: url('/assets/font/xingkai.ttf') format('truetype');
+  unicode-range: U+0-A0, U+A4, U+A7-A8, U+AD, U+B0-B1, U+B7, U+D7, U+E0-E1, U+E8-EA, U+EC-ED, U+F2-F3, U+F7, U+F9-FA, U+FC, U+100-216F, U+217A-10FFFF;
   font-display: swap;
 }
 
 @font-face {
   font-family: 'Xinwei';
   src: url('/assets/font/xinwei.ttf') format('truetype');
+  unicode-range: U+0-A0, U+A4, U+A7-A8, U+AD, U+B0-B1, U+B7, U+D7, U+E0-E1, U+E8-EA, U+EC-ED, U+F2-F3, U+F7, U+F9-FA, U+FC, U+100-216F, U+217A-10FFFF;
+  font-display: swap;
+}
+
+/* ZCOOL XiaoWei (Google Fonts) fills the counters of 回 and a few other
+   囗-framed characters solid, so 回 renders as ■. This face carries Noto Serif SC
+   glyphs for just those code points, sized to match XiaoWei; the ZCOOL XiaoWei
+   font option lists it first. Regenerate with scripts/zh-font-fix.py. */
+@font-face {
+  font-family: 'ZCOOL XiaoWei Fix';
+  src: url('/assets/font/zh-fix.woff2') format('woff2');
+  unicode-range: U+56DE, U+5703, U+5704, U+570A, U+5D2E, U+5F8A, U+75FC, U+86D4;
   font-display: swap;
 }

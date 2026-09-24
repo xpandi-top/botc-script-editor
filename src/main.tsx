@@ -72,7 +72,7 @@ function renderRoot(children: React.ReactNode) {
             // ── Typography — defaults; overridden at runtime by useFontSettings ──
             '--font-en-body':    '"EB Garamond"',
             '--font-en-display': '"Cinzel"',
-            '--font-zh':         '"ZCOOL XiaoWei"',
+            '--font-zh':         '"ZCOOL XiaoWei Fix", "ZCOOL XiaoWei"',
 
             // ── Spacing (8-point) ────────────────────────────────────────────
             '--sp-1': '2px',   '--sp-2': '4px',   '--sp-3': '6px',

@@ -214,7 +214,8 @@ export const ZH_OPTIONS: FontOption[] = [
     id: 'zcool-xiaowei',
     label: 'ZCOOL XiaoWei',
     labelZh: '站酷小薇 · 优雅文学',
-    css: '"ZCOOL XiaoWei"',
+    // "ZCOOL XiaoWei Fix" (src/fonts.css) only covers the few glyphs XiaoWei draws solid, e.g. 回
+    css: '"ZCOOL XiaoWei Fix", "ZCOOL XiaoWei"',
     sample: '染·钟楼谜团',
     sampleZh: '说书人在黑暗中低语。',
   },
