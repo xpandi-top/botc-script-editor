@@ -19,6 +19,12 @@ npm run add-revision -- <char_id> --en "text" --zh "text"
 # Re-check reminder tokens against the official roles.json (English) and the
 # 集石 wiki 提示标记 sections (Chinese); add `-- --write` to update the files
 npm run sync-reminders
+
+# Character guides (how to play / examples / how to run / bluffing) for the AI and the
+# almanac panel, from the 集石 and official wikis → assets/almanac/ (see docs/AI-CONTENT.md);
+# `-- --refresh` refetches. Coverage + freshness report:
+npm run build:guides
+node scripts/audit-ai-content.mjs --online
 ```
 
 ```bash

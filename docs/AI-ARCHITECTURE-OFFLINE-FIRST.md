@@ -287,7 +287,7 @@ WebMCP 是网站向浏览器代理暴露操作的另一个可选入口；不等�
 
 缓存事实查询使用 catalogRevision + scope + filters；缓存推理使用模型版本、prompt版本、证据哈希、语言、隐私视角。游戏日志增量摘要的键包含 gameVersion；编辑历史后失效。敏感内容不写入通用调试日志。
 
-**已实现（2026-09-24）：** 应用外壳与 `wiki-chunks.json` 由 service worker 预缓存（首次访问后即可离线；它在启动时就被请求，早于新 service worker 接管，运行时缓存会漏掉首访）。WebLLM 运行时 JS 按需运行时缓存；模型文件由 web-llm 存入 Cache API（`webllm/model`、`webllm/wasm`、`webllm/config`）。`webLlmCacheState()` 区分完整 / 部分 / 无：下载或写缓存被页面刷新打断时会缺分片，联网加载会自动补齐，离线则无法加载，所以设置里显示“可离线加载”或“部分文件缺失”，自动续载只在完整或联网时进行。`e2e/offline.spec.ts`（`npm run test:e2e:offline`，`verify --e2e` 包含）断开服务器与网络后验证冷启动与本地回答；`BOTC_E2E_WEBGPU=1` 时再验证本地模型离线加载并回答。
+**已实现（2026-09-24）：** 应用外壳与 `wiki-chunks.json` 由 service worker 预缓存（首次访问后即可离线；它在启动时就被请求，早于新 service worker 接管，运行时缓存会漏掉首访）。WebLLM 运行时 JS 按需运行时缓存；角色攻略（`assets/almanac/`，每版本每语言一个 chunk，约 3.4 MB）不预缓存，首次用到时缓存（`almanac`）；模型文件由 web-llm 存入 Cache API（`webllm/model`、`webllm/wasm`、`webllm/config`）。`webLlmCacheState()` 区分完整 / 部分 / 无：下载或写缓存被页面刷新打断时会缺分片，联网加载会自动补齐，离线则无法加载，所以设置里显示“可离线加载”或“部分文件缺失”，自动续载只在完整或联网时进行。`e2e/offline.spec.ts`（`npm run test:e2e:offline`，`verify --e2e` 包含）断开服务器与网络后验证冷启动与本地回答；`BOTC_E2E_WEBGPU=1` 时再验证本地模型离线加载并回答。
 
 ## 12. 分阶段实施
 
@@ -389,7 +389,7 @@ worker/src/         # 共享领域服务的MCP/REST/云存储适配
 
 ## 17. 评测：方法与结果
 
-**方法。** `src/lib/ai/eval/` 定义 22 道题，覆盖事实（能力、数量与作者、按阵营名单、相克、夜序、英文）、双向翻译（要求官方措辞）、规则与术语（处决票数、死人票、邪恶胜利、醉酒、按人数配置、“每个夜晚*”、“登记为”）、开局配置（7 人、8 人 + 男爵）、剧本生成（新手完整剧本、奥德赛小型剧本）、局势（红唇女郎、镇长、剩 4 人）。每题在对应页面上下文提问（通用 / 剧本 / 对局样例），全部由程序打分：关键短语与禁止短语、提到的角色、以及开局 / 剧本名单按目录和人数表校验（剧本是角色池，只有部分上场）。
+**方法。** `src/lib/ai/eval/` 定义 22 道题（2026-09-24 增至 34 道：反馈题与角色攻略题，见 [AI-CONTENT.md](AI-CONTENT.md)），覆盖事实（能力、数量与作者、按阵营名单、相克、夜序、英文）、双向翻译（要求官方措辞）、规则与术语（处决票数、死人票、邪恶胜利、醉酒、按人数配置、“每个夜晚*”、“登记为”）、开局配置（7 人、8 人 + 男爵）、剧本生成（新手完整剧本、奥德赛小型剧本）、局势（红唇女郎、镇长、剩 4 人）。每题在对应页面上下文提问（通用 / 剧本 / 对局样例），全部由程序打分：关键短语与禁止短语、提到的角色、以及开局 / 剧本名单按目录和人数表校验（剧本是角色池，只有部分上场）。
 
 - `src/__tests__/aiEval.offline.test.ts`：本地资料回答（无模型）跑全部题，进 CI。
 - `src/__tests__/aiEval.live.test.ts`：按面板的真实流程（本地检索拼提示词 → 托管运行时 → 答案校验 / 失败回退）调用 Worker，输出每题通过与否、耗时、输入 token、neurons（`BOTC_AI_EVAL_URL=http://localhost:8787 npx vitest run src/__tests__/aiEval.live.test.ts`）。
@@ -444,14 +444,14 @@ worker/src/         # 共享领域服务的MCP/REST/云存储适配
 
 **存储。** 默认发到开发者的 Google 表单“BOTC CHAT BOT FEEDBACK”（https://forms.gle/WQhGQPGfxyCuUJvH9，在 Google Sheets 里查看）：“Chat History” 栏是可读的对话（每条回答后附一行模型与诊断信息），末尾是 `--- botc-feedback-json ---` 之后的一段 JSON（类型、评价、原因、每条回答的问题与 trace）；“Additional Comment” 栏是用户的补充说明。应用内直接提交（POST `formResponse`，无 URL 长度限制，单元格上限 5 万字，超长时去掉最早的几轮）；分享对话框可预览发送内容，也可“在 Google 表单中打开”（预填链接，过长时截断并把全文复制到剪贴板）。表单 id 与两栏的 entry id 在 `src/lib/ai/feedback.ts` 的 `FEEDBACK_FORM`；`VITE_FEEDBACK_FORM=off` 时改发 `POST /v1/ai/feedback` → D1 `ai_feedback`（迁移 0003，每 IP 每天 100 条，不存 IP，不依赖 Workers AI）。
 
-**分析。** 表单：Google Sheets → 文件 → 下载 → CSV，然后 `cd worker && npm run feedback -- --csv 回复.csv`；D1：`npm run feedback -- --days 7`（导出到 `worker/.feedback/`，不提交）。两者输出相同：按回答来源、provider·模型、prompt 版本、程序事实类型统计 👎 率与 p50 / p90 耗时，统计 👎 原因，数出“没有任何本地资料的 👎 回答”（检索缺口），并把 👎 回答写成评测草稿（`eval-drafts-*.json`），补上 `checks` 后并入 `src/lib/ai/eval/cases.ts`。
+**分析。** 表单：Google Sheets → 文件 → 下载 → CSV，然后 `cd worker && npm run feedback -- --csv 回复.csv`；D1：`npm run feedback -- --days 7`（导出到 `worker/.feedback/`，不提交）。两者输出相同：按回答来源、provider·模型、prompt 版本、程序事实类型统计 👎 率与 p50 / p90 耗时，统计 👎 原因，数出“没有任何本地资料（程序事实、角色、规则、wiki、攻略）的 👎 回答”（检索缺口），并把 👎 回答写成评测草稿（`eval-drafts-*.json`），补上 `checks` 后并入 `src/lib/ai/eval/cases.ts`。
 
 **可调的地方与对应信号：**
 
 | 现象（反馈中的信号） | 调整的位置 |
 |---|---|
 | 程序本可精确回答却交给了模型，或反之（按来源的 👎 率、“答非所问”） | 路由正则：`localAnswer.ts` 的 `OPEN_QUESTION`、`ASKS_TERM`、`ASKS_GUIDE`、`RULE_WORDS`；`catalogRetrieval.ts` 的 `FOLLOW_UP` |
-| 答案没有依据（检索缺口计数、“太笼统”） | 本地资料：`coreRuleSections`（`src/core/ai/rules.ts`，相关度阈值 0.6×最佳）、`wiki-chunks.json`、角色年鉴（目前只有奥德赛有范例 / 技巧；官方角色可从集石 wiki 导入）、向量检索（bge-m3，`/v1/characters/similar`） |
+| 答案没有依据（检索缺口计数、“太笼统”） | 本地资料：`coreRuleSections`（`src/core/ai/rules.ts`，相关度阈值 0.6×最佳）、`wiki-chunks.json`、角色攻略（`assets/almanac/`：奥德赛年鉴 + 集石 / 官方 wiki 导入的官方与中文版角色，意图路由 `guideIntent`，长度 `GUIDE_BUDGET`；覆盖与缺口见 [AI-CONTENT.md](AI-CONTENT.md)）、术语别名（`expandTermAliases`）、向量检索（bge-m3，`/v1/characters/similar`） |
 | 事实或规则错误（按程序事实类型的 👎 率） | 程序事实（`ruleFacts.ts`、`scriptFacts.ts`）与答案校验（`answerCheck.ts`、`answerParse.ts` 的能力相似度阈值 0.25） |
 | 按 prompt 版本对比 👎 率 | 提示词（`prompts.ts`），改动后提升 `PROMPT_VERSION` |
 | 按模型对比 👎 率与耗时 | 在线模型 `AI_CHAT_MODEL`（Worker 变量）、温度 0.6（`useAiPanel.ts`）；本地模型 1.7B / 0.6B，`WEBLLM_INPUT_BUDGET` 3200 / `WEBLLM_OUTPUT_BUDGET` 768 |

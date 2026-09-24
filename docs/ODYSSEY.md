@@ -16,7 +16,7 @@
 | 相克规则 | `assets/jinxes.json` + `assets/locales/{en,zh}.jinxes.json` | 6 |
 | 剧本 | `assets/scripts/odyssey.json`（全角色包） | 1 |
 | 版本名 | `assets/locales/{en,zh}.json`、`src/catalog.ts`、`src/lib/t.ts` | `odyssey` |
-| 完整百科原文 | `assets/almanac/odyssey.zh.json`（懒加载，独立 chunk） | 119 + 10 术语 |
+| 完整百科原文 | `assets/almanac/odyssey.zh.json`（懒加载，独立 chunk，首次使用时缓存） | 119 + 10 术语 |
 | 授权署名 | `assets/editions.json` + 打印表页脚 + 角色详情面板 | 1 |
 
 角色分布：镇民 51、外来者 21、爪牙 24、恶魔 18、传奇 3（`fabled`）、奇遇 2（`loric`）。
@@ -70,6 +70,13 @@
 `getAlmanacTerminology` / `hasAlmanac`，带缓存），组件 `CharacterAlmanacSection`
 挂在角色详情面板底部，展开时才拉数据。`odyssey.zh` 是独立 chunk，主包基本没变大。
 没有 almanac 的版本不渲染该区块。
+
+2026-09-24：官方与中文版角色也有了同格式的攻略（`assets/almanac/<版本>.<语言>.json`，由
+`npm run build:guides` 从集石 / 官方 wiki 生成），字段名沿用奥德赛年鉴（`summary`、`howto`、
+`examples`、`rules`、`reminder_details`、`tips`、`bluffing`、`flavor`），格式见
+`src/core/ai/guides.ts` 与 [AI-CONTENT.md](AI-CONTENT.md)。`assets/almanac/index.json` 是同步可读的清单：
+手改或重新导出 `odyssey.zh.json` 后跑 `node scripts/build-guides.mjs --index-only`，否则
+`guides.test.ts` 会报清单过期。术语表入口改为按清单的术语数判断（`hasGlossary`）。
 
 背景故事（`flavor`）现在在魔典面板里可见，但仍**没有**写进角色 JSON 的 `flavor` 字段
 —— 奥德赛的背景故事是整段散文，直接进会撑爆 PDF 排版。要进角色卡先定截断规则。
