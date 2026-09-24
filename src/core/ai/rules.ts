@@ -130,13 +130,17 @@ export function coreRuleSections(lang: 'en' | 'zh'): Array<{ heading: string; te
 
 const sectionIndexes = new Map<'en' | 'zh', WikiIndex>()
 
-/** The rules sections most relevant to a question (TF-IDF over the sections above). */
+/**
+ * The rules sections most relevant to a question (TF-IDF over the sections
+ * above): the best one, and others only when they match nearly as well.
+ */
 export function searchCoreRules(query: string, lang: 'en' | 'zh', n = 2): Array<{ heading: string; text: string }> {
   let index = sectionIndexes.get(lang)
   if (!index) {
     index = createWikiIndex(coreRuleSections(lang).map((s, i) => ({ id: String(i), page: 'core', url: '', heading: s.heading, text: s.text, wordCount: 0 })))
     sectionIndexes.set(lang, index)
   }
-  return index.search(query, n).map((chunk) => ({ heading: chunk.heading, text: chunk.text }))
+  const hits = index.scored(query, n)
+  return hits.filter(({ score }) => score >= hits[0].score * 0.6).map(({ chunk }) => ({ heading: chunk.heading, text: chunk.text }))
 }
 

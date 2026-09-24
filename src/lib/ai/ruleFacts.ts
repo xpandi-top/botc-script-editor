@@ -13,7 +13,7 @@
  *
  * The same facts are the no-model offline answer (localAnswer.ts).
  */
-import { allCharacterFiles, getAbilityText, getCharacterById, getDisplayName, initialScripts, teamLabels } from '../../catalog'
+import { allCharacterFiles, editionLabels, getAbilityText, getCharacterById, getDisplayName, initialScripts, teamLabels } from '../../catalog'
 import { buildScriptPool, planSetup, type ScriptPool, type SetupPlan } from '../../core/engine/planning'
 import { CHARACTER_DISTRIBUTION, SETUP_OUTSIDER_SHIFTS } from '../../core/engine/setup'
 import { gameStateFacts, type GameFact } from '../../core/engine/winConditions'
@@ -21,7 +21,7 @@ import { catalogTeamOf } from '../../utils/seatAlignment'
 import type { Language, Team } from '../../types'
 import { charactersIn, type PoolRequirements } from './answerParse'
 import { mentionedEntities } from './catalogRetrieval'
-import { scriptRecommendationFacts } from './scriptFacts'
+import { scriptQueryFacts, scriptRecommendationFacts } from './scriptFacts'
 import type { AiContext } from './types'
 
 /** The page (script / game) plus earlier user questions in the chat, for follow-ups like "那 7 个人玩它". */
@@ -112,6 +112,16 @@ export function mostNamedScript(text: string): string[] | undefined {
 export function headlineScript(text: string): string[] | undefined {
   const first = text.split('\n').find((line) => line.trim()) ?? ''
   return mostNamedScript(first)
+}
+
+/** The script a question is about: a bundled script or pack it names, else the page's script. */
+function scriptScope(query: string, page: FactsPage, zh: boolean): { ids: string[]; name: string } | null {
+  const editionId = mentionedEntities(query).editionIds[0]
+  const bundled = editionId ? initialScripts.find((s) => s.slug === editionId) : undefined
+  if (bundled) return { ids: bundled.characters, name: zh ? `《${bundled.titleZh || bundled.title}》` : bundled.title }
+  if (editionId) return { ids: allCharacterFiles.filter((c) => c.edition === editionId).map((c) => c.id), name: editionLabels[zh ? 'zh' : 'en'][editionId] ?? editionId }
+  if (page.characterIds?.length) return { ids: page.characterIds, name: zh ? '当前剧本' : 'the current script' }
+  return null
 }
 
 /** The bundled script the question names, or a follow-up's earlier one ("它", "第一个"), else the page's script. */
@@ -231,7 +241,11 @@ export function computeRuleFacts(query: string, language: Language, page: FactsP
       : `A Blood on the Clocktower script is a character pool; each game uses part of it. A legal ${shape === 'teensy' ? 'Teensyville (5–6 player)' : 'full'} script built by program from the question's constraints (${row(false, pool.counts)}): Script characters: ${list(pool.characters, false)}. Use it as is, or swap characters while keeping these counts and adding no Travellers.`)
   }
 
-  if (!request) facts.push(...scriptRecommendationFacts(query, language))
+  // Jinxes, night order or "which characters poison" on one script; else advice on choosing one.
+  const scope = !request && !mentionedEntities(query).characterIds.length ? scriptScope(query, page, zh) : null
+  const onScript = scope ? scriptQueryFacts(query, language, scope) : []
+  facts.push(...onScript)
+  if (!request && !onScript.length) facts.push(...scriptRecommendationFacts(query, language))
 
   // "这套配置里每个角色的能力是什么": the characters of the last answer, with their real text,
   // so the model does not repeat what it made up before.
