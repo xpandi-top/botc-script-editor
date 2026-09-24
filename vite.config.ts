@@ -1,6 +1,13 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import { execSync } from 'node:child_process'
+
+// The commit a build came from, for AI answer traces (src/lib/ai/trace.ts).
+function buildId(): string {
+  if (process.env.GITHUB_SHA) return process.env.GITHUB_SHA.slice(0, 7)
+  try { return execSync('git rev-parse --short HEAD', { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim() } catch { return 'unknown' }
+}
 
 export default defineConfig(({ command, mode, isPreview }) => {
   const isNative = mode === 'native'
@@ -18,6 +25,7 @@ export default defineConfig(({ command, mode, isPreview }) => {
   }
 
   return {
+    define: { __BUILD_ID__: JSON.stringify(buildId()) },
     test: {
       environment: 'jsdom',
       setupFiles: ['src/test/setup.ts'],
@@ -25,7 +33,7 @@ export default defineConfig(({ command, mode, isPreview }) => {
       // Tests opt in to the API (vi.stubEnv); the build default is the public worker.
       env: { VITE_API_URL: 'off' },
       // worker/ has its own package and test runner (cd worker && npm test)
-      exclude: ['**/node_modules/**', '**/dist/**', 'e2e/**', 'worker/**'],
+      exclude: ['**/node_modules/**', '**/dist/**', 'e2e/**', 'worker/**', '.claude/**'],
       coverage: {
         provider: 'v8',
         reporter: ['text', 'html'],

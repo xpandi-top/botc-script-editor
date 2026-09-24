@@ -12,8 +12,11 @@ import {
 } from '../../lib/fillLog'
 import { getWebLlmState, resumeWebLlm, subscribeWebLlm, unloadWebLlm } from '../../lib/ai/runtime/webllm'
 import { getHostedStatus, HOSTED_INPUT_BUDGET } from '../../lib/ai/runtime/hosted'
-import { answerLocally } from '../../lib/ai/localAnswer'
+import { answerLocally, loadCharacterGuides } from '../../lib/ai/localAnswer'
+import { getAbilityText, getDisplayName } from '../../catalog'
 import { initWikiSearch } from '../../lib/wikiSearch'
+import { BUILD_ID, emptyMeta, PROMPT_VERSION, type AnswerRoute, type AnswerTrace, type RetrievalMeta } from '../../lib/ai/trace'
+import { feedbackItem, flushFeedback, sendFeedback, type FeedbackMessage, type FeedbackRating, type FeedbackReason } from '../../lib/ai/feedback'
 import { checkAnswer } from '../../lib/ai/answerCheck'
 import { useT } from '../../context/I18nContext'
 import { storePair } from '../../lib/translationMemory'
@@ -160,29 +163,39 @@ export function useAiPanel({ open, context, callbacks }: UseAiPanelOptions) {
     const previousQueries = messages.filter((m) => m.role === 'user').map((m) => m.content)
     const lastAnswer = [...messages].reverse().find((m) => m.role === 'assistant')?.content
     const zh = effectiveCtx.language === 'zh'
+    const started = performance.now()
+    const trace = (route: AnswerRoute, meta: RetrievalMeta, extra: Partial<AnswerTrace> = {}): AnswerTrace => ({
+      ...meta, ...extra,
+      at: new Date().toISOString(), build: BUILD_ID, promptVersion: PROMPT_VERSION, route,
+      provider: latestSettings.provider, model: latestSettings.model, language: effectiveCtx.language,
+      contextType: effectiveCtx.type, latencyMs: Math.round(performance.now() - started),
+    })
     // Offline answers quote the wiki, so wait for its index (cached after the first load).
-    const local = async () => { await initWikiSearch(); return answerLocally(effectiveCtx, text, previousQueries, lastAnswer) }
-    const reply = (content: string) => {
-      setMessages((m) => [...m, { id: crypto.randomUUID(), role: 'assistant', content, local: true }])
+    const local = async () => {
+      const [, guides] = await Promise.all([initWikiSearch(), loadCharacterGuides(text, effectiveCtx.language, previousQueries)])
+      return answerLocally(effectiveCtx, text, previousQueries, lastAnswer, guides)
+    }
+    const reply = (content: string, answerTrace: AnswerTrace) => {
+      setMessages((m) => [...m, { id: crypto.randomUUID(), role: 'assistant', content, local: true, trace: answerTrace }])
       setLoading(false)
       setTimeout(() => inputRef.current?.focus(), 50)
     }
     // Offline with an online model selected: local data right away, no request to wait on.
     if (latestSettings.provider !== 'webllm' && typeof navigator !== 'undefined' && navigator.onLine === false) {
       const answer = await local()
-      reply(`${answer.message}\n\n_${zh ? '当前离线，以上为本地资料。' : 'Offline; this is local data only.'}_`)
+      reply(`${answer.message}\n\n_${zh ? '当前离线，以上为本地资料。' : 'Offline; this is local data only.'}_`, trace('offline', answer.meta))
       return
     }
     // Local mode: what the program answers exactly (counts, line-ups, official text,
     // script facts) never goes to the model — a small model gets numbers wrong.
     if (latestSettings.provider === 'webllm') {
       const answer = await local()
-      if (answer.definitive) { reply(answer.message); return }
+      if (answer.definitive) { reply(answer.message, trace('program', answer.meta)); return }
       if (!modelReady(latestSettings)) {
         const loadingModel = localState.status === 'loading'
         reply(`${answer.message}\n\n_${loadingModel
           ? (zh ? `本地模型加载中（${Math.round(localState.progress * 100)}%），以上为本地资料；加载完成后可回答解释类问题。` : `The local model is loading (${Math.round(localState.progress * 100)}%); this is local data only.`)
-          : (zh ? '本地模型尚未下载或加载，以上为本地资料；加载模型后可回答解释类问题。' : 'The local model is not loaded; this is local data only. Load it for explanations.')}_`)
+          : (zh ? '本地模型尚未下载或加载，以上为本地资料；加载模型后可回答解释类问题。' : 'The local model is not loaded; this is local data only. Load it for explanations.')}_`, trace('fallback', answer.meta, { error: loadingModel ? 'model loading' : 'model not loaded' }))
         return
       }
     }
@@ -191,13 +204,14 @@ export function useAiPanel({ open, context, callbacks }: UseAiPanelOptions) {
         ? (zh ? 'BOTC 在线 AI 暂不可用' : 'The BOTC online AI is not available')
         : (zh ? '未填写 API Key' : 'No API key')
       const answer = await local()
-      reply(`${answer.message}\n\n_${why}${zh ? '，以上为本地资料。' : '; this is local data only.'}_`)
+      reply(`${answer.message}\n\n_${why}${zh ? '，以上为本地资料。' : '; this is local data only.'}_`, trace('fallback', answer.meta, { error: latestSettings.provider === 'botc' ? 'hosted unavailable' : 'no key' }))
       return
     }
 
     let result: Awaited<ReturnType<typeof callAi>>
+    const meta = emptyMeta()
     try {
-      const systemPrompt = await prepareSystemPrompt(effectiveCtx, text, previousQueries, { local: latestSettings.provider === 'webllm', inputBudget: latestSettings.provider === 'botc' ? HOSTED_INPUT_BUDGET : undefined, lastAnswer })
+      const systemPrompt = await prepareSystemPrompt(effectiveCtx, text, previousQueries, { local: latestSettings.provider === 'webllm', inputBudget: latestSettings.provider === 'botc' ? HOSTED_INPUT_BUDGET : undefined, lastAnswer, meta })
       result = await callAi({ systemPrompt, history, settings: latestSettings, temperature: 0.6 })
     } catch (error) {
       result = { ok: false, error: error instanceof Error ? error.message : String(error) }
@@ -207,10 +221,24 @@ export function useAiPanel({ open, context, callbacks }: UseAiPanelOptions) {
       const { response } = result
       // Line-ups and scripts in the answer are checked; illegal ones get the program's legal version.
       const checked = checkAnswer(effectiveCtx, text, response.message, previousQueries, lastAnswer)
+      // A small local model often garbles who an ability affects: its explanation of
+      // one or two characters ends with their official text.
+      if (latestSettings.provider === 'webllm' && meta.characters.length && meta.characters.length <= 2) {
+        const missing = meta.characters.filter((id) => !checked.text.includes(getAbilityText(id, effectiveCtx.language) ?? '\u0000'))
+        if (missing.length) {
+          checked.text += `\n\n---\n**${zh ? '能力原文' : 'Official text'}**：\n${missing.map((id) => `- ${getDisplayName(id, effectiveCtx.language)}：${getAbilityText(id, effectiveCtx.language)}`).join('\n')}`
+          checked.notes = [...(checked.notes ?? []), 'ability-text']
+        }
+      }
       const msgId = crypto.randomUUID()
+      const answerTrace = trace('model', meta, {
+        ...(checked.notes?.length ? { checks: checked.notes } : {}),
+        ...(result.steps ? { tools: result.steps.map(({ tool, ok }) => ({ tool, ok })) } : {}),
+        ...(result.usage?.neurons !== undefined ? { neurons: result.usage.neurons } : {}),
+      })
       setMessages((m) => [
         ...m,
-        { id: msgId, role: 'assistant', content: checked.text, fills: response.fills, appliedFills: [], ...(result.steps ? { steps: result.steps, remaining: result.remaining } : {}) },
+        { id: msgId, role: 'assistant', content: checked.text, fills: response.fills, appliedFills: [], trace: answerTrace, ...(result.steps ? { steps: result.steps, remaining: result.remaining } : {}) },
       ])
       if (autoApply && response.fills?.length) {
         response.fills.forEach((fill) => {
@@ -223,7 +251,7 @@ export function useAiPanel({ open, context, callbacks }: UseAiPanelOptions) {
       setMessages((m) => [
         ...m,
         { id: crypto.randomUUID(), role: 'error', content: NETWORK_ERROR.test(result.error) ? (zh ? '无法连接在线 AI（网络不可用或请求被拦截）。' : 'Could not reach the online AI (no network, or the request was blocked).') : result.error },
-        ...(fallback.found ? [{ id: crypto.randomUUID(), role: 'assistant' as const, content: fallback.message, local: true }] : []),
+        ...(fallback.found ? [{ id: crypto.randomUUID(), role: 'assistant' as const, content: fallback.message, local: true, trace: trace('fallback', fallback.meta, { error: result.error.slice(0, 200) }) }] : []),
       ])
     }
 
@@ -243,6 +271,49 @@ export function useAiPanel({ open, context, callbacks }: UseAiPanelOptions) {
   }, [fillLog])
 
   const clearMessages = useCallback(() => setMessages([]), [])
+
+  // ── Feedback (src/lib/ai/feedback.ts) ───────────────────────────────────────
+  const [notice, setNotice] = useState<string | null>(null)
+  const feedbackContext = useCallback(() => ({ type: effectiveCtx.type, title: effectiveCtx.title, ...(effectiveCtx.characterIds?.length ? { script: effectiveCtx.characterIds } : {}) }), [effectiveCtx])
+  const asFeedback = (list: AiMessage[]): FeedbackMessage[] => list
+    .filter((m): m is AiMessage & { role: 'user' | 'assistant' } => m.role !== 'error')
+    .map((m) => ({ role: m.role, content: m.content, ...(m.trace ? { trace: m.trace } : {}) }))
+
+  /** Rate one answer; the item carries the question and a few turns before it. */
+  const rateAnswer = useCallback(async (msgId: string, rating: FeedbackRating, reasons: FeedbackReason[] = [], comment?: string) => {
+    const index = messages.findIndex((m) => m.id === msgId)
+    if (index < 0) return
+    const item = feedbackItem({
+      kind: 'answer', rating, reasons, comment, language: effectiveCtx.language, context: feedbackContext(),
+      messages: asFeedback(messages.slice(Math.max(0, index - 6), index + 1)),
+    })
+    setMessages((list) => list.map((m) => m.id === msgId ? { ...m, feedback: { rating, reasons, comment, state: 'queued' } } : m))
+    const state = await sendFeedback(item)
+    setMessages((list) => list.map((m) => m.id === msgId ? { ...m, feedback: { rating, reasons, comment, state } } : m))
+  }, [messages, effectiveCtx.language, feedbackContext])
+
+  /** The whole conversation as one feedback item (what "share" sends). */
+  const conversationItem = useCallback((comment?: string) => feedbackItem({
+    kind: 'conversation', comment, language: effectiveCtx.language, context: feedbackContext(), messages: asFeedback(messages),
+  }), [messages, effectiveCtx.language, feedbackContext])
+
+  /** Send the whole conversation with its diagnostics (and the user's comment) to the feedback form. */
+  const shareConversation = useCallback(async (comment?: string) => {
+    if (!messages.some((m) => m.role !== 'error')) return
+    const zh = effectiveCtx.language === 'zh'
+    const state = await sendFeedback(conversationItem(comment))
+    setNotice({ sent: zh ? '已发送到反馈表单，谢谢' : 'Sent to the feedback form, thanks', queued: zh ? '已保存，联网后发送' : 'Saved; it will be sent when online', local: zh ? '未配置反馈表单，未发送' : 'No feedback form configured; not sent' }[state])
+    setTimeout(() => setNotice(null), 5000)
+  }, [messages, effectiveCtx.language, conversationItem])
+
+  // Feedback given offline goes out once the browser is online again.
+  useEffect(() => {
+    if (!open) return
+    void flushFeedback()
+    const online = () => { void flushFeedback() }
+    window.addEventListener('online', online)
+    return () => window.removeEventListener('online', online)
+  }, [open])
 
 
   return {
@@ -270,5 +341,9 @@ export function useAiPanel({ open, context, callbacks }: UseAiPanelOptions) {
     handleSend,
     downloadLog,
     clearMessages,
+    rateAnswer,
+    shareConversation,
+    conversationItem,
+    notice,
   }
 }

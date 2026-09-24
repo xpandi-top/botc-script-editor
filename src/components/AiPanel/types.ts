@@ -3,6 +3,8 @@
  */
 
 import type { FillAction, AiContext } from '../../lib/ai/types'
+import type { AnswerTrace } from '../../lib/ai/trace'
+import type { FeedbackRating, FeedbackReason, FeedbackState } from '../../lib/ai/feedback'
 
 export type AiPanelVariant = 'side' | 'embedded'
 export type PanelTab = 'chat' | 'skills' | 'log'
@@ -25,6 +27,10 @@ export type AiMessage = {
   remaining?: number | null
   /** Answered from local data without a model (localAnswer.ts). */
   local?: boolean
+  /** How the answer was produced (src/lib/ai/trace.ts). */
+  trace?: AnswerTrace
+  /** The user's rating of this answer, and where it went. */
+  feedback?: { rating: FeedbackRating; reasons: FeedbackReason[]; comment?: string; state: FeedbackState }
 }
 
 export type AiPanelContentProps = {

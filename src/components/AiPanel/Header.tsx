@@ -7,6 +7,7 @@ import CloseIcon         from '@mui/icons-material/Close'
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
 import SettingsIcon      from '@mui/icons-material/Settings'
 import AutoAwesomeIcon   from '@mui/icons-material/AutoAwesome'
+import IosShareIcon      from '@mui/icons-material/IosShare'
 import type { AiPanelVariant } from './types'
 import type { Language } from '../../types'
 import { useT } from '../../context/I18nContext'
@@ -19,12 +20,15 @@ type Props = {
   setShowSettings: (v: boolean | ((prev: boolean) => boolean)) => void
   hasMessages: boolean
   onClear: () => void
+  /** Open the dialog that sends the conversation to the feedback form. */
+  onShare?: () => void
   onClose?: () => void
   language: Language
 }
 
-export function Header({ variant, modeLabel, showSettings, setShowSettings, hasMessages, onClear, onClose }: Props) {
+export function Header({ variant, modeLabel, showSettings, setShowSettings, hasMessages, onClear, onShare, onClose, language }: Props) {
   const { t } = useT()
+  const zh = language === 'zh'
   return (
     <Box sx={{
       px: 1.5, py: 0.75, display: 'flex', alignItems: 'center', gap: 0.5,
@@ -58,6 +62,15 @@ export function Header({ variant, modeLabel, showSettings, setShowSettings, hasM
           <SettingsIcon sx={{ fontSize: 15 }} />
         </IconButton>
       </Tooltip>
+      {onShare && (
+        <Tooltip title={zh ? '把对话和模型信息发送到反馈表单（可加说明）' : 'Send the conversation and model information to the feedback form (with a comment)'}>
+          <span>
+            <IconButton size="small" aria-label={zh ? '分享对话' : 'Share conversation'} onClick={onShare} disabled={!hasMessages} sx={{ p: 0.3 }}>
+              <IosShareIcon sx={{ fontSize: 15 }} />
+            </IconButton>
+          </span>
+        </Tooltip>
+      )}
       <Tooltip title={t('clear_chat')}>
         <span>
           <IconButton size="small" onClick={onClear} disabled={!hasMessages} sx={{ p: 0.3 }}>

@@ -15,6 +15,8 @@ import type { AiContext, FillAction } from '../../lib/ai/types'
 import type { Language } from '../../types'
 import { useT } from '../../context/I18nContext'
 import { MdText } from './MdText'
+import { AnswerFeedback } from './AnswerFeedback'
+import type { FeedbackRating, FeedbackReason } from '../../lib/ai/feedback'
 
 type Props = {
   messages: AiMessage[]
@@ -31,6 +33,10 @@ type Props = {
   canSend: boolean
   /** Shown in the empty chat: the current mode and how to change it. */
   modeHint?: string
+  /** Rate an answer (👍 / 👎); absent where feedback is not offered. */
+  onRate?: (msgId: string, rating: FeedbackRating, reasons?: FeedbackReason[], comment?: string) => void
+  /** A short status line, e.g. after sharing the conversation. */
+  notice?: string | null
   bottomRef: RefObject<HTMLDivElement | null>
   inputRef: RefObject<HTMLInputElement | null>
   language: Language
@@ -85,7 +91,7 @@ function Waiting({ label, zh }: { label: string; zh: boolean }) {
 export function ChatTab({
   messages, loading, input, setInput, autoApply, setAutoApply,
   handleSend, doApplyFill, setMessages, context,
-  canSend, modeHint, bottomRef, inputRef, language,
+  canSend, modeHint, onRate, notice, bottomRef, inputRef, language,
 }: Props) {
   const { t, tpl } = useT()
   const zh = language === 'zh'
@@ -163,6 +169,8 @@ export function ChatTab({
               </Typography>
             ) : null}
 
+            {m.role === 'assistant' && onRate && <AnswerFeedback message={m} zh={zh} onRate={onRate} />}
+
             {/* Fill cards */}
             {m.fills && m.fills.length > 0 && !autoApply && (
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.4, mt: 0.4, ml: 0.5 }}>
@@ -229,6 +237,7 @@ export function ChatTab({
         ))}
 
         {loading && <Waiting label={t('thinking')} zh={zh} />}
+        {notice && <Typography variant="caption" color="success.main" role="status" sx={{ fontSize: '0.68rem' }}>{notice}</Typography>}
         <div ref={bottomRef} />
       </Box>
 
