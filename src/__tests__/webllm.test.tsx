@@ -9,9 +9,11 @@ import { estimateQwenTokens } from '../core/ai/contextBudget'
 import { WebLlmSettings } from '../components/AiPanel/WebLlmSettings'
 import { I18nProvider } from '../context/I18nContext'
 
-const sdk = vi.hoisted(() => ({ reload: vi.fn(), create: vi.fn(), terminate: vi.fn(), cached: vi.fn() }))
+const sdk = vi.hoisted(() => ({ reload: vi.fn(), create: vi.fn(), terminate: vi.fn(), cached: vi.fn(), remove: vi.fn() }))
 vi.mock('@mlc-ai/web-llm', () => ({
   hasModelInCache: sdk.cached,
+  deleteModelAllInfoInCache: sdk.remove,
+  prebuiltAppConfig: { model_list: [{ model_id: 'Qwen3-1.7B-q4f16_1-MLC', model: 'https://huggingface.co/mlc-ai/Qwen3-1.7B-q4f16_1-MLC' }] },
   WebWorkerMLCEngine: class {
     reload = sdk.reload
     chat = { completions: { create: sdk.create } }
@@ -71,6 +73,40 @@ describe('resuming a cached model after a reload', () => {
     sdk.reload.mockClear()
     expect(await resumeWebLlm(model)).toBe(false)
     expect(sdk.reload).not.toHaveBeenCalled()
+  })
+
+  it('tops up a partly cached model only while online', async () => {
+    await loadWebLlm(model)
+    unloadWebLlm()
+    sdk.reload.mockClear()
+    // The manifest is cached, a shard is not: an interrupted download or cache write.
+    sdk.cached.mockResolvedValue(false)
+    const match = vi.fn(async (url: string) => url === 'https://huggingface.co/mlc-ai/Qwen3-1.7B-q4f16_1-MLC/resolve/main/tensor-cache.json' ? new Response('{}') : undefined)
+    vi.stubGlobal('caches', { open: async () => ({ match }) })
+    const onLine = vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false)
+    try {
+      expect(await resumeWebLlm(model)).toBe(false)
+      expect(sdk.reload).not.toHaveBeenCalled()
+      onLine.mockReturnValue(true)
+      expect(await resumeWebLlm(model)).toBe(true)
+      expect(sdk.reload).toHaveBeenCalledTimes(1)
+    } finally {
+      onLine.mockRestore()
+    }
+  })
+})
+
+describe('downloaded model files', () => {
+  it('shows a downloaded model and deletes its files on request', async () => {
+    sdk.cached.mockResolvedValue(true)
+    sdk.remove.mockResolvedValue(undefined)
+    render(<I18nProvider language="zh"><WebLlmSettings model={model} /></I18nProvider>)
+    expect(await screen.findByText('已完整下载到本机，可离线加载')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '加载模型' })).toBeInTheDocument()
+    sdk.cached.mockResolvedValue(false)
+    await act(async () => { fireEvent.click(screen.getByRole('button', { name: '删除模型文件' })) })
+    expect(sdk.remove).toHaveBeenCalledWith(model)
+    await waitFor(() => expect(screen.getByRole('button', { name: '下载并加载模型' })).toBeInTheDocument())
   })
 })
 

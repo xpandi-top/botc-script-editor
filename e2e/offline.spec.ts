@@ -68,3 +68,40 @@ test('loads and answers from local data with no server and no network', async ({
   await ask(page, '新手说书人第一次主持要注意什么？')
   await expect(page.getByText(/来源: |Source: /).first()).toBeVisible()
 })
+
+// Opt-in: downloads Qwen3 0.6B (~0.4 GB) and needs a GPU with shader-f16.
+test('the local model loads from cache and answers with no server and no network', async ({ page, context }) => {
+  test.skip(!process.env.BOTC_E2E_WEBGPU, 'set BOTC_E2E_WEBGPU=1 to run (downloads ~0.4 GB)')
+  test.setTimeout(600_000)
+  await page.addInitScript(() => {
+    localStorage.setItem('botc-tutorial-done', '1')
+    if (!localStorage.getItem('BOTC_AI_SETTINGS')) {
+      localStorage.setItem('BOTC_AI_SETTINGS', JSON.stringify({ provider: 'webllm', model: 'Qwen3-0.6B-q4f16_1-MLC', keys: { groq: '', gemini: '', openrouter: '' } }))
+    }
+  })
+  await startServer()
+  await page.goto(BASE)
+  const gpu = await page.evaluate(async () => (await navigator.gpu?.requestAdapter())?.features.has('shader-f16') ?? false)
+  test.skip(!gpu, 'no GPU with shader-f16')
+  await page.evaluate(async () => { await navigator.serviceWorker.ready })
+  if (!(await page.evaluate(() => Boolean(navigator.serviceWorker.controller)))) await page.reload()
+
+  // Online: download and load once, from the mode chip's settings.
+  await page.getByRole('button', { name: /AI 助手|AI Assistant/ }).click()
+  await page.getByText(/^(本地 · 离线|Local)/).first().click()
+  await page.getByRole('button', { name: /下载并加载模型|Download \/ load model/ }).click()
+  await expect(page.getByText(/本地模型已就绪|Local model ready/)).toBeVisible({ timeout: 480_000 })
+  await expect(page.getByText(/已完整下载到本机|Fully downloaded/)).toBeVisible({ timeout: 30_000 })
+
+  // Offline: the model loads again from the cache by itself and answers an open question.
+  stopServer()
+  await context.setOffline(true)
+  await page.reload()
+  await page.getByRole('button', { name: /AI 助手|AI Assistant/ }).click()
+  await expect(page.getByText(/模型就绪|model ready/).first()).toBeVisible({ timeout: 120_000 })
+  await ask(page, '新手说书人第一次主持要注意什么？')
+  // A model answer, not the program's "本地资料（未使用模型生成）".
+  await expect(page.getByText(/^1\.$|^1\. /).first()).toBeVisible({ timeout: 180_000 })
+  await expect(page.getByText(/本地资料（未使用模型生成）|From local data \(no model\)/)).toHaveCount(0)
+})
+
