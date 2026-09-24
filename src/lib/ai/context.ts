@@ -179,6 +179,9 @@ function serializeScriptForPrompt(input: ScriptInput): string {
   if (script.edition) lines.push((t('edition')) + script.edition)
   lines.push((t('total_characters')) + script.characters.length)
   lines.push(zh ? TYPICAL_COMPOSITION.zh : TYPICAL_COMPOSITION.en)
+  // In the first paragraph, which context selection always keeps: the full
+  // roster by id, so jinx / night-order / validation lookups see every character.
+  lines.push((zh ? '角色 id: ' : 'Character ids: ') + script.characters.join(', '))
 
   // Group by team
   const grouped: Partial<Record<Team, string[]>> = {}
@@ -198,7 +201,7 @@ function serializeScriptForPrompt(input: ScriptInput): string {
     for (const id of ids) {
       const name    = getDisplayName(id, language)
       const ability = getAbilityTextForScript(id, language, script.pinnedRevisions)
-      lines.push(`  ${name}: ${ability}`)
+      lines.push(`  ${name} [${id}]: ${ability}`)
     }
   }
 
@@ -343,7 +346,7 @@ function serializeStorytellerForPrompt(input: StorytellerInput): string {
     for (const id of stFabledIds) {
       const name    = getDisplayName(id, language)
       const ability = getAbilityTextForScript(id, language, pinnedRevisions)
-      lines.push(`  ${name}: ${ability}`)
+      lines.push(`  ${name} [${id}]: ${ability}`)
     }
   }
   if (stCustomRules?.trim()) {
@@ -484,7 +487,7 @@ function serializeGameLog(input: GameLogInput): string {
     for (const id of rosterIds) {
       const name    = getDisplayName(id, language)
       const ability = getAbilityTextForScript(id, language, pinnedRevisions)
-      lines.push(`  ${name}: ${ability}`)
+      lines.push(`  ${name} [${id}]: ${ability}`)
     }
   }
 

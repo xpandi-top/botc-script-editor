@@ -11,7 +11,7 @@ import {
   type FillLogEntry,
 } from '../../lib/fillLog'
 import { getWebLlmState, subscribeWebLlm, unloadWebLlm } from '../../lib/ai/runtime/webllm'
-import { getHostedStatus } from '../../lib/ai/runtime/hosted'
+import { getHostedStatus, HOSTED_INPUT_BUDGET } from '../../lib/ai/runtime/hosted'
 import { useT } from '../../context/I18nContext'
 import { storePair } from '../../lib/translationMemory'
 import { prepareSystemPrompt, callAi } from '../../lib/ai'
@@ -140,7 +140,7 @@ export function useAiPanel({ open, context, callbacks }: UseAiPanelOptions) {
 
     let result: Awaited<ReturnType<typeof callAi>>
     try {
-      const systemPrompt = await prepareSystemPrompt(effectiveCtx, text, messages.filter((m) => m.role === 'user').map((m) => m.content), { local: latestSettings.provider === 'webllm' })
+      const systemPrompt = await prepareSystemPrompt(effectiveCtx, text, messages.filter((m) => m.role === 'user').map((m) => m.content), { local: latestSettings.provider === 'webllm', inputBudget: latestSettings.provider === 'botc' ? HOSTED_INPUT_BUDGET : undefined })
       result = await callAi({ systemPrompt, history, settings: latestSettings, temperature: 0.6 })
     } catch (error) {
       result = { ok: false, error: error instanceof Error ? error.message : String(error) }

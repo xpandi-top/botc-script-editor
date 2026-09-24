@@ -150,3 +150,21 @@ describe('hosted AI in the panel', () => {
     await waitFor(() => expect(screen.getByText(/暂未提供 AI/)).toBeInTheDocument())
   })
 })
+
+describe('prompt budget for the hosted runtime', () => {
+  it('keeps the whole script roster, and more page context than the Groq budget', async () => {
+    const { buildScriptContext } = await import('../lib/ai/context')
+    const { buildSystemPrompt } = await import('../lib/ai/prompts')
+    const { initialScripts } = await import('../catalog')
+    const { estimateTokens } = await import('../core/ai/contextBudget')
+    const { HOSTED_INPUT_BUDGET } = await import('../lib/ai/runtime/hosted')
+    const script = initialScripts.find((s) => s.slug === 'al_vs_al') ?? initialScripts.find((s) => s.characters.length > 20)!
+    const ctx = buildScriptContext({ script, language: 'zh' })
+    const groq = buildSystemPrompt(ctx, '这个剧本里有哪些相克规则？')
+    const hostedPrompt = buildSystemPrompt(ctx, '这个剧本里有哪些相克规则？', { inputBudget: HOSTED_INPUT_BUDGET })
+    for (const prompt of [groq, hostedPrompt]) expect(prompt).toContain(`角色 id: ${script.characters.join(', ')}`)
+    const abilityLines = (prompt: string) => prompt.split('\n').filter((line) => /^ {2}\S.* \[[a-z_]+\]: /.test(line)).length
+    expect(abilityLines(hostedPrompt)).toBeGreaterThan(abilityLines(groq))
+    expect(estimateTokens(hostedPrompt)).toBeLessThanOrEqual(HOSTED_INPUT_BUDGET)
+  })
+})

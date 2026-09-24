@@ -539,6 +539,8 @@ export function buildSystemPrompt(ctx: AiContext, query?: string, options?: {
   previousQueries?: string[]
   retrieval?: CatalogRetrieval
   almanac?: string
+  /** Estimated input tokens the runtime accepts (default: the Groq budget); page context scales with it. */
+  inputBudget?: number
 }): string {
   const zh   = ctx.language === 'zh'
   const retrieval = options?.retrieval ?? retrieveCatalog(query ?? ctx.title, ctx.language, options?.previousQueries)
@@ -547,7 +549,9 @@ export function buildSystemPrompt(ctx: AiContext, query?: string, options?: {
   const references = wikiSection(searchQuery, zh)
   const wiki = catalog ? `${catalog}\n\n${selectContext(references, searchQuery, 350)}` : references
   const source = ctx.serialized ?? serializeContext(ctx)
-  const contextBudget = catalog ? 600 : 1800
+  const inputBudget = options?.inputBudget ?? GROQ_INPUT_BUDGET
+  const scale = inputBudget / GROQ_INPUT_BUDGET
+  const contextBudget = Math.round((catalog ? 600 : 1800) * scale)
   ctx = { ...ctx, serialized: selectContext(source, searchQuery, contextBudget) }
 
   const render = () => {
@@ -561,7 +565,7 @@ export function buildSystemPrompt(ctx: AiContext, query?: string, options?: {
     }
   }
   const prompt = render()
-  const target = Math.min(4600, GROQ_INPUT_BUDGET - estimateTokens(query ?? '') - 64)
+  const target = Math.min(Math.round(4600 * scale), inputBudget - estimateTokens(query ?? '') - 64)
   const excess = estimateTokens(prompt) - target
   if (excess > 0) {
     ctx = { ...ctx, serialized: selectContext(source, searchQuery, Math.max(0, contextBudget - excess - 32)) }
@@ -571,7 +575,7 @@ export function buildSystemPrompt(ctx: AiContext, query?: string, options?: {
 }
 
 /** Resolve entities before gathering passages; local mode does not require a Wiki fetch. */
-export async function prepareSystemPrompt(ctx: AiContext, query: string, previousQueries: string[] = [], options?: { local?: boolean }): Promise<string> {
+export async function prepareSystemPrompt(ctx: AiContext, query: string, previousQueries: string[] = [], options?: { local?: boolean; inputBudget?: number }): Promise<string> {
   const retrieval = await resolveCatalogQuery(query, ctx.language, previousQueries)
   const [, almanac] = await Promise.all([options?.local ? Promise.resolve(false) : initWikiSearch(), retrieveAlmanac(retrieval, ctx.language)])
   if (options?.local) {
@@ -590,5 +594,5 @@ ${facts}
 
 ${page}`
   }
-  return buildSystemPrompt(ctx, query, { retrieval, almanac })
+  return buildSystemPrompt(ctx, query, { retrieval, almanac, inputBudget: options?.inputBudget })
 }
