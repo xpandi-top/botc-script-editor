@@ -111,7 +111,7 @@ export type UiKey =
   | 'select_pick' | 'select_traveler' | 'none_assigned' | 'confirm_yes'
   | 'night_st_status' | 'all_days' | 'day_short' | 'ability_short'
   | 'vote_short' | 'vote_count' | 'win_short' | 'result'
-  | 'calculated' | 'actual_short' | 'change_to' | 'n_games_suffix'
+  | 'calculated' | 'actual_short' | 'adjusted_for_setup' | 'setup_checks' | 'change_to' | 'n_games_suffix'
   | 'restore_alive' | 'about_to_die'
   | 'select_script_first' | 'enter_new_filename' | 'script'
   | 'note_optional' | 'note_placeholder' | 'edit_players'

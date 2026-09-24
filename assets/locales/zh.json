@@ -364,6 +364,8 @@
     "result": "结果",
     "calculated": "应有",
     "actual_short": "实",
+    "adjusted_for_setup": "修正",
+    "setup_checks": "排板提醒",
     "change_to": "变更为",
     "n_games_suffix": " 局",
     "restore_alive": "恢复存活",

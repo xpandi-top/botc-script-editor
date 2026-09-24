@@ -18,12 +18,19 @@ export function TeamDot({ team }: { team: string | null | undefined }) {
   return <Chip size="small" label={team} color={color as ChipProps['color']} sx={{ height: 20, fontSize: '0.65rem' }} />
 }
 
-export function DistRow({ label, counts, calc }: {
+export function DistRow({ label, counts, calc, expected, display }: {
   label: string
   counts: DistributionCounts
   calc?: DistributionCounts
+  /** Allowed range per type (setup abilities); used instead of `calc` to mark mismatches. */
+  expected?: Record<keyof DistributionCounts, [number, number]>
+  /** Chip text per type instead of the count, e.g. "0–1". */
+  display?: Partial<Record<keyof DistributionCounts, string>>
 }) {
-  const match = (k: keyof typeof counts) => calc && counts[k] === calc[k]
+  const match = (k: keyof typeof counts) => expected
+    ? counts[k] >= expected[k][0] && counts[k] <= expected[k][1]
+    : calc && counts[k] === calc[k]
+  const checked = Boolean(expected || calc)
   const keys = ['townsfolk', 'outsider', 'minion', 'demon'] as const
   const colors = ['primary', 'info', 'error', 'error'] as const
   return (
@@ -33,10 +40,10 @@ export function DistRow({ label, counts, calc }: {
         <Chip 
           key={k} 
           size="small" 
-          label={counts[k]} 
+          label={display?.[k] ?? counts[k]} 
           color={colors[i]} 
-          variant={calc && !match(k) ? 'outlined' : 'filled'}
-          sx={{ width: 28, height: 22, fontSize: '0.7rem' }}
+          variant={checked && !match(k) ? 'outlined' : 'filled'}
+          sx={{ width: 28, height: 22, fontSize: '0.7rem', ...(display && { '& .MuiChip-label': { px: 0 } }) }}
         />
       ))}
     </Box>

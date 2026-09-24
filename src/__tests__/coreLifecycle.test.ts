@@ -182,16 +182,30 @@ describe('core/engine/alignment', () => {
 })
 
 describe('core/engine/setup', () => {
-  it('draws the official distribution without repeats', () => {
+  it('draws the official distribution without repeats, with the Baron\'s Outsiders', () => {
     const script = Object.keys(TEAMS)
-    for (const playerCount of [5, 7, 9]) {
-      const a = drawRandomAssignments({ playerCount, scriptCharacters: script, getTeam, rng: seeded(playerCount) })
+    for (let seed = 1; seed <= 40; seed++) {
+      const playerCount = [5, 7, 9][seed % 3]
+      const a = drawRandomAssignments({ playerCount, scriptCharacters: script, getTeam, rng: seeded(seed) })
       const ids = Object.values(a)
       expect(Object.keys(a)).toHaveLength(playerCount)
       expect(new Set(ids).size).toBe(ids.length)
       const counts = { townsfolk: 0, outsider: 0, minion: 0, demon: 0 } as Record<string, number>
       for (const id of ids) counts[TEAMS[id]]++
-      expect(counts).toEqual(CHARACTER_DISTRIBUTION[playerCount])
+      const base = CHARACTER_DISTRIBUTION[playerCount]
+      // [+2 Outsiders], as far as the script's three Outsiders go.
+      const shift = ids.includes('baron') ? Math.min(2, 3 - base.outsider) : 0
+      expect(counts).toEqual({ ...base, outsider: base.outsider + shift, townsfolk: base.townsfolk - shift })
+    }
+  })
+
+  it('seats the Marionette next to the Demon', () => {
+    const teams: Record<string, Team> = { ...TEAMS, marionette: 'minion' }
+    for (let seed = 1; seed <= 30; seed++) {
+      const a = drawRandomAssignments({ playerCount: 9, scriptCharacters: ['chef', 'empath', 'monk', 'washerwoman', 'librarian', 'investigator', 'butler', 'recluse', 'marionette', 'imp'], getTeam: (id) => teams[id], rng: seeded(seed) })
+      const seat = (id: string) => Number(Object.entries(a).find(([, c]) => c === id)![0])
+      const gap = Math.abs(seat('marionette') - seat('imp'))
+      expect([1, 8]).toContain(gap)
     }
   })
 

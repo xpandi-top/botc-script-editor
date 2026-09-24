@@ -35,11 +35,30 @@ export const SETUP_OUTSIDER_SHIFTS: Record<string, number[]> = {
   fanggu: [1],
   vigormortis: [-1],
   balloonist: [0, 1],
+  hermit: [0, -1],
+  // Odyssey
+  chimera: [-1],
+  constable: [1],
+  cyclops: [1],
+  dark_knight: [1],
+  herald: [1],
+  kitsune: [-1, 1],
+  skeleton_king: [1],
+  // 华灯初上
+  ganshiren: [-1],
+  qiongqi: [1],
+  taotie: [1],
 }
+
+/** Characters that sit next to the Demon ([You neighbor the Demon]). */
+export const NEIGHBORS_DEMON = ['marionette', 'doll']
 
 /**
  * Deal the official distribution for `playerCount` at random from the
  * script's characters (restricted to `charPool` when it is non-empty).
+ * The Demon and Minions are drawn first, so their setup abilities
+ * ([+2 Outsiders] …, SETUP_OUTSIDER_SHIFTS) set how many Outsiders are
+ * dealt; a Marionette is then seated next to the Demon.
  * Returns seat → character id; seats are left out when a team has no
  * candidates. Characters repeat only once a team's pool is exhausted.
  */
@@ -56,16 +75,42 @@ export function drawRandomAssignments(opts: {
   const byTeam: Record<string, string[]> = { townsfolk: [], outsider: [], minion: [], demon: [] }
   const pool: string[] = opts.charPool ?? []
   for (const cid of opts.scriptCharacters) { const team = opts.getTeam(cid); if (team && byTeam[team]) { if (pool.length === 0 || pool.includes(cid)) byTeam[team].push(cid) } }
-  const teamPool: Team[] = []
-  for (const { team, count } of [{ team: 'townsfolk' as Team, count: dist.townsfolk }, { team: 'outsider' as Team, count: dist.outsider }, { team: 'minion' as Team, count: dist.minion }, { team: 'demon' as Team, count: dist.demon }]) { for (let i = 0; i < count; i++) teamPool.push(team) }
-  const shuffledTeams = shuffleArray(teamPool, rng)
   const usedChars = new Set<string>()
-  const assignments: Record<number, string> = {}
-  for (let i = 0; i < opts.playerCount; i++) {
-    const teamChars = byTeam[shuffledTeams[i]] || []
+  const draw = (team: Team, count: number): Array<string | undefined> => Array.from({ length: count }, () => {
+    const teamChars = byTeam[team] || []
     const eligible = teamChars.filter((c) => !usedChars.has(c))
-    const picked = (eligible.length > 0 ? eligible : teamChars)[Math.floor(rng() * (eligible.length > 0 ? eligible : teamChars).length)]
-    if (picked) { assignments[i + 1] = picked; usedChars.add(picked) }
+    const from = eligible.length > 0 ? eligible : teamChars
+    const picked = from[Math.floor(rng() * from.length)]
+    if (picked) usedChars.add(picked)
+    return picked
+  })
+  const demons = draw('demon', dist.demon)
+  const minions = draw('minion', dist.minion)
+  let outsiders = dist.outsider
+  for (const id of [...demons, ...minions]) {
+    const options = (id ? SETUP_OUTSIDER_SHIFTS[id] ?? [] : []).filter((shift) => outsiders + shift >= 0 && outsiders + shift <= dist.outsider + dist.townsfolk)
+    if (options.length) outsiders += options[Math.floor(rng() * options.length)]
+  }
+  // Never deal the same Outsider twice to make up a shift the script cannot supply.
+  if (byTeam.outsider.length) outsiders = Math.min(outsiders, Math.max(dist.outsider, byTeam.outsider.length))
+  const townsfolk = opts.playerCount - dist.demon - dist.minion - outsiders
+  const dealt = shuffleArray([...draw('townsfolk', townsfolk), ...draw('outsider', outsiders), ...minions, ...demons], rng)
+  const assignments: Record<number, string> = {}
+  dealt.forEach((cid, i) => { if (cid) assignments[i + 1] = cid })
+
+  const seats = Object.keys(assignments).map(Number)
+  const demonSeat = seats.find((seat) => opts.getTeam(assignments[seat]) === 'demon')
+  if (demonSeat !== undefined) {
+    const next = (seat: number, step: number) => ((seat - 1 + step + opts.playerCount) % opts.playerCount) + 1
+    for (const seat of seats.filter((s) => NEIGHBORS_DEMON.includes(assignments[s]))) {
+      const beside = [next(demonSeat, -1), next(demonSeat, 1)]
+      if (beside.includes(seat)) continue
+      const target = beside.find((s) => !NEIGHBORS_DEMON.includes(assignments[s])) ?? beside[0]
+      const moved = assignments[target]
+      assignments[target] = assignments[seat]
+      if (moved) assignments[seat] = moved
+      else delete assignments[seat]
+    }
   }
   return assignments
 }

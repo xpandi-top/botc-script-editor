@@ -364,6 +364,8 @@
     "result": "Result",
     "calculated": "Calc",
     "actual_short": "Act",
+    "adjusted_for_setup": "Adj",
+    "setup_checks": "Setup checks",
     "change_to": "Change to",
     "n_games_suffix": " games",
     "restore_alive": "Restore alive",
