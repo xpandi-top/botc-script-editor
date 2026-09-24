@@ -7,8 +7,9 @@ import path from 'node:path'
 import { afterAll, beforeAll, describe } from 'vitest'
 import { getPlatformProxy } from 'wrangler'
 import { D1EmbeddingStore } from '../src/ai/embeddings'
+import { D1QuotaStore } from '../src/ai/quota'
 import { D1LibraryStore } from '../src/library/store'
-import { embeddingStoreContract } from './aiStoreContract'
+import { embeddingStoreContract, quotaStoreContract } from './aiStoreContract'
 import { libraryStoreContract } from './storeContract'
 
 let proxy: Awaited<ReturnType<typeof getPlatformProxy<{ DB: D1Database }>>>
@@ -40,4 +41,8 @@ describe('D1LibraryStore (local D1)', () => {
 
 describe('D1EmbeddingStore (local D1)', () => {
   embeddingStoreContract(async () => new D1EmbeddingStore(await freshDb()))
+})
+
+describe('D1QuotaStore (local D1)', () => {
+  quotaStoreContract(async () => new D1QuotaStore(await freshDb()))
 })

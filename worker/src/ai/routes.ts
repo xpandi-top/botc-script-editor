@@ -1,7 +1,8 @@
 /**
- * P5 hosted AI routes: semantic character search and service status.
- * Everything here needs the Workers AI binding (env.AI); without it the
- * routes answer 503 so the web app falls back to its local search.
+ * P5 hosted AI routes: chat with this project's MCP tools, semantic
+ * character search and service status. Everything here needs the Workers AI
+ * binding (env.AI); without it the routes answer 503 so the web app falls
+ * back to its own key or local search.
  */
 import { Hono, type Context } from 'hono'
 import { SCRIPT_TEAMS } from '../../../src/core/script/validate'
@@ -12,13 +13,48 @@ import { InputError } from '../scripts'
 import { characterView, parseLang, type Lang } from '../views'
 import { D1EmbeddingStore, embeddingStatus, findSimilar, MemoryEmbeddingStore, workersAiEmbedder, type EmbeddingStore, type SemanticDeps } from './embeddings'
 import type { Neighbor } from '../../../src/core/ai/vectors'
+import { AuthError, authenticate } from '../library/auth'
+import type { LibraryDeps } from '../library/routes'
+import { buildMcpServer } from '../mcp'
+import { runAgent, TOOL_GUIDE } from './agent'
+import { workersAiChat, type ChatMessage } from './chat'
 import { chatModelOf, embedModelOf } from './models'
+import { D1QuotaStore, MemoryQuotaStore, quotaLimits, takeQuota, type QuotaStore } from './quota'
+import { connectTools } from './tools'
 
 export type AiAppOptions = {
   /** Where vectors are kept; defaults to D1 (env.DB), else a per-isolate memory store. */
   embeddingStoreFor?: (env: Env) => EmbeddingStore
+  /** Daily chat counters; defaults to D1 (env.DB), else a per-isolate memory store. */
+  quotaStoreFor?: (env: Env) => QuotaStore
   now?: () => number
 }
+
+const DEFAULT_SYSTEM = `You are the assistant in BOTC Companion, a Blood on the Clocktower script editor and storyteller tool. Help with characters, scripts, rules and running games. Answer in the user's language (Chinese or English), concisely.`
+
+const LIMITS = { messages: 40, messageChars: 20_000, systemChars: 30_000, totalChars: 100_000 }
+
+type ChatBody = { system?: string; messages: Array<{ role: 'user' | 'assistant'; content: string }>; temperature?: number; tools?: boolean }
+
+function parseChatBody(body: unknown): ChatBody {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) throw new InputError('Request body must be a JSON object.')
+  const { system, messages, temperature, tools } = body as Record<string, unknown>
+  if (system !== undefined && (typeof system !== 'string' || system.length > LIMITS.systemChars)) throw new InputError(`"system" must be a string of at most ${LIMITS.systemChars} characters.`)
+  if (!Array.isArray(messages) || messages.length === 0 || messages.length > LIMITS.messages) throw new InputError(`"messages" must be an array of 1 to ${LIMITS.messages} messages.`)
+  for (const m of messages) {
+    if (!m || (m.role !== 'user' && m.role !== 'assistant') || typeof m.content !== 'string' || !m.content.trim() || m.content.length > LIMITS.messageChars) {
+      throw new InputError(`Each message needs "role" (user | assistant) and non-empty "content" of at most ${LIMITS.messageChars} characters.`)
+    }
+  }
+  if (messages[messages.length - 1].role !== 'user') throw new InputError('The last message must be from the user.')
+  const total = (system?.length ?? 0) + messages.reduce((n: number, m: { content: string }) => n + m.content.length, 0)
+  if (total > LIMITS.totalChars) throw new InputError(`The conversation is too long (${total} characters, limit ${LIMITS.totalChars}). Start a new chat.`)
+  if (temperature !== undefined && (typeof temperature !== 'number' || temperature < 0 || temperature > 1.5)) throw new InputError('"temperature" must be a number from 0 to 1.5.')
+  if (tools !== undefined && typeof tools !== 'boolean') throw new InputError('"tools" must be true or false.')
+  return { system: system as string | undefined, messages: messages as ChatBody['messages'], temperature: temperature as number | undefined, tools: tools as boolean | undefined }
+}
+
+const isolateQuota = new MemoryQuotaStore()
 
 type AppContext = Context<{ Bindings: Env }>
 
@@ -52,8 +88,53 @@ export function similarView(neighbors: Neighbor[], lang?: Lang) {
   })
 }
 
-export function buildAiRoutes(options: AiAppOptions = {}) {
+export function buildAiRoutes(options: AiAppOptions = {}, library?: LibraryDeps) {
   const r = new Hono<{ Bindings: Env }>()
+  const now = options.now ?? Date.now
+
+  /**
+   * Hosted chat. The model can call this server's MCP tools (read-only
+   * catalog / rules / script checks, plus script import links). Counted
+   * against the daily caps; a signed-in caller (Authorization: Bearer <PAT or
+   * Google token>) gets the per-user cap instead of the per-IP one.
+   */
+  r.post('/ai/chat', async (c) => {
+    const body = parseChatBody(await c.req.json().catch(() => undefined))
+    if (!c.env.AI) return unavailable(c)
+
+    let userId: string | null = null
+    const authorization = c.req.header('authorization')
+    const libraryStore = authorization && library ? library.storeFor(c.env) : null
+    if (authorization && libraryStore && library) {
+      try {
+        userId = (await authenticate(authorization, c.env, libraryStore, library.verifyGoogle, now()))?.userId ?? null
+      } catch (e) {
+        if (e instanceof AuthError) return c.json({ error: { code: 'unauthorized', message: e.message } }, 401, { 'www-authenticate': 'Bearer' })
+        throw e
+      }
+    }
+
+    const quotaStore = options.quotaStoreFor?.(c.env) ?? (c.env.DB ? new D1QuotaStore(c.env.DB) : isolateQuota)
+    const quota = await takeQuota(quotaStore, { now: now(), ip: c.req.header('cf-connecting-ip') ?? 'unknown', userId, limits: quotaLimits(c.env) })
+    if (!quota.ok) {
+      const message = quota.scope === 'global'
+        ? 'The free AI has reached its daily limit for everyone. Try again tomorrow, or use your own API key in the AI settings.'
+        : `You have used today's ${quota.limit} free AI requests. Try again tomorrow, or use your own API key in the AI settings.`
+      return c.json({ error: { code: 'ai_rate_limited', scope: quota.scope, message } }, 429)
+    }
+
+    const model = chatModelOf(c.env)
+    const tools = body.tools === false ? undefined : await connectTools(buildMcpServer(c.env, undefined, undefined, semanticDepsFor(c.env, options) ?? undefined))
+    try {
+      const system = `${body.system?.trim() || DEFAULT_SYSTEM}${tools ? `\n\n${TOOL_GUIDE}` : ''}`
+      const messages: ChatMessage[] = [{ role: 'system', content: system }, ...body.messages]
+      const run = await runAgent({ chat: workersAiChat(c.env.AI, model), messages, tools, temperature: body.temperature })
+      if (quota.remaining !== null) c.header('x-ai-remaining', String(quota.remaining))
+      return c.json({ text: run.text, steps: run.steps, model, remaining: quota.remaining })
+    } finally {
+      await tools?.close()
+    }
+  })
 
   r.get('/characters/similar', async (c) => {
     const query = c.req.query('q')?.trim()
@@ -77,8 +158,10 @@ export function buildAiRoutes(options: AiAppOptions = {}) {
 
   r.get('/ai/status', async (c) => {
     const deps = semanticDepsFor(c.env, options)
+    const limits = quotaLimits(c.env)
+    const cap = (n: number) => (Number.isFinite(n) ? n : null)
     return c.json({
-      chat: { available: !!c.env.AI, model: c.env.AI ? chatModelOf(c.env) : null },
+      chat: { available: !!c.env.AI, model: c.env.AI ? chatModelOf(c.env) : null, dailyLimits: { global: cap(limits.global), perIp: cap(limits.perIp), perUser: cap(limits.perUser) } },
       embeddings: deps ? { available: true, ...(await embeddingStatus(deps)) } : { available: false },
     })
   })

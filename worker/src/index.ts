@@ -76,7 +76,7 @@ Blood on the Clocktower characters, scripts, jinxes and night order (English + C
 
 ## MCP
 Streamable HTTP endpoint: ${base}/mcp (no authentication)
-Tools: search_characters, get_character, get_jinxes, get_night_order, search_rules, list_scripts, get_script, validate_script, analyze_script, get_token_manifest, create_script_draft
+Tools: search_characters, get_character, find_similar_characters (with AI), get_jinxes, get_night_order, search_rules, list_scripts, get_script, validate_script, analyze_script, get_token_manifest, create_script_draft
 Prompts: design_script, design_character, translate_ability, review_script
 
 ## REST (OpenAPI: ${base}/openapi.json)
@@ -92,6 +92,14 @@ GET  /v1/scripts/{slug}/tokens?lang=
 POST /v1/scripts/validate   {"slug"} or {"script": <official JSON>}
 POST /v1/scripts/analyze    {"slug"} or {"script": <official JSON>}
 POST /v1/scripts/drafts     {"name", "name_zh"?, "author"?, "characters": [ids or custom objects]} → import link for the web app
+
+## Hosted AI (Workers AI; daily limits per IP, or per user with Authorization)
+GET  /v1/ai/status                       models, daily limits, embedding freshness
+POST /v1/ai/chat   {"messages": [{"role","content"}], "system"?, "temperature"?, "tools"?} → {text, steps, remaining}
+     The model can call the MCP tools above (read-only catalog / rules / script checks, create_script_draft).
+GET  /v1/characters/similar?q=&team=&exclude=&limit=&lang=   semantic search (EN/ZH)
+GET  /v1/characters/{id}/similar?team=&limit=&lang=
+MCP tool (when AI is enabled): find_similar_characters
 
 ## Cloud library (Authorization: Bearer <botc_pat_ token or Google access token>)
 GET    /v1/me
@@ -119,7 +127,7 @@ MCP tools: create_game, get_game, run_commands, get_night_script, suggest_night_
   app.route('/v1/me', buildLibraryRoutes(deps))
   app.route('/v1/games', buildGameRoutes({ ...deps, roomFor }))
   // Before buildApi: /v1/characters/similar must not match /v1/characters/:id.
-  app.route('/v1', buildAiRoutes(options))
+  app.route('/v1', buildAiRoutes(options, deps))
   app.route('/v1', buildApi())
   app.route('/v1/auth', buildOAuthRoutes())
 

@@ -29,7 +29,7 @@ const get = (path: string, e: Env = env) => app.request(path, {}, e)
 describe('semantic character search', () => {
   it('is unavailable without Workers AI', async () => {
     const noAi = { APP_URL: env.APP_URL }
-    expect(await j(await get('/v1/ai/status', noAi))).toEqual({ chat: { available: false, model: null }, embeddings: { available: false } })
+    expect(await j(await get('/v1/ai/status', noAi))).toMatchObject({ chat: { available: false, model: null }, embeddings: { available: false } })
     const res = await get('/v1/characters/similar?q=kill', noAi)
     expect(res.status).toBe(503)
     expect((await j(res)).error.code).toBe('ai_unavailable')
@@ -37,7 +37,7 @@ describe('semantic character search', () => {
 
   it('embeds the catalog on first use, then reuses the stored vectors', async () => {
     const before = await j(await get('/v1/ai/status'))
-    expect(before.chat).toEqual({ available: true, model: '@cf/zai-org/glm-4.7-flash' })
+    expect(before.chat).toMatchObject({ available: true, model: '@cf/zai-org/glm-4.7-flash' })
     expect(before.embeddings).toMatchObject({ available: true, model: EMBED_MODEL, embedded: 0 })
     const total = before.embeddings.total
     expect(total).toBeGreaterThan(300)

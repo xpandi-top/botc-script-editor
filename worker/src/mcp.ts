@@ -1,7 +1,8 @@
 /**
  * MCP server (Streamable HTTP, stateless). Tools are thin wrappers over the
  * same core functions as the REST API; the calling agent supplies the
- * reasoning, so the server never calls an LLM (decision D5).
+ * reasoning (decision D5). The hosted chat (/v1/ai/chat) connects to this
+ * same server in-process to give its model these tools.
  */
 import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { CfWorkerJsonSchemaValidator } from '@modelcontextprotocol/sdk/validation/cfworker'
@@ -110,7 +111,7 @@ export function buildMcpServer(env: Env, library?: McpLibraryContext, games?: Mc
   if (semantic) {
     server.registerTool('find_similar_characters', {
       title: 'Find similar characters',
-      description: 'Semantic search: characters whose ability is closest in meaning to a description (English or Chinese), or to an existing character. Use it to find precedents when designing or translating a character, or swap candidates for a script.',
+      description: 'Semantic search: characters whose ability is closest in meaning to a description (English or Chinese), or to an existing character. For characters like a known one, pass its id (find it with search_characters) instead of describing it. Use it to find precedents when designing or translating a character, or swap candidates for a script.',
       inputSchema: {
         query: z.string().max(1000).optional().describe('Describe the effect, e.g. "a minion whose vote counts twice" or "每晚杀两人的恶魔".'),
         id: z.string().optional().describe('Or: an existing character id to find neighbours of.'),

@@ -1,6 +1,7 @@
 /** Shared expectations for the P5 stores (memory and D1). */
 import { describe, it, expect } from 'vitest'
 import type { EmbeddingStore } from '../src/ai/embeddings'
+import type { QuotaStore } from '../src/ai/quota'
 
 export function embeddingStoreContract(make: () => Promise<EmbeddingStore>) {
   describe('EmbeddingStore contract', () => {
@@ -24,6 +25,21 @@ export function embeddingStoreContract(make: () => Promise<EmbeddingStore>) {
       await store.remove('m1', [])
       expect([...(await store.hashes('m1')).keys()]).toEqual(['spy'])
       expect([...(await store.hashes('m2')).keys()]).toEqual(['imp'])
+    })
+  })
+}
+
+export function quotaStoreContract(make: () => Promise<QuotaStore>) {
+  describe('QuotaStore contract', () => {
+    it('counts per day and subject, and prunes old days', async () => {
+      const store = await make()
+      await store.increment('2026-09-22', ['global', 'ip:a'])
+      await store.increment('2026-09-23', ['global', 'ip:a'])
+      await store.increment('2026-09-23', ['global', 'ip:b'])
+      expect([...(await store.counts('2026-09-23', ['global', 'ip:a', 'ip:c']))].sort()).toEqual([['global', 2], ['ip:a', 1]])
+      await store.prune('2026-09-23')
+      expect((await store.counts('2026-09-22', ['global'])).size).toBe(0)
+      expect((await store.counts('2026-09-23', ['global'])).get('global')).toBe(2)
     })
   })
 }
