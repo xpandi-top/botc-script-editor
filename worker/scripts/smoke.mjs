@@ -158,8 +158,17 @@ if (withAi) {
       return json.items.map((c) => `${c.name} ${c.score}`).join(', ')
     })
     await check('embeddings match the deployed catalog', async () => {
-      const { json } = await http('GET', '/v1/ai/status')
-      const e = json.embeddings
+      // Right after a deploy, the similarity query above can still reach an
+      // isolate of the previous version, whose catalog has nothing to
+      // re-embed. Query again (a new-version isolate re-embeds what changed)
+      // until the status is up to date, for about half a minute.
+      let e
+      for (let attempt = 0; attempt < 6; attempt++) {
+        e = (await http('GET', '/v1/ai/status')).json?.embeddings
+        if (e?.available && e.stale === 0 && e.embedded === e.total) break
+        await http('GET', `/v1/characters/similar?q=${encodeURIComponent('每晚选择一名玩家，他死亡')}&limit=1`)
+        await new Promise((resolve) => setTimeout(resolve, 5000))
+      }
       assert(e?.available && e.stale === 0 && e.embedded === e.total, JSON.stringify(e))
       return `${e.embedded}/${e.total} characters (${e.model})`
     })
