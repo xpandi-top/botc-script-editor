@@ -1,26 +1,31 @@
 #!/usr/bin/env python3
-"""Rebuild assets/font/zh-fix.woff2, the stand-in glyphs for ZCOOL XiaoWei.
+"""Check the Chinese UI fonts for glyphs that render wrong, and rebuild
+assets/font/zh-fix.woff2, the stand-in glyphs for ZCOOL XiaoWei.
 
-ZCOOL XiaoWei (the default Chinese UI font, served by Google Fonts) winds the
-counters of a few 囗-framed characters the same way as their outlines. Browsers
-fill glyphs with the nonzero rule, so those counters are painted solid and 回
-shows up as ■. Only the code points in BROKEN are affected; `--check` scans every
-glyph Google serves and reports them again.
+`--check` scans every Chinese font option (src/hooks/useFontSettings.ts) for:
 
-The fix font holds those characters from Noto Serif SC (a Google Fonts `text=`
-subset), scaled and centred so they sit like XiaoWei's own 固 (same frame shape),
-on XiaoWei's advance width and line metrics. src/fonts.css exposes it as the
-family "ZCOOL XiaoWei Fix" with a unicode-range of just these code points, and
-the ZCOOL XiaoWei font option lists that family first.
+- Holes painted solid. Browsers fill glyphs with the nonzero rule, so a contour
+  nested inside another must wind the other way or the hole is painted over.
+  ZCOOL XiaoWei does this for the code points in BROKEN (回 shows up as ■).
+- Blank glyphs. A code point mapped to an empty outline prints nothing instead of
+  falling back to the next font. Xingkai and Xinwei do this for accented Latin
+  letters and more; their unicode-range in src/fonts.css leaves those out.
+
+The fix font holds BROKEN from Noto Serif SC (a Google Fonts `text=` subset),
+scaled and centred so they sit like XiaoWei's own 固 (same frame shape), on
+XiaoWei's advance width and line metrics. src/fonts.css exposes it as the family
+"ZCOOL XiaoWei Fix" with a unicode-range of just these code points, and the
+ZCOOL XiaoWei font option lists that family first.
 
 Requires: pip install fonttools brotli skia-pathops
 Usage:    python3 scripts/zh-font-fix.py            # write assets/font/zh-fix.woff2
-          python3 scripts/zh-font-fix.py --check    # list broken XiaoWei glyphs
+          python3 scripts/zh-font-fix.py --check    # scan every Chinese font option
 """
 import argparse
 import io
 import re
 import sys
+import unicodedata
 import urllib.parse
 import urllib.request
 from pathlib import Path
@@ -33,9 +38,15 @@ from fontTools.ttLib import TTFont
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / 'assets' / 'font' / 'zh-fix.woff2'
+FONTS_CSS = ROOT / 'src' / 'fonts.css'
 
 BROKEN = '回圃圄圊崮徊痼蛔'
 REFERENCE = '固'  # same 囗 frame, drawn correctly by XiaoWei
+
+# The Chinese font options: served by Google Fonts (index.html) or bundled (src/fonts.css).
+GOOGLE_FONTS = ['ZCOOL XiaoWei', 'Ma Shan Zheng', 'ZCOOL QingKe HuangYou', 'Zhi Mang Xing',
+                'Noto Serif SC:wght@400', 'Noto Serif SC:wght@700']
+LOCAL_FONTS = {'Xingkai': 'assets/font/xingkai.ttf', 'Xinwei': 'assets/font/xinwei.ttf'}
 
 # Google Fonts only answers with woff2 to a modern browser user agent.
 UA = ('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 '
@@ -63,28 +74,114 @@ def unicode_range(chars):
     return ', '.join(f'U+{ord(c):04X}' for c in sorted(chars))
 
 
-def check():
+def unicode_range_without(chars):
+    """A unicode-range covering every code point except `chars`."""
+    ranges, start = [], 0
+    for cp in sorted(map(ord, chars)):
+        if cp > start:
+            ranges.append((start, cp - 1))
+        start = cp + 1
+    ranges.append((start, 0x10FFFF))
+    return ', '.join(f'U+{lo:X}' if lo == hi else f'U+{lo:X}-{hi:X}' for lo, hi in ranges)
+
+
+def face_ranges(family):
+    """The unicode-range of a family's @font-face in src/fonts.css, as (lo, hi) pairs."""
+    face = re.search(r"@font-face\s*{[^}]*font-family:\s*'%s';[^}]*}" % re.escape(family),
+                     FONTS_CSS.read_text(encoding='utf-8'))
+    declared = face and re.search(r'unicode-range:\s*([^;]+);', face.group(0))
+    if not declared:
+        return [(0, 0x10FFFF)]
+    ranges = []
+    for part in declared.group(1).split(','):
+        lo, _, hi = part.strip()[2:].partition('-')
+        ranges.append((int(lo, 16), int(hi or lo, 16)))
+    return ranges
+
+
+def painted_share(glyphs, name):
+    """Share of a glyph's ink that is really a hole, painted because it winds wrongly."""
     import pathops
 
-    broken = []
-    for font in google_fonts('family=ZCOOL+XiaoWei'):
+    def area(path):
+        try:
+            return abs(pathops.simplify(path).area)
+        except pathops.PathOpsError:
+            return 0.0
+
+    def inside(inner, outer):
+        ix0, iy0, ix1, iy1 = inner.bounds
+        ox0, oy0, ox1, oy1 = outer.bounds
+        if ix0 < ox0 or iy0 < oy0 or ix1 > ox1 or iy1 > oy1:
+            return False
+        try:
+            outside = area(pathops.op(inner, outer, pathops.PathOp.DIFFERENCE))
+        except pathops.PathOpsError:
+            return False
+        size = area(inner)
+        return size > 0 and outside < 0.01 * size
+
+    path = pathops.Path()
+    glyphs[name].draw(path.getPen(glyphSet=glyphs))
+    contours = list(path.contours)
+    fixed, rewound = pathops.Path(), False
+    for contour in contours:
+        outer = [c for c in contours if c is not contour and inside(contour, c)]
+        # Winding alternates with nesting depth, starting from the outermost contour.
+        if outer and contour.clockwise == (max(outer, key=area).clockwise == (len(outer) % 2 == 1)):
+            contour = pathops.Path(contour)
+            contour.reverse()
+            rewound = True
+        fixed.addPath(contour)
+    if not rewound:
+        return 0.0
+    ink = area(path)
+    return (ink - area(fixed)) / ink if ink else 0.0
+
+
+def scan(fonts):
+    """Characters whose holes are painted over (share of ink) and characters drawn blank."""
+    holes, blanks = {}, []
+    for font in fonts:
         glyphs = font.getGlyphSet()
         for cp, name in font.getBestCmap().items():
-            areas = []
-            for fill in (pathops.FillType.WINDING, pathops.FillType.EVEN_ODD):
-                path = pathops.Path(fillType=fill)
-                glyphs[name].draw(path.getPen(glyphSet=glyphs))
-                areas.append(abs(pathops.simplify(path).area))
-            # A counter wound like its outline adds area under the nonzero rule.
-            if areas[0] - areas[1] > 0.05 * areas[0]:
-                broken.append(chr(cp))
-    broken.sort()
-    print('broken:', ''.join(broken))
-    print('unicode-range:', unicode_range(broken))
-    if set(broken) != set(BROKEN):
-        print(f'BROKEN in this script is {BROKEN!r}; update it, src/fonts.css and rebuild.')
-        return 1
-    return 0
+            char = chr(cp)
+            pen = BoundsPen(glyphs)
+            glyphs[name].draw(pen)
+            if pen.bounds is None:
+                if unicodedata.category(char)[0] not in 'ZC':  # spaces and controls are blank anyway
+                    blanks.append(char)
+            elif (share := painted_share(glyphs, name)) > 0.1:
+                holes[char] = share
+    return holes, sorted(blanks)
+
+
+def check():
+    problems = []
+    fonts = [(family, lambda f=family: google_fonts('family=' + f.replace(' ', '+')))
+             for family in GOOGLE_FONTS]
+    fonts += [(family, lambda p=path: [TTFont(ROOT / p)]) for family, path in LOCAL_FONTS.items()]
+    for family, load in fonts:
+        holes, blanks = scan(load())
+        print(f'{family}: holes painted solid: {"".join(sorted(holes)) or "none"}; '
+              f'blank glyphs: {"".join(blanks) or "none"}')
+        if family == 'ZCOOL XiaoWei':
+            if set(holes) != set(BROKEN):
+                problems.append(f'ZCOOL XiaoWei: set BROKEN to {"".join(sorted(holes))!r}, '
+                                f'use unicode-range {unicode_range(holes)} in src/fonts.css, rebuild')
+        elif holes:
+            problems.append(f'{family}: holes painted solid in {"".join(sorted(holes))}')
+        family_name = family.split(':')[0]
+        if blanks and family_name in LOCAL_FONTS:
+            ranges = face_ranges(family_name)
+            if any(lo <= ord(c) <= hi for c in blanks for lo, hi in ranges):
+                problems.append(f'{family_name}: use unicode-range {unicode_range_without(blanks)} '
+                                'in src/fonts.css')
+        elif blanks:
+            problems.append(f'{family}: blank glyphs for {"".join(blanks)}')
+    for problem in problems:
+        print('FIX', problem)
+    return 1 if problems else 0
 
 
 def bounds(font, char):
@@ -162,5 +259,5 @@ def build():
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__.split('\n')[0])
-    parser.add_argument('--check', action='store_true', help='list broken ZCOOL XiaoWei glyphs')
+    parser.add_argument('--check', action='store_true', help='scan every Chinese font option')
     sys.exit(check() if parser.parse_args().check else build())

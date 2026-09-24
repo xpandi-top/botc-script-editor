@@ -5,6 +5,18 @@ Status: `open` | `fixed` | `wontfix`
 
 ---
 
+## I-77 — Xingkai / Xinwei fonts print accented Latin letters as nothing
+
+**Status:** fixed  
+**Area:** src/fonts.css, scripts/zh-font-fix.py, src/__tests__/zhFontFix.test.ts  
+**Detail:** Follow-up check of every Chinese font option after I-76. The bundled Xingkai and Xinwei TTFs map 84 code points to empty glyphs: accented Latin letters (â ã ä ç ë î ñ ô ö …), « » © ® ¥ £, superscripts and fractions, ⅰ–ⅹ. The browser draws the empty glyph instead of falling back, so with either font selected, text that reaches the Chinese font (an English display font without the letter, or the font picker preview, where the Chinese font comes first) loses letters: "Château" (Widow flavor text) shows as "Ch teau", a player named Zoë as "Zo". The pinyin letters these fonts do draw (à á è é ê ì í ò ó ù ú ü) are full-width, but they are not blank.
+
+The other options are clean: `scripts/zh-font-fix.py --check` (nested contours wound like their container, blank glyphs) finds nothing in Ma Shan Zheng, ZCOOL QingKe HuangYou, Zhi Mang Xing or Noto Serif SC 400/700, and a canvas pass in Chrome over all 2,373 characters in the app's text agrees.
+
+**Fix:** The Xingkai and Xinwei `@font-face` rules get a unicode-range that leaves out the 84 blank code points, so the next font in the stack draws them. `--check` now scans every Chinese font option and prints the range to use if the fonts change; the test parses both TTFs and fails if any blank glyph is inside the declared range.
+
+---
+
 ## I-76 — Default Chinese font draws 回 as a solid box (■)
 
 **Status:** fixed  

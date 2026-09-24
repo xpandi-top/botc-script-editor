@@ -16,15 +16,20 @@
   font-display: swap;
 }
 
+/* Xingkai and Xinwei map 84 code points (accented Latin such as â ã ñ ö, « » © ®,
+   ⅰ–ⅹ) to empty glyphs, which would print nothing. The unicode-range leaves them
+   out so they fall back to the next font. Found by scripts/zh-font-fix.py --check. */
 @font-face {
   font-family: 'Xingkai';
   src: url('/assets/font/xingkai.ttf') format('truetype');
+  unicode-range: U+0-A0, U+A4, U+A7-A8, U+AD, U+B0-B1, U+B7, U+D7, U+E0-E1, U+E8-EA, U+EC-ED, U+F2-F3, U+F7, U+F9-FA, U+FC, U+100-216F, U+217A-10FFFF;
   font-display: swap;
 }
 
 @font-face {
   font-family: 'Xinwei';
   src: url('/assets/font/xinwei.ttf') format('truetype');
+  unicode-range: U+0-A0, U+A4, U+A7-A8, U+AD, U+B0-B1, U+B7, U+D7, U+E0-E1, U+E8-EA, U+EC-ED, U+F2-F3, U+F7, U+F9-FA, U+FC, U+100-216F, U+217A-10FFFF;
   font-display: swap;
 }
 
