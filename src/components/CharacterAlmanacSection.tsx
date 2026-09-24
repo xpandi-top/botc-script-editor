@@ -99,6 +99,12 @@ export function CharacterAlmanacSection({
             </Box>
           ))}
 
+          {!loading && entry?.translated_from && (
+            <Typography variant="caption" color="text.secondary" sx={{ fontStyle: 'italic' }}>
+              {t('almanac_translated')}
+            </Typography>
+          )}
+
           {!loading && entry?.source && (
             <Link
               href={entry.source}
@@ -107,7 +113,7 @@ export function CharacterAlmanacSection({
               variant="caption"
               sx={{ alignSelf: 'flex-start' }}
             >
-              {t(entry.community ? 'almanac_source_community' : 'almanac_source')}
+              {t(entry.community ? 'almanac_source_community' : entry.translated_from ? 'almanac_source_original' : 'almanac_source')}
             </Link>
           )}
         </Box>

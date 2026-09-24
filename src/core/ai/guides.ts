@@ -37,6 +37,8 @@ export type CharacterGuide = Partial<Record<GuideSectionId, string>> & {
   revid?: number
   /** Taken from a community wiki (BWIKI) because the official one has no page. */
   community?: boolean
+  /** An unofficial translation of the entry in this language's source file (Odyssey English ← Chinese). */
+  translated_from?: 'zh' | 'en'
   /** Ability kinds (集石 “角色能力类型”: 免死, 醉酒, …). */
   tags?: string[]
   zh_name?: string
@@ -48,7 +50,7 @@ export type CharacterGuide = Partial<Record<GuideSectionId, string>> & {
   credits?: { design?: string; concept?: string; art?: string }
 }
 
-export type GuideTerm = { title: string; text: string; source?: string }
+export type GuideTerm = { title: string; text: string; source?: string; translated_from?: 'zh' | 'en' }
 
 export type GuideFile = {
   /** 1 for files written by scripts/build-guides.mjs; the Odyssey almanac predates it. */
@@ -62,6 +64,16 @@ export type GuideFile = {
   license?: string
   fetched?: string
   scraped?: string
+  /** Set on a translated file: not the pack author's text, and which sections it covers. */
+  translation?: {
+    from: 'zh' | 'en'
+    of: string
+    official: boolean
+    by: string
+    date: string
+    sections: string[]
+    note?: string
+  }
   terminology?: Record<string, GuideTerm>
   characters?: Record<string, CharacterGuide>
 }
@@ -105,6 +117,19 @@ const INTENTS: Array<{ intent: GuideIntent; pattern: RegExp; sections: GuideSect
 export function guideIntent(query: string): { intent: GuideIntent; sections: GuideSectionId[]; ranked: boolean } | null {
   const found = INTENTS.find(({ pattern }) => pattern.test(query))
   return found ? { intent: found.intent, sections: found.sections, ranked: Boolean(found.ranked) } : null
+}
+
+/**
+ * Whether a guide has what a question is after: one of the intent's
+ * sections (examples for "举个例子", how to run for "怎么主持"), or for a
+ * rules question the rules details themselves. A partial translation
+ * (Odyssey's English: summary, examples, tips, bluffing) covers some
+ * questions and not others; the caller then uses the other language's guide.
+ */
+export function guideCovers(entry: CharacterGuide, query: string): boolean {
+  const wanted = guideIntent(query)
+  if (!wanted) return false
+  return (wanted.ranked ? wanted.sections.slice(0, 1) : wanted.sections).some((id) => entry[id]?.trim())
 }
 
 /** Budgets per character, in characters of text: a 4K local model, the no-model answer, an online model. */

@@ -307,4 +307,30 @@ describe('odyssey pack', () => {
     const missing = odyssey.map((entry) => entry.id).filter((id) => !almanac.characters[id])
     expect(missing).toEqual([])
   })
+
+  // The English almanac is a community translation of the Chinese one: marked
+  // as such, one entry per character, and in step with the English abilities.
+  it('has a marked English translation of the almanac for every character', () => {
+    type Entry = { source?: string; translated_from?: string; ability?: string; summary?: string; examples?: string }
+    const english = readJson<{ translation?: { from: string; official: boolean }; terminology: Record<string, { translated_from?: string }>; characters: Record<string, Entry> }>(
+      path.join(root, 'assets', 'almanac', 'odyssey.en.json'),
+    )
+    const chinese = readJson<{ terminology: Record<string, unknown>; characters: Record<string, { source?: string }> }>(
+      path.join(root, 'assets', 'almanac', 'odyssey.zh.json'),
+    )
+    expect(english.translation).toMatchObject({ from: 'zh', official: false })
+    expect(Object.keys(english.terminology).sort()).toEqual(Object.keys(chinese.terminology).sort())
+    expect(Object.values(english.terminology).every((term) => term.translated_from === 'zh')).toBe(true)
+    const wrong = odyssey.flatMap((character) => {
+      const entry = english.characters[character.id]
+      if (!entry) return [`${character.id}: missing`]
+      const problems: string[] = []
+      if (entry.translated_from !== 'zh') problems.push('not marked as a translation')
+      if (entry.source !== chinese.characters[character.id]?.source) problems.push('source page differs from the Chinese entry')
+      if (entry.ability !== character.en?.ability) problems.push('ability differs from the character file')
+      if (!entry.summary?.trim() || !entry.examples?.trim()) problems.push('no summary or examples')
+      return problems.map((problem) => `${character.id}: ${problem}`)
+    })
+    expect(wrong).toEqual([])
+  })
 })

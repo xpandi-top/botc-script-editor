@@ -5,7 +5,7 @@
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { prepareSystemPrompt } from '../lib/ai/prompts'
-import { loadCharacterGuides } from '../lib/ai/localAnswer'
+import { answerLocally, loadCharacterGuides } from '../lib/ai/localAnswer'
 import { emptyMeta } from '../lib/ai/trace'
 import { estimateQwenTokens, estimateTokens, GROQ_INPUT_BUDGET } from '../core/ai/contextBudget'
 import { WEBLLM_INPUT_BUDGET } from '../lib/ai/runtime/webllmModels'
@@ -41,13 +41,40 @@ describe('guide passages in prompts', () => {
   })
 
   it('give a model the other language\'s guide to translate, and a reader only the link', async () => {
-    const forModel = await loadCharacterGuides('How do I play the Painter?', 'en', [], { crossLanguage: true })
-    expect(forModel.painter).toContain('Chinese source')
-    expect(forModel.painter).toContain('画家')
-    const forReader = await loadCharacterGuides('How do I play the Painter?', 'en')
-    expect(forReader.painter).toMatch(/only in Chinese\. Source: https:\/\/www\.yuque\.com/)
+    // 打更人 (a Chinese edition) has only a Chinese guide.
+    const forModel = await loadCharacterGuides('How do I play the Firewatcher?', 'en', [], { crossLanguage: true })
+    expect(forModel.dagengren).toContain('Chinese source')
+    expect(forModel.dagengren).toContain('打更人')
+    const forReader = await loadCharacterGuides('How do I play the Firewatcher?', 'en')
+    expect(forReader.dagengren).toMatch(/the guide exists only in Chinese\. Source: https:\/\//)
     // Official characters have an English guide of their own.
     expect((await loadCharacterGuides('How do I play the Sailor?', 'en')).sailor).toContain('Source: https://wiki.bloodontheclocktower.com/Sailor')
+  })
+
+  it('answer English questions about Odyssey characters from the community translation', async () => {
+    const play = await loadCharacterGuides('How do I play the Painter?', 'en')
+    expect(play.painter).toContain('**Painter · Tips & tricks**')
+    expect(play.painter).toContain('If you are the Painter')
+    expect(play.painter).not.toMatch(/[一-鿿]/)
+    expect(play.painter).toContain('Source (unofficial community translation of the Chinese almanac): https://www.yuque.com/')
+    const bluff = await loadCharacterGuides('How should I bluff as the Herald?', 'en')
+    expect(bluff.herald).toContain('**Herald · Bluffing**')
+    expect(bluff.herald).toMatch(/Outsider/)
+    // Chinese questions still get the author's own text.
+    expect((await loadCharacterGuides('画家怎么玩？', 'zh')).painter).toContain('如果你是画家')
+    // The ability itself is labelled as unofficial too.
+    const answer = answerLocally(general('en'), 'What is the Painter\'s ability?')
+    expect(answer.message).toContain('You start knowing an in-play character.')
+    expect(answer.message).toContain('(Unofficial community translation.)')
+  })
+
+  it('fall back to the Chinese almanac for the sections the translation lacks', async () => {
+    // "How to run" is not translated: a model gets the Chinese to translate, a reader the link.
+    const forModel = await loadCharacterGuides('How does the Storyteller run the Painter?', 'en', [], { crossLanguage: true })
+    expect(forModel.painter).toContain('**Painter · How to run** (Chinese source; translate, do not quote as official English)')
+    expect(forModel.painter).toContain('最近得知')
+    const forReader = await loadCharacterGuides('How does the Storyteller run the Painter?', 'en')
+    expect(forReader.painter).toMatch(/this part of the guide exists only in Chinese\. Source: https:\/\/www\.yuque\.com/)
   })
 
   it('say when a guide was written for another version of the ability', async () => {

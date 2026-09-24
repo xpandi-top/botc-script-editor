@@ -1,7 +1,7 @@
 /** Entity-first retrieval over the bundled catalog. Counts never come from top-K results. */
 import {
   allCharacterFiles, editionLabels, getEditionCredit, getDisplayName, getAbilityText,
-  loadAlmanacFile, hasGlossary,
+  loadAlmanacFile, hasGlossary, isUnofficialTranslation,
 } from '../../catalog'
 import { estimateTokens, selectContext } from '../../core/ai/contextBudget'
 import { GUIDE_SECTIONS } from '../../core/ai/guides'
@@ -103,8 +103,8 @@ export function retrieveCatalog(query: string, language: Language, previousQueri
     `Character: ${getDisplayName(id, 'zh')} / ${getDisplayName(id, 'en')} [${id}]\n` +
     `Source: assets/characters/individual/${id}.json (current local revision)\n` +
     (bilingual(id)
-      ? `Official ability (en): ${getAbilityText(id, 'en')}\nOfficial ability (zh): ${getAbilityText(id, 'zh')}`
-      : `Ability: ${getAbilityText(id, language)}`),
+      ? `${isUnofficialTranslation(id, 'en') ? 'Community translation, unofficial (en)' : 'Official ability (en)'}: ${getAbilityText(id, 'en')}\nOfficial ability (zh): ${getAbilityText(id, 'zh')}`
+      : `Ability${isUnofficialTranslation(id, language) ? ' (unofficial community translation)' : ''}: ${getAbilityText(id, language)}`),
   )
   return { ...resolved, editionIds, query: retrievalQuery, facts: facts.join('\n\n'), rosters, details }
 }

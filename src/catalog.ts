@@ -976,6 +976,12 @@ export function getEditionTranslationNotes(credit: EditionCredit, language: Lang
     .map((translation) => (language === 'zh' ? translation.note_zh : translation.note_en))
 }
 
+/** Whether a character's text in this language is an unofficial translation (Odyssey's English). */
+export function isUnofficialTranslation(id: string, language: Language): boolean {
+  const edition = characterById[id]?.edition
+  return Boolean(edition && editionCredits[edition]?.translations?.[language]?.official === false)
+}
+
 /**
  * Editions among these characters whose terms require attribution, in the order
  * they are declared in editions.json. Empty when nothing on the sheet needs it.
@@ -1040,9 +1046,10 @@ export function loadAlmanacFile(edition: string, language: Language): Promise<Al
 export async function getCharacterGuide(
   id: string,
   language: Language,
+  options: { exact?: boolean } = {},
 ): Promise<{ entry: AlmanacCharacterEntry; language: Language; source?: string } | null> {
   const files = guideFiles.filter((file) => file.ids.has(id))
-  const match = files.find((file) => file.language === language) ?? files[0]
+  const match = files.find((file) => file.language === language) ?? (options.exact ? undefined : files[0])
   if (!match) return null
   const file = await loadAlmanacByName(match.name)
   const entry = file?.characters?.[id]
@@ -1055,6 +1062,12 @@ export async function getAlmanacEntry(
   language: Language,
 ): Promise<AlmanacCharacterEntry | null> {
   return (await getCharacterGuide(id, language))?.entry ?? null
+}
+
+/** The languages a character has a guide in, the requested one first (sync — no fetch). */
+export function getCharacterGuideLanguages(id: string, language: Language): Language[] {
+  const languages = guideFiles.filter((file) => file.ids.has(id)).map((file) => file.language as Language)
+  return [...new Set(languages)].sort((a, b) => Number(b === language) - Number(a === language))
 }
 
 /** Whether a character has a guide in any language (sync — no fetch). */

@@ -15,6 +15,7 @@ import {
   getEditionTerms,
   getEditionTranslationNotes,
   getRequiredAttributions,
+  isUnofficialTranslation,
 } from '../catalog'
 import { SheetArticle } from '../components/SheetArticle'
 import type { EditableScript, ResolvedScriptCharacter, ResolvedScriptCharacterGroup } from '../types'
@@ -91,6 +92,10 @@ describe('edition credit copy', () => {
   it('says the English text is an unofficial community translation', () => {
     expect(getEditionTranslationNotes(credit, 'en')).toEqual([expect.stringMatching(/unofficial community translation/)])
     expect(getEditionTranslationNotes(credit, 'zh')).toEqual([expect.stringMatching(/社区翻译，非官方/)])
+    // Per character and language: Odyssey's English only.
+    expect(isUnofficialTranslation('painter', 'en')).toBe(true)
+    expect(isUnofficialTranslation('painter', 'zh')).toBe(false)
+    expect(isUnofficialTranslation('washerwoman', 'en')).toBe(false)
   })
 
   it('has no credit for official editions', () => {

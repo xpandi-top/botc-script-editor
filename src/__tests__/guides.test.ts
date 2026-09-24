@@ -9,7 +9,7 @@ import { join } from 'node:path'
 // @ts-expect-error — plain ESM build script without type declarations
 import { parseGuidePage, cleanInline, sectionIdFor } from '../../scripts/guide-parse.mjs'
 import { abilityDiffers, GUIDE_SECTIONS, guideIntent, selectGuide, type CharacterGuide, type GuideIndex } from '../core/ai/guides'
-import { getCharacterGuide, getEditionsWithGlossary, hasCharacterGuide, hasGlossary } from '../catalog'
+import { getCharacterGuide, getCharacterGuideLanguages, getEditionsWithGlossary, hasCharacterGuide, hasGlossary } from '../catalog'
 
 const ZH_PAGE = `[[File:Sailor.png|link=水手|200px]]
 
@@ -203,9 +203,15 @@ describe('guide index', () => {
     expect(hasGlossary('odyssey')).toBe(true)
     expect(hasGlossary('tb')).toBe(false)
     expect(getEditionsWithGlossary(['painter', 'washerwoman'])).toEqual(['odyssey'])
+    // Odyssey has a (partial, community) English almanac besides the Chinese one.
     const guide = await getCharacterGuide('painter', 'en')
-    // Odyssey has only a Chinese almanac: it is used, and says so.
-    expect(guide?.language).toBe('zh')
-    expect(guide?.entry.examples).toContain('画家')
+    expect(guide?.language).toBe('en')
+    expect(guide?.entry.translated_from).toBe('zh')
+    expect((await getCharacterGuide('painter', 'zh'))?.entry.examples).toContain('画家')
+    // A Chinese edition has only a Chinese guide: it is used, and says so.
+    expect((await getCharacterGuide('dagengren', 'en'))?.language).toBe('zh')
+    expect(await getCharacterGuide('dagengren', 'en', { exact: true })).toBeNull()
+    expect(getCharacterGuideLanguages('painter', 'en')).toEqual(['en', 'zh'])
+    expect(getCharacterGuideLanguages('painter', 'zh')).toEqual(['zh', 'en'])
   })
 })

@@ -10,7 +10,7 @@
 import type { Language } from '../../types'
 
 /** Bump when the system prompts or the routing between program and model change. */
-export const PROMPT_VERSION = '2026-09-24.2'
+export const PROMPT_VERSION = '2026-09-24.3'
 
 export const BUILD_ID: string = typeof __BUILD_ID__ === 'string' ? __BUILD_ID__ : 'dev'
 

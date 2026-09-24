@@ -7,9 +7,9 @@
  */
 import {
   allCharacterFiles, editionLabels, getAbilityText, getCharacterById, getDisplayName, getEditionCredit, getEditionCreditAuthor,
-  getCharacterGuide, getEffectiveNightOrderFromRegistry, getJinxReason, jinxes, teamLabels,
+  getCharacterGuide, getCharacterGuideLanguages, getEffectiveNightOrderFromRegistry, getJinxReason, isUnofficialTranslation, jinxes, teamLabels,
 } from '../../catalog'
-import { abilityDiffers, GUIDE_BUDGET, guideIntent, guideSectionLabel, selectGuide } from '../../core/ai/guides'
+import { abilityDiffers, GUIDE_BUDGET, guideCovers, guideIntent, guideSectionLabel, selectGuide } from '../../core/ai/guides'
 import { searchCoreRules } from '../../core/ai/rules'
 import type { Language, Team } from '../../types'
 import { searchWiki } from '../wikiSearch'
@@ -39,9 +39,13 @@ function characterCard(id: string, language: Language, bilingual: boolean): stri
   const zh = language === 'zh'
   const team = getCharacterById(id)?.team as Team | undefined
   const teamName = team ? (zh ? teamLabels.zh[team] : teamLabels.en[team]) : ''
+  // Odyssey's English is a community translation, not the author's text.
+  const label = (lang: Language) => isUnofficialTranslation(id, lang)
+    ? (zh ? `${lang === 'en' ? '英文' : '中文'}（社区翻译，非官方）` : `${lang === 'en' ? 'English' : 'Chinese'} (unofficial community translation)`)
+    : (zh ? `官方${lang === 'en' ? '英文' : '中文'}` : `Official ${lang === 'en' ? 'English' : 'Chinese'}`)
   const ability = bilingual
-    ? `${zh ? '官方英文' : 'Official English'}: ${getAbilityText(id, 'en')}\n${zh ? '官方中文' : 'Official Chinese'}: ${getAbilityText(id, 'zh')}`
-    : getAbilityText(id, language)
+    ? `${label('en')}: ${getAbilityText(id, 'en')}\n${label('zh')}: ${getAbilityText(id, 'zh')}`
+    : isUnofficialTranslation(id, language) ? `${getAbilityText(id, language)}\n${zh ? '（社区翻译，非官方）' : '(Unofficial community translation.)'}` : getAbilityText(id, language)
   return `**${getDisplayName(id, 'zh')} / ${getDisplayName(id, 'en')}**（${teamName}）\n${ability}`
 }
 
@@ -96,7 +100,9 @@ export type LocalAnswer = { message: string; found: boolean; definitive: boolean
  * matching paragraphs for a rules detail ("水手被处决会死吗"). Each ends
  * with its source page. `maxChars` is shared by the (at most two)
  * characters. A guide only in the other language is quoted when a model
- * will read it (`crossLanguage`: it can translate), otherwise only linked.
+ * will read it (`crossLanguage`: it can translate), otherwise only linked;
+ * so is the other language's guide when this language's lacks the section
+ * asked for (Odyssey's partial English translation has no "how to run").
  */
 export async function loadCharacterGuides(
   query: string,
@@ -110,16 +116,35 @@ export async function loadCharacterGuides(
   const maxChars = Math.round((options.maxChars ?? GUIDE_BUDGET.answer) / Math.max(1, ids.length))
   const guides: Record<string, string> = {}
   for (const id of ids) {
-    const guide = await getCharacterGuide(id, language)
-    if (!guide) continue
+    // This language's guide when it has what the question is after, else the other language's.
+    const languages = getCharacterGuideLanguages(id, language)
+    const loaded: NonNullable<Awaited<ReturnType<typeof getCharacterGuide>>>[] = []
+    for (const lang of languages) {
+      const found = await getCharacterGuide(id, lang, { exact: true })
+      if (found) loaded.push(found)
+      if (found && guideCovers(found.entry, query)) break
+    }
+    const readable = loaded.filter((g) => g.language === language || options.crossLanguage)
+    const guide = readable.find((g) => guideCovers(g.entry, query)) ?? readable.find((g) => selectGuide(g.entry, query, maxChars))
     const name = getDisplayName(id, language)
-    const community = guide.entry.community ? (zh ? '（社区 wiki，非官方）' : ' (community wiki, unofficial)') : ''
-    const source = guide.entry.source ? `${zh ? '来源' : 'Source'}${community}: ${guide.entry.source}` : ''
-    const foreign = guide.language !== language
-    if (foreign && !options.crossLanguage) {
-      if (source) guides[id] = zh ? `**${name}**：攻略只有英文版。${source}` : `**${name}**: the guide exists only in Chinese. ${source}`
+    const sourceLine = (entry: (typeof loaded)[number]['entry']) => {
+      const label = entry.community ? (zh ? '（社区 wiki，非官方）' : ' (community wiki, unofficial)')
+        : entry.translated_from ? (zh ? '（社区翻译，非官方）' : ' (unofficial community translation of the Chinese almanac)') : ''
+      return entry.source ? `${zh ? '来源' : 'Source'}${label}: ${entry.source}` : ''
+    }
+    if (!guide) {
+      // Only the other language has it: a reader without a model gets the link.
+      const other = loaded.find((g) => g.language !== language)
+      const source = other ? sourceLine(other.entry) : ''
+      if (source) {
+        guides[id] = zh ? `**${name}**：攻略只有英文版。${source}`
+          : loaded.length > 1 ? `**${name}**: this part of the guide exists only in Chinese. ${source}`
+          : `**${name}**: the guide exists only in Chinese. ${source}`
+      }
       continue
     }
+    const source = sourceLine(guide.entry)
+    const foreign = guide.language !== language
     const picked = selectGuide(guide.entry, query, maxChars)
     if (!picked) continue
     const note = foreign ? (zh ? '（英文资料）' : ' (Chinese source; translate, do not quote as official English)') : ''
