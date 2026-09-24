@@ -7,11 +7,19 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Bug Catcher"
+    "name": "Bug Catcher",
+    "ability": "If you nominate another player, you are woken that night to learn if they are the Demon.",
+    "revisions": {
+      "v1": "If you nominate another player, you are woken that night to learn if they are the Demon."
+    },
+    "otherNightReminder": "If the Bug Catcher nominated another player today, wake them. Nod or shake your head.",
+    "reminders": [
+      "Which Bug?"
+    ]
   },
   "zh": {
     "name": "捕虫少年",

@@ -7,11 +7,15 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Tango"
+    "name": "Tango",
+    "ability": "During setup, the Storyteller publicly names a character: if it is in play, there is 1 more or 1 fewer Outsider.",
+    "revisions": {
+      "v1": "During setup, the Storyteller publicly names a character: if it is in play, there is 1 more or 1 fewer Outsider."
+    }
   },
   "zh": {
     "name": "探戈",

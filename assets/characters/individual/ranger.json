@@ -7,11 +7,20 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Ranger"
+    "name": "Ranger",
+    "ability": "If one of your alive neighbours dies, you are woken that night to choose a player: if they are a Minion, they die.",
+    "revisions": {
+      "v1": "If one of your alive neighbours dies, you are woken that night to choose a player: if they are a Minion, they die."
+    },
+    "otherNightReminder": "If an alive neighbour of the Ranger died today, the Ranger chooses a player.",
+    "reminders": [
+      "Dead",
+      "Revenge"
+    ]
   },
   "zh": {
     "name": "游侠",

@@ -7,11 +7,19 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Aerialist"
+    "name": "Aerialist",
+    "ability": "On the night you die, you learn 1 player of each character type. If you die by execution after a good player nominated you, or by a good player's ability, you are drunk.",
+    "revisions": {
+      "v1": "On the night you die, you learn 1 player of each character type. If you die by execution after a good player nominated you, or by a good player's ability, you are drunk."
+    },
+    "otherNightReminder": "If the Aerialist died, wake them & point to 1 Minion, 1 Demon, 1 Townsfolk & 1 Outsider player.",
+    "reminders": [
+      "Drunk"
+    ]
   },
   "zh": {
     "name": "空中飞人",

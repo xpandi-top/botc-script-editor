@@ -7,11 +7,20 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Mob lawyer"
+    "name": "Mob lawyer",
+    "ability": "Each night, you learn a player: tomorrow, if either of you is executed, the other might be executed instead.",
+    "revisions": {
+      "v1": "Each night, you learn a player: tomorrow, if either of you is executed, the other might be executed instead."
+    },
+    "firstNightReminder": "Wake the Mob Lawyer & point to the player marked *CLIENT*.",
+    "otherNightReminder": "Wake the Mob Lawyer & point to the player marked *CLIENT*.",
+    "reminders": [
+      "Client"
+    ]
   },
   "zh": {
     "name": "黑帮律师",

@@ -7,11 +7,23 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Skeleton King"
+    "name": "Skeleton King",
+    "ability": "Each night*, choose a player: they die. When you win by the usual conditions, Townsfolk who gave up their vote tokens also win. [+1 Outsider]",
+    "revisions": {
+      "v1": "Each night*, choose a player: they die. When you win by the usual conditions, Townsfolk who gave up their vote tokens also win. [+1 Outsider]"
+    },
+    "otherNightReminder": "The Skeleton King chooses a player.",
+    "reminders": [
+      "Dead",
+      "Surrendered",
+      "Surrendered",
+      "Surrendered",
+      "Surrendered"
+    ]
   },
   "zh": {
     "name": "骷髅王",

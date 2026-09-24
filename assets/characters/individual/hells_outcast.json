@@ -7,11 +7,18 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Hell's Outcast"
+    "name": "Hell's Outcast",
+    "ability": "Each day, before nominations, a Minion may publicly crown the Hell's Outcast: you immediately turn evil & swap characters with the Demon, who is then drunk.",
+    "revisions": {
+      "v1": "Each day, before nominations, a Minion may publicly crown the Hell's Outcast: you immediately turn evil & swap characters with the Demon, who is then drunk."
+    },
+    "reminders": [
+      "Deposed (Drunk)"
+    ]
   },
   "zh": {
     "name": "地狱弃子",

@@ -7,11 +7,19 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Toxblast"
+    "name": "Toxblast",
+    "ability": "When a player is executed, their 2 Townsfolk neighbours are poisoned until dusk tomorrow. If nobody is executed today, all Townsfolk are poisoned until dusk tomorrow.",
+    "revisions": {
+      "v1": "When a player is executed, their 2 Townsfolk neighbours are poisoned until dusk tomorrow. If nobody is executed today, all Townsfolk are poisoned until dusk tomorrow."
+    },
+    "reminders": [
+      "Poisoned",
+      "Poisoned"
+    ]
   },
   "zh": {
     "name": "毒爆",

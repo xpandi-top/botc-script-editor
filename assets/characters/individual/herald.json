@@ -7,11 +7,20 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Herald"
+    "name": "Herald",
+    "ability": "Once per game, at night, choose a player (not yourself): you learn 2 players. These 3 players are all different character types. [+1 Outsider]",
+    "revisions": {
+      "v1": "Once per game, at night, choose a player (not yourself): you learn 2 players. These 3 players are all different character types. [+1 Outsider]"
+    },
+    "firstNightReminder": "The Herald might choose a player (not themself). If so, point to 2 players.",
+    "otherNightReminder": "The Herald might choose a player (not themself). If so, point to 2 players.",
+    "reminders": [
+      "No Ability"
+    ]
   },
   "zh": {
     "name": "纹章官",

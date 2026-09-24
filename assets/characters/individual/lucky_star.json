@@ -7,11 +7,15 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Lucky Star"
+    "name": "Lucky Star",
+    "ability": "The player who draws this token gets some \"perks\" and draws another token. [This token is added to the bag as an extra]",
+    "revisions": {
+      "v1": "The player who draws this token gets some \"perks\" and draws another token. [This token is added to the bag as an extra]"
+    }
   },
   "zh": {
     "name": "幸运星",

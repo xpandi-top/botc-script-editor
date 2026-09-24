@@ -7,11 +7,20 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Heiress"
+    "name": "Heiress",
+    "ability": "The 1st time you would die, 2 alive players might die instead.",
+    "revisions": {
+      "v1": "The 1st time you would die, 2 alive players might die instead."
+    },
+    "reminders": [
+      "Dies Instead",
+      "Dies Instead",
+      "No Ability"
+    ]
   },
   "zh": {
     "name": "大小姐",

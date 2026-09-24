@@ -7,11 +7,16 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Psychic"
+    "name": "Psychic",
+    "ability": "Each night*, choose a player: if they are dead, you learn their alignment.",
+    "revisions": {
+      "v1": "Each night*, choose a player: if they are dead, you learn their alignment."
+    },
+    "otherNightReminder": "Wake the Psychic. Tell them good or evil."
   },
   "zh": {
     "name": "通灵师",

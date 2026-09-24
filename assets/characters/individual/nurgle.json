@@ -7,11 +7,21 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Nurgle"
+    "name": "Nurgle",
+    "ability": "Each night*, choose a player: they die, and their neighbours are poisoned until your next attack.",
+    "revisions": {
+      "v1": "Each night*, choose a player: they die, and their neighbours are poisoned until your next attack."
+    },
+    "otherNightReminder": "The Nurgle chooses a player.",
+    "reminders": [
+      "Dead",
+      "Poisoned",
+      "Poisoned"
+    ]
   },
   "zh": {
     "name": "纳垢",

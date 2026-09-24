@@ -7,11 +7,20 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Beekeeper"
+    "name": "Beekeeper",
+    "ability": "1 player is poisoned, even if you are dead. Each night, choose a player: if they are poisoned by you, they become healthy.",
+    "revisions": {
+      "v1": "1 player is poisoned, even if you are dead. Each night, choose a player: if they are poisoned by you, they become healthy."
+    },
+    "firstNightReminder": "The Beekeeper chooses a player.",
+    "otherNightReminder": "The Beekeeper chooses a player.",
+    "reminders": [
+      "Poisoned"
+    ]
   },
   "zh": {
     "name": "养蜂人",

@@ -7,11 +7,19 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Corruptus"
+    "name": "Corruptus",
+    "ability": "Each night*, choose a player: they die, no matter what. Dead Outsiders win or lose with you, even if you are dead. [1 or 2 Outsiders in play]",
+    "revisions": {
+      "v1": "Each night*, choose a player: they die, no matter what. Dead Outsiders win or lose with you, even if you are dead. [1 or 2 Outsiders in play]"
+    },
+    "otherNightReminder": "The Corruptus chooses a player.",
+    "reminders": [
+      "Dead"
+    ]
   },
   "zh": {
     "name": "恶堕",

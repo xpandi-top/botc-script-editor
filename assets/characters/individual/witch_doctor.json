@@ -7,11 +7,21 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Witch Doctor"
+    "name": "Witch Doctor",
+    "ability": "Each night, choose a player: they are poisoned & their death is delayed, until you choose someone else.",
+    "revisions": {
+      "v1": "Each night, choose a player: they are poisoned & their death is delayed, until you choose someone else."
+    },
+    "firstNightReminder": "The Witch Doctor chooses a player.",
+    "otherNightReminder": "The Witch Doctor chooses a player.",
+    "reminders": [
+      "Voodoo",
+      "Delayed Death"
+    ]
   },
   "zh": {
     "name": "巫医",

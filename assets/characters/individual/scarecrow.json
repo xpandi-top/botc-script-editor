@@ -7,11 +7,19 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Scarecrow"
+    "name": "Scarecrow",
+    "ability": "You think you are a Townsfolk character, but you are not. If you die, the next execution doesn't kill.",
+    "revisions": {
+      "v1": "You think you are a Townsfolk character, but you are not. If you die, the next execution doesn't kill."
+    },
+    "reminders": [
+      "Scarecrow",
+      "Protected"
+    ]
   },
   "zh": {
     "name": "稻草人",

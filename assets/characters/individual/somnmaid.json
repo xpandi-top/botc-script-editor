@@ -7,11 +7,18 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Somnmaid"
+    "name": "Somnmaid",
+    "ability": "The 1st time the Demon attacks you, you don't die, and you learn that Demon's character.",
+    "revisions": {
+      "v1": "The 1st time the Demon attacks you, you don't die, and you learn that Demon's character."
+    },
+    "reminders": [
+      "No Ability"
+    ]
   },
   "zh": {
     "name": "死眠少女",

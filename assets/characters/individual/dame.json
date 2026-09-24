@@ -7,11 +7,20 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Dame"
+    "name": "Dame",
+    "ability": "Each night, you learn an in-play character. When an evil player dies, you become drunk.",
+    "revisions": {
+      "v1": "Each night, you learn an in-play character. When an evil player dies, you become drunk."
+    },
+    "firstNightReminder": "Wake the Dame & show them an in-play character token.",
+    "otherNightReminder": "Wake the Dame & show them an in-play character token.",
+    "reminders": [
+      "Drunk"
+    ]
   },
   "zh": {
     "name": "女爵",

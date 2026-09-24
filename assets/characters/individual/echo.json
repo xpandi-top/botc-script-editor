@@ -7,11 +7,23 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Echo"
+    "name": "Echo",
+    "ability": "Each night*, choose a character: they die. If that character is not in play, choose 1 extra character the next night (this stacks).",
+    "revisions": {
+      "v1": "Each night*, choose a character: they die. If that character is not in play, choose 1 extra character the next night (this stacks)."
+    },
+    "otherNightReminder": "The Echo chooses a character.",
+    "reminders": [
+      "Dead",
+      "Dead",
+      "Dead",
+      "Dead",
+      "Dead"
+    ]
   },
   "zh": {
     "name": "回响",

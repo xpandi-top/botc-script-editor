@@ -7,11 +7,19 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Gargoyle"
+    "name": "Gargoyle",
+    "ability": "The 1st time another player nominates you, they die. If you kill an evil player, you become their character & alignment.",
+    "revisions": {
+      "v1": "The 1st time another player nominates you, they die. If you kill an evil player, you become their character & alignment."
+    },
+    "reminders": [
+      "No Ability",
+      "Was The Gargoyle"
+    ]
   },
   "zh": {
     "name": "石像鬼",

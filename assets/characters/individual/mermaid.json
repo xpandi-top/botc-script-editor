@@ -7,11 +7,18 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Mermaid"
+    "name": "Mermaid",
+    "ability": "Each day, you may publicly accept another player's praise: evil characters' abilities have no effect on them until you accept another player's praise.",
+    "revisions": {
+      "v1": "Each day, you may publicly accept another player's praise: evil characters' abilities have no effect on them until you accept another player's praise."
+    },
+    "reminders": [
+      "Immune to Evil"
+    ]
   },
   "zh": {
     "name": "美人鱼",

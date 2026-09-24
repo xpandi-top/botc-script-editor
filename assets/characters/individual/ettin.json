@@ -7,11 +7,20 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Ettin"
+    "name": "Ettin",
+    "ability": "If you die, the other Ettins die that night. The Ettins' votes only count if all Ettins vote together. [+1 Ettin (you choose who)]",
+    "revisions": {
+      "v1": "If you die, the other Ettins die that night. The Ettins' votes only count if all Ettins vote together. [+1 Ettin (you choose who)]"
+    },
+    "firstNightReminder": "The Ettin chooses a player. If they chose a Minion or Demon, they choose again.",
+    "otherNightReminder": "If an Ettin died today, the other Ettins die.",
+    "reminders": [
+      "Dies Tonight"
+    ]
   },
   "zh": {
     "name": "双头巨人",

@@ -7,11 +7,18 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Hanged Man"
+    "name": "Hanged Man",
+    "ability": "When the game ends, if you ever voted with a vote token, the winning & losing teams are swapped.",
+    "revisions": {
+      "v1": "When the game ends, if you ever voted with a vote token, the winning & losing teams are swapped."
+    },
+    "reminders": [
+      "Result Swapped"
+    ]
   },
   "zh": {
     "name": "倒吊人",

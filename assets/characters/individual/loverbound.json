@@ -7,11 +7,20 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Loverbound"
+    "name": "Loverbound",
+    "ability": "On your 1st night, choose a player (not yourself): after either of you dies, the other might die at any time.",
+    "revisions": {
+      "v1": "On your 1st night, choose a player (not yourself): after either of you dies, the other might die at any time."
+    },
+    "firstNightReminder": "The Loverbound chooses a player.",
+    "reminders": [
+      "Lover",
+      "Dead"
+    ]
   },
   "zh": {
     "name": "殉情者",

@@ -7,11 +7,16 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Wolfboy"
+    "name": "Wolfboy",
+    "ability": "When all other Wolfboys are dead, you become an evil not-in-play Minion. [Several Outsiders might be Wolfboys]",
+    "revisions": {
+      "v1": "When all other Wolfboys are dead, you become an evil not-in-play Minion. [Several Outsiders might be Wolfboys]"
+    },
+    "otherNightReminder": "If a Wolfboy changed character today, wake them & tell them their new character & alignment."
   },
   "zh": {
     "name": "狼孩",

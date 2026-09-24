@@ -7,11 +7,23 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Bard"
+    "name": "Bard",
+    "ability": "Each day, you may publicly choose any number of alive players: the Townsfolk among them are drunk until you choose again. That night, you learn how many players are drunk due to you.",
+    "revisions": {
+      "v1": "Each day, you may publicly choose any number of alive players: the Townsfolk among them are drunk until you choose again. That night, you learn how many players are drunk due to you."
+    },
+    "otherNightReminder": "Give a finger signal: how many players are drunk due to the Bard's ability.",
+    "reminders": [
+      "Drunk",
+      "Drunk",
+      "Drunk",
+      "Drunk",
+      "Drunk"
+    ]
   },
   "zh": {
     "name": "游歌者",

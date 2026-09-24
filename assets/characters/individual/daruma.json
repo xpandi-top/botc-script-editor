@@ -7,11 +7,18 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Daruma"
+    "name": "Daruma",
+    "ability": "If another player answers your question, they might die. If you answer another player's question, you might die. You can't die from anything else.",
+    "revisions": {
+      "v1": "If another player answers your question, they might die. If you answer another player's question, you might die. You can't die from anything else."
+    },
+    "reminders": [
+      "Dead"
+    ]
   },
   "zh": {
     "name": "达摩",

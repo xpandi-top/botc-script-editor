@@ -7,11 +7,23 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Archlich"
+    "name": "Archlich",
+    "ability": "Each night*, choose a player: they die. The 1st time each dead player is chosen by the Archlich, that player chooses 2 players: they die.",
+    "revisions": {
+      "v1": "Each night*, choose a player: they die. The 1st time each dead player is chosen by the Archlich, that player chooses 2 players: they die."
+    },
+    "otherNightReminder": "The Archlich chooses a player.",
+    "reminders": [
+      "Dead",
+      "Dead",
+      "Used",
+      "Used",
+      "Used"
+    ]
   },
   "zh": {
     "name": "大巫妖",

@@ -7,11 +7,20 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Perfumer"
+    "name": "Perfumer",
+    "ability": "Once per game, at night, choose a player or an evil character: they learn that the Perfumer is in play.",
+    "revisions": {
+      "v1": "Once per game, at night, choose a player or an evil character: they learn that the Perfumer is in play."
+    },
+    "firstNightReminder": "The Perfumer might choose a player or a character.",
+    "otherNightReminder": "The Perfumer might choose a player or a character.",
+    "reminders": [
+      "No Ability"
+    ]
   },
   "zh": {
     "name": "调香师",

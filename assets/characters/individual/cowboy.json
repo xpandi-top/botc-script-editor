@@ -7,11 +7,22 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Cowboy"
+    "name": "Cowboy",
+    "ability": "On the 1st night, a Minion learns that the Cowboy is in play. Each time they nominate, you are woken that night. Whichever of you is first nominated by the other is executed immediately.",
+    "revisions": {
+      "v1": "On the 1st night, a Minion learns that the Cowboy is in play. Each time they nominate, you are woken that night. Whichever of you is first nominated by the other is executed immediately."
+    },
+    "firstNightReminder": "Wake a Minion & tell them the Cowboy is in play.",
+    "otherNightReminder": "If the Minion who learned the Cowboy is in play nominated today, wake the Cowboy.",
+    "reminders": [
+      "Nemesis",
+      "Has Nominated",
+      "Showdown"
+    ]
   },
   "zh": {
     "name": "牛仔",

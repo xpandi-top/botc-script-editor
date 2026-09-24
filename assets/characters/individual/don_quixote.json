@@ -7,11 +7,18 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Don Quixote"
+    "name": "Don Quixote",
+    "ability": "1 player registers as a Demon character (the Windmill) to Townsfolk abilities, even if you are dead. You may learn from the Storyteller who the Windmill is; then the Windmill becomes a different player.",
+    "revisions": {
+      "v1": "1 player registers as a Demon character (the Windmill) to Townsfolk abilities, even if you are dead. You may learn from the Storyteller who the Windmill is; then the Windmill becomes a different player."
+    },
+    "reminders": [
+      "Windmill"
+    ]
   },
   "zh": {
     "name": "堂吉诃德",

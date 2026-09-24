@@ -7,11 +7,20 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Lunar Knight"
+    "name": "Lunar Knight",
+    "ability": "Each night*, if nobody died by execution today, you are woken to choose a player: if they are a Minion, they die.",
+    "revisions": {
+      "v1": "Each night*, if nobody died by execution today, you are woken to choose a player: if they are a Minion, they die."
+    },
+    "otherNightReminder": "If *WAKE TONIGHT* is in play, wake the Lunar Knight to choose a player. If they chose a Minion, mark that Minion *DEAD*.",
+    "reminders": [
+      "Dead",
+      "Wake Tonight"
+    ]
   },
   "zh": {
     "name": "月光骑士",

@@ -7,11 +7,20 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Geisha"
+    "name": "Geisha",
+    "ability": "On your 1st night alive, and on your 1st night dead, you learn an alive player: these 2 players are opposite alignments.",
+    "revisions": {
+      "v1": "On your 1st night alive, and on your 1st night dead, you learn an alive player: these 2 players are opposite alignments."
+    },
+    "firstNightReminder": "Wake the Geisha & point to a player.",
+    "otherNightReminder": "If the Geisha died today, wake them & point to a player.",
+    "reminders": [
+      "Know"
+    ]
   },
   "zh": {
     "name": "艺伎",

@@ -7,11 +7,20 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Alewife"
+    "name": "Alewife",
+    "ability": "Executed Minions don't die, but are drunk.",
+    "revisions": {
+      "v1": "Executed Minions don't die, but are drunk."
+    },
+    "reminders": [
+      "Drunk",
+      "Drunk",
+      "Drunk"
+    ]
   },
   "zh": {
     "name": "酒娘",

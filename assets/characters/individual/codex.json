@@ -7,11 +7,24 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "CodeX"
+    "name": "CodeX",
+    "ability": "Once per game, on your Xth night, choose players X times in total: they are poisoned until dusk. Players chosen more than once die instead.",
+    "revisions": {
+      "v1": "Once per game, on your Xth night, choose players X times in total: they are poisoned until dusk. Players chosen more than once die instead."
+    },
+    "firstNightReminder": "The CodeX might choose players X times, X being how many nights they have been the CodeX (tonight included).",
+    "otherNightReminder": "The CodeX might choose players X times, X being how many nights they have been the CodeX (tonight included).",
+    "reminders": [
+      "Poisoned",
+      "Poisoned",
+      "Poisoned",
+      "Dead",
+      "Dead"
+    ]
   },
   "zh": {
     "name": "代号X",

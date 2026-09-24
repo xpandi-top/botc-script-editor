@@ -7,11 +7,18 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Truelove"
+    "name": "Truelove",
+    "ability": "On your 1st day, you may invite the Storyteller to witness you & a player telling each other your characters. Then you privately learn if anyone lied.",
+    "revisions": {
+      "v1": "On your 1st day, you may invite the Storyteller to witness you & a player telling each other your characters. Then you privately learn if anyone lied."
+    },
+    "reminders": [
+      "No Ability"
+    ]
   },
   "zh": {
     "name": "真心人",

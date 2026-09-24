@@ -7,11 +7,23 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Joker"
+    "name": "Joker",
+    "ability": "Each night, choose a player (not yourself): you learn their suit. The 4 suits secretly match the 4 character types.",
+    "revisions": {
+      "v1": "Each night, choose a player (not yourself): you learn their suit. The 4 suits secretly match the 4 character types."
+    },
+    "firstNightReminder": "The Joker chooses a player (not themself). Show them that player's suit.",
+    "otherNightReminder": "The Joker chooses a player (not themself). Show them that player's suit.",
+    "reminders": [
+      "Hearts",
+      "Diamonds",
+      "Spades",
+      "Clubs"
+    ]
   },
   "zh": {
     "name": "王牌",

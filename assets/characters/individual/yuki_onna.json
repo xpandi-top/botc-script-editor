@@ -7,11 +7,21 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Yuki-onna"
+    "name": "Yuki-onna",
+    "ability": "On your 1st night alive, and on your 1st night dead, choose a player: they are poisoned.",
+    "revisions": {
+      "v1": "On your 1st night alive, and on your 1st night dead, choose a player: they are poisoned."
+    },
+    "firstNightReminder": "The Yuki-onna chooses a player.",
+    "otherNightReminder": "The Yuki-onna chooses a player.",
+    "reminders": [
+      "Living Poison",
+      "Death Poison"
+    ]
   },
   "zh": {
     "name": "雪女",

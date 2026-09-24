@@ -7,11 +7,20 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Paperboy"
+    "name": "Paperboy",
+    "ability": "Each day, you may get a news story from the Storyteller. If you read it out publicly, that night you learn if it is true.",
+    "revisions": {
+      "v1": "Each day, you may get a news story from the Storyteller. If you read it out publicly, that night you learn if it is true."
+    },
+    "otherNightReminder": "If the Paperboy read out their news today, wake them. Nod if it is true, shake your head if not.",
+    "reminders": [
+      "True News",
+      "Fake News"
+    ]
   },
   "zh": {
     "name": "送报童",

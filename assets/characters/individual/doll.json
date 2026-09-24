@@ -7,11 +7,22 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Doll"
+    "name": "Doll",
+    "ability": "You think you are a good character, but you are not. If the Demon kills you, the Demon chooses a player: they become the Doll. [The Doll neighbours the Demon]",
+    "revisions": {
+      "v1": "You think you are a good character, but you are not. If the Demon kills you, the Demon chooses a player: they become the Doll. [The Doll neighbours the Demon]"
+    },
+    "reminders": [
+      "Original Doll",
+      "New Doll",
+      "New Doll",
+      "New Doll",
+      "New Doll"
+    ]
   },
   "zh": {
     "name": "玩偶",

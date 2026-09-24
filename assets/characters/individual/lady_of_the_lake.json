@@ -7,11 +7,17 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Lady of the Lake"
+    "name": "Lady of the Lake",
+    "ability": "Each night, the Storyteller shows you 2 abilities. You may choose 1: it replaces your ability.",
+    "revisions": {
+      "v1": "Each night, the Storyteller shows you 2 abilities. You may choose 1: it replaces your ability."
+    },
+    "firstNightReminder": "Wake the Lady of the Lake & show them 2 abilities.",
+    "otherNightReminder": "Wake the Lady of the Lake & show them 2 abilities."
   },
   "zh": {
     "name": "湖中仙女",

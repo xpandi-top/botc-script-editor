@@ -7,11 +7,20 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Skipper"
+    "name": "Skipper",
+    "ability": "Each night*, you learn if the Demon is closer to the left or the right of today's executed player. If an evil player is executed, you are drunk until dawn.",
+    "revisions": {
+      "v1": "Each night*, you learn if the Demon is closer to the left or the right of today's executed player. If an evil player is executed, you are drunk until dawn."
+    },
+    "otherNightReminder": "Tell the Skipper left or right.",
+    "reminders": [
+      "Sacrifice",
+      "Drunk"
+    ]
   },
   "zh": {
     "name": "船长",

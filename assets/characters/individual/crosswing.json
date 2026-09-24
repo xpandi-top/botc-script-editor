@@ -7,11 +7,21 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Crosswing"
+    "name": "Crosswing",
+    "ability": "On night X, choose whether the players X steps away from you are poisoned until dusk.",
+    "revisions": {
+      "v1": "On night X, choose whether the players X steps away from you are poisoned until dusk."
+    },
+    "firstNightReminder": "Wake the Crosswing. They nod or shake their head.",
+    "otherNightReminder": "Wake the Crosswing. They nod or shake their head.",
+    "reminders": [
+      "Poisoned",
+      "Poisoned"
+    ]
   },
   "zh": {
     "name": "逆蝶",

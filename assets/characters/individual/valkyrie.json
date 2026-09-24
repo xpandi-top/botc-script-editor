@@ -7,11 +7,19 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Valkyrie"
+    "name": "Valkyrie",
+    "ability": "Each night*, deaths are delayed until you approve the list of deaths. If you don't approve it, only you die tonight.",
+    "revisions": {
+      "v1": "Each night*, deaths are delayed until you approve the list of deaths. If you don't approve it, only you die tonight."
+    },
+    "otherNightReminder": "Point to every player due to die tonight. The Valkyrie nods to approve, or shakes their head to refuse.",
+    "reminders": [
+      "Dead"
+    ]
   },
   "zh": {
     "name": "女武神",

@@ -7,11 +7,21 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Paladin"
+    "name": "Paladin",
+    "ability": "Each night, you learn 2 players: either neither is a Minion, or neither is the Demon. The 2 kinds of clue alternate each night.",
+    "revisions": {
+      "v1": "Each night, you learn 2 players: either neither is a Minion, or neither is the Demon. The 2 kinds of clue alternate each night."
+    },
+    "firstNightReminder": "Point to 2 players.",
+    "otherNightReminder": "Point to 2 players.",
+    "reminders": [
+      "Not a Minion",
+      "Not the Demon"
+    ]
   },
   "zh": {
     "name": "圣骑士",

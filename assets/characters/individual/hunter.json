@@ -7,11 +7,20 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Hunter"
+    "name": "Hunter",
+    "ability": "If a player you nominate dies that night, you are woken to choose a player: they die.",
+    "revisions": {
+      "v1": "If a player you nominate dies that night, you are woken to choose a player: they die."
+    },
+    "otherNightReminder": "If the player the Hunter nominated today died, wake the Hunter to choose a player.",
+    "reminders": [
+      "Trap",
+      "Dead"
+    ]
   },
   "zh": {
     "name": "猎人",

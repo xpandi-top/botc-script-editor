@@ -7,11 +7,20 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "FaultBot"
+    "name": "FaultBot",
+    "ability": "Each night, you learn if every other Townsfolk player's ability worked normally today.",
+    "revisions": {
+      "v1": "Each night, you learn if every other Townsfolk player's ability worked normally today."
+    },
+    "firstNightReminder": "Wake the FaultBot. Nod or shake your head.",
+    "otherNightReminder": "Wake the FaultBot. Nod or shake your head.",
+    "reminders": [
+      "Error"
+    ]
   },
   "zh": {
     "name": "故障机器人",

@@ -7,11 +7,21 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Khorne"
+    "name": "Khorne",
+    "ability": "Each night*, choose 2 players: they die. If a good player died today, 1 of the players you choose tonight doesn't die.",
+    "revisions": {
+      "v1": "Each night*, choose 2 players: they die. If a good player died today, 1 of the players you choose tonight doesn't die."
+    },
+    "otherNightReminder": "The Khorne chooses 2 players.",
+    "reminders": [
+      "Dead",
+      "Dead",
+      "Cannot Die"
+    ]
   },
   "zh": {
     "name": "恐虐",

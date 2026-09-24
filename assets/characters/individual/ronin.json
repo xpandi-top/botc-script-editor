@@ -7,11 +7,20 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Ronin"
+    "name": "Ronin",
+    "ability": "Once per game, at night*, choose a player: if the Demon attacks them tonight, an evil player is attacked instead, and you regain this ability.",
+    "revisions": {
+      "v1": "Once per game, at night*, choose a player: if the Demon attacks them tonight, an evil player is attacked instead, and you regain this ability."
+    },
+    "otherNightReminder": "The Ronin might choose a player. Mark them *PARRY*.",
+    "reminders": [
+      "Parry",
+      "No Ability"
+    ]
   },
   "zh": {
     "name": "浪人",

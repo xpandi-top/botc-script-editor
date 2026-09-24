@@ -7,11 +7,16 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Scalebearer"
+    "name": "Scalebearer",
+    "ability": "You start knowing a player who is equally far from 2 players of the opposite alignment to them.",
+    "revisions": {
+      "v1": "You start knowing a player who is equally far from 2 players of the opposite alignment to them."
+    },
+    "firstNightReminder": "Wake the Scalebearer & point to a player."
   },
   "zh": {
     "name": "天平师",

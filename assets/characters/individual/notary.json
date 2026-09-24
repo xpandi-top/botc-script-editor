@@ -7,11 +7,20 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Notary"
+    "name": "Notary",
+    "ability": "Each night*, you learn if the player who died by execution today & their nominator are the same alignment.",
+    "revisions": {
+      "v1": "Each night*, you learn if the player who died by execution today & their nominator are the same alignment."
+    },
+    "otherNightReminder": "Wake the Notary. Nod or shake your head.",
+    "reminders": [
+      "Condemned",
+      "Accuser"
+    ]
   },
   "zh": {
     "name": "公证人",

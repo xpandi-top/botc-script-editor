@@ -7,11 +7,15 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Kappa"
+    "name": "Kappa",
+    "ability": "On Judgment Day, you may learn from the Storyteller how many players are Outsiders. [Any number of Outsiders]",
+    "revisions": {
+      "v1": "On Judgment Day, you may learn from the Storyteller how many players are Outsiders. [Any number of Outsiders]"
+    }
   },
   "zh": {
     "name": "河童",

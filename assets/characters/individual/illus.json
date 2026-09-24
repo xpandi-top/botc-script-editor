@@ -7,11 +7,18 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Illus"
+    "name": "Illus",
+    "ability": "While both your neighbours are alive, Townsfolk abilities yield false info.",
+    "revisions": {
+      "v1": "While both your neighbours are alive, Townsfolk abilities yield false info."
+    },
+    "reminders": [
+      "False Info"
+    ]
   },
   "zh": {
     "name": "幻",

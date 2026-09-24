@@ -7,11 +7,20 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Siren"
+    "name": "Siren",
+    "ability": "Each night*, choose a player: they die, and choose whether to permanently lose the ability that follows. Townsfolk abilities yield false info.",
+    "revisions": {
+      "v1": "Each night*, choose a player: they die, and choose whether to permanently lose the ability that follows. Townsfolk abilities yield false info."
+    },
+    "otherNightReminder": "The Siren chooses a player, then chooses whether to take a *CURTAIN CALL*.",
+    "reminders": [
+      "Curtain Call",
+      "Dead"
+    ]
   },
   "zh": {
     "name": "塞壬",

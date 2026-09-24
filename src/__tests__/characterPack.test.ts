@@ -157,8 +157,9 @@ describe('edition credits', () => {
 })
 
 // ── Odyssey pack ─────────────────────────────────────────────────────────────
-// Chinese-only for now: names and abilities live in the `zh` block, English has
-// the name only. Re-syncing from the wiki must not regress these.
+// Chinese is the source (the pack's wiki); English is a community translation
+// in the `en` block (docs/ODYSSEY.md). Re-syncing from the wiki must not
+// regress these, and a changed Chinese ability needs its English updated too.
 
 const odyssey = characterFiles.map(({ entry }) => entry).filter((entry) => entry.edition === 'odyssey')
 
@@ -177,6 +178,30 @@ describe('odyssey pack', () => {
   it('has an English name for every character', () => {
     const missing = odyssey.filter((entry) => !entry.en?.name?.trim()).map((entry) => entry.id)
     expect(missing).toEqual([])
+  })
+
+  it('has an English ability, night reminders and tokens matching the Chinese ones', () => {
+    const wrong = odyssey.flatMap((entry) => {
+      const { en = {}, zh = {} } = entry
+      const problems: string[] = []
+      if (!en.ability?.trim() || en.ability !== en.revisions?.[entry.current_revision!]) problems.push('ability')
+      if (/[㐀-鿿]/.test(`${en.ability}${en.firstNightReminder ?? ''}${en.otherNightReminder ?? ''}${(en.reminders ?? []).join('')}`)) problems.push('Chinese in English text')
+      // Same shape as the source: setup brackets, night* / dusk*, night steps, one token per token.
+      if (/\[.+\]/.test(en.ability ?? '') !== /\[.+\]/.test(zh.ability ?? '')) problems.push('setup brackets')
+      if ((en.ability ?? '').includes('*') !== (zh.ability ?? '').includes('*')) problems.push('asterisk')
+      if (Boolean(en.firstNightReminder) !== Boolean(zh.firstNightReminder)) problems.push('first night')
+      if (Boolean(en.otherNightReminder) !== Boolean(zh.otherNightReminder)) problems.push('other nights')
+      if ((en.reminders ?? []).length !== (zh.reminders ?? []).length) problems.push('token count')
+      return problems.map((problem) => `${entry.id}: ${problem}`)
+    })
+    expect(wrong).toEqual([])
+  })
+
+  it('marks the English text as a community translation', () => {
+    const unmarked = odyssey
+      .filter((entry) => !entry.revisions?.find((r) => r.id === entry.current_revision)?.note.includes('community translation'))
+      .map((entry) => entry.id)
+    expect(unmarked).toEqual([])
   })
 
   it('keeps zh.ability in sync with the current revision text', () => {
