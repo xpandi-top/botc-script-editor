@@ -2,7 +2,7 @@
  * Unified AI API — wraps geminiGenerate and parses AgentResponse.
  */
 
-import { geminiGenerate, GeminiError } from '../gemini'
+import { geminiGenerate, GeminiError, type GeminiResponse } from '../gemini'
 import type { AiSettings } from '../aiSettings'
 import type { AgentResponse } from './types'
 
@@ -16,7 +16,7 @@ export type AiCallParams = {
 }
 
 export type AiCallResult =
-  | { ok: true; response: AgentResponse; rawText: string; steps?: Array<{ tool: string; ok: boolean }>; remaining?: number | null }
+  | { ok: true; response: AgentResponse; rawText: string; steps?: Array<{ tool: string; ok: boolean; arguments?: unknown }>; remaining?: number | null; usage?: GeminiResponse['usage'] }
   | { ok: false; error: string }
 
 // ── Parsing ───────────────────────────────────────────────────────────────────
@@ -98,7 +98,7 @@ export async function callAi(params: AiCallParams): Promise<AiCallResult> {
           fill && typeof fill.field === 'string' && ['string', 'number', 'boolean'].includes(typeof fill.value),
         ) : undefined }
       : { message: res.text }
-    return { ok: true, response, rawText: res.text, ...(res.steps ? { steps: res.steps, remaining: res.remaining ?? null } : {}) }
+    return { ok: true, response, rawText: res.text, ...(res.steps ? { steps: res.steps, remaining: res.remaining ?? null } : {}), ...(res.usage ? { usage: res.usage } : {}) }
   } catch (e) {
     const error = e instanceof GeminiError ? e.message : String(e)
     return { ok: false, error }
