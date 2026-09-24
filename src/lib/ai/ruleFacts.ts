@@ -14,11 +14,12 @@
  * The same facts are the no-model offline answer (localAnswer.ts).
  */
 import { allCharacterFiles, getAbilityText, getCharacterById, getDisplayName, initialScripts, teamLabels } from '../../catalog'
-import { buildScriptPool, planSetup } from '../../core/engine/planning'
+import { buildScriptPool, planSetup, type ScriptPool, type SetupPlan } from '../../core/engine/planning'
 import { CHARACTER_DISTRIBUTION, SETUP_OUTSIDER_SHIFTS } from '../../core/engine/setup'
 import { gameStateFacts, type GameFact } from '../../core/engine/winConditions'
 import { catalogTeamOf } from '../../utils/seatAlignment'
 import type { Language, Team } from '../../types'
+import type { PoolRequirements } from './answerParse'
 import { mentionedEntities } from './catalogRetrieval'
 import type { AiContext } from './types'
 
@@ -76,6 +77,34 @@ function gameFactText(fact: GameFact, zh: boolean, seatName: (seat: number) => s
   }
 }
 
+/** Tolerance for a generated script, per shape (the target is SCRIPT_SHAPES). */
+const POOL_RANGES: Record<'full' | 'teensy', { counts: PoolRequirements['counts']; dealable: number[] }> = {
+  full: { counts: { townsfolk: [11, 14], outsider: [3, 5], minion: [3, 5], demon: [1, 4] }, dealable: [7, 8, 9, 10, 11, 12] },
+  teensy: { counts: { townsfolk: [5, 8], outsider: [1, 3], minion: [1, 3], demon: [1, 3] }, dealable: [5, 6] },
+}
+
+export type PlanRequest =
+  | { kind: 'setup'; players: number; script: string[]; plan: SetupPlan | null }
+  | { kind: 'script'; pool: ScriptPool; requirements: PoolRequirements }
+
+/** A game setup or script design the question asks for, with the program's legal answer. */
+export function planRequest(query: string, page: FactsPage = {}): PlanRequest | null {
+  if (SCRIPT_DESIGN.test(query)) {
+    const { editionIds, characterIds } = mentionedEntities(query)
+    const only = ONLY_EDITION.test(query) && editionIds.length > 0
+    const candidates = allCharacterFiles.filter((c) => c?.id && c.team).map((c) => ({ id: c.id, team: c.team as Team, edition: c.edition }))
+    const prefer = editionIds.flatMap((id) => initialScripts.find((s) => s.slug === id)?.characters ?? allCharacterFiles.filter((c) => c.edition === id).map((c) => c.id))
+    const shape = TEENSY.test(query) ? 'teensy' : 'full'
+    const pool = buildScriptPool({ candidates, shape, include: characterIds, prefer, editions: only ? editionIds : undefined })
+    return { kind: 'script', pool, requirements: { include: characterIds, noTeams: ['traveler'], editions: only ? editionIds : undefined, ...POOL_RANGES[shape] } }
+  }
+  const players = playerCount(query)
+  if (!players) return null
+  const script = scriptFor(query, page)
+  const include = mentionedEntities(query).characterIds.filter((id) => script.includes(id))
+  return { kind: 'setup', players, script, plan: script.length ? planSetup({ scriptCharacters: script, players, getTeam: catalogTeamOf, include }) : null }
+}
+
 /** An empty string when nothing in the question or page can be computed. */
 export function computeRuleFacts(query: string, language: Language, page: FactsPage = {}): string {
   const zh = language === 'zh'
@@ -89,8 +118,8 @@ export function computeRuleFacts(query: string, language: Language, page: FactsP
       : `With ${alive} players alive, an execution needs at least ${votes} votes (half the alive players, rounded up) and more votes than any other nominee today — that comparison does not raise the ${votes}-vote threshold.`)
   }
 
-  const designing = SCRIPT_DESIGN.test(query)
-  const players = designing ? null : playerCount(query)
+  const request = planRequest(query, page)
+  const players = request?.kind === 'setup' ? request.players : null
   if (players) {
     const d = CHARACTER_DISTRIBUTION[players]
     const script = scriptFor(query, page)
@@ -107,9 +136,8 @@ export function computeRuleFacts(query: string, language: Language, page: FactsP
           : `If the ${name(id, false)} (${teamName(id, false)}${bracket ? `, ${bracket}` : ''}) is in play: ${row(false, c)}; the ${name(id, false)} fills a ${teamName(id, false)} slot itself.`)
       }
     }
-    if (script.length) {
-      const include = mentionedEntities(query).characterIds.filter((id) => script.includes(id))
-      const plan = planSetup({ scriptCharacters: script, players, getTeam: catalogTeamOf, include })
+    if (request?.kind === 'setup') {
+      const plan = request.plan
       if (plan?.inPlay.length === players) {
         facts.push(zh
           ? `程序生成的一套合法开局（${row(true, plan.counts)}）：在场角色: ${list(plan.inPlay, true)}${plan.bluffs.length ? `；恶魔伪装（不在场的善良角色）: ${list(plan.bluffs, true)}` : ''}。可以直接采用；替换角色时保持各类数量不变。`
@@ -118,13 +146,9 @@ export function computeRuleFacts(query: string, language: Language, page: FactsP
     }
   }
 
-  if (designing) {
-    const { editionIds, characterIds } = mentionedEntities(query)
-    const only = ONLY_EDITION.test(query) && editionIds.length > 0
-    const candidates = allCharacterFiles.filter((c) => c?.id && c.team).map((c) => ({ id: c.id, team: c.team as Team, edition: c.edition }))
-    const prefer = editionIds.flatMap((id) => initialScripts.find((s) => s.slug === id)?.characters ?? allCharacterFiles.filter((c) => c.edition === id).map((c) => c.id))
-    const shape = TEENSY.test(query) ? 'teensy' : 'full'
-    const pool = buildScriptPool({ candidates, shape, include: characterIds, prefer, editions: only ? editionIds : undefined })
+  if (request?.kind === 'script') {
+    const { pool } = request
+    const shape = pool.shape
     facts.push(zh
       ? `血染钟楼的剧本是角色池，每局只用其中一部分。程序按问题的约束组出的合法${shape === 'teensy' ? '小型（Teensyville，5–6 人）' : '完整'}剧本（${row(true, pool.counts)}）：剧本角色: ${list(pool.characters, true)}。可以直接采用；替换角色时保持各类数量、不加旅行者。`
       : `A Blood on the Clocktower script is a character pool; each game uses part of it. A legal ${shape === 'teensy' ? 'Teensyville (5–6 player)' : 'full'} script built by program from the question's constraints (${row(false, pool.counts)}): Script characters: ${list(pool.characters, false)}. Use it as is, or swap characters while keeping these counts and adding no Travellers.`)

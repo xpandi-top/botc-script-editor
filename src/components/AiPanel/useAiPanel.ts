@@ -13,6 +13,7 @@ import {
 import { getWebLlmState, subscribeWebLlm, unloadWebLlm } from '../../lib/ai/runtime/webllm'
 import { getHostedStatus, HOSTED_INPUT_BUDGET } from '../../lib/ai/runtime/hosted'
 import { answerLocally } from '../../lib/ai/localAnswer'
+import { checkAnswer } from '../../lib/ai/answerCheck'
 import { useT } from '../../context/I18nContext'
 import { storePair } from '../../lib/translationMemory'
 import { prepareSystemPrompt, callAi } from '../../lib/ai'
@@ -167,10 +168,12 @@ export function useAiPanel({ open, context, callbacks }: UseAiPanelOptions) {
 
     if (result.ok) {
       const { response } = result
+      // Line-ups and scripts in the answer are checked; illegal ones get the program's legal version.
+      const checked = checkAnswer(effectiveCtx, text, response.message)
       const msgId = crypto.randomUUID()
       setMessages((m) => [
         ...m,
-        { id: msgId, role: 'assistant', content: response.message, fills: response.fills, appliedFills: [], ...(result.steps ? { steps: result.steps, remaining: result.remaining } : {}) },
+        { id: msgId, role: 'assistant', content: checked.text, fills: response.fills, appliedFills: [], ...(result.steps ? { steps: result.steps, remaining: result.remaining } : {}) },
       ])
       if (autoApply && response.fills?.length) {
         response.fills.forEach((fill) => {

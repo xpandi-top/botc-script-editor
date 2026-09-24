@@ -57,7 +57,7 @@ describe('hosted AI settings', () => {
   it('does not exist without an API', () => {
     vi.stubEnv('VITE_API_URL', '')
     saveAiSettings(hosted)
-    expect(loadAiSettings().provider).toBe('groq')
+    expect(loadAiSettings().provider).toBe('webllm') // local mode: answers from local data without a key
     expect(availableProviders()).not.toContain('botc')
   })
 })
@@ -197,5 +197,23 @@ describe('answers without a model', () => {
     expect(error).toMatchObject({ role: 'error', content: expect.stringContaining('额度已用完') })
     expect(fallback).toMatchObject({ role: 'assistant', local: true })
     expect(fallback.content).toContain('至少需要 3 票')
+  })
+})
+
+describe('settings modes', () => {
+  it('offers online and local first, and the own-key mode as optional', async () => {
+    const { fireEvent } = await import('@testing-library/react')
+    const { SettingsPanel } = await import('../components/AiPanel/SettingsPanel')
+    vi.stubGlobal('fetch', vi.fn(async () => reply({ chat: { available: true, model: 'glm' } })))
+    const patch = vi.fn()
+    const { rerender } = render(<I18nProvider language="zh"><SettingsPanel settings={hosted} patchSettings={patch} showSettings /></I18nProvider>)
+    expect(screen.getAllByRole('tab').map((t) => t.textContent)).toEqual(['在线 · BOTC 免费', '本地 · 离线', '自带 Key（可选）'])
+    expect(screen.queryByLabelText(/API Key/)).toBeNull()
+    fireEvent.click(screen.getByRole('tab', { name: '本地 · 离线' }))
+    expect(patch).toHaveBeenCalledWith({ provider: 'webllm', model: 'Qwen3-1.7B-q4f16_1-MLC' })
+    rerender(<I18nProvider language="zh"><SettingsPanel settings={{ ...hosted, provider: 'webllm', model: 'Qwen3-1.7B-q4f16_1-MLC' }} patchSettings={patch} showSettings /></I18nProvider>)
+    expect(screen.getByText(/不需要模型也能用/)).toBeInTheDocument()
+    rerender(<I18nProvider language="zh"><SettingsPanel settings={{ ...hosted, provider: 'groq', model: 'qwen/qwen3.8-27b' }} patchSettings={patch} showSettings /></I18nProvider>)
+    expect(screen.getByLabelText('Groq API Key')).toBeInTheDocument()
   })
 })

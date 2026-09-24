@@ -98,8 +98,9 @@ function envKey(provider: KeyedAiProvider): string {
 
 function defaultSettings(): AiSettings {
   const envProvider = import.meta.env.VITE_AI_PROVIDER
-  // Without a configured provider, start on the hosted AI so the assistant works with no key.
-  const provider: AiProvider = isProvider(envProvider) ? envProvider : isApiConfigured() ? 'botc' : 'groq'
+  // Without a configured provider, start on a mode that works with no key:
+  // the hosted AI when this build has an API, else local (local data + optional on-device model).
+  const provider: AiProvider = isProvider(envProvider) ? envProvider : isApiConfigured() ? 'botc' : 'webllm'
   const settings: AiSettings = {
     provider,
     model: DEFAULT_MODELS[provider],

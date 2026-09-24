@@ -16,6 +16,7 @@ import { EVAL_CASES } from '../lib/ai/eval/cases'
 import { evalContext } from '../lib/ai/eval/contexts'
 import { gradeCase } from '../lib/ai/eval/graders'
 import { callAi } from '../lib/ai/api'
+import { checkAnswer } from '../lib/ai/answerCheck'
 import { prepareSystemPrompt } from '../lib/ai/prompts'
 import { HOSTED_INPUT_BUDGET } from '../lib/ai/runtime/hosted'
 import { estimateTokens } from '../core/ai/contextBudget'
@@ -40,7 +41,9 @@ it.skipIf(!url)('hosted AI evaluation', async () => {
       temperature: 0.6,
     })
     const seconds = (Date.now() - started) / 1000
-    const text = result.ok ? result.response.message : `ERROR: ${result.error}`
+    // As the panel shows it: after the program check of line-ups and scripts.
+    const checked = result.ok ? checkAnswer(ctx, c.question, result.response.message) : null
+    const text = result.ok ? checked!.text : `ERROR: ${result.error}`
     const grade = gradeCase(c, { text, steps: result.ok ? result.steps : [] })
     if (result.ok && result.usage) model ||= 'hosted'
     rows.push({
@@ -51,6 +54,7 @@ it.skipIf(!url)('hosted AI evaluation', async () => {
       neurons: result.ok ? result.usage?.neurons : undefined,
       rounds: result.ok ? result.usage?.rounds : undefined,
       tools: result.ok ? (result.steps ?? []).map((s) => s.tool).join(' → ') : '',
+      corrected: !!checked?.corrected,
       answer: text,
     })
     console.log(`${grade.pass ? '✓' : '✗'} ${c.id} (${seconds.toFixed(1)}s${result.ok && result.usage ? `, ${result.usage.neurons} neurons` : ''})${grade.pass ? '' : ` — ${rows.at(-1)!.failed}`}`)
@@ -62,9 +66,9 @@ it.skipIf(!url)('hosted AI evaluation', async () => {
   model = status?.chat?.model ?? model
   const summary = `${passed}/${rows.length} passed · model ${model} · ${sum('neurons').toFixed(0)} neurons · ${(sum('seconds') / rows.length).toFixed(1)} s avg`
   const table = [
-    '| case | 类别 | 难度 | 结果 | 未通过的检查 | 秒 | 提示词估算 | 实际输入 token | neurons | 轮次 | 工具 |',
-    '|---|---|---|---|---|---|---|---|---|---|---|',
-    ...rows.map((r) => `| ${r.id} | ${r.category} | ${r.difficulty} | ${r.pass ? '✅' : '❌'} | ${String(r.failed).replace(/\|/g, '/')} | ${Number(r.seconds).toFixed(1)} | ${r.promptEstimate} | ${r.promptTokens ?? ''} | ${r.neurons ?? ''} | ${r.rounds ?? ''} | ${r.tools} |`),
+    '| case | 类别 | 难度 | 结果 | 程序校正 | 未通过的检查 | 秒 | 提示词估算 | 实际输入 token | neurons | 轮次 | 工具 |',
+    '|---|---|---|---|---|---|---|---|---|---|---|---|',
+    ...rows.map((r) => `| ${r.id} | ${r.category} | ${r.difficulty} | ${r.pass ? '✅' : '❌'} | ${r.corrected ? '是' : ''} | ${String(r.failed).replace(/\|/g, '/')} | ${Number(r.seconds).toFixed(1)} | ${r.promptEstimate} | ${r.promptTokens ?? ''} | ${r.neurons ?? ''} | ${r.rounds ?? ''} | ${r.tools} |`),
   ].join('\n')
   const answers = rows.map((r) => `### ${r.id} ${r.pass ? '✅' : '❌'}\n\n${String(r.answer).trim()}\n`).join('\n')
   const out = process.env.BOTC_AI_EVAL_OUT ?? 'ai-eval-report.md'
