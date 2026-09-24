@@ -13,6 +13,9 @@
  * zh: the official Chinese wiki (clocktower-wiki.gstonegames.com), page = the
  *     character's Chinese name; every edition except Odyssey, whose almanac
  *     comes from the pack itself (scripts/odyssey/).
+ *     Characters it has no page for fall back to the community BWIKI
+ *     (wiki.biligame.com/bloodontheclocktower); those entries are marked
+ *     `community: true` and cite it.
  * en: the official wiki (wiki.bloodontheclocktower.com), page = the English
  *     name; official editions only.
  *
@@ -46,6 +49,13 @@ const SOURCES = {
     editions: (edition) => edition !== 'odyssey',
     title: (c) => c.zh?.name,
     // This wiki answers 403 to self-identified bots; Node's default agent is accepted.
+    headers: {},
+  },
+  // Community wiki, used only for Chinese characters the 集石 wiki has no page for.
+  bwiki: {
+    api: 'https://wiki.biligame.com/bloodontheclocktower/api.php',
+    page: (title) => `https://wiki.biligame.com/bloodontheclocktower/${encodeURIComponent(title)}`,
+    name: '血染钟楼 WIKI（BWIKI，社区维护）',
     headers: {},
   },
   en: {
@@ -92,18 +102,25 @@ const EDITION_NAMES = {
 async function build(lang) {
   const source = SOURCES[lang]
   const byEdition = new Map()
-  const report = { written: 0, missing: [], empty: [] }
+  const report = { written: 0, missing: [], empty: [], community: [] }
   for (const c of readCharacters()) {
     if (!source.editions(c.edition) || (ONLY && !ONLY.includes(c.id))) continue
     const title = source.title(c)
     if (!title) { report.missing.push(`${c.id} (no ${lang} name)`); continue }
-    const json = await fetchPage(lang, c.id, title)
+    let json = await fetchPage(lang, c.id, title)
+    let from = source
+    if (!json.parse?.wikitext?.['*'] && lang === 'zh') {
+      json = await fetchPage('bwiki', c.id, title)
+      from = SOURCES.bwiki
+    }
     const wikitext = json.parse?.wikitext?.['*']
     if (!wikitext) { report.missing.push(`${c.id} (${title})`); continue }
     const entry = parseGuidePage(wikitext)
     const sections = Object.keys(entry).filter((key) => key !== 'tags' && key !== 'ability')
     if (!sections.length) { report.empty.push(`${c.id} (${title})`); continue }
-    const ordered = { source: source.page(json.parse.title), revid: json.parse.revid, ...entry }
+    const community = from === SOURCES.bwiki
+    if (community) report.community.push(`${c.id} (${title})`)
+    const ordered = { source: from.page(json.parse.title), revid: json.parse.revid, ...(community && { community: true }), ...entry }
     if (!byEdition.has(c.edition)) byEdition.set(c.edition, {})
     byEdition.get(c.edition)[c.id] = ordered
     report.written++
@@ -123,7 +140,8 @@ async function build(lang) {
     }
     fs.writeFileSync(file, `${JSON.stringify(out, null, 1)}\n`)
   }
-  console.log(`${lang}: ${report.written} characters in ${byEdition.size} files; ${report.missing.length} without a page, ${report.empty.length} without guide sections`)
+  console.log(`${lang}: ${report.written} characters in ${byEdition.size} files (${report.community.length} from BWIKI); ${report.missing.length} without a page, ${report.empty.length} without guide sections`)
+  for (const line of report.community) console.log(`  BWIKI    ${line}`)
   for (const line of report.missing) console.log(`  no page  ${line}`)
   for (const line of report.empty) console.log(`  empty    ${line}`)
 }

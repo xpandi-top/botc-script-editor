@@ -60,6 +60,13 @@ describe('guide passages in prompts', () => {
     expect((await loadCharacterGuides('纹章官怎么玩？', 'zh')).herald).not.toContain('注：')
   })
 
+  it('mark guides from the community wiki', async () => {
+    // 刀客 has no 集石 page; its guide comes from BWIKI.
+    const daoke = (await loadCharacterGuides('刀客怎么玩？', 'zh')).daoke
+    expect(daoke).toContain('来源（社区 wiki，非官方）: https://wiki.biligame.com/bloodontheclocktower/')
+    expect((await loadCharacterGuides('水手怎么玩？', 'zh')).sailor).not.toContain('社区')
+  })
+
   it('are not loaded for questions a guide does not answer', async () => {
     expect(await loadCharacterGuides('水手的能力是什么？', 'zh')).toEqual({})
     const prompt = await prepareSystemPrompt(general('zh'), '水手的能力是什么？', [], { local: true })

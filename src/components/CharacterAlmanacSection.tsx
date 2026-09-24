@@ -107,7 +107,7 @@ export function CharacterAlmanacSection({
               variant="caption"
               sx={{ alignSelf: 'flex-start' }}
             >
-              {t('almanac_source')}
+              {t(entry.community ? 'almanac_source_community' : 'almanac_source')}
             </Link>
           )}
         </Box>

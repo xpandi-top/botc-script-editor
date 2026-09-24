@@ -35,6 +35,8 @@ export type CharacterGuide = Partial<Record<GuideSectionId, string>> & {
   source?: string
   /** Wiki revision the entry was built from. */
   revid?: number
+  /** Taken from a community wiki (BWIKI) because the official one has no page. */
+  community?: boolean
   /** Ability kinds (集石 “角色能力类型”: 免死, 醉酒, …). */
   tags?: string[]
   zh_name?: string

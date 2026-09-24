@@ -113,7 +113,8 @@ export async function loadCharacterGuides(
     const guide = await getCharacterGuide(id, language)
     if (!guide) continue
     const name = getDisplayName(id, language)
-    const source = guide.entry.source ? `${zh ? '来源' : 'Source'}: ${guide.entry.source}` : ''
+    const community = guide.entry.community ? (zh ? '（社区 wiki，非官方）' : ' (community wiki, unofficial)') : ''
+    const source = guide.entry.source ? `${zh ? '来源' : 'Source'}${community}: ${guide.entry.source}` : ''
     const foreign = guide.language !== language
     if (foreign && !options.crossLanguage) {
       if (source) guides[id] = zh ? `**${name}**：攻略只有英文版。${source}` : `**${name}**: the guide exists only in Chinese. ${source}`

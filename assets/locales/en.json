@@ -1294,6 +1294,7 @@
     "almanac_fighting": "Playing against this character",
     "almanac_flavor": "Background",
     "almanac_source": "Source page",
+    "almanac_source_community": "Source page (community wiki)",
     "no_almanac_for_this_character": "No almanac entry for this character.",
     "attribution_line": "Characters from {0} · {1}",
     "attribution_line_no_source": "Characters from {0}",
