@@ -1,9 +1,10 @@
 /** Entity-first retrieval over the bundled catalog. Counts never come from top-K results. */
 import {
   allCharacterFiles, editionLabels, getEditionCredit, getDisplayName, getAbilityText,
-  loadAlmanacFile, hasAlmanac,
+  loadAlmanacFile, hasGlossary,
 } from '../../catalog'
 import { estimateTokens, selectContext } from '../../core/ai/contextBudget'
+import { GUIDE_SECTIONS } from '../../core/ai/guides'
 import { createWikiIndex } from '../../core/ai/wikiIndex'
 import type { Language } from '../../types'
 
@@ -112,15 +113,20 @@ export function retrieveCatalog(query: string, language: Language, previousQueri
 export async function resolveCatalogQuery(query: string, language: Language, previousQueries: string[] = []): Promise<CatalogRetrieval> {
   const direct = retrieveCatalog(query, language, previousQueries)
   if (direct.editionIds.length) return direct
-  const files = await Promise.all(editions.filter(hasAlmanac).map((id) => loadAlmanacFile(id, language)))
+  // Only packs that define terms: the other guide files hold character prose alone.
+  const files = await Promise.all(editions.filter(hasGlossary).map((id) => loadAlmanacFile(id, language)))
   const matching = files.filter((file) => file && Object.values(file.terminology ?? {}).some((term) =>
     (term.title.match(/[一-鿿]+|[A-Za-z]+(?: [A-Za-z]+)*/g) ?? []).some((alias) => matches(query.toLowerCase(), alias)),
   ))
   return matching.length ? retrieveCatalog(`${matching.map((file) => file!.edition).join(' ')}\n${query}`, language) : direct
 }
 
-/** Lazy local almanac loading; no LLM prequery or remote embedding request. */
-export async function retrieveAlmanac(retrieval: CatalogRetrieval, language: Language): Promise<string> {
+/**
+ * Lazy local almanac loading; no LLM prequery or remote embedding request.
+ * `characters: false` leaves out the named characters' guide paragraphs (a
+ * guide question gets them from loadCharacterGuides instead).
+ */
+export async function retrieveAlmanac(retrieval: CatalogRetrieval, language: Language, options: { characters?: boolean } = {}): Promise<string> {
   const files = await Promise.all(retrieval.editionIds.map((id) => loadAlmanacFile(id, language)))
   const passages: string[] = []
   const definitions: string[] = []
@@ -138,10 +144,12 @@ export async function retrieveAlmanac(retrieval: CatalogRetrieval, language: Lan
         if (explicitlyNamed && i === 0) definitions.push(passage)
       }
     }
-    for (const id of retrieval.characterIds) {
+    for (const id of options.characters === false ? [] : retrieval.characterIds) {
       const entry = file.characters?.[id]
       if (!entry) continue
-      for (const [section, value] of Object.entries(entry)) {
+      // Prose sections only: not the source URL, credits or night-order fields.
+      for (const section of [...GUIDE_SECTIONS.map((s) => s.id), 'design_notes' as const]) {
+        const value = entry[section]
         if (typeof value === 'string' && value.trim()) {
           for (const paragraph of value.split(/\n\s*\n/)) {
             passages.push(`${source}\n${entry.source ?? ''}\n${getDisplayName(id, language)} [${id}] ${section}\n${paragraph}`)

@@ -255,7 +255,7 @@ export type UiKey =
   | 'glossary' | 'no_glossary_for_this_script'
   | 'almanac' | 'almanac_summary' | 'almanac_howto' | 'almanac_examples'
   | 'almanac_rules' | 'almanac_reminder_details' | 'almanac_tips'
-  | 'almanac_bluffing' | 'almanac_flavor' | 'almanac_source'
+  | 'almanac_bluffing' | 'almanac_fighting' | 'almanac_flavor' | 'almanac_source'
   | 'no_almanac_for_this_character'
   | 'script_reminders' | 'search' | 'select' | 'select_player'
   | 'storyteller_setup' | 'teams' | 'this_game_only' | 'traveler_2'

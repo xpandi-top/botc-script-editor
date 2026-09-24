@@ -5,6 +5,7 @@ import zhLocale from '../assets/locales/zh.json'
 import zhJinxLocale from '../assets/locales/zh.jinxes.json'
 import nightOrderData from '../assets/characters/night-order.json'
 import editionCreditData from '../assets/editions.json'
+import guideIndexData from '../assets/almanac/index.json'
 import type {
   CharacterEntry,
   CharacterFileEntry,
@@ -31,6 +32,7 @@ import {
   normalizeScriptMetaEntry,
 } from './core/script/format'
 import { editableScriptFromData } from './core/script/editable'
+import type { CharacterGuide, GuideFile, GuideIndex, GuideTerm } from './core/ai/guides'
 
 export const REVISION_OVERRIDES_KEY = 'BOTC_REVISION_OVERRIDES'
 
@@ -970,46 +972,34 @@ export function getRequiredAttributions(characterIds: Iterable<string>): Edition
 
 // ── Character almanac (lazy-loaded) ───────────────────────────────────────────
 //
-// Almanac files are large (Odyssey alone is ~650 KB of prose) and only needed
-// when someone opens a character's detail panel, so they are NOT eager-globbed
-// like the character files — each edition is fetched on first use and cached.
+// Character guides, one schema for every edition (src/core/ai/guides.ts):
+// the Odyssey almanac from the pack, the other editions from the wikis
+// (scripts/build-guides.mjs). The files are large (Odyssey alone is ~650 KB
+// of prose) and only needed when someone opens a character's detail panel or
+// asks a guide question, so each edition is fetched on first use and cached;
+// the small index says synchronously which characters have one.
 
-export type AlmanacCharacterEntry = {
-  zh_name?: string
-  en_name?: string
-  number?: string
-  source?: string
-  flavor?: string
-  summary?: string
-  ability?: string
-  examples?: string
-  howto?: string
-  reminder_details?: string
-  rules?: string
-  design_notes?: string
-  tips?: string
-  bluffing?: string
-  scripts?: string
-  credits?: { design?: string; concept?: string; art?: string }
-}
+export type AlmanacCharacterEntry = CharacterGuide
+export type AlmanacTerm = GuideTerm
+export type AlmanacFile = GuideFile
 
-export type AlmanacTerm = { title: string; text: string; source?: string }
-
-export type AlmanacFile = {
-  edition: string
-  name_zh?: string
-  name_en?: string
-  source?: string
-  license?: string
-  terminology?: Record<string, AlmanacTerm>
-  characters?: Record<string, AlmanacCharacterEntry>
-}
-
-const almanacFiles = import.meta.glob('../assets/almanac/*.json', {
+const almanacFiles = import.meta.glob(['../assets/almanac/*.json', '!../assets/almanac/index.json'], {
   import: 'default',
 }) as Record<string, () => Promise<AlmanacFile>>
 
+const guideIndex = guideIndexData as GuideIndex
+const guideFiles = Object.entries(guideIndex.files).map(([name, file]) => ({ name, ...file, ids: new Set(file.characters) }))
+
 const _almanacCache = new Map<string, Promise<AlmanacFile | null>>()
+
+function loadAlmanacByName(name: string): Promise<AlmanacFile | null> {
+  const cached = _almanacCache.get(name)
+  if (cached) return cached
+  const path = Object.keys(almanacFiles).find((p) => p.endsWith(`/${name}`))
+  const pending: Promise<AlmanacFile | null> = path ? almanacFiles[path]().catch(() => null) : Promise.resolve(null)
+  _almanacCache.set(name, pending)
+  return pending
+}
 
 /**
  * Load the almanac for an edition, preferring the requested language.
@@ -1017,33 +1007,38 @@ const _almanacCache = new Map<string, Promise<AlmanacFile | null>>()
  * same edition is used rather than returning nothing.
  */
 export function loadAlmanacFile(edition: string, language: Language): Promise<AlmanacFile | null> {
-  const cacheKey = `${edition}.${language}`
-  const cached = _almanacCache.get(cacheKey)
-  if (cached) return cached
-
-  const basenameOf = (path: string) => path.split('/').pop() ?? ''
-  const paths = Object.keys(almanacFiles)
-  const match =
-    paths.find((path) => basenameOf(path) === `${edition}.${language}.json`) ??
-    paths.find((path) => basenameOf(path).startsWith(`${edition}.`))
-
-  const pending: Promise<AlmanacFile | null> = match
-    ? almanacFiles[match]().catch(() => null)
-    : Promise.resolve(null)
-
-  _almanacCache.set(cacheKey, pending)
-  return pending
+  const files = guideFiles.filter((file) => file.edition === edition)
+  const match = files.find((file) => file.language === language) ?? files[0]
+  return match ? loadAlmanacByName(match.name) : Promise.resolve(null)
 }
 
-/** Almanac prose for one character, or null when its edition ships no almanac. */
+/**
+ * A character's guide and the language it is written in, preferring the
+ * requested language; null when no file has one.
+ */
+export async function getCharacterGuide(
+  id: string,
+  language: Language,
+): Promise<{ entry: AlmanacCharacterEntry; language: Language; source?: string } | null> {
+  const files = guideFiles.filter((file) => file.ids.has(id))
+  const match = files.find((file) => file.language === language) ?? files[0]
+  if (!match) return null
+  const file = await loadAlmanacByName(match.name)
+  const entry = file?.characters?.[id]
+  return entry ? { entry, language: match.language as Language, source: file?.source_name ?? file?.source } : null
+}
+
+/** Almanac prose for one character, or null when no guide covers it. */
 export async function getAlmanacEntry(
   id: string,
   language: Language,
 ): Promise<AlmanacCharacterEntry | null> {
-  const edition = characterById[id]?.edition ?? characterFileById[id]?.edition
-  if (!edition) return null
-  const file = await loadAlmanacFile(edition, language)
-  return file?.characters?.[id] ?? null
+  return (await getCharacterGuide(id, language))?.entry ?? null
+}
+
+/** Whether a character has a guide in any language (sync — no fetch). */
+export function hasCharacterGuide(id: string): boolean {
+  return guideFiles.some((file) => file.ids.has(id))
 }
 
 /**
@@ -1073,7 +1068,7 @@ export function getEditionsForCharacters(characterIds: Iterable<string>): string
  * storyteller may need mid-game. Sync, so it can gate a tab without a fetch.
  */
 export function getEditionsWithGlossary(characterIds: Iterable<string>): string[] {
-  return getEditionsForCharacters(characterIds).filter(hasAlmanac)
+  return getEditionsForCharacters(characterIds).filter(hasGlossary)
 }
 
 /** Glossary terms an edition defines (Odyssey's 审判日, 变量X, 延迟, …). */
@@ -1087,9 +1082,12 @@ export async function getAlmanacTerminology(
 
 /** Whether any almanac file exists for an edition (sync — no fetch). */
 export function hasAlmanac(edition: string): boolean {
-  return Object.keys(almanacFiles).some((path) =>
-    (path.split('/').pop() ?? '').startsWith(`${edition}.`),
-  )
+  return guideFiles.some((file) => file.edition === edition)
+}
+
+/** Whether an edition's almanac defines terms (Odyssey's 审判日, …) — sync, from the index. */
+export function hasGlossary(edition: string): boolean {
+  return guideFiles.some((file) => file.edition === edition && file.terminology > 0)
 }
 
 /** First candidate that is a non-empty array of strings, cleaned of non-strings. */
