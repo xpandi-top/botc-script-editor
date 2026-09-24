@@ -27,3 +27,14 @@
   src: url('/assets/font/xinwei.ttf') format('truetype');
   font-display: swap;
 }
+
+/* ZCOOL XiaoWei (Google Fonts) fills the counters of 回 and a few other
+   囗-framed characters solid, so 回 renders as ■. This face carries Noto Serif SC
+   glyphs for just those code points, sized to match XiaoWei; the ZCOOL XiaoWei
+   font option lists it first. Regenerate with scripts/zh-font-fix.py. */
+@font-face {
+  font-family: 'ZCOOL XiaoWei Fix';
+  src: url('/assets/font/zh-fix.woff2') format('woff2');
+  unicode-range: U+56DE, U+5703, U+5704, U+570A, U+5D2E, U+5F8A, U+75FC, U+86D4;
+  font-display: swap;
+}

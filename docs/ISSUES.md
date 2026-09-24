@@ -5,6 +5,16 @@ Status: `open` | `fixed` | `wontfix`
 
 ---
 
+## I-76 — Default Chinese font draws 回 as a solid box (■)
+
+**Status:** fixed  
+**Area:** src/fonts.css, src/hooks/useFontSettings.ts, src/main.tsx, assets/font/zh-fix.woff2, scripts/zh-font-fix.py  
+**Detail:** ZCOOL XiaoWei, as served by Google Fonts, winds the counters of a few 囗-framed characters the same way as their outlines. Browsers fill glyphs with the nonzero rule, so the counters are painted solid: 回 shows as ■ in 返回, 回合, 回顾模式, 直接回答, and 徊 is half filled. The slice loads fine, so nothing in the network tab or `document.fonts` points at the problem. A scan of all 6,983 code points in the font (nonzero vs even-odd fill area) and a canvas check in Chrome (largest solid block: 43–70 px at 96 px for these, 19 px at most for every other Han glyph) found exactly 8: 回圃圄圊崮徊痼蛔. Only 回 and 徊 occur in the app's text today. Redrawing the counters does not work for 回: its inner 口 has no counter in the font data.
+
+**Fix:** `assets/font/zh-fix.woff2` (2 KB) holds Noto Serif SC glyphs for those 8 code points, scaled to XiaoWei's 固 and placed on XiaoWei's advance width and line metrics. `src/fonts.css` serves it as `ZCOOL XiaoWei Fix` with a unicode-range limited to those code points, and the ZCOOL XiaoWei option (and the initial `--font-zh`) lists that family first. All other characters still use XiaoWei. `python3 scripts/zh-font-fix.py --check` rescans the Google-served font; running it without flags rebuilds the woff2. `src/__tests__/zhFontFix.test.ts` keeps the CSS, the file and the font stacks in step.
+
+---
+
 ## I-75 — Rochambeau script: High Priestess id does not resolve
 
 **Status:** fixed  
