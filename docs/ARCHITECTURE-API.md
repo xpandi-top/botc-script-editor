@@ -323,7 +323,7 @@ AI 设置保持本地 BYOK，永不上传。
 
 ---
 
-## 7.5 P5：托管 AI + Cloudflare 向量 + CI（Worker 与 CI 完成，Web 待接入）
+## 7.5 P5：托管 AI + Cloudflare 向量 + CI（代码完成，待部署）
 
 **目标：** 用户不填 key 也能用 AI；AI 能调用本项目的 MCP 工具（查角色 / 规则 / 校验剧本 / 生成导入链接）；角色向量放到 Cloudflare 并随目录变更自动更新；CI 每次改动都校验数据与部署。
 
@@ -352,7 +352,8 @@ AI 设置保持本地 BYOK，永不上传。
 | ✅ | Worker：向量生成 / 存储 / 相似检索 + MCP `find_similar_characters` | 本地 `wrangler dev` + 真实 Workers AI 实测：首次查询约 3.6 s 建全量向量，之后状态 stale = 0 |
 | ✅ | Worker：`/v1/ai/chat` + MCP 工具循环 + 每日限额 | 实测：search → get_character → get_jinxes 链式调用、中文回答、app 的 JSON 填表格式；单轮 5–25 s |
 | ✅ | CI：`ci.yml`、`deploy-worker.yml`、冒烟测试（AI 状态 / 语义检索 / 向量无过期 / 可选对话）、目录完整性测试 | 目录完整性测试列出 16 个缺夜间提醒的华灯初上 / 山雨欲来角色（已知缺口，修复后需同步删除） |
-| ⏸ | Web：托管 provider、工具步骤展示、相似检索走 API、移除静态向量 | 等 main 上的离线优先 AI 重构（`docs/AI-ARCHITECTURE-OFFLINE-FIRST.md`）落地后，作为其在线运行时之一接入，避免两边同时改 `aiSettings` / `gemini.ts` / AI 面板 |
+| ✅ | Web：托管运行时 `src/lib/ai/runtime/hosted.ts`（与 WebLLM、BYOK 并列，见 `docs/AI-ARCHITECTURE-OFFLINE-FIRST.md` §15）；设置页 “BOTC” 标签（说明发送范围、每日限额、服务器无 AI 时告警并禁用发送）；聊天气泡显示调用过的工具与今日剩余次数；相似检索走 API；删除静态 `embeddings.json` 与 Gemini 生成脚本 | 浏览器实测：剧本页问“有哪些相克规则”→ 返回该剧本全部 4 条相克。实测中发现并修复：剧本上下文被按问题相关度裁掉角色名单（Groq 同样受影响）；模型自行翻译并编造能力 |
+| ✅ | MCP `search_characters` 返回 `totalMatches` / `returned` / `nextCursor`（`count` 保留为旧别名）；新增 `list_editions`（每个角色包的精确数量） | 离线优先评审 §9 的 P0 |
 | ⬜ | **手动**：D1 迁移 `0002_ai.sql`、部署 Worker、配置 GitHub secrets | 见 `worker/README.md` → Hosted AI |
 
 ---
