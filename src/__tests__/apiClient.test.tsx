@@ -62,11 +62,13 @@ describe('apiClient', () => {
     vi.unstubAllEnvs()
   })
 
-  it('is configured only when VITE_API_URL is set', async () => {
+  it('uses VITE_API_URL, the public API when it is empty, and none when it is "off"', async () => {
     const client = await import('../lib/apiClient')
     expect(client.getApiUrl()).toBe(API)
     expect(client.isApiConfigured()).toBe(true)
     vi.stubEnv('VITE_API_URL', '')
+    expect(client.getApiUrl()).toBe('https://botc-api.xpandi-top.workers.dev')
+    vi.stubEnv('VITE_API_URL', 'off')
     expect(client.isApiConfigured()).toBe(false)
   })
 
@@ -118,7 +120,7 @@ describe('apiClient', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Create token' }))
     await waitFor(() => expect(screen.getByDisplayValue('botc_pat_secret')).toBeInTheDocument())
     expect(screen.getByText('Claude')).toBeInTheDocument()
-  })
+  }, 15_000) // renders the full settings section; slow under a loaded parallel run
 
   it('asks to connect Google first', async () => {
     const { ApiAccessSection } = await import('../components/settings/ApiAccessSection')

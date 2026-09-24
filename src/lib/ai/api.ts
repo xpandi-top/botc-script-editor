@@ -3,6 +3,7 @@
  */
 
 import { geminiGenerate, GeminiError, type GeminiResponse } from '../gemini'
+import { stripThinking } from './modelText'
 import type { AiSettings } from '../aiSettings'
 import type { AgentResponse } from './types'
 
@@ -29,11 +30,14 @@ export type AiCallResult =
  * break JSON.parse.  We try multiple strategies before falling back to raw text.
  */
 function parseResponse(raw: string): AgentResponse {
-  const t = raw
-    .trim()
+  let t = stripThinking(raw)
     .replace(/^```json?\s*/i, '')
     .replace(/```\s*$/, '')
     .trim()
+  // Text before or after the JSON object (a preamble, a code fence mid-answer).
+  const start = t.indexOf('{')
+  const end = t.lastIndexOf('}')
+  if (start > 0 && end > start && t.slice(start, end + 1).includes('"message"')) t = t.slice(start, end + 1)
 
   // ── Pass 1: strict JSON parse ────────────────────────────────────────────
   try {

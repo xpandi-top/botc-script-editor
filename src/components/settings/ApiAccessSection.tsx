@@ -1,7 +1,7 @@
 /**
  * ApiAccessSection — connects the app to the API worker (worker/): shows the
  * API/MCP URLs, manages personal access tokens for agents and moves library
- * data to/from the cloud library. Rendered only when VITE_API_URL is set.
+ * data to/from the cloud library. Rendered unless the build sets VITE_API_URL=off.
  */
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Alert, Box, Button, IconButton, Stack, TextField, Tooltip, Typography } from '@mui/material'

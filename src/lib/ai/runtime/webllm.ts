@@ -1,6 +1,7 @@
 import type { WebWorkerMLCEngine } from '@mlc-ai/web-llm'
 import type { GeminiRequest, GeminiResponse } from '../../gemini'
 import { budgetHistory } from '../../../core/ai/contextBudget'
+import { stripThinking } from '../modelText'
 import { WEBLLM_MODELS, WEBLLM_INPUT_BUDGET, WEBLLM_OUTPUT_BUDGET } from './webllmModels'
 
 type State = {
@@ -100,7 +101,7 @@ export async function generateWebLlm(req: GeminiRequest, model: string): Promise
       extra_body: { enable_thinking: false },
     }), current.abort.signal)
     const choice = result.choices[0]
-    const text = choice?.message.content?.trim() ?? ''
+    const text = stripThinking(choice?.message.content ?? '')
     if (!text) throw new Error('本地模型未返回内容，请缩短问题后重试。 / No local response; try a shorter question.')
     return { text, finishReason: choice.finish_reason ?? 'unknown' }
   } catch (error) {

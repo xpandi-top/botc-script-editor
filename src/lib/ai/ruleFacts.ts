@@ -21,6 +21,7 @@ import { catalogTeamOf } from '../../utils/seatAlignment'
 import type { Language, Team } from '../../types'
 import type { PoolRequirements } from './answerParse'
 import { mentionedEntities } from './catalogRetrieval'
+import { scriptRecommendationFacts } from './scriptFacts'
 import type { AiContext } from './types'
 
 export type FactsPage = Pick<AiContext, 'characterIds' | 'seats'>
@@ -153,6 +154,8 @@ export function computeRuleFacts(query: string, language: Language, page: FactsP
       ? `血染钟楼的剧本是角色池，每局只用其中一部分。程序按问题的约束组出的合法${shape === 'teensy' ? '小型（Teensyville，5–6 人）' : '完整'}剧本（${row(true, pool.counts)}）：剧本角色: ${list(pool.characters, true)}。可以直接采用；替换角色时保持各类数量、不加旅行者。`
       : `A Blood on the Clocktower script is a character pool; each game uses part of it. A legal ${shape === 'teensy' ? 'Teensyville (5–6 player)' : 'full'} script built by program from the question's constraints (${row(false, pool.counts)}): Script characters: ${list(pool.characters, false)}. Use it as is, or swap characters while keeping these counts and adding no Travellers.`)
   }
+
+  if (!request) facts.push(...scriptRecommendationFacts(query, language))
 
   if (page.seats?.length) {
     const seatName = (seat: number) => {

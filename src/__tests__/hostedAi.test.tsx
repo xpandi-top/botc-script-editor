@@ -55,7 +55,7 @@ describe('hosted AI settings', () => {
   })
 
   it('does not exist without an API', () => {
-    vi.stubEnv('VITE_API_URL', '')
+    vi.stubEnv('VITE_API_URL', 'off')
     saveAiSettings(hosted)
     expect(loadAiSettings().provider).toBe('webllm') // local mode: answers from local data without a key
     expect(availableProviders()).not.toContain('botc')
