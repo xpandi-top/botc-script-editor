@@ -48,6 +48,9 @@ describe('ability descriptions', () => {
     // Only the made-up one: the exact quote and the advice line are left alone.
     const appended = checked.text.split('能力原文')[1]
     expect(appended).not.toMatch(/小恶魔|厨师/)
+    // The description on the line after the name.
+    const nested = checkAnswer(tb, '能力是什么', '- Soldier（士兵）：\n  - 你可以将你的投票权增加 1 票。')
+    expect(nested.text).toContain(`- 士兵：${getAbilityText('soldier', 'zh')}`)
     const quoted = `洗衣妇：${getAbilityText('washerwoman', 'zh')}\nEmpath: ${getAbilityText('empath', 'en')}`
     expect(checkAnswer(tb, '洗衣妇的能力', quoted).corrected).toBe(false)
   })

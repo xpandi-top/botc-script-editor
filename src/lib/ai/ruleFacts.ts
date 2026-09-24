@@ -19,7 +19,7 @@ import { CHARACTER_DISTRIBUTION, SETUP_OUTSIDER_SHIFTS } from '../../core/engine
 import { gameStateFacts, type GameFact } from '../../core/engine/winConditions'
 import { catalogTeamOf } from '../../utils/seatAlignment'
 import type { Language, Team } from '../../types'
-import type { PoolRequirements } from './answerParse'
+import { charactersIn, type PoolRequirements } from './answerParse'
 import { mentionedEntities } from './catalogRetrieval'
 import { scriptRecommendationFacts } from './scriptFacts'
 import type { AiContext } from './types'
@@ -58,6 +58,7 @@ const row = (zh: boolean, c: { townsfolk: number; outsider: number; minion: numb
   zh ? `镇民 ${c.townsfolk} / 外来者 ${c.outsider} / 爪牙 ${c.minion} / 恶魔 ${c.demon}` : `${c.townsfolk} Townsfolk / ${c.outsider} Outsiders / ${c.minion} Minions / ${c.demon} Demon`
 const list = (ids: string[], zh: boolean) => `${ids.join(', ')}（${ids.map((id) => name(id, zh)).join(zh ? '、' : ', ')}）`
 
+const ASKS_ABILITY = /能力|技能|做什么|\babilit(y|ies)\b|what does/i
 const REFERS_BACK = /它|这个|那个|这套|该剧本|上面|刚才|前者|后者|推荐的|你说的|第[一二三四五1-5]个(?![夜晚白天])|\b(it|this|that|the (first|second|third|former|latter))\b/i
 // "第一个" / "the first" = the first script the last answer named, and so on; -1 = the last one.
 const ORDINALS: [RegExp, number][] = [
@@ -222,6 +223,15 @@ export function computeRuleFacts(query: string, language: Language, page: FactsP
   }
 
   if (!request) facts.push(...scriptRecommendationFacts(query, language))
+
+  // "这套配置里每个角色的能力是什么": the characters of the last answer, with their real text,
+  // so the model does not repeat what it made up before.
+  if (ASKS_ABILITY.test(query) && REFERS_BACK.test(query) && page.lastAnswer && !mentionedEntities(query).characterIds.length) {
+    const text = page.lastAnswer
+    const at = (id: string) => Math.min(...[id, name(id, true), name(id, false)].map((n) => text.indexOf(n)).filter((i) => i >= 0))
+    const ids = [...charactersIn(text)].sort((a, b) => at(a) - at(b)).slice(0, 15)
+    if (ids.length) facts.push(`${zh ? '上一条回答里角色的能力原文（原样引用，不要改写或凭记忆补充）' : 'Official ability text of the characters in the last answer (quote as is; do not reword or recall)'}：${ids.map((id) => `\n  - ${name(id, zh)}：${getAbilityText(id, language) ?? ''}`).join('')}`)
+  }
 
   if (page.seats?.length) {
     const seatName = (seat: number) => {

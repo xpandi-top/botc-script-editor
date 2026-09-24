@@ -1,7 +1,7 @@
 /** Rule numbers the program computes for the model, and the page state it always keeps. */
 import { describe, it, expect } from 'vitest'
 import { computeRuleFacts } from '../lib/ai/ruleFacts'
-import { initialScripts } from '../catalog'
+import { getAbilityText, initialScripts } from '../catalog'
 import { EVAL_CASES } from '../lib/ai/eval/cases'
 import { evalContext } from '../lib/ai/eval/contexts'
 import { buildSystemPrompt } from '../lib/ai/prompts'
@@ -89,6 +89,16 @@ describe('follow-up questions', () => {
     // "第一个夜晚" is about the night, not a script.
     const night = planRequest('7 人局第一个夜晚怎么安排', { characterIds: alVsAl, lastAnswer })
     expect(night?.kind === 'setup' && night.script).toBe(alVsAl)
+  })
+})
+
+describe('abilities of the characters in the last answer', () => {
+  it('gives their real text for "这套配置里每个角色的能力"', () => {
+    const lastAnswer = '暗流涌动 7 人配置\n- Undertaker（送葬者）\n- Mayor（镇长）\n- Imp（小恶魔）'
+    const facts = computeRuleFacts('这套配置里每个角色的能力分别是什么？', 'zh', { lastAnswer })
+    expect(facts).toContain(`- 送葬者：${getAbilityText('undertaker', 'zh')}`)
+    expect(facts.indexOf('送葬者')).toBeLessThan(facts.indexOf('小恶魔'))
+    expect(computeRuleFacts('这套配置适合新手吗？', 'zh', { lastAnswer })).not.toContain('能力原文')
   })
 })
 

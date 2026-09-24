@@ -127,11 +127,15 @@ const DESCRIBES_ABILITY = /你|每个?夜晚|每晚|首个夜晚|\byou\b|\beach 
  * the head names exactly one character, the rest speaks to the player.
  */
 export function abilityClaims(text: string): Array<{ id: string; claim: string }> {
-  return text.split('\n').flatMap((line) => {
-    const m = line.replace(/[*_`]/g, '').match(/^\s*(?:[-•+]|\d+[.)、])?\s*([^：:]{2,40})[：:]\s*(.{6,})$/)
-    if (!m || !DESCRIBES_ABILITY.test(m[2])) return []
+  const lines = text.split('\n').map((line) => line.replace(/[*_`]/g, '').replace(/^\s*(?:[-•+]|\d+[.)、])?\s*/, '').trim()).filter(Boolean)
+  return lines.flatMap((line, i) => {
+    const m = line.match(/^([^：:]{2,40})[：:]\s*(.*)$/)
+    if (!m) return []
+    // "Name：" with the description on the next (nested) line.
+    const claim = m[2].trim() || (lines[i + 1] && !/[：:]\s*$/.test(lines[i + 1]) ? lines[i + 1] : '')
+    if (claim.length < 6 || !DESCRIBES_ABILITY.test(claim)) return []
     const named = [...charactersIn(m[1])]
-    return named.length === 1 ? [{ id: named[0], claim: m[2].trim() }] : []
+    return named.length === 1 ? [{ id: named[0], claim }] : []
   })
 }
 
