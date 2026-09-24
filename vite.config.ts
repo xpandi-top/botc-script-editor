@@ -2,8 +2,10 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
-export default defineConfig(({ command, mode }) => {
+export default defineConfig(({ command, mode, isPreview }) => {
   const isNative = mode === 'native'
+  // `vite preview` serves the production build, so it needs the production base.
+  const production = command === 'build' || Boolean(isPreview)
 
   // Security warning: client_secret baked into bundle is visible in plain text.
   // Acceptable for self-hosted instances; warn loudly for public builds.
@@ -45,8 +47,8 @@ export default defineConfig(({ command, mode }) => {
           background_color: '#f6f1e7',
           display: 'standalone',
           orientation: 'any',
-          scope: command === 'build' ? '/botc-script-editor/' : '/',
-          start_url: command === 'build' ? '/botc-script-editor/' : '/',
+          scope: production ? '/botc-script-editor/' : '/',
+          start_url: production ? '/botc-script-editor/' : '/',
           icons: [
             { src: 'favicon.png', sizes: '192x192', type: 'image/png' },
             { src: 'favicon.png', sizes: '512x512', type: 'image/png' },
@@ -56,7 +58,9 @@ export default defineConfig(({ command, mode }) => {
           // Keep the app shell fast for GitHub Pages/deal links. Character
           // icons and large fonts are runtime-cached when requested instead of
           // being mandatory first-install precache entries.
-          globPatterns: ['**/*.{js,css,html,ico,webmanifest}'],
+          // wiki-chunks.json: rules and wiki excerpts behind offline answers
+          // (src/lib/wikiSearch.ts), ready offline after the first visit.
+          globPatterns: ['**/*.{js,css,html,ico,webmanifest}', 'wiki-chunks.json'],
           globIgnores: ['botcCompanion.svg', '**/webllm*.js'],
           maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
           runtimeCaching: [
@@ -65,14 +69,6 @@ export default defineConfig(({ command, mode }) => {
               urlPattern: /\/assets\/webllm[^/]*\.js$/,
               handler: 'CacheFirst',
               options: { cacheName: 'webllm-runtime', expiration: { maxEntries: 8 } },
-            },
-            {
-              // Rules and wiki excerpts behind offline answers (src/lib/wikiSearch.ts):
-              // loaded when the AI panel opens, then served from cache when offline
-              // and refreshed in the background when online.
-              urlPattern: /\/wiki-chunks\.json$/,
-              handler: 'StaleWhileRevalidate',
-              options: { cacheName: 'wiki-cache', expiration: { maxEntries: 2 } },
             },
             {
               urlPattern: /\/assets\/locales\/.+\.json$/,
@@ -95,7 +91,7 @@ export default defineConfig(({ command, mode }) => {
       })] : []),
     ],
     // Web build: scoped base path; native/electron build: relative paths (file:// protocol)
-    base: isNative ? './' : (command === 'build' ? '/botc-script-editor/' : '/'),
+    base: isNative ? './' : (production ? '/botc-script-editor/' : '/'),
     build: isNative ? {
       outDir: 'dist-native',
     } : {

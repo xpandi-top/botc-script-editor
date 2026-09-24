@@ -29,6 +29,7 @@
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:mobile": "playwright test --project=mobile-android",
     "test:e2e:desktop": "playwright test --project=desktop",
+    "test:e2e:offline": "playwright test -c playwright.offline.config.ts",
     "test:ui": "vitest --ui",
     "electron:dev": "npm run build:native && electron .",
     "electron:build": "npm run build:native && electron-builder --config electron-builder.config.cjs",
