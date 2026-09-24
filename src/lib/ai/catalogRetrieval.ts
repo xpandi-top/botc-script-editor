@@ -56,12 +56,15 @@ export function mentionedEntities(query: string): { editionIds: string[]; charac
 
 export type CatalogRetrieval = ReturnType<typeof retrieveCatalog>
 
+// A question that continues the last one ("它", "能举个例子吗", "那怎么玩") is about the same characters.
+const FOLLOW_UP = /它|这个|这些|该角色|该包|其中|那[么些个]|^(还有|有多少|一共|总共|多少|有哪些|几个)|例子|举例|举个|比如|具体|详细|展开|再说|继续|怎么玩|玩法|技巧|伪装|\b(it|its|they|their|those|these|how many|which ones|example|examples|more detail|how to play|tips?)\b/i
+
 export function retrieveCatalog(query: string, language: Language, previousQueries: string[] = []) {
   let resolved = entities(query)
   let retrievalQuery = query
   // Resolve only referential follow-ups; never import assistant-generated guesses.
   if (!resolved.editionIds.length && !resolved.characterIds.length &&
-      /它|这个|这些|该角色|该包|其中|那[么些个]|^(还有|有多少|一共|总共|多少|有哪些|几个)|\b(it|its|they|their|those|these|how many|which ones)\b/i.test(query)) {
+      FOLLOW_UP.test(query)) {
     for (const previous of previousQueries.slice(-6).reverse()) {
       const found = entities(previous)
       if (found.editionIds.length || found.characterIds.length) {

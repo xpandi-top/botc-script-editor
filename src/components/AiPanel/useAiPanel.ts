@@ -12,7 +12,8 @@ import {
 } from '../../lib/fillLog'
 import { getWebLlmState, resumeWebLlm, subscribeWebLlm, unloadWebLlm } from '../../lib/ai/runtime/webllm'
 import { getHostedStatus, HOSTED_INPUT_BUDGET } from '../../lib/ai/runtime/hosted'
-import { answerLocally } from '../../lib/ai/localAnswer'
+import { answerLocally, loadCharacterGuides } from '../../lib/ai/localAnswer'
+import { getAbilityText, getDisplayName } from '../../catalog'
 import { initWikiSearch } from '../../lib/wikiSearch'
 import { BUILD_ID, emptyMeta, PROMPT_VERSION, type AnswerRoute, type AnswerTrace, type RetrievalMeta } from '../../lib/ai/trace'
 import { conversationMarkdown, feedbackItem, flushFeedback, sendFeedback, type FeedbackMessage, type FeedbackRating, type FeedbackReason } from '../../lib/ai/feedback'
@@ -170,7 +171,10 @@ export function useAiPanel({ open, context, callbacks }: UseAiPanelOptions) {
       contextType: effectiveCtx.type, latencyMs: Math.round(performance.now() - started),
     })
     // Offline answers quote the wiki, so wait for its index (cached after the first load).
-    const local = async () => { await initWikiSearch(); return answerLocally(effectiveCtx, text, previousQueries, lastAnswer) }
+    const local = async () => {
+      const [, guides] = await Promise.all([initWikiSearch(), loadCharacterGuides(text, effectiveCtx.language, previousQueries)])
+      return answerLocally(effectiveCtx, text, previousQueries, lastAnswer, guides)
+    }
     const reply = (content: string, answerTrace: AnswerTrace) => {
       setMessages((m) => [...m, { id: crypto.randomUUID(), role: 'assistant', content, local: true, trace: answerTrace }])
       setLoading(false)
@@ -217,6 +221,15 @@ export function useAiPanel({ open, context, callbacks }: UseAiPanelOptions) {
       const { response } = result
       // Line-ups and scripts in the answer are checked; illegal ones get the program's legal version.
       const checked = checkAnswer(effectiveCtx, text, response.message, previousQueries, lastAnswer)
+      // A small local model often garbles who an ability affects: its explanation of
+      // one or two characters ends with their official text.
+      if (latestSettings.provider === 'webllm' && meta.characters.length && meta.characters.length <= 2) {
+        const missing = meta.characters.filter((id) => !checked.text.includes(getAbilityText(id, effectiveCtx.language) ?? '\u0000'))
+        if (missing.length) {
+          checked.text += `\n\n---\n**${zh ? '能力原文' : 'Official text'}**：\n${missing.map((id) => `- ${getDisplayName(id, effectiveCtx.language)}：${getAbilityText(id, effectiveCtx.language)}`).join('\n')}`
+          checked.notes = [...(checked.notes ?? []), 'ability-text']
+        }
+      }
       const msgId = crypto.randomUUID()
       const answerTrace = trace('model', meta, {
         ...(checked.notes?.length ? { checks: checked.notes } : {}),

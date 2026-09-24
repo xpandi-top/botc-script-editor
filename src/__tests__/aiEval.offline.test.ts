@@ -52,6 +52,30 @@ describe('offline answers (no model)', () => {
     expect(answerLocally(bmr, '教授能复活谁？').message).not.toContain('阵营与胜负')
   })
 
+  it('answers the conversation that went wrong with a small local model', async () => {
+    const general = evalContext(EVAL_CASES.find((x) => x.id === 'fact-ability-washerwoman')!)
+    const { retrieveCatalog } = await import('../lib/ai/catalogRetrieval')
+    const { loadCharacterGuides } = await import('../lib/ai/localAnswer')
+    const earlier = ['水手这个角色怎么玩']
+    // "能举个例子吗" continues with 水手.
+    expect(retrieveCatalog('能举个例子吗', 'zh', earlier).characterIds).toContain('sailor')
+    // "醉着是什么意思": the rule, exactly, not a model's guess.
+    const term = answerLocally(general, '醉着是什么意思', earlier)
+    expect(term.definitive).toBe(true)
+    expect(term.message).toContain('醉酒或中毒的玩家没有能力，但以为自己有')
+    // "血染里的醉确定是这个意思吗": the rule first, not only 水手's text carried over.
+    const sure = answerLocally(general, '血染里的醉确定是这个意思吗？', [...earlier, '能举个例子吗', '醉着是什么意思'])
+    expect(sure.message.indexOf('醉酒或中毒的玩家没有能力')).toBeGreaterThan(0)
+    expect(sure.message).not.toContain('水手 / Sailor')
+    // Examples and tips from a pack's almanac, for a guide question.
+    const guides = await loadCharacterGuides('纹章官怎么玩？', 'zh')
+    expect(guides.herald).toContain('纹章官 · 玩法技巧')
+    const examples = await loadCharacterGuides('能举个例子吗', 'zh', ['纹章官怎么玩？'])
+    const answer = answerLocally(general, '能举个例子吗', ['纹章官怎么玩？'], undefined, examples)
+    expect(answer.message).toContain('纹章官 · 范例')
+    expect(answer.definitive).toBe(true)
+  })
+
   it('says when nothing local matches', () => {
     const c = EVAL_CASES[0]
     const answer = answerLocally(evalContext(c), 'zzzz qqqq')

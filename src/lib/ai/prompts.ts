@@ -9,6 +9,7 @@ import { retrieveCatalog, resolveCatalogQuery, retrieveAlmanac, formatCatalogRet
 import { selectContext, estimateTokens, GROQ_INPUT_BUDGET } from '../../core/ai/contextBudget'
 import { CORE_RULES, searchCoreRules } from '../../core/ai/rules'
 import { computeRuleFacts } from './ruleFacts'
+import { loadCharacterGuides } from './localAnswer'
 import {
   getTeamExamples, getTranslationPairs, formatExamplesPrompt,
 } from '../botcSearch'
@@ -415,7 +416,10 @@ export async function prepareSystemPrompt(ctx: AiContext, query: string, previou
   const retrieval = await resolveCatalogQuery(query, ctx.language, previousQueries)
   const meta = options?.meta
   if (meta) { meta.characters = retrieval.characterIds; meta.editions = retrieval.editionIds }
-  const [, almanac] = await Promise.all([initWikiSearch(), retrieveAlmanac(retrieval, ctx.language)])
+  const [, editionAlmanac, guides] = await Promise.all([initWikiSearch(), retrieveAlmanac(retrieval, ctx.language), loadCharacterGuides(query, ctx.language, previousQueries)])
+  // Examples, tips and bluffing for "怎么玩 / 举个例子" questions, where the pack has them.
+  const guideText = Object.values(guides).join('\n\n')
+  const almanac = [editionAlmanac, guideText].filter(Boolean).join('\n\n')
   if (options?.local) {
     // A 4K local model gets only the evidence for this question. Budgets are in
     // estimateTokens units (3 per CJK character); about 5,000 fit beside the

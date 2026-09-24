@@ -7,12 +7,12 @@
  */
 import {
   allCharacterFiles, editionLabels, getAbilityText, getCharacterById, getDisplayName, getEditionCredit, getEditionCreditAuthor,
-  getEffectiveNightOrderFromRegistry, getJinxReason, jinxes, teamLabels,
+  getAlmanacEntry, getEffectiveNightOrderFromRegistry, getJinxReason, jinxes, teamLabels,
 } from '../../catalog'
 import { searchCoreRules } from '../../core/ai/rules'
 import type { Language, Team } from '../../types'
 import { searchWiki } from '../wikiSearch'
-import { retrieveCatalog } from './catalogRetrieval'
+import { mentionedEntities, retrieveCatalog } from './catalogRetrieval'
 import { computeRuleFacts } from './ruleFacts'
 import type { AiContext } from './types'
 import { emptyMeta, type RetrievalMeta } from './trace'
@@ -78,7 +78,11 @@ function excerpt(text: string, max: number): string {
 const OPEN_QUESTION = /为什么|怎么办|怎么(玩|主持|做|打|判断|应对|处理|讲|说)|如何|策略|技巧|思路|心得|注意|建议|讲讲|聊聊|分析|区别|对比|比较|推理|why|how (do|should|can|to|would)|strategy|tips?\b|advice|explain|analy[sz]e|compare|difference/i
 
 // Questions about how the game works, even when they also name a character.
-const RULE_WORDS = /规则|能不能|允许|醉酒|中毒|疯狂|登记|提名|处决|死亡|复活|旅行者|传奇角色|恶魔伪装|rule|allowed|drunk|poison|mad(ness)?\b|register|nominat|execut|resurrect|travell?er|fabled|bluff/i
+const RULE_WORDS = /规则|能不能|允许|醉|中毒|疯狂|登记|提名|处决|死亡|复活|旅行者|传奇角色|恶魔伪装|rule|allowed|drunk|poison|mad(ness)?\b|register|nominat|execut|resurrect|travell?er|fabled|bluff/i
+// "醉着是什么意思" / "血染里的醉确定是这个意思吗": a question about what a term means.
+const ASKS_TERM = /什么意思|啥意思|是什么|什么是|指什么|是指|含义|定义|意思吗|确定是|真的是|what does .{1,30} mean|what is|meaning|definition/i
+// Guide questions a character's almanac can answer: examples, how to play, tips, bluffing.
+const ASKS_GUIDE = /怎么玩|玩法|如何玩|怎样玩|举例|举个|例子|比如|示例|技巧|策略|伪装|假扮|how (do i|to) play|examples?\b|tips?\b|strategy|bluff/i
 
 /**
  * `definitive`: the program's answer is exact (computed facts, official
@@ -86,7 +90,30 @@ const RULE_WORDS = /规则|能不能|允许|醉酒|中毒|疯狂|登记|提名|�
  */
 export type LocalAnswer = { message: string; found: boolean; definitive: boolean; meta: RetrievalMeta }
 
-export function answerLocally(ctx: AiContext, query: string, previousQueries: string[] = [], lastAnswer?: string): LocalAnswer {
+/**
+ * Almanac prose for the characters a guide question is about ("怎么玩",
+ * "举个例子", "技巧", "伪装"), for packs that ship one; empty otherwise.
+ */
+export async function loadCharacterGuides(query: string, language: Language, previousQueries: string[] = []): Promise<Record<string, string>> {
+  if (!ASKS_GUIDE.test(query)) return {}
+  const zh = language === 'zh'
+  const guides: Record<string, string> = {}
+  for (const id of retrieveCatalog(query, language, previousQueries).characterIds.slice(0, 2)) {
+    const entry = await getAlmanacEntry(id, language)
+    if (!entry) continue
+    const fields: Array<[keyof typeof entry, string, string]> = /例|比如|example/i.test(query) ? [['examples', '范例', 'Examples']]
+      : /伪装|假扮|bluff/i.test(query) ? [['bluffing', '伪装技巧', 'Bluffing']]
+      : [['tips', '玩法技巧', 'Tips'], ['examples', '范例', 'Examples']]
+    const parts = fields.flatMap(([key, labelZh, labelEn]) => {
+      const text = entry[key]
+      return typeof text === 'string' && text.trim() ? [`**${getDisplayName(id, language)} · ${zh ? labelZh : labelEn}**\n${excerpt(text.trim(), 700)}`] : []
+    })
+    if (parts.length) guides[id] = parts.join('\n\n')
+  }
+  return guides
+}
+
+export function answerLocally(ctx: AiContext, query: string, previousQueries: string[] = [], lastAnswer?: string, guides: Record<string, string> = {}): LocalAnswer {
   const language = ctx.language
   const zh = language === 'zh'
   const retrieval = retrieveCatalog(query, language, previousQueries)
@@ -97,13 +124,19 @@ export function answerLocally(ctx: AiContext, query: string, previousQueries: st
   if (facts) sections.push(facts.split('\n').slice(1).join('\n'))
   let exact = Boolean(facts)
 
+  // A question about a term ("醉着是什么意思") is answered by the rules, even
+  // when a follow-up carried the last question's character along.
+  const asksTerm = ASKS_TERM.test(query) && RULE_WORDS.test(query)
+  const namedHere = mentionedEntities(query).characterIds
   // Characters the question names: official text (both languages for translations).
   const bilingual = /翻译|译成|translat/i.test(query) || retrieval.quotedIds.length > 0
-  const characters = retrieval.characterIds.slice(0, 6)
+  const characters = retrieval.characterIds.filter((id) => !asksTerm || namedHere.includes(id)).slice(0, 6)
   meta.characters = characters
   meta.editions = retrieval.editionIds
   if (characters.length) sections.push(characters.map((id) => characterCard(id, language, bilingual || retrieval.quotedIds.includes(id))).join('\n\n'))
   exact ||= characters.length > 0
+  const guideText = characters.map((id) => guides[id]).filter(Boolean)
+  if (guideText.length) sections.push(`${guideText.join('\n\n')}\n${zh ? '（来源：角色年鉴）' : '(Source: character almanac)'}`)
 
   if (characters.length >= 2) {
     const pairJinxes = Object.values(jinxes).filter((j) => j.characters?.length === 2 && j.characters.every((id) => characters.includes(id)))
@@ -125,13 +158,17 @@ export function answerLocally(ctx: AiContext, query: string, previousQueries: st
 
   // Rules and terms: the most relevant core rules sections — unless the program
   // already computed the answer — then a wiki excerpt when nothing else is exact.
-  if (!exact || (!facts && RULE_WORDS.test(query))) {
-    // Next to a character's text, only sections about the rule the question names ("醉酒").
-    const term = exact ? query.match(RULE_WORDS)?.[0]?.toLowerCase() ?? '' : ''
+  if (!exact || asksTerm || (!facts && RULE_WORDS.test(query))) {
+    // Next to a character's text, only sections about the rule the question names ("醉").
+    const term = exact || asksTerm ? query.match(RULE_WORDS)?.[0]?.toLowerCase() ?? '' : ''
     const sections2 = searchCoreRules(query, language, 2).filter((section) => !term || section.text.toLowerCase().includes(term))
     meta.rules = sections2.map((section) => section.heading)
     const rules = sections2.map((section) => section.text)
-    if (rules.length) sections.push(`${rules.join('\n\n')}\n${zh ? '（来源：官方规则与术语表）' : '(Source: official rules and glossary)'}`)
+    if (rules.length) {
+      const block = `${rules.join('\n\n')}\n${zh ? '（来源：官方规则与术语表）' : '(Source: official rules and glossary)'}`
+      // The rule is the answer to a term question: put it first.
+      if (asksTerm) { sections.unshift(block); exact = true } else sections.push(block)
+    }
   }
   if (!exact) {
     const wiki = searchWiki(query, 1).filter((chunk) => zh === chunk.page.startsWith('zh-'))
