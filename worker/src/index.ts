@@ -6,6 +6,8 @@ import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { HTTPException } from 'hono/http-exception'
+import { buildAiRoutes, semanticDepsFor, type AiAppOptions } from './ai/routes'
+import { AiServiceError } from './ai/models'
 import { buildApi } from './api'
 import type { Env } from './env'
 import { AuthError, authenticate, verifyGoogleAccessToken } from './library/auth'
@@ -19,7 +21,7 @@ import { openApiDocument } from './openapi'
 import { InputError } from './scripts'
 import { ShareError } from './share'
 
-export type AppOptions = Partial<LibraryDeps> & {
+export type AppOptions = Partial<LibraryDeps> & AiAppOptions & {
   /** RPC handle for one game; defaults to the GAMES Durable Object namespace. */
   roomFor?: (env: Env, gameId: string) => RoomApi | null
 }
@@ -41,6 +43,12 @@ export function createApp(options: AppOptions = {}) {
   app.onError((err, c) => {
     if (err instanceof InputError) return c.json({ error: { code: 'invalid_request', message: err.message } }, 400)
     if (err instanceof ShareError) return c.json({ error: { code: 'share_failed', message: err.message } }, 502)
+    if (err instanceof AiServiceError) {
+      console.error('Workers AI:', err.message)
+      return err.quota
+        ? c.json({ error: { code: 'ai_quota_exhausted', message: 'The free AI allowance for today is used up. Try again tomorrow, or use your own API key.' } }, 429)
+        : c.json({ error: { code: 'ai_failed', message: 'The AI service failed; try again.' } }, 502)
+    }
     if (err instanceof HTTPException) return err.getResponse()
     console.error(err)
     return c.json({ error: { code: 'internal', message: 'Internal error.' } }, 500)
@@ -68,13 +76,13 @@ Blood on the Clocktower characters, scripts, jinxes and night order (English + C
 
 ## MCP
 Streamable HTTP endpoint: ${base}/mcp (no authentication)
-Tools: search_characters, get_character, get_jinxes, get_night_order, search_rules, list_scripts, get_script, validate_script, analyze_script, get_token_manifest, create_script_draft
+Tools: list_editions, search_characters, get_character, find_similar_characters (with AI), get_jinxes, get_night_order, search_rules, list_scripts, get_script, validate_script, analyze_script, get_token_manifest, create_script_draft
 Prompts: design_script, design_character, translate_ability, review_script
 
 ## REST (OpenAPI: ${base}/openapi.json)
-GET  /v1/characters?q=&team=&edition=&lang=&limit=
+GET  /v1/characters?q=&team=&edition=&lang=&limit=&offset=   → totalMatches, returned, nextCursor, items
 GET  /v1/characters/{id}?lang=
-GET  /v1/editions
+GET  /v1/editions?lang=                      editions with exact character counts per team
 GET  /v1/rules/search?q=&limit=
 GET  /v1/night-order?ids=a,b&night=first|other&lang=
 GET  /v1/jinxes?ids=a,b&lang=
@@ -84,6 +92,14 @@ GET  /v1/scripts/{slug}/tokens?lang=
 POST /v1/scripts/validate   {"slug"} or {"script": <official JSON>}
 POST /v1/scripts/analyze    {"slug"} or {"script": <official JSON>}
 POST /v1/scripts/drafts     {"name", "name_zh"?, "author"?, "characters": [ids or custom objects]} → import link for the web app
+
+## Hosted AI (Workers AI; daily limits per IP, or per user with Authorization)
+GET  /v1/ai/status                       models, daily limits, embedding freshness
+POST /v1/ai/chat   {"messages": [{"role","content"}], "system"?, "temperature"?, "tools"?} → {text, steps, remaining}
+     The model can call the MCP tools above (read-only catalog / rules / script checks, create_script_draft).
+GET  /v1/characters/similar?q=&team=&exclude=&limit=&lang=   semantic search (EN/ZH)
+GET  /v1/characters/{id}/similar?team=&limit=&lang=
+MCP tool (when AI is enabled): find_similar_characters
 
 ## Cloud library (Authorization: Bearer <botc_pat_ token or Google access token>)
 GET    /v1/me
@@ -110,6 +126,8 @@ MCP tools: create_game, get_game, run_commands, get_night_script, suggest_night_
 
   app.route('/v1/me', buildLibraryRoutes(deps))
   app.route('/v1/games', buildGameRoutes({ ...deps, roomFor }))
+  // Before buildApi: /v1/characters/similar must not match /v1/characters/:id.
+  app.route('/v1', buildAiRoutes(options, deps))
   app.route('/v1', buildApi())
   app.route('/v1/auth', buildOAuthRoutes())
 
@@ -130,7 +148,7 @@ MCP tools: create_game, get_game, run_commands, get_night_script, suggest_night_
       }
     }
     const games = options.roomFor || c.env.GAMES ? { rooms: (gameId: string) => roomFor(c.env, gameId) } : undefined
-    const server = buildMcpServer(c.env, library, games)
+    const server = buildMcpServer(c.env, library, games, semanticDepsFor(c.env, options) ?? undefined)
     const transport = new WebStandardStreamableHTTPServerTransport({ sessionIdGenerator: undefined, enableJsonResponse: true })
     await server.connect(transport)
     return transport.handleRequest(c.req.raw)

@@ -85,7 +85,7 @@ Firebase 保留：**Auth**（Google 登录，免费）+ **Firestore**（过渡�
 | D2 | **Command → Event → State** | `apply(state, cmd, ctx) → { state, events, effects }`；UI 副作用（计时器 / 弹窗）作为 `effects` 交给客户端；`ctx` 注入 `now` / `rng` 保证可回放 |
 | D3 | **结构化事件** | 事件存 `{ code, params }`，渲染时本地化；保留旧 `detail` 字段向后兼容 |
 | D4 | **时间用 deadline** | 状态存 `endsAt`，剩余秒数由客户端计算 |
-| D5 | **MCP 服务端不跑 LLM** | 推理由调用方 Agent 完成 → 服务端 LLM 成本为 0；应用内 AI 保持 BYOK |
+| D5 | **MCP 服务端不跑 LLM；托管 AI 另走 `/v1/ai`**（P5 修订） | 外部 Agent 经 MCP 自带推理，服务端成本为 0；应用内默认用 Worker 托管的免费模型（Workers AI 免费档 + 每日限额），它通过同一个 MCP server（进程内连接）调用工具；BYOK 仍可选 |
 | D6 | **一份 schema** | zod 定义 → OpenAPI（`@hono/zod-openapi`）+ MCP `inputSchema` + TS 类型；与 `src/script_schema.json` 对齐。zod 只进 worker 包，不进 Web bundle |
 | D7 | **视角隔离** | token 带 scope：🎩 ST / 🌐 public / 🪑 seat:N；ST-only 信息永不进入 public / seat 视图 |
 | D8 | **local-first 不变** | 离线对局、Electron、Capacitor 照常；云端是可选“云对局 / 云库” |
@@ -273,7 +273,7 @@ AI 设置保持本地 BYOK，永不上传。
 | ✅ | 测试：`cd worker && npm test`（REST + MCP JSON-RPC）；已并入 `npm run verify` | |
 | ⬜ | **部署（需手动）**：`cd worker && npx wrangler login && npm run deploy` | 见 `worker/README.md` |
 | ✅ | `search_rules` / `GET /v1/rules/search`（wiki-chunks TF-IDF，索引逻辑抽到 `src/core/ai/wikiIndex.ts`，app 共用） | |
-| ⬜ | `find_similar_characters` | 需先用 Gemini key 运行 `npm run build-embeddings`（手动，需 API key） |
+| ➡️ | `find_similar_characters` | 改为 P5：向量在 Cloudflare 上生成与存储（见 §7.5） |
 | ⬜ | Pages 静态 `/api/v1/*.json` 镜像 | 可选：Worker 已覆盖 |
 | ⬜ | 限流 | Cloudflare WAF 规则（控制台手动） |
 
@@ -323,6 +323,42 @@ AI 设置保持本地 BYOK，永不上传。
 
 ---
 
+## 7.5 P5：托管 AI + Cloudflare 向量 + CI（代码完成，待部署）
+
+**目标：** 用户不填 key 也能用 AI；AI 能调用本项目的 MCP 工具（查角色 / 规则 / 校验剧本 / 生成导入链接）；角色向量放到 Cloudflare 并随目录变更自动更新；CI 每次改动都校验数据与部署。
+
+**选型（2026-09 实测，Workers 免费档可用）：**
+
+| 用途 | 模型 | 实测 |
+|---|---|---|
+| 对话 + 工具调用 | `@cf/zai-org/glm-4.7-flash`（`enable_thinking: false`） | 正确发起 function call、中文回答自然；每轮约 2–4 neurons（短上下文）。Qwen3-30B 关闭思考后不调用工具，Gemma 4 超长推理，GLM-5.3-flash 免费档不可用 |
+| 角色向量 | `@cf/baai/bge-m3`（1024 维，多语言） | 同一能力中英文余弦 0.83（qwen3-embedding 0.70，embeddinggemma 0.79）；“投票翻倍的爪牙”→ 双头巨人，与 Gemini 结果一致 |
+
+模型由 `AI_CHAT_MODEL` / `AI_EMBED_MODEL` 变量配置。
+
+**设计：**
+
+| 部分 | 做法 |
+|---|---|
+| `POST /v1/ai/chat` | 前端传 system + 对话历史；Worker 用进程内 MCP 客户端（`InMemoryTransport`）连本项目 MCP server，把白名单工具（目录 / 规则 / 剧本校验分析 / 草稿链接 / 相似角色）转成 function 定义，最多 5 轮工具调用后返回 `{ text, steps }`。工具结果按“数据”包裹，截断到固定长度 |
+| 限额 | D1 `ai_usage` 按天计数：全局、每 IP（加盐哈希，不存原始 IP）、登录用户各自上限（`AI_DAILY_LIMIT*` 变量）。Workers AI 免费额度用尽 → 429 `ai_quota_exhausted`，前端提示改用自己的 key |
+| 角色向量 | 文本 = 中英文名 + 中英文能力（`src/core/ai/embeddingText.ts`，与 app 共用）；D1 `character_embeddings` 按 (模型, 角色) 存 int8 量化向量 + 文本哈希。首次相似查询或部署后自检时，哈希不符 / 缺失的角色自动重算（约 50 neurons 全量），因此目录变更后无需手动重跑 |
+| 相似检索 | `GET /v1/characters/similar?q=`、`GET /v1/characters/{id}/similar`、MCP `find_similar_characters`；每个 isolate 缓存索引，余弦暴力检索（357 × 1024，< 1ms CPU） |
+| Web | AI 设置新增默认 provider “BOTC 免费”（配置了 `VITE_API_URL` 且用户未填自己的 key 时默认使用）；聊天气泡显示调用过的工具；`findSimilar` 改走 API（无需 key）；删除 GitHub Pages 上的 `public/embeddings.json`（2 MB）和 Gemini 生成脚本 |
+| CI | `ci.yml`：PR / 推送跑 `npm run verify`（含 worker 类型检查与测试、目录一致性测试）；`deploy-worker.yml`：main 上 worker / core / 目录数据变动时自动 D1 迁移 + 部署 + 冒烟测试（含“向量无过期”检查）。需要仓库 secrets `CLOUDFLARE_API_TOKEN`、`CLOUDFLARE_ACCOUNT_ID`，未配置时跳过 |
+
+| 状态 | 项目 | 备注 |
+|---|---|---|
+| ✅ | Worker：向量生成 / 存储 / 相似检索 + MCP `find_similar_characters` | 本地 `wrangler dev` + 真实 Workers AI 实测：首次查询约 3.6 s 建全量向量，之后状态 stale = 0 |
+| ✅ | Worker：`/v1/ai/chat` + MCP 工具循环 + 每日限额 | 实测：search → get_character → get_jinxes 链式调用、中文回答、app 的 JSON 填表格式；单轮 5–25 s |
+| ✅ | CI：`ci.yml`、`deploy-worker.yml`、冒烟测试（AI 状态 / 语义检索 / 向量无过期 / 可选对话）、目录完整性测试 | 目录完整性测试列出 16 个缺夜间提醒的华灯初上 / 山雨欲来角色（已知缺口，修复后需同步删除） |
+| ✅ | Web：托管运行时 `src/lib/ai/runtime/hosted.ts`（与 WebLLM、BYOK 并列，见 `docs/AI-ARCHITECTURE-OFFLINE-FIRST.md` §15）；设置页 “BOTC” 标签（说明发送范围、每日限额、服务器无 AI 时告警并禁用发送）；聊天气泡显示调用过的工具与今日剩余次数；相似检索走 API；删除静态 `embeddings.json` 与 Gemini 生成脚本 | 浏览器实测：剧本页问“有哪些相克规则”→ 返回该剧本全部 4 条相克。实测中发现并修复：剧本上下文被按问题相关度裁掉角色名单（Groq 同样受影响）；模型自行翻译并编造能力 |
+| ✅ | MCP `search_characters` 返回 `totalMatches` / `returned` / `nextCursor`（`count` 保留为旧别名）；新增 `list_editions`（每个角色包的精确数量） | 离线优先评审 §9 的 P0 |
+| ✅ | 规则正确性与难题：核心规则逐条核对；程序计算票数 / 配置 / 开局 / 剧本 / 局势并校验回答；无模型的本地回答；neurons 预算；评测 22 题 | 详见 `docs/AI-ARCHITECTURE-OFFLINE-FIRST.md` §0、§15–§17 |
+| ⬜ | **手动**：D1 迁移 `0002_ai.sql`、部署 Worker、配置 GitHub secrets | 见 `worker/README.md` → Hosted AI |
+
+---
+
 ## 8. 免费额度核算
 
 > 数据为规划时的公开额度，落地前以官网为准。
@@ -337,7 +373,8 @@ AI 设置保持本地 BYOK，永不上传。
 | Firebase Auth | 免费（非短信） | 身份 | — |
 | Firestore Spark | 读 5 万 / 写 2 万 / 天，1GiB | 短链 + 过渡期 deal | 低 |
 | GitHub Pages | 站点 1GB，约 100GB / 月（软） | 前端 + 静态 API | 注意 `assets/pdfs`（43M）、`assets/icons`（33M） |
-| LLM | MCP 调用方自带 / 应用内 BYOK / 可选 Gemini 免费档、Workers AI 1 万 neurons / 天 | 智能 | 服务端 ≈ 0 |
+| Workers AI | 1 万 neurons / 天（免费档超额直接报错，不计费） | 托管对话（GLM-4.7-flash）+ 角色向量（bge-m3） | 对话每轮约 2–40 neurons（视上下文长短）；全量向量约 50 neurons / 次 |
+| LLM（其余） | MCP 调用方自带 / 应用内 BYOK | 智能 | 服务端 0 |
 
 ---
 

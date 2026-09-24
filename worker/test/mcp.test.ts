@@ -86,3 +86,29 @@ describe('MCP endpoint', () => {
     expect(prompt.messages[0].content.text).toContain('analyze_script')
   })
 })
+
+describe('catalog totals', () => {
+  it('pages search results with the true total', async () => {
+    const first = await callTool('search_characters', { edition: 'odyssey', limit: 50, language: 'zh' })
+    expect(first.json.totalMatches).toBe(119)
+    expect(first.json).toMatchObject({ returned: 50, count: 50, offset: 0, nextCursor: '50' })
+    const last = await callTool('search_characters', { edition: 'odyssey', limit: 50, cursor: '100', language: 'zh' })
+    expect(last.json).toMatchObject({ totalMatches: 119, returned: 19, nextCursor: null })
+    const seen = new Set<string>()
+    for (let cursor: string | null = '0'; cursor !== null;) {
+      const page: any = (await callTool('search_characters', { edition: 'odyssey', limit: 40, cursor })).json
+      page.items.forEach((c: { id: string }) => seen.add(c.id))
+      cursor = page.nextCursor
+    }
+    expect(seen.size).toBe(119)
+    expect((await callTool('search_characters', { cursor: 'x' })).isError).toBe(true)
+  })
+
+  it('lists editions with exact counts', async () => {
+    const editions = (await callTool('list_editions', { language: 'zh' })).json
+    const odyssey = editions.find((e: { id: string }) => e.id === 'odyssey')
+    expect(odyssey.characterCount).toBe(119)
+    expect(Object.values(odyssey.teamCounts as Record<string, number>).reduce((a, b) => a + b, 0)).toBe(119)
+    expect(editions.find((e: { id: string }) => e.id === 'tb')).toMatchObject({ characterCount: 28, teamCounts: { townsfolk: 13, outsider: 4, minion: 4, demon: 1, traveler: 6 } })
+  })
+})

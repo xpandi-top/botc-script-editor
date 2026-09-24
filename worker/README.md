@@ -4,9 +4,11 @@ Public REST API and MCP server for agents: Blood on the Clocktower characters,
 scripts, jinxes and night order (English + Chinese), plus script validation,
 analysis and drafting. Plan and roadmap: [`../docs/ARCHITECTURE-API.md`](../docs/ARCHITECTURE-API.md).
 
-- No LLM runs here — the calling agent does the reasoning (free to run).
-- No accounts or database yet. `create_script_draft` returns a link that
-  imports the script into the web app when the user opens it.
+- MCP and REST run no LLM — the calling agent does the reasoning (free to run).
+  The optional hosted AI (`/v1/ai/chat`, below) is for the web app's users
+  who have no API key; it uses the Workers AI free tier with daily limits.
+- `create_script_draft` returns a link that imports the script into the web
+  app when the user opens it.
 - Game logic, validation and the catalog come from `../src/core` (shared with
   the web app). The catalog snapshot is generated from `../assets` on every
   `dev`, `test`, `typecheck` and `deploy`.
@@ -19,7 +21,7 @@ analysis and drafting. Plan and roadmap: [`../docs/ARCHITECTURE-API.md`](../docs
 | `/v1/...` | REST — see `/llms.txt` or `/openapi.json` |
 | `/` | Service info |
 
-MCP tools: `search_characters`, `get_character`, `get_jinxes`, `get_night_order`, `search_rules`,
+MCP tools: `search_characters`, `get_character`, `find_similar_characters` (with Workers AI), `get_jinxes`, `get_night_order`, `search_rules`,
 `list_scripts`, `get_script`, `validate_script`, `analyze_script`,
 `get_token_manifest`, `create_script_draft`.
 Resources: `botc://characters/{id}`, `botc://scripts/{slug}`, `botc://night-order`, `botc://glossary`.
@@ -48,8 +50,13 @@ storyteller flow on a throwaway cloud game.
 npm run smoke                                   # production (botc-api.xpandi-top.workers.dev)
 npm run smoke -- --url http://localhost:8787    # local `npm run dev`
 npm run smoke -- --no-games                     # don't create a throwaway game
+npm run smoke -- --chat                         # also send one hosted-AI chat (1 of today's requests)
 BOTC_TOKEN=botc_pat_… npm run smoke             # also check the signed-in cloud library
 ```
+
+The hosted-AI checks run when `/v1/ai/status` reports AI enabled (skipped
+otherwise). They trigger the embedding refresh and fail if any character's
+embedding is stale, so a deploy with catalog changes is verified end to end.
 
 ## Deploy (manual, one-time setup)
 
@@ -114,6 +121,51 @@ without shipping the OAuth client secret. Setup is in `docs/ISSUES.md` → I-73:
 `OAUTH_ALLOWED_ORIGINS` in `wrangler.jsonc`, then set `VITE_OAUTH_TOKEN_PROXY`
 for the Pages build.
 
+## Hosted AI (P5)
+
+`POST /v1/ai/chat` gives the web app a working AI without a user API key. The
+model (`AI_CHAT_MODEL`, default `@cf/zai-org/glm-4.7-flash`) can call this
+server's MCP tools through an in-process MCP client: catalog lookups, rules,
+script validation / analysis, similar characters and script import links
+(nothing is saved). Character embeddings (`AI_EMBED_MODEL`, default
+`@cf/baai/bge-m3`) live in D1 and are refreshed automatically when the
+bundled catalog changes. `GET /v1/ai/status` shows models, limits and how
+many embeddings are stale.
+
+Daily caps per UTC day (wrangler vars; `"0"` = no cap): `AI_DAILY_LIMIT`
+(everyone, default 300), `AI_DAILY_LIMIT_PER_IP` (30; the IP is stored only
+as a salted hash), `AI_DAILY_LIMIT_PER_USER` (100, callers signed in with a
+PAT or Google token) and `AI_DAILY_NEURONS` (8000: the Workers AI neurons all
+chats may use, counted from each response's usage). Every chat response
+carries `usage` (prompt / completion tokens, neurons, model rounds); tool
+output fed back to the model is capped at 16,000 characters per request. When the account's Workers AI allowance (10,000
+neurons/day on the free plan) runs out, the API answers 429
+`ai_quota_exhausted` and the app should suggest the user's own key.
+
+One-time setup:
+
+1. Apply the new D1 tables: `npx wrangler d1 migrations apply botc-library --remote`
+   (`migrations/0002_ai.sql`).
+2. `npm run deploy`. Workers AI needs no extra setup (binding `AI` in `wrangler.jsonc`).
+   Every `npm run deploy` then runs the smoke test (`postdeploy`), which makes
+   the live worker re-embed characters whose text changed and fails if any
+   embedding is still stale.
+3. Optionally `npm run smoke -- --chat` to also try one hosted chat.
+
+### Automatic deploys
+
+`.github/workflows/deploy-worker.yml` tests, migrates, deploys and smoke-tests
+the worker on pushes to `main` that touch `worker/`, `src/core/` or the
+catalog data. Add two repository secrets (Settings → Secrets and variables →
+Actions), otherwise the deploy job is skipped:
+
+- `CLOUDFLARE_API_TOKEN`: dashboard → My Profile → API Tokens → Create Token →
+  "Edit Cloudflare Workers" template, plus **Account → D1 → Edit**.
+- `CLOUDFLARE_ACCOUNT_ID`: shown on the Workers & Pages overview page.
+
+Local `wrangler dev` uses the production D1 database (`"remote": true`) and
+real Workers AI, so chats there count against the same daily limits.
+
 ## Connect an agent
 
 - **Claude Code**: `claude mcp add --transport http botc https://botc-api.<sub>.workers.dev/mcp`
@@ -127,3 +179,8 @@ Workers Free: 100,000 requests/day, 10 ms CPU per request. The catalog is
 indexed once per isolate (~310 KB JSON); requests are simple lookups. Over the
 limit Cloudflare returns errors instead of billing. If the public endpoint is
 abused, add a rate-limiting rule in the Cloudflare dashboard (Security → WAF).
+
+Workers AI Free: 10,000 neurons/day. Measured: a chat round costs about 2–4
+neurons with a short prompt and more with the app's long context prompts
+(roughly 40 at ~7k tokens); re-embedding the whole catalog costs about 50.
+The daily caps above keep one caller from using it all.

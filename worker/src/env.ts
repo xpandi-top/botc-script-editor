@@ -15,4 +15,18 @@ export type Env = {
   DB?: D1Database
   /** Cloud games (P3): one Durable Object per game (GameRoom). */
   GAMES?: DurableObjectNamespace
+  /** Workers AI (P5): hosted chat and character embeddings. Without it /v1/ai and similarity answer 503. */
+  AI?: AiRunner
+  /** Workers AI model ids; defaults in src/ai/models.ts. */
+  AI_CHAT_MODEL?: string
+  AI_EMBED_MODEL?: string
+  /** Hosted chat requests per UTC day: all callers, per IP, per signed-in user. "0" disables that cap. */
+  AI_DAILY_LIMIT?: string
+  AI_DAILY_LIMIT_PER_IP?: string
+  AI_DAILY_LIMIT_PER_USER?: string
+  /** Workers AI neurons hosted chat may use per UTC day (free plan: 10,000 for everything). */
+  AI_DAILY_NEURONS?: string
 }
+
+/** The part of the Workers AI binding the worker uses (tests pass a fake). */
+export type AiRunner = { run(model: string, inputs: Record<string, unknown>): Promise<unknown> }

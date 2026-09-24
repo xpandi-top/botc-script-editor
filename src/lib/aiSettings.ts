@@ -1,11 +1,18 @@
 /**
  * Runtime AI provider/model settings — stored in localStorage.
  * Takes precedence over env vars so user can switch without rebuild.
+ *
+ * Runtimes: 'botc' is the hosted AI of the BOTC Companion API (online, no
+ * user key, daily limits; only offered when VITE_API_URL is set), 'webllm'
+ * runs on this device, the others use the user's own API key.
  */
 
 import { WEBLLM_MODELS } from './ai/runtime/webllmModels'
+import { isApiConfigured } from './apiUrl'
 
-export type OnlineAiProvider = 'groq' | 'openrouter' | 'gemini'
+/** Providers that need the user's own API key. */
+export type KeyedAiProvider = 'groq' | 'openrouter' | 'gemini'
+export type OnlineAiProvider = KeyedAiProvider | 'botc'
 export type AiProvider = OnlineAiProvider | 'webllm'
 
 export type AiSettings = {
@@ -19,6 +26,8 @@ export type AiSettings = {
 }
 
 export const PROVIDER_MODELS: Record<AiProvider, Array<{ id: string; label: string; free?: boolean }>> = {
+  // The server picks the model (worker AI_CHAT_MODEL); one entry for the selector.
+  botc: [{ id: 'default', label: 'Workers AI · GLM-4.7 Flash', free: true }],
   webllm: WEBLLM_MODELS,
   groq: [
     { id: 'qwen/qwen3.8-27b', label: 'Qwen 3.8 27B (default)' },
@@ -41,6 +50,7 @@ export const PROVIDER_MODELS: Record<AiProvider, Array<{ id: string; label: stri
 }
 
 const DEFAULT_MODELS: Record<AiProvider, string> = {
+  botc:   'default',
   webllm: WEBLLM_MODELS[0].id,
   groq:       'qwen/qwen3.8-27b',
   openrouter: 'meta-llama/llama-3.3-70b-instruct:free',
@@ -54,6 +64,7 @@ const RETIRED_GROQ_MODELS = new Set([
 ])
 
 function normalizeModel(provider: AiProvider, model?: string): string {
+  if (provider === 'botc') return DEFAULT_MODELS.botc
   if (provider === 'webllm' && !WEBLLM_MODELS.some((m) => m.id === model)) return DEFAULT_MODELS.webllm
   if (!model || (provider === 'groq' && RETIRED_GROQ_MODELS.has(model))) return DEFAULT_MODELS[provider]
   return model
@@ -61,11 +72,17 @@ function normalizeModel(provider: AiProvider, model?: string): string {
 
 function isProvider(value: unknown): value is AiProvider {
   return typeof value === 'string' && Object.prototype.hasOwnProperty.call(PROVIDER_MODELS, value)
+    && (value !== 'botc' || isApiConfigured())
+}
+
+/** The user's key for a key-based provider; '' for the hosted and local runtimes. */
+export function providerKey(settings: AiSettings, provider: AiProvider = settings.provider): string {
+  return provider === 'botc' || provider === 'webllm' ? '' : settings.keys[provider]?.trim() ?? ''
 }
 
 const LS_KEY = 'BOTC_AI_SETTINGS'
 
-function envKey(provider: OnlineAiProvider): string {
+function envKey(provider: KeyedAiProvider): string {
   const universal = (import.meta.env.VITE_AI_API_KEY as string | undefined)?.trim() ?? ''
   const activeProvider = (import.meta.env.VITE_AI_PROVIDER as AiProvider | undefined) ?? 'groq'
   if (provider === 'groq') {
@@ -81,8 +98,10 @@ function envKey(provider: OnlineAiProvider): string {
 
 function defaultSettings(): AiSettings {
   const envProvider = import.meta.env.VITE_AI_PROVIDER
-  const provider: AiProvider = isProvider(envProvider) ? envProvider : 'groq'
-  return {
+  // Without a configured provider, start on a mode that works with no key:
+  // the hosted AI when this build has an API, else local (local data + optional on-device model).
+  const provider: AiProvider = isProvider(envProvider) ? envProvider : isApiConfigured() ? 'botc' : 'webllm'
+  const settings: AiSettings = {
     provider,
     model: DEFAULT_MODELS[provider],
     keys: {
@@ -91,6 +110,13 @@ function defaultSettings(): AiSettings {
       gemini:     envKey('gemini'),
     },
   }
+  return usable(settings)
+}
+
+/** A key-based provider without a key cannot answer: use the hosted AI instead when it exists. */
+function usable(settings: AiSettings): AiSettings {
+  if (settings.provider === 'botc' || settings.provider === 'webllm' || providerKey(settings) || !isApiConfigured()) return settings
+  return { ...settings, provider: 'botc', model: DEFAULT_MODELS.botc }
 }
 
 export function loadAiSettings(): AiSettings {
@@ -107,7 +133,7 @@ export function loadAiSettings(): AiSettings {
       ? parsed.model
       : DEFAULT_MODELS[provider]
 
-    return {
+    return usable({
       provider,
       model: normalizeModel(provider, model),
       keys: {
@@ -116,7 +142,7 @@ export function loadAiSettings(): AiSettings {
         openrouter: parsed.keys?.openrouter ?? defaults.keys.openrouter ?? '',
         gemini:     parsed.keys?.gemini     ?? defaults.keys.gemini     ?? '',
       },
-    }
+    })
   } catch {
     return defaultSettings()
   }
@@ -139,10 +165,17 @@ export function getDefaultModel(provider: AiProvider): string {
 
 export function isAiAvailable(s?: AiSettings): boolean {
   const settings = s ?? loadAiSettings()
-  return settings.provider === 'webllm' || Boolean(settings.keys[settings.provider]?.trim())
+  if (settings.provider === 'botc') return isApiConfigured()
+  return settings.provider === 'webllm' || Boolean(providerKey(settings))
+}
+
+/** Settings tabs in display order; the hosted AI only when this build has an API. */
+export function availableProviders(): AiProvider[] {
+  return [...(isApiConfigured() ? ['botc' as const] : []), 'webllm', 'groq', 'openrouter', 'gemini']
 }
 
 export const PROVIDER_LABELS: Record<AiProvider, string> = {
+  botc: 'BOTC',
   webllm: 'WebLLM',
   groq: 'Groq',
   openrouter: 'OpenRouter',

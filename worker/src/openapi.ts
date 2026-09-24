@@ -32,10 +32,11 @@ export function openApiDocument(serverUrl: string) {
             { name: 'q', in: 'query', schema: { type: 'string' }, description: 'Match id, names or ability text (EN/ZH).' },
             { name: 'team', in: 'query', schema: { type: 'string', enum: ['townsfolk', 'outsider', 'minion', 'demon', 'traveler', 'fabled', 'loric'] } },
             { name: 'edition', in: 'query', schema: { type: 'string' } },
-            { name: 'limit', in: 'query', schema: { type: 'integer', minimum: 1 } },
+            { name: 'limit', in: 'query', schema: { type: 'integer', minimum: 1 }, description: 'Page size (default: all).' },
+            { name: 'offset', in: 'query', schema: { type: 'integer', minimum: 0 } },
             lang,
           ],
-          responses: { 200: json('{ count, items }') },
+          responses: { 200: json('{ totalMatches, returned, offset, nextCursor, count (= returned), items }') },
         },
       },
       '/v1/characters/{id}': {
@@ -45,6 +46,55 @@ export function openApiDocument(serverUrl: string) {
           responses: { 200: json('Character'), 404: json('Unknown character') },
         },
       },
+      '/v1/characters/similar': {
+        get: {
+          operationId: 'similarCharacters', summary: 'Characters whose ability is closest in meaning to a text (needs Workers AI)',
+          parameters: [
+            { name: 'q', in: 'query', required: true, schema: { type: 'string', maxLength: 1000 }, description: 'Description in English or Chinese.' },
+            { name: 'team', in: 'query', schema: { type: 'string', enum: ['townsfolk', 'outsider', 'minion', 'demon', 'traveler', 'fabled', 'loric'] } },
+            { name: 'exclude', in: 'query', schema: { type: 'string' }, description: 'Comma-separated ids to leave out.' },
+            { name: 'limit', in: 'query', schema: { type: 'integer', minimum: 1, maximum: 50, default: 5 } },
+            lang,
+          ],
+          responses: { 200: json('{ model, items: [character + score] }'), 503: json('AI not enabled'), 429: json('Free AI allowance used up') },
+        },
+      },
+      '/v1/characters/{id}/similar': {
+        get: {
+          operationId: 'charactersLike', summary: 'Characters most similar to an existing one (needs Workers AI)',
+          parameters: [
+            { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
+            { name: 'team', in: 'query', schema: { type: 'string' } },
+            { name: 'limit', in: 'query', schema: { type: 'integer', minimum: 1, maximum: 50, default: 5 } },
+            lang,
+          ],
+          responses: { 200: json('{ model, items: [character + score] }'), 404: json('Unknown character'), 503: json('AI not enabled') },
+        },
+      },
+      '/v1/ai/status': { get: { operationId: 'aiStatus', summary: 'Hosted AI availability, models, daily limits and embedding freshness', responses: { 200: json('{ chat: { available, model, dailyLimits }, embeddings: { available, model?, total?, embedded?, stale? } }') } } },
+      '/v1/ai/chat': {
+        post: {
+          operationId: 'aiChat', summary: 'Hosted chat; the model can call this server\'s MCP tools. Daily limits per IP / signed-in user.',
+          requestBody: {
+            required: true,
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  required: ['messages'],
+                  properties: {
+                    system: { type: 'string', maxLength: 30000 },
+                    messages: { type: 'array', minItems: 1, maxItems: 40, items: { type: 'object', required: ['role', 'content'], properties: { role: { type: 'string', enum: ['user', 'assistant'] }, content: { type: 'string' } } } },
+                    temperature: { type: 'number', minimum: 0, maximum: 1.5 },
+                    tools: { type: 'boolean', default: true },
+                  },
+                },
+              },
+            },
+          },
+          responses: { 200: json('{ text, steps: [{ tool, arguments, ok }], model, remaining }'), 400: json('Bad input'), 401: json('Invalid credentials'), 429: json('Daily limit reached (ai_rate_limited) or free AI allowance used up (ai_quota_exhausted)'), 503: json('AI not enabled') },
+        },
+      },
       '/v1/rules/search': {
         get: {
           operationId: 'searchRules', summary: 'Search BotC wiki excerpts',
@@ -52,7 +102,7 @@ export function openApiDocument(serverUrl: string) {
           responses: { 200: json('{ items }'), 400: json('Missing query') },
         },
       },
-      '/v1/editions': { get: { operationId: 'listEditions', summary: 'Editions / character packs with credits', responses: { 200: json('{ items }') } } },
+      '/v1/editions': { get: { operationId: 'listEditions', summary: 'Editions / character packs with credits and exact character counts per team', parameters: [lang], responses: { 200: json('{ items: [{ id, name, author?, characterCount, teamCounts }] }') } } },
       '/v1/night-order': {
         get: {
           operationId: 'getNightOrder', summary: 'Global night order, or the wake order for a set of characters',

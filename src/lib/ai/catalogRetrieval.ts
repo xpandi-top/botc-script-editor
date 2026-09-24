@@ -22,6 +22,16 @@ function matches(query: string, alias: string): boolean {
   return new RegExp(`(^|[^a-z0-9])${escaped}($|[^a-z0-9])`, 'i').test(query)
 }
 
+// Official ability texts (both languages), for questions that quote one — e.g. "translate …".
+const normalizeText = (s: string) => s.replace(/<[^>]+>/g, '').toLowerCase().replace(/[\s\p{P}\p{S}]+/gu, '')
+const abilityTexts: Array<[string, string]> = characters.flatMap((c) => (['en', 'zh'] as const).map((lang) => [normalizeText(getAbilityText(c.id, lang) ?? ''), c.id] as [string, string]))
+  .filter(([text]) => text.length >= 16 && text !== normalizeText('No ability text available.'))
+
+function quotedAbilities(query: string): string[] {
+  const q = normalizeText(query)
+  return [...new Set(abilityTexts.filter(([text]) => q.includes(text)).map(([, id]) => id))]
+}
+
 function entities(query: string) {
   const q = query.toLowerCase()
   const editionIds = editions.filter((id) => {
@@ -31,9 +41,16 @@ function entities(query: string) {
       .flatMap((value) => [value, ...(value.match(/[一-鿿]+/g) ?? [])])
     return aliases.some((alias) => matches(q, alias))
   })
-  const characterIds = characters.filter((c) =>
+  const quotedIds = quotedAbilities(query)
+  const named = characters.filter((c) =>
     [c.id, getDisplayName(c.id, 'en'), getDisplayName(c.id, 'zh')].some((alias) => matches(q, alias)),
   ).map((c) => c.id)
+  return { editionIds, characterIds: [...new Set([...named, ...quotedIds])], quotedIds }
+}
+
+/** Editions and characters a question names (by name, id or quoted ability). */
+export function mentionedEntities(query: string): { editionIds: string[]; characterIds: string[] } {
+  const { editionIds, characterIds } = entities(query)
   return { editionIds, characterIds }
 }
 
@@ -76,9 +93,14 @@ export function retrieveCatalog(query: string, language: Language, previousQueri
       ).join('\n'))
     }
   }
+  // Translations need the official text in both languages.
+  const bilingual = (id: string) => resolved.quotedIds.includes(id) || /翻译|译成|translat/i.test(query)
   const details = resolved.characterIds.map((id) =>
     `Character: ${getDisplayName(id, 'zh')} / ${getDisplayName(id, 'en')} [${id}]\n` +
-    `Source: assets/characters/individual/${id}.json (current local revision)\nAbility: ${getAbilityText(id, language)}`,
+    `Source: assets/characters/individual/${id}.json (current local revision)\n` +
+    (bilingual(id)
+      ? `Official ability (en): ${getAbilityText(id, 'en')}\nOfficial ability (zh): ${getAbilityText(id, 'zh')}`
+      : `Ability: ${getAbilityText(id, language)}`),
   )
   return { ...resolved, editionIds, query: retrievalQuery, facts: facts.join('\n\n'), rosters, details }
 }

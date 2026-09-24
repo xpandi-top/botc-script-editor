@@ -11,6 +11,9 @@ import {
   type FillLogEntry,
 } from '../../lib/fillLog'
 import { getWebLlmState, subscribeWebLlm, unloadWebLlm } from '../../lib/ai/runtime/webllm'
+import { getHostedStatus, HOSTED_INPUT_BUDGET } from '../../lib/ai/runtime/hosted'
+import { answerLocally } from '../../lib/ai/localAnswer'
+import { checkAnswer } from '../../lib/ai/answerCheck'
 import { useT } from '../../context/I18nContext'
 import { storePair } from '../../lib/translationMemory'
 import { prepareSystemPrompt, callAi } from '../../lib/ai'
@@ -39,9 +42,16 @@ export function useAiPanel({ open, context, callbacks }: UseAiPanelOptions) {
 
   const { language } = useT()
   const localState = useSyncExternalStore(subscribeWebLlm, getWebLlmState)
-  const canSend = settings.provider === 'webllm'
-    ? localState.status === 'ready' && localState.model === settings.model
-    : isAiAvailable(settings)
+  // null = not checked yet; the hosted AI is usable until the server says otherwise.
+  const [hostedAvailable, setHostedAvailable] = useState<boolean | null>(null)
+  // Whether the chosen runtime can generate now; without it the panel still
+  // answers from local data (localAnswer.ts), so sending is always allowed.
+  const modelReady = (s: AiSettings) => s.provider === 'webllm'
+    ? localState.status === 'ready' && localState.model === s.model
+    : s.provider === 'botc'
+      ? isAiAvailable(s) && hostedAvailable !== false
+      : isAiAvailable(s)
+  const canSend = true
   const effectiveCtx: AiContext = context ?? buildGeneralContext(language)
   const formKey = `${effectiveCtx.type}:${effectiveCtx.title}`
 
@@ -55,6 +65,13 @@ export function useAiPanel({ open, context, callbacks }: UseAiPanelOptions) {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
+
+  useEffect(() => {
+    if (!open || settings.provider !== 'botc') return
+    let live = true
+    void getHostedStatus().then((s) => { if (live) setHostedAvailable(s.available) })
+    return () => { live = false }
+  }, [open, settings.provider])
 
   const patchSettings = useCallback((patch: Partial<AiSettings>) => {
     if ((patch.provider && patch.provider !== settings.provider) || (patch.model && patch.model !== settings.model)) unloadWebLlm()
@@ -105,7 +122,7 @@ export function useAiPanel({ open, context, callbacks }: UseAiPanelOptions) {
 
   const handleSend = useCallback(async (overrideText?: string, displayLabel?: string) => {
     const text = (overrideText ?? input).trim()
-    if (!text || loading || !canSend) return
+    if (!text || loading) return
     const userMsg: AiMessage = {
       id: crypto.randomUUID(),
       role: 'user',
@@ -126,9 +143,24 @@ export function useAiPanel({ open, context, callbacks }: UseAiPanelOptions) {
         parts: [{ text: m.content }] as [{ text: string }],
       }))
 
+    const previousQueries = messages.filter((m) => m.role === 'user').map((m) => m.content)
+    const zh = effectiveCtx.language === 'zh'
+    const local = () => answerLocally(effectiveCtx, text, previousQueries)
+    if (!modelReady(latestSettings)) {
+      const why = latestSettings.provider === 'webllm'
+        ? (zh ? '本地模型尚未下载或加载' : 'The local model is not loaded')
+        : latestSettings.provider === 'botc'
+          ? (zh ? 'BOTC 在线 AI 暂不可用' : 'The BOTC online AI is not available')
+          : (zh ? '未填写 API Key' : 'No API key')
+      setMessages((m) => [...m, { id: crypto.randomUUID(), role: 'assistant', content: `${local().message}\n\n_${why}${zh ? '，以上为本地资料。' : '; this is local data only.'}_`, local: true }])
+      setLoading(false)
+      setTimeout(() => inputRef.current?.focus(), 50)
+      return
+    }
+
     let result: Awaited<ReturnType<typeof callAi>>
     try {
-      const systemPrompt = await prepareSystemPrompt(effectiveCtx, text, messages.filter((m) => m.role === 'user').map((m) => m.content), { local: latestSettings.provider === 'webllm' })
+      const systemPrompt = await prepareSystemPrompt(effectiveCtx, text, previousQueries, { local: latestSettings.provider === 'webllm', inputBudget: latestSettings.provider === 'botc' ? HOSTED_INPUT_BUDGET : undefined })
       result = await callAi({ systemPrompt, history, settings: latestSettings, temperature: 0.6 })
     } catch (error) {
       result = { ok: false, error: error instanceof Error ? error.message : String(error) }
@@ -136,10 +168,12 @@ export function useAiPanel({ open, context, callbacks }: UseAiPanelOptions) {
 
     if (result.ok) {
       const { response } = result
+      // Line-ups and scripts in the answer are checked; illegal ones get the program's legal version.
+      const checked = checkAnswer(effectiveCtx, text, response.message)
       const msgId = crypto.randomUUID()
       setMessages((m) => [
         ...m,
-        { id: msgId, role: 'assistant', content: response.message, fills: response.fills, appliedFills: [] },
+        { id: msgId, role: 'assistant', content: checked.text, fills: response.fills, appliedFills: [], ...(result.steps ? { steps: result.steps, remaining: result.remaining } : {}) },
       ])
       if (autoApply && response.fills?.length) {
         response.fills.forEach((fill) => {
@@ -147,15 +181,19 @@ export function useAiPanel({ open, context, callbacks }: UseAiPanelOptions) {
         })
       }
     } else {
+      // The model failed (offline, limits, outage): still show what local data says.
+      const fallback = local()
       setMessages((m) => [
         ...m,
         { id: crypto.randomUUID(), role: 'error', content: result.error },
+        ...(fallback.found ? [{ id: crypto.randomUUID(), role: 'assistant' as const, content: fallback.message, local: true }] : []),
       ])
     }
 
     setLoading(false)
     setTimeout(() => inputRef.current?.focus(), 50)
-  }, [input, loading, canSend, messages, effectiveCtx, autoApply, doApplyFill, context])
+  // modelReady reads localState and hostedAvailable, so both are dependencies.
+  }, [input, loading, localState, hostedAvailable, messages, effectiveCtx, autoApply, doApplyFill, context])
 
   const downloadLog = useCallback(() => {
     const md  = exportFillLogMd(fillLog)

@@ -26,3 +26,6 @@ playwright-report/
 
 # Odyssey wiki verification workspace (scripts/odyssey/verify.py)
 .odyssey-verify/
+
+# Local AI evaluation reports (src/__tests__/aiEval.live.test.ts)
+ai-eval-report*

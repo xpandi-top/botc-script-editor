@@ -11,7 +11,7 @@ import type { Env } from './env'
 import { analyze, buildDraftScript, checkScript, InputError, resolveScriptData, toEditableScript, type DraftInput } from './scripts'
 import { searchRules } from './rules'
 import { createScriptShareLink } from './share'
-import { characterView, jinxView, nightOrderView, parseLang, tokenManifest } from './views'
+import { characterView, editionSummaries, jinxView, nightOrderView, pageOf, parseLang, tokenManifest } from './views'
 
 type AppContext = Context<{ Bindings: Env }>
 
@@ -36,9 +36,12 @@ export function buildApi() {
     const limitRaw = c.req.query('limit')
     const limit = limitRaw === undefined ? undefined : Number(limitRaw)
     if (limit !== undefined && (!Number.isInteger(limit) || limit < 1)) throw new InputError('"limit" must be a positive integer.')
+    const offset = Number(c.req.query('offset') ?? 0)
+    if (!Number.isInteger(offset) || offset < 0) throw new InputError('"offset" must be a non-negative integer.')
     const lang = parseLang(c.req.query('lang'))
-    const items = getCatalog().searchCharacters({ q: c.req.query('q'), team: team as Team | undefined, edition: c.req.query('edition'), limit })
-    return c.json({ count: items.length, items: items.map((ch) => characterView(ch, lang)) })
+    const all = getCatalog().searchCharacters({ q: c.req.query('q'), team: team as Team | undefined, edition: c.req.query('edition') })
+    const page = pageOf(all, offset, limit ?? all.length)
+    return c.json({ ...page, items: page.items.map((ch) => characterView(ch, lang)) })
   })
 
   api.get('/characters/:id', (c) => {
@@ -48,7 +51,7 @@ export function buildApi() {
     return c.json({ ...characterView(character, lang), jinxes: getCatalog().data.jinxes.filter((j) => j.characters.includes(character.id)).map((j) => jinxView(j, lang)) })
   })
 
-  api.get('/editions', (c) => c.json({ items: getCatalog().data.editions }))
+  api.get('/editions', (c) => c.json({ items: editionSummaries(getCatalog(), parseLang(c.req.query('lang'))) }))
 
   api.get('/rules/search', (c) => {
     const q = c.req.query('q')?.trim()

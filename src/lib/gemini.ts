@@ -4,7 +4,7 @@
  * falling back to env vars. No page reload needed to switch provider.
  */
 
-import { loadAiSettings, isAiAvailable, type AiProvider, type AiSettings } from './aiSettings'
+import { loadAiSettings, isAiAvailable, providerKey, type AiProvider, type AiSettings } from './aiSettings'
 
 import { budgetHistory, GROQ_INPUT_BUDGET } from '../core/ai/contextBudget'
 
@@ -35,6 +35,11 @@ export type GeminiRequest = {
 export type GeminiResponse = {
   text: string
   finishReason: string
+  /** Hosted runtime: the server model, the tools it ran and today's remaining requests. */
+  model?: string
+  steps?: Array<{ tool: string; ok: boolean; arguments?: unknown }>
+  remaining?: number | null
+  usage?: { promptTokens: number; completionTokens: number; neurons: number; rounds: number }
 }
 
 export async function geminiGenerate(req: GeminiRequest, settings: AiSettings = loadAiSettings()): Promise<GeminiResponse> {
@@ -44,7 +49,11 @@ export async function geminiGenerate(req: GeminiRequest, settings: AiSettings = 
     const { generateWebLlm } = await import('./ai/runtime/webllm')
     return generateWebLlm(req, model)
   }
-  const apiKey   = settings.keys[provider]?.trim()
+  if (provider === 'botc') {
+    const { generateHosted } = await import('./ai/runtime/hosted')
+    return generateHosted(req)
+  }
+  const apiKey   = providerKey(settings)
 
   if (!apiKey) throw new GeminiError(`No API key set for provider "${provider}"`)
 

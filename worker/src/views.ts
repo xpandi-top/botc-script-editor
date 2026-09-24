@@ -28,6 +28,33 @@ export function characterView(c: CatalogCharacter, lang?: Lang) {
   }
 }
 
+/**
+ * One page of matches with the true total. `count` is kept for older
+ * clients and equals `returned` (the page size), not the total.
+ */
+export function pageOf<T>(all: T[], offset: number, limit: number) {
+  const items = all.slice(offset, offset + limit)
+  const next = offset + items.length
+  return { totalMatches: all.length, returned: items.length, offset, nextCursor: next < all.length ? String(next) : null, count: items.length, items }
+}
+
+/** Editions with exact character counts per team, straight from the catalog. */
+export function editionSummaries(catalog: CatalogIndex, lang?: Lang) {
+  return catalog.data.editions.map((e) => {
+    const members = catalog.data.characters.filter((c) => c.edition === e.id)
+    const teamCounts: Record<string, number> = {}
+    for (const c of members) teamCounts[c.team] = (teamCounts[c.team] ?? 0) + 1
+    return {
+      id: e.id,
+      name: lang ? e.name[lang] : e.name,
+      ...(e.author ? { author: lang ? e.author[lang] ?? e.author.en ?? e.author.zh : e.author } : {}),
+      ...(e.source ? { source: e.source } : {}),
+      characterCount: members.length,
+      teamCounts,
+    }
+  })
+}
+
 export function jinxView(j: CatalogJinx, lang?: Lang) {
   return lang ? { id: j.id, characters: j.characters, status: j.status, reason: j.reason[lang] } : j
 }

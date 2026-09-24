@@ -3,7 +3,7 @@
  */
 
 import type { Language, Team } from '../../types'
-import type { DayState, GameRecord } from '../../components/StorytellerSub/types'
+import type { DayState, GameRecord, StorytellerSeat } from '../../components/StorytellerSub/types'
 import type { EditableScript } from '../../types'
 
 // ── Context ───────────────────────────────────────────────────────────────────
@@ -30,6 +30,10 @@ export type AiContext = {
   fields: AiField[]
   /** Pre-serialized text for prompt injection */
   serialized?: string
+  /** Characters on the page's script / in the game, for computed rule facts. */
+  characterIds?: string[]
+  /** The game's seats (storyteller page), for computed win-condition facts. */
+  seats?: Array<Pick<StorytellerSeat, 'seat' | 'characterId' | 'alive' | 'isTraveler' | 'stTags'>>
 }
 
 // ── Response types ────────────────────────────────────────────────────────────

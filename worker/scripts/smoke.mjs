@@ -7,10 +7,14 @@
  *   cd worker && npm run smoke                          # production worker
  *   npm run smoke -- --url http://localhost:8787        # local `npm run dev`
  *   npm run smoke -- --no-games                         # skip creating a throwaway cloud game
+ *   npm run smoke -- --chat                             # also send one hosted-AI chat (uses 1 of today's requests)
+ *   npm run smoke -- --no-ai                            # skip the hosted-AI checks
+ *   npm run smoke -- --expect-ai                        # after a deploy: wait for the AI routes, fail without them
  *   BOTC_TOKEN=botc_pat_… npm run smoke                 # also check the signed-in cloud library
  *
  * Read-only apart from the throwaway game (and nothing is written to the
- * library). Exits 1 if any check fails.
+ * library). The AI checks refresh the character embeddings if the deployed
+ * catalog changed, then require none to be stale. Exits 1 if any check fails.
  */
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js'
@@ -20,9 +24,16 @@ const flag = (name) => { const i = args.indexOf(name); return i === -1 ? undefin
 const base = (flag('--url') ?? process.env.BOTC_API_URL ?? 'https://botc-api.xpandi-top.workers.dev').replace(/\/+$/, '')
 const token = process.env.BOTC_TOKEN
 const withGames = !args.includes('--no-games')
+const withAi = !args.includes('--no-ai')
+const withChat = args.includes('--chat')
+// After a deploy: wait until the new version (with the AI routes) answers, and fail if it never does.
+const expectAi = args.includes('--expect-ai')
 
 let failures = 0
 let passed = 0
+let skipped = 0
+
+class Skip extends Error {}
 
 async function check(name, run) {
   try {
@@ -30,6 +41,11 @@ async function check(name, run) {
     passed++
     console.log(`  ✓ ${name}${detail ? ` — ${detail}` : ''}`)
   } catch (e) {
+    if (e instanceof Skip) {
+      skipped++
+      console.log(`  – ${name} — skipped: ${e.message}`)
+      return
+    }
     failures++
     console.log(`  ✗ ${name} — ${e instanceof Error ? e.message : e}`)
   }
@@ -115,6 +131,48 @@ await check('cloud library requires sign-in', async () => {
   return '401 without a token'
 })
 
+let aiEnabled = false
+if (withAi) {
+  console.log('\nHosted AI')
+  await check('status', async () => {
+    let { status, json } = await http('GET', '/v1/ai/status')
+    // A fresh deploy takes a few seconds to reach every location.
+    for (let waited = 0; expectAi && status === 404 && waited < 90; waited += 5) {
+      await new Promise((resolve) => setTimeout(resolve, 5000))
+      ;({ status, json } = await http('GET', '/v1/ai/status'))
+    }
+    if (status === 404 && expectAi) throw new Error('the deployment still has no /v1/ai routes after 90 s')
+    if (status === 404) throw new Skip('this deployment has no /v1/ai routes yet')
+    assert(status === 200, `${status} ${JSON.stringify(json)}`)
+    if (!json.chat?.available) throw new Skip('no Workers AI binding')
+    aiEnabled = true
+    const limits = json.chat.dailyLimits
+    const used = json.chat.usedToday ?? { requests: 0, neurons: 0 }
+    return `${json.chat.model}; today ${used.requests}/${limits.global ?? '∞'} requests, ${used.neurons}/${limits.neurons ?? '∞'} neurons; ${limits.perIp ?? '∞'} per IP / ${limits.perUser ?? '∞'} per user`
+  })
+  if (aiEnabled) {
+    await check('semantic search (zh)', async () => {
+      const q = encodeURIComponent('每晚选择一名玩家，他死亡')
+      const { status, json } = await http('GET', `/v1/characters/similar?q=${q}&team=demon&limit=3&lang=zh`)
+      assert(status === 200 && json.items?.length === 3 && json.items.every((c) => c.team === 'demon'), `${status} ${JSON.stringify(json).slice(0, 300)}`)
+      return json.items.map((c) => `${c.name} ${c.score}`).join(', ')
+    })
+    await check('embeddings match the deployed catalog', async () => {
+      const { json } = await http('GET', '/v1/ai/status')
+      const e = json.embeddings
+      assert(e?.available && e.stale === 0 && e.embedded === e.total, JSON.stringify(e))
+      return `${e.embedded}/${e.total} characters (${e.model})`
+    })
+    if (withChat) {
+      await check('chat with MCP tools', async () => {
+        const { status, json } = await http('POST', '/v1/ai/chat', { messages: [{ role: 'user', content: 'What is the exact ability text of the Imp? Look it up.' }] })
+        assert(status === 200 && json.text?.length > 0, `${status} ${JSON.stringify(json).slice(0, 300)}`)
+        return `${json.steps.map((st) => st.tool).join(' → ') || 'no tools'}; ${json.usage?.promptTokens ?? '?'} prompt tokens, ${json.usage?.neurons ?? '?'} neurons; ${json.remaining ?? '∞'} requests left today`
+      })
+    }
+  }
+}
+
 console.log('\nMCP (official client, Streamable HTTP)')
 let client
 await check('connect', async () => {
@@ -127,7 +185,7 @@ if (client) {
   await check('tools/list', async () => {
     const { tools } = await client.listTools()
     const names = tools.map((t) => t.name)
-    for (const expected of ['search_characters', 'validate_script', 'create_script_draft', 'create_game', 'suggest_night_info']) {
+    for (const expected of ['search_characters', 'validate_script', 'create_script_draft', 'create_game', 'suggest_night_info', ...(aiEnabled ? ['find_similar_characters'] : [])]) {
       assert(names.includes(expected), `missing ${expected}`)
     }
     return `${tools.length} tools`
@@ -198,5 +256,5 @@ if (token) {
   })
 }
 
-console.log(`\n${failures === 0 ? '✓' : '✗'} ${passed} passed, ${failures} failed`)
+console.log(`\n${failures === 0 ? '✓' : '✗'} ${passed} passed, ${failures} failed${skipped ? `, ${skipped} skipped` : ''}`)
 process.exit(failures === 0 ? 0 : 1)

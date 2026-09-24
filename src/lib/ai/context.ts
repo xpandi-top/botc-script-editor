@@ -3,6 +3,7 @@
  * No React imports here.
  */
 
+import { CHARACTER_DISTRIBUTION } from '../../core/engine/setup'
 import {
   getDisplayName, getAbilityTextForScript, getCharacterById,
   teamOrder, teamLabels, getEffectiveNightOrderFromRegistry, getNightReminder,
@@ -162,9 +163,10 @@ const TEAM_LABEL: Record<Team, { en: string; zh: string }> = {
 }
 
 // Typical 15-player composition for balance reference
+// Characters in play per player count come from the core table (the script is a pool, not the line-up).
 const TYPICAL_COMPOSITION = {
-  en: 'Typical 15p: 9 Townsfolk, 2 Outsiders, 2 Minions, 1 Demon (+ 1 Traveler optional)',
-  zh: '典型15人配置: 9镇民, 2外来者, 2爪牙, 1恶魔 (+ 1旅行者可选)',
+  en: `In play by player count (Townsfolk/Outsiders/Minions/Demons): ${Object.entries(CHARACTER_DISTRIBUTION).map(([n, d]) => `${n}: ${d.townsfolk}/${d.outsider}/${d.minion}/${d.demon}`).join(', ')}. Only some script characters are in play each game.`,
+  zh: `按人数的在场角色（镇民/外来者/爪牙/恶魔）：${Object.entries(CHARACTER_DISTRIBUTION).map(([n, d]) => `${n}人 ${d.townsfolk}/${d.outsider}/${d.minion}/${d.demon}`).join('，')}。每局只使用剧本中的部分角色。`,
 }
 
 function serializeScriptForPrompt(input: ScriptInput): string {
@@ -179,6 +181,9 @@ function serializeScriptForPrompt(input: ScriptInput): string {
   if (script.edition) lines.push((t('edition')) + script.edition)
   lines.push((t('total_characters')) + script.characters.length)
   lines.push(zh ? TYPICAL_COMPOSITION.zh : TYPICAL_COMPOSITION.en)
+  // In the first paragraph, which context selection always keeps: the full
+  // roster by id, so jinx / night-order / validation lookups see every character.
+  lines.push((zh ? '角色 id: ' : 'Character ids: ') + script.characters.join(', '))
 
   // Group by team
   const grouped: Partial<Record<Team, string[]>> = {}
@@ -198,7 +203,7 @@ function serializeScriptForPrompt(input: ScriptInput): string {
     for (const id of ids) {
       const name    = getDisplayName(id, language)
       const ability = getAbilityTextForScript(id, language, script.pinnedRevisions)
-      lines.push(`  ${name}: ${ability}`)
+      lines.push(`  ${name} [${id}]: ${ability}`)
     }
   }
 
@@ -246,6 +251,7 @@ export function buildScriptContext(input: ScriptInput): AiContext {
     fields,
   }
   ctx.serialized = serializeScriptForPrompt(input)
+  ctx.characterIds = script.characters
   return ctx
 }
 
@@ -264,11 +270,18 @@ function serializeStorytellerForPrompt(input: StorytellerInput): string {
   lines.push((zh ? '总天数: ' : 'Total days played: ') + days.length)
 
   // ── Seat assignments ────────────────────────────────────────────────────────
-  lines.push('')
+  // Same paragraph as the header: context selection always keeps the first
+  // paragraph whole, so the game state is never cut for relevance.
+  const aliveCount = currentDay.seats.filter((s) => s.alive && !s.isTraveler).length
+  lines.push(zh
+    ? `存活玩家: ${aliveCount} 人（不含旅行者）；今天处决至少需要 ${Math.ceil(aliveCount / 2)} 票`
+    : `Alive players: ${aliveCount} (not counting Travellers); an execution today needs at least ${Math.ceil(aliveCount / 2)} votes`)
   lines.push(zh ? '── 座位分配 ──' : '── Seat Assignments ──')
   for (const s of currentDay.seats) {
     const name   = s.name || `#${s.seat}`
-    const char   = s.characterId ? getDisplayName(s.characterId, language) : (zh ? '未分配' : 'unassigned')
+    const entry  = s.characterId ? getCharacterById(s.characterId) : undefined
+    const team   = entry?.team ? (zh ? teamLabels.zh[entry.team as Team] ?? entry.team : teamLabels.en[entry.team as Team] ?? entry.team) : ''
+    const char   = s.characterId ? `${getDisplayName(s.characterId, language)} [${s.characterId}${team ? `, ${team}` : ''}]` : (zh ? '未分配' : 'unassigned')
     const status = s.alive ? (zh ? '存活' : 'alive') : (zh ? '死亡' : 'dead')
     const tags   = [...(s.customTags ?? []), ...(s.stTags ?? [])].filter(Boolean)
     const tagStr = tags.length ? ` [${tags.join(', ')}]` : ''
@@ -281,8 +294,8 @@ function serializeStorytellerForPrompt(input: StorytellerInput): string {
   const assignedCharIds = [...new Set(
     currentDay.seats.map((s) => s.characterId).filter(Boolean) as string[]
   )]
-  // Include all script chars + fabled for full reference
-  const rosterIds = [...new Set([...scriptCharacters, ...assignedCharIds, ...stFabledIds])]
+  // Characters in play first, then the rest of the script + fabled for reference
+  const rosterIds = [...new Set([...assignedCharIds, ...stFabledIds, ...scriptCharacters])]
 
   if (rosterIds.length) {
     lines.push('')
@@ -343,7 +356,7 @@ function serializeStorytellerForPrompt(input: StorytellerInput): string {
     for (const id of stFabledIds) {
       const name    = getDisplayName(id, language)
       const ability = getAbilityTextForScript(id, language, pinnedRevisions)
-      lines.push(`  ${name}: ${ability}`)
+      lines.push(`  ${name} [${id}]: ${ability}`)
     }
   }
   if (stCustomRules?.trim()) {
@@ -438,6 +451,8 @@ export function buildStorytellerContext(input: StorytellerInput): AiContext {
     language,
     fields,
     serialized: serializeStorytellerForPrompt(input),
+    characterIds: [...new Set([...(input.scriptCharacters ?? []), ...currentDay.seats.map((s) => s.characterId).filter((id): id is string => !!id)])],
+    seats: currentDay.seats,
   }
 }
 
@@ -484,7 +499,7 @@ function serializeGameLog(input: GameLogInput): string {
     for (const id of rosterIds) {
       const name    = getDisplayName(id, language)
       const ability = getAbilityTextForScript(id, language, pinnedRevisions)
-      lines.push(`  ${name}: ${ability}`)
+      lines.push(`  ${name} [${id}]: ${ability}`)
     }
   }
 

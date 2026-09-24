@@ -38,6 +38,11 @@ describe('catalog routes', () => {
     const demons = await j(await get('/v1/characters?team=demon&edition=tb'))
     expect(demons.items.map((c: { id: string }) => c.id)).toEqual(['imp'])
     expect((await get('/v1/characters?team=wizard')).status).toBe(400)
+    const page = await j(await get('/v1/characters?edition=odyssey&limit=10&offset=110'))
+    expect(page).toMatchObject({ totalMatches: 119, returned: 9, count: 9, offset: 110, nextCursor: null })
+    expect((await get('/v1/characters?offset=-1')).status).toBe(400)
+    const editions = await j(await get('/v1/editions?lang=en'))
+    expect(editions.items.find((e: { id: string }) => e.id === 'odyssey')).toMatchObject({ characterCount: 119 })
     expect((await get('/v1/characters?limit=0')).status).toBe(400)
   })
 
