@@ -934,6 +934,16 @@ export type EditionCredit = {
   multiVoteTokens?: boolean
   terms_en?: string
   terms_zh?: string
+  /** Texts in a language the pack author did not write (Odyssey's English): who translated them and how to say so. */
+  translations?: Partial<Record<Language, EditionTranslation>>
+}
+
+export type EditionTranslation = {
+  /** False for a community translation, which must not be passed off as the author's text. */
+  official: boolean
+  date: string
+  note_en: string
+  note_zh: string
 }
 
 export const editionCredits = editionCreditData as Record<string, EditionCredit>
@@ -953,6 +963,17 @@ export function getEditionCreditAuthor(credit: EditionCredit, language: Language
 
 export function getEditionTerms(credit: EditionCredit, language: Language): string | undefined {
   return (language === 'zh' ? credit.terms_zh : credit.terms_en) || credit.terms_en
+}
+
+/**
+ * The pack's unofficial translations, as notes in the reader's language
+ * ("English text: unofficial community translation…"); empty when every
+ * text is the author's own.
+ */
+export function getEditionTranslationNotes(credit: EditionCredit, language: Language): string[] {
+  return Object.values(credit.translations ?? {})
+    .filter((translation): translation is EditionTranslation => Boolean(translation && !translation.official))
+    .map((translation) => (language === 'zh' ? translation.note_zh : translation.note_en))
 }
 
 /**

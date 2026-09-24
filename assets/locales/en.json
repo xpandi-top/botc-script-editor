@@ -1301,6 +1301,7 @@
     "no_almanac_for_this_character": "No almanac entry for this character.",
     "attribution_line": "Characters from {0} · {1}",
     "attribution_line_no_source": "Characters from {0}",
+    "attribution_translation": "English text: unofficial community translation",
     "pack_source": "Pack",
     "pack_terms": "Usage terms",
     "glossary": "Terms",

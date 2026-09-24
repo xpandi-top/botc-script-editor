@@ -423,7 +423,7 @@ export type TplKey =
   | 'communication_phrase_choose_n_players' | 'communication_phrase_choose_n_chars'
   | 'communication_phrase_you_are_char' | 'communication_phrase_char_is_char'
   // Edition attribution
-  | 'attribution_line' | 'attribution_line_no_source'
+  | 'attribution_line' | 'attribution_line_no_source' | 'attribution_translation'
   | 'vote_tokens_spent'
 
 /**

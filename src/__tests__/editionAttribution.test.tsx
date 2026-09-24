@@ -13,6 +13,7 @@ import {
   getEditionCreditAuthor,
   getEditionCreditName,
   getEditionTerms,
+  getEditionTranslationNotes,
   getRequiredAttributions,
 } from '../catalog'
 import { SheetArticle } from '../components/SheetArticle'
@@ -87,6 +88,11 @@ describe('edition credit copy', () => {
     expect(getEditionTerms(credit, 'en')).toBeTruthy()
   })
 
+  it('says the English text is an unofficial community translation', () => {
+    expect(getEditionTranslationNotes(credit, 'en')).toEqual([expect.stringMatching(/unofficial community translation/)])
+    expect(getEditionTranslationNotes(credit, 'zh')).toEqual([expect.stringMatching(/社区翻译，非官方/)])
+  })
+
   it('has no credit for official editions', () => {
     expect(getEditionCredit('tb')).toBeUndefined()
   })
@@ -102,6 +108,13 @@ describe('SheetArticle attribution footer', () => {
   it('uses the Chinese credit line in Chinese', () => {
     renderSheet([ODYSSEY_CHAR], 'zh')
     expect(screen.getByText(/角色来自《奥德赛 Odyssey》/)).toBeTruthy()
+    // The Chinese text is the author's own.
+    expect(screen.queryByText(/社区翻译/)).toBeNull()
+  })
+
+  it('marks an English sheet as using the community translation', () => {
+    renderSheet([ODYSSEY_CHAR])
+    expect(screen.getByText(/Characters from Odyssey.*English text: unofficial community translation/)).toBeTruthy()
   })
 
   it('renders no credit when the sheet has no character that requires one', () => {
