@@ -7,11 +7,20 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Tzeentch"
+    "name": "Tzeentch",
+    "ability": "Each night*, choose a player: they die. When you learn the Demon info, you get extra bluffs; choose 1 of them: you gain that character's ability.",
+    "revisions": {
+      "v1": "Each night*, choose a player: they die. When you learn the Demon info, you get extra bluffs; choose 1 of them: you gain that character's ability."
+    },
+    "firstNightReminder": "The Tzeentch chooses 1 of their bluffs.",
+    "otherNightReminder": "The Tzeentch chooses a player.",
+    "reminders": [
+      "Dead"
+    ]
   },
   "zh": {
     "name": "奸奇",

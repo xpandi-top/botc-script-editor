@@ -7,11 +7,19 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Yeti"
+    "name": "Yeti",
+    "ability": "Once per game, the Demon may publicly guess that you are the Yeti. If correct, when they are executed that day, you are executed instead. If nobody is executed during the day, your team loses.",
+    "revisions": {
+      "v1": "Once per game, the Demon may publicly guess that you are the Yeti. If correct, when they are executed that day, you are executed instead. If nobody is executed during the day, your team loses."
+    },
+    "reminders": [
+      "Guess Used",
+      "Found"
+    ]
   },
   "zh": {
     "name": "雪怪",

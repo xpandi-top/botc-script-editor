@@ -7,11 +7,22 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Pirate Cat King"
+    "name": "Pirate Cat King",
+    "ability": "Dead players may give up their vote tokens to become Treasure Hunters. When Judgment Day arrives, if you are dead, all Treasure Hunters split 12 vote tokens evenly.",
+    "revisions": {
+      "v1": "Dead players may give up their vote tokens to become Treasure Hunters. When Judgment Day arrives, if you are dead, all Treasure Hunters split 12 vote tokens evenly."
+    },
+    "reminders": [
+      "Treasure Hunter",
+      "Treasure Hunter",
+      "Treasure Hunter",
+      "Treasure Hunter",
+      "Treasure Hunter"
+    ]
   },
   "zh": {
     "name": "海猫王",

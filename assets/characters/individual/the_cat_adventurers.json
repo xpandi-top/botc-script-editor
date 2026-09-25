@@ -7,11 +7,23 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "The Cat Adventurers"
+    "name": "The Cat Adventurers",
+    "ability": "Each day, a player who has never adventured may publicly volunteer to adventure. That night, if they are alive, you learn a player of the opposite alignment to them.",
+    "revisions": {
+      "v1": "Each day, a player who has never adventured may publicly volunteer to adventure. That night, if they are alive, you learn a player of the opposite alignment to them."
+    },
+    "otherNightReminder": "If today's *ADVENTURER* is alive, wake The Cat Adventurers & point to a player of the opposite alignment to them.",
+    "reminders": [
+      "Adventurer",
+      "Adventured",
+      "Adventured",
+      "Adventured",
+      "Adventured"
+    ]
   },
   "zh": {
     "name": "猫猫探险队",

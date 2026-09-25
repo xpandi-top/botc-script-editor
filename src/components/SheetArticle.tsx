@@ -264,6 +264,8 @@ export function SheetArticle({
           const label = credit.source
             ? tpl('attribution_line', name, credit.source.replace(/^https?:\/\//, ''))
             : tpl('attribution_line_no_source', name)
+          // The sheet's own language is a community translation (Odyssey in English): say so on the sheet.
+          const translated = credit.translations?.[lang]?.official === false ? ` · ${tpl('attribution_translation')}` : ''
           return (
             <Typography
               key={credit.id}
@@ -271,7 +273,7 @@ export function SheetArticle({
               color="text.secondary"
               sx={{ display: 'block', opacity: 0.6, lineHeight: 1.4 }}
             >
-              {label}{author ? ` · ${author}` : ''}
+              {label}{author ? ` · ${author}` : ''}{translated}
             </Typography>
           )
         })}

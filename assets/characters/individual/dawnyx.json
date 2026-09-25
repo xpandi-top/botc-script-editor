@@ -7,11 +7,18 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Dawnyx"
+    "name": "Dawnyx",
+    "ability": "Good can't win while you are alive. A Demon who dies by execution regains their ability at dawn.",
+    "revisions": {
+      "v1": "Good can't win while you are alive. A Demon who dies by execution regains their ability at dawn."
+    },
+    "reminders": [
+      "Has Ability"
+    ]
   },
   "zh": {
     "name": "晓",

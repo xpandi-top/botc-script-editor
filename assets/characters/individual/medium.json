@@ -7,11 +7,19 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Medium"
+    "name": "Medium",
+    "ability": "If a Townsfolk dies by execution after you nominated them, that night they learn that the Medium is in play.",
+    "revisions": {
+      "v1": "If a Townsfolk dies by execution after you nominated them, that night they learn that the Medium is in play."
+    },
+    "otherNightReminder": "If a player is marked *KNOW*, wake them & tell them the Medium is in play.",
+    "reminders": [
+      "Know"
+    ]
   },
   "zh": {
     "name": "灵媒",

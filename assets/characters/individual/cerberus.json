@@ -7,11 +7,23 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Cerberus"
+    "name": "Cerberus",
+    "ability": "Each night*, choose a player, and choose again each time you choose an evil player: they die. Minions you kill keep their ability.",
+    "revisions": {
+      "v1": "Each night*, choose a player, and choose again each time you choose an evil player: they die. Minions you kill keep their ability."
+    },
+    "otherNightReminder": "The Cerberus chooses a player. If they chose an evil player, they choose again.",
+    "reminders": [
+      "Dead",
+      "Dead",
+      "Dead",
+      "Laid to Rest",
+      "Laid to Rest"
+    ]
   },
   "zh": {
     "name": "刻耳柏洛斯",

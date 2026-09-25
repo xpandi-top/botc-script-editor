@@ -7,11 +7,20 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Visagiste"
+    "name": "Visagiste",
+    "ability": "If a player you nominate, or who nominates you, is a Minion or Demon, that night they may choose to become a not-in-play character of the same type, even if you are dead.",
+    "revisions": {
+      "v1": "If a player you nominate, or who nominates you, is a Minion or Demon, that night they may choose to become a not-in-play character of the same type, even if you are dead."
+    },
+    "otherNightReminder": "Wake each player marked *MAKEOVER*.",
+    "reminders": [
+      "Makeover",
+      "Makeover"
+    ]
   },
   "zh": {
     "name": "化妆师",

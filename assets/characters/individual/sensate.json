@@ -7,11 +7,17 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Sensate"
+    "name": "Sensate",
+    "ability": "Each night, the Demon chooses an alive player (not you): the Demon & you learn their character.",
+    "revisions": {
+      "v1": "Each night, the Demon chooses an alive player (not you): the Demon & you learn their character."
+    },
+    "firstNightReminder": "Wake the Demon to choose a player; show them that player's character token. Put the Demon to sleep. Wake the Sensate & show them that player's character token.",
+    "otherNightReminder": "Wake the Demon to choose a player; show them that player's character token. Put the Demon to sleep. Wake the Sensate & show them that player's character token."
   },
   "zh": {
     "name": "超感者",

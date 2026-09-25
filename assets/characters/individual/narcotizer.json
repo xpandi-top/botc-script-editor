@@ -7,11 +7,21 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Narcotizer"
+    "name": "Narcotizer",
+    "ability": "Each night, choose a player: they are poisoned until you choose someone else. When an alive player poisoned by you becomes healthy, they learn that the Narcotizer is in play.",
+    "revisions": {
+      "v1": "Each night, choose a player: they are poisoned until you choose someone else. When an alive player poisoned by you becomes healthy, they learn that the Narcotizer is in play."
+    },
+    "firstNightReminder": "The Narcotizer chooses a player.",
+    "otherNightReminder": "The Narcotizer chooses a player.",
+    "reminders": [
+      "Poisoned",
+      "Know"
+    ]
   },
   "zh": {
     "name": "麻醉师",

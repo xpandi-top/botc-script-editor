@@ -157,8 +157,9 @@ describe('edition credits', () => {
 })
 
 // ── Odyssey pack ─────────────────────────────────────────────────────────────
-// Chinese-only for now: names and abilities live in the `zh` block, English has
-// the name only. Re-syncing from the wiki must not regress these.
+// Chinese is the source (the pack's wiki); English is a community translation
+// in the `en` block (docs/ODYSSEY.md). Re-syncing from the wiki must not
+// regress these, and a changed Chinese ability needs its English updated too.
 
 const odyssey = characterFiles.map(({ entry }) => entry).filter((entry) => entry.edition === 'odyssey')
 
@@ -177,6 +178,30 @@ describe('odyssey pack', () => {
   it('has an English name for every character', () => {
     const missing = odyssey.filter((entry) => !entry.en?.name?.trim()).map((entry) => entry.id)
     expect(missing).toEqual([])
+  })
+
+  it('has an English ability, night reminders and tokens matching the Chinese ones', () => {
+    const wrong = odyssey.flatMap((entry) => {
+      const { en = {}, zh = {} } = entry
+      const problems: string[] = []
+      if (!en.ability?.trim() || en.ability !== en.revisions?.[entry.current_revision!]) problems.push('ability')
+      if (/[㐀-鿿]/.test(`${en.ability}${en.firstNightReminder ?? ''}${en.otherNightReminder ?? ''}${(en.reminders ?? []).join('')}`)) problems.push('Chinese in English text')
+      // Same shape as the source: setup brackets, night* / dusk*, night steps, one token per token.
+      if (/\[.+\]/.test(en.ability ?? '') !== /\[.+\]/.test(zh.ability ?? '')) problems.push('setup brackets')
+      if ((en.ability ?? '').includes('*') !== (zh.ability ?? '').includes('*')) problems.push('asterisk')
+      if (Boolean(en.firstNightReminder) !== Boolean(zh.firstNightReminder)) problems.push('first night')
+      if (Boolean(en.otherNightReminder) !== Boolean(zh.otherNightReminder)) problems.push('other nights')
+      if ((en.reminders ?? []).length !== (zh.reminders ?? []).length) problems.push('token count')
+      return problems.map((problem) => `${entry.id}: ${problem}`)
+    })
+    expect(wrong).toEqual([])
+  })
+
+  it('marks the English text as a community translation', () => {
+    const unmarked = odyssey
+      .filter((entry) => !entry.revisions?.find((r) => r.id === entry.current_revision)?.note.includes('community translation'))
+      .map((entry) => entry.id)
+    expect(unmarked).toEqual([])
   })
 
   it('keeps zh.ability in sync with the current revision text', () => {
@@ -281,5 +306,31 @@ describe('odyssey pack', () => {
     )
     const missing = odyssey.map((entry) => entry.id).filter((id) => !almanac.characters[id])
     expect(missing).toEqual([])
+  })
+
+  // The English almanac is a community translation of the Chinese one: marked
+  // as such, one entry per character, and in step with the English abilities.
+  it('has a marked English translation of the almanac for every character', () => {
+    type Entry = { source?: string; translated_from?: string; ability?: string; summary?: string; examples?: string }
+    const english = readJson<{ translation?: { from: string; official: boolean }; terminology: Record<string, { translated_from?: string }>; characters: Record<string, Entry> }>(
+      path.join(root, 'assets', 'almanac', 'odyssey.en.json'),
+    )
+    const chinese = readJson<{ terminology: Record<string, unknown>; characters: Record<string, { source?: string }> }>(
+      path.join(root, 'assets', 'almanac', 'odyssey.zh.json'),
+    )
+    expect(english.translation).toMatchObject({ from: 'zh', official: false })
+    expect(Object.keys(english.terminology).sort()).toEqual(Object.keys(chinese.terminology).sort())
+    expect(Object.values(english.terminology).every((term) => term.translated_from === 'zh')).toBe(true)
+    const wrong = odyssey.flatMap((character) => {
+      const entry = english.characters[character.id]
+      if (!entry) return [`${character.id}: missing`]
+      const problems: string[] = []
+      if (entry.translated_from !== 'zh') problems.push('not marked as a translation')
+      if (entry.source !== chinese.characters[character.id]?.source) problems.push('source page differs from the Chinese entry')
+      if (entry.ability !== character.en?.ability) problems.push('ability differs from the character file')
+      if (!entry.summary?.trim() || !entry.examples?.trim()) problems.push('no summary or examples')
+      return problems.map((problem) => `${character.id}: ${problem}`)
+    })
+    expect(wrong).toEqual([])
   })
 })

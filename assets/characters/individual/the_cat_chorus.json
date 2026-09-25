@@ -7,11 +7,19 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "The Cat Chorus"
+    "name": "The Cat Chorus",
+    "ability": "1 player is drunk. At dusk, the Storyteller might name a song: if the players sing it together successfully, all Townsfolk are unaffected by poisoning & drunkenness until the next dusk.",
+    "revisions": {
+      "v1": "1 player is drunk. At dusk, the Storyteller might name a song: if the players sing it together successfully, all Townsfolk are unaffected by poisoning & drunkenness until the next dusk."
+    },
+    "reminders": [
+      "Wasted!",
+      "Party On!"
+    ]
   },
   "zh": {
     "name": "猫猫合唱团",

@@ -7,11 +7,15 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Arbiter"
+    "name": "Arbiter",
+    "ability": "Other good players don't die by execution if you nominated them.",
+    "revisions": {
+      "v1": "Other good players don't die by execution if you nominated them."
+    }
   },
   "zh": {
     "name": "仲裁者",

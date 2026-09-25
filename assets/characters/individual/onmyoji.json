@@ -7,11 +7,20 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Onmyoji"
+    "name": "Onmyoji",
+    "ability": "Each night, you learn a player: they are the opposite alignment to the player you learned the previous night.",
+    "revisions": {
+      "v1": "Each night, you learn a player: they are the opposite alignment to the player you learned the previous night."
+    },
+    "firstNightReminder": "Wake the Onmyoji & point to any player.",
+    "otherNightReminder": "Wake the Onmyoji & point to a player.",
+    "reminders": [
+      "Know"
+    ]
   },
   "zh": {
     "name": "阴阳师",

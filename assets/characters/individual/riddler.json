@@ -7,11 +7,15 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Riddler"
+    "name": "Riddler",
+    "ability": "Each day, you may learn a riddle from the Storyteller. Its answer is an in-play character.",
+    "revisions": {
+      "v1": "Each day, you may learn a riddle from the Storyteller. Its answer is an in-play character."
+    }
   },
   "zh": {
     "name": "谜语人",

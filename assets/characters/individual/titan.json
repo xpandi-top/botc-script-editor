@@ -7,11 +7,22 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Titan"
+    "name": "Titan",
+    "ability": "On the 1st night, you turn evil & gain the abilities of every not-in-play Minion. [The Titan counts as a Minion during setup]",
+    "revisions": {
+      "v1": "On the 1st night, you turn evil & gain the abilities of every not-in-play Minion. [The Titan counts as a Minion during setup]"
+    },
+    "firstNightReminder": "Wake the Titan. Tell them they are now evil & show every not-in-play Minion character token.",
+    "reminders": [
+      "Minion 1",
+      "Minion 2",
+      "Minion 3",
+      "Minion 4"
+    ]
   },
   "zh": {
     "name": "泰坦",

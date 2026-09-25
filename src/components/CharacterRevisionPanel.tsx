@@ -19,6 +19,7 @@ import {
   getEditionCredit,
   getEditionCreditAuthor,
   getEditionCreditName,
+  getEditionTranslationNotes,
   getEditionTerms,
   getIconForCharacter,
   getNextRevisionId,
@@ -319,6 +320,11 @@ export function CharacterRevisionPanel({
                 {credit.source.replace(/^https?:\/\//, '')}
               </Link>
             )}
+            {getEditionTranslationNotes(credit, language).map((note) => (
+              <Typography key={note} variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+                {note}
+              </Typography>
+            ))}
             {terms && (
               <Tooltip title={terms}>
                 <Typography

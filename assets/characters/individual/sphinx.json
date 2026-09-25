@@ -7,11 +7,20 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Sphinx"
+    "name": "Sphinx",
+    "ability": "Each night, choose a character: tomorrow, if it is in play, that player is publicly asked a yes/no question. A player who doesn't answer correctly might be executed.",
+    "revisions": {
+      "v1": "Each night, choose a character: tomorrow, if it is in play, that player is publicly asked a yes/no question. A player who doesn't answer correctly might be executed."
+    },
+    "firstNightReminder": "The Sphinx chooses a character.",
+    "otherNightReminder": "The Sphinx chooses a character.",
+    "reminders": [
+      "Question"
+    ]
   },
   "zh": {
     "name": "斯芬克斯",

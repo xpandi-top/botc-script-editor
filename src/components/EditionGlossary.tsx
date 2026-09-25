@@ -117,6 +117,11 @@ export function EditionGlossary({
               </AccordionDetails>
             </Accordion>
           ))}
+          {section.terms.some(([, term]) => term.translated_from) && (
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', px: 1, pt: 0.75, fontStyle: 'italic' }}>
+              {t('glossary_translated')}
+            </Typography>
+          )}
         </Box>
       ))}
     </Box>

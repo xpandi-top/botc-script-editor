@@ -7,11 +7,21 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Myconid"
+    "name": "Myconid",
+    "ability": "You & the Minions keep your abilities after dying by execution.",
+    "revisions": {
+      "v1": "You & the Minions keep your abilities after dying by execution."
+    },
+    "reminders": [
+      "Has Ability",
+      "Has Ability",
+      "Has Ability",
+      "Has Ability"
+    ]
   },
   "zh": {
     "name": "蘑菇仔",

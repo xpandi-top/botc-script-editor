@@ -7,11 +7,20 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Slaanesh"
+    "name": "Slaanesh",
+    "ability": "Each night*, choose a player: they die, and you may have them learn that you are Slaanesh. The last player to learn you are Slaanesh wins or loses with you, even if you are dead.",
+    "revisions": {
+      "v1": "Each night*, choose a player: they die, and you may have them learn that you are Slaanesh. The last player to learn you are Slaanesh wins or loses with you, even if you are dead."
+    },
+    "otherNightReminder": "Slaanesh chooses a player.",
+    "reminders": [
+      "Dead",
+      "Charmed"
+    ]
   },
   "zh": {
     "name": "色孽",

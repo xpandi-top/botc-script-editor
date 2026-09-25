@@ -7,11 +7,20 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Martyra"
+    "name": "Martyra",
+    "ability": "If a Minion dies by execution, you die that night, and all evil characters are drunk until dusk tomorrow.",
+    "revisions": {
+      "v1": "If a Minion dies by execution, you die that night, and all evil characters are drunk until dusk tomorrow."
+    },
+    "otherNightReminder": "If *MARTYRDOM* is in play, the Martyra dies.",
+    "reminders": [
+      "Dead",
+      "Martyrdom"
+    ]
   },
   "zh": {
     "name": "殉教少女",

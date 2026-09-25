@@ -7,11 +7,15 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "MarMonk"
+    "name": "MarMonk",
+    "ability": "When the Demon attacks you, an evil player is attacked instead.",
+    "revisions": {
+      "v1": "When the Demon attacks you, an evil player is attacked instead."
+    }
   },
   "zh": {
     "name": "武僧",

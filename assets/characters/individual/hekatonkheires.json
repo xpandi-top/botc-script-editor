@@ -7,11 +7,18 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Hekatonkheires"
+    "name": "Hekatonkheires",
+    "ability": "If you publicly declare that you are the Hekatonkheires immediately after dying by execution, your next vote counts as the number of votes you received today.",
+    "revisions": {
+      "v1": "If you publicly declare that you are the Hekatonkheires immediately after dying by execution, your next vote counts as the number of votes you received today."
+    },
+    "reminders": [
+      "Revenge"
+    ]
   },
   "zh": {
     "name": "百臂巨人",

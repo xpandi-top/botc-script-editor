@@ -7,11 +7,16 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Two-Face"
+    "name": "Two-Face",
+    "ability": "Each night*, you become the opposite alignment to the last player who died by execution.",
+    "revisions": {
+      "v1": "Each night*, you become the opposite alignment to the last player who died by execution."
+    },
+    "otherNightReminder": "If the player who died by execution today is a different alignment to the Two-Face, wake them & show them their new alignment."
   },
   "zh": {
     "name": "双面人",

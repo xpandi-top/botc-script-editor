@@ -7,11 +7,19 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Shaman"
+    "name": "Shaman",
+    "ability": "Once per game, at night*, choose 4 characters of different types: for each one not in play, a player of that type becomes that character.",
+    "revisions": {
+      "v1": "Once per game, at night*, choose 4 characters of different types: for each one not in play, a player of that type becomes that character."
+    },
+    "otherNightReminder": "The Shaman might choose characters.",
+    "reminders": [
+      "No Ability"
+    ]
   },
   "zh": {
     "name": "萨满",

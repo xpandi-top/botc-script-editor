@@ -7,11 +7,20 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Dark Knight"
+    "name": "Dark Knight",
+    "ability": "Each night*, you learn which Outsider players died today, and guess their characters: if you guess correctly, a player dies. [+1 Outsider]",
+    "revisions": {
+      "v1": "Each night*, you learn which Outsider players died today, and guess their characters: if you guess correctly, a player dies. [+1 Outsider]"
+    },
+    "otherNightReminder": "Wake the Dark Knight & point to the Outsider players who died today. They guess those players' Outsider characters.",
+    "reminders": [
+      "Guess Tonight",
+      "Dead"
+    ]
   },
   "zh": {
     "name": "黑骑士",

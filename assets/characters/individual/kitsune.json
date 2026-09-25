@@ -7,11 +7,19 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Kitsune"
+    "name": "Kitsune",
+    "ability": "Each night*, choose a player & an Outsider character: if that character is not in play, they become it. If they are that character, they die. [-1 or +1 Outsider]",
+    "revisions": {
+      "v1": "Each night*, choose a player & an Outsider character: if that character is not in play, they become it. If they are that character, they die. [-1 or +1 Outsider]"
+    },
+    "otherNightReminder": "The Kitsune chooses a character & a player.",
+    "reminders": [
+      "Dead"
+    ]
   },
   "zh": {
     "name": "狐妖",

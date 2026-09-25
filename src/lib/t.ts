@@ -252,10 +252,11 @@ export type UiKey =
   | 'phase_switch_sound' | 'pick_by_character' | 'random' | 'remove_novote'
   | 'replay_this_script' | 'save_record' | 'saved'
   | 'pack_source' | 'pack_terms'
-  | 'glossary' | 'no_glossary_for_this_script'
+  | 'glossary' | 'no_glossary_for_this_script' | 'glossary_translated'
   | 'almanac' | 'almanac_summary' | 'almanac_howto' | 'almanac_examples'
   | 'almanac_rules' | 'almanac_reminder_details' | 'almanac_tips'
   | 'almanac_bluffing' | 'almanac_fighting' | 'almanac_flavor' | 'almanac_source' | 'almanac_source_community'
+  | 'almanac_translated' | 'almanac_source_original'
   | 'no_almanac_for_this_character'
   | 'script_reminders' | 'search' | 'select' | 'select_player'
   | 'storyteller_setup' | 'teams' | 'this_game_only' | 'traveler_2'
@@ -423,7 +424,7 @@ export type TplKey =
   | 'communication_phrase_choose_n_players' | 'communication_phrase_choose_n_chars'
   | 'communication_phrase_you_are_char' | 'communication_phrase_char_is_char'
   // Edition attribution
-  | 'attribution_line' | 'attribution_line_no_source'
+  | 'attribution_line' | 'attribution_line_no_source' | 'attribution_translation'
   | 'vote_tokens_spent'
 
 /**

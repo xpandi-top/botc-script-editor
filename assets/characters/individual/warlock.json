@@ -7,11 +7,20 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Warlock"
+    "name": "Warlock",
+    "ability": "If the Demon kills you, each night from then on, choose a player: they die.",
+    "revisions": {
+      "v1": "If the Demon kills you, each night from then on, choose a player: they die."
+    },
+    "otherNightReminder": "The Warlock chooses a player.",
+    "reminders": [
+      "Has Ability",
+      "Dead"
+    ]
   },
   "zh": {
     "name": "邪术师",

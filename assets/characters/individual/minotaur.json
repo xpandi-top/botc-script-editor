@@ -7,11 +7,19 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Minotaur"
+    "name": "Minotaur",
+    "ability": "Each night*, choose an alive player: they die. Before Judgment Day, if every evil player has died by execution, your team wins.",
+    "revisions": {
+      "v1": "Each night*, choose an alive player: they die. Before Judgment Day, if every evil player has died by execution, your team wins."
+    },
+    "otherNightReminder": "The Minotaur chooses an alive player.",
+    "reminders": [
+      "Dead"
+    ]
   },
   "zh": {
     "name": "米诺陶",

@@ -24,7 +24,8 @@ const NEUTRAL = /^[\d?？X]+$/
 describe('reminder tokens', () => {
   it('keeps English tokens free of Chinese', () => {
     const chinese = characters
-      .flatMap((c) => [...(c.reminders ?? []), ...(c.remindersGlobal ?? [])].map((token) => ({ id: c.id, token })))
+      .flatMap((c) => [...(c.reminders ?? []), ...(c.remindersGlobal ?? []), ...(c.en?.reminders ?? []), ...(c.en?.remindersGlobal ?? [])]
+        .map((token) => ({ id: c.id, token })))
       .filter(({ token }) => CJK.test(token))
       .map(({ id, token }) => `${id}: ${token}`)
     expect(chinese).toEqual([])
@@ -32,10 +33,11 @@ describe('reminder tokens', () => {
 
   it('gives every English token a Chinese one, in the same order', () => {
     const wrong = characters.flatMap((c) => (['reminders', 'remindersGlobal'] as const).flatMap((key) => {
-      const en = c[key] ?? []
+      // Packs keep their English list in the `en` block (Odyssey), the official editions at the top level.
+      const en = c[key] ?? c.en?.[key] ?? []
       const zh = c.zh?.[key] ?? []
       if (!en.length && !zh.length) return []
-      if (!OFFICIAL.includes(c.edition) && !en.length) return [] // Chinese-only packs (Odyssey)
+      if (!OFFICIAL.includes(c.edition) && !en.length) return [] // Chinese-only packs
       if (c.edition.startsWith('community-') && !zh.length) return [] // English-only community packs
       if (en.length !== zh.length) return [`${c.id}.${key}: ${en.length} English, ${zh.length} Chinese`]
       return zh.flatMap((token, i) => {
@@ -57,8 +59,10 @@ describe('reminder tokens', () => {
     expect(getCharacterReminders('courtier', 'zh')).toEqual(['醉酒3', '醉酒2', '醉酒1', '失去能力'])
   })
 
-  it('falls back to the other language only when a character has no list in this one', () => {
+  it('resolves a pack\'s tokens from its language blocks (Odyssey: community English)', () => {
     expect(getCharacterReminders('aerialist', 'zh')).toEqual(['醉酒'])
-    expect(getCharacterReminders('aerialist', 'en')).toEqual(['醉酒'])
+    expect(getCharacterReminders('aerialist', 'en')).toEqual(['Drunk'])
+    expect(getCharacterReminders('cowboy', 'en')).toEqual(['Nemesis', 'Has Nominated', 'Showdown'])
+    expect(getCharacterReminders('cowboy', 'zh')).toEqual(['宿敌', '发起提名', '了断'])
   })
 })

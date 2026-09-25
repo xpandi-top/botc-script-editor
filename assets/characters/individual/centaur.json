@@ -7,11 +7,21 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Centaur"
+    "name": "Centaur",
+    "ability": "Each night, choose a player (not yourself, and not last night's choice): if they are the same character type as the player you chose last night, they die.",
+    "revisions": {
+      "v1": "Each night, choose a player (not yourself, and not last night's choice): if they are the same character type as the player you chose last night, they die."
+    },
+    "firstNightReminder": "The Centaur chooses a player.",
+    "otherNightReminder": "The Centaur chooses a player.",
+    "reminders": [
+      "Chosen",
+      "Dead"
+    ]
   },
   "zh": {
     "name": "半人马",

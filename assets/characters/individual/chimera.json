@@ -7,11 +7,19 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Chimera"
+    "name": "Chimera",
+    "ability": "Each night*, choose a Demon character other than the Chimera (not either of your previous 2 choices): you have that character's ability until dusk. [-1 Outsider]",
+    "revisions": {
+      "v1": "Each night*, choose a Demon character other than the Chimera (not either of your previous 2 choices): you have that character's ability until dusk. [-1 Outsider]"
+    },
+    "otherNightReminder": "The Chimera chooses a Demon character other than the Chimera.",
+    "reminders": [
+      "Is The Chimera"
+    ]
   },
   "zh": {
     "name": "奇美拉",

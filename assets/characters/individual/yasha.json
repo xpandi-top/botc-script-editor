@@ -7,11 +7,21 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Yasha"
+    "name": "Yasha",
+    "ability": "Each night*, you may choose a player you nominated, or who nominated you, today: they die.",
+    "revisions": {
+      "v1": "Each night*, you may choose a player you nominated, or who nominated you, today: they die."
+    },
+    "otherNightReminder": "The Yasha might choose a player marked *GRUDGE*.",
+    "reminders": [
+      "Grudge",
+      "Grudge",
+      "Dead"
+    ]
   },
   "zh": {
     "name": "夜叉",

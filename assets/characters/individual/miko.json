@@ -7,11 +7,17 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Miko"
+    "name": "Miko",
+    "ability": "Each night, choose 2 players (not yourself) who neighbour each other: you learn if either is a Minion.",
+    "revisions": {
+      "v1": "Each night, choose 2 players (not yourself) who neighbour each other: you learn if either is a Minion."
+    },
+    "firstNightReminder": "The Miko chooses 2 players (not themself) who neighbour each other.",
+    "otherNightReminder": "The Miko chooses 2 players (not themself) who neighbour each other."
   },
   "zh": {
     "name": "巫女",

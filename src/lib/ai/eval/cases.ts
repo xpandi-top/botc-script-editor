@@ -249,6 +249,24 @@ export const EVAL_CASES: EvalCase[] = [
       { kind: 'includes', any: ['survivab', 'deliberately getting executed', 'final day'], label: 'tips from the official wiki' },
     ],
   },
+  {
+    id: 'guide-en-odyssey-play', category: 'guide', difficulty: 'basic', language: 'en', context: general, offline: true,
+    question: 'How do I play the Painter?',
+    checks: [
+      { kind: 'includes', any: ['in-play character', 'learned most recently'], label: 'Painter ability' },
+      { kind: 'includes', any: ['search openly', 'stay hidden', 'reveal their characters'], label: 'Odyssey almanac tips (community English)' },
+      { kind: 'excludes', any: ['[一-鿿]{4,}'], label: 'no untranslated Chinese' },
+    ],
+  },
+  {
+    id: 'guide-en-odyssey-bluff', category: 'guide', difficulty: 'basic', language: 'en', context: general, offline: true,
+    question: 'How should an evil player bluff as the Herald?',
+    checks: [
+      { kind: 'includes', any: ['Outsider'], label: 'the Herald adds an Outsider' },
+      { kind: 'includes', any: ['different character types', 'teammate'], label: 'Odyssey almanac bluffing (community English)' },
+      { kind: 'characters', include: ['herald'], label: 'Herald' },
+    ],
+  },
 
   // ── Game setup ────────────────────────────────────────────────────────────
   {

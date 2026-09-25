@@ -7,11 +7,20 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Ninja"
+    "name": "Ninja",
+    "ability": "Each day, if you are the first or the last player to nominate, and the player you nominate is evil, they die tonight.",
+    "revisions": {
+      "v1": "Each day, if you are the first or the last player to nominate, and the player you nominate is evil, they die tonight."
+    },
+    "otherNightReminder": "Replace the *ASSASSINATION* token with a *DEAD* token.",
+    "reminders": [
+      "Assassination",
+      "Dead"
+    ]
   },
   "zh": {
     "name": "忍者",

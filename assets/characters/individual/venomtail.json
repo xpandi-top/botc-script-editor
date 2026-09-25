@@ -7,11 +7,22 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Venomtail"
+    "name": "Venomtail",
+    "ability": "The 1+X nearest Townsfolk clockwise from you are poisoned. [No Outsiders in play. X is how many Outsiders you removed]",
+    "revisions": {
+      "v1": "The 1+X nearest Townsfolk clockwise from you are poisoned. [No Outsiders in play. X is how many Outsiders you removed]"
+    },
+    "reminders": [
+      "Poisoned",
+      "Poisoned",
+      "Poisoned",
+      "Poisoned",
+      "Poisoned"
+    ]
   },
   "zh": {
     "name": "毒尾",

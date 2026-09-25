@@ -7,11 +7,18 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Mummy"
+    "name": "Mummy",
+    "ability": "If you die by execution after an evil player nominated you, or by an evil player's ability, you are resurrected when Judgment Day arrives.",
+    "revisions": {
+      "v1": "If you die by execution after an evil player nominated you, or by an evil player's ability, you are resurrected when Judgment Day arrives."
+    },
+    "reminders": [
+      "Will Revive"
+    ]
   },
   "zh": {
     "name": "木乃伊",

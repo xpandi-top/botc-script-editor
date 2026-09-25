@@ -7,11 +7,15 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Ward Surveillance"
+    "name": "Ward Surveillance",
+    "ability": "The Storyteller might tell the Demon or Minion players anything about the Lunatic. The Lunatic might learn that other players are the Lunatic.",
+    "revisions": {
+      "v1": "The Storyteller might tell the Demon or Minion players anything about the Lunatic. The Lunatic might learn that other players are the Lunatic."
+    }
   },
   "zh": {
     "name": "病房监控",

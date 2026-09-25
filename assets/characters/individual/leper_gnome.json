@@ -7,11 +7,21 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Leper Gnome"
+    "name": "Leper Gnome",
+    "ability": "When a Townsfolk player chooses you with their own ability, they immediately become a Leper Gnome, and you lose all your abilities. You win or lose with evil, even if you are dead.",
+    "revisions": {
+      "v1": "When a Townsfolk player chooses you with their own ability, they immediately become a Leper Gnome, and you lose all your abilities. You win or lose with evil, even if you are dead."
+    },
+    "reminders": [
+      "No Ability",
+      "No Ability",
+      "No Ability",
+      "No Ability"
+    ]
   },
   "zh": {
     "name": "麻风侏儒",

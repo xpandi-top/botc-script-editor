@@ -7,11 +7,16 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Tanner"
+    "name": "Tanner",
+    "ability": "You start knowing an evil character that is closest to you.",
+    "revisions": {
+      "v1": "You start knowing an evil character that is closest to you."
+    },
+    "firstNightReminder": "Show an evil character token."
   },
   "zh": {
     "name": "皮匠",

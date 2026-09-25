@@ -7,11 +7,19 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Tornado"
+    "name": "Tornado",
+    "ability": "Each night*, choose a player: they die. Each dusk*, you swap characters with the nearest alive evil player clockwise from you.",
+    "revisions": {
+      "v1": "Each night*, choose a player: they die. Each dusk*, you swap characters with the nearest alive evil player clockwise from you."
+    },
+    "otherNightReminder": "The Tornado chooses a player.",
+    "reminders": [
+      "Dead"
+    ]
   },
   "zh": {
     "name": "龙卷",

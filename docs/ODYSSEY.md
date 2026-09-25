@@ -49,11 +49,10 @@
 
 按优先级排列。
 
-### P0 — 英文翻译（数据缺口，不需要改代码）⏸ 已排到最后执行
+### ~~P0 — 英文翻译~~ ✅ 已补（社区翻译，非官方，见 §4）
 
-- 119 个角色只有中文能力文本。`getAbilityText('x','en')` 会回退到中文，界面不会崩，但英文用户看到中文。
-- **例外**：`src/catalog.ts:1025` / `:1031` 的夜晚提示 **不做中英回退**。英文说书人夜晚流程对奥德赛角色是空白。
-  → 补 `en.ability` / `en.firstNightReminder` / `en.otherNightReminder` 即可，无需改代码。
+- 119 个角色都有 `en.ability` / `en.revisions`、有夜晚行动的 105 条 `en.firstNightReminder` / `en.otherNightReminder`、`en.reminders`（与 `zh.reminders` 一一对应）。
+- 英文年鉴 `assets/almanac/odyssey.en.json`：简介、范例、技巧、伪装与 10 条术语。
 - `assets/locales/en.jinxes.json` 的 6 条英文相克已补（构建校验强制要求）。
 
 ### ~~P1 — 提示标记没有多语言~~ ✅ 已解决
@@ -161,3 +160,59 @@ team/edition 合法、图标存在、`current_revision` 有效、提示标记是
 
 已同步的上游改动：
 - **2026-08-31 骚客 Versifier** —「首次有玩家吟诵」→「首次有存活玩家吟诵」，记为 `v2026-08`。
+
+---
+
+## 4. 英文（社区翻译，非官方）
+
+2026-09-24 起草。作者只发布了中文；英文是本项目的社区翻译（机器辅助初稿），**未经作者审阅**，
+与中文原文冲突时以中文为准。
+
+| 内容 | 位置 | 标注 |
+|------|------|------|
+| 能力（当前修订；骚客另译 `v1`） | 角色文件 `en.ability` / `en.revisions` | 当前修订的 `note`：“English text: community translation, not official …” |
+| 夜晚提示 105 条 | `en.firstNightReminder` / `en.otherNightReminder` | 同上 |
+| 提示标记 208 个 | `en.reminders`（与 `zh.reminders` 同序同数） | 同上 |
+| 年鉴：简介、范例、技巧、伪装（119） + 术语（10） | `assets/almanac/odyssey.en.json`（315 KB，gzip 79 KB，独立懒加载 chunk） | 文件 `translation` 块（`official: false`），每条 `translated_from: "zh"` + 中文原页链接 |
+| 角色包署名 | `assets/editions.json` → `translations.en` | 角色面板署名下方、英文打印表署名行、年鉴面板、术语表、AI 回答里都注明“unofficial community translation” |
+
+**没翻译的**：运作方式、规则细节、提示标记说明、设计笔记、背景故事、署名。英文提问“怎么主持 / 规则细节”时，
+`loadCharacterGuides` 改用中文年鉴（有模型时给中文让它翻译，无模型时给中文原页链接），见 `guideCovers`。
+
+**措辞约定**（对齐官方英文）：`You start knowing …`（= 在你的首个夜晚，你会得知）、`Each night*, choose a player: they die.`、
+`Once per game, at night*, choose …`（官方英文省略 “may”）、`[+1 Outsider]`、`Townsfolk abilities yield false info.`（= 镇民玩家的能力一定会产生错误信息，同涡流）、
+`until dusk` / `until dusk tomorrow` / `until dawn`（= 直到下个黄昏 / 明天黄昏 / 下个黎明）、`steps`（距离）、`neighbours`、`Traveller`；
+奥德赛术语：Judgment Day（审判日）、before Judgment Day / when Judgment Day arrives（审判日降临前 / 时）、attack（攻击）、
+delayed death（死亡延迟）、vote token / give up vote tokens（投票标记 / 上交投票标记）、from the Storyteller（从说书人处）、feign death（假死）。
+提示标记沿用官方英文名：死亡 Dead、醉酒 Drunk、中毒 Poisoned、失去能力 No Ability、得知 Know、保留能力 / 重获能力 Has Ability、已触发 Used、不会死亡 Cannot Die。
+画家、猎魔人原有的英文草稿按同一约定改写（`Lost Ability` → `No Ability`）；盗血者英文名去掉了一个零宽空格。
+
+**能力改了怎么办**：`npm run add-revision -- <id> --zh "…" --en "…"`，并同步 `odyssey.en.json` 里该角色的 `ability`
+（`characterPack.test.ts` 会检查两者一致、年鉴每条都标了 `translated_from`）。
+
+### 4.1 请作者确认的译法
+
+含义不确定、或原文前后不一致的地方（按角色）：
+
+| 角色 | 中文 | 英文译法 | 疑问 |
+|------|------|----------|------|
+| 塞壬 Siren | 你要选择是否永久失去你的下一条能力 | choose whether to permanently lose the ability that follows | “下一条能力”是否就是后一句（镇民产生错误信息）？ |
+| 女爵 Dame | 当邪恶玩家死亡时，你醉酒 | When an evil player dies, you become drunk. | 按运作方式理解为“从此醉酒”；官方英文习惯写 “drunk from now on”，是否这样写？ |
+| 毒爆 Toxblast | 与他邻近的两名镇民中毒 | their 2 Townsfolk neighbours are poisoned | 能力与运作方式说的是**被处决者**两侧最近的镇民，规则细节写的是“在**毒爆**顺时针与逆时针方向”，哪个对？ |
+| 地狱弃子 Hell's Outcast | …与恶魔交换角色，然后他醉酒 | …swap characters with the Demon, who is then drunk | “他”按“罢黜（醉酒）”标记理解为原恶魔（新地狱弃子），不是拥立的爪牙。 |
+| 敲钟人 Bellringer | 如果他说谎，你立即被处决 | if they lie, you are executed immediately | 被处决的确实是敲钟人本人（不是说谎者）？ |
+| 骚客 Versifier | 你会得知一个字（均出自同一句诗词） | you learn a word (all from the same line of verse) | 英文局用英文诗句、一次给一个**词**，是否符合设计？ |
+| 皮匠 / 殉教少女 / 美人鱼 / 调香师 | 邪恶角色 | evil character(s) | 规则细节说“邪恶角色”只指爪牙与恶魔角色；英文 “evil character” 容易被读成“任何邪恶阵营的角色”，是否改写成 “Minion or Demon character”？ |
+| 恶堕 Corruptus | 他必死 | they die, no matter what | 按运作方式理解为“无视免死”；官方刺客写 “even if for some reason they could not”，要不要用官方句式？ |
+| 雪怪 Yeti | 如果白天没人被处决，你的阵营落败 | If nobody is executed during the day, your team loses. | 运作方式是**每个**黄昏检查，是否写成 “Each day, if no-one is executed, your team loses.”（同涡流）？ |
+| 白骑士 White Knight | 疯狂地想要存活的玩家 | a player who is "mad" about wanting to live | 这里的“疯狂”是否就是官方的疯狂（madness）机制？ |
+| 巫女 Miko | 两名邻座的其他玩家 | 2 players (not yourself) who neighbour each other | 两人彼此邻座即可，不必与巫女邻座（夜晚提示是这样写的）？ |
+| 天平师 Scalebearer | 该玩家与他对立阵营的两名玩家距离相等 | a player who is equally far from 2 players of the opposite alignment to them | 两名对立阵营玩家分别在他两侧、同一距离？ |
+| 逆蝶 Crosswing | 在第X个夜晚 | On night X | X 为游戏的第几个夜晚（术语表），能力本身没说明，是否需要写出？ |
+| 忘川 Lethe | 可能出现： | Possibly: | 奇遇角色开头的固定译法？ |
+| 奸奇 Tzeentch（首夜提示） | 从三个伪装角色中挑选一个 | chooses 1 of their bluffs | 能力写“更多的伪装”，范例是 4–6 个，提示却写“三个”。 |
+| 萨满 Shaman（夜晚提示） | 让他选择一个角色 | might choose characters | 能力是选择四个角色，提示写“一个”。 |
+
+年鉴里提到、但本库没有的角色，英文名是猜的：神秘学家 → Occultist（相克规则）、祈愿妖精 → Wishing Fairy、银匠 → Silversmith。
+英文名 “Mob lawyer” 按作者原样保留（其他角色都是首字母大写）。
+

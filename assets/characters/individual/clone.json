@@ -7,11 +7,20 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Clone"
+    "name": "Clone",
+    "ability": "Once per game, at night*, choose a player: they die, and you become their character.",
+    "revisions": {
+      "v1": "Once per game, at night*, choose a player: they die, and you become their character."
+    },
+    "otherNightReminder": "The Clone might choose a player.",
+    "reminders": [
+      "No Ability",
+      "Dead"
+    ]
   },
   "zh": {
     "name": "克隆",

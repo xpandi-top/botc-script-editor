@@ -7,11 +7,18 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "White Knight"
+    "name": "White Knight",
+    "ability": "Once per game, a player who is \"mad\" about wanting to live might not die when executed.",
+    "revisions": {
+      "v1": "Once per game, a player who is \"mad\" about wanting to live might not die when executed."
+    },
+    "reminders": [
+      "No Ability"
+    ]
   },
   "zh": {
     "name": "白骑士",

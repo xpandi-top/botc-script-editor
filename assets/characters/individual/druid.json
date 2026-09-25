@@ -7,11 +7,19 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Druid"
+    "name": "Druid",
+    "ability": "If your 2 alive neighbours are the same alignment, the Demon can only attack them.",
+    "revisions": {
+      "v1": "If your 2 alive neighbours are the same alignment, the Demon can only attack them."
+    },
+    "reminders": [
+      "Forced Target",
+      "Forced Target"
+    ]
   },
   "zh": {
     "name": "德鲁伊",

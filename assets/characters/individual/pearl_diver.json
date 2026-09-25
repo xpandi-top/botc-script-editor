@@ -7,11 +7,16 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Pearl Diver"
+    "name": "Pearl Diver",
+    "ability": "You start knowing how many steps you are from an evil player.",
+    "revisions": {
+      "v1": "You start knowing how many steps you are from an evil player."
+    },
+    "firstNightReminder": "Give a finger signal (the distance)."
   },
   "zh": {
     "name": "海女",

@@ -7,11 +7,21 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Arthur"
+    "name": "Arthur",
+    "ability": "Each night*, choose a player: they die. The 1st time Arthur attacks a Minion, Arthur swaps characters with them, and 2 alive players are attacked instead.",
+    "revisions": {
+      "v1": "Each night*, choose a player: they die. The 1st time Arthur attacks a Minion, Arthur swaps characters with them, and 2 alive players are attacked instead."
+    },
+    "otherNightReminder": "Arthur chooses a player.",
+    "reminders": [
+      "Dead",
+      "Dead",
+      "Castling"
+    ]
   },
   "zh": {
     "name": "亚瑟",

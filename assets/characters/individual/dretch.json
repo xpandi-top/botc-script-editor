@@ -7,11 +7,21 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Dretch"
+    "name": "Dretch",
+    "ability": "Each night*, a player dies. After being nominated, you may call for help: if fewer alive players are evil than good, a Minion becomes a Dretch.",
+    "revisions": {
+      "v1": "Each night*, a player dies. After being nominated, you may call for help: if fewer alive players are evil than good, a Minion becomes a Dretch."
+    },
+    "otherNightReminder": "Choose a player: they die (the Storyteller decides).",
+    "reminders": [
+      "Dead",
+      "Is A Dretch",
+      "Is A Dretch"
+    ]
   },
   "zh": {
     "name": "劣魔",

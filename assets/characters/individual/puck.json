@@ -7,11 +7,20 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Puck"
+    "name": "Puck",
+    "ability": "Once per game, at night*, choose a non-Demon character: they die. If that character is not in play, also choose a player: they become that character.",
+    "revisions": {
+      "v1": "Once per game, at night*, choose a non-Demon character: they die. If that character is not in play, also choose a player: they become that character."
+    },
+    "otherNightReminder": "The Puck might choose a character. If it is not in play, they also choose a player.",
+    "reminders": [
+      "No Ability",
+      "Dead"
+    ]
   },
   "zh": {
     "name": "帕克",

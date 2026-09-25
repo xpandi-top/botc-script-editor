@@ -7,11 +7,20 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Vanguard"
+    "name": "Vanguard",
+    "ability": "Each night* before Judgment Day, choose: you can't die tonight, or your 2 alive neighbours can't die tonight.",
+    "revisions": {
+      "v1": "Each night* before Judgment Day, choose: you can't die tonight, or your 2 alive neighbours can't die tonight."
+    },
+    "otherNightReminder": "The Vanguard points to themself or to their neighbours.",
+    "reminders": [
+      "Cannot Die",
+      "Cannot Die"
+    ]
   },
   "zh": {
     "name": "近卫",

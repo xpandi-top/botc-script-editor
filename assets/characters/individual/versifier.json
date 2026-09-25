@@ -11,11 +11,21 @@
     },
     {
       "id": "v2026-08",
-      "note": "Only a living player reciting the verse triggers the execution."
+      "note": "Only a living player reciting the verse triggers the execution. English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Versifier"
+    "name": "Versifier",
+    "ability": "Each night, you learn a word (all from the same line of verse). The 1st time an alive player recites this line, they are executed immediately, even if you are dead.",
+    "revisions": {
+      "v1": "Each night, you learn a word (all from the same line of verse). The 1st time a player recites this line, they are executed immediately, even if you are dead.",
+      "v2026-08": "Each night, you learn a word (all from the same line of verse). The 1st time an alive player recites this line, they are executed immediately, even if you are dead."
+    },
+    "firstNightReminder": "Wake the Versifier & show them a word.",
+    "otherNightReminder": "Wake the Versifier & show them a word.",
+    "reminders": [
+      "No Ability"
+    ]
   },
   "zh": {
     "name": "骚客",

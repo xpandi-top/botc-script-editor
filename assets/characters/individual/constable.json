@@ -7,11 +7,20 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Constable"
+    "name": "Constable",
+    "ability": "You start knowing a player. If you die at night, you learn a player. One of them is a Minion & the other is an Outsider. [+1 Outsider]",
+    "revisions": {
+      "v1": "You start knowing a player. If you die at night, you learn a player. One of them is a Minion & the other is an Outsider. [+1 Outsider]"
+    },
+    "firstNightReminder": "Point to the player marked *KNOW*.",
+    "otherNightReminder": "If the Constable died tonight, wake them. If the player marked *KNOW* is not an Outsider, point to an Outsider player. If the player marked *KNOW* is not a Minion, point to a Minion player.",
+    "reminders": [
+      "Know"
+    ]
   },
   "zh": {
     "name": "治安官",

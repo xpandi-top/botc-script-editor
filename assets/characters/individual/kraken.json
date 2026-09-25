@@ -7,11 +7,20 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Kraken"
+    "name": "Kraken",
+    "ability": "Each night*, choose a player: they die. If you would die before Judgment Day, you feign death instead. While feigning death, you can only kill your alive neighbours.",
+    "revisions": {
+      "v1": "Each night*, choose a player: they die. If you would die before Judgment Day, you feign death instead. While feigning death, you can only kill your alive neighbours."
+    },
+    "otherNightReminder": "The Kraken chooses a player.",
+    "reminders": [
+      "Dead",
+      "Feigning Death"
+    ]
   },
   "zh": {
     "name": "克拉肯",

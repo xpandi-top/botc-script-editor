@@ -7,11 +7,21 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Lethe"
+    "name": "Lethe",
+    "ability": "Possibly: the Demon & Minions think they are good characters, and the Storyteller uses their abilities for them. The game ends only when all evil players are dead, and then all players win.",
+    "revisions": {
+      "v1": "Possibly: the Demon & Minions think they are good characters, and the Storyteller uses their abilities for them. The game ends only when all evil players are dead, and then all players win."
+    },
+    "reminders": [
+      "Is The Demon",
+      "Is A Minion",
+      "Is A Minion",
+      "Is A Minion"
+    ]
   },
   "zh": {
     "name": "忘川",

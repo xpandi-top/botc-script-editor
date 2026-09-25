@@ -7,11 +7,16 @@
   "revisions": [
     {
       "id": "v1",
-      "note": ""
+      "note": "English text: community translation, not official; not yet reviewed by the pack author (2026-09-24)."
     }
   ],
   "en": {
-    "name": "Tuner"
+    "name": "Tuner",
+    "ability": "You start knowing an Outsider character & a Minion character. Exactly 1 of them is in play.",
+    "revisions": {
+      "v1": "You start knowing an Outsider character & a Minion character. Exactly 1 of them is in play."
+    },
+    "firstNightReminder": "Show a Minion character token & an Outsider character token."
   },
   "zh": {
     "name": "调音师",
