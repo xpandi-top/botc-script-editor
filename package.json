@@ -13,6 +13,7 @@
     "check-abilities": "node scripts/check-abilities.mjs",
     "import:scripts": "node scripts/import-scripts.mjs",
     "import:packs": "node scripts/import-packs.mjs",
+    "feedback:reports": "node scripts/feedback-reports.mjs",
     "i18n:check": "node scripts/i18n-check.mjs",
     "i18n:check:strict": "node scripts/i18n-check.mjs --strict",
     "bundle:check": "node scripts/bundle-budget.mjs",
