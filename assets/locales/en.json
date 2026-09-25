@@ -1159,6 +1159,7 @@
     "script_chars_short": "{0}c",
     "source_issue_n": "issue {0}",
     "community_script": "Community script",
+    "community_pack": "Community",
     "log_tab_n": "Log ({0})",
     "fill_log_n": "Fill Log ({0})",
     "context_editing": "Context: \"{0}\"",

@@ -1,0 +1,116 @@
+{
+  "$source": "BWIKI 血染钟楼 WIKI（社区维护）《魔戒：护戒使者》角色页 https://wiki.biligame.com/bloodontheclocktower/ ，2026-09-24 读取。BWIKI 收录的是较早版本：中文名全部采用；中文能力只在与现版英文规则一致时采用，否则显示英文。",
+  "$untranslated": {
+    "treebeard_ringbearer": "BWIKI 没有树须（Treebeard）页面"
+  },
+  "$review": {
+    "legolas_ringbearer": "BWIKI 为旧版能力（每晚选择玩家得知信息），现版为“开局得知二选一的邪恶玩家”",
+    "aragorn_ringbearer": "BWIKI 为旧版能力（得知一善一恶角色），现版为“得知一个在场角色”",
+    "galadriel_ringbearer": "BWIKI 为旧版能力（得知投票人数），现版为“每晚得知魔戒是否安全”",
+    "gimli_ringbearer": "BWIKI 多了“非旅行者”“由说书人选择传递”，与现版不完全相同",
+    "samwise_ringbearer": "BWIKI 多了“（+佛罗多）”设置，现版没有",
+    "bilbo_ringbearer": "BWIKI 为旧版能力，现版为“魔戒首次传给邪恶玩家时改为传给你”",
+    "gandalf_ringbearer": "BWIKI 许愿没有“在白天时”的限制",
+    "oathbreaker_ringbearer": "BWIKI 多了“死亡后该能力失效”",
+    "witchking_ringbearer": "现版是从得知的角色中选一个死亡，BWIKI 为任选一名玩家",
+    "theonering_ringbearer": "BWIKI 漏了“善良的”魔戒持有者死亡才算邪恶获胜",
+    "balrog_ringbearer": "现版为“提名前”，BWIKI 为“提名后”",
+    "annatar_ringbearer": "BWIKI 为旧版能力，现版为“每晚公开选两名玩家，爪牙被选中则得到魔戒”"
+  },
+  "merry_ringbearer": {
+    "name": "梅里",
+    "ability": "在你的首个夜晚，你会得知一条正确的信息。如果皮平在场，你们其中一人会得知相反的信息。"
+  },
+  "pippin_ringbearer": {
+    "name": "皮平",
+    "ability": "在你的首个夜晚，你会得知一条错误的信息。"
+  },
+  "legolas_ringbearer": {
+    "name": "莱格拉斯"
+  },
+  "aragorn_ringbearer": {
+    "name": "阿拉贡"
+  },
+  "galadriel_ringbearer": {
+    "name": "凯兰崔尔"
+  },
+  "boromir_ringbearer": {
+    "name": "博罗米尔",
+    "ability": "每个夜晚*，如果一名邪恶玩家持有魔戒，你死亡。如果索伦杀死了魔戒持有者，改为你死亡。"
+  },
+  "gimli_ringbearer": {
+    "name": "金雳"
+  },
+  "samwise_ringbearer": {
+    "name": "山姆韦斯"
+  },
+  "owyn_ringbearer": {
+    "name": "伊欧玟",
+    "ability": "每局游戏限一次，在夜晚时*，选择一名玩家：如果他是邪恶的，他死亡。"
+  },
+  "bilbo_ringbearer": {
+    "name": "比尔博"
+  },
+  "gandalf_ringbearer": {
+    "name": "甘道夫"
+  },
+  "frodo_ringbearer": {
+    "name": "佛罗多",
+    "ability": "你免受爪牙与外来者负面能力的影响。如果你连续保管魔戒三晚，善良阵营获胜。"
+  },
+  "denethor_ringbearer": {
+    "name": "德内梭尔",
+    "ability": "每名在场的爪牙会导致发生一次：一名镇民的能力可能会产生错误信息或在错误的时机生效，即使你已死亡。"
+  },
+  "palantr_ringbearer": {
+    "name": "帕兰提尔",
+    "ability": "如果你死亡，当晚恶魔会查看魔典，其中的至尊魔戒持有者是错误的。"
+  },
+  "gollum_ringbearer": {
+    "name": "咕噜",
+    "ability": "当你持有至尊魔戒时，如果游戏结束，你单独获胜。每个夜晚，你可能失去至尊魔戒。"
+  },
+  "oathbreaker_ringbearer": {
+    "name": "破誓者"
+  },
+  "mouthofsauron_ringbearer": {
+    "name": "索伦之口",
+    "ability": "每个夜晚，你要选择一个角色：如果他在场，他会中毒至下个黄昏，随后爪牙与恶魔玩家会秘密交流1分钟。"
+  },
+  "witchking_ringbearer": {
+    "name": "安格玛巫王"
+  },
+  "wormtongue_ringbearer": {
+    "name": "佞舌",
+    "ability": "每局游戏限一次，在夜晚时，恶魔可以选择一名玩家：他变成邪恶的佞舌。[无佞舌在场，+2外来者]"
+  },
+  "saruman_ringbearer": {
+    "name": "萨鲁曼",
+    "ability": "每局游戏限一次，在白天时，你可以私下向说书人许一个愿望。"
+  },
+  "sauron_ringbearer": {
+    "name": "索伦",
+    "ability": "每个白天结束时，你要公开选择一名玩家，他死亡。所有玩家知道你是谁。当没有爪牙存活时你才可以死亡。"
+  },
+  "theonering_ringbearer": {
+    "name": "至尊魔戒"
+  },
+  "balrog_ringbearer": {
+    "name": "炎魔"
+  },
+  "bombadil_ringbearer": {
+    "name": "庞巴迪",
+    "ability": "每局游戏限一次，在黄昏时，你可以要求所有玩家沉默，查看魔典，然后公开指向一名玩家并离开游戏。"
+  },
+  "radagast_ringbearer": {
+    "name": "瑞达加斯特",
+    "ability": "每局游戏限一次，如果索伦同意，你可以拜访说书人并许一个愿望。"
+  },
+  "shelob_ringbearer": {
+    "name": "希罗布",
+    "ability": "每个白天，你可以拜访说书人并得知一条正确信息。你的第三个夜晚，你可以改变阵营。"
+  },
+  "annatar_ringbearer": {
+    "name": "安纳塔"
+  }
+}

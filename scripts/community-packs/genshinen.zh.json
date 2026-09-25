@@ -1,0 +1,58 @@
+{
+  "$source": "角色中文名取自作者的中文版《西风谜团》（https://www.bloodstar.xyz/p/Jerry0906/The_favonius_Mystery_DE/ ，即 community-genshin 包），只用于两版中是同一人物的角色。两版能力不同，所以只对齐名字，能力保持英文。",
+  "$untranslated": "中文版没有的人物（白术、神里绫华、艾尔海森、卡维、林尼&琳妮特、久岐忍、娜维娅、班尼特、荒泷一斗、芙卡洛斯、风役人、阿蕾奇诺、达达利亚、旅行者）保留英文名。",
+  "venti_genshin_en": {
+    "name": "温迪"
+  },
+  "mona_genshin_en": {
+    "name": "莫娜"
+  },
+  "zhongli_genshin_en": {
+    "name": "鍾離"
+  },
+  "nahida_genshin_en": {
+    "name": "纳西妲"
+  },
+  "hutao_genshin_en": {
+    "name": "胡桃"
+  },
+  "diluc_genshin_en": {
+    "name": "迪盧克"
+  },
+  "raidenshogun_genshin_en": {
+    "name": "雷电将军"
+  },
+  "amber_genshin_en": {
+    "name": "安柏"
+  },
+  "wanderer_genshin_en": {
+    "name": "流浪者"
+  },
+  "qiqi_genshin_en": {
+    "name": "七七"
+  },
+  "fathomlessflame_genshin_en": {
+    "name": "渊上之物"
+  },
+  "electromage_genshin_en": {
+    "name": "雷萤術士"
+  },
+  "pyroagent_genshin_en": {
+    "name": "債務處理人"
+  },
+  "mirrormaiden_genshin_en": {
+    "name": "藏鏡仕女"
+  },
+  "dottore_genshin_en": {
+    "name": "博士"
+  },
+  "scaramouche_genshin_en": {
+    "name": "散兵"
+  },
+  "lasignora_genshin_en": {
+    "name": "女士"
+  },
+  "archons_genshin_en": {
+    "name": "塵世執政"
+  }
+}

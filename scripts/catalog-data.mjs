@@ -147,6 +147,7 @@ export function buildCatalogData(root = process.cwd()) {
       edition.author = { ...(credit.author_en ? { en: credit.author_en } : {}), ...(credit.author_zh ? { zh: credit.author_zh } : {}) }
     }
     if (credit?.source) edition.source = credit.source
+    if (credit?.community) edition.community = true
     return edition
   })
 

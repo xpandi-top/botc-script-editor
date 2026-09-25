@@ -25,7 +25,18 @@
   - 应用：`src/catalog.ts` 与 API 快照（`scripts/catalog-data.mjs`）都读取 `assets/scripts/community/*.json`；剧本列表归入“社区”，卡片和剧本表头显示“民间剧本 · 钟楼剧本博物馆 第N期《标题》”（链接到文章）；AI 推荐剧本时写明“民间剧本，来源 …”，回答里的民间剧本名只有带《》才算提到该剧本（很多标题是成语）。测试：`src/__tests__/communityScripts.test.tsx`。
   - 默认只出报告；`--write` 写入 `assets/scripts/community/museum-<期数>.json`：官方数组格式，`_meta` 保留标题、作者、夜序和相克，加 `community: true` 与 `source`（`钟楼剧本博物馆`、期数、标题、文章链接、索引链接、原文件名）；图片（logo、背景、角色图标）不保留。`--allow-community` 也写入民间角色剧本，民间角色用 JSON 自带的内联定义；`--category 快速上手,旋转木马` 只处理这些分类的期数。`--report <file>` 输出完整报告。
 
-## 3. 方案（待定）
+## 3. 民间角色包（已做）
+
+`npm run import:packs`（`scripts/import-packs.mjs`，纯函数 `scripts/pack-import.mjs`，测试 `src/__tests__/packImport.test.ts`）按 `scripts/community-packs.json` 导入角色包。来源是作者在 Bloodstar Clocktica 发布的公开 `script.json`（不用登录）；BWIKI 的民间角色页只有中文名、能力和设计者，没有阵营、提示标记和夜序，不能单独建包。
+
+- 每个包一个版本 `community-<key>`：`assets/editions.json` 里记包名、作者、来源链接，`community: true`、`requiresAttribution: true` 和“民间自制，非官方”的使用说明；角色 id 为 `<key>_<原 id 去掉项目后缀>`，重新导入 id 不变。
+- 图标下载后压成 400×400 PNG8，放进 `assets/icons/`（与奥德赛相同）。
+- 夜序：包内顺序只在包内有意义，所以整包按原顺序插入——首夜在洗衣妇之前（官方的设置、下毒、保护步骤之后，信息角色之前），其他夜晚在小恶魔之前；原始序号记在 `source_order`。剧本可以再调整。
+- 与已有角色同名且能力相同的（如《三教九流》里的华灯“歌伶”）不导入；同名不同能力的保留，应用按角色包区分。
+- 翻译：同一项目的另一语言版本按位置对齐（`translation.json`），或用映射文件（`scripts/community-packs/<key>.<lang>.json`，`$review` 列出只对齐了名字的角色及原因）。
+- 应用：角色页的版本筛选里民间包排在最后，标“民间”；AI 回答涉及这些角色或包时写明“民间角色，非官方”和作者、来源；API `/v1/editions` 带 `community: true`。
+
+## 4. 方案（待定）
 
 1. **民间角色：按合集导入为社区角色包。**
    - 每个合集一个版本（如 `community-sanjiaojiuliu`），角色文件与官方同格式，另记 `source`（BWIKI 页）、`author`（页面“创意来源”）与 `status: "community"`；攻略按现有格式进 `assets/almanac/`。
@@ -35,7 +46,7 @@
 2. **民间剧本：你下载，脚本导入。** 从网盘下载剧本 JSON 放进一个文件夹，由导入脚本（`npm run import:scripts -- <文件夹>`，见上）校验角色 id、把中文名映射为 id、报告缺的民间角色（BWIKI 页）、记录来源（期数、标题、作者、文章链接），写入 `assets/scripts/community/`，剧本列表里标“民间”。
 3. **钟楼博物馆的文字简介** 可作为剧本说明一并导入；剧本表图片不做识别。
 
-## 4. 需要决定
+## 5. 需要决定
 
 - 先导入哪些合集（建议先做民间剧本最常用的几个）。
 - 是否需要作者授权，或只做“本地导入、不随应用发布”。

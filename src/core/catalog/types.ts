@@ -52,6 +52,8 @@ export type CatalogEdition = {
   name: Localized
   author?: Partial<Localized>
   source?: string
+  /** Fan-made (民间) pack, not an official release. */
+  community?: boolean
 }
 
 export type CatalogData = {

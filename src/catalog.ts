@@ -935,9 +935,22 @@ export type EditionCredit = {
   multiVoteTokens?: boolean
   terms_en?: string
   terms_zh?: string
+  /** Community (民间) pack: fan-made, not an official release (scripts/import-packs.mjs). */
+  community?: boolean
 }
 
 export const editionCredits = editionCreditData as Record<string, EditionCredit>
+
+// Packs known only from editions.json (the community packs) are labelled by their credit name.
+for (const credit of Object.values(editionCredits)) {
+  editionLabels.en[credit.id] ??= credit.name_en
+  editionLabels.zh[credit.id] ??= credit.name_zh || credit.name_en
+}
+
+/** A fan-made (民间) character pack, not an official release. */
+export function isCommunityEdition(edition: string | undefined): boolean {
+  return !!edition && !!editionCredits[edition]?.community
+}
 
 export function getEditionCredit(edition: string): EditionCredit | undefined {
   return editionCredits[edition]

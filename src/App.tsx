@@ -74,6 +74,7 @@ import {
   getCustomChar,
   getDisplayName,
   getEffectiveAllCharacters,
+  isCommunityEdition,
   initialScripts,
   locales,
   registerCustomCharacters,
@@ -534,8 +535,10 @@ export default function App() {
   }
 
   const availableEditions = useMemo(
+    // Community (民间) packs after the official and other editions.
     () => Array.from(new Set(getEffectiveAllCharacters().map((c) => c.edition))).sort(
-      (a, b) => (editionLabels[uiLanguage][a] ?? toTitleCase(a)).localeCompare(editionLabels[uiLanguage][b] ?? toTitleCase(b)),
+      (a, b) => Number(isCommunityEdition(a)) - Number(isCommunityEdition(b)) ||
+        (editionLabels[uiLanguage][a] ?? toTitleCase(a)).localeCompare(editionLabels[uiLanguage][b] ?? toTitleCase(b)),
     ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [uiLanguage, customChars],
