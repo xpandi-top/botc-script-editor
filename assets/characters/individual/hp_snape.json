@@ -1,0 +1,29 @@
+{
+  "id": "hp_snape",
+  "team": "townsfolk",
+  "edition": "community-hp",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Defended"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Snape",
+    "ability": "Each night, choose a player (Not Yourself). The chosen player is safe from Minion abilities during the night and the following day.",
+    "revisions": {
+      "v1": "Each night, choose a player (Not Yourself). The chosen player is safe from Minion abilities during the night and the following day."
+    },
+    "flavor": "The Dark Arts are many, varied, ever-changing and eternal. Fighting them is like fighting a many-headed monster, which, each time a neck is severed, sprouts a head even fiercer and cleverer than before",
+    "firstNightReminder": "Wake them to choose a player",
+    "otherNightReminder": "Wake them to choose a player",
+    "reminders": [
+      "Defended"
+    ]
+  }
+}

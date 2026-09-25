@@ -1,0 +1,25 @@
+{
+  "id": "sjjl_5",
+  "team": "townsfolk",
+  "edition": "community-sjjl",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "zh": {
+    "name": "更夫",
+    "ability": "每个夜晚*，你可以当众宣布“天干物燥，小心火烛”：你会知道当晚有几名玩家（除你以外）被唤醒。",
+    "revisions": {
+      "v1": "每个夜晚*，你可以当众宣布“天干物燥，小心火烛”：你会知道当晚有几名玩家（除你以外）被唤醒。"
+    },
+    "flavor": "天干物燥，小心火烛！",
+    "otherNightReminder": "更夫可以宣布“天干物燥，小心火烛”。如果他这么做了，给今晚被唤醒过的玩家放置“夜游”标记，告知他当晚有几名除他以外的玩家被唤醒。",
+    "reminders": [
+      "夜游"
+    ]
+  }
+}

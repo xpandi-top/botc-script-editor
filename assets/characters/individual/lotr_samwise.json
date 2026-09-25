@@ -1,0 +1,34 @@
+{
+  "id": "lotr_samwise",
+  "team": "townsfolk",
+  "edition": "community-lotr",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Ability Used",
+    "Protected"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Samwise",
+    "ability": "Once per game, at night, choose a player (not yourself): the first time they die, they don't.",
+    "revisions": {
+      "v1": "Once per game, at night, choose a player (not yourself): the first time they die, they don't."
+    },
+    "flavor": "I made a promise, Mr. Frodo. A promise. 'Don’t you leave him, Samwise Gamgee'. And I don’t mean to. I don’t mean to.",
+    "firstNightReminder": "Samwise may choose a player. If Sam bears the Ring, show their character.",
+    "otherNightReminder": "Samwise may choose a player. If Sam bears the Ring, show their character.",
+    "reminders": [
+      "Ability Used",
+      "Protected"
+    ]
+  },
+  "zh": {
+    "name": "山姆韦斯"
+  }
+}

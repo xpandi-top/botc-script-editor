@@ -1,0 +1,31 @@
+{
+  "id": "hp_youknowwho",
+  "team": "demon",
+  "edition": "community-hp",
+  "current_revision": "v1",
+  "setup": true,
+  "reminders": [
+    "Said The Word",
+    "Dead"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "You-Know-Who",
+    "ability": "Each night*, choose a player: they die. If you kill yourself this way, a Minion becomes The Dark Lord. You start knowing a secret word. Any good player that says the word might die.",
+    "revisions": {
+      "v1": "Each night*, choose a player: they die. If you kill yourself this way, a Minion becomes The Dark Lord. You start knowing a secret word. Any good player that says the word might die."
+    },
+    "flavor": "Yes. You see what I've become? See what I must do to survive? Live off another, a mere parasite!",
+    "firstNightReminder": "Wake and tell Secret word",
+    "otherNightReminder": "Wake to make them kill someone",
+    "reminders": [
+      "Said The Word",
+      "Dead"
+    ]
+  }
+}

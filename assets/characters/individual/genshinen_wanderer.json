@@ -1,0 +1,31 @@
+{
+  "id": "genshinen_wanderer",
+  "team": "outsider",
+  "edition": "community-genshin-en",
+  "current_revision": "v1",
+  "setup": false,
+  "remindersGlobal": [
+    "Mad"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Wanderer",
+    "ability": "If any outsider is \"Mad\" about being an outsider, the demon may choose a player that night: they dies.",
+    "revisions": {
+      "v1": "If any outsider is \"Mad\" about being an outsider, the demon may choose a player that night: they dies."
+    },
+    "flavor": "Once you understand the humanity, you will understand the human heart in all its manifestations.",
+    "otherNightReminder": "If any Outsider \"Mad\" about being an Outsider during the day, let the demon decide if it wants to target another player and kill that player after the demon has finished its act.",
+    "remindersGlobal": [
+      "Mad"
+    ]
+  },
+  "zh": {
+    "name": "流浪者"
+  }
+}

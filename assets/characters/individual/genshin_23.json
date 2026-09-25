@@ -1,0 +1,20 @@
+{
+  "id": "genshin_23",
+  "team": "fabled",
+  "edition": "community-genshin",
+  "current_revision": "v1",
+  "setup": true,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "zh": {
+    "name": "塵世執政",
+    "ability": "温迪、钟离、雷电将军、纳西妲和冰之女皇是塵世執政。[至少有一名塵世執政在场]",
+    "revisions": {
+      "v1": "温迪、钟离、雷电将军、纳西妲和冰之女皇是塵世執政。[至少有一名塵世執政在场]"
+    }
+  }
+}

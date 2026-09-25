@@ -1,0 +1,26 @@
+{
+  "id": "dq_0",
+  "team": "townsfolk",
+  "edition": "community-dq",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "zh": {
+    "name": "勇者",
+    "ability": "每个白天，你可以公开选择一名玩家，标记他为“受伤”，被标记两次的玩家在夜晚死亡。你在夜晚不会死亡，即使你中毒。",
+    "revisions": {
+      "v1": "每个白天，你可以公开选择一名玩家，标记他为“受伤”，被标记两次的玩家在夜晚死亡。你在夜晚不会死亡，即使你中毒。"
+    },
+    "flavor": "所谓勇者，除了要具备战胜邪恶的力量，更要拥有挑战命运的勇气。",
+    "otherNightReminder": "被标记两次的玩家在夜晚死亡。",
+    "reminders": [
+      "受伤",
+      "死亡"
+    ]
+  }
+}

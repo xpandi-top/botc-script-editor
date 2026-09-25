@@ -1,0 +1,33 @@
+{
+  "id": "hp_dracomalfoy",
+  "team": "outsider",
+  "edition": "community-hp",
+  "current_revision": "v1",
+  "setup": true,
+  "reminders": [
+    "Recruited",
+    "Recruiter",
+    "Recruiter"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Draco Malfoy",
+    "ability": "Each night, both an evil player (Lucius if in play) and a good player, may guess who you are. You permanently turn the alignment of whoever correctly guesses you first. (Good guesses first)",
+    "revisions": {
+      "v1": "Each night, both an evil player (Lucius if in play) and a good player, may guess who you are. You permanently turn the alignment of whoever correctly guesses you first. (Good guesses first)"
+    },
+    "flavor": "Didn't mummy ever tell you it was rude to eavesdrop, Potter?",
+    "firstNightReminder": "Wake the Good Recruiter (If Alive) and show them the Draco Malfoy character token, ask them to choose a player. Wake the Evil Recruiter (If Alive) and show them the Draco Malfoy character token, ask them to choose a player, even if Draco has been successfully guessed.",
+    "otherNightReminder": "Wake the Good Recruiter (If Alive) and show them the Draco Malfoy character token, ask them to choose a player. Wake the Evil Recruiter (If Alive) and show them the Draco Malfoy character token, ask them to choose a player, even if Draco has been successfully guessed.",
+    "reminders": [
+      "Recruited",
+      "Recruiter",
+      "Recruiter"
+    ]
+  }
+}

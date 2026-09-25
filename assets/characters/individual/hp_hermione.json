@@ -1,0 +1,29 @@
+{
+  "id": "hp_hermione",
+  "team": "townsfolk",
+  "edition": "community-hp",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Corrected someone"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Hermione",
+    "ability": "On the fist night, pick a player. You learn their character type. (The Dark Lord will register as Townsfolk). If you publicly correct someone today, the Storyteller might let you act again tonight.",
+    "revisions": {
+      "v1": "On the fist night, pick a player. You learn their character type. (The Dark Lord will register as Townsfolk). If you publicly correct someone today, the Storyteller might let you act again tonight."
+    },
+    "flavor": "Now if you two don’t mind, I’m going to bed before either of you come up with another clever idea to get us killed - or worse, expelled.",
+    "firstNightReminder": "Wake and ask which player to pick, show character type.",
+    "otherNightReminder": "If they corrected someone: Wake and ask which player to pick, show character type.",
+    "reminders": [
+      "Corrected someone"
+    ]
+  }
+}

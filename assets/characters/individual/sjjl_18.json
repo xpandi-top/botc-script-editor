@@ -1,0 +1,26 @@
+{
+  "id": "sjjl_18",
+  "team": "outsider",
+  "edition": "community-sjjl",
+  "current_revision": "v1",
+  "setup": true,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "zh": {
+    "name": "皮影",
+    "ability": "说书人可以欺骗你，邪恶玩家可能会得知关于你的信息，你可能会被当作任何角色，即使你已死亡。",
+    "revisions": {
+      "v1": "说书人可以欺骗你，邪恶玩家可能会得知关于你的信息，你可能会被当作任何角色，即使你已死亡。"
+    },
+    "flavor": "皮影戏坊主的任务罢了。",
+    "firstNightReminder": "说书人可以告诉邪恶玩家一些关于皮影的信息（皮影的角色、夜间行动、红皮影互认对象等等）。",
+    "otherNightReminder": "说书人可以告诉邪恶玩家一些关于皮影的信息（皮影的角色、夜间行动、红皮影互认对象等等）。",
+    "remindersGlobal": [
+      "是皮影"
+    ]
+  }
+}

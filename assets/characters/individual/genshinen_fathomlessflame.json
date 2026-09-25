@@ -1,0 +1,36 @@
+{
+  "id": "genshinen_fathomlessflame",
+  "team": "minion",
+  "edition": "community-genshin-en",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Once per game"
+  ],
+  "remindersGlobal": [
+    "You are"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Fathomless Flame",
+    "ability": "When 1st player to nominate & execute the Demon (ending the game), play for 1 more night, he becomes that evil Demon. If 4 or less live, you lose your ability.",
+    "revisions": {
+      "v1": "When 1st player to nominate & execute the Demon (ending the game), play for 1 more night, he becomes that evil Demon. If 4 or less live, you lose your ability."
+    },
+    "flavor": "Ah! This Burning truth!",
+    "reminders": [
+      "Once per game"
+    ],
+    "remindersGlobal": [
+      "You are"
+    ]
+  },
+  "zh": {
+    "name": "渊上之物"
+  }
+}

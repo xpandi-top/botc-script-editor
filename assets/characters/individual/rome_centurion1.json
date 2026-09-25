@@ -1,0 +1,35 @@
+{
+  "id": "rome_centurion1",
+  "team": "townsfolk",
+  "edition": "community-rome",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Drunk"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Centurion",
+    "ability": "If you nominate & execute a living player, their team loses. You are safe from the Demon. If you publicly claimed to be Spartacus today, you are drunk until dawn.",
+    "revisions": {
+      "v1": "If you nominate & execute a living player, their team loses. You are safe from the Demon. If you publicly claimed to be Spartacus today, you are drunk until dawn."
+    },
+    "flavor": "\"It is easier to find men who will volunteer to die, than to find those who are willing to endure pain with patience.\" - Gaius Julius Caesar 100 B.C. - 44 B.C.",
+    "reminders": [
+      "Drunk"
+    ]
+  },
+  "zh": {
+    "name": "百夫长",
+    "ability": "如果你提名并处决了一名存活玩家，他的阵营落败。恶魔的负面能力对你无效。如果你在今天白天公开声明自己是斯巴达克斯，你醉酒直到下个黎明。",
+    "revisions": {
+      "v1": "如果你提名并处决了一名存活玩家，他的阵营落败。恶魔的负面能力对你无效。如果你在今天白天公开声明自己是斯巴达克斯，你醉酒直到下个黎明。"
+    },
+    "flavor": "‘寻找到那些自愿去死的人比寻找到那些愿意忍受病痛的人要容易。’-盖乌斯·尤利乌斯·凯撒 前100-前44"
+  }
+}

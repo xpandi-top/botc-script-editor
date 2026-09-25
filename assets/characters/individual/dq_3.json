@@ -1,0 +1,20 @@
+{
+  "id": "dq_3",
+  "team": "fabled",
+  "edition": "community-dq",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "zh": {
+    "name": "戏精",
+    "ability": "游戏中代入感表现得很强的玩家，会获得一些奖励。",
+    "revisions": {
+      "v1": "游戏中代入感表现得很强的玩家，会获得一些奖励。"
+    }
+  }
+}

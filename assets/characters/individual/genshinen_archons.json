@@ -1,0 +1,30 @@
+{
+  "id": "genshinen_archons",
+  "team": "fabled",
+  "edition": "community-genshin-en",
+  "current_revision": "v1",
+  "setup": false,
+  "remindersGlobal": [
+    "Blessed"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Archons",
+    "ability": "Venti, Zhongli, Raiden Shogun, Nahida, and Focalors are Archons. Each night*, an alive player learn how many Archons are still alive. Poisoned or drunk player might yield false info.[]",
+    "revisions": {
+      "v1": "Venti, Zhongli, Raiden Shogun, Nahida, and Focalors are Archons. Each night*, an alive player learn how many Archons are still alive. Poisoned or drunk player might yield false info.[]"
+    },
+    "otherNightReminder": "ST choose an alive player and places a \"Blessed\" reminder mark next to his character mark. Then, before using his ability, tell him how many Archons are alive.",
+    "remindersGlobal": [
+      "Blessed"
+    ]
+  },
+  "zh": {
+    "name": "塵世執政"
+  }
+}

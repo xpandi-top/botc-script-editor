@@ -1,0 +1,27 @@
+{
+  "id": "hp_neville",
+  "team": "townsfolk",
+  "edition": "community-hp",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Ability used"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Neville",
+    "ability": "Once per game, during the day, publicly choose a player: if they are a Minion, they die.",
+    "revisions": {
+      "v1": "Once per game, during the day, publicly choose a player: if they are a Minion, they die."
+    },
+    "flavor": "\"People die everyday... but they're still with us... in here\"",
+    "reminders": [
+      "Ability used"
+    ]
+  }
+}

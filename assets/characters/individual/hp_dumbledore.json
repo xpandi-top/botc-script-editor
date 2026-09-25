@@ -1,0 +1,34 @@
+{
+  "id": "hp_dumbledore",
+  "team": "townsfolk",
+  "edition": "community-hp",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Died Today"
+  ],
+  "remindersGlobal": [
+    "Drunk"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Dumbledore",
+    "ability": "If you are killed at night, pick a player. They learn who you were. If they are evil, they are drunk the following day and next night.",
+    "revisions": {
+      "v1": "If you are killed at night, pick a player. They learn who you were. If they are evil, they are drunk the following day and next night."
+    },
+    "flavor": "Curiosity is not a sin. But we should exercise caution with our curiosity... yes, indeed.",
+    "otherNightReminder": "Wake if killed and ask to pick a player",
+    "reminders": [
+      "Died Today"
+    ],
+    "remindersGlobal": [
+      "Drunk"
+    ]
+  }
+}

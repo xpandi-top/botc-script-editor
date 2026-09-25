@@ -1,0 +1,25 @@
+{
+  "id": "sjjl_9",
+  "team": "townsfolk",
+  "edition": "community-sjjl",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "zh": {
+    "name": "儒生",
+    "ability": "每局游戏限一次，在白天时，你可以私下向说书人做出一个预言，之后该预言首次成真的当晚说书人会唤醒你。",
+    "revisions": {
+      "v1": "每局游戏限一次，在白天时，你可以私下向说书人做出一个预言，之后该预言首次成真的当晚说书人会唤醒你。"
+    },
+    "flavor": "天地有正气，杂然赋流形。",
+    "otherNightReminder": "如果儒生的预言成真，唤醒他。",
+    "reminders": [
+      "言出法随"
+    ]
+  }
+}

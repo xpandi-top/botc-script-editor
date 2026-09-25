@@ -1,0 +1,29 @@
+{
+  "id": "rome_sibyl",
+  "team": "traveler",
+  "edition": "community-rome",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Sibyl",
+    "ability": "Each day, after the 1st execution, you may publicly choose a dead player: they may nominate. If the majority of the dead and yourself agree, they are executed.",
+    "revisions": {
+      "v1": "Each day, after the 1st execution, you may publicly choose a dead player: they may nominate. If the majority of the dead and yourself agree, they are executed."
+    },
+    "flavor": "To such a degree will I be changed that I will be visible to no one; but I will be recognized by my voice. And with my voice, to you, I give a second chance."
+  },
+  "zh": {
+    "name": "祀命之女",
+    "ability": "每个白天，在首次处决发生之后你可以公开选择一名死亡玩家：他可以发起提名。如果你和死亡玩家中的多数玩家同意，被提名的玩家被处决。",
+    "revisions": {
+      "v1": "每个白天，在首次处决发生之后你可以公开选择一名死亡玩家：他可以发起提名。如果你和死亡玩家中的多数玩家同意，被提名的玩家被处决。"
+    },
+    "flavor": "我如果被改变到这种程度，我将不会被任何人看见；但我会通过我的声音被认出，伴随着我传达给你的声音，我给了你再一次机会。"
+  }
+}

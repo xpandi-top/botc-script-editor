@@ -36,6 +36,7 @@ describe('reminder tokens', () => {
       const zh = c.zh?.[key] ?? []
       if (!en.length && !zh.length) return []
       if (!OFFICIAL.includes(c.edition) && !en.length) return [] // Chinese-only packs (Odyssey)
+      if (c.edition.startsWith('community-') && !zh.length) return [] // English-only community packs
       if (en.length !== zh.length) return [`${c.id}.${key}: ${en.length} English, ${zh.length} Chinese`]
       return zh.flatMap((token, i) => {
         const translated = CJK.test(token) || (NEUTRAL.test(token) && NEUTRAL.test(en[i]))

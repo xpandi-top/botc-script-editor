@@ -1,0 +1,33 @@
+{
+  "id": "genshinen_arlecchino",
+  "team": "demon",
+  "edition": "community-genshin-en",
+  "current_revision": "v1",
+  "setup": false,
+  "remindersGlobal": [
+    "Dead",
+    "Register as evil",
+    "Poisoned"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Arlecchino",
+    "ability": "Each night*, choose a player: they die. Start by choosing a player: they're poisoned & register as evil. if they nominate & not an Archon, they die & you act twice at night.",
+    "revisions": {
+      "v1": "Each night*, choose a player: they die. Start by choosing a player: they're poisoned & register as evil. if they nominate & not an Archon, they die & you act twice at night."
+    },
+    "flavor": "Justice, wealth, ambition - mere pawns in the games played beneath the moonlit Seine. Join the waltz, and witness mine grand deception.",
+    "firstNightReminder": "Wake Arlecchino and points a player, and place a \"Poisoned\" and \"Register as evil\" marker to player . Then put Arlecchino to sleep.",
+    "otherNightReminder": "Wake up the Arlecchino. The Arlecchino points to a player and kills that player. The player dies, and a \"Dead\" token is placed next to their character token. If the player you choose on your first night nominate and not an Archon,The player dies, and a \"Dead\" token is placed next to their character token. Then, point to two players instead. Put the Arlecchino back to sleep.",
+    "remindersGlobal": [
+      "Dead",
+      "Register as evil",
+      "Poisoned"
+    ]
+  }
+}

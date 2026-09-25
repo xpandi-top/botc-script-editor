@@ -1,0 +1,24 @@
+{
+  "id": "genshin_5",
+  "team": "townsfolk",
+  "edition": "community-genshin",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "zh": {
+    "name": "鍾離",
+    "ability": "你是尘世执政。每个夜晚*，你要选择一名存活玩家（与上个夜晚不同），他在当晚不会因为邪恶阵营的能力死亡。",
+    "revisions": {
+      "v1": "你是尘世执政。每个夜晚*，你要选择一名存活玩家（与上个夜晚不同），他在当晚不会因为邪恶阵营的能力死亡。"
+    },
+    "otherNightReminder": "叫醒钟离。让他指向任何一名玩家。 （如果选择了昨天的目标，提醒他更改目标）。将钟离的「保护」标记放在他选择的玩家角色的标记旁边，然后让钟离重新入睡。",
+    "remindersGlobal": [
+      "保護"
+    ]
+  }
+}

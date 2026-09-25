@@ -1,0 +1,29 @@
+{
+  "id": "lotr_pippin",
+  "team": "townsfolk",
+  "edition": "community-lotr",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Pippin",
+    "ability": "You start knowing a false statement.",
+    "revisions": {
+      "v1": "You start knowing a false statement."
+    },
+    "flavor": "You need people of intelligence on this sort of mission...quest...thing.",
+    "firstNightReminder": "Show Pippin a piece of false info."
+  },
+  "zh": {
+    "name": "皮平",
+    "ability": "在你的首个夜晚，你会得知一条错误的信息。",
+    "revisions": {
+      "v1": "在你的首个夜晚，你会得知一条错误的信息。"
+    }
+  }
+}

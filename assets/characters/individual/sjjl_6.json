@@ -1,0 +1,24 @@
+{
+  "id": "sjjl_6",
+  "team": "townsfolk",
+  "edition": "community-sjjl",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "zh": {
+    "name": "道童",
+    "ability": "在白天时，你可以公开选择一名未选过的玩家（选中邪恶玩家中毒）：你获得他的能力直至下个黎明。",
+    "revisions": {
+      "v1": "在白天时，你可以公开选择一名未选过的玩家（选中邪恶玩家中毒）：你获得他的能力直至下个黎明。"
+    },
+    "flavor": "道爷我呀，只求长生！",
+    "reminders": [
+      "中毒"
+    ]
+  }
+}

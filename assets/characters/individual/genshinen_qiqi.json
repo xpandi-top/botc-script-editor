@@ -1,0 +1,31 @@
+{
+  "id": "genshinen_qiqi",
+  "team": "outsider",
+  "edition": "community-genshin-en",
+  "current_revision": "v1",
+  "setup": false,
+  "remindersGlobal": [
+    "Zombie"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "QiQi",
+    "ability": "If you die, 1 non-Demon player registers as dead for evil's win condition.",
+    "revisions": {
+      "v1": "If you die, 1 non-Demon player registers as dead for evil's win condition."
+    },
+    "flavor": "I am Qiqi, a zombie...ah, what else should I say?",
+    "otherNightReminder": "If Qiqi dies, the Storyteller will choose aa alive non-demon player other than Qiqi, and place Qiqi's \"Zombie\" reminder mark next to the mark of the player character selected by the Storyteller.",
+    "remindersGlobal": [
+      "Zombie"
+    ]
+  },
+  "zh": {
+    "name": "七七"
+  }
+}

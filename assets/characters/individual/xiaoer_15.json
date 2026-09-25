@@ -1,0 +1,24 @@
+{
+  "id": "xiaoer_15",
+  "team": "outsider",
+  "edition": "community-xiaoer",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "zh": {
+    "name": "侠客岛",
+    "ability": "当你死于处决时，与你邻近的存活玩家不计入邪恶阵营获胜条件。",
+    "revisions": {
+      "v1": "当你死于处决时，与你邻近的存活玩家不计入邪恶阵营获胜条件。"
+    },
+    "flavor": "张三李四邀请五大掌门于六日后前去七里侠客岛同赏腊八粥",
+    "reminders": [
+      "请柬"
+    ]
+  }
+}

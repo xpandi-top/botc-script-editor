@@ -1,0 +1,37 @@
+{
+  "id": "rome_trumpeter",
+  "team": "townsfolk",
+  "edition": "community-rome",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Evil Claim"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Trumpeter",
+    "ability": "Each night*, you learn how many evil players publicly claimed to be Spartacus today.",
+    "revisions": {
+      "v1": "Each night*, you learn how many evil players publicly claimed to be Spartacus today."
+    },
+    "flavor": "\"I have done everything that I should, but the outcome is in the hand of fortune.\" - Nero Claudius Caesar 37 A.D. - 68 A.D.",
+    "otherNightReminder": "Show the hand signal for the number (0, 1, 2, etc.) of evil players who publicly claimed to be Spartacus today.",
+    "reminders": [
+      "Evil Claim"
+    ]
+  },
+  "zh": {
+    "name": "军号手",
+    "ability": "每个夜晚*，你会得知今天白天有多少名邪恶玩家公开声明自己是斯巴达克斯。",
+    "revisions": {
+      "v1": "每个夜晚*，你会得知今天白天有多少名邪恶玩家公开声明自己是斯巴达克斯。"
+    },
+    "flavor": "‘我做了一切我该做的，但结果掌握在命运的手中。’-尼禄·克劳狄乌斯 凯撒 37-68",
+    "otherNightReminder": "用手势向军号手展示今天白天公开声明自己是斯巴达克斯的邪恶玩家数量。"
+  }
+}

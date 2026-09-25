@@ -1,0 +1,26 @@
+{
+  "id": "lotr_oathbreaker",
+  "team": "outsider",
+  "edition": "community-lotr",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Oathbreaker",
+    "ability": "You are evil.",
+    "revisions": {
+      "v1": "You are evil."
+    },
+    "flavor": "None but the king of Gondor may command me.",
+    "firstNightReminder": "If Oathbreaker's alignment has changed since last night, inform them.",
+    "otherNightReminder": "If Oathbreaker's alignment has changed since last night, inform them."
+  },
+  "zh": {
+    "name": "破誓者"
+  }
+}

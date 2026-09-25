@@ -1,0 +1,47 @@
+{
+  "id": "genshinen_ittoarataki",
+  "team": "outsider",
+  "edition": "community-genshin-en",
+  "current_revision": "v1",
+  "setup": true,
+  "reminders": [
+    "Is Arataki Itto",
+    "1",
+    "2",
+    "3"
+  ],
+  "remindersGlobal": [
+    "Is Arataki Itto",
+    "1",
+    "2",
+    "3"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Itto Arataki",
+    "ability": "You think you're a non-Outsider character, but you're not. You might register as any character. The Demon knows who you are & who you choose.",
+    "revisions": {
+      "v1": "You think you're a non-Outsider character, but you're not. You might register as any character. The Demon knows who you are & who you choose."
+    },
+    "flavor": "Hello, I am Kuki Shinobu, the deputy of the Arataki faction, the person in charge. If you find that our boss, Mr. Itto Arataki, has any inappropriate behavior outside, please feel free to contact me. this is my name card.  By Kuki Shinobu",
+    "firstNightReminder": "Work as character he think is but except Outsider, and provide the info he supposed to receive but false. The Demon know what you doing at night.",
+    "otherNightReminder": "Work as character he think is but except Outsider, and the Demon know what you doing at night.",
+    "reminders": [
+      "Is Arataki Itto",
+      "1",
+      "2",
+      "3"
+    ],
+    "remindersGlobal": [
+      "Is Arataki Itto",
+      "1",
+      "2",
+      "3"
+    ]
+  }
+}

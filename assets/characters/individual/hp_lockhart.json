@@ -1,0 +1,27 @@
+{
+  "id": "hp_lockhart",
+  "team": "outsider",
+  "edition": "community-hp",
+  "current_revision": "v1",
+  "setup": true,
+  "remindersGlobal": [
+    "Is Lockhart"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Lockhart",
+    "ability": "You think you are a townsfolk but you are not. Any time you claim to have used or attempt to use an ability that you were not shown, something bad might happen.",
+    "revisions": {
+      "v1": "You think you are a townsfolk but you are not. Any time you claim to have used or attempt to use an ability that you were not shown, something bad might happen."
+    },
+    "flavor": "Uh, the point is, uh, you can no longer feel any pain. And, very clearly, the bones are not broken.",
+    "remindersGlobal": [
+      "Is Lockhart"
+    ]
+  }
+}

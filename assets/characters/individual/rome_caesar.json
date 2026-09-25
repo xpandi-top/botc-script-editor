@@ -1,0 +1,41 @@
+{
+  "id": "rome_caesar",
+  "team": "demon",
+  "edition": "community-rome",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Betrayal",
+    "Used",
+    "Dead"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Caesar",
+    "ability": "Each night*, choose a player: they die. The 1st time an evil player dies by execution, that night, choose an additional player: they die.",
+    "revisions": {
+      "v1": "Each night*, choose a player: they die. The 1st time an evil player dies by execution, that night, choose an additional player: they die."
+    },
+    "flavor": "\"I came, I saw, I conquered.\" - Gaius Julius Caesar 100 B.C. - 44 B.C.",
+    "otherNightReminder": "If an evil player was executed today, Caesar points to two players. Otherwise: Caesar points to a player. Chosen players die.",
+    "reminders": [
+      "Betrayal",
+      "Used",
+      "Dead"
+    ]
+  },
+  "zh": {
+    "name": "凯撒",
+    "ability": "每个夜晚*，你要选择一名玩家：他死亡。首个邪恶玩家死于处决的当晚，你要额外选择一名玩家：他死亡。",
+    "revisions": {
+      "v1": "每个夜晚*，你要选择一名玩家：他死亡。首个邪恶玩家死于处决的当晚，你要额外选择一名玩家：他死亡。"
+    },
+    "flavor": "‘我来，我见，我征服。’-盖乌斯·尤利乌斯·凯撒 前100-前44",
+    "otherNightReminder": "唤醒凯撒，让他选择一名玩家。如果一名邪恶玩家首次在今天白天死于处决，让凯撒选择另一名玩家。"
+  }
+}

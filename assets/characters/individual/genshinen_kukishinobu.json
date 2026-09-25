@@ -1,0 +1,22 @@
+{
+  "id": "genshinen_kukishinobu",
+  "team": "townsfolk",
+  "edition": "community-genshin-en",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Kuki Shinobu",
+    "ability": "You start knowing two characters; one is in play, and the Demon knows the other is not in play.",
+    "revisions": {
+      "v1": "You start knowing two characters; one is in play, and the Demon knows the other is not in play."
+    },
+    "flavor": "If you have any trouble, just tell me and I can solve it.",
+    "firstNightReminder": "Wake up Kuki Shinobu and show her two characters, making sure there is only one character are in-play, another one is bluff. Then put her to sleep."
+  }
+}

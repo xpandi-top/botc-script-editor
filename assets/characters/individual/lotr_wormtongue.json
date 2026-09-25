@@ -1,0 +1,36 @@
+{
+  "id": "lotr_wormtongue",
+  "team": "minion",
+  "edition": "community-lotr",
+  "current_revision": "v1",
+  "setup": true,
+  "remindersGlobal": [
+    "Has Wormtongue"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Wormtongue",
+    "ability": "Once per game, at night, the Demon chooses a player to become Wormtongue. [no-one is Wormtongue, +2 Outsiders]",
+    "revisions": {
+      "v1": "Once per game, at night, the Demon chooses a player to become Wormtongue. [no-one is Wormtongue, +2 Outsiders]"
+    },
+    "flavor": "Why do you lay these troubles on an already troubled mind?",
+    "firstNightReminder": "Ask the demon whether they wish to assign Wormtongue.",
+    "otherNightReminder": "Ask the demon whether they wish to assign Wormtongue.",
+    "remindersGlobal": [
+      "Has Wormtongue"
+    ]
+  },
+  "zh": {
+    "name": "佞舌",
+    "ability": "每局游戏限一次，在夜晚时，恶魔可以选择一名玩家：他变成邪恶的佞舌。[无佞舌在场，+2外来者]",
+    "revisions": {
+      "v1": "每局游戏限一次，在夜晚时，恶魔可以选择一名玩家：他变成邪恶的佞舌。[无佞舌在场，+2外来者]"
+    }
+  }
+}

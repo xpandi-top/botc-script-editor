@@ -1,0 +1,24 @@
+{
+  "id": "lotr_balrog",
+  "team": "traveler",
+  "edition": "community-lotr",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Balrog",
+    "ability": "Once each day, before nominations, if a dead player agrees, you may spend their vote token to publicly choose a player: they die",
+    "revisions": {
+      "v1": "Once each day, before nominations, if a dead player agrees, you may spend their vote token to publicly choose a player: they die"
+    },
+    "flavor": "Moria... You fear to go into those mines. The dwarves delved too greedily and too deep. You know what they awoke in the darkness of Khazad-dûm... shadow and flame."
+  },
+  "zh": {
+    "name": "炎魔"
+  }
+}

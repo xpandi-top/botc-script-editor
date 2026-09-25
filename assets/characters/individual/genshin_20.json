@@ -1,0 +1,22 @@
+{
+  "id": "genshin_20",
+  "team": "townsfolk",
+  "edition": "community-genshin",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "zh": {
+    "name": "八重神子",
+    "ability": "每个夜晚，你要选择一名玩家：你得知他是否是尘世执政或执行官。",
+    "revisions": {
+      "v1": "每个夜晚，你要选择一名玩家：你得知他是否是尘世执政或执行官。"
+    },
+    "firstNightReminder": "唤醒八重神子。让他指向任意一位玩家。向八重神子告知那名玩家否是塵世執政或執行官。然后让八重神子入睡。",
+    "otherNightReminder": "唤醒八重神子。让他指向任意一位玩家。向八重神子告知那名玩家否是塵世執政或執行官。然后让八重神子入睡。"
+  }
+}

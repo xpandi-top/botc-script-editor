@@ -1,0 +1,43 @@
+{
+  "id": "rome_highpriest2",
+  "team": "traveler",
+  "edition": "community-rome",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Blessed",
+    "Failed",
+    "True",
+    "False"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "High Priest",
+    "ability": "Each day, publicly choose a unique living player to bless: if a majority of players agree, tomorrow they may learn a statement. Tonight, choose if it’s true.",
+    "revisions": {
+      "v1": "Each day, publicly choose a unique living player to bless: if a majority of players agree, tomorrow they may learn a statement. Tonight, choose if it’s true."
+    },
+    "flavor": "\"Deny everything, burn the records, say these are lies, anything not to recognise that gods look after our human affairs.\" - Marcus Tullius Cicero 106 B.C. – 43 B.C.",
+    "otherNightReminder": "If the High Priest successfully blessed a player today, wake the High Priest. The High Priest chooses whether the statement is true tomorrow with a hand signal (true \"thumbs up\", false \"thumbs down\").",
+    "reminders": [
+      "Blessed",
+      "Failed",
+      "True",
+      "False"
+    ]
+  },
+  "zh": {
+    "name": "大祭司",
+    "ability": "每个白天，你可以公开选择一名之前未选择过的玩家去祝福：如果多数玩家同意，他可以在明天得知一条信息。当晚，你要选择这条信息是否正确。",
+    "revisions": {
+      "v1": "每个白天，你可以公开选择一名之前未选择过的玩家去祝福：如果多数玩家同意，他可以在明天得知一条信息。当晚，你要选择这条信息是否正确。"
+    },
+    "flavor": "‘否认一切，烧毁记录，宣称这些都是谎言，任何东西都无法认识到神在照顾我们人类的事务。’-马尔库斯·图利乌斯·西塞罗 前106-前43",
+    "otherNightReminder": "如果今天白天一名玩家被祝福，唤醒大祭司，让他选择点头或摇头来决定信息是否正确。"
+  }
+}

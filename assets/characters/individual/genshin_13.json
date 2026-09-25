@@ -1,0 +1,24 @@
+{
+  "id": "genshin_13",
+  "team": "outsider",
+  "edition": "community-genshin",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "zh": {
+    "name": "七七",
+    "ability": "如果你死亡，恶魔会得知此事，明天首个被提名存活的玩家不会被计算在胜利条件内",
+    "revisions": {
+      "v1": "如果你死亡，恶魔会得知此事，明天首个被提名存活的玩家不会被计算在胜利条件内"
+    },
+    "otherNightReminder": "如果七七死亡，且明天有玩家發起提名，把七七的「活尸」标记放在明天第一個被提名存活玩家的角色标记旁边。",
+    "reminders": [
+      "活尸"
+    ]
+  }
+}

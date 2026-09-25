@@ -1,0 +1,39 @@
+{
+  "id": "rome_merchant",
+  "team": "townsfolk",
+  "edition": "community-rome",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Nominated",
+    "No Ability"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Merchant",
+    "ability": "Once per game, at night*, choose to learn the characters of players that have nominated you.",
+    "revisions": {
+      "v1": "Once per game, at night*, choose to learn the characters of players that have nominated you."
+    },
+    "flavor": "\"Greed is but a word jealous men inflict upon the ambitious.\" - Marcus Licinius Crassus 115 B.C. - 53 B.C.",
+    "otherNightReminder": "If the Merchant has not yet used their ability: the Merchant either shows a shake 'no' head signal, or a nod 'yes' head signal. If the Merchant chose 'yes', show the character tokens of players with a NOMINATED token (in any order). Place the NO ABILITY token.",
+    "reminders": [
+      "Nominated",
+      "No Ability"
+    ]
+  },
+  "zh": {
+    "name": "商人",
+    "ability": "每局游戏限一次，在夜晚时*，你可以选择得知提名过你的玩家的角色。",
+    "revisions": {
+      "v1": "每局游戏限一次，在夜晚时*，你可以选择得知提名过你的玩家的角色。"
+    },
+    "flavor": "‘贪婪不过是一个善妒的人们强加在有抱负者身上的词语。’-马库斯·李锡尼·克拉苏 前115-前53",
+    "otherNightReminder": "唤醒商人，如果商人选择使用能力，向他展示提名过他的玩家的角色标记。"
+  }
+}

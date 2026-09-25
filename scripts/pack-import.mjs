@@ -83,8 +83,10 @@ export function characterFile(entry, { id, edition, language, translation }) {
     edition,
     current_revision: 'v1',
     setup: entry.setup === true,
-    ...(own.reminders ? { reminders: own.reminders } : {}),
-    ...(own.remindersGlobal ? { remindersGlobal: own.remindersGlobal } : {}),
+    // Top-level tokens are the English ones (as for the official characters); a
+    // Chinese pack keeps its tokens under zh only, like Odyssey.
+    ...(language === 'en' && own.reminders ? { reminders: own.reminders } : {}),
+    ...(language === 'en' && own.remindersGlobal ? { remindersGlobal: own.remindersGlobal } : {}),
     revisions: [{ id: 'v1', note: '' }],
   }
   const blocks = { [language]: own }

@@ -1,0 +1,35 @@
+{
+  "id": "hp_lordvoldemort",
+  "team": "demon",
+  "edition": "community-hp",
+  "current_revision": "v1",
+  "setup": true,
+  "reminders": [
+    "Horcrux",
+    "Horcrux",
+    "Horcrux",
+    "Dead"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Lord Voldemort",
+    "ability": "Each night*, choose a player: they die. You die if and only if all horcruxes are dead. You learn which players are horcruxes. A player possessing a horcrux registers as a minion. [3 players are Horcruxes, + Nagini]",
+    "revisions": {
+      "v1": "Each night*, choose a player: they die. You die if and only if all horcruxes are dead. You learn which players are horcruxes. A player possessing a horcrux registers as a minion. [3 players are Horcruxes, + Nagini]"
+    },
+    "flavor": "I, who have gone further than anybody along the path that leads to immortality....",
+    "firstNightReminder": "Wake and tell them all players who possess a horcrux.",
+    "otherNightReminder": "Wake to make them kill someone",
+    "reminders": [
+      "Horcrux",
+      "Horcrux",
+      "Horcrux",
+      "Dead"
+    ]
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "id": "rome_blacksmith",
+  "team": "townsfolk",
+  "edition": "community-rome",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Is the Blacksmith"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Blacksmith",
+    "ability": "The 1st time the Demon kills you, you live & gain a not-in-play Townsfolk ability.",
+    "revisions": {
+      "v1": "The 1st time the Demon kills you, you live & gain a not-in-play Townsfolk ability."
+    },
+    "flavor": "\"Every new beginning comes from some other beginning’s end.\" - Lucius Annaeus Seneca 4 B.C. - 65 A.D.",
+    "otherNightReminder": "If the Blacksmith was killed by a Demon. Show the Blacksmith a not-in-play Townsfolk character token. Swap the not-in-play character token with the Blacksmith token. Place the IS THE BLACKSMITH token next to the not-in-play character token. Wake the Blacksmith and show 'You are', then their new character ability.",
+    "reminders": [
+      "Is the Blacksmith"
+    ]
+  },
+  "zh": {
+    "name": "铁匠",
+    "ability": "当你首次将要被恶魔杀死时，你不会死亡并获得一个不在场镇民的能力。",
+    "revisions": {
+      "v1": "当你首次将要被恶魔杀死时，你不会死亡并获得一个不在场镇民的能力。"
+    },
+    "flavor": "‘每个新的开端都来自于一些其他开端的结束。’-吕齐乌斯·安涅·塞涅卡 前4-65",
+    "otherNightReminder": "如果铁匠首次将要被恶魔杀死，唤醒铁匠并向他展示“你是”信息标记和他的新角色标记。"
+  }
+}

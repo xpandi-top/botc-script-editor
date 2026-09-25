@@ -1,0 +1,34 @@
+{
+  "id": "genshinen_bennett",
+  "team": "outsider",
+  "edition": "community-genshin-en",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Lose ability"
+  ],
+  "remindersGlobal": [
+    "Drunk"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Bennett",
+    "ability": "A good player drunk , even if you died. Once per day, If you guess who it is (once per day), they become sober & you learn their role.",
+    "revisions": {
+      "v1": "A good player drunk , even if you died. Once per day, If you guess who it is (once per day), they become sober & you learn their role."
+    },
+    "flavor": "The key to a successful adventure is to do the opposite of what Bennett does.",
+    "otherNightReminder": "If Bennett succeeds in finding a player who was drunk by his ability, remove his \"drunk\" marker and let Bennett learn the character of the player who was drunk by you.",
+    "reminders": [
+      "Lose ability"
+    ],
+    "remindersGlobal": [
+      "Drunk"
+    ]
+  }
+}

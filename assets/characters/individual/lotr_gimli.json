@@ -1,0 +1,31 @@
+{
+  "id": "lotr_gimli",
+  "team": "townsfolk",
+  "edition": "community-lotr",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Dead"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Gimli",
+    "ability": "Each night*, choose a player & guess their character: if you guess right, they die & pass the Ring.",
+    "revisions": {
+      "v1": "Each night*, choose a player & guess their character: if you guess right, they die & pass the Ring."
+    },
+    "flavor": "Faithless is he who says farewell when the road darkens.",
+    "otherNightReminder": "Gimli chooses a player.",
+    "reminders": [
+      "Dead"
+    ]
+  },
+  "zh": {
+    "name": "金雳"
+  }
+}

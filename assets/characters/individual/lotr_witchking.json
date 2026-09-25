@@ -1,0 +1,38 @@
+{
+  "id": "lotr_witchking",
+  "team": "minion",
+  "edition": "community-lotr",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Learned",
+    "Learned",
+    "Dead",
+    "Ability Used"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Witch-King",
+    "ability": "Each night, learn 2 in-play characters that do not bear the Ring. Once per game, at night*, choose 1 to die.",
+    "revisions": {
+      "v1": "Each night, learn 2 in-play characters that do not bear the Ring. Once per game, at night*, choose 1 to die."
+    },
+    "flavor": "No living man may hinder me!",
+    "firstNightReminder": "Show the Witch-King 2 characters.",
+    "otherNightReminder": "Show the Witch-King 2 characters, then ask them if they wish to make a choice.",
+    "reminders": [
+      "Learned",
+      "Learned",
+      "Dead",
+      "Ability Used"
+    ]
+  },
+  "zh": {
+    "name": "安格玛巫王"
+  }
+}

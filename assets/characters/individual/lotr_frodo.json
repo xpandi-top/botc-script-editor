@@ -1,0 +1,39 @@
+{
+  "id": "lotr_frodo",
+  "team": "townsfolk",
+  "edition": "community-lotr",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Night 1",
+    "Night 2",
+    "Night 3"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Frodo",
+    "ability": "You are safe from Minions & Outsiders. Ringbearer: If you bear the Ring for 3 consecutive nights, good wins.",
+    "revisions": {
+      "v1": "You are safe from Minions & Outsiders. Ringbearer: If you bear the Ring for 3 consecutive nights, good wins."
+    },
+    "flavor": "I will take the ring, though I do not know the way.",
+    "otherNightReminder": "If Frodo has had the Ring for 3 consecutive nights, good wins.",
+    "reminders": [
+      "Night 1",
+      "Night 2",
+      "Night 3"
+    ]
+  },
+  "zh": {
+    "name": "佛罗多",
+    "ability": "你免受爪牙与外来者负面能力的影响。如果你连续保管魔戒三晚，善良阵营获胜。",
+    "revisions": {
+      "v1": "你免受爪牙与外来者负面能力的影响。如果你连续保管魔戒三晚，善良阵营获胜。"
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "id": "hp_mcgonagall",
+  "team": "townsfolk",
+  "edition": "community-hp",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Detention",
+    "Detention",
+    "Detention",
+    "Detention",
+    "Detention"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "McGonagall",
+    "ability": "Each Night, you may choose a Townsfolk character. You gain their ability for one night. If they are in play they are drunk until you die. (You may not choose the same character twice)",
+    "revisions": {
+      "v1": "Each Night, you may choose a Townsfolk character. You gain their ability for one night. If they are in play they are drunk until you die. (You may not choose the same character twice)"
+    },
+    "flavor": "No, you heard me correctly, Mr. Malfoy. You see, honourable as your intentions were, you too were out of bed after hours. You will join your classmates in detention.",
+    "firstNightReminder": "Wake and ask if they would like to use ability. If so ask them to choose a character. Mark any chosen in play character as 'Detention'.",
+    "otherNightReminder": "Wake and ask if they would like to use ability. If so ask them to choose a character. Mark any chosen in play character as 'Detention'.",
+    "reminders": [
+      "Detention",
+      "Detention",
+      "Detention",
+      "Detention",
+      "Detention"
+    ]
+  }
+}

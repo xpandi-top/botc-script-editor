@@ -1,0 +1,33 @@
+{
+  "id": "genshinen_alhaitham",
+  "team": "townsfolk",
+  "edition": "community-genshin-en",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Lose Ability"
+  ],
+  "remindersGlobal": [
+    "Learn"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Alhaitham",
+    "ability": "Once per game, at night*, choose a non-Demon character& choose 3 players, learn if whom it belongs. If an Archon player chosen, next night you may choose again.",
+    "revisions": {
+      "v1": "Once per game, at night*, choose a non-Demon character& choose 3 players, learn if whom it belongs. If an Archon player chosen, next night you may choose again."
+    },
+    "flavor": "Knowledge, Thought, and Action",
+    "reminders": [
+      "Lose Ability"
+    ],
+    "remindersGlobal": [
+      "Learn"
+    ]
+  }
+}

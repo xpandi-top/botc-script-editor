@@ -1,0 +1,29 @@
+{
+  "id": "lotr_treebeard",
+  "team": "townsfolk",
+  "edition": "community-lotr",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Chosen"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Treebeard",
+    "ability": "Each night, choose a player: you learn their character type tomorrow night. A Minion, if chosen, learns this.",
+    "revisions": {
+      "v1": "Each night, choose a player: you learn their character type tomorrow night. A Minion, if chosen, learns this."
+    },
+    "flavor": "Don't be hasty!",
+    "firstNightReminder": "Treebeard chooses a player.",
+    "otherNightReminder": "Treebeard chooses a player.",
+    "reminders": [
+      "Chosen"
+    ]
+  }
+}

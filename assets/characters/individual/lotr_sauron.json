@@ -1,0 +1,28 @@
+{
+  "id": "lotr_sauron",
+  "team": "demon",
+  "edition": "community-lotr",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Sauron",
+    "ability": "At the end of each day, publicly choose a player: they die. All players know who you are. You die if & only if there are no living Minions.",
+    "revisions": {
+      "v1": "At the end of each day, publicly choose a player: they die. All players know who you are. You die if & only if there are no living Minions."
+    },
+    "flavor": "Concealed within his fortress, the Lord of Mordor sees all. His gaze pierces cloud, shadow, earth, and flesh."
+  },
+  "zh": {
+    "name": "索伦",
+    "ability": "每个白天结束时，你要公开选择一名玩家，他死亡。所有玩家知道你是谁。当没有爪牙存活时你才可以死亡。",
+    "revisions": {
+      "v1": "每个白天结束时，你要公开选择一名玩家，他死亡。所有玩家知道你是谁。当没有爪牙存活时你才可以死亡。"
+    }
+  }
+}

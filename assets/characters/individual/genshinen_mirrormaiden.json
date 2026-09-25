@@ -1,0 +1,30 @@
+{
+  "id": "genshinen_mirrormaiden",
+  "team": "minion",
+  "edition": "community-genshin-en",
+  "current_revision": "v1",
+  "setup": false,
+  "remindersGlobal": [
+    "Reflected"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Mirror Maiden",
+    "ability": "Each night, choose a player (different to last night): players that choose them choose themselves instead.",
+    "revisions": {
+      "v1": "Each night, choose a player (different to last night): players that choose them choose themselves instead."
+    },
+    "flavor": "All secrets will be hidden deep within the shimmering mirror of water...",
+    "remindersGlobal": [
+      "Reflected"
+    ]
+  },
+  "zh": {
+    "name": "藏鏡仕女"
+  }
+}

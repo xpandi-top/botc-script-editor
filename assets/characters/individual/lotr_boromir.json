@@ -1,0 +1,35 @@
+{
+  "id": "lotr_boromir",
+  "team": "townsfolk",
+  "edition": "community-lotr",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Dead"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Boromir",
+    "ability": "Each night*, if an evil player bears the Ring, you die. If Sauron kills the Ringbearer, you die instead.",
+    "revisions": {
+      "v1": "Each night*, if an evil player bears the Ring, you die. If Sauron kills the Ringbearer, you die instead."
+    },
+    "flavor": "I would have followed you, my brother...my captain...my king.",
+    "otherNightReminder": "If evil has the Ring, kill Boromir.",
+    "reminders": [
+      "Dead"
+    ]
+  },
+  "zh": {
+    "name": "博罗米尔",
+    "ability": "每个夜晚*，如果一名邪恶玩家持有魔戒，你死亡。如果索伦杀死了魔戒持有者，改为你死亡。",
+    "revisions": {
+      "v1": "每个夜晚*，如果一名邪恶玩家持有魔戒，你死亡。如果索伦杀死了魔戒持有者，改为你死亡。"
+    }
+  }
+}

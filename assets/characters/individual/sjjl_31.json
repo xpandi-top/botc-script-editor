@@ -1,0 +1,21 @@
+{
+  "id": "sjjl_31",
+  "team": "traveler",
+  "edition": "community-sjjl",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "zh": {
+    "name": "阴魂",
+    "ability": "在你的首个夜晚，你会获得一个能力。如果死亡的玩家宣布自己是阴魂，他可能成为存活的阴魂，即使阴魂不在场。",
+    "revisions": {
+      "v1": "在你的首个夜晚，你会获得一个能力。如果死亡的玩家宣布自己是阴魂，他可能成为存活的阴魂，即使阴魂不在场。"
+    },
+    "flavor": "鱼灯引魂开地府，夜夜晶光射幽户。"
+  }
+}
