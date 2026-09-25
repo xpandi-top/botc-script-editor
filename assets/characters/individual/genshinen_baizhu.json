@@ -1,0 +1,23 @@
+{
+  "id": "genshinen_baizhu",
+  "team": "townsfolk",
+  "edition": "community-genshin-en",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Bai Zhu",
+    "ability": "Each night, choose 2 players (not yourself): learn if either is drunk or poisoned. If an Archon's chosen, both become sober & healthy.",
+    "revisions": {
+      "v1": "Each night, choose 2 players (not yourself): learn if either is drunk or poisoned. If an Archon's chosen, both become sober & healthy."
+    },
+    "flavor": "Of the myriad maladies that afflict us from birth to old age, where can we find the knowledge to cure them all?",
+    "firstNightReminder": "Wake the Bai Zhu. Point two players except themself. Either nod your head yes or shake your head no for learning if they are drunk or poisoned. Put the Mona to sleep. If they point [Archons] , remove their \"Poisoned\" and \"Drunk\" reminder mark.",
+    "otherNightReminder": "Wake the Bai Zhu. Point two players except themself. Either nod your head yes or shake your head no for learning if they are drunk or poisoned. Put the Mona to sleep. If they point [Archons] , remove their \"Poisoned\" and \"Drunk\" reminder mark."
+  }
+}

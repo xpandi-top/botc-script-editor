@@ -1,0 +1,29 @@
+{
+  "id": "genshinen_navia1",
+  "team": "townsfolk",
+  "edition": "community-genshin-en",
+  "current_revision": "v1",
+  "setup": false,
+  "remindersGlobal": [
+    "Chosen"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Navia",
+    "ability": "Each night, choose a living player: if they're executed tomorrow day, learn their nominator's character tonight.",
+    "revisions": {
+      "v1": "Each night, choose a living player: if they're executed tomorrow day, learn their nominator's character tonight."
+    },
+    "flavor": "When we were kids we played a board game where she was the adventurer and I was the host. I consider myself good at dealing with emergencies, but I am still often caught off guard by her choices and answers. But that's what makes it interesting. By Clorinde",
+    "firstNightReminder": "Wake the Navia up, They point at any alive player and a \"chosen\" token is placed next to their character token. Then, put the Navia to sleep.",
+    "otherNightReminder": "Wake the Navia up, They point at any alive player and a \"chosen\" token is placed next to their character token. If player she choose yesterday was executed that day, show nominator's character's token.Then, put the Navia to sleep.",
+    "remindersGlobal": [
+      "Chosen"
+    ]
+  }
+}

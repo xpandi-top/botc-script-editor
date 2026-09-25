@@ -1,0 +1,34 @@
+{
+  "id": "lotr_legolas",
+  "team": "townsfolk",
+  "edition": "community-lotr",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Learned",
+    "Wrong"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Legolas",
+    "ability": "You start knowing that 1 of 2 players is evil. If either is passed the Ring, you learn this.",
+    "revisions": {
+      "v1": "You start knowing that 1 of 2 players is evil. If either is passed the Ring, you learn this."
+    },
+    "flavor": "A red sun rises. Blood has been spilled this night.",
+    "firstNightReminder": "Show Legolas 2 players.",
+    "otherNightReminder": "Tell Legolas if one of their players has the Ring.",
+    "reminders": [
+      "Learned",
+      "Wrong"
+    ]
+  },
+  "zh": {
+    "name": "莱格拉斯"
+  }
+}

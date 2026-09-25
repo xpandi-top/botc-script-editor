@@ -1,0 +1,80 @@
+{
+  "about": "Community (民间) character packs imported by scripts/import-packs.mjs from published Bloodstar Clocktica projects (public script.json, no sign-in). One edition per pack. `translation`: another project with the same characters in the other language (`align: order`), or a map file of translations (scripts/community-packs/<key>.<lang>.json). `intro`: the Chinese write-up (钟楼剧本博物馆). No license is stated by the authors; each pack keeps its author and source link.",
+  "packs": [
+    {
+      "key": "hp", "edition": "community-hp",
+      "name_en": "Harry Potter: The Chamber of Secrets", "name_zh": "《霍格沃茨之战》哈利·波特",
+      "author_en": "JJ & Mas", "author_zh": "JJ & Mas",
+      "language": "en",
+      "json": "https://www.bloodstar.xyz/p/sc911/HP2_2/script.json",
+      "source": "https://www.bloodstar.xyz/p/sc911/HP2_2/almanac.html",
+      "intro": "https://www.bilibili.com/opus/1136625986425585670"
+    },
+    {
+      "key": "lotr", "edition": "community-lotr",
+      "name_en": "LotR: Ringbearer", "name_zh": "《魔戒：护戒使者》",
+      "author_en": "Bim", "author_zh": "Bim",
+      "language": "en",
+      "json": "https://www.bloodstar.xyz/p/Bim/Ringbearer/script.json",
+      "source": "https://www.bloodstar.xyz/p/Bim/Ringbearer/almanac.html",
+      "intro": "https://www.bilibili.com/opus/1049765615803301895",
+      "translation": { "map": "scripts/community-packs/lotr.zh.json" }
+    },
+    {
+      "key": "genshin", "edition": "community-genshin",
+      "name_en": "The Favonius Mystery (Genshin Impact)", "name_zh": "《西风谜团》原神",
+      "author_en": "R6lover_jerry", "author_zh": "R6lover_jerry",
+      "language": "zh",
+      "json": "https://www.bloodstar.xyz/p/Jerry0906/The_favonius_Mystery_DE/script.json",
+      "source": "https://www.bloodstar.xyz/p/Jerry0906/The_favonius_Mystery_DE/almanac.html",
+      "intro": "https://www.bilibili.com/opus/1044213820813213720"
+    },
+    {
+      "key": "genshinen", "edition": "community-genshin-en",
+      "name_en": "The Zephyr Mystery (Genshin Impact)", "name_zh": "《西风谜团》原神 · 英文版",
+      "author_en": "R6lover_jerry", "author_zh": "R6lover_jerry",
+      "language": "en",
+      "json": "https://www.bloodstar.xyz/p/Jerry0906/Genshin_En/script.json",
+      "source": "https://www.bloodstar.xyz/p/Jerry0906/Genshin_En/almanac.html",
+      "intro": "https://www.bilibili.com/opus/1044213820813213720",
+      "translation": { "map": "scripts/community-packs/genshinen.zh.json" }
+    },
+    {
+      "key": "rome", "edition": "community-rome",
+      "name_en": "Fall of Rome", "name_zh": "《罗马陨落》",
+      "author_en": "Alex S", "author_zh": "Alex S",
+      "language": "en",
+      "json": "https://www.bloodstar.xyz/p/AlexS/Fall_of_Rome/script.json",
+      "source": "https://www.bloodstar.xyz/p/AlexS/Fall_of_Rome/almanac.html",
+      "intro": "https://www.bilibili.com/opus/749625651970965521",
+      "translation": { "json": "https://www.bloodstar.xyz/p/stayhungrystayfoolish/Fall_of_Rome_translation_stayhungrystayfoolish/script.json", "align": "order" }
+    },
+    {
+      "key": "sjjl", "edition": "community-sjjl",
+      "name_en": "San Jiao Jiu Liu", "name_zh": "《三教九流》",
+      "author_en": "Chiyu (痴愚)", "author_zh": "痴愚",
+      "language": "zh",
+      "json": "https://www.bloodstar.xyz/p/chiyu/SJJL5/script.json",
+      "source": "https://www.bloodstar.xyz/p/chiyu/SJJL5/almanac.html",
+      "intro": "https://www.bilibili.com/opus/809027922811682820"
+    },
+    {
+      "key": "xiaoer", "edition": "community-xiaoer",
+      "name_en": "Waiter, More Wine!", "name_zh": "《小二，上酒！》",
+      "author_en": "Liu Zhongqi (刘中奇)", "author_zh": "刘中奇",
+      "language": "zh",
+      "json": "https://www.bloodstar.xyz/p/Zonas_Liu/WuXia/script.json",
+      "source": "https://www.bloodstar.xyz/p/Zonas_Liu/WuXia/almanac.html",
+      "intro": "https://www.bilibili.com/opus/965782207528435718"
+    },
+    {
+      "key": "dq", "edition": "community-dq",
+      "name_en": "Dragon Quest", "name_zh": "《勇者斗恶龙》",
+      "author_en": "Aliang (阿良崽崽)", "author_zh": "阿良崽崽",
+      "language": "zh",
+      "json": "https://www.bloodstar.xyz/p/ligohigh1991/NewHero/script.json",
+      "source": "https://www.bloodstar.xyz/p/ligohigh1991/NewHero/almanac.html",
+      "intro": "https://www.bilibili.com/opus/1021449347378708499"
+    }
+  ]
+}

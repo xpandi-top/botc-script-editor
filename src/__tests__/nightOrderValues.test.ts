@@ -15,6 +15,14 @@ import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 import type { NightOrderData } from '../types'
 
+// Each pack numbers only its own characters, so published values compare within one edition.
+const editionOf = new Map(
+  fs.readdirSync(path.join(process.cwd(), 'assets', 'characters', 'individual'))
+    .filter((name) => name.endsWith('.json'))
+    .map((name) => JSON.parse(fs.readFileSync(path.join(process.cwd(), 'assets', 'characters', 'individual', name), 'utf8')) as { id: string; edition: string })
+    .map((c) => [c.id, c.edition]),
+)
+
 const nightOrder = JSON.parse(
   fs.readFileSync(path.join(process.cwd(), 'assets', 'characters', 'night-order.json'), 'utf8'),
 ) as Required<NightOrderData>
@@ -66,12 +74,13 @@ describe('pack-published night values', () => {
       expect(Object.keys(source).filter((id) => !list.includes(id))).toEqual([])
     })
 
-    it(`${key}: array order agrees with the published values`, () => {
-      const seq = list.filter((id) => source[id] !== undefined)
+    it(`${key}: array order agrees with the published values within each pack`, () => {
       const allowed = new Set(KNOWN_INVERSIONS[key].map(([a, b]) => `${a}>${b}`))
-      const inversions = seq
-        .slice(1)
-        .map((id, i) => [seq[i], id] as const)
+      const editions = [...new Set(list.filter((id) => source[id] !== undefined).map((id) => editionOf.get(id)))]
+      const inversions = editions.flatMap((edition) => {
+        const seq = list.filter((id) => source[id] !== undefined && editionOf.get(id) === edition)
+        return seq.slice(1).map((id, i) => [seq[i], id] as const)
+      })
         .filter(([before, after]) => source[before] > source[after])
         .filter(([before, after]) => !allowed.has(`${before}>${after}`))
         .map(([before, after]) => `${before}(${source[before]}) before ${after}(${source[after]})`)

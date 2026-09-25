@@ -1,0 +1,31 @@
+{
+  "id": "genshinen_nahida",
+  "team": "townsfolk",
+  "edition": "community-genshin-en",
+  "current_revision": "v1",
+  "setup": true,
+  "remindersGlobal": [
+    "Lose ability"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Nahida",
+    "ability": "Each night*, choose a player; a chosen Outsider loses their ability, and you learn if they are an Outsider. You are an Archon. [+1 / -1 Outsider]",
+    "revisions": {
+      "v1": "Each night*, choose a player; a chosen Outsider loses their ability, and you learn if they are an Outsider. You are an Archon. [+1 / -1 Outsider]"
+    },
+    "flavor": "In the meadow of white grass, the lotus flower blooms anew. In the depths of the quiet palace, the insects stir and awaken.",
+    "otherNightReminder": "Wake the Nahida up, point Nahida to any player. If the player she chooses is an outsider, place the \"Lose Ability\" token next to the chosen player's character token, put Nahida back to sleep.",
+    "remindersGlobal": [
+      "Lose ability"
+    ]
+  },
+  "zh": {
+    "name": "纳西妲"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "id": "sjjl_12",
+  "team": "townsfolk",
+  "edition": "community-sjjl",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "zh": {
+    "name": "灶王爷",
+    "ability": "在你的首个夜晚，你会得知二名玩家和一个数字：该数字为你和他们的角色类型数量。",
+    "revisions": {
+      "v1": "在你的首个夜晚，你会得知二名玩家和一个数字：该数字为你和他们的角色类型数量。"
+    },
+    "flavor": "月晦之夜，灶神亦上天白人罪状。大者夺纪。纪者，三百日也。小者夺算。算者，三日也。",
+    "firstNightReminder": "告诉灶王爷二名玩家和一个数字，该数字为灶王爷和他们的角色类型数量。"
+  }
+}

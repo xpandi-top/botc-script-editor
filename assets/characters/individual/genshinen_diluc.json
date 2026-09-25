@@ -1,0 +1,35 @@
+{
+  "id": "genshinen_diluc",
+  "team": "townsfolk",
+  "edition": "community-genshin-en",
+  "current_revision": "v1",
+  "setup": false,
+  "remindersGlobal": [
+    "Dead",
+    "Learn",
+    "Nominate Evil"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Diluc",
+    "ability": "If you once nominate an evil & die the following night, an alive Archon learns this & a Minion dies tomorrow night.",
+    "revisions": {
+      "v1": "If you once nominate an evil & die the following night, an alive Archon learns this & a Minion dies tomorrow night."
+    },
+    "flavor": "Before the \"dawn\" comes, someone must light up the \"darkness\" a little...",
+    "otherNightReminder": "If Diluc dies at the night and he nominate a evil player once, ST choose an alive [Archon], he learn this, and places a \"Learn\" token next to his character token. Then, the next night after Diluc dies, the ST chooses an evil player and places a \"Dead\" token next to his character token.",
+    "remindersGlobal": [
+      "Dead",
+      "Learn",
+      "Nominate Evil"
+    ]
+  },
+  "zh": {
+    "name": "迪盧克"
+  }
+}

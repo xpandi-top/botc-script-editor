@@ -1,0 +1,41 @@
+{
+  "id": "rome_mercenary",
+  "team": "traveler",
+  "edition": "community-rome",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Good",
+    "Evil",
+    "Good Ability",
+    "Evil Ability"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Mercenary",
+    "ability": "Each night*, gain the ability of a player who publicly claimed Spartacus today. If a Mercenary is exiled, you are exiled too. [+1 Mercenary of opposing alignment]",
+    "revisions": {
+      "v1": "Each night*, gain the ability of a player who publicly claimed Spartacus today. If a Mercenary is exiled, you are exiled too. [+1 Mercenary of opposing alignment]"
+    },
+    "otherNightReminder": "Show the Mercenary a character that publicly claimed to be Spartacus today, they have that ability tonight and tomorrow until dusk.",
+    "reminders": [
+      "Good",
+      "Evil",
+      "Good Ability",
+      "Evil Ability"
+    ]
+  },
+  "zh": {
+    "name": "雇佣兵",
+    "ability": "每个夜晚*，你会获得一名在白天公开声明过自己是斯巴达克斯的玩家的能力。如果一名雇佣兵被流放，你也会被流放【+1对立阵营的雇佣兵】",
+    "revisions": {
+      "v1": "每个夜晚*，你会获得一名在白天公开声明过自己是斯巴达克斯的玩家的能力。如果一名雇佣兵被流放，你也会被流放【+1对立阵营的雇佣兵】"
+    },
+    "otherNightReminder": "分别唤醒每名雇佣兵，并向他们展示一个在今天白天公开声明自己是斯巴达克斯的角色标记。"
+  }
+}

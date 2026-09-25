@@ -7,26 +7,46 @@
 | 来源 | 内容 | 规模 | 能否由程序获取 |
 |---|---|---|---|
 | [血染钟楼 BWIKI](https://wiki.biligame.com/bloodontheclocktower/首页)（B 站社区 wiki） | 民间角色页，结构与集石相同（背景故事、角色能力、角色简介、范例、运作方式、提示标记、规则细节、角色信息）；民间剧本合集页 | 3,814 条目；分类“象牙塔”1,920、“山海百绘”1,237、“万象星启”155，另有约 100 个剧本 / 作者合集（如《三教九流》80、《梦祈繁华》111、《设设杯》84），不少是 Discord 英文民间角色的中译 | 可以：MediaWiki API，与集石同一解析器（`scripts/guide-parse.mjs`） |
-| [钟楼剧本博物馆](https://www.bilibili.com/read/readlist/rl796083)（B 站专栏文集“剧本社区”） | 127 期主题剧本介绍：文字简介 + 剧本表图片；JSON 等资源在“索引贴”里，经百度网盘分享 | 127 期 | 文字简介可以（专栏 API）；剧本表是图片；JSON 在网盘里 |
+| [钟楼剧本博物馆](https://www.bilibili.com/opus/882589412561518648)（B 站“剧本与JSON总索引”及 12 个分类索引；文集 [rl796083](https://www.bilibili.com/read/readlist/rl796083) 是其中“快速上手”的 127 期） | 剧本介绍：文字简介 + 剧本表图片；JSON 按分类经百度网盘分享 | 570 期（第 1–984 期，16 个分类，18 个网盘链接） | 文字简介可以（专栏 API，但常被风控 -352 / -509，索引是在浏览器里读的）；剧本表是图片；JSON 在网盘里 |
 | 百度网盘 | 剧本 JSON（官方剧本工具格式）等 | — | 不能：需要登录下载，只能由你下载后交给导入脚本 |
 
-两处都没有声明内容许可，版权归各角色 / 剧本作者。
+两处都没有声明内容许可，版权归各角色 / 剧本作者。博物馆索引贴写明“严禁商用”“本文为我原创，未经授权禁止转载”。
 
 ## 2. 已做
 
 - 集石缺页的官方中文版角色用 BWIKI 补攻略：刀客、史官（`scripts/build-guides.mjs`，条目标 `community: true`，回答和年鉴面板写“社区 wiki，非官方”）。
 
-## 3. 方案（待定）
+- 钟楼剧本博物馆索引：`scripts/museum/index.json`（期数、标题、文章链接、所属分类、各分类的网盘链接），2026-09-24 从索引贴读取。
+- 剧本导入脚本：`npm run import:scripts -- <文件夹>`（`scripts/import-scripts.mjs`，纯函数在 `scripts/script-import.mjs`，测试 `src/__tests__/scriptImport.test.ts`）。
+  - 文件夹里是你从网盘下载并解压的 JSON（可嵌套）。每个文件按文件名里的“第N期”、否则按标题（去掉版本号、标点）匹配一期；同名的几期（如两期《诸神黄昏》）不猜，要求改名带期数。
+  - 角色映射：id → 忽略大小写和标点的 id（`fortune_teller` → `fortuneteller`）→ 中文名 / 英文名。内联对象的能力与该角色任何一个版本都不相近时算“改版角色”，不当作本地角色；同名多个本地角色（阴阳师）且阵营分不开时算“不确定”。
+  - 分类：`ok`（只用本地角色）、`community`（有民间 / 改版 / 不确定角色）、`bundled`（与 `assets/scripts/` 里已有剧本角色相同或同名）、`duplicate`、`pack`（角色合集，> 40 个角色）、`unmatched`、`error`。
+  - 本地没有的角色去 BWIKI 查页面（精确标题，否则搜索第一条），报告所属合集、创意来源；缓存在 `node_modules/.cache/import-scripts/`。
+  - 应用：`src/catalog.ts` 与 API 快照（`scripts/catalog-data.mjs`）都读取 `assets/scripts/community/*.json`；剧本列表归入“社区”，卡片和剧本表头显示“民间剧本 · 钟楼剧本博物馆 第N期《标题》”（链接到文章）；AI 推荐剧本时写明“民间剧本，来源 …”，回答里的民间剧本名只有带《》才算提到该剧本（很多标题是成语）。测试：`src/__tests__/communityScripts.test.tsx`。
+  - 默认只出报告；`--write` 写入 `assets/scripts/community/museum-<期数>.json`：官方数组格式，`_meta` 保留标题、作者、夜序和相克，加 `community: true` 与 `source`（`钟楼剧本博物馆`、期数、标题、文章链接、索引链接、原文件名）；图片（logo、背景、角色图标）不保留。`--allow-community` 也写入民间角色剧本，民间角色用 JSON 自带的内联定义；`--category 快速上手,旋转木马` 只处理这些分类的期数。`--report <file>` 输出完整报告。
+
+## 3. 民间角色包（已做）
+
+`npm run import:packs`（`scripts/import-packs.mjs`，纯函数 `scripts/pack-import.mjs`，测试 `src/__tests__/packImport.test.ts`）按 `scripts/community-packs.json` 导入角色包。来源是作者在 Bloodstar Clocktica 发布的公开 `script.json`（不用登录）；BWIKI 的民间角色页只有中文名、能力和设计者，没有阵营、提示标记和夜序，不能单独建包。
+
+- 每个包一个版本 `community-<key>`：`assets/editions.json` 里记包名、作者、来源链接，`community: true`、`requiresAttribution: true` 和“民间自制，非官方”的使用说明；角色 id 为 `<key>_<原 id 去掉项目后缀>`，重新导入 id 不变。
+- 图标下载后压成 400×400 PNG8，放进 `assets/icons/`（与奥德赛相同）。
+- 夜序：包内顺序只在包内有意义，所以整包按原顺序插入——首夜在洗衣妇之前（官方的设置、下毒、保护步骤之后，信息角色之前），其他夜晚在小恶魔之前；原始序号记在 `source_order`。剧本可以再调整。
+- 与已有角色同名且能力相同的（如《三教九流》里的华灯“歌伶”）不导入；同名不同能力的保留，应用按角色包区分。
+- 翻译：同一项目的另一语言版本按位置对齐（`translation.json`），或用映射文件（`scripts/community-packs/<key>.<lang>.json`，`$review` 列出只对齐了名字的角色及原因）。
+- 应用：角色页的版本筛选里民间包排在最后，标“民间”；AI 回答涉及这些角色或包时写明“民间角色，非官方”和作者、来源；API `/v1/editions` 带 `community: true`。
+
+## 4. 方案（待定）
 
 1. **民间角色：按合集导入为社区角色包。**
    - 每个合集一个版本（如 `community-sanjiaojiuliu`），角色文件与官方同格式，另记 `source`（BWIKI 页）、`author`（页面“创意来源”）与 `status: "community"`；攻略按现有格式进 `assets/almanac/`。
    - 默认不进内置目录：作为可选角色包（沿用现有“上传角色包”），或按合集懒加载，避免把数千个角色混进官方名单与计数。
    - AI 只在角色被点名、或当前剧本包含它时才检索社区角色，回答标“民间角色”。
    - 图标：BWIKI 有图片，版权归作者；下载前需要确认。
-2. **民间剧本：你下载，脚本导入。** 从网盘下载剧本 JSON 放进一个文件夹，由导入脚本（待做，`npm run import:scripts -- <文件夹>`）校验角色 id、把中文名映射为 id、缺的民间角色从 BWIKI 补、记录来源（期数、标题、作者、文章链接），写入 `assets/scripts/community/`，剧本列表里标“民间”。
+2. **民间剧本：你下载，脚本导入。** 从网盘下载剧本 JSON 放进一个文件夹，由导入脚本（`npm run import:scripts -- <文件夹>`，见上）校验角色 id、把中文名映射为 id、报告缺的民间角色（BWIKI 页）、记录来源（期数、标题、作者、文章链接），写入 `assets/scripts/community/`，剧本列表里标“民间”。
 3. **钟楼博物馆的文字简介** 可作为剧本说明一并导入；剧本表图片不做识别。
 
-## 4. 需要决定
+## 5. 需要决定
 
 - 先导入哪些合集（建议先做民间剧本最常用的几个）。
 - 是否需要作者授权，或只做“本地导入、不随应用发布”。

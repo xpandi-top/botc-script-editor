@@ -1,0 +1,39 @@
+{
+  "id": "rome_actor",
+  "team": "townsfolk",
+  "edition": "community-rome",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Correct",
+    "No Ability"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Actor",
+    "ability": "Once per game, during the day, publicly guess 3 players' character types (not yourself, 1 guess per type). That night, you learn how many you got correct.",
+    "revisions": {
+      "v1": "Once per game, during the day, publicly guess 3 players' character types (not yourself, 1 guess per type). That night, you learn how many you got correct."
+    },
+    "flavor": "\"Have I played the part well? Then applaud me as I exit!\" - Caesar Augustus 63 B.C. - 14 A.D.",
+    "otherNightReminder": "If the Actor used their ability today: Show the hand signal for the number (0, 1, 2, or 3) of CORRECT markers. Place the NO ABILITY marker.",
+    "reminders": [
+      "Correct",
+      "No Ability"
+    ]
+  },
+  "zh": {
+    "name": "歌剧演员",
+    "ability": "每局游戏限一次，在白天时，你可以公开猜测除你以外的三名玩家的角色类型（每种类型限一次）。当晚你会得知猜测正确的数量。",
+    "revisions": {
+      "v1": "每局游戏限一次，在白天时，你可以公开猜测除你以外的三名玩家的角色类型（每种类型限一次）。当晚你会得知猜测正确的数量。"
+    },
+    "flavor": "‘我演好这部分戏了吗？那么既然我退场了，给我鼓掌吧！’-凯撒·奥古斯都 前63-14",
+    "otherNightReminder": "如果歌剧演员在今天白天使用了能力，唤醒歌剧演员，用手势告知他猜测正确的次数。"
+  }
+}

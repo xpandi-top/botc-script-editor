@@ -1,0 +1,24 @@
+{
+  "id": "sjjl_3",
+  "team": "townsfolk",
+  "edition": "community-sjjl",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "zh": {
+    "name": "老僧",
+    "ability": "在白天时，如果你当众宣布“我不入地狱，谁入地狱”：如果当晚邪恶玩家没有选择你，他的能力可能会失效，你随时可能死亡。",
+    "revisions": {
+      "v1": "在白天时，如果你当众宣布“我不入地狱，谁入地狱”：如果当晚邪恶玩家没有选择你，他的能力可能会失效，你随时可能死亡。"
+    },
+    "flavor": "浮屠之慈悲，救生最大。",
+    "reminders": [
+      "牺牲"
+    ]
+  }
+}

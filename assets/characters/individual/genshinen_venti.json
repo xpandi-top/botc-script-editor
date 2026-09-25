@@ -1,0 +1,33 @@
+{
+  "id": "genshinen_venti",
+  "team": "townsfolk",
+  "edition": "community-genshin-en",
+  "current_revision": "v1",
+  "setup": false,
+  "remindersGlobal": [
+    "False Info",
+    "Chosen"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Venti",
+    "ability": "Each night*, choose a player (different from last night): if they are good, they yield false info and might learn you are in-play until the next dusk. You are an Archon.",
+    "revisions": {
+      "v1": "Each night*, choose a player (different from last night): if they are good, they yield false info and might learn you are in-play until the next dusk. You are an Archon."
+    },
+    "flavor": "Oh, the wonders of all creation, I sing for you now: The seasons turn, the four winds never cease. Of course, the credit is not theirs, but mostly mine. For if not for the bard, who would sing of these?",
+    "otherNightReminder": "Wake up Wendy, they point at any player. If the chosen player is good - place the \"False Info\" tooltip next to the selected player's character token, ST may place the \"Chosen\" tooltip next to the selected player's character token and learn Venti are in-play. Put Wendy back to sleep.",
+    "remindersGlobal": [
+      "False Info",
+      "Chosen"
+    ]
+  },
+  "zh": {
+    "name": "温迪"
+  }
+}

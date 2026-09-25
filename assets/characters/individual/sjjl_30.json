@@ -1,0 +1,24 @@
+{
+  "id": "sjjl_30",
+  "team": "traveler",
+  "edition": "community-sjjl",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "zh": {
+    "name": "黄大仙",
+    "ability": "你获得讨封成功时所述的能力。[只能由黄皮子变成]",
+    "revisions": {
+      "v1": "你获得讨封成功时所述的能力。[只能由黄皮子变成]"
+    },
+    "flavor": "不可能不可能，你肯定是看错了，我怎么可能长了一条尾巴呢，我可是黄~大~仙~",
+    "reminders": [
+      "仙术"
+    ]
+  }
+}

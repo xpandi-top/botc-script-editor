@@ -1,0 +1,22 @@
+{
+  "id": "genshinen_focalors",
+  "team": "outsider",
+  "edition": "community-genshin-en",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Focalors",
+    "ability": "Evil knows you're in play, if evil publically guesses you (once), your team loses. If you executed & the game would end today or tonight, your team wins. You're an Archon.",
+    "revisions": {
+      "v1": "Evil knows you're in play, if evil publically guesses you (once), your team loses. If you executed & the game would end today or tonight, your team wins. You're an Archon."
+    },
+    "flavor": "Lies beget lies, and at the end of an endless web of deceit, we see \"justice.\" The ignorant scoff, calling it all a farce. But he who traces the lie to its source will find that he himself was the first to be deceived.",
+    "firstNightReminder": "Evil player learn Focalors are in-play."
+  }
+}

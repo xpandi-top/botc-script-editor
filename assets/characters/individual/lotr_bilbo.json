@@ -1,0 +1,30 @@
+{
+  "id": "lotr_bilbo",
+  "team": "townsfolk",
+  "edition": "community-lotr",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "No Ability"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Bilbo",
+    "ability": "The first time the Ring is passed to an evil player, it is passed to you instead (they learn that they would have had the Ring).",
+    "revisions": {
+      "v1": "The first time the Ring is passed to an evil player, it is passed to you instead (they learn that they would have had the Ring)."
+    },
+    "flavor": "It's a dangerous business, Frodo, going out your door...there's no knowing where you might be swept off to.",
+    "reminders": [
+      "No Ability"
+    ]
+  },
+  "zh": {
+    "name": "比尔博"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "id": "sjjl_29",
+  "team": "traveler",
+  "edition": "community-sjjl",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "zh": {
+    "name": "黄皮子",
+    "ability": "每个白天，你可以选择一名其他玩家讨封，问道“老乡，你看我像个啥”。你可能会由于讨封而变成黄大仙。",
+    "revisions": {
+      "v1": "每个白天，你可以选择一名其他玩家讨封，问道“老乡，你看我像个啥”。你可能会由于讨封而变成黄大仙。"
+    },
+    "flavor": "老乡，你看我像个啥？",
+    "reminders": [
+      "讨封"
+    ]
+  }
+}

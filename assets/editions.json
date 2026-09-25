@@ -18,5 +18,101 @@
       }
     },
     "multiVoteTokens": true
+  },
+  "community-hp": {
+    "id": "community-hp",
+    "name_en": "Harry Potter: The Chamber of Secrets",
+    "name_zh": "《霍格沃茨之战》哈利·波特",
+    "author_en": "JJ & Mas",
+    "author_zh": "JJ & Mas",
+    "source": "https://www.bloodstar.xyz/p/sc911/HP2_2/almanac.html",
+    "requiresAttribution": true,
+    "community": true,
+    "terms_en": "Community (fan-made) characters, not official. © their authors; credit the pack and link its source.",
+    "terms_zh": "民间自制角色，非官方。版权归原作者；使用时请注明角色包与来源链接。"
+  },
+  "community-lotr": {
+    "id": "community-lotr",
+    "name_en": "LotR: Ringbearer",
+    "name_zh": "《魔戒：护戒使者》",
+    "author_en": "Bim",
+    "author_zh": "Bim",
+    "source": "https://www.bloodstar.xyz/p/Bim/Ringbearer/almanac.html",
+    "requiresAttribution": true,
+    "community": true,
+    "terms_en": "Community (fan-made) characters, not official. © their authors; credit the pack and link its source.",
+    "terms_zh": "民间自制角色，非官方。版权归原作者；使用时请注明角色包与来源链接。"
+  },
+  "community-genshin": {
+    "id": "community-genshin",
+    "name_en": "The Favonius Mystery (Genshin Impact)",
+    "name_zh": "《西风谜团》原神",
+    "author_en": "R6lover_jerry",
+    "author_zh": "R6lover_jerry",
+    "source": "https://www.bloodstar.xyz/p/Jerry0906/The_favonius_Mystery_DE/almanac.html",
+    "requiresAttribution": true,
+    "community": true,
+    "terms_en": "Community (fan-made) characters, not official. © their authors; credit the pack and link its source.",
+    "terms_zh": "民间自制角色，非官方。版权归原作者；使用时请注明角色包与来源链接。"
+  },
+  "community-genshin-en": {
+    "id": "community-genshin-en",
+    "name_en": "The Zephyr Mystery (Genshin Impact)",
+    "name_zh": "《西风谜团》原神 · 英文版",
+    "author_en": "R6lover_jerry",
+    "author_zh": "R6lover_jerry",
+    "source": "https://www.bloodstar.xyz/p/Jerry0906/Genshin_En/almanac.html",
+    "requiresAttribution": true,
+    "community": true,
+    "terms_en": "Community (fan-made) characters, not official. © their authors; credit the pack and link its source.",
+    "terms_zh": "民间自制角色，非官方。版权归原作者；使用时请注明角色包与来源链接。"
+  },
+  "community-rome": {
+    "id": "community-rome",
+    "name_en": "Fall of Rome",
+    "name_zh": "《罗马陨落》",
+    "author_en": "Alex S",
+    "author_zh": "Alex S",
+    "source": "https://www.bloodstar.xyz/p/AlexS/Fall_of_Rome/almanac.html",
+    "requiresAttribution": true,
+    "community": true,
+    "terms_en": "Community (fan-made) characters, not official. © their authors; credit the pack and link its source.",
+    "terms_zh": "民间自制角色，非官方。版权归原作者；使用时请注明角色包与来源链接。"
+  },
+  "community-sjjl": {
+    "id": "community-sjjl",
+    "name_en": "San Jiao Jiu Liu",
+    "name_zh": "《三教九流》",
+    "author_en": "Chiyu (痴愚)",
+    "author_zh": "痴愚",
+    "source": "https://www.bloodstar.xyz/p/chiyu/SJJL5/almanac.html",
+    "requiresAttribution": true,
+    "community": true,
+    "terms_en": "Community (fan-made) characters, not official. © their authors; credit the pack and link its source.",
+    "terms_zh": "民间自制角色，非官方。版权归原作者；使用时请注明角色包与来源链接。"
+  },
+  "community-xiaoer": {
+    "id": "community-xiaoer",
+    "name_en": "Waiter, More Wine!",
+    "name_zh": "《小二，上酒！》",
+    "author_en": "Liu Zhongqi (刘中奇)",
+    "author_zh": "刘中奇",
+    "source": "https://www.bloodstar.xyz/p/Zonas_Liu/WuXia/almanac.html",
+    "requiresAttribution": true,
+    "community": true,
+    "terms_en": "Community (fan-made) characters, not official. © their authors; credit the pack and link its source.",
+    "terms_zh": "民间自制角色，非官方。版权归原作者；使用时请注明角色包与来源链接。"
+  },
+  "community-dq": {
+    "id": "community-dq",
+    "name_en": "Dragon Quest",
+    "name_zh": "《勇者斗恶龙》",
+    "author_en": "Aliang (阿良崽崽)",
+    "author_zh": "阿良崽崽",
+    "source": "https://www.bloodstar.xyz/p/ligohigh1991/NewHero/almanac.html",
+    "requiresAttribution": true,
+    "community": true,
+    "terms_en": "Community (fan-made) characters, not official. © their authors; credit the pack and link its source.",
+    "terms_zh": "民间自制角色，非官方。版权归原作者；使用时请注明角色包与来源链接。"
   }
 }

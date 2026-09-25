@@ -1,0 +1,37 @@
+{
+  "id": "rome_architect",
+  "team": "traveler",
+  "edition": "community-rome",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Redesigned"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Architect",
+    "ability": "Each night*, choose a player: 1) they become a not-in-play character of the same type, or 2) they swap characters with a player of the same type.",
+    "revisions": {
+      "v1": "Each night*, choose a player: 1) they become a not-in-play character of the same type, or 2) they swap characters with a player of the same type."
+    },
+    "flavor": "\"I found Rome a city of bricks and left it the city of marbles.\" - Caesar Augustus 'Octavian' 63 B.C. – 14 A.D.",
+    "otherNightReminder": "The Architect points to a player. Choose which ability will effect the chosen player. Treat them accordingly (not-in-play character or character swap). Wake affected players individually. Show 'You are', then their new character token.",
+    "reminders": [
+      "Redesigned"
+    ]
+  },
+  "zh": {
+    "name": "建筑师",
+    "ability": "每个夜晚*，你要选择一名玩家：1）他变成一个与他角色类型相同的不在场角色，或者2）他与一名与他角色类型相同的玩家交换角色。",
+    "revisions": {
+      "v1": "每个夜晚*，你要选择一名玩家：1）他变成一个与他角色类型相同的不在场角色，或者2）他与一名与他角色类型相同的玩家交换角色。"
+    },
+    "flavor": "‘朕接手之罗马，砖城尔，朕留下之罗马，玉石城也。’-凯撒·奥古斯都 ‘屋大维’ 前63-14",
+    "otherNightReminder": "唤醒建筑师，让他指向一名玩家。选择选项1或2。唤醒每名被选择的玩家并向他（他们）展示“你是”信息标记和他（他们）的新角色标记。"
+  }
+}

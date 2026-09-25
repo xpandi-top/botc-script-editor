@@ -1,0 +1,35 @@
+{
+  "id": "rome_spartacus",
+  "team": "outsider",
+  "edition": "community-rome",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Guess Used"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Spartacus",
+    "ability": "If an evil player guesses you (once), your team loses. You might register as a Townsfolk; each day, if you did not publicly claim to be Spartacus, you don't.",
+    "revisions": {
+      "v1": "If an evil player guesses you (once), your team loses. You might register as a Townsfolk; each day, if you did not publicly claim to be Spartacus, you don't."
+    },
+    "flavor": "\"A man must not accept his fate. Or he will be destroyed by it.\" - Spartacus c. 103 B.C. - 71 B.C.",
+    "reminders": [
+      "Guess Used"
+    ]
+  },
+  "zh": {
+    "name": "斯巴达克斯",
+    "ability": "每局游戏限一次，任意邪恶玩家可以公开猜测你是斯巴达克斯，如果猜对，你的阵营落败。你可能会被当作镇民角色；每个白天，如果你没有公开声明自己是斯巴达克斯，你不会被当作镇民角色。",
+    "revisions": {
+      "v1": "每局游戏限一次，任意邪恶玩家可以公开猜测你是斯巴达克斯，如果猜对，你的阵营落败。你可能会被当作镇民角色；每个白天，如果你没有公开声明自己是斯巴达克斯，你不会被当作镇民角色。"
+    },
+    "flavor": "‘一个男人一定不能屈从于他的命运，否则他会被其摧毁。’-斯巴达克斯 前103-前71"
+  }
+}

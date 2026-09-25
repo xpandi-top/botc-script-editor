@@ -1,0 +1,39 @@
+{
+  "id": "rome_standardbearer",
+  "team": "townsfolk",
+  "edition": "community-rome",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "True",
+    "False"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Standard Bearer",
+    "ability": "When you are nominated, you may make a unique public statement about the nominator (not yourself). Tonight, you learn if the statement was true.",
+    "revisions": {
+      "v1": "When you are nominated, you may make a unique public statement about the nominator (not yourself). Tonight, you learn if the statement was true."
+    },
+    "flavor": "\"Say not always what you know. But always know what you say.\" - Tiberius Claudius Caesar Augustus Germanicus 10 B.C - 54 A.D.",
+    "otherNightReminder": "If the Standard Bearer's public statement was true: show the head signal (nod 'true'). Otherwise: show the head signal (shake 'false').",
+    "reminders": [
+      "True",
+      "False"
+    ]
+  },
+  "zh": {
+    "name": "掌旗官",
+    "ability": "当你被提名时，你可以公开发表一个关于提名者（不能是你自己）的独特声明。当晚你会得知该声明是否正确。",
+    "revisions": {
+      "v1": "当你被提名时，你可以公开发表一个关于提名者（不能是你自己）的独特声明。当晚你会得知该声明是否正确。"
+    },
+    "flavor": "‘不要总是说你知道的事，但总是要知道你在说什么。’-提比略·克劳狄乌斯·凯撒·奥古斯都·日耳曼尼库斯 前10-54",
+    "otherNightReminder": "如果掌旗官在今天白天被提名并发表了一个关于提名者的独特声明，唤醒掌旗官，通过点头或摇头来告知他这个声明是否正确。"
+  }
+}

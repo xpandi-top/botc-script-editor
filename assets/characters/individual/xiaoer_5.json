@@ -1,0 +1,25 @@
+{
+  "id": "xiaoer_5",
+  "team": "townsfolk",
+  "edition": "community-xiaoer",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "zh": {
+    "name": "武当",
+    "ability": "每个夜晚*，你可以选择除你以外的两个镇民角色，如果他们都存活，他们当晚不会死亡。",
+    "revisions": {
+      "v1": "每个夜晚*，你可以选择除你以外的两个镇民角色，如果他们都存活，他们当晚不会死亡。"
+    },
+    "flavor": "天涯思君不可忘，武当山顶松柏长。",
+    "otherNightReminder": "唤醒武当，让其选择两个镇民角色，如果这两个角色都存活（存活的先决条件是在场），放置“太极”标记在其角色标记旁。",
+    "reminders": [
+      "太极"
+    ]
+  }
+}

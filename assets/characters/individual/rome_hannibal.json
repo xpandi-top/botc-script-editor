@@ -1,0 +1,41 @@
+{
+  "id": "rome_hannibal",
+  "team": "demon",
+  "edition": "community-rome",
+  "current_revision": "v1",
+  "setup": true,
+  "remindersGlobal": [
+    "Is Hannibal",
+    "Dead"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Hannibal",
+    "ability": "You think you are a good character, but you are not. Minions learn 3 bluffs. Each night*, a player might die. The 1st Hannibal to die, becomes good. [+1 Hannibal]",
+    "revisions": {
+      "v1": "You think you are a good character, but you are not. Minions learn 3 bluffs. Each night*, a player might die. The 1st Hannibal to die, becomes good. [+1 Hannibal]"
+    },
+    "flavor": "\"I will either find a way or make one.\" - Hannibal 247 B.C. - c 182 B.C.",
+    "firstNightReminder": "Select 2 good players and place the IS HANNIBAL reminder tokens. Wake all Minions together, show them the Hannibals and show them three not-in-play character tokens (these must be the same).",
+    "otherNightReminder": "Choose a player, that player dies. If a Hannibal died today, wake that player and show them the 'You are' card, the Hannibal token and then the thumbs up good signal.",
+    "remindersGlobal": [
+      "Is Hannibal",
+      "Dead"
+    ]
+  },
+  "zh": {
+    "name": "汉尼拔",
+    "ability": "你以为你是一个善良角色，但其实你不是。爪牙会得知三个伪装。每个夜晚*，可能会有一名玩家死亡。首个死亡的汉尼拔转变为善良阵营。【+1汉尼拔】",
+    "revisions": {
+      "v1": "你以为你是一个善良角色，但其实你不是。爪牙会得知三个伪装。每个夜晚*，可能会有一名玩家死亡。首个死亡的汉尼拔转变为善良阵营。【+1汉尼拔】"
+    },
+    "flavor": "‘我会找到一条道路或者开辟一条道路。’-汉尼拔 前247-前182",
+    "firstNightReminder": "唤醒所有爪牙，向他们展示三个不在场善良角色标记，向他们展示“是汉尼拔”标记，指向两名是汉尼拔的玩家。",
+    "otherNightReminder": "每名存活的汉尼拔可能造成一名玩家死亡。如果一名汉尼拔死亡，唤醒该玩家并向他展示“你是”信息标记，汉尼拔角色标记和大拇指向上的手势。"
+  }
+}

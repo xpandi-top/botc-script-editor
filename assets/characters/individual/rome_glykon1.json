@@ -1,0 +1,37 @@
+{
+  "id": "rome_glykon1",
+  "team": "minion",
+  "edition": "community-rome",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Snake Bite",
+    "Poisoned"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Glykon",
+    "ability": "You might register as good. Until dawn, players you nominate register as the opposing alignment & if a Townsfolk, are also poisoned.",
+    "revisions": {
+      "v1": "You might register as good. Until dawn, players you nominate register as the opposing alignment & if a Townsfolk, are also poisoned."
+    },
+    "flavor": "“When they went in, the thing, of course, seemed to them a miracle, that the formerly tiny snake within a few days had turned into so great a serpent, with a human face, moreover, and tame!” Lucian Of Samosata (125 B.C. – c 180 B.C.) on Alexander of Abonoteichus 'The False Prophet'",
+    "reminders": [
+      "Snake Bite",
+      "Poisoned"
+    ]
+  },
+  "zh": {
+    "name": "蛇神使",
+    "ability": "你可能会被当作善良阵营。你提名的玩家会被当作与他对立的阵营直到下个黎明；如果他是镇民，他中毒直到下个黎明。",
+    "revisions": {
+      "v1": "你可能会被当作善良阵营。你提名的玩家会被当作与他对立的阵营直到下个黎明；如果他是镇民，他中毒直到下个黎明。"
+    },
+    "flavor": "‘当他们走进来时，这条之前很小的蛇在数天内就变得如此巨大且拥有一张成熟的人脸这件事对他们来说像是一个奇迹。’-萨莫萨塔的琉善（125-180）于亚历山大帝国 ‘虚假先知’"
+  }
+}

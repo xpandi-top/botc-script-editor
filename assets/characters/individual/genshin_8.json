@@ -1,0 +1,22 @@
+{
+  "id": "genshin_8",
+  "team": "townsfolk",
+  "edition": "community-genshin",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "zh": {
+    "name": "莫娜",
+    "ability": "每个夜晚，你要选择一位除你以外的非旅行者玩家：你会得知两个角色，该玩家是其中一个角色。",
+    "revisions": {
+      "v1": "每个夜晚，你要选择一位除你以外的非旅行者玩家：你会得知两个角色，该玩家是其中一个角色。"
+    },
+    "firstNightReminder": "每个夜晚，唤醒莫娜。让他指向除自己和旅行者外的任意一位玩家。向莫娜展示他的真实角色和任意一个角色标记。让莫娜重新入睡。",
+    "otherNightReminder": "每个夜晚，唤醒莫娜。让他指向除自己和旅行者外的任意一位玩家。向莫娜展示他的真实角色和任意一个角色标记。让莫娜重新入睡。"
+  }
+}

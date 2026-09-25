@@ -1,0 +1,33 @@
+{
+  "id": "lotr_gandalf",
+  "team": "townsfolk",
+  "edition": "community-lotr",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Resurrected",
+    "No Ability"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Gandalf",
+    "ability": "If the Demon kills you, you are resurrected that night (Once). Ringbearer: Once per game, during the day, privately make a wish.",
+    "revisions": {
+      "v1": "If the Demon kills you, you are resurrected that night (Once). Ringbearer: Once per game, during the day, privately make a wish."
+    },
+    "flavor": "A wizard is never late. Nor is he early. He arrives precisely when he means to.",
+    "otherNightReminder": "If Gandalf died today or last night, he is resurrected.",
+    "reminders": [
+      "Resurrected",
+      "No Ability"
+    ]
+  },
+  "zh": {
+    "name": "甘道夫"
+  }
+}

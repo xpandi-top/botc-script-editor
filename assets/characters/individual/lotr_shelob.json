@@ -1,0 +1,36 @@
+{
+  "id": "lotr_shelob",
+  "team": "traveler",
+  "edition": "community-lotr",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Ability Used"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Shelob",
+    "ability": "Each day, you may visit the Storyteller to learn something true. on your 3rd night, you may change your alignment.",
+    "revisions": {
+      "v1": "Each day, you may visit the Storyteller to learn something true. on your 3rd night, you may change your alignment."
+    },
+    "flavor": "...she served none but herself, drinking the blood of Elves and Men...for all living things were her food, and her vomit darkness.",
+    "firstNightReminder": "Shelob may change their alignment.",
+    "otherNightReminder": "Shelob may change their alignment.",
+    "reminders": [
+      "Ability Used"
+    ]
+  },
+  "zh": {
+    "name": "希罗布",
+    "ability": "每个白天，你可以拜访说书人并得知一条正确信息。你的第三个夜晚，你可以改变阵营。",
+    "revisions": {
+      "v1": "每个白天，你可以拜访说书人并得知一条正确信息。你的第三个夜晚，你可以改变阵营。"
+    }
+  }
+}

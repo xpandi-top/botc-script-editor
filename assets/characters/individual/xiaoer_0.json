@@ -1,0 +1,21 @@
+{
+  "id": "xiaoer_0",
+  "team": "townsfolk",
+  "edition": "community-xiaoer",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "zh": {
+    "name": "神算盟",
+    "ability": "每个白天，你可以拜访说书人猜测所有邪恶玩家和你的最近距离之和，你会得知你的猜测偏大/偏小/正确。",
+    "revisions": {
+      "v1": "每个白天，你可以拜访说书人猜测所有邪恶玩家和你的最近距离之和，你会得知你的猜测偏大/偏小/正确。"
+    },
+    "flavor": "大道五十，天衍四九，人遁其一。"
+  }
+}

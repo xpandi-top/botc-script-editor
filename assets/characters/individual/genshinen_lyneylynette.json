@@ -1,0 +1,27 @@
+{
+  "id": "genshinen_lyneylynette",
+  "team": "townsfolk",
+  "edition": "community-genshin-en",
+  "current_revision": "v1",
+  "setup": false,
+  "remindersGlobal": [
+    "swapped"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Lyney&Lynette",
+    "ability": "Each night*, you may choose two living players; abilities that affect one of them affect the other instead. Each player can only be chosen once per game.",
+    "revisions": {
+      "v1": "Each night*, you may choose two living players; abilities that affect one of them affect the other instead. Each player can only be chosen once per game."
+    },
+    "flavor": "With a flick of the wrist, a sleight of hand, a flash of misdirection—the magician weaves a spell of wonder and delight. What is this beguiling art, this dance of the fingers?",
+    "remindersGlobal": [
+      "swapped"
+    ]
+  }
+}

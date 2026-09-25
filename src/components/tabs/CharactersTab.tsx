@@ -20,6 +20,7 @@ import { CustomCharDialog } from '../CustomCharDialog'
 import { FilterCheckbox } from '../FilterCheckbox'
 import {
   editionLabels,
+  isCommunityEdition,
   getAbilityText,
   getDisplayName,
   getDisambiguatedName,
@@ -567,6 +568,9 @@ export function CharactersTab({
   const importInputRef = useRef<HTMLInputElement>(null)
   const addCharInputRef = useRef<HTMLInputElement>(null)
   const { t, tpl } = useT()
+  // Community (民间) packs say so wherever the edition is named.
+  const editionFilterLabel = (edition: string) =>
+    `${editionLabels[uiLanguage][edition] ?? toTitleCase(edition)}${isCommunityEdition(edition) ? ` · ${t('community_pack')}` : ''}`
 
   // ── Download pack ─────────────────────────────────────────────────────────────
   const downloadPack = (edition: string) => {
@@ -859,12 +863,12 @@ export function CharactersTab({
               <Button size="small" onClick={() => setMoreFilters(v => !v)} endIcon={moreFilters ? <ExpandLessIcon /> : <ExpandMoreIcon />}>{t('library_more_conditions')}{selectedEditions.length ? ` (${selectedEditions.length})` : ''}</Button>
               {(characterQuery || selectedTeams.length > 0 || selectedEditions.length > 0 || selectedScriptSlugs.length > 0) && <Button size="small" onClick={clearFilters}>{t('library_clear_filters')}</Button>}
             </Box>
-            {!moreFilters && selectedEditions.length > 0 && <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', my: 1 }}>{selectedEditions.map(edition => <Chip key={edition} size="small" label={editionLabels[uiLanguage][edition] ?? toTitleCase(edition)} onDelete={() => toggleEdition(edition)} />)}</Box>}
+            {!moreFilters && selectedEditions.length > 0 && <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', my: 1 }}>{selectedEditions.map(edition => <Chip key={edition} size="small" label={editionFilterLabel(edition)} onDelete={() => toggleEdition(edition)} />)}</Box>}
             <Collapse in={moreFilters}>
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
               {availableEditions.map((edition) => (
                 <FilterCheckbox key={edition} checked={selectedEditions.includes(edition)}
-                  label={editionLabels[uiLanguage][edition] ?? toTitleCase(edition)}
+                  label={editionFilterLabel(edition)}
                   onChange={() => toggleEdition(edition)} />
               ))}
             </Box>
@@ -976,7 +980,7 @@ export function CharactersTab({
                 return filteredCharacters.slice(0, visibleCount).map((character) => {
                 const icon = getIconForCharacter(character.id)
                 const team = teamLabels[uiLanguage][character.team]
-                const edition = editionLabels[uiLanguage][character.edition] ?? toTitleCase(character.edition)
+                const edition = editionFilterLabel(character.edition)
                 const currentRevision = getCurrentRevision(character.id)
                 const isSelected = character.id === selectedCharacter?.id
                 const isCustom = Boolean(customChars.find((c) => c.id === character.id))

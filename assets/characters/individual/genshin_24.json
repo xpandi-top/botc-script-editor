@@ -1,0 +1,20 @@
+{
+  "id": "genshin_24",
+  "team": "fabled",
+  "edition": "community-genshin",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "zh": {
+    "name": "執行官",
+    "ability": "女士、散兵、博士是執行官。",
+    "revisions": {
+      "v1": "女士、散兵、博士是執行官。"
+    }
+  }
+}

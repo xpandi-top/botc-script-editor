@@ -1,0 +1,37 @@
+{
+  "id": "rome_emperor",
+  "team": "traveler",
+  "edition": "community-rome",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Executed"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Emperor",
+    "ability": "Each day, choose the 1st execution's outcome. If you choose to protect today's execution: they survive. Otherwise, tonight you learn their alignment.",
+    "revisions": {
+      "v1": "Each day, choose the 1st execution's outcome. If you choose to protect today's execution: they survive. Otherwise, tonight you learn their alignment."
+    },
+    "flavor": "Which death is preferable to every other? The unexpected.",
+    "otherNightReminder": "If a player was executed today and the outcome was not overturned by the Emperor: Show the hand signal (thumbs down 'evil', thumbs up 'good') for the players alignment.",
+    "reminders": [
+      "Executed"
+    ]
+  },
+  "zh": {
+    "name": "皇帝",
+    "ability": "每个白天，你可以选择首个处决的结果。如果你选择保护今天被处决的玩家：他存活。否则，今晚你会得知他的阵营。",
+    "revisions": {
+      "v1": "每个白天，你可以选择首个处决的结果。如果你选择保护今天被处决的玩家：他存活。否则，今晚你会得知他的阵营。"
+    },
+    "flavor": "哪种死亡方式对每个人来说是更好的？无法预料的。",
+    "otherNightReminder": "如果皇帝在今天白天选择通过处决，唤醒皇帝并向他展示大拇指向上或向下的手势。"
+  }
+}

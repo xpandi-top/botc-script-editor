@@ -1,0 +1,37 @@
+{
+  "id": "genshinen_windoperative",
+  "team": "minion",
+  "edition": "community-genshin-en",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Lose ability"
+  ],
+  "remindersGlobal": [
+    "Marked",
+    "Dead"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Wind Operative",
+    "ability": "Each night, choose a player: if they're nominated, the nominee dies. If 3 or less live, you lose this ability.",
+    "revisions": {
+      "v1": "Each night, choose a player: if they're nominated, the nominee dies. If 3 or less live, you lose this ability."
+    },
+    "flavor": "Ignorant and rude!",
+    "firstNightReminder": "Wake up the Wind Operator. Let Wind Operator point a player. Place the \"Marked\" mark next to the player's character marker. During the day, if a player nominates the \"marked\" player, a \"Dead\" reminder mark will be placed next to the role mark of the player who initiated the nomination.",
+    "otherNightReminder": "Wake up the Wind Operator. Let Wind Operator point a player. Place the \"Marked\" mark next to the player's character marker. During the day, if a player nominates the \"marked\" player, a \"Dead\" reminder mark will be placed next to the role mark of the player who initiated the nomination.",
+    "reminders": [
+      "Lose ability"
+    ],
+    "remindersGlobal": [
+      "Marked",
+      "Dead"
+    ]
+  }
+}

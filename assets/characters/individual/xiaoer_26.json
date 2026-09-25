@@ -1,0 +1,21 @@
+{
+  "id": "xiaoer_26",
+  "team": "traveler",
+  "edition": "community-xiaoer",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "zh": {
+    "name": "美刀王",
+    "ability": "你可以选择代替一名异性被处决。",
+    "revisions": {
+      "v1": "你可以选择代替一名异性被处决。"
+    },
+    "flavor": "这二十三年之中，跟她也只说过三十九句话。她倒向我说过五十五句。"
+  }
+}

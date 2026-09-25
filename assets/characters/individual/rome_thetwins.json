@@ -1,0 +1,41 @@
+{
+  "id": "rome_thetwins",
+  "team": "outsider",
+  "edition": "community-rome",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Remus",
+    "Townsfolk Drunk"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "The Twins",
+    "ability": "You start knowing a player: if either of you are executed, all Townsfolk are drunk until dusk tomorrow.",
+    "revisions": {
+      "v1": "You start knowing a player: if either of you are executed, all Townsfolk are drunk until dusk tomorrow."
+    },
+    "flavor": "\"The quarrel that arose between Remus and Romulus demonstrated the division of the earthly city against itself...\"  - Augustine of Hippo 354 A.D. - 430 A.D.",
+    "firstNightReminder": "Point to a player. Place the REMUS token next to that player.",
+    "otherNightReminder": "If The Twins has a TOWNSFOLK DRUNK token, all Townsfolk are drunk until dusk.",
+    "reminders": [
+      "Remus",
+      "Townsfolk Drunk"
+    ]
+  },
+  "zh": {
+    "name": "狼城双子",
+    "ability": "在你的首个夜晚，你会得知一名玩家：如果你们当中任意一个被处决，所有镇民醉酒直到明天黄昏。",
+    "revisions": {
+      "v1": "在你的首个夜晚，你会得知一名玩家：如果你们当中任意一个被处决，所有镇民醉酒直到明天黄昏。"
+    },
+    "flavor": "‘发生在罗慕路斯和雷穆斯之间的争斗揭示了人间的城市的分裂与自我对抗…’-希波的奥古斯丁 354-430",
+    "firstNightReminder": "唤醒狼城双子，对他指向一名玩家作为他的“雷穆斯”。",
+    "otherNightReminder": "如果狼城双子或“雷穆斯”在今天白天被处决，所有镇民立刻醉酒。"
+  }
+}

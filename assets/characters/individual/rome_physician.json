@@ -1,0 +1,41 @@
+{
+  "id": "rome_physician",
+  "team": "townsfolk",
+  "edition": "community-rome",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Patient",
+    "1st Demon"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Physician",
+    "ability": "Each night, choose two players (not yourself): they are sober, healthy & get true info tonight. The 1st time the Demon kills one, you learn the Demon type.",
+    "revisions": {
+      "v1": "Each night, choose two players (not yourself): they are sober, healthy & get true info tonight. The 1st time the Demon kills one, you learn the Demon type."
+    },
+    "flavor": "\"Some patients recover, because they believe in doctors.\" - Hippocrates of Kos c. 460 B.C. - c. 370 B.C.",
+    "firstNightReminder": "The Physician points to two players not themselves. Mark both players with the PATIENT token.",
+    "otherNightReminder": "Remove all PATIENT tokens. The Physician points to two players not themselves. Mark both players with the PATIENT token. If a player with a PATIENT token was killed by the Demon, place the 1ST DEMON token next to the Physician and wake the Physician and show them Demon token.",
+    "reminders": [
+      "Patient",
+      "1st Demon"
+    ]
+  },
+  "zh": {
+    "name": "医师",
+    "ability": "每个夜晚，你要选择除你以外的两名玩家：他们今晚不会醉酒中毒且得知正确信息。如果他们当中首次有人被恶魔杀死，当晚你会得知恶魔类型。",
+    "revisions": {
+      "v1": "每个夜晚，你要选择除你以外的两名玩家：他们今晚不会醉酒中毒且得知正确信息。如果他们当中首次有人被恶魔杀死，当晚你会得知恶魔类型。"
+    },
+    "flavor": "‘有些病人康复了，因为他们信任医生。’-希波克拉底 前460-前370",
+    "firstNightReminder": "唤醒医师，让他选择两名玩家。",
+    "otherNightReminder": "唤醒医师，让他选择两名玩家。如果恶魔杀死被医师选择的玩家且医师角色标记旁没有“首次被恶魔杀死”标记，唤醒医师并向他展示恶魔角色标记。"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "id": "genshinen_electromage",
+  "team": "minion",
+  "edition": "community-genshin-en",
+  "current_revision": "v1",
+  "setup": true,
+  "remindersGlobal": [
+    "Poisoned"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Electro Mage",
+    "ability": "1 alive player is poisoned, if they nominate, the nominee is instead. Evil can't be poisoned by this. [+0 or -1 Outsider]",
+    "revisions": {
+      "v1": "1 alive player is poisoned, if they nominate, the nominee is instead. Evil can't be poisoned by this. [+0 or -1 Outsider]"
+    },
+    "flavor": "Since you want to play, let’s call more friends♪~",
+    "firstNightReminder": "Places a \"poisoned\" marker on an alive player. If a player with the \"poisoned\" mark nominate, move the \"poisoned\" mark next to the nominated player character mark.",
+    "otherNightReminder": "If the player with the \"poisoned\" mark dies or no poisoned players, place a \"poisoned\" mark on an alive player. If a player with the \"poisoned\" mark initiates a nomination, move the \"poisoned\" mark next to the nominated player character mark.",
+    "remindersGlobal": [
+      "Poisoned"
+    ]
+  },
+  "zh": {
+    "name": "雷萤術士"
+  }
+}

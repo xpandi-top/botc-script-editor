@@ -1,0 +1,26 @@
+{
+  "id": "lotr_aragorn",
+  "team": "townsfolk",
+  "edition": "community-lotr",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Aragorn",
+    "ability": "You start knowing 1 in-play character. Ringbearer: you learn another. Sauron learns when you don't pass the Ring.",
+    "revisions": {
+      "v1": "You start knowing 1 in-play character. Ringbearer: you learn another. Sauron learns when you don't pass the Ring."
+    },
+    "flavor": "There go three that I love, and the smallest not the least. He knows not to what end he rides; yet if he knew, he would still go on.",
+    "firstNightReminder": "Show Aragorn a character.",
+    "otherNightReminder": "If Aragorn bears the Ring, show another character."
+  },
+  "zh": {
+    "name": "阿拉贡"
+  }
+}

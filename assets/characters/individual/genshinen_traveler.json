@@ -1,0 +1,21 @@
+{
+  "id": "genshinen_traveler",
+  "team": "traveler",
+  "edition": "community-genshin-en",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Traveler",
+    "ability": "You are immune to exile, your execution does not count towards the daily execution quota, and you do not know what your ability is. Each day, privately guess what it is: you learn how accurate you are. [Multiple Travelers may in-play.]",
+    "revisions": {
+      "v1": "You are immune to exile, your execution does not count towards the daily execution quota, and you do not know what your ability is. Each day, privately guess what it is: you learn how accurate you are. [Multiple Travelers may in-play.]"
+    },
+    "flavor": "No matter what the current situation is, there will always be a place for you in the starry sky of Teyvat Continent."
+  }
+}

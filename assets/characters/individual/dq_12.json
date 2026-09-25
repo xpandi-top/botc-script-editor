@@ -1,0 +1,26 @@
+{
+  "id": "dq_12",
+  "team": "townsfolk",
+  "edition": "community-dq",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "zh": {
+    "name": "观星师",
+    "ability": "每个夜晚，你会得知当晚有多少名玩家的信息出错。",
+    "revisions": {
+      "v1": "每个夜晚，你会得知当晚有多少名玩家的信息出错。"
+    },
+    "flavor": "仰望这璀璨星空，那是宇宙写给生命的诗歌。",
+    "firstNightReminder": "给他展示数字手势来告诉他当晚有多少名玩家的信息出错。",
+    "otherNightReminder": "给他展示数字手势来告诉他当晚有多少名玩家的信息出错。",
+    "reminders": [
+      "信息出错"
+    ]
+  }
+}

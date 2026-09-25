@@ -1,0 +1,28 @@
+{
+  "id": "hp_lunalovegood",
+  "team": "townsfolk",
+  "edition": "community-hp",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Spirited"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Luna Lovegood",
+    "ability": "Each day, visit the storyteller to learn 2 players, 1 is the player who the storyteller feels had the most positive effect for the good team yesterday.",
+    "revisions": {
+      "v1": "Each day, visit the storyteller to learn 2 players, 1 is the player who the storyteller feels had the most positive effect for the good team yesterday."
+    },
+    "flavor": "I sleepwalk, you see. That’s why I wear shoes to bed.",
+    "otherNightReminder": "Mark the grimoire with a spirited token",
+    "reminders": [
+      "Spirited"
+    ]
+  }
+}

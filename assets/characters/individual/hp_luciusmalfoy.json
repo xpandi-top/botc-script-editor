@@ -1,0 +1,21 @@
+{
+  "id": "hp_luciusmalfoy",
+  "team": "minion",
+  "edition": "community-hp",
+  "current_revision": "v1",
+  "setup": true,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Lucius Malfoy",
+    "ability": "You may register falsely to all abilities [+1 Outsider and +Draco Malfoy]",
+    "revisions": {
+      "v1": "You may register falsely to all abilities [+1 Outsider and +Draco Malfoy]"
+    },
+    "flavor": "Now, now Draco. Play nicely"
+  }
+}

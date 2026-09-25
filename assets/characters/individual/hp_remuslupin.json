@@ -1,0 +1,30 @@
+{
+  "id": "hp_remuslupin",
+  "team": "townsfolk",
+  "edition": "community-hp",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Dead",
+    "Drunk"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Remus Lupin",
+    "ability": "Each night*, choose an alive player: if good, they die. If Evil you are drunk permanently. if a player dies by your ability they are the only player that can die tonight.",
+    "revisions": {
+      "v1": "Each night*, choose an alive player: if good, they die. If Evil you are drunk permanently. if a player dies by your ability they are the only player that can die tonight."
+    },
+    "flavor": "People Are Disappearing Daily. If We Start Fighting Amongst Ourselves, We're Doomed.",
+    "otherNightReminder": "Wake to make choose a player, the previously chosen player dies if good. They are the only player that can die tonight.",
+    "reminders": [
+      "Dead",
+      "Drunk"
+    ]
+  }
+}

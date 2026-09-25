@@ -1,0 +1,25 @@
+{
+  "id": "sjjl_10",
+  "team": "townsfolk",
+  "edition": "community-sjjl",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "zh": {
+    "name": "象姑",
+    "ability": "每个夜晚*，你要选择一名存活的玩家：当晚恶魔的负面能力对你无效，如果选中邪恶玩家或外来者，你死亡。",
+    "revisions": {
+      "v1": "每个夜晚*，你要选择一名存活的玩家：当晚恶魔的负面能力对你无效，如果选中邪恶玩家或外来者，你死亡。"
+    },
+    "flavor": "象姑，相公也。大约婀娜旖旎，如姑娘也。",
+    "otherNightReminder": "让象姑选择一名玩家，若选中邪恶玩家或外来者，给他放置所托非人标记，他死亡。",
+    "reminders": [
+      "所托非人"
+    ]
+  }
+}

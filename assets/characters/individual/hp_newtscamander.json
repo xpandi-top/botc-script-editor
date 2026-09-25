@@ -1,0 +1,23 @@
+{
+  "id": "hp_newtscamander",
+  "team": "traveler",
+  "edition": "community-hp",
+  "current_revision": "v1",
+  "setup": true,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Newt Scamander",
+    "ability": "During your arrival approach the storyteller to discuss a magical beast. The storyteller will give you an ability based on this magical beast.",
+    "revisions": {
+      "v1": "During your arrival approach the storyteller to discuss a magical beast. The storyteller will give you an ability based on this magical beast."
+    },
+    "flavor": "The unicorn’s horn, blood and hair all have highly magical properties.",
+    "firstNightReminder": "If Newt would wake due to their ability wake them now",
+    "otherNightReminder": "If Newt would wake due to their ability wake them now"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "id": "genshinen_tartaglia",
+  "team": "demon",
+  "edition": "community-genshin-en",
+  "current_revision": "v1",
+  "setup": true,
+  "remindersGlobal": [
+    "Dead",
+    "Chosen"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Tartaglia",
+    "ability": "Each night, choose a player (not yourself): they learn this. If a chosen player died yesterday, choose up to 3 players: they die. Otherwise, choose 1.",
+    "revisions": {
+      "v1": "Each night, choose a player (not yourself): they learn this. If a chosen player died yesterday, choose up to 3 players: they die. Otherwise, choose 1."
+    },
+    "flavor": "The thrill of battle fuels my Fatui Legacy, unleashing power that chills the soul. But fear not, for even in the maelstrom, I control the dance!",
+    "firstNightReminder": "Wake up the Tartaglia. Let the Tartaglia point to a player other than him and place a \"chosen\" mark on him. Then, he learned this. Put the Tartaglia to sleep.",
+    "otherNightReminder": "Wake up the Tartaglia. Let the Tartaglia point to a player other than him and place a \"chosen\" mark on him. Then, he learned this. If the player you choose dies from yesterday, let Tartaglia point at up to three players and kill each selected player in order of selection, killing that player. Otherwise, let the young master point at a player and kill that player. When the player dies, put a \"dead\" reminder mark inext to his character mark. Let the Tartaglia fall to sleep.",
+    "remindersGlobal": [
+      "Dead",
+      "Chosen"
+    ]
+  }
+}

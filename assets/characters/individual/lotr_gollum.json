@@ -1,0 +1,28 @@
+{
+  "id": "lotr_gollum",
+  "team": "outsider",
+  "edition": "community-lotr",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Gollum",
+    "ability": "Ringbearer: If you bear the Ring when the game ends, you and only you win. Each night, you might lose the Ring.",
+    "revisions": {
+      "v1": "Ringbearer: If you bear the Ring when the game ends, you and only you win. Each night, you might lose the Ring."
+    },
+    "flavor": "My...Precious..."
+  },
+  "zh": {
+    "name": "咕噜",
+    "ability": "当你持有至尊魔戒时，如果游戏结束，你单独获胜。每个夜晚，你可能失去至尊魔戒。",
+    "revisions": {
+      "v1": "当你持有至尊魔戒时，如果游戏结束，你单独获胜。每个夜晚，你可能失去至尊魔戒。"
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "id": "hp_hagrid",
+  "team": "townsfolk",
+  "edition": "community-hp",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Gryffindor"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Hagrid",
+    "ability": "You start knowing a player is Ron, Hermione, Harry or Neville.",
+    "revisions": {
+      "v1": "You start knowing a player is Ron, Hermione, Harry or Neville."
+    },
+    "flavor": "\"There's A Storm Coming Harry, We'd All Best Be Ready When She Does\"",
+    "firstNightReminder": "Wake Hagrid and point at a player who is a Gryffindor",
+    "reminders": [
+      "Gryffindor"
+    ]
+  }
+}

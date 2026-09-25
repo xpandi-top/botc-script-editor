@@ -1,0 +1,34 @@
+{
+  "id": "lotr_radagast",
+  "team": "traveler",
+  "edition": "community-lotr",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "No Ability"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Radagast",
+    "ability": "Once per game, if Sauron agrees, you may privately visit the Storyteller and make a wish.",
+    "revisions": {
+      "v1": "Once per game, if Sauron agrees, you may privately visit the Storyteller and make a wish."
+    },
+    "flavor": "I think he’s a very great Wizard, in his own way. He’s a gentle soul who prefers the company of animals to others. He keeps a watchful eye over the vast forest lands to the east. And a good thing too. For always evil will look to find a foothold in this world.",
+    "reminders": [
+      "No Ability"
+    ]
+  },
+  "zh": {
+    "name": "瑞达加斯特",
+    "ability": "每局游戏限一次，如果索伦同意，你可以拜访说书人并许一个愿望。",
+    "revisions": {
+      "v1": "每局游戏限一次，如果索伦同意，你可以拜访说书人并许一个愿望。"
+    }
+  }
+}

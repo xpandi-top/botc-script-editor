@@ -1,0 +1,35 @@
+{
+  "id": "rome_iamspartacus",
+  "team": "fabled",
+  "edition": "community-rome",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "I am Spartacus!"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "\"I Am Spartacus!\"",
+    "ability": "Each day, up to half the living players (rounded up & Travellers don’t count) may publicly claim to be Spartacus.",
+    "revisions": {
+      "v1": "Each day, up to half the living players (rounded up & Travellers don’t count) may publicly claim to be Spartacus."
+    },
+    "flavor": "\"The ego cuts deeper than the flesh.\" - Spartacus c. 103 B.C. - 71 B.C.",
+    "reminders": [
+      "I am Spartacus!"
+    ]
+  },
+  "zh": {
+    "name": "“我是斯巴达克斯!”",
+    "ability": "每个白天，至多半数的存活玩家（向上取整且不计旅行者）可以公开声明自己是斯巴达克斯。",
+    "revisions": {
+      "v1": "每个白天，至多半数的存活玩家（向上取整且不计旅行者）可以公开声明自己是斯巴达克斯。"
+    },
+    "flavor": "‘自我意识的力量比肉体更加强大。’-斯巴达克斯 前103-前71"
+  }
+}

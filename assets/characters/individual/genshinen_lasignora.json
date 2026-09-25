@@ -1,0 +1,34 @@
+{
+  "id": "genshinen_lasignora",
+  "team": "demon",
+  "edition": "community-genshin-en",
+  "current_revision": "v1",
+  "setup": false,
+  "remindersGlobal": [
+    "Dead",
+    "Chosen"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "La Signora",
+    "ability": "Each night, choose 2 players: the 1st dies* & the 2nd might learns you're in-play. If either's mad you're in play they might be executed & all chosen players die.",
+    "revisions": {
+      "v1": "Each night, choose 2 players: the 1st dies* & the 2nd might learns you're in-play. If either's mad you're in play they might be executed & all chosen players die."
+    },
+    "flavor": "Like ashes in the wind, memories swirl and fade. Yet vengeance, like embers, burns eternally within.",
+    "firstNightReminder": "Wake up the La Signora. Have the La Signora point to two players in turn, place a \"Chosen\" reminder mark next to their character markers, and notice them La Sigmora in-play if necessary. Put the La Signora back to sleep.",
+    "otherNightReminder": "Wake up the La Signora. Have the La Signora point to two players in turn, Kill the first player you point to and place a \"Dead\" marker next to their character marker. place a \"Chosen\" reminder mark next to their character markers, and notice them La Sigmora in-play if necessary. Put the La Signora back to sleep.",
+    "remindersGlobal": [
+      "Dead",
+      "Chosen"
+    ]
+  },
+  "zh": {
+    "name": "女士"
+  }
+}

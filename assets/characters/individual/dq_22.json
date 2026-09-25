@@ -1,0 +1,21 @@
+{
+  "id": "dq_22",
+  "team": "townsfolk",
+  "edition": "community-dq",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "zh": {
+    "name": "猎魔人",
+    "ability": "每个白天限一次，你可以公开猜测一名玩家是哪一个恶魔，猜对他死亡。",
+    "revisions": {
+      "v1": "每个白天限一次，你可以公开猜测一名玩家是哪一个恶魔，猜对他死亡。"
+    },
+    "flavor": "选择的时刻才是最重要的，当邪恶隐藏在阴影中，而你已经没有别的选择，只能变得比他更黑暗。"
+  }
+}

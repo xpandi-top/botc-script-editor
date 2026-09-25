@@ -1,0 +1,22 @@
+{
+  "id": "dq_17",
+  "team": "outsider",
+  "edition": "community-dq",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "zh": {
+    "name": "傻子",
+    "ability": "你需要“疯狂”地证明自己是某一个镇民角色，否则你可能被处决。如果你死于处决，当晚一名存活的玩家变成傻子。",
+    "revisions": {
+      "v1": "你需要“疯狂”地证明自己是某一个镇民角色，否则你可能被处决。如果你死于处决，当晚一名存活的玩家变成傻子。"
+    },
+    "flavor": "傻子，他总是比聪明人快乐。",
+    "otherNightReminder": "如果他于处决，当晚一名存活的玩家变成傻子。"
+  }
+}

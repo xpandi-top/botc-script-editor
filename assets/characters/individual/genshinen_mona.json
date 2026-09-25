@@ -1,0 +1,32 @@
+{
+  "id": "genshinen_mona",
+  "team": "townsfolk",
+  "edition": "community-genshin-en",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Register as Evil"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Mona",
+    "ability": "Each night, choose a player (not yourself); you learn if they are the same alignment as you. If you choose an Archon, you register as evil until you choose a non-Archon player.",
+    "revisions": {
+      "v1": "Each night, choose a player (not yourself); you learn if they are the same alignment as you. If you choose an Archon, you register as evil until you choose a non-Archon player."
+    },
+    "flavor": "he stars glitter like diamonds in the night sky, and the destiny of the world is already written in the stars.",
+    "firstNightReminder": "Wake the Mona. Point at any players except themself.  If they shake their head no, nothing happens. Put the Mona to sleep. If they point a players, either nod your head yes or shake your head no. Put the Mona to sleep. if they point [Archons] ,places a \"Register as Evil\" reminder mark next to Mona's character mark until next time you choose.",
+    "otherNightReminder": "Wake the Mona. Point at any players except themself.  If they shake their head no, nothing happens. Put the Mona to sleep. If they point a players, either nod your head yes or shake your head no. Put the Mona to sleep. if they point [Archons] ,places a \"Register as Evil\" reminder mark next to Mona's character mark until next time you choose.",
+    "reminders": [
+      "Register as Evil"
+    ]
+  },
+  "zh": {
+    "name": "莫娜"
+  }
+}

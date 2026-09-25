@@ -1,0 +1,23 @@
+{
+  "id": "hp_nagini",
+  "team": "minion",
+  "edition": "community-hp",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Nagini",
+    "ability": "You are a Horcrux. Each night, choose a player: they are poisoned tonight and tomorrow day. If you choose Neville this way, Neville learns this.",
+    "revisions": {
+      "v1": "You are a Horcrux. Each night, choose a player: they are poisoned tonight and tomorrow day. If you choose Neville this way, Neville learns this."
+    },
+    "flavor": "You know Voldemort's snake, Neville? He's got a huge snake... Calls it Nagini... It's got to be killed.",
+    "firstNightReminder": "Choose who to poison first.",
+    "otherNightReminder": "Choose who to poison. Potentially inform Neville he was chosen by Nagini (He is still poisoned)"
+  }
+}

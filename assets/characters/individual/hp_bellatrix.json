@@ -1,0 +1,21 @@
+{
+  "id": "hp_bellatrix",
+  "team": "minion",
+  "edition": "community-hp",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Bellatrix",
+    "ability": "After night 2, before nominations you may claim Bellatrix, If you do a good player dies, even if for some reason they could not. If you are executed, you do not die unless an evil player voted.",
+    "revisions": {
+      "v1": "After night 2, before nominations you may claim Bellatrix, If you do a good player dies, even if for some reason they could not. If you are executed, you do not die unless an evil player voted."
+    },
+    "flavor": "I killed Sirius Black!"
+  }
+}

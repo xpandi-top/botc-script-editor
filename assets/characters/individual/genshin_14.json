@@ -1,0 +1,25 @@
+{
+  "id": "genshin_14",
+  "team": "outsider",
+  "edition": "community-genshin",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "zh": {
+    "name": "北斗",
+    "ability": "在你的首个夜晚，你得知一名不在场的爪牙。如果你死亡，当晚恶魔获得那名不在场爪牙的能力。",
+    "revisions": {
+      "v1": "在你的首个夜晚，你得知一名不在场的爪牙。如果你死亡，当晚恶魔获得那名不在场爪牙的能力。"
+    },
+    "firstNightReminder": "喚醒北斗，告知她哪個爪牙在本局遊戲不在場。",
+    "otherNightReminder": "如果北斗死亡，在惡魔的角色標記旁放置\"獲得能力\"標記，並告知他獲得哪一個不在場爪牙的能力。",
+    "reminders": [
+      "獲得能力"
+    ]
+  }
+}

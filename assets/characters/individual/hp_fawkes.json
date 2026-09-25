@@ -1,0 +1,30 @@
+{
+  "id": "hp_fawkes",
+  "team": "townsfolk",
+  "edition": "community-hp",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Resurrects tonight",
+    "Risen"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Fawkes",
+    "ability": "Your Neighbours cannot be poisoned. When you die at night, learn the character type of the player that killed you and resurrect at the beginning of the following night. After resurrecting you no longer have an ability.",
+    "revisions": {
+      "v1": "Your Neighbours cannot be poisoned. When you die at night, learn the character type of the player that killed you and resurrect at the beginning of the following night. After resurrecting you no longer have an ability."
+    },
+    "flavor": "He's been looking dreadful for days; I've been telling him to get a move on.",
+    "otherNightReminder": "Wake if killed, show them the character type who killed them. Resurrect them the following night.",
+    "reminders": [
+      "Resurrects tonight",
+      "Risen"
+    ]
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "id": "genshinen_dottore",
+  "team": "demon",
+  "edition": "community-genshin-en",
+  "current_revision": "v1",
+  "setup": true,
+  "remindersGlobal": [
+    "Dead",
+    "Poisoned"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Dottore",
+    "ability": "Each night*, all Dottore wake & choose a player: they die. If they're not an Archon, a player might be poisoned until dusk. You register as a Minion too. [All Minions are Dottore]",
+    "revisions": {
+      "v1": "Each night*, all Dottore wake & choose a player: they die. If they're not an Archon, a player might be poisoned until dusk. You register as a Minion too. [All Minions are Dottore]"
+    },
+    "flavor": "Progress demands sacrifice, whether flesh or morality. Laugh if you will, fools, but my clones shall inherit Teyvat's secrets long after your bones turn to dust.",
+    "otherNightReminder": "Wake up all Dottores. All Dottores simultaneously point to a player and kill that player. The player dies, and a \"Dead\" token is placed next to their character token. If player you killed is not Archon, ST can then choose another player and place a \"Poisoned\" token next to their character token. Put the Dottore back to sleep.",
+    "remindersGlobal": [
+      "Dead",
+      "Poisoned"
+    ]
+  },
+  "zh": {
+    "name": "博士"
+  }
+}
