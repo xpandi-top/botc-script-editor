@@ -1,0 +1,29 @@
+{
+  "id": "hp_siriusblack",
+  "team": "townsfolk",
+  "edition": "community-hp",
+  "current_revision": "v1",
+  "setup": true,
+  "reminders": [
+    "Animagus form"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Sirius Black",
+    "ability": "Each night, choose to turn into your Animagus form. In Animagus form, you can only die by execution. If you die at night, choose 2 players you learn how many are evil.",
+    "revisions": {
+      "v1": "Each night, choose to turn into your Animagus form. In Animagus form, you can only die by execution. If you die at night, choose 2 players you learn how many are evil."
+    },
+    "flavor": "You Don't Understand — There Are Things Worth Dying For!",
+    "firstNightReminder": "Wake and ask if they would like to switch form.",
+    "otherNightReminder": "Wake and ask if they would like to switch form. If they died in the night while human, wake to tell them to choose 2 players. Show them a 0, 1 or 2 based on if the players are evil or are horcruxes.",
+    "reminders": [
+      "Animagus form"
+    ]
+  }
+}

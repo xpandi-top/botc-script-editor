@@ -74,6 +74,22 @@ export type ScriptMetaEntry = {
   use_second_page_title_image?: boolean
   version?: string
   tags?: string[]                        // status tags preserved in exported JSON
+  /** Community (民间) script, not an official release (scripts/import-scripts.mjs). */
+  community?: boolean
+  /** Where a community script was published. */
+  source?: ScriptSourceMeta
+}
+
+/** Publication of a community script, e.g. an issue of the 钟楼剧本博物馆. */
+export type ScriptSourceMeta = {
+  name: string
+  issue?: number
+  title?: string
+  url: string
+  /** The collection's index page. */
+  index?: string
+  /** File name the script was imported from. */
+  file?: string
 }
 
 export type ScriptJinxOverride = {

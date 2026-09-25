@@ -1,0 +1,39 @@
+{
+  "id": "rome_crassus",
+  "team": "demon",
+  "edition": "community-rome",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Dead",
+    "1st Crassus"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Crassus",
+    "ability": "Each night*, choose a player: they die. If the 1st Crassus publicly claims to be Spartacus & dies with 5 or more players alive, an evil player becomes Crassus.",
+    "revisions": {
+      "v1": "Each night*, choose a player: they die. If the 1st Crassus publicly claims to be Spartacus & dies with 5 or more players alive, an evil player becomes Crassus."
+    },
+    "flavor": "\"Those who aim at great deeds must also suffer greatly...\" - Lucius Mestrius 'Plutarch' Plutarchus c. 49 A.D. - 119 A.D.",
+    "otherNightReminder": "Crassus points to a player. That player dies. If the 1st Crassus publicly claimed to be Spartacus today and points to themselves (or was executed), with 5 or more players alive, replace the character of 1 evil player with a spare Crassus token. Show the 'You are' card, then the Crassus token.",
+    "reminders": [
+      "Dead",
+      "1st Crassus"
+    ]
+  },
+  "zh": {
+    "name": "克拉苏",
+    "ability": "每个夜晚*，你要选择一名玩家：他死亡。如果大于等于五名玩家存活时首个克拉苏公开声明自己是斯巴达克斯且死亡，一名邪恶玩家会变成克拉苏。",
+    "revisions": {
+      "v1": "每个夜晚*，你要选择一名玩家：他死亡。如果大于等于五名玩家存活时首个克拉苏公开声明自己是斯巴达克斯且死亡，一名邪恶玩家会变成克拉苏。"
+    },
+    "flavor": "‘那些致力于伟大事业的人也必将经受巨大的痛苦…’-卢修斯·梅斯特里奥斯·普鲁塔克 49-119",
+    "otherNightReminder": "唤醒克拉苏，让他选择一名玩家。如果角色标记旁有“我是斯巴达克斯！”标记的首个克拉苏死亡，一名邪恶玩家变成克拉苏：将他的角色标记替换为克拉苏角色标记，唤醒那名玩家并向他展示“你是”信息标记和克拉苏角色标记。"
+  }
+}

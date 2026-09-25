@@ -1,0 +1,21 @@
+{
+  "id": "xiaoer_27",
+  "team": "traveler",
+  "edition": "community-xiaoer",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "zh": {
+    "name": "苦头陀",
+    "ability": "每个黎明，你要选择一名玩家：他只能通过手势或者外语进行发言，但是你必须帮他翻译。",
+    "revisions": {
+      "v1": "每个黎明，你要选择一名玩家：他只能通过手势或者外语进行发言，但是你必须帮他翻译。"
+    },
+    "flavor": "只见右首走过来一个长发披肩的头陀，身材魁伟，满面横七竖八的都是刀疤，本来相貌已全不可辨。"
+  }
+}

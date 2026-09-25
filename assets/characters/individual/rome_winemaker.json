@@ -1,0 +1,43 @@
+{
+  "id": "rome_winemaker",
+  "team": "outsider",
+  "edition": "community-rome",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Odd",
+    "Even",
+    "Drunk"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Winemaker",
+    "ability": "Your Townsfolk neighbours are drunk, but every other night, you are drunk until dusk, even if you are dead.",
+    "revisions": {
+      "v1": "Your Townsfolk neighbours are drunk, but every other night, you are drunk until dusk, even if you are dead."
+    },
+    "flavor": "\"In wine, there's truth.\" - Pliny the Elder 23 A.D. - 79 A.D.",
+    "firstNightReminder": "Place either the ODD or EVEN token. If ODD, the Winemaker is drunk on the 1st night and every other night after. Otherwise: the Winemaker is drunk on the 2nd night and every other night after.",
+    "otherNightReminder": "Check which ODD or EVEN token is placed. If an odd night and the ODD token is placed, the Winemaker is drunk until dusk. If an even night and the EVEN token is placed, the Winemaker is drunk until dusk. Otherwise their Townsfolk neighbours are drunk until dusk.",
+    "reminders": [
+      "Odd",
+      "Even",
+      "Drunk"
+    ]
+  },
+  "zh": {
+    "name": "酒庄工人",
+    "ability": "与你邻近的镇民醉酒，但每隔一个晚上，你醉酒直到下个黄昏，即使你已死亡。",
+    "revisions": {
+      "v1": "与你邻近的镇民醉酒，但每隔一个晚上，你醉酒直到下个黄昏，即使你已死亡。"
+    },
+    "flavor": "‘真相存在于美酒之中。’-老普林尼 23-79",
+    "firstNightReminder": "放置“奇数”或“偶数”标记在酒庄工人角色标记旁。在与标记相关的夜晚，酒庄工人醉酒。在其他夜晚，与他邻近的镇民醉酒。",
+    "otherNightReminder": "检查酒庄工人角色标记旁放置的是“奇数”还是“偶数”标记。在与标记相关的夜晚，酒庄工人醉酒。在其他夜晚，与他邻近的镇民醉酒。"
+  }
+}

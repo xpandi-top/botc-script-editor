@@ -1,0 +1,39 @@
+{
+  "id": "rome_highpriest1",
+  "team": "traveler",
+  "edition": "community-rome",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Blessed",
+    "Failed"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "High Priest",
+    "ability": "Each day, publicly choose a unique living player to bless: if a majority of players agree, something good happens to them.",
+    "revisions": {
+      "v1": "Each day, publicly choose a unique living player to bless: if a majority of players agree, something good happens to them."
+    },
+    "flavor": "\"To ignore the signs of the gods is itself to deny their very existence.\" - Marcus Tullius Cicero 106 B.C. – 43 B.C.",
+    "otherNightReminder": "If the High Priest successfully blessed a player today, something good happens to that player and/or their team.",
+    "reminders": [
+      "Blessed",
+      "Failed"
+    ]
+  },
+  "zh": {
+    "name": "大祭司",
+    "ability": "每个白天，你可以公开选择一名之前未选择过的存活玩家去祝福：如果多数玩家同意，他的身上会发生一些好的事情。",
+    "revisions": {
+      "v1": "每个白天，你可以公开选择一名之前未选择过的存活玩家去祝福：如果多数玩家同意，他的身上会发生一些好的事情。"
+    },
+    "flavor": "‘无视神发出的信号本身就是在否认他们的真实存在。’-马尔库斯·图利乌斯·西塞罗 前106-前43",
+    "otherNightReminder": "如果今天白天一名玩家被祝福，他的身上会发生一些好的事情。"
+  }
+}

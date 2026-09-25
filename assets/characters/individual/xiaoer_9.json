@@ -1,0 +1,26 @@
+{
+  "id": "xiaoer_9",
+  "team": "townsfolk",
+  "edition": "community-xiaoer",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "zh": {
+    "name": "龙门镖局",
+    "ability": "始终有一名存活的非恶魔玩家知道龙门镖局在场，直到你中毒或者醉酒。",
+    "revisions": {
+      "v1": "始终有一名存活的非恶魔玩家知道龙门镖局在场，直到你中毒或者醉酒。"
+    },
+    "flavor": "梁子土了点的，里腥把合着，河吾——",
+    "firstNightReminder": "在为首个夜晚进行准备时，将龙门镖局的“东家”提示标记放置在任意一名非恶魔的角色标记旁。唤醒“东家”标记的玩家，展示“这个角色在场”和“龙门镖局”的角色标记。",
+    "reminders": [
+      "东家",
+      "失标"
+    ]
+  }
+}

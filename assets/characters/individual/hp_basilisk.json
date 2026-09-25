@@ -1,0 +1,30 @@
+{
+  "id": "hp_basilisk",
+  "team": "minion",
+  "edition": "community-hp",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Petrified",
+    "Dies"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Basilisk",
+    "ability": "Each night*, choose a player. If they would awake that night due to their own ability, they die. If they did not wake, they can no longer wake while you live. Whenever they would wake they learn this. If the chosen player is Harry Potter, you die instead.",
+    "revisions": {
+      "v1": "Each night*, choose a player. If they would awake that night due to their own ability, they die. If they did not wake, they can no longer wake while you live. Whenever they would wake they learn this. If the chosen player is Harry Potter, you die instead."
+    },
+    "flavor": "The Basilisk has a murderous stare, and all who are fixed with the beam of its eye shall suffer instant death.",
+    "otherNightReminder": "Wake and ask to pick a player",
+    "reminders": [
+      "Petrified",
+      "Dies"
+    ]
+  }
+}

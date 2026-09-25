@@ -1,0 +1,38 @@
+{
+  "id": "lotr_denethor",
+  "team": "outsider",
+  "edition": "community-lotr",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Once",
+    "Once",
+    "Once"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Denethor",
+    "ability": "Once per Minion, a townsfolk ability might yield false info or succeed when it shouldn't, even if you die.",
+    "revisions": {
+      "v1": "Once per Minion, a townsfolk ability might yield false info or succeed when it shouldn't, even if you die."
+    },
+    "flavor": "Gondor has no King.",
+    "reminders": [
+      "Once",
+      "Once",
+      "Once"
+    ]
+  },
+  "zh": {
+    "name": "德内梭尔",
+    "ability": "每名在场的爪牙会导致发生一次：一名镇民的能力可能会产生错误信息或在错误的时机生效，即使你已死亡。",
+    "revisions": {
+      "v1": "每名在场的爪牙会导致发生一次：一名镇民的能力可能会产生错误信息或在错误的时机生效，即使你已死亡。"
+    }
+  }
+}

@@ -49,6 +49,7 @@ export function editionSummaries(catalog: CatalogIndex, lang?: Lang) {
       name: lang ? e.name[lang] : e.name,
       ...(e.author ? { author: lang ? e.author[lang] ?? e.author.en ?? e.author.zh : e.author } : {}),
       ...(e.source ? { source: e.source } : {}),
+      ...(e.community ? { community: true } : {}),
       characterCount: members.length,
       teamCounts,
     }

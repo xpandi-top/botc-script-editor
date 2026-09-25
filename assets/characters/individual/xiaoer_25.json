@@ -1,0 +1,21 @@
+{
+  "id": "xiaoer_25",
+  "team": "traveler",
+  "edition": "community-xiaoer",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "zh": {
+    "name": "说不得",
+    "ability": "每个白天，你可以驳回一次提名。",
+    "revisions": {
+      "v1": "每个白天，你可以驳回一次提名。"
+    },
+    "flavor": "说不得就是说不得，还有甚么道理好讲……"
+  }
+}

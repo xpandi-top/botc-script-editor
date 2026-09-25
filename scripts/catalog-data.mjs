@@ -120,9 +120,16 @@ export function buildCatalogData(root = process.cwd()) {
       })),
     }))
 
+  // Bundled scripts, then community ones (assets/scripts/community/, like src/catalog.ts).
   const scriptDir = path.join(assets, 'scripts')
-  const scripts = listJson(scriptDir).map((sourceFile) => {
-    const data = readJson(path.join(scriptDir, sourceFile))
+  const communityDir = path.join(scriptDir, 'community')
+  const scriptPaths = [
+    ...listJson(scriptDir).map((f) => path.join(scriptDir, f)),
+    ...(fs.existsSync(communityDir) ? listJson(communityDir).map((f) => path.join(communityDir, f)) : []),
+  ]
+  const scripts = scriptPaths.map((file) => {
+    const data = readJson(file)
+    const sourceFile = path.basename(file)
     const base = sourceFile.replace('.json', '')
     return { slug: Array.isArray(data) ? base : (data.slug ?? base), sourceFile, data }
   })
@@ -140,6 +147,7 @@ export function buildCatalogData(root = process.cwd()) {
       edition.author = { ...(credit.author_en ? { en: credit.author_en } : {}), ...(credit.author_zh ? { zh: credit.author_zh } : {}) }
     }
     if (credit?.source) edition.source = credit.source
+    if (credit?.community) edition.community = true
     return edition
   })
 

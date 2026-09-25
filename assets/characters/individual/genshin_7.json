@@ -1,0 +1,28 @@
+{
+  "id": "genshin_7",
+  "team": "townsfolk",
+  "edition": "community-genshin",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "zh": {
+    "name": "琴",
+    "ability": "每个夜晚*，你会得知今天白天有多少除了旅行者以外的角色类别发起了提名。",
+    "revisions": {
+      "v1": "每个夜晚*，你会得知今天白天有多少除了旅行者以外的角色类别发起了提名。"
+    },
+    "otherNightReminder": "唤醒琴，然后告诉她今天白天发起提名的玩家有多少角色类型(0,1,2,3,4)。然后让琴入睡。",
+    "reminders": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4"
+    ]
+  }
+}

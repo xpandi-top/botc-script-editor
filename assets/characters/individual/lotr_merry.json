@@ -1,0 +1,35 @@
+{
+  "id": "lotr_merry",
+  "team": "townsfolk",
+  "edition": "community-lotr",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Reversed"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Merry",
+    "ability": "You start knowing a true statement. If Pippin is in play, 1 of you receives reversed info.",
+    "revisions": {
+      "v1": "You start knowing a true statement. If Pippin is in play, 1 of you receives reversed info."
+    },
+    "flavor": "Don't think he knows about second breakfast, Pip.",
+    "firstNightReminder": "Show Merry a piece of true info.",
+    "reminders": [
+      "Reversed"
+    ]
+  },
+  "zh": {
+    "name": "梅里",
+    "ability": "在你的首个夜晚，你会得知一条正确的信息。如果皮平在场，你们其中一人会得知相反的信息。",
+    "revisions": {
+      "v1": "在你的首个夜晚，你会得知一条正确的信息。如果皮平在场，你们其中一人会得知相反的信息。"
+    }
+  }
+}

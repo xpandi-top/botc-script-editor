@@ -1,0 +1,24 @@
+{
+  "id": "genshin_31",
+  "team": "townsfolk",
+  "edition": "community-genshin",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "zh": {
+    "name": "九条纱罗",
+    "ability": "在你的首个夜晚，你要选择与初始爪牙数量+1的玩家：你会得知那些玩家之中有多少镇民。",
+    "revisions": {
+      "v1": "在你的首个夜晚，你要选择与初始爪牙数量+1的玩家：你会得知那些玩家之中有多少镇民。"
+    },
+    "firstNightReminder": "唤醒九条纱罗，让九条纱罗指向初始爪牙數量+1的玩家，将九条纱罗的“得知”标记放在他选择的玩家角色的标记旁边。让九条纱罗重新入睡。",
+    "remindersGlobal": [
+      "得知"
+    ]
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "id": "genshinen_kaveh",
+  "team": "townsfolk",
+  "edition": "community-genshin-en",
+  "current_revision": "v1",
+  "setup": false,
+  "remindersGlobal": [
+    "Chosen"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Kaveh",
+    "ability": "Start by choosing a player and learned a task from ST - if fulfilled while they live, something of your choice happens to them.",
+    "revisions": {
+      "v1": "Start by choosing a player and learned a task from ST - if fulfilled while they live, something of your choice happens to them."
+    },
+    "flavor": "The Wisdom of the Heart, the Soul, and the Eye",
+    "firstNightReminder": "Wake up Kaveh. Let him point at any player, give him a task then put Kaveh to sleep.",
+    "otherNightReminder": "If Kaveh complete a task from Storyteller and that player still alive. Do something good to Kaveh or Player he choose at the first night.",
+    "remindersGlobal": [
+      "Chosen"
+    ]
+  }
+}

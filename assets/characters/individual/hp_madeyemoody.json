@@ -1,0 +1,28 @@
+{
+  "id": "hp_madeyemoody",
+  "team": "townsfolk",
+  "edition": "community-hp",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Mad-Eye's gaze"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Mad-Eye Moody",
+    "ability": "Each day, if you are mad that a different player is evil, that night you may learn their alignment.",
+    "revisions": {
+      "v1": "Each day, if you are mad that a different player is evil, that night you may learn their alignment."
+    },
+    "flavor": "Nothing like a night time stroll to give you... ideas.",
+    "otherNightReminder": "Wake if they have satisfied madness and tell the targeted players alignment",
+    "reminders": [
+      "Mad-Eye's gaze"
+    ]
+  }
+}

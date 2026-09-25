@@ -45,7 +45,7 @@ export function ScriptsLeftPanel({ scripts, activeScript, language, isMobile, ge
   const tagTitle = (value: string) => SCRIPT_TAG_META[value]?.[language === 'zh' ? 'zh' : 'en'] ?? value
   const index = useMemo(() => {
     const names = new Map(allCharacters.map(c => [c.id, `${getDisplayName(c.id, 'en')} ${getDisplayName(c.id, 'zh')}`]))
-    return new Map(scripts.map(s => [s.slug, [s.title, s.titleZh, s.author, s.slug, ...(s.tags ?? []),
+    return new Map(scripts.map(s => [s.slug, [s.title, s.titleZh, s.author, s.slug, s.meta.source?.name ?? '', ...(s.tags ?? []),
       scriptFolders.find(f => f.id === s.folderId)?.name ?? '', ...s.characters.map(id => `${id} ${names.get(id) ?? ''}`),
       ...s.customCharacters.map(c => c.name ?? ''),
     ].join(' ').toLocaleLowerCase()]))

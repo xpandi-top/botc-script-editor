@@ -1,0 +1,35 @@
+{
+  "id": "rome_badomen",
+  "team": "outsider",
+  "edition": "community-rome",
+  "current_revision": "v1",
+  "setup": true,
+  "remindersGlobal": [
+    "Is a Bad Omen"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Bad Omen",
+    "ability": "You do not know you are a Bad Omen. You think you are a Townsfolk, but you receive false information. You might register as evil, even if dead.",
+    "revisions": {
+      "v1": "You do not know you are a Bad Omen. You think you are a Townsfolk, but you receive false information. You might register as evil, even if dead."
+    },
+    "flavor": "\"Beware the Ides of March.\" - Gaius Julius Caesar 100 B.C. - 44 B.C.",
+    "remindersGlobal": [
+      "Is a Bad Omen"
+    ]
+  },
+  "zh": {
+    "name": "不祥之兆",
+    "ability": "你不知道你是不祥之兆。你以为你是一个镇民角色，但你获取错误信息。你可能会被当作邪恶阵营，即使你已死亡。",
+    "revisions": {
+      "v1": "你不知道你是不祥之兆。你以为你是一个镇民角色，但你获取错误信息。你可能会被当作邪恶阵营，即使你已死亡。"
+    },
+    "flavor": "‘谨防3月15日。’-盖乌斯·尤利乌斯·凯撒 前100-前44"
+  }
+}

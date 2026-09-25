@@ -11,6 +11,14 @@ import type { Language } from '../../types'
 const characters = allCharacterFiles.filter((c) => c?.id && c?.edition)
 const editions = [...new Set(characters.map((c) => c.edition!))]
 
+/** "《…》 by author" for a character from a community (民间) pack, else undefined. */
+function communityPackOf(id: string): string | undefined {
+  const credit = getEditionCredit(characters.find((c) => c.id === id)?.edition ?? '')
+  if (!credit?.community) return undefined
+  const author = credit.author_zh ?? credit.author_en
+  return `${credit.name_zh || credit.name_en}${author ? ` by ${author}` : ''}${credit.source ? ` (${credit.source})` : ''}`
+}
+
 function matches(query: string, alias: string): boolean {
   const value = alias.trim().toLowerCase()
   if (!value) return false
@@ -89,7 +97,9 @@ export function retrieveCatalog(query: string, language: Language, previousQueri
       `Team counts: ${[...counts].map(([team, count]) => `${team}=${count}`).join(', ')}\n` +
       `Source: assets/characters/individual/*.json (edition=${id})` +
       (credit ? `; assets/editions.json; ${credit.source ?? ''}\nAuthor: ${credit.author_zh ?? credit.author_en ?? 'not recorded'}` : '') +
-      '\nOfficial publication status: not established by these catalog fields; do not infer it.')
+      (credit?.community
+        ? '\nStatus: community (民间) character pack, fan-made, NOT official; say so when answering.'
+        : '\nOfficial publication status: not established by these catalog fields; do not infer it.'))
     const wantsRoster = !resolved.characterIds.length && !/规则|机制|能力|审判日|变量|投票|怎么|如何|\b(rule|mechanic|ability|abilities|judgment|vote|how does)\b/i.test(query)
     if (resolved.editionIds.includes(id) && wantsRoster) {
       rosters.push(`Complete local roster [${id}]:\n` + [...counts].map(([team, count]) =>
@@ -101,6 +111,7 @@ export function retrieveCatalog(query: string, language: Language, previousQueri
   const bilingual = (id: string) => resolved.quotedIds.includes(id) || /翻译|译成|translat/i.test(query)
   const details = resolved.characterIds.map((id) =>
     `Character: ${getDisplayName(id, 'zh')} / ${getDisplayName(id, 'en')} [${id}]\n` +
+    (communityPackOf(id) ? `Community (民间) character, NOT official — pack ${communityPackOf(id)}\n` : '') +
     `Source: assets/characters/individual/${id}.json (current local revision)\n` +
     (bilingual(id)
       ? `Official ability (en): ${getAbilityText(id, 'en')}\nOfficial ability (zh): ${getAbilityText(id, 'zh')}`

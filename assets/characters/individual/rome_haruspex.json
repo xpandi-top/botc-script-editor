@@ -1,0 +1,43 @@
+{
+  "id": "rome_haruspex",
+  "team": "minion",
+  "edition": "community-rome",
+  "current_revision": "v1",
+  "setup": true,
+  "reminders": [
+    "Foretold",
+    "Dead",
+    "Can't Kill"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Haruspex",
+    "ability": "Each night, choose a player: you learn their character. The 1st player you choose twice in this way, dies. [+ Spartacus]",
+    "revisions": {
+      "v1": "Each night, choose a player: you learn their character. The 1st player you choose twice in this way, dies. [+ Spartacus]"
+    },
+    "flavor": "\"...but it is in and by means of piety and religion, and this especial wisdom of perceiving that all things are governed and managed by the divine power of the immortal gods, that we have been and are superior to all other countries and nations.\" - Marcus Tullius Cicero 106 B.C - 46 B.C.",
+    "firstNightReminder": "The Haruspex points to a player. Show that player’s character token. Place a FORETOLD token next that player.",
+    "otherNightReminder": "The Haruspex points to a player. Show that player’s character token. Place a FORETOLD token next that player: if that player already has a FORETOLD token. That player dies, also place the CAN'T KILL token next to the Haruspex.",
+    "reminders": [
+      "Foretold",
+      "Dead",
+      "Can't Kill"
+    ]
+  },
+  "zh": {
+    "name": "脏卜师",
+    "ability": "每个夜晚，你要选择一名玩家：你会得知他的角色。首个被你以此方式选择两次的玩家死亡。【+斯巴达克斯】",
+    "revisions": {
+      "v1": "每个夜晚，你要选择一名玩家：你会得知他的角色。首个被你以此方式选择两次的玩家死亡。【+斯巴达克斯】"
+    },
+    "flavor": "‘但它是通过宗教信仰的方式，察觉一切的特殊智慧由永生之神的神圣权力掌管并经营，我们已经且正优越于其他所有国家和地区。’-马尔库斯·图利乌斯·西塞罗 前106-前46",
+    "firstNightReminder": "唤醒脏卜师，让他选择一名玩家。向脏卜师展示该玩家的角色标记。",
+    "otherNightReminder": "唤醒脏卜师，让他选择一名玩家。向脏卜师展示该玩家的角色标记。如果该玩家之前被脏卜师选择过且脏卜师角色标记旁没有“无法击杀”标记，该玩家死亡。"
+  }
+}

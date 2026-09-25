@@ -1,0 +1,24 @@
+{
+  "id": "sjjl_15",
+  "team": "traveler",
+  "edition": "community-sjjl",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "zh": {
+    "name": "稻草人",
+    "ability": "你要公开声明自己是稻草人。在白天时，如果即将死亡的玩家找你猜拳且你输了，你可能替他死亡。当你连续胜利三次时，你独自获胜。",
+    "revisions": {
+      "v1": "你要公开声明自己是稻草人。在白天时，如果即将死亡的玩家找你猜拳且你输了，你可能替他死亡。当你连续胜利三次时，你独自获胜。"
+    },
+    "flavor": "到底谁才是真正的稻草拳皇！？",
+    "reminders": [
+      "赢！"
+    ]
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "id": "xiaoer_11",
+  "team": "townsfolk",
+  "edition": "community-xiaoer",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "zh": {
+    "name": "关外胡家",
+    "ability": "如果你在夜晚死亡，你会被唤醒，然后你要选择两名其他玩家，他们互相知道对方是什么角色。",
+    "revisions": {
+      "v1": "如果你在夜晚死亡，你会被唤醒，然后你要选择两名其他玩家，他们互相知道对方是什么角色。"
+    },
+    "flavor": "城头铁鼓声犹震，匣里金刀血未干。",
+    "otherNightReminder": "如果关外胡家在夜晚死亡，唤醒他，让他选择两名玩家，随后让他重新入睡。接着分别唤醒他选择的两名玩家，指向另一名玩家和他的角色。"
+  }
+}

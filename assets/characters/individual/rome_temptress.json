@@ -1,0 +1,41 @@
+{
+  "id": "rome_temptress",
+  "team": "minion",
+  "edition": "community-rome",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Seduced",
+    "Evil"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Temptress",
+    "ability": "On your 1st night choose two players: they learn that they were chosen. The 1st time one of them dies by execution, the other becomes evil that night.",
+    "revisions": {
+      "v1": "On your 1st night choose two players: they learn that they were chosen. The 1st time one of them dies by execution, the other becomes evil that night."
+    },
+    "flavor": "\"Nothing could part us in life, but now in death, we are likely to change places...\" - Cleopatra VII Thea Philopator 69 B.C. - 30 B.C.",
+    "firstNightReminder": "The Temptress points to two players. Place the SEDUCED token next to the two players. Wake the two players separately. Show the 'This character selected you' card, then the Temptress token.",
+    "otherNightReminder": "If a player with a SEDUCED token is executed and dies, remove their SEDUCED token. The player with the remaining SEDUCED turns evil. Remove their SEDUCED token and replace it with the EVIL token. Wake the evil player and show them the 'You are' card and the thumbs down evil signal.",
+    "reminders": [
+      "Seduced",
+      "Evil"
+    ]
+  },
+  "zh": {
+    "name": "交际花",
+    "ability": "在你的首个夜晚，你要选择两名玩家：他们会得知自己被交际花选择，如果他们之中首次有人死于处决，另一名玩家会在当晚转变为邪恶阵营。",
+    "revisions": {
+      "v1": "在你的首个夜晚，你要选择两名玩家：他们会得知自己被交际花选择，如果他们之中首次有人死于处决，另一名玩家会在当晚转变为邪恶阵营。"
+    },
+    "flavor": "‘没有什么能够将我们从生命中分开，但现在在死亡中，我们可能要改变地方了…’-克里奥佩特拉七世 笃爱父亲者 前69-前30",
+    "firstNightReminder": "唤醒交际花，让她选择两名玩家。",
+    "otherNightReminder": "如果一名角色标记旁有“被引诱”标记的玩家在今天白天死于处决，唤醒另一名角色标记旁有“被引诱”标记的玩家并向他展示大拇指向下的手势。"
+  }
+}

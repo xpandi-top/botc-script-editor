@@ -1,0 +1,31 @@
+{
+  "id": "hp_dobby",
+  "team": "outsider",
+  "edition": "community-hp",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Master",
+    "Free"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Dobby",
+    "ability": "On Night 1, choose a player to be your Master. If your Master would die, you die instead. Your master may approach the storyteller to free you from service, you may then use this ability at anytime.",
+    "revisions": {
+      "v1": "On Night 1, choose a player to be your Master. If your Master would die, you die instead. Your master may approach the storyteller to free you from service, you may then use this ability at anytime."
+    },
+    "flavor": "Master has given Dobby a sock, Dobby is a free elf!",
+    "firstNightReminder": "Wake and ask to pick a player as Master",
+    "otherNightReminder": "Wake Dobby if they are free",
+    "reminders": [
+      "Master",
+      "Free"
+    ]
+  }
+}

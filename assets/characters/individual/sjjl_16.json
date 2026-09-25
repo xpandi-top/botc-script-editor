@@ -1,0 +1,26 @@
+{
+  "id": "sjjl_16",
+  "team": "minion",
+  "edition": "community-sjjl",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "zh": {
+    "name": "鬼话佬",
+    "ability": "每个夜晚，你要从说书人提供的志异中选择一则：该志异会在下个黎明公布且生效一天。你死亡后仍然会有志异公布，但不会生效。",
+    "revisions": {
+      "v1": "每个夜晚，你要从说书人提供的志异中选择一则：该志异会在下个黎明公布且生效一天。你死亡后仍然会有志异公布，但不会生效。"
+    },
+    "flavor": "鬼话连篇！",
+    "firstNightReminder": "给鬼话佬提供三则诡谈，让他选择一则，在下个黎明公布该诡谈。",
+    "otherNightReminder": "给鬼话佬提供三则诡谈，让他选择一则，在下个黎明公布该诡谈。",
+    "reminders": [
+      "遭殃"
+    ]
+  }
+}

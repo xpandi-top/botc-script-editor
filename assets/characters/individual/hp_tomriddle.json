@@ -1,0 +1,30 @@
+{
+  "id": "hp_tomriddle",
+  "team": "demon",
+  "edition": "community-hp",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Dead Outsider",
+    "Dead"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Tom Riddle",
+    "ability": "Each night*, choose a player: they die. If an Outsider is chosen, you may choose again. [+1 Outsider]",
+    "revisions": {
+      "v1": "Each night*, choose a player: they die. If an Outsider is chosen, you may choose again. [+1 Outsider]"
+    },
+    "flavor": "I can make bad things happen to people who are mean to me. I can make them hurt, if I want.",
+    "otherNightReminder": "Wake to make them kill someone",
+    "reminders": [
+      "Dead Outsider",
+      "Dead"
+    ]
+  }
+}

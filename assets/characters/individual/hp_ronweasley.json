@@ -1,0 +1,29 @@
+{
+  "id": "hp_ronweasley",
+  "team": "townsfolk",
+  "edition": "community-hp",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Check"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Ron Weasley",
+    "ability": "Each night learn a player who was selected by the evil team tonight",
+    "revisions": {
+      "v1": "Each night learn a player who was selected by the evil team tonight"
+    },
+    "flavor": "Well, White moves first. And then... We play.",
+    "firstNightReminder": "Wake and tell them a player who was chosen by the evil team tonight.",
+    "otherNightReminder": "Wake and tell them a player who was chosen by the evil team tonight.",
+    "reminders": [
+      "Check"
+    ]
+  }
+}

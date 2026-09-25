@@ -1,0 +1,37 @@
+{
+  "id": "rome_mortician",
+  "team": "townsfolk",
+  "edition": "community-rome",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Recently Executed"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Mortician",
+    "ability": "Each night*, if a player died by execution today you learn if either of their living neighbours are evil.",
+    "revisions": {
+      "v1": "Each night*, if a player died by execution today you learn if either of their living neighbours are evil."
+    },
+    "flavor": "\"Let no one weep for me, or celebrate my funeral with mourning; for I still live, as I pass to and fro through the mouths of men.\" - Quintus Ennius 239 B.C. - 169 B.C.",
+    "otherNightReminder": "If a player was executed today: Show the head signal (nod 'yes', shake 'no') for whether one of the neighbours is evil.",
+    "reminders": [
+      "Recently Executed"
+    ]
+  },
+  "zh": {
+    "name": "殡葬师",
+    "ability": "每个夜晚*，如果今天白天有玩家死于处决，你会得知与他邻近的存活玩家中是否有邪恶玩家。",
+    "revisions": {
+      "v1": "每个夜晚*，如果今天白天有玩家死于处决，你会得知与他邻近的存活玩家中是否有邪恶玩家。"
+    },
+    "flavor": "‘不要让人们为我哭泣，或用哀悼来庆祝我的葬礼；我通过世人的口口相传而永生。’-昆图斯·恩尼乌斯 前239-前169",
+    "otherNightReminder": "如果今天白天有玩家死于处决，唤醒殡葬师，通过点头或摇头来告知他今天白天死于处决玩家的邻近存活玩家中是否有邪恶玩家。"
+  }
+}

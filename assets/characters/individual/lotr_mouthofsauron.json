@@ -1,0 +1,36 @@
+{
+  "id": "lotr_mouthofsauron",
+  "team": "minion",
+  "edition": "community-lotr",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Poisoned"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Mouth of Sauron",
+    "ability": "Each night, choose a character: they are poisoned until dusk, then evil secretly communicates for 1 minute.",
+    "revisions": {
+      "v1": "Each night, choose a character: they are poisoned until dusk, then evil secretly communicates for 1 minute."
+    },
+    "flavor": "The rider was robed all in black, and black was his lofty helm...and his name is remembered in no tale; for he himself had forgotten it, and he said: ‘I am the Mouth of Sauron.'",
+    "firstNightReminder": "The Mouth chooses a character, then evil communicates.",
+    "otherNightReminder": "The Mouth chooses a character, then evil communicates.",
+    "reminders": [
+      "Poisoned"
+    ]
+  },
+  "zh": {
+    "name": "索伦之口",
+    "ability": "每个夜晚，你要选择一个角色：如果他在场，他会中毒至下个黄昏，随后爪牙与恶魔玩家会秘密交流1分钟。",
+    "revisions": {
+      "v1": "每个夜晚，你要选择一个角色：如果他在场，他会中毒至下个黄昏，随后爪牙与恶魔玩家会秘密交流1分钟。"
+    }
+  }
+}

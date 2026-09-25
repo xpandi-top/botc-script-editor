@@ -7,6 +7,7 @@
  * modifiers — per character on the script. It is a guide, not a rating.
  */
 import { getAbilityText, getCharacterById, getDisplayName, getEffectiveNightOrderFromRegistry, getJinxReason, initialScripts, jinxes } from '../../catalog'
+import { communityScriptSource } from '../../core/script/format'
 import type { Language } from '../../types'
 
 const ASKS_SCRIPT = /剧本|板子|script/i
@@ -21,7 +22,8 @@ const MISINFORMATION = {
   zh: /醉酒|中毒|被当作|视为|疯狂|错误|以为你是|你不知道|交换/,
 }
 
-export type ScriptComplexity = { slug: string; title: string; titleZh: string; author: string; characters: number; wakers: number; misinformation: number; jinxes: number; modifiers: number; perCharacter: number }
+/** `source`: where a community (民间) script was published, e.g. { name: '钟楼剧本博物馆', issue: 100 }. */
+export type ScriptComplexity = { slug: string; title: string; titleZh: string; author: string; source?: { name: string; issue?: number }; characters: number; wakers: number; misinformation: number; jinxes: number; modifiers: number; perCharacter: number }
 
 let cache: ScriptComplexity[] | null = null
 
@@ -38,7 +40,8 @@ export function scriptComplexities(): ScriptComplexity[] {
     const jinxCount = Object.values(jinxes).filter((j) => j.characters?.length === 2 && j.characters.every((id) => ids.includes(id))).length
     const modifiers = ids.filter((id) => /[[［][^\]］]+[\]］]/.test(text(id).en || text(id).zh)).length
     const score = wakers + 2 * misinformation + 1.5 * jinxCount + modifiers
-    return { slug: s.slug, title: s.title, titleZh: s.titleZh || s.title, author: s.author ?? '', characters: ids.length, wakers, misinformation, jinxes: jinxCount, modifiers, perCharacter: ids.length ? score / ids.length : 0 }
+    const source = communityScriptSource(s.meta)
+    return { slug: s.slug, title: s.title, titleZh: s.titleZh || s.title, author: s.author ?? '', ...(source ? { source: { name: source.name, ...(source.issue ? { issue: source.issue } : {}) } } : {}), characters: ids.length, wakers, misinformation, jinxes: jinxCount, modifiers, perCharacter: ids.length ? score / ids.length : 0 }
   }).filter((s) => s.characters >= 10 && s.characters <= 30).sort((a, b) => a.perCharacter - b.perCharacter)
   return cache
 }
@@ -50,9 +53,13 @@ export function scriptRecommendationFacts(query: string, language: Language): st
   const all = scriptComplexities()
   // Rank among the bundled scripts: 1 = simplest.
   const rank = (s: ScriptComplexity) => all.indexOf(s) + 1
+  // Imported community scripts say so, with where they were published.
+  const origin = (s: ScriptComplexity) => !s.source ? '' : zh
+    ? `，民间剧本，来源 ${s.source.name}${s.source.issue ? ` 第${s.source.issue}期` : ''}`
+    : `, community script from ${s.source.name}${s.source.issue ? ` issue ${s.source.issue}` : ''}`
   const describe = (s: ScriptComplexity) => zh
-    ? `${s.titleZh}（${s.slug}${s.author ? `，作者 ${s.author}` : ''}）：${s.characters} 个角色，夜晚唤醒 ${s.wakers} 个，错误信息来源 ${s.misinformation} 个，相克 ${s.jinxes} 条，复杂度排名 ${rank(s)}/${all.length}`
-    : `${s.title} (${s.slug}${s.author ? `, by ${s.author}` : ''}): ${s.characters} characters, ${s.wakers} wake at night, ${s.misinformation} sources of false information, ${s.jinxes} jinxes; complexity rank ${rank(s)}/${all.length}`
+    ? `${s.titleZh}（${s.slug}${s.author ? `，作者 ${s.author}` : ''}${origin(s)}）：${s.characters} 个角色，夜晚唤醒 ${s.wakers} 个，错误信息来源 ${s.misinformation} 个，相克 ${s.jinxes} 条，复杂度排名 ${rank(s)}/${all.length}`
+    : `${s.title} (${s.slug}${s.author ? `, by ${s.author}` : ''}${origin(s)}): ${s.characters} characters, ${s.wakers} wake at night, ${s.misinformation} sources of false information, ${s.jinxes} jinxes; complexity rank ${rank(s)}/${all.length}`
 
   const facts = [zh
     ? '官方建议（官方规则·准备游戏）：先从暗流涌动开始，熟悉后再尝试其他剧本；暗流涌动 5 人即可开局，其他剧本建议 7 人或以上。首局建议 5–10 人，且不加旅行者和传奇角色。'

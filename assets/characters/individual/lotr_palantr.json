@@ -1,0 +1,35 @@
+{
+  "id": "lotr_palantr",
+  "team": "outsider",
+  "edition": "community-lotr",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Visions Tonight"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Palantír",
+    "ability": "When you die, the Demon sees the Grimoire tonight. The Ringbearer and the One Ring misapppear.",
+    "revisions": {
+      "v1": "When you die, the Demon sees the Grimoire tonight. The Ringbearer and the One Ring misapppear."
+    },
+    "flavor": "They are not all accounted for, the lost Seeing-stones. We do not know who else may be watching.",
+    "otherNightReminder": "If the Palantir died, show Sauron the Grimoire.",
+    "reminders": [
+      "Visions Tonight"
+    ]
+  },
+  "zh": {
+    "name": "帕兰提尔",
+    "ability": "如果你死亡，当晚恶魔会查看魔典，其中的至尊魔戒持有者是错误的。",
+    "revisions": {
+      "v1": "如果你死亡，当晚恶魔会查看魔典，其中的至尊魔戒持有者是错误的。"
+    }
+  }
+}

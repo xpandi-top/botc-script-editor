@@ -1,0 +1,34 @@
+{
+  "id": "lotr_saruman",
+  "team": "minion",
+  "edition": "community-lotr",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "No Ability"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Saruman",
+    "ability": "Once per game, during the day, privately make a wish.",
+    "revisions": {
+      "v1": "Once per game, during the day, privately make a wish."
+    },
+    "flavor": "Against the power of Mordor there can be no victory.",
+    "reminders": [
+      "No Ability"
+    ]
+  },
+  "zh": {
+    "name": "萨鲁曼",
+    "ability": "每局游戏限一次，在白天时，你可以私下向说书人许一个愿望。",
+    "revisions": {
+      "v1": "每局游戏限一次，在白天时，你可以私下向说书人许一个愿望。"
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "id": "genshinen_scaramouche",
+  "team": "demon",
+  "edition": "community-genshin-en",
+  "current_revision": "v1",
+  "setup": true,
+  "remindersGlobal": [
+    "Dead",
+    "Archon"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Scaramouche",
+    "ability": "Each night*, choose a player: they die. If an Archon dies this way, learned it & act twice next night. If none Archon live, evil wins, even if you died. [+All Archons, -the Wanderer]",
+    "revisions": {
+      "v1": "Each night*, choose a player: they die. If an Archon dies this way, learned it & act twice next night. If none Archon live, evil wins, even if you died. [+All Archons, -the Wanderer]"
+    },
+    "flavor": "Mortals cling to fleeting gods, like puppets clinging to their strings. But I shall sever those strings and claim the heavens myself.",
+    "otherNightReminder": "Wake up the Scaramouche. The Scaramouche points to a player and kills that player. The player dies, and a \"Dead\" token is placed next to their character token. If the Scaramouche kills an Archon this way, you learn this and act twice next night. If there are no Archons alive, evil wins. Put the Scaramouche back to sleep.",
+    "remindersGlobal": [
+      "Dead",
+      "Archon"
+    ]
+  },
+  "zh": {
+    "name": "散兵"
+  }
+}

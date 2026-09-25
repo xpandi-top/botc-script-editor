@@ -1,0 +1,41 @@
+{
+  "id": "rome_gladiator",
+  "team": "townsfolk",
+  "edition": "community-rome",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Duel",
+    "Dead",
+    "No Ability"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Gladiator",
+    "ability": "Once per game, during the day, publicly choose a living player. Tonight, you and they wake & silently play roshambo: whoever loses dies (someone must lose).",
+    "revisions": {
+      "v1": "Once per game, during the day, publicly choose a living player. Tonight, you and they wake & silently play roshambo: whoever loses dies (someone must lose)."
+    },
+    "flavor": "\"Forgive me. I was trained with swords! Not with words.\" - Crixus 72 B.C.",
+    "otherNightReminder": "If the Gladiator used their ability today wake the Gladiator and the player they chose: both players silently play roshambo (rock \"fist\", scissors \"two fingers\" or paper \"flat hand\"). If they both chose the same, play again. Play until someone wins. The loser dies.",
+    "reminders": [
+      "Duel",
+      "Dead",
+      "No Ability"
+    ]
+  },
+  "zh": {
+    "name": "角斗士",
+    "ability": "每局游戏限一次，在白天时，你可以公开选择一名存活玩家。当晚，你和他会被唤醒并秘密猜拳：输的人死亡（必须分出胜负）。",
+    "revisions": {
+      "v1": "每局游戏限一次，在白天时，你可以公开选择一名存活玩家。当晚，你和他会被唤醒并秘密猜拳：输的人死亡（必须分出胜负）。"
+    },
+    "flavor": "‘原谅我。我是被刀剑训练出来的！不是语言。’-克雷斯 前72年",
+    "otherNightReminder": "如果角斗士在今天白天向一名玩家发起决斗，唤醒角斗士和他挑战的那名玩家。他们进行猜拳直到分出胜负，输者死亡。"
+  }
+}

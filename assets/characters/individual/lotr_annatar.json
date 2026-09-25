@@ -1,0 +1,26 @@
+{
+  "id": "lotr_annatar",
+  "team": "traveler",
+  "edition": "community-lotr",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Annatar",
+    "ability": "Each night*, publicly choose 2 living players (not Sauron or travellers): a Minion, if chosen, is passed the Ring.",
+    "revisions": {
+      "v1": "Each night*, publicly choose 2 living players (not Sauron or travellers): a Minion, if chosen, is passed the Ring."
+    },
+    "flavor": "For in that time, he was not yet evil to behold, and they received his aid and grew mighty in his craft, whereas he learned all their secrets, and betrayed them.",
+    "firstNightReminder": "Annatar chooses 2 players.",
+    "otherNightReminder": "Annatar chooses 2 players."
+  },
+  "zh": {
+    "name": "安纳塔"
+  }
+}

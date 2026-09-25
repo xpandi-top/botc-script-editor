@@ -1,0 +1,22 @@
+{
+  "id": "xiaoer_12",
+  "team": "townsfolk",
+  "edition": "community-xiaoer",
+  "current_revision": "v1",
+  "setup": true,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "zh": {
+    "name": "中原苗家",
+    "ability": "如果你在夜晚死亡，关外胡家会代替你死亡，同时你会被唤醒得知恶魔的一个伪装。[+关外胡家]",
+    "revisions": {
+      "v1": "如果你在夜晚死亡，关外胡家会代替你死亡，同时你会被唤醒得知恶魔的一个伪装。[+关外胡家]"
+    },
+    "flavor": "洗剑怀中抱月、迎门腿反劈华山、提撩剑白鹤舒翅、冲天掌苏秦背剑——",
+    "otherNightReminder": "如果中原苗家在夜晚死亡，让关外胡家代替其死去。同时唤醒中原苗家，指向一个恶魔伪装的角色。"
+  }
+}

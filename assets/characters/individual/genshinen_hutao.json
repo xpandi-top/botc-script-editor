@@ -1,0 +1,25 @@
+{
+  "id": "genshinen_hutao",
+  "team": "townsfolk",
+  "edition": "community-genshin-en",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Hu Tao",
+    "ability": "Each night*, choose a dead player (not yourself or Travellers): you learn 1 good & 1 evil character, 1 of which is correct.",
+    "revisions": {
+      "v1": "Each night*, choose a dead player (not yourself or Travellers): you learn 1 good & 1 evil character, 1 of which is correct."
+    },
+    "flavor": "Life, death, sickness, and old age, the myriad things of heaven and earth, are all within our grasp.",
+    "otherNightReminder": "Wake the Hu Tao up. They point at any dead player. If the chosen player’s character is a Townsfolk or Outsider, show their character token and any Minion or Demon token to the Hu Tao. If the chosen player’s character is a Minion or Demon, show their character token and any Townsfolk or Outsider token to the hu Tao. Then, put the Hu Tao to sleep."
+  },
+  "zh": {
+    "name": "胡桃"
+  }
+}

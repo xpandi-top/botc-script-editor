@@ -1,0 +1,32 @@
+{
+  "id": "lotr_galadriel",
+  "team": "townsfolk",
+  "edition": "community-lotr",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Ability Used"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Galadriel",
+    "ability": "Each night, learn if the Ring is safe. Once per game, at night, learn who has it.",
+    "revisions": {
+      "v1": "Each night, learn if the Ring is safe. Once per game, at night, learn who has it."
+    },
+    "flavor": "In place of a Dark Lord, you would have a queen! Not dark, but beautiful and terrible as the dawn! Treacherous as the sea! Stronger than the foundations of the earth! All shall love me, and despair!",
+    "firstNightReminder": "Tell Galadriel if the Ring is safe (and if they want to use their ability)",
+    "otherNightReminder": "Tell Galadriel if the Ring is safe (and if they want to use their ability)",
+    "reminders": [
+      "Ability Used"
+    ]
+  },
+  "zh": {
+    "name": "凯兰崔尔"
+  }
+}

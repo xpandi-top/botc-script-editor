@@ -37,6 +37,7 @@ import type { PrintOptions } from './PrintOptionsDialog'
 import { PADDING_MAP, FONT_CSS } from './PrintOptionsDialog'
 import { ResponsiveDialog, ResponsiveDialogContent } from './ui'
 import { makeT, makeTpl } from '../lib/t'
+import { communityScriptSource } from '../core/script/format'
 import { sanitizeAbilityHtml } from '../lib/sanitizeAbilityHtml'
 
 type SheetArticleProps = {
@@ -176,6 +177,8 @@ export function SheetArticle({
   const renderHeader = (lang: Language) => {
     const title = lang === 'zh' ? activeScript.titleZh || activeScript.title : activeScript.title
     const author = showAuthor && activeScript.author ? activeScript.author : null
+    // Community scripts always name where they were published (author and link).
+    const source = communityScriptSource(activeScript.meta)
     return (
       <Box sx={{ mb: 1, textAlign: titleAlign }}>
         {showEdition && (
@@ -198,6 +201,16 @@ export function SheetArticle({
         {showCharacterCount && (
           <Typography variant="body2" color="text.secondary" sx={{ ...(fontSize && { fontSize }) }}>
             {activeScriptCharacters.length} {makeT(lang)('characters_suffix')}
+          </Typography>
+        )}
+        {source && (
+          <Typography variant="caption" color="text.secondary" component="p" sx={{ ...(fontSize && { fontSize }) }}>
+            {makeT(lang)('community_script')}
+            {' · '}
+            <Box component="a" href={source.url} target="_blank" rel="noopener noreferrer" sx={{ color: 'inherit' }}>
+              {source.name}{source.issue ? ` ${makeTpl(lang)('source_issue_n', source.issue)}` : ''}{source.title ? `《${source.title}》` : ''}
+            </Box>
+            {!author && activeScript.author ? ` · ${makeT(lang)('author_prefix')}${activeScript.author}` : ''}
           </Typography>
         )}
       </Box>

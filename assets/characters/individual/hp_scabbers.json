@@ -1,0 +1,29 @@
+{
+  "id": "hp_scabbers",
+  "team": "outsider",
+  "edition": "community-hp",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Betrayed",
+    "Drunk"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Scabbers",
+    "ability": "Each day you must publicly guess the good role of one living player (Not yourself). If wrong, that player may be drunk tonight. This ability continues even if dead.",
+    "revisions": {
+      "v1": "Each day you must publicly guess the good role of one living player (Not yourself). If wrong, that player may be drunk tonight. This ability continues even if dead."
+    },
+    "flavor": "I solemnly swear that I am up to no good",
+    "reminders": [
+      "Betrayed",
+      "Drunk"
+    ]
+  }
+}

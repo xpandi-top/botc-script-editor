@@ -1,0 +1,39 @@
+{
+  "id": "rome_scholar",
+  "team": "townsfolk",
+  "edition": "community-rome",
+  "current_revision": "v1",
+  "setup": true,
+  "reminders": [
+    "Lectured",
+    "No Ability"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Scholar",
+    "ability": "The 1st time you nominate a living Outsider, they immediately become a not-in-play Townsfolk. [+1 Outsider]",
+    "revisions": {
+      "v1": "The 1st time you nominate a living Outsider, they immediately become a not-in-play Townsfolk. [+1 Outsider]"
+    },
+    "flavor": "\"When you arise in the morning, think of what a precious privilege it is to be alive - to breathe, to think, to enjoy, to love.\" - Marcus Aurelius 121 A.D. - 180 A.D.",
+    "otherNightReminder": "If the Scholar nominated an Outsider today, place the NO ABILITY token. Wake the nominated player. Show 'You are', then their new character token.",
+    "reminders": [
+      "Lectured",
+      "No Ability"
+    ]
+  },
+  "zh": {
+    "name": "学者",
+    "ability": "当你首次提名存活的外来者时，他立刻变为一个不在场的镇民角色。【+1外来者】",
+    "revisions": {
+      "v1": "当你首次提名存活的外来者时，他立刻变为一个不在场的镇民角色。【+1外来者】"
+    },
+    "flavor": "‘当你在清晨醒来的时候，想想你还活着，还能呼吸，还能思考，还能享受，还能去爱，这是多么珍贵的特权。’-马可·奥勒留 121-180",
+    "otherNightReminder": "如果学者在今天白天首次提名了一名外来者，唤醒被提名玩家并向他展示“你是”信息标记和他的新角色（镇民）标记。"
+  }
+}

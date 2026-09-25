@@ -1,0 +1,36 @@
+{
+  "id": "genshinen_raidenshogun",
+  "team": "townsfolk",
+  "edition": "community-genshin-en",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Lose ability"
+  ],
+  "remindersGlobal": [
+    "dead"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Raiden Shogun",
+    "ability": "Once per game, when you nominate, claim to be the Raiden Shogun: if your nominee's evil, they're executed inmediately. You're an Archon.",
+    "revisions": {
+      "v1": "Once per game, when you nominate, claim to be the Raiden Shogun: if your nominee's evil, they're executed inmediately. You're an Archon."
+    },
+    "flavor": "Forsaking the fleeting illusions of this mortal realm, I yearn for the eternal truth of the nirvana.",
+    "reminders": [
+      "Lose ability"
+    ],
+    "remindersGlobal": [
+      "dead"
+    ]
+  },
+  "zh": {
+    "name": "雷电将军"
+  }
+}

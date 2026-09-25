@@ -1,0 +1,28 @@
+{
+  "id": "hp_thedeatheaters",
+  "team": "demon",
+  "edition": "community-hp",
+  "current_revision": "v1",
+  "setup": true,
+  "reminders": [
+    "Dead"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "The Deatheaters",
+    "ability": "Each night*, alive minions point at a player to kill. The game ends when all minions are dead. [- 1 demon, 1 Townsfolk is evil]",
+    "revisions": {
+      "v1": "Each night*, alive minions point at a player to kill. The game ends when all minions are dead. [- 1 demon, 1 Townsfolk is evil]"
+    },
+    "flavor": "You know he can control people so that they do terrible things without being able to stop themselves.",
+    "otherNightReminder": "Wake all Minions and ask them to vote on a player to kill.",
+    "reminders": [
+      "Dead"
+    ]
+  }
+}

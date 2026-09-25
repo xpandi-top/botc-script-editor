@@ -1,0 +1,37 @@
+{
+  "id": "lotr_owyn",
+  "team": "townsfolk",
+  "edition": "community-lotr",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "No Ability",
+    "Dead"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Éowyn",
+    "ability": "Once per game, at night*, choose a player: An evil player, if chosen, dies.",
+    "revisions": {
+      "v1": "Once per game, at night*, choose a player: An evil player, if chosen, dies."
+    },
+    "flavor": "No living man am I!",
+    "otherNightReminder": "Ask Éowyn if they would like to use their ability.",
+    "reminders": [
+      "No Ability",
+      "Dead"
+    ]
+  },
+  "zh": {
+    "name": "伊欧玟",
+    "ability": "每局游戏限一次，在夜晚时*，选择一名玩家：如果他是邪恶的，他死亡。",
+    "revisions": {
+      "v1": "每局游戏限一次，在夜晚时*，选择一名玩家：如果他是邪恶的，他死亡。"
+    }
+  }
+}

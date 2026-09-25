@@ -1,0 +1,41 @@
+{
+  "id": "rome_cleopatra",
+  "team": "demon",
+  "edition": "community-rome",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Chosen",
+    "Dead"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Cleopatra",
+    "ability": "Each night, choose two players: if they nominate tomorrow, they die that night. Each day, if a good player (Travellers don't count) does not nominate, evil wins.",
+    "revisions": {
+      "v1": "Each night, choose two players: if they nominate tomorrow, they die that night. Each day, if a good player (Travellers don't count) does not nominate, evil wins."
+    },
+    "flavor": "\"Fool! Don't you see now that I could have poisoned you a hundred times had I been able to live without you!\" - Cleopatra VII Thea Philopator 69 B.C. - 30 B.C.",
+    "firstNightReminder": "Cleopatra points to two players.",
+    "otherNightReminder": "If a previously chosen player nominated today they die. Remove all CHOSEN tokens. Cleopatra points to two players. Place the CHOSEN token next to both players.",
+    "reminders": [
+      "Chosen",
+      "Dead"
+    ]
+  },
+  "zh": {
+    "name": "克里奥佩特拉",
+    "ability": "每个夜晚，你要选择两名玩家：如果他们在明天白天发起提名，当晚他们会死亡。每个白天，如果没有善良玩家（旅行者不计算在内）发起提名，邪恶阵营获胜。",
+    "revisions": {
+      "v1": "每个夜晚，你要选择两名玩家：如果他们在明天白天发起提名，当晚他们会死亡。每个白天，如果没有善良玩家（旅行者不计算在内）发起提名，邪恶阵营获胜。"
+    },
+    "flavor": "‘蠢货！你没发现如果没有你我也能活下去，我已经能够给你下毒千百回了吗！’-克里奥佩特拉七世 笃爱父亲者 前69-前30",
+    "firstNightReminder": "唤醒克里奥佩特拉，让她选择两名玩家。",
+    "otherNightReminder": "唤醒克里奥佩特拉，让她选择两名玩家。如果前一天被选择的玩家在今天白天发起过提名，他（他们）死亡。"
+  }
+}

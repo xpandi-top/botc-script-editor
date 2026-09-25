@@ -1,0 +1,28 @@
+{
+  "id": "lotr_bombadil",
+  "team": "traveler",
+  "edition": "community-lotr",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Bombadil",
+    "ability": "Once per game, at dusk, you may silence all players, look at the Grimoire, publicly point at a player, and then leave.",
+    "revisions": {
+      "v1": "Once per game, at dusk, you may silence all players, look at the Grimoire, publicly point at a player, and then leave."
+    },
+    "flavor": "Hey dol! merry dol! ring a dong dillo!\nRing a dong! hop along! fal lal the willow!\nTom Bom, jolly Tom, Tom Bombadillo!"
+  },
+  "zh": {
+    "name": "庞巴迪",
+    "ability": "每局游戏限一次，在黄昏时，你可以要求所有玩家沉默，查看魔典，然后公开指向一名玩家并离开游戏。",
+    "revisions": {
+      "v1": "每局游戏限一次，在黄昏时，你可以要求所有玩家沉默，查看魔典，然后公开指向一名玩家并离开游戏。"
+    }
+  }
+}

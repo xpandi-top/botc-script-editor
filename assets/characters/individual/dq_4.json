@@ -1,0 +1,23 @@
+{
+  "id": "dq_4",
+  "team": "townsfolk",
+  "edition": "community-dq",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "zh": {
+    "name": "女仆",
+    "ability": "每个夜晚，你要选择除你以外的两名玩家：你会得知他们是否为同一角色类型。",
+    "revisions": {
+      "v1": "每个夜晚，你要选择除你以外的两名玩家：你会得知他们是否为同一角色类型。"
+    },
+    "flavor": "请问您想要来杯茶还是咖啡？我马上为您准备。",
+    "firstNightReminder": "让她选择除她以外的两名玩家，告知她这两名玩家是否为同一角色类型。",
+    "otherNightReminder": "让她选择除她以外的两名玩家，告知她这两名玩家是否为同一角色类型。"
+  }
+}

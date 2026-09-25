@@ -1,0 +1,30 @@
+{
+  "id": "hp_grindelwald",
+  "team": "minion",
+  "edition": "community-hp",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Ability Taken",
+    "Was Grindelwald"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Grindelwald",
+    "ability": "Each night* choose a dead player, you may use their ability. If The Dark Lord was to die, you become the new Dark Lord and deaths are arbitrary. [-1 Outsider]",
+    "revisions": {
+      "v1": "Each night* choose a dead player, you may use their ability. If The Dark Lord was to die, you become the new Dark Lord and deaths are arbitrary. [-1 Outsider]"
+    },
+    "flavor": "Magic blooms... only in rare souls. Still, we must skulk in shadows. But the old ways serve us no longer.",
+    "otherNightReminder": "Wake and ask them to choose a dead player",
+    "reminders": [
+      "Ability Taken",
+      "Was Grindelwald"
+    ]
+  }
+}

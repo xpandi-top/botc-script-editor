@@ -1,0 +1,23 @@
+{
+  "id": "dq_8",
+  "team": "townsfolk",
+  "edition": "community-dq",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "zh": {
+    "name": "大侦探",
+    "ability": "每个夜晚，你会得知两名存活的非恶魔玩家。",
+    "revisions": {
+      "v1": "每个夜晚，你会得知两名存活的非恶魔玩家。"
+    },
+    "flavor": "排除一切不可能，剩下的再不可能也是真相。",
+    "firstNightReminder": "告知他两名存活的非恶魔玩家。",
+    "otherNightReminder": "告知他两名存活的非恶魔玩家。"
+  }
+}

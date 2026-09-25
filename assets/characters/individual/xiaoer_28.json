@@ -1,0 +1,21 @@
+{
+  "id": "xiaoer_28",
+  "team": "traveler",
+  "edition": "community-xiaoer",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "zh": {
+    "name": "鹿鼎公",
+    "ability": "每个白天，你可以公开选择一名玩家：你和他猜大小，如果你获胜，你可以提出一个合理的要求，他必须选择满足或者死亡。",
+    "revisions": {
+      "v1": "每个白天，你可以公开选择一名玩家：你和他猜大小，如果你获胜，你可以提出一个合理的要求，他必须选择满足或者死亡。"
+    },
+    "flavor": "大功告成，亲个嘴吧！今天大家就赌他个落花流水！"
+  }
+}

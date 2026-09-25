@@ -1,0 +1,41 @@
+{
+  "id": "rome_sculptor",
+  "team": "townsfolk",
+  "edition": "community-rome",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Sculpture",
+    "Nominated"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Sculptor",
+    "ability": "You start knowing a player. Each night*, you learn the alignment of their most recent nomination.",
+    "revisions": {
+      "v1": "You start knowing a player. Each night*, you learn the alignment of their most recent nomination."
+    },
+    "flavor": "\"The sculptor's hand can only break the spell to free the figures slumbering in the stone.\"  - Michelangelo 1501 A.D.",
+    "firstNightReminder": "Point to a player. Place the SCULPTURE token next to that player.",
+    "otherNightReminder": "If the player with the SCULPTURE token nominated today. Show the Sculptor an evil thumbs down sign if the nominated player is evil. Otherwise: show the Sculptor a good thumbs up sign. Remove the NOMINATED token (if any).",
+    "reminders": [
+      "Sculpture",
+      "Nominated"
+    ]
+  },
+  "zh": {
+    "name": "雕塑家",
+    "ability": "在你的首个夜晚，你会得知一名玩家。每个夜晚*，你会得知他最近提名的玩家所属的阵营。",
+    "revisions": {
+      "v1": "在你的首个夜晚，你会得知一名玩家。每个夜晚*，你会得知他最近提名的玩家所属的阵营。"
+    },
+    "flavor": "‘只有雕塑家的手才能够打破魔咒解放沉睡在大理石中的雕像。’-米开朗基罗 1501年",
+    "firstNightReminder": "唤醒雕塑家，对他指向一名玩家作为他的“雕塑品”。",
+    "otherNightReminder": "如果一名玩家的角色标记旁有“被提名”标记，唤醒雕塑家并向他展示大拇指向上或向下的手势。"
+  }
+}

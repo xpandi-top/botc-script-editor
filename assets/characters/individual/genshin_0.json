@@ -1,0 +1,21 @@
+{
+  "id": "genshin_0",
+  "team": "townsfolk",
+  "edition": "community-genshin",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "zh": {
+    "name": "米卡",
+    "ability": "在你的首个夜晚，你会得知离你最远的外来者之间的最近距离。（邻座的玩家距离为1）",
+    "revisions": {
+      "v1": "在你的首个夜晚，你会得知离你最远的外来者之间的最近距离。（邻座的玩家距离为1）"
+    },
+    "firstNightReminder": "唤醒米卡。对他用手势比划数字来表示与你最遠的外來者之間的最近距離， （1,2,3等）如果距離相同，由說書人決定哪一側。让米卡重新入睡。"
+  }
+}

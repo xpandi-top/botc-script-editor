@@ -1,0 +1,22 @@
+{
+  "id": "sjjl_35",
+  "team": "outsider",
+  "edition": "community-sjjl",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "zh": {
+    "name": "鱼灯",
+    "ability": "如果你死亡，在当晚恶魔可以选择一名其他邪恶玩家和一个不在场的爪牙角色，该玩家获得该角色的能力。",
+    "revisions": {
+      "v1": "如果你死亡，在当晚恶魔可以选择一名其他邪恶玩家和一个不在场的爪牙角色，该玩家获得该角色的能力。"
+    },
+    "flavor": "鱼灯延腊火，兽炭化春灰。",
+    "otherNightReminder": "如果鱼灯死亡，恶魔可以选择一名其他邪恶玩家和一个不在场的爪牙角色，该玩家获得该角色的能力。"
+  }
+}

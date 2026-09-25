@@ -1,0 +1,34 @@
+{
+  "id": "genshinen_kamisatoayaka",
+  "team": "townsfolk",
+  "edition": "community-genshin-en",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Act Twice"
+  ],
+  "remindersGlobal": [
+    "Dog of Kamisato Ayaka"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Kamisato Ayaka",
+    "ability": "Each day, players may raise their hand. Tonight, choose a player who did; you learn either if they woke due to their ability tonight, or what their character type is. If you choose an Archon, choose two players tomorrow.",
+    "revisions": {
+      "v1": "Each day, players may raise their hand. Tonight, choose a player who did; you learn either if they woke due to their ability tonight, or what their character type is. If you choose an Archon, choose two players tomorrow."
+    },
+    "flavor": "As frost forms on a windowpane, as an egret stands in the snow",
+    "otherNightReminder": "If a players except you may make a public statement following day. Wake the Kamisato Ayaka. They point at any player who had public statement.",
+    "reminders": [
+      "Act Twice"
+    ],
+    "remindersGlobal": [
+      "Dog of Kamisato Ayaka"
+    ]
+  }
+}

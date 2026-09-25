@@ -1,0 +1,29 @@
+{
+  "id": "hp_harrypotter",
+  "team": "townsfolk",
+  "edition": "community-hp",
+  "current_revision": "v1",
+  "setup": true,
+  "reminders": [
+    "Lived",
+    "Dark Lord Weakened"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Harry Potter",
+    "ability": "You are a Horcrux. The first time you are killed by the dark lord, you are not and all evil characters are drunk until tommorow.",
+    "revisions": {
+      "v1": "You are a Horcrux. The first time you are killed by the dark lord, you are not and all evil characters are drunk until tommorow."
+    },
+    "flavor": "The boy who lived.",
+    "reminders": [
+      "Lived",
+      "Dark Lord Weakened"
+    ]
+  }
+}

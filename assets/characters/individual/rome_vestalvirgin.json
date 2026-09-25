@@ -1,0 +1,39 @@
+{
+  "id": "rome_vestalvirgin",
+  "team": "townsfolk",
+  "edition": "community-rome",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Learns"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Vestal Virgin",
+    "ability": "You start knowing 1 good & 1 evil character, 1 of which is in-play. When they die, that night you learn 1 good & 1 evil character, 1 of which is in-play.",
+    "revisions": {
+      "v1": "You start knowing 1 good & 1 evil character, 1 of which is in-play. When they die, that night you learn 1 good & 1 evil character, 1 of which is in-play."
+    },
+    "flavor": "\"Some are of the opinion that these vestals had no other business than the preservation of the sacred fire; but others conceive that they were keepers of other divine secrets, concealed from all but themselves.\" - Lucius Mestrius 'Plutarch' Plutarchus c. 49 A.D. - 119 A.D.",
+    "firstNightReminder": "Show 1 good and 1 evil character token: one of these is in play. Place the LEARNS next to the in-play character.",
+    "otherNightReminder": "If the player with the LEARNS token died today, remove the token. Show 1 good and 1 evil character token: one of these is in play. Place the LEARNS next to the in-play character.",
+    "reminders": [
+      "Learns"
+    ]
+  },
+  "zh": {
+    "name": "护火贞女",
+    "ability": "在你的首个夜晚，你会得知一个善良角色和一个邪恶角色，他们中有且只有一个在场。当在场角色对应的玩家死亡时，当晚你会得知一个善良角色和一个邪恶角色，他们中有且只有一个在场。",
+    "revisions": {
+      "v1": "在你的首个夜晚，你会得知一个善良角色和一个邪恶角色，他们中有且只有一个在场。当在场角色对应的玩家死亡时，当晚你会得知一个善良角色和一个邪恶角色，他们中有且只有一个在场。"
+    },
+    "flavor": "‘有些观点认为维斯塔贞女们除了维护圣火之外没有别的事可做；但其他观点将她们想象为隐藏于除她们自己外所有人的神圣秘密的保守者。’-卢修斯·梅斯特里奥斯·普鲁塔克 49-119",
+    "firstNightReminder": "唤醒护火贞女，向她展示一个善良角色标记和一个邪恶角色标记，其中有且只有一个在场。",
+    "otherNightReminder": "如果角色标记旁有“得知”标记的玩家死亡，唤醒护火贞女，向她展示一个善良角色标记和一个邪恶角色标记，其中有且只有一个在场。"
+  }
+}

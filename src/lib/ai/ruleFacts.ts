@@ -18,7 +18,7 @@ import { buildScriptPool, planSetup, type ScriptPool, type SetupPlan } from '../
 import { CHARACTER_DISTRIBUTION, SETUP_OUTSIDER_SHIFTS } from '../../core/engine/setup'
 import { gameStateFacts, type GameFact } from '../../core/engine/winConditions'
 import { catalogTeamOf } from '../../utils/seatAlignment'
-import type { Language, Team } from '../../types'
+import type { Language, ScriptMetaEntry, Team } from '../../types'
 import { charactersIn, type PoolRequirements } from './answerParse'
 import { mentionedEntities } from './catalogRetrieval'
 import { scriptQueryFacts, scriptRecommendationFacts } from './scriptFacts'
@@ -81,11 +81,13 @@ const bundledScriptOf = (text: string) => mentionedEntities(text).editionIds.map
 /**
  * Bundled scripts named in a text by title, in order of first mention.
  * Longer titles are matched first, so "暗流涌动-进阶" is not also a mention
- * of "暗流涌动".
+ * of "暗流涌动". Community scripts count only in 《》: their titles are
+ * often idioms ("一枝独秀", "胡言乱语") that answers use as plain words.
  */
 function scriptMentions(text: string): { characters: string[]; first: number; count: number }[] {
   const titles = initialScripts
-    .flatMap((s) => [s.titleZh, s.title].filter((t): t is string => !!t && t.length > 1).map((title) => ({ s, title })))
+    .flatMap((s) => [s.titleZh, s.title].filter((t): t is string => !!t && t.length > 1)
+      .map((title) => ({ s, title: (s.meta as ScriptMetaEntry).community ? `《${title}》` : title })))
     .sort((a, b) => b.title.length - a.title.length)
   let rest = text
   const found = new Map<string, { characters: string[]; first: number; count: number }>()

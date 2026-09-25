@@ -1,0 +1,29 @@
+{
+  "id": "rome_augur",
+  "team": "minion",
+  "edition": "community-rome",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Augur",
+    "ability": "If a Townsfolk nominates you, they immediately become a Bad Omen.",
+    "revisions": {
+      "v1": "If a Townsfolk nominates you, they immediately become a Bad Omen."
+    },
+    "flavor": "\"That everything in war and in peace, at home and abroad, was done only after taking the auspices?\" - Titus 'Livy' Livius 59 B.C. - 17 A.D."
+  },
+  "zh": {
+    "name": "占兆官",
+    "ability": "如果镇民提名了你，他立刻变为不祥之兆。",
+    "revisions": {
+      "v1": "如果镇民提名了你，他立刻变为不祥之兆。"
+    },
+    "flavor": "‘所有在战争与和平，国内与国外的一切都是只有在进行占卜之后做出的吗？’-提图斯·‘李维’李维斯 前59-17"
+  }
+}

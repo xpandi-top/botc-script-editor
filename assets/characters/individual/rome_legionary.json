@@ -1,0 +1,33 @@
+{
+  "id": "rome_legionary",
+  "team": "townsfolk",
+  "edition": "community-rome",
+  "current_revision": "v1",
+  "setup": true,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Legionary",
+    "ability": "Each night, you learn how many living evil players are sat clockwise between yourself and the next living Legionary. [+0 to +2 Legionary]",
+    "revisions": {
+      "v1": "Each night, you learn how many living evil players are sat clockwise between yourself and the next living Legionary. [+0 to +2 Legionary]"
+    },
+    "flavor": "\"We find that the Romans owed the conquest of the world to no other cause than continual military training, exact observance of discipline in their camps, and unwearied cultivation of the other arts of war.\" - Publius Flavius Vegetius Renatus c.385 A.D. - c. 450 A.D.",
+    "firstNightReminder": "Show the hand signal for the number (0, 1, 2, etc.) of living evil players between the Legionary and the next clockwise Legionary (exclusive).",
+    "otherNightReminder": "Show the hand signal for the number (0, 1, 2, etc.) of living evil players between the Legionary and the next clockwise Legionary (exclusive)."
+  },
+  "zh": {
+    "name": "军团士兵",
+    "ability": "每个夜晚，你会得知在顺时针方向上你与下一名存活的军团士兵之间存活邪恶玩家的数量。【+0~2军团士兵】",
+    "revisions": {
+      "v1": "每个夜晚，你会得知在顺时针方向上你与下一名存活的军团士兵之间存活邪恶玩家的数量。【+0~2军团士兵】"
+    },
+    "flavor": "‘我们发现罗马人将对世界的征服只归功于频繁的军队训练，对于他们军营纪律的遵守，和对于其他兵法的孜孜不倦的培养。’-普布利乌斯·弗莱维厄斯·维盖提乌斯·雷纳特斯 385-450",
+    "firstNightReminder": "唤醒军团士兵，用手势向他展示他在顺时针方向上与下一名存活军团士兵之间存活邪恶玩家的数量。",
+    "otherNightReminder": "唤醒军团士兵，用手势向他展示他在顺时针方向上与下一名存活军团士兵之间存活邪恶玩家的数量。"
+  }
+}

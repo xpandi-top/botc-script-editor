@@ -1,0 +1,37 @@
+{
+  "id": "genshinen_pyroagent",
+  "team": "minion",
+  "edition": "community-genshin-en",
+  "current_revision": "v1",
+  "setup": true,
+  "reminders": [
+    "Lose Ability"
+  ],
+  "remindersGlobal": [
+    "Dead"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Pyro Agent",
+    "ability": "Once per game, during the day, publically choose a player: if they're not an Archon, they're executed. [+1 Outsider]",
+    "revisions": {
+      "v1": "Once per game, during the day, publically choose a player: if they're not an Archon, they're executed. [+1 Outsider]"
+    },
+    "flavor": "Death debt is a given, living debt is a death sentence.",
+    "otherNightReminder": "If the Pyro Agent used ability during the day, place an \"Lose ability\" token next to his character token.",
+    "reminders": [
+      "Lose Ability"
+    ],
+    "remindersGlobal": [
+      "Dead"
+    ]
+  },
+  "zh": {
+    "name": "債務處理人"
+  }
+}

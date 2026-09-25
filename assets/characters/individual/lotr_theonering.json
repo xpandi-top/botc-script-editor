@@ -1,0 +1,38 @@
+{
+  "id": "lotr_theonering",
+  "team": "fabled",
+  "edition": "community-lotr",
+  "current_revision": "v1",
+  "setup": false,
+  "reminders": [
+    "Ringbearer"
+  ],
+  "remindersGlobal": [
+    "Ringbearer"
+  ],
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "The One Ring",
+    "ability": "A good player Bears the Ring. Each night*, the Ringbearer may pass the Ring to another living player. Players know if they bear the Ring. If the Demon bears, or a good Ringbearer dies, evil wins. If an evil Ringbearer dies, the Ring is passed to a good player.",
+    "revisions": {
+      "v1": "A good player Bears the Ring. Each night*, the Ringbearer may pass the Ring to another living player. Players know if they bear the Ring. If the Demon bears, or a good Ringbearer dies, evil wins. If an evil Ringbearer dies, the Ring is passed to a good player."
+    },
+    "flavor": "One Ring to rule them all, One Ring to find them,\n\nOne Ring to bring them all...and in the darkness, bind them.",
+    "firstNightReminder": "Inform the Ringbearer that they bear the Ring.",
+    "otherNightReminder": "Ask the Ringbearer to pass the Ring. Inform the new Ringbearer.",
+    "reminders": [
+      "Ringbearer"
+    ],
+    "remindersGlobal": [
+      "Ringbearer"
+    ]
+  },
+  "zh": {
+    "name": "至尊魔戒"
+  }
+}

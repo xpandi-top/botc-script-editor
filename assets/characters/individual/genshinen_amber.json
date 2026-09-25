@@ -1,0 +1,26 @@
+{
+  "id": "genshinen_amber",
+  "team": "townsfolk",
+  "edition": "community-genshin-en",
+  "current_revision": "v1",
+  "setup": false,
+  "revisions": [
+    {
+      "id": "v1",
+      "note": ""
+    }
+  ],
+  "en": {
+    "name": "Amber",
+    "ability": "You start knowing the closest Archon character. Each night, learn a piece of information about this game.",
+    "revisions": {
+      "v1": "You start knowing the closest Archon character. Each night, learn a piece of information about this game."
+    },
+    "flavor": "The wind said: Time to fly!",
+    "firstNightReminder": "Wake up Amber and tell her the character of the [Archon] player closest to you. Then put Amber back to sleep.",
+    "otherNightReminder": "Wake up Amber and tell her the correct information for this game. Then put Amber back to sleep."
+  },
+  "zh": {
+    "name": "安柏"
+  }
+}
