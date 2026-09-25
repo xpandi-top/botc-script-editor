@@ -15,9 +15,11 @@ import {
 } from './PrintOptionsDialog'
 import type { PrintOptions, PageSize, LanguageLayout, WakeOrderMode, TitleAlign, SectionStyle } from './PrintOptionsDialog'
 import type { EditableScript, Language, ResolvedScriptCharacter, ResolvedScriptCharacterGroup } from '../types'
-import { exportSheetPdf } from '../lib/nativePrint'
+import { exportSheetPdf, isNativePlatform } from '../lib/nativePrint'
 import { useT } from '../context/I18nContext'
 import { FieldLabel, SectionLabel } from './ui'
+import { FeedbackButton } from './Feedback'
+import { plainOptions } from '../lib/feedback/snapshot'
 
 type Props = {
   activeScript: EditableScript
@@ -129,6 +131,14 @@ export function PrintPreviewPage({
             <Typography variant="caption" sx={{ fontWeight: 700, fontSize: '0.7rem' }}>{t('lang_switch')}</Typography>
           </IconButton>
         </Tooltip>
+        {/* This page covers the app header: its flag is the only report button here. */}
+        <FeedbackButton request={() => ({
+          target: { type: 'print', script: activeScript.slug },
+          surface: 'print/sheet',
+          label: `${t('print_preview')} · ${getScriptTitle(activeScript)}`,
+          parts: ['sheet'],
+          snapshot: { native: isNativePlatform, options: plainOptions(opts) },
+        })} />
         <Tooltip title={panelOpen ? (t('hide_menu')) : (t('show_menu'))}>
           <IconButton size="small" onClick={() => setPanelOpen(v => !v)}>
             {panelOpen ? <MenuOpenIcon fontSize="small" /> : <MenuIcon fontSize="small" />}

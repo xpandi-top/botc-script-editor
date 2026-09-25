@@ -95,3 +95,15 @@ export function characterRequest(id: string, surface: string, options: { script?
 export function scriptRequest(script: EditableScript, surface: string, parts?: string[]): ReportRequest {
   return { target: { type: 'script', slug: script.slug }, surface, label: scriptLabel(script), parts, snapshot: scriptSnapshot(script) }
 }
+
+/** Settings or print options as a report carries them: images and long texts left out, long lists cut. */
+export function plainOptions(options: object): Record<string, unknown> {
+  const out: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(options)) {
+    if (typeof value === 'string' && (value.startsWith('data:') || value.length > 200)) out[key] = `(${value.startsWith('data:') ? 'image' : 'text'}, ${value.length} chars)`
+    else if (Array.isArray(value) && value.length > 30) out[key] = { count: value.length, first: value.slice(0, 30) }
+    else if (value && typeof value === 'object' && !Array.isArray(value)) out[key] = plainOptions(value)
+    else out[key] = value
+  }
+  return out
+}

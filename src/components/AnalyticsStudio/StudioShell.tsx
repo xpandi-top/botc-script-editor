@@ -18,6 +18,7 @@ import { RecordsSection } from './sections/RecordsSection'
 import type { GameRecord } from '../StorytellerSub/types'
 import type { Language } from '../../types'
 import { makeTpl } from '../../lib/t'
+import { FeedbackButton, useReportContext } from '../Feedback'
 
 interface Props {
   records: GameRecord[]
@@ -42,6 +43,10 @@ export function StudioShell({ records, onRecordsChange, language, onCreateRecord
   const playerStats = usePlayerStats(filtered, basis)
   const charStats = useCharStats(filtered, language, basis)
   const storytellerStats = useStorytellerStats(filtered)
+
+  // What problem reports see of the analytics: counts only, no player names.
+  const reportContext = { section: activeTab, basis, games: filtered.length, total: records.length, filters: activeCount }
+  useReportContext('analytics', reportContext)
 
   const tabDefs: Array<{ key: StudioTab; label: string; labelZh: string; icon: React.ReactNode }> = [
     { key: 'overview',    label: 'Overview',    labelZh: '概览',   icon: <BarChartIcon sx={{ fontSize: '1rem' }} /> },
@@ -72,7 +77,7 @@ export function StudioShell({ records, onRecordsChange, language, onCreateRecord
       )}
 
       {/* Studio tabs */}
-      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
+      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2, display: 'flex', alignItems: 'center' }}>
         <Tabs
           aria-label={language === 'zh' ? '统计分类' : 'Analytics sections'}
           value={activeTab}
@@ -80,6 +85,7 @@ export function StudioShell({ records, onRecordsChange, language, onCreateRecord
           variant="scrollable"
           scrollButtons="auto"
           sx={{
+            flex: 1, minWidth: 0,
             '& .MuiTabs-indicator': { display: 'block', height: 3 },
             '& .MuiTab-root': {
               border: 0, borderRadius: 0, backgroundColor: 'transparent',
@@ -106,6 +112,10 @@ export function StudioShell({ records, onRecordsChange, language, onCreateRecord
             />
           ))}
         </Tabs>
+        <FeedbackButton request={() => ({
+          target: { type: 'analytics' }, surface: 'analytics/studio', label: t('analytics_title'), parts: [activeTab],
+          snapshot: { ...reportContext, kpi },
+        })} />
       </Box>
 
       {(activeTab === 'players' || activeTab === 'characters' || activeTab === 'overview') && (

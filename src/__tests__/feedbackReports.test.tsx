@@ -8,7 +8,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { I18nProvider } from '../context/I18nContext'
 import { FeedbackButton, FeedbackProvider, useReportContext } from '../components/Feedback'
-import { characterRequest, characterSnapshot } from '../lib/feedback/snapshot'
+import { characterRequest, characterSnapshot, plainOptions } from '../lib/feedback/snapshot'
 import { recentErrors, recordError } from '../lib/feedback/errors'
 import {
   feedbackReport, flushReports, parseReportText, pendingReports, prefilledReportUrl, reportText, sendReport,
@@ -68,6 +68,32 @@ describe('report text', () => {
     expect(big.truncated).toBe(true)
     expect(big.url.length).toBeLessThanOrEqual(7_500)
     expect(parseReportText(decodeURIComponent(big.url.split('=').slice(2).join('=')))?.snapshot).toBeUndefined()
+  })
+})
+
+describe('settings, analytics and print reports', () => {
+  it('carry options without images or long lists', () => {
+    const options = plainOptions({ shape: 'circle', bgImage: `data:image/png;base64,${'A'.repeat(5000)}`, selectedCharacterIds: Array.from({ length: 40 }, (_, i) => `c${i}`), watermark: { imageData: 'data:image/png;base64,xx', text: 'Club' } })
+    expect(options).toEqual({
+      shape: 'circle', bgImage: '(image, 5022 chars)',
+      selectedCharacterIds: { count: 40, first: Array.from({ length: 30 }, (_, i) => `c${i}`) },
+      watermark: { imageData: '(image, 24 chars)', text: 'Club' },
+    })
+  })
+
+  it('offer their own parts in the dialog', () => {
+    render(
+      <I18nProvider language="zh">
+        <FeedbackProvider>
+          <FeedbackButton request={() => ({ target: { type: 'print' }, surface: 'print/tokens', label: '打印工坊', parts: ['tokens'] })} />
+        </FeedbackProvider>
+      </I18nProvider>,
+    )
+    fireEvent.click(screen.getByRole('button', { name: '反馈这里的问题' }))
+    expect(screen.getByRole('button', { name: '角色标记' }).getAttribute('aria-pressed')).toBe('true')
+    for (const part of ['提示标记', '状态标记', '布局', '剧本单排版', '导出']) expect(screen.getByRole('button', { name: part })).toBeTruthy()
+    expect(reportText(feedbackReport({ language: 'zh', target: { type: 'analytics' }, surface: 'analytics/studio', label: '数据统计', issues: ['wrong'], parts: ['players'] })))
+      .toContain('Analytics: 数据统计 — players')
   })
 })
 

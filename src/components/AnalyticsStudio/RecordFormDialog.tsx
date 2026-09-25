@@ -22,6 +22,7 @@ import type { GameRecord } from '../StorytellerSub/types'
 import type { Language } from '../../types'
 import { useT } from '../../context/I18nContext'
 import { ResponsiveDialog, ResponsiveDialogActions, ResponsiveDialogContent } from '../ui'
+import { FeedbackButton } from '../Feedback'
 
 // ── Types ─────────────────────────────────────────────────────────
 
@@ -326,8 +327,13 @@ export function RecordFormDialog({ existing, zh, language, onSave, onClose }: {
 
   return (
     <ResponsiveDialog open onClose={onClose} maxWidth="md">
-      <DialogTitle sx={{ pb: 0 }}>
-        {existing ? (t('edit_game_record')) : (t('new_game_record'))}
+      <DialogTitle sx={{ pb: 0, display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box component="span" sx={{ flex: 1 }}>{existing ? (t('edit_game_record')) : (t('new_game_record'))}</Box>
+        <FeedbackButton request={() => ({
+          target: { type: 'analytics' }, surface: 'analytics/record-form', label: existing ? t('edit_game_record') : t('new_game_record'), parts: ['record_form'],
+          // Which record and form tab; no player names.
+          snapshot: { editing: Boolean(existing), recordId: existing?.id, script: scriptSlug || undefined, formTab: tab, players: players.length },
+        })} />
       </DialogTitle>
 
       <Tabs value={tab} onChange={(_, v) => setTab(v as number)}

@@ -3,7 +3,7 @@
  * API/MCP URLs, manages personal access tokens for agents and moves library
  * data to/from the cloud library. Rendered unless the build sets VITE_API_URL=off.
  */
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { Alert, Box, Button, IconButton, Stack, TextField, Tooltip, Typography } from '@mui/material'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import HubIcon from '@mui/icons-material/Hub'
@@ -27,7 +27,8 @@ function CopyField({ label, value }: { label: string; value: string }) {
   )
 }
 
-export function ApiAccessSection({ cloud, language }: { cloud: CloudSyncState; language: Language }) {
+/** `action` is shown after the title (the report flag). */
+export function ApiAccessSection({ cloud, language, action }: { cloud: CloudSyncState; language: Language; action?: ReactNode }) {
   const { t } = useT()
   const tpl = useMemo(() => makeTpl(language), [language])
   const apiUrl = getApiUrl()
@@ -61,6 +62,7 @@ export function ApiAccessSection({ cloud, language }: { cloud: CloudSyncState; l
       <Typography variant="h5" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         <HubIcon />
         {t('api_access')}
+        {action}
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2, maxWidth: 560 }}>
         {t('api_access_desc')}

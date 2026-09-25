@@ -20,6 +20,9 @@ export type ReportTarget =
   | { type: 'character'; id: string; script?: string }
   | { type: 'script'; slug: string }
   | { type: 'storyteller'; characterId?: string; seat?: number; script?: string }
+  | { type: 'settings' }
+  | { type: 'analytics' }
+  | { type: 'print'; script?: string }
   | { type: 'page' }
 export type ReportTargetType = ReportTarget['type']
 
@@ -28,6 +31,9 @@ export const REPORT_PARTS = {
   character: ['name', 'ability', 'reminders', 'night', 'jinx', 'icon', 'almanac'],
   script: ['characters', 'night', 'info', 'sheet', 'export'],
   storyteller: ['night', 'seat', 'reminders', 'nomination', 'setup', 'log', 'timer'],
+  settings: ['language', 'theme', 'fonts', 'sync', 'api', 'backup'],
+  analytics: ['overview', 'scripts', 'players', 'characters', 'records', 'filter', 'share', 'record_form'],
+  print: ['tokens', 'reminders', 'markers', 'layout', 'sheet', 'export'],
   page: [],
 } as const satisfies Record<ReportTargetType, readonly string[]>
 export type ReportPart = typeof REPORT_PARTS[ReportTargetType][number]
@@ -117,7 +123,8 @@ const ISSUE_TEXT: Record<ReportIssue, string> = {
   bug: 'does not work', layout: 'display / layout', suggestion: 'suggestion',
 }
 const TARGET_TEXT: Record<ReportTargetType, string> = {
-  character: 'Character', script: 'Script', storyteller: 'Storyteller', page: 'Page',
+  character: 'Character', script: 'Script', storyteller: 'Storyteller',
+  settings: 'Settings', analytics: 'Analytics', print: 'Print', page: 'Page',
 }
 
 /**
