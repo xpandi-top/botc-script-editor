@@ -44,7 +44,9 @@
     "android:apk": "cd android && ./gradlew assembleDebug",
     "release": "node scripts/github-release.mjs",
     "release:update": "node scripts/github-release.mjs",
-    "release:create": "node scripts/github-release.mjs --create"
+    "release:create": "node scripts/github-release.mjs --create",
+    "demo:screenshots": "node scripts/demo-screenshots.mjs",
+    "demo:players": "node scripts/demo-player-screenshots.mjs"
   },
   "dependencies": {
     "@byteowls/capacitor-oauth2": "^5.0.0",

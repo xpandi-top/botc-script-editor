@@ -4,7 +4,32 @@ Release timeline for BOTC Companion — features, fixes, and improvements.
 
 ---
 
-## 2026-09-21 — Player Assignments & Seat Self-Claim (latest)
+## 2026-09-24 — Apply-Only Script Changes & Product Showcase (latest)
+
+### Fixed
+- **Stage live-game script changes until Apply** — selecting a script in Player Assignments now updates a local draft. The running game's script and persisted save stay unchanged until **Apply Changes** is clicked.
+- A script-only edit enables Apply. Switching back to the current script removes that pending change; closing and reopening discards an unapplied live-game selection. Applying preserves existing seats and characters.
+- Changing the draft script clears the previous random-character pool so it cannot constrain the next script's random assignment.
+
+### Improved
+- English and Chinese picker guidance now explicitly states that the script changes only after applying.
+- Rebuilt the README as a Chinese product showcase: clear entry points, distinctive workflows, actual desktop/mobile screenshots, setup instructions, and links to maintained documentation. Covers existing audience presentation, player assignments, messaging, AI options, analytics, and print features without presenting them as newly released.
+- Corrected the deployment path and mobile-navigation description; documented online-service and local-model prerequisites.
+
+### Documentation & tooling
+- Added six illustrated player-flow screenshots: seat selection, name confirmation, host role delivery, private role reveal, voting, and submission confirmation. `npm run demo:players` exercises the real UI with an isolated local service fixture; no live sessions are created. Linked mobile voting is explicitly labeled experimental.
+- Added `npm run demo:screenshots`, deterministic fictional game/history data, and seven fresh screenshots. The isolated browser captures real UI states, checks horizontal overflow and runtime errors, and closes on success or failure.
+- Split detailed instructions into a [Chinese user guide](USER-GUIDE.md), covering game setup, hosting, printing, settings, backup scope, sync, and AI trial modes. Kept the README focused on product highlights and labeled the available AI chatbot **Experimental — feedback welcome**, without promising a future release date.
+- Moved developer setup and deployment references into [Development](DEVELOPMENT.md).
+- Added [Product demo maintenance](PRODUCT-DEMO.md), including repeatable capture commands and the release review checklist. Demo figures are explicitly labeled as fictional.
+
+### Validation
+- Desktop and Android-sized browser regression coverage for unapplied selections, reverting, closing/reopening, applying, seat preservation, and reload persistence.
+- Repository verification passed: translation and core type checks, 1,213 frontend tests, production build and bundle budget, plus worker type checks and 77 worker tests (2 frontend tests intentionally skipped).
+
+---
+
+## 2026-09-21 — Player Assignments & Seat Self-Claim
 
 ### Added
 - **"Player Assignments" panel** — a dedicated button in the storyteller toolbar/sidebar, reachable any time during setup or mid-game, independent of the New Game / Edit Players modals. Replaces the old "Deal Cards" button that was buried inside the New Game modal's Characters tab. Shows a live badge when a deal session is active.

@@ -59,7 +59,7 @@ export type CreateGameInput = {
   playerCount: number
   travelerCount?: number
   seatNames?: Record<string, string>
-  /** Seat → character id, or "random" to deal the official distribution from the script. */
+  /** Seat → character id, or "random" to deal the official distribution from the script (setup abilities such as the Baron's applied). */
   assignments?: Record<string, string> | 'random'
   /** Seat → the character the player is told they are (Drunk etc.). */
   perceived?: Record<string, string>
