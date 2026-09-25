@@ -36,6 +36,8 @@ import type {
 import type { PrintOptions } from './PrintOptionsDialog'
 import { PADDING_MAP, FONT_CSS } from './PrintOptionsDialog'
 import { ResponsiveDialog, ResponsiveDialogContent } from './ui'
+import { FeedbackButton } from './Feedback'
+import { characterRequest } from '../lib/feedback/snapshot'
 import { makeT, makeTpl } from '../lib/t'
 import { communityScriptSource } from '../core/script/format'
 import { sanitizeAbilityHtml } from '../lib/sanitizeAbilityHtml'
@@ -570,7 +572,7 @@ export function SheetArticle({
       <ResponsiveDialog open={!!popupId} onClose={() => setPopupId(null)} maxWidth="xs" mobile="compact">
         <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1.5, pb: 1 }}>
           {popupIcon && <Box component="img" src={popupIcon} sx={{ width: 40, height: 40 }} />}
-          <Box>
+          <Box sx={{ flex: 1, minWidth: 0 }}>
             <Typography variant="subtitle1" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
               {popupName}{popupNameAlt && popupNameAlt !== popupName ? ` · ${popupNameAlt}` : ''}
             </Typography>
@@ -580,6 +582,9 @@ export function SheetArticle({
               </Typography>
             )}
           </Box>
+          {popupId && (
+            <FeedbackButton request={() => characterRequest(popupId, 'scripts/sheet-popup', { script: activeScript.slug, pinnedRevisions: activeScript.pinnedRevisions })} />
+          )}
         </DialogTitle>
         <ResponsiveDialogContent sx={{ pt: 0 }}>
           <Typography variant="body2" sx={{ mb: popupAbilityAlt && popupAbilityAlt !== popupAbility ? 1 : 0 }}>

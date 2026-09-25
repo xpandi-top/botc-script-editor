@@ -1257,6 +1257,22 @@ function loadScripts() {
 export const { allCharacters, characterById } = loadCharacterCatalog()
 
 /**
+ * Which edits made on this device change what a character shows: a custom
+ * character, an imported pack, added revisions, reminder tokens or night
+ * reminders. Feedback reports carry this so a wrong text can be told apart
+ * from a local edit.
+ */
+export function getLocalCharacterEdits(id: string): string[] {
+  return [
+    _customCharRegistry.has(id) && 'custom',
+    _charPackOverrides[id] && 'pack',
+    _revisionOverrides[id] && 'revision',
+    _charReminders[id] && 'reminders',
+    _charNightOverrides[id] && 'night',
+  ].filter((edit): edit is string => Boolean(edit))
+}
+
+/**
  * Get ST night reminder for a character in the given language.
  * Falls back: zh → en if zh not available; returns undefined if no reminder.
  */

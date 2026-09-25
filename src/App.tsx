@@ -109,6 +109,7 @@ import { useThemeMode } from './context/ThemeMode'
 import { I18nProvider } from './context/I18nContext'
 import { makeT, makeTpl } from './lib/t'
 import { ErrorBoundary } from './components/ErrorBoundary'
+import { FeedbackButton, FeedbackProvider, useReportContext } from './components/Feedback'
 import { CHANGELOG_SEEN_KEY, getLatestChangelogReleaseId } from './lib/changelog'
 
 const UI_LANGUAGE_KEY = 'botc-ui-language'
@@ -711,9 +712,21 @@ export default function App() {
   const psTabLabel = t('print_studio')
   const anTabLabel = t('analytics_title')
   const stgTabLabel = t('settings')
+  const tabLabels: Record<string, string> = {
+    scripts: uiText.scriptSheet, characters: uiText.allCharacters, storyteller: stTabLabel,
+    analytics: anTabLabel, printstudio: psTabLabel, settings: stgTabLabel,
+  }
+
+  // What problem reports see of the app: the tab, the open script, the selected character.
+  useReportContext('app', {
+    tab: activeTab,
+    script: activeTab === 'scripts' ? activeScript?.slug : undefined,
+    character: activeTab === 'characters' ? selectedCharacterId || undefined : undefined,
+  })
 
   return (
     <I18nProvider language={uiLanguage}>
+    <FeedbackProvider>
     <Container maxWidth="xl" sx={{ pt: 0, pb: { xs: 'calc(56px + env(safe-area-inset-bottom))', sm: 3 }, px: { xs: 0, sm: 3 }, minHeight: '100vh' }}>
       {/* Hide header on mobile storyteller — MobileTopBar is the header there.
           Height: 100dvh in StorytellerHelper needs the viewport to start at y=0. */}
@@ -838,16 +851,16 @@ export default function App() {
               onPress={() => setActiveTab('settings')}
             />
 
-            <Tooltip title={t('feedback')}>
-              <IconButton
-                size="small"
-                href="https://forms.gle/3Bk1hkr4pLFhhSPx7"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <BugReportIcon />
-              </IconButton>
-            </Tooltip>
+            <FeedbackButton
+              icon={<BugReportIcon />}
+              title={t('feedback')}
+              request={() => ({
+                // The storyteller has parts to point at (night, seats, votes…); other tabs are pages.
+                target: activeTab === 'storyteller' ? { type: 'storyteller', script: stActiveSlug } : { type: 'page' },
+                surface: `app/${activeTab}`,
+                label: tabLabels[activeTab] ?? activeTab,
+              })}
+            />
             <Tooltip title={showDescription ? t('hide_description') : t('show_description')}>
               <IconButton
                 size="small"
@@ -1160,6 +1173,7 @@ export default function App() {
         callbacks={aiCallbacks}
       />
     </Container>
+    </FeedbackProvider>
     </I18nProvider>
   )
 }

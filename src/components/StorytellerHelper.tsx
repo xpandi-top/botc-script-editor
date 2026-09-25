@@ -11,6 +11,8 @@ import { useStoryteller } from './StorytellerSub/useStoryteller'
 import { useBreakpoint } from '../hooks/useBreakpoint'
 import { isIOSSafari } from '../hooks/useAudioState'
 import { buildStorytellerContext } from '../lib/ai'
+import { useReportContext } from './Feedback'
+import { canViewSecrets } from '../utils/seatAlignment'
 import type { StorytellerHelperProps } from './StorytellerSub/types'
 
 export function StorytellerHelper(props: StorytellerHelperProps) {
@@ -49,6 +51,22 @@ export function StorytellerHelper(props: StorytellerHelperProps) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ctx.currentDay, ctx.days, ctx.activeScriptTitle, ctx.stName, ctx.language,
       ctx.currentScriptCharacters, ctx.stFabledIds, ctx.stCustomRules, ctx.activeScriptSlug])
+
+  // What problem reports see of the game: ids and counts, no player names or notes. The
+  // characters in play only while the storyteller's secrets are shown: players may see the screen.
+  const reportSeats = ctx.currentDay?.seats ?? []
+  const reportSecrets = canViewSecrets(ctx.currentDay.phase, ctx.nightShowCharacter, ctx.privateView)
+  useReportContext('storyteller', {
+    script: ctx.activeScriptSlug,
+    day: ctx.currentDay?.day,
+    phase: ctx.currentDay?.phase,
+    players: reportSeats.filter((s) => !s.isTraveler).length,
+    travelers: reportSeats.filter((s) => s.isTraveler).length,
+    alive: reportSeats.filter((s) => s.alive).length,
+    inPlay: reportSecrets ? reportSeats.map((s) => s.characterId).filter(Boolean) : undefined,
+    fabled: ctx.stFabledIds,
+    layout: useMobileLayout ? 'mobile' : 'desktop',
+  })
 
   // Body overflow is managed by App.tsx (which knows the active tab).
   // Do NOT set document.body.style.overflow here — StorytellerHelper is now

@@ -34,6 +34,8 @@ import {
   teamLabels,
 } from '../catalog'
 import { CharacterAlmanacSection } from './CharacterAlmanacSection'
+import { FeedbackButton } from './Feedback'
+import { characterRequest } from '../lib/feedback/snapshot'
 import { ReminderTokenEditor } from './ReminderTokenEditor'
 import type { CharacterEntry, CharacterFileEntry, CustomCharacter, Language, RevisionOverrides } from '../types'
 import { useT } from '../context/I18nContext'
@@ -254,6 +256,7 @@ export function CharacterRevisionPanel({
             {isCustom && (
               <Chip label={t('custom')} size="small" color="secondary" sx={{ fontSize: '0.65rem' }} />
             )}
+            <FeedbackButton request={() => characterRequest(character.id, 'characters/detail')} />
             <Tooltip title={t('download_character_json')}>
               <IconButton size="small" onClick={downloadCharacter} sx={{ color: 'text.secondary' }}>
                 <DownloadIcon fontSize="small" />

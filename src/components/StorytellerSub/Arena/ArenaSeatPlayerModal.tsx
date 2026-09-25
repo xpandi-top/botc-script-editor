@@ -28,6 +28,9 @@ import { useT } from '../../../context/I18nContext'
 import { translateStTag, resolveTagDisplay } from './ArenaSeatComponents'
 import { AbilityDetailDialog, ModalSectionLabel } from './ArenaSeatPlayerModalParts'
 import { ResponsiveDialog, ResponsiveDialogContent } from '../../ui'
+import { FeedbackButton } from '../../Feedback'
+import { characterLabel, characterSnapshot } from '../../../lib/feedback/snapshot'
+import type { ReportRequest } from '../../../lib/feedback/report'
 
 const TRAVELER_CHAR_IDS = allCharacters.filter((c) => c.team === 'traveler').map((c) => c.id)
 
@@ -1312,11 +1315,31 @@ export function ArenaSeatPlayerModal({ ctx, seat }: { ctx: StorytellerContext; s
     </Accordion>
   )
 
+  // A problem report about this seat: its character and what the storyteller saw, no player name.
+  // With the secrets hidden (players can see the screen) the character stays out of it.
+  const reportRequest = (): ReportRequest => {
+    const charId = showSecrets || showPublicCharacter ? seat.characterId : null
+    return {
+      target: { type: 'storyteller', seat: seat.seat, script: activeScriptSlug, ...(charId ? { characterId: charId } : {}) },
+      surface: 'storyteller/seat',
+      label: `${tpl('seat_n', seat.seat)}${charId ? ` · ${characterLabel(charId)}` : ''}`,
+      snapshot: {
+        day: currentDay.day, phase: currentDay.phase, alive: seat.alive, traveler: seat.isTraveler,
+        ...(charId ? {
+          perceived: perceivedCharId !== charId ? perceivedCharId : undefined,
+          nightAction: isNight ? { has: hasNightAction, reminder: nightReminder ?? null, done: nightDone } : undefined,
+          character: characterSnapshot(charId, pinnedRevisions),
+        } : {}),
+      },
+    }
+  }
+
   const modal = (
     <ResponsiveDialog open={isOpen} onClose={handleClose} maxWidth="sm">
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 0.5, pt: 1.5, px: 2 }}>
         <Typography sx={{ fontWeight: 700 }}>#{seat.seat} {seat.name}</Typography>
         {showSecrets && <Button size="small" disabled={!ctx.canUndo} onClick={ctx.undo} sx={{ ml: 'auto' }}>{t('undo')}</Button>}
+        <FeedbackButton sx={showSecrets ? undefined : { ml: 'auto' }} request={reportRequest} />
         <IconButton size="small" aria-label={t('close')} onClick={handleClose}><CloseIcon fontSize="small" /></IconButton>
       </DialogTitle>
       <ResponsiveDialogContent sx={{ pt: 1.5, px: 2 }}>

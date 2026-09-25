@@ -346,6 +346,12 @@ export type UiKey =
   | 'scripts_empty_hint' | 'delete_day_confirm'
   | 'char_unsaved_note' | 'search_id_name_desc' | 'tokens_all_seats_note'
   | 'api_access' | 'api_access_desc' | 'api_endpoint' | 'api_mcp_endpoint' | 'api_sign_in_hint' | 'api_tokens' | 'api_tokens_desc' | 'api_token_name' | 'api_create_token' | 'api_token_created' | 'api_revoke' | 'api_no_tokens' | 'api_library' | 'api_library_desc' | 'api_upload' | 'api_import'
+  // Problem reports (src/components/Feedback)
+  | 'report_here' | 'report_short' | 'report_what_issue' | 'report_which_part'
+  | 'report_issue_wrong' | 'report_issue_translation' | 'report_issue_missing' | 'report_issue_bug' | 'report_issue_layout' | 'report_issue_suggestion'
+  | 'report_part_night' | 'report_part_info' | 'report_part_seat' | 'report_part_nomination' | 'report_part_setup' | 'report_part_timer' | 'report_part_sheet'
+  | 'report_note' | 'report_note_hint' | 'report_expected' | 'report_selection' | 'report_privacy'
+  | 'report_show_sent' | 'report_hide_sent' | 'report_open_form' | 'report_sent' | 'report_queued' | 'report_local'
 
 export type TplKey =
   | 'showing_n_of_m'
@@ -417,7 +423,7 @@ export type TplKey =
   | 'more_n_scripts_tab' | 'more_n_storytellers'
   // Misc templates
   | 'script_chars_short' | 'log_tab_n' | 'fill_log_n' | 'send_assigned_characters_n' | 'apply_changes_n' | 'source_issue_n'
-  | 'context_editing' | 'tag_for_char'
+  | 'context_editing' | 'tag_for_char' | 'report_title_for'
   | 'st_detail_n_games_scripts'
   // Communication board templates
   | 'communication_phrase_char_in_play' | 'communication_phrase_char_not_in_play'
