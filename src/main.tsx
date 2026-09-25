@@ -2,6 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { CssBaseline, GlobalStyles, useTheme } from '@mui/material'
 import { ThemeModeProvider } from './context/ThemeMode'
+import { captureErrors } from './lib/feedback/errors'
 import './fonts.css'
 
 /** Injects CSS variables and body background that react to the active MUI theme */
@@ -143,6 +144,8 @@ async function boot() {
     return
   }
 
+  // Recent errors go with problem reports (src/lib/feedback).
+  captureErrors()
   const [
     { default: App },
     { initNative },

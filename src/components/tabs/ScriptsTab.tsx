@@ -18,6 +18,8 @@ import { ScriptsLeftPanel } from '../ScriptsTab/ScriptsLeftPanel'
 import { ScriptsMasonryGrid } from '../ScriptsTab/ScriptsMasonryGrid'
 import { NightOrderPreview } from '../ScriptsTab/NightOrderPreview'
 import { ScriptEditor } from './ScriptEditor'
+import { FeedbackButton } from '../Feedback'
+import { scriptRequest } from '../../lib/feedback/snapshot'
 import { SCRIPT_TAG_META, SCRIPT_TAGS } from './ScriptsTab.constants'
 import type {
   CharacterGroup,
@@ -360,6 +362,7 @@ export function ScriptsTab({
               <Button size="small" variant="contained" onClick={() => setExportOpen(true)}>{t('library_export')}</Button>
               <Button size="small" onClick={() => setTagsOpen(v => !v)} aria-expanded={tagsOpen}>{t('library_tags_notes')}{activeScript.tags?.length ? ` (${activeScript.tags.length})` : ''}{activeScript.notes?.trim() ? ' •' : ''}</Button>
               {saveStatus && <Typography role="status" variant="body2" color="text.secondary">{saveStatus}</Typography>}
+              <FeedbackButton sx={{ ml: 'auto' }} request={() => scriptRequest(activeScript, 'scripts/toolbar')} />
 
             </Box>
 

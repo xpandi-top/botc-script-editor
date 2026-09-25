@@ -3,6 +3,8 @@ import CloseIcon from '@mui/icons-material/Close'
 import { getAbilityTextForScript, getDisplayName, getIconForCharacter } from '../../../catalog'
 import type { Language } from '../../../types'
 import { ResponsiveDialog, ResponsiveDialogContent } from '../../ui'
+import { FeedbackButton } from '../../Feedback'
+import { characterRequest } from '../../../lib/feedback/snapshot'
 
 export function ModalSectionLabel({ label }: { label: string }) {
   return (
@@ -31,6 +33,7 @@ export function AbilityDetailDialog({ charId, language, pinnedRevisions, onClose
       <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1, pb: 1 }}>
         {icon && <Box component="img" src={icon as string} sx={{ width: 32, height: 32, borderRadius: '50%', flexShrink: 0 }} />}
         <Typography sx={{ flex: 1, fontWeight: 700 }}>{name}</Typography>
+        <FeedbackButton request={() => characterRequest(charId, 'storyteller/ability', { pinnedRevisions })} />
         <IconButton size="small" onClick={onClose}><CloseIcon fontSize="small" /></IconButton>
       </DialogTitle>
       <ResponsiveDialogContent sx={{ pt: 0.5 }}>

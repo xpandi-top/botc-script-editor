@@ -35,6 +35,10 @@ npm run check-abilities
 # report, then `--write` to assets/scripts/community/ (see docs/COMMUNITY-CONTENT.md)
 npm run import:scripts -- <folder> [--write] [--allow-community]
 
+# Problem reports sent from the app's flag buttons (docs/FEEDBACK.md): files to fix,
+# text matches and commands per report; name the report id (fb-…) in the fixing commit
+npm run feedback:reports -- --csv responses.csv   # or --url / FEEDBACK_SHEET_CSV_URL, --since, --id
+
 # Community (民间) character packs listed in scripts/community-packs.json, from public
 # Bloodstar script JSON → one edition each (community-<key>); report, then --write
 npm run import:packs -- [--only hp,lotr] [--write]
@@ -112,7 +116,7 @@ The API/MCP server lives in `worker/` (Cloudflare Worker, own `package.json`; `c
 
 ## Issue Tracking
 
-See [`docs/ISSUES.md`](docs/ISSUES.md) for open/fixed bugs and features.
+See [`docs/ISSUES.md`](docs/ISSUES.md) for open/fixed bugs and features. User reports from inside the app (flag buttons → Google Form) are read with `npm run feedback:reports`; see [`docs/FEEDBACK.md`](docs/FEEDBACK.md). New UI that shows character, script or game content should get a `FeedbackButton`.
 
 ## Character Packs
 

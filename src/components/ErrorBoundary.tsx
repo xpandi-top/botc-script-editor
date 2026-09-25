@@ -2,6 +2,8 @@ import React from 'react'
 import { Box, Typography, Button, Paper } from '@mui/material'
 import ErrorIcon from '@mui/icons-material/Error'
 import RefreshIcon from '@mui/icons-material/Refresh'
+import { recordError } from '../lib/feedback/errors'
+import { FeedbackButton } from './Feedback'
 
 interface Props {
   children: React.ReactNode
@@ -31,6 +33,8 @@ export class ErrorBoundary extends React.Component<Props, State> {
     this.setState({ errorInfo })
     // Log for debugging — visible in Safari Web Inspector
     console.error('[ErrorBoundary]', this.props.name ?? 'Component', 'crashed:', error, errorInfo)
+    // Goes with the next problem report.
+    recordError(error, this.props.name ?? 'ErrorBoundary')
   }
 
   /** Dynamic import() failures (stale/missing chunk) — React.lazy caches the
@@ -112,6 +116,11 @@ export class ErrorBoundary extends React.Component<Props, State> {
           >
             Retry
           </Button>
+          {/* Report the crash: the error goes with it (recordError above). */}
+          <FeedbackButton
+            sx={{ ml: 1, color: 'error.dark' }}
+            request={() => ({ target: { type: 'page' }, surface: `crash/${this.props.name ?? 'unknown'}`, label: `${name} crashed`, issues: ['bug'] })}
+          />
         </Paper>
       </Box>
     )

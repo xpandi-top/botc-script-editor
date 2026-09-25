@@ -4,6 +4,8 @@ import { useT } from '../../../context/I18nContext'
 import SettingsIcon from '@mui/icons-material/Settings'
 import HistoryIcon from '@mui/icons-material/History'
 import DownloadIcon from '@mui/icons-material/Download'
+import FlagOutlinedIcon from '@mui/icons-material/FlagOutlined'
+import { FeedbackButton } from '../../Feedback'
 import { RightPopupSettings } from './RightPopupSettings'
 import { RightConsoleRecords } from './RightConsoleRecords'
 import { GameActionsBar } from '../GameActionsBar'
@@ -84,6 +86,16 @@ function IconBar({
           <Typography variant="caption" sx={{ fontSize: '0.62rem', fontWeight: 600, letterSpacing: '0.02em', lineHeight: 1.2, color: 'inherit' }}>{label}</Typography>
         </IconButton>
       ))}
+      {/* Report a problem with the storyteller; on mobile the app header (and its button) is hidden. */}
+      <FeedbackButton
+        title={t('feedback')}
+        request={() => ({ target: { type: 'storyteller' }, surface: 'storyteller/sidebar', label: t('storyteller_helper') })}
+        icon={<>
+          <Box sx={{ fontSize: '1.5rem', lineHeight: 1, display: 'flex' }}><FlagOutlinedIcon fontSize="inherit" /></Box>
+          <Typography variant="caption" sx={{ fontSize: '0.62rem', fontWeight: 600, letterSpacing: '0.02em', lineHeight: 1.2, color: 'inherit' }}>{t('report_short')}</Typography>
+        </>}
+        sx={{ flexDirection: 'column', width: 48, p: 0.75, borderRadius: 1.5, border: '1px solid transparent', '&:hover': { bgcolor: 'action.hover', color: 'text.primary', borderColor: 'divider' } }}
+      />
     </Box>
   )
 }

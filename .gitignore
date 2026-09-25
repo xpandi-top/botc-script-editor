@@ -29,3 +29,6 @@ playwright-report/
 
 # Local AI evaluation reports (src/__tests__/aiEval.live.test.ts)
 ai-eval-report*
+
+# Problem reports downloaded from the feedback form (scripts/feedback-reports.mjs)
+.feedback/
