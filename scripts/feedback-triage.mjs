@@ -79,6 +79,11 @@ export const SURFACE_FILES = {
   'storyteller/seat': 'src/components/StorytellerSub/Arena/ArenaSeatPlayerModal.tsx',
   'storyteller/ability': 'src/components/StorytellerSub/Arena/ArenaSeatPlayerModalParts.tsx',
   'storyteller/sidebar': 'src/components/StorytellerHelper.tsx',
+  'settings/section': 'src/components/tabs/SettingsTab.tsx',
+  'analytics/studio': 'src/components/AnalyticsStudio/StudioShell.tsx',
+  'analytics/record-form': 'src/components/AnalyticsStudio/RecordFormDialog.tsx',
+  'print/tokens': 'src/components/PrintStudio/PrintStudioPage.tsx',
+  'print/sheet': 'src/components/PrintPreviewPage.tsx',
   'app/scripts': 'src/components/tabs/ScriptsTab.tsx',
   'app/characters': 'src/components/tabs/CharactersTab.tsx',
   'app/storyteller': 'src/components/StorytellerHelper.tsx',
@@ -104,6 +109,32 @@ export const PART_FILES = {
     setup: ['src/components/StorytellerSub/Modals/ModalsNewGame.tsx', 'src/components/StorytellerSub/Modals/AssignmentCenter.tsx'],
     log: ['src/components/StorytellerSub/LeftLogPanel.tsx', 'src/components/StorytellerSub/Arena/AggregatedLogModal.tsx', 'src/utils/logI18n.ts'],
     timer: ['src/components/StorytellerSub/Arena/PhaseControlPanel.tsx', 'src/components/StorytellerSub/BgmBar.tsx'],
+  },
+  settings: {
+    language: ['src/components/tabs/SettingsTab.tsx', 'src/context/I18nContext.tsx'],
+    theme: ['src/context/ThemeMode.tsx', 'src/theme/index.ts'],
+    fonts: ['src/components/settings/FontSection.tsx', 'src/hooks/useFontSettings.ts'],
+    sync: ['src/components/settings/CloudSyncSection.tsx', 'src/hooks/useCloudSync.ts'],
+    api: ['src/components/settings/ApiAccessSection.tsx', 'src/lib/apiClient.ts'],
+    backup: ['src/lib/bundleIO.ts'],
+  },
+  analytics: {
+    overview: ['src/components/AnalyticsStudio/sections/OverviewSection.tsx', 'src/core/stats/records.ts'],
+    scripts: ['src/components/AnalyticsStudio/sections/ScriptsSection.tsx', 'src/core/stats/records.ts'],
+    players: ['src/components/AnalyticsStudio/sections/PlayersSection.tsx', 'src/core/stats/records.ts', 'src/utils/playerIdentity.ts'],
+    characters: ['src/components/AnalyticsStudio/sections/CharactersSection.tsx', 'src/core/stats/records.ts'],
+    records: ['src/components/AnalyticsStudio/sections/RecordsSection.tsx'],
+    filter: ['src/components/AnalyticsStudio/StudioFilterBar.tsx', 'src/components/AnalyticsStudio/useAnalyticsFilter.ts'],
+    share: ['src/components/tabs/AnalyticsTab.tsx', 'src/lib/shareUrl.ts'],
+    record_form: ['src/components/AnalyticsStudio/RecordFormDialog.tsx'],
+  },
+  print: {
+    tokens: ['src/components/PrintStudio/SingleToken.tsx', 'src/components/PrintStudio/TokenPageGrid.tsx'],
+    reminders: ['src/components/PrintStudio/TokenOptionsPanel.tsx', 'src/components/PrintStudio/SingleToken.tsx'],
+    markers: ['src/components/PrintStudio/TokenOptionsPanel.tsx', 'src/components/PrintStudio/SingleToken.tsx'],
+    layout: ['src/components/PrintStudio/TokenPageGrid.tsx', 'src/components/PrintStudio/TokenOptionsPanel.tsx'],
+    sheet: ['src/components/PrintPreviewPage.tsx', 'src/components/SheetArticle.tsx', 'src/lib/paginateSheet.ts'],
+    export: ['src/lib/nativePrint.ts'],
   },
 }
 
@@ -199,18 +230,16 @@ export function locate(root, report) {
   if (surface) out.files.push(surface)
 
   if (target.type === 'character') characterLocate(root, target.id, report, out)
-  if (target.type === 'storyteller') {
-    for (const part of report.parts ?? []) out.files.push(...(PART_FILES.storyteller[part] ?? []))
-    if (target.characterId) characterLocate(root, target.characterId, report, out)
-  }
   if (target.type === 'script') {
     const snapshot = report.snapshot ?? {}
     const file = ['assets/scripts', 'assets/scripts/community'].map((dir) => `${dir}/${snapshot.sourceFile}`).find((f) => snapshot.sourceFile && exists(root, f))
     if (snapshot.origin === 'user') out.notes.push('The user\'s own script: not in the repo (the snapshot has its characters).')
     else if (file) out.files.push(file)
-    for (const part of report.parts ?? []) out.files.push(...(PART_FILES.script[part] ?? []))
     if (snapshot.origin === 'community') out.notes.push('Imported community script: see docs/COMMUNITY-CONTENT.md and `npm run import:scripts`.')
   }
+  // Code behind the parts the report points at (script, storyteller, settings, analytics, print).
+  for (const part of report.parts ?? []) out.files.push(...(PART_FILES[target.type]?.[part] ?? []))
+  if (target.type === 'storyteller' && target.characterId) characterLocate(root, target.characterId, report, out)
   if (report.surface?.startsWith('crash/') || report.errors?.length) {
     out.notes.push(`Errors: ${(report.errors ?? []).map((e) => e.message).join(' | ') || 'none recorded'}`)
   }
@@ -229,7 +258,7 @@ export function locate(root, report) {
 
 // ── Output ───────────────────────────────────────────────────────────────────
 
-const TARGET_TEXT = { character: 'Character', script: 'Script', storyteller: 'Storyteller', page: 'Page' }
+const TARGET_TEXT = { character: 'Character', script: 'Script', storyteller: 'Storyteller', settings: 'Settings', analytics: 'Analytics', print: 'Print', page: 'Page' }
 
 export function summarize(entries) {
   const reports = entries.filter((e) => e.report)

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import {
   Alert, Box, Button,
   DialogContentText, DialogTitle, Divider,
@@ -21,7 +21,11 @@ import { CloudSyncSection } from '../settings/CloudSyncSection'
 import { ApiAccessSection } from '../settings/ApiAccessSection'
 import { isApiConfigured } from '../../lib/apiClient'
 import { useT } from '../../context/I18nContext'
+import { FeedbackButton } from '../Feedback'
+import type { ReportRequest } from '../../lib/feedback/report'
 import { ResponsiveDialog, ResponsiveDialogActions, ResponsiveDialogContent } from '../ui'
+
+const headingSx = { display: 'flex', alignItems: 'center', gap: 1 }
 
 // ── SettingsTab ───────────────────────────────────────────────────────────────
 interface SettingsTabProps {
@@ -61,12 +65,27 @@ export function SettingsTab({ language, onLanguageChange, fontSettings, cloudSyn
     o.id === ZH_SAME_AS_EN_ID ? { ...o, css: enBodyCss } : o
   )
 
+  // A problem report about one section, with the current settings (no account details).
+  const settingsRequest = (part: string): ReportRequest => ({
+    target: { type: 'settings' },
+    surface: 'settings/section',
+    label: t('settings'),
+    parts: [part],
+    snapshot: {
+      language, theme: mode, uiScale,
+      fonts: { enBody: enBodyId, enDisplay: enDisplayId, zh: zhId },
+      sync: { connected: cloud.connected, status: cloud.status, lastSynced: cloud.lastSynced?.toISOString() ?? null, error: cloud.errorMessage },
+      api: isApiConfigured(),
+    },
+  })
+  const flag = (part: string): ReactNode => <FeedbackButton request={() => settingsRequest(part)} />
+
   return (
     <Box sx={{ maxWidth: 960, mx: 'auto', px: { xs: 2, sm: 3 }, py: 3, display: 'flex', flexDirection: 'column', gap: 4 }}>
 
       {/* ── Section: Language ── */}
       <Box>
-        <Typography variant="h5" gutterBottom>{t('language')}</Typography>
+        <Typography variant="h5" gutterBottom sx={headingSx}>{t('language')}{flag('language')}</Typography>
         <ToggleButtonGroup value={language} exclusive onChange={(_, v) => { if (v) onLanguageChange(v as Language) }}>
           <ToggleButton value="zh" sx={{ px: 3, py: 1 }}>
             <Box sx={{ textAlign: 'center' }}>
@@ -87,7 +106,7 @@ export function SettingsTab({ language, onLanguageChange, fontSettings, cloudSyn
 
       {/* ── Section: Theme ── */}
       <Box>
-        <Typography variant="h5" gutterBottom>{t('theme')}</Typography>
+        <Typography variant="h5" gutterBottom sx={headingSx}>{t('theme')}{flag('theme')}</Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
           {t('settings_theme_desc')}
         </Typography>
@@ -120,7 +139,7 @@ export function SettingsTab({ language, onLanguageChange, fontSettings, cloudSyn
 
       {/* ── Section: Live preview ── */}
       <Box>
-        <Typography variant="h5" gutterBottom>{t('font_preview')}</Typography>
+        <Typography variant="h5" gutterBottom sx={headingSx}>{t('font_preview')}{flag('fonts')}</Typography>
         <LivePreview
           language={language}
           enBodyCss={enBodyCss}
@@ -133,7 +152,7 @@ export function SettingsTab({ language, onLanguageChange, fontSettings, cloudSyn
 
       {/* ── Section: UI size ── */}
       <Box>
-        <Typography variant="h5" gutterBottom>{t('interface_size')}</Typography>
+        <Typography variant="h5" gutterBottom sx={headingSx}>{t('interface_size')}{flag('fonts')}</Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
           {t('scales_all_ui_text_spacing_and_controls_uniformly')}
         </Typography>
@@ -157,7 +176,7 @@ export function SettingsTab({ language, onLanguageChange, fontSettings, cloudSyn
 
       {/* ── Section: English fonts ── */}
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-        <Typography variant="h5">{t('english_fonts')}</Typography>
+        <Typography variant="h5" sx={headingSx}>{t('english_fonts')}{flag('fonts')}</Typography>
 
         <FontPicker
           label="Body Text"
@@ -182,7 +201,7 @@ export function SettingsTab({ language, onLanguageChange, fontSettings, cloudSyn
 
       {/* ── Section: Chinese font ── */}
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-        <Typography variant="h5">{t('chinese_font')}</Typography>
+        <Typography variant="h5" sx={headingSx}>{t('chinese_font')}{flag('fonts')}</Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mt: -2 }}>
           {t('chinese_font_applies_to_both_body_text_and_titles')}
         </Typography>
@@ -206,21 +225,21 @@ export function SettingsTab({ language, onLanguageChange, fontSettings, cloudSyn
 
       <Divider />
 
-      <CloudSyncSection cloud={cloud} language={language} />
+      <CloudSyncSection cloud={cloud} language={language} action={flag('sync')} />
 
       <Divider />
 
       {/* API worker (agents / MCP / cloud library) — only when VITE_API_URL is configured */}
       {isApiConfigured() && (
         <>
-          <ApiAccessSection cloud={cloud} language={language} />
+          <ApiAccessSection cloud={cloud} language={language} action={flag('api')} />
           <Divider />
         </>
       )}
 
       {/* ── Section: Export / Import ── */}
       <Box>
-        <Typography variant="h5" gutterBottom>{t('backup_import')}</Typography>
+        <Typography variant="h5" gutterBottom sx={headingSx}>{t('backup_import')}{flag('backup')}</Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2, maxWidth: 480 }}>
           {t('backup_export_desc')}
         </Typography>

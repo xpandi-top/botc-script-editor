@@ -350,6 +350,7 @@ export type UiKey =
   | 'report_here' | 'report_short' | 'report_what_issue' | 'report_which_part'
   | 'report_issue_wrong' | 'report_issue_translation' | 'report_issue_missing' | 'report_issue_bug' | 'report_issue_layout' | 'report_issue_suggestion'
   | 'report_part_night' | 'report_part_info' | 'report_part_seat' | 'report_part_nomination' | 'report_part_setup' | 'report_part_timer' | 'report_part_sheet'
+  | 'report_part_fonts' | 'report_part_overview' | 'report_part_players' | 'report_part_share' | 'report_part_record_form' | 'report_part_tokens'
   | 'report_note' | 'report_note_hint' | 'report_expected' | 'report_selection' | 'report_privacy'
   | 'report_show_sent' | 'report_hide_sent' | 'report_open_form' | 'report_sent' | 'report_queued' | 'report_local'
 

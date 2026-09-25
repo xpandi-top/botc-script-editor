@@ -27,7 +27,12 @@ about everything else.
 | `storyteller/seat` | Storyteller, a seat's dialog | seat: day, phase, character, the night reminder shown |
 | `storyteller/ability` | Storyteller, the ability pop-up | character |
 | `storyteller/sidebar` | Storyteller, the right-hand bar (and the mobile ☰ drawer) | storyteller |
-| `app/<tab>` | The header's bug button on every tab | page (storyteller on the storyteller tab) |
+| `settings/section` | Settings, each section title (the section is preselected) | settings, with language, theme, UI size, fonts and sync status (no account details) |
+| `analytics/studio` | Analytics, right of the Overview / Scripts / Players / Characters / Records tabs | analytics, with the section, identity basis, game counts and KPI numbers |
+| `analytics/record-form` | Analytics, the new / edit record dialog | analytics, with the record id, form tab and player count |
+| `print/tokens` | Print Studio top bar (the page covers the app header) | print, with the token options (images left out) |
+| `print/sheet` | Script PDF preview top bar | print, with the sheet options |
+| `app/<tab>` | The header's bug button on every tab | the tab's own target (storyteller, settings, analytics, print), else page |
 | `crash/<name>` | The "failed to load" box of an `ErrorBoundary` | page, issue preset to *does not work* |
 
 Selecting text before pressing a flag puts that text in the report
@@ -40,13 +45,13 @@ Selecting text before pressing a flag puts that text in the report
 | Field | |
 |---|---|
 | `id` | `fb-YYMMDD-xxxxx`; name it in the commit that fixes it |
-| `target` | `{type: 'character', id, script?}` · `{type: 'script', slug}` · `{type: 'storyteller', seat?, characterId?, script?}` · `{type: 'page'}` |
+| `target` | `{type: 'character', id, script?}` · `{type: 'script', slug}` · `{type: 'storyteller', seat?, characterId?, script?}` · `{type: 'settings'}` · `{type: 'analytics'}` · `{type: 'print', script?}` · `{type: 'page'}` |
 | `surface`, `label` | the button, and a readable name (`Washerwoman / 洗衣妇 (washerwoman)`) |
 | `issues` | `wrong`, `translation`, `missing`, `bug`, `layout`, `suggestion` |
-| `parts` | per target: character `name ability reminders night jinx icon almanac`; script `characters night info sheet export`; storyteller `night seat reminders nomination setup log timer` |
+| `parts` | per target: character `name ability reminders night jinx icon almanac`; script `characters night info sheet export`; storyteller `night seat reminders nomination setup log timer`; settings `language theme fonts sync api backup`; analytics `overview scripts players characters records filter share record_form`; print `tokens reminders markers layout sheet export` |
 | `comment`, `expected`, `selection` | the user's note, what it should say, the text they had selected |
 | `snapshot` | what the target showed (`src/lib/feedback/snapshot.ts`): a character's names, ability, revision, tokens and night reminders in both languages, its jinx ids and `localEdits` (custom, pack, revision, reminders, night); a script's origin (`builtin`, `community`, `user`), file, title, author, characters |
-| `context` | what else was on screen, registered with `useReportContext`: `app` (tab, script, character), `storyteller` (script, day, phase, counts, characters in play) |
+| `context` | what else was on screen, registered with `useReportContext`: `app` (tab, script, character), `storyteller` (script, day, phase, counts, characters in play), `analytics` (section, basis, counts) |
 | `app` | language, build id, route (never the query string: share links carry whole scripts and games), viewport, online |
 | `errors` | the last five errors of the session (`src/lib/feedback/errors.ts`): uncaught errors, rejected promises, `ErrorBoundary` crashes |
 
@@ -89,7 +94,8 @@ For each report it prints the target, issue, note, expected text and where it
 came from, then (`scripts/feedback-triage.mjs`):
 
 - **Files**: the component behind the button, the character JSON, the script
-  file, almanac or jinx files for those parts, code for storyteller parts;
+  file, almanac or jinx files for those parts, code for storyteller, settings,
+  analytics and print parts (`PART_FILES`);
 - **Text found at**: `file:line` of the selected (or quoted) text in the locale,
   character, almanac, script and tutorial files;
 - **Notes**: local edits on the user's device, a custom or pack character that

@@ -1,7 +1,7 @@
 /**
  * CloudSyncSection — Google Drive sync panel extracted from SettingsTab.
  */
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import {
   Alert, Box, Button, CircularProgress, Stack, Typography,
 } from '@mui/material'
@@ -19,9 +19,11 @@ import type { Language } from '../../types'
 import { useT } from '../../context/I18nContext'
 import { makeTpl } from '../../lib/t'
 
-export function CloudSyncSection({ cloud, language }: {
+export function CloudSyncSection({ cloud, language, action }: {
   cloud: CloudSyncState
   language: Language
+  /** Shown after the title (the report flag). */
+  action?: ReactNode
 }) {
   const { t } = useT()
   const tpl = makeTpl(language)
@@ -50,6 +52,7 @@ export function CloudSyncSection({ cloud, language }: {
       <Typography variant="h5" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         {cloud.connected ? <CloudSyncIcon /> : <CloudOffIcon />}
         {t('google_drive_sync')}
+        {action}
       </Typography>
 
       {/* Auth error */}

@@ -52,6 +52,14 @@ describe('triage', () => {
     expect(markdown).toContain('## Typed in the form')
   })
 
+  it('points settings, analytics and print reports at their code', () => {
+    const where = (target: FeedbackReport['target'], surface: string, parts: string[]) =>
+      locate(root, feedbackReport({ language: 'en', target, surface, label: 'x', issues: ['bug'], parts })).files
+    expect(where({ type: 'settings' }, 'settings/section', ['sync'])).toEqual(['src/components/tabs/SettingsTab.tsx', 'src/components/settings/CloudSyncSection.tsx', 'src/hooks/useCloudSync.ts'])
+    expect(where({ type: 'analytics' }, 'analytics/studio', ['players'])).toContain('src/components/AnalyticsStudio/sections/PlayersSection.tsx')
+    expect(where({ type: 'print' }, 'print/tokens', ['tokens'])).toEqual(['src/components/PrintStudio/PrintStudioPage.tsx', 'src/components/PrintStudio/SingleToken.tsx', 'src/components/PrintStudio/TokenPageGrid.tsx'])
+  })
+
   it('names only files that exist', () => {
     const files = [...Object.values(SURFACE_FILES), ...Object.values(PART_FILES).flatMap((parts) => Object.values(parts as Record<string, string[]>).flat())] as string[]
     for (const file of files) expect(fs.existsSync(path.join(root, file)), file).toBe(true)

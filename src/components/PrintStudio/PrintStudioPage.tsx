@@ -5,13 +5,19 @@ import PrintIcon from '@mui/icons-material/Print'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import MenuIcon from '@mui/icons-material/Menu'
 import MenuOpenIcon from '@mui/icons-material/MenuOpen'
-import { exportTokenPdf } from '../../lib/nativePrint'
+import { exportTokenPdf, isNativePlatform } from '../../lib/nativePrint'
 import { TokenOptionsPanel } from './TokenOptionsPanel'
 import { TokenPageGrid, TokenPrintPortal } from './TokenPageGrid'
 import type { TokenPrintOptions } from './types'
 import type { EditableScript, Language, ResolvedScriptCharacter } from '../../types'
 import { allCharacters } from '../../catalog'
 import { useT } from '../../context/I18nContext'
+import { FeedbackButton } from '../Feedback'
+import { plainOptions } from '../../lib/feedback/snapshot'
+import type { ReportRequest } from '../../lib/feedback/report'
+
+// On phones these buttons show only their icon: drop the text button's width and icon gap.
+const iconOnlyOnPhone = { minWidth: { xs: 0, sm: 64 }, px: { xs: 1, sm: 1.25 }, '& .MuiButton-startIcon': { mr: { xs: 0, sm: 1 }, ml: { xs: 0, sm: '-2px' } } }
 
 interface Props {
   opts: TokenPrintOptions
@@ -63,6 +69,19 @@ export function PrintStudioPage({ opts, onOptionsChange, onClose, onOpenPrintPre
       ? Math.max(0, opts.numberTo - opts.numberFrom + 1)
       : opts.markers.reduce((s, m) => s + m.quantity, 0)
 
+  // A problem report about the tokens: the options as set (images left out). This page
+  // covers the app header, so its flag is the only report button here.
+  const reportRequest = (): ReportRequest => {
+    const script = scripts.find((s) => s.slug === activeSlug)
+    return {
+      target: { type: 'print', ...(script ? { script: script.slug } : {}) },
+      surface: 'print/tokens',
+      label: `${t('print_studio')}${script ? ` · ${getScriptTitle(script)}` : ''}`,
+      parts: [opts.mode === 'characters' ? 'tokens' : 'markers'],
+      snapshot: { tokens: selectedCount, native: isNativePlatform, exportError, options: plainOptions(opts) },
+    }
+  }
+
   return (
     <Box sx={{ position: 'fixed', inset: 0, zIndex: 1300, display: 'flex', flexDirection: 'column', bgcolor: 'background.default' }}>
       {/* Top bar */}
@@ -101,17 +120,18 @@ export function PrintStudioPage({ opts, onOptionsChange, onClose, onOpenPrintPre
         </FormControl>
         {onOpenPrintPreview && (
           <Tooltip title={t('switch_to_script_print_preview')}>
-            <Button size="small" variant="outlined" startIcon={<PrintIcon />} onClick={onOpenPrintPreview} sx={{ flexShrink: 0 }}>
+            <Button size="small" variant="outlined" startIcon={<PrintIcon />} onClick={onOpenPrintPreview} sx={{ flexShrink: 0, ...iconOnlyOnPhone }}>
               <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>{t('script_pdf')}</Box>
             </Button>
           </Tooltip>
         )}
+        <FeedbackButton request={reportRequest} />
         <Tooltip title={panelOpen ? (t('hide_menu')) : (t('show_menu'))}>
           <IconButton size="small" onClick={() => setPanelOpen(v => !v)}>
             {panelOpen ? <MenuOpenIcon fontSize="small" /> : <MenuIcon fontSize="small" />}
           </IconButton>
         </Tooltip>
-        <Button variant="contained" size="small" startIcon={printing ? <CircularProgress size={14} color="inherit" /> : <PrintIcon />} aria-label={t('print')} onClick={handlePrint} disabled={selectedCount === 0 || printing}>
+        <Button variant="contained" size="small" startIcon={printing ? <CircularProgress size={14} color="inherit" /> : <PrintIcon />} aria-label={t('print')} onClick={handlePrint} disabled={selectedCount === 0 || printing} sx={iconOnlyOnPhone}>
           <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
             {printing ? (t('exporting')) : (t('print'))}
           </Box>

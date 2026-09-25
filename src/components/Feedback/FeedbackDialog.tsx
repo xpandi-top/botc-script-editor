@@ -25,6 +25,10 @@ const PART_KEYS: Record<string, UiKey> = {
   jinx: 'jinxes', icon: 'icon', almanac: 'almanac',
   characters: 'characters', info: 'report_part_info', sheet: 'report_part_sheet', export: 'export',
   seat: 'report_part_seat', nomination: 'report_part_nomination', setup: 'report_part_setup', log: 'game_log_title', timer: 'report_part_timer',
+  language: 'language', theme: 'theme', fonts: 'report_part_fonts', sync: 'google_drive_sync', api: 'api_access', backup: 'backup_import',
+  overview: 'report_part_overview', scripts: 'script_sheet', players: 'report_part_players', records: 'game_records_label',
+  filter: 'filter', share: 'report_part_share', record_form: 'report_part_record_form',
+  tokens: 'report_part_tokens', markers: 'markers', layout: 'layout',
 }
 /** Issues about text, where "what it should be" helps. */
 const TEXT_ISSUES: ReportIssue[] = ['wrong', 'translation', 'missing']

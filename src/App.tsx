@@ -855,8 +855,12 @@ export default function App() {
               icon={<BugReportIcon />}
               title={t('feedback')}
               request={() => ({
-                // The storyteller has parts to point at (night, seats, votes…); other tabs are pages.
-                target: activeTab === 'storyteller' ? { type: 'storyteller', script: stActiveSlug } : { type: 'page' },
+                // Tabs with parts to point at get their own target; the others are pages.
+                target: activeTab === 'storyteller' ? { type: 'storyteller', script: stActiveSlug }
+                  : activeTab === 'settings' ? { type: 'settings' }
+                  : activeTab === 'analytics' ? { type: 'analytics' }
+                  : activeTab === 'printstudio' ? { type: 'print' }
+                  : { type: 'page' },
                 surface: `app/${activeTab}`,
                 label: tabLabels[activeTab] ?? activeTab,
               })}
