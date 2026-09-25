@@ -137,6 +137,7 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
   // Staged edits for the live-game path (mirrors newGamePanel's role for the
   // draft path) — seeded once on open, only committed on "Apply".
   const [liveDraft, setLiveDraft] = useState(() => buildLiveDraft(currentDay))
+  const [liveScriptSlug, setLiveScriptSlug] = useState(activeScriptSlug ?? '')
 
   const { gameId, playerCount, travelerSeats } = useAssignmentSource(ctx)
   const assignments = newGamePanel ? (newGamePanel.assignments ?? {}) : liveDraft.assignments
@@ -176,17 +177,20 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
     try { localStorage.setItem(ACTIVE_HOST_DEAL_KEY, JSON.stringify(session)) } catch {}
   }
 
-  const scriptSlug = newGamePanel?.scriptSlug ?? activeScriptSlug ?? ''
+  const scriptSlug = newGamePanel?.scriptSlug ?? liveScriptSlug
   const scriptChars = scriptOptions.find((s) => s.slug === scriptSlug)?.characters ?? []
   const charPool = newGamePanel ? (newGamePanel.charPool ?? []) : liveCharPool
   const setCharPool = (ids: string[]) => {
     if (newGamePanel) setNewGamePanel((prev) => prev ? { ...prev, charPool: ids } : prev)
     else setLiveCharPool(ids)
   }
-  // Script is only changeable while a draft is open — a live game's script
-  // was fixed at start, so it's shown read-only for the live-game path.
+  // Both setup and live-game selections stay in the draft until applied.
   const handleScriptChange = (slug: string) => {
-    setNewGamePanel((prev) => prev ? withScript(prev, slug) : prev)
+    if (newGamePanel) setNewGamePanel((prev) => prev ? withScript(prev, slug) : prev)
+    else {
+      setLiveScriptSlug(slug)
+      setLiveCharPool([])
+    }
   }
 
   const calcDist = CHARACTER_DISTRIBUTION[playerCount] ?? { townsfolk: 0, outsider: 0, minion: 0, demon: 0 }
@@ -325,11 +329,13 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
     })
   }, [newGamePanel, currentDay.seats, liveDraft])
   const bluffsDirty = !newGamePanel && JSON.stringify(liveDraft.demonBluffs) !== JSON.stringify(currentDay.demonBluffs ?? [])
-  const liveDraftDirty = liveDraftDiff.length > 0 || bluffsDirty
+  const scriptDirty = !newGamePanel && liveScriptSlug !== (activeScriptSlug ?? '')
+  const liveDraftDirty = liveDraftDiff.length > 0 || bluffsDirty || scriptDirty
 
   // Pushes the staged draft onto the live seat ring — nothing here reaches
   // currentDay (and thus the ring other players/the ST see) until this runs.
   const handleApplyLiveDraft = () => {
+    if (scriptDirty) onSelectScript?.(liveScriptSlug)
     for (const seat of liveDraftDiff) {
       const draftCid = (seat.isTraveler ? liveDraft.travelerAssignments[seat.seat] : liveDraft.assignments[seat.seat]) ?? ''
       const draftPerceived = liveDraft.userAssignments[seat.seat] ?? null
@@ -608,7 +614,7 @@ export function AssignmentCenter({ ctx }: { ctx: StorytellerContext }) {
             language={language}
             label={t('script')}
             helperText={newGamePanel ? undefined : t('script_switch_keeps_seats')}
-            onChange={(slug) => (newGamePanel ? handleScriptChange(slug) : onSelectScript?.(slug))}
+            onChange={handleScriptChange}
           />
 
           <Paper variant="outlined" sx={{ p: 1 }}>
