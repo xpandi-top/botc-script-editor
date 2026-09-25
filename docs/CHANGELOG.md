@@ -4,7 +4,20 @@ Release timeline for BOTC Companion — features, fixes, and improvements.
 
 ---
 
-## 2026-09-24 — Apply-Only Script Changes & Product Showcase (latest)
+## 2026-09-25 — Report Problems Where You See Them (latest)
+
+### Added
+- **Flag buttons for quick problem reports** — on the character panel, the script sheet's character pop-up, the script toolbar, the storyteller's seat and ability dialogs, and the storyteller side bar (the ☰ drawer on phones). The header's bug button now opens the same dialog for the current tab instead of an external form.
+- Pick what kind of problem (wrong content, translation, missing, does not work, display, suggestion) and which part (name, ability, reminder tokens, night order, jinxes, icon, almanac; for scripts and the storyteller, their own parts), add a note and, for text, what it should say. Text selected before pressing the flag goes with the report.
+- Each report carries what the item showed in both languages, the page, the app version and recent errors — no player names, notes or keys. With the storyteller's secrets hidden, seat reports leave the character out. Reports made offline are sent when the app is back online. **Show what is sent** displays the exact text.
+- A crashed section's "failed to load" box has a flag to report the crash with its error.
+
+### Documentation & tooling
+- `npm run feedback:reports` reads the form's responses (CSV) and lists each report with the files to open, where the selected text appears, local edits to rule out, and ready commands such as `npm run add-revision`. A report is marked handled once a commit message names its id. See [Problem reports](FEEDBACK.md).
+
+---
+
+## 2026-09-24 — Apply-Only Script Changes & Product Showcase
 
 ### Fixed
 - **Stage live-game script changes until Apply** — selecting a script in Player Assignments now updates a local draft. The running game's script and persisted save stay unchanged until **Apply Changes** is clicked.

@@ -86,9 +86,9 @@ describe('changelog helpers', () => {
   it('extracts dated releases in descending document order', () => {
     const parsed = parseChangelog(raw as string)
     expect(parsed.releases.length).toBeGreaterThan(3)
-    expect(parsed.releases[0].date).toBe('2026-09-24')
-    expect(parsed.releases[0].title).toContain('Apply-Only Script Changes')
-    expect(parsed.releases[1].date).toBe('2026-09-21')
+    expect(parsed.releases[0].date).toBe('2026-09-25')
+    expect(parsed.releases[0].title).toContain('Report Problems Where You See Them')
+    expect(parsed.releases[1].date).toBe('2026-09-24')
   })
 
   it('uses the first release heading as the latest release id', () => {
@@ -109,8 +109,8 @@ describe('changelog helpers', () => {
 describe('ChangelogPage', () => {
   it('renders the latest release expanded and older releases collapsed', () => {
     renderChangelog()
-    expect(screen.getByRole('button', { name: /2026-09-24.*Apply-Only Script Changes/s })).toHaveAttribute('aria-expanded', 'true')
-    expect(screen.getByText(/selecting a script in Player Assignments now updates a local draft/i)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /2026-09-25.*Report Problems Where You See Them/s })).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.getByText(/Pick what kind of problem/i)).toBeInTheDocument()
 
     const older = screen.getByRole('button', { name: /^2026-05-28.*Communication Board/s })
     expect(older).toHaveAttribute('aria-expanded', 'false')
