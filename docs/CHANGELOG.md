@@ -11,6 +11,8 @@ Release timeline for BOTC Companion — features, fixes, and improvements.
 - Pick what kind of problem (wrong content, translation, missing, does not work, display, suggestion) and which part (name, ability, reminder tokens, night order, jinxes, icon, almanac; for scripts and the storyteller, their own parts), add a note and, for text, what it should say. Text selected before pressing the flag goes with the report.
 - Each report carries what the item showed in both languages, the page, the app version and recent errors — no player names, notes or keys. With the storyteller's secrets hidden, seat reports leave the character out. Reports made offline are sent when the app is back online. **Show what is sent** displays the exact text.
 - A crashed section's "failed to load" box has a flag to report the crash with its error.
+- **Settings, Analytics and printing** have their own flags too: on each settings section title, beside the analytics tabs and in the record dialog, and in the Print Studio and script PDF preview top bars (which cover the app header). Each offers its own parts (for example theme, fonts or cloud sync; players or records; character tokens, markers or layout) and carries the relevant options, counts or statistics — never account details, player names or images.
+- On phones, Print Studio's icon-only buttons take less room, leaving more space for the script picker.
 
 ### Documentation & tooling
 - `npm run feedback:reports` reads the form's responses (CSV) and lists each report with the files to open, where the selected text appears, local edits to rule out, and ready commands such as `npm run add-revision`. A report is marked handled once a commit message names its id. See [Problem reports](FEEDBACK.md).
