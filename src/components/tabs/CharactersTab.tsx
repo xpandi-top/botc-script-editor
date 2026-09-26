@@ -7,7 +7,7 @@ import { NightOrderManager } from '../NightOrderManager'
 import { JinxManager } from '../JinxManager'
 import {
   Box, Button, Checkbox, Chip, Collapse, DialogTitle, Divider, FormControl,
-  IconButton, InputLabel, Paper, Select, MenuItem, Snackbar, TextField, Typography,
+  IconButton, InputAdornment, InputLabel, Paper, Select, MenuItem, Snackbar, TextField, Typography,
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import CloseIcon from '@mui/icons-material/Close'
@@ -271,12 +271,12 @@ function PackImportDialog({ open, onClose, pack, language, knownIds, existingCus
             {tpl('pack_n_chars_selected', pack.length, selected.size)}
           </Typography>
         </Box>
-        <IconButton size="small" onClick={onClose}><CloseIcon /></IconButton>
+        <IconButton size="small" aria-label={t('close')} onClick={onClose}><CloseIcon /></IconButton>
       </DialogTitle>
 
       <Box sx={{ px: 2, pb: 1, display: 'flex', gap: 0.75, flexWrap: 'wrap', alignItems: 'center' }}>
-        <CompactButton size="small" onClick={selectAll}>{t('all')}</CompactButton>
-        <CompactButton size="small" onClick={selectNone}>{t('none')}</CompactButton>
+        <CompactButton size="small" onClick={selectAll}>{t('character_select_all')}</CompactButton>
+        <CompactButton size="small" onClick={selectNone}>{t('character_deselect_all')}</CompactButton>
         {newCount  > 0 && <MicroChip label={tpl('n_new_chars', newCount)}       color="success" />}
         {overCount > 0 && <MicroChip label={tpl('n_overrides_count', overCount)} color="warning" />}
       </Box>
@@ -319,7 +319,7 @@ function PackImportDialog({ open, onClose, pack, language, knownIds, existingCus
                 bgcolor: isSel ? 'transparent' : 'action.disabledBackground',
                 opacity: isSel ? 1 : 0.6,
               }}>
-                <Checkbox size="small" checked={isSel} onChange={() => toggleSelect(c.id)} sx={{ p: 0.25, flexShrink: 0 }} />
+                <Checkbox size="small" checked={isSel} onChange={() => toggleSelect(c.id)} slotProps={{ input: { 'aria-label': displayName } }} sx={{ p: 0.25, flexShrink: 0 }} />
                 {/* Character image preview */}
                 {imageUrl ? (
                   <Box component="img" src={imageUrl} alt=""
@@ -353,7 +353,7 @@ function PackImportDialog({ open, onClose, pack, language, knownIds, existingCus
                       dangerouslySetInnerHTML={{ __html: sanitizeAbilityHtml(zh ? (abilityZh || abilityEn) : abilityEn) }} />
                   )}
                 </Box>
-                <IconButton size="small" onClick={() => toggleExpand(c.id)} sx={{ p: 0.25, flexShrink: 0 }}>
+                <IconButton size="small" aria-label={`${isExp ? t('collapse') : t('expand')}: ${displayName}`} aria-expanded={isExp} onClick={() => toggleExpand(c.id)} sx={{ p: 0.25, flexShrink: 0 }}>
                   {isExp ? <ExpandLessIcon sx={{ fontSize: 16 }} /> : <ExpandMoreIcon sx={{ fontSize: 16 }} />}
                 </IconButton>
               </Box>
@@ -424,9 +424,9 @@ function PackImportDialog({ open, onClose, pack, language, knownIds, existingCus
                   {/* Team / Edition / Setup row */}
                   <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'flex-start' }}>
                     <FormControl size="small" sx={{ minWidth: 110 }}>
-                      <InputLabel sx={{ fontSize: '0.8rem' }}>{t('team_label')}</InputLabel>
+                      <InputLabel sx={{ fontSize: '0.8rem' }}>{t('character_type')}</InputLabel>
                       <Select
-                        value={teamVal} label={t('team_label')}
+                        value={teamVal} label={t('character_type')} inputProps={{ 'aria-label': t('character_type') }}
                         onChange={(ev) => patchEdit(c.id, { team: ev.target.value as Team })}
                         sx={{ fontSize: '0.8rem' }}
                       >
@@ -435,7 +435,7 @@ function PackImportDialog({ open, onClose, pack, language, knownIds, existingCus
                         ))}
                       </Select>
                     </FormControl>
-                    <TextField size="small" label={t('edition')}
+                    <TextField size="small" label={t('edition_label')}
                       value={editionVal}
                       onChange={(ev) => patchEdit(c.id, { edition: ev.target.value })}
                       sx={{ width: 100 }} />
@@ -449,11 +449,11 @@ function PackImportDialog({ open, onClose, pack, language, knownIds, existingCus
                   {/* Night order positions */}
                   <Box sx={{ display: 'flex', gap: 1, flexDirection: { xs: 'column', sm: 'row' } }}>
                     <TextField size="small" sx={{ width: { xs: '100%', sm: 130 } }}
-                      label={t('term_first_night')}
+                      label={t('first_night_order_label')}
                       value={fnVal} type="number" slotProps={{ htmlInput: { min: 0 } }}
                       onChange={(ev) => patchEdit(c.id, { firstNight: ev.target.value })} />
                     <TextField size="small" sx={{ width: { xs: '100%', sm: 130 } }}
-                      label={t('other_night')}
+                      label={t('other_night_order_label')}
                       value={onVal} type="number" slotProps={{ htmlInput: { min: 0 } }}
                       onChange={(ev) => patchEdit(c.id, { otherNight: ev.target.value })} />
                   </Box>
@@ -823,8 +823,7 @@ export function CharactersTab({
                 </Typography>
               </Box>
               <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
-                <Button size="small" startIcon={<AddIcon fontSize="small" />} onClick={openNew}
-                  sx={{ textTransform: 'none', fontSize: '0.75rem' }}>
+                <Button size="small" startIcon={<AddIcon fontSize="small" />} onClick={openNew}>
                   {t('library_new_character')}
                 </Button>
                 <Button size="small" onClick={() => setToolsOpen(true)}>{t('library_tools')}</Button>
@@ -848,6 +847,11 @@ export function CharactersTab({
               label={uiText.searchCharacters}
               value={characterQuery}
               onChange={(e) => setCharacterQuery(e.target.value)}
+              slotProps={{ input: { endAdornment: characterQuery ? (
+                <InputAdornment position="end">
+                  <IconButton size="small" aria-label={t('clear')} onClick={() => setCharacterQuery('')} edge="end"><CloseIcon fontSize="small" /></IconButton>
+                </InputAdornment>
+              ) : undefined } }}
               sx={{ mb: 1.5 }}
             />
 
@@ -858,30 +862,34 @@ export function CharactersTab({
               ))}
             </Box>
 
-            <ScriptFilterPicker expanded={moreFilters} scripts={scripts} folders={scriptFolders} selected={selectedScriptSlugs} onChange={setSelectedScriptSlugs} isBuiltIn={isBuiltIn} title={getScriptTitle} />
-            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-              <Button size="small" onClick={() => setMoreFilters(v => !v)} endIcon={moreFilters ? <ExpandLessIcon /> : <ExpandMoreIcon />}>{t('library_more_conditions')}{selectedEditions.length ? ` (${selectedEditions.length})` : ''}</Button>
-              {(characterQuery || selectedTeams.length > 0 || selectedEditions.length > 0 || selectedScriptSlugs.length > 0) && <Button size="small" onClick={clearFilters}>{t('library_clear_filters')}</Button>}
-            </Box>
-            {!moreFilters && selectedEditions.length > 0 && <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', my: 1 }}>{selectedEditions.map(edition => <Chip key={edition} size="small" label={editionFilterLabel(edition)} onDelete={() => toggleEdition(edition)} />)}</Box>}
-            <Collapse in={moreFilters}>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
-              {availableEditions.map((edition) => (
-                <FilterCheckbox key={edition} checked={selectedEditions.includes(edition)}
-                  label={editionFilterLabel(edition)}
-                  onChange={() => toggleEdition(edition)} />
-              ))}
-            </Box>
-
-            </Collapse>
+            <ScriptFilterPicker expanded={moreFilters} scripts={scripts} folders={scriptFolders} selected={selectedScriptSlugs} onChange={setSelectedScriptSlugs} isBuiltIn={isBuiltIn} title={getScriptTitle}
+              action={<Button size="small" variant={moreFilters ? 'outlined' : 'text'} aria-expanded={moreFilters} onClick={() => setMoreFilters(v => !v)} endIcon={moreFilters ? <ExpandLessIcon /> : <ExpandMoreIcon />} sx={{ minHeight: 40, whiteSpace: 'nowrap' }}>
+                {t('library_more_conditions')}{selectedEditions.length ? ` · ${selectedEditions.length}` : ''}
+              </Button>}
+              extra={<Box>
+                <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>{t('edition_label')}</Typography>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
+                  {availableEditions.map((edition) => (
+                    <FilterCheckbox key={edition} checked={selectedEditions.includes(edition)}
+                      label={editionFilterLabel(edition)}
+                      onChange={() => toggleEdition(edition)} />
+                  ))}
+                </Box>
+              </Box>} />
+            {(characterQuery || selectedTeams.length > 0 || selectedEditions.length > 0 || selectedScriptSlugs.length > 0) && (
+              <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', alignItems: 'center', mb: 1 }}>
+                {!moreFilters && selectedEditions.map(edition => <Chip key={edition} size="small" label={editionFilterLabel(edition)} onDelete={() => toggleEdition(edition)} />)}
+                <Button size="small" onClick={clearFilters} sx={{ ml: 'auto' }}>{t('library_clear_filters')}</Button>
+              </Box>
+            )}
             <ResponsiveDialog open={toolsOpen} onClose={() => setToolsOpen(false)}>
               <DialogTitle>{t('library_tools')}</DialogTitle>
               <ResponsiveDialogContent>
-                <FormControl size="small" sx={{ minWidth: 72, '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' }, '& .MuiInputLabel-root': { fontSize: '0.8rem' } }}>
-                  <InputLabel>{t('lang')}</InputLabel>
-                  <Select value={uiLanguage} label={t('lang')} onChange={(e) => onLanguageChange(e.target.value as Language)}>
-                    <MenuItem value="en">EN</MenuItem>
-                    <MenuItem value="zh">中文</MenuItem>
+                <FormControl size="small" fullWidth sx={{ mt: 1 }}>
+                  <InputLabel id="character-tools-language">{t('language')}</InputLabel>
+                  <Select labelId="character-tools-language" value={uiLanguage} label={t('language')} onChange={(e) => onLanguageChange(e.target.value as Language)}>
+                    <MenuItem value="en">{t('english')}</MenuItem>
+                    <MenuItem value="zh">{t('chinese')}</MenuItem>
                   </Select>
                 </FormControl>
                 <Box sx={{ mt: 3 }} />
@@ -891,18 +899,21 @@ export function CharactersTab({
                 <Typography variant="body2" color="text.secondary" sx={{ my: 1 }}>{t('library_pack_help')}</Typography>
             {/* ── Import / Export row ── */}
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, mt: 1, alignItems: 'center' }}>
+              <FormControl size="small" fullWidth sx={{ my: 1 }}>
+              <InputLabel id="character-export-scope" shrink>{t('download_pack')}</InputLabel>
               <Select
+                labelId="character-export-scope"
+                label={t('download_pack')}
                 size="small"
                 displayEmpty
                 value=""
                 renderValue={() => (
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                     <DownloadIcon sx={{ fontSize: '0.9rem' }} />
-                    <Typography sx={{ fontSize: '0.75rem' }}>{t('download_pack')}</Typography>
+                    <Typography variant="body2">{t('character_export_scope')}</Typography>
                   </Box>
                 )}
                 onChange={(e) => { if (e.target.value) downloadPack(e.target.value as string) }}
-                sx={{ minWidth: 110, '& .MuiSelect-select': { py: '4px', fontSize: '0.75rem' } }}
               >
                 <MenuItem value="all" sx={{ fontSize: '0.8rem' }}>{t('all_characters')}</MenuItem>
                 {[...new Set(allCharacterFiles.map((c) => c.edition))].sort().map((ed) => (
@@ -916,6 +927,7 @@ export function CharactersTab({
                   </MenuItem>
                 ))}
               </Select>
+              </FormControl>
 
               <Button
                 size="small"
@@ -959,12 +971,10 @@ export function CharactersTab({
               </Button>
 
               {hasPackOverrides && (
-                <MicroChip
-                  label={t('pack_active')}
-                  color="secondary"
-                  onDelete={handleClearOverrides}
-                  h={22}
-                />
+                <Box sx={{ flexBasis: '100%', mt: 2, pt: 2, borderTop: 1, borderColor: 'divider' }}>
+                  <Typography variant="body2" color="text.secondary">{t('pack_active')}</Typography>
+                  <Button size="small" color="warning" onClick={handleClearOverrides} sx={{ mt: 0.5 }}>{t('character_clear_pack')}</Button>
+                </Box>
               )}
             </Box>
               </ResponsiveDialogContent>
@@ -1071,7 +1081,7 @@ export function CharactersTab({
               </Typography>
             )}
           </Box>
-          <IconButton onClick={() => setMobileDetailOpen(false)}><CloseIcon /></IconButton>
+          <IconButton aria-label={t('close')} onClick={() => setMobileDetailOpen(false)}><CloseIcon /></IconButton>
         </DialogTitle>
         <ResponsiveDialogContent sx={{ p: 0 }}>
           <CharacterRevisionPanel

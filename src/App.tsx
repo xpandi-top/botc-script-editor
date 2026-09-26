@@ -199,6 +199,12 @@ function CloudSyncBadge({ connected, status, lastSynced, errorMessage, language,
   )
 }
 
+const EDITION_ORDER = ['tb', 'bmr', 'snv', 'experimental', 'huadengchushang', 'shanyuyulai', 'odyssey', 'fabled', 'loric']
+const editionRank = (edition: string) => {
+  const index = EDITION_ORDER.indexOf(edition)
+  return index >= 0 ? index : isCommunityEdition(edition) ? 200 : 100
+}
+
 export default function App() {
   const { mode: themeMode } = useThemeMode()
   const cloudSync = useCloudSync()
@@ -536,10 +542,11 @@ export default function App() {
   }
 
   const availableEditions = useMemo(
-    // Community (民间) packs after the official and other editions.
+    // Base editions in release order, then other official sets, custom editions,
+    // and community (民间) packs last.
     () => Array.from(new Set(getEffectiveAllCharacters().map((c) => c.edition))).sort(
-      (a, b) => Number(isCommunityEdition(a)) - Number(isCommunityEdition(b)) ||
-        (editionLabels[uiLanguage][a] ?? toTitleCase(a)).localeCompare(editionLabels[uiLanguage][b] ?? toTitleCase(b)),
+      (a, b) => editionRank(a) - editionRank(b) ||
+        (editionLabels[uiLanguage][a] ?? toTitleCase(a)).localeCompare(editionLabels[uiLanguage][b] ?? toTitleCase(b), uiLanguage),
     ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [uiLanguage, customChars],

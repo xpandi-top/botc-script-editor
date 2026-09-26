@@ -258,7 +258,7 @@ export function CharacterRevisionPanel({
             )}
             <FeedbackButton request={() => characterRequest(character.id, 'characters/detail')} />
             <Tooltip title={t('download_character_json')}>
-              <IconButton size="small" onClick={downloadCharacter} sx={{ color: 'text.secondary' }}>
+              <IconButton size="small" aria-label={t('download_character_json')} onClick={downloadCharacter} sx={{ color: 'text.secondary' }}>
                 <DownloadIcon fontSize="small" />
               </IconButton>
             </Tooltip>
@@ -373,10 +373,10 @@ export function CharacterRevisionPanel({
                 )}
               </Box>
               <Grid container spacing={1}>
-                <Grid size={{ xs: 12 }}>
+                {getRevisionNote(character.id, revision) && <Grid size={{ xs: 12 }}>
                   <Typography variant="caption" color="text.secondary">{revisionNoteLabel}</Typography>
-                  <Typography variant="body2">{getRevisionNote(character.id, revision) || '-'}</Typography>
-                </Grid>
+                  <Typography variant="body2">{getRevisionNote(character.id, revision)}</Typography>
+                </Grid>}
                 <Grid size={{ xs: 12 }}>
                   <Typography variant="caption" color="text.secondary">{englishTextLabel}</Typography>
                   <Typography variant="body2">{getRevisionText(character.id, 'en', revision)}</Typography>
@@ -664,7 +664,7 @@ export function CharacterRevisionPanel({
       <ResponsiveDialog open={addOpen} onClose={() => setAddOpen(false)} maxWidth="sm">
         <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           {tpl('add_revision_for', getDisplayName(character.id, language))}
-          <IconButton size="small" onClick={() => setAddOpen(false)}><CloseIcon /></IconButton>
+          <IconButton size="small" aria-label={t('close')} onClick={() => setAddOpen(false)}><CloseIcon /></IconButton>
         </DialogTitle>
         <ResponsiveDialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '8px !important' }}>
           <TextField
