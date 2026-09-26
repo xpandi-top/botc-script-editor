@@ -59,7 +59,7 @@ export function ApiAccessSection({ cloud, language, action }: { cloud: CloudSync
 
   return (
     <Box>
-      <Typography variant="h5" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+      <Typography variant="h6" component="h2" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1, fontWeight: 700 }}>
         <HubIcon />
         {t('api_access')}
         {action}

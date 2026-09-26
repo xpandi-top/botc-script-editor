@@ -1253,14 +1253,14 @@
     "ai_type_hint": "Use ability cards above or type a message",
     "settings_theme_desc": "Switch between the warm parchment light theme and the dark crimson theme.",
     "settings_font_persist_note": "Font settings are saved locally and persist across reloads. Google Fonts require a network connection. Size changes apply instantly.",
-    "backup_export_desc": "Export a full backup containing scripts, custom characters, revision overrides, and script metadata. Share with others or import on a new device.",
+    "backup_export_desc": "Export one backup file with your scripts (and their folders, tags and notes), custom characters and the ability revisions you added. Share it or import it on another device.",
     "share_link_permanent_note": "This link opens this script directly. Link never expires.",
     "share_link_24h_note": "This link contains a full copy of the script. Valid for 24 hours.",
     "gdrive_redirect_note": "Ensure this exact Redirect URI is registered in Cloud Console:",
     "gdrive_add_uri_note": "Add this URI to Google Cloud Console → Authorized redirect URIs:",
     "gdrive_preconfigured_note": "OAuth credentials are pre-configured. Just click Connect Google Drive below.",
     "gdrive_appdatafolder_note": "Data stored in your private Google Drive appDataFolder — only visible to this app. Local changes auto-sync after 2 s.",
-    "gdrive_connect_desc": "Connect Google Drive to automatically sync scripts, custom characters, and revision overrides across devices. Data stays fully private in your own Drive.",
+    "gdrive_connect_desc": "Once Google Drive is connected, your scripts (with their folders, tags and notes), custom characters, the ability revisions you added and your game records sync across devices. The data stays private in your own Drive.",
     "analytics_char_team_hint": "Character + team used in analytics. Blank names auto-use seat number.",
     "scripts_empty_hint": "No custom scripts yet — use the buttons above to get started.",
     "delete_day_confirm": "All data for this day (events, votes, ability log) will be permanently removed.",
@@ -1481,6 +1481,7 @@
     "print_empty_tokens_hint": "Tick characters in the settings, or switch to custom tags.",
     "print_select_all": "Select all",
     "print_page_n": "Page {0}/{1}",
-    "print_page_n_tokens": "Page {0}/{1} · {2} tokens"
+    "print_page_n_tokens": "Page {0}/{1} · {2} tokens",
+    "settings_language_desc": "Language for the interface and character abilities."
   }
 }

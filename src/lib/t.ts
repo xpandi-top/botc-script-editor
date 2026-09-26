@@ -13,6 +13,7 @@ import { locales } from '../catalog'
 import type { Language } from '../types'
 
 export type UiKey =
+  | 'settings_language_desc'
   | 'print_select_all'
   | 'print_mode' | 'print_mode_tokens' | 'print_mode_sheet' | 'print_section_output_page' | 'print_section_icons_wake' | 'print_section_look' | 'print_empty_tokens_hint'
   | 'bgm_volume' | 'bgm_track'

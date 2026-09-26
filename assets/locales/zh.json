@@ -1253,14 +1253,14 @@
     "ai_type_hint": "使用上方能力按钮或直接输入",
     "settings_theme_desc": "在明亮的羊皮纸风格与黑暗血腥风格之间切换。",
     "settings_font_persist_note": "字体设置保存在本地，刷新后依然有效。Google Fonts 字体需要网络连接。界面大小设置会立即生效。",
-    "backup_export_desc": "导出包含脚本、自定义角色、版本覆盖和脚本元数据的完整备份文件。可分享给他人或在新设备导入。",
+    "backup_export_desc": "导出一个备份文件，包含剧本（及其文件夹、标签和备注）、自定义角色和你添加的能力修订，可分享给他人或在新设备导入。",
     "share_link_permanent_note": "此链接会直接打开此剧本。链接永久有效。",
     "share_link_24h_note": "此链接包含剧本的完整副本，24小时后失效。",
     "gdrive_redirect_note": "请确认在 Google Cloud Console 中添加了完整的 Redirect URI：",
     "gdrive_add_uri_note": "在 Google Cloud Console → Authorized redirect URIs 中添加此地址：",
     "gdrive_preconfigured_note": "OAuth 凭据已由应用内置，无需手动配置。直接点击\"连接 Google Drive\"即可。",
     "gdrive_appdatafolder_note": "数据存储在您的私有 Google Drive appDataFolder 中，仅本应用可见。本地更改会在 2 秒后自动同步。",
-    "gdrive_connect_desc": "连接 Google Drive 后，脚本、自定义角色和版本覆盖将自动跨设备同步。数据完全私有，存储在您的 Drive 中。",
+    "gdrive_connect_desc": "连接 Google Drive 后，剧本（及其文件夹、标签和备注）、自定义角色、你添加的能力修订和游戏记录会在设备间自动同步。数据仅保存在你自己的 Drive 中。",
     "analytics_char_team_hint": "角色和阵营用于统计分析。名字为空时自动用座位编号。",
     "scripts_empty_hint": "暂无自制剧本，点击上方按钮新建",
     "delete_day_confirm": "此天的所有数据（事件、投票、能力记录）将被永久删除，且不可恢复。",
@@ -1481,6 +1481,7 @@
     "print_empty_tokens_hint": "在设置中勾选角色，或切换到自定义标签。",
     "print_select_all": "全选",
     "print_page_n": "第 {0}/{1} 页",
-    "print_page_n_tokens": "第 {0}/{1} 页 · {2} 个标记"
+    "print_page_n_tokens": "第 {0}/{1} 页 · {2} 个标记",
+    "settings_language_desc": "界面文字与角色能力的显示语言。"
   }
 }
