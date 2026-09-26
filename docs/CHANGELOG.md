@@ -4,7 +4,25 @@ Release timeline for BOTC Companion — features, fixes, and improvements.
 
 ---
 
-## 2026-09-25 — Report Problems Where You See Them (latest)
+## 2026-09-25 — Tidier Library, One-Row Storyteller Toolbar, Clearer Print Menus (latest)
+
+### Improved
+- **Script library** — sort, folder filter (including *Unfiled*) and folder management share one row; tags are one-tap filter chips; each row shows its folder; the "…" menus appear on hover or keyboard focus with a mouse and stay visible on touch screens. The folder manager creates folders from one line and renames them in place.
+- **Organize panel** — the open script's folder, tags and private note are set in one compact panel (**Organize**, formerly *Tags & notes*).
+- **Storyteller** — seat counts (7镇0外2爪1恶 / 7T 0O 2M 1D), script, music, undo and language fit one row above the arena. On desktop the toolbar no longer repeats the side rail's actions; **Audience** (投屏) moved into the rail, and a status strip appears only while presenting.
+- **Printing** — tokens and script sheets share one top bar with a *Tokens | Script sheet* switch (the sheet can now switch back to tokens) and a compact 中 / EN toggle. Script-sheet settings are four groups instead of nine boxes; token settings group background and border, list characters in one scrolling column, and no longer let slider labels overlap.
+- **Analytics** — title and actions share a row; with no records yet, filters are hidden and the overview offers **New record**; headline figures fit one row.
+- **Settings** — one row per setting (description left, control right); sync and backup texts say exactly what is included; web users with the built-in Google sign-in no longer see developer setup notes.
+- **Characters** — the script filter and **More filters** share a row, with editions (official sets first) and the script scope in one panel. Chinese labels are consistent: ability revisions are 修订 (editions stay 版本), 首夜 / 其他夜晚 throughout, no ZH/EN tags in field names.
+
+### Fixed
+- Token Print Studio: the character list wrapped into clipped columns, and the search field showed its label on top of its placeholder.
+- The storyteller toolbar's panel button did nothing on desktop, where the side rail is always visible.
+- Printed token page captions ("Page 1/1 (24 tokens)") are translated.
+
+---
+
+## 2026-09-25 — Report Problems Where You See Them
 
 ### Added
 - **Flag buttons for quick problem reports** — on the character panel, the script sheet's character pop-up, the script toolbar, the storyteller's seat and ability dialogs, and the storyteller side bar (the ☰ drawer on phones). The header's bug button now opens the same dialog for the current tab instead of an external form.
