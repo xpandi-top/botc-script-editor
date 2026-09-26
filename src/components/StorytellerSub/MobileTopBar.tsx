@@ -1,6 +1,6 @@
 import type { StorytellerContext } from './useStoryteller'
 import { Box, IconButton, Chip, Typography } from '@mui/material'
-import { LanguageToggle } from './LanguageToggle'
+import { LanguageToggle } from '../ui'
 import MenuIcon from '@mui/icons-material/Menu'
 import UndoIcon from '@mui/icons-material/Undo'
 import { useT } from '../../context/I18nContext'

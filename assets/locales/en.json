@@ -1471,6 +1471,16 @@
     "team_initial_minion": "M",
     "team_initial_demon": "D",
     "bgm_volume": "Music volume",
-    "bgm_track": "Music track"
+    "bgm_track": "Music track",
+    "print_mode": "What to print",
+    "print_mode_tokens": "Tokens",
+    "print_mode_sheet": "Script sheet",
+    "print_section_output_page": "Output & paper",
+    "print_section_icons_wake": "Icons & wake order",
+    "print_section_look": "Background & border",
+    "print_empty_tokens_hint": "Tick characters in the settings, or switch to custom tags.",
+    "print_select_all": "Select all",
+    "print_page_n": "Page {0}/{1}",
+    "print_page_n_tokens": "Page {0}/{1} · {2} tokens"
   }
 }

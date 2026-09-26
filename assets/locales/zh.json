@@ -1471,6 +1471,16 @@
     "team_initial_minion": "爪",
     "team_initial_demon": "恶",
     "bgm_volume": "背景音乐音量",
-    "bgm_track": "背景音乐曲目"
+    "bgm_track": "背景音乐曲目",
+    "print_mode": "打印内容",
+    "print_mode_tokens": "标记",
+    "print_mode_sheet": "剧本单",
+    "print_section_output_page": "输出与纸张",
+    "print_section_icons_wake": "图标与夜晚顺序",
+    "print_section_look": "背景与边框",
+    "print_empty_tokens_hint": "在设置中勾选角色，或切换到自定义标签。",
+    "print_select_all": "全选",
+    "print_page_n": "第 {0}/{1} 页",
+    "print_page_n_tokens": "第 {0}/{1} 页 · {2} 个标记"
   }
 }

@@ -13,6 +13,8 @@ import { locales } from '../catalog'
 import type { Language } from '../types'
 
 export type UiKey =
+  | 'print_select_all'
+  | 'print_mode' | 'print_mode_tokens' | 'print_mode_sheet' | 'print_section_output_page' | 'print_section_icons_wake' | 'print_section_look' | 'print_empty_tokens_hint'
   | 'bgm_volume' | 'bgm_track'
   | 'presentation_short' | 'st_alive_total' | 'st_setup_counts' | 'team_initial_townsfolk' | 'team_initial_outsider' | 'team_initial_minion' | 'team_initial_demon'
   | 'library_folder_short'
@@ -361,6 +363,7 @@ export type UiKey =
   | 'report_show_sent' | 'report_hide_sent' | 'report_open_form' | 'report_sent' | 'report_queued' | 'report_local'
 
 export type TplKey =
+  | 'print_page_n' | 'print_page_n_tokens'
   | 'showing_n_of_m'
   | 'first_night_count'
   | 'other_nights_count'

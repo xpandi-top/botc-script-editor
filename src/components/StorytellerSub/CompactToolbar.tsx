@@ -6,7 +6,7 @@ import MenuOpenIcon from '@mui/icons-material/MenuOpen'
 import { CHARACTER_DISTRIBUTION } from './constants'
 import { GameActionsBar } from './GameActionsBar'
 import { BgmBar } from './BgmBar'
-import { LanguageToggle } from './LanguageToggle'
+import { LanguageToggle } from '../ui'
 import { SetupCounts } from './SetupCounts'
 import { useT } from '../../context/I18nContext'
 

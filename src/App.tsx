@@ -1006,6 +1006,7 @@ export default function App() {
           printOptions={printOptions}
           onOptionsChange={setPrintOptions}
           onClose={() => setPrintPreviewOpen(false)}
+          onOpenTokenStudio={() => { setPrintPreviewOpen(false); setActiveTab('printstudio') }}
           scripts={scripts}
           activeSlug={activeSlug}
           onScriptChange={setActiveSlug}
