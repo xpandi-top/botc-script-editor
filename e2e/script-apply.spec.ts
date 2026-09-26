@@ -18,6 +18,8 @@ test('live script selection is staged, discarded on close, and persisted only on
   await waitForAppReady(page)
   await navigateToTab(page, /Storyteller/)
   const saved = () => page.evaluate(() => JSON.parse(localStorage.getItem('botc-storyteller-companion-v5')!))
+  // Compare against the app's own first save (it fills in seat defaults), not the raw seed.
+  await expect.poll(async () => 'timerDefaults' in (await saved())).toBe(true)
   const initial = await saved()
   const open = async () => {
     const desktop = page.getByRole('button', { name: 'Player Assignments', exact: true }).first()
