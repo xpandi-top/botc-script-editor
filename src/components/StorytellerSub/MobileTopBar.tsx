@@ -1,5 +1,6 @@
 import type { StorytellerContext } from './useStoryteller'
-import { Box, IconButton, Chip, Typography, Select, MenuItem } from '@mui/material'
+import { Box, IconButton, Chip, Typography } from '@mui/material'
+import { LanguageToggle } from './LanguageToggle'
 import MenuIcon from '@mui/icons-material/Menu'
 import UndoIcon from '@mui/icons-material/Undo'
 import { useT } from '../../context/I18nContext'
@@ -54,7 +55,7 @@ export function MobileTopBar({ ctx }: { ctx: StorytellerContext }) {
             onClick={() => setShowScriptPanel((p: boolean) => !p)}
             color={showScriptPanel ? 'primary' : 'default'}
             variant={showScriptPanel ? 'filled' : 'outlined'}
-            sx={{ maxWidth: 130, fontSize: '0.8rem', height: 28, flexShrink: 1, minWidth: 0 }}
+            sx={{ maxWidth: 160, fontSize: '0.8rem', height: 28, flexShrink: 1, minWidth: 0 }}
           />
         )}
 
@@ -71,26 +72,11 @@ export function MobileTopBar({ ctx }: { ctx: StorytellerContext }) {
         />
       </Box>
 
-      <IconButton onClick={undo} disabled={!canUndo} title={t('undo')}>
+      <IconButton onClick={undo} disabled={!canUndo} aria-label={t('undo')}>
         <UndoIcon />
       </IconButton>
-      {onLanguageChange && (
-        <Select
-          value={language}
-          onChange={(e) => onLanguageChange(e.target.value as 'en' | 'zh')}
-          size="small"
-          sx={{
-            minWidth: 55,
-            height: 32,
-            '& .MuiSelect-select': { py: 0.25, px: 1, fontSize: '0.85rem', fontWeight: 600 },
-            '& fieldset': { borderColor: 'divider' },
-          }}
-        >
-          <MenuItem value="en" sx={{ fontSize: '0.85rem' }}>EN</MenuItem>
-          <MenuItem value="zh" sx={{ fontSize: '0.85rem' }}>中文</MenuItem>
-        </Select>
-      )}
-      <IconButton onClick={() => setShowRightPanel((c: boolean) => !c)}>
+      {onLanguageChange && <LanguageToggle language={language} onLanguageChange={onLanguageChange} />}
+      <IconButton aria-label={t('show_menu')} onClick={() => setShowRightPanel((c: boolean) => !c)}>
         <MenuIcon />
       </IconButton>
     </Box>

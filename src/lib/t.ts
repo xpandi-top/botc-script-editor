@@ -13,6 +13,8 @@ import { locales } from '../catalog'
 import type { Language } from '../types'
 
 export type UiKey =
+  | 'bgm_volume' | 'bgm_track'
+  | 'presentation_short' | 'st_alive_total' | 'st_setup_counts' | 'team_initial_townsfolk' | 'team_initial_outsider' | 'team_initial_minion' | 'team_initial_demon'
   | 'library_folder_short'
   | 'library_tags' | 'library_organize_hint'
   | 'settings_overview_desc' | 'settings_appearance' | 'settings_fonts_preview' | 'settings_fonts_desc' | 'settings_merge_hint' | 'settings_replace_hint' | 'analytics_filter_multi_hint' | 'analytics_no_filter_results' | 'analytics_toolbar_hint'

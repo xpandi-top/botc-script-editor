@@ -5,6 +5,8 @@ import SettingsIcon from '@mui/icons-material/Settings'
 import HistoryIcon from '@mui/icons-material/History'
 import DownloadIcon from '@mui/icons-material/Download'
 import FlagOutlinedIcon from '@mui/icons-material/FlagOutlined'
+import CastIcon from '@mui/icons-material/Cast'
+import CastConnectedIcon from '@mui/icons-material/CastConnected'
 import { FeedbackButton } from '../../Feedback'
 import { RightPopupSettings } from './RightPopupSettings'
 import { RightConsoleRecords } from './RightConsoleRecords'
@@ -24,6 +26,8 @@ function IconBar({
   openAssignmentCenter,
   hasActiveDealSession,
   setShowExportModal,
+  presenting,
+  openAudienceWindow,
   sx = {},
 }: {
   activeRightPopup: string | null
@@ -36,6 +40,8 @@ function IconBar({
   openAssignmentCenter: () => void
   hasActiveDealSession?: boolean
   setShowExportModal: (v: boolean) => void
+  presenting: boolean
+  openAudienceWindow: () => void
   sx?: object
 }) {
   const { t } = useT()
@@ -63,6 +69,23 @@ function IconBar({
         <Box sx={{ fontSize: '1.5rem', lineHeight: 1, display: 'flex' }}><DownloadIcon fontSize="inherit" /></Box>
         <Typography variant="caption" sx={{ fontSize: '0.62rem', fontWeight: 600, letterSpacing: '0.02em', lineHeight: 1.2, color: 'inherit' }}>
           {t('export')}
+        </Typography>
+      </IconButton>
+      {/* Audience window: a second screen for players; status and "stop" show above the arena while it runs. */}
+      <IconButton
+        onClick={() => { openAudienceWindow(); onClose() }}
+        aria-label={`${t('presentation_short')}：${t(presenting ? 'presentation_focus' : 'presentation_open')}`}
+        sx={{
+          flexDirection: 'column', width: 48, p: 0.75, borderRadius: 1.5,
+          border: '1px solid', borderColor: presenting ? 'primary.light' : 'transparent',
+          bgcolor: presenting ? 'action.selected' : 'transparent',
+          color: presenting ? 'primary.main' : 'text.secondary',
+          '&:hover': { bgcolor: 'action.hover', color: 'text.primary', borderColor: 'divider' },
+        }}
+      >
+        <Box sx={{ fontSize: '1.5rem', lineHeight: 1, display: 'flex' }}>{presenting ? <CastConnectedIcon fontSize="inherit" /> : <CastIcon fontSize="inherit" />}</Box>
+        <Typography variant="caption" sx={{ fontSize: '0.62rem', fontWeight: 600, letterSpacing: '0.02em', lineHeight: 1.2, color: 'inherit' }}>
+          {t('presentation_short')}
         </Typography>
       </IconButton>
       <Box sx={{ flex: 1 }} />
@@ -131,6 +154,8 @@ export function RightConsole({ ctx }: { ctx: StorytellerContext }) {
     openAssignmentCenter: () => setShowAssignmentCenter(true),
     hasActiveDealSession: !!linkedDealSession,
     setShowExportModal,
+    presenting: ctx.presenting,
+    openAudienceWindow: ctx.openAudienceWindow,
   }
 
   const popupContent = (

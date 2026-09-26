@@ -1,5 +1,13 @@
-import { test, expect } from '@playwright/test'
+import { test, expect, type Page } from '@playwright/test'
 import { navigateToTab, waitForAppReady } from './helpers'
+
+/** The audience window opens from the game rail; on phones the rail sits in the menu drawer. */
+async function openAudienceButton(page: Page) {
+  const menu = page.getByRole('button', { name: '显示菜单', exact: true })
+  await expect(page.getByRole('button', { name: /^(显示菜单|投屏：.*)$/ }).first()).toBeVisible()
+  if (await menu.isVisible()) await menu.click()
+  return page.getByRole('button', { name: /打开观众窗口/ })
+}
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
@@ -25,7 +33,7 @@ test('audience stays public through live updates, refresh, private dialogs, and 
   page.on('pageerror', e => errors.push(e.message))
   await expect(page.locator('[data-alignment]')).toHaveCount(0)
   const popupEvent = page.waitForEvent('popup')
-  await page.getByRole('button', { name: '打开观众窗口', exact: true }).click()
+  await (await openAudienceButton(page)).click()
   const audience = await popupEvent
   audience.on('pageerror', e => errors.push(e.message))
   await expect(audience.getByTestId('audience-seat-1')).toContainText('PUBLIC_TAG')
@@ -64,10 +72,11 @@ test('audience stays public through live updates, refresh, private dialogs, and 
   await page.screenshot({ path: testInfo.outputPath('presenter.png'), fullPage: true })
 
   await audience.close()
-  await expect(page.getByRole('button', { name: '打开观众窗口', exact: true })).toBeVisible()
   await expect(page.getByRole('img', { name: '男爵', exact: true })).toHaveCount(0)
+  const reopen = await openAudienceButton(page)
+  await expect(reopen).toBeVisible()
   const secondPopup = page.waitForEvent('popup')
-  await page.getByRole('button', { name: '打开观众窗口', exact: true }).click()
+  await reopen.click()
   const secondAudience = await secondPopup
   await expect(secondAudience.getByTestId('audience-seat-1')).toBeVisible()
   await page.getByRole('button', { name: '结束演示', exact: true }).click()
@@ -78,7 +87,7 @@ test('audience stays public through live updates, refresh, private dialogs, and 
 
 test('blocked popups do not reveal roles, and direct audience routes never load a game', async ({ page, context }) => {
   await page.evaluate(() => { window.open = () => null })
-  await page.getByRole('button', { name: '打开观众窗口', exact: true }).click()
+  await (await openAudienceButton(page)).click()
   await expect(page.getByText(/无法打开观众窗口/)).toBeVisible()
   await expect(page.locator('[data-alignment]')).toHaveCount(0)
   const orphan = await context.newPage()
@@ -90,7 +99,7 @@ test('blocked popups do not reveal roles, and direct audience routes never load 
 
 test('closing the host clears the audience view', async ({ page }) => {
   const popupEvent = page.waitForEvent('popup')
-  await page.getByRole('button', { name: '打开观众窗口', exact: true }).click()
+  await (await openAudienceButton(page)).click()
   const audience = await popupEvent
   await expect(audience.getByTestId('audience-seat-1')).toBeVisible()
   await page.close()
@@ -115,7 +124,7 @@ test('audience keeps nominations for every day when the host advances and the au
   })
   await page.reload()
   const popupEvent = page.waitForEvent('popup')
-  await page.getByRole('button', { name: '打开观众窗口', exact: true }).click()
+  await (await openAudienceButton(page)).click()
   const audience = await popupEvent
   const first = audience.getByTestId('audience-history-day-1')
   const second = audience.getByTestId('audience-history-day-2')

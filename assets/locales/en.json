@@ -1462,6 +1462,15 @@
     "analytics_toolbar_hint": "Explore game records and results by script, player and character.",
     "library_tags": "Tags",
     "library_organize_hint": "Folder, tags and notes",
-    "library_folder_short": "Folder"
+    "library_folder_short": "Folder",
+    "presentation_short": "Audience",
+    "st_alive_total": "Alive / total players",
+    "st_setup_counts": "Setup for this player count (excluding Travelers)",
+    "team_initial_townsfolk": "T",
+    "team_initial_outsider": "O",
+    "team_initial_minion": "M",
+    "team_initial_demon": "D",
+    "bgm_volume": "Music volume",
+    "bgm_track": "Music track"
   }
 }

@@ -1,107 +1,112 @@
 import { PresentationControls } from './PresentationControls'
 import type { StorytellerContext } from './useStoryteller'
-import { Box, FormControl, InputLabel, Select, MenuItem, IconButton, Typography, Chip } from '@mui/material'
+import { Box, IconButton, Typography, Chip, Tooltip, useMediaQuery, useTheme } from '@mui/material'
 import UndoIcon from '@mui/icons-material/Undo'
 import MenuOpenIcon from '@mui/icons-material/MenuOpen'
 import { CHARACTER_DISTRIBUTION } from './constants'
 import { GameActionsBar } from './GameActionsBar'
 import { BgmBar } from './BgmBar'
+import { LanguageToggle } from './LanguageToggle'
+import { SetupCounts } from './SetupCounts'
 import { useT } from '../../context/I18nContext'
 
+/**
+ * One-row toolbar above the arena (tablet and desktop).
+ * Left: seat counts, script, background music. Right: undo and language.
+ * From md up the game rail beside the arena is always visible, so new game /
+ * assignments / save and the panel toggle only appear below md.
+ */
 export function CompactToolbar({ ctx }: { ctx: StorytellerContext }) {
   const {
     activeScriptTitle, activeScriptVersion, language, onLanguageChange, currentDay, aliveCount, totalCount,
     audioPlaying, setAudioPlaying, audioTracks, selectedAudioSrc, setSelectedAudioSrc,
     sendYTCommand,
     handleLocalFileChange, handleUrlTrackAdd, deleteTrack, renameTrack, openNewGamePanel, openEndGamePanel,
-    setShowRightPanel, showScriptPanel, setShowScriptPanel,
+    showRightPanel, setShowRightPanel, showScriptPanel, setShowScriptPanel,
     setShowAssignmentCenter, linkedDealSession,
     text, undo, canUndo, bgmVolume, setBgmVolume,
   } = ctx
 
   const { t } = useT()
+  const theme = useTheme()
+  const railVisible = useMediaQuery(theme.breakpoints.up('md'))
   const nonTravelerCount = currentDay.seats.filter((s: any) => !s.isTraveler).length
   const dist = CHARACTER_DISTRIBUTION[nonTravelerCount]
   const travelerCount = currentDay.seats.filter((s: any) => s.isTraveler).length
-  const distColors: Record<string, string> = { townsfolk: '#2e6ec4', outsider: '#7c4dbf', minion: '#c45c2e', demon: '#b91c1c' }
 
   return (
     <>
     <PresentationControls ctx={ctx} />
-    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1.5, pb: 1.5, borderBottom: '1px solid', borderBottomColor: 'divider', mb: 1, flexShrink: 0 }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap', flex: 1 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Typography variant="h6" sx={{ fontSize: 'clamp(0.8rem, 2vw, 1rem)' }}>{aliveCount}/{totalCount}</Typography>
-          {travelerCount > 0 && <Typography variant="caption" color="text.secondary" sx={{ fontSize: 'clamp(0.65rem, 1.3vw, 0.75rem)' }}>+{travelerCount}{text.travelersCount}</Typography>}
-          {dist && (
-            <Box>
-              <Typography variant="caption" sx={{ fontSize: 'clamp(0.72rem, 1.6vw, 1rem)', fontWeight: 600, color: distColors.townsfolk }}>{dist.townsfolk}T</Typography>
-              <Typography variant="caption" sx={{ fontSize: 'clamp(0.72rem, 1.6vw, 1rem)', fontWeight: 600, color: distColors.outsider }}>{dist.outsider}O</Typography>
-              <Typography variant="caption" sx={{ fontSize: 'clamp(0.72rem, 1.6vw, 1rem)', fontWeight: 600, color: distColors.minion }}>{dist.minion}M</Typography>
-              <Typography variant="caption" sx={{ fontSize: 'clamp(0.72rem, 1.6vw, 1rem)', fontWeight: 600, color: distColors.demon }}>1D</Typography>
-            </Box>
-          )}
-        </Box>
-
-        {activeScriptTitle && (
-          <Chip
-            label={activeScriptVersion ? `${activeScriptTitle} v${activeScriptVersion}` : activeScriptTitle}
-            onClick={() => setShowScriptPanel((p: boolean) => !p)}
-            color={showScriptPanel ? 'primary' : 'default'}
-            variant={showScriptPanel ? 'filled' : 'outlined'}
-            size="medium"
-          />
-        )}
-
-        <BgmBar
-          audioPlaying={audioPlaying}
-          onTogglePlay={() => {
-            // sendYTCommand MUST run synchronously inside the tap gesture for iOS Safari.
-            // It is a no-op on desktop and when no YouTube track is active.
-            if (audioPlaying) { sendYTCommand('pauseVideo'); setAudioPlaying(false) }
-            else { sendYTCommand('playVideo'); setAudioPlaying(true) }
-          }}
-          audioTracks={audioTracks}
-          selectedAudioSrc={selectedAudioSrc}
-          setSelectedAudioSrc={setSelectedAudioSrc}
-          bgmVolume={bgmVolume}
-          setBgmVolume={setBgmVolume}
-          handleLocalFileChange={handleLocalFileChange}
-          handleUrlTrackAdd={handleUrlTrackAdd}
-          deleteTrack={deleteTrack}
-          renameTrack={renameTrack}
-          language={language}
-        />
+    <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', columnGap: 1.5, rowGap: 1, pb: 1.5, borderBottom: '1px solid', borderBottomColor: 'divider', mb: 1, flexShrink: 0 }}>
+      <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1, flexShrink: 0 }}>
+        <Tooltip title={t('st_alive_total')}>
+          <Typography variant="h6" component="span" sx={{ fontSize: 'clamp(0.85rem, 2vw, 1rem)', fontVariantNumeric: 'tabular-nums' }}>{aliveCount}/{totalCount}</Typography>
+        </Tooltip>
+        {travelerCount > 0 && <Typography variant="caption" color="text.secondary">+{travelerCount}{text.travelersCount}</Typography>}
+        {dist && <SetupCounts dist={dist} />}
       </Box>
 
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-        <GameActionsBar
-          openNewGamePanel={openNewGamePanel}
-          openEndGamePanel={openEndGamePanel}
-          openAssignmentCenter={() => setShowAssignmentCenter(true)}
-          hasActiveDealSession={!!linkedDealSession}
-          text={text}
-          language={language}
-          variant="toolbar"
+      {activeScriptTitle && (
+        <Chip
+          label={activeScriptVersion ? `${activeScriptTitle} v${activeScriptVersion}` : activeScriptTitle}
+          onClick={() => setShowScriptPanel((p: boolean) => !p)}
+          color={showScriptPanel ? 'primary' : 'default'}
+          variant={showScriptPanel ? 'filled' : 'outlined'}
+          aria-pressed={showScriptPanel}
+          sx={{ maxWidth: 240 }}
         />
-        <IconButton size="medium" onClick={undo} disabled={!canUndo} title={t('undo')}>
-          <UndoIcon />
-        </IconButton>
-        {onLanguageChange && (
-          <FormControl size="small" sx={{ minWidth: 72, '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' }, '& .MuiInputLabel-root': { fontSize: '0.8rem' } }}>
-            <InputLabel>{t('lang')}</InputLabel>
-            <Select value={language} label={t('lang')} onChange={(e) => onLanguageChange(e.target.value)}>
-              <MenuItem value="en">EN</MenuItem>
-              <MenuItem value="zh">中文</MenuItem>
-            </Select>
-          </FormControl>
+      )}
+
+      <BgmBar
+        fullWidth={false}
+        audioPlaying={audioPlaying}
+        onTogglePlay={() => {
+          // sendYTCommand MUST run synchronously inside the tap gesture for iOS Safari.
+          // It is a no-op on desktop and when no YouTube track is active.
+          if (audioPlaying) { sendYTCommand('pauseVideo'); setAudioPlaying(false) }
+          else { sendYTCommand('playVideo'); setAudioPlaying(true) }
+        }}
+        audioTracks={audioTracks}
+        selectedAudioSrc={selectedAudioSrc}
+        setSelectedAudioSrc={setSelectedAudioSrc}
+        bgmVolume={bgmVolume}
+        setBgmVolume={setBgmVolume}
+        handleLocalFileChange={handleLocalFileChange}
+        handleUrlTrackAdd={handleUrlTrackAdd}
+        deleteTrack={deleteTrack}
+        renameTrack={renameTrack}
+        language={language}
+        selectSx={{ maxWidth: 180 }}
+      />
+
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, ml: 'auto' }}>
+        {!railVisible && (
+          <GameActionsBar
+            openNewGamePanel={openNewGamePanel}
+            openEndGamePanel={openEndGamePanel}
+            openAssignmentCenter={() => setShowAssignmentCenter(true)}
+            hasActiveDealSession={!!linkedDealSession}
+            text={text}
+            language={language}
+            variant="toolbar"
+          />
         )}
-        <IconButton
-          size="medium"
-          onClick={() => setShowRightPanel((c: boolean) => !c)}
-        >
-          <MenuOpenIcon/>
-        </IconButton>
+        <Tooltip title={t('undo')}>
+          <span>
+            <IconButton aria-label={t('undo')} onClick={undo} disabled={!canUndo}>
+              <UndoIcon />
+            </IconButton>
+          </span>
+        </Tooltip>
+        {onLanguageChange && <LanguageToggle language={language} onLanguageChange={onLanguageChange} />}
+        {!railVisible && (
+          <Tooltip title={showRightPanel ? t('hide_menu') : t('show_menu')}>
+            <IconButton aria-label={showRightPanel ? t('hide_menu') : t('show_menu')} aria-expanded={showRightPanel}
+              onClick={() => setShowRightPanel((c: boolean) => !c)}>
+              <MenuOpenIcon />
+            </IconButton>
+          </Tooltip>
+        )}
       </Box>
     </Box>
     </>

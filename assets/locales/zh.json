@@ -1462,6 +1462,15 @@
     "analytics_toolbar_hint": "查看游戏记录，按剧本、玩家和角色分析结果。",
     "library_tags": "标签",
     "library_organize_hint": "文件夹、标签与备注",
-    "library_folder_short": "文件夹"
+    "library_folder_short": "文件夹",
+    "presentation_short": "投屏",
+    "st_alive_total": "存活 / 总人数",
+    "st_setup_counts": "本局配置（不含旅行者）",
+    "team_initial_townsfolk": "镇",
+    "team_initial_outsider": "外",
+    "team_initial_minion": "爪",
+    "team_initial_demon": "恶",
+    "bgm_volume": "背景音乐音量",
+    "bgm_track": "背景音乐曲目"
   }
 }
