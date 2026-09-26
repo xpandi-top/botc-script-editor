@@ -1,6 +1,7 @@
 import React from 'react'
 import { Box, Typography } from '@mui/material'
 import { SingleToken } from './SingleToken'
+import { useT } from '../../context/I18nContext'
 import { MM_TO_PX, type TokenPrintOptions, type MarkerDef } from './types'
 import { PAGE_SIZE_DEFS } from '../PrintOptionsDialog'
 import {
@@ -249,6 +250,7 @@ function renderMarkerToken(marker: MarkerDef, _idx: number, ro: RenderOpts) {
 // ── Main component ────────────────────────────────────────────────
 
 export function TokenPageGrid(props: TokenPageGridProps) {
+  const { tpl } = useT()
   const { opts, forPrint = false, pinnedRevisions } = props
   const { w, h } = PAGE_SIZE_DEFS[opts.pageSize]
   const marginMm = opts.marginMm
@@ -294,7 +296,7 @@ export function TokenPageGrid(props: TokenPageGridProps) {
           <Box key={pageIdx} sx={forPrint && pageIdx > 0 ? { pageBreakBefore: 'always', breakBefore: 'page' } : undefined}>
             {!forPrint && (
               <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
-                Page {pageIdx + 1}/{pages.length} ({pageTokens.length} tokens)
+                {tpl('print_page_n_tokens', pageIdx + 1, pages.length, pageTokens.length)}
               </Typography>
             )}
             {useStaggered ? (
@@ -327,7 +329,7 @@ export function TokenPageGrid(props: TokenPageGridProps) {
           <Box key={pageIdx} sx={forPrint && pageIdx > 0 ? { pageBreakBefore: 'always', breakBefore: 'page' } : undefined}>
             {!forPrint && (
               <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
-                Page {pageIdx + 1}/{pages.length}
+                {tpl('print_page_n', pageIdx + 1, pages.length)}
               </Typography>
             )}
             {useStaggered ? (
@@ -362,7 +364,7 @@ export function TokenPageGrid(props: TokenPageGridProps) {
         <Box key={pageIdx} sx={forPrint && pageIdx > 0 ? { pageBreakBefore: 'always', breakBefore: 'page' } : undefined}>
           {!forPrint && (
             <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
-              Page {pageIdx + 1}/{pages.length} ({pageMarkers.length} markers)
+              {tpl('print_page_n_tokens', pageIdx + 1, pages.length, pageMarkers.length)}
             </Typography>
           )}
           {useStaggered ? (

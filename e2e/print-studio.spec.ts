@@ -24,7 +24,7 @@ test('token PDF downloads with packed pages and centered icons without opening p
   await navigateToTab(page, /剧本|Scripts/)
   await expect(page.locator('.print-portal')).toHaveCount(1)
   await navigateToTab(page, /打印工坊|Print Studio/)
-  await page.getByRole('button', { name: /^(全部|All)$/ }).last().click()
+  await page.getByRole('button', { name: /^(全选|Select all)$/ }).click()
   const previewPages = page.locator('#root [data-token-page]')
   await expect(previewPages.first()).toBeVisible()
 
@@ -97,7 +97,7 @@ test('downloads tokens while the mobile settings panel hides the preview', async
   test.skip(testInfo.project.name !== 'mobile-android', 'Mobile hidden-preview regression')
   await waitForAppReady(page)
   await navigateToTab(page, /打印工坊|Print Studio/)
-  await page.getByRole('button', { name: /^(全部|All)$/ }).last().click()
+  await page.getByRole('button', { name: /^(全选|Select all)$/ }).click()
   await expect(page.locator('#root [data-token-page]').first()).toBeHidden()
   const downloaded = page.waitForEvent('download')
   await page.getByRole('button', { name: '导出 PDF' }).click()
@@ -105,4 +105,45 @@ test('downloads tokens while the mobile settings panel hides the preview', async
   expect(result.suggestedFilename()).toMatch(/-tokens\.pdf$/)
   expect(await result.failure()).toBeNull()
   await expect(page.locator('.token-print-portal')).toBeHidden()
+})
+
+test('print menus expose search recovery, collapsible options and mobile preview navigation', async ({ page }, testInfo) => {
+  await waitForAppReady(page)
+  await navigateToTab(page, /打印工坊|Print Studio/)
+  await page.getByRole('button', { name: /^(全选|Select all)$/ }).click()
+
+  const selected = page.getByRole('checkbox', { checked: true })
+  const selectedCount = await selected.count()
+  expect(selectedCount).toBeGreaterThan(0)
+  await page.getByRole('textbox', { name: /按名称、ID 或能力搜索|Search by name/ }).fill('no-character-matches-this-query')
+  await expect(page.getByText(/^(无结果|No matches)$/)).toBeVisible()
+  await expect(page.getByRole('button', { name: /选择匹配角色|Select matching/ })).toBeDisabled()
+  await page.getByRole('button', { name: /重置筛选|Reset filters/ }).click()
+  await expect(selected).toHaveCount(selectedCount)
+
+  const shapes = page.getByRole('button', { name: /形状与大小|Shape & Size/i })
+  await shapes.click()
+  await expect(shapes).toHaveAttribute('aria-expanded', 'false')
+  await shapes.click()
+  await expect(page.getByRole('button', { name: /^(圆形|Circle)$/ })).toHaveAttribute('aria-pressed', 'true')
+
+  if (testInfo.project.name === 'mobile-android') {
+    await page.getByRole('button', { name: /^(预览|Preview)$/ }).click()
+    await expect(page.locator('#root [data-token-page]').first()).toBeVisible()
+    await page.getByRole('button', { name: /^(PDF 设置|PDF Settings)$/ }).click()
+    await expect(page.locator('#root [data-token-page]').first()).toBeHidden()
+    await expect(selected).toHaveCount(selectedCount)
+  }
+
+  await page.getByRole('button', { name: /^(剧本单|Script sheet)$/ }).click()
+  await expect(page.getByRole('button', { name: /中英同页|Bilingual on one sheet/ })).toBeVisible()
+  await expect(page.getByRole('button', { name: /中英分页|Separate language sheets/ })).toBeVisible()
+  await expect(page.getByRole('button', { name: /导出 PDF|^Print$/ })).toBeEnabled()
+  if (testInfo.project.name === 'mobile-android') {
+    await page.getByRole('button', { name: /^(预览|Preview)$/ }).click()
+    await expect(page.locator('#sheet-print-settings')).toHaveCount(0)
+    await expect(page.getByRole('button', { name: /导出 PDF|^Print$/ })).toBeEnabled()
+    await page.getByRole('button', { name: /^(PDF 设置|PDF Settings)$/ }).click()
+    await expect(page.getByRole('button', { name: /中英同页|Bilingual on one sheet/ })).toBeVisible()
+  }
 })

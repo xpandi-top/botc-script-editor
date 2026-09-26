@@ -41,6 +41,18 @@
       "en": "Traveler",
       "zh": "旅行者",
       "notes": "Use for the BOTC player type and character team."
+    },
+    {
+      "concept": "Ability revision",
+      "en": "revision",
+      "zh": "修订",
+      "notes": "A dated wording of one character's ability. Keep 版本 for editions (暗流涌动, 华灯初上…) so the two never share a label."
+    },
+    {
+      "concept": "First night",
+      "en": "first night",
+      "zh": "首夜",
+      "notes": "Use 首夜 / 其他夜晚 in labels; avoid mixing 第一夜 and 首夜 on one screen."
     }
   ],
   "deprecatedTerms": [
@@ -73,6 +85,12 @@
       "term": "Nomination Succeed",
       "preferred": "Nomination Passed",
       "reason": "Passed better matches the vote-threshold result."
+    },
+    {
+      "language": "zh",
+      "term": "脚本备注",
+      "preferred": "剧本备注",
+      "reason": "BOTC scripts should be called 剧本, not 脚本, in UI labels."
     }
   ],
   "allowedSkillKeys": [

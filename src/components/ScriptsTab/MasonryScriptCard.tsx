@@ -12,6 +12,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert'
 import { getIconForCharacter } from '../../catalog'
 import { SCRIPT_TAG_META } from '../tabs/ScriptsTab.constants'
 import type { EditableScript, Language, ScriptFolder } from '../../types'
+import { hoverRevealSx, HOVER_REVEAL_CLASS } from './hoverReveal'
 import { useT } from '../../context/I18nContext'
 import { makeTpl } from '../../lib/t'
 import { authorAndOrigin, scriptOrigin } from './scriptOrigin'
@@ -105,7 +106,6 @@ export function MasonryScriptCard({
   const { t } = useT()
   const tpl = makeTpl(language)
   const [imgErr, setImgErr] = useState(false)
-  const [hovered, setHovered] = useState(false)
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null)
   const [folderMenuAnchor, setFolderMenuAnchor] = useState<null | HTMLElement>(null)
 
@@ -129,7 +129,6 @@ export function MasonryScriptCard({
 
   const hasActions = isDeletable || !!onDuplicate || !!onMoveToFolder
   const menuOpen = Boolean(menuAnchor)
-  const showActions = hovered || menuOpen || Boolean(folderMenuAnchor)
 
   const openMenu = (e: React.MouseEvent<HTMLElement>) => {
     e.stopPropagation()
@@ -140,13 +139,10 @@ export function MasonryScriptCard({
   return (
     <>
       <Box
-        role="button"
-        tabIndex={0}
-        onClick={onSelect}
-        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onSelect() }}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
         sx={{
+          ...hoverRevealSx,
+          position: 'relative',
+          minWidth: 0,
           borderRadius: 2.5,
           overflow: 'hidden',
           cursor: 'pointer',
@@ -164,11 +160,13 @@ export function MasonryScriptCard({
               : '0 8px 24px rgba(0,0,0,0.3)',
             borderColor: isActive ? 'primary.main' : 'primary.light',
           },
-          '&:focus-visible': {
+          '&:focus-within': {
             outline: '2px solid', outlineColor: 'primary.main', outlineOffset: 3,
           },
         }}
       >
+        <Box component="button" type="button" aria-label={title} aria-pressed={isActive} onClick={onSelect}
+          sx={{ position: 'absolute', inset: 0, zIndex: 1, border: 0, p: 0, background: 'transparent', cursor: 'pointer' }} />
         {/* ── Header: bg image or gradient + title ── */}
         <Box sx={{
           position: 'relative',
@@ -226,18 +224,20 @@ export function MasonryScriptCard({
 
           {/* ── Three-dot action button (on hover) ── */}
           {hasActions && (
-            <Box sx={{
+            <Box className={menuOpen || folderMenuAnchor ? undefined : HOVER_REVEAL_CLASS} sx={{
               position: 'absolute', top: 7, right: 7,
-              opacity: showActions ? 1 : 0,
-              transition: 'opacity 0.15s ease',
+              zIndex: 2,
             }}>
               <IconButton
                 size="small"
+                aria-label={`${t('nav_more')}: ${title}`}
+                aria-haspopup="menu"
+                aria-expanded={menuOpen}
                 onClick={openMenu}
                 sx={{
                   bgcolor: 'rgba(0,0,0,0.52)',
                   color: 'white',
-                  width: 28, height: 28,
+                  width: 36, height: 36,
                   '&:hover': { bgcolor: 'rgba(0,0,0,0.75)' },
                 }}
               >
@@ -281,12 +281,13 @@ export function MasonryScriptCard({
                 return (
                   <Chip key={tag} label={meta ? (zh ? meta.zh : meta.en) : tag} size="small"
                     sx={{
-                      height: 16, fontSize: '0.58rem', fontWeight: 600,
+                      height: 22, fontSize: '0.7rem', fontWeight: 600,
                       bgcolor: color + '22', color, border: `1px solid ${color}44`,
                       '& .MuiChip-label': { px: '5px' },
                     }} />
                 )
               })}
+              {tags.length > 3 && <Chip size="small" label={`+${tags.length - 3}`} sx={{ height: 22, fontSize: '0.7rem' }} />}
             </Box>
           )}
         </Box>

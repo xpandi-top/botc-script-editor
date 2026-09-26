@@ -1,10 +1,11 @@
 import { useState, type ReactNode } from 'react'
 import {
-  Alert, Box, Button,
-  DialogContentText, DialogTitle, Divider,
+  Accordion, AccordionDetails, AccordionSummary, Alert, Box, Button, Paper,
+  DialogTitle, Divider,
   FormControlLabel, Radio, RadioGroup, Stack,
   ToggleButton, ToggleButtonGroup, Typography,
 } from '@mui/material'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import LightModeIcon from '@mui/icons-material/LightMode'
 import DarkModeIcon from '@mui/icons-material/DarkMode'
 import SettingsBrightnessIcon from '@mui/icons-material/SettingsBrightness'
@@ -25,7 +26,26 @@ import { FeedbackButton } from '../Feedback'
 import type { ReportRequest } from '../../lib/feedback/report'
 import { ResponsiveDialog, ResponsiveDialogActions, ResponsiveDialogContent } from '../ui'
 
-const headingSx = { display: 'flex', alignItems: 'center', gap: 1 }
+const headingSx = { display: 'flex', alignItems: 'center', gap: 1, fontWeight: 700 }
+const sectionSx = { px: { xs: 2, sm: 3 }, pt: { xs: 2, sm: 2.5 }, pb: { xs: 0.5, sm: 1 }, borderRadius: 2, minWidth: 0 }
+const cardSx = { p: { xs: 2, sm: 3 }, borderRadius: 2, minWidth: 0 }
+const toggleSx = {
+  width: { xs: '100%', md: 'auto' },
+  '& .MuiToggleButton-root': { flex: { xs: 1, md: 'initial' }, minWidth: 0, px: { xs: 1, sm: 2 }, py: 1, whiteSpace: 'nowrap' },
+}
+
+/** One setting: what it is on the left, the control on the right (stacked on phones). */
+function SettingRow({ title, description, children }: { title: ReactNode; description?: ReactNode; children: ReactNode }) {
+  return (
+    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'minmax(0, 1fr)', md: 'minmax(0, 1fr) auto' }, columnGap: 4, rowGap: 1.5, alignItems: 'center', py: 2 }}>
+      <Box sx={{ minWidth: 0 }}>
+        <Typography variant="subtitle1" component="h3" sx={headingSx}>{title}</Typography>
+        {description && <Typography variant="body2" color="text.secondary" sx={{ mt: 0.25 }}>{description}</Typography>}
+      </Box>
+      <Box sx={{ minWidth: 0 }}>{children}</Box>
+    </Box>
+  )
+}
 
 // ── SettingsTab ───────────────────────────────────────────────────────────────
 interface SettingsTabProps {
@@ -81,190 +101,108 @@ export function SettingsTab({ language, onLanguageChange, fontSettings, cloudSyn
   const flag = (part: string): ReactNode => <FeedbackButton request={() => settingsRequest(part)} />
 
   return (
-    <Box sx={{ maxWidth: 960, mx: 'auto', px: { xs: 2, sm: 3 }, py: 3, display: 'flex', flexDirection: 'column', gap: 4 }}>
-
-      {/* ── Section: Language ── */}
+    <Box sx={{ maxWidth: 960, mx: 'auto', px: { xs: 1.5, sm: 3 }, py: 3, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
       <Box>
-        <Typography variant="h5" gutterBottom sx={headingSx}>{t('language')}{flag('language')}</Typography>
-        <ToggleButtonGroup value={language} exclusive onChange={(_, v) => { if (v) onLanguageChange(v as Language) }}>
-          <ToggleButton value="zh" sx={{ px: 3, py: 1 }}>
-            <Box sx={{ textAlign: 'center' }}>
-              <Typography sx={{ fontSize: '1rem', fontWeight: 600, lineHeight: 1.2 }}>中文</Typography>
-              <Typography sx={{ fontSize: '0.65rem', opacity: 0.7 }}>Chinese</Typography>
+        <Typography variant="h5" component="h1" sx={{ fontWeight: 700, mb: 0.75 }}>{t('settings')}</Typography>
+        <Typography variant="body2" color="text.secondary">{t('settings_overview_desc')}</Typography>
+      </Box>
+
+      <Paper variant="outlined" component="section" aria-labelledby="settings-appearance" sx={sectionSx}>
+        <Typography id="settings-appearance" variant="h6" component="h2" sx={{ fontWeight: 700 }}>{t('settings_appearance')}</Typography>
+        <Stack divider={<Divider />}>
+          <SettingRow title={<>{t('language')}{flag('language')}</>} description={t('settings_language_desc')}>
+            <ToggleButtonGroup aria-label={t('language')} value={language} exclusive sx={toggleSx} onChange={(_, v) => { if (v) onLanguageChange(v as Language) }}>
+              <ToggleButton value="zh" lang="zh">中文</ToggleButton>
+              <ToggleButton value="en" lang="en">English</ToggleButton>
+            </ToggleButtonGroup>
+          </SettingRow>
+
+          <SettingRow title={<>{t('theme')}{flag('theme')}</>} description={t('settings_theme_desc')}>
+            <ToggleButtonGroup aria-label={t('theme')} value={mode} exclusive sx={toggleSx} onChange={(_, v) => { if (v) setMode(v) }}>
+              {[
+                { value: 'light', icon: <LightModeIcon fontSize="small" />, label: t('light'), description: t('parchment') },
+                { value: 'dark', icon: <DarkModeIcon fontSize="small" />, label: t('dark'), description: t('crimson') },
+                { value: 'system', icon: <SettingsBrightnessIcon fontSize="small" />, label: t('theme_system'), description: t('theme_system_sub') },
+              ].map((option) => (
+                <ToggleButton key={option.value} value={option.value} title={option.description} sx={{ gap: 0.75 }}>
+                  {option.icon}{option.label}
+                </ToggleButton>
+              ))}
+            </ToggleButtonGroup>
+          </SettingRow>
+
+          <SettingRow title={<>{t('interface_size')}{flag('fonts')}</>} description={t('scales_all_ui_text_spacing_and_controls_uniformly')}>
+            <ToggleButtonGroup aria-label={t('interface_size')} value={uiScale} exclusive sx={toggleSx} onChange={(_, v) => { if (v) setUiScale(v as UiScale) }}>
+              {UI_SCALE_OPTIONS.map((opt) => (
+                <ToggleButton key={opt.id} value={opt.id} sx={{ gap: 0.75, alignItems: 'baseline' }}>
+                  <Box component="span" sx={{ fontSize: opt.id === 'default' ? '0.875rem' : opt.id === 'large' ? '1rem' : '1.15rem' }}>{zh ? opt.labelZh : opt.label}</Box>
+                  <Box component="span" sx={{ fontSize: '0.7rem', opacity: 0.75 }}>{opt.px}px</Box>
+                </ToggleButton>
+              ))}
+            </ToggleButtonGroup>
+          </SettingRow>
+        </Stack>
+      </Paper>
+
+      <Accordion disableGutters variant="outlined" sx={{ borderRadius: '8px !important', '&::before': { display: 'none' } }}>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="settings-fonts-content" id="settings-fonts-heading" sx={{ px: { xs: 2, sm: 3 }, py: 1 }}>
+          <Box>
+            <Typography variant="h6" component="h2" sx={{ fontWeight: 700 }}>{t('settings_fonts_preview')}</Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>{t('settings_fonts_desc')}</Typography>
+          </Box>
+        </AccordionSummary>
+        <AccordionDetails sx={{ px: { xs: 2, sm: 3 }, pb: 3 }}>
+          <Stack spacing={3} divider={<Divider />}>
+            <Box>
+              <Typography variant="subtitle1" component="h3" gutterBottom sx={headingSx}>{t('font_preview')}{flag('fonts')}</Typography>
+              <LivePreview language={language} enBodyCss={enBodyCss} enDisplayCss={enDisplayCss} zhCss={zhCss} />
             </Box>
-          </ToggleButton>
-          <ToggleButton value="en" sx={{ px: 3, py: 1 }}>
-            <Box sx={{ textAlign: 'center' }}>
-              <Typography sx={{ fontSize: '1rem', fontWeight: 600, lineHeight: 1.2 }}>English</Typography>
-              <Typography sx={{ fontSize: '0.65rem', opacity: 0.7 }}>英文</Typography>
+            <Stack spacing={2}>
+              <Typography variant="subtitle1" component="h3" sx={headingSx}>{t('english_fonts')}{flag('fonts')}</Typography>
+              <FontPicker label="Body Text" labelZh="正文字体" options={enBodyOptions} selectedId={enBodyId} onSelect={setEnBodyId} language={language} />
+              <FontPicker label="Headings & Titles" labelZh="标题字体" options={enDisplayOptions} selectedId={enDisplayId} onSelect={setEnDisplayId} language={language} />
+            </Stack>
+            <Box>
+              <Typography variant="subtitle1" component="h3" gutterBottom sx={headingSx}>{t('chinese_font')}{flag('fonts')}</Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>{t('chinese_font_applies_to_both_body_text_and_titles')}</Typography>
+              <FontPicker label="Chinese Characters" labelZh="中文字符字体" options={zhOptionsResolved} selectedId={zhId} onSelect={setZhId} language={language} />
             </Box>
-          </ToggleButton>
-        </ToggleButtonGroup>
-      </Box>
+            <Typography variant="caption" color="text.secondary">{t('settings_font_persist_note')}</Typography>
+          </Stack>
+        </AccordionDetails>
+      </Accordion>
 
-      <Divider />
+      <Paper variant="outlined" sx={cardSx}>
+        <CloudSyncSection cloud={cloud} language={language} action={flag('sync')} />
+      </Paper>
 
-      {/* ── Section: Theme ── */}
-      <Box>
-        <Typography variant="h5" gutterBottom sx={headingSx}>{t('theme')}{flag('theme')}</Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          {t('settings_theme_desc')}
-        </Typography>
-        <ToggleButtonGroup value={mode} exclusive onChange={(_, v) => { if (v) setMode(v) }}>
-          <ToggleButton value="light" sx={{ px: 3, py: 1, gap: 1 }}>
-            <LightModeIcon fontSize="small" />
-            <Box sx={{ textAlign: 'left' }}>
-              <Typography sx={{ fontSize: '0.9rem', fontWeight: 600, lineHeight: 1.2 }}>{t('light')}</Typography>
-              <Typography sx={{ fontSize: '0.65rem', opacity: 0.7 }}>{t('parchment')}</Typography>
-            </Box>
-          </ToggleButton>
-          <ToggleButton value="dark" sx={{ px: 3, py: 1, gap: 1 }}>
-            <DarkModeIcon fontSize="small" />
-            <Box sx={{ textAlign: 'left' }}>
-              <Typography sx={{ fontSize: '0.9rem', fontWeight: 600, lineHeight: 1.2 }}>{t('dark')}</Typography>
-              <Typography sx={{ fontSize: '0.65rem', opacity: 0.7 }}>{t('crimson')}</Typography>
-            </Box>
-          </ToggleButton>
-          <ToggleButton value="system" sx={{ px: 3, py: 1, gap: 1 }}>
-            <SettingsBrightnessIcon fontSize="small" />
-            <Box sx={{ textAlign: 'left' }}>
-              <Typography sx={{ fontSize: '0.9rem', fontWeight: 600, lineHeight: 1.2 }}>{t('theme_system')}</Typography>
-              <Typography sx={{ fontSize: '0.65rem', opacity: 0.7 }}>{t('theme_system_sub')}</Typography>
-            </Box>
-          </ToggleButton>
-        </ToggleButtonGroup>
-      </Box>
-
-      <Divider />
-
-      {/* ── Section: Live preview ── */}
-      <Box>
-        <Typography variant="h5" gutterBottom sx={headingSx}>{t('font_preview')}{flag('fonts')}</Typography>
-        <LivePreview
-          language={language}
-          enBodyCss={enBodyCss}
-          enDisplayCss={enDisplayCss}
-          zhCss={zhCss}
-        />
-      </Box>
-
-      <Divider />
-
-      {/* ── Section: UI size ── */}
-      <Box>
-        <Typography variant="h5" gutterBottom sx={headingSx}>{t('interface_size')}{flag('fonts')}</Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          {t('scales_all_ui_text_spacing_and_controls_uniformly')}
-        </Typography>
-        <ToggleButtonGroup value={uiScale} exclusive onChange={(_, v) => { if (v) setUiScale(v as UiScale) }}>
-          {UI_SCALE_OPTIONS.map((opt) => (
-            <ToggleButton key={opt.id} value={opt.id} sx={{ px: 3, py: 1 }}>
-              <Box sx={{ textAlign: 'center' }}>
-                <Typography sx={{ fontSize: opt.id === 'default' ? '0.875rem' : opt.id === 'large' ? '1rem' : '1.15rem', fontWeight: 600, lineHeight: 1.2 }}>
-                  {zh ? opt.labelZh : opt.label}
-                </Typography>
-                <Typography sx={{ fontSize: '0.65rem', color: 'inherit', opacity: 0.7 }}>
-                  {opt.px}px
-                </Typography>
-              </Box>
-            </ToggleButton>
-          ))}
-        </ToggleButtonGroup>
-      </Box>
-
-      <Divider />
-
-      {/* ── Section: English fonts ── */}
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-        <Typography variant="h5" sx={headingSx}>{t('english_fonts')}{flag('fonts')}</Typography>
-
-        <FontPicker
-          label="Body Text"
-          labelZh="正文字体"
-          options={enBodyOptions}
-          selectedId={enBodyId}
-          onSelect={setEnBodyId}
-          language={language}
-        />
-
-        <FontPicker
-          label="Headings & Titles"
-          labelZh="标题字体"
-          options={enDisplayOptions}
-          selectedId={enDisplayId}
-          onSelect={setEnDisplayId}
-          language={language}
-        />
-      </Box>
-
-      <Divider />
-
-      {/* ── Section: Chinese font ── */}
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-        <Typography variant="h5" sx={headingSx}>{t('chinese_font')}{flag('fonts')}</Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mt: -2 }}>
-          {t('chinese_font_applies_to_both_body_text_and_titles')}
-        </Typography>
-
-        <FontPicker
-          label="Chinese Characters"
-          labelZh="中文字符字体"
-          options={zhOptionsResolved}
-          selectedId={zhId}
-          onSelect={setZhId}
-          language={language}
-        />
-      </Box>
-
-      <Divider />
-
-      {/* ── Note ── */}
-      <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-        {t('settings_font_persist_note')}
-      </Typography>
-
-      <Divider />
-
-      <CloudSyncSection cloud={cloud} language={language} action={flag('sync')} />
-
-      <Divider />
-
-      {/* API worker (agents / MCP / cloud library) — only when VITE_API_URL is configured */}
       {isApiConfigured() && (
-        <>
+        <Paper variant="outlined" sx={cardSx}>
           <ApiAccessSection cloud={cloud} language={language} action={flag('api')} />
-          <Divider />
-        </>
+        </Paper>
       )}
 
-      {/* ── Section: Export / Import ── */}
-      <Box>
-        <Typography variant="h5" gutterBottom sx={headingSx}>{t('backup_import')}{flag('backup')}</Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2, maxWidth: 480 }}>
-          {t('backup_export_desc')}
-        </Typography>
-
-        <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
-          <Button
-            variant="outlined" startIcon={<DownloadIcon />}
-            onClick={exportEverything}
-          >
-            {t('export_everything')}
-          </Button>
-          <Button
-            variant="outlined" startIcon={<UploadIcon />}
-            onClick={() => { setImportFile(null); setImportStatus('idle'); setImportError(''); setImportDialog(true) }}
-          >
-            {t('import_bundle')}
-          </Button>
-        </Stack>
-      </Box>
+      <Paper variant="outlined" component="section" aria-labelledby="settings-backup" sx={cardSx}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'minmax(0, 1fr)', md: 'minmax(0, 1fr) auto' }, columnGap: 4, rowGap: 2, alignItems: 'center' }}>
+          <Box sx={{ minWidth: 0 }}>
+            <Typography id="settings-backup" variant="h6" component="h2" sx={headingSx}>{t('backup_import')}{flag('backup')}</Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, maxWidth: 560 }}>{t('backup_export_desc')}</Typography>
+          </Box>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
+            <Button variant="outlined" startIcon={<DownloadIcon />} onClick={exportEverything}>{t('export_everything')}</Button>
+            <Button variant="outlined" startIcon={<UploadIcon />}
+              onClick={() => { setImportFile(null); setImportStatus('idle'); setImportError(''); setImportDialog(true) }}>
+              {t('import_bundle')}
+            </Button>
+          </Stack>
+        </Box>
+      </Paper>
 
       {/* ── Import Dialog ── */}
       <ResponsiveDialog open={importDialog} onClose={() => setImportDialog(false)} maxWidth="xs" mobile="compact">
         <DialogTitle>{t('import_bundle')}</DialogTitle>
         <ResponsiveDialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '8px !important' }}>
-          <Button variant="outlined" component="label" startIcon={<UploadIcon />}>
+          <Button variant="outlined" component="label" startIcon={<UploadIcon />} sx={{ overflowWrap: 'anywhere' }}>
             {importFile ? importFile.name : t('choose_json_file')}
             <input type="file" accept=".json" hidden onChange={(e) => {
               const f = e.target.files?.[0]
@@ -274,16 +212,20 @@ export function SettingsTab({ language, onLanguageChange, fontSettings, cloudSyn
           </Button>
 
           <Box>
-            <DialogContentText variant="caption" sx={{ display: 'block', mb: 0.5 }}>
+            <Typography id="settings-import-mode" variant="subtitle2" sx={{ mb: 0.5 }}>
               {t('import_mode')}
-            </DialogContentText>
-            <RadioGroup row value={importMode} onChange={(e) => setImportMode(e.target.value as 'replace' | 'merge')}>
+            </Typography>
+            <RadioGroup aria-labelledby="settings-import-mode" value={importMode} onChange={(e) => setImportMode(e.target.value as 'replace' | 'merge')}>
               <FormControlLabel value="merge" control={<Radio size="small" />}
                 label={<Typography variant="body2">{t('merge_keep_existing')}</Typography>} />
               <FormControlLabel value="replace" control={<Radio size="small" />}
                 label={<Typography variant="body2">{t('replace_overwrite')}</Typography>} />
             </RadioGroup>
           </Box>
+
+          <Alert severity={importMode === 'replace' ? 'warning' : 'info'}>
+            {t(importMode === 'replace' ? 'settings_replace_hint' : 'settings_merge_hint')}
+          </Alert>
 
           {importStatus === 'ok' && (
             <Alert severity="success">
@@ -295,7 +237,7 @@ export function SettingsTab({ language, onLanguageChange, fontSettings, cloudSyn
           )}
         </ResponsiveDialogContent>
         <ResponsiveDialogActions>
-          <Button onClick={() => setImportDialog(false)}>{t('cancel')}</Button>
+          <Button onClick={() => setImportDialog(false)}>{t(importStatus === 'ok' ? 'close' : 'cancel')}</Button>
           <Button
             variant="contained"
             disabled={!importFile || importStatus === 'ok'}

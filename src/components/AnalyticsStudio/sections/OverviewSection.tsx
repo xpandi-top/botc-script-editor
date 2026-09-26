@@ -1,4 +1,6 @@
-import { Box, Paper, Tooltip, Typography } from '@mui/material'
+import { Box, Button, Paper, Tooltip, Typography } from '@mui/material'
+import AddIcon from '@mui/icons-material/Add'
+import InsightsOutlinedIcon from '@mui/icons-material/InsightsOutlined'
 import PersonIcon from '@mui/icons-material/Person'
 import BalanceIcon from '@mui/icons-material/Balance'
 import TrendingUpIcon from '@mui/icons-material/TrendingUp'
@@ -337,9 +339,11 @@ interface Props {
   storytellerStats: StorytellerStat[]
   language: Language
   records: GameRecord[]
+  /** Shown as the empty state's action when there are no records yet. */
+  onCreateRecord?: () => void
 }
 
-export function OverviewSection({ kpi, scriptStats, playerStats, charStats, storytellerStats, language, records }: Props) {
+export function OverviewSection({ kpi, scriptStats, playerStats, charStats, storytellerStats, language, records, onCreateRecord }: Props) {
   const { t } = useT()
   const zh = language === 'zh'
   const tpl = makeTpl(language)
@@ -347,10 +351,12 @@ export function OverviewSection({ kpi, scriptStats, playerStats, charStats, stor
 
   if (kpi.total === 0) {
     return (
-      <Box sx={{ py: 6, textAlign: 'center' }}>
-        <Typography color="text.secondary">
+      <Box sx={{ py: 6, px: 2, textAlign: 'center', border: '1px dashed', borderColor: 'divider', borderRadius: 3 }}>
+        <InsightsOutlinedIcon sx={{ fontSize: 44, color: 'text.disabled', mb: 1 }} />
+        <Typography color="text.secondary" sx={{ maxWidth: 420, mx: 'auto' }}>
           {t('analytics_no_records_hint')}
         </Typography>
+        {onCreateRecord && <Button variant="contained" startIcon={<AddIcon />} onClick={onCreateRecord} sx={{ mt: 2 }}>{t('new_record')}</Button>}
       </Box>
     )
   }
@@ -359,7 +365,9 @@ export function OverviewSection({ kpi, scriptStats, playerStats, charStats, stor
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, '& .MuiPaper-root': { boxShadow: 'none', border: '1px solid', borderColor: 'divider', borderRadius: '12px' } }}>
 
       {/* ── KPI Cards ── */}
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', sm: 'repeat(4, minmax(0, 1fr))' }, gap: 1.5 }}>
+      {/* One row on wide screens however many figures there are; an odd last card spans the phone row. */}
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', sm: 'repeat(auto-fit, minmax(140px, 1fr))' }, gap: 1.5,
+        '& > :last-child:nth-of-type(odd)': { gridColumn: { xs: '1 / -1', sm: 'auto' } } }}>
         <Paper sx={{ p: { xs: 1.5, sm: 2 }, flex: '1 1 100px', textAlign: 'center', minWidth: 90 }} elevation={2}>
           <Typography variant="h4" sx={{ fontWeight: 700 }}>{kpi.total}</Typography>
           <Typography variant="caption" color="text.secondary">{t('total_games')}</Typography>

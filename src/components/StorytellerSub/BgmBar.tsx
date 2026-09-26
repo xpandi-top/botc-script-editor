@@ -62,6 +62,8 @@ interface BgmBarProps {
   selectSx?: object
   /** sx for the Slider */
   sliderSx?: object
+  /** Stretch to the container width (default). Toolbars pass false to size to content. */
+  fullWidth?: boolean
 }
 
 type UrlStep = 'url' | 'name'
@@ -74,6 +76,7 @@ export function BgmBar({
   language,
   iconSize = 'small',
   sx, buttonSx, activeButtonSx, selectSx, sliderSx,
+  fullWidth = true,
 }: BgmBarProps) {
   const [showUrlInput, setShowUrlInput] = useState(false)
   const [urlStep, setUrlStep] = useState<UrlStep>('url')
@@ -126,12 +129,12 @@ export function BgmBar({
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, minWidth: 0, width: '100%' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, minWidth: 0, width: fullWidth ? '100%' : 'auto' }}>
       <Box sx={{
         display: 'flex', alignItems: 'center', gap: 0.5,
         border: '1px solid', borderColor: 'divider', borderRadius: 999,
         px: 1, py: 0.25, bgcolor: 'background.paper',
-        width: '100%', boxSizing: 'border-box', minWidth: 0,
+        width: fullWidth ? '100%' : 'auto', boxSizing: 'border-box', minWidth: 0,
         ...sx,
       }}>
 
@@ -161,6 +164,7 @@ export function BgmBar({
         <Select
           value={selectedAudioSrc ?? ''}
           onChange={(e) => setSelectedAudioSrc(e.target.value)}
+          inputProps={{ 'aria-label': t('bgm_track') }}
           size="small"
           sx={{
             fontSize: '0.75rem',
@@ -228,6 +232,7 @@ export function BgmBar({
 
         {/* Volume slider */}
         <Slider
+          aria-label={t('bgm_volume')}
           value={bgmVolume ?? 0.7}
           onChange={(_, v) => setBgmVolume(v as number)}
           min={0} max={1} step={0.05} size="small"

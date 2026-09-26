@@ -29,12 +29,20 @@ export function FontPicker({
           return (
             <Paper
               key={opt.id}
+              component="button"
+              type="button"
+              aria-label={language === 'zh' ? opt.labelZh : opt.label}
+              aria-pressed={selected}
               elevation={selected ? 2 : 0}
               onClick={() => onSelect(opt.id)}
               sx={{
                 px: 2, py: 1.25,
-                minWidth: 150,
+                minWidth: 0,
+                flex: '1 1 150px',
                 maxWidth: 220,
+                textAlign: 'left',
+                font: 'inherit',
+                appearance: 'none',
                 cursor: 'pointer',
                 border: '1.5px solid',
                 borderColor: selected ? 'primary.main' : 'divider',
@@ -42,6 +50,7 @@ export function FontPicker({
                 borderRadius: 1.5,
                 transition: 'all 0.15s ease',
                 '&:hover': { borderColor: selected ? 'primary.main' : 'text.secondary', boxShadow: 2 },
+                '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main', outlineOffset: 3 },
               }}
             >
               <Typography sx={{

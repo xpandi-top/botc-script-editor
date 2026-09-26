@@ -9,6 +9,14 @@ import { test, expect } from '@playwright/test'
 import { waitForAppReady, navigateToTab } from './helpers'
 
 test.beforeEach(async ({ page }) => {
+  // The filter bar only appears once there is something to filter.
+  await page.addInitScript(() => {
+    if (localStorage.getItem('botc-storyteller-companion-v5')) return
+    localStorage.setItem('botc-storyteller-companion-v5', JSON.stringify({ gameRecords: [
+      { id: '1', endedAt: Date.now(), scriptSlug: 'tb', scriptTitle: '暗流涌动', stName: 'Alice', winner: 'good', days: [] },
+      { id: '2', endedAt: Date.now() - 86400000, scriptSlug: 'bmr', scriptTitle: '黯月初升', stName: 'Bob', winner: 'evil', days: [] },
+    ] }))
+  })
   await waitForAppReady(page)
   await navigateToTab(page, /^analytics$|数据统计/i)
 })

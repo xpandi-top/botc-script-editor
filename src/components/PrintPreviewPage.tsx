@@ -1,14 +1,11 @@
 import { useRef, useState } from 'react'
 import {
-  Box, Button, CircularProgress, IconButton, Typography, Slider, ToggleButton, ToggleButtonGroup,
+  Box, Typography, Slider, ToggleButton, ToggleButtonGroup,
   FormControlLabel, Switch, Select, MenuItem, FormControl, InputLabel,
-  Divider, Paper, Tooltip, useMediaQuery, useTheme,
+  useMediaQuery, useTheme,
 } from '@mui/material'
 
-import PrintIcon from '@mui/icons-material/Print'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import MenuIcon from '@mui/icons-material/Menu'
-import MenuOpenIcon from '@mui/icons-material/MenuOpen'
+import { PrintTopBar } from './PrintStudio/PrintTopBar'
 import { SheetArticle } from './SheetArticle'
 import {
   FONT_DEFINITIONS, PAGE_SIZE_DEFS, PAGE_PREVIEW_WIDTH_PX,
@@ -17,7 +14,8 @@ import type { PrintOptions, PageSize, LanguageLayout, WakeOrderMode, TitleAlign,
 import type { EditableScript, Language, ResolvedScriptCharacter, ResolvedScriptCharacterGroup } from '../types'
 import { exportSheetPdf, isNativePlatform } from '../lib/nativePrint'
 import { useT } from '../context/I18nContext'
-import { FieldLabel, SectionLabel } from './ui'
+import { FieldLabel } from './ui'
+import { PrintMenuSection } from './PrintStudio/PrintMenuSection'
 import { FeedbackButton } from './Feedback'
 import { plainOptions } from '../lib/feedback/snapshot'
 
@@ -32,6 +30,8 @@ type Props = {
   printOptions: PrintOptions
   onOptionsChange: (opts: PrintOptions) => void
   onClose: () => void
+  /** Switch to the token studio (the top bar's tokens | sheet toggle). */
+  onOpenTokenStudio?: () => void
   scripts: EditableScript[]
   activeSlug: string
   onScriptChange: (slug: string) => void
@@ -41,7 +41,7 @@ type Props = {
 export function PrintPreviewPage({
   activeScript, activeScriptCharacters, groupedScriptCharacters,
   sheetDensityClass, language, onLanguageChange, getSheetUiLabel,
-  printOptions: opts, onOptionsChange, onClose,
+  printOptions: opts, onOptionsChange, onClose, onOpenTokenStudio,
   scripts, activeSlug, onScriptChange, getScriptTitle,
 }: Props) {
   const { t, tpl } = useT()
@@ -71,10 +71,11 @@ export function PrintPreviewPage({
   const previewW = PAGE_PREVIEW_WIDTH_PX[opts.pageSize]
 
   const fontSelect = (labelStr: string, key: 'fontKeyEn' | 'fontKeyZh') => (
-    <FormControl size="small" fullWidth sx={{ mb: 1 }}>
-      <InputLabel>{labelStr}</InputLabel>
+    <FormControl size="small" fullWidth>
+      <InputLabel id={`sheet-${key}-label`}>{labelStr}</InputLabel>
       <Select
         value={opts[key]}
+        labelId={`sheet-${key}-label`}
         label={labelStr}
         onChange={(e) => set(key, e.target.value as PrintOptions['fontKeyEn'])}
         renderValue={(v) => {
@@ -99,256 +100,198 @@ export function PrintPreviewPage({
   )
 
   const ptSlider = (labelStr: string, field: 'fontSize' | 'nameFontSize' | 'titleFontSize' | 'sectionFontSize', min: number, max: number) => (
-    <Box sx={{ mb: 1 }}>
+    <Box>
       <Typography variant="caption" color="text.secondary">
         {labelStr}: {opts[field]}pt
       </Typography>
       <Slider value={opts[field]} min={min} max={max} step={0.5}
+        aria-label={labelStr} valueLabelDisplay="auto" valueLabelFormat={(value) => `${value} pt`}
         onChange={(_, v) => set(field, v as number)}
         marks={[{ value: min, label: `${min}` }, { value: max, label: `${max}` }]}
-        sx={{ mt: 0.5, mb: 0 }}
+        sx={{ mt: 0.5 }}
       />
     </Box>
   )
 
   return (
     <Box sx={{ position: 'fixed', inset: 0, zIndex: 1300, display: 'flex', flexDirection: 'column', bgcolor: 'background.default' }}>
-      {/* Top bar */}
-      <Paper elevation={2} sx={{ px: { xs: 1, sm: 2 }, py: 1, display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1 }, borderRadius: 0, zIndex: 1, flexShrink: 0 }}>
-        <IconButton size="small" onClick={onClose}><ArrowBackIcon fontSize="small" /></IconButton>
-        <Typography variant="subtitle1" sx={{ fontWeight: 700, flexShrink: 0, display: { xs: 'none', sm: 'block' } }}>
-          {t('print_preview')}
-        </Typography>
-        <FormControl size="small" sx={{ flex: 1, mx: { xs: 0.5, sm: 1 }, maxWidth: { xs: 140, sm: 260 } }}>
-          <Select value={activeSlug} onChange={(e) => onScriptChange(e.target.value)}>
-            {scripts.map((s) => (
-              <MenuItem key={s.slug} value={s.slug}>{getScriptTitle(s)}</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <Tooltip title={t('toggle_language')}>
-          <IconButton size="small" onClick={() => onLanguageChange(zh ? 'en' : 'zh')}>
-            <Typography variant="caption" sx={{ fontWeight: 700, fontSize: '0.7rem' }}>{t('lang_switch')}</Typography>
-          </IconButton>
-        </Tooltip>
-        {/* This page covers the app header: its flag is the only report button here. */}
-        <FeedbackButton request={() => ({
+      <PrintTopBar
+        mode="sheet"
+        onModeChange={onOpenTokenStudio ? (mode) => { if (mode === 'tokens') onOpenTokenStudio() } : undefined}
+        onClose={onClose}
+        scripts={scripts}
+        activeSlug={activeSlug}
+        onScriptChange={onScriptChange}
+        getScriptTitle={getScriptTitle}
+        language={language}
+        onLanguageChange={onLanguageChange}
+        /* This page covers the app header: its flag is the only report button here. */
+        feedback={<FeedbackButton request={() => ({
           target: { type: 'print', script: activeScript.slug },
           surface: 'print/sheet',
           label: `${t('print_preview')} · ${getScriptTitle(activeScript)}`,
           parts: ['sheet'],
           snapshot: { native: isNativePlatform, options: plainOptions(opts) },
-        })} />
-        <Tooltip title={panelOpen ? (t('hide_menu')) : (t('show_menu'))}>
-          <IconButton size="small" onClick={() => setPanelOpen(v => !v)}>
-            {panelOpen ? <MenuOpenIcon fontSize="small" /> : <MenuIcon fontSize="small" />}
-          </IconButton>
-        </Tooltip>
-        <Button variant="contained" size="small" startIcon={printing ? <CircularProgress size={14} color="inherit" /> : <PrintIcon />} onClick={handlePrint} disabled={printing}>
-          <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
-            {printing ? (t('exporting')) : (t('print'))}
-          </Box>
-        </Button>
-      </Paper>
+        })} />}
+        panelOpen={panelOpen}
+        onPanelOpenChange={setPanelOpen}
+        panelId="sheet-print-settings"
+        onExport={handlePrint}
+        exporting={printing}
+      />
 
       <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
-        {/* ── Settings panel ── */}
-        {panelOpen && <Box sx={{ width: { xs: '100%', sm: 300 }, flexShrink: 0, overflowY: 'auto', borderRight: { sm: '1px solid' }, borderColor: 'divider', p: { xs: 1.5, sm: 2 }, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+        {/* ── Settings panel: four groups, biggest decisions first ── */}
+        {panelOpen && <Box id="sheet-print-settings" sx={{ width: { xs: '100%', sm: 320, md: 340 }, flexShrink: 0, overflowY: 'auto', borderRight: { sm: '1px solid' }, borderColor: 'divider', px: 2, py: 0.5, display: 'flex', flexDirection: 'column' }}>
 
-          {/* 1 ── Output — biggest decisions first */}
-          <Box>
-            <SectionLabel>{t('output')}</SectionLabel>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              <Box>
-                <FieldLabel>{t('language')}</FieldLabel>
-                <ToggleButtonGroup value={opts.languageLayout} exclusive size="small"
-                  onChange={(_, v) => { if (v) set('languageLayout', v as LanguageLayout) }}
-                  sx={{ flexWrap: 'wrap' }}
-                >
-                  <ToggleButton value="current"            sx={{ fontSize: '0.72rem' }}>{t('current')}</ToggleButton>
-                  <ToggleButton value="bilingual-mixed"    sx={{ fontSize: '0.72rem' }}>{t('mixed')}</ToggleButton>
-                  <ToggleButton value="bilingual-separate" sx={{ fontSize: '0.72rem' }}>{t('separate')}</ToggleButton>
-                </ToggleButtonGroup>
-              </Box>
-              <FormControlLabel
-                control={<Switch checked={opts.blackAndWhite} onChange={(e) => set('blackAndWhite', e.target.checked)} size="small" />}
-                label={<Typography variant="body2">{t('black_white')}</Typography>}
-              />
-            </Box>
-          </Box>
-
-          <Divider />
-
-          {/* 2 ── Page */}
-          <Box>
-            <SectionLabel>{t('page')}</SectionLabel>
-            <FormControl size="small" fullWidth sx={{ mb: 0.5 }}>
-              <InputLabel>{t('page_size')}</InputLabel>
-              <Select value={opts.pageSize} label={t('page_size')}
-                onChange={(e) => set('pageSize', e.target.value as PageSize)}
+          {/* 1 ── Output & paper */}
+          <PrintMenuSection title={t('print_section_output_page')}>
+            <Box>
+              <FieldLabel>{t('language')}</FieldLabel>
+              <ToggleButtonGroup aria-label={t('language')} value={opts.languageLayout} exclusive size="small"
+                onChange={(_, v) => { if (v) set('languageLayout', v as LanguageLayout) }}
+                sx={{ flexWrap: 'wrap' }}
               >
-                {(Object.entries(PAGE_SIZE_DEFS) as [PageSize, { label: string }][]).map(([k, d]) => (
-                  <MenuItem key={k} value={k}>{d.label}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <Typography variant="caption" color="text.secondary">
-              {tpl('preview_px_mm', previewW, PAGE_SIZE_DEFS[opts.pageSize].w)}
-            </Typography>
-          </Box>
+                <ToggleButton value="current"            sx={{ fontSize: '0.72rem' }}>{t('print_language_current')}</ToggleButton>
+                <ToggleButton value="bilingual-mixed"    sx={{ fontSize: '0.72rem' }}>{t('print_language_mixed')}</ToggleButton>
+                <ToggleButton value="bilingual-separate" sx={{ fontSize: '0.72rem' }}>{t('print_language_separate')}</ToggleButton>
+              </ToggleButtonGroup>
+            </Box>
+            <Box>
+              <FormControl size="small" fullWidth sx={{ mt: 0.5 }}>
+                <InputLabel id="sheet-page-size-label">{t('page_size')}</InputLabel>
+                <Select value={opts.pageSize} labelId="sheet-page-size-label" label={t('page_size')}
+                  onChange={(e) => set('pageSize', e.target.value as PageSize)}
+                >
+                  {(Object.entries(PAGE_SIZE_DEFS) as [PageSize, { label: string }][]).map(([k, d]) => (
+                    <MenuItem key={k} value={k}>{d.label}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <Typography variant="caption" color="text.secondary">
+                {tpl('preview_px_mm', previewW, PAGE_SIZE_DEFS[opts.pageSize].w)}
+              </Typography>
+            </Box>
+            <FormControlLabel
+              control={<Switch checked={opts.blackAndWhite} onChange={(e) => set('blackAndWhite', e.target.checked)} size="small" />}
+              label={<Typography variant="body2">{t('black_white')}</Typography>}
+            />
+          </PrintMenuSection>
 
-          <Divider />
-
-          {/* 3 ── Layout */}
-          <Box>
-            <SectionLabel>{t('layout')}</SectionLabel>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          {/* 2 ── Layout: columns, title, sections, spacing */}
+          <PrintMenuSection title={t('layout')}>
+            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
               <Box>
                 <FieldLabel>{t('columns')}</FieldLabel>
-                <ToggleButtonGroup value={opts.columns} exclusive size="small" onChange={(_, v) => { if (v) set('columns', v) }}>
+                <ToggleButtonGroup aria-label={t('columns')} value={opts.columns} exclusive size="small" onChange={(_, v) => { if (v) set('columns', v) }}>
                   <ToggleButton value={1}>{t('1_col')}</ToggleButton>
                   <ToggleButton value={2}>{t('2_col')}</ToggleButton>
                 </ToggleButtonGroup>
               </Box>
-            </Box>
-          </Box>
-
-          <Divider />
-
-          {/* 4 ── Title */}
-          <Box>
-            <SectionLabel>{t('title')}</SectionLabel>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
               <Box>
-                <FieldLabel>{t('alignment')}</FieldLabel>
-                <ToggleButtonGroup value={opts.titleAlign ?? 'left'} exclusive size="small"
+                <FieldLabel>{t('title')} · {t('alignment')}</FieldLabel>
+                <ToggleButtonGroup aria-label={`${t('title')} · ${t('alignment')}`} value={opts.titleAlign ?? 'left'} exclusive size="small"
                   onChange={(_, v) => { if (v) set('titleAlign', v as TitleAlign) }}>
                   <ToggleButton value="left">{t('left')}</ToggleButton>
                   <ToggleButton value="center">{t('center')}</ToggleButton>
                   <ToggleButton value="right">{t('right')}</ToggleButton>
                 </ToggleButtonGroup>
               </Box>
-              <FormControlLabel
-                control={<Switch checked={opts.showAuthor ?? true} onChange={(e) => set('showAuthor', e.target.checked)} size="small" />}
-                label={<Typography variant="body2">{t('show_author')}</Typography>}
-              />
             </Box>
-          </Box>
-
-          <Divider />
-
-          {/* 5 ── Typography */}
-          <Box>
-            <SectionLabel>{t('typography')}</SectionLabel>
-            {fontSelect(t('english_font'), 'fontKeyEn')}
-            {fontSelect(t('chinese_font'), 'fontKeyZh')}
-            {ptSlider(t('body'), 'fontSize', 7, 14)}
-            {ptSlider(t('name'), 'nameFontSize', 8, 18)}
-            {ptSlider(t('title'), 'titleFontSize', 12, 36)}
-            {ptSlider(t('section'), 'sectionFontSize', 7, 16)}
-            <Box sx={{ mb: 1 }}>
-              <Typography variant="caption" color="text.secondary">
-                {tpl('line_height_val', opts.lineHeight)}
-              </Typography>
-              <Slider value={opts.lineHeight} min={0.9} max={1.8} step={0.05}
-                onChange={(_, v) => set('lineHeight', v as number)}
-                marks={[{ value: 0.9, label: '0.9' }, { value: 1.8, label: '1.8' }]}
-                sx={{ mt: 0.5, mb: 0 }}
-              />
-            </Box>
-          </Box>
-
-          <Divider />
-
-          {/* 6 ── Spacing */}
-          <Box>
-            <SectionLabel>{t('spacing')}</SectionLabel>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              <ToggleButtonGroup value={opts.padding} exclusive size="small" onChange={(_, v) => { if (v) set('padding', v) }} sx={{ flexWrap: 'wrap' }}>
-                <ToggleButton value="compact"  sx={{ fontSize: '0.72rem' }}>{t('compact')}</ToggleButton>
-                <ToggleButton value="normal"   sx={{ fontSize: '0.72rem' }}>{t('normal')}</ToggleButton>
-                <ToggleButton value="spacious" sx={{ fontSize: '0.72rem' }}>{t('spacious')}</ToggleButton>
-              </ToggleButtonGroup>
-              <Box>
-                <FieldLabel mb={0}>{tpl('row_spacing_px', opts.rowSpacing)}</FieldLabel>
-                <Slider value={opts.rowSpacing} min={0} max={24} step={1}
-                  onChange={(_, v) => set('rowSpacing', v as number)}
-                  marks={[{ value: 0, label: '0' }, { value: 12, label: '12' }, { value: 24, label: '24' }]}
-                  sx={{ mt: 0.5, mb: 0 }}
-                />
-              </Box>
-            </Box>
-          </Box>
-
-          <Divider />
-
-          {/* 7 ── Section style */}
-          <Box>
-            <SectionLabel>{t('section_style')}</SectionLabel>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              <ToggleButtonGroup value={opts.sectionStyle ?? 'inline'} exclusive size="small"
+            <FormControlLabel
+              control={<Switch checked={opts.showAuthor ?? true} onChange={(e) => set('showAuthor', e.target.checked)} size="small" />}
+              label={<Typography variant="body2">{t('show_author')}</Typography>}
+            />
+            <Box>
+              <FieldLabel>{t('section_style')}</FieldLabel>
+              <ToggleButtonGroup aria-label={t('section_style')} value={opts.sectionStyle ?? 'inline'} exclusive size="small"
                 onChange={(_, v) => { if (v) set('sectionStyle', v as SectionStyle) }} sx={{ flexWrap: 'wrap' }}>
                 <ToggleButton value="inline" sx={{ fontSize: '0.72rem' }}>{t('inline')}</ToggleButton>
                 <ToggleButton value="chip"   sx={{ fontSize: '0.72rem' }}>{t('chip')}</ToggleButton>
                 <ToggleButton value="line"   sx={{ fontSize: '0.72rem' }}>{t('line')}</ToggleButton>
               </ToggleButtonGroup>
             </Box>
-          </Box>
-
-          <Divider />
-
-          {/* 8 ── Icons (size + style merged) */}
-          <Box>
-            <SectionLabel>{t('icons')}</SectionLabel>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              <Box>
-                <FieldLabel mb={0}>{tpl('card_icon_px', opts.iconSize)}</FieldLabel>
-                <Slider value={opts.iconSize} min={16} max={80} step={4}
-                  onChange={(_, v) => set('iconSize', v as number)}
-                  marks={[{ value: 16, label: '16' }, { value: 48, label: '48' }, { value: 80, label: '80' }]}
-                  sx={{ mt: 0.5, mb: 0 }}
-                />
-              </Box>
-              <FormControlLabel
-                control={<Switch checked={opts.showIconCircle} onChange={(e) => set('showIconCircle', e.target.checked)} size="small" />}
-                label={<Typography variant="body2">{t('icon_outer_circle')}</Typography>}
-              />
-              <FormControlLabel
-                control={<Switch checked={opts.showCardOutline} onChange={(e) => set('showCardOutline', e.target.checked)} size="small" />}
-                label={<Typography variant="body2">{t('card_outline')}</Typography>}
+            <Box>
+              <FieldLabel>{t('spacing')}</FieldLabel>
+              <ToggleButtonGroup aria-label={t('spacing')} value={opts.padding} exclusive size="small" onChange={(_, v) => { if (v) set('padding', v) }} sx={{ flexWrap: 'wrap' }}>
+                <ToggleButton value="compact"  sx={{ fontSize: '0.72rem' }}>{t('compact')}</ToggleButton>
+                <ToggleButton value="normal"   sx={{ fontSize: '0.72rem' }}>{t('normal')}</ToggleButton>
+                <ToggleButton value="spacious" sx={{ fontSize: '0.72rem' }}>{t('spacious')}</ToggleButton>
+              </ToggleButtonGroup>
+            </Box>
+            <Box>
+              <FieldLabel mb={0}>{tpl('row_spacing_px', opts.rowSpacing)}</FieldLabel>
+              <Slider aria-label={tpl('row_spacing_px', opts.rowSpacing)} valueLabelDisplay="auto" value={opts.rowSpacing} min={0} max={24} step={1}
+                onChange={(_, v) => set('rowSpacing', v as number)}
+                marks={[{ value: 0, label: '0' }, { value: 12, label: '12' }, { value: 24, label: '24' }]}
+                sx={{ mt: 0.5 }}
               />
             </Box>
-          </Box>
+          </PrintMenuSection>
 
-          <Divider />
+          {/* 3 ── Typography */}
+          <PrintMenuSection title={t('typography')}>
+            {fontSelect(t('english_font'), 'fontKeyEn')}
+            {fontSelect(t('chinese_font'), 'fontKeyZh')}
+            {ptSlider(t('body'), 'fontSize', 7, 14)}
+            {ptSlider(t('name'), 'nameFontSize', 8, 18)}
+            {ptSlider(t('title'), 'titleFontSize', 12, 36)}
+            {ptSlider(t('section'), 'sectionFontSize', 7, 16)}
+            <Box>
+              <Typography variant="caption" color="text.secondary">
+                {tpl('line_height_val', opts.lineHeight)}
+              </Typography>
+              <Slider aria-label={tpl('line_height_val', opts.lineHeight)} valueLabelDisplay="auto" value={opts.lineHeight} min={0.9} max={1.8} step={0.05}
+                onChange={(_, v) => set('lineHeight', v as number)}
+                marks={[{ value: 0.9, label: '0.9' }, { value: 1.8, label: '1.8' }]}
+                sx={{ mt: 0.5 }}
+              />
+            </Box>
+          </PrintMenuSection>
 
-          {/* 9 ── Wake order */}
-          <Box>
-            <SectionLabel>{t('wake_order')}</SectionLabel>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              <ToggleButtonGroup value={opts.wakeOrder ?? 'side'} exclusive size="small"
+          {/* 4 ── Icons & wake order */}
+          <PrintMenuSection title={t('print_section_icons_wake')}>
+            <Box>
+              <FieldLabel mb={0}>{tpl('card_icon_px', opts.iconSize)}</FieldLabel>
+              <Slider aria-label={tpl('card_icon_px', opts.iconSize)} valueLabelDisplay="auto" value={opts.iconSize} min={16} max={80} step={4}
+                onChange={(_, v) => set('iconSize', v as number)}
+                marks={[{ value: 16, label: '16' }, { value: 48, label: '48' }, { value: 80, label: '80' }]}
+                sx={{ mt: 0.5 }}
+              />
+            </Box>
+            <FormControlLabel
+              control={<Switch checked={opts.showIconCircle} onChange={(e) => set('showIconCircle', e.target.checked)} size="small" />}
+              label={<Typography variant="body2">{t('icon_outer_circle')}</Typography>}
+            />
+            <FormControlLabel
+              control={<Switch checked={opts.showCardOutline} onChange={(e) => set('showCardOutline', e.target.checked)} size="small" />}
+              label={<Typography variant="body2">{t('card_outline')}</Typography>}
+            />
+            <Box>
+              <FieldLabel>{t('wake_order')}</FieldLabel>
+              <ToggleButtonGroup aria-label={t('wake_order')} value={opts.wakeOrder ?? 'side'} exclusive size="small"
                 onChange={(_, v) => { if (v) set('wakeOrder', v as WakeOrderMode) }} sx={{ flexWrap: 'wrap' }}>
                 <ToggleButton value="side"   sx={{ fontSize: '0.72rem' }}>{t('side')}</ToggleButton>
                 <ToggleButton value="bottom" sx={{ fontSize: '0.72rem' }}>{t('bottom')}</ToggleButton>
                 <ToggleButton value="none"   sx={{ fontSize: '0.72rem' }}>{t('none')}</ToggleButton>
               </ToggleButtonGroup>
-              {(opts.wakeOrder ?? 'side') !== 'none' && (
-                <Box>
-                  <FieldLabel mb={0}>{tpl('wake_icon_px', opts.wakeIconSize)}</FieldLabel>
-                  <Slider value={opts.wakeIconSize} min={12} max={48} step={2}
-                    onChange={(_, v) => set('wakeIconSize', v as number)}
-                    marks={[{ value: 12, label: '12' }, { value: 28, label: '28' }, { value: 48, label: '48' }]}
-                    sx={{ mt: 0.5, mb: 0 }}
-                  />
-                </Box>
-              )}
             </Box>
-          </Box>
+            {(opts.wakeOrder ?? 'side') !== 'none' && (
+              <Box>
+                <FieldLabel mb={0}>{tpl('wake_icon_px', opts.wakeIconSize)}</FieldLabel>
+                <Slider aria-label={tpl('wake_icon_px', opts.wakeIconSize)} valueLabelDisplay="auto" value={opts.wakeIconSize} min={12} max={48} step={2}
+                  onChange={(_, v) => set('wakeIconSize', v as number)}
+                  marks={[{ value: 12, label: '12' }, { value: 28, label: '28' }, { value: 48, label: '48' }]}
+                  sx={{ mt: 0.5 }}
+                />
+              </Box>
+            )}
+          </PrintMenuSection>
 
         </Box>}
 
         {/* ── Live preview (hidden on mobile when panel open) ── */}
-        <Box ref={previewRef} sx={{ flex: 1, overflowY: 'auto', bgcolor: 'grey.200', p: { xs: 1, sm: 3 }, display: panelOpen && isMobile ? 'none' : 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+        <Box ref={previewRef} sx={{ flex: 1, minWidth: 0, overflowY: 'auto', bgcolor: 'grey.200', p: { xs: 1, sm: 3 }, display: panelOpen && isMobile ? 'none' : 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
           <Typography variant="caption" color="text.secondary" sx={{ alignSelf: 'flex-start', maxWidth: previewW }}>
             {PAGE_SIZE_DEFS[opts.pageSize].label} — {t('preview_actual_print_may_differ_slightly')}
           </Typography>

@@ -173,7 +173,7 @@ export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSav
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0 }}>
           <AiToggleButton open={aiOpen} onToggle={() => setAiOpen((v) => !v)} language={uiLanguage} />
-          <IconButton size="small" onClick={onClose}><CloseIcon /></IconButton>
+          <IconButton size="small" aria-label={t('close')} onClick={onClose}><CloseIcon /></IconButton>
         </Box>
       </DialogTitle>
       {/* Split layout: form (left) + AI panel (right when open) */}
@@ -222,8 +222,8 @@ export function CustomCharDialog({ open, onClose, editingChar, uiLanguage, onSav
             renderInput={(params) => <TextField {...params} label={t('edition_label')} />}
           />
           <FormControl size="small">
-            <InputLabel>{t('team_label')}</InputLabel>
-            <Select value={draft.team} label={t('team_label')}
+            <InputLabel id="custom-character-type">{t('character_type')}</InputLabel>
+            <Select labelId="custom-character-type" value={draft.team} label={t('character_type')}
               onChange={(e) => setDraft((d) => ({ ...d, team: e.target.value as Team }))}>
               {teamOrder.map((tid) => (
                 <MenuItem key={tid} value={tid}>{teamLabels[uiLanguage][tid] ?? tid}</MenuItem>

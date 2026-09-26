@@ -87,8 +87,9 @@ describe('changelog helpers', () => {
     const parsed = parseChangelog(raw as string)
     expect(parsed.releases.length).toBeGreaterThan(3)
     expect(parsed.releases[0].date).toBe('2026-09-25')
-    expect(parsed.releases[0].title).toContain('Report Problems Where You See Them')
-    expect(parsed.releases[1].date).toBe('2026-09-24')
+    expect(parsed.releases[0].title).toContain('Tidier Library')
+    expect(parsed.releases[1].title).toContain('Report Problems Where You See Them')
+    expect(parsed.releases[2].date).toBe('2026-09-24')
   })
 
   it('uses the first release heading as the latest release id', () => {
@@ -109,8 +110,9 @@ describe('changelog helpers', () => {
 describe('ChangelogPage', () => {
   it('renders the latest release expanded and older releases collapsed', () => {
     renderChangelog()
-    expect(screen.getByRole('button', { name: /2026-09-25.*Report Problems Where You See Them/s })).toHaveAttribute('aria-expanded', 'true')
-    expect(screen.getByText(/Pick what kind of problem/i)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /2026-09-25.*Tidier Library/s })).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.getByText(/formerly \*?Tags & notes/i)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /2026-09-25.*Report Problems Where You See Them/s })).toHaveAttribute('aria-expanded', 'false')
 
     const older = screen.getByRole('button', { name: /^2026-05-28.*Communication Board/s })
     expect(older).toHaveAttribute('aria-expanded', 'false')

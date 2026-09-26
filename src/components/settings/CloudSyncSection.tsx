@@ -49,7 +49,7 @@ export function CloudSyncSection({ cloud, language, action }: {
 
   return (
     <Box>
-      <Typography variant="h5" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+      <Typography variant="h6" component="h2" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1, fontWeight: 700 }}>
         {cloud.connected ? <CloudSyncIcon /> : <CloudOffIcon />}
         {t('google_drive_sync')}
         {action}
@@ -69,8 +69,8 @@ export function CloudSyncSection({ cloud, language, action }: {
         </Alert>
       )}
 
-      {/* Redirect URI display — web only */}
-      {!cloud.connected && !isNative && (
+      {/* Redirect URI display — web only, and only when the user sets up their own OAuth client */}
+      {!cloud.connected && !isNative && !isPreConfigured && (
         <Box sx={{ mb: 2, p: 1.5, bgcolor: 'action.hover', borderRadius: 1.5, maxWidth: 520 }}>
           <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
             {t('gdrive_add_uri_note')}
@@ -83,11 +83,7 @@ export function CloudSyncSection({ cloud, language, action }: {
 
       {/* Credentials — web only; Android uses hardcoded client ID verified by APK SHA-1 */}
       {!cloud.connected && !isNative && (
-        isPreConfigured ? (
-          <Alert severity="success" sx={{ mb: 2, maxWidth: 520 }}>
-            {t('gdrive_preconfigured_note')}
-          </Alert>
-        ) : (
+        isPreConfigured ? null : (
           <Box sx={{ mb: 2, p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 2, maxWidth: 520 }}>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
               {t('configure_your_own_google_oauth2_credentials')}

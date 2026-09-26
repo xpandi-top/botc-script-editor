@@ -24,10 +24,13 @@ against someone with access to that computer's browser storage.
 
 ## Usage
 
-In the storyteller tab, click **Open audience window**. This also enables the
-private storyteller view, including during daytime. The switch can disable it
-without interrupting the audience. **End presentation**, or closing the audience
-window, returns the host to its ordinary visibility settings. Existing night
+In the storyteller tab, click **Audience** (投屏) in the game rail beside the
+arena; on phones and portrait tablets open the ☰ menu first. This also enables the
+private storyteller view, including during daytime. While presenting, a status
+strip above the arena holds the private-view switch, **Show audience window** and
+**End presentation**. The switch can disable the private view without interrupting
+the audience. **End presentation**, or closing the audience window, returns the
+host to its ordinary visibility settings. Existing night
 visibility controls remain available.
 
 The audience route has no editing or game navigation. Only its fullscreen button

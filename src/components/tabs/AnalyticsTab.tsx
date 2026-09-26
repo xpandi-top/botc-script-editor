@@ -2,10 +2,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Alert,
   Box, Button, CircularProgress, DialogTitle,
-  Divider, FormControl, IconButton, InputLabel, Menu, MenuItem, Select, Snackbar,
+  Divider, IconButton, Menu, MenuItem, Snackbar,
   TextField, Tooltip, Typography,
 } from '@mui/material'
 import FileDownloadIcon from '@mui/icons-material/FileDownload'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import FileOpenIcon from '@mui/icons-material/FileOpen'
 import LinkIcon from '@mui/icons-material/Link'
 import RefreshIcon from '@mui/icons-material/Refresh'
@@ -22,7 +23,7 @@ import type { Language } from '../../types'
 import { StudioShell } from '../AnalyticsStudio/StudioShell'
 import { RecordFormDialog } from '../AnalyticsStudio/RecordFormDialog'
 import { useT } from '../../context/I18nContext'
-import { ResponsiveDialog, ResponsiveDialogActions, ResponsiveDialogContent } from '../ui'
+import { LanguageToggle, ResponsiveDialog, ResponsiveDialogActions, ResponsiveDialogContent } from '../ui'
 
 // ── Storage helpers ───────────────────────────────────────────────
 
@@ -361,33 +362,38 @@ export function AnalyticsTab({ language, onLanguageChange, sharedRecords: shared
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       />
 
-      {/* ── Toolbar ── */}
-      <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap', alignItems: 'center' }}>
-        <Typography variant="h6" sx={{ flex: 1, fontWeight: 700 }}>
-          {t('analytics_title')}
-        </Typography>
-        <Tooltip title={t('refresh')}>
-          <IconButton size="small" onClick={refresh}><RefreshIcon fontSize="small" /></IconButton>
-        </Tooltip>
-        {onLanguageChange && (
-          <FormControl size="small" sx={{ minWidth: 72, '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' }, '& .MuiInputLabel-root': { fontSize: '0.8rem' } }}>
-            <InputLabel>{t('lang')}</InputLabel>
-            <Select value={language} label={t('lang')} onChange={(e) => onLanguageChange(e.target.value as Language)}>
-              <MenuItem value="en">EN</MenuItem>
-              <MenuItem value="zh">中文</MenuItem>
-            </Select>
-          </FormControl>
-        )}
+      {/* ── Header: title on the left, data actions on the right ── */}
+      {/* Phones: title + refresh/language, then the data actions. Wider: one row. */}
+      <Box sx={{
+        display: 'grid', alignItems: 'center', columnGap: 2, rowGap: 1.5, mb: 2,
+        gridTemplateColumns: { xs: 'minmax(0, 1fr) auto', md: 'minmax(0, 1fr) auto auto' },
+        gridTemplateAreas: { xs: '"title util" "actions actions"', md: '"title actions util"' },
+      }}>
+        <Box sx={{ gridArea: 'title', minWidth: 0 }}>
+          <Typography variant="h5" component="h1" sx={{ fontWeight: 700 }}>{t('analytics_title')}</Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>{t('analytics_toolbar_hint')}</Typography>
+        </Box>
+        <Box sx={{ gridArea: 'util', display: 'flex', gap: 0.5, alignItems: 'center', alignSelf: { xs: 'start', md: 'center' } }}>
+          <Tooltip title={t('refresh')}>
+            <IconButton aria-label={t('refresh')} onClick={refresh}><RefreshIcon fontSize="small" /></IconButton>
+          </Tooltip>
+          {onLanguageChange && <LanguageToggle language={language} onLanguageChange={onLanguageChange} />}
+        </Box>
+      <Box sx={{ gridArea: 'actions', display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
+        {/* Import */}
+        <Button size="small" variant="outlined" component="label" startIcon={<FileOpenIcon />}>
+          {t('import_json')}
+          <input type="file" accept=".json" hidden onChange={handleImport} />
+        </Button>
         {/* Export dropdown */}
-        <Tooltip title={t('export')}>
-          <span>
-            <IconButton aria-label={t('export')} size="small" disabled={total === 0}
-              onClick={(e) => setExportMenuAnchor(e.currentTarget)}>
-              <FileDownloadIcon fontSize="small" />
-            </IconButton>
-          </span>
-        </Tooltip>
-        <Menu anchorEl={exportMenuAnchor} open={Boolean(exportMenuAnchor)} onClose={() => setExportMenuAnchor(null)}>
+        <Button size="small" variant="outlined" disabled={total === 0}
+          id="analytics-export-button" aria-haspopup="menu" aria-expanded={Boolean(exportMenuAnchor)}
+          aria-controls={exportMenuAnchor ? 'analytics-export-menu' : undefined}
+          startIcon={<FileDownloadIcon />} endIcon={<ExpandMoreIcon />}
+          onClick={(e) => setExportMenuAnchor(e.currentTarget)}>
+          {t('export')}
+        </Button>
+        <Menu id="analytics-export-menu" anchorEl={exportMenuAnchor} open={Boolean(exportMenuAnchor)} onClose={() => setExportMenuAnchor(null)} slotProps={{ list: { 'aria-labelledby': 'analytics-export-button' } }}>
           <MenuItem onClick={() => { exportRecords(); setExportMenuAnchor(null) }}>
             {t('export_records_json')}
           </MenuItem>
@@ -400,16 +406,15 @@ export function AnalyticsTab({ language, onLanguageChange, sharedRecords: shared
         </Menu>
 
         {/* Share dropdown */}
-        <Tooltip title={t('share')}>
-          <span>
-            <IconButton aria-label={t('share')} size="small"
-              disabled={total === 0 || sharing}
-              onClick={(e) => setShareMenuAnchor(e.currentTarget)}>
-              {sharing ? <CircularProgress size={16} color="inherit" /> : <ShareIcon fontSize="small" />}
-            </IconButton>
-          </span>
-        </Tooltip>
-        <Menu anchorEl={shareMenuAnchor} open={Boolean(shareMenuAnchor)} onClose={() => setShareMenuAnchor(null)}>
+        <Button size="small" variant="outlined" disabled={total === 0 || sharing}
+          id="analytics-share-button" aria-haspopup="menu" aria-expanded={Boolean(shareMenuAnchor)}
+          aria-controls={shareMenuAnchor ? 'analytics-share-menu' : undefined}
+          startIcon={sharing ? <CircularProgress size={16} color="inherit" /> : <ShareIcon />}
+          endIcon={<ExpandMoreIcon />}
+          onClick={(e) => setShareMenuAnchor(e.currentTarget)}>
+          {t('share')}
+        </Button>
+        <Menu id="analytics-share-menu" anchorEl={shareMenuAnchor} open={Boolean(shareMenuAnchor)} onClose={() => setShareMenuAnchor(null)} slotProps={{ list: { 'aria-labelledby': 'analytics-share-button' } }}>
           <MenuItem onClick={() => { void copyShareLink(); setShareMenuAnchor(null) }}>
             <LinkIcon fontSize="small" sx={{ mr: 1 }} />
             {t('copy_share_link_interactive')}
@@ -423,18 +428,12 @@ export function AnalyticsTab({ language, onLanguageChange, sharedRecords: shared
           </MenuItem>
         </Menu>
 
-        {/* Import */}
-        <Tooltip title={t('import_json')}>
-          <IconButton size="small" component="label">
-            <FileOpenIcon fontSize="small" />
-            <input type="file" accept=".json" hidden onChange={handleImport} />
-          </IconButton>
-        </Tooltip>
+      </Box>
       </Box>
       {importError && (
-        <Typography variant="caption" color="error" sx={{ display: 'block', mb: 1 }}>
+        <Alert severity="error" onClose={() => setImportError('')} sx={{ mb: 2 }}>
           {t('import_error')}{importError}
-        </Typography>
+        </Alert>
       )}
 
       {/* ── Share decode error ── */}
@@ -500,6 +499,7 @@ export function AnalyticsTab({ language, onLanguageChange, sharedRecords: shared
           {!shareUrlLoading && !shareUrlError && precomputedShareUrl && (
             <TextField
               fullWidth
+              label={t('share_link')}
               value={precomputedShareUrl}
               slotProps={{ input: { readOnly: true } }}
               onFocus={(e) => e.target.select()}

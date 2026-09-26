@@ -1,10 +1,8 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Alert, Box, Button, CircularProgress, FormControl, InputLabel, IconButton, MenuItem, Paper, Select, Tooltip, Typography, useMediaQuery, useTheme } from '@mui/material'
-import PrintIcon from '@mui/icons-material/Print'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import MenuIcon from '@mui/icons-material/Menu'
-import MenuOpenIcon from '@mui/icons-material/MenuOpen'
+import { Alert, Box, Button, MenuItem, Typography, useMediaQuery, useTheme } from '@mui/material'
+import StyleOutlinedIcon from '@mui/icons-material/StyleOutlined'
+import { PrintTopBar } from './PrintTopBar'
 import { exportTokenPdf, isNativePlatform } from '../../lib/nativePrint'
 import { TokenOptionsPanel } from './TokenOptionsPanel'
 import { TokenPageGrid, TokenPrintPortal } from './TokenPageGrid'
@@ -15,9 +13,6 @@ import { useT } from '../../context/I18nContext'
 import { FeedbackButton } from '../Feedback'
 import { plainOptions } from '../../lib/feedback/snapshot'
 import type { ReportRequest } from '../../lib/feedback/report'
-
-// On phones these buttons show only their icon: drop the text button's width and icon gap.
-const iconOnlyOnPhone = { minWidth: { xs: 0, sm: 64 }, px: { xs: 1, sm: 1.25 }, '& .MuiButton-startIcon': { mr: { xs: 0, sm: 1 }, ml: { xs: 0, sm: '-2px' } } }
 
 interface Props {
   opts: TokenPrintOptions
@@ -84,65 +79,37 @@ export function PrintStudioPage({ opts, onOptionsChange, onClose, onOpenPrintPre
 
   return (
     <Box sx={{ position: 'fixed', inset: 0, zIndex: 1300, display: 'flex', flexDirection: 'column', bgcolor: 'background.default' }}>
-      {/* Top bar */}
-      <Paper elevation={2} sx={{ px: { xs: 1, sm: 2 }, py: 1, display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1 }, borderRadius: 0, zIndex: 1, flexShrink: 0 }}>
-        <IconButton size="small" onClick={onClose}><ArrowBackIcon fontSize="small" /></IconButton>
-        <Typography variant="subtitle1" sx={{ fontWeight: 700, flexShrink: 0, display: { xs: 'none', sm: 'block' } }}>
-          {t('print_studio')}
-        </Typography>
-        <FormControl size="small" sx={{ flex: 1, mx: { xs: 0.5, sm: 1 }, maxWidth: { xs: 140, sm: 260 } }}>
-          <Select
-            value={activeSlug}
-            onChange={(e) => {
-              const newSlug = e.target.value as string
-              onScriptChange(newSlug)
-              if (newSlug === '__all__') {
-                onOptionsChange({ ...opts, selectedCharacterIds: allCharacters.map(c => c.id) })
-              }
-            }}
-            displayEmpty
-          >
-            <MenuItem value="__all__">{t('all_characters')}</MenuItem>
-            {scripts.map((s) => (
-              <MenuItem key={s.slug} value={s.slug}>{getScriptTitle(s)}</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <Typography variant="body2" color="text.secondary" sx={{ flexShrink: 0, display: { xs: 'none', sm: 'block' } }}>
-          {selectedCount} {t('tokens')}
-        </Typography>
-        <FormControl size="small" sx={{ minWidth: 72, flexShrink: 0, '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' }, '& .MuiInputLabel-root': { fontSize: '0.8rem' } }}>
-          <InputLabel>{t('lang')}</InputLabel>
-          <Select value={language} label={t('lang')} onChange={(e) => onLanguageChange(e.target.value as Language)}>
-            <MenuItem value="en">EN</MenuItem>
-            <MenuItem value="zh">中文</MenuItem>
-          </Select>
-        </FormControl>
-        {onOpenPrintPreview && (
-          <Tooltip title={t('switch_to_script_print_preview')}>
-            <Button size="small" variant="outlined" startIcon={<PrintIcon />} onClick={onOpenPrintPreview} sx={{ flexShrink: 0, ...iconOnlyOnPhone }}>
-              <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>{t('script_pdf')}</Box>
-            </Button>
-          </Tooltip>
-        )}
-        <FeedbackButton request={reportRequest} />
-        <Tooltip title={panelOpen ? (t('hide_menu')) : (t('show_menu'))}>
-          <IconButton size="small" onClick={() => setPanelOpen(v => !v)}>
-            {panelOpen ? <MenuOpenIcon fontSize="small" /> : <MenuIcon fontSize="small" />}
-          </IconButton>
-        </Tooltip>
-        <Button variant="contained" size="small" startIcon={printing ? <CircularProgress size={14} color="inherit" /> : <PrintIcon />} aria-label={t('print')} onClick={handlePrint} disabled={selectedCount === 0 || printing} sx={iconOnlyOnPhone}>
-          <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
-            {printing ? (t('exporting')) : (t('print'))}
-          </Box>
-        </Button>
-      </Paper>
+      <PrintTopBar
+        mode="tokens"
+        onModeChange={onOpenPrintPreview ? (mode) => { if (mode === 'sheet') onOpenPrintPreview() } : undefined}
+        onClose={onClose}
+        scripts={scripts}
+        activeSlug={activeSlug}
+        onScriptChange={(newSlug) => {
+          onScriptChange(newSlug)
+          if (newSlug === '__all__') {
+            onOptionsChange({ ...opts, selectedCharacterIds: allCharacters.map(c => c.id) })
+          }
+        }}
+        getScriptTitle={getScriptTitle}
+        extraScriptOptions={<MenuItem value="__all__">{t('all_characters')}</MenuItem>}
+        language={language}
+        onLanguageChange={onLanguageChange}
+        feedback={<FeedbackButton request={reportRequest} />}
+        panelOpen={panelOpen}
+        onPanelOpenChange={setPanelOpen}
+        panelId="token-print-settings"
+        onExport={handlePrint}
+        exporting={printing}
+        exportDisabled={selectedCount === 0}
+        count={`${selectedCount} ${t('tokens')}`}
+      />
 
       {exportError && <Alert severity="error" onClose={() => setExportError(null)}>{exportError}</Alert>}
       <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
         {/* Settings panel — full-width on mobile (replaces preview), sidebar on sm+ */}
-        {panelOpen && <Box sx={{
-          width: { xs: '100%', sm: 280, md: 320 },
+        {panelOpen && <Box id="token-print-settings" sx={{
+          width: { xs: '100%', sm: 320, md: 340 },
           flexShrink: 0,
           overflowY: 'auto',
           borderRight: { sm: '1px solid' },
@@ -171,12 +138,13 @@ export function PrintStudioPage({ opts, onOptionsChange, onClose, onOpenPrintPre
           minWidth: 0,
         }}>
           {selectedCount === 0 ? (
-            <Box sx={{ bgcolor: 'white', boxShadow: '0 4px 24px rgba(0,0,0,0.18)', borderRadius: 1, p: `${Math.max(0, opts.marginMm)}mm`, minHeight: 200 }}>
-              <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
-                {opts.mode === 'characters'
-                  ? (t('select_characters_on_the_left'))
-                  : (t('configure_tags_to_see_preview'))}
+            <Box sx={{ m: 'auto', maxWidth: 360, textAlign: 'center', p: 3 }}>
+              <StyleOutlinedIcon sx={{ fontSize: 48, color: 'text.disabled', mb: 1 }} />
+              <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+                {opts.mode === 'characters' ? t('no_characters') : t('configure_tags_to_see_preview')}
               </Typography>
+              {opts.mode === 'characters' && <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>{t('print_empty_tokens_hint')}</Typography>}
+              {isMobile && <Button variant="outlined" sx={{ mt: 2 }} onClick={() => setPanelOpen(true)}>{t('pdf_settings')}</Button>}
             </Box>
           ) : (
             <TokenPageGrid opts={opts} pinnedRevisions={pinnedRevisions} />
