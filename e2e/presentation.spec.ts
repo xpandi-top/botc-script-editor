@@ -107,9 +107,12 @@ test('closing the host clears the audience view', async ({ page }) => {
 })
 
 test('audience keeps nominations for every day when the host advances and the audience refreshes', async ({ page }, testInfo) => {
-  await page.evaluate(() => {
+  // Rewrite the save before the app starts on reload: editing localStorage on the running page
+  // races the host's own save when the storyteller tab finishes mounting.
+  await page.addInitScript(() => {
     const key = 'botc-storyteller-companion-v5'
     const state = JSON.parse(localStorage.getItem(key)!)
+    if (state.days.some((d: { id: string }) => d.id === 'first-day')) return
     const current = state.days[0]
     const first = JSON.parse(JSON.stringify(current))
     first.id = 'first-day'
