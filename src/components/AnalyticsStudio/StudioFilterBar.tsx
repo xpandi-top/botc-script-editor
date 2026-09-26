@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react'
-import { Box, Chip, Collapse, FormControl, InputLabel, MenuItem, OutlinedInput, Select, TextField, ToggleButton, ToggleButtonGroup, Tooltip, IconButton, Typography, Badge } from '@mui/material'
+import React, { useEffect, useId, useState } from 'react'
+import { Box, Button, Checkbox, Chip, Collapse, FormControl, InputLabel, MenuItem, OutlinedInput, Select, TextField, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material'
 import FilterListIcon from '@mui/icons-material/FilterList'
-import CloseIcon from '@mui/icons-material/Close'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import type { FilterState } from './useAnalyticsFilter'
@@ -24,6 +23,8 @@ export function StudioFilterBar({ filter, setFilter, resetFilter, activeCount, s
   const { t } = useT()
   const { isMobile } = useBreakpoint()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const filterId = useId()
+  const winnerLabel = (winner: string) => winner === 'evil' ? t('evil') : winner === 'good' ? t('good') : t('term_storyteller')
 
   // Local state for date fields — debounced 300ms before committing to filter
   // Prevents expensive re-filter on every keystroke when typing dates
@@ -56,9 +57,10 @@ export function StudioFilterBar({ filter, setFilter, resetFilter, activeCount, s
       {/* Script filter */}
       {scriptOptions.length > 0 && (
         <FormControl size="small" sx={{ minWidth: { xs: '100%', sm: 140 }, maxWidth: { xs: '100%', sm: 220 } }}>
-          <InputLabel sx={{ fontSize: '0.8rem' }}>{t('script')}</InputLabel>
+          <InputLabel id={`${filterId}-script`}>{t('script')}</InputLabel>
           <Select
             multiple
+            labelId={`${filterId}-script`}
             value={filter.scriptSlugs}
             onChange={(e) => setFilter((f) => ({ ...f, scriptSlugs: e.target.value as string[] }))}
             input={<OutlinedInput label={t('script')} />}
@@ -69,10 +71,10 @@ export function StudioFilterBar({ filter, setFilter, resetFilter, activeCount, s
                   ? (scriptOptions.find((s) => s.key === selected[0])?.label ?? selected[0])
                   : `${selected.length} ${t('scripts')}`
             }
-            sx={{ fontSize: '0.8rem', '& .MuiSelect-select': { py: '4px' } }}
           >
             {scriptOptions.map((s) => (
               <MenuItem key={s.key} value={s.key} sx={{ fontSize: '0.85rem' }}>
+                <Checkbox checked={filter.scriptSlugs.includes(s.key)} size="small" tabIndex={-1} disableRipple sx={{ p: 0, mr: 1 }} />
                 {s.label}
               </MenuItem>
             ))}
@@ -89,7 +91,7 @@ export function StudioFilterBar({ filter, setFilter, resetFilter, activeCount, s
           value={localDateFrom}
           onChange={(e) => setLocalDateFrom(e.target.value)}
           slotProps={{ inputLabel: { shrink: true } }}
-          sx={{ flex: { xs: 1, sm: 'none' }, width: { xs: 'auto', sm: 140 }, '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' } }}
+          sx={{ flex: { xs: 1, sm: 'none' }, minWidth: 0, width: { xs: 0, sm: 160 }, '& .MuiInputBase-input': { minWidth: 0 } }}
         />
         <TextField
           type="date"
@@ -98,28 +100,30 @@ export function StudioFilterBar({ filter, setFilter, resetFilter, activeCount, s
           value={localDateTo}
           onChange={(e) => setLocalDateTo(e.target.value)}
           slotProps={{ inputLabel: { shrink: true } }}
-          sx={{ flex: { xs: 1, sm: 'none' }, width: { xs: 'auto', sm: 140 }, '& .MuiInputBase-input': { py: '4px', fontSize: '0.8rem' } }}
+          sx={{ flex: { xs: 1, sm: 'none' }, minWidth: 0, width: { xs: 0, sm: 160 }, '& .MuiInputBase-input': { minWidth: 0 } }}
         />
       </Box>
 
       {/* Winner filter */}
       <ToggleButtonGroup
+        aria-label={t('result')}
         size="small"
         value={filter.winners}
         onChange={(_, v) => setFilter((f) => ({ ...f, winners: v }))}
-        sx={{ '& .MuiToggleButton-root': { py: '3px', px: '8px', fontSize: '0.72rem' } }}
+        sx={{ '& .MuiToggleButton-root': { px: 1.5 } }}
       >
         <ToggleButton value="evil" sx={{ color: 'error.main' }}>{t('evil')}</ToggleButton>
         <ToggleButton value="good" sx={{ color: 'success.main' }}>{t('good')}</ToggleButton>
-        <ToggleButton value="storyteller" sx={{ color: 'info.main' }}>ST</ToggleButton>
+        <ToggleButton value="storyteller" sx={{ color: 'info.main' }}>{t('term_storyteller')}</ToggleButton>
       </ToggleButtonGroup>
 
       {/* Player filter */}
       {playerOptions.length > 0 && (
         <FormControl size="small" sx={{ minWidth: { xs: '100%', sm: 120 }, maxWidth: { xs: '100%', sm: 200 } }}>
-          <InputLabel sx={{ fontSize: '0.8rem' }}>{t('player_section')}</InputLabel>
+          <InputLabel id={`${filterId}-player`}>{t('player_section')}</InputLabel>
           <Select
             multiple
+            labelId={`${filterId}-player`}
             value={filter.playerNames}
             onChange={(e) => setFilter((f) => ({ ...f, playerNames: e.target.value as string[] }))}
             input={<OutlinedInput label={t('player_section')} />}
@@ -130,10 +134,10 @@ export function StudioFilterBar({ filter, setFilter, resetFilter, activeCount, s
                   ? selected[0]
                   : `${selected.length} ${t('players')}`
             }
-            sx={{ fontSize: '0.8rem', '& .MuiSelect-select': { py: '4px' } }}
           >
             {playerOptions.map((name) => (
               <MenuItem key={name} value={name} sx={{ fontSize: '0.85rem' }}>
+                <Checkbox checked={filter.playerNames.includes(name)} size="small" tabIndex={-1} disableRipple sx={{ p: 0, mr: 1 }} />
                 {name}
               </MenuItem>
             ))}
@@ -147,26 +151,26 @@ export function StudioFilterBar({ filter, setFilter, resetFilter, activeCount, s
   const activeChips = (
     <>
       {filter.scriptSlugs.length > 0 && (
-        <Chip size="small" label={`${filter.scriptSlugs.length} ${t('scripts')}`}
+        <Chip size="small" label={filter.scriptSlugs.length === 1 ? scriptOptions.find((script) => script.key === filter.scriptSlugs[0])?.label ?? filter.scriptSlugs[0] : `${filter.scriptSlugs.length} ${t('scripts')}`}
           onDelete={() => setFilter((f) => ({ ...f, scriptSlugs: [] }))}
-          sx={{ fontSize: '0.7rem', height: 22 }} />
+          sx={{ maxWidth: '100%', fontSize: '0.75rem' }} />
       )}
       {(filter.dateFrom || filter.dateTo) && (
         <Chip size="small"
           label={`${filter.dateFrom || '…'} → ${filter.dateTo || '…'}`}
           onDelete={() => setFilter((f) => ({ ...f, dateFrom: '', dateTo: '' }))}
-          sx={{ fontSize: '0.7rem', height: 22 }} />
+          sx={{ maxWidth: '100%', fontSize: '0.75rem' }} />
       )}
       {filter.winners.length > 0 && (
-        <Chip size="small" label={filter.winners.join(' / ')}
+        <Chip size="small" label={filter.winners.map(winnerLabel).join(' / ')}
           onDelete={() => setFilter((f) => ({ ...f, winners: [] }))}
-          sx={{ fontSize: '0.7rem', height: 22 }} />
+          sx={{ maxWidth: '100%', fontSize: '0.75rem' }} />
       )}
       {filter.playerNames.length > 0 && (
         <Chip size="small"
           label={filter.playerNames.length === 1 ? filter.playerNames[0] : `${filter.playerNames.length} ${t('players')}`}
           onDelete={() => setFilter((f) => ({ ...f, playerNames: [] }))}
-          sx={{ fontSize: '0.7rem', height: 22 }} />
+          sx={{ maxWidth: '100%', fontSize: '0.75rem' }} />
       )}
     </>
   )
@@ -175,7 +179,7 @@ export function StudioFilterBar({ filter, setFilter, resetFilter, activeCount, s
   if (isMobile) {
     return (
       <Box sx={{
-        bgcolor: 'rgba(23,32,42,0.04)',
+        bgcolor: 'action.hover',
         border: '1px solid',
         borderColor: activeCount > 0 ? 'primary.main' : 'divider',
         borderRadius: 2,
@@ -183,50 +187,28 @@ export function StudioFilterBar({ filter, setFilter, resetFilter, activeCount, s
         overflow: 'hidden',
       }}>
         {/* Toggle row */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, px: 1.5, py: 0.75 }}>
-          <Badge badgeContent={activeCount} color="primary" invisible={activeCount === 0}
-            sx={{ '& .MuiBadge-badge': { fontSize: '0.6rem', minWidth: 16, height: 16, padding: '0 4px' } }}>
-            <IconButton size="small" onClick={() => setMobileOpen((v) => !v)}
-              sx={{ color: activeCount > 0 ? 'primary.main' : 'text.secondary', p: 0.5 }}>
-              <FilterListIcon sx={{ fontSize: '1rem' }} />
-            </IconButton>
-          </Badge>
-          <Typography
-            variant="caption"
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, px: 1, py: 0.5 }}>
+          <Button
+            startIcon={<FilterListIcon />}
+            endIcon={mobileOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+            aria-expanded={mobileOpen}
+            aria-controls={`${filterId}-controls`}
+            data-testid="filter-expand-btn"
             onClick={() => setMobileOpen((v) => !v)}
-            sx={{ fontWeight: 600, fontSize: '0.75rem', cursor: 'pointer',
-              color: activeCount > 0 ? 'primary.main' : 'text.secondary' }}>
+            sx={{ minHeight: 44, justifyContent: 'flex-start', mr: 'auto' }}>
             {t('filter')}
             {activeCount > 0 ? ` (${activeCount})` : ''}
-          </Typography>
-
-          {/* Active chips summary — visible when panel is closed */}
-          {!mobileOpen && (
-            <Box sx={{ display: 'flex', gap: 0.5, flex: 1, flexWrap: 'nowrap', overflow: 'hidden', minWidth: 0 }}>
-              {activeChips}
-            </Box>
-          )}
-
-          <Box sx={{ flex: 1 }} />
-
+          </Button>
           {activeCount > 0 && (
-            <Tooltip title={t('reset_filters')}>
-              <IconButton size="small" onClick={resetFilter} sx={{ p: 0.5 }}>
-                <CloseIcon sx={{ fontSize: '0.85rem' }} />
-              </IconButton>
-            </Tooltip>
+            <Button size="small" onClick={resetFilter} sx={{ minHeight: 44 }}>{t('reset_filters')}</Button>
           )}
-
-          <IconButton size="small" onClick={() => setMobileOpen((v) => !v)} sx={{ p: 0.5, color: 'text.secondary' }}
-            data-testid="filter-expand-btn">
-            {mobileOpen
-              ? <ExpandLessIcon sx={{ fontSize: '1rem' }} />
-              : <ExpandMoreIcon sx={{ fontSize: '1rem' }} />}
-          </IconButton>
         </Box>
+        {!mobileOpen && activeCount > 0 && (
+          <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap', px: 1.5, pb: 1.5 }}>{activeChips}</Box>
+        )}
 
         {/* Collapsible filter controls */}
-        <Collapse in={mobileOpen} data-testid="filter-collapse">
+        <Collapse in={mobileOpen} id={`${filterId}-controls`} data-testid="filter-collapse">
           <Box sx={{
             display: 'flex', flexDirection: 'column', gap: 1.5,
             px: 1.5, pb: 1.5,
@@ -234,6 +216,9 @@ export function StudioFilterBar({ filter, setFilter, resetFilter, activeCount, s
             pt: 1.25,
           }}>
             {filterControls}
+            <Typography variant="caption" color="text.secondary">
+              {t('analytics_filter_multi_hint')}
+            </Typography>
 
             {/* Active chips inside panel */}
             {activeCount > 0 && (
@@ -252,7 +237,7 @@ export function StudioFilterBar({ filter, setFilter, resetFilter, activeCount, s
     <Box sx={{
       display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap',
       px: 1.5, py: 1,
-      bgcolor: 'rgba(23,32,42,0.04)',
+      bgcolor: 'action.hover',
       border: '1px solid',
       borderColor: activeCount > 0 ? 'primary.main' : 'divider',
       borderRadius: 2,
@@ -267,11 +252,7 @@ export function StudioFilterBar({ filter, setFilter, resetFilter, activeCount, s
       {activeChips}
 
       {activeCount > 0 && (
-        <Tooltip title={t('reset_filters')}>
-          <IconButton size="small" onClick={resetFilter}>
-            <CloseIcon sx={{ fontSize: '0.9rem' }} />
-          </IconButton>
-        </Tooltip>
+        <Button size="small" onClick={resetFilter}>{t('reset_filters')}</Button>
       )}
 
       {activeCount > 0 && (

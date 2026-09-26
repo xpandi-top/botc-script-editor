@@ -1,7 +1,8 @@
 import type { IdentityBasis } from '../../utils/playerIdentity'
 import { makeT } from '../../lib/t'
 import { useState } from 'react'
-import { Box, Tab, Tabs, Typography, ToggleButton, ToggleButtonGroup } from '@mui/material'
+import { Alert, Box, Button, IconButton, Tab, Tabs, Tooltip, Typography, ToggleButton, ToggleButtonGroup } from '@mui/material'
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import BarChartIcon from '@mui/icons-material/BarChart'
 import AutoStoriesIcon from '@mui/icons-material/AutoStories'
 import GroupIcon from '@mui/icons-material/Group'
@@ -58,8 +59,8 @@ export function StudioShell({ records, onRecordsChange, language, onCreateRecord
 
   return (
     <Box sx={{ minWidth: 0, overflowX: 'hidden' }}>
-      {/* Filter bar */}
-      <StudioFilterBar
+      {/* Filter bar — nothing to filter until there are records */}
+      {records.length > 0 && <StudioFilterBar
         filter={filter}
         setFilter={setFilter}
         resetFilter={resetFilter}
@@ -67,11 +68,11 @@ export function StudioShell({ records, onRecordsChange, language, onCreateRecord
         scriptOptions={allScriptOptions}
         playerOptions={allPlayerOptions}
         language={language}
-      />
+      />}
 
       {/* Filtered count badge */}
       {activeCount > 0 && (
-        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1, textAlign: 'right' }}>
+        <Typography variant="caption" role="status" color="text.secondary" sx={{ display: 'block', mb: 1, textAlign: 'right' }}>
           {tpl('showing_n_games_of_m', filtered.length, records.length)}
         </Typography>
       )}
@@ -103,6 +104,8 @@ export function StudioShell({ records, onRecordsChange, language, onCreateRecord
           {tabDefs.map((t) => (
             <Tab
               key={t.key}
+              id={`analytics-tab-${t.key}`}
+              aria-controls={`analytics-panel-${t.key}`}
               value={t.key}
               label={
                 language === 'zh' ? t.labelZh : t.label
@@ -118,18 +121,28 @@ export function StudioShell({ records, onRecordsChange, language, onCreateRecord
         })} />
       </Box>
 
-      {(activeTab === 'players' || activeTab === 'characters' || activeTab === 'overview') && (
-        <Box sx={{ mb: 2 }}>
+      {records.length > 0 && (activeTab === 'players' || activeTab === 'characters' || activeTab === 'overview') && (
+        <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 0.5 }}>
           <ToggleButtonGroup size="small" exclusive value={basis} aria-label={t('identity_basis')} onChange={(_, value) => value && setBasis(value)}>
             <ToggleButton value="initial">{t('identity_initial')}</ToggleButton>
             <ToggleButton value="final">{t('identity_final')}</ToggleButton>
           </ToggleButtonGroup>
-          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>{t('identity_stats_hint')}</Typography>
+          {/* The counting rules are long: keep them one tap away instead of under every tab. */}
+          <Tooltip title={t('identity_stats_hint')} enterTouchDelay={0} leaveTouchDelay={6000}>
+            <IconButton size="small" aria-label={`${t('identity_basis')}: ${t('identity_stats_hint')}`}><InfoOutlinedIcon fontSize="small" /></IconButton>
+          </Tooltip>
         </Box>
       )}
       {/* Section content */}
-      {activeTab === 'overview' && (
-        <OverviewSection kpi={kpi} scriptStats={scriptStats} playerStats={playerStats} charStats={charStats} storytellerStats={storytellerStats} language={language} records={filtered} />
+      <Box role="tabpanel" id={`analytics-panel-${activeTab}`} aria-labelledby={`analytics-tab-${activeTab}`}>
+      {activeCount > 0 && filtered.length === 0 && (
+        <Alert severity="info" sx={{ mb: 2, '& .MuiAlert-message': { minWidth: 0 } }}
+          action={<Button color="inherit" size="small" onClick={resetFilter}>{t('reset_filters')}</Button>}>
+          {t('analytics_no_filter_results')}
+        </Alert>
+      )}
+      {activeTab === 'overview' && !(activeCount > 0 && filtered.length === 0) && (
+        <OverviewSection kpi={kpi} scriptStats={scriptStats} playerStats={playerStats} charStats={charStats} storytellerStats={storytellerStats} language={language} records={filtered} onCreateRecord={records.length === 0 ? onCreateRecord : undefined} />
       )}
       {activeTab === 'scripts' && (
         <ScriptsSection scriptStats={scriptStats} language={language} records={filtered} />
@@ -143,6 +156,7 @@ export function StudioShell({ records, onRecordsChange, language, onCreateRecord
       {activeTab === 'records' && (
         <RecordsSection records={records} filteredRecords={filtered} onRecordsChange={onRecordsChange} language={language} onCreateRecord={onCreateRecord} onEditRecord={onEditRecord} />
       )}
+      </Box>
     </Box>
   )
 }
