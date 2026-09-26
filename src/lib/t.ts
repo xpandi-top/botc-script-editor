@@ -13,6 +13,10 @@ import { locales } from '../catalog'
 import type { Language } from '../types'
 
 export type UiKey =
+  | 'library_folder_short'
+  | 'library_tags' | 'library_organize_hint'
+  | 'settings_overview_desc' | 'settings_appearance' | 'settings_fonts_preview' | 'settings_fonts_desc' | 'settings_merge_hint' | 'settings_replace_hint' | 'analytics_filter_multi_hint' | 'analytics_no_filter_results' | 'analytics_toolbar_hint'
+  | 'library_tag_exists' | 'library_delete_script_hint' | 'library_folder_empty_hint' | 'library_current_folder' | 'print_language_current' | 'print_language_mixed' | 'print_language_separate' | 'print_select_matches' | 'print_clear_selection' | 'character_type' | 'character_export_scope' | 'character_select_all' | 'character_deselect_all' | 'character_clear_pack'
   | 'identity_initial' | 'identity_final' | 'identity_basis' | 'identity_stats_hint' | 'identity_history' | 'identity_roles' | 'identity_teams' | 'identity_unknown' | 'identity_missing' | 'identity_tracked' | 'identity_samples' | 'identity_edit_hint'
   | 'presentation_open' | 'presentation_focus' | 'presentation_stop' | 'presentation_private' | 'presentation_hint' | 'presentation_error' | 'presentation_audience' | 'presentation_fullscreen' | 'presentation_fullscreen_error' | 'presentation_running' | 'presentation_paused' | 'presentation_waiting' | 'presentation_disconnected'
   | 'main_navigation'

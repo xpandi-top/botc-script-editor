@@ -10,6 +10,7 @@ import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutli
 import FolderOpenIcon from '@mui/icons-material/FolderOpen'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import type { EditableScript, Language, ScriptFolder } from '../../types'
+import { hoverRevealSx, HOVER_REVEAL_CLASS } from './hoverReveal'
 import { useT } from '../../context/I18nContext'
 
 type Props = {
@@ -25,13 +26,11 @@ export function FolderCard({ folder, scripts, language, onOpen, onRename, onDele
   const zh = language === 'zh'
   const { t } = useT()
   const preview = scripts.slice(0, 5)
-  const [hovered, setHovered] = useState(false)
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null)
   const [renaming, setRenaming] = useState(false)
   const [renameValue, setRenameValue] = useState(folder.name)
   const inputRef = useRef<HTMLInputElement>(null)
   const menuOpen = Boolean(menuAnchor)
-  const showActions = hovered || menuOpen
 
   // Focus input when rename mode activates
   useEffect(() => {
@@ -69,13 +68,9 @@ export function FolderCard({ folder, scripts, language, onOpen, onRename, onDele
   return (
     <>
       <Box
-        role={renaming ? undefined : 'button'}
-        tabIndex={renaming ? undefined : 0}
-        onClick={renaming ? undefined : onOpen}
-        onKeyDown={(e) => { if (!renaming && (e.key === 'Enter' || e.key === ' ')) onOpen() }}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
         sx={{
+          ...hoverRevealSx,
+          minWidth: 0,
           borderRadius: 2.5,
           overflow: 'hidden',
           cursor: renaming ? 'default' : 'pointer',
@@ -94,14 +89,16 @@ export function FolderCard({ folder, scripts, language, onOpen, onRename, onDele
             transform: 'translateY(-3px)',
             boxShadow: '0 8px 22px rgba(0,0,0,0.18)',
           },
-          '&:focus-visible': {
+          '&:focus-within': {
             outline: '2px solid', outlineColor: 'primary.main', outlineOffset: 2,
           },
         }}
       >
+        {!renaming && <Box component="button" type="button" aria-label={`${folder.name} · ${scripts.length}`} onClick={onOpen}
+          sx={{ position: 'absolute', inset: 0, zIndex: 1, border: 0, p: 0, background: 'transparent', cursor: 'pointer' }} />}
         {/* ── Header ── */}
         <Box sx={{
-          px: 1.5, pt: 1.25, pb: 0.85,
+          pl: 1.5, pr: renaming ? 1 : 6, pt: 1.25, pb: 0.85,
           display: 'flex', alignItems: 'center', gap: 0.75,
           borderBottom: '1px solid', borderColor: 'divider',
         }}>
@@ -116,17 +113,17 @@ export function FolderCard({ folder, scripts, language, onOpen, onRename, onDele
                 onClick={(e) => e.stopPropagation()}
                 onKeyDown={(e) => {
                   e.stopPropagation()
-                  if (e.key === 'Enter') commitRename()
+                  if (e.key === 'Enter' && !e.nativeEvent.isComposing) commitRename()
                   if (e.key === 'Escape') cancelRename()
                 }}
-                slotProps={{ input: { sx: { fontSize: '0.875rem', py: '3px' } } }}
-                sx={{ flex: 1 }}
+                slotProps={{ htmlInput: { 'aria-label': t('nav_folder_name') }, input: { sx: { fontSize: '0.875rem', py: '3px' } } }}
+                sx={{ flex: 1, minWidth: 0 }}
               />
-              <IconButton size="small" onClick={(e) => { e.stopPropagation(); commitRename() }}
+              <IconButton size="small" aria-label={t('save')} disabled={!renameValue.trim()} onClick={(e) => { e.stopPropagation(); commitRename() }}
                 sx={{ color: 'success.main', flexShrink: 0 }}>
                 <CheckIcon sx={{ fontSize: 16 }} />
               </IconButton>
-              <IconButton size="small" onClick={cancelRename}
+              <IconButton size="small" aria-label={t('cancel')} onClick={cancelRename}
                 sx={{ color: 'text.disabled', flexShrink: 0 }}>
                 <CloseIcon sx={{ fontSize: 16 }} />
               </IconButton>
@@ -174,15 +171,13 @@ export function FolderCard({ folder, scripts, language, onOpen, onRename, onDele
           )}
         </Box>
 
-        {/* ── Three-dot action button (hover, hidden when renaming) ── */}
+        {/* ── Three-dot action button (hidden when renaming) ── */}
         {!renaming && (
-          <Box sx={{
-            position: 'absolute', top: 7, right: 7,
-            opacity: showActions ? 1 : 0,
-            transition: 'opacity 0.15s ease',
+          <Box className={menuOpen ? undefined : HOVER_REVEAL_CLASS} sx={{
+            position: 'absolute', top: 7, right: 7, zIndex: 2,
           }}>
-            <IconButton size="small" onClick={openMenu}
-              sx={{ bgcolor: 'action.selected', width: 26, height: 26, '&:hover': { bgcolor: 'action.focus' } }}>
+            <IconButton size="small" aria-label={`${t('nav_more')}: ${folder.name}`} aria-haspopup="menu" aria-expanded={menuOpen} onClick={openMenu}
+              sx={{ bgcolor: 'action.selected', width: 36, height: 36, '&:hover': { bgcolor: 'action.focus' } }}>
               <MoreVertIcon sx={{ fontSize: 15 }} />
             </IconButton>
           </Box>

@@ -1,6 +1,6 @@
-import React, { useRef, useState } from 'react'
+import { useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Alert, Box, Button, Chip, CircularProgress, Collapse, DialogTitle, FormControlLabel, IconButton, MenuItem, Paper, Popover, Switch, TextField, Tooltip, Typography } from '@mui/material'
+import { Alert, Box, Button, CircularProgress, Collapse, DialogTitle, FormControlLabel, IconButton, MenuItem, Paper, Popover, Switch, TextField, Tooltip, Typography } from '@mui/material'
 import { ScriptImportDialog } from '../ScriptsTab/ScriptImportDialog'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import PrintIcon from '@mui/icons-material/Print'
@@ -9,7 +9,7 @@ import ShareIcon from '@mui/icons-material/Share'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import CheckIcon from '@mui/icons-material/Check'
 import MenuIcon from '@mui/icons-material/Menu'
-import NoteAltIcon from '@mui/icons-material/NoteAlt'
+import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined'
 import { encodeShareParam, buildShareUrl } from '../../lib/shareUrl'
 import { createShortLink } from '../../lib/firebaseShortUrl'
 import { useBreakpoint } from '../../hooks/useBreakpoint'
@@ -20,7 +20,7 @@ import { NightOrderPreview } from '../ScriptsTab/NightOrderPreview'
 import { ScriptEditor } from './ScriptEditor'
 import { FeedbackButton } from '../Feedback'
 import { scriptRequest } from '../../lib/feedback/snapshot'
-import { SCRIPT_TAG_META, SCRIPT_TAGS } from './ScriptsTab.constants'
+import { ScriptTagsPanel } from '../ScriptsTab/ScriptTagsPanel'
 import type {
   CharacterGroup,
   CustomCharacter,
@@ -212,29 +212,6 @@ export function ScriptsTab({
     }
   }
   const [browseMode, setBrowseMode] = useState<'list' | 'masonry'>('list')
-  const [noteOpen, setNoteOpen] = useState(false)
-  const noteRef = useRef<HTMLTextAreaElement | null>(null)
-  const [customTagInput, setCustomTagInput] = useState('')
-
-  const tagLabel = (key: string): string => {
-    const meta = SCRIPT_TAG_META[key]
-    return meta ? (uiLanguage === 'zh' ? meta.zh : meta.en) : key
-  }
-  const tagIcon = (key: string): React.ElementType | null =>
-    SCRIPT_TAG_META[key]?.Icon ?? null
-
-  const addTag = (tag: string) => {
-    if (!activeScript) return
-    updateActiveScript((s) => ({
-      ...s,
-      tags: s.tags?.includes(tag) ? s.tags : [...(s.tags ?? []), tag],
-    }))
-  }
-  const removeTag = (tag: string) => {
-    if (!activeScript) return
-    updateActiveScript((s) => ({ ...s, tags: (s.tags ?? []).filter((t) => t !== tag) }))
-  }
-
   // In masonry mode the grid is always single-column (full-width);
   // detail panel replaces the grid when masonryDetailOpen.
   const gridCols = isMobile
@@ -346,7 +323,7 @@ export function ScriptsTab({
               {browseMode === 'masonry' ? (
                 /* Back to card gallery */
                 <Tooltip title={t('back_to_card_view')}>
-                  <IconButton size="small" onClick={() => setMasonryDetailOpen(false)}>
+                  <IconButton size="small" aria-label={t('back_to_card_view')} onClick={() => setMasonryDetailOpen(false)}>
                     <ArrowBackIcon fontSize="small" />
                   </IconButton>
                 </Tooltip>
@@ -360,87 +337,22 @@ export function ScriptsTab({
               )}
               {isBuiltIn(activeScript.slug) && <Button size="small" variant="outlined" onClick={() => { duplicateScript(activeScript.slug); setIsEditMode(true) }}>{t('library_copy_edit')}</Button>}
               <Button size="small" variant="contained" onClick={() => setExportOpen(true)}>{t('library_export')}</Button>
-              <Button size="small" onClick={() => setTagsOpen(v => !v)} aria-expanded={tagsOpen}>{t('library_tags_notes')}{activeScript.tags?.length ? ` (${activeScript.tags.length})` : ''}{activeScript.notes?.trim() ? ' •' : ''}</Button>
+              <Tooltip describeChild title={t('library_organize_hint')}>
+                <Button size="small" startIcon={<LocalOfferOutlinedIcon />} onClick={() => setTagsOpen(v => !v)} aria-expanded={tagsOpen}
+                  variant={tagsOpen ? 'outlined' : 'text'}>
+                  {t('library_tags_notes')}{activeScript.tags?.length ? ` · ${activeScript.tags.length}` : ''}{activeScript.notes?.trim() ? ' •' : ''}
+                </Button>
+              </Tooltip>
               {saveStatus && <Typography role="status" variant="body2" color="text.secondary">{saveStatus}</Typography>}
               <FeedbackButton sx={{ ml: 'auto' }} request={() => scriptRequest(activeScript, 'scripts/toolbar')} />
 
             </Box>
 
-            {/* ── Tags + Note bar ── */}
             <Collapse in={tagsOpen}>
-            {(() => {
-              const activeTags = activeScript.tags ?? []
-              const note = activeScript.notes ?? ''
-              const hasNote = note.trim().length > 0
-              return (
-                <Box sx={{ mb: 1.5 }}>
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, alignItems: 'center', mb: 0.5 }}>
-                    {activeTags.map((tag) => {
-                      const IconComp = tagIcon(tag)
-                      return (
-                        <Chip key={tag} label={tagLabel(tag)}
-                          icon={IconComp ? <IconComp /> : undefined}
-                          size="small" onDelete={() => removeTag(tag)}
-                          sx={{ fontSize: '0.8rem', fontWeight: 600, '& .MuiChip-icon': { fontSize: '1rem' } }} />
-                      )
-                    })}
-                    {SCRIPT_TAGS.filter((t) => !activeTags.includes(t)).map((tag) => {
-                      const IconComp = tagIcon(tag)
-                      return (
-                        <Chip key={tag} label={tagLabel(tag)}
-                          icon={IconComp ? <IconComp /> : undefined}
-                          size="small" variant="outlined" onClick={() => addTag(tag)}
-                          sx={{ fontSize: '0.75rem', opacity: 0.5, '&:hover': { opacity: 1 }, '& .MuiChip-icon': { fontSize: '0.9rem' } }} />
-                      )
-                    })}
-                    <Box component="input"
-                      placeholder={t('custom_tag')}
-                      value={customTagInput}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCustomTagInput(e.target.value)}
-                      onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                        if (e.key === 'Enter') { const t = customTagInput.trim(); if (t) { addTag(t); setCustomTagInput('') } }
-                        else if (e.key === 'Escape') setCustomTagInput('')
-                      }}
-                      sx={{
-                        border: '1px dashed', borderColor: 'divider', borderRadius: '16px',
-                        px: 1.25, py: '2px', fontSize: '0.65rem',
-                        bgcolor: 'transparent', color: 'text.primary', outline: 'none',
-                        width: 110, opacity: 0.55,
-                        '&:focus': { opacity: 1, borderColor: 'primary.main', borderStyle: 'solid' },
-                        '&::placeholder': { color: 'text.disabled' },
-                      }} />
-                    <Tooltip title={hasNote ? t('view_note') : t('add_note')}>
-                      <Chip
-                        icon={<NoteAltIcon sx={{ fontSize: '0.85rem !important' }} />}
-                        label={hasNote
-                          ? (noteOpen ? (t('collapse')) : note.split('\n')[0].slice(0, 40) + (note.length > 40 ? '…' : ''))
-                          : (t('add_note'))}
-                        size="small"
-                        variant={hasNote ? 'filled' : 'outlined'}
-                        color={hasNote ? 'info' : 'default'}
-                        onClick={() => setNoteOpen((v) => !v)}
-                        sx={{ fontSize: '0.65rem', maxWidth: 220, opacity: hasNote ? 1 : 0.45, '&:hover': { opacity: 1 } }} />
-                    </Tooltip>
-                  </Box>
-                  <Collapse in={noteOpen} onEntered={() => noteRef.current?.focus()}>
-                    <Box sx={{ border: '1px solid', borderColor: 'info.main', borderRadius: 1.5, p: 1, bgcolor: 'background.paper' }}>
-                      <TextField inputRef={noteRef} fullWidth multiline minRows={2} maxRows={8} size="small"
-                        placeholder={t('script_notes_for_your_own_reference')}
-                        value={note}
-                        onChange={(e) => updateActiveScript((s) => ({ ...s, notes: e.target.value }))}
-                        variant="standard"
-                        slotProps={{ input: { disableUnderline: true, sx: { fontSize: '0.82rem' } } }} />
-                      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0.5 }}>
-                        <Button size="small" onClick={() => setNoteOpen(false)} sx={{ textTransform: 'none', fontSize: '0.72rem' }}>
-                          {t('close')}
-                        </Button>
-                      </Box>
-                    </Box>
-                  </Collapse>
-                </Box>
-              )
-            })()}
-
+              <ScriptTagsPanel key={activeScript.slug} script={activeScript} language={uiLanguage} updateScript={updateActiveScript}
+                scripts={scripts} folders={scriptFolders} canMove={!['tb', 'bmr', 'snv'].includes(activeScript.slug)}
+                section={isBuiltIn(activeScript.slug) ? 'community' : 'diy'} moveScriptToFolder={moveScriptToFolder}
+                createFolder={createFolder} renameFolder={renameFolder} deleteFolder={deleteFolder} />
             </Collapse>
 
             {/* ── Night order preview (standalone, collapsible) ── */}

@@ -1,6 +1,6 @@
 import React, { useDeferredValue, useMemo, useState } from 'react'
 import {
-  Box, Button, Chip, DialogTitle,
+  Alert, Box, Button, Chip, DialogTitle,
   Divider, IconButton, InputAdornment,
   TextField, Tooltip, Typography,
 } from '@mui/material'
@@ -12,6 +12,7 @@ import SearchIcon from '@mui/icons-material/Search'
 import ViewListIcon from '@mui/icons-material/ViewList'
 import { allCharacters, getDisplayName } from '../../catalog'
 import { MasonryScriptCard } from './MasonryScriptCard'
+import { ScriptFolderManager } from './ScriptFolderManager'
 import { FolderCard } from './FolderCard'
 import { SCRIPT_TAG_META, SCRIPT_TAGS } from '../tabs/ScriptsTab.constants'
 import type { EditableScript, Language, ScriptFolder } from '../../types'
@@ -23,7 +24,7 @@ const OFFICIAL = new Set(['tb', 'bmr', 'snv'])
 const GRID_SX = {
   display: 'grid',
   // 2 cols on mobile (portrait cards fit well); auto-fill on larger screens
-  gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(auto-fill, minmax(200px, 1fr))' },
+  gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', sm: 'repeat(auto-fill, minmax(200px, 1fr))' },
   gap: { xs: 1, sm: 2 },
 } as const
 
@@ -68,6 +69,9 @@ export function ScriptsMasonryGrid({
   const [folderFilter, setFolderFilter] = useState<string | null>(null)
   const [newFolderOpen, setNewFolderOpen] = useState(false)
   const [newFolderName, setNewFolderName] = useState('')
+  const [manageOpen, setManageOpen] = useState(false)
+  const [pendingDelete, setPendingDelete] = useState<EditableScript | null>(null)
+  const [pendingFolderDelete, setPendingFolderDelete] = useState<ScriptFolder | null>(null)
   const deferredQuery = useDeferredValue(query)
 
   // ── Character name index ──────────────────────────────────────────────────
@@ -165,7 +169,7 @@ export function ScriptsMasonryGrid({
   }
 
   const chipSx = {
-    fontSize: '0.72rem', height: 22, fontWeight: 600,
+    fontSize: '0.78rem', height: 30, fontWeight: 600,
     '& .MuiChip-icon': { fontSize: '0.85rem' },
   }
 
@@ -174,13 +178,13 @@ export function ScriptsMasonryGrid({
 
       {/* ── Top bar ── */}
       <Box sx={{
-        display: 'flex', alignItems: 'center', gap: 1, px: 2, py: 1.5,
+        display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 1, px: 2, py: 1.5,
         borderBottom: '1px solid', borderColor: 'divider', flexShrink: 0,
         bgcolor: 'background.paper',
       }}>
         {activeFolder && (
           <Tooltip title={t('back')}>
-            <IconButton size="small" onClick={() => setFolderFilter(null)}>
+            <IconButton size="small" aria-label={t('back')} onClick={() => setFolderFilter(null)}>
               <ArrowBackIcon fontSize="small" />
             </IconButton>
           </Tooltip>
@@ -191,8 +195,9 @@ export function ScriptsMasonryGrid({
           placeholder={t('search_scripts_author_characters')}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          sx={{ flex: 1, maxWidth: 520, '& .MuiInputBase-root': { borderRadius: 6 } }}
+          sx={{ flex: 1, flexBasis: { xs: 'calc(100% - 50px)', sm: 240 }, minWidth: 0, maxWidth: 520, '& .MuiInputBase-root': { borderRadius: 6 } }}
           slotProps={{
+            htmlInput: { 'aria-label': t('search_scripts_author_characters') },
             input: {
               startAdornment: (
                 <InputAdornment position="start">
@@ -201,7 +206,7 @@ export function ScriptsMasonryGrid({
               ),
               endAdornment: query ? (
                 <InputAdornment position="end">
-                  <IconButton size="small" onClick={() => setQuery('')}>
+                  <IconButton size="small" aria-label={t('clear')} onClick={() => setQuery('')}>
                     <ClearIcon sx={{ fontSize: 16 }} />
                   </IconButton>
                 </InputAdornment>
@@ -211,7 +216,7 @@ export function ScriptsMasonryGrid({
         />
 
         {activeFolder && (
-          <Typography variant="caption" sx={{ color: 'primary.main', fontWeight: 700, whiteSpace: 'nowrap' }}>
+          <Typography variant="caption" sx={{ color: 'primary.main', fontWeight: 700, maxWidth: '100%', overflowWrap: 'anywhere' }}>
             {activeFolder.name}
           </Typography>
         )}
@@ -223,8 +228,9 @@ export function ScriptsMasonryGrid({
 
         <Box sx={{ flex: 1 }} />
 
+        <Button size="small" startIcon={<CreateNewFolderIcon />} onClick={() => setManageOpen(true)}>{t('nav_folders')}</Button>
         <Tooltip title={t('switch_to_list_view')}>
-          <IconButton size="small" onClick={() => onBrowseModeChange('list')}>
+          <IconButton size="small" aria-label={t('switch_to_list_view')} onClick={() => onBrowseModeChange('list')}>
             <ViewListIcon fontSize="small" />
           </IconButton>
         </Tooltip>
@@ -239,6 +245,7 @@ export function ScriptsMasonryGrid({
           bgcolor: 'background.paper',
         }}>
           <Chip size="small" label={t('all')}
+            aria-pressed={tagFilter === null}
             variant={tagFilter === null ? 'filled' : 'outlined'}
             color={tagFilter === null ? 'primary' : 'default'}
             onClick={() => setTagFilter(null)} sx={chipSx} />
@@ -249,6 +256,7 @@ export function ScriptsMasonryGrid({
               <Chip key={tag} size="small"
                 label={meta ? (zh ? meta.zh : meta.en) : tag}
                 icon={IconComp ? <IconComp /> : undefined}
+                aria-pressed={tagFilter === tag}
                 variant={tagFilter === tag ? 'filled' : 'outlined'}
                 color={tagFilter === tag ? 'primary' : 'default'}
                 onClick={() => setTagFilter((c) => c === tag ? null : tag)}
@@ -259,12 +267,13 @@ export function ScriptsMasonryGrid({
       )}
 
       {/* ── Scrollable card grid ── */}
-      <Box sx={{ flex: 1, overflow: 'auto', px: 3, py: 3 }}>
-        {total === 0 && !(!isFilteringNow && scriptFolders.length > 0) ? (
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 140 }}>
+      <Box sx={{ flex: 1, overflow: 'auto', px: { xs: 1.5, sm: 3 }, py: 3 }}>
+        {total === 0 && (isFilteringNow || !!folderFilter) ? (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, alignItems: 'center', justifyContent: 'center', minHeight: 140 }}>
             <Typography color="text.secondary">
-              {t('no_matches')}
+              {activeFolder && !isFilteringNow ? t('empty_folder') : t('no_matches')}
             </Typography>
+            <Button onClick={() => { setQuery(''); setTagFilter(null); setFolderFilter(null) }}>{t('library_clear_filters')}</Button>
           </Box>
         ) : isFilteringNow || folderFilter ? (
           /* Flat grid when searching or inside a folder */
@@ -280,7 +289,7 @@ export function ScriptsMasonryGrid({
                   onSelect={() => handleSelect(s.slug)}
                   isDeletable={!isBuiltIn(s.slug)}
                   scriptFolders={isCommunity ? communityFolders : diyFolders}
-                  onDelete={!isBuiltIn(s.slug) ? () => deleteScript(s.slug) : undefined}
+                  onDelete={!isBuiltIn(s.slug) ? () => setPendingDelete(s) : undefined}
                   onDuplicate={isBuiltIn(s.slug) ? () => duplicateScript(s.slug) : undefined}
                   onMoveToFolder={!OFFICIAL.has(s.slug) ? (fid) => moveScriptToFolder(s.slug, fid) : undefined}
                 />
@@ -318,7 +327,7 @@ export function ScriptsMasonryGrid({
                         <FolderCard key={folder.id} folder={folder} scripts={ss} language={language}
                           onOpen={() => setFolderFilter(folder.id)}
                           onRename={(name) => renameFolder(folder.id, name)}
-                          onDelete={() => deleteFolder(folder.id)}
+                          onDelete={() => setPendingFolderDelete(folder)}
                         />
                       ))}
                     </Box>
@@ -364,7 +373,7 @@ export function ScriptsMasonryGrid({
                           language={language}
                           onOpen={() => setFolderFilter(folder.id)}
                           onRename={(name) => renameFolder(folder.id, name)}
-                          onDelete={() => deleteFolder(folder.id)}
+                          onDelete={() => setPendingFolderDelete(folder)}
                         />
                       ))}
                     </Box>
@@ -389,7 +398,7 @@ export function ScriptsMasonryGrid({
                             onSelect={() => handleSelect(s.slug)}
                             isDeletable={true}
                             scriptFolders={diyFolders}
-                            onDelete={() => deleteScript(s.slug)}
+                            onDelete={() => setPendingDelete(s)}
                             onMoveToFolder={(fid) => moveScriptToFolder(s.slug, fid)}
                           />
                         ))}
@@ -410,6 +419,24 @@ export function ScriptsMasonryGrid({
         )}
       </Box>
 
+      <ScriptFolderManager open={manageOpen} onClose={() => setManageOpen(false)} scripts={scripts} folders={scriptFolders}
+        createFolder={createFolder} renameFolder={renameFolder} deleteFolder={id => { deleteFolder(id); if (folderFilter === id) setFolderFilter(null) }} />
+      <ResponsiveDialog open={Boolean(pendingDelete)} onClose={() => setPendingDelete(null)} maxWidth="xs" mobile="compact">
+        <DialogTitle>{t('delete')} · {pendingDelete && (zh && pendingDelete.titleZh ? pendingDelete.titleZh : pendingDelete.title)}</DialogTitle>
+        <ResponsiveDialogContent><Typography>{t('library_delete_script_hint')}</Typography></ResponsiveDialogContent>
+        <ResponsiveDialogActions><Button onClick={() => setPendingDelete(null)}>{t('cancel')}</Button><Button variant="contained" color="error" onClick={() => {
+          if (pendingDelete) deleteScript(pendingDelete.slug)
+          setPendingDelete(null)
+        }}>{t('delete')}</Button></ResponsiveDialogActions>
+      </ResponsiveDialog>
+      <ResponsiveDialog open={Boolean(pendingFolderDelete)} onClose={() => setPendingFolderDelete(null)} maxWidth="xs" mobile="compact">
+        <DialogTitle>{t('delete_folder')} · {pendingFolderDelete?.name}</DialogTitle>
+        <ResponsiveDialogContent><Alert severity="info">{t('nav_delete_folder_hint')}</Alert></ResponsiveDialogContent>
+        <ResponsiveDialogActions><Button onClick={() => setPendingFolderDelete(null)}>{t('cancel')}</Button><Button variant="contained" color="error" onClick={() => {
+          if (pendingFolderDelete) { deleteFolder(pendingFolderDelete.id); if (folderFilter === pendingFolderDelete.id) setFolderFilter(null) }
+          setPendingFolderDelete(null)
+        }}>{t('delete_folder')}</Button></ResponsiveDialogActions>
+      </ResponsiveDialog>
       {/* ── New folder dialog ── */}
       <ResponsiveDialog
         open={newFolderOpen}
@@ -425,11 +452,11 @@ export function ScriptsMasonryGrid({
             autoFocus
             fullWidth
             size="small"
-            placeholder={t('folder_name')}
+            label={t('nav_folder_name')}
             value={newFolderName}
             onChange={(e) => setNewFolderName(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter') commitNewFolder()
+              if (e.key === 'Enter' && !e.nativeEvent.isComposing && newFolderName.trim()) commitNewFolder()
               if (e.key === 'Escape') setNewFolderOpen(false)
             }}
           />
